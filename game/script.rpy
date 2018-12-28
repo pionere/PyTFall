@@ -234,7 +234,7 @@ label dev_testing_menu_and_load_mc:
                 # We're fucked if this is the case somehow :(
                 raise Exception("Something went horribly wrong with MC setup!")
 
-            male_fighters, female_fighters, json_fighters = load_special_arena_fighters()
+            male_fighters, female_fighters = load_special_arena_fighters()
             af = choice(male_fighters.values())
             del male_fighters[af.id]
 
@@ -665,6 +665,14 @@ label after_load:
                             client.controller = None
 
     python hide:
+        if hasattr(store, "json_fighters"):
+            for id, fighter in store.json_fighters.iteritems():
+                if fighter.gender == "male":
+                    store.male_fighters[id] = fighter
+                else:
+                    store.female_fighters[id] = fighter
+            del store.json_fighters
+
         for obj in pytfall.__dict__.values():
             if isinstance(obj, ItemShop) and not hasattr(obj, "total_items_price"):
                 obj.total_items_price = 0
@@ -690,3 +698,6 @@ label after_load:
 
     stop music
     return
+A
+A
+
