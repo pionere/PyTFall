@@ -1,15 +1,14 @@
 init python:
     def appearing_for_city_map(mode="hide"):
         for key in pytfall.maps("pytfall"):
-            if not key.get("hidden", False):
-                if "appearing" in key and key["appearing"]:
-                    idle_img = "".join([pytfall.map_pattern, key["id"], ".webp"])
+            if not key.get("hidden", False) and key.get("appearing", False):
+                idle_img = "".join([pytfall.map_pattern, key["id"], ".webp"])
+                if mode == "show":
                     appearing_img = Appearing(idle_img, 50, 200, start_alpha=.1)
                     pos = key["pos"]
-                    if mode == "show":
-                        renpy.show(idle_img, what=appearing_img, at_list=[Transform(pos=pos)], layer="screens", zorder=2)
-                    if mode == "hide":
-                        renpy.hide(idle_img, layer="screens")
+                    renpy.show(idle_img, what=appearing_img, at_list=[Transform(pos=pos)], layer="screens", zorder=2)
+                elif mode == "hide":
+                    renpy.hide(idle_img, layer="screens")
 
 label city:
     # Music related:
@@ -57,7 +56,7 @@ screen city_screen():
         if not key.get("hidden", False):
             # Resolve images + Add Appearing where appropriate:
             $ idle_img = "".join([pytfall.map_pattern, key["id"], ".webp"])
-            if "appearing" in key and key["appearing"]:
+            if key.get("appearing", False):
                 $ hover_img = im.MatrixColor(idle_img, im.matrix.brightness(.08))
                 $ idle_img = Transform(idle_img, alpha=.01)
             else:
