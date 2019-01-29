@@ -251,7 +251,7 @@ label storyi_start: # beginning point of the dungeon;
     $ storyi_prison_location = 6
     if not hero.has_flag("been_in_old_ruins"):
         $ hero.set_flag("been_in_old_ruins")
-        $ storyi_treasures = [1, 3, 7, 10, 11, 13]
+        $ storyi_treasures = {1: -1, 3: -1, 7: -1, 10: -1, 11: -1, 13: -1}
         hero.say "I've found the ruins of a tower near the city."
         hero.say "It may be not safe here, but I bet there is something valuable deep inside!"
         "You can enter and exit the ruins at any point, but it will consume your AP."
@@ -324,13 +324,23 @@ label storyi_show_bg: # shows bg depending on matrix location; due to use of BE 
 
 label storyi_search_items:
     "You look around the room in search of something useful."
-    if not hero.has_flag("storyi_items_room_1"):
-        "There is something shiny in the corner of the prison cell..."
+    $ search_day = storyi_treasures[storyi_prison_location]
+    if search_day == day:
+        "... This is pointless."
+        show screen prison_break_controls
+        jump storyi_gui_loop
+    if not dice((day - search_day) * 8 * (100 + hero.luck) / 100):
+        "There is only trash on the floor."
+        $ storyi_treasures[storyi_prison_location] += 1 
+        show screen prison_break_controls
+        jump storyi_gui_loop
+
+    if dice(hero.luck / 3):
+        "There is something shiny in the corner of the room..."
         $ give_to_mc_item_reward("loot", price=100)
         $ give_to_mc_item_reward("loot", price=200)
         if dice(hero.luck):
             $ give_to_mc_item_reward("loot", price=300)
-        $ hero.set_flag("storyi_items_room_1")
 
     if storyi_prison_location == 3:
         "Surveying the room, you found a few portable restoration items. Sadly, others are too heavy and big to carry around."
@@ -362,7 +372,8 @@ label storyi_search_items:
         $ give_to_mc_item_reward("dress", price=500)
         if dice(hero.luck):
             $ give_to_mc_item_reward("dress", price=500)
-    $ storyi_treasures.remove(storyi_prison_location)
+
+    $ storyi_treasures[storyi_prison_location] = day
     show screen prison_break_controls
     jump storyi_gui_loop
 
