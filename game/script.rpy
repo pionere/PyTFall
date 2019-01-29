@@ -698,6 +698,3 @@ label after_load:
 
     stop music
     return
-A
-A
-
