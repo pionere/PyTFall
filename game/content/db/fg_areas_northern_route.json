@@ -12,7 +12,7 @@
         "area": "Northern Route",
         "desc": "Outskirts of the Northern Forest, commonly visited by hunters and woodsmen, rich in both game and wolves preying on it.",
         "unlocked": true,
-        "travel_time": 0.1,
+        "travel_time": 2,
         "mobs": ["Bear", "Black Wolf", "Wolf"],
         "unlocks": {
             "Deep Northern Forest": 99
@@ -47,60 +47,7 @@
         "desc": "A vast cold forest that must be travelled through to reach the mountain peaks.",
         "unlocked": false,
         "travel_time": 0,
-        "mobs": {
-            "Werewolf": [
-                3,
-                [
-                    1,
-                    0.1,
-                    2
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ]
-            ],
-            "Bear": [
-                5,
-                [
-                    1,
-                    0.1,
-                    3
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ]
-            ],
-            "Black Wolf": [
-                15,
-                [
-                    1,
-                    0.2,
-                    3
-                ],
-                [
-                    2,
-                    3,
-                    3
-                ]
-            ],
-            "Wolf": [
-                20,
-                [
-                    1,
-                    0.2,
-                    3
-                ],
-                [
-                    3,
-                    3,
-                    3
-                ]
-            ]
-        },
+        "mobs": ["Werewolf", "Bear", "Black Wolf", "Wolf"],
         "unlocks": {
             "Mountain Pass": 99,
             "Burial Grounds - lv 1": 99,
@@ -143,60 +90,7 @@
         "desc": "Ancient, long overgrown burial site, where a dark magic linger in the ground and endlessly reanimates the skeletal guards that keep their endless watch over the place for a long forgotten reason.",
         "unlocked": false,
         "travel_time": 1,
-        "mobs": {
-            "Phantasm": [
-                3,
-                [
-                    1,
-                    0.1,
-                    2
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ]
-            ],
-            "Skeleton Warrior": [
-                20,
-                [
-                    1,
-                    0.2,
-                    3
-                ],
-                [
-                    2,
-                    2,
-                    2
-                ]
-            ],
-            "Skeleton": [
-                40,
-                [
-                    1,
-                    0.2,
-                    3
-                ],
-                [
-                    2,
-                    3,
-                    3
-                ]
-            ],
-            "Black Wolf": [
-                15,
-                [
-                    1,
-                    0.2,
-                    3
-                ],
-                [
-                    2,
-                    3,
-                    3
-                ]
-            ]
-        },
+        "mobs": ["Phantasm", "Skeleton Warrior", "Skeleton", "Black Wolf"],
         "unlocks": {
             "Burial Grounds - lv 2": 99
         },
@@ -248,60 +142,7 @@
         "desc": "Inner area of the overgown burial site, where barely any sunlight reach through the trees and where the dark presense feel the strongest.",
         "unlocked": false,
         "travel_time": 1,
-        "mobs": {
-            "Dark Mage": [
-                5,
-                [
-                    1,
-                    0.2,
-                    2
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ]
-            ],
-            "Phantasm": [
-                10,
-                [
-                    1,
-                    0.2,
-                    2
-                ],
-                [
-                    1,
-                    2,
-                    2
-                ]
-            ],
-            "Skeleton Warrior": [
-                50,
-                [
-                    1,
-                    0.3,
-                    4
-                ],
-                [
-                    2,
-                    3,
-                    3
-                ]
-            ],
-            "Skeleton": [
-                20,
-                [
-                    1,
-                    0.2,
-                    3
-                ],
-                [
-                    3,
-                    3,
-                    3
-                ]
-            ]
-        },
+        "mobs": ["Dark Mage", "Phantasm", "Skeleton Warrior", "Skeleton"],
         "hazard": {
             "health": 0,
             "mp": 5,
@@ -347,73 +188,7 @@
         "desc": "Mystic, vital place within the forest, watched by the druids. A rumor says, that they guard a magic steam withing the forest, which water makes the spirits of the trees came to life and animals inteligent.",
         "unlocked": false,
         "travel_time": 1,
-        "mobs": {
-            "Druid": [
-                5,
-                [
-                    1,
-                    0.2,
-                    2
-                ],
-                [
-                    1,
-                    1,
-                    2
-                ]
-            ],
-            "Bear": [
-                5,
-                [
-                    1.5,
-                    0.2,
-                    4
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ]
-            ],
-            "Feonix": [
-                15,
-                [
-                    1,
-                    0.2,
-                    2
-                ],
-                [
-                    1,
-                    2,
-                    2
-                ]
-            ],
-            "Dryad": [
-                15,
-                [
-                    1,
-                    0.2,
-                    2
-                ],
-                [
-                    1,
-                    2,
-                    2
-                ]
-            ],
-            "Link Wolf": [
-                40,
-                [
-                    1,
-                    0.2,
-                    2
-                ],
-                [
-                    2,
-                    3,
-                    3
-                ]
-            ]
-        },
+        "mobs": ["Druid", "Bear", "Feonix", "Dryad", "Link Wolf"],
         "unlocks": {},
         "cash_limit": 130,
         "items_limit": 0,
@@ -447,60 +222,7 @@
         "desc": "A cold, unfriendly passage through the lower mountains. Occasional piles of stones and bones shows that this route is not inhabbited and visiters welcomed.",
         "unlocked": false,
         "travel_time": 1,
-        "mobs": {
-            "Werewolf": [
-                5,
-                [
-                    1,
-                    0.2,
-                    2
-                ],
-                [
-                    1,
-                    1,
-                    2
-                ]
-            ],
-            "Polar Bear": [
-                5,
-                [
-                    1,
-                    0.2,
-                    2
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ]
-            ],
-            "Tundra Wolf": [
-                25,
-                [
-                    1,
-                    0.2,
-                    3
-                ],
-                [
-                    3,
-                    3,
-                    3
-                ]
-            ],
-            "Wikkawak": [
-                20,
-                [
-                    1,
-                    0.2,
-                    2
-                ],
-                [
-                    1,
-                    2,
-                    3
-                ]
-            ]
-        },
+        "mobs": ["Werewolf", "Polar Bear", "Tundra Wolf", "Wikkawak"],
         "hazard": {
             "health": 0,
             "mp": 0,
@@ -528,34 +250,7 @@
         "desc": "Only alternative to the underground passage to reach the secrets beyond the mountains is to climb over the peaks. No safe way is known as the air is deadly cold and the mountains unforgiving.",
         "unlocked": false,
         "travel_time": 2,
-        "mobs": {
-            "Yeti": [
-                7,
-                [
-                    1,
-                    0.2,
-                    2
-                ],
-                [
-                    1,
-                    1,
-                    2
-                ]
-            ],
-            "Frost Giant": [
-                7,
-                [
-                    1,
-                    0.2,
-                    2
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ]
-            ]
-        },
+        "mobs": ["Yeti", "Frost Giant"],
         "hazard": {
             "health": 3,
             "mp": 0,
@@ -581,47 +276,7 @@
         "desc": "Entrance to the frozen passage that is rummoned to lead to the other side of the mountains.",
         "unlocked": false,
         "travel_time": 2,
-        "mobs": {
-            "Yeti": [
-                5,
-                [
-                    1,
-                    0.2,
-                    2
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ]
-            ],
-            "Wikkawak": [
-                30,
-                [
-                    1.5,
-                    0.2,
-                    3
-                ],
-                [
-                    2,
-                    3,
-                    3
-                ]
-            ],
-            "Tundra Wolf": [
-                5,
-                [
-                    1.2,
-                    0.2,
-                    3
-                ],
-                [
-                    3,
-                    3,
-                    3
-                ]
-            ]
-        },
+        "mobs": ["Yeti", "Wikkawak", "Tundra Wolf"],
         "hazard": {
             "health": 1,
             "mp": 0,
@@ -658,60 +313,7 @@
         "desc": "An unnaturally cold complex of caverns bellow the mountains.",
         "unlocked": false,
         "travel_time": 2,
-        "mobs": {
-            "Ice Maiden": [
-                2,
-                [
-                    1,
-                    0.2,
-                    3
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ]
-            ],
-            "Frozen Heart": [
-                5,
-                [
-                    1,
-                    0.2,
-                    2
-                ],
-                [
-                    1,
-                    1,
-                    2
-                ]
-            ],
-            "Wikkawak": [
-                15,
-                [
-                    1.5,
-                    0.2,
-                    3.5
-                ],
-                [
-                    2,
-                    2,
-                    3
-                ]
-            ],
-            "Ice Golem": [
-                20,
-                [
-                    1,
-                    0.2,
-                    2
-                ],
-                [
-                    1,
-                    2,
-                    2
-                ]
-            ]
-        },
+        "mobs": ["Ice Maiden", "Frozen Heart", "Wikkawak", "Ice Golem"],
         "hazard": {
             "health": 1,
             "mp": 0,
@@ -751,47 +353,7 @@
         "desc": "An unnaturally cold complex of caverns bellow the mountains.",
         "unlocked": false,
         "travel_time": 2,
-        "mobs": {
-            "Ice Maiden": [
-                5,
-                [
-                    1.5,
-                    0.2,
-                    4
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ]
-            ],
-            "Frozen Heart": [
-                10,
-                [
-                    1,
-                    0.2,
-                    3
-                ],
-                [
-                    1,
-                    2,
-                    3
-                ]
-            ],
-            "Ice Golem": [
-                30,
-                [
-                    1,
-                    0.2,
-                    4
-                ],
-                [
-                    2,
-                    3,
-                    3
-                ]
-            ]
-        },
+        "mobs": ["Ice Maiden", "Frozen Heart", "Ice Golem"],
         "hazard": {
             "health": 2,
             "mp": 0,
