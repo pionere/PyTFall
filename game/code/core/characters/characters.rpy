@@ -626,8 +626,6 @@ init -9 python:
             if add_mood:
                 mood_tag = self.get_mood_tag()
                 tags.append(mood_tag)
-            original_tags = tags[:]
-            imgpath = ""
 
             if label_cache:
                 for entry in self.label_cache:
@@ -639,65 +637,68 @@ init -9 python:
                     if entry[0] == tags:
                          return ProportionalScale(entry[1], maxw, maxh)
 
-            # Select Image (set imgpath)
+            imgpath = ""
             if type in ["normal", "first_default", "reduce"]:
-                if add_mood:
-                    imgpath = self.select_image(self.id, *tags, exclude=exclude)
-                if not imgpath:
+                imgpath = self.select_image(self.id, *tags, exclude=exclude)
+                if not imgpath and add_mood:
                     imgpath = self.select_image(self.id, *pure_tags, exclude=exclude)
 
-                if type in ["normal", "first_default"]:
-                    if not imgpath and len(pure_tags) > 1:
-                        tags = pure_tags[:]
-                        main_tag = tags.pop(0)
-                        while tags and not imgpath:
-                            descriptor_tag = tags.pop()
+                if not imgpath and len(pure_tags) > 1:
+                    if type in ["normal", "first_default"]:
+                        main_tag = None
+                        for tag in pure_tags:
+                            if main_tag is None:
+                                main_tag = tag
+                                continue
 
-                            # We will try mood tag on the last lookup as well, it can do no harm here:
-                            if not imgpath and add_mood:
-                                imgpath = self.select_image(main_tag, descriptor_tag, self.id, mood_tag, exclude=exclude)
+                            # Try with the mood first:
+                            if add_mood:
+                                imgpath = self.select_image(main_tag, tag, self.id, mood_tag, exclude=exclude)
+                            # Without mood
                             if not imgpath:
-                                imgpath = self.select_image(main_tag, descriptor_tag, self.id, exclude=exclude)
-                        tags = original_tags[:]
+                                imgpath = self.select_image(main_tag, tag, self.id, exclude=exclude)
+                            if imgpath:
+                                break
 
                         if type == "first_default" and not imgpath: # In case we need to try first tag as default (instead of profile/default) and failed to find a path.
                             if add_mood:
                                 imgpath = self.select_image(main_tag, self.id, mood_tag, exclude=exclude)
-                            else:
+                            if not imgpath:
                                 imgpath = self.select_image(main_tag, self.id, exclude=exclude)
 
-                elif type == "reduce":
-                    if not imgpath:
-                        tags = pure_tags[:]
-                        while tags and not imgpath:
-                            # if len(tags) == 1: # We will try mood tag on the last lookup as well, it can do no harm here: # Resulted in Exceptions bacause mood_tag is not set properly... removed for now.
-                                # imgpath = self.select_image(self.id, tags[0], mood_tag, exclude=exclude)
+                    elif type == "reduce":
+                        _tags = pure_tags[:]
+                        while not imgpath:
+                            _tags.pop()
+                           
+                            # Do not try with empty tags TODO why not? 
+                            if not _tags:
+                                break
+                            # Try with mood first:
+                            if add_mood:
+                                imgpath = self.select_image(self.id, mood_tag, *_tags, exclude=exclude)
                             if not imgpath:
-                                imgpath = self.select_image(self.id, *tags, exclude=exclude)
-                            tags.pop()
+                                imgpath = self.select_image(self.id, *_tags, exclude=exclude)
 
-                        tags = original_tags[:]
 
             elif type == "any":
-                tags = pure_tags[:]
-                shuffle(tags)
+                _tags = pure_tags[:] 
+                shuffle(_tags)
                 # Try with the mood first:
                 if add_mood:
-                    while tags and not imgpath:
-                        tag = tags.pop()
+                    for tag in _tags:
                         imgpath = self.select_image(self.id, tag, mood_tag, exclude=exclude)
-                    tags = original_tags[:]
+                        if imgpath:
+                            break
                 # Then try 'any' behavior without the mood:
                 if not imgpath:
-                    tags = pure_tags[:]
-                    shuffle(tags)
-                    while tags and not imgpath:
-                        tag = tags.pop()
+                    for tag in _tags:
                         imgpath = self.select_image(self.id, tag, exclude=exclude)
-                    tags = original_tags[:]
+                        if imgpath:
+                            break
 
-            if imgpath == "":
-                msg = "could not find image with tags %s"
+            if not imgpath:
+                char_debug("could not find image with tags %s" % sorted(tags))
                 if not default:
                     # New rule (Default Battle Sprites):
                     if "battle_sprite" in pure_tags:
@@ -708,7 +709,6 @@ init -9 python:
                         if not imgpath:
                             imgpath = self.select_image(self.id, 'profile')
                 else:
-                    char_debug(str(msg % sorted(tags)))
                     return default
 
             # If we got here without being able to find an image ("profile" lookup failed is the only option):
@@ -720,6 +720,7 @@ init -9 python:
             else: # We have an image, time to convert it to full path.
                 imgpath = "/".join([self.path_to_imgfolder, imgpath])
 
+            # FIXME regardless of type ???
             if label_cache:
                 self.label_cache.append([tags, last_label, imgpath])
 
