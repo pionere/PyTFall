@@ -28,47 +28,7 @@
         "area": "Cursed Forest",
         "desc": "Entrance to a Curced Forest area, leads to one of the most popular and profitable treasure hunting grounds locations.",
         "unlocked": true,
-        "mobs": {
-            "Bear": [
-                5,
-                [
-                    1,
-                    0.1,
-                    2
-                ],
-                [
-                    1,
-                    1,
-                    1
-                ]
-            ],
-            "Black Wolf": [
-                10,
-                [
-                    1,
-                    0.1,
-                    2
-                ],
-                [
-                    1,
-                    2,
-                    2
-                ]
-            ],
-            "Wolf": [
-                30,
-                [
-                    1,
-                    0.1,
-                    2
-                ],
-                [
-                    2,
-                    3,
-                    3
-                ]
-            ]
-        },
+        "mobs": ["Bear", "Black Wolf", "Wolf"],
         "unlocks": {
             "Cursed Forest lvl-1": 30
         },
@@ -85,40 +45,7 @@
         "stage": 2,
         "area": "Cursed Forest",
         "unlocked": false,
-        "mobs": {
-            "Orc": [
-                20,
-                [
-                    3,
-                    0.5,
-                    6
-                ]
-            ],
-            "Earth Elemental": [
-                12,
-                [
-                    1.5,
-                    0.5,
-                    6
-                ]
-            ],
-            "Goblin Archer": [
-                70,
-                [
-                    4,
-                    0.5,
-                    10
-                ]
-            ],
-            "Goblin Warrior": [
-                50,
-                [
-                    4,
-                    0.5,
-                    10
-                ]
-            ]
-        },
+        "mobs": ["Orc", "Earth Elemental", "Goblin Archer", "Goblin Warrior"],
         "unlocks": {},
         "cash_limit": 1500,
         "items_limit": 1700,
