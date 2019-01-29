@@ -229,30 +229,6 @@ screen top_stripe(show_return_button=True, return_button_action=None,
 
     default return_action = Return(['control', 'return']) if return_button_action is None else return_button_action
 
-    # Hotkeys:
-    if renpy.get_screen("mainscreen"):
-        if global_flags.flag("visited_arena"):
-            key "a" action Function(renpy.scene, "screens"), Jump("arena_inside")
-            key "A" action Function(renpy.scene, "screens"), Jump("arena_inside")
-            key "ф" action Function(renpy.scene, "screens"), Jump("arena_inside")
-            key "Ф" action Function(renpy.scene, "screens"), Jump("arena_inside")
-        if global_flags.flag('visited_dark_forest'):
-            key "f" action Function(renpy.scene, "screens"), Jump("forest_entrance")
-            key "F" action Function(renpy.scene, "screens"), Jump("forest_entrance")
-            key "А" action Function(renpy.scene, "screens"), Jump("forest_entrance")
-            key "а" action Function(renpy.scene, "screens"), Jump("forest_entrance")
-        if global_flags.flag("visited_sm"):
-            key "m" action Function(renpy.scene, "screens"), Jump("slave_market")
-            key "M" action Function(renpy.scene, "screens"), Jump("slave_market")
-            key "ь" action Function(renpy.scene, "screens"), Jump("slave_market")
-            key "Ь" action Function(renpy.scene, "screens"), Jump("slave_market")
-        if global_flags.flag("visited_mainstreet"):
-            key "p" action Function(renpy.scene, "screens"), Jump("main_street")
-            key "P" action Function(renpy.scene, "screens"), Jump("main_street")
-            key "з" action Function(renpy.scene, "screens"), Jump("main_street")
-            key "З" action Function(renpy.scene, "screens"), Jump("main_street")
-        key "i" action Function(renpy.scene, "screens"), Return(["hero_eq"])
-
     # Top Stripe Frame:
     add "content/gfx/frame/top_stripe.png"
 
@@ -1135,10 +1111,10 @@ screen keymap_override():
     key "skip" action NullAction()
     key "toggle_skip" action NullAction()
     key "fast_skip" action NullAction()
-    key "mouseup_3" action NullAction()
-    key "mousedown_3" action NullAction()
-    key "mouseup_2" action NullAction()
-    key "mousedown_2" action NullAction()
+    #key "mouseup_3" action NullAction()
+    #key "mousedown_3" action NullAction()
+    #key "mouseup_2" action NullAction()
+    #key "mousedown_2" action NullAction()
 
 screen panic_screen():
     modal True
