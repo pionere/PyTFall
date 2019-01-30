@@ -501,6 +501,7 @@ init:
     default bm_selected_log_area = None
     default eq_target = None
     default the_chosen = None
+    default equip_girls = None
     default focus = None
 
 init 999 python:
