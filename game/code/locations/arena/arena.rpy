@@ -1031,24 +1031,11 @@ init -9 python:
             # Color: range (int) pares =======>>>
             data = OrderedDict()
 
-            hp = mp = vp = 0
-            maxhp = maxmp = maxvp = 0
-            for member in hero.team:
-                hp += member.health
-                mp += member.mp
-                vp += member.vitality
-
-                maxhp += member.get_max("health")
-                maxmp += member.get_max("mp")
-                maxvp += member.get_max("vitality")
-
             # New total is 300, each of the stats may get 50!
-            # Here max possible is 40, rest is luck.
-            # The smaller the stats, the larger the bonus area.
             length = 300
-            hpbar = 40-hp*40/maxhp
-            mpbar = 40-mp*40/maxmp
-            vpbar = 40-vp*40/maxvp
+            hpbar = 20
+            mpbar = 20
+            vpbar = 20
 
             # Luck mod:
             if dice(luck):
@@ -1059,9 +1046,9 @@ init -9 python:
                 vpbar += 10
 
             # Stabilize:
-            data["red"] = max(round_int(hpbar), 20)
-            data["blue"] = max(round_int(mpbar), 20)
-            data["green"] = max(round_int(vpbar), 20)
+            data["red"] = hpbar
+            data["blue"] = mpbar
+            data["green"] = vpbar
             white = (length-sum(data.values()))/2 # Bupkis
 
             # Mutating to a new dict of color: value pairs
