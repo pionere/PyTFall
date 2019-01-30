@@ -40,36 +40,7 @@ init -1 python:
 
             self.chars_list = None
             self.blue_girls = dict() # Girls (SE captured) blue is training for you.
-            self.restock_day = locked_random("randint", 2, 3)
-
-        def get_random_slaves(self):
-            """
-            Searches for chars to add to the slavemarket.
-            """
-            uniques = []
-            randoms = []
-            total = randint(9, 12)
-            for c in chars.values():
-                if c in hero.chars:
-                    continue
-                if c.home == self:
-                    if c.__class__ == Char:
-                        uniques.append(c)
-                    if c.__class__ == rChar:
-                        randoms.append(c)
-
-            # Prioritize unique chars:
-            slaves = random.sample(uniques, min(len(uniques), 7))
-            slaves.extend(random.sample(randoms, min(len(randoms), total-len(slaves))))
-            shuffle(slaves)
-
-            # Gazette:
-            temp = "Stan of the PyTFall's Slave Market was seen by our reporters "
-            temp += "complaining about the poor quality of the new slave lot. We however didn't find any prove of such a claim!"
-            temp1 = "Blue of the Slave Market sent out a bulletin about new slave arrivals!"
-            gazette.other.append(choice([temp, temp1]))
-
-            return slaves
+            self.restock_day = 0
 
         @property
         def girlfin(self):
@@ -82,15 +53,39 @@ init -1 python:
             """
             Populates the list of girls that are available.
             """
-            self.chars_list = self.get_random_slaves()
+            if day >= self.restock_day:
+                self.restock_day += locked_random("randint", 2, 3)
+
+                # Search for chars to add to the slavemarket.
+                uniques = []
+                randoms = []
+                total = randint(9, 12)
+                for c in chars.values():
+                    if c in hero.chars:
+                        continue
+                    if c.home == self:
+                        if c.__class__ == Char:
+                            uniques.append(c)
+                        elif c.__class__ == rChar:
+                            randoms.append(c)
+
+                # Prioritize unique chars:
+                slaves = random.sample(uniques, min(len(uniques), 7))
+                slaves.extend(random.sample(randoms, min(len(randoms), total-len(slaves))))
+                shuffle(slaves)
+                self.chars_list = slaves
+
+                # Gazette:
+                temp = "Stan of the PyTFall's Slave Market was seen by our reporters "
+                temp += "complaining about the poor quality of the new slave lot. We however didn't find any prove of such a claim!"
+                temp1 = "Blue of the Slave Market sent out a bulletin about new slave arrivals!"
+                gazette.other.append(choice([temp, temp1]))
 
         def next_day(self):
             """
             Solves the next day logic.
             """
-            if self.restock_day == day:
-                self.populate_chars_list()
-                self.restock_day += locked_random("randint", 2, 3)
+            self.populate_chars_list()
 
             for g in self.blue_girls.keys():
                 self.blue_girls[g] += 1

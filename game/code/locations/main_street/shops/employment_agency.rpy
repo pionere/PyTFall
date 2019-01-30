@@ -16,7 +16,7 @@ init python:
         global employment_agency_chars
 
         if day >= employment_agency_reroll_day:
-            employment_agency_reroll_day = day + randint(7, 14)
+            employment_agency_reroll_day += randint(7, 14)
             for k, v in employment_agency_chars.iteritems():
                 v[:] = []
                 for i in range(randint(2, 4)):

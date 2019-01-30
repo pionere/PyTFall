@@ -179,6 +179,9 @@ label start:
         tl.start("Loading: Populating World with RChars")
         pytfall.populate_world()
         tl.end("Loading: Populating World with RChars")
+        tl.start("Loading: Populating EmploymentAgency")
+        populate_ea()
+        tl.end("Loading: Populating EmploymentAgency")
 
     python: # Girlsmeets:
         tl.start("Loading: GirlsMeets")
@@ -282,10 +285,14 @@ label continue_with_start:
         if renpy.has_label(chars_unique_label):
             call expression chars_unique_label from _call_expression_1
 
-    # Clean up globals after loading chars:
     python:
+        # Clean up globals after loading chars:
         for i in ("chars_unique_label", "char", "girl", "testBrothel", "all_chars", "temp", "utka"):
             del(i)
+
+        tl.start("Loading: Populating SlaveMarket")
+        pytfall.sm.populate_chars_list()
+        tl.end("Loading: Populating SlaveMarket")
 
     #  --------------------------------------
     # Put here to facilitate testing:
@@ -298,17 +305,9 @@ label continue_with_start:
             stderr_lines = []
             console.history = []
 
-    if hero.name.lower() == "darktl": # LoL! :D
-        $ hero.gold += 888888888
-
     # last minute checks:
     if not hero.home:
         $ hero.home = locations["Streets"]
-
-    python: # Populate Slave Market:
-        tl.start("Loading: Populating SlaveMarket")
-        pytfall.sm.populate_chars_list()
-        tl.end("Loading: Populating SlaveMarket")
 
     jump mainscreen
 
