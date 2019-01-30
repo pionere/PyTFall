@@ -37,6 +37,7 @@ label forest_dark_continue:
         if result in hero.team:
             $ came_to_equip_from = "forest_dark_continue"
             $ eqtarget = result
+            $ equip_girls = [result]
             $ global_flags.set_flag("keep_playing_music")
             $ equipment_safe_mode = True
             $ forest_bg_change = False

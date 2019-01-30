@@ -519,6 +519,7 @@ label enter_dungeon_r:
             elif _return in hero.team:
                 came_to_equip_from = "enter_dungeon_r"
                 eqtarget = _return
+                equip_girls = [_return]
                 global_flags.set_flag("keep_playing_music")
                 equipment_safe_mode = True
                 renpy.jump("char_equip")

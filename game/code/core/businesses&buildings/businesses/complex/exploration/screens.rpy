@@ -844,10 +844,14 @@ screen fg_char_dropdown(char, team=None, remove=False):
                     SetVariable("char", char),
                     SetVariable("girls", [char]),
                     Hide("fg_char_dropdown"),
-                    Hide("pyt_fg_management"),
                     Jump("char_profile")]
         textbutton "Equipment":
-            action [SetVariable("came_to_equip_from", "building_management"), SetVariable("eqtarget", char), SetVariable("char", char), Hide("fg_char_dropdown"), Hide("pyt_fg_management"), Jump("char_equip")]
+            action [SetVariable("came_to_equip_from", last_label),
+                    SetVariable("char", char),
+                    SetVariable("eqtarget", char),
+                    SetVariable("equip_girls", [char]),
+                    Hide("fg_char_dropdown"),
+                    Jump("char_equip")]
         if remove: # and team[0] != girl:
             textbutton "Remove from the Team":
                 action [Function(team.remove, char), Function(workers.add, char), Hide("fg_char_dropdown"), With(dissolve)]

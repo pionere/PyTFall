@@ -67,16 +67,9 @@ label char_equip:
         item_direction = None
         dummy = None
         eqsave = [False, False, False]
-        equip_girls = None
 
-        if came_to_equip_from in ["char_profile", "building_management"]:
-            #assert(eqtarget == char)
-            equip_girls = list(girl for girl in hero.chars if girl.is_available)
-            if len(equip_girls) == 1:
-                equip_girls = None
-        elif came_to_equip_from == "chars_list":
-            # we came from listing, the girls are handled in a group
-            eqtarget = PytGroup(the_chosen)
+        if eqtarget == hero or len(equip_girls) == 1:
+            equip_girls = None
 
         inv_source = eqtarget
         if not "last_inv_filter" in globals():
@@ -99,7 +92,7 @@ label char_equip_loop:
         if result[0] == "jump":
             if result[1] == "item_transfer":
                 hide screen char_equip
-                $ items_transfer([hero] + (list(eqtarget.lst) if isinstance(eqtarget, PytGroup) else [eqtarget]))
+                $ items_transfer([hero] + (equip_girls if equip_girls else [eqtarget]))
                 show screen char_equip
         elif result[0] == "equip_for":
             python:
@@ -166,11 +159,6 @@ label char_equip_loop:
             elif result[1] == 'equip':
                 python:
                     focusitem = result[2]
-                    if isinstance(inv_source, PytGroup) and inv_source.inventory[focusitem] == 0:
-
-                        selected_chars = inv_source.all
-                        inv_source.lst = set([c for c in selected_chars if c.inventory[focusitem]])
-                        inv_source.unselected = set([c for c in selected_chars if not c.inventory[focusitem]])
 
                     selectedslot = focusitem.slot
                     item_direction = 'equip'
@@ -183,36 +171,7 @@ label char_equip_loop:
                 python:
                     unequip_slot = result[3]
 
-                    if isinstance(eqtarget, PytGroup):
-                        if isinstance(result[2], list):
-                            # chars have different items in the equipslots. Will show the most abundant in sepia
-                            chosen_item = result[2][0]
-                        else:
-                            # This (sub)group has only one item. shown in color.
-                            chosen_item = result[2]
-                            # ring itemslot can be ring while actual slot is ring1 or ring2
-
-                            if focusitem == chosen_item:
-                                # The focusitem was clicked a 2nd time, so determine next item and subgroup from all chars.
-                                eqtarget.lst = set(eqtarget.all)
-                                eqtarget.unselected = set()
-
-                                all_slotequip = eqtarget.eqslots[unequip_slot]
-
-                                if isinstance(all_slotequip, list):
-                                    # a list, so there is a next subgroup
-                                    chosen_item = all_slotequip[(all_slotequip.index(chosen_item) + 1) % len(all_slotequip)]
-                                    eqtarget.lst = set(eqtarget.all)
-
-                        if focusitem != chosen_item:
-                            subgroup_equipped = set([c for c in eqtarget.lst if c.eqslots[unequip_slot] == chosen_item])
-                            eqtarget.unselected = set(eqtarget.all).difference(subgroup_equipped)
-                            eqtarget.lst = subgroup_equipped
-
-                        result[2] = chosen_item
-                        dummy = copy_char(eqtarget._first)
-                    else:
-                        dummy = copy_char(eqtarget)
+                    dummy = copy_char(eqtarget)
 
                     focusitem = result[2]
                     item_direction = 'unequip'
@@ -224,15 +183,8 @@ label char_equip_loop:
                         #renpy.show_screen("diff_item_effects", eqtarget, dummy)
         elif result[0] == "unequip_all":
             python:
-                if isinstance(eqtarget, PytGroup):
-                    for c in eqtarget.lst:
-                        # Check if we are allowed to access inventory and act:
-                        if equipment_access(c, silent=True):
-                            for slot in c.eqslots.values():
-                                if slot:
-                                    c.unequip(slot)
 
-                elif equipment_access(eqtarget, silent=False):
+                if equipment_access(eqtarget, silent=False):
                     for slot in eqtarget.eqslots.values():
                         if slot:
                             eqtarget.unequip(slot)
@@ -256,7 +208,7 @@ label char_equip_loop:
                     if hasattr(store, "dummy"):
                         del dummy
                 jump char_equip_finish
-            elif equip_girls:
+            else:
                 python:
 
                     focusitem = None
@@ -265,11 +217,12 @@ label char_equip_loop:
                     item_direction = None
                     dummy = None
 
-                    index = equip_girls.index(char)
+                    index = equip_girls.index(eqtarget)
                     if result[1] == 'left':
-                        char = equip_girls[ (index - 1) % len(equip_girls)]
+                        index -= 1
                     elif result[1] == 'right':
-                        char = equip_girls[(index + 1) % len(equip_girls)]
+                        index += 1
+                    char = equip_girls[index % len(equip_girls)]
 
                     if char.inventory.page_size != 16:
                         char.inventory.set_page_size(16)
@@ -382,8 +335,8 @@ screen char_equip():
     else:
         key "mousedown_2" action NullAction()
     key "mousedown_3" action Return(['control', 'return'])
-    key "mousedown_4" action Function(inv_source.inventory.next)
-    key "mousedown_5" action Function(inv_source.inventory.prev)
+    key "mousedown_4" action Function(inv_source.inventory.prev)
+    key "mousedown_5" action Function(inv_source.inventory.next)
     key "mousedown_6" action Return(['con', 'return'])
 
     default stats_display = "stats"
@@ -415,10 +368,7 @@ screen char_equip():
             xysize (710, 296)
             use char_equip_item_info(item=focusitem, size=(703, 287))
 
-    if not isinstance(eqtarget, PytGroup):
-        use char_equip_left_frame(stats_display)
-    else:
-        use group_equip_left_frame()
+    use char_equip_left_frame(stats_display)
 
 screen char_equip_left_frame(stats_display):
     # Left Frame: =====================================>
@@ -630,64 +580,6 @@ screen char_equip_left_frame(stats_display):
 
     use char_equip_right_frame()
 
-screen group_equip_left_frame():
-
-    # Left Frame: =====================================>
-    fixed:
-        pos (0, 2)
-        xysize (220,724)
-        style_group "content"
-        hbox:
-            button:
-                xysize (32, 32)
-                action SetField(eqtarget, "lst", set(eqtarget.all)), SetField(eqtarget, "unselected", set()), SetVariable("focusitem", None), SetVariable("dummy", None)
-                background Null()
-                foreground ProportionalScale("content/gfx/interface/buttons/Group_full.png", 32, 32) pos (14, 70)
-                hover_foreground ProportionalScale(im.MatrixColor("content/gfx/interface/buttons/Group_full.png", im.matrix.brightness(.20)), 34, 34)
-            # PORTRAIT ============================>
-            frame:
-                xysize (100, 100)
-                background Frame("content/gfx/frame/mes12.jpg", 5, 5)
-                foreground eqtarget.show("portrait", resize=(100, 100), cache=True) pos (32, 11)
-
-        # list of names of characters in group with selection options.
-        viewport:
-            ymaximum 590
-            pos (4, 120)
-            style_group "proper_stats"
-            frame:
-                padding 4, 4
-                ymaximum 590
-                background Transform(Frame(im.MatrixColor("content/gfx/frame/p_frame5.png", im.matrix.brightness(-0.1)), 5, 5), alpha=.7)
-                xsize 218
-                has hbox
-                hbox:
-                    for offs in [0, 1]:
-                        vbox:
-                            yfill True
-                            spacing 5
-                            frame:
-                                xsize 104
-                                ymaximum 585
-                                padding 6, 6
-                                margin 0, 0
-                                has vbox spacing 1
-                                # character togglebuttons:
-                                for k in eqtarget.all[offs::2]:
-                                    button:
-                                        action ToggleSetMembership(eqtarget.lst, k), ToggleSetMembership(eqtarget.unselected, k), SetVariable("focusitem", None), SetVariable("dummy", None)
-                                        background Null()
-                                        if k in eqtarget.lst:
-                                            if len(eqtarget) == 1:
-                                                sensitive False
-                                            text u"[k.name]" xalign .98 yoffset 3 style_suffix "value_text" color "#F5F5DC"
-                                        else:
-                                            text u"[k.name]" xalign .98 yoffset 3 style_suffix "value_text" color "#75755C"
-                                        hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 0, 0)
-
-
-    use char_equip_right_frame()
-
 screen char_equip_right_frame():
     # Right Frame: =====================================>
     # TOOLTIP TEXT or Applied Traits and Skills ====================================>
@@ -698,22 +590,19 @@ screen char_equip_right_frame():
         xysize (345, 110)
 
         python:
-            if not isinstance(eqtarget, PytGroup):
-                if len(eqtarget.traits.basetraits) == 1:
-                    classes = list(eqtarget.traits.basetraits)[0].id
-                elif len(eqtarget.traits.basetraits) == 2:
-                    classes = list(eqtarget.traits.basetraits)
-                    classes.sort()
-                    classes = ", ".join([str(c) for c in classes])
-                else:
-                    if eqtarget != hero:
-                        raise Exception("Character without prof basetraits detected! line: 267, girlsprofile screen")
-                    else:
-                        classes = "MC baseclasses are still AFK :("
-
-                t = "{vspace=17}Classes: [classes]\nWork: [eqtarget.workplace]\nAction: [eqtarget.action]{/color}"
+            if len(eqtarget.traits.basetraits) == 1:
+                classes = list(eqtarget.traits.basetraits)[0].id
+            elif len(eqtarget.traits.basetraits) == 2:
+                classes = list(eqtarget.traits.basetraits)
+                classes.sort()
+                classes = ", ".join([str(c) for c in classes])
             else:
-                t = "{vspace=17}[eqtarget.name]{/color}"
+                if eqtarget != hero:
+                    raise Exception("Character without prof basetraits detected! line: 267, girlsprofile screen")
+                else:
+                    classes = "MC baseclasses are still AFK :("
+
+            t = "{vspace=17}Classes: [classes]\nWork: [eqtarget.workplace]\nAction: [eqtarget.action]{/color}"
 
         if getattr(store, "dummy", None) is not None:
             # Traits and skills:
@@ -727,7 +616,7 @@ screen char_equip_right_frame():
                     has vbox
                     style_group "proper_stats"
                     python:
-                        eqt = eqtarget._first if isinstance(eqtarget, PytGroup) else eqtarget
+                        eqt = eqtarget
                         t_old = set(t.id for t in eqt.traits)
                         for effect in eqt.effects.iterkeys():
                             t_old.add(effect)
@@ -783,9 +672,7 @@ screen char_equip_right_frame():
                                 xpadding 3
                                 text u'{color=#CD4F39}%s'%skill size 16 yalign .5
         else:
-            if isinstance(eqtarget, PytGroup):
-                text (u"{color=#ecc88a}%s" % t) size 14 align (.55, .65) font "fonts/TisaOTM.otf" # line_leading -5
-            elif eqtarget.status == "slave":
+            if eqtarget.status == "slave":
                 text (u"{color=[gold]}[eqtarget.name]{/color}{color=#ecc88a}  is Slave%s" % t) size 14 align (.55, .65) font "fonts/TisaOTM.otf" line_leading -5
             elif eqtarget.status == "free":
                 text (u"{color=[gold]}[eqtarget.name]{/color}{color=#ecc88a}  is Free%s" % t) size 14 align (.55, .65) font "fonts/TisaOTM.otf" line_leading -5
@@ -1347,7 +1234,7 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                                     xpadding 2
                                     text (u'{color=#CD4F39}%s'%skill) size 15 align .5, .5
 
-    elif not isinstance(eqtarget, PytGroup): # equipment saves
+    else: # equipment saves
         frame:
             style_prefix "proper_stats"
             background Null()

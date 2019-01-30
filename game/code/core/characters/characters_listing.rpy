@@ -91,8 +91,8 @@ label chars_list:
 
             result = ui.interact()
 
-            if result[0] == 'control':
-                if result[1] == 'return':
+            if result[0] == "control":
+                if result[1] == "return":
                     break
             elif result[0] == "dropdown":
                 if result[1] == "workplace":
@@ -101,10 +101,26 @@ label chars_list:
                     renpy.show_screen("set_home_dropdown", result[2], pos=renpy.get_mouse_pos())
                 elif result[1] == "action":
                     renpy.show_screen("set_action_dropdown", result[2], pos=renpy.get_mouse_pos())
-            elif result[0] == 'choice':
+            elif result[0] == "choice":
                 renpy.hide_screen("chars_list")
                 char = result[1]
+                girls = None
+                char_profile_entry = "chars_list"
                 jump('char_profile')
+            elif result[0] == "group":
+                if result[1] == "control":
+                    char = PytGroup(chars_list_state.the_chosen)
+                    renpy.show_screen("char_control")
+                elif result[1] == "equip":
+                    renpy.hide_screen("chars_list")
+                    came_to_equip_from = "chars_list"
+                    equip_girls = list(chars_list_state.the_chosen)
+                    eqtarget = equip_girls[0]
+                    jump('char_equip')
+                elif result[1] == "training":
+                    renpy.hide_screen("chars_list")
+                    the_chosen = chars_list_state.the_chosen
+                    jump('school_training')
 
     hide screen chars_list
     jump mainscreen
@@ -434,21 +450,21 @@ screen chars_list():
             has vbox align .5, .5 spacing 3
             button:
                 xysize (150, 40)
-                action [SetVariable("char", PytGroup(chars_list_state.the_chosen)), Show("char_control")]
+                action Return(["group", "control"])
                 sensitive chars_list_state.the_chosen
                 text "Controls"
                 selected False
                 tooltip 'Set desired behavior for group'
             button:
                 xysize (150, 40)
-                action [Hide("chars_list"), SetVariable("came_to_equip_from", "chars_list"), SetVariable("the_chosen", chars_list_state.the_chosen), Jump('char_equip')]
+                action Return(["group", "equip"])
                 sensitive chars_list_state.the_chosen
                 text "Equipment"
                 selected False
                 tooltip "Manage Group's Equipment"
             button:
                 xysize (150, 40)
-                action [Hide("chars_list"), SetVariable("the_chosen", chars_list_state.the_chosen), Jump('school_training')]
+                action Return(["group", "training"])
                 sensitive chars_list_state.the_chosen
                 text "Training"
                 selected False

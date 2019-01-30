@@ -200,12 +200,8 @@ label char_profile_end:
 
     $ girls = None
 
-    if char_profile_entry:
-        $ last_label, char_profile_entry = char_profile_entry, None
-        jump expression last_label
-    else:
-        jump chars_list
-
+    $ last_label, char_profile_entry = char_profile_entry, None
+    jump expression last_label
 
 screen char_profile():
 
@@ -639,7 +635,7 @@ screen char_profile():
                         text "Controls"
                     button:
                         xysize (150, 40)
-                        action Hide("char_profile"), With(dissolve), SetVariable("came_to_equip_from", "char_profile"), SetVariable("eqtarget", char), Jump('char_equip')
+                        action Hide("char_profile"), SetVariable("came_to_equip_from", "char_profile"), SetVariable("eqtarget", char), SetVariable("equip_girls", girls), Jump('char_equip')
                         sensitive controlled_char(char)
                         tooltip "Manage this girl's inventory and equipment!"
                         text "Equipment"

@@ -77,10 +77,6 @@ label mainscreen:
             scene bg pytfall
             # with irisin
             $ jump(result[0])
-        elif result[0] == "hero_eq":
-            $ came_to_equip_from = "mainscreen"
-            $ eqtarget = hero
-            jump char_equip
         else:
             python:
                 renpy.hide_screen("mainscreen")

@@ -263,6 +263,7 @@ label storyi_gui_loop: # the gui loop; we jump here every time we need to show c
         if result in hero.team:
             $ came_to_equip_from = "storyi_continue"
             $ eqtarget = result
+            $ equip_girls = [eqtarget]
             $ equipment_safe_mode = True
             hide screen prison_break_controls
             jump char_equip
