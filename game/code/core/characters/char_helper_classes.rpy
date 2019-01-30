@@ -512,18 +512,6 @@ init -10 python:
                 else:
                     char.body = trait
 
-            # We need to make sure that no more than x + len(basetraits) of basetraits can be applied, atm x is 4:
-            if trait.basetrait:
-                if trait not in self.basetraits:
-                    if trait.higher_tiers and list(traits[t] for t in trait.higher_tiers if t in self.basetraits):
-                        allowed = 4 + len(self.basetraits)
-                        bt = len(list(t for t in self if t.basetrait))
-                        if bt == allowed:
-                            return
-                        elif bt > allowed:
-                            char_debug("BASE TRAITS OVER THE ALLOWED MAX! CHECK Traits.apply method!")
-                            return
-
             if not super(Traits, self).append(trait, truetrait):
                 return
 
@@ -1081,7 +1069,7 @@ init -10 python:
             # Leveling system assets:
             self.goal = 1000
             self.goal_increase = 1000
-            self.level = 1
+            self.level = 0
             self.exp = 0
 
             # Statslog:
