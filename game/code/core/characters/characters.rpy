@@ -524,11 +524,12 @@ init -9 python:
         def select_image(self, *tags, **kwargs):
             '''Returns the path to an image with the supplied tags or "".
             '''
-            tagset = set(tags)
+            tags = list(tags)
+            tags.append(self.id)
             exclude = kwargs.get("exclude", None)
 
             # search for images
-            imgset = tagdb.get_imgset_with_all_tags(tagset)
+            imgset = tagdb.get_imgset_with_all_tags(tags)
             if exclude:
                 imgset = tagdb.remove_excluded_images(imgset, exclude)
 
@@ -548,11 +549,9 @@ init -9 python:
             exclude = kwargs.get("exclude", None)
 
             # search for images
+            imgset = tagdb.get_imgset_with_all_tags(tags)
             if exclude:
-                imgset = tagdb.get_imgset_with_all_tags(tags)
                 imgset = tagdb.remove_excluded_images(imgset, exclude)
-            else:
-                imgset = tagdb.get_imgset_with_all_tags(tags)
 
             return bool(imgset)
 
@@ -639,9 +638,9 @@ init -9 python:
 
             imgpath = ""
             if type in ["normal", "first_default", "reduce"]:
-                imgpath = self.select_image(self.id, *tags, exclude=exclude)
+                imgpath = self.select_image(*tags, exclude=exclude)
                 if not imgpath and add_mood:
-                    imgpath = self.select_image(self.id, *pure_tags, exclude=exclude)
+                    imgpath = self.select_image(*pure_tags, exclude=exclude)
 
                 if not imgpath and len(pure_tags) > 1:
                     if type in ["normal", "first_default"]:
@@ -653,18 +652,18 @@ init -9 python:
 
                             # Try with the mood first:
                             if add_mood:
-                                imgpath = self.select_image(main_tag, tag, self.id, mood_tag, exclude=exclude)
+                                imgpath = self.select_image(main_tag, tag, mood_tag, exclude=exclude)
                             # Without mood
                             if not imgpath:
-                                imgpath = self.select_image(main_tag, tag, self.id, exclude=exclude)
+                                imgpath = self.select_image(main_tag, tag, exclude=exclude)
                             if imgpath:
                                 break
 
                         if type == "first_default" and not imgpath: # In case we need to try first tag as default (instead of profile/default) and failed to find a path.
                             if add_mood:
-                                imgpath = self.select_image(main_tag, self.id, mood_tag, exclude=exclude)
+                                imgpath = self.select_image(main_tag, mood_tag, exclude=exclude)
                             if not imgpath:
-                                imgpath = self.select_image(main_tag, self.id, exclude=exclude)
+                                imgpath = self.select_image(main_tag, exclude=exclude)
 
                     elif type == "reduce":
                         _tags = pure_tags[:]
@@ -676,9 +675,9 @@ init -9 python:
                                 break
                             # Try with mood first:
                             if add_mood:
-                                imgpath = self.select_image(self.id, mood_tag, *_tags, exclude=exclude)
+                                imgpath = self.select_image(mood_tag, *_tags, exclude=exclude)
                             if not imgpath:
-                                imgpath = self.select_image(self.id, *_tags, exclude=exclude)
+                                imgpath = self.select_image(*_tags, exclude=exclude)
 
 
             elif type == "any":
@@ -687,13 +686,13 @@ init -9 python:
                 # Try with the mood first:
                 if add_mood:
                     for tag in _tags:
-                        imgpath = self.select_image(self.id, tag, mood_tag, exclude=exclude)
+                        imgpath = self.select_image(tag, mood_tag, exclude=exclude)
                         if imgpath:
                             break
                 # Then try 'any' behavior without the mood:
                 if not imgpath:
                     for tag in _tags:
-                        imgpath = self.select_image(self.id, tag, exclude=exclude)
+                        imgpath = self.select_image(tag, exclude=exclude)
                         if imgpath:
                             break
 
@@ -705,9 +704,9 @@ init -9 python:
                         force_battle_sprite = True
                     else:
                         if add_mood:
-                            imgpath = self.select_image(self.id, 'profile', mood_tag)
+                            imgpath = self.select_image('profile', mood_tag)
                         if not imgpath:
-                            imgpath = self.select_image(self.id, 'profile')
+                            imgpath = self.select_image('profile')
                 else:
                     return default
 

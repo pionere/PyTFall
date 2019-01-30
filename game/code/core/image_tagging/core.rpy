@@ -104,7 +104,7 @@ init -9 python:
             '''Returns a set of images that are all tagged with all specified tags.
             '''
             data = [self.get_imgset_with_tag(tag) for tag in tags]
-            return set.intersection(*data).copy()
+            return set.intersection(*data)
 
         def remove_excluded_images(self, data, excludedtags):
             """Get rid of all images tagged with excludedtags.

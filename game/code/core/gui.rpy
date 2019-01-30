@@ -165,7 +165,7 @@ init -1 python:
             self.tag = "profile"
             self.tagsdict = tagdb.get_tags_per_character(self.girl)
             self.td_mode = "full" # Tagsdict Mode (full or dev)
-            self.pathlist = list(tagdb.get_imgset_with_all_tags(set([char.id, "profile"])))
+            self.pathlist = list(tagdb.get_imgset_with_all_tags([char.id, "profile"]))
             self.imagepath = self.pathlist[0]
             self._image = self.pathlist[0]
             self.tags = " | ".join([i for i in tagdb.get_tags_per_path(self.imagepath)])
@@ -186,7 +186,7 @@ init -1 python:
                         self.set_img()
                 elif result[0] == "tag":
                     self.tag = result[1]
-                    self.pathlist = list(tagdb.get_imgset_with_all_tags(set([self.girl.id, result[1]])))
+                    self.pathlist = list(tagdb.get_imgset_with_all_tags([self.girl.id, result[1]]))
                     self.imagepath = self.pathlist[0]
                     self.set_img()
                 elif result[0] == "view_trans":
