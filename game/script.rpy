@@ -379,6 +379,7 @@ label after_load:
         $ renpy.random.setstate(stored_random_seed)
 
     python hide:
+        hero.clear_img_cache()
         for c in store.chars.values():
             c.clear_img_cache()
 
@@ -671,13 +672,19 @@ label after_load:
         if hasattr(store, "json_fighters"):
             hero._path_to_imgfolder = hero._path_to_imgfolder.replace("npc/arena_males", "fighters/males/warriors")
 
+            for fighter in store.male_fighters.values():
+                fighter._path_to_imgfolder = fighter._path_to_imgfolder.replace("npc/arena_males", "fighters/males/warriors")
+            for fighter in store.female_fighters.values():
+                fighter._path_to_imgfolder = fighter._path_to_imgfolder.replace("npc/arena_females", "fighters/females")
+
             for id, fighter in store.json_fighters.iteritems():
                 if fighter.gender == "male":
                     store.male_fighters[id] = fighter
-                    fighter._path_to_imgfolder = fighter._path_to_imgfolder.replace("npc/arena_males", "fighters/males/warriors")
+                    fighter._path_to_imgfolder = fighter._path_to_imgfolder.replace("npc/arena_json_adjusted", "fighters/males/json_adjusted")
                 else:
                     store.female_fighters[id] = fighter
-                    fighter._path_to_imgfolder = fighter._path_to_imgfolder.replace("npc/arena_females", "fighters/females")
+                    fighter._path_to_imgfolder = fighter._path_to_imgfolder.replace("npc/arena_json_adjusted", "fighters/females/json_adjusted")
+
             del store.json_fighters
 
         for obj in pytfall.__dict__.values():
