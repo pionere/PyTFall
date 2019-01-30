@@ -373,12 +373,12 @@ screen building_management_midframe_exploration_guild_mode:
                     $ temp = workers.page - 1 >= 0
                     button:
                         style_suffix "button_left2x"
-                        tooltip "<== First Page"
+                        tooltip "First Page"
                         action Function(workers.first_page)
                         sensitive temp
                     button:
                         style_suffix "button_left"
-                        tooltip "<== Previous Page"
+                        tooltip "Previous Page"
                         action Function(workers.prev_page)
                         sensitive temp
                 null width 100
@@ -387,12 +387,12 @@ screen building_management_midframe_exploration_guild_mode:
                     $ temp = workers.page + 1 < workers.max_page
                     button:
                         style_suffix "button_right"
-                        tooltip "Next Page ==>"
+                        tooltip "Next Page"
                         action Function(workers.next_page)
                         sensitive temp
                     button:
                         style_suffix "button_right2x"
-                        tooltip "Last Page ==>"
+                        tooltip "Last Page"
                         action Function(workers.last_page)
                         sensitive temp
 
