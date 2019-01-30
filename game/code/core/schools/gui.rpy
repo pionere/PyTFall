@@ -2,13 +2,9 @@ label school_training:
     $ school = schools.values().pop()
     show screen school_training
 
-    # Make sure we set char to the_chosen (means we came from listing in Pico's code)
-    # if we came from char listings and just have the one char,
-    # normal functionality of the screen can be permitted:
+    # Make sure we set char to the_chosen (means we came from listing)
     if the_chosen:
         $ char = the_chosen
-    if not isinstance(char, PytCharacter) and len(char) == 1:
-        $ char = char.pop()
 
     while 1:
         $ result = ui.interact()
@@ -20,7 +16,7 @@ label school_training:
             if isinstance(char, PytCharacter):
                 $ students = [char]
             else:
-                $ students = list(char)
+                $ students = char
 
             python:
                 for s in students:
@@ -50,9 +46,10 @@ label school_training:
 label return_from_school_training:
     hide screen school_training
 
-    if the_chosen == None:
+    if the_chosen is None:
         jump char_profile
     else:
+        $ the_chosen = None
         jump chars_list
 
 init python:

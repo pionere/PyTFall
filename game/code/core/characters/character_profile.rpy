@@ -64,12 +64,7 @@ init python:
         return char
 
 label char_profile:
-    if the_chosen:
-        if char and char not in the_chosen:
-            $ girls = list(c for c in hero.chars if c.is_available)
-        else:
-            $ girls = list(the_chosen)
-    elif not hasattr(store, "girls") or girls is None or char not in girls:
+    if girls is None:
         $ girls = list(c for c in hero.chars if c.is_available)
 
     $ change_char_in_profile("init")
@@ -97,8 +92,6 @@ label char_profile:
                                 hero.remove_char(char)
                                 girls.remove(char)
                                 char.disposition -= 400
-
-                                rebuild_chars_listings = True
 
                                 char.action = None
 
@@ -145,8 +138,6 @@ label char_profile:
                                              message=message,
                                              yes_action=Return(True),
                                              no_action=Return(False)):
-
-                            $ rebuild_chars_listings = True
 
                             if char.status == 'slave':
                                 python:

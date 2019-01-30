@@ -21,9 +21,9 @@ screen set_action_dropdown(char, pos=()):
         if isinstance(char.workplace, School):
             textbutton "Change Course":
                 action [Hide("set_action_dropdown"),
-                        Hide("charslist"),
-                        Hide("char_profile"),
-                        SetField(store, "char", char),
+                        If(renpy.get_screen("chars_list"),
+                          true=[SetVariable("the_chosen", char), Hide("chars_list")],
+                          false=[SetVariable("char", char), Hide("char_profile")]), 
                         Jump("school_training")]
                 tooltip "Change the training course to a different one."
             textbutton "Stop Course":

@@ -1,94 +1,140 @@
 init:
-    default rebuild_chars_listings = None
-
-    default status_filters = set()
-    default location_filters = set()
-    default action_filters = set()
-    default class_filters = set()
+    default chars_list_state = None
     python:
         def sorting_for_chars_list():
-            return [c for c in hero.chars if c.is_available]
+            return [c for c in hero.chars]
 
-        def clear_selected_filters():
-            global selected_filters
-            selected_filters = set()
+        class CharsListState(_object):
+            def __init__(self):
+                self.page = 0
+                self.page_size = 10
+
+                self.source = CharsSortingForGui(sorting_for_chars_list)
+                self.source.sorting_order = "level"
+
+                self.status_filters = None
+                #self.location_filters = None
+                self.action_filters = None
+                self.class_filters = None
+                self.home_filters = None
+                self.work_filters = None
+
+                self.selected_filters = set()
+                self.the_chosen = set()
+
+            def refresh(self):
+                # prepare the filters
+                self.update_filter_sets()
+                # update the girls list only if no filter was selected
+                if not self.selected_filters:
+                    self.source.filter()
+                # remove selected girls which are no longer available
+                gone_girls = []
+                for c in self.the_chosen:
+                    if not (c.is_available and c in hero.chars):
+                        gone_girls.append(c)
+                if gone_girls:
+                    self.the_chosen -= gone_girls
+
+            def next(self):
+                self.page += 1
+
+            def prev(self):
+                self.page -= 1
+
+            def page_content(self):
+                start = self.page*self.page_size
+                return self.source.sorted[start:start+self.page_size]
+
+            def update_filter_sets(self):
+                self.status_filters = set()
+                #self.location_filters = set()
+                self.action_filters = set()
+                self.class_filters = set()
+                self.home_filters = set()
+                self.work_filters = set()
+                for c in hero.chars:
+                    self.status_filters.add(c.status)
+                    #self.locations_filters.add(c.location)
+                    self.action_filters.add(c.action)
+                    self.home_filters.add(c.home)
+                    self.work_filters.add(c.workplace)
+                    for bt in c.traits.basetraits:
+                        self.class_filters.add(bt)
+
+            def reset_filters(self):
+               self.selected_filters = set()
+               self.update_filter_sets()
+
+               self.source.clear()
+               self.source.filter()
+
+            def toggleChosenMembership(self, chars):
+                if self.the_chosen.issuperset(chars):
+                    self.the_chosen.difference_update(chars)
+                else:
+                    self.the_chosen.update(chars)
 
 label chars_list:
     scene bg gallery
-    # Check if we're the screen was loaded or not:
-    if rebuild_chars_listings:
-        python:
-            char_lists_filters = CharsSortingForGui(sorting_for_chars_list)
-            char_lists_filters.sorting_order = "level"
-            char_lists_filters.filter()
+    python:
+        # lazy init the page state
+        if chars_list_state is None:
+            chars_list_state = CharsListState()
+        chars_list_state.refresh()
 
-            status_filters = set([c.status for c in hero.chars])
-            # location_filters = set([c.location for c in hero.chars])
-            home_filters = set([c.home for c in hero.chars])
-            work_filters = set([c.workplace for c in hero.chars])
-            action_filters = set([c.action for c in hero.chars])
-            class_filters = set([bt for c in hero.chars for bt in c.traits.basetraits])
-            selected_filters = set()
-            the_chosen = set()
-
-            rebuild_chars_listings = False
-            char = None
-
-    show screen chars_list(source=char_lists_filters)
+    show screen chars_list()
     with dissolve
 
-    while 1:
+    python:
+        while 1:
 
-        $ result = ui.interact()
+            result = ui.interact()
 
-        if result[0] == 'control':
-            if result[1] == 'return':
-                $ the_chosen = set()
-                hide screen chars_list
-                jump mainscreen
-        elif result[0] == "dropdown":
-            if result[1] == "workplace":
-                $ renpy.show_screen("set_workplace_dropdown", result[2], pos=renpy.get_mouse_pos())
-            elif result[1] == "home":
-                $ renpy.show_screen("set_home_dropdown", result[2], pos=renpy.get_mouse_pos())
-            elif result[1] == "action":
-                $ renpy.show_screen("set_action_dropdown", result[2], pos=renpy.get_mouse_pos())
-        elif result[0] == 'choice':
-            hide screen chars_list
-            $ char = result[1]
-            jump char_profile
+            if result[0] == 'control':
+                if result[1] == 'return':
+                    break
+            elif result[0] == "dropdown":
+                if result[1] == "workplace":
+                    renpy.show_screen("set_workplace_dropdown", result[2], pos=renpy.get_mouse_pos())
+                elif result[1] == "home":
+                    renpy.show_screen("set_home_dropdown", result[2], pos=renpy.get_mouse_pos())
+                elif result[1] == "action":
+                    renpy.show_screen("set_action_dropdown", result[2], pos=renpy.get_mouse_pos())
+            elif result[0] == 'choice':
+                renpy.hide_screen("chars_list")
+                char = result[1]
+                jump('char_profile')
 
     hide screen chars_list
     jump mainscreen
 
-screen chars_list(source=None):
-    if not source.sorted:
-        text "You don't have any workers.":
+screen chars_list():
+    key "mousedown_3" action Return(['control', 'return']) # keep in sync with button - alternate
+
+    # the number of filtered workers
+    $ num_chars = len(chars_list_state.source.sorted)
+
+    # Normalize pages.
+    python:
+        max_page = 0 if num_chars == 0 else ((num_chars-1)/chars_list_state.page_size)
+        if chars_list_state.page > max_page:
+            chars_list_state.page = max_page
+
+    # Chars:
+    $ charz_list = chars_list_state.page_content()
+    if num_chars == 0:
+        python:
+            if hero.chars:
+                msg = "No worker matches the filters."
+            else:
+                msg = "You don't have any workers." 
+        text "[msg]":
             size 40
             color ivory
             align .5, .2
             style "TisaOTM"
-
-    key "mousedown_3" action Return(['control', 'return']) # keep in sync with button - alternate
-
-    # Normalize pages.
-    default page_size = 10
-    default page = chars_list_last_page_viewed
-
-    $ max_page = len(source.sorted)/page_size-1
-    if len(source.sorted) % page_size:
-        $ max_page += 1
-    if page > max_page:
-        $ page = max_page
-
-    python:
-        listed_chars = []
-        for start in xrange(0, len(source.sorted), page_size):
-             listed_chars.append(source.sorted[start:start+page_size])
-
-    # Chars:
-    if listed_chars:
-        $ charz_list = listed_chars[page]
+    else:
         hbox:
             style_group "content"
             spacing 14
@@ -243,8 +289,8 @@ screen chars_list(source=None):
                             style_group "basic"
                             xysize (25, 25)
                             align 1.0, 1.0 offset 9, -2
-                            action ToggleSetMembership(the_chosen, c)
-                            if c in the_chosen:
+                            action ToggleSetMembership(chars_list_state.the_chosen, c)
+                            if c in chars_list_state.the_chosen:
                                 add(im.Scale('content/gfx/interface/icons/checkbox_checked.png', 25, 25)) align .5, .5
                             else:
                                 add(im.Scale('content/gfx/interface/icons/checkbox_unchecked.png', 25, 25)) align .5, .5
@@ -279,14 +325,14 @@ screen chars_list(source=None):
                         style_prefix "basic"
                         xpadding 6
                         xsize 100
-                        action ToggleSetMembership(selected_filters, f)
+                        action ToggleSetMembership(chars_list_state.selected_filters, f)
                         tooltip t
                         text f color c size 18 outlines [(1, "#3a3a3a", 0, 0)]
 
                 button:
                     style_group "basic"
                     xsize 100
-                    action source.clear, clear_selected_filters, renpy.restart_interaction
+                    action [chars_list_state.reset_filters, renpy.restart_interaction]
                     tooltip 'Reset all filters'
                     text "Reset"
 
@@ -298,18 +344,18 @@ screen chars_list(source=None):
                 xalign .5
                 cols 2
                 draggable True edgescroll (30, 100)
-                if "Status" in selected_filters:
-                    for f in status_filters:
+                if "Status" in chars_list_state.selected_filters:
+                    for f in chars_list_state.status_filters:
                         button:
                             xysize 125, 32
-                            action ModFilterSet(source, "status_filters", f)
+                            action ModFilterSet(chars_list_state.source, "status_filters", f)
                             text f.capitalize() color green
                             tooltip 'Toggle the filter'
-                if "Home" in selected_filters:
-                    for f in home_filters:
+                if "Home" in chars_list_state.selected_filters:
+                    for f in chars_list_state.home_filters:
                         button:
                             xysize 125, 32
-                            action ModFilterSet(source, "home_filters", f)
+                            action ModFilterSet(chars_list_state.source, "home_filters", f)
                             text "[f]" color saddlebrown:
                                 if len(str(f)) > 12:
                                     size 10
@@ -317,11 +363,11 @@ screen chars_list(source=None):
                                 else:
                                     layout "nobreak"
                             tooltip 'Toggle the filter'
-                if "Work" in selected_filters:
-                    for f in work_filters:
+                if "Work" in chars_list_state.selected_filters:
+                    for f in chars_list_state.work_filters:
                         button:
                             xysize 125, 32
-                            action ModFilterSet(source, "work_filters", f)
+                            action ModFilterSet(chars_list_state.source, "work_filters", f)
                             text "[f]" color brown:
                                 if len(str(f)) > 12:
                                     size 10
@@ -329,11 +375,11 @@ screen chars_list(source=None):
                                 else:
                                     layout "nobreak"
                             tooltip 'Toggle the filter'
-                if "Action" in selected_filters:
-                    for f in action_filters:
+                if "Action" in chars_list_state.selected_filters:
+                    for f in chars_list_state.action_filters:
                         button:
                             xysize 125, 32
-                            action ModFilterSet(source, "action_filters", f)
+                            action ModFilterSet(chars_list_state.source, "action_filters", f)
                             $ t = str(f)
                             if t.lower().endswith(" job"):
                                 $ t = t[:-4]
@@ -344,11 +390,11 @@ screen chars_list(source=None):
                                 else:
                                     layout "nobreak"
                             tooltip 'Toggle the filter'
-                if "Class" in selected_filters:
-                    for f in class_filters:
+                if "Class" in chars_list_state.selected_filters:
+                    for f in chars_list_state.class_filters:
                         button:
                             xysize 125, 32
-                            action ModFilterSet(source, "class_filters", f)
+                            action ModFilterSet(chars_list_state.source, "class_filters", f)
                             text "[f]" color purple
                             tooltip 'Toggle the filter'
 
@@ -360,31 +406,22 @@ screen chars_list(source=None):
             xysize (250, 50)
             style_prefix "basic"
             has hbox spacing 5 align .5, .5
-            python:
-                try:
-                    chars_on_page = set(charz_list)
-                except:
-                    chars_on_page = set()
-            button: # select all on current page
+            button: # select all on current listing, deselects them if all are selected
                 xysize (66, 40)
-                # if the_chosen.issuperset(chars_on_page):
-                #     action SetVariable("the_chosen", the_chosen.difference(chars_on_page))
-                # else:
-                #     action SetVariable("the_chosen", the_chosen.union(chars_on_page))
-                action SetVariable("the_chosen", chars_on_page)
-                sensitive chars_on_page and (chars_on_page != the_chosen)
+                action Function(chars_list_state.toggleChosenMembership, set(charz_list))
+                sensitive num_chars != 0
                 text "These"
                 tooltip 'Select all currently visible characters'
             button: # every of currently filtered, also in next tabs
                 xysize (66, 40)
-                action If(set(source.sorted).difference(the_chosen), [SetVariable("the_chosen", set(source.sorted))])
-                sensitive listed_chars
+                action Function(chars_list_state.toggleChosenMembership, set(chars_list_state.source.sorted))
+                sensitive num_chars != 0
                 text "All"
                 tooltip 'Select all characters'
             button: # deselect all
                 xysize (66, 40)
-                action SetVariable("the_chosen", set())
-                sensitive the_chosen
+                action Function(chars_list_state.the_chosen.clear)
+                sensitive chars_list_state.the_chosen
                 text "None"
                 tooltip "Clear Selection"
 
@@ -397,25 +434,27 @@ screen chars_list(source=None):
             has vbox align .5, .5 spacing 3
             button:
                 xysize (150, 40)
-                action If(len(the_chosen), [SetVariable("char", PytGroup(the_chosen)), Show("char_control")])
+                action [SetVariable("char", PytGroup(chars_list_state.the_chosen)), Show("char_control")]
+                sensitive chars_list_state.the_chosen
                 text "Controls"
                 selected False
                 tooltip 'Set desired behavior for group'
             button:
                 xysize (150, 40)
-                action If(len(the_chosen), [Hide("chars_list"), With(dissolve), SetVariable("came_to_equip_from", "chars_list"), Jump('char_equip')])
+                action [Hide("chars_list"), SetVariable("came_to_equip_from", "chars_list"), SetVariable("the_chosen", chars_list_state.the_chosen), Jump('char_equip')]
+                sensitive chars_list_state.the_chosen
                 text "Equipment"
                 selected False
                 tooltip "Manage Group's Equipment"
             button:
                 xysize (150, 40)
-                action If(len(the_chosen), [Hide("chars_list"), With(dissolve),
-                          Jump('school_training')])
+                action [Hide("chars_list"), SetVariable("the_chosen", chars_list_state.the_chosen), Jump('school_training')]
+                sensitive chars_list_state.the_chosen
                 text "Training"
                 selected False
                 tooltip "Send the entire group to School!"
 
-    use top_stripe(True)
+    use top_stripe(True, show_lead_away_buttons=False)
 
     # Two buttons that used to be in top-stripe:
     hbox:
@@ -423,22 +462,18 @@ screen chars_list(source=None):
         pos 300, 5
         spacing 3
         textbutton "<--":
-            sensitive page > 0
-            action SetScreenVariable("page", page-1)
+            sensitive chars_list_state.page > 0
+            action Function(chars_list_state.prev)
             tooltip 'Previous page'
             keysym "mousedown_4"
 
-        $ temp = page + 1
+        $ temp = chars_list_state.page + 1
         textbutton "[temp]":
             xsize 40
             action NullAction()
         textbutton "-->":
-            sensitive page < max_page
-            action SetScreenVariable("page", page+1)
+            sensitive chars_list_state.page < max_page
+            action Function(chars_list_state.next)
             tooltip 'Next page'
             keysym "mousedown_5"
 
-    $ store.chars_list_last_page_viewed = page # At Darks Request!
-    # Normalize stored page, should we done 'on hide' but we can't trust those atm.
-    if chars_list_last_page_viewed > max_page:
-        $ chars_list_last_page_viewed = max_page
