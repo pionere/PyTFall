@@ -154,8 +154,8 @@ screen chars_list():
         hbox:
             style_group "content"
             spacing 14
-            pos 27, 94
-            xsize 970
+            pos 27, 64
+            xysize 970, 580
             box_wrap True
             for c in charz_list:
                 $ char_profile_img = c.show('portrait', resize=(98, 98), cache=True)
@@ -311,6 +311,33 @@ screen chars_list():
                             else:
                                 add(im.Scale('content/gfx/interface/icons/checkbox_unchecked.png', 25, 25)) align .5, .5
                             tooltip 'Select the character'
+
+        # Paging:
+        if max_page > 0:
+            hbox:
+                pos 27, 644
+                xysize 970, 70
+
+                hbox:
+                    style_prefix "paging_green"
+                    align .5, .5
+                    spacing 20
+                    $ curr_page = chars_list_state.page + 1
+                    button:
+                        style_suffix "button_left"
+                        tooltip "Previous Page"
+                        action Function(chars_list_state.prev)
+                        sensitive curr_page != 1
+                        keysym "mousedown_4"
+
+                    text "[curr_page]." color ivory yalign .5
+
+                    button:
+                        style_suffix "button_right"
+                        tooltip "Next Page"
+                        action Function(chars_list_state.next)
+                        sensitive (curr_page <= max_page)
+                        keysym "mousedown_5"
 
     # Filters:
     frame:
@@ -471,25 +498,3 @@ screen chars_list():
                 tooltip "Send the entire group to School!"
 
     use top_stripe(True, show_lead_away_buttons=False)
-
-    # Two buttons that used to be in top-stripe:
-    hbox:
-        style_group "basic"
-        pos 300, 5
-        spacing 3
-        textbutton "<--":
-            sensitive chars_list_state.page > 0
-            action Function(chars_list_state.prev)
-            tooltip 'Previous page'
-            keysym "mousedown_4"
-
-        $ temp = chars_list_state.page + 1
-        textbutton "[temp]":
-            xsize 40
-            action NullAction()
-        textbutton "-->":
-            sensitive chars_list_state.page < max_page
-            action Function(chars_list_state.next)
-            tooltip 'Next page'
-            keysym "mousedown_5"
-
