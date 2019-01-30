@@ -1,25 +1,13 @@
 label building_management:
     python:
-        # Reset screen settings, we do this only if we left this screen directly (No jump to char profile/equip)
-        if reset_building_management:
-            reset_building_management = False
-            bm_mid_frame_mode = "building"
-            bm_mid_frame_focus = None
-            bm_exploration_view_mode = "explore"
-            selected_log_area = None
-
         # Some Global Vars we use to pass data between screens:
         if hero.buildings:
-            try:
-                index = index
-            except:
-                index = 0
+            bm_index = getattr(store, "bm_index", 0)
 
-            if index >= len(hero.buildings):
-                index = 0
+            if bm_index >= len(hero.buildings):
+                bm_index = 0
 
-            building = hero.buildings[index]
-            char = None
+            bm_building = hero.buildings[bm_index]
 
             # special cursor for DragAndDrop and the original value
             mouse_drag = {"default" :[("content/gfx/interface/cursors/hand.png", 0, 0)]}
@@ -54,6 +42,10 @@ label building_management:
                 $ guild_teams = CoordsForPaging(bm_mid_frame_mode.idle_teams(), columns=3, rows=3,
                                 size=(208, 83), xspacing=0, yspacing=5, init_pos=(4, 340))
 
+                $ bm_exploration_view_mode = "explore"
+                $ bm_selected_log_area = None
+                $ bm_selected_exp_area = None
+
         elif result[0] == "fg_team":
             python:
                 if result[1] == "rename":
@@ -75,18 +67,9 @@ label building_management:
                     bm_mid_frame_mode.remove_team(result[2])
                     guild_teams.remove(result[2])
         elif result[0] == "building":
-            # if result[1] == 'buyroom':
-            #     python:
-            #         if building.rooms < building.maxrooms:
-            #             if hero.take_money(building.get_room_price(), reason="Building"):
-            #                 building.modrooms(1)
-            #             else:
-            #                 renpy.call_screen('message_screen', "Not enough funds to buy new room!")
-            #         else:
-            #             renpy.call_screen('message_screen', "No more rooms can be added to this building!")
             if result[1] == 'items_transfer':
                 python:
-                    it_members = list(building.get_all_chars())
+                    it_members = list(result[2])
                     it_members.sort(key=attrgetter("name"))
                 hide screen building_management
                 $ items_transfer(it_members)
@@ -95,14 +78,14 @@ label building_management:
                 python:
                     ad = result[2]
 
-                    if building.flag('bought_sign'):
+                    if bm_building.flag('bought_sign'):
                         price = ad['price']/10
                     else:
                         price = ad['price']
 
                     if hero.take_money(price, reason="Building Ads"):
-                        building.fin.log_logical_expense(price, "Ads")
-                        building.set_flag('bought_sign', True)
+                        bm_building.fin.log_logical_expense(price, "Ads")
+                        bm_building.set_flag('bought_sign', True)
                         ad['active'] = not ad['active']
                     else:
                         renpy.show_screen("message_screen", "Not enough cash on hand!")
@@ -111,33 +94,33 @@ label building_management:
                     ad = result[2]
                     price = ad['price']
                     if hero.take_money(price, reason="Building Ads"):
-                        building.fin.log_logical_expense(price, "Ads")
+                        bm_building.fin.log_logical_expense(price, "Ads")
                         ad['active'] = True
                     else:
                         renpy.show_screen("message_screen", "Not enough cash on hand!")
             elif result[1] == "sell":
                 python:
-                    price = int(building.price*.9)
+                    price = int(bm_building.price*.9)
 
                     if renpy.call_screen("yesno_prompt",
-                                         message="Are you sure you wish to sell %s for %d Gold?" % (building.name, price),
+                                         message="Are you sure you wish to sell %s for %d Gold?" % (bm_building.name, price),
                                          yes_action=Return(True), no_action=Return(False)):
-                        if hero.home == building:
+                        if hero.home == bm_building:
                             hero.home = locations["Streets"]
-                        if hero.workplace == building:
+                        if hero.workplace == bm_building:
                             hero.action = None
                             hero.workplace = None
-                        if hero.location == building:
+                        if hero.location == bm_building:
                             set_location(hero, hero.home)
 
-                        retire_chars_from_location(hero.chars, building)
+                        retire_chars_from_location(hero.chars, bm_building)
 
                         hero.add_money(price, reason="Property")
-                        hero.remove_building(building)
+                        hero.remove_building(bm_building)
 
                         if hero.buildings:
-                            index = 0
-                            building = hero.buildings[index]
+                            bm_index = 0
+                            bm_building = hero.buildings[0]
                         else:
                             jump("building_management_end")
         # Upgrades:
@@ -148,19 +131,19 @@ label building_management:
                     if isinstance(temp, BusinessUpgrade):
                         result[3].add_upgrade(temp, pay=True)
                     elif isinstance(temp, Business):
-                        building.add_business(temp, pay=True)
+                        bm_building.add_business(temp, pay=True)
                     elif isinstance(temp, BuildingUpgrade):
-                        building.add_upgrade(temp, pay=True)
+                        bm_building.add_upgrade(temp, pay=True)
                     else:
                         raise Exception("Unknown extension class detected: {}".format(result[2]))
         elif result[0] == "maintenance":
             python:
                 # Cleaning controls
                 if result[1] == "clean":
-                    price = building.get_cleaning_price()
+                    price = bm_building.get_cleaning_price()
                     if hero.take_money(price, reason="Pro-Cleaning"):
-                        building.fin.log_logical_expense(price, "Pro-Cleaning")
-                        building.dirt = 0
+                        bm_building.fin.log_logical_expense(price, "Pro-Cleaning")
+                        bm_building.dirt = 0
                     else:
                         renpy.show_screen("message_screen", "You do not have the required funds!")
                 elif result[1] == "clean_all":
@@ -171,31 +154,27 @@ label building_management:
                     else:
                         renpy.show_screen("message_screen", "You do not have the required funds!")
                 elif result[1] == "toggle_clean":
-                    building.auto_clean = 90 if building.auto_clean == 100 else 100
+                    bm_building.auto_clean = 90 if bm_building.auto_clean == 100 else 100
                 elif result[1] == "rename_building":
-                    building.name = renpy.call_screen("pyt_input", default=building.name, text="Enter Building name:")
-                elif result[1] == "retrieve_jail":
-                    pytfall.ra.retrieve_jail = not pytfall.ra.retrieve_jail
+                    bm_building.name = renpy.call_screen("pyt_input", default=bm_building.name, text="Enter Building name:")
         elif result[0] == 'control':
             if result[1] == 'return':
                 jump building_management_end
 
             if result[1] == 'left':
-                $ index -= 1
-                if index < 0:
-                    $ index = len(hero.buildings) - 1
+                $ bm_index -= 1
+                if bm_index < 0:
+                    $ bm_index = len(hero.buildings) - 1
             else: # if result[1] == 'right':
-                $ index += 1
-                if index >= len(hero.buildings):
-                    $ index = 0
+                $ bm_index += 1
+                if bm_index >= len(hero.buildings):
+                    $ bm_index = 0
 
-            $ building = hero.buildings[index]
+            $ bm_building = hero.buildings[bm_index]
 
 label building_management_end:
     hide screen building_management
 
-    # Reset the vars on next reentry:
-    $ reset_building_management = False
     jump mainscreen
 
 init:
@@ -203,7 +182,7 @@ init:
     screen building_management():
         if hero.buildings:
             # Main Building mode:
-            if bm_mid_frame_mode == "building":
+            if bm_mid_frame_mode is None:
                 use building_management_midframe_building_mode
             else: # Upgrade mode:
                 use building_management_midframe_businesses_mode
@@ -216,7 +195,7 @@ init:
                 ypos 40
                 style_group "content"
                 has vbox
-                if bm_mid_frame_mode == "building":
+                if bm_mid_frame_mode is None:
                     use building_management_leftframe_building_mode
                 else: # Upgrade mode:
                     use building_management_leftframe_businesses_mode
@@ -228,7 +207,7 @@ init:
                 xalign 1.0
                 background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
                 has vbox spacing 1
-                if bm_mid_frame_mode == "building":
+                if bm_mid_frame_mode is None:
                     use building_management_rightframe_building_mode
                 else: # Upgrade mode:
                     use building_management_rightframe_businesses_mode
@@ -239,9 +218,9 @@ init:
                 align .5, .5
                 style "TisaOTM"
 
-        use top_stripe(True)
-        if not bm_mid_frame_mode == "building":
-            key "mousedown_3" action Function(setattr, config, "mouse", mouse_cursor), Return(["bm_mid_frame_mode", "building"])
+        use top_stripe(True, show_lead_away_buttons=False)
+        if not bm_mid_frame_mode is None:
+            key "mousedown_3" action Function(setattr, config, "mouse", mouse_cursor), Return(["bm_mid_frame_mode", None])
         else:
             key "mousedown_4" action Return(["control", "right"])
             key "mousedown_5" action Return(["control", "left"])
@@ -260,34 +239,34 @@ init:
                 button:
                     xysize (135, 40)
                     action Show("building_adverts")
-                    sensitive isinstance(building, BuildingStats) and building.workable and building.can_advert
+                    sensitive getattr(bm_building, "can_advert", False)
                     tooltip 'Advertise this building to attract more and better customers'
                     text "Advertise"
+                $ bm_building_chars = bm_building.get_all_chars()
                 button:
                     xysize (135, 40)
-                    action Return(['building', "items_transfer"])
+                    action Return(['building', "items_transfer", bm_building_chars])
                     tooltip 'Transfer items between characters in this building'
-                    sensitive isinstance(building, HabitableLocation) and (len(building.inhabitants) >= 2)
+                    sensitive len(bm_building_chars) > 1
                     text "Transfer Items"
                 button:
                     xysize (135, 40)
                     action Show("building_controls")
                     tooltip 'Perform maintenance of this building'
-                    sensitive isinstance(building, BuildingStats) and building.workable
                     text "Controls"
             vbox:
                 spacing 5
                 button:
                     xysize (135, 40)
-                    action SetField(hero, "location", building)
+                    action SetField(hero, "location", bm_building)
                     tooltip 'Settle in the building!'
                     sensitive False # We prolly want better conditioning to use this!
                     text "Settle"
                 button:
                     xysize (135, 40)
-                    action Show("finances", None, building, mode="logical")
+                    action Show("finances", None, bm_building, mode="logical")
                     tooltip 'Show finance log for this building'
-                    sensitive isinstance(building, BuildingStats) and building.workable
+                    sensitive hasattr(bm_building, "fin")
                     text "Finance Log"
                 button:
                     xysize (135, 40)
@@ -296,7 +275,7 @@ init:
                     text "Sell"
 
         # Slots for New Style Upgradable Buildings:
-        if isinstance(building, UpgradableBuilding):
+        if isinstance(bm_building, UpgradableBuilding):
             frame:
                 xalign .5
                 style_prefix "proper_stats"
@@ -307,24 +286,24 @@ init:
                 frame:
                     xysize (296, 27)
                     text "Indoor Slots:" xalign .02 color ivory
-                    text "%d/%d" % (building.in_slots, building.in_slots_max) xalign .98 style_suffix "value_text"
+                    text "%d/%d" % (bm_building.in_slots, bm_building.in_slots_max) xalign .98 style_suffix "value_text"
                 frame:
                     xysize (296, 27)
                     text "Outdoor Slots:" xalign .02 color ivory
-                    text "%d/%d" % (building.ex_slots, building.ex_slots_max) xalign .98 style_suffix "value_text"
+                    text "%d/%d" % (bm_building.ex_slots, bm_building.ex_slots_max) xalign .98 style_suffix "value_text"
                 frame:
                     xysize (296, 27)
                     text "Workable Capacity:" xalign .02 color ivory
-                    text "[building.workable_capacity]" xalign .98 style_suffix "value_text"
+                    text "[bm_building.workable_capacity]" xalign .98 style_suffix "value_text"
                 frame:
                     xysize (296, 27)
                     text "Habitable Capacity:" xalign .02 color ivory
-                    text "[building.habitable_capacity]" xalign .98 style_suffix "value_text"
+                    text "[bm_building.habitable_capacity]" xalign .98 style_suffix "value_text"
 
             null height 20
 
         # Manager?
-        if isinstance(building, UpgradableBuilding):
+        if hasattr(bm_building, "manager"):
             vbox:
                 xalign .5
                 frame:
@@ -333,16 +312,16 @@ init:
 
                     xalign .5
                     background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.95), 10, 10)
-                    if building.manager:
-                        add building.manager.show("profile", resize=(190, 190), add_mood=True, cache=True) align .5, .5
+                    if bm_building.manager:
+                        add bm_building.manager.show("profile", resize=(190, 190), add_mood=True, cache=True) align .5, .5
                     else:
                         xysize (190, 190)
                         text "No manager" align (.5, .5) size 25 color goldenrod drop_shadow [(1, 2)] drop_shadow_color black antialias True style_prefix "proper_stats"
-                if building.manager:
+                if bm_building.manager:
                     text "Current manager" align (.5, .5) size 25 color goldenrod drop_shadow [(1, 2)] drop_shadow_color black antialias True style_prefix "proper_stats"
             null height 20
-            if building.desc:
-                text building.desc xalign.5 style_prefix "proper_stats" text_align .5 color goldenrod outlines [(1, "#3a3a3a", 0, 0)]
+        if bm_building.desc:
+            text bm_building.desc xalign.5 style_prefix "proper_stats" text_align .5 color goldenrod outlines [(1, "#3a3a3a", 0, 0)]
 
     screen building_management_rightframe_businesses_mode:
         $ frgr = Fixed(xysize=(315, 680))
@@ -371,10 +350,9 @@ init:
                     button:
                         xysize 150, 40
                         yalign .5
-                        action Return(["bm_mid_frame_mode", "building"])
-                        tooltip ("Here you can invest your gold and resources for various improvements.\n"+
-                                 "And see the different information (reputation, rank, fame, etc.)")
-                        text "Building" size 15
+                        action Return(["bm_mid_frame_mode", None])
+                        tooltip ("Back to the main overview of the building.")
+                        text "Back" size 15
                     if isinstance(bm_mid_frame_mode, ExplorationGuild):
                         use building_management_rightframe_exploration_guild_mode
 
@@ -386,20 +364,13 @@ init:
             padding 10, 10
             has vbox spacing 1
 
-            # We are not really using this anymore?
-            # Security Rating:
-            # frame:
-            #     xysize (296, 27)
-            #     text "Security Rating:" xalign .02 color ivory
-            #     text "%s/1000" % building.security_rating xalign .98 style_suffix "value_text" yoffset 4
-            # INSTEAD: Report quarter location.
             frame:
                 xysize (296, 27)
                 text "Location:" xalign .02 color ivory
-                text "[building.location]" xalign .98 style_suffix "value_text" yoffset 4
+                text "[bm_building.location]" xalign .98 style_suffix "value_text" yoffset 4
 
             # Dirt:
-            if isinstance(building, BuildingStats):
+            if hasattr(bm_building, "dirt"):
                 frame:
                     xysize (296, 27)
                     button:
@@ -409,7 +380,9 @@ init:
                         tooltip "Dirt will never pile up in smaller buildings (10 workable capacity for any and 15 for buildings with a competent manager). Your workers will take care of it before it gets a chance!"
                         action NullAction()
                         text "Dirt:" color brown hover_color green
-                    text "%s (%s %%)" % (building.get_dirt_percentage()[1], building.get_dirt_percentage()[0]) xalign .98 style_suffix "value_text" yoffset 4
+                    text "%s (%s %%)" % (bm_building.get_dirt_percentage()[1], bm_building.get_dirt_percentage()[0]) xalign .98 style_suffix "value_text" yoffset 4
+            # Threat
+            if hasattr(bm_building, "threat"):
                 frame:
                     xysize (296, 27)
                     button:
@@ -419,32 +392,32 @@ init:
                         tooltip "Threat will never effect the smaller buildings (15 workable capacity for any and 20 for buildings with a competent manager). Your workers will never allow it to increase!"
                         action NullAction()
                         text "Threat:" color crimson hover_color green
-                    text "%s %%" % (building.threat * 100 / building.max_stats["threat"]):
+                    text "%s %%" % (bm_building.threat * 100 / bm_building.max_stats["threat"]):
                         xalign .98
                         style_suffix "value_text"
                         yoffset 4
-            if hasattr(building, "tier"):
+            if hasattr(bm_building, "tier"):
                 frame:
                     xysize (296, 27)
                     text "Tier:" xalign .02 color ivory
-                    text "%s" % (building.tier) xalign .98 style_suffix "value_text" yoffset 4
+                    text "%s" % (bm_building.tier) xalign .98 style_suffix "value_text" yoffset 4
 
             # Fame/Rep:
-            if isinstance(building, FamousBuilding):
+            if hasattr(bm_building, "fame"):
                 frame:
                     xysize (296, 27)
                     text "Fame:" xalign .02 color ivory
-                    text "%s/%s" % (building.fame, building.maxfame) xalign .98 style_suffix "value_text" yoffset 4
+                    text "%s/%s" % (bm_building.fame, bm_building.maxfame) xalign .98 style_suffix "value_text" yoffset 4
                 frame:
                     xysize (296, 27)
                     text "Reputation:" xalign .02 color ivory
-                    text "%s/%s" % (building.rep, building.maxrep) xalign .98 style_suffix "value_text" yoffset 4
+                    text "%s/%s" % (bm_building.rep, bm_building.maxrep) xalign .98 style_suffix "value_text" yoffset 4
 
         null height 5
         frame:
             background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
             xysize (317, 480)
-            if isinstance(building, UpgradableBuilding):
+            if isinstance(bm_building, UpgradableBuilding):
                 frame:
                     align .5, .02
                     background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
@@ -457,7 +430,7 @@ init:
                     scrollbars "vertical"
                     draggable True
                     has vbox
-                    for u in building.all_extensions():
+                    for u in bm_building.all_extensions():
                         frame:
                             xalign .6
                             background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 5, 5)
@@ -489,27 +462,11 @@ init:
                                 hover ProportionalScale("content/gfx/interface/buttons/close4_h.png", 20, 24)
                                 action Show("yesno_prompt",
                                      message="Are you sure you wish to close this %s for %d Gold?" % (u.name, u.get_price()),
-                                     yes_action=[Function(building.close_business, u, pay=True), Hide("yesno_prompt")], no_action=Hide("yesno_prompt"))
+                                     yes_action=[Function(bm_building.close_business, u, pay=True), Hide("yesno_prompt")], no_action=Hide("yesno_prompt"))
                                 tooltip "Close the business"
 
-        # frame:
-            # background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
-            # xysize (317, 160)
-            # style_group "stats"
-            # label "Active Advertisements:" text_color ivory xalign .5
-            # if hasattr(building, "use_adverts") and building.use_adverts:
-                # vbox:
-                    # null height 35
-                    # spacing -6
-                    # for advert in building.adverts:
-                        # if advert['active']:
-                            # frame:
-                                # xysize (305, 27)
-                                # text (u"%s" % advert['name']) size 16 xalign (.02)
-
     screen building_management_leftframe_businesses_mode:
-        $ show_slots = not any([(isinstance(bm_mid_frame_mode, ExplorationGuild) and bm_exploration_view_mode in ("log", "team", "explore"))])
-        if show_slots:
+        if not isinstance(bm_mid_frame_mode, ExplorationGuild):
             frame:
                 background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
                 style_group "proper_stats"
@@ -603,7 +560,7 @@ init:
                                 action NullAction()
                                 tooltip "The only remaining option is to close the business"
 
-            if getattr(bm_mid_frame_mode, "upgrades", []):
+            if getattr(bm_mid_frame_mode, "upgrades", None):
                 null height 5
                 frame:
                     align .5, .02
@@ -641,13 +598,13 @@ init:
                 xalign .5
                 xysize (380, 50)
                 background Frame("content/gfx/frame/namebox5.png", 10, 10)
-                label (u"[building.name]") text_size 23 text_color ivory align (.5, .6)
+                label (u"[bm_building.name]") text_size 23 text_color ivory align (.5, .6)
 
             frame:
                 align .5, .0
                 ypos 60
                 background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.95), 10, 10)
-                add pscale(building.img, 600, 444)
+                add pscale(bm_building.img, 600, 444)
 
             # Left/Right Controls + Expand button:
             vbox:
@@ -666,12 +623,12 @@ init:
                         background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
                         xysize 200, 50
                         align (.5, .5)
-                        if isinstance(building, UpgradableBuilding):
+                        if isinstance(bm_building, UpgradableBuilding):
                             button:
                                 style_prefix "wood"
                                 align .5, .5
                                 xysize 135, 40
-                                action Return(["bm_mid_frame_mode", building])
+                                action Return(["bm_mid_frame_mode", bm_building])
                                 tooltip 'Open a new business or upgrade this building!'
                                 text "Expand"
                     button:
@@ -681,43 +638,6 @@ init:
                         action Return(['control', 'right'])
                         tooltip "Next ==>"
                         text "Next" style "wood_text" xalign .39
-
-                # if isinstance(building, UpgradableBuilding):
-                #     frame:
-                #         align .5, .95
-                #         style_group "wood"
-                #         background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.9), 5, 5)
-                #         xpadding 20
-                #         ypadding 10
-                #         button:
-                #             align .5, .5
-                #             xysize (135, 40)
-                #             action Return(["bm_mid_frame_mode", building])
-                #             tooltip 'Open a new business or upgrade this building!'
-                #             text "Expand"
-
-                ## Security Bar:
-                # if hasattr(building, "gui_security_bar") and building.gui_security_bar()[0]:
-                #     frame:
-                #         xalign .490
-                #         ypos 561
-                #         background Frame(Transform("content/gfx/frame/rank_frame.png", alpha=.4), 5, 5)
-                #         xysize (240, 55)
-                #         xpadding 10
-                #         ypadding 10
-                #         hbox:
-                #             pos (34, 1)
-                #             vbox:
-                #                 xsize 135
-                #                 text "Security Presence:" size 12
-                #             vbox:
-                #                 text (u"%d/%d"%(building.security_presence, building.gui_security_bar()[1])) size 12
-                #         null height 3
-                #         bar:
-                #             align (.45, .8)
-                #             value FieldValue(building, 'security_presence', building.gui_security_bar()[1], max_is_zero=False, style='scrollbar', offset=0, step=1)
-                #             xsize 170
-                #             thumb 'content/gfx/interface/icons/move15.png'
 
     screen building_management_midframe_businesses_mode:
         frame:
@@ -745,7 +665,7 @@ init:
                                     background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
                                     has fixed xysize 500, 150
 
-                                    $ cost, materials, in_slots, ex_slots = building.get_extension_cost(u)
+                                    $ cost, materials, in_slots, ex_slots = bm_building.get_extension_cost(u)
 
                                     hbox:
                                         xalign .5
@@ -806,13 +726,13 @@ init:
                                         style_prefix "proper_stats"
                                         if in_slots:
                                             text "Indoor Slots:"
-                                            if (building.in_slots_max - building.in_slots) >= in_slots:
+                                            if (bm_building.in_slots_max - bm_building.in_slots) >= in_slots:
                                                 text "[in_slots]"
                                             else:
                                                 text "[in_slots]" color grey
                                         if ex_slots:
                                             text "Exterior Slots:"
-                                            if (building.ex_slots_max - building.ex_slots) >= ex_slots:
+                                            if (bm_building.ex_slots_max - bm_building.ex_slots) >= ex_slots:
                                                 text "[ex_slots]"
                                             else:
                                                 text "[ex_slots]" color grey
@@ -832,14 +752,8 @@ init:
                                             style "pb_button"
                                             text_size 15
                                             action [Return(["upgrade", "build", u, bm_mid_frame_mode]),
-                                                    SensitiveIf(building.eval_extension_build(u,
+                                                    SensitiveIf(bm_building.eval_extension_build(u,
                                                                 price=(cost, materials, in_slots, ex_slots)))]
-
-                # textbutton "{size=20}{font=fonts/TisaOTM.otf}{color=[goldenrod]}Back":
-                #     background Transform(Frame("content/gfx/interface/images/story12.png"), alpha=.8)
-                #     hover_background Transform(Frame(im.MatrixColor("content/gfx/interface/images/story12.png", im.matrix.brightness(.15))), alpha=1)
-                #     align .5, .95
-                #     action Return(["bm_mid_frame_mode", "building"])
 
     screen building_controls():
         modal True
@@ -865,7 +779,7 @@ init:
                     tooltip "Give new name to your Building!"
                     text "Rename Building"
 
-                if isinstance(building, BuildingStats):
+                if hasattr(bm_building, "auto_clean"):
                     null height 20
                     label (u"Cleaning Options:"):
                         style "proper_stats_label"
@@ -879,17 +793,17 @@ init:
                         bar:
                             xmaximum 120
                             align (.5, .5)
-                            if building.auto_clean == 100:
+                            if bm_building.auto_clean == 100:
                                 value 100
                                 range 100
                             else:
-                                value FieldValue(building, "auto_clean", 99, style='scrollbar', offset=0, step=1)
+                                value FieldValue(bm_building, "auto_clean", 99, style='scrollbar', offset=0, step=1)
                                 thumb 'content/gfx/interface/icons/move15.png'
-                                tooltip "Cleaners are called if dirt is more than %d%%" % building.auto_clean 
+                                tooltip "Cleaners are called if dirt is more than %d%%" % bm_building.auto_clean 
                         button:
                             xalign 1.0
                             action Return(['maintenance', "toggle_clean"])
-                            selected building.auto_clean != 100
+                            selected bm_building.auto_clean != 100
                             tooltip "Toggle automatic hiring of cleaners"
                             text "Auto"
 
@@ -897,13 +811,13 @@ init:
                         xysize(200, 32)
                         xalign .5
                         action Return(['maintenance', "clean"])
-                        tooltip "Hire cleaners to completely clean this building for %d Gold." % building.get_cleaning_price()
+                        tooltip "Hire cleaners to completely clean this building for %d Gold." % bm_building.get_cleaning_price()
                         text "Clean: Building"
 
                     python:
                         price = 0
                         for i in hero.buildings:
-                            if isinstance(i, BuildingStats):
+                            if hasattr(i, "auto_clean"):
                                 price = price + i.get_cleaning_price()
 
                     button:
@@ -913,7 +827,7 @@ init:
                         tooltip "Hire cleaners to completely clean all buildings for %d Gold." % price
                         text "Clean: All Buildings"
 
-                if isinstance(building, UpgradableBuilding):
+                if hasattr(bm_building, "manager"):
                     null height 20
                     label u"Management Options:":
                          style "proper_stats_label"
@@ -938,22 +852,22 @@ init:
                         button:
                             xysize 200, 32
                             xalign .5
-                            action ToggleField(building, field)
+                            action ToggleField(bm_building, field)
                             tooltip tt
                             text "[name]"
 
                     null height 5
                     python:
-                        desc0 = "==> {} Rule".format(building.workers_rule.capitalize())
+                        desc0 = "==> {} Rule".format(bm_building.workers_rule.capitalize())
                         desc1 = "Choose a rule your workers are managed by!"
-                        desc2 = building.WORKER_RULES_DESC[building.workers_rule]
+                        desc2 = bm_building.WORKER_RULES_DESC[bm_building.workers_rule]
                         desc = "\n".join([desc0, desc1, desc2])
                     button:
                         xysize (200, 32)
                         xalign .5
-                        action Function(building.toggle_workers_rule)
+                        action Function(bm_building.toggle_workers_rule)
                         tooltip "{}".format(desc)
-                        text "WR: {}".format(building.workers_rule.capitalize())
+                        text "WR: {}".format(bm_building.workers_rule.capitalize())
 
             button:
                 style_group "dropdown_gm"
@@ -982,7 +896,7 @@ init:
                 align(.5, .4)
                 box_wrap True
                 spacing 20
-                for advert in building.adverts:
+                for advert in bm_building.adverts:
                     vbox:
                         style_group "basic"
                         align (.5, .5)

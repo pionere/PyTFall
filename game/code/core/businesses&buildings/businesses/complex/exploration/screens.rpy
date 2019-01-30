@@ -67,11 +67,11 @@ screen building_management_leftframe_exploration_guild_mode:
                         button:
                             xysize 220, 18
                             if area.unlocked:
-                                if selected_log_area == area:
-                                    action SetVariable("selected_log_area", None)
+                                if bm_selected_log_area == area:
+                                    action SetVariable("bm_selected_log_area", None)
                                     selected True
                                 else:
-                                    action SetVariable("selected_log_area", area)
+                                    action SetVariable("bm_selected_log_area", area)
                                 $ tmp = area.name
                             else:
                                 $ tmp = "?????????"
@@ -193,7 +193,7 @@ screen building_management_leftframe_exploration_guild_mode:
                 xalign .5 ypos 57
                 has vbox spacing 4
                 $ temp = sorted([a for a in fg_areas.values() if a.main and a.unlocked], key=attrgetter("name"))
-                if temp and not bm_mid_frame_focus:
+                if temp and not bm_selected_exp_area:
                     $ mid_frame_focus = temp[0]
 
                 for area in temp:
@@ -206,13 +206,13 @@ screen building_management_leftframe_exploration_guild_mode:
                             align .5, .5
                             xysize 220, 130
                             background Frame(img)
-                            if bm_mid_frame_focus == area:
+                            if bm_selected_exp_area == area:
                                 action NullAction()
                                 $ name_bg = "content/gfx/frame/frame_bg.png"
                                 $ hcolor = gold
                             else:
                                 hover_background Frame(im.MatrixColor(img, im.matrix.brightness(.05)))
-                                action SetVariable("bm_mid_frame_focus", area)
+                                action SetVariable("bm_selected_exp_area", area)
                                 $ name_bg = "content/gfx/frame/ink_box.png"
                                 $ hcolor = red
                             frame:
@@ -228,9 +228,9 @@ screen building_management_leftframe_exploration_guild_mode:
 
 screen building_management_midframe_exploration_guild_mode:
     if bm_exploration_view_mode == "log":
-        if isinstance(selected_log_area, FG_Area):
+        if isinstance(bm_selected_log_area, FG_Area):
             default focused_log = None
-            $ area = selected_log_area
+            $ area = bm_selected_log_area
 
             frame:
                 #ypos 40
@@ -306,7 +306,7 @@ screen building_management_midframe_exploration_guild_mode:
                                     add ProportionalScale(item.icon, 100, 100) xalign .5
                                     text item.desc xalign .5 color white
         else:
-                    # selected_log_area is None
+            # bm_selected_log_area is None
             vbox:
                 xsize 630
                 frame: # Image
@@ -327,8 +327,8 @@ screen building_management_midframe_exploration_guild_mode:
                 box_wrap 1
                 spacing 2
                 xalign .5
-                if isinstance(bm_mid_frame_focus, FG_Area):
-                    $ temp = sorted([a for a in fg_areas.values() if a.area == bm_mid_frame_focus.id], key=attrgetter("stage"))
+                if isinstance(bm_selected_exp_area, FG_Area):
+                    $ temp = sorted([a for a in fg_areas.values() if a.area == bm_selected_exp_area.id], key=attrgetter("stage"))
                     for area in temp:
                         $ fbg = "content/gfx/frame/mes12.jpg"
                         $ hfbg = im.MatrixColor("content/gfx/frame/mes11.webp", im.matrix.brightness(.10))

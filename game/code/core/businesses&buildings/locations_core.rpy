@@ -112,6 +112,8 @@ init -20 python:
                 rooms = 0
             return rooms
 
+        def get_all_chars(self):
+            return self.inhabitants
 
     class InvLocation(HabitableLocation):
         """Location with an inventory:

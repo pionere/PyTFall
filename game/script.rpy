@@ -615,6 +615,7 @@ label after_load:
         if not hasattr(hero, "teams"):
             hero.teams = [hero.team]
 
+        store.bm_mid_frame_mode = None
         for b in hero.buildings:
             if isinstance(b, UpgradableBuilding):
                 if not hasattr(b, "init_pep_talk"):
