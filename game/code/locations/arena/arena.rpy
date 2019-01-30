@@ -976,24 +976,16 @@ init -9 python:
                 renpy.music.stop(fadeout=1.0)
 
             if battle.winner == hero.team:
-                winner = hero.team
-                loser = team
                 for member in hero.team:
                     # Awards:
                     if member not in battle.corpses:
-                        statdict = {} # no gold for mobs, and only little bit of reputation. because they give items, unlike all other modes
-                        statdict["Arena Rep"] = max(int(self.mob_power*.2), 1)
-                        statdict["exp"] = exp_reward(member, loser, ap_used=.3)
-                        for stat in statdict:
-                            if stat == "exp":
-                                member.exp += statdict[stat]
-                            elif stat == "gold":
-                                member.add_money(statdict[stat], reason="Arena")
-                            elif stat == "Arena Rep":
-                                member.arena_rep += statdict[stat]
-                            else:
-                                member.mod_stat(stat, statdict[stat])
-                        member.combat_stats = statdict
+                        rew_xp = exp_reward(member, team, ap_used=.3)
+                        rew_rep = max(int(self.mob_power*.2), 1) # only little bit of reputation
+                        #rew_gold = 0 # no gold for mobs, because they give items, unlike all other modes
+                        member.exp += rew_xp
+                        member.arena_rep += rew_rep
+                        #member.add_money(rew_gold, reason="Arena")
+                        member.combat_stats = {"exp":rew_xp, "Arena Rep": rew_rep}
                     else:
                         member.combat_stats = "K.O."
 
@@ -1020,7 +1012,6 @@ init -9 python:
                     self.cf_mob = None
                     self.cf_setup = None
                     self.cf_count = 0
-                    self.award = None
                     renpy.play("win_screen.mp3", channel="world")
                     renpy.show_screen("arena_finished_chainfight", hero.team, rewards)
                     return
@@ -1032,9 +1023,6 @@ init -9 python:
                 self.cf_mob = None
                 self.cf_setup = None
                 self.cf_count = 0
-                self.award = None
-                winner = team
-                loser = hero.team
                 for member in hero.team:
                     member.combat_stats = "K.O."
                 jump("arena_inside")
@@ -1205,30 +1193,30 @@ init -9 python:
             max_gold = (enemy_team.get_level()+hero.team.get_level())*5
             blood = start_health - finish_health
             # Awards:
-            money = round_int(max_gold*(float(loser.get_level())/winner.get_level()))
+            rew_gold = round_int(max_gold*(float(loser.get_level())/winner.get_level()))
             if blood > 0:
-                money += blood
+                rew_gold += blood
 
             rep = min(50, max(3, self.arena_rep_reward(loser, winner)))
 
             for member in winner:
                 if member not in battle.corpses:
-                    statdict = dict()
-                    statdict["gold"] = money
-                    if dice(enemy_team.get_level()):
-                        statdict["fame"] = randint(0, 1)
-                        statdict["reputation"] = randint(0, 1)
-                    statdict["Arena Rep"] = int(rep)
-                    statdict["exp"] = exp_reward(member, loser, ap_used=2)
-                    for stat, value in statdict.items():
-                        if stat == "exp":
-                            member.exp += value
-                        elif stat == "Arena Rep":
-                            member.arena_rep += value
-                        elif stat == "gold":
-                            member.add_money(value, reason="Arena")
-                        else:
-                            member.mod_stat(stat, value)
+                    rew_xp = exp_reward(member, loser, ap_used=2)
+                    rew_rep = int(rep)
+
+                    member.exp += rew_xp
+                    member.arena_rep += rew_rep
+                    member.add_money(rew_gold, reason="Arena")
+
+                    statdict = {"gold":rew_gold, "Arena Rep":rew_rep, "exp":rew_xp}
+                    if dice(loser.get_level()):
+                        if randint(0, 1):
+                            member.mod_stat("fame", 1)
+                            statdict["fame"] = 1
+                        if randint(0, 1):
+                            member.mod_stat("reputation", 1)
+                            statdict["reputation"] = 1
+
                     member.combat_stats = statdict
                 else:
                     member.combat_stats = "K.O."
@@ -1294,34 +1282,34 @@ init -9 python:
             else:
                 loser = hero.team
 
-            rep = self.arena_rep_reward(loser, winner)
+            rew_rep = self.arena_rep_reward(loser, winner)
+            rew_gold = int(max(200, 250*(float(loser.get_level()) / winner.get_level())))
 
             for member in winner:
-                if member in battle.corpses:
-                    member.combat_stats = "K.O."
-                    continue
+                if member not in battle.corpses:
+                    rew_xp = exp_reward(member, loser, ap_used=2)
 
-                statdict = dict()
-                statdict["gold"] = int(max(200, 250*(float(enemy_team.get_level()) / loser.get_level())))
-                if dice(enemy_team.get_level()):
-                    statdict["fame"] = randint(0, 2)
-                    statdict["reputation"] = randint(0, 2)
-                statdict["Arena Rep"] = int(rep)
-                statdict["exp"] = exp_reward(member, loser, ap_used=2)
-                for stat, value in statdict.items():
-                    if stat == "exp":
-                        member.exp += value
-                    elif stat == "Arena Rep":
-                        member.arena_rep += value
-                    elif stat == "gold":
-                        member.add_money(value, reason="Arena")
-                    else:
-                        member.mod_stat(stat, value)
+                    member.exp += rew_xp
+                    member.arena_rep += int(rew_rep)
+                    member.add_money(rew_gold, reason="Arena")
+
+                    statdict = {"gold":rew_gold, "Arena Rep":int(rew_rep), "exp":rew_xp}
+                    if dice(loser.get_level()):
+                        rew_fame = randint(0, 2)
+                        if rew_fame:
+                            member.mod_stat("fame", rew_fame)
+                            statdict["fame"] = rew_fame
+                        rew_r = randint(0, 2)
+                        if rew_r:
+                            member.mod_stat("reputation", rew_fame)
+                            statdict["reputation"] = rew_fame
                     member.combat_stats = statdict
+                else:
+                    member.combat_stats = "K.O."
 
-            rep = rep / 10.0 
+            rew_rep = rew_rep / 10.0 
             for member in loser:
-                member.arena_rep -= int(rep)
+                member.arena_rep -= int(rew_rep)
                 member.exp += exp_reward(member, winner, ap_used=2, final_mod=.15)
                 # self.remove_team_from_dogfights(member)
 
