@@ -56,7 +56,7 @@ label arena_inside:
             elif result[1] == "start_chainfight":
                 $ pytfall.arena.check_before_chainfight()
             elif result[1] == "chainfight":
-                $ pytfall.arena.execute_chainfight()
+                $ pytfall.arena.execute_chainfight(result[2])
 
 label arena_inside_end:
     $ renpy.stop_predict(*arena_img_predict)
@@ -1271,17 +1271,25 @@ init: # ChainFights vs Mobs:
         frame:
             style_prefix "dropdown_gm"
             align(.5, .9)
-            has hbox spacing 40
-            textbutton "Give Up":
-                action [Hide("arena_inside"), Hide("chain_fight"), Hide("confirm_chainfight"),
-                        SetField(pytfall.arena, "cf_count", 0),
-                        SetField(pytfall.arena, "cf_mob", None),
-                        SetField(pytfall.arena, "cf_setup", None),
-                        Stop("music"), Jump("arena_inside")]
-            textbutton "Fight":
-                action [Hide("arena_inside"), Hide("chain_fight"),
-                        Hide("confirm_chainfight"),
-                        Return(["challenge", "chainfight"])]
+            has vbox spacing 10
+            hbox:
+                xalign .5
+                textbutton "Auto":
+                    action [Hide("arena_inside"), Hide("chain_fight"),
+                            Hide("confirm_chainfight"),
+                            Return(["challenge", "chainfight", True])]
+            hbox:
+                spacing 100
+                textbutton "Give Up":
+                    action [Hide("arena_inside"), Hide("chain_fight"), Hide("confirm_chainfight"),
+                            SetField(pytfall.arena, "cf_count", 0),
+                            SetField(pytfall.arena, "cf_mob", None),
+                            SetField(pytfall.arena, "cf_setup", None),
+                            Stop("music"), Jump("arena_inside")]
+                textbutton "Fight":
+                    action [Hide("arena_inside"), Hide("chain_fight"),
+                            Hide("confirm_chainfight"),
+                            Return(["challenge", "chainfight", False])]
             # button:
             #     text "Give Up":
             #         size 25 color goldenrod outlines [(1, "#000000", 0, 0)]

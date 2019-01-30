@@ -949,28 +949,31 @@ init -9 python:
 
             renpy.show_screen("confirm_chainfight")
 
-        def execute_chainfight(self):
+        def execute_chainfight(self, auto):
             """
             Bridge to battle engine + rewards/penalties.
             """
             team = self.cf_mob
 
             renpy.music.stop(channel="world")
-            renpy.play(choice(["content/sfx/sound/world/arena/prepare.mp3", "content/sfx/sound/world/arena/new_opp.mp3"]))
-            track = get_random_battle_track()
-            renpy.pause(1.3)
-            renpy.music.play(track, fadein=1.5)
-
-            for mob in team:
-                mob.controller = Complex_BE_AI(mob)
-
             global battle
-            battle = BE_Core(ImageReference("chainfights"), start_sfx=get_random_image_dissolve(1.5), end_sfx=dissolve, give_up = "surrender")
-            battle.teams.append(hero.team)
-            battle.teams.append(team)
-            battle.start_battle()
+            if auto is True:
+                battle = new_style_conflict_resolver(hero.team, team, ai="complex")
+            else:
+                renpy.play(choice(["content/sfx/sound/world/arena/prepare.mp3", "content/sfx/sound/world/arena/new_opp.mp3"]))
+                track = get_random_battle_track()
+                renpy.pause(1.3)
+                renpy.music.play(track, fadein=1.5)
 
-            renpy.music.stop(fadeout=1.0)
+                for mob in team:
+                    mob.controller = Complex_BE_AI(mob)
+
+                battle = BE_Core(ImageReference("chainfights"), start_sfx=get_random_image_dissolve(1.5), end_sfx=dissolve, give_up = "surrender")
+                battle.teams.append(hero.team)
+                battle.teams.append(team)
+                battle.start_battle()
+
+                renpy.music.stop(fadeout=1.0)
 
             if battle.winner == hero.team:
                 winner = hero.team
