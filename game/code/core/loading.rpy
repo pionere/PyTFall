@@ -41,6 +41,7 @@ init -11 python:
         return load_json(path)
 
     def load_tags_folder(folder, path):
+        img_set = set()
         for fn in os.listdir(path):
             if check_image_extension(fn):
                 tags = fn.split("-")
@@ -54,7 +55,8 @@ init -11 python:
                         raise Exception("Unknown image tag: %s, fn: %s, path: %s" % (tag, fn, path))
                     tagdb.tagmap[tags_dict[tag]].add(fn)
                 # Adding filenames to girls id:
-                tagdb.tagmap.setdefault(folder, set()).add(fn)
+                img_set.add(fn)
+        tagdb.tagmap[folder] = img_set
 
     def load_team_names(amount):
         rn = load_db_json("names/team_names.json")

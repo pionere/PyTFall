@@ -670,11 +670,15 @@ label after_load:
 
     python hide:
         if hasattr(store, "json_fighters"):
+            hero._path_to_imgfolder = hero._path_to_imgfolder.replace("npc/arena_males", "fighters/males/warriors")
+
             for id, fighter in store.json_fighters.iteritems():
                 if fighter.gender == "male":
                     store.male_fighters[id] = fighter
+                    fighter._path_to_imgfolder = fighter._path_to_imgfolder.replace("npc/arena_males", "fighters/males/warriors")
                 else:
                     store.female_fighters[id] = fighter
+                    fighter._path_to_imgfolder = fighter._path_to_imgfolder.replace("npc/arena_females", "fighters/females")
             del store.json_fighters
 
         for obj in pytfall.__dict__.values():
