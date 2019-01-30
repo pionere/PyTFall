@@ -241,6 +241,8 @@ init -6 python: # Guild, Tracker and Log.
             main_area.cash_earned += cash_earned
             main_area.chars_captured += chars_captured
 
+            defeated_mobs.update(self.mobs_defeated)
+
             # Restore Chars and Remove from guild:
             self.guild.explorers.remove(self)
             for char in self.team:

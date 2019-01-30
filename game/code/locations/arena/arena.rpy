@@ -990,7 +990,7 @@ init -9 python:
                         member.combat_stats = "K.O."
 
                 for mob in loser:
-                    defeated_mobs[mob.id] = 1
+                    defeated_mobs.add(mob.id)
 
                 # Ladder
                 self.update_ladder()

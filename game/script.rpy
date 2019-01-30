@@ -522,6 +522,9 @@ label after_load:
     #         if c not in chars.itervalues():
     #             remove_from_gameworld(c)
     python hide:
+        if isinstance(store.defeated_mobs, dict):
+            store.defeated_mobs = set(store.defeated_mobs.keys())
+
         if hasattr(store, "storyi_treasures") and isinstance(store.storyi_treasures, list):
             hero.del_flag("been_in_old_ruins")
 

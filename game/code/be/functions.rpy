@@ -174,6 +174,9 @@ init -11 python:
         if battle.combat_status in ("escape", "surrender"):
             rv = battle.combat_status
         else:
+            for mob in enemy_team:
+                defeated_mobs.add(mob.id)
+
             rv = battle.win
 
         return rv
