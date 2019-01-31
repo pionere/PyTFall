@@ -582,29 +582,27 @@ screen fg_area(area):
                 action ToggleField(area, "building_camp")
             else:
                 action NullAction()
-            python:
-                if area.camp:
-                    status = "Complete"
-                elif area.building_camp:
-                    status = area.camp_build_status + " Complete"
-                else:
-                    status = "Unknown"
-            text "Camp status:" xalign .0
-            text "[status]" xalign 1.0
+            selected area.building_camp
+            text "Build the camp" xalign .5
+            tooltip "Activate if you want the team to spend its time on building the camp."
         button:
             xalign .5
             xysize 300, 30
             action ToggleField(area, "capture_chars")
-            text "Capture Chars:" xalign .0
-            text "[area.capture_chars]" xalign 1.0
+            text "Capture Chars" xalign .5
+            selected area.capture_chars
 
         null height 5
-        if area.travel_time:
-            button:
-                xalign .5
-                xysize 300, 30
-                text "Distance about %d days" % (round_int(area.travel_time)) xalign .0
-                action NullAction()
+        $ distance = round_int(area.travel_time)
+        button:
+            xalign .5
+            xysize 300, 30
+            if distance > 1:
+                text "Travel time is about %d days" % distance xalign .5
+            elif distance == 1:
+                text "Travel time is about a day" xalign .5
+            else:
+                text "Travel time is less than one day" xalign .5
         button:
             xalign .5
             xysize 300, 30
@@ -660,6 +658,48 @@ screen fg_area(area):
                 idle 'content/gfx/interface/buttons/next.png'
                 hover (im.MatrixColor('content/gfx/interface/buttons/next.png', im.matrix.brightness(.15)))
                 action SetField(area, "risk", min(100, area.risk+1))
+
+        null height 5
+        hbox:
+            spacing 10
+            xalign .5
+            python:
+                temp = bm_mid_frame_mode
+                teams = temp.teams_to_launch() if temp else []
+                if teams:
+                    if not temp.focus_team:
+                        try:
+                            temp.focus_team = teams[temp.team_to_launch_index]
+                        except:
+                            temp.focus_team = teams[0]
+
+            button:
+                style "paging_green_button_left"
+                yalign .5
+                action temp.prev_team_to_launch, renpy.restart_interaction
+                tooltip "Previous Team"
+                sensitive len(teams) > 1
+            button:
+                style "marble_button"
+                padding 10, 10
+                if teams:
+                    action Function(temp.launch_team, area), Jump("building_management")
+                    tooltip "Send {} on {} days long exploration run!".format(temp.focus_team.name, area.days)
+                    vbox:
+                        xminimum 150
+                        spacing -30
+                        text "Launch" style "basic_button_text" xalign .5
+                        text "\n[temp.focus_team.name]" style "basic_button_text" xalign .5
+                else:
+                    action NullAction()
+                    text "No Teams Available!" style "basic_button_text" align .5, .5
+
+            button:
+                style "paging_green_button_right"
+                yalign .5
+                action temp.next_team_to_launch, renpy.restart_interaction
+                tooltip "Next Team"
+                sensitive len(teams) > 1
 
     # Mid-Frame:
     frame:
@@ -766,47 +806,6 @@ screen fg_area(area):
                                 xysize 60, 60
                                 align .99, .5
                                 add ProportionalScale(i.icon, 57, 57) align .5, .5
-
-        hbox:
-            spacing 20
-            xalign .5 ypos 550
-            python:
-                temp = bm_mid_frame_mode
-                teams = temp.teams_to_launch() if temp else []
-                if teams:
-                    if not temp.focus_team:
-                        try:
-                            temp.focus_team = teams[temp.team_to_launch_index]
-                        except:
-                            temp.focus_team = teams[0]
-
-            button:
-                style "paging_green_button_left2x"
-                yalign .5
-                action temp.prev_team_to_launch, renpy.restart_interaction
-                tooltip "Previous Team"
-                sensitive len(teams) > 1
-            button:
-                style "marble_button"
-                padding 10, 10
-                if teams:
-                    action Function(temp.launch_team, area), Jump("building_management")
-                    tooltip "Send {} on {} days long exploration run!".format(temp.focus_team.name, area.days)
-                    vbox:
-                        xminimum 150
-                        spacing -30
-                        text "Launch" style "basic_button_text" xalign .5
-                        text "\n[temp.focus_team.name]" style "basic_button_text" xalign .5
-                else:
-                    action NullAction()
-                    text "No Teams Available!" style "basic_button_text" align .5, .5
-
-            button:
-                style "paging_green_button_right2x"
-                yalign .5
-                action temp.next_team_to_launch, renpy.restart_interaction
-                tooltip "Next Team"
-                sensitive len(teams) > 1
 
         hbox:
             align .5, .98
