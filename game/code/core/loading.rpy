@@ -534,12 +534,14 @@ init -11 python:
 
     def load_fg_areas():
         content = list()
-        folder = content_path('db')
-        for file in os.listdir(folder):
-            if file.startswith("fg_areas") and file.endswith(".json"):
-                in_file = content_path("".join(["db/", file]))
+        dir = content_path('db/maps')
+
+        for file in os.walk(os.path.join(dir, '.')).next()[2]:
+            if file.endswith(".json"):
+                in_file = os.path.join(dir, file)
                 with open(in_file) as f:
                     content.extend(json.load(f))
+
         areas = dict()
         for area in content:
             a = FG_Area()
