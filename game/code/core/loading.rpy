@@ -600,10 +600,11 @@ init -11 python:
 
     def load_dungeons():
         content = []
-        for file in os.listdir(content_path('db')):
-            if file.startswith("dungeon") and file.endswith(".json"):
+        dir = content_path('db/dungeons')
 
-                in_file = content_path("".join(["db/", file]))
+        for file in os.walk(os.path.join(dir, '.')).next()[2]:
+            if file.endswith(".json"):
+                in_file = os.path.join(dir, file)
                 with open(in_file) as f:
                     content.extend(json.load(f))
 
