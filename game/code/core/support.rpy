@@ -12,10 +12,6 @@ init -9 python:
                "Healer": 0} # All general occupations for rchar population
         def __init__(self):
             # Maps
-            # self.maps = xml_to_dict(content_path('db/maps.xml'))
-            # for key in self.maps:
-                # if "attr" in self.maps[key]:
-                    # del self.maps[key]["attr"]
             self.map_pattern = "content/gfx/bg/locations/map_buttons/gismo/"
             self.maps = OnScreenMap()
             self.economy = Economy()
@@ -455,7 +451,7 @@ init -9 python:
         It either builds the map from cut out peaces or by placing icons on in.
         """
         def __init__(self):
-            in_file = content_path("db/maps.json")
+            in_file = content_path("db/city_map.json")
             with open(in_file) as f:
                 data = json.load(f)
 
@@ -464,30 +460,6 @@ init -9 python:
 
         def __call__(self, map):
             return getattr(self, map)
-
-        def unlock(self, map, loc):
-            for l in self(map):
-                if l["id"] == loc:
-                    l["hidden"] = False
-                    break
-            else:
-                notify("Could not find location: {} in map: {} to unlock.".format(map, loc))
-
-        def appearing(self, map, loc):
-            for l in self(map):
-                if l["id"] == loc:
-                    if l.get("appearing", False):
-                        return True
-            return False
-
-        def lock(self, map, loc):
-            for l in self(map):
-                if l["id"] == loc:
-                    l["hidden"] = True
-                    break
-            else:
-                notify("Could not find location: {} in map: {} to lock.".format(map, loc))
-
 
     class Economy(_object):
         """Core class that hold and modifies data about global economy.
