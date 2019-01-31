@@ -494,7 +494,7 @@ screen message_screen(msg, size=(500, 300), use_return=False):
                 minimum(120, 30)
                 xalign .5
                 style "yesno_button"
-                keysym "K_RETURN", "K_ESCAPE"
+                keysym "mousedown_3", "K_RETURN", "K_ESCAPE"
 
 screen pyt_input(default="", text="", length=20, size=(350, 150)):
     use keymap_override
