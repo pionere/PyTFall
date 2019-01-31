@@ -1078,13 +1078,14 @@ screen next_day():
                     hbox:
                         align 1.0, 1.0
                         if explorers:
-                            button:
-                                xysize 30, 30
+                            $ img = ProportionalScale("content/gfx/interface/icons/explorer.png", 30, 40)
+                            imagebutton:
+                                xysize 30, 40
                                 yalign .5
                                 padding 0, 0
                                 margin 0, 0
-                                background Null()
-                                text "+" color yellow size 40 style "proper_stats_text" align .5, .5
+                                idle img
+                                hover im.MatrixColor(img ,im.matrix.brightness(.15))
                                 action [Return(['filter', 'xndreports']), SetScreenVariable("show_summary", None)]
                                 tooltip "View the reports of the explorers!"
                         if red_flags:
