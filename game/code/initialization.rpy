@@ -509,8 +509,4 @@ init 999 python:
     if DEBUG_LOG:
         devlogfile.flush()
 
-    # Build Maps:
-    # tilemap = TileMap("my_map.json")
-    # map_image = tilemap.build_map()
-
     tl.end("Ren'Py User Init!")
