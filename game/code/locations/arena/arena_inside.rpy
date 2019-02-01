@@ -724,39 +724,6 @@ init: # Main Screens:
                             yfill True
                             background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.6), 10, 10)
                             xysize (145, 30)
-                            text (u"{color=#CDAD00} Race") font "fonts/Rubius.ttf" size 20 outlines [(1, "#3a3a3a", 0, 0)] align (.5, .7)
-                        frame:
-                            xalign .5
-                            yfill True
-                            xysize (148, 30)
-                            text (data["race"]) xalign .5 yalign .5 style "stats_value_text" color "#79CDCD" size 15
-
-
-                null height 5
-                hbox:
-                    frame:
-                        $ els = [traits[el] for el in data["traits"] if traits[el] in tgs.elemental]
-                        $ els_transforms = [Transform(e.icon, size=(100, 100)) for e in els]
-                        $ other_traits = data["traits"]
-                        style_group "content"
-                        background Frame(Transform("content/gfx/frame/ink_box.png", alpha=.5), 10, 10)
-                        xysize 110, 110
-                        xalign .5
-
-                        $ x = 0
-                        $ els_args = [Transform(i, crop=(100/len(els_transforms)*els_transforms.index(i), 0, 100/len(els), 100), subpixel=True, xpos=(x + 100/len(els)*els_transforms.index(i))) for i in els_transforms]
-                        $ f = Fixed(*els_args, xysize=(100, 100))
-                        add f align (.5, .5)
-                        add ProportionalScale("content/gfx/interface/images/elements/hover.png", 100, 100) align (.5, .5)
-                    vbox:
-                        style_group "proper_stats"
-                        xalign .0
-                        spacing 1
-                        frame:
-                            xalign .5
-                            yfill True
-                            background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.6), 10, 10)
-                            xysize (145, 30)
                             text (u"{color=#CDAD00} Class") font "fonts/Rubius.ttf" size 20 outlines [(1, "#3a3a3a", 0, 0)] align (.5, .7)
                         for t in data["basetraits"]:
                             frame:
@@ -764,6 +731,9 @@ init: # Main Screens:
                                 xysize (148, 30)
                                 yfill True
                                 text t xalign .5 yalign .5 style "stats_value_text" color "#79CDCD" size 15
+
+                null height 5
+                use race_and_elements(align=(.5,.5), char=mob)
                 null height 5
                 # Stats:
                 frame:
@@ -852,14 +822,18 @@ init: # Main Screens:
                                 style_group "proper_stats"
                                 xalign .5
                                 if data["attack_skills"]:
-                                    for s in sorted(data["attack_skills"]):
+                                    for skill in sorted((battle_skills[s] for s in data["attack_skills"]), key=attrgetter("menu_pos")):
                                         frame:
-                                            xalign .5
-                                            xysize (130, 22)
-                                            yfill True
-                                            text s size 16 xalign .5 yalign .5 style "stats_value_text" color "#79CDCD":
-                                                if len(s) > 12:
-                                                    size 12
+                                            xysize (130, 25)
+                                            button:
+                                                xysize (130, 25)
+                                                background Null()
+                                                hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
+                                                action NullAction()
+                                                tooltip ["be", skill]
+                                                text "[skill.name]" size 15 idle_color ivory align .5, .5 hover_color crimson:
+                                                    if len(skill.name) > 12:
+                                                        size 12
                                 else:
                                     frame:
                                         xalign .5
@@ -881,14 +855,18 @@ init: # Main Screens:
                                 xalign .5
                                 spacing 1
                                 if data["magic_skills"]:
-                                    for s in sorted(data["magic_skills"]):
+                                    for skill in sorted((battle_skills[s] for s in data["magic_skills"]), key=attrgetter("menu_pos")):
                                         frame:
-                                            xalign .5
-                                            xysize (130, 22)
-                                            yfill True
-                                            text s size 16 xalign .5 yalign .5 style "stats_value_text" color "#79CDCD":
-                                                if len(s) > 12:
-                                                    size 12
+                                            xysize (130, 25)
+                                            button:
+                                                xysize (130, 25)
+                                                background Null()
+                                                hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
+                                                action NullAction()
+                                                tooltip ["be", skill]
+                                                text "[skill.name]" size 15 idle_color ivory align .5, .5 hover_color crimson:
+                                                    if len(skill.name) > 12:
+                                                        size 12
                                 else:
                                     frame:
                                         xalign .5
@@ -908,14 +886,20 @@ init: # Main Screens:
                         spacing 1
 
                         if data["traits"]:
-                            for s in sorted(data["traits"]):
-                                frame:
-                                    xalign .5
-                                    xysize (260, 22)
-                                    yfill True
-                                    text s size 16 xalign .5 yalign .5 style "stats_value_text" color "#79CDCD":
-                                        if len(s) > 12:
-                                            size 12
+                            for trait in sorted(data["traits"]):
+                                $ trait = traits[trait]
+                                if not trait.hidden:
+                                    frame:
+                                        xsize 147
+                                        button:
+                                            background Null()
+                                            xsize 147
+                                            action Show("show_trait_info", trait=trait.id)
+                                            text trait.id size 15 idle_color ivory align .5, .5 hover_color crimson:
+                                                if len(trait.id) > 12:
+                                                    size 12
+                                            tooltip "%s" % trait.desc
+                                            hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
                         else:
                             frame:
                                 xalign .5
