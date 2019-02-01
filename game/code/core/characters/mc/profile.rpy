@@ -525,7 +525,7 @@ screen hero_profile():
         button:
             action Show("hero_team")
             text "Teams" style "pb_button_text"
-            tooltip "Manage your teams." % hero.team.name
+            tooltip "Manage your teams."
         button:
             action Return(['hero', 'equip'])
             text "Equipment" style "pb_button_text"
