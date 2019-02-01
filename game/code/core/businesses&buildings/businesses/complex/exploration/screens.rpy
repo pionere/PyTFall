@@ -761,7 +761,12 @@ screen fg_area(area):
                                 margin 0, 0
                                 xysize 60, 60
                                 align .99, .5
-                                add ProportionalScale(m["portrait"], 57, 57) align .5, .5
+                                $ img = ProportionalScale(m["portrait"], 57, 57)
+                                imagebutton:
+                                    align .5, .5
+                                    idle img
+                                    hover (im.MatrixColor(img, im.matrix.brightness(.15)))
+                                    action Hide("fg_area"), Show("arena_bestiary", dissolve, m, return_button_action=Show("fg_area", dissolve, area))
 
             frame:
                 background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)

@@ -40,9 +40,6 @@ label arena_inside:
             if result[1] == "bestiary":
                 hide screen arena_inside
                 show screen arena_bestiary
-            elif result[1] == "arena":
-                hide screen arena_bestiary
-                show screen arena_inside
 
         elif result[0] == "challenge":
             if result[1] == "dogfights":
@@ -662,43 +659,41 @@ init: # Main Screens:
                 text  "Close"
                 keysym "mousedown_3"
 
-    python:
-        def set_bestiary_mob(data):
-            id = data["id"]
-            level = data['min_lvl']
-            store.mob = build_mob(id=id, level=level)
-
-    screen arena_bestiary():
-        default in_focus_mob = False
+    screen arena_bestiary(focus_mob=None, return_button_action=Show("arena_inside")):
+        default in_focus_mob = focus_mob
+        default mob = None
         default scr_mobs = sorted(mobs.values(), key=itemgetter("min_lvl"))
 
         add("content/gfx/bg/locations/arena_bestiary.webp")
 
         vpgrid:
             at fade_in_out()
-            cols 4
+            cols 5
             ysize 720
             draggable True
             mousewheel True
             scrollbars "vertical"
+            yinitial (((scr_mobs.index(focus_mob) / 5) * 217) if focus_mob else 0)
             for data in scr_mobs:
                 $ creature = data["name"]
-                $ img = ProportionalScale(data["battle_sprite"], 200, 200)
+                $ img = ProportionalScale(data["battle_sprite"], 150, 150)
                 frame:
                     background Frame("content/gfx/frame/bst.png", 5, 5)
                     margin 2, 2
-                    has vbox spacing 2 xysize 230, 250
+                    has vbox spacing 2 xysize 180, 200
                     if data["id"] not in defeated_mobs: # <------------------------------ Note for faster search, change here to test the whole beasts screen without the need to kill mobs
-                        text "-Unknown-" xalign .5  style "TisaOTM" color indianred
+                        text "-Unknown-" xalign .5 ypos -1 style "TisaOTM" color indianred
                         add im.Twocolor(img, black, black) xalign .5
                     else:
-                        text creature xalign .5 style "TisaOTM" color gold
+                        text creature xalign .5 ypos -1 style "TisaOTM" color (ivory if in_focus_mob == data else gold)
                         imagebutton:
                             xalign .5
                             idle img
-                            hover (im.MatrixColor(img, im.matrix.brightness(.15)))
-                            action [SetScreenVariable("in_focus_mob", creature),
-                                    Function(set_bestiary_mob, data)]
+                            if in_focus_mob != data:
+                                hover (im.MatrixColor(img, im.matrix.brightness(.15)))
+                                action SetScreenVariable("in_focus_mob", data)
+                            else:
+                                action NullAction()
 
         frame:
             xalign 1.0
@@ -706,9 +701,11 @@ init: # Main Screens:
             xysize 277, 720
             has vbox
             if in_focus_mob:
-                $ data = mobs[in_focus_mob]
-                $ img = ProportionalScale(data["battle_sprite"], 200, 200)
-                $ portrait = im.Scale(data["portrait"], 100, 100)
+                python:
+                    if not mob or mob.id != in_focus_mob["id"]:
+                        mob = build_mob(id=in_focus_mob["id"], level=in_focus_mob["min_lvl"])
+                    data = in_focus_mob
+                    portrait = im.Scale(data["portrait"], 100, 100)
 
                 null height 5
                 hbox:
@@ -930,7 +927,7 @@ init: # Main Screens:
             pos (1233, 670)
             idle im.Scale("content/gfx/interface/buttons/close2.png", 35, 35)
             hover im.Scale("content/gfx/interface/buttons/close2_h.png", 35, 35)
-            action Return(["show", "arena"])
+            action Hide("arena_bestiary"), return_button_action
             keysym "mousedown_3"
 
     screen arena_aftermatch(w_team, l_team, condition):
