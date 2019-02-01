@@ -323,56 +323,54 @@ screen top_stripe(show_return_button=True, return_button_action=None,
                 action Show("pytfallopedia")
                 tooltip "Open PyTFallopedia"
 
-            if renpy.current_screen().tag not in ["quest_log"]:
+            if renpy.current_screen().tag != "quest_log":
+                $ img = ProportionalScale("content/gfx/interface/buttons/journal1.png", 36, 40)
                 imagebutton:
-                    idle im.Scale("content/gfx/interface/buttons/journal1.png", 36, 40)
-                    hover im.MatrixColor(im.Scale("content/gfx/interface/buttons/journal1.png", 36, 40), im.matrix.brightness(.15))
+                    idle img
+                    hover im.MatrixColor(img, im.matrix.brightness(.15))
                     tooltip "Quest Journal"
                     action ShowMenu("quest_log")
 
-            if renpy.current_screen().tag not in ["girl_interactions", "quest_log"]:
-                imagebutton:
-                    idle im.Scale("content/gfx/interface/buttons/preference.png", 39, 40)
-                    hover im.MatrixColor(im.Scale("content/gfx/interface/buttons/preference.png", 39, 40), im.matrix.brightness(.15))
-                    action Show("s_menu", transition=dissolve)
-                    tooltip "Game Preferences"
-                    keysym "K_ESCAPE"
+            $ img = ProportionalScale("content/gfx/interface/buttons/preference.png", 39, 40)
+            imagebutton:
+                idle img
+                hover im.MatrixColor(img, im.matrix.brightness(.15))
+                action Show("s_menu", transition=dissolve)
+                tooltip "Game Preferences"
+                keysym "K_ESCAPE"
 
-            if renpy.current_screen().tag not in ["mainscreen", "dungeon"] and show_lead_away_buttons:
+            if show_lead_away_buttons and renpy.current_screen().tag != "mainscreen":
+                $ img = ProportionalScale("content/gfx/interface/buttons/MS.png", 38, 37)
                 imagebutton:
-                    idle im.Scale("content/gfx/interface/buttons/MS.png", 38, 37)
-                    hover im.MatrixColor(im.Scale("content/gfx/interface/buttons/MS.png", 38, 37), im.matrix.brightness(.15))
+                    idle img
+                    hover im.MatrixColor(img, im.matrix.brightness(.15))
                     tooltip "Return to Main Screen"
                     if 'next_day' in last_label:
                         action return_action
                     else:
                         action (Function(renpy.scene, layer="screens"), Function(global_flags.del_flag, "keep_playing_music"), Jump("mainscreen"))
 
-            if renpy.current_screen().tag in ["char_profile", "char_equip"] and controlled_char(char):
+            if show_lead_away_buttons:
+                $ img = ProportionalScale("content/gfx/interface/buttons/profile.png", 35, 40)
                 imagebutton:
-                    idle im.Scale("content/gfx/interface/buttons/IT2.png", 34, 37)
-                    hover im.MatrixColor(im.Scale("content/gfx/interface/buttons/IT2.png", 34, 37), im.matrix.brightness(.15))
-                    action Return(["jump", "item_transfer"])
-                    tooltip "Transfer items between {} and {}".format(hero.name, char.nickname)
-
-            if renpy.current_screen().tag not in ["hero_profile"] and show_lead_away_buttons:
-                imagebutton:
-                    idle im.Scale("content/gfx/interface/buttons/profile.png", 35, 40)
-                    hover im.MatrixColor(im.Scale("content/gfx/interface/buttons/profile.png", 35, 40), im.matrix.brightness(.15))
+                    idle img
+                    hover im.MatrixColor(img, im.matrix.brightness(.15))
                     action [SetField(pytfall.hp, "came_from", last_label), Hide(renpy.current_screen().tag), Jump("hero_profile")]
                     tooltip "View Hero Profile"
 
             null width 10
 
+            $ img = ProportionalScale("content/gfx/interface/buttons/save.png", 40, 40)
             imagebutton:
-                    idle im.Scale("content/gfx/interface/buttons/save.png", 40, 40)
-                    hover im.MatrixColor(im.Scale("content/gfx/interface/buttons/save.png" , 40, 40), im.matrix.brightness(.15))
-                    tooltip "QuickSave"
-                    action QuickSave()
+                idle img
+                hover im.MatrixColor(img, im.matrix.brightness(.15))
+                tooltip "QuickSave"
+                action QuickSave()
 
+            $ img = ProportionalScale("content/gfx/interface/buttons/load.png", 38, 40)
             imagebutton:
-                idle im.Scale("content/gfx/interface/buttons/load.png", 38, 40)
-                hover im.MatrixColor(im.Scale("content/gfx/interface/buttons/load.png" , 38, 40), im.matrix.brightness(.15))
+                idle img
+                hover im.MatrixColor(img, im.matrix.brightness(.15))
                 tooltip "QuickLoad"
                 action QuickLoad()
 
