@@ -195,7 +195,7 @@ screen chars_list():
                                 if c.__class__ == Char:
                                     text_color pink
                                 else:
-                                    text_color gold
+                                    text_color goldenrod
 
                             # Prof-Classes
                             python:
@@ -206,7 +206,7 @@ screen chars_list():
                                     classes.sort(key=attrgetter("id"))
                                     classes = ", ".join(t.id for t in classes)
                             null height 4
-                            text "Classes: [classes]" color gold size 18
+                            text "Classes: [classes]" color goldenrod size 18
 
                         if available:
                             vbox:
@@ -300,7 +300,7 @@ screen chars_list():
         # Paging:
         if max_page > 0:
             hbox:
-                pos 27, 644
+                pos 27, 654
                 xysize 970, 70
 
                 hbox:
@@ -482,4 +482,4 @@ screen chars_list():
                 selected False
                 tooltip "Send the entire group to School!"
 
-    use top_stripe(True, show_lead_away_buttons=False)
+    use top_stripe()
