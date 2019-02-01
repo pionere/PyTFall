@@ -90,15 +90,12 @@ init -2: # Base Styles like Texts and Buttons just with the basic properties.
     # This is a really basic, stripped down button.
     style ddlist_button:
         is button
-        left_padding -2
         background Null()
     style ddlist_text:
         is garamond
-        yalign 0
-        line_leading -3
+        yalign .5
         idle_color ivory
         hover_color red
-        size 17
 
     # Master Styles of the GREY and BROWNish buttons we use all over the place.
     style basic_choice_button:

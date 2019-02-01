@@ -556,7 +556,6 @@ screen show_trait_info(trait=None, place="girl_trait", elemental_mode=False):
                                     xysize 20, 18
                                     action NullAction()
                                     align .99, .5
-                                    tooltip "***Icon represents skills changes. Green means bonus, red means penalty. Left one is action counter, right one is training counter, top one is resulting value."
                                     if data[0] > 0:
                                         add PS(img_path + "left_green.png", 20, 20)
                                     elif data[0] < 0:
@@ -609,7 +608,7 @@ screen show_trait_info(trait=None, place="girl_trait", elemental_mode=False):
                 action Hide("show_trait_info"), With(dissolve)
                 keysym "mousedown_3"
     else:
-        $ traits = elements_calculator(trait)
+        $ elems = elements_calculator(trait)
         fixed:
             pos x, y
             anchor xval, yval
@@ -618,51 +617,42 @@ screen show_trait_info(trait=None, place="girl_trait", elemental_mode=False):
                 background Frame("content/gfx/frame/p_frame52.webp", 10, 10)
                 padding 10, 5
                 has vbox style_prefix "proper_stats" spacing 1
-                if not traits:
+                if not elems:
                     label ("-elements neutralized each other-") text_size 14 text_color goldenrod text_bold True xalign .45
                 else:
                     hbox:
                         frame:
                             xysize 80, 20
-                            text "element" size 15 color goldenrod align .0, .5 outlines [(1, "#000000", 0, 0)]
+                            # "element"
                         frame:
                             xysize 60, 20
-                            text "damage" size 15 color goldenrod align .5, .5 outlines [(1, "#000000", 0, 0)]
+                            text "damage" size 15 color grey bold True align .5, .5 outlines [(1, "#000000", 0, 0)]
                         frame:
                             xysize 60, 20
-                            text "defence" size 15 color goldenrod align .5, .5 outlines [(1, "#000000", 0, 0)]
-                    for i in traits:
+                            text "defence" size 15 color grey bold True align .5, .5 outlines [(1, "#000000", 0, 0)]
+                    for elem, values in elems.items():
                         hbox:
                             frame:
                                 xysize 80, 20
-                                text i size 15 color goldenrod align .0, .5 outlines [(1, "#000000", 0, 0)]
+                                text elem size 15 color goldenrod align .5, .5 outlines [(1, "#000000", 0, 0)]
                             frame:
                                 xysize 60, 20
-                                text traits[i]["attack"] size 15 color traits[i]["attack_color"] align 1.0, .5 outlines [(1, "#000000", 0, 0)]
-                            if "abs" in traits[i].keys():
+                                $ val = values["attack"]
+                                text "[val] %" size 15 color (lime if val >= 0 else red) align 1.0, .5 outlines [(1, "#000000", 0, 0)]
+                            if "abs" in values.keys():
                                 frame:
                                     xysize 60, 20
-                                    button:
-                                        align 1.0, .5
-                                        margin 0, 0 padding 0, 0
-                                        background Null()
-                                        action NullAction()
-                                        tooltip "***The character will absorb the damage from this type of attack!"
-                                        text traits[i]["abs"] size 13 color lime outlines [(1, "#000000", 0, 0)]
-                            elif "resist" in traits[i].keys():
+                                    $ val = values["abs"]
+                                    text "+[val] %" size 15 color white align 1.0, .5 outlines [(1, "#000000", 0, 0)]
+                            elif "resist" in values.keys():
                                 frame:
                                     xysize 60, 20
-                                    button:
-                                        align 1.0, .5
-                                        margin 0, 0 padding 0, 0
-                                        background Null()
-                                        text "RES" size 13 color lime
-                                        action NullAction()
-                                        tooltip "***The character is immune to this element!"
+                                    text "res." size 15 color lime align 1.0, .5 outlines [(1, "#000000", 0, 0)]
                             else:
                                 frame:
                                     xysize 60, 20
-                                    text traits[i]["defence"] size 15 color traits[i]["defence_color"] align 1.0, .5 outlines [(1, "#000000", 0, 0)]
+                                    $ val = values["defence"]
+                                    text "[val] %" size 15 color (lime if val >= 0 else red) align 1.0, .5 outlines [(1, "#000000", 0, 0)]
 
             imagebutton:
                 align .99, .01

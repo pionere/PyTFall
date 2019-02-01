@@ -165,7 +165,7 @@ screen chars_list():
                     ymargin 0
                     idle_background Frame(Transform(img, alpha=.4), 10 ,10)
                     hover_background Frame(Transform(img, alpha=.9), 10 ,10)
-                    xysize (470, 115)
+                    xysize (470, 120)
                     alternate Return(['control', 'return']) # keep in sync with mousedown_3
                     if available:
                         action Return(['choice', c])
@@ -184,91 +184,76 @@ screen chars_list():
                     # Texts/Status:
                     frame:
                         xpos 120
-                        xysize (335, 110)
+                        xysize (335, 115)
                         background Frame(Transform("content/gfx/frame/P_frame2.png", alpha=.6), 10, 10)
-                        label "[c.name]":
-                            text_size 18
-                            xpos 10
-                            yalign .06
-                            if c.__class__ == Char:
-                                text_color pink
-                            else:
-                                text_color ivory
-
                         vbox:
-                            yalign .98
                             xpos 10
+
+                            # Name
+                            label "[c.name]":
+                                text_size 18
+                                if c.__class__ == Char:
+                                    text_color pink
+                                else:
+                                    text_color gold
+
                             # Prof-Classes
                             python:
                                 classes = list(c.traits.basetraits)
                                 if len(classes) == 1:
                                     classes = classes[0].id
                                 else:
-                                    classes.sort()
+                                    classes.sort(key=attrgetter("id"))
                                     classes = ", ".join(t.id for t in classes)
-                            text "Classes: [classes]" color ivory size 18
+                            null height 4
+                            text "Classes: [classes]" color gold size 18
 
-                            if available:
-                                null height 2
-                                $ circle_green = im.Scale("content/gfx/interface/icons/move15.png", 16, 16)
-                                $ icon_flag = c.get_flag("last_chars_list_geet_icon", "work")
+                        if available:
+                            vbox:
+                                pos 10, 46
+                                style_prefix "proper_stats"
+                                spacing -5
+                                $ circle_green = im.Scale("content/gfx/interface/icons/move15.png", 12, 12)
                                 hbox:
-                                    if icon_flag == "home":
-                                        imagebutton:
-                                            yalign 0.5
-                                            xoffset -2
-                                            idle circle_green
-                                            hover im.MatrixColor(circle_green, im.matrix.brightness(.15))
-                                            action [Function(c.set_flag, "last_chars_list_geet_icon", "work")]
-                                            tooltip "Switch to set Work!"
-                                        button:
-                                            style_group "ddlist"
-                                            if c.status == "slave":
-                                                action Return(["dropdown", "home", c])
-                                                tooltip "Choose a place for %s to live at!" % c.nickname
-                                            else: # Can't set home for free cs, they decide it on their own.
-                                                action NullAction()
-                                                tooltip "%s is free and decides on where to live at!" % c.nickname
-                                            text "{size=18}Home:{/size} [c.home]":
-                                                if len(str(c.home)) > 18:
-                                                    size 15
-                                                    yalign 0.5
-                                                else:
-                                                    size 18
-                                    else: # if icon_flag == "work":
-                                        imagebutton:
-                                            yalign 0.5
-                                            xoffset -2
-                                            idle circle_green
-                                            hover im.MatrixColor(circle_green, im.matrix.brightness(.15))
-                                            action [Function(c.set_flag, "last_chars_list_geet_icon", "home")]
-                                            tooltip "Switch to set Home!"
-                                        button:
-                                            style_group "ddlist"
-                                            action Return(["dropdown", "workplace", c])
-                                            tooltip "Choose a place for %s to work at!" % c.nickname
-                                            text "{size=18}Work:{/size} [c.workplace]":
-                                                if len(str(c.workplace)) > 18:
-                                                    size 15
-                                                    yalign 0.5
-                                                else:
-                                                    size 18
-                                hbox:
-                                    imagebutton:
-                                        yalign 0.5
-                                        xoffset -2
-                                        idle circle_green
-                                        action NullAction()
+                                    add circle_green yalign 0.5 xoffset -2
+                                    fixed:
+                                        xysize 30, 14
+                                        yalign .5
+                                        text "Home:" color ivory yalign .5 size 14
                                     button:
                                         style_group "ddlist"
+                                        xalign .0
+                                        if c.status == "slave":
+                                            action Return(["dropdown", "home", c])
+                                            tooltip "Choose a place for %s to live at!" % c.nickname
+                                        else: # Can't set home for free cs, they decide it on their own.
+                                            action NullAction()
+                                            tooltip "%s is free and decides on where to live at!" % c.nickname
+                                        text "[c.home]" size 14
+                                hbox:
+                                    add circle_green yalign 0.5 xoffset -2
+                                    fixed:
+                                        xysize 30, 14
+                                        yalign .5
+                                        text "Work:" color ivory yalign .5 size 14
+                                    button:
+                                        style_group "ddlist"
+                                        xalign .0
+                                        action Return(["dropdown", "workplace", c])
+                                        tooltip "Choose a place for %s to work at!" % c.nickname
+                                        text "[c.workplace]" size 14
+                                hbox:
+                                    add circle_green yalign 0.5 xoffset -2
+                                    fixed:
+                                        xysize 30, 14
+                                        yalign .5
+                                        text "Action:" color ivory yalign .5 size 14
+                                    button:
+                                        style_group "ddlist"
+                                        xalign .0
                                         action Return(["dropdown", "action", c])
                                         tooltip "Choose a task for %s to do!" % c.nickname
-                                        text "{size=18}Action:{/size} [c.action]":
-                                            if c.action is not None and len(str(c.action)) > 18:
-                                                size 15
-                                                yalign 0.5
-                                            else:
-                                                size 18
+                                        text "[c.action]" size 14
 
                         vbox:
                             align (.96, .035)

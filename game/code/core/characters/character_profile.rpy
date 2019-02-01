@@ -271,14 +271,12 @@ screen char_profile():
             # # Base frame ====================================>
             # # Prof-Classes ==================================>
             python:
-                if len(char.traits.basetraits) == 1:
-                    classes = list(char.traits.basetraits)[0].id
-                elif len(char.traits.basetraits) == 2:
-                    classes = list(char.traits.basetraits)
-                    classes.sort()
-                    classes = ", ".join([str(c) for c in classes])
+                classes = list(char.traits.basetraits)
+                if len(classes) == 1:
+                    classes = classes[0].id
                 else:
-                    raise Exception("Character without prof basetraits detected in girlsprofile screen")
+                    classes.sort(key=attrgetter("id"))
+                    classes = ", ".join(t.id for t in classes)
 
                 trait = char.personality
                 img = ProportionalScale("".join(["content/gfx/interface/images/personality/", trait.id.lower(), ".png"]), 120, 120)
@@ -357,33 +355,54 @@ screen char_profile():
             # Locations/Action Buttons and Stats/Info ====================================>
             fixed:
                 xysize 300, 60
-                ypos 130
+                pos (5, 130)
                 vbox:
-                    button:
-                        style_group "ddlist"
-                        if char.status == "slave":
-                            action Return(["dropdown", "home", char])
-                            tooltip "Choose a place for %s to live at!" % char.nickname
-                        else: # Can't set home for free chars, they decide it on their own.
-                            action NullAction()
-                            tooltip "%s is a free citizen and decides on where to live at!" % char.nickname
-                        sensitive controlled_char(char)
-                        text "{image=button_circle_green}Home: [char.home]":
-                            size 18
-                    button:
-                        style_group "ddlist"
-                        action Return(["dropdown", "workplace", char])
-                        sensitive controlled_char(char)
-                        tooltip "Choose a place for %s to work at!" % char.nickname
-                        text "{image=button_circle_green}Work: [char.workplace]":
-                            size 18
-                    button:
-                        style_group "ddlist"
-                        action Return(["dropdown", "action", char])
-                        sensitive controlled_char(char)
-                        tooltip "Choose a task for %s to do!" % char.nickname
-                        text "{image=button_circle_green}Action: [char.action]":
-                            size 18
+                    style_prefix "proper_stats"
+                    spacing -4
+                    $ circle_green = im.Scale("content/gfx/interface/icons/move15.png", 16, 16)
+                    hbox:
+                        add circle_green yalign 0.5 xoffset -2
+                        fixed:
+                            xysize 45, 18
+                            yalign .5
+                            text "Home:" color ivory yalign .5 size 18
+                        button:
+                            style_group "ddlist"
+                            xalign .0
+                            if char.status == "slave":
+                                action Return(["dropdown", "home", char])
+                                tooltip "Choose a place for %s to live at!" % char.nickname
+                            else: # Can't set home for free chars, they decide it on their own.
+                                action NullAction()
+                                tooltip "%s is a free citizen and decides on where to live at!" % char.nickname
+                            sensitive controlled_char(char)
+                            text "[char.home]" size 18
+                    hbox:
+                        add circle_green yalign 0.5 xoffset -2
+                        fixed:
+                            xysize 45, 18
+                            yalign .5
+                            text "Work:" color ivory yalign .5 size 18
+                        button:
+                            style_group "ddlist"
+                            xalign .0
+                            action Return(["dropdown", "workplace", char])
+                            sensitive controlled_char(char)
+                            tooltip "Choose a place for %s to work at!" % char.nickname
+                            text "[char.workplace]" size 18
+                    hbox:
+                        add circle_green yalign 0.5 xoffset -2
+                        fixed:
+                            xysize 45, 18
+                            yalign .5
+                            text "Action:" color ivory yalign .5 size 18
+                        button:
+                            style_group "ddlist"
+                            xalign .0
+                            action Return(["dropdown", "action", char])
+                            sensitive controlled_char(char)
+                            tooltip "Choose a task for %s to do!" % char.nickname
+                            text "[char.action]" size 18
 
             hbox:
                 style_group "basic"

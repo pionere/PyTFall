@@ -117,7 +117,7 @@ init -11 python:
             fixed.add(i)
         return fixed
 
-    def elements_calculator(char, text=True): # returns text in proper format for gui if text is true, otherwise numbers
+    def elements_calculator(char):
         global red
         global lime
         elements = {}
@@ -127,19 +127,13 @@ init -11 python:
                 if not element in elements.keys():
                     elements[element] = {}
 
-                if "attack" in elements[element].keys():
-                    elements[element]["attack"] += int(trait.el_damage[element]*100)
-                else:
-                    elements[element]["attack"] = int(trait.el_damage[element]*100)
+                elements[element]["attack"] = elements[element].get("attack", 0) + int(trait.el_damage[element]*100)
 
             for element in trait.el_defence:
                 if not element in elements.keys():
                     elements[element] = {}
 
-                if "defence" in elements[element].keys():
-                    elements[element]["defence"] += int(trait.el_defence[element]*100)
-                else:
-                    elements[element]["defence"] = int(trait.el_defence[element]*100)
+                elements[element]["defence"] = elements[element].get("defence", 0) + int(trait.el_defence[element]*100)
 
             for i in trait.resist:
                 if not i in elements.keys():
@@ -151,10 +145,7 @@ init -11 python:
                 if not element in elements.keys():
                     elements[element] = {}
 
-                if "abs" in elements[element].keys():
-                    elements[element]["abs"] += int(trait.el_absorbs[element]*100)
-                else:
-                    elements[element]["abs"] = int(trait.el_absorbs[element]*100)
+                elements[element]["abs"] = elements[element].get("abs", 0) + int(trait.el_absorbs[element]*100)
 
         for i in elements:
             if not "defence" in elements[i].keys():
@@ -162,25 +153,6 @@ init -11 python:
 
             if not "attack" in elements[i].keys():
                 elements[i]["attack"] = 0
-
-
-
-        if text:
-            for i in elements:
-                if elements[i]["attack"] >= 0:
-                    elements[i]["attack_color"] = lime
-                else:
-                    elements[i]["attack_color"] = red
-                elements[i]["attack"] = str(elements[i]["attack"]) + " %"
-
-                if elements[i]["defence"] >= 0:
-                    elements[i]["defence_color"] = lime
-                else:
-                    elements[i]["defence_color"] = red
-                elements[i]["defence"] = str(elements[i]["defence"]) + " %"
-
-                if "abs" in elements[i].keys():
-                    elements[i]["abs"] = "A " + str(elements[i]["abs"]) + " %"
 
         return elements
 

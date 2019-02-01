@@ -290,33 +290,56 @@ screen hero_profile():
 
             # LOCATION ====================================>
             # No point in Work here...?
-            button:
-                style_group "ddlist"
-                action Return(["dropdown", "home"])
-                tooltip "Choose a place to live at!"
-                text "{image=button_circle_green}Home: [hero.home]":
-                    if len(str(hero.home)) > 18:
-                        size 14
-                    else:
-                        size 17
-            button:
-                style_group "ddlist"
-                action Return(["dropdown", "workplace"])
-                tooltip "Choose a place to work at!"
-                text "{image=button_circle_green}Work: [hero.workplace]":
-                    if len(str(hero.workplace)) > 18:
-                        size 14
-                    else:
-                        size 17
-            button:
-                style_group "ddlist"
-                action Return(["dropdown", "action"])
-                tooltip "Pick a task!"
-                text "{image=button_circle_green}Action: [hero.action]":
-                    if len(str(hero.action)) > 18:
-                        size 14
-                    else:
-                        size 17
+            $ circle_green = im.Scale("content/gfx/interface/icons/move15.png", 14, 14)
+            hbox:
+                add circle_green yalign 0.5 xoffset -2
+                fixed:
+                    xysize 40, 16
+                    yalign .5
+                    text "Home:" color ivory yalign .5 size 16
+                button:
+                    style_group "ddlist"
+                    xalign .0
+                    action Return(["dropdown", "home"])
+                    tooltip "Choose a place to live at!"
+                    text "[hero.home]":
+                        if len(str(hero.home)) > 18:
+                            size 14
+                        else:
+                            size 16
+            hbox:
+                add circle_green yalign 0.5 xoffset -2
+                fixed:
+                    xysize 40, 16
+                    yalign .5
+                    text "Work:" color ivory yalign .5 size 16
+                button:
+                    style_group "ddlist"
+                    xalign .0
+                    action Return(["dropdown", "workplace"])
+                    tooltip "Choose a place to work at!"
+                    text "[hero.workplace]":
+                        if len(str(hero.workplace)) > 18:
+                            size 14
+                        else:
+                            size 16
+            hbox:
+                add circle_green yalign 0.5 xoffset -2
+                fixed:
+                    xysize 40, 16
+                    yalign .5
+                    text "Action:" color ivory yalign .5 size 16
+                button:
+                    style_group "ddlist"
+                    xalign .0
+                    action Return(["dropdown", "action"])
+                    tooltip "Pick a task!"
+                    text "[hero.action]":
+                        if len(str(hero.action)) > 18:
+                            size 14
+                        else:
+                            size 16
+
         elif lframe_display == "skills":
             null height 26
             viewport:
