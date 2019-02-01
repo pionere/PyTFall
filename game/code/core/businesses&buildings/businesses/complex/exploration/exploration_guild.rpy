@@ -100,16 +100,18 @@ init -6 python: # Guild, Tracker and Log.
 
             self.desc = "Explore the world, find new places, meet new people... and take their shit!"
 
-            # We do this because this data needs to be tracked separately and
-            # area object can only be updated once team has returned.
-            # There is a good chance that some of these data must be updated in real time.
-            self.area = deepcopy(area)
             self.team = team
+            self.area = area
             self.guild = guild # Guild this tracker was initiated from...
 
-            # Features:
-            self.basecamp = False
-            self.base_camp_health = 0 # We call it health in case we allow it to be attacked at some point...
+            # copy launch configuration from the area
+            self.building_camp = area.building_camp
+            self.capture_chars = area.capture_chars
+            self.risk = area.risk
+            self.days = max(area.days, 3) # Days team is expected to be exploring (without travel times)!
+
+            self.day = 1 # Day since start.
+            self.days_in_camp = 0 # Simple counter for the amount of days team is spending at camp. This is set back to 0 when team recovers inside of the camping method.
 
             # This is the general items that can be found at any exploration location,
             # Limited by price:
@@ -140,47 +142,15 @@ init -6 python: # Guild, Tracker and Log.
             self.cash = list()
             self.daily_items = None
 
-            self.day = 1 # Day since start.
-            # Days team is expected to be exploring (without travel times)!
-            self.days = max(self.area.days, 3)
-            self.days_in_camp = 0 # Simple counter for the amount of days team is spending at camp. This is set back to 0 when team recovers inside of the camping method.
-
             self.flag_red = False
             self.flag_green = False
             self.logs = list() # List of all log object we create during this exploration run.
             self.died = list()
 
-            # And we got to make copies of chars stat dicts so we can show
-            # changes in ND after the exploration run is complete!
-            self.init_stats = dict()
-            for i in self.team:
-                self.init_stats[i] = i.stats.stats.copy()
-
         @property
         def obj_area(self):
             # "Global" area object, we usually update this where we're done.
             return fg_areas[self.area.id]
-
-        @property
-        def mobs(self):
-            return self.area.mobs
-
-        @property
-        def risk(self):
-            # TODO se: Remove 50 after testing and interface adjustments.
-            return self.area.risk or 50
-
-        @property
-        def cash_limit(self):
-            return self.area.cash_limit
-
-        @property
-        def items_limit(self):
-            return self.area.items_limit
-
-        @property
-        def hazard(self):
-            return self.area.hazard
 
         def log(self, txt, name="", nd_log=True, ui_log=False, **kwargs):
             if DEBUG_SE:
@@ -200,7 +170,7 @@ init -6 python: # Guild, Tracker and Log.
             """
             global fg_areas
             global items
-            area = self.obj_area
+            area = self.area
 
             # Main and Sub Area Stuff:
             area.logs.extend([l for l in self.logs if l.ui_log])
@@ -403,11 +373,9 @@ init -6 python: # Guild, Tracker and Log.
             # Controls the exploration by setting up proper simpy processes.
             # Prep aliases:
             process = self.env.process
-            area = tracker.obj_area
-            team = tracker.team
 
             if DEBUG_SE:
-                msg = "Entered exploration controller for {}.".format(team.name)
+                msg = "Entered exploration controller for {}.".format(tracker.team.name)
                 se_debug(msg, mode="info")
 
             # Log the day:
@@ -423,7 +391,7 @@ init -6 python: # Guild, Tracker and Log.
             if self.env.now < 75: # do not go on exploring if the day is mostly over
                 if tracker.state is None:
                     # just arrived to the location -> decide what to do
-                    if area.building_camp:
+                    if tracker.building_camp:
                         tracker.state = "build camp"
                     else:
                         tracker.state = "exploring"
@@ -454,8 +422,7 @@ init -6 python: # Guild, Tracker and Log.
                     if self.env.now >= 99:
                         break
 
-            # if DEBUG_SE:
-                # tracker.log("Debug: The day has come to an end for {}.".format(tracker.team.name))
+            # Go to rest
             result = self.overnight(tracker)
             if result == "go2guild":
                 tracker.state = "traveling back"
@@ -464,17 +431,17 @@ init -6 python: # Guild, Tracker and Log.
 
         def travel_to(self, tracker):
             # Env func that handles the travel to routine.
-            team = tracker.team
-            area = tracker.area
+            team_name = tracker.team.name
+            area_name = tracker.area.name
 
             if DEBUG_SE:
-                msg = "{} is traveling to {}.".format(team.name, area.name)
+                msg = "{} is traveling to {}.".format(team_name, area_name)
                 se_debug(msg, mode="info")
 
             # Figure out how far we can travel in steps of 5 DU:
             # Understanding here is that any team can travel 20 KM per day on average.
             if tracker.traveled is None:
-                temp = "{} is on route to {}!".format(tracker.team.name, tracker.area.name)
+                temp = "{} is on route to {}!".format(team_name, area_name)
                 tracker.log(temp)
 
                 # setup the distance. This can be offset by traits and stats in the future.
@@ -492,10 +459,10 @@ init -6 python: # Guild, Tracker and Log.
                 # Team arrived:
                 if tracker.traveled >= tracker.distance:
                     if DEBUG_SE:
-                        msg = "{} arrived at {} ({}).".format(team.name, area.name, area.id)
+                        msg = "{} arrived at {} ({}).".format(team_name, area_name, tracker.area.id)
                         se_debug(msg, mode="info")
 
-                    temp = "{} arrived at {}!".format(team.name, area.name)
+                    temp = "{} arrived at {}!".format(team_name, area_name)
                     if tracker.day > 1:
                         temp = temp + " It took {} {} to get there.".format(tracker.day, plural("day", tracker.day))
                     else:
@@ -504,7 +471,7 @@ init -6 python: # Guild, Tracker and Log.
                     self.env.exit("arrived")
 
                 if self.env.now >= 99: # We couldn't make it there before the days end...
-                    temp = "{} spent the entire day traveling to {}! ".format(team.name, area.name)
+                    temp = "{} spent the entire day traveling to {}! ".format(team_name, area_name)
                     tracker.log(temp)
                     if DEBUG_SE:
                         se_debug(temp, mode="info")
@@ -512,17 +479,17 @@ init -6 python: # Guild, Tracker and Log.
 
         def travel_back(self, tracker):
             # Env func that handles the travel to routine.
-            team = tracker.team
+            team_name = tracker.team.name
 
             if DEBUG_SE:
-                msg = "{} is traveling back.".format(team.name)
+                msg = "{} is traveling back.".format(team_name)
                 se_debug(msg, mode="info")
 
             # Figure out how far we can travel in 5 du:
             # Understanding here is that any team can travel 20 KM per day on average.
             # This can be offset by traits and stats in the future.
             if tracker.traveled is None:
-                temp = "{} is traveling back home!".format(tracker.team.name)
+                temp = "{} is traveling back home!".format(team_name)
                 tracker.log(temp)
 
                 # setup the distance. This can be offset by traits and stats in the future.
@@ -538,12 +505,12 @@ init -6 python: # Guild, Tracker and Log.
 
                 # Team arrived:
                 if tracker.traveled >= tracker.distance:
-                    temp = "{} returned to the guild!".format(tracker.team.name)
+                    temp = "{} returned to the guild!".format(team_name)
                     tracker.log(temp, name="Return")
                     self.env.exit("back2guild")
 
                 if self.env.now >= 99: # We couldn't make it there before the days end...
-                    temp = "{} spent the entire day traveling back to the guild from {}! ".format(tracker.team.name, tracker.area.name)
+                    temp = "{} spent the entire day traveling back to the guild from {}! ".format(team_name, tracker.area.name)
                     tracker.log(temp)
                     self.env.exit("on the way back")
 
@@ -551,7 +518,6 @@ init -6 python: # Guild, Tracker and Log.
             """Camping will allow restoration of health/mp/agility and so on. Might be forced on low health.
             """
             team = tracker.team
-            area = tracker.area
             auto_equip_counter = 0 # We don't want to run over autoequip on every iteration, two times is enough.
 
             if DEBUG_SE:
@@ -600,7 +566,7 @@ init -6 python: # Guild, Tracker and Log.
                         break
                 else:
                     tracker.days_in_camp = 0
-                    temp = "{} are now ready for more action in {}! ".format(team.name, area.name)
+                    temp = "{} are now ready for more action in {}! ".format(team.name, tracker.area.name)
                     tracker.log(temp)
                     self.env.exit("restored")
 
@@ -679,7 +645,7 @@ init -6 python: # Guild, Tracker and Log.
                 c.mp += round_int(c.get_max("mp")*multiplier)
                 c.vitality += round_int(c.get_max("vitality")*multiplier)
 
-            if tracker.captured_chars:
+            if tracker.captured_chars and tracker.state != "traveling back":
                 return "go2guild"
 
         def explore(self, tracker):
@@ -687,68 +653,74 @@ init -6 python: # Guild, Tracker and Log.
 
             Idea is to keep as much of this logic as possible and adapt it to work with SimPy...
             """
+            team = tracker.team
+            area = tracker.area
+
             if tracker.daily_items is None:
+                # first run during the day
+                if DEBUG_SE:
+                    msg = "{} is starting an exploration scenario.".format(team.name)
+                    se_debug(msg, mode="info")
+
                 tracker.daily_items = list()
                 tracker.daily_cash = 0
+                tracker.daily_mobs = 0
+
+                # Effectiveness (Ability):
+                abilities = list()
+                # Difficulty is tier of the area explored + 1/10 of the same value / 100 * risk.
+                difficulty = area.tier*(1 + .001*tracker.risk)
+                for char in team:
+                    # Set their exploration capabilities as temp flag
+                    a = tracker.effectiveness(char, difficulty, log=None, return_ratio=False)
+                    abilities.append(a)
+                tracker.ability = get_mean(abilities)
+
+                # Max cash to be found this day:
+                tracker.max_cash = int(area.cash_limit * (1 + .1*tracker.day))
+
+                # Get the max number of items that can be found in one day:
+                max_items = round_int((tracker.ability+tracker.risk)*.01+(tracker.day*.2))
+                if DEBUG_SE:
+                    msg = "Max Items ({}) to be found on Day: {}!".format(max_items, tracker.day)
+                    se_debug(msg, mode="info")
+                # Let's run the expensive item calculations once and just give
+                # Items as we explore. This just figures what items to give.
+
+                chosen_items = [] # Picked items:
+                # Local Items:
+                local_items = []
+                for i, d in area.items.iteritems():
+                    if dice(d):
+                        local_items.append(i)
+
+                area_items = []
+                for i, d in tracker.exploration_items.iteritems():
+                    if dice(d):
+                        area_items.append(i)
+
+                if DEBUG_SE:
+                    msg = "Local Items: {}|Area Items: {}".format(len(local_items), len(area_items))
+                    se_debug(msg, mode="info")
+
+                while len(chosen_items) < max_items and (area_items or local_items):
+                    # always pick from local item list first!
+                    if local_items:
+                        chosen_items.append(choice(local_items))
+
+                    if area_items and len(chosen_items) < max_items:
+                        chosen_items.append(choice(area_items))
+
+                if DEBUG_SE:
+                    msg = "({}) Items were picked for choice!".format(len(chosen_items))
+                    se_debug(msg, mode="info")
+
+            else:
+                if DEBUG_SE:
+                    msg = "{} is continuing the exploration.".format(team.name)
+                    se_debug(msg, mode="info")
 
             items = tracker.daily_items
-            area = tracker.obj_area
-            carea = tracker.area
-            team = tracker.team
-            fought_mobs = 0
-
-            if DEBUG_SE:
-                msg = "{} is starting an exploration scenario.".format(team.name)
-                se_debug(msg, mode="info")
-
-            # Effectiveness (Ability):
-            abilities = list()
-            # Difficulty is tier of the area explored + 1/10 of the same value / 100 * risk.
-            difficulty = area.tier+(area.tier*.001*area.risk)
-            for char in team:
-                # Set their exploration capabilities as temp flag
-                a = tracker.effectiveness(char, difficulty, log=None, return_ratio=False)
-                abilities.append(a)
-            tracker.ability = get_mean(abilities)
-
-            # Let's run the expensive item calculations once and just give
-            # Items as we explore. This just figures what items to give.
-            # Get the max number of items that can be found in one day:
-            max_items = int(round((tracker.ability+tracker.risk)*.01+(tracker.day*.2)))
-            if DEBUG_SE:
-                msg = "Max Items ({}) to be found on Day: {}!".format(max_items, tracker.day)
-                se_debug(msg, mode="info")
-
-            chosen_items = [] # Picked items:
-            # Local Items:
-            local_items = []
-            for i, d in area.items.iteritems():
-                if dice(d):
-                    local_items.append(i)
-
-            area_items = []
-            for i, d in tracker.exploration_items.iteritems():
-                if dice(d):
-                    area_items.append(i)
-
-            if DEBUG_SE:
-                msg = "Local Items: {}|Area Items: {}".format(len(local_items), len(area_items))
-                se_debug(msg, mode="info")
-
-            while len(chosen_items) < max_items and (area_items or local_items):
-                # always pick from local item list first!
-                if local_items:
-                    chosen_items.append(choice(local_items))
-
-                if area_items and len(chosen_items) < max_items:
-                    chosen_items.append(choice(area_items))
-
-            if DEBUG_SE:
-                msg = "({}) Items were picked for choice!".format(len(chosen_items))
-                se_debug(msg, mode="info")
-
-            # Max cash to be found this day:
-            max_cash = tracker.cash_limit + tracker.cash_limit*.1*tracker.day
 
             while 1:
                 yield self.env.timeout(5) # We'll go with 5 du per one iteration of "exploration loop".
@@ -757,8 +729,11 @@ init -6 python: # Guild, Tracker and Log.
                 if area.explored < 100 and dice(5):
                     area.explored += 1
                     for key, value in area.unlocks.items():
-                        if value <= area.explored:
+                        if value <= area.explored and not fg_areas[key].unlocked:
                             fg_areas[key].unlocked = True
+                            temp = "Found a new path in the wilderness. It might worth to explore %s!" % key
+                            temp = set_font_color(temp, "green")
+                            tracker.log(temp)
 
                 # Hazzard:
                 if area.hazard:
@@ -778,7 +753,7 @@ init -6 python: # Guild, Tracker and Log.
                         if area.explored >= explored:
                             special_items.append(item)
 
-                if (chosen_items or special_items) and not self.env.now % 5:
+                if chosen_items or special_items:
                     if self.env.now < 50:
                         chance = self.env.now/5
                     elif self.env.now < 80:
@@ -806,21 +781,19 @@ init -6 python: # Guild, Tracker and Log.
                         items.append(item)
 
                 # Cash:
-                if max_cash > 0 and not self.env.now % 20:
-                    if dice(tracker.risk):
-                        give = round_int(max_cash/5.0)
-                        max_cash -= give
-                        tracker.daily_cash += give
+                if tracker.max_cash > tracker.daily_cash and dice(tracker.risk/5):
+                    give = max(1, randint(1, tracker.max_cash/2))
+                    tracker.daily_cash += give
 
-                        temp = "{color=[gold]}Found %d Gold!{/color}" % give
-                        tracker.log(temp)
-                        if DEBUG_SE:
-                            msg = "{} Found {} Gold!".format(team.name, give)
-                            se_debug(msg, mode="info")
+                    temp = "{color=[gold]}Found %d Gold!{/color}" % give
+                    tracker.log(temp)
+                    if DEBUG_SE:
+                        msg = "{} Found {} Gold!".format(team.name, give)
+                        se_debug(msg, mode="info")
 
                 #  =================================================>>>
                 # Copied area must be used for checks here as it preserves state.
-                if carea.capture_chars and not self.env.now % 10:
+                if tracker.capture_chars and not self.env.now % 10:
                     # Special Chars:
                     if area.special_chars:
                         for char, explored in area.special_chars.items():
@@ -883,14 +856,14 @@ init -6 python: # Guild, Tracker and Log.
 
                                 self.env.exit("back2camp")
 
-                if tracker.mobs:
+                if area.mobs:
                     # The expected number of encounters per day is increased by one after every 25 point of risk,
                     # but never fight anyone with risk lower than 25..
-                    encounter_chance = dice((carea.risk-25) / 5.0) # 100 * ((risk-25)/25.0) / (day_length / iteration_DU)
+                    encounter_chance = dice((tracker.risk-25) / 5.0) # 100 * ((risk-25)/25.0) / (day_length / iteration_DU)
                     if encounter_chance:
-                        fought_mobs += 1
+                        tracker.daily_mobs += 1
 
-                        mob = choice(tracker.mobs)
+                        mob = choice(area.mobs)
 
                         min_enemies = max(1, len(team) - 1)
                         max_ememies = max(3, len(team) + randrange(2))
@@ -906,7 +879,7 @@ init -6 python: # Guild, Tracker and Log.
                                 msg = "{} has finished an exploration scenario. (Lost a fight)".format(team.name)
                                 se_debug(msg, mode="info")
                             self.env.exit("defeat")
-                        if fought_mobs >= carea.risk/25:
+                        if tracker.daily_mobs >= tracker.risk/25:
                             temp = "Your team decided to go back to the camp to avoid further {color=[red]}risk{/color}."
                             tracker.log(temp)
                             if DEBUG_SE:
@@ -933,7 +906,6 @@ init -6 python: # Guild, Tracker and Log.
             maxl = max(5, level+3+tracker.day)
             level = randint(minl, maxl)
 
-            # raise Exception(mob, tracker.area.mobs)
             for i in xrange(opfor_team_size):
                 temp = build_mob(id=mob, level=level)
                 temp.controller = BE_AI(temp)
