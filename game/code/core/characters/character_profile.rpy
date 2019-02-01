@@ -407,13 +407,13 @@ screen char_profile():
                             idle im.Scale("content/gfx/interface/buttons/RG.png", 27, 30)
                             hover im.MatrixColor(im.Scale("content/gfx/interface/buttons/RG.png", 27, 30), im.matrix.brightness(.15))
                             action Function(hero.team.remove, char)
-                            tooltip "Remove {} from player team".format(char.nickname)
+                            tooltip "Remove {} from your team".format(char.nickname)
                     else:
                         imagebutton:
                             idle im.Scale("content/gfx/interface/buttons/AG.png", 27, 30)
                             hover im.MatrixColor(im.Scale("content/gfx/interface/buttons/AG.png", 27, 30), im.matrix.brightness(.15))
                             action If(len(hero.team) < 3, true=Function(hero.team.add, char), false=Show("message_screen", msg="Team cannot have more than three members"))
-                            tooltip "Add {} to player team".format(char.nickname) 
+                            tooltip "Add {} to your team".format(char.nickname) 
             hbox:
                 style_group "basic"
                 xalign .5 ypos 200
