@@ -225,21 +225,16 @@ init -11 python:
 
     def build_mob(id=None, level=1, max_out_stats=False):
         mob = Mob()
-        skills = mob.stats.skills.keys()
 
         if not id:
             id = choice(mobs.keys())
-
-        if not id in mobs:
+        elif not id in mobs:
             raise Exception("Unknown id {} when creating a mob!".format(id))
 
         data = mobs[id]
         mob.id = id
-        mob.min_lvl = data.get("min_lvl", 1)
-        mob.name = data.get("name", id)
-        mob.desc = data.get("desc", "Some Random Monsta!")
 
-        for i in ("battle_sprite", "portrait", "origin", "locations", "base_race", "race", "front_row"):
+        for i in ("name", "desc", "battle_sprite", "portrait", "origin", "locations", "full_race", "race", "front_row"):
             if i in data:
                 setattr(mob, i, data[i])
 
@@ -267,6 +262,7 @@ init -11 python:
 
         mob.init()
 
+        level = max(level, data.get("min_lvl", 1))
         if level != 1:
             initial_levelup(mob, level, max_out_stats=max_out_stats)
 

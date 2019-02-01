@@ -901,13 +901,9 @@ init -6 python: # Guild, Tracker and Log.
                 se_debug(msg, mode="info")
 
             # Get a level we'll set the mobs to:
-            level = tracker.area.tier*20
-            minl = max(1, level-3)
-            maxl = max(5, level+3+tracker.day)
-            level = randint(minl, maxl)
-
+            min_lvl = max(mobs[mob]["min_lvl"], tracker.area.tier*20)
             for i in xrange(opfor_team_size):
-                temp = build_mob(id=mob, level=level)
+                temp = build_mob(id=mob, level=randint(min_lvl, min_lvl+10))
                 temp.controller = BE_AI(temp)
                 opfor.add(temp)
 

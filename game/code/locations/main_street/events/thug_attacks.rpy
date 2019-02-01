@@ -38,8 +38,9 @@ label city_events_thugs_robbery:
                 python:
                     back = interactions_pick_background_for_fight("city")
                     enemy_team = Team(name="Enemy Team", max_size=3)
+                    min_lvl = max(mobs["Thug"]["min_lvl"], 45)
                     for i in xrange(3):
-                        mob = build_mob("Thug", level=45)
+                        mob = build_mob("Thug", level=randint(min_lvl, min_lvl+20))
                         enemy_team.add(mob)
                     result = run_default_be(enemy_team, slaves=True, background=back)
                     if result is True:
@@ -80,9 +81,9 @@ label city_events_thugs_robbery_attack:
     python:
         back = interactions_pick_background_for_fight(scr)
         enemy_team = Team(name="Enemy Team", max_size=3)
-        lvl = min(hero.level, 25)
+        min_lvl = max(mobs["Thug"]["min_lvl"], 25)
         for i in xrange(3):
-            mob = build_mob("Thug", level=lvl)
+            mob = build_mob("Thug", level=randint(min_lvl, min_lvl+10))
             enemy_team.add(mob)
         result = run_default_be(enemy_team, slaves=True, background=back)
 

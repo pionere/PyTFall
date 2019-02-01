@@ -221,8 +221,9 @@ label city_beach_monsters_fight:
 
     python:
         enemy_team = Team(name="Enemy Team", max_size=3)
+        min_lvl = mobs["Skyfish"]["min_lvl"]
         for i in range(randint(2, 3)):
-            mob = build_mob(id="Skyfish", level=randint(5, 15))
+            mob = build_mob(id="Skyfish", level=randint(min_lvl, min_lvl+10))
             mob.front_row = True
             enemy_team.add(mob)
         back = interactions_pick_background_for_fight("beach")

@@ -703,7 +703,7 @@ init: # Main Screens:
             if in_focus_mob:
                 python:
                     if not mob or mob.id != in_focus_mob["id"]:
-                        mob = build_mob(id=in_focus_mob["id"], level=in_focus_mob["min_lvl"])
+                        mob = build_mob(id=in_focus_mob["id"])
                     data = in_focus_mob
                     portrait = im.Scale(data["portrait"], 100, 100)
 

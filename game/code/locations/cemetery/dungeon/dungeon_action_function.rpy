@@ -1,14 +1,11 @@
 init python:
     def dungeon_combat(mob_id, sound=None):
-
-        hero_team = hero.team
         len_ht = len(hero.team)
-        lvl_ht = hero.team.get_level()
 
         enemy_team = Team(name="Enemy Team", max_size=3)
-        levels = randint(lvl_ht-2, lvl_ht+5)
+        min_lvl = max(hero.team.get_level()-5, mobs[mob_id]["min_lvl"])
         for i in range(min(3, len_ht+randint(0, 1))):
-            mob = build_mob(id=mob_id, level=levels)
+            mob = build_mob(id=mob_id, level=randint(min_lvl, min_lvl+10))
             enemy_team.add(mob)
 
         place = "content/gfx/bg/be/b_dungeon_1.webp"

@@ -206,10 +206,10 @@ label city_dark_forest_hideout:
 label city_dark_forest_hideout_fight:
     python:
         enemy_team = Team(name="Enemy Team", max_size=3)
-        levels = randint(20, 40)
         for i in range(3):
             mob_id = choice(["Samurai", "Warrior", "Archer", "Soldier", "Barbarian", "Orc", "Infantryman", "Thug", "Mercenary", "Dark Elf Archer"])
-            mob = build_mob(id=mob_id, level=levels)
+            min_lvl = mobs[mob_id]["min_lvl"]
+            mob = build_mob(id=mob_id, level=randint(min_lvl, min_lvl+20))
             enemy_team.add(mob)
 
     $ place = interactions_pick_background_for_fight("forest")
@@ -230,9 +230,6 @@ label city_dark_forest_fight:
 
     python:
         enemy_team = Team(name="Enemy Team", max_size=3)
-        levels = hero.team.get_level()
-        levels = randint(levels-5, levels+10)
-        levels = min(5, levels)
         mob = choice(["slime", "were", "harpy", "goblin", "wolf", "bear",
                       "druid", "rat", "undead", "butterfly"])
         et_len = min(len(hero.team) + 1, 3)
@@ -274,7 +271,8 @@ label city_dark_forest_fight:
 
         for i in range(et_len):
             mob_id = choice(mob_ids)
-            mob = build_mob(id=mob_id, level=levels)
+            min_lvl = mobs[mob_id]["min_lvl"]
+            mob = build_mob(id=mob_id, level=randint(min_lvl, min_lvl+20))
             enemy_team.add(mob)
 
     narrator "[msg]"

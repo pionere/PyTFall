@@ -2055,10 +2055,15 @@ init -9 python:
         # Post init and ND.
         def init(self):
             # Normalize character
+            if not self.name:
+                self.name = self.id
             if not self.fullname:
                 self.fullname = self.name
             if not self.nickname:
                 self.nickname = self.name
+            # Dark's Full Race Flag:
+            if not self.full_race:
+                self.full_race = str(self.race)
 
             # AP restore:
             self.restore_ap()
@@ -2162,7 +2167,6 @@ init -9 python:
             super(Mob, self).__init__(arena=True)
 
             # Basic Images:
-            self.portrait = ""
             self.battle_sprite = ""
             self.combat_img = ""
 
@@ -2186,8 +2190,6 @@ init -9 python:
             resize = kwargs.get("resize", (100, 100))
             cache = kwargs.get("cache", True)
 
-            if what in ["battle", "fighting"]:
-                what = "combat"
             if what == "portrait":
                 what = self.portrait
             elif what == "battle_sprite":
@@ -2197,7 +2199,7 @@ init -9 python:
                     return ImageReference(webm_spites["idle"][0])
                 else:
                     what = self.battle_sprite
-            elif what == "combat" and self.combat_img:
+            elif what in ["combat", "battle", "fighting"] and self.combat_img:
                 what = self.combat_img
             else:
                 what = self.battle_sprite
@@ -2212,11 +2214,6 @@ init -9 python:
 
         def init(self):
             # Normalize character
-            if not self.fullname:
-                self.fullname = self.name
-            if not self.nickname:
-                self.nickname = self.name
-
             # If there are no basetraits, we add Warrior by default:
             if not self.traits.basetraits:
                 self.traits.basetraits.add(traits["Warrior"])
