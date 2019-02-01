@@ -266,23 +266,6 @@ screen top_stripe(show_return_button=True, return_button_action=None,
             tooltip "Mute All"
 
         # Left HBox: ======================================================>>>>>>
-        # Add to and remove from Team Button.
-        hbox:
-            align(.3, .5)
-            if renpy.get_screen("char_profile") and controlled_char(char):
-                if char in hero.team:
-                    imagebutton:
-                        idle im.Scale("content/gfx/interface/buttons/RG.png", 36, 40)
-                        hover im.MatrixColor(im.Scale("content/gfx/interface/buttons/RG.png", 36, 40), im.matrix.brightness(.15))
-                        action Function(hero.team.remove, char)
-                        tooltip "Remove {} from player team".format(char.nickname)
-                else:
-                    imagebutton:
-                        idle im.Scale("content/gfx/interface/buttons/AG.png", 36, 40)
-                        hover im.MatrixColor(im.Scale("content/gfx/interface/buttons/AG.png", 36, 40), im.matrix.brightness(.15))
-                        action If(len(hero.team) < 3, true=Function(hero.team.add, char), false=Show("message_screen", msg="Team cannot have more than three members"))
-                        tooltip "Add {} to player team".format(char.nickname)
-
         # AP Frame/Next Day button:
         $ tc_0 = any([renpy.current_screen().tag == "next_day", hero.AP == 0])
         $ tc_1 = show_lead_away_buttons and renpy.current_screen().tag not in ["mainscreen"]
