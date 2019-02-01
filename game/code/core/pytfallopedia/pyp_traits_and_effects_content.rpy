@@ -106,7 +106,10 @@ screen pyp_fixed_traits():
         style_prefix "pyp"
         text ("Some traits are mandatory. They define the core characteristics, and cannot be changed after the"+
               " character creation.\nAll fixed traits provide lots of bonuses and penalties of"+
-              " different kind, so they are very important for defying a character."):
+              " different kind, so they are very important for defining a character.\nSimilar to the Items Effects,"+
+              " icons indicate the modifiers to the given skill. Green means bonus, red penalty. The left one of the"+
+              " maximum three petals shows how fast the character learns by doing the given task. The right one"+
+              " indicates the learning speed during training, while the top one displays the bonus when using the skill."):
                   ypos 80
 
         fixed:
@@ -148,11 +151,10 @@ screen pyp_fixed_traits():
                           " found in content/db/traits/traits_races.json file in the game folders.")
 
         fixed:
-            xpos 601
+            pos 601, 220
             xysize 370, 664
             style_prefix "pyp"
             vbox:
-                align .0, .75
                 frame:
                     add "content/gfx/interface/pyp/fixed_traits.webp"
                 null height 10
@@ -196,16 +198,16 @@ screen pyp_elements():
                     label "Base Elemental Traits"
                     text ("The base elemental traits are elements themselves. The full list is: Fire, Water,"+
                           " Air, Earth, Electricity, Ice, Light, Darkness. Each of them buffs some elemental"+
-                          " attacks and defences and reduces others, for instance, Fire gives +25% to fire"+
+                          " attacks and defences (green values) and reduces others (red values). For instance Fire gives +25% to fire"+
                           " damage and 15% to fire and air defences, but reduces ice spells damage by 25%"+
                           " and lowers water defence by 30%. One character can even have all elements at once,"+
                           " but since they all have pros and cons it's very unwise, as it gives no "+
                           "positive effect. Instead, it's better to focus on a few elements.")
                 vbox:
                     label "General Elemental Traits"
-                    text ("Unlike base elemental traits, general traits may not present at all, or"+
-                          " be temporally, but they affect elements in one way or another: Immunity"+
-                          " traits protect against element completely, Absorption traits not only "+
+                    text ("Unlike base elemental traits, general traits may be temporally or not present at all."+
+                          " Immunity traits ('res.') protect against element completely."+
+                          " Absorption traits (white values) not only "+
                           "protect but also restore character health if attacked by the corresponding"+
                           " element. Others provide bonuses to attack or defence of a specific element."+
                           " Some of these traits can be obtained by equipping an item, others available"+
@@ -236,11 +238,12 @@ screen pyp_elements():
             style_prefix "pyp"
             vbox:
                 ypos 300
-                frame:
+                hbox:
                     add "content/gfx/interface/pyp/neu_el.webp"
-                null height 10
-                frame:
+                    null width 10
                     add "content/gfx/interface/pyp/multi_el.webp"
+                null height 10
+                add "content/gfx/interface/pyp/traits_el_desc.webp"
 
     # ForeGround frame (should be a part of every screen with Info):
     add "content/gfx/frame/h3.webp"

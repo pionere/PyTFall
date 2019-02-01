@@ -2,32 +2,19 @@ screen pytfallopedia():
     zorder 1000
     modal True
 
-    default show_sub = True
-    # variable is responsible for correctly toggling between main and sub cats buttons.
-    # without this, returning to main will take an extra click.
-
     # Top Stripe Frame:
     fixed:
         xysize config.screen_width, 40
         add "content/gfx/frame/top_stripe.png"
         # Buttons:
-        python:
-            actions = [Hide("pytfallopedia")]
-            if pyp.main_screen:
-                actions.append(Hide(pyp.main_screen))
-            if pyp.sub_screen:
-                actions.append(Hide(pyp.sub_screen))
-                actions.append(SetField(pyp, "sub_focused", None))
-            actions.append(With(dissolve))
         $ img = im.Scale("content/gfx/interface/buttons/close.png", 35, 35)
         imagebutton:
             align .996, .5
             idle img
             hover im.MatrixColor(img, im.matrix.brightness(.15))
-            insensitive_background img
-            action actions
+            action Function(pyp.close)
             tooltip "Close PyTFallopedia"
-            keysym "mousedown_3"
+            keysym "K_ESCAPE", "mousedown_3"
 
         $ img = im.Scale("content/gfx/interface/buttons/arrow_button_metal_gold_left.png", 35, 35)
         imagebutton:
@@ -35,14 +22,10 @@ screen pytfallopedia():
             idle img
             hover im.MatrixColor(img, im.matrix.brightness(.15))
             insensitive im.Sepia(img)
-            insensitive_background img
-            if pyp.sub_focused:
-                action Hide(pyp.sub_screen), Show(pyp.main_screen), SetField(pyp, "sub_focused", None), SetScreenVariable("show_sub", False)
-            elif pyp.main_focused:
-                action Hide(pyp.main_screen), With(dissolve), SetField(pyp, "main_focused", None)
-            sensitive pyp.sub_focused or pyp.main_focused
+            action Function(pyp.back)
+            sensitive pyp.root != pyp.focused_page
             tooltip "Back"
-            keysym "mousedown_2"
+            keysym "mousedown_3"
 
     # Right frame with info (Will prolly be a bunch of separate screens in the future)
     frame:
@@ -51,7 +34,10 @@ screen pytfallopedia():
         xysize config.screen_width-287, config.screen_height-41
         style_prefix "proper_stats"
 
-    if not pyp.main_focused and not pyp.sub_focused:
+    #$ renpy.show_screen(pyp.focused_page[1])
+    # use expression pyp.focused_page[1]
+
+    if pyp.root == pyp.focused_page:
         fixed:
             pos 302, 49
             xysize 971, 664
@@ -64,6 +50,8 @@ screen pytfallopedia():
                 label "Welcome to PyTFallopedia" xalign .5 text_size 40
                 null height 100
                 text "An in-game encyclopedia that introduces the player to the core game-world and game-play concepts!" xalign .5
+
+        add "content/gfx/frame/h3.webp"
 
     # Left frame with buttons:
     frame:
@@ -78,31 +66,26 @@ screen pytfallopedia():
             mousewheel 1
             draggable 1
             cols 1
-            if pyp.main_focused in pyp.sub and show_sub:
-                for name, screen in pyp.sub[pyp.main_focused]:
+            python:
+                curr_page = pyp.focused_page
+                menu = curr_page[3]
+                if not menu:
+                    # the selected page is a leaf -> use the menu of the parent
+                    menu = curr_page[2][3]
+                curr_page = curr_page[1]
+
+            for entry in menu:
                     button:
                         xsize 270
-                        text name
-                        if pyp.sub_focused:
-                            action Hide(pyp.sub_screen), SetField(pyp, "sub_focused", (name, screen)), Show(screen)
+                        text entry[0]
+                        if pyp.focused_page == entry:
+                            selected True
+                            action NullAction()
                         else:
-                            action SetField(pyp, "sub_focused", (name, screen)), Hide(pyp.main_screen), Show(screen)
-            else:
-                for name, screen in pyp.main.items():
-                    python:
-                        actions = [SetField(pyp, "main_focused", name), Show(screen), SetScreenVariable("show_sub", True)]
-                        if pyp.main_screen:
-                            actions.insert(0, Hide(pyp.main_screen))
-                    button:
-                        xsize 270
-                        text name
-                        action actions
-                        selected pyp.main_screen is not None and screen == pyp.main[pyp.main_focused]
+                            action Function(pyp.open, entry)
 
         vbar value YScrollValue("vp")
 
-    if not pyp.main_focused and not pyp.sub_focused:
-        add "content/gfx/frame/h3.webp"
 
 # DEFAULT positioning blueprint that can be used with any screen pyp info in the future.
 screen pyp_default():
