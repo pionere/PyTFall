@@ -384,10 +384,10 @@ screen hero_profile():
         spacing 1
         pos (1142, 156)
         button:
-            action Hide("show_trait_info"), SetScreenVariable("rframe_display", "skills"), With(dissolve)
+            action SetScreenVariable("rframe_display", "skills")
             text "Skills" style "pb_button_text"
         button:
-            action SetScreenVariable("rframe_display", "traits"), With(dissolve)
+            action SetScreenVariable("rframe_display", "traits")
             text "Traits" style "pb_button_text"
 
     # RIGHT FRAME ====================================>
@@ -523,19 +523,19 @@ screen hero_profile():
             text "Skills" style "pb_button_text"
             tooltip "Check the progress of your skills"
         button:
-            action Hide("show_trait_info"), Show("hero_team", transition=dissolve)#, With(dissolve)
-            text "Team" style "pb_button_text"
-            tooltip "Display your team's current composition; Team Name: %s" % hero.team.name
+            action Show("hero_team")
+            text "Teams" style "pb_button_text"
+            tooltip "Manage your teams." % hero.team.name
         button:
-            action Hide("show_trait_info"), Return(['hero', 'equip'])#, With(dissolve)
+            action Return(['hero', 'equip'])
             text "Equipment" style "pb_button_text"
             tooltip "Browse and manage your own inventory and equipment"
         button:
-            action Hide("show_trait_info"), Show("finances", None, hero, mode="main")#, With(dissolve)
+            action Show("finances", None, hero, mode="main")
             text "Finance" style "pb_button_text"
             tooltip "View the log of financial information, letting you see your income and expenses"
         button:
-            action Hide("show_trait_info"), [Show("mc_friends_list")]
+            action Show("mc_friends_list")
             text "Friends" style "pb_button_text"
             tooltip "Show the list friends and lovers who don't work for {}, allowing you to find them immediately when needed".format(hero.name)
         # Items Transfer to Home Location Inventory:
@@ -557,7 +557,7 @@ screen hero_profile():
         pos (900, 7) # (178, 70)
         idle im.Scale("content/gfx/interface/buttons/close2.png", 35, 35)
         hover im.Scale("content/gfx/interface/buttons/close2_h.png", 35, 35)
-        action Hide("show_trait_info"), Return(['control', 'return'])
+        action Return(['control', 'return'])
         tooltip "Return to previous screen!"
         keysym "mousedown_3"
 

@@ -462,6 +462,16 @@ screen race_and_elements(align=(.5, .99), char=None):
                 tooltip "Elements:\n   {}".format(ele)
 
 screen show_trait_info(trait=None, place="girl_trait", elemental_mode=False):
+    modal True
+    $ pos = renpy.get_mouse_pos()
+    mousearea:
+        area(pos[0], pos[1], 1, 1)
+        hovered Show("show_trait_info_content", transition=dissolve, trait=trait, place=place, elemental_mode=elemental_mode)
+        unhovered Hide("show_trait_info_content"), Hide("show_trait_info")
+
+    #key "mousedown_3" action Hide("show_trait_info_content"), Hide("show_trait_info")
+
+screen show_trait_info_content(trait=None, place="girl_trait", elemental_mode=False):
     default pos = renpy.get_mouse_pos()
     python:
         x, y = pos
@@ -600,13 +610,6 @@ screen show_trait_info(trait=None, place="girl_trait", elemental_mode=False):
                 else:
                     label ("-no direct effects-") text_size 15 text_color goldenrod text_bold True xalign .45 text_outlines [(1, "#000000", 0, 0)]
 
-            imagebutton:
-                align .99, .01
-                xysize 22, 22
-                idle ProportionalScale("content/gfx/interface/buttons/close4.png", 22, 22)
-                hover ProportionalScale("content/gfx/interface/buttons/close4_h.png", 22, 22)
-                action Hide("show_trait_info"), With(dissolve)
-                keysym "mousedown_3"
     else:
         $ elems = elements_calculator(trait)
         fixed:
@@ -654,10 +657,3 @@ screen show_trait_info(trait=None, place="girl_trait", elemental_mode=False):
                                     $ val = values["defence"]
                                     text "[val] %" size 15 color (lime if val >= 0 else red) align 1.0, .5 outlines [(1, "#000000", 0, 0)]
 
-            imagebutton:
-                align .99, .01
-                xysize 22, 22
-                idle ProportionalScale("content/gfx/interface/buttons/close4.png", 22, 22)
-                hover ProportionalScale("content/gfx/interface/buttons/close4_h.png", 22, 22)
-                action Hide("show_trait_info"), With(dissolve)
-                keysym "mousedown_3"

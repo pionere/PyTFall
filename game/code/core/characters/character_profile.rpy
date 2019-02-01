@@ -188,10 +188,8 @@ label char_profile:
             if result[0] == 'control':
                 if result[1] == 'left':
                     $ change_char_in_profile("prev")
-                    hide screen show_trait_info
                 elif result[1] == 'right':
                     $ change_char_in_profile("next")
-                    hide screen show_trait_info
                 elif result[1] == 'return':
                     jump char_profile_end
 
@@ -208,9 +206,6 @@ screen char_profile():
     key "mousedown_4" action Return(["control", "right"])
     key "mousedown_5" action Return(["control", "left"])
     key "mousedown_3" action Return(['control', 'return']) # keep in sync with button - alternate
-
-    on "hide":
-        action Hide("show_trait_info")
 
     default stats_display = "main"
 
@@ -242,7 +237,7 @@ screen char_profile():
                 xysize 140, 40
                 yalign .5
                 style "left_wood_button"
-                action Hide("show_trait_info"), Return(['control', 'left'])
+                action Return(['control', 'left'])
                 sensitive len(girls) > 1
                 text "Previous Girl" style "wood_text" xalign(.69)
                 tooltip "<== Previous Girl"
@@ -257,7 +252,7 @@ screen char_profile():
                 xysize 140, 40
                 yalign .5
                 style "right_wood_button"
-                action Hide("show_trait_info"), Return(['control', 'right'])
+                action Return(['control', 'right'])
                 sensitive len(girls) > 1
                 text "Next Girl" style "wood_text" xalign .19
                 tooltip "Next Girl ==>"
@@ -663,7 +658,7 @@ screen char_profile():
                     spacing 5
                     button:
                         xysize (150, 40)
-                        action Hide("show_trait_info"), Show("char_control")
+                        action Show("char_control")
                         sensitive controlled_char(char)
                         tooltip "Set desired behavior for {}!".format(char.nickname)
                         text "Controls"
@@ -690,7 +685,7 @@ screen char_profile():
                         text "Training"
                     button:
                         xysize (150, 40)
-                        action Hide("show_trait_info"), Show("finances", None, char, mode="logical")
+                        action Show("finances", None, char, mode="logical")
                         sensitive controlled_char(char)
                         tooltip "Review Finances!"
                         text "Finances"
