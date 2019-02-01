@@ -676,6 +676,7 @@ label after_load:
     python hide:
         if hasattr(store, "json_fighters"):
             hero._path_to_imgfolder = hero._path_to_imgfolder.replace("npc/arena_males", "fighters/males/warriors")
+            hero.update_sayer()
 
             for fighter in store.male_fighters.values():
                 fighter._path_to_imgfolder = fighter._path_to_imgfolder.replace("npc/arena_males", "fighters/males/warriors")
