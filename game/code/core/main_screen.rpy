@@ -117,7 +117,18 @@ screen mainscreen():
                 action Return(["city"])
                 tooltip 'Explore the city'
 
-            null height 50
+            null height 5
+            if day > 1:
+                $ img = ProportionalScale(ImageReference("journal"), 40, 40)
+                imagebutton:
+                    xalign .5
+                    idle img
+                    hover im.MatrixColor(img, im.matrix.brightness(.15))
+                    tooltip "PyTFall's GAZETTE"
+                    action ToggleField(gazette, "show")
+            else:
+                null height 40
+            null height 5
 
             textbutton "-Next Day-":
                 style "main_screen_4_button"

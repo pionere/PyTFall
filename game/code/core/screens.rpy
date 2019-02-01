@@ -323,13 +323,6 @@ screen top_stripe(show_return_button=True, return_button_action=None,
                 action Show("pytfallopedia")
                 tooltip "Open PyTFallopedia"
 
-            if day > 1 and renpy.get_screen("mainscreen"):
-                imagebutton:
-                    idle ImageReference("journal")
-                    hover im.MatrixColor(ImageReference("journal"), im.matrix.brightness(.15))
-                    tooltip "PyTFall's GAZETTE"
-                    action ToggleField(gazette, "show")
-
             if renpy.current_screen().tag not in ["quest_log"]:
                 imagebutton:
                     idle im.Scale("content/gfx/interface/buttons/journal1.png", 36, 40)
