@@ -1,7 +1,7 @@
 # Characters classes and methods:
 init -9 python:
     class STATIC_CHAR():
-        __slots__ = ("STATS", "SKILLS", "FULLSKILLS", "GEN_OCCS", "STATUS", "MOOD_TAGS", "UNIQUE_SAY_SCREEN_PORTRAIT_OVERLAYS")
+        __slots__ = ("STATS", "SKILLS", "FULLSKILLS", "GEN_OCCS", "STATUS", "MOOD_TAGS", "UNIQUE_SAY_SCREEN_PORTRAIT_OVERLAYS", "BASE_UPKEEP", "BASE_WAGES", "TRAININGS")
         STATS =  {"charisma", "constitution", "joy", "character", "reputation",
                   "health", "fame", "mood", "disposition", "vitality", "intelligence",
                   "luck", "attack", "magic", "defence", "agility", "mp"}
@@ -19,6 +19,11 @@ init -9 python:
                          "indifferent", "provocative", "sad", "scared", "shy",
                          "tired", "uncertain"}
         UNIQUE_SAY_SCREEN_PORTRAIT_OVERLAYS = ["zoom_fast", "zoom_slow", "test_case"]
+        BASE_UPKEEP = 2.5 # Per tier, conditioned in get_upkeep method.
+        BASE_WAGES = {"SIW": 20, "Combatant": 30, "Server": 15, "Specialist": 40 }
+        TRAININGS = {"Abby Training": "Abby the Witch",
+                     "Aine Training": "Aine",
+                     "Xeona Training": "Xeona"}
 
     ###### Character Classes ######
     class PytCharacter(Flags, Tier, JobsLogger, Pronouns):
@@ -42,22 +47,19 @@ init -9 python:
             self.race = ""
             self.full_race = ""
 
-            self.AP = 3
             self.baseAP = 3
-            self.reservedAP = 0
-            self.setAP = 1 # This is set to the AP calculated for that day.
+            #self.AP = 3        # Remaining AP for the day - initialized later
+            #self.setAP = 1     # This is set to the AP calculated for that day.
             self.jobpoints = 0
 
-
             # Locations and actions, most are properties with setters and getters.
-            self._location = None # Present Location.
+            self.location = None # Present Location.
             self._workplace = None  # Place of work.
             self._home = None # Living location.
             self._action = None
 
             # Traits:
             self.upkeep = 0 # Required for some traits...
-            self.stored_upkeep = 0 # Recalculated every day and used in the gameworld.
 
             self.traits = Traits(self)
             self.resist = SmartTracker(self, be_skill=False)  # A set of any effects this character resists. Usually it's stuff like poison and other status effects.
@@ -70,13 +72,13 @@ init -9 python:
             self.likes = set() # These are simple sets containing objects and possibly strings of what this character likes or dislikes...
             self.dislikes = set() # ... more often than not, this is used to compliment same params based of traits. Also (for example) to set up client preferences.
 
-            # Arena relared:
+            # Arena related:
             if arena:
                 self.fighting_days = list() # Days of fights taking place
                 self.arena_willing = False # Indicates the desire to fight in the Arena
                 self.arena_permit = False # Has a permit to fight in main events of the arena.
                 self.arena_active = False # Indicates that girl fights at Arena at the time.
-                self._arena_rep = 0 # Arena reputation
+                self.arena_rep = 0 # Arena reputation
                 self.arena_stats = dict()
                 self.combat_stats = dict()
 
@@ -182,6 +184,32 @@ init -9 python:
 
             self.say = None # Speaker...
 
+        # Post init
+        def init(self):
+            # Normalize character
+            if not self.name:
+                self.name = self.id
+            if not self.fullname:
+                self.fullname = self.name
+            if not self.nickname:
+                self.nickname = self.name
+            # Dark's Full Race Flag:
+            if not self.full_race:
+                self.full_race = str(self.race)
+
+            # AP restore:
+            self.restore_ap()
+
+            # Always init the tiers:
+            self.recalculate_tier()
+
+            # add Character:
+            if not self.say:
+                self.update_sayer()
+
+            if not self.origin:
+                self.origin = choice(["Alkion", "PyTFall", "Crossgate"])
+
         def __getattr__(self, key):
             if key == "defense":
                 key = "defence"
@@ -270,35 +298,6 @@ init -9 python:
             return allowed
 
         @property
-        def arena_rep(self):
-            return self._arena_rep
-        @arena_rep.setter
-        def arena_rep(self, value):
-            if value <= -500:
-                self._arena_rep = -500
-            else:
-                self._arena_rep = value
-
-        # Locations related ====================>
-        @property
-        def location(self):
-            # Physical location at the moment, this is not used a lot right now.
-            # if all([self._location == hero, isinstance(self, Char), self.status == "free"]):
-                # return "Own Dwelling"
-            # elif self._location == hero: # We set location to MC in most cases, this may be changed soon?
-                # return "Streets"
-            # else:
-            return self._location # Otherwise we use the
-        # Not sure we require a setter here now that I've added home and workplaces.
-        @location.setter
-        def location(self, value):
-            # *Adding some location code that needs to be executed always:
-            # if value == "slavemarket":
-                # self.status = "slave"
-                # self.home = "slavemarket"
-            self._location = value
-
-        @property
         def action(self):
             return self._action
         @action.setter
@@ -327,13 +326,14 @@ init -9 python:
             if getattr(wp, "manager", None) == self:
                 # Works as a Manager so special considerations are needed:
                 wp.manager = None
-                wp.manager_effectiveness = 0
+                #wp.manager_effectiveness = 0
             if value == mj:
                 # Check if we already have a manager in the building:
                 if wp.manager:
                     wp.manager.previousaction = ''
                     wp.manager._action = None
-                    wp.manager = None
+                    #wp.manager = None
+                    #wp.manager_effectiveness = 0
                 wp.manager = self
 
             self._action = value
@@ -361,7 +361,7 @@ init -9 python:
         def home(self, value):
             """Home setter needs to add/remove actors from their living place.
 
-            Checking for vacancies should be handle at functions that are setting
+            Checking for vacancies should be handled at functions that are setting
             homes.
             """
             if isinstance(self._home, HabitableLocation):
@@ -768,13 +768,7 @@ init -9 python:
 
         # AP + Training ------------------------------------------------------------->
         def restore_ap(self):
-            ap = self.get_free_ap()
-            if ap > 0 and "Injured" in self.effects:
-                ap -= 1
-            self.AP = ap
-
-        def get_ap(self):
-            ap = 0
+            ap = self.baseAP
             base = 35
             c = self.constitution
             while c >= base:
@@ -785,17 +779,11 @@ init -9 python:
                 else:
                     base = base * 2
 
-            # if str(self.home) == "Studio Apartment":
-            #     ap += 1
+            self.setAP = ap
 
-            self.setAP = self.baseAP + ap
-            return self.setAP
-
-        def get_free_ap(self):
-            """
-            For next day calculations only! This is not useful for the game events.
-            """
-            return self.get_ap() - self.reservedAP
+            if ap > 0 and "Injured" in self.effects:
+                ap -= 1
+            self.AP = ap
 
         def take_ap(self, value):
             """
@@ -807,44 +795,6 @@ init -9 python:
                 self.AP -= value
                 return True
             return False
-
-        def auto_training(self, kind):
-            """
-            Training, right now by NPCs.
-            *kind = is a string referring to the NPC
-            """
-            # Any training:
-            self.exp += exp_reward(self, self.tier)
-
-            if kind == "train_with_witch":
-                self.magic += randint(1, 3)
-                self.intelligence += randint(1, 2)
-                mod_by_max(self, "mp", .5)
-                if dice(50):
-                    self.agility += randint(1, 2)
-
-            if kind == "train_with_aine":
-                self.charisma += randint(1, 3)
-                mod_by_max(self, "vitality", .5)
-                if dice(max(10, self.luck)):
-                    self.reputation += 1
-                    self.fame += 1
-                if dice(1 + self.luck*.05):
-                    self.luck += randint(1, 2)
-
-            if kind == "train_with_xeona":
-                self.attack += randint(1, 2)
-                self.defence += randint(1, 2)
-                if dice(50):
-                    self.agility += 1
-                mod_by_max(self, "health", .5)
-                if dice(25 + max(5, int(self.luck/3))):
-                    self.constitution += randint(1, 2)
-
-        @property
-        def npc_training_price(self):
-            base = 250
-            return base + base*self.tier
 
         # Logging and updating daily stats change on next day:
         def log_stats(self):
@@ -1466,132 +1416,6 @@ init -9 python:
 
             return rv
 
-        def auto_buy_old_but_optimized(self, item=None, amount=1, equip=False):
-            """Older version of autobuy method which should be more optimized
-            for performace than the new one.
-            """
-            if item:
-                if isinstance(item, basestring):
-                    item = store.items[item]
-                if item in store.all_auto_buy_items:
-                    amount = min(amount, round_int(self.gold/item.price))
-                    if amount != 0:
-                        self.take_money(item.price*amount, reason="Items")
-                        self.inventory.append(item, amount)
-                        if equip:
-                            self.equip(item)
-                        return [item.id] * amount
-                return []
-
-            # otherwise if it's just a request to buy an item randomly
-            # make sure that she'll NEVER buy an items that is in badtraits
-            skip = set()
-            goodtraits = []
-            for t in self.traits:
-                if t in trait_selections["badtraits"]:
-                    skip = skip.union(trait_selections["badtraits"][t])
-                if t in trait_selections["goodtraits"]:
-                    goodtraits.extend(trait_selections["goodtraits"][t])
-
-            returns = []
-            # high chance to try to buy an item she really likes based on traits
-            if goodtraits and dice(80):
-                i = random.randint(1, len(goodtraits))
-                while i > 0:
-                    pick = goodtraits[i-1]
-                    # filter out too expensive ones
-                    if pick.price <= self.gold:
-                        # weapons not accepted for status
-                        if self.status != "slave" or not (pick.slot in ("weapon", "smallweapon") or pick.type in ("armor", "scroll")):
-                            # make sure that girl will never buy more than 5 of any item!
-                            count = self.inventory[pick] if self.eqslots[pick.slot] != pick else self.inventory[pick] + 1
-                            if pick.slot == "ring":
-                                if self.eqslots["ring1"] == pick: count += 1
-                                if self.eqslots["ring2"] == pick: count += 1
-
-                                count += self.eqslots.values().count(pick)
-
-                            penalty = pick.badness + count * 20
-                            # badtraits skipped here (late test because the search takes time)
-                            if penalty < 100 and dice(100 - penalty) and not pick in skip and self.take_money(pick.price, "Items"):
-                                self.inventory.append(pick)
-                                returns.append(pick.id)
-
-                                amount -= 1
-                                if amount == 0:
-                                    return returns
-                                break
-                        i -= 1 # enough money, but not a lucky pick, just try next
-                    else:
-                        # if the pick is more than she can afford, next pick will be half as pricy
-                        i = i // 2 # ..break if this floors to 0
-
-            skip = skip.union(goodtraits) # the goodtrait items are only available in the 1st selection round
-
-            # define selections
-            articles = []
-            # if she has no body slot items, she will try to buy a dress
-            if not self.eqslots["body"] or all(i.slot != "body" for i in self.inventory):
-                articles.append("body")
-
-            # 30% (of the remaining) chance for her to buy any good restore item.
-            if dice(30):
-                articles.append("restore")
-
-            # then a high chance to buy a snack, I assume that all chars can eat and enjoy normal food even if it's actually useless for them in terms of anatomy, since it's true for sex
-            if ("Always Hungry" in self.traits and dice(80)) or self.vitality > 100 and dice(200 - self.vitality):
-                articles.append("food")
-
-            if amount > 2: # food doesn't count, it's not a big meal
-                # define weighted choice for remaining articles - based on status and class
-                choices = [("rest", 100)]
-                dress_weight = 100
-
-                # for slaves exclude all weapons, spells and armor
-                if self.status != "slave":
-                    if "Warrior" in self.occupations:
-                        choices.append(("warrior", 100))
-                        # if we still didn't pick the items, if the character has Warrior occupation, she may ignore dresses
-                        dress_weight = 60 if self.occupations.issuperset(("SIW", "Server", "Specialist")) else 25
-                    if "Caster" in self.occupations:
-                        choices.append(("scroll", 25))
-
-                choices.append(("dress", dress_weight))
-                choice_sum = sum(w for c, w in choices)
-
-                # add remaining choices, based on (normalized) weighted chances
-                for r in random.sample(xrange(choice_sum), amount - 2):
-                    for c, w in choices:
-                        r -= w
-                        if r <= 0:
-                            articles.append(c)
-                            break
-            else:
-                # oopsie, selected too many already, fixing that here
-                articles = articles[:amount]
-
-            for article in articles:
-                wares = auto_buy_items[article]
-
-                i = random.randint(1, len(wares))
-                while i > 0:
-                    price, pick = wares[i-1]
-                    if price <= self.gold:
-                        count = self.inventory[pick] if self.eqslots[pick.slot] != pick else self.inventory[pick] + 1
-                        if pick.slot == "ring":
-                            if self.eqslots["ring1"] == pick: count += 1
-                            if self.eqslots["ring2"] == pick: count += 1
-                        penalty = pick.badness + count * 20
-                        if penalty < 100 and dice(100 - penalty) and not pick in skip and self.take_money(pick.price, "Items"):
-                            self.inventory.append(pick)
-                            returns.append(pick.id)
-                            break
-                        i -= 1
-                    else:
-                        i = i // 2
-
-            return returns
-
         def load_equip(self, eqsave):
             # load equipment from save, if possible
             ordered = collections.OrderedDict(sorted(eqsave.items()))
@@ -1997,7 +1821,7 @@ init -9 python:
             self.traits.apply(trait, truetrait=truetrait)
 
         def remove_trait(self, trait, truetrait=True):  # Removes trait effects
-            if 'Chastity' in self.effects and trait.id == "Virgin":
+            if trait.id == "Virgin" and "Chastity" in self.effects:
                 pass
             else:
                 self.traits.remove(trait, truetrait=truetrait)
@@ -2005,40 +1829,31 @@ init -9 python:
         # Effects:
         ### Effects Methods
         def enable_effect(self, name, **kwargs):
-            if name == "Poisoned" and "Artificial Body" not in self.traits:
+            if name == "Poisoned":
+                if "Artificial Body" in self.traits:
+                    return
                 ss_mod = kwargs.get("ss_mod", None)
                 duration = kwargs.get("duration", 10)
                 if ss_mod is None:
-                    ss_mod = {}
-                    ss_mod["health"] = -locked_random("randint", 5, 10)
-                obj = CharEffect(name, duration=duration, ss_mod=ss_mod)
-                obj.enable(self)
+                    ss_mod = {"health": -locked_random("randint", 5, 10)}
             elif name == "Unstable":
-                ss_mod = {}
-                ss_mod["joy"] = randint(20, 30) if randrange(2) else -randint(20, 30)
-                obj = CharEffect(name, duration=randint(2, 4), ss_mod=ss_mod)
-                obj.enable(self)
+                ss_mod = {"joy": randint(20, 30) if randrange(2) else -randint(20, 30)}
+                duration = randint(2, 4)
             elif name == "Down with Cold":
-                ss_mod = {}
-                ss_mod["health"] = -randint(2, 5)
-                ss_mod["vitality"] = -randint(5, 15)
-                ss_mod["joy"] = -randint(2, 5)
+                ss_mod = {"health": -randint(2, 5),
+                          "vitality": -randint(5, 15),
+                          "joy": -randint(2, 5)}
                 duration = locked_random("randint", 6, 14)
-                obj = CharEffect(name, duration=duration, ss_mod=ss_mod)
-                obj.enable(self)
             elif name == "Food Poisoning":
-                ss_mod = {}
-                ss_mod["health"] = -randint(8, 12)
-                ss_mod["vitality"] = -randint(10, 25)
-                ss_mod["joy"] = -randint(8, 12)
+                ss_mod = {"health": -randint(8, 12),
+                          "vitality": -randint(10, 25),
+                          "joy": -randint(8, 12)}
                 duration = locked_random("randint", 6, 14)
-                obj = CharEffect(name, duration=duration, ss_mod=ss_mod)
-                obj.enable(self)
             else:
                 ss_mod = kwargs.get("ss_mod", {})
                 duration = kwargs.get("duration", 10)
-                obj = CharEffect(name, ss_mod, duration)
-                obj.enable(self)
+            obj = CharEffect(name, duration=duration, ss_mod=ss_mod)
+            obj.enable(self)
 
         def disable_effect(self, name):
             effect = self.effects.get(name, None)
@@ -2052,32 +1867,6 @@ init -9 python:
         def is_lover(self, char):
             return char in self.lovers
 
-        # Post init and ND.
-        def init(self):
-            # Normalize character
-            if not self.name:
-                self.name = self.id
-            if not self.fullname:
-                self.fullname = self.name
-            if not self.nickname:
-                self.nickname = self.name
-            # Dark's Full Race Flag:
-            if not self.full_race:
-                self.full_race = str(self.race)
-
-            # AP restore:
-            self.restore_ap()
-
-            # Always init the tiers:
-            self.recalculate_tier()
-
-            # add Character:
-            if not self.say:
-                self.update_sayer()
-
-            if not self.origin:
-                self.origin = choice(["Alkion", "PyTFall", "Crossgate"])
-
         def next_day(self):
             self.jobpoints = 0
             self.clear_img_cache()
@@ -2086,54 +1875,56 @@ init -9 python:
             self.del_flag("drunk_counter")
             self.del_flag("_drag_container")
 
-        def nd_auto_train(self, txt):
-            if self.flag("train_with_witch"):
-                if self.get_free_ap():
-                    if hero.take_money(self.npc_training_price, "Training"):
-                        self.auto_training("train_with_witch")
-                        self.reservedAP += 1
-                        txt.append("\nSuccessfully completed scheduled training with Abby the Witch!")
-                    else:
-                        txt.append("\nNot enough funds to train with Abby the Witch. Auto-Training will be disabled!")
-                        self.del_flag("train_with_witch")
-                        self.remove_trait(traits["Abby Training"])
-                else:
-                    s0 = "\nNot enough AP left in reserve to train with Abby the Witch."
-                    s1 = "Auto-Training will not be disabled."
-                    s2 = "{color=[red]}This character will start next day with 0 AP!){/color}"
-                    txt.append(" ".join([s0, s1, s2]))
+        def auto_training(self, kind):
+            """
+            Training, right now by NPCs.
+            *kind = is a string referring to the NPC
+            """
+            # Any training:
+            self.exp += exp_reward(self, self.tier)
 
-            if self.flag("train_with_aine"):
-                if self.get_free_ap():
-                    if hero.take_money(self.npc_training_price, "Training"):
-                        self.auto_training("train_with_aine")
-                        self.reservedAP += 1
-                        txt.append("\nSuccessfully completed scheduled training with Aine!")
-                    else:
-                        txt.append("\nNot enought funds to train with Aine. Auto-Training will be disabled!")
-                        self.del_flag("train_with_aine")
-                        self.remove_trait(traits["Aine Training"])
-                else:
-                    s0 = "\nNot enough AP left in reserve to train with Aine."
-                    s1 = "Auto-Training will not be disabled."
-                    s2 = "{color=[red]}This character will start next day with 0 AP!){/color}"
-                    txt.append(" ".join([s0, s1, s2]))
+            if kind == "Abby Training":
+                self.magic += randint(1, 3)
+                self.intelligence += randint(1, 2)
+                mod_by_max(self, "mp", .5)
+                if dice(50):
+                    self.agility += randint(1, 2)
 
-            if self.flag("train_with_xeona"):
-                if self.get_free_ap():
-                    if hero.take_money(self.npc_training_price, "Training"):
-                        self.auto_training("train_with_xeona")
-                        self.reservedAP += 1
-                        txt.append("\nSuccessfully completed scheduled combat training with Xeona!")
+            elif kind == "Aine Training":
+                self.charisma += randint(1, 3)
+                mod_by_max(self, "vitality", .5)
+                if dice(max(10, self.luck)):
+                    self.reputation += 1
+                    self.fame += 1
+                if dice(1 + self.luck*.05):
+                    self.luck += randint(1, 2)
+            elif kind == "Xeona Training":
+                self.attack += randint(1, 2)
+                self.defence += randint(1, 2)
+                if dice(50):
+                    self.agility += 1
+                mod_by_max(self, "health", .5)
+                if dice(25 + max(5, int(self.luck/3))):
+                    self.constitution += randint(1, 2)
+
+        @property
+        def npc_training_price(self):
+            return 250 * (self.tier+1)
+
+        def nd_auto_train(self):
+            for key, trainer in STATIC_CHAR.TRAININGS.items():
+                if key in self.traits:
+                    if self.AP > 0:
+                        if hero.take_money(self.npc_training_price, "Training"):
+                            self.auto_training(key)
+                            self.AP -= 1
+                            temp = "Successfully completed scheduled training with %s!" % trainer
+                        else:
+                            self.remove_trait(traits[key])
+                            temp = "Not enough funds to train with %s. Auto-Training is disabled!" % trainer
                     else:
-                        txt.append("\nNot enough funds to train with Xeona. Auto-Training will be disabled!")
-                        self.remove_trait(traits["Xeona Training"])
-                        self.del_flag("train_with_xeona")
-                else:
-                    s0 = "\nNot enough AP left in reserve to train with Xeona."
-                    s1 = "Auto-Training will not be disabled."
-                    s2 = "{color=[red]}This character will start next day with 0 AP!){/color}"
-                    txt.append(" ".join([s0, s1, s2]))
+                        temp = "Not enough AP left to train with %s. Auto-Training will not be disabled." % trainer
+                    self.txt.append(temp)
 
         def nd_log_report(self, txt, img, flag_red, type='girlndreport'):
             # Change in stats during the day:
@@ -2171,6 +1962,22 @@ init -9 python:
             self.combat_img = ""
 
             self.controller = None
+
+        def init(self):
+            # Normalize character
+            # If there are no basetraits, we add Warrior by default:
+            if not self.traits.basetraits:
+                self.traits.basetraits.add(traits["Warrior"])
+                self.apply_trait(traits["Warrior"])
+
+            self.arena_willing = True # Indicates the desire to fight in the Arena
+            self.arena_permit = True # Has a permit to fight in main events of the arena.
+            self.arena_active = True # Indicates that girl fights at Arena at the time.
+
+            if not self.portrait:
+                self.portrait = self.battle_sprite
+
+            super(Mob, self).init()
 
         @property
         def besprite_size(self):
@@ -2212,23 +2019,6 @@ init -9 python:
         def restore_ap(self):
             self.AP = self.baseAP + int(self.constitution / 20)
 
-        def init(self):
-            # Normalize character
-            # If there are no basetraits, we add Warrior by default:
-            if not self.traits.basetraits:
-                self.traits.basetraits.add(traits["Warrior"])
-                self.apply_trait(traits["Warrior"])
-
-            self.arena_willing = True # Indicates the desire to fight in the Arena
-            self.arena_permit = True # Has a permit to fight in main events of the arena.
-            self.arena_active = True # Indicates that girl fights at Arena at the time.
-
-            if not self.portrait:
-                self.portrait = self.battle_sprite
-
-            super(Mob, self).init()
-
-
     class Player(PytCharacter):
         def __init__(self):
             super(Player, self).__init__(arena=True, inventory=True, effects=True)
@@ -2247,6 +2037,7 @@ init -9 python:
             self._buildings = list()
             self._chars = list()
 
+            self.txt = list()
             self.fin = Finances(self)
 
             # Team:
@@ -2258,11 +2049,11 @@ init -9 python:
             self.exp_bar = ExpBarController(self)
 
             self.autocontrol = {
-            "Rest": False,
-            "Tips": False,
-            "SlaveDriver": False,
-            "Acts": {"normalsex": True, "anal": True, "blowjob": True, "lesbian": True},
-            "S_Tasks": {"clean": True, "bar": True, "waitress": True},
+                "Rest": False,
+                "Tips": False,
+                "SlaveDriver": False,
+                "Acts": {"normalsex": True, "anal": True, "blowjob": True, "lesbian": True},
+                "S_Tasks": {"clean": True, "bar": True, "waitress": True},
             }
 
         # Girls/Brothels/Buildings Ownership
@@ -2501,7 +2292,7 @@ init -9 python:
 
         def next_day(self):
             img = 'profile'
-            txt = []
+            txt = self.txt
             flag_red = False
 
             # -------------------->
@@ -2509,35 +2300,27 @@ init -9 python:
 
             # Home location nd mods:
             loc = self.home
-            try:
-                mod = loc.daily_modifier
-            except:
-                raise Exception("Home location without daily_modifier field was set. ({})".format(loc))
 
+            mod = loc.daily_modifier
             if mod > 0:
                 txt.append("You've comfortably spent a night.")
             elif mod < 0:
                 flag_red = True
-                txt.append("{color=[red]}You should find some shelter for the night... it's not healthy to sleep outside.{/color}\n")
+                txt.append("{color=[red]}You should find some shelter for the night... it's not healthy to sleep outside.{/color}")
 
             for stat in ("health", "mp", "vitality"):
                 mod_by_max(self, stat, mod)
-
-            # Training with NPCs --------------------------------------->
-            self.nd_auto_train(txt)
 
             # Taxes:
             if all([calendar.weekday() == "Monday",
                     day != 1]):
                 flag_red = self.nd_pay_taxes(txt, flag_red)
 
-            if self.arena_rep == -500 and self.arena_permit:
-                txt.append("")
+            if self.arena_rep <= -500 and self.arena_permit:
                 txt.append("{color=[red]}You've lost your Arena Permit... Try not to suck at it so much!{/color}")
                 self.arena_permit = False
                 self.arena_rep = 0
                 flag_red = True
-                txt.append("")
 
             # Finances related ---->
             self.fin.next_day()
@@ -2545,15 +2328,18 @@ init -9 python:
             # ------------->
             self.item_counter()
             self.restore_ap()
-            self.reservedAP = 0
             self.log_stats()
 
             # ------------>
             self.nd_log_report(txt, img, flag_red, type='mcndreport')
+            self.txt = list()
 
             self.arena_stats = dict()
 
             super(Player, self).next_day()
+
+            # Training with NPCs is on the next day --------------------------------------->
+            self.nd_auto_train()
 
 
     class Char(PytCharacter):
@@ -2571,9 +2357,7 @@ init -9 python:
         def __init__(self):
             super(Char, self).__init__(arena=True, inventory=True, effects=True)
             # Game mechanics assets
-            self.gender = 'female'
             self.desc = ""
-            self.status = ""
             self._location = "slavemarket"
 
             self.rank = 1
@@ -2583,21 +2367,10 @@ init -9 python:
             # Can set character specific event for recapture
             self.runaway_look_event = "escaped_girl_recapture"
 
-            self.nd_ap = 0 # next day action points
-            self.gold = 0
             self.price = 500
-            self.alive = True
-
-            # Image related:
-            # self.picture_base = dict()
-
-            self.nickname = ""
-            self.fullname = ""
 
             # Relays for game mechanics
-            # courseid = specific course id girl is currently taking -- DEPRECATED: Training now uses flags
-            # wagemod = Percentage to change wage payout
-            self.wagemod = 100
+            #self.wagemod = 100 # Percentage to change wage payout
 
             # Unhappy/Depressed counters:
             self.days_unhappy = 0
@@ -2610,11 +2383,11 @@ init -9 python:
             # TODO lt: Enable/Fix (to work with new skills/traits) this!
             # TODO lt: (Move to a separate instance???)
             self.autocontrol = {
-            "Rest": True,
-            "Tips": False,
-            "SlaveDriver": False,
-            "Acts": {"normalsex": True, "anal": True, "blowjob": True, "lesbian": True},
-            "S_Tasks": {"clean": True, "bar": True, "waitress": True},
+                "Rest": True,
+                "Tips": False,
+                "SlaveDriver": False,
+                "Acts": {"normalsex": True, "anal": True, "blowjob": True, "lesbian": True},
+                "S_Tasks": {"clean": True, "bar": True, "waitress": True},
             }
 
             # Auto-equip/buy:
@@ -2631,14 +2404,6 @@ init -9 python:
         def init(self):
             """Normalizes after __init__"""
 
-            # Names:
-            if not self.name:
-                self.name = self.id
-            if not self.fullname:
-                self.fullname = self.name
-            if not self.nickname:
-                self.nickname = self.name
-
             # Base Class | Status normalization:
             if not self.traits.basetraits:
                 pattern = create_traits_base(STATIC_CHAR.GEN_OCCS)
@@ -2646,13 +2411,7 @@ init -9 python:
                     self.traits.basetraits.add(i)
                     self.apply_trait(i)
 
-            if self.status not in STATIC_CHAR.STATUS:
-                if not {"Combatant", "Specialist"}.isdisjoint(self.gen_occs):
-                    self.status = "free"
-                else:
-                    self.status = choice(tuple(STATIC_CHAR.STATUS))
-
-            # Locations + Home + Status:
+            # Locations + Home
             # SM string --> object
             if self.location == "slavemarket":
                 set_location(self, pytfall.sm)
@@ -2675,10 +2434,7 @@ init -9 python:
                     self.home = locations["City Apartments"]
 
             # Wagemod:
-            if self.status == 'slave':
-                self.wagemod = 0
-            else:
-                self.wagemod = 100
+            self.wagemod = 0 if self.status == 'slave' else 100
 
             # Battle and Magic skills:
             if not self.attack_skills:
@@ -2694,10 +2450,6 @@ init -9 python:
             if not list(t for t in self.traits if t.body):
                 self.apply_trait(traits["Slim"])
 
-            # Dark's Full Race Flag:
-            if not self.full_race:
-                self.full_race = str(self.race)
-
             # Second round of stats normalization:
             for stat in ["health", "joy", "mp", "vitality"]:
                 setattr(self, stat, self.get_max(stat))
@@ -2710,7 +2462,6 @@ init -9 python:
             if self.status == "free":
                 self.autobuy = True
             self.autoequip = True
-            self.set_flag("day_since_shopping", 1)
 
             # add ADVCharacter:
             self.update_sayer()
@@ -2724,30 +2475,6 @@ init -9 python:
 
         def update_sayer(self):
             self.say = Character(self.nickname, show_two_window=True, show_side_image=self, **self.say_style)
-
-        # def get_availible_pics(self):
-        #     """
-        #     Determines (per category) what pictures are available for the fixed events (like during the jobs).
-        #     This is ran once during the game startup, should also run in the after_load label...
-        #     Meant to decrease the amount of checks during the Next Day jobs. Should be activated in post Alpha code review.
-        #     PS: It's better to simply add tags to a set instead of booleans as dict values.
-        #     """
-        #     # Lets start with the normal sex category:
-        #     if self.has_image("sex"):
-        #         self.picture_base["sex"] = dict(sex=True)
-        #     else:
-        #         self.picture_base["sex"] = dict(sex=False)
-        #
-        #     # Lets check for the more specific tags:
-        #     if self.build_image_base["sex"]["sex"]:
-        #         if self.has_image("sex", "doggy"):
-        #             self.picture_base["sex"]["doggy"] = True
-        #         else:
-        #             self.picture_base["sex"]["doggy"] = False
-        #         if self.has_image("sex", "missionary"):
-        #             self.picture_base["sex"]["missionary"] = True
-        #         else:
-        #             self.picture_base["sex"]["missionary"] = False
 
         # Logic assists:
         def allowed_to_view_personal_finances(self):
@@ -2771,7 +2498,7 @@ init -9 python:
                 if self.joy < self.get_max("joy")*.4:
                     l.extend(self.auto_equip(["joy"]))
             if l:
-                self.txt.append("She used: %s %s during the day!" % (", ".join(l), plural("item", len(l))))
+                self.txt.append("%s used: %s %s during the day!" % (self.pC, ", ".join(l), plural("item", len(l))))
             return l
 
         def check_resting(self):
@@ -2787,59 +2514,72 @@ init -9 python:
         def next_day(self):
             # Local vars
             img = 'profile'
-            txt = []
+            txt = self.txt
             flag_red = False
             flag_green = False
 
             # Update upkeep, should always be a saf thing to do.
             self.fin.calc_upkeep()
 
-            # If escaped:
             if self in pytfall.ra:
+                # If escaped:
                 self.health = max(1, self.health - randint(3, 5))
-                txt.append("\n{color=[red]}This girl has escaped! Assign guards to search for her or do so yourself.{/color}\n\n")
+                txt.append("{color=[red]}This worker has escaped! Assign guards to search for %s or do so yourself.{/color}" % self.pp)
                 flag_red = True
             # TODO se/Char.nd(): This can't be right? This is prolly set to the exploration log object.
             elif self.action == "Exploring":
-                txt.append("\n{color=[green]}She is currently on the exploration run!{/color}\n")
+                txt.append("{color=[green]}%s is currently on the exploration run!{/color}" % self.pC)
+                # Settle wages:
+                img = self.fin.settle_wage(txt, img)
             else:
                 # Front text (Days employed)
-                days = set_font_color(self.fullname, "green")
-                if not self.flag("daysemployed"):
-                    txt.append("{} has started working for you today! ".format(days))
+                name = set_font_color(self.fullname, "green")
+                days = self.get_flag("daysemployed", 0)
+                if days == 0:
+                    txt.append("%s has started working for you today! " % name)
                 else:
-                    txt.append("{} has been working for you for {} {}. ".format(days,
-                                                                            self.flag("daysemployed"),
-                                                                            plural("day", self.flag("daysemployed"))))
-                self.up_counter("daysemployed")
+                    txt.append("%s has been working for you for %s %s. " % (name, days, plural("day", days)))
+                self.set_flag("daysemployed", days+1)
+
+                # commonly used pronouns
+                pC = self.pC
+                pp = self.pp
 
                 if self.status == "slave":
-                    txt.append("She is a slave.")
+                    txt.append("%s is a slave." % pC)
                 else:
-                    txt.append("She is a free citizen.")
+                    txt.append("%s is a free citizen." % pC)
 
                 # Home location nd mods:
                 loc = self.home
                 mod = loc.daily_modifier
 
                 if mod > 0:
-                    temp = "She comfortably spent a night in {}.".format(str(loc))
+                    temp = "%s comfortably spent a night in %s." % (pC, str(loc))
                     if self.home == hero.home:
                         if self.disposition > -500:
-                            # Slave is assumed as we can't effect where free chars spend nights in.
-                            temp += " She is happy to live under the same roof as her master!"
                             self.disposition += 1
                             self.joy += randint(1, 3)
-                        else:
-                            temp += " Even though you both live in the same house, she hates you too much to really care."
 
+                            if self.status == "slave":
+                                temp += " %s is happy to live under the same roof as %s master!" % (pC, pp)
+                            else:
+                                temp += " %s is content living with you." % pC
+                        else:
+                            if self.status == "slave":
+                                temp += " Even though you both live in the same house, %s hates you too much to really care." % self.name
+                            else:
+                                self.disposition -= 100
+                                self.joy -= 20
+                                self.home = locations["City Apartments"]
+                                temp += " After a rough fight %s moves out of your aparment." % self.name
                     txt.append(temp)
 
                 elif mod < 0:
                     flag_red = True
-                    txt.append("{color=[red]}She presently resides in the %s.{/color}" % str(loc))
+                    txt.append("{color=[red]}%s presently resides in the %s.{/color}" % (pC, str(loc)))
                     txt.append("{color=[red]}It's not a comfortable or healthy place to sleep in.{/color}")
-                    txt.append("{color=[red]}Try finding better accommodations for your worker!{/color}\n")
+                    txt.append("{color=[red]}Try finding better accommodations for your worker!{/color}")
 
                 for stat in ("health", "mp", "vitality"):
                     mod_by_max(self, stat, mod)
@@ -2849,7 +2589,7 @@ init -9 python:
                 if not self.is_available:
                     pass
                 elif in_training_location(self):
-                    txt.append("Upkeep is included in price of the class your girl's taking. \n")
+                    txt.append("Upkeep is included in price of the class your worker's taking.")
                 else:
                     # The whole upkeep thing feels weird, penalties to slaves are severe...
                     amount = self.fin.get_upkeep()
@@ -2857,39 +2597,38 @@ init -9 python:
                     if not amount:
                         pass
                     elif amount < 0:
-                        txt.append("She actually managed to save you some money ({color=[gold]}%d Gold{/color}) instead of requiring upkeep! Very convenient! \n" % (-amount))
+                        txt.append("%s actually managed to save you some money ({color=[gold]}%d Gold{/color}) instead of requiring upkeep! Very convenient!" % (pC, -amount))
                         hero.add_money(-amount, reason="Workers Upkeep")
                     elif hero.take_money(amount, reason="Workers Upkeep"):
                         self.fin.log_logical_expense(amount, "Upkeep")
                         if hasattr(self.workplace, "fin"):
                             self.workplace.fin.log_logical_expense(amount, "Workers Upkeep")
-                        txt.append("You paid {color=[gold]}%d Gold{/color} for her upkeep. \n" % amount)
+                        txt.append("You paid {color=[gold]}%d Gold{/color} for %s upkeep." % (amount, pp))
                     else:
                         if self.status != "slave":
                             self.joy -= randint(3, 5)
                             self.disposition -= randint(5, 10)
-                            txt.append("\nYou failed to pay her upkeep, she's a bit cross with your because of that... \n")
+                            txt.append("You failed to pay %s upkeep, %s's a bit cross with your because of that..." % (pp, self.p))
                         else:
                             self.joy -= 20
                             self.disposition -= randint(25, 50)
                             self.health = max(1, self.health - 10)
                             self.vitality -= 25
-                            txt.append("\nYou've failed to provide even the most basic needs for your slave. This will end badly... \n")
+                            txt.append("You've failed to provide even the most basic needs for your slave. This will end badly...")
 
-            # This whole routine is basically fucked and done twice or more. Gotta do a whole check of all related parts tomorrow.
-            # Settle wages:
-            if self not in pytfall.ra:
+                # This whole routine is basically fucked and done twice or more. Gotta do a whole check of all related parts tomorrow.
+                # Settle wages:
                 img = self.fin.settle_wage(txt, img)
 
                 tips = self.flag("ndd_accumulated_tips")
                 if tips:
-                    temp = choice(["Total tips earned: %d Gold. " % tips,
-                                   "%s got %d Gold in tips. " % (self.nickname, tips)])
+                    temp = choice(["Total tips earned: {color=[gold]}%d Gold{/color}. " % tips,
+                                   "%s got {color=[gold]}%d Gold{/color} in tips. " % (self.nickname, tips)])
                     txt.append(temp)
 
                     if self.autocontrol["Tips"]:
-                        temp = choice(["As per agreement, your worker gets to keep all her tips! This is a very good motivator. ",
-                                       "She's happy to keep it. "])
+                        temp = choice(["As per agreement, your worker gets to keep all %s tips! This is a very good motivator. " % pp,
+                                       "%s's happy to keep it." % pC])
                         txt.append(temp)
 
                         self.add_money(tips, reason="Tips")
@@ -2900,87 +2639,87 @@ init -9 python:
                         self.disposition += (1 + round_int(tips*.05))
                         self.joy += (1 + round_int(tips*.025))
                     else:
-                        temp = choice(["You take all of her tips for yourself. ",
-                                       "You keep all of it. "])
+                        temp = choice(["You take all of %s tips for yourself. " % pp,
+                                       "You keep all of it."])
                         txt.append(temp)
                         hero.add_money(tips, reason="Worker Tips")
-
-            # Training with NPCs ---------------------------------------------->
-            if self.is_available:
-                self.nd_auto_train(txt)
-
-                # Shopping (For now will not cost AP):
-                self.nd_autoshop(txt)
-                # --------------------------------->>>
 
                 self.restore()
                 self.check_resting()
 
                 # Unhappiness and related:
-                img = self.nd_joy_disposition_checks(txt, img)
+                img = self.nd_joy_disposition_checks(img)
 
                 # Effects:
                 if 'Poisoned' in self.effects:
-                    txt.append("\n{color=[red]}This girl is suffering from the effects of Poison!{/color}\n")
+                    txt.append("{color=[red]}This worker is suffering from the effects of Poison!{/color}")
                     flag_red = True
                 if all([not self.autobuy, self.status != "slave", self.disposition < 950]):
                     self.autobuy = True
-                    txt.append("She will go shopping whenever it may please here from now on!\n")
+                    txt.append("%s will go shopping whenever it may please %s from now on!" % (pC, pp))
                 if all([self.status != "slave", self.disposition < 850, not self.autoequip]):
                     self.autoequip = True
-                    txt.append("She will be handling her own equipment from now on!\n")
+                    txt.append("%s will be handling %s own equipment from now on!" % (pC, pp))
 
                 # Prolly a good idea to throw a red flag if she is not doing anything:
                 # I've added another check to make sure this doesn't happen if
                 # a girl is in FG as there is always something to do there:
                 if not self.action:
                     flag_red = True
-                    txt.append("\n\n  {color=[red]}Please note that she is not really doing anything productive!-{/color}\n")
-
-            txt.append("{color=[green]}\n\n%s{/color}" % "\n".join(self.txt))
+                    txt.append("  {color=[red]}Please note that she is not really doing anything productive!-{/color}")
 
             # Finances related:
             self.fin.next_day()
 
             # Resets and Counters:
             self.restore_ap()
-            self.reservedAP = 0
             self.item_counter()
 
-            self.up_counter("day_since_shopping")
-
             self.nd_log_report(txt, img, flag_red, type='girlndreport')
-
             self.txt = list()
             super(Char, self).next_day()
 
-        def nd_autoshop(self, txt):
-            if all([self.autobuy, self.flag("day_since_shopping") > 5,
-                    self.gold > 1000]):
+            # Training with NPCs and shopping on the next day ---------------------------------------------->
+            if self.is_available:
+                self.nd_auto_train()
 
-                self.set_flag("day_since_shopping", 1)
-                temp = choice(["\n\n%s decided to go on a shopping tour :)\n" % self.nickname,
-                               "\n\n%s went to town to relax, take her mind of things and maybe even do some shopping!\n" % self.nickname])
-                txt.append(temp)
+                # Shopping (For now will not cost AP):
+                self.nd_autoshop()
 
-                result = self.auto_buy(amount=randint(1, 2))
-                if result:
-                    temp = choice(["{color=[green]}She bought {color=[blue]}%s %s{/color} for herself. This brightened her mood a bit!{/color}\n\n"%(", ".join(result), plural("item",len(result))),
-                                   "{color=[green]}She got her hands on {color=[blue]}%s %s{/color}! She's definitely in better mood because of that!{/color}\n\n"%(", ".join(result),
-                                                                                                                                                                   plural("item", len(result)))])
-                    txt.append(temp)
-                    flag_green = True
-                    self.joy += 5 * len(result)
-                else:
-                    temp = choice(["But she ended up not doing much else than window-shopping...\n\n",
-                                   "But she could not find what she was looking for...\n\n"])
-                    txt.append(temp)
+        def nd_autoshop(self):
+            if self.autobuy is False or self.gold < 1000:
+                return
+            last_shopping_day = self.get_flag("last_shopping_day", 0)
+            if day < last_shopping_day + 5:
+                return
 
-        def nd_joy_disposition_checks(self, txt, img):
+            self.set_flag("last_shopping_day", day)
+            temp = choice(["%s decided to go on a shopping tour :)" % self.nickname,
+                               "%s went to town to relax, take %s mind of things and maybe even do some shopping!" % (self.nickname, self.pp)])
+
+            self.txt.append(temp)
+
+            result = self.auto_buy(amount=randint(1, 2))
+            if result:
+                flag_green = True
+                self.joy += 5 * len(result)
+
+                temp = choice(("%s bought %sself {color=[blue]}%s %s{/color}.", 
+                               "%s got %s hands on {color=[blue]}%s %s{/color}!"))
+                temp = temp % (self.pC, self.op, ", ".join(result), plural("item", len(result)))
+                temp += choice(("This brightened %s mood a bit!" % self.pp, "%s's definitely in better mood because of that!" % self.pC))
+
+                temp = "{color=[green]}" + temp + "{/color}"
+            else:
+                temp = choice(["But %s ended up not doing much else than window-shopping..." % self.p,
+                               "But %s could not find what %s was looking for..." % (self.p, self.p)])
+            self.txt.append(temp)
+
+        def nd_joy_disposition_checks(self, img):
             size = ND_IMAGE_SIZE
 
             if self.joy <= 25:
-                txt.append("\n\nThis girl is unhappy!")
+                self.txt.append("This worker is unhappy!")
                 img = self.show("profile", "sad", resize=size)
                 self.days_unhappy += 1
             else:
@@ -2988,7 +2727,7 @@ init -9 python:
                     self.days_unhappy -= 1
 
             if self.days_unhappy > 7 and self.status != "slave":
-                txt.append("{color=[red]}She has left your employment because you do not give a rats ass about how she feels!{/color}")
+                self.txt.append("{color=[red]}%s has left your employment because you do not give a rats ass about how %s feels!{/color}" % (self.pC, self.p))
                 flag_red = True
                 hero.remove_char(self)
                 self.home = locations["City Apartments"]
@@ -2997,7 +2736,7 @@ init -9 python:
                 set_location(self, locations["City"])
             elif self.disposition < -500:
                 if self.status != "slave":
-                    txt.append("{color=[red]}She has left your employment because she no longer trusts or respects you!{/color}")
+                    self.txt.append("{color=[red]}%s has left your employment because %s no longer trusts or respects you!{/color}" % (self.pC, self.pp))
                     flag_red = True
                     img = self.show("profile", "sad", resize=size)
                     hero.remove_char(self)
@@ -3006,26 +2745,16 @@ init -9 python:
                     self.workplace = None
                     set_location(self, locations["City"])
                 elif self.days_unhappy > 7:
+                    img = self.show("profile", "sad", resize=size)
+                    flag_red = True
                     if dice(50):
-                        txt.append("\n{color=[red]}Took her own life because she could no longer live as your slave!{/color}")
-                        img = self.show("profile", "sad", resize=size)
-                        flag_red = True
+                        self.txt.append("{color=[red]}Took %s own life because %s could no longer live as your slave!{/color}" % (self.pp, self.p))
                         self.health = 0
                     else:
-                        txt.append("\n{color=[red]}Tried to take her own life because she could no longer live as your slave!{/color}")
-                        img = self.show("profile", "sad", resize=size)
-                        flag_red = True
+                        self.txt.append("{color=[red]}Tried to take %s own life because %s could no longer live as your slave!{/color}" % (self.pp, self.p))
                         self.health = 1
 
-            # This is temporary code, better and more reasonable system is needed,
-            # especially if we want different characters to befriend each other.
-
-            # until we'll have means to deal with chars
-            # with very low disposition (aka slave training), negative disposition will slowly increase
-            if self.disposition < -200:
-                self.disposition += randint(2, 5)
-
-            friends_disp_check(self, txt)
+            friends_disp_check(self, self.txt)
 
             return img
 
@@ -3057,17 +2786,13 @@ init -9 python:
             # Alex, we should come up with a good way to set portrait depending on caste
             self.portrait = "" # path to portrait
             self.questpic = "" # path to picture used in quests
-            self.act = ""
-            self.pronoun = ""
 
-            # determine act and pronoun
+            # determine act
             if self.gender == 'male':
                 self.act = choice(["sex", "anal", "blowjob"])
-                self.pronoun = 'He'
 
             elif self.gender == 'female':
                 self.act = "lesbian"
-                self.pronoun = 'She'
 
 
     class NPC(Char):

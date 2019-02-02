@@ -117,12 +117,10 @@ label witch_training:
                 extend " That, however, does not often happen for reasons unknown..."
                 w "Yeap! I am That good!"
                 "The training will cost you 250 gold per tier of the trained character every day."
-            "{color=[green]}Setup sessions for [char.name]{/color}" if not char.has_flag("train_with_witch"):
-                $ char.set_flag("train_with_witch")
+            "{color=[green]}Setup sessions for [char.name]{/color}" if "Abby Training" not in char.traits:
                 $ char.apply_trait(traits["Abby Training"])
                 w "I will take [char.npc_training_price] gold per day. Be sure to use my training only on wicked stuff!"
-            "{color=[red]}Cancel sessions for [char.name]{/color}" if char.flag("train_with_witch"):
-                $ char.del_flag("train_with_witch")
+            "{color=[red]}Cancel sessions for [char.name]{/color}" if "Abby Training" in char.traits:
                 $ char.remove_trait(traits["Abby Training"])
                 w "Maybe next time then?"
             "Pick another character" if len(hero.team) > 1:

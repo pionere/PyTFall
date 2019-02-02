@@ -7,9 +7,6 @@ init -10 python:
         I'd love it to contain at least some of the calculations and conditioning for Jobs as well, we can split this if it gets too confusing.
         Maybe some behavior flags and alike can be a part of this as well?
         """
-        BASE_WAGES = {"SIW": 20, "Combatant": 30, "Server": 15, "Specialist": 40}
-        BASE_UPKEEP = 2.5 # Per tier, conditioned in get_upkeep method.
-
         def __init__(self):
             # self.instance = instance
 
@@ -133,11 +130,11 @@ init -10 python:
 
             # Free workers are:
             if kind:
-                wage = self.BASE_WAGES[kind]
+                wage = STATIC_CHAR.BASE_WAGES[kind]
             else:
                 for i in ["Combatant", "Specialist", "SIW", "Server"]:
                     if i in self.gen_occs:
-                        wage = self.BASE_WAGES[i]
+                        wage = STATIC_CHAR.BASE_WAGES[i]
                         break
                 else:
                     raise Exception("Impossible character detected! ID: {} ~ BT: {} ~ Occupations: {}".format(self.id,
@@ -582,8 +579,7 @@ init -10 python:
                     char.enable_effect(entry)
 
             if trait.mod_stats:
-                if hasattr(char, "upkeep"):
-                    char.upkeep += trait.mod_stats.get("upkeep", [0, 0])[0]
+                char.upkeep += trait.mod_stats.get("upkeep", [0, 0])[0]
                 if hasattr(char, "disposition"):
                     char.disposition += trait.mod_stats.get("disposition", [0, 0])[0]
                 char.stats.apply_trait_statsmod(trait, 0, char.level)
@@ -671,8 +667,7 @@ init -10 python:
                     self.instance.disable_effect(entry)
 
             if trait.mod_stats:
-                if hasattr(char, "upkeep"):
-                    char.upkeep -= trait.mod_stats.get("upkeep", [0, 0])[0]
+                char.upkeep -= trait.mod_stats.get("upkeep", [0, 0])[0]
                 if hasattr(char, "disposition"):
                     char.disposition -= trait.mod_stats.get("disposition", [0, 0])[0]
                 char.stats.apply_trait_statsmod(trait, char.level, 0)
@@ -893,43 +888,34 @@ init -10 python:
             got_paid = False
 
             if char.status == "slave":
-                temp = choice(["Being a slave, she doesn't expect to get paid.",
+                temp = choice(["Being a slave, %s doesn't expect to get paid." % char.p,
                                "Slaves don't get paid."])
-                if real_wagemod:
-                    paid_wage = round_int(char.expected_wage/100.0*real_wagemod)
-                    if paid_wage:
-                        temp += " And yet... you chose to pay her {}% of fair wage ({} Gold)!".format(
-                                    real_wagemod, paid_wage)
-                        txt.append(temp)
-                    else: # Could be set to 1 - 2%, no real money for lower tears.
-                        txt.append(temp)
-                        return img
-                else:
+                paid_wage = round_int(char.expected_wage/100.0*real_wagemod) if real_wagemod else 0
+                if paid_wage == 0:
                     txt.append(temp)
                     return img
+                temp += " And yet... you chose to pay %s %d%% of the fair wage (%d Gold)!" % (char.op, real_wagemod, paid_wage)
+                txt.append(temp)
             else: # Free girls:
                 expected_wage = char.expected_wage
-                temp = choice(["She expects to be compensated for her services (%d Gold)." % expected_wage,
-                               "She expects to be paid a wage of %d Gold." % expected_wage])
+                temp = choice(["%s expects to be compensated for %s services ({color=[gold]}%d Gold{/color})." % (char.pC, char.pp, expected_wage),
+                               "%s expects to be paid a wage of {color=[gold]}%d Gold{/color}." % (char.pC, expected_wage)])
                 paid_wage = round_int(expected_wage/100.0*real_wagemod)
-                temp += " You chose to pay her {}% of that! ({} Gold)".format(real_wagemod, paid_wage)
+                temp += " You chose to pay %s %d%% of that! ({color=[gold]}%d Gold{/color})" % (char.pp, real_wagemod, paid_wage)
                 txt.append(temp)
 
-            txt.append("")
-
             if not paid_wage: # Free girl with 0% wage mod
-                txt.append("You paid her nothing...")
+                txt.append("You paid %s nothing..." % char.op)
             elif hero.take_money(paid_wage, reason="Wages"):
                 self.add_money(paid_wage, reason="Wages")
                 self.log_logical_expense(paid_wage, "Wages")
                 if isinstance(char.workplace, Building):
                     char.workplace.fin.log_logical_expense(paid_wage, "Wages")
-                txt.append("And you covered {} Gold in wages!".format(paid_wage))
                 got_paid = True
             else:
-                txt.append("You lacked the funds to pay her promised wage.".format(paid_wage))
+                txt.append("You lacked the funds to pay %s the promised wage." % char.pp)
                 if char.status == "slave":
-                    temp += " But being a slave {} will not hold that against you.".format(char.nickname)
+                    temp += " But being a slave %s will not hold that against you." % char.nickname
                     return img
 
             # So... if we got this far, we're either talking slaves that player
@@ -993,10 +979,10 @@ init -10 python:
 
         def calc_upkeep(self):
             char = self.instance
-            upkeep = getattr(char, "upkeep", 0)
+            upkeep = char.upkeep
 
             if char.status == 'slave':
-                upkeep += char.BASE_UPKEEP * char.tier or 1
+                upkeep += STATIC_CHAR.BASE_UPKEEP * char.tier or 1
                 upkeep *= uniform(.9, 1.1)
                 if "Dedicated" in char.traits:
                     upkeep *= .5
@@ -1648,10 +1634,10 @@ init -10 python:
 
         @property
         def pp(self):
-            # Possessive pronoun (his, hers, its):
+            # Possessive pronoun (his, her, its):
             # This may 'gramatically' incorrect, cause things (it) cannot possess/own anything but knowing PyTFall :D
             if self.gender == "female":
-                return "hers"
+                return "her"
             elif self.gender == "male":
                 return "his"
             else:

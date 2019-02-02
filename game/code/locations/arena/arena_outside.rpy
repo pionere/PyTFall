@@ -340,12 +340,10 @@ label xeona_training:
                 ax "Due to my the nature of training, there is always a chance of your constitution increasing as well."
                 ax "Potions we drink to increase stamina during the training might also restore your health."
                 "The training will cost you 250 gold per tier of the trained character every day."
-            "{color=[green]}Setup sessions for [char.name]{/color}" if not char.has_flag("train_with_xeona"):
-                $ char.set_flag("train_with_xeona")
+            "{color=[green]}Setup sessions for [char.name]{/color}" if "Xeona Training" not in char.traits:
                 $ char.apply_trait(traits["Xeona Training"])
                 ax "Great, it will be [char.npc_training_price] gold per day."
-            "{color=[red]}Cancel sessions for [char.name]{/color}" if char.flag("train_with_xeona"):
-                $ char.del_flag("train_with_xeona")
+            "{color=[red]}Cancel sessions for [char.name]{/color}" if "Xeona Training" in char.traits:
                 $ char.remove_trait(traits["Xeona Training"])
                 ax "Until next time then."
             "Pick another character" if len(hero.team) > 1:

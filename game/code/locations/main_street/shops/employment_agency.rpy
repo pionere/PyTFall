@@ -28,7 +28,6 @@ init python:
                         tier = hero.tier + uniform(.1, 1.0)
                     char = build_rc(bt_group=k,
                                     set_locations=True,
-                                    set_status="free",
                                     tier=tier, tier_kwargs=None,
                                     give_civilian_items=True,
                                     give_bt_items=True,

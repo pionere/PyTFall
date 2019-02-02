@@ -783,7 +783,6 @@ init -9 python:
                     give_tiered_magic_skills(char)
                 else:
                     char = build_rc(tier=7,
-                                    set_status="free",
                                     tier_kwargs=tier_kwargs,
                                     give_bt_items=True,
                                     spells_to_tier=True)
@@ -813,7 +812,7 @@ init -9 python:
                     break
                 if fighter is None:
                     fighter = build_rc(bt_go_patterns=["Combatant"], tier=tier,
-                           set_status="free", give_bt_items=True, spells_to_tier=True)
+                           give_bt_items=True, spells_to_tier=True)
                     # print("Created Arena RG: {}".format(fighter.name))
                     new_candidates.append(fighter)
                 else:

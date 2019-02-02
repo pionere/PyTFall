@@ -380,11 +380,6 @@ label after_load:
     if hasattr(store, "stored_random_seed"):
         $ renpy.random.setstate(stored_random_seed)
 
-    python hide:
-        hero.clear_img_cache()
-        for c in store.chars.values():
-            c.clear_img_cache()
-
     init python:
         def update_object(obj_dest, obj_src, prefix):
             for attr, v in vars(obj_dest).items():
@@ -586,6 +581,22 @@ label after_load:
                     s.attacker_effects["duration"] = 0.75
                     s.attacker_effects["cast"] = { "ontop": False, "point": "bc", "yo": -50}
 
+
+        hero.clear_img_cache()
+        hero.del_flag("train_with_xeona")
+        hero.del_flag("train_with_aine")
+        hero.del_flag("train_with_witch")
+        for c in store.chars.values():
+            c.clear_img_cache()
+            if hasattr(c, "reservedAP"):
+                del c.reservedAP
+            if c.has_flag("day_since_shopping"):
+                c.set_flag("last_shopping_day", day - c.flag("day_since_shopping"))
+                c.del_flag("day_since_shopping")
+            c.del_flag("train_with_xeona")
+            c.del_flag("train_with_aine")
+            c.del_flag("train_with_witch")
+
         tierless_items = store.tiered_items.get(None)
         if tierless_items:
             for item in tierless_items:
@@ -616,9 +627,17 @@ label after_load:
 
         if hero.controller == "player":
             hero.controller = None
-            clearControllers = True
+            clearCharacters = True
         if not hasattr(hero, "teams"):
             hero.teams = [hero.team]
+        if not hasattr(hero, "txt"):
+            hero.txt = list()
+        if hasattr(hero, "_arena_rep"):
+            hero.arena_rep = hero._arena_rep
+            clearCharacters = True
+        if hasattr(hero, "_location"):
+            hero.location = hero._location
+            clearCharacters = True
 
         store.bm_mid_frame_mode = None
         for b in hero.buildings:
@@ -640,10 +659,14 @@ label after_load:
                     del b.auto_clean
                     b.auto_clean = val 
 
-        if "clearControllers" in locals():
+        if "clearCharacters" in locals():
             for girl in itertools.chain(chars.values(), hero.chars, npcs.values()):
                 if girl.controller == "player":
                     girl.controller = None
+                if hasattr(girl, "_arena_rep"):
+                    girl.arena_rep = girl._arena_rep
+                if hasattr(girl, "_location"):
+                    girl.location = girl._location
 
             #for girl in itertools.chain(jail.chars_list, pytfall.ra.girls.keys()):
             #    if girl.controller == "player":
@@ -653,6 +676,10 @@ label after_load:
             for fighter in itertools.chain(arena.ladder, arena.arena_fighters.values()):
                 if fighter.controller == "player":
                     fighter.controller = None
+                if hasattr(fighter, "_arena_rep"):
+                    fighter.arena_rep = fighter._arena_rep
+                if hasattr(fighter, "_location"):
+                    fighter.location = fighter._location
 
             for team in itertools.chain(arena.teams_2v2, arena.teams_3v3,\
                  arena.dogfights_1v1, arena.dogfights_2v2, arena.dogfights_3v3,\
@@ -661,17 +688,29 @@ label after_load:
                     for fighter in team:
                         if fighter.controller == "player":
                             fighter.controller = None
+                        if hasattr(fighter, "_arena_rep"):
+                            fighter.arena_rep = fighter._arena_rep
+                        if hasattr(fighter, "_location"):
+                            fighter.location = fighter._location
 
             for setup in itertools.chain(arena.matches_1v1, arena.matches_2v2, arena.matches_3v3):
                 for fighter in itertools.chain(setup[0].members, setup[1].members):
                     if fighter.controller == "player":
                         fighter.controller = None
+                    if hasattr(fighter, "_arena_rep"):
+                        fighter.arena_rep = fighter._arena_rep
+                    if hasattr(fighter, "_location"):
+                        fighter.location = fighter._location
 
             for b in hero.buildings:
                 if isinstance(b, UpgradableBuilding):
                     for client in b.all_clients:
                         if client.controller == "player":
                             client.controller = None
+                        if hasattr(client, "_arena_rep"):
+                            client.arena_rep = client._arena_rep
+                        if hasattr(client, "_location"):
+                            client.location = client._location
 
     python hide:
         if hasattr(store, "json_fighters"):

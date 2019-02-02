@@ -83,12 +83,10 @@ label aine_training:
                 call about_personal_training(a) from _call_about_personal_training_2
             "About Aine training":
                 call about_aine_personal_training from _call_about_aine_personal_training_1
-            "{color=[green]}Setup sessions for [char.name]{/color}" if not char.has_flag("train_with_aine"):
-                $ char.set_flag("train_with_aine")
+            "{color=[green]}Setup sessions for [char.name]{/color}" if "Aine Training" not in char.traits:
                 $ char.apply_trait(traits["Aine Training"])
                 a "It will require [char.npc_training_price] gold per day. Don't you dare misuse skills you've learned here!"
-            "{color=[red]}Cancel sessions for [char.name]{/color}" if char.flag("train_with_aine"):
-                $ char.del_flag("train_with_aine")
+            "{color=[red]}Cancel sessions for [char.name]{/color}" if "Aine Training" in char.traits:
                 $ char.remove_trait(traits["Aine Training"])
                 a "Fair enough."
             "Pick another character" if len(hero.team) > 1:

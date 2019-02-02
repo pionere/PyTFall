@@ -9,7 +9,7 @@ init -11 python:
         return False
 
     def get_average_wage():
-        wages = Tier.BASE_WAGES.values()
+        wages = STATIC_CHAR.BASE_WAGES.values()
         wage = sum(wages)/len(wages)
         return round_int(wage)
 

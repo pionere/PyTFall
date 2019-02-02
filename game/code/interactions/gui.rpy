@@ -373,7 +373,7 @@ screen girl_interactions():
                 # null height 60
                 # text "{color=[white]}Mode: [gm.mode]"
                 # text "{color=[white]}Label: [gm.jump_cache]"
-                # text ("{color=[white]}Girl.AP: [gm.char.AP] / %s"%gm.char.get_ap())
+                # text ("{color=[white]}Girl.AP: [gm.char.AP] / %s"%gm.char.setAP)
                 # text "{color=[white]}Points: [gm.gm_points]"
 
 

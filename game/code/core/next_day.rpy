@@ -157,9 +157,10 @@ label next_day_calculations:
             # expensive calculations 10 000 000 times:
             if b.manager:
                 job = simple_jobs["Manager"]
-                difficulty = b.tier
                 b.manager_effectiveness = job.effectiveness(b.manager,
-                                                    difficulty, None, False)
+                                                    b.tier, None, False)
+            else:
+                b.manager_effectiveness = 0
 
     $ tl.start("ND-Rest (First pass)")
     # Sets to AutoRest amongst other things:
@@ -208,11 +209,11 @@ label next_day_calculations:
         $ resting_char.action(resting_char) # <--- Looks odd and off?
     $ tl.end("ND-Rest (Second pass)")
 
-    python hide:
-        # Done after buildings resets in next day because we may allow
-        # inter-building actions later.
-        for b in nd_buildings:
-            building.manager_effectiveness = 0
+    #python hide:
+        # Done after buildings resets in next day
+        # Uncomment when we allow inter-building actions...
+        #for b in nd_buildings:
+        #    building.manager_effectiveness = 0
 
     python:
         ################## Logic ##################
