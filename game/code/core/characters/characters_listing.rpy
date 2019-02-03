@@ -154,8 +154,8 @@ screen chars_list():
         hbox:
             style_group "content"
             spacing 14
-            pos 27, 64
-            xysize 970, 580
+            pos 27, 59
+            xysize 970, 600
             box_wrap True
             for c in charz_list:
                 $ char_profile_img = c.show('portrait', resize=(98, 98), cache=True)
@@ -300,8 +300,8 @@ screen chars_list():
         # Paging:
         if max_page > 0:
             hbox:
-                pos 27, 654
-                xysize 970, 70
+                pos 27, 659
+                xysize 970, 60
 
                 hbox:
                     style_prefix "paging_green"

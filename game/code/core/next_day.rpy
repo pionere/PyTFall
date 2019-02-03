@@ -427,15 +427,12 @@ screen next_day():
 
                             # Events:
                             frame:
-                                xpos 2
                                 xysize (285, 25)
                                 text "Events" yalign .5 xpos 3
-
+                                text str(ndevents["ALL"]["Service"]["count"]) style_suffix "value_text" xpos 135
                                 hbox:
-                                    xpos 120
+                                    xpos 138
                                     xmaximum 40
-                                    text str(ndevents["ALL"]["Service"]["count"]) style_suffix "value_text"
-
                                     if ndevents["ALL"]["Service"]["red_flag"]:
                                         button:
                                             yoffset 4
@@ -452,11 +449,10 @@ screen next_day():
                                             text "!" style "next_day_summary_text" color green
                                             action NullAction()
 
+                                text str(ndevents["ALL"]["Warriors"]["count"]) style_suffix "value_text" xpos 175
                                 hbox:
-                                    xpos 164
+                                    xpos 178
                                     xmaximum 40
-                                    text str(ndevents["ALL"]["Warriors"]["count"]) style_suffix "value_text"
-
                                     if ndevents["ALL"]["Warriors"]["red_flag"]:
                                         button:
                                             yoffset 4
@@ -473,11 +469,10 @@ screen next_day():
                                             text "!" style "next_day_summary_text" color green
                                             action NullAction()
 
+                                text str(ndevents["ALL"]["Managers"]["count"]) style_suffix "value_text" xpos 215
                                 hbox:
-                                    xpos 205
+                                    xpos 218
                                     xmaximum 40
-                                    text str(ndevents["ALL"]["Managers"]["count"]) style_suffix "value_text"
-
                                     if ndevents["ALL"]["Managers"]["red_flag"]:
                                         button:
                                             yoffset 4
@@ -494,11 +489,10 @@ screen next_day():
                                             text "!" style "next_day_summary_text" color green
                                             action NullAction()
 
+                                text str(ndevents["ALL"]["IDLE"]["count"]) style_suffix "value_text" xpos 255
                                 hbox:
-                                    xpos 245
+                                    xpos 258
                                     xmaximum 40
-                                    text str(ndevents["ALL"]["IDLE"]["count"]) style_suffix "value_text"
-
                                     if ndevents["ALL"]["IDLE"]["red_flag"]:
                                         button:
                                             yoffset 4
@@ -516,7 +510,6 @@ screen next_day():
                                             action NullAction()
 
                             frame:
-                                xpos 2
                                 xysize (285, 25)
                                 text "Customers:" xpos 3
                                 python:
@@ -602,20 +595,16 @@ screen next_day():
                                         text str(ndresting[building]["Warriors"]) style_suffix "value_text" xpos 175
                                         text str(ndresting[building]["Managers"]) style_suffix "value_text" xpos 215
                                         text str(ndresting[building]["IDLE"]) style_suffix "value_text" xpos 255
-                                        text "Fame" yalign .5 xpos 285
-                                        text ("%d/%d" % (building.fame, building.maxfame)) style_suffix "value_text" xalign .99
+                                        text "Threat" yalign .5 xpos 285
+                                        text ("%d%%" % (building.get_threat_percentage())) style_suffix "value_text" xalign .99
 
                                     # Events:
                                     frame:
-                                        xpos 2
                                         xysize (410, 25)
                                         text "Events" yalign .5 xpos 3
-
+                                        text str(ndevents[building]["Service"]["count"]) style_suffix "value_text" xpos 135
                                         hbox:
-                                            xpos 120
-                                            xmaximum 40
-                                            text str(ndevents[building]["Service"]["count"]) style_suffix "value_text"
-
+                                            xpos 137
                                             if ndevents[building]["Service"]["red_flag"]:
                                                 button:
                                                     yoffset 4
@@ -632,10 +621,10 @@ screen next_day():
                                                     text "!" style "next_day_summary_text" color green
                                                     action NullAction()
 
+                                        text str(ndevents[building]["Warriors"]["count"]) style_suffix "value_text" xpos 175
                                         hbox:
-                                            xpos 164
+                                            xpos 178
                                             xmaximum 40
-                                            text str(ndevents[building]["Warriors"]["count"]) style_suffix "value_text"
 
                                             if ndevents[building]["Warriors"]["red_flag"]:
                                                 button:
@@ -653,10 +642,10 @@ screen next_day():
                                                     text "{color=[green]}!" style "next_day_summary_text"
                                                     action NullAction()
 
+                                        text str(ndevents[building]["Managers"]["count"]) style_suffix "value_text" xpos 215
                                         hbox:
-                                            xpos 205
+                                            xpos 218
                                             xmaximum 40
-                                            text str(ndevents[building]["Managers"]["count"]) style_suffix "value_text"
 
                                             if ndevents[building]["Managers"]["red_flag"]:
                                                 button:
@@ -674,10 +663,10 @@ screen next_day():
                                                     text "{color=[green]}!" style "next_day_summary_text"
                                                     action NullAction()
 
+                                        text str(ndevents[building]["IDLE"]["count"]) style_suffix "value_text" xpos 255
                                         hbox:
-                                            xpos 245
+                                            xpos 258
                                             xmaximum 40
-                                            text str(ndevents[building]["IDLE"]["count"]) style_suffix "value_text"
 
                                             if ndevents[building]["IDLE"]["red_flag"]:
                                                 button:
@@ -695,22 +684,16 @@ screen next_day():
                                                     text "{color=[green]}!" style "next_day_summary_text"
                                                     action NullAction()
 
-                                        hbox:
-                                            xpos 284
-                                            xmaximum 48
-                                            text "Rep."
-                                        hbox:
-                                            xalign .99
-                                            xmaximum 100
-                                            text ("%d/%d" % (building.rep, building.maxrep)) style_suffix "value_text"
+                                        text "Fame" yalign .5 xpos 285
+                                        text ("%d/%d" % (building.fame, building.maxfame)) style_suffix "value_text" xalign .99
 
-                                    hbox:
-                                        frame:
-                                            xpos 2
-                                            xysize (410, 25)
-                                            if hasattr(building, "total_clients"):
-                                                text "Customers:" xpos 3
-                                                text "[building.total_clients]" style_suffix "value_text" xpos 135
+                                    frame:
+                                        xysize (410, 25)
+                                        if hasattr(building, "total_clients"):
+                                            text "Customers:" xpos 3
+                                            text "[building.total_clients]" style_suffix "value_text" xpos 135
+                                        text "Rep." yalign .5 xpos 285
+                                        text ("%d/%d" % (building.rep, building.maxrep)) style_suffix "value_text" xalign .99
 
                 vbar value YScrollValue("Reports")
 
