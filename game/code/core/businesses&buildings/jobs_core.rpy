@@ -139,7 +139,7 @@
                     if char.stats.is_stat(key):
                         char.mod_stat(key, value)
                     elif char.stats.is_skill(key):
-                        char.mod_skill(key, value)
+                        char.mod_skill(key, 0, value)
 
         def update_loc_data(self):
             """Updates stats for the building."""
@@ -412,7 +412,7 @@
                     max_p = default_points*weight_ratio
 
                     sp = getattr(worker, stat)
-                    if stat in worker.stats.FIXED_MAX:
+                    if stat in STATIC_CHAR.FIXED_MAX:
                         sp_required = worker.get_max(stat)
                     else:
                         # 450 is my guess for a target stat of a maxed out character
