@@ -311,9 +311,9 @@ label mc_action_city_beach_diving_checks:
         $ j = 120
     else:
         $ j = 60
-    $ start_vitality = hero.vitality
+    $ vitality = hero.vitality
     show screen diving_progress_bar(i, i)
-    while hero.vitality > 10:
+    while vitality > 10:
         if not renpy.get_screen("diving_progress_bar"):
             hide screen hidden_area
             "You've run out of air! (health -10)"
@@ -349,13 +349,14 @@ label mc_action_city_beach_diving_checks:
                                "outlines": [(1, black, 0, 0)]}
             $ gfx_overlay.notify("There is nothing there...", tkwargs=tkwargs)
 
-        $ hero.vitality -= randint(10, 15)
+        $ vitality -= randint(10, 15)
+    $ del vitality
+
     $ setattr(config, "mouse", None)
     hide screen hidden_area
     hide screen diving_progress_bar
     "You're too tired to continue!"
-    $ hero.vitality = start_vitality - randint(10, 15)
-    $ del start_vitality
+    $ hero.vitality -= randint(10, 15)
     if locked_dice(hero.get_skill("swimming")) and hero.flag("vitality_bonus_from_diving_at_beach") < 100:
         $ hero.stats.lvl_max["vitality"] += 1
         $ hero.stats.max["vitality"] += 1
