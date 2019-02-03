@@ -232,28 +232,27 @@ label sm_free_slaves:
     jump slavel_market_controls
 
 label mc_action_work_in_slavemarket:
-    $ wage = 0
     python hide:
+        wage = 0
         total = 0
-        for skill in hero.stats.SEX_SKILLS:
+        for skill in STATIC_CHAR.SEX_SKILLS:
             total += hero.get_skill(skill)
-        total /= len(hero.stats.SEX_SKILLS)
+        total /= len(STATIC_CHAR.SEX_SKILLS)
         total += hero.expected_wage*6
 
         if dice(hero.luck*.1):
             total += hero.level*5
 
-        store.wage = round_int(total/float(hero.setAP)*use_ap)
+        wage = round_int(total/float(hero.setAP)*use_ap)
 
         if dice(.5 + hero.luck*.1):
-            hero.charisma += 1*use_ap
-            hero.sex += 1*use_ap
+            hero.charisma += use_ap
+            hero.mod_skill("sex", 0, use_ap)
 
-    $ hero.add_money(wage, reason="Job")
-    $ gfx_overlay.random_find(wage, 'work')
-    $ hero.exp += exp_reward(hero, hero, ap_used=use_ap)
-
-    $ hero.take_ap(use_ap)
+        hero.add_money(wage, reason="Job")
+        gfx_overlay.random_find(wage, 'work')
+        hero.exp += exp_reward(hero, hero, ap_used=use_ap)
+        hero.take_ap(use_ap)
 
     pause 0.01
 
@@ -266,10 +265,9 @@ label mc_action_work_in_slavemarket:
             hero.say(choice(["What a boring job...",
                              "There's gotta be faster way to make money..."]))
 
-    $ global_flags.set_flag("came_from_sc")
-    python:
-        del wage
+        global_flags.set_flag("came_from_sc")
         del use_ap
+
     jump slavel_market_controls
 
 label blue_menu:

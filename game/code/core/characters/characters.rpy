@@ -1,7 +1,7 @@
 # Characters classes and methods:
 init -9 python:
     class STATIC_CHAR():
-        __slots__ = ("STATS", "SKILLS", "FULLSKILLS", "GEN_OCCS", "STATUS", "MOOD_TAGS", "UNIQUE_SAY_SCREEN_PORTRAIT_OVERLAYS", "BASE_UPKEEP", "BASE_WAGES", "TRAININGS")
+        __slots__ = ("STATS", "SKILLS", "GEN_OCCS", "STATUS", "ORIGIN", "MOOD_TAGS", "UNIQUE_SAY_SCREEN_PORTRAIT_OVERLAYS", "BASE_UPKEEP", "BASE_WAGES", "TRAININGS", "FIXED_MAX", "SEX_SKILLS")
         STATS =  {"charisma", "constitution", "joy", "character", "reputation",
                   "health", "fame", "mood", "disposition", "vitality", "intelligence",
                   "luck", "attack", "magic", "defence", "agility", "mp"}
@@ -10,10 +10,9 @@ init -9 python:
                       "bartending", "cleaning", "waiting", "management",
                       "exploration", "teaching", "swimming", "fishing",
                       "security"}
-        # Used to access true, final, adjusted skill values through direct access to class, like: char.swimmingskill
-        FULLSKILLS = set(skill + "skill" for skill in SKILLS)
         GEN_OCCS = {"SIW", "Combatant", "Server", "Specialist"}
         STATUS = {"slave", "free"}
+        ORIGIN = ["Alkion", "PyTFall", "Crossgate"]
 
         MOOD_TAGS = {"angry", "confident", "defiant", "ecstatic", "happy",
                          "indifferent", "provocative", "sad", "scared", "shy",
@@ -24,6 +23,8 @@ init -9 python:
         TRAININGS = {"Abby Training": "Abby the Witch",
                      "Aine Training": "Aine",
                      "Xeona Training": "Xeona"}
+        FIXED_MAX = {"joy", "mood", "disposition", "vitality", "luck", "alignment"}
+        SEX_SKILLS = {"vaginal", "anal", "oral", "sex", "group", "bdsm"}
 
     ###### Character Classes ######
     class PytCharacter(Flags, Tier, JobsLogger, Pronouns):
@@ -208,32 +209,23 @@ init -9 python:
                 self.update_sayer()
 
             if not self.origin:
-                self.origin = choice(["Alkion", "PyTFall", "Crossgate"])
+                self.origin = choice(STATIC_CHAR.ORIGIN)
 
         def __getattr__(self, key):
-            if key == "defense":
-                key = "defence"
-
-            stats = self.__dict__.get("stats", {})
             if key in STATIC_CHAR.STATS:
-                return stats._get_stat(key)
-            elif key.lower() in STATIC_CHAR.SKILLS:
-                return stats._raw_skill(key)
-            elif key in STATIC_CHAR.FULLSKILLS:
-                return self.stats.get_skill(key[:-5])
-            raise AttributeError("Object of %r class has no attribute %r" %
-                                          (self.__class__, key))
+                return self.stats._get_stat(key)
+            elif key in STATIC_CHAR.SKILLS:
+                return self.stats._action_skill(key)
+            raise AttributeError("Object of %r class has no attribute %r" % (self.__class__, key))
 
         def __setattr__(self, key, value):
-            if key == "defense":
-                key = "defence"
-
             if key in STATIC_CHAR.STATS:
                 # Primary stat dict modifier...
-                value = value - self.stats._get_stat(key)
-                self.stats._mod_base_stat(key, int(round(value)))
-            elif key.lower() in STATIC_CHAR.SKILLS:
-                self.__dict__["stats"]._mod_raw_skill(key, value)
+                value -= self.stats._get_stat(key)
+                self.stats._mod_base_stat(key, value)
+            elif key in STATIC_CHAR.SKILLS:
+                value -= self.stats._action_skill(key)
+                self.stats._mod_raw_skill(key, 0, value)
             else:
                 super(PytCharacter, self).__setattr__(key, value)
 
@@ -256,7 +248,7 @@ init -9 python:
 
         # Game assist methods:
         def set_status(self, s):
-            if s not in ["slave", "free"]:
+            if s not in STATIC_CHAR.STATUS:
                 raise Exception("{} status is not valid for {} with an id: {}".format(s, self.__class__, self.id))
             self.status = s
 
@@ -380,8 +372,8 @@ init -9 python:
         def mod_stat(self, stat, value):
             self.stats._mod_base_stat(stat, value)
 
-        def mod_skill(self, skill, value):
-            self.stats._mod_raw_skill(skill, value, from__setattr__=False)
+        def mod_skill(self, skill, at, value):
+            self.stats._mod_raw_skill(skill, at, value)
 
         def get_max(self, stat):
             return self.stats.get_max(stat)
@@ -2391,8 +2383,8 @@ init -9 python:
             }
 
             # Auto-equip/buy:
-            self.autobuy = False
-            self.autoequip = False
+            #self.autobuy = False
+            #self.autoequip = False
             self.given_items = dict()
 
             self.txt = list()
@@ -2433,12 +2425,14 @@ init -9 python:
                 if not self.home:
                     self.home = locations["City Apartments"]
 
-            # Wagemod:
-            self.wagemod = 0 if self.status == 'slave' else 100
-
-            # Battle and Magic skills:
-            if not self.attack_skills:
-                self.attack_skills.append(self.default_attack_skill)
+            # Wagemod + auto-buy + auto-equip:
+            if self.status == 'free':
+                self.wagemod = 100
+                self.autobuy = True
+            else:
+                self.wagemod = 0
+                self.autobuy = False
+            self.autoequip = True
 
             # FOUR BASE TRAITS THAT EVERY GIRL SHOULD HAVE AT LEAST ONE OF:
             if not list(t for t in self.traits if t.personality):
@@ -2454,14 +2448,13 @@ init -9 python:
             for stat in ["health", "joy", "mp", "vitality"]:
                 setattr(self, stat, self.get_max(stat))
 
-            # Arena:
-            if "Combatant" in self.gen_occs and self not in hero.chars and self.arena_willing is not False:
-                self.arena_willing = True
+            # Battle and Magic skills:
+            if not self.attack_skills:
+                self.attack_skills.append(self.default_attack_skill)
 
-            # Settle auto-equip + auto-buy:
-            if self.status == "free":
-                self.autobuy = True
-            self.autoequip = True
+            # Arena:
+            if self.arena_willing is not False and "Combatant" in self.gen_occs and self not in hero.chars:
+                self.arena_willing = True
 
             # add ADVCharacter:
             self.update_sayer()

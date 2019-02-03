@@ -171,10 +171,7 @@ init -1 python:
             """
             Should simply return a list of girls for display.
             """
-            if self.label_cache in self.girlcells:
-                return self.girlcells[self.label_cache]
-            else:
-                return list()
+            return self.girlcells[self.label_cache]
 
         def get_all_girls(self):
             """
@@ -361,8 +358,7 @@ init -1 python:
             # Creation:
             if self.label_cache not in self.girlcells:
                 cell = GmCell(self.label_cache, **kwargs)
-                if cell:
-                    self.girlcells[self.label_cache] = cell
+                self.girlcells[self.label_cache] = cell
 
         def end(self, safe=False):
             """

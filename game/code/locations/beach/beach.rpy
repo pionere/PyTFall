@@ -169,25 +169,27 @@ label mc_action_hero_ocean_skill_checks:
                 "You are fast enough to avoid the fight."
                 "Swim away":
                     $ narrator ("You quickly increase the distance between you and the monsters {color=[green]}(max agility +1){/color}.")
-                    $ hero.swimming += randint(2, 4)
+                    $ hero.mod_skill("swimming", 0, randint(2, 4))
                     $ hero.stats.lvl_max["agility"] += 1
                     $ hero.stats.max["agility"] += 1
                     $ hero.mod_stat("agility", 1)
                 "Fight":
                     jump city_beach_monsters_fight
-    if hero.get_skill("swimming") < 50:
+    $ temp = hero.get_skill("swimming")
+    if temp < 50:
         if locked_dice(40):
             $ narrator ("You try to swim, but strong tide keeps you away {color=[red]}(no bonus to swimming skill this time){/color}.")
             $ narrator ("You need higher swimming skill to prevent it. Consider training in the swimming pool.")
+            $ swim_act = 0
         else:
             scene bg ocean_underwater with dissolve
             "Waves are pretty big today. You try fighting them, but quickly lose, pulling you under the water."
             $ narrator ("Nearly drowned, you get out of the ocean {color=[red]}(- health){/color}.")
             $ narrator ("You need higher swimming skill to prevent it. Consider training in the swimming pool.")
             $ hero.health = max(1, hero.health - 50)
-            $ hero.swimming += randint(1, 2)
-        $ hero.vitality -= randint (40, 50)
-    elif hero.get_skill("swimming") < 100:
+            $ swim_act = randint(1, 2)
+        $ swim_vit = randint (40, 50)
+    elif temp < 100:
         "You try to swim, but rapid underwater currents make it very difficult for a novice swimmer."
         if locked_dice(10):
             scene bg ocean_underwater with dissolve
@@ -195,17 +197,20 @@ label mc_action_hero_ocean_skill_checks:
             $ narrator ("You need higher swimming skill to prevent it. Consider training in the swimming pool.")
             $ narrator ("Nearly drowned, you get out of the ocean {color=[red]}(- health){/color}.")
             $ hero.health = max(1, hero.health - 50)
-        $ hero.swimming += randint(4, 8)
-        $ hero.vitality -= randint (30, 40)
-    elif hero.get_skill("swimming") < 200:
+        $ swim_act = randint(4, 8)
+        $ swim_vit = randint (30, 40)
+    elif temp < 200:
         "You cautiously swim in the ocean, trying to stay close to the shore just in case."
-        $ hero.swimming += randint(6, 12)
-        $ hero.vitality -= randint (20, 30)
+        $ swim_act = randint(6, 12)
+        $ swim_vit = randint (20, 30)
     else:
         "You take your time enjoying the water. Even big ocean waves are no match for your swimming skill."
-        $ hero.swimming += randint(10, 15)
-        $ hero.vitality -= randint (15, 25)
-    if locked_dice(hero.get_skill("swimming")) and hero.flag("constitution_bonus_from_swimming_at_beach") <= 30:
+        $ swim_act = randint(10, 15)
+        $ swim_vit = randint (15, 25)
+    $ hero.mod_skill("swimming", 0, swim_act)
+    $ hero.vitality -= swim_vit
+
+    if locked_dice(temp) and hero.flag("constitution_bonus_from_swimming_at_beach") <= 30:
         $ hero.stats.lvl_max["constitution"] += 1
         $ hero.stats.max["constitution"] += 1
         $ hero.mod_stat("constitution", 1)
@@ -298,10 +303,9 @@ label mc_action_city_beach_diving_checks:
     play world "underwater.mp3"
     $ hero.AP -= 1
     scene bg ocean_underwater_1 with dissolve
+    $ i = int(hero.get_skill("swimming")+1)
     if has_items("Snorkel Mask", [hero], equipped=True):
-        $ i = int(hero.get_skill("swimming")+1) + 200
-    else:
-        $ i = int(hero.get_skill("swimming")+1)
+        $ i += 200
 
     if has_items("Underwater Lantern", [hero], equipped=True):
         $ j = 120
@@ -350,8 +354,7 @@ label mc_action_city_beach_diving_checks:
     hide screen hidden_area
     hide screen diving_progress_bar
     "You're too tired to continue!"
-    $ hero.vitality = start_vitality
-    $ hero.vitality -= randint(10, 15)
+    $ hero.vitality = start_vitality - randint(10, 15)
     $ del start_vitality
     if locked_dice(hero.get_skill("swimming")) and hero.flag("vitality_bonus_from_diving_at_beach") < 100:
         $ hero.stats.lvl_max["vitality"] += 1

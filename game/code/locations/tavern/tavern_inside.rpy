@@ -241,14 +241,14 @@ label mc_action_tavern_look_around: # various bonuses to theoretical skills for 
             $ name = "content/gfx/images/tavern/fish_" + str(renpy.random.randint(1, 4)) + ".webp"
             show expression name as sign at truecenter with dissolve
             "A group of local fishermen celebrating a good catch in the corner. You join them, and they share a few secrets about fishing with you."
-            $ hero.FISHING += randint(2, 5)
+            $ hero.mod_skill("fishing", 1, randint(2, 5))
             hide sign with dissolve
         elif N == "sex":
             $ character = random.choice(chars.values())
             $ picture = character.show("sex", resize=(500, 600))
             show expression picture as sign at truecenter with dissolve
             "A group of drunk young men and women boasting about their sexual feats. Most of the feats never happened, but you still got a few interesting ideas."
-            $ hero.SEX += randint(1, 3)
+            $ hero.mod_skill("sex", 1, randint(1, 3))
             hide sign with dissolve
         else:
             show expression "content/gfx/interface/icons/exp.webp" as sign at truecenter with dissolve

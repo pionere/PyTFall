@@ -169,8 +169,8 @@ label mc_action_city_beach_rest:
             show expression char.show(*result, exclude=excluded, type="reduce", resize=(300, 400)) at truecenter with dissolve
 
             "Unfortunately [char.name] forgot her sunscreen today, so you had no choice but to provide another liquid as a replacement."
-            $ char.sex += 1
-            $ hero.sex += 1
+            $ char.mod_skill("sex", 0, 1)
+            $ hero.mod_skill("sex", 0, 1)
             $ char.disposition += 3
 
     else:
@@ -413,7 +413,7 @@ label mc_action_beach_start_fishing:
             # with 90 chance it will be +1, with less than 1 chance about 10
             python hide:
                 temp = round_int((100-item.chance)*.1) + randint(1, 2)
-                hero.fishing += temp
+                hero.mod_skill("fishing", 0, temp)
 
 label end_fishing:
     $ temp = getattr(store, "exit_string", "This is all for now.")

@@ -69,10 +69,10 @@ label strange_idol3(event):
     $ pytfall.world_events.kill_event("strange_idol3")
 
     # Improve sex?
-    $ hero.sex += 50
-    $ hero.SEX += 50
-    $ hero.vaginal += 50
-    $ hero.VAGINAL += 50
-    $ hero.oral += 50
-    $ hero.ORAL += 50
+    $ hero.mod_skill("sex", 0, 50)
+    $ hero.mod_skill("sex", 1, 50)
+    $ hero.mod_skill("vaginal", 0, 50)
+    $ hero.mod_skill("vaginal", 1, 50)
+    $ hero.mod_skill("oral", 0, 50)
+    $ hero.mod_skill("oral", 1, 50)
     return

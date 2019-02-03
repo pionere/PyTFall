@@ -206,7 +206,7 @@ init python:
                 if skills:
                     for i in xrange(skills_pool):
                         skill = choice(skills)
-                        char.mod_skill(skill, 1)
+                        char.mod_skill(skill, 1, 1)
                         charmod[skill] += 1
 
                 if self.days_remaining <= 0:

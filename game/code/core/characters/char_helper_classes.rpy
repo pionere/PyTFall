@@ -13,9 +13,6 @@ init -10 python:
             self.tier = 0
 
             self.expected_wage = 10
-            self.paid_wage = 0
-            self.upkeep = 0
-            self.expected_accomodations = "poor"
 
         def get_max_skill(self, skill, tier=None):
             if tier is None:
@@ -83,7 +80,7 @@ init -10 python:
                             max_p = default_points*weight_ratio
 
                             sp = self.stats.stats[stat]
-                            if stat in self.stats.FIXED_MAX:
+                            if stat in STATIC_CHAR.FIXED_MAX:
                                 sp_required = self.get_max(stat)
                             else:
                                 sp_required = self.get_relative_max_stat(stat, target_tier)
@@ -1017,8 +1014,6 @@ init -10 python:
         DEVNOTE: Be VERY careful when accessing this class directly!
         Some of it's methods assume input from self.instance__setattr__ and do extra calculations!
         """
-        FIXED_MAX = set(['joy', 'mood', 'disposition', 'vitality', 'luck', 'alignment'])
-        SEX_SKILLS = set(["vaginal", "anal", "oral", "sex", "group", "bdsm"])
         def __init__(self, *args, **kwargs):
             """
             instance = reference to Character object
@@ -1090,12 +1085,11 @@ init -10 python:
         def get_base_ss(self):
             return self.get_base_stats().union(self.get_base_skills())
 
-        def _raw_skill(self, key):
+        def _action_skill(self, key):
             """Raw Skills:
             [action_value, training_value]
             """
-            if key.islower(): return self.skills[key][0]
-            else: return self.skills[key.lower()][1]
+            return self.skills[key][0]
 
         def _get_stat(self, key):
             maxval = self.get_max(key)
@@ -1123,9 +1117,8 @@ init -10 python:
             Returns adjusted skill.
             'Action' skill points become less useful as they exceed training points * 3.
             """
-            skill = skill.lower()
-            action = self._raw_skill(skill)
-            training = self._raw_skill(skill.capitalize())
+            action = self.skills[skill][0]
+            training = self.skills[skill][1]
 
             training_range = training * 3
             beyond_training = action - training_range
@@ -1138,11 +1131,11 @@ init -10 python:
 
         def is_skill(self, key):
             # Easy check for skills.
-            return key.lower() in self.skills
+            return key in self.skills
 
         def is_stat(self, key):
             # Easy check for stats.
-            return key.lower() in self.stats
+            return key in self.stats
 
         def normalize_stats(self, stats=None):
             # Makes sure main stats dict is properly aligned to max/min values
@@ -1225,7 +1218,7 @@ init -10 python:
 
                 # Normal Max stat Bonuses:
                 for stat in self.stats:
-                    if stat not in self.FIXED_MAX:
+                    if stat not in STATIC_CHAR.FIXED_MAX:
                         self.lvl_max[stat] += 5 * num_lvl
                         self.max[stat] += 2 * num_lvl
 
@@ -1258,7 +1251,7 @@ init -10 python:
                     for trait in traits:
                         # Super Stat Bonuses:
                         for stat in trait.leveling_stats:
-                            if stat not in self.FIXED_MAX and stat in self.stats:
+                            if stat not in STATIC_CHAR.FIXED_MAX and stat in self.stats:
                                 self.lvl_max[stat] += trait.leveling_stats[stat][0] * multiplier
                                 self.max[stat] += trait.leveling_stats[stat][1] * multiplier
                             else:
@@ -1317,56 +1310,45 @@ init -10 python:
         def _mod_base_stat(self, key, value):
             # Modifies the first layer of stats (self.stats)
             # As different character types may come with different stats.
-            if key in self.stats:
-                char = self.instance
-                value = self.settle_effects(key, value)
+            char = self.instance
+            value = self.settle_effects(key, value)
 
-                if value and last_label_pure.startswith(AUTO_OVERLAY_STAT_LABELS):
-                    gfx_overlay.mod_stat(key, value, char)
+            if value and last_label_pure.startswith(AUTO_OVERLAY_STAT_LABELS):
+                gfx_overlay.mod_stat(key, value, char)
 
-                val = self.stats[key] + value
+            val = self.stats[key] + value
 
-                if key == 'health' and val <= 0:
-                    if isinstance(char, Player):
-                        jump("game_over")
-                    elif isinstance(char, Char):
-                        kill_char(char)
-                        return
-
-                maxval = self.get_max(key)
-                minval = self.min[key]
-
-                if val >= maxval:
-                    self.stats[key] = maxval
-                    return
-                elif val <= minval:
-                    self.stats[key] = minval
+            if val <= 0 and key == 'health':
+                if isinstance(char, Player):
+                    jump("game_over")
+                elif isinstance(char, Char):
+                    kill_char(char)
                     return
 
-                self.stats[key] = val
+            maxval = self.get_max(key)
+            minval = self.min[key]
 
-        def _mod_raw_skill(self, key, value, from__setattr__=True, use_overlay=True):
+            if val >= maxval:
+                val = maxval
+            elif val <= minval:
+                val = minval
+            self.stats[key] = val
+
+        def _mod_raw_skill(self, key, at, value, use_overlay=True):
             """Modifies a skill.
 
-            # DEVNOTE: THIS SHOULD NOT BE CALLED DIRECTLY! ASSUMES INPUT FROM PytCharacter.__setattr__
-            # DEVNOTE: New arg attempts to correct that...
-
-            Do we get the most needlessly complicated skills system award? :)
-            Maybe we'll simplify this greatly in the future...
+            key: the skill to be modified (must be lower case)
+            at: 0 - Action Skill
+                1 - Training (knowledge part) skill...
+            value: the value to be added
+            use_overlay: set to true to add a gfx effect
             """
-            if key.islower():
-                at = 0 # Action Skill...
-            else:
-                key = key.lower()
-                at = 1 # Training (knowledge part) skill...
 
             current_full_value = self.get_skill(key)
             skill_max = SKILLS_MAX[key]
             if current_full_value >= skill_max: # Maxed out...
                 return
 
-            if from__setattr__:
-                value -= self.skills[key][at]
             value *= max(.5, min(self.skills_multipliers[key][at], 2.5))
 
             threshold = SKILLS_THRESHOLD[key]
@@ -1387,10 +1369,8 @@ init -10 python:
             if last_label_pure.startswith(AUTO_OVERLAY_STAT_LABELS):
                 gfx_overlay.mod_stat(skill.capitalize(), value, self.instance)
 
-            self._mod_raw_skill(skill.lower(), value*(2/3.0),
-                                from__setattr__=False, use_overlay=False)
-            self._mod_raw_skill(skill.capitalize(), value*(1/3.0),
-                                from__setattr__=False, use_overlay=False)
+            self._mod_raw_skill(skill, 0, value*(2/3.0), use_overlay=False)
+            self._mod_raw_skill(skill, 1, value*(1/3.0), use_overlay=False)
 
         def eval_inventory(self, inventory, weighted, target_stats, target_skills,
                            exclude_on_skills, exclude_on_stats,

@@ -711,7 +711,7 @@ init -11 python:
 
         if max_out_stats:
             for stat in char.stats.stats:
-                if stat not in char.stats.FIXED_MAX:
+                if stat not in STATIC_CHAR.FIXED_MAX:
                     setattr(char, stat, char.get_max(stat))
         # --------
 
@@ -988,7 +988,7 @@ init -11 python:
 
         # Now that we're done with baseskills, we can play with other stats/skills a little bit
         for stat in char.stats.stats:
-            if stat not in char.stats.FIXED_MAX and stat not in base_stats:
+            if stat not in STATIC_CHAR.FIXED_MAX and stat not in base_stats:
                 if dice(char.luck*.5):
                     value = char.get_max(stat)*.3
                     value = round_int(value*stat_bios())
@@ -1001,12 +1001,10 @@ init -11 python:
             if skill not in base_skills:
                 if dice(char.luck*.5):
                     value = (SKILLS_MAX[skill]*(tier*.1))*.3
-                    value = round_int(value*skill_bios())
-                    char.mod_skill(skill, value)
                 else:
                     value = (SKILLS_MAX[skill]*(tier*.1))*uniform(.05, .15)
-                    value = round_int(value*skill_bios())
-                    char.mod_skill(skill, value)
+                value = round_int(value*skill_bios())
+                char.mod_skill(skill, 0, value)
 
         char.tier = round_int(tier) # Makes sure we can use float tiers
 
