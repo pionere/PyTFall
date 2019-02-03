@@ -1122,8 +1122,8 @@ init -9 python:
                 for stat in ("attack", "defence", "agility", "magic"):
                     fighter.mod_stat(stat, randint(1, 2))
                 fighter.arena_rep += int(rep)
-                exp = round_int(50 * (float(loser.get_level()) / winner.get_level()))
-                fighter.mod_stat("exp", exp)
+                exp = round_int(50 * (float(loser.get_level()) /max(1,winner.get_level())))
+                fighter.exp += exp
 
             rep = rep / 10.0
             for fighter in loser:
@@ -1179,7 +1179,7 @@ init -9 python:
             max_gold = (enemy_team.get_level()+hero.team.get_level())*5
             blood = start_health - finish_health
             # Awards:
-            rew_gold = round_int(max_gold*(float(loser.get_level())/winner.get_level()))
+            rew_gold = round_int(max_gold*(float(loser.get_level())/max(1, winner.get_level())))
             if blood > 0:
                 rew_gold += blood
 
@@ -1269,7 +1269,7 @@ init -9 python:
                 loser = hero.team
 
             rew_rep = self.arena_rep_reward(loser, winner)
-            rew_gold = int(max(200, 250*(float(loser.get_level()) / winner.get_level())))
+            rew_gold = int(max(200, 250*(float(loser.get_level()) /max(1, winner.get_level()))))
 
             for member in winner:
                 if member not in battle.corpses:
