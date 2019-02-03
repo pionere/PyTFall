@@ -495,6 +495,16 @@ init -11 python:
                 else:
                     setattr(b, key, value)
 
+            if not hasattr(b, "threat_mod"):
+                if self.location == "Flee Bottom":
+                    b.threat_mod = 5
+                elif self.location == "Midtown":
+                    b.threat_mod = 2
+                elif self.location == "Richford":
+                    b.threat_mod = -1
+                else:
+                    raise Exception("{} Building with an unknown location detected!".format(str(self)))
+
             idx += 1
             b.id = idx
             businesses[idx] = b

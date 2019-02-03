@@ -239,7 +239,7 @@ init:
                 button:
                     xysize (135, 40)
                     action Show("building_adverts")
-                    sensitive getattr(bm_building, "can_advert", False)
+                    sensitive hasattr(bm_building, "adverts")
                     tooltip 'Advertise this building to attract more and better customers'
                     text "Advertise"
                 $ bm_building_chars = bm_building.get_all_chars()
@@ -392,7 +392,7 @@ init:
                         tooltip "Threat will never effect the smaller buildings (15 workable capacity for any and 20 for buildings with a competent manager). Your workers will never allow it to increase!"
                         action NullAction()
                         text "Threat:" color crimson hover_color green
-                    text "%s %%" % (bm_building.threat * 100 / bm_building.max_stats["threat"]):
+                    text "%s %%" % bm_building.get_threat_percentage():
                         xalign .98
                         style_suffix "value_text"
                         yoffset 4

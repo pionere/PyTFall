@@ -311,156 +311,97 @@ init -10 python:
         A building that has stats (dirt/security) and underlying mechanics.
         """
 
-        DIRT_STATES = dict(Immaculate=(0, 10), Sterile=(10, 20),
-                           Spotless=(20, 30), Clean=(30, 40),
-                           Tidy=(40, 50), Messy=(50, 60),
-                           Dirty=(60, 70), Grimy=(70, 80),
-                           Filthy=(80, 90), Disgusting=(90, 100))
+        DIRT_STATES = ("Immaculate", "Sterile", "Spotless", "Clean", "Tidy",
+                       "Messy", "Dirty", "Grimy", "Filthy", "Disgusting")
 
         def __init__(self):
             """
             Creates a new BuildingStats.
             """
-            self.stats = {"dirt": 0, "threat": 0}
-            self.max_stats = {"dirt": 1000, "threat": 1000}
+            self.dirt = 0
+            self.max_dirt = 1000
+            self.threat = 0
+            self.max_threat = 1000
+            self.threat_mod = 5
             self.auto_clean = 100
 
             # Logging stat changes during the day:
-            self.stats_log = {}
-
-        @property
-        def threat_mod(self):
-            # Figure out threat mod to apply over the building every 25 DU!
-            if self.location == "Flee Bottom":
-                threat = 5
-            elif self.location == "Midtown":
-                threat = 2
-            elif self.location == "Richford":
-                threat = -1
-            else:
-                raise Exception("{} Building with an unknown location detected!".format(str(self)))
-
-            return threat
+            self.stats_log = OrderedDict()
 
         def __setattr__(self, key, value):
-            stats = self.__dict__.get("stats", {})
-            if key in stats:
-                max_val = self.__dict__["max_stats"][key]
+            if key == "dirt":
+                manager_effectiveness = self.__dict__.get("manager_effectiveness", 0)
+
+                # Ignore dirt for small buildings!
+                cap = getattr(self, "workable_capacity", 0)
+
+                if manager_effectiveness >= 100 and cap <= 15:
+                    value = 0
+                elif cap <= 10:
+                    value = 0
+                elif value > self.max_dirt:
+                    value = self.max_dirt
+                elif value < 0:
+                    value = 0
+
+                self.__dict__['dirt'] = value
+            elif key == "threat":
                 manager_effectiveness = self.__dict__.get("manager_effectiveness", 0)
 
                 # Ignore threat for small buildings!
                 cap = getattr(self, "workable_capacity", 0)
-                if key == "threat":
-                    if manager_effectiveness >= 100 and cap <= 20:
-                        value = 0
-                    elif cap <= 15:
-                        value = 0
-                elif key == "dirt":
-                    if manager_effectiveness >= 100 and cap <= 15:
-                        value = 0
-                    elif cap <= 10:
-                        value = 0
 
-                if value > max_val:
-                    stats[key] = max_val
+                if manager_effectiveness >= 100 and cap <= 20:
+                    value = 0
+                elif cap <= 15:
+                    value = 0
+                elif value > self.max_threat:
+                    value = self.max_threat
                 elif value < 0:
-                    stats[key] = 0
-                else:
-                    stats[key] = value
+                    value = 0
+
+                self.__dict__['threat'] = value
             else:
                 super(BuildingStats, self).__setattr__(key, value)
-
-        def __getattr__(self, item):
-            stats = self.__dict__.get("stats", {})
-            if item in stats:
-                return stats[item]
-            raise AttributeError("%s object has no attribute named %r" %
-                                (self.__class__.__name__, item))
 
         def get_cleaning_price(self):
             """
             How much it costs to clean this building.
             """
-            dirt = self.dirt
-            price = 10 + dirt + dirt
-            return round_int(price)
+            return 10 + 2*self.dirt
 
         def get_threat_percentage(self):
             """
             Returns percentage of dirt in the building as (percent, description).
             """
-            if self.threat < 0:
-                self.threat = 0
-            threat = self.threat * 100 / self.max_stats["threat"]
-            if threat > 100:
-                threat = 100
-
-            return threat
+            return self.threat * 100 / self.max_threat
 
         def get_dirt_percentage(self):
             """
             Returns percentage of dirt in the building as (percent, description).
             """
-            if self.dirt < 0:
-                self.dirt = 0
-            dirt = self.dirt * 100 / self.max_stats["dirt"]
-            if dirt > 100:
-                dirt = 100
+            dirt = self.dirt * 100 / self.max_dirt
+            dirt_string = self.DIRT_STATES[min(9, dirt/10)]
 
-            dirt_string = ""
-            for key in self.DIRT_STATES:
-                if self.DIRT_STATES[key][0] <= dirt <= self.DIRT_STATES[key][1]:
-                    dirt_string = key
-
-            if not dirt_string:
-                raise Exception, "No valid string for dirt percentage of %s was found!" % self.id
-
-            return round_int(dirt), dirt_string
+            return dirt, dirt_string
 
         def nd_log_stats(self):
             # Get a list of stats, usually all 4.
-            diff = OrderedDict()
-            stats = self.stats.keys()
+            new_stats = OrderedDict()
+            stats = ["dirt", "threat"]
             if isinstance(self, FamousBuilding):
                 # throw in fame and rep:
                 stats.extend(["fame", "rep"])
-            stats.sort()
-
-            # Do not run the very first time:
-            if self.stats_log:
-                for stat in stats:
-                    value = round_int(getattr(self, stat) - self.stats_log.get(stat, 0))
-                    diff[stat] = value
-
-            # Log the new values:
+            stats_log = self.stats_log
             for stat in stats:
-                self.stats_log[stat] = getattr(self, stat)
+                val = getattr(self, stat)
+                new_stats[stat] = val
+                # Do not run the very first time:
+                if stats_log:
+                    stats_log[stat] = val - stats_log[stat]
 
-            return diff
-
-
-    class AdvertableBuilding(_object):
-        # Devnote: clumsy and outdated...
-        def add_adverts(self, adverts):
-            if not hasattr(self, "_adverts"):
-                self._adverts = []
-
-            for adv in adverts:
-                adv = deepcopy(adv)
-                adv['active'] = False
-                if not 'price' in adv:
-                    adv['price'] = 0
-                if not 'upkeep' in adv:
-                    adv['upkeep'] = 0
-                self._adverts.append(adv)
-
-        @property
-        def adverts(self):
-            return self._adverts
-
-        @property
-        def can_advert(self):
-            return bool(self._adverts)
+            self.stats_log = new_stats
+            return stats_log
 
 
     class UpgradableBuilding(BaseBuilding, BuildingStats, ManagerData):

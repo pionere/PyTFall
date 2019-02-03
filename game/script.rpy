@@ -640,7 +640,7 @@ label after_load:
             clearCharacters = True
 
         store.bm_mid_frame_mode = None
-        for b in hero.buildings:
+        for b in itertools.chain(hero.buildings, businesses.values()):
             if isinstance(b, UpgradableBuilding):
                 if not hasattr(b, "init_pep_talk"):
                     ManagerData.__init__(b)
@@ -649,15 +649,31 @@ label after_load:
                     val = 90 if b.auto_clean else 100
                     del b.auto_clean
                     b.auto_clean = val 
-        for b in businesses.values():
-            if isinstance(b, UpgradableBuilding):
-                if not hasattr(b, "init_pep_talk"):
-                    ManagerData.__init__(b)
-            if isinstance(b, BuildingStats):
-                if isinstance(b.auto_clean, bool):
-                    val = 90 if b.auto_clean else 100
-                    del b.auto_clean
-                    b.auto_clean = val 
+                if hasattr(b, "_adverts"):
+                    b.adverts = b._adverts
+                if not isinstance(b.stats_log, OrderedDict):
+                    b.stats_log = OrderedDict(b.stats_log)
+                if b.DIRT_STATES != BuildingStats.DIRT_STATES:
+                    b.DIRT_STATES = BuildingStats.DIRT_STATES
+                if hasattr(b, "max_stats"):
+                    b.max_dirt = b.max_stats["dirt"]
+                    b.max_threat = b.max_stats["threat"]
+                if hasattr(b, "stats"):
+                    b.dirt = b.stats["dirt"]
+                    b.threat = b.stats["threat"]
+                    if not isinstance(b.dirt, int):
+                        b.dirt = int(b.dirt)
+                    if not isinstance(b.threat, int):
+                        b.threat = int(b.threat)
+                if not hasattr(b, "threat_mod"):
+                    if b.location == "Flee Bottom":
+                        b.threat_mod = 5
+                    elif b.location == "Midtown":
+                        b.threat_mod = 2
+                    elif b.location == "Richford":
+                        b.threat_mod = -1
+                    else:
+                        raise Exception("{} Building with an unknown location detected!".format(str(b)))
 
         if "clearCharacters" in locals():
             for girl in itertools.chain(chars.values(), hero.chars, npcs.values()):

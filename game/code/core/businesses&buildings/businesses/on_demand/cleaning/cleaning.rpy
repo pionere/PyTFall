@@ -88,7 +88,7 @@ init -5 python:
                         building.dirt = 0
                     else:
                         for w in workers.copy():
-                            value = w.flag(power_flag_name)
+                            value = int(w.flag(power_flag_name))
 
                             building.dirt += value
                             simpy_debug("%s: Cleaning value: %s, remaining dirt: %s", self.env.now, value, building.dirt)

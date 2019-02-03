@@ -198,7 +198,7 @@ init -9 python:
                 renpy.hide_screen("slave_shopping")
 
 
-    class Building(UpgradableBuilding, AdvertableBuilding, FamousBuilding):
+    class Building(UpgradableBuilding, FamousBuilding):
         """
         The building that represents Business Buildings.
         """
@@ -215,40 +215,44 @@ init -9 python:
             self.nd_events_report = list()
             self.logged_clients = False
 
+            # adverts
+            self.adverts = []
+
+        def add_adverts(self, adverts):
+            for a in adverts:
+                adv = {'active': False, 'price': 0, 'upkeep': 0}
+                adv.update(a)
+                self.adverts.append(adv)
+
         def next_day(self):
             """
             Solves the next day logic for the Building.
             """
             # Local vars
-            type = 'buildingreport'
-            img = self.img
-
             txt = self.nd_events_report
 
-            evtlist = []
-            char = None
             tmodrep = 0 # Total of rep changed on next day, girl's mod are not included here.
             tmodfame = 0 # Total of fame, same rules.
             spentcash = 0
 
             # Applies effects of advertisements:
-            if self.can_advert:
-                for advert in self.adverts:
-                    if advert['active']:
-                        if 'fame' in advert:
-                            modf = randint(*advert['fame'])
-                            self.modfame(modf)
-                            tmodfame += modf
-                        if 'reputation' in advert:
-                            modr = randint(*advert['reputation'])
-                            self.modrep(modr)
-                            tmodrep += modr
+            for advert in self.adverts:
+                if advert['active']:
+                    if 'fame' in advert:
+                        modf = randint(*advert['fame'])
+                        self.modfame(modf)
+                        tmodfame += modf
+                    if 'reputation' in advert:
+                        modr = randint(*advert['reputation'])
+                        self.modrep(modr)
+                        tmodrep += modr
 
-                        spentcash += advert['upkeep']
-                        if advert['name'] == 'Celebrity':
-                            advert['active'] = False
-                            txt.append("A celebrity came into your building, raising it's reputation by %d and fame by %d\n" % (modr, modf))
+                    spentcash += advert['upkeep']
+                    if advert['name'] == 'Celebrity':
+                        advert['active'] = False
+                        txt.append("A celebrity came into your building, raising it's reputation by %d and fame by %d\n" % (modr, modf))
 
+            if spentcash or tmodfame or tmodrep:
                 txt.append("In total you got a bill of %d Gold in advertising fees, reputation was increased through advertising by %d, fame by %d." % (spentcash, tmodrep, tmodfame))
 
                 if spentcash and not hero.take_money(spentcash, reason="Building Ads"):
@@ -262,12 +266,12 @@ init -9 python:
             charmod = self.nd_log_stats()
 
             evt = NDEvent()
-            evt.type = type
+            evt.type = 'buildingreport'
             evt.charmod = charmod
             evt.red_flag = self.flag_red
             evt.loc = self
-            evt.char = char
-            evt.img = img
+            evt.char = None
+            evt.img = self.img
             evt.txt = txt
             NextDayEvents.append(evt)
 
