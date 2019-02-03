@@ -44,16 +44,13 @@ init -5 python hide:
     config.console_history_size = 50
     ## This controls the title of the window, when Ren'Py is
     ## running in a window.
-    config.window_title = "%s %s" % (config.name, config.version)
+    config.window_title = "%s" % config.name
     if DEBUG:
-        config.window_title += " @{}".format(renpy.version())
+        config.window_title += " %s @%s" % (config.version, renpy.version())
 
     # ----------------------------- Moved from initialization.rpy -------------------------------------->>>
     config.quit_action = Quit()
-    if DEBUG:
-        config.keymap['game_menu'] = ["K_ESCAPE"]
-    else:
-        config.keymap['game_menu'] = []
+    config.keymap['game_menu'] = ["K_ESCAPE"]
     # Fixing path:
     config.reject_backslash = False
 
@@ -94,11 +91,6 @@ init -5 python hide:
             except:
                 pass
     config.save_json_callbacks = [simple_save_dict]
-
-    if not config.developer:
-        # Hotkeys:
-        # Stop right click menu:
-        config.keymap["game_menu"] = None
 
     # Stop middle click hide menus
     config.keymap["hide_windows"] = None
