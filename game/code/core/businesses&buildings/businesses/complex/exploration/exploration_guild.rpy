@@ -379,7 +379,7 @@ init -6 python: # Guild, Tracker and Log.
                 se_debug(msg, mode="info")
 
             # Log the day:
-            temp = "{color=[green]}Day: %d{/color} | {color=[green]}%s{/color} is exploring %s!\n" % (tracker.day, tracker.team.name, tracker.area.name)
+            temp = "{color=[green]}Day: %d{/color} | {color=[green]}%s{/color} is exploring %s!" % (tracker.day, tracker.team.name, tracker.area.name)
             tracker.log(temp)
 
             if tracker.state == "traveling to":
@@ -387,6 +387,17 @@ init -6 python: # Guild, Tracker and Log.
                 result = yield process(self.travel_to(tracker))
                 if result == "arrived":
                     tracker.state = None
+            elif tracker.died:
+                tracker.died -= team.members
+                if tracker.died:
+                    temp = "{color=[red]}%s{/color} did not make it through the night. RIP." % ", ".join([d.fullname for d in tracker.died])
+                    tracker.log(temp)
+                if len(tracker.team) == 0:
+                    # The team died out during the night
+                    tracker.finish_exploring() # Build the ND report!
+                    self.env.exit() # They're done...
+                # The remaining team is heading home -> reset the died list so they can sleep during the nights
+                tracker.died = list()
 
             if self.env.now < 75: # do not go on exploring if the day is mostly over
                 if tracker.state is None:
@@ -406,7 +417,7 @@ init -6 python: # Guild, Tracker and Log.
                         result = yield process(self.explore(tracker))
                         if result == "back2camp":
                             break # We're done for today...
-                        elif result == "defeat":
+                        elif result == "rest":
                             tracker.state = "camping"
                     elif tracker.state == "camping":
                         result = yield process(self.camping(tracker))
@@ -553,7 +564,7 @@ init -6 python: # Guild, Tracker and Log.
                             for inv in invlist:
                                 l.extend(explorer.auto_equip(["mp"], inv=inv))
                         if l:
-                            temp = "%s used: {color=[lawngreen]}%s %s{/color} to recover!\n" % (explorer.nickname, ", ".join(l), plural("item", len(l)))
+                            temp = "%s used: {color=[lawngreen]}%s %s{/color} to recover!" % (explorer.nickname, ", ".join(l), plural("item", len(l)))
                             self.log(temp)
                     auto_equip_counter += 1
 
@@ -579,12 +590,6 @@ init -6 python: # Guild, Tracker and Log.
 
                     self.env.exit("still camping")
 
-                # if not stop:
-                    # for member in self.team:
-                        # if member.health <= (member.get_max("health") / 100.0 * (100 - self.risk)) or member.health < 15:
-                            # temp = "{color=[blue]}Your party falls back to base due to risk factors!{/color}"
-                            # tracker.log(temp)
-
         def overnight(self, tracker):
             # overnight: More effective heal. Spend the night resting.
             team = tracker.team
@@ -593,7 +598,7 @@ init -6 python: # Guild, Tracker and Log.
                 msg = "{} is overnighting. State: {}".format(team.name, tracker.state)
                 se_debug(msg, mode="info")
 
-            if tracker.daily_items is not None:
+            if tracker.daily_items is not None and len(tracker.died) < len(team):
                 # This basically means that team spent some time on exploring -> create a summary
                 items = tracker.daily_items
                 cash = tracker.daily_cash
@@ -616,6 +621,16 @@ init -6 python: # Guild, Tracker and Log.
                     msg = "{} has finished an exploration scenario. (Day Ended)".format(team.name)
                     se_debug(msg, mode="info")
 
+            if tracker.died:
+                # some member(s) of the team died -> no rest for the remaining team, if any
+                if len(tracker.died) == len(team):
+                    # all members died -> just wait for the dawn to see if their make it
+                    tracker.log("The members of % suffered fatal wounds. It is going to be a miracle if they make it through the night." % team.name)
+                else:
+                    # some members are alive -> send them back to the guild
+                    tracker.log("The remaining of % has a sleepless night at the base camp." % team.name)
+                return "go2guild"
+
             multiplier = .1 * (200 - self.env.now) / 100
 
             if tracker.state is None:
@@ -637,7 +652,6 @@ init -6 python: # Guild, Tracker and Log.
                    msg = "State '{}' unrecognized while team {} is overnighting in camp".format(tracker.state, team.name)
                    se_debug(msg, mode="warn")
                 temp = ""
-            temp += "\n"
             tracker.log(temp)
 
             for c in team:
@@ -667,20 +681,18 @@ init -6 python: # Guild, Tracker and Log.
                 tracker.daily_mobs = 0
 
                 # Effectiveness (Ability):
-                abilities = list()
+                ability = 0
                 # Difficulty is tier of the area explored + 1/10 of the same value / 100 * risk.
                 difficulty = area.tier*(1 + .001*tracker.risk)
                 for char in team:
                     # Set their exploration capabilities as temp flag
-                    a = tracker.effectiveness(char, difficulty, log=None, return_ratio=False)
-                    abilities.append(a)
-                tracker.ability = get_mean(abilities)
-
+                    ability += tracker.effectiveness(char, difficulty, log=None, return_ratio=False)
+                ability = (ability+tracker.risk)*.01
                 # Max cash to be found this day:
-                tracker.max_cash = int(area.cash_limit * (1 + .1*tracker.day))
+                tracker.max_cash = int(area.cash_limit*ability*(1 + .1*tracker.day))
 
                 # Get the max number of items that can be found in one day:
-                max_items = round_int((tracker.ability+tracker.risk)*.01+(tracker.day*.2))
+                max_items = round_int(ability+(tracker.day*.2))
                 if DEBUG_SE:
                     msg = "Max Items ({}) to be found on Day: {}!".format(max_items, tracker.day)
                     se_debug(msg, mode="info")
@@ -715,6 +727,7 @@ init -6 python: # Guild, Tracker and Log.
                     msg = "({}) Items were picked for choice!".format(len(chosen_items))
                     se_debug(msg, mode="info")
 
+                tracker.chosen_items = chosen_items
             else:
                 if DEBUG_SE:
                     msg = "{} is continuing the exploration.".format(team.name)
@@ -744,6 +757,7 @@ init -6 python: # Guild, Tracker and Log.
                             # value, because we calculated effects on daily base in the past...
                             var = max(1, round_int(value*.05))
                             char.mod_stat(stat, -var)
+                    check_team = True # initiate a check at the end of the loop
 
                 # Items:
                 # Handle the special items (must be done here so it doesn't collide with other teams)
@@ -753,7 +767,7 @@ init -6 python: # Guild, Tracker and Log.
                         if area.explored >= explored:
                             special_items.append(item)
 
-                if chosen_items or special_items:
+                if tracker.chosen_items or special_items:
                     if self.env.now < 50:
                         chance = self.env.now/5
                     elif self.env.now < 80:
@@ -771,7 +785,7 @@ init -6 python: # Guild, Tracker and Log.
                                 msg = "{} Found a special item {}!".format(team.name, item)
                                 se_debug(msg, mode="info")
                         else:
-                            item = chosen_items.pop()
+                            item = tracker.chosen_items.pop()
                             temp = "Found an item %s!" % item
                             temp = set_font_color(temp, "lawngreen")
                             tracker.log(temp, "Item", ui_log=True, item=store.items[item])
@@ -872,20 +886,38 @@ init -6 python: # Guild, Tracker and Log.
                         temp = "{} were attacked by ".format(team.name)
                         temp = temp + "%d %s!" % (enemies, plural("mob", enemies))
                         log = tracker.log(temp, "Combat!", ui_log=True)
+                        self.combat_mobs(tracker, mob, enemies, log)
 
-                        result = self.combat_mobs(tracker, mob, enemies, log)
-                        if result == "defeat":
-                            if DEBUG_SE:
-                                msg = "{} has finished an exploration scenario. (Lost a fight)".format(team.name)
-                                se_debug(msg, mode="info")
-                            self.env.exit("defeat")
-                        if tracker.daily_mobs >= tracker.risk/25:
-                            temp = "Your team decided to go back to the camp to avoid further {color=[red]}risk{/color}."
-                            tracker.log(temp)
-                            if DEBUG_SE:
-                                msg = "{} has finished an exploration scenario. (Fought too much)".format(team.name)
-                                se_debug(msg, mode="info")
-                            self.env.exit("back2camp")
+                        check_team = True # initiate a check at the end of the loop
+
+                if "check_team" in locals():
+                    if tracker.died:
+                        temp = "Your team is no longer complete. This concludes the exploration for the team."
+                        tracker.log(temp)
+                        if DEBUG_SE:
+                            msg = "{} has finished an exploration scenario. (Lost a member)".format(team.name)
+                            se_debug(msg, mode="info")
+                        self.env.exit("back2camp") # member died -> back to camp
+
+                    if tracker.daily_mobs >= tracker.risk/25:
+                        temp = "Your team decided to go back to the camp to avoid further {color=[red]}risk{/color}."
+                        tracker.log(temp)
+                        if DEBUG_SE:
+                            msg = "{} has finished an exploration scenario. (Fought too much)".format(team.name)
+                            se_debug(msg, mode="info")
+                        self.env.exit("back2camp") # too much risk -> back to camp
+
+                    temp = .8 - (tracker.risk/200.0)
+                    for c in team:
+                        if c.health > c.get_max("health")*temp and c.mp > c.get_max("mp")*temp and c.vitality > c.get_max("vitality")*temp:
+                            continue
+
+                        temp = "Your team needs some rest before they can continue with the exploration."
+                        tracker.log(temp)
+                        if DEBUG_SE:
+                            msg = "{} has finished an exploration scenario. (Needs rest)".format(team.name)
+                            se_debug(msg, mode="info")
+                        self.env.exit("rest") # need to rest -> got to camping mode
 
                 if self.env.now >= 99:
                     self.env.exit()
@@ -930,7 +962,6 @@ init -6 python: # Guild, Tracker and Log.
                     if member in battle.corpses:
                         tracker.flag_red = True
                         tracker.died.append(member)
-                        team.remove(member)
 
             for mob in opfor:
                 if mob in battle.corpses:
@@ -947,26 +978,21 @@ init -6 python: # Guild, Tracker and Log.
                     member.magic += randrange(3)
                     member.exp += exp_reward(member, opfor)
 
-                # Death needs to be handled based off risk factor: TODO:
-                # self.txt.append("\n{color=[red]}%s has died during this skirmish!{/color}\n" % member.name)
-                temp = "{color=[lawngreen]}Your team won!!{/color}\n"
+                temp = "{color=[lawngreen]}Your team won!!{/color}"
                 log.add(temp)
 
                 if DEBUG_SE:
                     msg = "{} finished a battle scenario. Result: victory".format(team.name)
                     se_debug(msg, mode="info")
 
-                return "victory"
             else: # Defeat here...
                 log.suffix = "{color=[red]}Defeat{/color}"
-                temp = "{color=[red]}Your team got their asses kicked!!{/color}\n"
+                temp = "{color=[red]}Your team got their asses kicked!!{/color}"
                 log.add(temp)
 
                 if DEBUG_SE:
                     msg = "{} finished a battle scenario. Result: defeat".format(team.name)
                     se_debug(msg, mode="info")
-
-                return "defeat"
 
         def build_camp(self, tracker):
             # New type of shit, trying to get teams to coop here...

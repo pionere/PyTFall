@@ -160,7 +160,6 @@ init -9 python:
             self.allegiance = None # BE will default this to the team name.
             self.controller = None # by default the player is in control
             self.beeffects = []
-            self.can_die = False
             self.dmg_font = "red"
             self.status_overlay = [] # This is something I wanted to test out, trying to add tiny status icons somehow.
 
@@ -2130,6 +2129,14 @@ init -9 python:
                 for team in self.teams:
                     if char in team:
                         team.remove(char)
+
+                for b in self.upgradable_buildings:
+                    fg = b.get_business("fg")
+                    if fg:
+                        for team in fg.teams:
+                            if char in team:
+                                team.remove(char)
+
             else:
                 raise Exception, "This char (ID: %s) is not in service to the player!!!" % self.id
 
