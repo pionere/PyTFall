@@ -38,9 +38,6 @@ label start:
         ilists = ListHandler()
         # difficulty = Difficulties()
 
-        # Locations (we need this here cause we'll write to it soon):
-        locations = dict()
-
         # Load random names selections for rGirls:
         tl.start("Loading: Random Name Files")
         female_first_names = load_female_first_names(200)
@@ -788,17 +785,17 @@ label after_load:
         if hasattr(pytfall, "it"):
             del pytfall.it
         if not hasattr(pytfall, "city"):
-            pytfall.city = locations["City Apartments"]
-            pytfall.streets = locations["Streets"]
-            pytfall.afterlife = locations["After Life"]
+            pytfall.city = store.locations["City Apartments"]
+            pytfall.streets = store.locations["Streets"]
+            pytfall.afterlife = store.locations["After Life"]
 
-            city = locations["City"]
+            city = store.locations["City"]
             if hero.location == city:
                 hero.location = pytfall.city
             for c in chars.values():
                 if c.location == city:
                     c.location = pytfall.city
-
+            del store.locations
 
     python hide:
         for d in pytfall.world_actions.nest:
