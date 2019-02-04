@@ -257,7 +257,6 @@ label continue_with_start:
     python: # Load Arena
         tl.start("Loading: Arena!")
         pytfall.arena = Arena()
-        locations[pytfall.arena.id] = pytfall.arena
         pytfall.arena.setup_arena()
         pytfall.arena.update_matches()
         pytfall.arena.update_teams()
@@ -295,7 +294,7 @@ label continue_with_start:
 
     # last minute checks:
     if not hero.home:
-        $ hero.home = locations["Streets"]
+        $ hero.home = pytfall.streets
 
     jump mainscreen
 
@@ -500,7 +499,7 @@ label after_load:
     #     for c in pytfall.sm.inhabitants.copy():
     #         if c not in chars.itervalues():
     #             remove_from_gameworld(c)
-    #     aps = locations["City Apartments"]
+    #     aps = pytfall.city
     #     for c in aps.inhabitants.copy():
     #         if c not in chars.itervalues():
     #             remove_from_gameworld(c)
