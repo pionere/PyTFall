@@ -1,7 +1,7 @@
 init python:
-    renpy.image("jumping_frog", animate("/script/quests/frog_princess/img/frog_jump", loop=True))
-    renpy.image("frog", "script/quests/frog_princess/img/frog.webp")
-    renpy.image("stranger", "script/quests/frog_princess/img/stranger.webp")
+    renpy.image("jumping_frog", animate("/content/quests/frog_princess/img/frog_jump", loop=True))
+    renpy.image("frog", "content/quests/frog_princess/img/frog.webp")
+    renpy.image("stranger", "content/quests/frog_princess/img/stranger.webp")
     register_quest("Frog Princess!")
     if DEBUG_QE:
         register_event("show_frog", screen=True, quest="Frog Princess!",
@@ -34,7 +34,7 @@ screen show_frog:
 screen show_frog_final:
     zorder 10
     if renpy.get_screen("forest_entrance"):
-        $ img = im.Scale("script/quests/frog_princess/img/frog.webp", 70, 70)
+        $ img = im.Scale("content/quests/frog_princess/img/frog.webp", 70, 70)
         imagebutton:
             pos (237, 586)
             idle img
@@ -326,12 +326,12 @@ label final_frog_event:
         "I know how to break the spell, but it will cost you.":
             f1 "I will do anything just help me. My father is a very rich and powerful man. He surely will pay you any sum when I safely return home."
     stop world
-    play sound "script/quests/frog_princess/sfx/kiss_short.mp3"
+    play sound "content/quests/frog_princess/sfx/kiss_short.mp3"
     "Frog drunk the potion, and you gave it a quick kiss. Nothing happened. You need to be more passionate."
     menu:
         "French kiss":
             "You had French kissed a frog! (side note: frogs eat: flies, mosquitoes, moths, dragonflies, small snakes, mice, baby turtles and sometimes smaller frogs)."
-            play sound "script/quests/frog_princess/sfx/kiss_long.mp3"
+            play sound "content/quests/frog_princess/sfx/kiss_long.mp3"
             scene black
             $ flash = Fade(.25, 0, .75, color="#fff")
             scene bg forest_entrance
