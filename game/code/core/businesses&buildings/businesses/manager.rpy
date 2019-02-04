@@ -1,28 +1,4 @@
 # Manager stuff goes here, will prolly be only one function but it doesn't fit anywhere else.
-# This process should be ran first!
-init -50 python:
-    class ManagerData(object):
-        def __init__(self):
-            self.init_pep_talk = True
-            self.cheering_up = True
-            self.asks_clients_to_wait = True
-            self.help_ineffective_workers = True # Bad performance still may get a payout.
-            self.works_other_jobs = False
-
-            # TODO Before some major release that breaks saves, move manager and effectiveness fields here.
-            self.mlog = None # Manager job log
-
-        @property
-        def mjp(self):
-            if self.manager:
-                return self.manager.jobpoints
-            else:
-                return 0
-        @mjp.setter
-        def mjp(self, value):
-            if self.manager:
-                self.manager.jobpoints = value
-
 init -5 python:
     class Manager(Job):
         """This is the manager Job, so far it just creates the instance we can use to assign the job.

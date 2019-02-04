@@ -435,7 +435,7 @@ init -9 python:
                 mod = location.mod_runaway()
 
             # Else if location is upgradable, use its sutree @ Review: Alex: What the fuck is a sutree????
-            # elif isinstance(location, UpgradableBuilding):
+            # elif isinstance(location, Building):
             #     if sutree is None: sutree = location.security_upgrade_tree
             #     mod = self.get_upgrade_mod(sutree) / len(self.upgrades[sutree])
 

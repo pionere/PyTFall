@@ -88,7 +88,7 @@ init -5 python:
                             building, self, worker, client, log)
 
             # Dirt:
-            building.dirt += randint(3, 6)
+            building.moddirt(randint(3, 6))
 
             # Log everything:
             log.after_job()

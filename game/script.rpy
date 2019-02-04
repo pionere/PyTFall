@@ -641,10 +641,9 @@ label after_load:
 
         store.bm_mid_frame_mode = None
         for b in itertools.chain(hero.buildings, businesses.values()):
-            if isinstance(b, UpgradableBuilding):
+            if isinstance(b, Building):
                 if not hasattr(b, "init_pep_talk"):
                     ManagerData.__init__(b)
-            if isinstance(b, BuildingStats):
                 if isinstance(b.auto_clean, bool):
                     val = 90 if b.auto_clean else 100
                     del b.auto_clean
@@ -653,11 +652,11 @@ label after_load:
                     b.adverts = b._adverts
                 if not isinstance(b.stats_log, OrderedDict):
                     b.stats_log = OrderedDict(b.stats_log)
-                if b.DIRT_STATES != BuildingStats.DIRT_STATES:
-                    b.DIRT_STATES = BuildingStats.DIRT_STATES
+                if b.DIRT_STATES != Building.DIRT_STATES:
+                    b.DIRT_STATES = Building.DIRT_STATES
                 if hasattr(b, "max_stats"):
-                    b.max_dirt = b.max_stats["dirt"]
-                    b.max_threat = b.max_stats["threat"]
+                    b.maxdirt = b.max_stats["dirt"]
+                    b.maxthreat = b.max_stats["threat"]
                 if hasattr(b, "stats"):
                     b.dirt = b.stats["dirt"]
                     b.threat = b.stats["threat"]
@@ -665,6 +664,11 @@ label after_load:
                         b.dirt = int(b.dirt)
                     if not isinstance(b.threat, int):
                         b.threat = int(b.threat)
+                if hasattr(b, "building_jobs"):
+                    b.needs_management = True
+                    del b.building_jobs
+                if hasattr(b, "worker_slots_max"):
+                    del b.worker_slots_max
                 if not hasattr(b, "threat_mod"):
                     if b.location == "Flee Bottom":
                         b.threat_mod = 5
@@ -719,7 +723,7 @@ label after_load:
                         fighter.location = fighter._location
 
             for b in hero.buildings:
-                if isinstance(b, UpgradableBuilding):
+                if isinstance(b, Building):
                     for client in b.all_clients:
                         if client.controller == "player":
                             client.controller = None

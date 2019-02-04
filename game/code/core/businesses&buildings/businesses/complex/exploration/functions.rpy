@@ -7,7 +7,7 @@ init python:
         # This may be an overkill cause we should really remove workers from teams when we change their locations!
         idle_explorers = set()
         for b in hero.buildings:
-            if isinstance(b, UpgradableBuilding):
+            if isinstance(b, Building):
                 fg = b.get_business("fg")
                 if fg:
                     idle_explorers.update(fg.idle_explorers())

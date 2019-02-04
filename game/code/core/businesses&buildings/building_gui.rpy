@@ -131,7 +131,7 @@ label building_management:
                     if isinstance(temp, BusinessUpgrade):
                         result[3].add_upgrade(temp, pay=True)
                     elif isinstance(temp, Business):
-                        bm_building.add_business(temp, pay=True)
+                        bm_building.add_business(temp, normalize_jobs=True, pay=True)
                     elif isinstance(temp, BuildingUpgrade):
                         bm_building.add_upgrade(temp, pay=True)
                     else:
@@ -274,8 +274,8 @@ init:
                     tooltip 'Get rid of this building'
                     text "Sell"
 
-        # Slots for New Style Upgradable Buildings:
-        if isinstance(bm_building, UpgradableBuilding):
+        # Slots for New Style Buildings:
+        if isinstance(bm_building, Building):
             frame:
                 xalign .5
                 style_prefix "proper_stats"
@@ -417,7 +417,7 @@ init:
         frame:
             background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
             xysize (317, 480)
-            if isinstance(bm_building, UpgradableBuilding):
+            if isinstance(bm_building, Building):
                 frame:
                     align .5, .02
                     background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
@@ -462,7 +462,7 @@ init:
                                 hover ProportionalScale("content/gfx/interface/buttons/close4_h.png", 20, 24)
                                 action Show("yesno_prompt",
                                      message="Are you sure you wish to close this %s for %d Gold?" % (u.name, u.get_price()),
-                                     yes_action=[Function(bm_building.close_business, u, pay=True), Hide("yesno_prompt")], no_action=Hide("yesno_prompt"))
+                                     yes_action=[Function(bm_building.close_business, u, normalize_jobs=True, pay=True), Hide("yesno_prompt")], no_action=Hide("yesno_prompt"))
                                 tooltip "Close the business"
 
     screen building_management_leftframe_businesses_mode:
@@ -623,7 +623,7 @@ init:
                         background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
                         xysize 200, 50
                         align (.5, .5)
-                        if isinstance(bm_building, UpgradableBuilding):
+                        if isinstance(bm_building, Building):
                             button:
                                 style_prefix "wood"
                                 align .5, .5

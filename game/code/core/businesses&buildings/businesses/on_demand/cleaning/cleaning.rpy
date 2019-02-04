@@ -90,7 +90,7 @@ init -5 python:
                         for w in workers.copy():
                             value = int(w.flag(power_flag_name))
 
-                            building.dirt += value
+                            building.moddirt(value)
                             simpy_debug("%s: Cleaning value: %s, remaining dirt: %s", self.env.now, value, building.dirt)
 
                             dirt_cleaned += value

@@ -472,7 +472,13 @@ init -11 python:
 
             for key, value in business.iteritems():
                 if key == "adverts":
-                    b.add_adverts([adv for adv in adverts_data if adv['name'] in value])
+                    _adverts = []
+                    for a in adverts_data:
+                        if a['name'] in value:
+                            adv = {'active': False, 'price': 0, 'upkeep': 0}
+                            adv.update(a)
+                            _adverts.append(adv)
+                    b.adverts = _adverts
                 elif key == "build_businesses":
                     for business_data in value:
                         cls = getattr(store, business_data["class"])
@@ -495,15 +501,7 @@ init -11 python:
                 else:
                     setattr(b, key, value)
 
-            if not hasattr(b, "threat_mod"):
-                if self.location == "Flee Bottom":
-                    b.threat_mod = 5
-                elif self.location == "Midtown":
-                    b.threat_mod = 2
-                elif self.location == "Richford":
-                    b.threat_mod = -1
-                else:
-                    raise Exception("{} Building with an unknown location detected!".format(str(self)))
+            b.init()
 
             idx += 1
             b.id = idx

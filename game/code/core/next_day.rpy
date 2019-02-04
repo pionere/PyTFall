@@ -7,7 +7,7 @@ init python:
 
         base = {"IDLE": 0, "Service": 0, "Warriors": 0, "Managers": 0}
 
-        for setup in ["ALL"] + [b for b in hero.buildings if isinstance(b, UpgradableBuilding)]:
+        for setup in ["ALL"] + [b for b in hero.buildings if isinstance(b, Building)]:
             actions[setup] = base.copy()
             rest[setup] = base.copy()
             events[setup] = base.copy()
@@ -60,7 +60,7 @@ init python:
                 # Events:
                 if cat:
                     for event in NextDayEvents:
-                        if isinstance(setup, UpgradableBuilding):
+                        if isinstance(setup, Building):
                             if event.loc != setup:
                                 continue
                         if event.char == char:
@@ -150,7 +150,7 @@ label next_day_calculations:
     $ tl.start("ND-Buildings")
 
     # Generate buildings list and update manager effectiveness:
-    $ nd_buildings = list(b for b in hero.buildings if isinstance(b, UpgradableBuilding))
+    $ nd_buildings = list(b for b in hero.buildings if isinstance(b, Building))
     python hide: # Figure out what managers can do for us.
         for b in nd_buildings:
             # We can calculate manager effectiveness once, so we don't have to do
@@ -514,7 +514,7 @@ screen next_day():
                                 text "Customers:" xpos 3
                                 python:
                                     clients = 0
-                                    for b in [b for b in hero.buildings if isinstance(b, UpgradableBuilding)]:
+                                    for b in [b for b in hero.buildings if isinstance(b, Building)]:
                                         clients = clients + b.total_clients
                                 text "[clients]" style_suffix "value_text"  xpos 135
 
@@ -533,7 +533,7 @@ screen next_day():
                     has vbox
 
                     # Buildings:
-                    for building in [b for b in hero.buildings if isinstance(b, UpgradableBuilding)]:
+                    for building in [b for b in hero.buildings if isinstance(b, Building)]:
                         # Image/Name:
                         null height 4
                         label "[building.name]" xpos 10

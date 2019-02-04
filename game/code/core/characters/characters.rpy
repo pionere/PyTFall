@@ -2060,21 +2060,14 @@ init -9 python:
             """
             The buildings that can be cleaned.
             """
-            return [building for building in self.buildings if isinstance(building, BuildingStats)]
-
-        @property
-        def famous_buildings(self):
-            """
-            The buildings that have reputation.
-            """
-            return [building for building in self.buildings if isinstance(building, FamousBuilding)]
+            return [building for building in self.buildings if isinstance(building, Building)]
 
         @property
         def upgradable_buildings(self):
             """
             The buildings that can be upgraded.
             """
-            return [b for b in self.buildings if isinstance(b, UpgradableBuilding)]
+            return [b for b in self.buildings if isinstance(b, Building)]
 
         def add_building(self, building):
             if building not in self._buildings:
@@ -2088,7 +2081,7 @@ init -9 python:
             rest = []
 
             for b in self._buildings:
-                if isinstance(b, UpgradableBuilding):
+                if isinstance(b, Building):
                     if b.workable:
                         workable.append(b)
                     elif b.habitable and not b.workable:

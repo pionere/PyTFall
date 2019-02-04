@@ -198,31 +198,934 @@ init -9 python:
                 renpy.hide_screen("slave_shopping")
 
 
-    class Building(UpgradableBuilding, FamousBuilding):
+    class Building(BaseBuilding):
         """
         The building that represents Business Buildings.
         """
-        def __init__(self, *args, **kwargs):
+        WORKER_RULES = ["strict", "normal", "loose"]
+        WORKER_RULES_DESC = {
+        "strict": "Workers will only preform jobs that are the exact match to the action you're assigned them!",
+        "normal": "Workers may choose to do a job that directly matches to their class if they are not busy otherwise!",
+        "loose": "Workers may choose to do a job that is at least loosely matches to their class if they are not busy otherwise! (for example a Stripper doing a Whore Job)"
+        }
+
+        DIRT_STATES = ("Immaculate", "Sterile", "Spotless", "Clean", "Tidy",
+                       "Messy", "Dirty", "Grimy", "Filthy", "Disgusting")
+
+        def __init__(self):
             """
             Creates a new Building.
             # maxrank = The maximum rank this brothel can achieve.
             """
-            super(Building, self).__init__(*args, **kwargs)
+            super(Building, self).__init__()
+
+            self._upgrades = list()
+            self.allowed_upgrades = []
+            self._businesses = list()
+            self.allowed_businesses = []
+
+            # We add allowed BUs here, for businesses that have not been built yet.
+            # { business: ["u1", "u2", ...]}
+            self.allowed_business_upgrades = {}
 
             self.fin = Finances(self)
+
+            # And new style upgrades:
+            self.in_slots = 0 # Interior Slots
+            self.in_slots_max = 100
+            self.ex_slots = 0 # Exterior Slots
+            self.ex_slots_max = 100
+
+            # Clients:
+            self.all_clients = set() # All clients of this building are maintained here.
+            self.regular_clients = set() # Subset of self.all_clients.
+            self.clients = set() # temp clients, this is used during SimPy cals and reset on when that ends.
+            self.logged_clients = False
+            # This is the amount of clients that will visit the Building:
+            self.total_clients = 0 # this is set by get_client_count method.
+            self.clients_regen_day = 0
+
+            # Management:
+            self.needs_management = False
+            # Note: We also use .inhabitants set inherited from all the way over location.
+            self.manager = None
+            self.manager_effectiveness = 0 # Calculated once at start of each working day (performance)
+            self.workers_rule = "normal"
+            self.init_pep_talk = True
+            self.cheering_up = True
+            self.asks_clients_to_wait = True
+            self.help_ineffective_workers = True # Bad performance still may get a payout.
+            self.works_other_jobs = False
+            # TODO Before some major release that breaks saves, move manager and effectiveness fields here.
+            self.mlog = None # Manager job log
+
+            # Workers:
+            # Bit of an issue could be that we're using all_workers in SimPy as well? :D
+            # TODO (bb) Look into the above.
+            self.all_workers = list() # All workers presently assigned to work in this building.
+            self.available_workers = list() # This is built and used during the next day (SimPy).
+
+            # Upgrades:
+            self.nd_ups = list() # Upgrades active during the next day...
+
+            # SimPy and etc follows:
+            self.env = None
+
+            self.mod = 1
+
+            # adverts initialized later
+
+            # Dirt/Threat
+            self.maxdirt = 1000
+            self.dirt = 0
+            self.maxthreat = 1000
+            self.threat = 0
+            #self.threat_mod = 5 initialized later
+            self.auto_clean = 100
+
+            # Fame/Reputation
+            self.minfame = 0 # The minimum amount of fame the building can have.
+            self.maxfame = 0 # The maximum amount of fame the building can have.
+            self.fame = 0    # The current fame of the building
+
+            self.minrep = 0 # The minimum amount of reputation the building can have.
+            self.maxrep = 0 # The maximum amount of reputation the building can have.
+            self.rep = 0    # The current reputation of the building
+
+            # Logging stat changes during the day:
+            self.stats_log = OrderedDict()
 
             # ND Report
             self.nd_events_report = list()
             self.logged_clients = False
 
-            # adverts
-            self.adverts = []
 
-        def add_adverts(self, adverts):
-            for a in adverts:
-                adv = {'active': False, 'price': 0, 'upkeep': 0}
-                adv.update(a)
-                self.adverts.append(adv)
+        def init(self):
+            if self.needs_management:
+                normalize_jobs()
+
+            if not hasattr(self, "adverts"):
+                self.adverts = []
+
+            if not hasattr(self, "threat_mod"):
+                if self.location == "Flee Bottom":
+                    self.threat_mod = 5
+                elif self.location == "Midtown":
+                    self.threat_mod = 2
+                elif self.location == "Richford":
+                    self.threat_mod = -1
+                else:
+                    devlog.warn("{} Building with an unknown location detected!".format(self.name))
+
+        def normalize_jobs(self):
+            jobs = set()
+            if self.needs_management:
+                jobs.add(simple_jobs["Manager"])
+            for up in self._businesses:
+                jobs.update(up.jobs)
+            self.jobs = jobs
+
+        def get_valid_jobs(self, char):
+            """Returns a list of jobs available for the building that the character might be willing to do.
+
+            Returns an empty list if no jobs is available for the character.
+            """
+            jobs = []
+
+            for job in self.jobs:
+                # We need to check if there are any slots for a worker are left (atm only the Manager job):
+                if job.id == "Manager":
+                    # we get a list of all workers that are assigned for this job:
+                    temp = [w for w in self.all_workers if w.action == job or w.previousaction == job]
+                    # This isn't bulletproof... we prolly want to access building.manager here...
+                    if temp:
+                        continue
+                if job.is_valid_for(char):
+                    jobs.append(job)
+
+            return jobs
+
+        def get_extension_cost(self, extension, **ec_kwargs):
+            # We figure out what it would take to add this extension (building or business)
+            # using it's class attributes to figure out the cost and the materials required.
+            tier = self.tier or 1
+
+            if isclass(extension):
+                ext = extension(**ec_kwargs)
+            else:
+                ext = extension
+            if ext.building is None:
+                ext.building = self
+
+            cap = ext.capacity
+
+            cost = ext.get_price()
+
+            materials = ext.materials.copy()
+            for k, v in materials.items():
+                materials[k] = round_int(v*min(tier, 4))
+
+            in_slots = ext.in_slots + cap*ext.exp_cap_in_slots
+            ex_slots = ext.ex_slots + cap*ext.exp_cap_ex_slots
+
+            return cost, materials, in_slots, ex_slots
+
+        def eval_extension_build(self, extension_class, price=None):
+            # If price is not None, we expect a tuple with requirements to build
+            # Check if we can build an upgrade:
+            if price is None:
+                cost, materials, in_slots, ex_slots = self.get_extension_cost(extension_class)
+            else:
+                cost, materials, in_slots, ex_slots = price
+
+            if (self.in_slots_max - self.in_slots) < in_slots or (self.ex_slots_max - self.ex_slots) < ex_slots:
+                return False
+
+            if self.has_extension(extension_class):
+                return False
+
+            if hero.gold < cost:
+                return False
+
+            for i, a in materials.iteritems():
+                if hero.inventory[i] < a:
+                    return False
+
+            return True
+
+        def pay_for_extension(self, cost, materials):
+            # This does assume that we checked and know that MC has the resources.
+            if cost:
+                hero.take_money(cost, "Building Upgrades")
+                self.fin.log_logical_expense(cost, "Upgrade")
+
+            if materials:
+                for item, amount in materials.items():
+                    hero.remove_item(item, amount)
+
+        def add_business(self, business, normalize_jobs=False, pay=False):
+            """Add business to the building.
+            """
+            cost, materials, in_slots, ex_slots = self.get_extension_cost(business)
+            self.in_slots += in_slots
+            self.ex_slots += ex_slots
+
+            if pay:
+                self.pay_for_extension(cost, materials)
+
+            business.building = self
+            business.in_slots = in_slots
+            business.ex_slots = ex_slots
+
+            self._businesses.append(business)
+            self._businesses.sort(key=attrgetter("SORTING_ORDER"), reverse=True)
+
+            # Add possible upgrades:
+            cls_name = business.__class__.__name__
+            upgrades = self.allowed_business_upgrades.get(cls_name, None)
+            if upgrades is not None:
+                for u in upgrades:
+                    u = getattr(store, u)
+                    if u not in business.allowed_upgrades:
+                        business.allowed_upgrades.append(u)
+
+            if normalize_jobs:
+                self.normalize_jobs()
+
+        def close_business(self, business, normalize_jobs=False, pay=False):
+            """Remove a business from the building.
+            """
+            self._businesses.remove(business)
+            self.in_slots -= business.in_slots
+            self.ex_slots -= business.ex_slots
+
+            if pay:
+                self.pay_for_extension(business.get_price(), None)
+
+            if normalize_jobs:
+                self.normalize_jobs()
+
+        def add_upgrade(self, upgrade, pay=False):
+            cost, materials, in_slots, ex_slots = self.get_extension_cost(upgrade)
+            self.in_slots += in_slots
+            self.ex_slots += ex_slots
+
+            if pay:
+                self.pay_for_extension(cost, materials)
+
+            upgrade.building = self
+            self._upgrades.append(upgrade)
+            self._upgrades.sort(key=attrgetter("SORTING_ORDER"), reverse=True)
+
+        def all_possible_extensions(self):
+            # Returns a list of all possible extensions (businesses and upgrades)
+            return self.allowed_businesses + self.allowed_upgrades
+
+        def all_extensions(self):
+            return self._businesses + self._upgrades
+
+        def has_extension(self, extension, include_business_upgrades=False):
+            if not isclass(extension):
+                extension = extension.__class__
+
+            for ex in self.all_extensions():
+                if isinstance(ex, extension):
+                    return True
+
+            if include_business_upgrades:
+                for ex in self.all_extensions():
+                    if ex.has_extension(extension):
+                        return True
+
+            return False
+
+        def get_business(self, up):
+            # Takes a string as an argument
+            if up == "fg":
+                temp = [u for u in building._businesses if u.__class__ == ExplorationGuild]
+                if temp:
+                    return temp[0]
+                else:
+                    return False
+
+        # Describing building purposes:
+        @property
+        def habitable(self):
+            # Overloads property of Location core class to serve the building.
+            return any(i.habitable for i in self._businesses)
+
+        @property
+        def workable(self):
+            """Returns True if this building has upgrades that are businesses.
+            """
+            return any(i.workable for i in self._businesses)
+
+        @property
+        def vacancies(self):
+            rooms = self.habitable_capacity - len(self.inhabitants)
+            if rooms < 0:
+                rooms = 0
+            return rooms
+
+        @property
+        def workable_capacity(self):
+            capacity = 0
+            workable = [i for i in self._businesses if i.workable]
+            if workable:
+                capacity = sum([i.capacity for i in workable])
+            return capacity
+
+        @property
+        def habitable_capacity(self):
+            capacity = 0
+            habitable = [i for i in self._businesses if i.habitable]
+            if habitable:
+                capacity = sum([i.capacity for i in habitable])
+            return capacity
+
+        @property
+        def capacity(self):
+            # Full capacity, habitable and workable:
+            return self.workable_capacity + self.habitable_capacity
+
+        # Gui/Controls:
+        def toggle_workers_rule(self):
+            index = self.WORKER_RULES.index(self.workers_rule)
+            index = (index + 1) % len(self.WORKER_RULES)
+
+            self.workers_rule = self.WORKER_RULES[index]
+
+        def get_cleaning_price(self):
+            """
+            How much it costs to clean this building.
+            """
+            return 10 + 2*self.dirt
+
+        def get_threat_percentage(self):
+            """
+            Returns percentage of dirt in the building as (percent, description).
+            """
+            return self.threat * 100 / self.maxthreat
+
+        def get_dirt_percentage(self):
+            """
+            Returns percentage of dirt in the building as (percent, description).
+            """
+            dirt = self.dirt * 100 / self.maxdirt
+            dirt_string = self.DIRT_STATES[min(9, dirt/10)]
+
+            return dirt, dirt_string
+
+        @property
+        def fame_percentage(self):
+            return self.fame*100/max(1, self.maxfame)
+
+        @property
+        def rep_percentage(self):
+            return self.rep*100/max(1, self.maxrep)
+
+        def moddirt(self, value):
+            # Ignore dirt for small buildings!
+            cap = getattr(self, "workable_capacity", 0)
+
+            if self.manager_effectiveness >= 100 and cap <= 15:
+                value = 0
+            elif cap <= 10:
+                value = 0
+            else:
+                value += self.dirt
+                if value > self.maxdirt:
+                    value = self.maxdirt
+                elif value < 0:
+                    value = 0
+            self.dirt = value
+
+        def modthreat(self, value):
+            # Ignore threat for small buildings!
+            cap = getattr(self, "workable_capacity", 0)
+
+            if self.manager_effectiveness >= 100 and cap <= 20:
+                value = 0
+            elif cap <= 15:
+                value = 0
+            else:
+                value += self.threat
+                if value > self.maxthreat:
+                    value = self.maxthreat
+                elif value < 0:
+                    value = 0
+
+            self.threat = value
+
+        def modfame(self, value):
+            """
+            Changes how famous this building is.
+            value = The amount to change.
+            """
+            value += self.fame
+            if value > self.maxfame:
+                value = self.maxfame
+            elif value < self.minfame:
+                value = self.minfame
+            self.fame = value
+
+        def modrep(self, value):
+            """
+            Changes how reputable this building is.
+            value = The amount to change.
+            """
+            value += self.rep
+            if value > self.maxrep:
+                value = self.maxrep
+            elif value < self.minrep:
+                value = self.minrep
+            self.rep = value
+
+        @property
+        def mjp(self):
+            if self.manager:
+                return self.manager.jobpoints
+            else:
+                return 0
+        @mjp.setter
+        def mjp(self, value):
+            if self.manager:
+                self.manager.jobpoints = value
+
+        # Clients related:
+        def get_client_count(self, write_to_nd=False):
+            """Get the amount of clients that will visit the building the next day.
+
+            Weakness of this method atm is this:
+                We only get 70% of total possible clients from businesses,
+                    to make extensions meaningful.
+                We do not make any distinctions between businesses we generate clients for.
+                    This makes having businesses that attract loads of clients
+                    hugely favorable to have when running a business that does not.
+            """
+            clients = .0
+
+            if not any(a['name'] == 'Sign' and a['active'] for a in self.adverts):
+                min_clients = -1
+                if write_to_nd:
+                    self.log("{}".format(set_font_color("You may want to put up a sign!\n", "red")))
+                    self.flag_red = True
+            else:
+                min_clients = 2 # We expect at least two walk-ins otherwise.
+
+            # if DSNBR: # DEBUGMODE:
+            #     debug_add = 10
+            #     devlog.info("Debug adds {} pure clients for {}".format(debug_add, self.name))
+            #     if write_to_nd and DSNBR:
+            #         self.log("Debug Mode adding {} clients!".format(set_font_color(debug_add, "red")))
+            #     clients += debug_add
+
+            # Generated by upgrades:
+            for u in [u for u in self._businesses if u.expects_clients]:
+                temp = u.get_client_count()
+                clients += temp
+                min_clients += 1 # Throw in at least one min client for each business.
+                if DSNBR:
+                    devlog.info("{} pure clients for {}".format(temp, u.name))
+
+            # Fame percentage mod (linear scale):
+            fame_percentage = self.fame_percentage
+            clients = clients/100.0*fame_percentage
+
+            # Special check for larger buildings:
+            if fame_percentage > 80 and self.maxfame > 400:
+                if write_to_nd:
+                    self.log("Extra clients are coming in! You business is getting very popular with the people")
+                clients += float(clients)/self.maxfame*self.fame*.1
+
+            # Upgrades:
+            temp = False
+            for u in self._upgrades:
+                mod = getattr(u, "client_flow_mod", 0)
+                if mod:
+                    temp = True
+                    clients = clients*mod
+            if temp and write_to_nd:
+                self.log("Your building upgrades are attracting extra clients!")
+
+            # Normalize everything:
+            min_clients = max(0, min_clients)
+            clients = round_int(max(min_clients, clients))
+
+            if clients and write_to_nd:
+                self.log("Total of {} clients are expected to visit this establishment!".format(set_font_color(clients, "lawngreen")))
+
+            self.total_clients = clients
+
+        def get_max_client_capacity(self):
+            """Returns the very maximum amount of clients this building can host
+                at any given time. This is used in a number of ND-calculations.
+            """
+            capacity = 0
+            for u in self._businesses:
+                if u.expects_clients:
+                    capacity += u.capacity
+            return capacity
+
+        @property
+        def expects_clients(self):
+            return any(i.expects_clients for i in self._businesses)
+
+        def create_customer(self, name="", likes=None):
+            """
+            Returns a customer for this Building.
+            If name is an empty string, a random customer is returned.
+            If name is given, the returning customer with that name is returned
+            by this method. A NameError will be raised if the given name is not
+            associated with a returning customer.
+            """
+            if name:
+                raise NotImplementedError("Returning customers are not implemented yet")
+
+            # determine gender of random customer
+            gender = "male" if dice(75) else "female"
+
+            # determine caste of random customer
+            caste = randint(0, 2)
+            if self.rep < 50: caste = max(caste, 1)
+            elif self.rep <= 150: caste += 1
+            elif self.rep <= 400: caste += 2
+            elif self.rep <= 600: caste += 3
+            elif self.rep <= 800: caste += 4
+            else:                 caste += 5
+            caste = CLIENT_CASTES[caste]
+
+            # create random customer
+            min_tier = float(max(self.tier-2, .1))
+            max_tier = float(self.tier + 1)
+            customer = build_client(gender=gender, caste=caste,
+                                    tier=uniform(min_tier, max_tier),
+                                    likes=likes)
+            return customer
+
+        # SimPy/Working the building related:
+        def run_nd(self):
+            """This method is ran for buildings during next day
+            - Gets list of workable businesses and available workers
+            - Creates SimPy Environment
+            """
+            tl.start("{}.run_nd (SimPy/Clients, etc.)".format(self.name))
+            # Setup and start the simulation
+            self.flag_red = False
+
+            temp = "{} General Report:".format(self.name)
+            self.log("{}".format(set_font_color(temp, "lawngreen")))
+            self.log("")
+
+            # Get businesses we wish SimPy to manage! business_manager method is expected here.
+            self.nd_ups = list(up for up in self._businesses if up.workable)
+
+            if self.expects_clients:
+                self.all_workers = self.get_workers()
+
+                # All workers and workable businesses:
+                # This basically roots out Resting/None chars!
+                self.available_workers = list(c for c in self.all_workers if
+                                              c.action in self.jobs)
+                for w in self.all_workers:
+                    convert_ap_to_jp(w)
+                    # And AEQ
+                    if isinstance(w.action, Job):
+                        w.action.auto_equip(w)
+
+                client_businesses = list(up for up in self._businesses if up.expects_clients)
+
+                # Clients:
+                tl.start("Generating clients in {}".format(self.name))
+                self.get_client_count(write_to_nd=True)
+
+                # Note (Beta): currently all clients are regulars
+                # remove maximum of 100 clients at a time (better perfomance, closer to RL)
+                if self.clients_regen_day <= day:
+                    clients = list(self.all_clients)
+                    num = len(clients)
+                    to_remove = min(num/2, 100)
+                    idx = randint(0, num-to_remove)
+                    self.all_clients = set(clients[0:idx]+clients[idx+to_remove:num])
+                    # TODO make the remaining clients regulars?!
+                    self.clients_regen_day = day + randint(2, 4)
+                c0 = self.expects_clients and self.available_workers
+                clnts = self.total_clients - len(self.all_clients)
+
+                if c0 and clnts > 0:
+                    for i in xrange(clnts):
+                        client = self.create_customer(likes=[choice(client_businesses)])
+                        self.all_clients.add(client)
+                self.clients = self.all_clients.copy()
+
+                tl.end("Generating clients in {}".format(self.name))
+
+            if self.nd_ups or self.expects_clients:
+                # Building Stats:
+                self.log("")
+                self.log("Reputation: {}%".format(self.rep_percentage))
+                self.log("Fame: {}%".format(self.fame_percentage))
+                self.log("Dirt: {}%".format(self.get_dirt_percentage()[0]))
+                self.log("Threat: {}%".format(self.get_threat_percentage()))
+
+                self.log("")
+                if self.manager:
+                    self.log("This building is managed by {} at {}% effectiveness!".format(
+                                self.manager.name, self.manager_effectiveness
+                    ))
+                else:
+                    self.log("This building has no manager assigned to it.")
+                self.log("")
+
+                self.log("{}".format(set_font_color("Starting the workday:", "lawngreen")))
+                # Create an environment and start the setup process:
+                self.env = simpy.Environment()
+                for up in self._businesses:
+                    up.pre_nd()
+
+                # We run till 110 DU and should attempt to stop all businesses at 100.
+                proc = self.env.process(self.building_manager(end=111))
+
+                self.env.run(until=proc)
+                self.log("{}".format(set_font_color("Ending the workday.", "green")))
+
+                # Building Stats:
+                self.log("Reputation: {}%".format(self.rep_percentage))
+                self.log("Fame: {}%".format(self.fame_percentage))
+                self.log("Dirt: {}%".format(self.get_dirt_percentage()[0]))
+                self.log("Threat: {}%".format(self.get_threat_percentage()))
+
+                # We can run it for a bit more, as matrons option!?!
+                # self.env.run(until=110)
+                # self.log("{}".format(set_font_color("Ending the second stage of simulation:", "red")))
+                income = self.fin.get_logical_income()
+                if income > 0:
+                    self.log("\nA total of {} Gold was earned here today!".format(set_font_color(str(income), "lawngreen")))
+                elif income < 0:
+                    self.log("\nA total of {} Gold was earned here today!".format(set_font_color(str(income), "red")))
+                self.log("{}".format(set_font_color("===================", "lawngreen")))
+                self.log("")
+            else:
+                self.log(set_font_color("===================", "lawngreen"))
+                self.log("This is a residential building. Nothing much happened here today.")
+
+            self.post_nd_reset()
+            tl.end("{}.run_nd (SimPy/Clients, etc.)".format(self.name))
+
+        def building_manager(self, end):
+            """This is the main process that manages everything that is happening in the building!
+            """
+            env = self.env
+
+            # Run the manager process:
+            if self.manager:
+                init_jp = self.manager.jobpoints
+                building.mlog = NDEvent(job=simple_jobs["Manager"], char=self.manager, loc=self)
+                env.process(manager_process(env, self))
+
+            for u in self.nd_ups:
+                # Trigger all public businesses:
+                if not u.active: # business is not active:
+                    env.process(self.inactive_process())
+                else: # Business as usual:
+                    env.process(u.business_control())
+
+                if u.has_workers():
+                    u.is_running = True
+
+            if self.expects_clients and self.total_clients:
+                env.process(self.clients_dispatcher(end=end-10))
+
+            for u in self._upgrades:
+                if isinstance(u, Garden):
+                    has_garden = True
+                    break
+            else:
+                has_garden = False
+
+            while (1):
+                temp = "\n{color=[green]}%d =========>>>{/color}" % (env.now)
+                self.log(temp)
+                yield env.timeout(1)
+                simpy_debug("%s DU Executing =====================>>>", env.now)
+
+                # Delete the line if nothing happened on this turn:
+                if self.nd_events_report[-1] == temp:
+                    del self.nd_events_report[-1]
+
+                if env.now >= end:
+                    break
+                if not env.now % 25:
+                    self.moddirt(5) # 5 dirt each 25 turns even if nothing is happening.
+                    self.modthreat(self.threat_mod)
+
+                    if has_garden and dice(25):
+                        for w in self.all_workers:
+                            w.joy += 1
+
+            # post-process of the manager
+            if self.manager:
+                log = self.mlog
+                manager = self.manager
+                points_used = init_jp - manager.jobpoints
+
+                # Handle stats:
+                if points_used > 0:
+                    if points_used > 100:
+                        log.logws("management", randint(1, 2))
+                        log.logws("intelligence", randrange(2))
+                        log.logws("refinement", 1)
+                        log.logws("character", 1)
+ 
+                    ap_used = (points_used)/100.0
+                    log.logws("exp", exp_reward(manager, self.tier, ap_used=ap_used))
+
+                # finalize the log:
+                log.img = manager.show("profile", resize=ND_IMAGE_SIZE, add_mood=True)
+                log.type = "manager_report"
+                log.after_job()
+
+                NextDayEvents.append(log)
+                self.mlog = None
+
+        def clients_dispatcher(self, end):
+            """This method provides stream of clients to the building following it's own algorithm.
+
+            We want 50% of all clients to come in the 'rush hour' (turn 50 - 80).
+            """
+            expected = self.total_clients
+            running = 0
+
+            for u in self._upgrades:
+                if isinstance(u, Garden):
+                    has_garden = True
+                    break
+            else:
+                has_garden = False
+
+            # We do not want to add clients at the last 5 - 10 turns...
+            # So we use 90 as base.
+            normal_step = self.total_clients*.5/60
+            rush_hour_step = self.total_clients*.5/30
+
+            while (1):
+                simpy_debug("Entering PublicBusiness(%s).client_dispatcher iteration at %s", self.name, self.env.now)
+
+                if self.env.now >= end:
+                    break
+                if 50 <= self.env.now <= 80:
+                    running += rush_hour_step
+                else:
+                    running += normal_step
+
+                if running >= 1:
+                    add_clients = round_int(running)
+                    running -= add_clients
+
+                    for i in range(add_clients):
+                        if expected == 0 or not self.clients:
+                            expected = 0
+                            break
+                        expected -= 1
+                        client = self.clients.pop()
+                        self.env.process(self.client_manager(client, has_garden=has_garden))
+                    if expected == 0:
+                        break
+
+                if DSNBR:
+                    devlog.info("Client Distribution running: {}".format(running))
+                simpy_debug("Exiting PublicBusiness(%s).client_dispatcher iteration at %s", self.name, self.env.now)
+                yield self.env.timeout(1)
+
+        def client_manager(self, client, has_garden=False):
+            """Manages a client using SimPy.
+
+            - Picks a business
+            - Tries other businesses if the original choice fails
+            - Kicks the client if all fails
+
+            So this basically sends the client into the businesses within this building or keeps them waiting/rotating.
+            Once in, client is handled and managed by the Business itself until control is returned here!
+            Once this method is terminated, client has completely left the building!
+            """
+            # Register the fact that client arrived at the building:
+            temp = '{} arrives at the {}.'.format(
+                        set_font_color(client.name, "beige"), self.name)
+            self.log(temp, True)
+
+            if self.dirt >= 800:
+                yield self.env.timeout(1)
+                temp = "Your building is as clean a pig stall. {} storms right out.".format(client.name)
+                self.log(temp)
+                self.env.exit()
+            if self.threat >= 800:
+                yield self.env.timeout(1)
+                temp = "Your building is as safe as a warzone. {} ran away.".format(client.name)
+                self.log(temp)
+                self.env.exit()
+
+            # Client threat mod:
+            if "Aggressive" in client.traits:
+                self.modthreat(2 if has_garden else 3)
+
+            # Visit counter:
+            client.up_counter("visited_building" + str(self.id))
+
+            # Prepare data:
+            businesses = [b for b in self.nd_ups if b.expects_clients]
+            shuffle(businesses)
+
+            fav_business = client.likes.intersection(self._businesses)
+
+            # Case where clients fav business was removed from the building, client to react appropriately.
+            if not fav_business:
+                self.all_clients.remove(client)
+                temp = "{}: {} storms out of the building pissed off as his favorite business was removed!".format(
+                                        self.env.now, set_font_color(client.name, "beige"))
+                self.log(temp)
+                self.env.exit()
+            else:
+                fav_business = fav_business.pop()
+
+            visited = 0 # Amount of businesses client has successfully visited.
+            while businesses:
+                # Here we pick an upgrade if a client has one in preferences:
+                if not visited and fav_business in businesses:
+                    # On the first run we'd want to pick the clients fav.
+                    business = fav_business
+                    businesses.remove(business)
+                else:
+                    business = businesses.pop()
+
+                # Manager active effect:
+                # Wait for the business to open in case of a favorite:
+                if self.manager and self.asks_clients_to_wait and all([
+                        self.manager.jobpoints >= 1,
+                        (business == fav_business),
+                        (business.res.count >= business.capacity),
+                        self.env.now < 85]):
+                    wait_till = min(self.env.now + 7, 85)
+                    temp = "Your manager convinced {} to wait till {} for a slot in {} favorite {} to open up!".format(
+                                    set_font_color(client.name, "beige"), wait_till, client.op, fav_business.name)
+                    self.log(temp)
+
+                    self.mlog.append("\nAsked a client to wait for a spot in {} to open up!".format(fav_business.name))
+
+                    self.manager.jobpoints -= 1
+                    while (wait_till < self.env.now) and (business.res.count < business.capacity):
+                        yield self.env.timeout(1)
+
+                if business.type == "personal_service" and business.res.count < business.capacity:
+                    # Personal Service (Brothel-like):
+                    job = business.job
+                    workers = business.get_workers(job, amount=1, match_to_client=client)
+
+                    if not workers:
+                        continue # Send to the next update.
+                    else:
+                        # We presently work just with the one char only, so:
+                        worker = workers.pop()
+                        if worker in self.available_workers:
+                            self.available_workers.remove(worker)
+
+                        # We bind the process to a flag and wait until it is interrupted:
+                        visited += 1
+                        self.env.process(business.request_resource(client, worker))
+                        client.set_flag("jobs_busy")
+                        while client.flag("jobs_busy"):
+                            yield self.env.timeout(1)
+                # Jobs like the Club:
+                elif business.type == "public_service" and business.res.count < business.capacity:
+                    self.env.process(business.client_control(client))
+                    visited += 1
+                    client.set_flag("jobs_busy")
+                    while client.flag("jobs_busy"):
+                        yield self.env.timeout(1)
+
+            if not visited:
+                temp = "There is not much for the {} to do...".format(set_font_color(client.name, "beige"))
+                self.log(temp)
+                temp = "So {} leaves your establishment cursing...".format(set_font_color(client.name, "beige"))
+                self.log(temp)
+                self.env.exit()
+            else:
+                temp = '{} is leaving after visiting {} business(es).'.format(set_font_color(client.name, "beige"), visited)
+                self.log(temp)
+
+        def nd_log_stats(self):
+            # Get a list of stats, usually all 4.
+            new_stats = OrderedDict()
+            stats = ["dirt", "threat"]
+            if self.maxdirt != 0:
+                stats.append("dirt")
+            if self.maxthreat != 0:
+                stats.append("threat")
+            if self.maxfame != 0:
+                stats.append("fame")
+            if self.maxrep != 0:
+                stats.append("rep")
+            stats_log = self.stats_log
+            for stat in stats:
+                val = getattr(self, stat)
+                new_stats[stat] = val
+                # Do not run the very first time:
+                if stats_log:
+                    stats_log[stat] = val - stats_log[stat]
+
+            self.stats_log = new_stats
+            return stats_log
+
+        def post_nd_reset(self):
+            self.env = None
+            self.nd_ups = list()
+
+            for _ in self._businesses:
+                _.post_nd_reset()
+
+            for c in self.all_clients:
+                for f in c.flags.keys():
+                    if f.startswith("jobs"):
+                        c.del_flag(f)
 
         def next_day(self):
             """
@@ -277,6 +1180,14 @@ init -9 python:
 
             self.nd_events_report = list()
             self.logged_clients = False
+
+        def log(self, item, add_time=False):
+            # Logs the item (text) to the Building log...
+            # if add_time and self.env:
+            #     item = "{}: ".format(self.env.now) + item
+            self.nd_events_report.append(item)
+            if DSNBR:
+                devlog.info(item)
 
         def nd_log_income(self):
             """

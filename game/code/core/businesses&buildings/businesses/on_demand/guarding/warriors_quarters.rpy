@@ -95,7 +95,7 @@ init -5 python:
                     else:
                         for w in workers.copy():
                             value = w.flag(power_flag_name)
-                            building.threat += value
+                            building.modthreat(value)
 
                             threat_cleared += value
                             defenders.add(w)
@@ -305,8 +305,8 @@ init -5 python:
                 temp += "\n  +{} Dirt and +{} Threat!".format(dirt, threat)
                 self.log(temp)
 
-                building.dirt += dirt
-                building.threat += threat
+                building.moddirt(dirt)
+                building.modthreat(threat)
 
                 self.env.exit(False)
             else:
@@ -374,16 +374,16 @@ init -5 python:
                 temp = set_font_color(temp, "lawngreen")
                 # temp = temp + set_font_color("....", "crimson")
                 self.log(temp)
-                building.threat -= 200
-                building.dirt += 35*enemies
+                building.modthreat(-200)
+                building.moddirt(35*enemies)
                 # self.env.exit(True) # return True
             else:
                 temp = "Interception Failed, your Guards have been defeated!"
                 temp = set_font_color(temp, "crimson")
                 # temp = temp + set_font_color("....", "crimson")
                 self.log(temp)
-                building.threat += 100
-                building.dirt += 60*enemies
+                building.modthreat(100)
+                building.moddirt(60*enemies)
                 # self.env.exit(False)
 
             simpy_debug("Exiting WarriorQuarters.intercept at %s", self.env.now)

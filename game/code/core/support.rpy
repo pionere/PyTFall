@@ -261,7 +261,7 @@ init -9 python:
                 char.up_counter("days_in_game")
                 char.log_stats()
 
-            businesses = [b for b in hero.buildings if isinstance(b, UpgradableBuilding)]
+            businesses = [b for b in hero.buildings if isinstance(b, Building)]
             for b in businesses:
                 b.nd_log_income()
 

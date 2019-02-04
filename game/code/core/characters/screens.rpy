@@ -30,7 +30,7 @@ screen set_action_dropdown(char, pos=()):
                 action [Function(stop_course, char),
                         Hide("set_action_dropdown"), With(Dissolve(0.1))]
                 tooltip "Call your girl back from the Academy to do something useful in one of your businesses."
-        elif isinstance(char.workplace, UpgradableBuilding):
+        elif isinstance(char.workplace, Building):
             $ jobs = char.workplace.get_valid_jobs(char)
             if char != hero: # Rest is not really useful for MC, which player controls.
                 $ jobs.append(simple_jobs["Rest"])
@@ -65,7 +65,7 @@ screen set_workplace_dropdown(char, pos=()):
     python:
         workable_buildings = []
         for b in hero.buildings:
-            if isinstance(b, UpgradableBuilding) and b.workable:
+            if isinstance(b, Building) and b.workable:
                 workable_buildings.append(b)
 
     frame:

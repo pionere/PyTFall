@@ -175,22 +175,22 @@ screen realtor_agency():
                                             xysize 380, 24
                                             text "Exterior Space:" yalign .5
                                             label (u"{color=[ivory]}%s/%s" % (focus.ex_slots, focus.ex_slots_max)) align 1.0, .5
-                                    if isinstance(focus, FamousBuilding):
-                                        frame:
-                                            xysize 380, 24
-                                            text "Fame:" yalign .5
-                                            label (u"%s/%s" % (focus.fame, focus.maxfame)) align 1.0, .5
-                                        frame:
-                                            xysize 380, 24
-                                            text "Reputation:" yalign .5
-                                            label (u"%s/%s" % (focus.rep, focus.maxrep)) align 1.0, .5
-                                    if isinstance(focus, Building):
+                                        if focus.maxfame != 0:
+                                            frame:
+                                                xysize 380, 24
+                                                text "Fame:" yalign .5
+                                                label (u"%s/%s" % (focus.fame, focus.maxfame)) align 1.0, .5
+                                        if focus.maxrep != 0:
+                                            frame:
+                                                xysize 380, 24
+                                                text "Reputation:" yalign .5
+                                                label (u"%s/%s" % (focus.rep, focus.maxrep)) align 1.0, .5
                                         frame:
                                             xysize 380, 24
                                             text "Level:" yalign .5
                                             label (u"%s" % (focus.tier)) align (1.0, .5)
 
-                        if isinstance(focus, UpgradableBuilding):
+                        if isinstance(focus, Building):
                             null height 10
 
                             hbox:
