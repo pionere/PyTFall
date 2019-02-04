@@ -32,20 +32,17 @@ init -11 python:
                 msg.append("\n {} became pretty close to you.".format(char.nickname))
 
     def retire_chars_from_location(chars, loc):
-        if isinstance(chars, PytCharacter):
-            chars = [chars]
-
         for c in chars:
             if c.home == loc:
                 if c.status == "slave":
-                    c.home = locations["Streets"]
+                    c.home = hero.home
                 else: # Weird case for free chars...
                     c.home = location["City Apartments"]
             if c.workplace == loc:
                 c.action = None
                 c.workplace = None
             if c.location == loc:
-                set_location(c, c.home)
+                set_location(c, None)
 
     def check_stat_perc(char, stat, value, dir="lower"):
         """Checks if stat/skill is higher/lower (or eq) than given percentage of the max.
@@ -162,9 +159,8 @@ init -11 python:
         if "Undead" in char.traits:
             char.health = 1
             return
-        atfer_life = locations["After Life"]
-        char.home = atfer_life
-        set_location(char, atfer_life)
+        char.home = pytfall.afterlife
+        char.location = None
         char.action = None
         char.workplace = None
         char.alive = False
@@ -381,11 +377,11 @@ init -11 python:
         # Locations:
         if set_locations:
             if rg.status == "slave":
-                rg.home = locations["PyTFall Slavemarket"]
-                set_location(rg, rg.home)
+                rg.home = pytfall.sm
+                set_location(rg, pytfall.sm)
             else:
-                rg.home = locations["City Apartments"]
-                set_location(rg, locations["City"])
+                rg.home = pytfall.city
+                set_location(rg, pytfall.city)
 
         # BASE TRAITS:
         selection = None

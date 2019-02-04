@@ -16,11 +16,12 @@ init -9 python:
             self.maps = OnScreenMap()
             self.economy = Economy()
 
-            # GUI
-            self.it = None  # Items Transfer
+            # locations
             self.sm = SlaveMarket()
-            # Also place in locations container!
-            store.locations[self.sm.id] = self.sm
+            self.ra = RunawayManager() 
+            self.city = HabitableLocation(id="City Apartments", daily_modifier=.2, rooms=float("inf"), desc="Girls apartments somewhere in the city")
+            self.streets = HabitableLocation(id="Streets", daily_modifier=-.1, rooms=float("inf"), desc="Cold and unneighborly city alleys")
+            self.afterlife = HabitableLocation(id="After Life", daily_modifier=.0, rooms=float("inf"), desc="No one knows where is this place and what's going on there")
 
             self.hp = GuiHeroProfile()
 
@@ -36,9 +37,6 @@ init -9 python:
 
             # Actions:
             self.world_actions = WorldActionsManager()
-
-            # Runaways:
-            self.ra = RunawayManager()
 
             # Random Chars distribution:
             self.rc_free_pop_distr = {"SIW": 30, "Specialist": 10,
@@ -186,7 +184,6 @@ init -9 python:
                     give_bt_items = status == "free"
 
                     build_rc(bt_group=bt_group,
-                             set_locations=True,
                              set_status=status,
                              tier=tier, tier_kwargs=None,
                              give_civilian_items=True,

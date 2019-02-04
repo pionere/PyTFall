@@ -706,7 +706,7 @@ init -9 python:
                     member.set_status("free")
                     member.arena_active = True
                     member.arena_permit = True
-                    member.home = locations["City Apartments"]
+                    member.home = pytfall.city
                     set_location(member, self)
                     member.action = "Arena Combat"
 
@@ -789,7 +789,7 @@ init -9 python:
 
                 char.arena_active = True
                 char.arena_permit = True
-                char.home = locations["City Apartments"]
+                char.home = pytfall.city
                 set_location(char, self)
                 char.action = "Arena Combat"
 
@@ -822,7 +822,7 @@ init -9 python:
 
                 fighter.arena_active = True
                 fighter.arena_permit = True
-                fighter.home = locations["City Apartments"]
+                fighter.home = pytfall.city
                 set_location(fighter, self)
                 fighter.action = "Arena Combat"
 

@@ -14,36 +14,6 @@ init python:
 
 init -20 python:
     # Core Logic:
-    # It does feel like actors container is reliable in this context.
-    def change_location(actor, loc):
-        """
-        All actors have (or should have) a location property.
-        This functions attempts to remove them from their present location and put them in a new one.
-        """
-        # should probably move to character class, so this can be done in PytGroup.change_location()
-        if isinstance(actor, PytGroup):
-            if loc == ".home":
-                for c in actor.lst:
-                    change_location(c, c.home)
-            else:
-                for c in actor.lst:
-                    change_location(c, loc)
-            return
-
-        if isinstance(actor.location, basestring):
-            # We still allow string location by design, but we may get rid of those one day as well.
-            if DEBUG_LOG:
-                devlog.warn("%s has a string location: %s"%(actor.name, actor.location))
-        # elif actor.location and hasattr(actor.location, "remove"):
-        #     try:
-        #         actor.location.remove(actor)
-        #     except KeyError, e:
-        #         devlog.warn("%s is not in %s (but has it as its location)"%(actor.name, str(actor.location)))
-
-        actor.location = loc
-        # if isinstance(loc, Location):
-        #     loc.add(actor)
-
     def set_location(actor, loc):
         """This plainly forces a location on an actor.
         """

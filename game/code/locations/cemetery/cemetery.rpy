@@ -40,7 +40,7 @@ label graveyard_town:
                 jump city
 
 label show_dead_list:
-    $ dead_list = list(locations["After Life"].inhabitants) # list of dead characters
+    $ dead_list = list(pytfall.afterlife.inhabitants) # list of dead characters
     if dead_list:
         $ random.shuffle(dead_list) # randomizing list every time the screen opens
         show screen cemetry_list_of_dead_chars (dead_list, number)

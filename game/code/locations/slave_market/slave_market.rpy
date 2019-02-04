@@ -119,7 +119,8 @@ label slavel_market_controls:
                 $ hero.AP -= 1
                 $ hero.add_char(char)
                 $ char.action = char.workplace = None
-                $ char.home = locations["Streets"]
+                $ char.home = pytfall.streets
+                $ char.set_location(char, None)
                 $ pytfall.sm.chars_list.remove(char)
 
                 if pytfall.sm.chars_list:
@@ -218,7 +219,8 @@ label sm_free_slaves:
                     $ our_char.disposition += randint(400, 500)
                     $ our_char.status = "free"
                     $ our_char.autobuy = True
-                    $ our_char.home = locations["City Apartments"]
+                    $ our_char.home = pytfall.city
+                    $ set_location(our_char, pytfall.city)
                     # We give about a third of cash to the girl. Idea is that the rest goes to pay
                     # for a place to live and covering basic needs.
                     $ our_char.add_money(round_int((cost-1000)/3), "Freedom Fee")

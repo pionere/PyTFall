@@ -90,7 +90,7 @@ init -9 python:
             self.index = (self.index-1) % len(self.chars_list)
             self.worker = self.chars_list[self.index]
 
-        def remove_prisoner(self, char, set_location=True):
+        def remove_prisoner(self, char, update_location=True):
             """
             Returns an actor to the player.
             char = The char to return.
@@ -107,12 +107,9 @@ init -9 python:
                     self.index = 0
                     self.worker = None
 
-                if set_location:
-                    # if schools[TrainingDungeon.NAME] in hero.buildings:
-                        # char.location = schools[TrainingDungeon.NAME]
-                        # char.home = schools[TrainingDungeon.NAME]
-                    # else:
-                    char.home = locations["Streets"]
+                if update_location:
+                    char.home = pytfall.streets
+                    set_location(char, None)
                     char.action = None
                     char.workplace = None
 
@@ -140,7 +137,7 @@ init -9 python:
                     renpy.play("content/sfx/sound/world/purchase_1.ogg")
                 hero.add_money(1500 - self.get_fees4captured(girl), "SlaveTrade")
                 self.remove_prisoner(girl)
-                girl.location = pytfall.sm
+                set_location(girl, pytfall.sm)
                 girl.home = pytfall.sm
                 girl.action = None
             else:
@@ -185,7 +182,7 @@ init -9 python:
                     elif direction == "Blue":
                         if hero.take_money(2000, reason="Blue's Fees"):
                             pytfall.sm.blue_girls[self.worker] = 0
-                            self.remove_prisoner(self.worker, set_location=False)
+                            self.remove_prisoner(self.worker, update_location=False)
                         else:
                             hero.add_money(self.get_fees4captured(), reason="Jail Fees")
                             renpy.call_screen('message_screen', "You don't have enough money for upfront payment for Blue's services!")
@@ -204,9 +201,9 @@ init -9 python:
         """
         WORKER_RULES = ["strict", "normal", "loose"]
         WORKER_RULES_DESC = {
-        "strict": "Workers will only preform jobs that are the exact match to the action you're assigned them!",
-        "normal": "Workers may choose to do a job that directly matches to their class if they are not busy otherwise!",
-        "loose": "Workers may choose to do a job that is at least loosely matches to their class if they are not busy otherwise! (for example a Stripper doing a Whore Job)"
+            "strict": "Workers will only preform jobs that are the exact match to the action you're assigned them!",
+            "normal": "Workers may choose to do a job that directly matches to their class if they are not busy otherwise!",
+            "loose": "Workers may choose to do a job that is at least loosely matches to their class if they are not busy otherwise! (for example a Stripper doing a Whore Job)"
         }
 
         DIRT_STATES = ("Immaculate", "Sterile", "Spotless", "Clean", "Tidy",

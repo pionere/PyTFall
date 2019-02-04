@@ -98,7 +98,7 @@ label char_profile:
                                 if char.status == "slave":
                                     set_location(char, pytfall.sm)
                                 else:
-                                    set_location(char, store.locations["City"])
+                                    set_location(char, pytfall.city)
 
                             if girls:
                                 $ change_char_in_profile("next")
@@ -145,7 +145,7 @@ label char_profile:
                                     char.home = pytfall.sm
                                     char.action = None
                                     char.workplace = None
-                                    set_location(char, char.home)
+                                    set_location(char, pytfall.sm)
                             else:
                                 if char.disposition >= 500:
                                     $ block_say = True
@@ -158,10 +158,10 @@ label char_profile:
 
                                 python:
                                     char.disposition -= 400
-                                    char.home = locations["City Apartments"]
+                                    char.home = pytfall.city
                                     char.action = None
                                     char.workplace = None
-                                    set_location(char, locations["City"])
+                                    set_location(char, pytfall.city)
 
                             python:
                                 hero.remove_char(char)

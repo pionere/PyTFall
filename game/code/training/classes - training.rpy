@@ -51,7 +51,7 @@ init -9 python:
             if girl not in self:
                 self.girls[girl] = 0
                 girl.action = RunawayManager.ACTION
-                girl.location = RunawayManager.LOCATION
+                set_location(girl, RunawayManager.LOCATION)
                 for team in hero.teams:
                     if girl in team:
                         team.remove(girl)
@@ -602,11 +602,12 @@ init -9 python:
                         self.girl = None
 
                 girl.action = None
-
-                # if schools[TrainingDungeon.NAME] in hero.buildings:
-                    # girl.location = schools[TrainingDungeon.NAME]
-                # else:
-                girl.location = hero
+                if girl.status == "slave":
+                    girl.home = hero.home
+                    set_location(girl, None)
+                else:
+                    girl.home = pytfall.city
+                    set_location(girl, pytfall.city)
 
         def set_girl(self, girl):
             """

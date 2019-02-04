@@ -106,12 +106,12 @@ label building_management:
                                          message="Are you sure you wish to sell %s for %d Gold?" % (bm_building.name, price),
                                          yes_action=Return(True), no_action=Return(False)):
                         if hero.home == bm_building:
-                            hero.home = locations["Streets"]
+                            hero.home = pytfall.streets
                         if hero.workplace == bm_building:
                             hero.action = None
                             hero.workplace = None
                         if hero.location == bm_building:
-                            set_location(hero, hero.home)
+                            set_location(hero, None)
 
                         retire_chars_from_location(hero.chars, bm_building)
 

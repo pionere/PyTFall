@@ -2019,7 +2019,7 @@ init -9 python:
             self.name = 'Player'
             self.fullname = 'Player'
             self.nickname = 'Player'
-            self._location = locations["Streets"]
+            self.location = pytfall.streets
             self.status = "free"
             self.gender = "male"
 
@@ -2239,7 +2239,7 @@ init -9 python:
                     if isinstance(confiscate, Building):
                         price = confiscate.get_price()
                         if self.home == confiscate:
-                            self.home = locations["Streets"]
+                            self.home = pytfall.streets
                         if self.location == confiscate:
                             set_location(self, None)
                         self.remove_building(confiscate)
@@ -2251,7 +2251,7 @@ init -9 python:
                         confiscate.home = pytfall.sm
                         confiscate.workplace = None
                         confiscate.action = None
-                        set_location(confiscate, char.home)
+                        set_location(confiscate, pytfall.sm)
 
                     temp = choice(["\n{} has been confiscated for a price of {}% of the original value. ".format(
                                                                                     confiscate.name, multiplier*100),
@@ -2408,7 +2408,7 @@ init -9 python:
             if self.location == "slavemarket":
                 set_location(self, pytfall.sm)
             if self.location == "city":
-                set_location(self, store.locations["City"])
+                set_location(self, pytfall.city)
 
             # Make sure all slaves that were not supplied custom locations string, find themselves in the SM
             if self.status == "slave" and (str(self.location) == "City" or not self.location):
@@ -2416,14 +2416,13 @@ init -9 python:
 
             # if character.location == existing location, then she only can be found in this location
             if self.status == "free" and self.location == pytfall.sm:
-                set_location(self, store.locations["City"])
+                set_location(self, pytfall.city)
 
             # Home settings:
-            if self.location == pytfall.sm:
-                self.home = pytfall.sm
             if self.status == "free":
-                if not self.home:
-                    self.home = locations["City Apartments"]
+                self.home = pytfall.city
+            else:
+                self.home = pytfall.sm
 
             # Wagemod + auto-buy + auto-equip:
             if self.status == 'free':
@@ -2514,7 +2513,7 @@ init -9 python:
             # Update upkeep, should always be a saf thing to do.
             self.fin.calc_upkeep()
 
-            if self in pytfall.ra:
+            if self.location == RunawayManager.LOCATION:
                 # If escaped:
                 self.health = max(1, self.health - randint(3, 5))
                 txt.append("{color=[red]}This worker has escaped! Assign guards to search for %s or do so yourself.{/color}" % self.pp)
@@ -2564,7 +2563,7 @@ init -9 python:
                             else:
                                 self.disposition -= 100
                                 self.joy -= 20
-                                self.home = locations["City Apartments"]
+                                self.home = pytfall.city
                                 temp += " After a rough fight %s moves out of your aparment." % self.name
                     txt.append(temp)
 
@@ -2723,20 +2722,20 @@ init -9 python:
                 self.txt.append("{color=[red]}%s has left your employment because you do not give a rats ass about how %s feels!{/color}" % (self.pC, self.p))
                 flag_red = True
                 hero.remove_char(self)
-                self.home = locations["City Apartments"]
+                self.home = pytfall.city
                 self.action = None
                 self.workplace = None
-                set_location(self, locations["City"])
+                set_location(self, pytfall.city)
             elif self.disposition < -500:
                 if self.status != "slave":
                     self.txt.append("{color=[red]}%s has left your employment because %s no longer trusts or respects you!{/color}" % (self.pC, self.pp))
                     flag_red = True
                     img = self.show("profile", "sad", resize=size)
                     hero.remove_char(self)
-                    self.home = locations["City Apartments"]
+                    self.home = pytfall.city
                     self.action = None
                     self.workplace = None
-                    set_location(self, locations["City"])
+                    set_location(self, pytfall.city)
                 elif self.days_unhappy > 7:
                     img = self.show("profile", "sad", resize=size)
                     flag_red = True

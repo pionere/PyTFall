@@ -248,7 +248,7 @@ label char_equip_finish:
 
         # eqtarget.inventory.female_filter = False
         # hero.inventory.female_filter = False
-        if eqtarget.location == locations["After Life"]:
+        if eqtarget.location == pytfall.afterlife:
             renpy.show_screen("message_screen", "{} dies as a result of item manipulations...".format(eqtarget.fullname))
             eqtarget = None
             came_to_equip_from = None

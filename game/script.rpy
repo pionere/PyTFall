@@ -59,20 +59,6 @@ label start:
         menu_extensions["Xeona Main"] = []
         tl.end("Loading: Menu Extensions")
 
-    python hide: # Base locations:
-        # Create locations:
-        loc = HabitableLocation(id="Streets", daily_modifier=-.1, rooms=float("inf"), desc="Cold and unneighborly city alleys")
-        locations[loc.id] = loc
-
-        loc = HabitableLocation(id="City Apartments", daily_modifier=.2, rooms=float("inf"), desc="Girls apartments somewhere in the city")
-        locations[loc.id] = loc
-
-        loc = Location(id="City")
-        locations[loc.id] = loc
-
-        loc = HabitableLocation(id="After Life", daily_modifier=.0, rooms=float("inf"), desc="No one knows where is this place and what's going on there")
-        locations[loc.id] = loc
-
     python: # Traits:
         # Load all game elements:
         tl.start("Loading/Sorting: Traits")
@@ -755,6 +741,21 @@ label after_load:
         for obj in pytfall.__dict__.values():
             if isinstance(obj, ItemShop) and not hasattr(obj, "total_items_price"):
                 obj.total_items_price = 0
+
+        if hasattr(pytfall, "it"):
+            del pytfall.it
+        if not hasattr(pytfall, "city"):
+            pytfall.city = locations["City Apartments"]
+            pytfall.streets = locations["Streets"]
+            pytfall.afterlife = locations["After Life"]
+
+            city = locations["City"]
+            if hero.location == city:
+                hero.location = pytfall.city
+            for c in chars.values():
+                if c.location == city:
+                    c.location = pytfall.city
+
 
     python hide:
         for d in pytfall.world_actions.nest:
