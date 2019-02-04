@@ -91,14 +91,4 @@ init -20 python:
         Basically, a habitable location where one can store 'stuff'
         Also has a number of extra properties.
         """
-        def __init__(self, **kwargs):
-            super(InvLocation, self).__init__()
-            # Once again, for the Items transfer:
-            self.status = "slave"
-            self.given_items = dict()
-            self.inventory = Inventory(15)
-
-        # Mimicking the show method expected from character classes for items transfer:
-        def show(self, *tags, **kwargs):
-            size = kwargs.get("resize", (205, 205))
-            return ProportionalScale(self.img, size[0], size[1])
+        pass # obsolete

@@ -2060,14 +2060,14 @@ init -9 python:
             """
             The buildings that can be cleaned.
             """
-            return [building for building in self.buildings if isinstance(building, Building)]
+            return [building for building in self.buildings if building.maxdirt != 0]
 
         @property
         def upgradable_buildings(self):
             """
             The buildings that can be upgraded.
             """
-            return [b for b in self.buildings if isinstance(b, Building)]
+            return [b for b in self.buildings if len(b.all_possible_extensions()) != 0]
 
         def add_building(self, building):
             if building not in self._buildings:
@@ -2081,13 +2081,10 @@ init -9 python:
             rest = []
 
             for b in self._buildings:
-                if isinstance(b, Building):
-                    if b.workable:
-                        workable.append(b)
-                    elif b.habitable and not b.workable:
-                        habitable.append(b)
-                    else:
-                        rest.append(b)
+                if b.workable:
+                    workable.append(b)
+                elif b.habitable and not b.workable:
+                    habitable.append(b)
                 else:
                     rest.append(b)
 

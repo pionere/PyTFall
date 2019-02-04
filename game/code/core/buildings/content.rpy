@@ -216,6 +216,9 @@ init -9 python:
             """
             super(Building, self).__init__()
 
+            self.tier = 0
+            self.rooms = 0
+
             self._upgrades = list()
             self.allowed_upgrades = []
             self._businesses = list()
@@ -229,9 +232,13 @@ init -9 python:
 
             # And new style upgrades:
             self.in_slots = 0 # Interior Slots
-            self.in_slots_max = 100
+            self.in_slots_max = 0
             self.ex_slots = 0 # Exterior Slots
-            self.ex_slots_max = 100
+            self.ex_slots_max = 0
+
+            # Optional inventory - initialized later
+            #self.given_items = dict()
+            #self.inventory = Inventory(15)
 
             # Clients:
             self.all_clients = set() # All clients of this building are maintained here.
@@ -313,6 +320,15 @@ init -9 python:
                     self.threat_mod = -1
                 else:
                     devlog.warn("{} Building with an unknown location detected!".format(self.name))
+
+            if hasattr(self, "inventory"):
+                if bool(self.inventory):
+                    self.inventory = Inventory(15)
+                    self.given_items = dict()
+                    # Once again, for the Items transfer:
+                    self.status = "slave"
+                else:
+                    del self.inventory
 
         def normalize_jobs(self):
             jobs = set()
@@ -489,7 +505,7 @@ init -9 python:
         @property
         def habitable(self):
             # Overloads property of Location core class to serve the building.
-            return any(i.habitable for i in self._businesses)
+            return self.rooms != 0 or any(i.habitable for i in self._businesses)
 
         @property
         def workable(self):
@@ -499,25 +515,22 @@ init -9 python:
 
         @property
         def vacancies(self):
-            rooms = self.habitable_capacity - len(self.inhabitants)
-            if rooms < 0:
-                rooms = 0
-            return rooms
+            return self.habitable_capacity - len(self.inhabitants)
 
         @property
         def workable_capacity(self):
             capacity = 0
-            workable = [i for i in self._businesses if i.workable]
-            if workable:
-                capacity = sum([i.capacity for i in workable])
+            for i in self._businesses:
+                if i.workable:
+                    capacity += i.capacity
             return capacity
 
         @property
         def habitable_capacity(self):
-            capacity = 0
-            habitable = [i for i in self._businesses if i.habitable]
-            if habitable:
-                capacity = sum([i.capacity for i in habitable])
+            capacity = self.rooms
+            for i in self._businesses:
+                if i.habitable:
+                    capacity += i.capacity
             return capacity
 
         @property
@@ -526,6 +539,11 @@ init -9 python:
             return self.workable_capacity + self.habitable_capacity
 
         # Gui/Controls:
+        # Mimicking the show method expected from character classes for items transfer:
+        def show(self, *tags, **kwargs):
+            size = kwargs.get("resize", (205, 205))
+            return ProportionalScale(self.img, size[0], size[1])
+
         def toggle_workers_rule(self):
             index = self.WORKER_RULES.index(self.workers_rule)
             index = (index + 1) % len(self.WORKER_RULES)

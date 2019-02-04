@@ -629,7 +629,14 @@ label after_load:
         for b in itertools.chain(hero.buildings, businesses.values()):
             if isinstance(b, Building):
                 if not hasattr(b, "init_pep_talk"):
-                    ManagerData.__init__(b)
+                    b.init_pep_talk = True
+                    b.cheering_up = True
+                    b.asks_clients_to_wait = True
+                    b.help_ineffective_workers = True # Bad performance still may get a payout.
+                    b.works_other_jobs = False
+
+                    # TODO Before some major release that breaks saves, move manager and effectiveness fields here.
+                    b.mlog = None # Manager job log
                 if isinstance(b.auto_clean, bool):
                     val = 90 if b.auto_clean else 100
                     del b.auto_clean
@@ -655,6 +662,8 @@ label after_load:
                     del b.building_jobs
                 if hasattr(b, "worker_slots_max"):
                     del b.worker_slots_max
+                if not hasattr(b, "rooms"):
+                    b.rooms = 0
                 if not hasattr(b, "threat_mod"):
                     if b.location == "Flee Bottom":
                         b.threat_mod = 5
@@ -664,6 +673,41 @@ label after_load:
                         b.threat_mod = -1
                     else:
                         raise Exception("{} Building with an unknown location detected!".format(str(b)))
+            else:
+                nb = Building()
+                nb.init()
+                # copy attributes of b to nb
+                nb.id = b.id
+                nb.name = b.name
+                nb.desc = b.desc
+                nb.img = b.img
+                nb.tier = b.tier
+                nb.price = b.price
+                nb._habitable = b._habitable
+                nb.rooms = b.rooms
+                nb.inhabitants = b.inhabitants
+                nb._daily_modifier = b._daily_modifier
+                nb.location = b.location
+
+                nb.status = b.status
+                nb.given_items = b.given_items
+                nb.inventory = b.inventory
+
+                # previous defaults
+                nb.maxthreat = 0
+                nb.maxdirt = 0
+                nb.in_slots_max = 0
+                nb.out_slots_max = 0
+
+                if b in hero.buildings:
+                    hero.buildings[hero.buildings.index(b)] = nb
+                    if hero.home == b:
+                        hero.home = nb
+                    for c in hero.chars:
+                        if c.home == b:
+                            c.home = nb
+                else:
+                    businesses[nb.id] = nb
 
         if "clearCharacters" in locals():
             for girl in itertools.chain(chars.values(), hero.chars, npcs.values()):

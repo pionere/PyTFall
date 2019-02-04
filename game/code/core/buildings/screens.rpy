@@ -239,7 +239,7 @@ init:
                 button:
                     xysize (135, 40)
                     action Show("building_adverts")
-                    sensitive hasattr(bm_building, "adverts")
+                    sensitive len(bm_building.adverts) != 0
                     tooltip 'Advertise this building to attract more and better customers'
                     text "Advertise"
                 $ bm_building_chars = bm_building.get_all_chars()
@@ -258,9 +258,9 @@ init:
                 spacing 5
                 button:
                     xysize (135, 40)
-                    action SetField(hero, "location", bm_building)
+                    action SetField(hero, "home", bm_building)
                     tooltip 'Settle in the building!'
-                    sensitive False # We prolly want better conditioning to use this!
+                    sensitive hero.home != bm_building and bm_building.vacancies > 0
                     text "Settle"
                 button:
                     xysize (135, 40)
@@ -275,7 +275,11 @@ init:
                     text "Sell"
 
         # Slots for New Style Buildings:
-        if isinstance(bm_building, Building):
+        $ c0 = bm_building.in_slots_max != 0
+        $ c1 = bm_building.ex_slots_max != 0 
+        $ c2 = bm_building.workable != 0
+        $ c3 = bm_building.habitable != 0 
+        if any([c0, c1, c2, c3]):
             frame:
                 xalign .5
                 style_prefix "proper_stats"
@@ -283,27 +287,31 @@ init:
                 padding 10, 10
                 has vbox xalign .5 spacing 2
 
-                frame:
-                    xysize (296, 27)
-                    text "Indoor Slots:" xalign .02 color ivory
-                    text "%d/%d" % (bm_building.in_slots, bm_building.in_slots_max) xalign .98 style_suffix "value_text"
-                frame:
-                    xysize (296, 27)
-                    text "Outdoor Slots:" xalign .02 color ivory
-                    text "%d/%d" % (bm_building.ex_slots, bm_building.ex_slots_max) xalign .98 style_suffix "value_text"
-                frame:
-                    xysize (296, 27)
-                    text "Workable Capacity:" xalign .02 color ivory
-                    text "[bm_building.workable_capacity]" xalign .98 style_suffix "value_text"
-                frame:
-                    xysize (296, 27)
-                    text "Habitable Capacity:" xalign .02 color ivory
-                    text "[bm_building.habitable_capacity]" xalign .98 style_suffix "value_text"
+                if c0:
+                    frame:
+                        xysize (296, 27)
+                        text "Indoor Slots:" xalign .02 color ivory
+                        text "%d/%d" % (bm_building.in_slots, bm_building.in_slots_max) xalign .98 style_suffix "value_text"
+                if c1:
+                    frame:
+                        xysize (296, 27)
+                        text "Outdoor Slots:" xalign .02 color ivory
+                        text "%d/%d" % (bm_building.ex_slots, bm_building.ex_slots_max) xalign .98 style_suffix "value_text"
+                if c2:
+                    frame:
+                        xysize (296, 27)
+                        text "Workable Capacity:" xalign .02 color ivory
+                        text "[bm_building.workable_capacity]" xalign .98 style_suffix "value_text"
+                if c3:
+                    frame:
+                        xysize (296, 27)
+                        text "Habitable Capacity:" xalign .02 color ivory
+                        text "[bm_building.vacancies]/[bm_building.habitable_capacity]" xalign .98 style_suffix "value_text"
 
             null height 20
 
         # Manager?
-        if hasattr(bm_building, "manager"):
+        if simple_jobs["Manager"] in bm_building.jobs:
             vbox:
                 xalign .5
                 frame:
@@ -370,7 +378,7 @@ init:
                 text "[bm_building.location]" xalign .98 style_suffix "value_text" yoffset 4
 
             # Dirt:
-            if hasattr(bm_building, "dirt"):
+            if bm_building.maxdirt != 0:
                 frame:
                     xysize (296, 27)
                     button:
@@ -382,7 +390,7 @@ init:
                         text "Dirt:" color brown hover_color green
                     text "%s (%s %%)" % (bm_building.get_dirt_percentage()[1], bm_building.get_dirt_percentage()[0]) xalign .98 style_suffix "value_text" yoffset 4
             # Threat
-            if hasattr(bm_building, "threat"):
+            if bm_building.maxthreat != 0:
                 frame:
                     xysize (296, 27)
                     button:
@@ -403,11 +411,12 @@ init:
                     text "%s" % (bm_building.tier) xalign .98 style_suffix "value_text" yoffset 4
 
             # Fame/Rep:
-            if hasattr(bm_building, "fame"):
+            if bm_building.maxfame != 0:
                 frame:
                     xysize (296, 27)
                     text "Fame:" xalign .02 color ivory
                     text "%s/%s" % (bm_building.fame, bm_building.maxfame) xalign .98 style_suffix "value_text" yoffset 4
+            if bm_building.maxrep != 0:
                 frame:
                     xysize (296, 27)
                     text "Reputation:" xalign .02 color ivory
@@ -417,7 +426,7 @@ init:
         frame:
             background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
             xysize (317, 480)
-            if isinstance(bm_building, Building):
+            if len(bm_building.all_extensions()) != 0:
                 frame:
                     align .5, .02
                     background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
@@ -623,7 +632,7 @@ init:
                         background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
                         xysize 200, 50
                         align (.5, .5)
-                        if isinstance(bm_building, Building):
+                        if len(bm_building.all_possible_extensions()) != 0:
                             button:
                                 style_prefix "wood"
                                 align .5, .5
@@ -779,7 +788,7 @@ init:
                     tooltip "Give new name to your Building!"
                     text "Rename Building"
 
-                if hasattr(bm_building, "auto_clean"):
+                if bm_building.maxdirt != 0:
                     null height 20
                     label (u"Cleaning Options:"):
                         style "proper_stats_label"
@@ -817,8 +826,8 @@ init:
                     python:
                         price = 0
                         for i in hero.buildings:
-                            if hasattr(i, "auto_clean"):
-                                price = price + i.get_cleaning_price()
+                            if i.maxdirt != 0:
+                                price += i.get_cleaning_price()
 
                     button:
                         xysize(200, 32)
@@ -827,7 +836,7 @@ init:
                         tooltip "Hire cleaners to completely clean all buildings for %d Gold." % price
                         text "Clean: All Buildings"
 
-                if hasattr(bm_building, "manager"):
+                if simple_jobs["Manager"] in bm_building.jobs:
                     null height 20
                     label u"Management Options:":
                          style "proper_stats_label"

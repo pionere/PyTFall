@@ -656,10 +656,12 @@ label load_resources:
 
         idx = len(businesses)
         for building in buildings_data:
-            b = InvLocation()
+            b = Building()
 
             for key, value in building.iteritems():
                 setattr(b, key, value)
+
+            b.init()
 
             idx += 1
             b.id = idx

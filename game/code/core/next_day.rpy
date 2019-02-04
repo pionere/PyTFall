@@ -533,7 +533,7 @@ screen next_day():
                     has vbox
 
                     # Buildings:
-                    for building in [b for b in hero.buildings if isinstance(b, Building)]:
+                    for building in [b for b in hero.buildings if len(b.allowed_businesses) != 0]:
                         # Image/Name:
                         null height 4
                         label "[building.name]" xpos 10
@@ -584,8 +584,9 @@ screen next_day():
                                         text str(ndactive[building]["Warriors"]) style_suffix "value_text" xpos 175
                                         text str(ndactive[building]["Managers"]) style_suffix "value_text" xpos 215
                                         text str(ndactive[building]["IDLE"]) style_suffix "value_text" xpos 255
-                                        text "Dirt" yalign .5 xpos 285
-                                        text ("%d%%" % building.get_dirt_percentage()[0]) style_suffix "value_text" xalign .99
+                                        if building.maxdirt != 0:
+                                            text "Dirt" yalign .5 xpos 285
+                                            text ("%d%%" % building.get_dirt_percentage()[0]) style_suffix "value_text" xalign .99
 
                                     # Resting:
                                     frame:
@@ -595,8 +596,9 @@ screen next_day():
                                         text str(ndresting[building]["Warriors"]) style_suffix "value_text" xpos 175
                                         text str(ndresting[building]["Managers"]) style_suffix "value_text" xpos 215
                                         text str(ndresting[building]["IDLE"]) style_suffix "value_text" xpos 255
-                                        text "Threat" yalign .5 xpos 285
-                                        text ("%d%%" % (building.get_threat_percentage())) style_suffix "value_text" xalign .99
+                                        if building.maxthreat != 0:
+                                            text "Threat" yalign .5 xpos 285
+                                            text ("%d%%" % (building.get_threat_percentage())) style_suffix "value_text" xalign .99
 
                                     # Events:
                                     frame:
@@ -684,16 +686,18 @@ screen next_day():
                                                     text "{color=[green]}!" style "next_day_summary_text"
                                                     action NullAction()
 
-                                        text "Fame" yalign .5 xpos 285
-                                        text ("%d/%d" % (building.fame, building.maxfame)) style_suffix "value_text" xalign .99
+                                        if building.maxfame != 0:
+                                            text "Fame" yalign .5 xpos 285
+                                            text ("%d/%d" % (building.fame, building.maxfame)) style_suffix "value_text" xalign .99
 
                                     frame:
                                         xysize (410, 25)
                                         if hasattr(building, "total_clients"):
                                             text "Customers:" xpos 3
                                             text "[building.total_clients]" style_suffix "value_text" xpos 135
-                                        text "Rep." yalign .5 xpos 285
-                                        text ("%d/%d" % (building.rep, building.maxrep)) style_suffix "value_text" xalign .99
+                                        if building.maxrep != 0:
+                                            text "Rep." yalign .5 xpos 285
+                                            text ("%d/%d" % (building.rep, building.maxrep)) style_suffix "value_text" xalign .99
 
                 vbar value YScrollValue("Reports")
 
