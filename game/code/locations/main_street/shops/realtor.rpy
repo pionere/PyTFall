@@ -41,9 +41,7 @@ label realtor_agency:
         show expression npcs["Rose_estate"].get_vnsprite() at right as rose with dissolve
             # yoffset -100
 
-    # Added the next three lines to disable this feature without crashing the game   --fenec250
-
-    $ market_buildings = sorted(set(chain(businesses.values(), buildings.values())) - set(hero.buildings), key = lambda x: x.id)
+    $ market_buildings = sorted(set(buildings.values()) - set(hero.buildings), key=attrgetter("id"))
     $ focus = None
 
     if not market_buildings:

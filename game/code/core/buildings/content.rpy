@@ -277,7 +277,7 @@ init -9 python:
 
             self.mod = 1
 
-            # adverts initialized later
+            self.adverts = []
 
             # Dirt/Threat
             self.maxdirt = 1000
@@ -303,13 +303,9 @@ init -9 python:
             self.nd_events_report = list()
             self.logged_clients = False
 
-
         def init(self):
             if self.needs_management:
                 normalize_jobs()
-
-            if not hasattr(self, "adverts"):
-                self.adverts = []
 
             if not hasattr(self, "threat_mod"):
                 if self.location == "Flee Bottom":

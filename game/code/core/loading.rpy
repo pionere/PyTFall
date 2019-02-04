@@ -457,20 +457,20 @@ init -11 python:
             mobs[mob["id"]] = mob
         return mobs
 
-    def load_businesses():
+    def load_buildings():
         # Load json content
-        businesses_data = load_db_json("buildings/businesses.json")
+        buildings_data = load_db_json("buildings/buildings.json")
         adverts_data = load_db_json("buildings/adverts.json")
 
         # Populate into brothel objects:
-        businesses = dict()
+        buildings = dict()
         idx = 0
-        for business in businesses_data:
+        for building in buildings_data:
             b = Building()
-            # Allowed upgrades for businesses we have not built yet!
-            b.allowed_business_upgrades = business.get("allowed_business_upgrades", {})
+            # Allowed upgrades for buildings we have not built yet!
+            b.allowed_business_upgrades = building.pop("allowed_business_upgrades", {})
 
-            for key, value in business.iteritems():
+            for key, value in building.iteritems():
                 if key == "adverts":
                     _adverts = []
                     for a in adverts_data:
@@ -505,9 +505,9 @@ init -11 python:
 
             idx += 1
             b.id = idx
-            businesses[idx] = b
+            buildings[idx] = b
 
-        return businesses
+        return buildings
 
     def load_tiles():
         # Load json content
@@ -683,11 +683,11 @@ label load_resources:
         # Descriptions for: *Elements
         pytfall.desc = object()
         pytfall.desc.elements = {
-        "fire": str("The wildest of all elements bringing a change that can never be undone. In a blink of an eye, it can turn any obstacle to dust leaving nothing but scorched earth in its path. In unskilled hands, it can be more dangerous to its wielders than to their enemiesâ€¦ Fire Element regardless to its power, is weak against Water but have the advantage versus Air."),
+        "fire": str("The wildest of all elements bringing a change that can never be undone. In a blink of an eye, it can turn any obstacle to dust leaving nothing but scorched earth in its path. In unskilled hands, it can be more dangerous to its wielders than to their enemies… Fire Element regardless to its power, is weak against Water but have the advantage versus Air."),
         "air": str("The most agile of the elements. Utilizing its transparency and omnipresence to maximum. Wielders of this element are also capable of performing lighting based spells. Being able to strike swiftly and undetected, in capable hands this element does not give opponents much time to defend themselves. The Air Element excels against Earth but struggles greatly when dealing with Fire."),
         "earth": str("The slowest and sturdiest among the elements. Known for sacrificing speed in exchange for overwhelming destructive power. Unlike other elements that leaves evidence of their devastating acts, Earth is capable of literally burying the truth. The Earth Element have the upper hand against Water, but have a hard time against the swift Air."),
         "water": str("The most mysterious among the elements. Hiding it twisted and destructive nature under the calm surface. Leaving behind only rumble and bodies as proof of it fatal capabilities. Dominating Fire with ease, the Water Element is relatively weak against Earth."),
-        "darkness": str("One of the two elements born from men desires, thoughts and deeds. Fuelling itself from anger, impure thoughts and evil acts. Dwelling deep in everyoneâ€™s soul, patiently expanding, slowly consuming ones soul. Evenly matched and locked in the ethereal struggle Light and Darkness, these opposites can cause chaotic damage against each other."),
+        "darkness": str("One of the two elements born from men desires, thoughts and deeds. Fuelling itself from anger, impure thoughts and evil acts. Dwelling deep in everyone’s soul, patiently expanding, slowly consuming ones soul. Evenly matched and locked in the ethereal struggle Light and Darkness, these opposites can cause chaotic damage against each other."),
         "neutral": str("Neutral alignment is the most popular option among warriors that do not rely on use of magic. It will ensure good degree of resistance from anything some silly mage may throw at its wielder. On other hand, this is possibly the worst choice for any magic user."),
         "light": str("One of the two elements born from men desires, thoughts and deeds. Light nests itself inside everyone souls. Gaining its force from good acts and pure thoughts. Evenly matched and locked in the ethereal struggle Light and Darkness, these opposites can cause chaotic damage against each other.")
         }

@@ -2083,7 +2083,7 @@ init -9 python:
             for b in self._buildings:
                 if b.workable:
                     workable.append(b)
-                elif b.habitable and not b.workable:
+                elif b.habitable:
                     habitable.append(b)
                 else:
                     rest.append(b)

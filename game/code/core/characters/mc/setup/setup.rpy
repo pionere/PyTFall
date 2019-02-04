@@ -98,13 +98,14 @@ label mc_setup_end:
     # Add default workable building to MC, but only if we didn't add one in special labels.
     if not [b for b in hero.upgradable_buildings if b.workable]:
         python hide:
-            # Find the cheapest business
+            # Find the cheapest workable building
             scary = None 
-            for b in businesses.values():
-                if ((not scary) or scary.price > b.price):
+            for b in buildings.values():
+                if not b.workable:
+                    continue
+                if scary is None or scary.price > b.price:
                     scary = b
             if scary:
-                scary.normalize_jobs()
                 hero.add_building(scary)
 
     # Add Home apartment (Slums) to MC, unless we have set him up with a home in special labels.

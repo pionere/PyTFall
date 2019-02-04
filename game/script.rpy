@@ -104,10 +104,9 @@ label start:
         tl.end("Loading: Jobs")
 
     python: # Ads and Buildings:
-        tl.start("Loading: Businesses")
-        adverts = json.load(renpy.file("content/db/buildings/adverts.json"))
-        businesses = load_businesses()
-        tl.end("Loading: Businesses")
+        tl.start("Loading: Buildings")
+        buildings = load_buildings()
+        tl.end("Loading: Buildings")
 
     $ tl.start("Loading: Schools")
     $ schools = {}
@@ -233,8 +232,11 @@ label dev_testing_menu_and_load_mc:
             hero.log_stats()
 
             if DEBUG and not hero.home:
+                # Find the most expensive building
                 ap = None 
                 for b in buildings.values():
+                    if not b.habitable:
+                        continue
                     if ap is None or b.price > ap.price:
                         ap = b
                 if ap:
@@ -622,7 +624,14 @@ label after_load:
             clearCharacters = True
 
         store.bm_mid_frame_mode = None
-        for b in itertools.chain(hero.buildings, businesses.values()):
+
+        if hasattr(store, "businesses"):
+            buildings.update(store.businesses)
+            del store.businesses
+        if hasattr(store, "adverts"):
+            del store.adverts
+
+        for b in itertools.chain(hero.buildings, buildings.values()):
             if isinstance(b, Building):
                 if not hasattr(b, "init_pep_talk"):
                     b.init_pep_talk = True
@@ -703,7 +712,7 @@ label after_load:
                         if c.home == b:
                             c.home = nb
                 else:
-                    businesses[nb.id] = nb
+                    buildings[nb.id] = nb
 
         if "clearCharacters" in locals():
             for girl in itertools.chain(chars.values(), hero.chars, npcs.values()):
