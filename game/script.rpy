@@ -69,7 +69,6 @@ label start:
     python: # Items/Shops:
         tl.start("Loading/Sorting: Items")
         items = load_items()
-        items.update(load_gifts())
         global_flags.set_flag("last_modified_items", os.path.getmtime(content_path('db/items')))
         items_upgrades = json.load(renpy.file("content/db/upgrades.json"))
 
@@ -172,8 +171,6 @@ label start:
         gm = GirlsMeets()
         tl.end("Loading: GirlsMeets")
 
-    # Loading apartments/guilds:
-    call load_resources from _call_load_resources
     jump dev_testing_menu_and_load_mc
 
 label dev_testing_menu_and_load_mc:
@@ -389,7 +386,6 @@ label after_load:
         if last_modified_items < last_modified: 
             tl.start("Updating items")
             updated_items = load_items()
-            updated_items.update(load_gifts())
 
             for id, item in updated_items.iteritems():
                 curr_item = store.items.get(id, None)

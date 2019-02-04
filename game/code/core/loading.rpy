@@ -509,18 +509,6 @@ init -11 python:
 
         return buildings
 
-    def load_tiles():
-        # Load json content
-        content = load_db_json("tiles.json")
-        tiles = {}
-        for tile in content:
-            t = Tile()
-            for attr in tile:
-                t.__dict__[attr] = tile[attr]
-            t.init()
-            tiles[t.id] = t
-        return tiles
-
     def load_traits():
         content = list()
         folder = content_path('db/traits')
@@ -562,17 +550,24 @@ init -11 python:
         return areas
 
     def load_items():
-        items = dict()
-        folder = content_path('db/items')
-        content = list()
+        """
+        Returns items dict with standard items and gift items to be used during girl_meets.
+        """
+        content = dict()
+        dir = content_path('db/items')
+        items = list()
+        gifts = list()
+        for file in os.walk(os.path.join(dir, '.')).next()[2]:
+            if file.endswith(".json"):
+                in_file = os.path.join(dir, file)
+                if file.startswith("items"):
+                    with open(in_file) as f:
+                        items.extend(json.load(f))
+                elif file.startswith("gifts"):
+                    with open(in_file) as f:
+                        gifts.extend(json.load(f))
 
-        for file in os.listdir(folder):
-            if file.startswith("items") and file.endswith(".json"):
-                in_file = content_path("".join(["db/items/", file]))
-                with open(in_file) as f:
-                    content.extend(json.load(f))
-
-        for item in content:
+        for item in items:
             iteminst = Item()
             for attr in item:
                 # We prolly want to convert to objects in case of traits:
@@ -581,31 +576,16 @@ init -11 python:
                 else:
                     setattr(iteminst, attr, item[attr])
             iteminst.init()
-            items[iteminst.id] = iteminst
+            content[iteminst.id] = iteminst
+        for item in gifts:
+            iteminst = Item()
+            iteminst.slot = "gift"
+            iteminst.type = "gift"
+            iteminst.sellable = True
+            iteminst.tier = 0
+            iteminst.__dict__.update(item)
+            content[iteminst.id] = iteminst
 
-        return items
-
-    def load_gifts():
-        """
-        Returns items dict with gift items to be used during girl_meets.
-        """
-        unprocessed = dict()
-        content = dict()
-        folder = content_path('db/items')
-        for file in os.listdir(folder):
-            if file.startswith("gifts") and file.endswith(".json"):
-                in_file = content_path("/".join(["db/items/", file]))
-                with open(in_file) as f:
-                    unprocessed = json.load(f)
-
-                for key in unprocessed:
-                    item = Item()
-                    item.slot = "gift"
-                    item.type = "gift"
-                    item.sellable = True
-                    item.tier = 0
-                    item.__dict__.update(key)
-                    content[item.id] = item
         return content
 
     def load_dungeons():
@@ -644,142 +624,3 @@ init -11 python:
                 content[s.name] = s
 
         return content
-
-
-label load_resources:
-    $ buildings = dict()
-
-    python hide:
-        # MC Apartments:
-        # Load json content
-        buildings_data = load_db_json("buildings/buildings.json")
-
-        idx = len(businesses)
-        for building in buildings_data:
-            b = Building()
-
-            for key, value in building.iteritems():
-                setattr(b, key, value)
-
-            b.init()
-
-            idx += 1
-            b.id = idx
-            buildings[idx] = b
-
-    python: # Jail:
-        jail = CityJail()
-        jail.id = "City Jail"
-
-        # Add the dungeon to the buildings list
-        # Load the hero's dungeon
-        # school = TrainingDungeon(load_training("training", PytTraining))
-        # schools[school.name] = school
-        # buildings[TrainingDungeon.NAME] = schools[TrainingDungeon.NAME]
-        # if DEBUG:
-        #     hero.add_building(buildings[TrainingDungeon.NAME])
-
-    python:
-        # Descriptions for: *Elements
-        pytfall.desc = object()
-        pytfall.desc.elements = {
-        "fire": str("The wildest of all elements bringing a change that can never be undone. In a blink of an eye, it can turn any obstacle to dust leaving nothing but scorched earth in its path. In unskilled hands, it can be more dangerous to its wielders than to their enemies… Fire Element regardless to its power, is weak against Water but have the advantage versus Air."),
-        "air": str("The most agile of the elements. Utilizing its transparency and omnipresence to maximum. Wielders of this element are also capable of performing lighting based spells. Being able to strike swiftly and undetected, in capable hands this element does not give opponents much time to defend themselves. The Air Element excels against Earth but struggles greatly when dealing with Fire."),
-        "earth": str("The slowest and sturdiest among the elements. Known for sacrificing speed in exchange for overwhelming destructive power. Unlike other elements that leaves evidence of their devastating acts, Earth is capable of literally burying the truth. The Earth Element have the upper hand against Water, but have a hard time against the swift Air."),
-        "water": str("The most mysterious among the elements. Hiding it twisted and destructive nature under the calm surface. Leaving behind only rumble and bodies as proof of it fatal capabilities. Dominating Fire with ease, the Water Element is relatively weak against Earth."),
-        "darkness": str("One of the two elements born from men desires, thoughts and deeds. Fuelling itself from anger, impure thoughts and evil acts. Dwelling deep in everyone’s soul, patiently expanding, slowly consuming ones soul. Evenly matched and locked in the ethereal struggle Light and Darkness, these opposites can cause chaotic damage against each other."),
-        "neutral": str("Neutral alignment is the most popular option among warriors that do not rely on use of magic. It will ensure good degree of resistance from anything some silly mage may throw at its wielder. On other hand, this is possibly the worst choice for any magic user."),
-        "light": str("One of the two elements born from men desires, thoughts and deeds. Light nests itself inside everyone souls. Gaining its force from good acts and pure thoughts. Evenly matched and locked in the ethereal struggle Light and Darkness, these opposites can cause chaotic damage against each other.")
-        }
-
-    call load_building_upgrades from _call_load_building_upgrades
-    return
-
-label load_building_upgrades:
-    return
-
-# label load_json_tags:
-#     python:
-#         # -----------------------------------------------
-#         # load image tags into the tag database
-#         tl.start("Loading: JSON Tags (OldStyle)")
-#         charsdir = os.path.join(gamedir, "content", "chars")
-#         rcharsdir = os.path.join(gamedir, "content", "rchars")
-#         jsonfiles = locate_files("tags.json", charsdir)
-#         rg_jsonfiles = locate_files("tags.json", rcharsdir)
-#
-#         jsontagdb = TagDatabase.from_json([jsonfiles, rg_jsonfiles])
-#         tagslog.info("loaded %d images from tags.json files" % jsontagdb.count_images())
-#
-#         del charsdir
-#         del rcharsdir
-#         del jsonfiles
-#         del rg_jsonfiles
-#
-#         # raise Exception, tagdb.__dict__["tagmap"].keys()[1:10]
-#         for tag in jsontagdb.tagmap.keys():
-#             if tag.startswith("("):
-#                 del jsontagdb.tagmap[tag]
-#             try:
-#                 int(tag)
-#                 del jsontagdb.tagmap[tag]
-#             except ValueError:
-#                 pass
-#         tl.end("Loading: JSON Tags (OldStyle)")
-#     return
-
-label convert_json_to_filenames:
-    if not jsontagdb.tagmap:
-        $ renpy.show_screen("message_screen", "No JSON tags were found!")
-        return
-    else:
-        python:
-            alltags = set(tags_dict.values())
-            nums = "".join(list(str(i) for i in range(10)))
-            pool = list("".join([string.ascii_lowercase, nums]))
-            inverted = {v:k for k, v in tags_dict.iteritems()}
-            # Carefully! We write a script to rename the image files...
-            for img in jsontagdb.get_all_images():
-                # Normalize the path:
-                f = normalize_path("".join([gamedir, "/", img]))
-                tags = list(alltags & jsontagdb.get_tags_per_path(img))
-                if not tags:
-                    char_debug("Deleting the file (No tags found): %s" % f)
-                    os.remove(f)
-                    continue
-                tags.sort()
-                tags = list(inverted[tag] for tag in tags)
-                # New filename string:
-                fn = "".join(["-".join(tags), "-", "".join(list(choice(pool) for i in range(4)))])
-                if img.endswith(".png"):
-                    fn = fn + ".png"
-                elif img.endswith(".jpg"):
-                    fn = fn + ".jpg"
-                elif img.endswith(".jpeg"):
-                    fn = fn + ".jpeg"
-                elif img.endswith(".gif"):
-                    fn = fn + ".gif"
-                elif img.endswith(".webp"):
-                    fn = fn + ".webp"
-                oldfilename = f.split(os.sep)[-1]
-                if oldfilename == fn:
-                    continue
-                else:
-                    newdir = f.replace(oldfilename, fn)
-                    try:
-                        os.rename(f, newdir)
-                    except:
-                        char_debug("Could not find: %s"%str(f))
-
-            # Delete the tagfiles:
-            charsdir = os.path.join(gamedir, "content", "chars")
-            rcharsdir = os.path.join(gamedir, "content", "rchars")
-            jsonfiles = locate_files("tags.json", charsdir)
-            jsonfiles = list(chain(jsonfiles, locate_files("tags.json", rcharsdir)))
-            for file in jsonfiles:
-                os.remove(file)
-            del charsdir
-            del rcharsdir
-            del jsonfiles
-            renpy.show_screen("message_screen", "%d images converted!" % jsontagdb.count_images())
-    return

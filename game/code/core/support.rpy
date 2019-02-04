@@ -17,6 +17,8 @@ init -9 python:
             self.economy = Economy()
 
             # locations
+            self.jail = CityJail()
+            #jail.id = "City Jail"
             self.sm = SlaveMarket()
             self.ra = RunawayManager() 
             self.city = HabitableLocation(id="City Apartments", daily_modifier=.2, rooms=float("inf"), desc="Girls apartments somewhere in the city")
@@ -358,7 +360,7 @@ init -9 python:
             return self.daycount_from_gamestart + 1
 
         def string(self):
-            return "%s %d %d"%(self.month_names[self.month], self.day, self.year)
+            return "%s %d, %d"%(self.month_names[self.month], self.day, self.year)
 
         def next(self, days=1):
             """
