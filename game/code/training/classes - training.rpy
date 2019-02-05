@@ -397,13 +397,6 @@ init -9 python:
             return self.girl.fin.get_upkeep()
 
         @property
-        def girlfin(self):
-            """
-            The property to return the proper financial data for the girl.
-            """
-            return self
-
-        @property
         def chars_list(self):
             """
             The list to use for the slavemarket interface.
@@ -608,15 +601,6 @@ init -9 python:
                 else:
                     girl.home = pytfall.city
                     set_location(girl, pytfall.city)
-
-        def set_girl(self, girl):
-            """
-            Sets the girl to be the index for the slavemarket.
-            girl = The girl to set.
-            """
-            if self.chars_list and girl in self.chars_list:
-                self.girl = girl
-                self.index = self.chars_list.index(self.girl)
 
         def status(self, girl):
             """

@@ -96,12 +96,12 @@ label mc_setup_end:
             set_stat_to_percentage(hero, s, value)
 
     # Add default workable building to MC, but only if we didn't add one in special labels.
-    if not [b for b in hero.upgradable_buildings if b.workable]:
+    if not [b for b in hero.upgradable_buildings if b.is_business()]:
         python hide:
-            # Find the cheapest workable building
+            # Find the cheapest business-building
             scary = None 
             for b in buildings.values():
-                if not b.workable:
+                if not b.is_business():
                     continue
                 if scary is None or scary.price > b.price:
                     scary = b

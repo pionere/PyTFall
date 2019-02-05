@@ -160,9 +160,9 @@ init -11 python:
         """
         # Special check for locations that allow inventories.
         # Apartment is one such example.
-        if isinstance(source, Location):
+        if isinstance(source, Building):
             return True
-        if isinstance(target, Location):
+        if isinstance(target, Building):
             return True
 
         if isinstance(source, PytGroup):

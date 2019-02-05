@@ -109,9 +109,20 @@
                 char = self.char
             char.logws(s, value)
 
-        def logloc(self, s, value):
+        def logloc(self, key, value):
             # Logs a stat for the location:
-            self.locmod[s] = self.locmod.get(s, 0) + value
+            self.locmod[key] = self.locmod.get(key, 0) + value
+            """Updates stats for the building."""
+            if key == 'fame':
+                self.loc.modfame(value)
+            elif key == 'reputation':
+                self.loc.modrep(value)
+            elif key == 'dirt':
+                self.loc.moddirt(value)
+            elif key == 'threat':
+                self.loc.modthreat(value)
+            else:
+                raise Exception("Stat: {} does not exits for Businesses".format(key))
 
         def update_char_data(self, char, adjust_exp=True):
             """Settles stats, exp and skills for workers.
@@ -140,18 +151,6 @@
                         char.mod_stat(key, value)
                     elif char.stats.is_skill(key):
                         char.mod_skill(key, 0, value)
-
-        def update_loc_data(self):
-            """Updates stats for the building."""
-            for key, value in self.locmod.iteritems():
-                if key == 'fame':
-                    self.loc.modfame(value)
-                elif key in ['reputation', 'rep']:
-                    self.loc.modrep(value)
-                elif key in self.loc.stats: # We Handle Dirt/Security Directly now!
-                    pass # self.loc.clean(value)
-                else:
-                    raise Exception("Stat: {} does not exits for Businesses".format(key))
 
         def log_tips(self, worker):
             # logically logs tips as income of this business.
@@ -195,8 +194,6 @@
                         char.fin.log_logical_income(earned, fin_source)
 
             # Location related:
-            self.update_loc_data()
-
             if hasattr(self.loc, "fin") and self.earned:
                 self.loc.fin.log_logical_income(self.earned, fin_source)
             if self.earned:

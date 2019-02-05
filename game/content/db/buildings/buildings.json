@@ -493,7 +493,7 @@
         "inventory": true,
 
         "tier": 1,
-        "_daily_modifier": 0.10,
+        "daily_modifier": 0.10,
 
         "img": "content/buildings/Rooms/beggar (3).webp"
     },
@@ -507,7 +507,7 @@
         "inventory": true,
 
         "tier": 1,
-        "_daily_modifier": 0.15,
+        "daily_modifier": 0.15,
 
         "img": "content/gfx/bg/buildings/apartment_1.webp"
     },
@@ -521,7 +521,7 @@
         "inventory": true,
 
         "tier": 3,
-        "_daily_modifier": 0.15,
+        "daily_modifier": 0.15,
 
         "img": "content/buildings/Rooms/decent (1).webp"
     },
@@ -535,7 +535,7 @@
         "inventory": true,
 
         "tier": 6,
-        "_daily_modifier": 0.25,
+        "daily_modifier": 0.25,
 
         "img": "content/buildings/Rooms/luxury (3).webp"
     }

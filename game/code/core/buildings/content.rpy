@@ -1,8 +1,122 @@
 init -9 python:
     #################################################################
-    # UNIQUE BUILDING CLASSES
+    # UNIQUE BUILDING/LOCATION CLASSES
     # The classes for actual buildings with the customizations they require.
     #
+    class SlaveMarket(HabitableLocation):
+        """
+        Class for populating and running of the slave market.
+
+        TODO sm/lt: (Refactor)
+        Use actors container from Location class and
+        """
+        def __init__(self, type=None):
+            """
+            Creates a new SlaveMarket.
+            type = type girls predominantly present in the market. Not used.
+            """
+            super(SlaveMarket, self).__init__(id="PyTFall Slavemarket")
+            self.type = [] if type is None else type
+
+            self.chars_list = None
+
+            self.girl = None
+
+            self.blue_girls = dict() # Girls (SE captured) blue is training for you.
+            self.restock_day = 0
+
+        def populate_chars_list(self):
+            """
+            Populates the list of girls that are available.
+            """
+            if day >= self.restock_day:
+                self.restock_day += locked_random("randint", 2, 3)
+
+                # Search for chars to add to the slavemarket.
+                uniques = []
+                randoms = []
+                total = randint(9, 12)
+                for c in chars.values():
+                    if c in hero.chars:
+                        continue
+                    if c.home == self:
+                        if c.__class__ == Char:
+                            uniques.append(c)
+                        elif c.__class__ == rChar:
+                            randoms.append(c)
+
+                # Prioritize unique chars:
+                slaves = random.sample(uniques, min(len(uniques), 7))
+                slaves.extend(random.sample(randoms, min(len(randoms), total-len(slaves))))
+                shuffle(slaves)
+                self.chars_list = slaves
+
+                # Gazette:
+                temp = "Stan of the PyTFall's Slave Market was seen by our reporters "
+                temp += "complaining about the poor quality of the new slave lot. We however didn't find any prove of such a claim!"
+                temp1 = "Blue of the Slave Market sent out a bulletin about new slave arrivals!"
+                gazette.other.append(choice([temp, temp1]))
+
+        def get_price(self, girl):
+            return girl.fin.get_price()
+
+        def buy_girl(self, girl):
+            if hero.take_ap(1):
+                if hero.take_money(self.get_price(), reason="Slave Purchase"):
+                    renpy.play("content/sfx/sound/world/purchase_1.ogg")
+                    hero.add_char(girl)
+                    girl.action = girl.workplace = None
+                    girl.home = pytfall.streets
+                    girl.set_location(girl, None)
+                    self.chars_list.remove(girl)
+
+                    if self.chars_list:
+                        self.girl = choice(self.chars_list)
+                    else:
+                        self.girl = None
+                else:
+                    renpy.call_screen('message_screen', "You don't have enough money for this purchase!")
+            else:
+                renpy.call_screen('message_screen', "You don't have enough AP left for this action!")
+
+        def next_index(self):
+            """
+            Sets the focus to the next girl.
+            """
+            if self.chars_list:
+                index = self.chars_list.index(self.girl)
+                index = (index + 1) % len(self.chars_list)
+                self.girl = self.chars_list[index]
+
+        def previous_index(self):
+            """
+            Sets the focus to the previous girl.
+            """
+            if self.chars_list:
+                index = self.chars_list.index(self.girl)
+                index = (index - 1) % len(self.chars_list)
+                self.girl = self.chars_list[index]
+
+        def set_index(self):
+            """
+            Sets the focus to a random girl.
+            """
+            if self.chars_list:
+                self.girl = choice(self.chars_list)
+
+        def next_day(self):
+            """
+            Solves the next day logic.
+            """
+            self.populate_chars_list()
+
+            for g in self.blue_girls.keys():
+                self.blue_girls[g] += 1
+                if self.blue_girls[g] == 30:
+                    hero.add_char(g)
+                    del self.blue_girls[g]
+                    # pytfall.temp_text.append("Blue has finished training %s! The girl has been delivered to you!" % chars[g].name)
+
     class CityJail(BaseBuilding):
         """
         The jail where escaped slaves can turn up. May do other things later.
@@ -12,8 +126,7 @@ init -9 python:
 
         def __init__(self):
             super(CityJail, self).__init__()
-            self.focused = None
-            self.index = 0
+            self.girl = None
             self.chars_list = []
             self.auto_sell_captured = False # Do we auto-sell SE captured slaves?
 
@@ -37,9 +150,12 @@ init -9 python:
                     if flag == "SE_capture":
                         char.set_flag("days_in_jail", 0)
 
-                if self.focused is None:
-                    self.focused = char
-                    self.index = 0
+        def get_price(self):
+            """
+            Returns the price to retrieve the girl.
+            """
+            # In case of non-slave girl, use 3000 as base price
+            return (self.girl.fin.get_price() or 3000) / 2
 
         def buy_girl(self):
             """Buys an escaped girl from the jail.
@@ -47,58 +163,39 @@ init -9 python:
             if hero.take_ap(1):
                 if hero.take_money(self.get_price(), reason="Slave Repurchase"):
                     renpy.play("content/sfx/sound/world/purchase_1.ogg")
-                    self.remove_prisoner(self.worker)
+                    self.remove_prisoner(self.girl, True)
                 else:
                     renpy.call_screen('message_screen', "You don't have enough money for this purchase!")
             else:
                 renpy.call_screen('message_screen', "You don't have enough AP left for this action!")
 
-            if not self.chars_list:
-                renpy.hide_screen("slave_shopping")
-
-        def get_price(self):
-            """
-            Returns the price to retrieve the girl.
-            """
-            # In case of non-slave girl, use 3000 as base price
-            return (self.worker.fin.get_price() or 3000) / 2
-
-        def get_upkeep(self):
-            """
-            Return the upkeep cost for the girl.
-            """
-            return self.worker.fin.get_upkeep()
-
-        @property
-        def girlfin(self):
-            """
-            The property to return the proper financial data for the girl.
-            """
-            return self
-
         def next_index(self):
             """
-            Sets the next index for the slavemarket.
+            Sets the focus to the next girl.
             """
-            self.index = (self.index+1) % len(self.chars_list)
-            self.worker = self.chars_list[self.index]
+            if self.chars_list:
+                index = self.chars_list.index(self.girl)
+                index = (index + 1) % len(self.chars_list)
+                self.girl = self.chars_list[index]
 
         def previous_index(self):
             """
-            Sets the previous index for the slavemarket.
+            Sets the focus to the previous girl.
             """
-            self.index = (self.index-1) % len(self.chars_list)
-            self.worker = self.chars_list[self.index]
+            if self.chars_list:
+                index = self.chars_list.index(self.girl)
+                index = (index - 1) % len(self.chars_list)
+                self.girl = self.chars_list[index]
 
-        def remove_prisoner(self, char, update_location=True):
+        def remove_prisoner(self, girl, update_location=True):
             """
             Returns an actor to the player.
-            char = The char to return.
+            girl = The girl to return.
             """
-            if char in self:
-                char.del_flag("sentence_type")
-                char.del_flag("days_in_jail")
-                self.chars_list.remove(char)
+            if girl in self:
+                girl.del_flag("sentence_type")
+                girl.del_flag("days_in_jail")
+                self.chars_list.remove(girl)
 
                 if self.chars_list:
                     self.index %= len(self.chars_list)
@@ -108,44 +205,30 @@ init -9 python:
                     self.worker = None
 
                 if update_location:
-                    char.home = pytfall.streets
-                    set_location(char, None)
-                    char.action = None
-                    char.workplace = None
-
-        def set_girl(self, girl):
-            """
-            Sets the girl to be the index for the slavemarket.
-            girl = The girl to set.
-            """
-            if self.chars_list and girl in self.chars_list:
-                self.worker = girl
-                self.index = self.chars_list.index(self.worker)
+                    girl.home = pytfall.streets
+                    set_location(girl, None)
+                    girl.action = None
+                    girl.workplace = None
 
         # Deals with girls captured during SE:
-        def sell_captured(self, girl=None, auto=False):
+        def sell_captured(self, girl, auto=False):
             # Flat price of 1500 Gold - the fees:
             """
             Sells off captured girl from the jail.
             auto: Auto Selloff during next day.
             """
-            if not girl:
-                girl = self.worker
-
-            if auto or hero.take_ap(1):
-                if not auto:
-                    renpy.play("content/sfx/sound/world/purchase_1.ogg")
-                hero.add_money(1500 - self.get_fees4captured(girl), "SlaveTrade")
-                self.remove_prisoner(girl)
-                set_location(girl, pytfall.sm)
-                girl.home = pytfall.sm
-                girl.action = None
-            else:
-                renpy.call_screen('message_screen', "You don't have enough AP left for this action!")
-
             if not auto:
-                if not self.chars_list:
-                    renpy.hide_screen("slave_shopping")
+                if not hero.take_ap(1):
+                    renpy.call_screen('message_screen', "You don't have enough AP left for this action!")
+                    return
+                renpy.play("content/sfx/sound/world/purchase_1.ogg")
+                hero.add_money(1500 - self.get_fees4captured(girl), "SlaveTrade")
+
+            self.remove_prisoner(girl, False)
+            girl.home = pytfall.sm
+            set_location(girl, pytfall.sm)
+            girl.action = None
+            girl.workplace = None
 
         def next_day(self):
             for i in self.chars_list:
@@ -154,46 +237,39 @@ init -9 python:
                     if self.auto_sell_captured:
                         # Auto-selloff through flag set in SE module
                         # TODO se: Implement the button in SE!
-                        self.sell_captured(auto=True)
+                        self.sell_captured(i, True)
                         # pytfall.temp_text.append("Jail keepers sold off: {color=[red]}%s{/color}!" % i.name)
                     if i.flag("days_in_jail") > 20:
                         # Auto-Selloff in case of 20+ days:
-                        self.sell_captured(auto=True)
+                        self.sell_captured(i, True)
                         # pytfall.temp_text.append("Jail keepers sold off: {color=[red]}%s{/color}!" % i.name)
 
-        def get_fees4captured(self, girl=None):
+        def get_fees4captured(self, girl):
             # 200 for registration with city hall + 30 per day for "rent"
-            if not girl:
-                girl = self.worker
             return 200 + girl.flag("days_in_jail") * 30
 
-        def retrieve_captured(self, direction=None):
+        def retrieve_captured(self, girl, direction):
             """
             Retrieve a captured character (during SE).
             We handle simple sell-off in a different method (self.sell_captured)
             """
             if hero.take_ap(1):
-                if hero.take_money(self.get_fees4captured(), reason="Jail Fees"):
+                base_price = self.get_fees4captured(girl)
+                if hero.take_money(base_price, reason="Jail Fees"):
                     renpy.play("content/sfx/sound/world/purchase_1.ogg")
-                    self.worker.del_flag("sentence_type")
-                    self.worker.del_flag("days_in_jail")
                     if direction == "STinTD":
-                        self.remove_prisoner(self.worker)
+                        self.remove_prisoner(girl, True)
                     elif direction == "Blue":
                         if hero.take_money(2000, reason="Blue's Fees"):
-                            pytfall.sm.blue_girls[self.worker] = 0
-                            self.remove_prisoner(self.worker, update_location=False)
+                            pytfall.sm.blue_girls[girl] = 0
+                            self.remove_prisoner(girl, False)
                         else:
-                            hero.add_money(self.get_fees4captured(), reason="Jail Fees")
+                            hero.add_money(base_price, reason="Jail Fees")
                             renpy.call_screen('message_screen', "You don't have enough money for upfront payment for Blue's services!")
                 else:
                     renpy.call_screen('message_screen', "You don't have enough money!")
             else:
                 renpy.call_screen('message_screen', "You don't have enough AP left for this action!")
-
-            if not self.chars_list:
-                renpy.hide_screen("slave_shopping")
-
 
     class Building(BaseBuilding):
         """
@@ -304,8 +380,7 @@ init -9 python:
             self.logged_clients = False
 
         def init(self):
-            if self.needs_management:
-                normalize_jobs()
+            self.normalize_jobs()
 
             if not hasattr(self, "threat_mod"):
                 if self.location == "Flee Bottom":
@@ -498,6 +573,9 @@ init -9 python:
                     return False
 
         # Describing building purposes:
+        def is_business(self):
+            return len(self.allowed_businesses) != 0
+
         @property
         def habitable(self):
             # Overloads property of Location core class to serve the building.
@@ -654,7 +732,7 @@ init -9 python:
                     This makes having businesses that attract loads of clients
                     hugely favorable to have when running a business that does not.
             """
-            clients = .0
+            clients = 0
 
             if not any(a['name'] == 'Sign' and a['active'] for a in self.adverts):
                 min_clients = -1
@@ -663,13 +741,6 @@ init -9 python:
                     self.flag_red = True
             else:
                 min_clients = 2 # We expect at least two walk-ins otherwise.
-
-            # if DSNBR: # DEBUGMODE:
-            #     debug_add = 10
-            #     devlog.info("Debug adds {} pure clients for {}".format(debug_add, self.name))
-            #     if write_to_nd and DSNBR:
-            #         self.log("Debug Mode adding {} clients!".format(set_font_color(debug_add, "red")))
-            #     clients += debug_add
 
             # Generated by upgrades:
             for u in [u for u in self._businesses if u.expects_clients]:
@@ -680,28 +751,27 @@ init -9 python:
                     devlog.info("{} pure clients for {}".format(temp, u.name))
 
             # Fame percentage mod (linear scale):
-            fame_percentage = self.fame_percentage
-            clients = clients/100.0*fame_percentage
+            mod = self.fame_percentage / 100.0
 
             # Special check for larger buildings:
-            if fame_percentage > 80 and self.maxfame > 400:
+            if mod > 80 and self.maxfame > 400:
                 if write_to_nd:
                     self.log("Extra clients are coming in! You business is getting very popular with the people")
-                clients += float(clients)/self.maxfame*self.fame*.1
+                mod *= 1.1
 
             # Upgrades:
             temp = False
             for u in self._upgrades:
-                mod = getattr(u, "client_flow_mod", 0)
-                if mod:
+                um = getattr(u, "client_flow_mod", 0)
+                if um != 0:
                     temp = True
-                    clients = clients*mod
+                    mod *= um
             if temp and write_to_nd:
                 self.log("Your building upgrades are attracting extra clients!")
 
             # Normalize everything:
             min_clients = max(0, min_clients)
-            clients = round_int(max(min_clients, clients))
+            clients = round_int(max(min_clients, clients * mod))
 
             if clients and write_to_nd:
                 self.log("Total of {} clients are expected to visit this establishment!".format(set_font_color(clients, "lawngreen")))

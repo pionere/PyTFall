@@ -29,12 +29,15 @@ init -9 python:
             self.economy = Economy()
 
             # locations
+            self.arena = Arena()
             self.jail = CityJail()
             self.sm = SlaveMarket()
             self.ra = RunawayManager() 
-            self.city = HabitableLocation(id="City Apartments", daily_modifier=.2, rooms=float("inf"), desc="Girls apartments somewhere in the city")
-            self.streets = HabitableLocation(id="Streets", daily_modifier=-.1, rooms=float("inf"), desc="Cold and unneighborly city alleys")
-            self.afterlife = HabitableLocation(id="After Life", daily_modifier=.0, rooms=float("inf"), desc="No one knows where is this place and what's going on there")
+            self.school = School()
+
+            self.city = HabitableLocation(id="City Apartments", daily_modifier=.2, desc="Girls apartments somewhere in the city")
+            self.streets = HabitableLocation(id="Streets", daily_modifier=-.1, desc="Cold and unneighborly city alleys")
+            self.afterlife = HabitableLocation(id="After Life", daily_modifier=.0, desc="No one knows where is this place and what's going on there")
 
             self.hp = GuiHeroProfile()
 
@@ -73,6 +76,13 @@ init -9 python:
             self.witch_spells_shop = ItemShop("Witch Spells Shop", 18, ["Witch Spells Shop"], gold=5000, sells=["scroll"], sell_margin=1, buy_margin=5.0) # for scrolls
             self.aine_shop = ItemShop("Aine Shop", 18, ["Aine Shop"], gold=5000, sells=["scroll"], sell_margin=1, buy_margin=5.0)
             self.angelica_shop = ItemShop("Angelica Shop", 18, ["Angelica Shop"], gold=5000, sells=["scroll"], sell_margin=1, buy_margin=5.0)
+
+        def init_arena(self):
+            self.arena.setup_arena()
+            self.arena.update_matches()
+            self.arena.update_teams()
+            self.arena.find_opfor()
+            self.arena.update_dogfights()
 
         # World AI ----------------------------->
         @staticmethod

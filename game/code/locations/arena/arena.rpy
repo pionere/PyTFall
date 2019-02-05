@@ -1,13 +1,13 @@
 init -9 python:
     # ========================= Arena and related ===========================>>>
-    class Arena(Location):
+    class Arena(_object):
         """
         First prototype of Arena, will take care of most related logic and might have to be split in the future.
         @Note to myself: This code needs to be updated post-Alpha release to account for Arena Fighters and restructured for further use in the game!
         -------------------------->
         """
         def __init__(self):
-            super(Arena, self).__init__(id="Arena")
+            super(Arena, self).__init__()
             # self.1v1 = list() # Tracking the 1v1 fights.
             # self.teams = list() # Tracking the team fights.
 

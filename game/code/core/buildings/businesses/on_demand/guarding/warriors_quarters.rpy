@@ -94,7 +94,7 @@ init -5 python:
                         building.threat = 0
                     else:
                         for w in workers.copy():
-                            value = w.flag(power_flag_name)
+                            value = int(w.flag(power_flag_name))
                             building.modthreat(value)
 
                             threat_cleared += value
@@ -157,7 +157,7 @@ init -5 python:
             simpy_debug("Entering WarriorQuarters.write_nd_report at %s", self.env.now)
 
             job, loc = self.job, self.building
-            log = NDEvent(job=job, loc=loc, team=all_workers, business=self)
+            log = NDEvent(job=job, loc=loc, locmod={'threat':threat_cleared}, team=all_workers, business=self)
 
             extra_workers = all_workers - strict_workers
 
@@ -196,7 +196,6 @@ init -5 python:
 
             simpy_debug("Guards.write_nd_report marker 3")
 
-            threat_cleared = int(threat_cleared)
             temp = "\nA total of {} threat was removed.".format(set_font_color(threat_cleared, "red"))
             log.append(temp)
 
@@ -254,9 +253,6 @@ init -5 python:
                 log.logws("exp", exp_reward(w, loc.tier,
                                         ap_used=ap_used, final_mod=.5), char=w)
                 w.del_flag("jobs_points_spent")
-
-            # Stat mods
-            log.logloc('threat', threat_cleared)
 
             log.type = "jobreport" # Come up with a new type for team reports?
 

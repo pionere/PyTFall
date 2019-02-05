@@ -89,9 +89,7 @@ init -5 python:
                     else:
                         for w in workers.copy():
                             value = int(w.flag(power_flag_name))
-
                             building.moddirt(value)
-                            simpy_debug("%s: Cleaning value: %s, remaining dirt: %s", self.env.now, value, building.dirt)
 
                             dirt_cleaned += value
                             cleaners.add(w)
@@ -133,7 +131,7 @@ init -5 python:
             simpy_debug("Entering Cleaners.write_nd_report at %s", self.env.now)
 
             job, loc = self.job, self.building
-            log = NDEvent(job=job, loc=loc, team=all_workers, business=self)
+            log = NDEvent(job=job, loc=loc, locmod={'dirt':dirt_cleaned}, team=all_workers, business=self)
 
             extra_workers = all_workers - strict_workers
 
@@ -173,7 +171,6 @@ init -5 python:
 
             simpy_debug("Cleaners.write_nd_report marker 3")
 
-            dirt_cleaned = int(dirt_cleaned)
             temp = "\nA total of {} dirt was cleaned.".format(set_font_color(dirt_cleaned, "red"))
             log.append(temp)
 
@@ -199,9 +196,6 @@ init -5 python:
                 # This is imperfect. We need to track jobpoints spent to get this right...
                 log.logws("exp", exp_reward(w, loc.tier, ap_used=ap_used, final_mod=.5), char=w)
                 w.del_flag("jobs_points_spent")
-
-            # Stat mods
-            log.logloc('dirt', dirt_cleaned)
 
             log.type = "jobreport" # Come up with a new type for team reports?
 

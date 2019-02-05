@@ -247,12 +247,7 @@ label dev_testing_menu_and_load_mc:
 label continue_with_start:
     python: # Load Arena
         tl.start("Loading: Arena!")
-        pytfall.arena = Arena()
-        pytfall.arena.setup_arena()
-        pytfall.arena.update_matches()
-        pytfall.arena.update_teams()
-        pytfall.arena.find_opfor()
-        pytfall.arena.update_dogfights()
+        pytfall.init_arena()
         tl.end("Loading: Arena!")
 
     # Call girls starting labels:
@@ -639,6 +634,10 @@ label after_load:
                     b.auto_clean = val 
                 if hasattr(b, "_adverts"):
                     b.adverts = b._adverts
+                    del b._adverts
+                if hasattr(b, "_daily_modifier"):
+                    b.daily_modifier = b._daily_modifier
+                    del b._daily_modifier
                 if not isinstance(b.stats_log, OrderedDict):
                     b.stats_log = OrderedDict(b.stats_log)
                 if b.DIRT_STATES != Building.DIRT_STATES:
@@ -646,6 +645,7 @@ label after_load:
                 if hasattr(b, "max_stats"):
                     b.maxdirt = b.max_stats["dirt"]
                     b.maxthreat = b.max_stats["threat"]
+                    del b.max_stats
                 if hasattr(b, "stats"):
                     b.dirt = b.stats["dirt"]
                     b.threat = b.stats["threat"]
@@ -653,6 +653,10 @@ label after_load:
                         b.dirt = int(b.dirt)
                     if not isinstance(b.threat, int):
                         b.threat = int(b.threat)
+                    del b.stats
+                    for s, v in b.stats_log.items():
+                        if not isinstance(v, int):
+                            b.stats_log[s] = int(v)
                 if hasattr(b, "building_jobs"):
                     b.needs_management = True
                     del b.building_jobs
@@ -682,7 +686,7 @@ label after_load:
                 nb._habitable = b._habitable
                 nb.rooms = b.rooms
                 nb.inhabitants = b.inhabitants
-                nb._daily_modifier = b._daily_modifier
+                nb.daily_modifier = b._daily_modifier
                 nb.location = b.location
 
                 nb.status = b.status
@@ -799,6 +803,23 @@ label after_load:
             pytfall.city = store.locations["City Apartments"]
             pytfall.streets = store.locations["Streets"]
             pytfall.afterlife = store.locations["After Life"]
+
+            del pytfall.city.rooms
+            del pytfall.streets.rooms
+            del pytfall.afterlife.rooms
+
+            del pytfall.city._habitable
+            del pytfall.streets._habitable
+            del pytfall.afterlife._habitable
+
+            pytfall.city.daily_modifier = pytfall.city._daily_modifier
+            del pytfall.city._daily_modifier
+
+            pytfall.streets.daily_modifier = pytfall.streets._daily_modifier
+            del pytfall.streets._daily_modifier
+
+            pytfall.afterlife.daily_modifier = pytfall.afterlife._daily_modifier
+            del pytfall.afterlife._daily_modifier
 
             city = store.locations["City"]
             if hero.location == city:

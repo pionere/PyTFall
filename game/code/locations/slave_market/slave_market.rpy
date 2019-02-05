@@ -546,15 +546,15 @@ screen slave_shopping(source, tt_text, buy_button, buy_tt):
                     has vbox
 
                     # Decided to handle it on screen level since code required for this can get a bit messy when going through actions:
-                    if source == jail and char.flag("sentence_type") == "SE_capture":
+                    if source == pytfall.jail and char.flag("sentence_type") == "SE_capture":
                         textbutton "Retrieve":
                             xsize 150
                             action Show("se_captured_retrieval")
-                            tooltip "Retrieve %s for % gold." % (char.name, source.get_fees4captured())
+                            tooltip "Retrieve %s for % gold." % (char.name, source.get_fees4captured(char))
                     else:
                         textbutton "[buy_button]":
                             xsize 150
-                            action Return(["buy"])
+                            action Function(pytfall.sm.buy_girl, char)
                             tooltip "" + buy_tt % char.fin.get_price()
                     textbutton "Back":
                         xsize 150
@@ -591,7 +591,7 @@ screen slave_shopping(source, tt_text, buy_button, buy_tt):
                             imagebutton:
                                 idle img
                                 hover (im.MatrixColor(img, im.matrix.brightness(.15)))
-                                action Function(source.set_girl, c)
+                                action NullAction()
                                 tooltip u"{=proper_stats_text}%s\n{size=-5}{=proper_stats_value_text}%s"%(c.name, c.desc)
                 bar value XScrollValue("sm_vp_glist")
 
@@ -614,10 +614,10 @@ screen se_captured_retrieval(pos=(900, 300)):
         anchor (xval, yval)
         vbox:
             textbutton "Sell!":
-                action jail.sell_captured, renpy.restart_interaction, Hide("se_captured_retrieval")
+                action Function(pytfall.jail.sell_captured, char, False), renpy.restart_interaction, Hide("se_captured_retrieval")
             if global_flags.flag("blue_cg"):
                 textbutton "Train with Blue!":
-                    action Function(jail.retrieve_captured, direction="Blue"), Hide("se_captured_retrieval"), With(dissolve)
+                    action Function(pytfall.jail.retrieve_captured, char, "Blue"), Hide("se_captured_retrieval"), With(dissolve)
             textbutton "Close":
                 action Hide("se_captured_retrieval"), With(dissolve)
                 keysym "mousedown_3"

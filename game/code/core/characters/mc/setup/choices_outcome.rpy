@@ -55,11 +55,11 @@ label mc_setup_warrior_warrior_dragon_sight:
 
 label mc_setup_warrior_defender_guard:
     python hide:
-        # find the second cheapest habitable building (ap)
+        # find the second cheapest building (ap) with rooms
         ba = None #the cheapest building
         ap = None
         for b in buildings.values():
-            if not b.habitable:
+            if b.rooms == 0:
                 continue
             if ba is None:
                 ba = b
