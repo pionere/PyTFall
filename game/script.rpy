@@ -107,15 +107,10 @@ label start:
         buildings = load_buildings()
         tl.end("Loading: Buildings")
 
-    $ tl.start("Loading: Schools")
-    $ schools = {}
-    python hide: # Training/Schools/Weird Proxies by Thewlis:
-        school = School()
-        school.add_courses()
-        schools[school.name] = school
-        # schools = load_schools()
-        # pytFlagProxyStore = shallowcopy(pytFlagProxyStore)
-    $ tl.end("Loading: Schools")
+        # Training/Schools:
+        tl.start("Loading: School")
+        pytfall.school.add_courses()
+        tl.end("Loading: School")
 
     # python: # Picked Tags and maps (afk atm):
     #     maps = xml_to_dict(content_path('db/map.xml'))
@@ -789,6 +784,17 @@ label after_load:
 
         if hasattr(pytfall, "it"):
             del pytfall.it
+        if hasattr(store, "jail"):
+            pytfall.jail = store.jail
+
+            del pytfall.jail.focused
+
+            del store.jail
+
+        if hasattr(store, "schools"):
+            pytfall.school = store.schools.popitem()[1]
+            del store.schools
+
         if not hasattr(pytfall, "city"):
             pytfall.city = store.locations["City Apartments"]
             pytfall.streets = store.locations["Streets"]

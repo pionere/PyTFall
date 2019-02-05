@@ -90,7 +90,7 @@ init python:
         def next_day(self):
             self.days_remaining -= 1
 
-            school = schools["-PyTFall Educators-"]
+            school = pytfall.school
             students = [s for s in self.students if s.AP > 0]
             if not students:
                 return
@@ -231,7 +231,7 @@ init python:
                 evt.charmod = charmod
                 evt.red_flag = False
                 evt.green_flag = flag_green
-                evt.loc = schools["-PyTFall Educators-"]
+                evt.loc = pytfall.school
                 evt.char = char
                 evt.txt = txt
                 # Get char image from data:
@@ -247,7 +247,7 @@ init python:
                 evt.type = "course_nd_report"
                 # evt.charmod = charmod
                 evt.red_flag = True
-                evt.loc = schools["-PyTFall Educators-"]
+                evt.loc = pytfall.school
                 evt.char = char
                 evt.img = char.show("profile", "sad", resize=ND_IMAGE_SIZE)
                 evt.txt = txt

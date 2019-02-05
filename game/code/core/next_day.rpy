@@ -184,14 +184,6 @@ label next_day_calculations:
     $ tl.end("ND-Buildings")
     # Building events END.
 
-    # Training events Start:
-    python:
-        tl.start("Schools ND")
-        for school in schools.values():
-            school.next_day()
-        tl.end("Schools ND")
-    # Training events End.
-
     # Searching events Start:
     # tl.start("Searching") # TODO (lt) Find out if we still want escaping chars?
     # for building in hero.buildings:
@@ -985,7 +977,7 @@ screen next_day():
                     xysize 95, 95
                     padding 2, 2
                     background Frame("content/gfx/frame/MC_bg3.png", 5, 5)
-                    $ img = schools["-PyTFall Educators-"].img
+                    $ img = pytfall.school.img
                     button:
                         xysize 90, 90
                         align .5, .5

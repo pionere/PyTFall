@@ -1,5 +1,5 @@
 label school_training:
-    $ school = schools.values().pop()
+    $ school = pytfall.school
     show screen school_training
 
     # Make sure we set char to the_chosen (means we came from listing)
@@ -94,10 +94,9 @@ screen school_training():
             draggable False
             mousewheel True
             scrollbars "vertical"
-            $ sch = schools["-PyTFall Educators-"]
             vbox:
                 spacing 10
-                for c in sch.courses:
+                for c in school.courses:
                     if c.students:
                         vbox:
                             xsize 450
