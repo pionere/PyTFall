@@ -667,8 +667,14 @@ label after_load:
                 if hasattr(b, "building_jobs"):
                     b.needs_management = True
                     del b.building_jobs
+                if isinstance(getattr(b, "all_clients", None), set):
+                    b.all_clients = list(b.all_clients)
+                    b.clients = list(b.clients)
+                    del b.total_clients
                 if hasattr(b, "worker_slots_max"):
                     del b.worker_slots_max
+                if hasattr(b, "mod"):
+                    del b.mod
                 if not hasattr(b, "rooms"):
                     b.rooms = 0
                 if not hasattr(b, "threat_mod"):

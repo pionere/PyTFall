@@ -474,10 +474,11 @@ screen next_day():
                                 xysize (285, 25)
                                 text "Customers:" xpos 3
                                 python:
-                                    clients = 0
-                                    for b in [b for b in hero.buildings if isinstance(b, Building)]:
-                                        clients = clients + b.total_clients
-                                text "[clients]" style_suffix "value_text"  xpos 135
+                                    clnts = 0
+                                    for b in hero.buildings:
+                                        if hasattr(b, "all_clients"):
+                                            clnts += len(b.all_clients)
+                                text "[clnts]" style_suffix "value_text"  xpos 135
 
                         null width 4
 
@@ -653,9 +654,10 @@ screen next_day():
 
                                     frame:
                                         xysize (410, 25)
-                                        if hasattr(building, "total_clients"):
+                                        if hasattr(building, "all_clients"):
+                                            $ clnts = len(building.all_clients)
                                             text "Customers:" xpos 3
-                                            text "[building.total_clients]" style_suffix "value_text" xpos 135
+                                            text "[clnts]" style_suffix "value_text" xpos 135
                                         if building.maxrep != 0:
                                             text "Rep." yalign .5 xpos 285
                                             text ("%d/%d" % (building.rep, building.maxrep)) style_suffix "value_text" xalign .99
@@ -1151,10 +1153,7 @@ screen next_day():
                                                         xalign .5
                                                         xysize 130, 25
                                                         text (u"%s:"%str(key).capitalize()) align .02, .5
-                                                        if value > 0:
-                                                            label (u"{color=[lawngreen]}%d"%value) align .98, .5
-                                                        else:
-                                                            label (u"{color=[red]}%d"%value) align .98, .5
+                                                        label "[value]" text_color (lawngreen if value > 0 else red) align .98, .5
                                         $ xpos += 136
                     # Normal, one worker report case:
                     else:

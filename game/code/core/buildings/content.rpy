@@ -317,11 +317,10 @@ init -9 python:
             #self.inventory = Inventory(15)
 
             # Clients:
-            self.all_clients = set() # All clients of this building are maintained here.
+            self.all_clients = list() # All clients of this building are maintained here.
             self.regular_clients = set() # Subset of self.all_clients.
-            self.clients = set() # temp clients, this is used during SimPy cals and reset on when that ends.
+            self.clients = list() # temp clients, this is used during SimPy cals and reset on when that ends.
             # This is the amount of clients that will visit the Building:
-            self.total_clients = 0 # this is set by get_client_count method.
             self.clients_regen_day = 0
 
             # Management:
@@ -348,8 +347,6 @@ init -9 python:
 
             # SimPy and etc follows:
             self.env = None
-
-            self.mod = 1
 
             self.adverts = []
 
@@ -834,7 +831,8 @@ init -9 python:
             # Get businesses we wish SimPy to manage! business_manager method is expected here.
             self.nd_ups = list(up for up in self._businesses if up.workable)
 
-            if self.expects_clients:
+            client_businesses = list(up for up in self._businesses if up.expects_clients)
+            if client_businesses:
                 self.all_workers = self.get_workers()
 
                 # All workers and workable businesses:
@@ -847,33 +845,40 @@ init -9 python:
                     if isinstance(w.action, Job):
                         w.action.auto_equip(w)
 
-                client_businesses = list(up for up in self._businesses if up.expects_clients)
-
                 # Clients:
                 tl.start("Generating clients in {}".format(self.name))
-                self.total_clients = self.get_client_count(write_to_nd=True)
+                total_clients = self.get_client_count(write_to_nd=True)
 
                 # Note (Beta): currently all clients are regulars
                 # remove maximum of 100 clients at a time (better perfomance, closer to RL)
                 if self.clients_regen_day <= day:
-                    clients = list(self.all_clients)
+                    clients = self.all_clients
                     num = len(clients)
                     to_remove = min(num/2, 100)
                     idx = randint(0, num-to_remove)
-                    self.all_clients = set(clients[0:idx]+clients[idx+to_remove:num])
+                    self.all_clients = clients[0:idx]+clients[idx+to_remove:num]
                     # TODO make the remaining clients regulars?!
                     self.clients_regen_day = day + randint(2, 4)
 
-                clnts = self.total_clients - len(self.all_clients)
+                # update all_clients (and clients) based on the new expectations
+                clnts = total_clients - len(self.all_clients)
                 if clnts > 0:
                     for i in xrange(clnts):
                         client = self.create_customer(likes=[choice(client_businesses)])
-                        self.all_clients.add(client)
-                self.clients = self.all_clients.copy()
+                        self.all_clients.append(client)
+                elif clnts < 0:
+                    # something happened to the building(downsized/reputation-hit/etc...) -> it it time that the clients react to it
+                    clients = self.all_clients
+                    num = len(clients)
+                    to_remove = -clnts/2
+                    idx = randint(0, num-to_remove)
+                    self.all_clients = clients[0:idx]+clients[idx+to_remove:num]
+
+                self.clients = self.all_clients[:]
 
                 tl.end("Generating clients in {}".format(self.name))
 
-            if self.nd_ups or self.expects_clients:
+            if self.nd_ups or client_businesses:
                 # Building Stats:
                 self.log("")
                 self.log("Reputation: {}%".format(self.rep_percentage))
@@ -954,10 +959,10 @@ init -9 python:
 
             for u in self.nd_ups:
                 # Trigger all public businesses:
-                if not u.active: # business is not active:
-                    env.process(self.inactive_process())
-                else: # Business as usual:
+                if u.active:  # Business as usual:
                     env.process(u.business_control())
+                else: # inactive business
+                    env.process(self.inactive_process())
 
                 if u.has_workers():
                     u.is_running = True
@@ -1022,7 +1027,7 @@ init -9 python:
 
             We want 50% of all clients to come in the 'rush hour' (turn 50 - 80).
             """
-            expected = self.total_clients
+            expected = len(self.clients)
             running = 0
 
             for u in self._upgrades:
@@ -1034,8 +1039,8 @@ init -9 python:
 
             # We do not want to add clients at the last 5 - 10 turns...
             # So we use 90 as base.
-            normal_step = self.total_clients*.5/60
-            rush_hour_step = self.total_clients*.5/30
+            normal_step = expected*.5/60
+            rush_hour_step = expected*.5/30
 
             while (1):
                 simpy_debug("Entering PublicBusiness(%s).client_dispatcher iteration at %s", self.name, self.env.now)
@@ -1052,13 +1057,11 @@ init -9 python:
                     running -= add_clients
 
                     for i in range(add_clients):
-                        if expected == 0 or not self.clients:
-                            expected = 0
+                        if not self.clients:
                             break
-                        expected -= 1
                         client = self.clients.pop()
                         self.env.process(self.client_manager(client, has_garden=has_garden))
-                    if expected == 0:
+                    if not self.clients:
                         break
 
                 if DSNBR:

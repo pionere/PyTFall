@@ -2,7 +2,7 @@
                 "name": "Scary Shack",
                 "desc": "It is a haunted sh*thole no sane being would pay a dime for!\nBut it's all you've got...\nAnd 'haunted' is probably just a rumor.",
                 "location": "Flee Bottom",
-                "price": 8000,
+                "price": 100,
 
                 "in_slots_max": 16,
                 "ex_slots_max": 0,
@@ -13,7 +13,6 @@
                 "maxrep": 100,
 
                 "tier": 0,
-                "mod": 1,
 
                 "adverts": ["Sign", "Flyers"],
                 "img": "content/buildings/haunted.webp",
@@ -51,7 +50,6 @@
         "maxrep": 100,
 
         "tier": 0,
-        "mod": 1,
 
         "adverts": ["Sign", "Flyers"],
         "img": "content/buildings/bad_0.webp",
@@ -81,7 +79,6 @@
         "rep": 0,
         "maxrep": 120,
 
-        "mod": 1.2,
         "tier": 1,
 
         "adverts": ["Sign", "Flyers", "Magazine"],
@@ -118,7 +115,6 @@
         "maxrep": 150,
 
         "tier": 2,
-        "mod": 1.4,
 
         "adverts": ["Sign", "Flyers", "Magazine", "Billboard"],
         "img": "content/buildings/small_0.webp",
@@ -152,7 +148,6 @@
         "maxrep": 200,
 
         "tier": 3,
-        "mod": 1.4,
 
         "adverts": ["Sign", "Flyers", "Magazine", "Billboard"],
         "img": "content/buildings/medium_0.webp",
@@ -186,7 +181,6 @@
         "maxrep": 150,
 
         "tier": 4,
-        "mod": 1.6,
 
         "adverts": ["Sign", "Flyers", "Magazine", "Billboard", "Girl"],
         "img": "content/buildings/house2.webp",
@@ -229,7 +223,6 @@
         "maxrep": 300,
 
         "tier": 5,
-        "mod": 2,
 
         "adverts": ["Sign", "Flyers", "Magazine", "Billboard", "Girl"],
         "img": "content/buildings/mansion.webp",
@@ -280,7 +273,6 @@
         "maxrep": 500,
 
         "tier": 6,
-        "mod": 3,
 
         "adverts": ["Sign", "Flyers", "Magazine", "Billboard", "Girl", "Celebrity"],
         "img": "content/buildings/large_0.webp",
@@ -316,7 +308,6 @@
         "maxrep": 500,
 
         "tier": 7,
-        "mod": 3,
 
         "adverts": ["Sign", "Flyers", "Magazine", "Billboard", "Girl", "Celebrity"],
         "img": "content/buildings/palace.webp",
@@ -352,7 +343,6 @@
         "maxrep": 1000,
 
         "tier": 8,
-        "mod": 5,
 
         "adverts": ["Sign", "Flyers", "Magazine", "Billboard", "Girl", "Celebrity"],
         "img": "content/buildings/centralpalace.webp",
@@ -403,7 +393,6 @@
         "maxrep": 0,
 
         "tier": 1,
-        "mod": 1,
 
         "adverts": [],
         "img": "content/buildings/slave_quaters.webp",
@@ -416,7 +405,7 @@
                 "desc": "Home for slaves to live in."
             }
         }],
-        "allowed_businesses": []
+        "allowed_businesses": ["SlaveQuarters"]
     },
     {
         "name": "Medium Slave Quarters",
@@ -433,7 +422,6 @@
         "maxrep": 0,
 
         "tier": 1,
-        "mod": 1,
 
         "adverts": [],
         "img": "content/buildings/slave_quaters.webp",
@@ -447,7 +435,7 @@
                 "allowed_upgrades": ["SQLandscape"]
             }
         }],
-        "allowed_businesses": []
+        "allowed_businesses": ["SlaveQuarters"]
     },
     {
         "name": "Large Slave Quarters",
@@ -464,7 +452,6 @@
         "maxrep": 0,
 
         "tier": 5,
-        "mod": 1,
 
         "adverts": [],
         "img": "content/buildings/slave_quaters.webp",
@@ -478,7 +465,7 @@
                 "allowed_upgrades": ["SQLandscape"]
             }
         }],
-        "allowed_businesses": []
+        "allowed_businesses": ["SlaveQuarters"]
     },
     {
         "name": "Slums Apartment",
