@@ -134,14 +134,9 @@ init -5 python:
 
             if all_on_deck:
                 # Make sure we make a note that these are not dedicated guards
-                temp = "{color=[red]}"
-                temp += "Clients in building got too unruly! All free workers are called to serve as guards!{/color}"
-                log(temp, True)
+                log(set_font_color("Clients in building got too unruly! All free workers are called to serve as guards!", "red"))
             else:
-                # Make sure we make a note that these are not dedicated guards
-                temp = "{color=[blue]}"
-                temp += "Your guards are starting their shift!{/color}"
-                log(temp, True)
+                log(set_font_color("Your guards are starting their shift!", "cadetblue"))
 
             for worker in workers:
                 if not("Combatant" in worker.gen_occs):

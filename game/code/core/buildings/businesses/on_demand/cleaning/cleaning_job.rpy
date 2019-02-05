@@ -110,14 +110,9 @@ init -5 python:
 
             if all_on_deck:
                 # Make sure we make a note that these are not dedicated cleaners
-                temp = "{color=[red]}"
-                temp += "Building got too dirty to work at! All free workers were called on cleaning duty!"
-                log(temp)
+                log(set_font_color("Building got too dirty to work at! All free workers were called on cleaning duty!", "red"))
             else:
-                # Make sure we make a note that these are not dedicated cleaners
-                temp = "{color=[blue]}"
-                temp += "Your cleaners are starting their shift!"
-                log(temp)
+                log(set_font_color("Your cleaners are starting their shift!", "cadetblue"))
 
             for worker in cleaners:
                 if not("Server" in worker.gen_occs):
