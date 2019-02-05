@@ -224,10 +224,10 @@ label dev_testing_menu_and_load_mc:
             hero.log_stats()
 
             if DEBUG and not hero.home:
-                # Find the most expensive building
+                # Find the most expensive building with rooms
                 ap = None 
                 for b in buildings.values():
-                    if not b.habitable:
+                    if b.rooms == 0:
                         continue
                     if ap is None or b.price > ap.price:
                         ap = b
@@ -634,7 +634,14 @@ label after_load:
                     b.auto_clean = val 
                 if hasattr(b, "_adverts"):
                     b.adverts = b._adverts
+                    for a in b.adverts:
+                        if a['name'] == 'Sign':
+                            a['client'] = 2
+                        elif a['name'] == 'Celebrity':
+                            a['unique'] = True
                     del b._adverts
+                if hasattr(b, "logged_clients"):
+                    del b.logged_clients
                 if hasattr(b, "_daily_modifier"):
                     b.daily_modifier = b._daily_modifier
                     del b._daily_modifier

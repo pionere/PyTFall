@@ -320,6 +320,10 @@ init -12 python:
             # Runs at the very start of execution of SimPy loop during the next day.
             return
 
+        def post_nd(self):
+            # Resets all flags and variables after next day calculations are finished.
+            return
+
         @property
         def all_occs(self):
             s = set()
@@ -332,10 +336,6 @@ init -12 python:
             if not reason:
                 reason = self.name
             self.building.fin.log_logical_income(amount, reason)
-
-        def post_nd_reset(self):
-            # Resets all flags and variables after next day calculations are finished.
-            pass
 
         def inactive_process(self):
             temp = "{} is currently inactive, no actions will be conducted here!".format(self.name)
@@ -425,7 +425,7 @@ init -12 python:
         def pre_nd(self):
             self.res = simpy.Resource(self.env, self.capacity)
 
-        def post_nd_reset(self):
+        def post_nd(self):
             self.res = None
             self.is_running = False
 
@@ -709,7 +709,7 @@ init -12 python:
             # Whatever we need to do at start of Next Day calculations.
             self.res = simpy.Resource(self.env, self.capacity)
 
-        def post_nd_reset(self):
+        def post_nd(self):
             self.res = None
             self.is_running = False
             self.send_in_worker = False
@@ -794,7 +794,7 @@ init -12 python:
                     if remove_from_available_workers:
                         building.available_workers.remove(w)
 
-        def post_nd_reset(self):
+        def post_nd(self):
             # Resets all flags and variables after next day calculations are finished.
             self.interrupt = None
 

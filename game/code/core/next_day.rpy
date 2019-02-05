@@ -94,8 +94,7 @@ label next_day:
             call next_day_calculations from _call_next_day_calculations
             call next_day_effects_check from _call_next_day_effects_check
             $ nd_turns -= 1
-
-    $ nd_turns = 1
+        $ nd_turns = 1
 
     # Preparing to display ND.
     ####### - - - - - #######
@@ -117,7 +116,7 @@ label next_day:
     if next_day_local:
         jump next_day
 
-    $ girls = None
+    #$ girls = None
     hide screen next_day
 
     if persistent.auto_saves:
@@ -135,79 +134,51 @@ label next_day_calculations:
     $ global_flags.set_flag("keep_playing_music")
 
     $ tl.start("Next Day")
-    python:
-        nd_debug("Day: %s, Girls (Player): %s, Girls (Game): %s" % (day, len(hero.chars), len(chars)))
-        FilteredList = list()
-        NextDayEvents = list()
-
-    # Restore (AutoEquip for HP/Vit/MP) before the jobs:
+    $ NextDayEvents = list()
     python hide:
+        nd_debug("Day: %s, Girls (Player): %s, Girls (Game): %s" % (day, len(hero.chars), len(chars)))
+
+        # Restore (AutoEquip for HP/Vit/MP) before the jobs:
         tl.start("AutoEquip Consumables for Workers")
         list(c.restore() for c in list(c for c in hero.chars if c.is_available))
         tl.end("AutoEquip Consumables for Workers")
 
-    # Building events Start:
-    $ tl.start("ND-Buildings")
-
-    # Generate buildings list and update manager effectiveness:
-    $ nd_buildings = list(b for b in hero.buildings if isinstance(b, Building))
-    python hide: # Figure out what managers can do for us.
-        for b in nd_buildings:
-            # We can calculate manager effectiveness once, so we don't have to do
-            # expensive calculations 10 000 000 times:
-            if b.manager:
-                job = simple_jobs["Manager"]
-                b.manager_effectiveness = job.effectiveness(b.manager,
-                                                    b.tier, None, False)
-            else:
-                b.manager_effectiveness = 0
-
-    $ tl.start("ND-Rest (First pass)")
-    # Sets to AutoRest amongst other things:
-    python hide:
+        # Building events Start:
+        tl.start("ND-Buildings")
+        tl.start("ND-Rest (First pass)")
         for c in hero.chars:
             if not isinstance(c.action, (Rest, SchoolCourse)):
-                can_do_work(c, check_ap=True, log=None)
+                # check whether the char needs rest
+                can_do_work(c, check_ap=False, log=None)
+            if auto_rest_conditions(c):
+                # rest
+                c.action(c) # <--- Looks odd and off?
 
-    # Next Day Resting Chars
-    $ ndr_chars = list(c for c in hero.chars if auto_rest_conditions(c))
-    while ndr_chars:
-        $ resting_char = ndr_chars.pop()
-        $ resting_char.action(resting_char) # <--- Looks odd and off?
-    $ tl.end("ND-Rest (First pass)")
+        tl.end("ND-Rest (First pass)")
 
-    while nd_buildings:
-        $ building = nd_buildings.pop()
-        $ building.run_nd()
-        $ building.next_day()
+        # run the next day logic of the building:
+        for b in hero.buildings:
+            b.next_day()
 
-    $ tl.end("ND-Buildings")
-    # Building events END.
+        tl.end("ND-Buildings")
+        # Building events END.
 
-    # Searching events Start:
-    # tl.start("Searching") # TODO (lt) Find out if we still want escaping chars?
-    # for building in hero.buildings:
-    #     girls = building.get_girls("Search")
-    #     while girls:
-    #         EscapeeSearchJob(choice(girls), building, girls)
-    # tl.end("Searching")
-    # Searching events End.
+        # Searching events Start:
+        # tl.start("Searching") # TODO (lt) Find out if we still want escaping chars?
+        # for building in hero.buildings:
+        #     girls = building.get_girls("Search")
+        #     while girls:
+        #         EscapeeSearchJob(choice(girls), building, girls)
+        # tl.end("Searching")
+        # Searching events End.
 
-    # Second iteration of Rest:
-    $ tl.start("ND-Rest (Second pass)")
-    $ ndr_chars = list(c for c in hero.chars if auto_rest_conditions(c)) # Next Day Resting Chars
-    while ndr_chars:
-        $ resting_char = ndr_chars.pop()
-        $ resting_char.action(resting_char) # <--- Looks odd and off?
-    $ tl.end("ND-Rest (Second pass)")
+        # Second iteration of Rest:
+        tl.start("ND-Rest (Second pass)")
+        for c in hero.chars:
+            if auto_rest_conditions(c):
+                c.action(c) # <--- Looks odd and off?
+        tl.end("ND-Rest (Second pass)")
 
-    #python hide:
-        # Done after buildings resets in next day
-        # Uncomment when we allow inter-building actions...
-        #for b in nd_buildings:
-        #    building.manager_effectiveness = 0
-
-    python:
         ################## Logic ##################
         tl.start("pytfall/calender .next_day")
         pytfall.next_day()
@@ -215,15 +186,13 @@ label next_day_calculations:
         gm.gm_points = 0
         tl.end("pytfall/calender .next_day")
 
-    $ tl.end("Next Day")
-
-    # Reset Flags:
-    python hide:
+        # Reset Flags:
         for char in chars.values():
             for flag in char.flags.keys():
                 if flag.startswith("ndd"):
                     char.del_flag(flag)
 
+    $ tl.end("Next Day")
     return
 
 label next_day_controls:
@@ -1195,22 +1164,12 @@ screen next_day():
                             xalign .5 ypos 45
                             spacing 1
                             for key, value in event.charmod.items():
-                                if value:
+                                if value != 0:
                                     frame:
                                         xalign .5
                                         xysize 130, 25
-                                        text (u"%s:" % str(key).capitalize()) align .02, .5
-                                        python: # Special considerations:
-                                            if key in ["dirt", "threat"]:
-                                                neg_color = lawngreen
-                                                pos_color = red
-                                            else:
-                                                neg_color = red
-                                                pos_color = lawngreen
-                                        if value > 0:
-                                            label (u"[value]") text_color pos_color align .98, .5
-                                        elif value < 0:
-                                            label (u"[value]") text_color neg_color align .98, .5
+                                        text ("%s:" % key.capitalize()) align .02, .5
+                                        label "[value]" text_color (lawngreen if value > 0 else red) align .98, .5
 
             # Buildings Stats Frame:
             frame background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10):
@@ -1219,7 +1178,7 @@ screen next_day():
                 pos (690, 406)
                 viewport id "nextdaybsf_vp":
                     xysize (136, 305)
-                    if event.type=="jobreport":
+                    if event.locmod:
                         vbox:
                             null height 5
                             frame:
@@ -1233,17 +1192,23 @@ screen next_day():
                                 style_group "proper_stats"
                                 xsize 136
                                 spacing 1
-                                for key in event.locmod:
-                                    if event.locmod[key] != 0:
+                                for key, value in event.locmod.items():
+                                    if value != 0:
                                         frame:
                                             xalign .5
                                             xysize 130, 25
-                                            if key == "reputation":
-                                                $ hkey = "Rep"
-                                            else:
-                                                $ hkey = key
-                                            text (u"{size=-1} %s:"%hkey.capitalize()) align .02, .5
-                                            label (u"{size=-5}%d"%event.locmod[key]) align .98, .5
+                                            python: # Special considerations:
+                                                hkey = key
+                                                if key in ["dirt", "threat"]:
+                                                    neg_color = lawngreen
+                                                    pos_color = red
+                                                else:
+                                                    neg_color = red
+                                                    pos_color = lawngreen
+                                                    if key == "reputation":
+                                                        hkey = "Rep"
+                                            text (u"%s:" % hkey.capitalize()) align .02, .5
+                                            label "[value]" text_color (pos_color if value > 0 else neg_color) align .98, .5
 
         # Text Frame + Stats Reports Mousearea:
         # frame:

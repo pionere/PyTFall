@@ -3,6 +3,7 @@
         "name": "Sign",
         "desc": "Put up a sign above entrance. Sensible advertisement for every business that you own. You obviously pay full fee for this only once and then 10% of the fee if you removed the sign for some reason and put it up again.",
         "price": 200,
+        "client": 2,
         "fame": [0, 1]
     },
     {
@@ -35,6 +36,8 @@
         "name": "Celebrity",
         "desc": "Pay a celebrity to come into your building and publicly endorse it!",
         "price": 5000,
+        "client": 30,
+        "unique": true,
         "fame": [25, 50],
         "reputation": [25, 50]
     }
