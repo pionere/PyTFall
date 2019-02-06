@@ -388,16 +388,16 @@ init:
         android["header"] = "Android"
         android["text"] = "In one of his expeditions, he found an ancient faulty android. He managed to repair and reprogram her to be his 'very' personal assistant."
         android["text"] += set_font_color("\n+ Assassin Class", "green")
-        android["text"] += set_font_color("\n+ Electricity Elemental Alignment", "#7df9ff")
-        android["text"] += set_font_color("\n+ Special attack you can use when fighting unarmed.", "#7df9ff")
+        android["text"] += set_font_color("\n+ Electricity Elemental Alignment", "yellow")
+        android["text"] += set_font_color("\n+ Special attack you can use when fighting unarmed.", "yellow")
         android["label"] = "mc_setup_mage_researcher_android"
         android["class"] = "Assassin"
 
         android["Creature of Electricity"] = temp = {}
         temp["text"] = "Electricity spells heal you instead of dealing damage, but your Water spells are almost useless."
         temp["text"] += " You were left small inheritance by your parents."
-        temp["text"] += set_font_color("\n+ {a=Master of Electricity}Master of Electricity Trait{/a}", "#7df9ff")
-        temp["text"] += set_font_color("\n+ Three Spell Scrolls", "#7df9ff")
+        temp["text"] += set_font_color("\n+ {a=Master of Electricity}Master of Electricity Trait{/a}", "yellow")
+        temp["text"] += set_font_color("\n+ Three Spell Scrolls", "yellow")
         temp["label"] = "mc_setup_mage_researcher_android_ele"
 
         android["Looped Physiology"] = temp = {}
@@ -413,16 +413,16 @@ init:
         mc_stories["Mage"]["MC"]["Researcher"]["Slime"] = slime = {}
         slime["header"] = "Slime"
         slime["text"] = "Pureblood slimes do not feel pleasure in the same way as non-liquid beings, but they are still interested in mating, especially with creatures of potent magic, like your father."
-        slime["text"] += set_font_color("\n+ {a=Liquid Body Structure}Liquid Body Structure Trait{/a}", "#2389da")
-        slime["text"] += set_font_color("\n+ Water Elemental Alignment", "#2389da")
-        slime["text"] += set_font_color("\n+ Couple of Spells", "#2389da")
+        slime["text"] += set_font_color("\n+ {a=Liquid Body Structure}Liquid Body Structure Trait{/a}", "dodgerblue")
+        slime["text"] += set_font_color("\n+ Water Elemental Alignment", "dodgerblue")
+        slime["text"] += set_font_color("\n+ Couple of Spells", "dodgerblue")
         slime["label"] = "mc_setup_mage_researcher_slime"
         slime["class"] = "Shooter"
 
         slime["Creature of Water"] = temp = {}
         temp["text"] = "Water spells heal you instead of hurting, but your Electricity spells are almost ineffective."
-        temp["text"] += set_font_color("\n+ {a=Master of Water}Master of Water Trait{/a}", "#2389da")
-        temp["text"] += set_font_color("\n+ Three Spell Scrolls", "#2389da")
+        temp["text"] += set_font_color("\n+ {a=Master of Water}Master of Water Trait{/a}", "dodgerblue")
+        temp["text"] += set_font_color("\n+ Three Spell Scrolls", "dodgerblue")
         temp["label"] = "mc_setup_mage_researcher_slime_water"
 
         slime["Arcane Archer"] = temp = {}
@@ -441,24 +441,24 @@ init:
         winter_fay["header"] = "Winter Fay"
         winter_fay["text"] = "Winter Fae are known to be harsh and unyielding, embodying entropy and death in the circle of nature. Therefore the reason behind your birth remains to be discovered."
         winter_fay["text"] += set_font_color("\n+ {a=Fae Blood}Fae Blood Trait{/a}", "green")
-        winter_fay["text"] += set_font_color("\n+ Ice Elemental Alignment", "#A5F2F3")
-        winter_fay["text"] += set_font_color("\n+ Couple of Spells", "#A5F2F3")
+        winter_fay["text"] += set_font_color("\n+ Ice Elemental Alignment", "lightblue")
+        winter_fay["text"] += set_font_color("\n+ Couple of Spells", "lightblue")
         winter_fay["label"] = "mc_setup_mage_sorcerer_winter"
 
         winter_fay["Creature of Ice"] = temp = {}
         temp["text"] = "Ice spells heal you instead of dealing damage, but your Fire spells are almost useless."
-        temp["text"] += set_font_color("\n+ {a=Master of Ice}Master of Ice Trait{/a}", "#A5F2F3")
-        temp["text"] += set_font_color("\n+ Three Spell Scrolls", "#A5F2F3")
+        temp["text"] += set_font_color("\n+ {a=Master of Ice}Master of Ice Trait{/a}", "lightblue")
+        temp["text"] += set_font_color("\n+ Three Spell Scrolls", "lightblue")
         temp["label"] = "mc_setup_mage_sorcerer_winter_ice"
 
         winter_fay["Immutability"] = temp = {}
         temp["text"] = "Your body inherited some of your mother's unchangeability. You restore a third of maximum MP every day. Items that restore it are less effective."
-        temp["text"] += set_font_color("\n+ {a=Winter Eternality}Winter Eternality Trait{/a}", "#A5F2F3")
+        temp["text"] += set_font_color("\n+ {a=Winter Eternality}Winter Eternality Trait{/a}", "lightblue")
         temp["label"] = "mc_setup_mage_sorcerer_winter_imm"
 
         winter_fay["Winter Magician"] = temp = {}
         temp["text"] = "The Winter itself gives you power. You have less MP, but it can never become exhausted."
-        temp["text"] += set_font_color("\n+ {a=Winter Magician}Winter Magician Trait{/a}", "#A5F2F3")
+        temp["text"] += set_font_color("\n+ {a=Winter Magician}Winter Magician Trait{/a}", "lightblue")
         temp["label"] = "mc_setup_mage_sorcerer_winter_win"
 
 
@@ -485,14 +485,14 @@ init:
         kitsune["text"] = "Kitsunes are intelligent beings from a distant land. They possess potent magical abilities that increase as they grow older."
         kitsune["text"] +=" Your mother, however, was very young and inexperienced when her clan sent her to study arcane arts under the guidance of your father."
         kitsune["text"] += set_font_color("\n+ {a=Kitsune Blood}Kitsune Blood Trait{/a}", "green")
-        kitsune["text"] += set_font_color("\n+ Fire Elemental Alignment", "orange")
-        kitsune["text"] += set_font_color("\n+ One Fire Spell", "orange")
+        kitsune["text"] += set_font_color("\n+ Fire Elemental Alignment", "orangered")
+        kitsune["text"] += set_font_color("\n+ One Fire Spell", "orangered")
         kitsune["label"] = "mc_setup_mage_sorcerer_kitsune"
 
         kitsune["Fire Fox"] = temp = {}
         temp["text"] = "Fire spells heal you instead of hurting, but your Ice spells are almost ineffective."
-        temp["text"] += set_font_color("\n+ {a=Master of Fire}Master of Fire Trait{/a}", "orange")
-        temp["text"] += set_font_color("\n+ Three Spell Scrolls", "orange")
+        temp["text"] += set_font_color("\n+ {a=Master of Fire}Master of Fire Trait{/a}", "orangered")
+        temp["text"] += set_font_color("\n+ Three Spell Scrolls", "orangered")
         temp["label"] = "mc_setup_mage_sorcerer_kitsune_fire"
 
         kitsune["Mana Source"] = temp = {}

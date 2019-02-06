@@ -159,7 +159,7 @@ init: # MC Setup Screens:
 
         # Rename and Start buttons + Classes are now here as well!!!:
         if all([(hasattr(store, "mc_substory") and store.mc_substory)]):
-            textbutton "{size=40}{color=[white]}{font=fonts/TisaOTB.otf}Start Game" at fade_in_out():
+            textbutton "Start Game" text_color white text_font "fonts/TisaOTB.otf" text_size 40 at fade_in_out():
                 background Transform(Frame("content/gfx/interface/images/story12.png", 5, 5), alpha=1)
                 hover_background Transform(Frame(im.MatrixColor("content/gfx/interface/images/story12.png", im.matrix.brightness(.15)), 5, 5), alpha=1)
                 align (.46, .93)
@@ -168,18 +168,18 @@ init: # MC Setup Screens:
             # align (.37, .10)
             pos (365, 68)
             hbox:
-                textbutton "{size=20}{font=fonts/TisaOTM.otf}{color=[goldenrod]}Name:":
+                textbutton "Name:" text_color goldenrod text_font "fonts/TisaOTM.otf" text_size 20:
                     background Transform(Frame("content/gfx/interface/images/story12.png", 5, 5), alpha=.8)
                     hover_background Transform(Frame(im.MatrixColor("content/gfx/interface/images/story12.png", im.matrix.brightness(.15)), 5, 5), alpha=1)
                     xpadding 12
                     ypadding 8
-                textbutton "{size=20}{font=fonts/TisaOTM.otf}{color=[white]}[hero.name]":
+                textbutton str(hero.name) text_color white text_font "fonts/TisaOTM.otf" text_size 20:
                     background Transform(Frame("content/gfx/interface/images/story12.png", 5, 5), alpha=.8)
                     hover_background Transform(Frame(im.MatrixColor("content/gfx/interface/images/story12.png", im.matrix.brightness(.15)), 5, 5), alpha=1)
                     xpadding 12
                     ypadding 8
 
-            textbutton "{size=20}{font=fonts/TisaOTM.otf}{color=[red]}Click to change name":
+            textbutton "Click to change name" text_color red text_font "fonts/TisaOTM.otf" text_size 20:
                 background Transform(Frame("content/gfx/interface/images/story12.png", 5, 5), alpha=.8)
                 hover_background Transform(Frame(im.MatrixColor("content/gfx/interface/images/story12.png", im.matrix.brightness(.15)), 5, 5), alpha=1)
                 xpadding 12
@@ -200,7 +200,7 @@ init: # MC Setup Screens:
                         SetScreenVariable("left_index", (left_index - 1) % len(sprites)),
                         SetScreenVariable("right_index", (right_index - 1) % len(sprites))]
             $ img = ProportionalScale("content/gfx/interface/buttons/blue_arrow_right.png", 40, 40)
-            textbutton "{size=20}{font=fonts/TisaOTM.otf}{color=[white]}Select your appearance":
+            textbutton "Select your appearance" text_color white text_font "fonts/TisaOTM.otf" text_size 20:
                 background Transform(Frame("content/gfx/interface/images/story12.png", 5, 5), alpha=.8)
                 hover_background Transform(Frame(im.MatrixColor("content/gfx/interface/images/story12.png", im.matrix.brightness(.15)), 5, 5), alpha=1)
                 xpadding 12
@@ -273,11 +273,11 @@ init: # MC Setup Screens:
                 text "[temp]" xalign .5 font "fonts/DeadSecretary.ttf" size 22
                 $ temp = mc_stories[main_story].get("text", False)
                 if temp:
-                    text "[temp]" style "garamond" size 18
+                    text str(temp) style "garamond" size 18
                 null height 15
                 vbox:
                     if sub_story in mc_stories[main_story]:
-                        text ("%s" % mc_stories[main_story][sub_story]["text"]) style "garamond" size 18
+                        text str(mc_stories[main_story][sub_story]["text"]) style "garamond" size 18
             else:
                 text "No [main_story] story found!!!" align (.5, .5)
 
@@ -292,17 +292,13 @@ init: # MC Setup Screens:
             for key in img_choices:
                 python:
                     if choices["MC"][key].get("choices", ""):
-                        # greycolor = False
                         sepia = False
                     else:
-                        # greycolor = True
                         sepia = True
                     img = im.Scale(im.Sepia(img_choices[key]) if sepia else img_choices[key], 39, 39)
                 button:
                     if img_choices.keys().index(key) % 2:
                         text key align (1.0, .52)
-                            # if greycolor:
-                                # color grey
                         add img align (.0, .5)
                     else:
                         text key align (.0, .52)
@@ -342,9 +338,6 @@ init: # MC Setup Screens:
                                         if not mc_substory == choices[i + sub]:
                                             $ img = im.Sepia(img, align=(.5, .5))
                                         button:
-                                            # foreground img
-                                            # idle_foreground im.Sepia(img, align=(.5, .5))
-                                            # hover_foreground im.MatrixColor(img, im.matrix.brightness(.15), align=(.5, .5))
                                             background Frame("content/gfx/frame/MC_bg.png", 10, 10)
                                             idle_foreground im.Sepia(img, align=(.5, .5))
                                             hover_foreground im.MatrixColor(img, im.matrix.brightness(.15), align=(.5, .5))
@@ -362,16 +355,16 @@ init: # MC Setup Screens:
             has vbox xmaximum 430 xfill True xalign .5
             $ texts = mc_stories[main_story]["MC"][sub_story][mc_story]
             if "header" in texts:
-                text ("{font=fonts/DeadSecretary.ttf}{size=28}%s" % texts["header"]) xalign .5
+                text str(texts["header"]) font "fonts/DeadSecretary.ttf" size 28 xalign .5
             else:
                 text "Add Header text!"
             null height 10
             if "text" in texts:
-                text ("%s" % texts["text"]) style "garamond" size 18
+                text str(texts["text"]) style "garamond" size 18
             else:
                 text "Add Main Text!"
             null height 20
             if mc_substory in texts:
-                text ("{font=fonts/DeadSecretary.ttf}{size=23}%s" % mc_substory) xalign .5
+                text str(mc_substory) font "fonts/DeadSecretary.ttf" size 23 xalign .5
                 null height 5
-                text ("%s" % texts[mc_substory]["text"]) style "garamond" size 18
+                text str(texts[mc_substory]["text"]) style "garamond" size 18
