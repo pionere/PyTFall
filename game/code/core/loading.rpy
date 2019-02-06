@@ -459,9 +459,19 @@ init -11 python:
 
     def load_buildings():
         # Load json content
-        buildings_data = load_db_json("buildings/buildings.json")
-        adverts_data = load_db_json("buildings/adverts.json")
+        upgrades_data = load_db_json("buildings/upgrades.json")
+        idx = 0
+        for upgrade in upgrades_data:
+            up = getattr(store, upgrade.pop('class'))
 
+            for key, value in upgrade.iteritems():
+                setattr(up, key.upper(), value)
+
+            idx += 1
+            up.ID = idx
+
+        adverts_data = load_db_json("buildings/adverts.json")
+        buildings_data = load_db_json("buildings/buildings.json")
         # Populate into brothel objects:
         buildings = dict()
         idx = 0

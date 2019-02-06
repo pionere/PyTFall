@@ -1,7 +1,6 @@
 init -5 python:
     class BrothelBlock(PrivateBusiness):
         SORTING_ORDER = 5
-        COMPATIBILITY = []
         MATERIALS = {"Wood": 70, "Bricks": 30, "Glass": 5}
         NAME = "Brothel"
         IMG = "content/buildings/upgrades/room.webp"
@@ -74,7 +73,7 @@ init -5 python:
             # Move to Job method?
             eff_mod = 0
             for u in self.upgrades:
-                eff_mod += getattr(u, "job_effectiveness_mod", 0)
+                eff_mod += getattr(u, "JOB_EFFECTIVENESS_MOD", 0)
             effectiveness += eff_mod
 
             effectiveness = job.work_brothel(worker=worker, client=client, building=building,

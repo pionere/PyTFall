@@ -128,14 +128,10 @@ label building_management:
             if result[1] == "build":
                 python hide:
                     temp = result[2]()
-                    if isinstance(temp, BusinessUpgrade):
-                        result[3].add_upgrade(temp, pay=True)
-                    elif isinstance(temp, Business):
+                    if isinstance(temp, Business):
                         bm_building.add_business(temp, normalize_jobs=True, pay=True)
-                    elif isinstance(temp, BuildingUpgrade):
-                        bm_building.add_upgrade(temp, pay=True)
                     else:
-                        raise Exception("Unknown extension class detected: {}".format(result[2]))
+                        result[3].add_upgrade(temp, pay=True)
         elif result[0] == "maintenance":
             python:
                 # Cleaning controls
@@ -712,7 +708,6 @@ init:
                                         # We presently allow for 3 resources each upgrade. If more, this needs to be a conditioned viewport:
                                         for r, amount in materials.items():
                                             $ r = items[r]
-                                            # $ amount = u.MATERIALS[r.id]
                                             frame:
                                                 background Frame("content/gfx/frame/p_frame5.png", 5, 5)
                                                 xsize 100

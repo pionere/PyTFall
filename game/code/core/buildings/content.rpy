@@ -424,25 +424,35 @@ init -9 python:
         def get_extension_cost(self, extension, **ec_kwargs):
             # We figure out what it would take to add this extension (building or business)
             # using it's class attributes to figure out the cost and the materials required.
-            tier = self.tier or 1
+            mpl = self.tier + 1
 
             if isclass(extension):
                 ext = extension(**ec_kwargs)
             else:
                 ext = extension
-            if ext.building is None:
-                ext.building = self
 
-            cap = ext.capacity
+            if isinstance(ext, CoreExtension):
+                if ext.building is None:
+                    ext.building = self
 
-            cost = ext.get_price()
+                cap = ext.capacity
 
-            materials = ext.materials.copy()
-            for k, v in materials.items():
-                materials[k] = round_int(v*min(tier, 4))
+                cost = ext.get_price()
 
-            in_slots = ext.in_slots + cap*ext.exp_cap_in_slots
-            ex_slots = ext.ex_slots + cap*ext.exp_cap_ex_slots
+                materials = ext.materials.copy()
+                for k, v in materials.items():
+                    materials[k] = round_int(v * mpl)
+
+                in_slots = ext.in_slots + cap*ext.exp_cap_in_slots
+                ex_slots = ext.ex_slots + cap*ext.exp_cap_ex_slots
+            else:
+                cost = ext.COST * mpl
+                materials = {}
+                for k, v in ext.MATERIALS.items():
+                    materials[k] = v * mpl
+
+                in_slots = ext.IN_SLOTS
+                ex_slots = ext.EX_SLOTS
 
             return cost, materials, in_slots, ex_slots
 
@@ -531,7 +541,7 @@ init -9 python:
 
             upgrade.building = self
             self._upgrades.append(upgrade)
-            self._upgrades.sort(key=attrgetter("SORTING_ORDER"), reverse=True)
+            self._upgrades.sort(key=attrgetter("ID"), reverse=True)
 
         def all_possible_extensions(self):
             # Returns a list of all possible extensions (businesses and upgrades)
@@ -749,7 +759,7 @@ init -9 python:
             # Upgrades:
             temp = False
             for u in self._upgrades:
-                um = getattr(u, "client_flow_mod", 0)
+                um = getattr(u, "CLIENT_FLOW_MOD", 0)
                 if um != 0:
                     temp = True
                     mod *= um

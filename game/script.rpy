@@ -617,6 +617,13 @@ label after_load:
         if hasattr(store, "adverts"):
             del store.adverts
 
+        if not hasattr(SQLandscape, "ID"):
+            idx = 0
+            for i in store.__dict__.values():
+                if isinstance(i, BBUpgrade):
+                    idx += 1
+                    i.ID = idx
+
         for b in itertools.chain(hero.buildings, buildings.values()):
             if isinstance(b, Building):
                 if not hasattr(b, "init_pep_talk"):
@@ -686,6 +693,38 @@ label after_load:
                         b.threat_mod = -1
                     else:
                         raise Exception("{} Building with an unknown location detected!".format(str(b)))
+                for u in b._upgrades:
+                    if hasattr(u, "daily_rejuvenation_modifier"):
+                        u.DAILY_MODIFIER_MOD = 1.5
+                        del u.daily_rejuvenation_modifier
+                    if hasattr(u, "client_flow_mod"):
+                        u.CLIENT_FLOW_MOD = u.client_flow_mod
+                        del u.client_flow_mod
+                    if hasattr(u, "job_effectiveness_mod"):
+                        u.JOB_EFFECTIVENESS_MOD = u.job_effectiveness_mod
+                        del u.job_effectiveness_mod
+                    if hasattr(u, "job_power_mod"):
+                        u.JOB_POWER_MOD = u.job_power_mod
+                        del u.job_power_mod
+                    if not hasattr(u, "ID"):
+                        u.ID = getattr(store, u.__class__.__name__).ID
+                for i in b._businesses:
+                    for u in i.upgrades:
+                        if hasattr(u, "daily_rejuvenation_modifier"):
+                            u.DAILY_MODIFIER_MOD = 1.5
+                            del u.daily_rejuvenation_modifier
+                        if hasattr(u, "client_flow_mod"):
+                            u.CLIENT_FLOW_MOD = u.client_flow_mod
+                            del u.client_flow_mod
+                        if hasattr(u, "job_effectiveness_mod"):
+                            u.JOB_EFFECTIVENESS_MOD = u.job_effectiveness_mod
+                            del u.job_effectiveness_mod
+                        if hasattr(u, "job_power_mod"):
+                            u.JOB_POWER_MOD = u.job_power_mod
+                            del u.job_power_mod
+                        if not hasattr(u, "ID"):
+                            u.ID = getattr(store, u.__class__.__name__).ID
+
             else:
                 nb = Building()
                 nb.init()

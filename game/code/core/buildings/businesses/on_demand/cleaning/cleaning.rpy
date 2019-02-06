@@ -1,7 +1,6 @@
 init -5 python:
     class Cleaners(OnDemandBusiness):
         SORTING_ORDER = 1
-        COMPATIBILITY = []
         MATERIALS = {"Wood": 2, "Bricks": 2}
         NAME = "Cleaning Block"
         DESC = "Allows to use cleaners in the building"

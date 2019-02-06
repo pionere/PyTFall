@@ -363,7 +363,7 @@ init -12 python:
             upgrade.building = building
             upgrade.business = self
             self.upgrades.append(upgrade)
-            self.upgrades.sort(key=attrgetter("SORTING_ORDER"), reverse=True)
+            self.upgrades.sort(key=attrgetter("ID"), reverse=True)
 
         def all_possible_extensions(self):
             # Named this was to conform to GUI (same as for Buildings)
@@ -372,9 +372,6 @@ init -12 python:
         def has_extension(self, upgrade_class):
             # Named this was to conform to GUI (same as for Buildings)
             return upgrade_class in [u.__class__ for u in self.upgrades]
-
-        def check_upgrade_compatibility(self, upgrade):
-            return self.__class__ in upgrade.COMPATIBILITY # How is this different from allowed?
 
         def check_upgrade_allowance(self, upgrade):
             return upgrade.__class__ in self.allowed_upgrades
@@ -638,7 +635,7 @@ init -12 python:
             # Move to Job method?
             eff_mod = 0
             for u in self.upgrades:
-                eff_mod += getattr(u, "job_effectiveness_mod", 0)
+                eff_mod += getattr(u, "JOB_EFFECTIVENESS_MOD", 0)
             effectiveness += eff_mod
 
             if DSNBR:
@@ -786,7 +783,7 @@ init -12 python:
                     value = -(5 * effectiveness_ratio)
 
                     for u in self.upgrades:
-                        value += getattr(u, "job_power_mod", 0)
+                        value += getattr(u, "JOB_POWER_MOD", 0)
 
                     w.set_flag(power_flag_name, value)
 
