@@ -421,13 +421,13 @@ init -9 python:
 
             return jobs
 
-        def get_extension_cost(self, extension, **ec_kwargs):
+        def get_extension_cost(self, extension):
             # We figure out what it would take to add this extension (building or business)
             # using it's class attributes to figure out the cost and the materials required.
             mpl = self.tier + 1
 
             if isclass(extension):
-                ext = extension(**ec_kwargs)
+                ext = extension()
             else:
                 ext = extension
 
@@ -505,15 +505,6 @@ init -9 python:
 
             self._businesses.append(business)
             self._businesses.sort(key=attrgetter("SORTING_ORDER"), reverse=True)
-
-            # Add possible upgrades:
-            cls_name = business.__class__.__name__
-            upgrades = self.allowed_business_upgrades.get(cls_name, None)
-            if upgrades is not None:
-                for u in upgrades:
-                    u = getattr(store, u)
-                    if u not in business.allowed_upgrades:
-                        business.allowed_upgrades.append(u)
 
             if normalize_jobs:
                 self.normalize_jobs()

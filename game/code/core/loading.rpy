@@ -478,7 +478,18 @@ init -11 python:
         for building in buildings_data:
             b = Building()
             # Allowed upgrades for buildings we have not built yet!
-            b.allowed_business_upgrades = building.pop("allowed_business_upgrades", {})
+            allowed_businesses = building.pop("allowed_businesses", {})
+            for business in allowed_businesses:
+                bu = getattr(store, business.pop('class'))
+                bu = bu()
+                for key, value in business.iteritems():
+                    if key == "allowed_upgrades":
+                        for u in value:
+                            u = getattr(store, u)
+                            bu.allowed_upgrades.append(u)
+                    else:
+                        setattr(bu, key, value)
+                b.allowed_businesses.append(bu)
 
             for key, value in building.iteritems():
                 if key == "adverts":
@@ -490,24 +501,17 @@ init -11 python:
                             _adverts.append(adv)
                     b.adverts = _adverts
                 elif key == "build_businesses":
-                    for business_data in value:
-                        cls = getattr(store, business_data["class"])
-                        kwargs = business_data.get("kwargs", {})
+                    for bu in b.allowed_businesses:
+                        if bu.__class__.__name__ in value:
+                            b.add_business(bu)
+                        else:
+                            if DEBUG:
+                                devlog.info("Business %s not built because it is not allowed." % bu.__class__.__name__)
 
-                        # Load allowed business upgrades if there are any:
-                        au = [getattr(store, u) for u in kwargs.get("allowed_upgrades", [])]
-                        kwargs["allowed_upgrades"] = au
-
-                        b.add_business(cls(**kwargs))
-                elif key == "allowed_businesses":
-                    for business in value:
-                        business = getattr(store, business)
-                        b.allowed_businesses.append(business)
                 elif key == "allowed_upgrades":
                     for u in value:
                         u = getattr(store, u)
-                        if u not in b.allowed_upgrades:
-                            b.allowed_upgrades.append(u)
+                        b.allowed_upgrades.append(u)
                 else:
                     setattr(b, key, value)
 

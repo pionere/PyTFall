@@ -197,14 +197,14 @@ screen realtor_agency():
                                 hbox:
                                     xalign .5
                                     for business in focus.allowed_businesses:
-                                        $ img = ProportionalScale("content/buildings/upgrades/icons/" + business.__name__ + ".png", 24, 24)
+                                        $ img = ProportionalScale("content/buildings/upgrades/icons/" + business.__class__.__name__ + ".png", 24, 24)
                                         if not (focus.has_extension(business)):
                                             $ img = im.MatrixColor(img, im.matrix.desaturate())
                                         imagebutton:
                                             xpadding 5
                                             ypadding 2
                                             xysize 35, 29
-                                            tooltip ("%s" % (business.__name__))
+                                            tooltip ("%s" % (business.__class__.__name__))
                                             action NullAction()
                                             idle img
 

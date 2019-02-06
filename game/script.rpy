@@ -617,12 +617,8 @@ label after_load:
         if hasattr(store, "adverts"):
             del store.adverts
 
-        if not hasattr(SQLandscape, "ID"):
-            idx = 0
-            for i in store.__dict__.values():
-                if isinstance(i, BBUpgrade):
-                    idx += 1
-                    i.ID = idx
+        if not hasattr(TapBeer, "ID"):
+            load_buildings()
 
         for b in itertools.chain(hero.buildings, buildings.values()):
             if isinstance(b, Building):
@@ -724,6 +720,25 @@ label after_load:
                             del u.job_power_mod
                         if not hasattr(u, "ID"):
                             u.ID = getattr(store, u.__class__.__name__).ID
+                if b._businesses and not b.allowed_businesses:
+                    for i in b._businesses:
+                        b.allowed_businesses.append(i.__class__.__name__)
+                if b.allowed_businesses and isinstance(b.allowed_businesses[0], basestring):
+                    allowed_business_upgrades = getattr(b, "allowed_business_upgrades", {})
+                    allowed_businesses = b._businesses[:]
+                    for name in b.allowed_businesses:
+                        for a in allowed_businesses:
+                            if a.__class__.__name__ == name:
+                                break
+                        else:
+                            up = getattr(store, name)()
+                            allowed_upgrades = allowed_business_upgrades.get(name, [])
+                            for au in allowed_upgrades:
+                                au = getattr(store, au)
+                                up.allowed_upgrades.append(au)
+                            allowed_businesses.append(up)
+                    b.allowed_businesses = allowed_businesses
+                    del b.allowed_business_upgrades
 
             else:
                 nb = Building()

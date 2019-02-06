@@ -582,11 +582,11 @@ init:
                         button:
                             xsize 309
                             style "pb_button"
-                            text "[u.name]":
+                            text "[u.NAME]":
                                 align .5, .5
                                 color ivory
                             action NullAction()
-                            tooltip u.desc
+                            tooltip u.DESC
 
         if isinstance(bm_mid_frame_mode, ExplorationGuild):
             use building_management_leftframe_exploration_guild_mode
