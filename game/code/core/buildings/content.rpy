@@ -62,12 +62,12 @@ init -9 python:
 
         def buy_girl(self, girl):
             if hero.take_ap(1):
-                if hero.take_money(self.get_price(), reason="Slave Purchase"):
+                if hero.take_money(self.get_price(girl), reason="Slave Purchase"):
                     renpy.play("content/sfx/sound/world/purchase_1.ogg")
                     hero.add_char(girl)
                     girl.action = girl.workplace = None
                     girl.home = pytfall.streets
-                    girl.set_location(girl, None)
+                    set_location(girl, None)
                     self.chars_list.remove(girl)
 
                     if self.chars_list:
@@ -96,6 +96,9 @@ init -9 python:
                 index = self.chars_list.index(self.girl)
                 index = (index - 1) % len(self.chars_list)
                 self.girl = self.chars_list[index]
+
+        def set_girl(self, girl):
+            self.girl = girl
 
         def set_index(self):
             """

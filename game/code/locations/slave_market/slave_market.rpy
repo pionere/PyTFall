@@ -556,10 +556,6 @@ screen slave_shopping(source, tt_text, buy_button, buy_tt):
                             xsize 150
                             action Function(pytfall.sm.buy_girl, char)
                             tooltip "" + buy_tt % char.fin.get_price()
-                    textbutton "Back":
-                        xsize 150
-                        action Hide("slave_shopping", transition=Dissolve(1.0))
-                        tooltip "Exit Market"
 
                 null width 10
 
@@ -591,7 +587,7 @@ screen slave_shopping(source, tt_text, buy_button, buy_tt):
                             imagebutton:
                                 idle img
                                 hover (im.MatrixColor(img, im.matrix.brightness(.15)))
-                                action NullAction()
+                                action Function(source.set_girl, c)
                                 tooltip u"{=proper_stats_text}%s\n{size=-5}{=proper_stats_value_text}%s"%(c.name, c.desc)
                 bar value XScrollValue("sm_vp_glist")
 
