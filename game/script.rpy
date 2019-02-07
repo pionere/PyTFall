@@ -648,6 +648,9 @@ label after_load:
                 if hasattr(b, "_daily_modifier"):
                     b.daily_modifier = b._daily_modifier
                     del b._daily_modifier
+                if hasattr(b, "_price"):
+                    b.price = b._price
+                    del b._price
                 if not isinstance(b.stats_log, OrderedDict):
                     b.stats_log = OrderedDict(b.stats_log)
                 if b.DIRT_STATES != Building.DIRT_STATES:
@@ -678,6 +681,8 @@ label after_load:
                     del b.worker_slots_max
                 if hasattr(b, "mod"):
                     del b.mod
+                if hasattr(b, "blocked_upgrades"):
+                    del b.blocked_upgrades
                 if not hasattr(b, "rooms"):
                     b.rooms = 0
                 if not hasattr(b, "threat_mod"):
@@ -689,57 +694,52 @@ label after_load:
                         b.threat_mod = -1
                     else:
                         raise Exception("{} Building with an unknown location detected!".format(str(b)))
-                for u in b._upgrades:
-                    if hasattr(u, "daily_rejuvenation_modifier"):
-                        u.DAILY_MODIFIER_MOD = 1.5
-                        del u.daily_rejuvenation_modifier
-                    if hasattr(u, "client_flow_mod"):
-                        u.CLIENT_FLOW_MOD = u.client_flow_mod
-                        del u.client_flow_mod
-                    if hasattr(u, "job_effectiveness_mod"):
-                        u.JOB_EFFECTIVENESS_MOD = u.job_effectiveness_mod
-                        del u.job_effectiveness_mod
-                    if hasattr(u, "job_power_mod"):
-                        u.JOB_POWER_MOD = u.job_power_mod
-                        del u.job_power_mod
-                    if not hasattr(u, "ID"):
-                        u.ID = getattr(store, u.__class__.__name__).ID
-                for i in b._businesses:
-                    for u in i.upgrades:
-                        if hasattr(u, "daily_rejuvenation_modifier"):
-                            u.DAILY_MODIFIER_MOD = 1.5
-                            del u.daily_rejuvenation_modifier
-                        if hasattr(u, "client_flow_mod"):
-                            u.CLIENT_FLOW_MOD = u.client_flow_mod
-                            del u.client_flow_mod
-                        if hasattr(u, "job_effectiveness_mod"):
-                            u.JOB_EFFECTIVENESS_MOD = u.job_effectiveness_mod
-                            del u.job_effectiveness_mod
-                        if hasattr(u, "job_power_mod"):
-                            u.JOB_POWER_MOD = u.job_power_mod
-                            del u.job_power_mod
-                        if not hasattr(u, "ID"):
-                            u.ID = getattr(store, u.__class__.__name__).ID
                 if b._businesses and not b.allowed_businesses:
                     for i in b._businesses:
                         b.allowed_businesses.append(i.__class__.__name__)
-                if b.allowed_businesses and isinstance(b.allowed_businesses[0], basestring):
+                if b.allowed_businesses and isclass(b.allowed_businesses[0]):
                     allowed_business_upgrades = getattr(b, "allowed_business_upgrades", {})
                     allowed_businesses = b._businesses[:]
-                    for name in b.allowed_businesses:
+                    for bclass in b.allowed_businesses:
                         for a in allowed_businesses:
-                            if a.__class__.__name__ == name:
+                            if a.__class__ == bclass:
+                                if hasattr(a, "_exp_cap_cost"):
+                                    a.exp_cap_cost = a._exp_cap_cost
+                                    del a._exp_cap_cost
                                 break
                         else:
-                            up = getattr(store, name)()
-                            allowed_upgrades = allowed_business_upgrades.get(name, [])
-                            for au in allowed_upgrades:
-                                au = getattr(store, au)
-                                up.allowed_upgrades.append(au)
-                            allowed_businesses.append(up)
+                            a = bclass()
+                            a.building = b
+                            allowed_businesses.append(a)
+                        allowed_upgrades = allowed_business_upgrades.get(bclass.__name__, [])
+                        a.allowed_upgrades = []
+                        for au in allowed_upgrades:
+                            au = getattr(store, au)
+                            au = au()
+                            au.building = b
+                            a.allowed_upgrades.append(au)
+                        upgrades = a.upgrades
+                        a.upgrades = []
+                        for u in upgrades:
+                            for au in a.allowed_upgrades:
+                                if au.__class__ == u.__class__:
+                                    a.upgrades.append(au)
+                                    break
                     b.allowed_businesses = allowed_businesses
                     del b.allowed_business_upgrades
-
+                    allowed_upgrades = b.allowed_upgrades
+                    b.allowed_upgrades = []
+                    for au in allowed_upgrades:
+                        au = au()
+                        au.building = b
+                        b.allowed_upgrades.append(au)
+                    upgrades = b._upgrades
+                    b._upgrades = []
+                    for u in upgrades:
+                        for au in b.allowed_upgrades:
+                            if au.__class__ == u.__class__:
+                                b._upgrades.append(au)
+                                break
             else:
                 nb = Building()
                 nb.init()

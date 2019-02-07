@@ -1,13 +1,8 @@
 init -5 python:
     class BrothelBlock(PrivateBusiness):
-        SORTING_ORDER = 5
-        MATERIALS = {"Wood": 70, "Bricks": 30, "Glass": 5}
-        NAME = "Brothel"
-        IMG = "content/buildings/upgrades/room.webp"
-        DESC = "Allows to whore out your girls in the building"
 
-        def __init__(self, **kwargs):
-            super(BrothelBlock, self).__init__(**kwargs)
+        def __init__(self):
+            super(BrothelBlock, self).__init__()
 
             self.jobs = set([simple_jobs["Whore Job"]])
 

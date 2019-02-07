@@ -1,117 +1,64 @@
 init -12 python:
     #################################################################
     # BUILDING UPGRADE CLASSES:
-    class CoreExtension(_object):
+    class CoreExtension(_object) :
         """BaseClass for any building expansion! (aka Business)
         """
         # Class attributes serve as default, they are fed to a method of Building,
         # adjusted and displayed to the player. In most of the cases, Extension will be created
         # using these (alt is from JSON/Custom data):
-        NAME = "Extension"
-        DESC = "Core Extension."
-        IMG = "no_image"
-        SORTING_ORDER = 0
-        MATERIALS = {}
-        COST = 100
-        IN_SLOTS = 2
-        EX_SLOTS = 0
-        CAPACITY = 0
 
-        EXP_CAP_IN_SLOTS = 1
-        EXP_CAP_EX_SLOTS = 0
-        EXP_CAP_COST = 100
 
-        def __init__(self, **kwargs):
-            self.kwargs = kwargs
-            self.name = kwargs.get("name", self.NAME)
-            self.desc = kwargs.get("desc", self.DESC)
-            self.img = renpy.displayable(kwargs.get("img", self.IMG))
+        def __init__(self):
+            self.name = self.NAME
+            self.desc = self.DESC
+            self.img = self.IMG
 
-            self.building = kwargs.get("building", None) # Building this upgrade belongs to.
-
-            self.cost = kwargs.pop("cost", self.COST)
-            self.in_slots = kwargs.pop("in_slots", self.IN_SLOTS)
-            self.ex_slots = kwargs.pop("ex_slots", self.EX_SLOTS)
-            self.materials = kwargs.pop("materials", self.MATERIALS)
+            self.cost = self.COST
+            self.in_slots = self.IN_SLOTS
+            self.ex_slots = self.EX_SLOTS
+            self.materials = self.MATERIALS
 
             # This means that we can add capacity to this business.
             # Slots/Cost are the cost of a single expansion!
-            self.capacity = kwargs.get("capacity", self.CAPACITY)
-            self.expands_capacity = kwargs.get("expands_capacity", True)
-            self.exp_cap_in_slots = kwargs.pop("exp_cap_in_slots", self.EXP_CAP_IN_SLOTS)
-            self.exp_cap_ex_slots = kwargs.pop("exp_cap_ex_slots", self.EXP_CAP_EX_SLOTS)
-            self._exp_cap_cost = kwargs.pop("exp_cap_cost", self.EXP_CAP_COST)
-
-        @property
-        def exp_cap_cost(self):
-            # Does not scale! If scaled, update the building/business cost methods!
-            building = self.building
-            return self._exp_cap_cost * (building.tier or 1)
-
-        def can_extend_capacity(self):
-            building = self.building
-
-            if not self.expands_capacity:
-                return False
-            if (building.in_slots + self.exp_cap_in_slots) > building.in_slots_max:
-                return False
-            if (building.ex_slots + self.exp_cap_ex_slots) > building.ex_slots_max:
-                return False
-            if hero.gold < self.exp_cap_cost:
-                return False
-
-            return True
-
-        def expand_capacity(self):
-            self.in_slots += self.exp_cap_in_slots
-            self.building.in_slots += self.exp_cap_in_slots
-            self.ex_slots += self.exp_cap_ex_slots
-            self.building.ex_slots += self.exp_cap_ex_slots
-
-            hero.take_money(self.exp_cap_cost, "Business Expansion")
-            self.building.fin.log_logical_expense(self.exp_cap_cost, "Business Expansion")
-            self.capacity += 1
-
-        def can_reduce_capacity(self):
-            if not self.expands_capacity:
-                return False
-            if self.capacity == 0:
-                return False
-            if hero.gold < self.exp_cap_cost:
-                return False
-            # these two should never happen, but check anyways...
-            if self.in_slots < self.exp_cap_in_slots:
-                return False  
-            if self.ex_slots < self.exp_cap_ex_slots:
-                return False
-            return True
-
-        def reduce_capacity(self):
-            self.in_slots -= self.exp_cap_in_slots
-            self.building.in_slots -= self.exp_cap_in_slots
-            self.ex_slots -= self.exp_cap_ex_slots
-            self.building.ex_slots -= self.exp_cap_ex_slots
-
-            hero.take_money(self.exp_cap_cost, "Business Expansion")
-            self.building.fin.log_logical_expense(self.exp_cap_cost, "Business Expansion")
-            self.capacity -= 1
+            self.expands_capacity = False
 
         def get_price(self):
             # Returns our best guess for price of the business
             # Needed for buying, selling the building or for taxation.
-            price = self.cost * (self.building.tier or 1)
-            price += self.capacity*self.exp_cap_cost
+            price = self.cost
+            if self.expands_capacity:
+                price += self.capacity*self.exp_cap_cost
+            price *= self.building.tier + 1
             return price
+
+        def get_cost(self):
+            # We figure out what it would take to add this extension (building or business)
+            # using it's class attributes to figure out the cost and the materials required.
+            cost = self.get_price()
+
+            mpl = self.building.tier + 1
+
+            in_slots = self.in_slots
+            ex_slots = self.ex_slots
+            if self.expands_capacity:
+                cap = self.capacity
+                in_slots += cap*self.exp_cap_in_slots
+                ex_slots += cap*self.exp_cap_ex_slots
+
+            materials = self.materials.copy()
+            for k, v in materials.items():
+                materials[k] = v * mpl
+
+            return cost, materials, in_slots, ex_slots
+
 
 
     class Business(CoreExtension):
         """BaseClass for any building expansion! (aka Business)
         """
-        NAME = "Business"
-        DESC = "Business"
-        CAPACITY = 2
-        def __init__(self, **kwargs):
-            super(Business, self).__init__(**kwargs)
+        def __init__(self):
+            super(Business, self).__init__()
 
             # Jobs this upgrade can add. *We add job instances here!
             # It may be a good idea to turn this into a direct job assignment instead of a set...
@@ -128,11 +75,65 @@ init -12 python:
             # we run "inactive" method with a corresponding simpy process in this case.
             self.active = True
 
-            # @Review: From Business class which seemed useless to me...
-            self.blocked_upgrades = kwargs.get("blocked_upgrades", list())
-            self.allowed_upgrades = kwargs.get("allowed_upgrades", list())
+            self.capacity = self.CAPACITY
+            if hasattr(self, "EXP_CAP_COST"):
+                self.expands_capacity = True
+
+                self.exp_cap_cost = self.EXP_CAP_COST
+                self.exp_cap_in_slots = self.EXP_CAP_IN_SLOTS
+                self.exp_cap_ex_slots = self.EXP_CAP_EX_SLOTS
+
+            self.allowed_upgrades = getattr(self, "ALLOWED_UPGRADES", [])
             self.in_construction_upgrades = list() # Not used yet!
             self.upgrades = list()
+
+        def get_expansion_cost(self):
+            return self.exp_cap_cost * (self.building.tier+1)
+
+        def can_extend_capacity(self):
+            if not self.expands_capacity:
+                return False
+            if (self.building.in_slots + self.exp_cap_in_slots) > self.building.in_slots_max:
+                return False
+            if (self.building.ex_slots + self.exp_cap_ex_slots) > self.building.ex_slots_max:
+                return False
+            return hero.gold >= self.get_expansion_cost()
+
+        def expand_capacity(self):
+            self.in_slots += self.exp_cap_in_slots
+            self.building.in_slots += self.exp_cap_in_slots
+            self.ex_slots += self.exp_cap_ex_slots
+            self.building.ex_slots += self.exp_cap_ex_slots
+
+            cost = self.get_expansion_cost()
+            hero.take_money(cost, "Business Expansion")
+            self.building.fin.log_logical_expense(cost, "Business Expansion")
+            self.capacity += 1
+
+        def can_reduce_capacity(self):
+            if not self.expands_capacity:
+                return False
+            if self.capacity == 0:
+                return False
+            if hero.gold < self.get_expansion_cost():
+                return False
+            # these two should never happen, but check anyways...
+            if self.in_slots < self.exp_cap_in_slots:
+                return False  
+            if self.ex_slots < self.exp_cap_ex_slots:
+                return False
+            return True
+
+        def reduce_capacity(self):
+            self.in_slots -= self.exp_cap_in_slots
+            self.building.in_slots -= self.exp_cap_in_slots
+            self.ex_slots -= self.exp_cap_ex_slots
+            self.building.ex_slots -= self.exp_cap_ex_slots
+
+            cost = self.get_expansion_cost()
+            hero.take_money(cost, "Business Expansion")
+            self.building.fin.log_logical_expense(cost, "Business Expansion")
+            self.capacity -= 1
 
         def get_client_count(self):
             """Returns amount of clients we expect to come here.
@@ -153,20 +154,6 @@ init -12 python:
             # This may not be required if we stick to a single job per business scenario:
             if self.jobs:
                 return choice(tuple(self.jobs))
-
-        # Reputation:
-        # Prolly not a good idea to mess with this on per business basis, at least at first...
-        # @property
-        # def rep(self):
-        #     return self._rep
-        #
-        # @rep.setter
-        # def rep(self, value):
-        #     self._rep = self._rep + value
-        #     if self._rep > 1000:
-        #         self._rep = 1000
-        #     elif self._rep < -1000:
-        #         self._rep = -1000
 
         @property
         def env(self):
@@ -353,7 +340,7 @@ init -12 python:
         def add_upgrade(self, upgrade, pay=False):
             building = self.building
 
-            cost, materials, in_slots, ex_slots = building.get_extension_cost(upgrade)
+            cost, materials, in_slots, ex_slots = upgrade.get_cost()
             building.in_slots += in_slots
             building.ex_slots += ex_slots
 
@@ -369,20 +356,13 @@ init -12 python:
             # Named this was to conform to GUI (same as for Buildings)
             return self.allowed_upgrades
 
-        def has_extension(self, upgrade_class):
+        def has_extension(self, upgrade):
             # Named this was to conform to GUI (same as for Buildings)
-            return upgrade_class in [u.__class__ for u in self.upgrades]
-
-        def check_upgrade_allowance(self, upgrade):
-            return upgrade.__class__ in self.allowed_upgrades
-
+            return upgrade in self.upgrades
 
     class PrivateBusiness(Business):
-        SORTING_ORDER = 3
-        NAME = "Private Business"
-        DESC = "Client is always right!?!"
-        def __init__(self, **kwargs):
-            super(PrivateBusiness, self).__init__(**kwargs)
+        def __init__(self):
+            super(PrivateBusiness, self).__init__()
 
             self.type = "personal_service"
             self.workable = True
@@ -428,17 +408,14 @@ init -12 python:
 
 
     class PublicBusiness(Business):
-        SORTING_ORDER = 2
-        NAME = "Public Business"
-        DESC = "Clients are always right!?!"
         """Public Business Upgrade.
 
         This usually assumes the following:
         - Clients are handled in one general pool.
         - Workers randomly serve them.
         """
-        def __init__(self, **kwargs):
-            super(PublicBusiness, self).__init__(**kwargs)
+        def __init__(self):
+            super(PublicBusiness, self).__init__()
             self.workable = True
             self.expects_clients = True
             self.type = "public_service"
@@ -715,11 +692,8 @@ init -12 python:
 
 
     class OnDemandBusiness(Business):
-        SORTING_ORDER = 2
-        NAME = "On Demand Business"
-        DESC = "Are we gonna work hard!?!"
-        def __init__(self, **kwargs):
-            super(OnDemandBusiness, self).__init__(**kwargs)
+        def __init__(self):
+            super(OnDemandBusiness, self).__init__()
 
             self.type = "on_demand_service"
             self.workable = True
@@ -797,13 +771,10 @@ init -12 python:
 
 
     class TaskBusiness(Business):
-        SORTING_ORDER = 6
-        NAME = "Task Business"
-        DESC = "Complete given tasks!"
         """Base class upgrade for businesses that just need to complete a task, like FG, crafting and etc.
         """
         # For lack of a better term... can't come up with a better name atm.
-        def __init__(self, **kwargs):
-            super(TaskBusiness, self).__init__(**kwargs)
+        def __init__(self):
+            super(TaskBusiness, self).__init__()
             self.workable = True
             self.res = None #*Throws an error?

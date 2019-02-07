@@ -158,35 +158,36 @@ screen realtor_agency():
                                     spacing -1
                                     frame:
                                         xysize 380, 24
-                                        text "{color=[gold]}Price:" yalign .5
-                                        label "{color=[gold]}[focus.price]" align 1.0, .5
+                                        text "Price:" color gold yalign .5
+                                        label "[focus.price]" text_color gold align 1.0, .5
                                     frame:
                                         xysize 380, 24
-                                        text "{color=[ivory]}Quarter:" yalign .5
-                                        label "{color=[ivory]}[focus.location]" align 1.0, .5
-                                    if isinstance(focus, Building):
+                                        text "Quarter:" color ivory yalign .5
+                                        label "[focus.location]" text_color ivory align 1.0, .5
+                                    if focus.in_slots_max != 0:
                                         frame:
                                             xysize 380, 24
                                             text "Interior Space:" yalign .5
-                                            label (u"{color=[ivory]}%s/%s" % (focus.in_slots, focus.in_slots_max)) align 1.0, .5
+                                            label ("%s/%s" % (focus.in_slots, focus.in_slots_max)) text_color ivory align 1.0, .5
+                                    if focus.ex_slots_max != 0:
                                         frame:
                                             xysize 380, 24
                                             text "Exterior Space:" yalign .5
-                                            label (u"{color=[ivory]}%s/%s" % (focus.ex_slots, focus.ex_slots_max)) align 1.0, .5
-                                        if focus.maxfame != 0:
-                                            frame:
-                                                xysize 380, 24
-                                                text "Fame:" yalign .5
-                                                label (u"%s/%s" % (focus.fame, focus.maxfame)) align 1.0, .5
-                                        if focus.maxrep != 0:
-                                            frame:
-                                                xysize 380, 24
-                                                text "Reputation:" yalign .5
-                                                label (u"%s/%s" % (focus.rep, focus.maxrep)) align 1.0, .5
+                                            label ("%s/%s" % (focus.ex_slots, focus.ex_slots_max)) text_color ivory align 1.0, .5
+                                    if focus.maxfame != 0:
                                         frame:
                                             xysize 380, 24
-                                            text "Level:" yalign .5
-                                            label (u"%s" % (focus.tier)) align (1.0, .5)
+                                            text "Fame:" yalign .5
+                                            label (u"%s/%s" % (focus.fame, focus.maxfame)) align 1.0, .5
+                                    if focus.maxrep != 0:
+                                        frame:
+                                            xysize 380, 24
+                                            text "Reputation:" yalign .5
+                                            label (u"%s/%s" % (focus.rep, focus.maxrep)) align 1.0, .5
+                                    frame:
+                                        xysize 380, 24
+                                        text "Tier:" yalign .5
+                                        label "[focus.tier]" align (1.0, .5)
 
                         if isinstance(focus, Building):
                             null height 10

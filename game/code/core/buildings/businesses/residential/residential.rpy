@@ -1,12 +1,8 @@
 init -6 python:
     # Provides living space, not sure if this or the building should be bound as home locations!
     class SlaveQuarters(Business):
-        SORTING_ORDER = 0
-        NAME = "Slave Quarters"
-        DESC = "Place for slaves to live in"
-        IMG = "content/buildings/upgrades/guard_qt.webp"
-        def __init__(self, **kwargs):
-            super(SlaveQuarters, self).__init__(**kwargs)
+        def __init__(self):
+            super(SlaveQuarters, self).__init__()
             self.habitable = True
 
         @property

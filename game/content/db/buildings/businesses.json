@@ -1,0 +1,105 @@
+[
+    {
+        "name": "Slave Quarters",
+        "class": "SlaveQuarters",
+        "desc": "Place for slaves to live in",
+        "img": "content/buildings/upgrades/guard_qt.webp",
+        "materials": {"Wood": 10, "Bricks": 10, "Glass": 3},
+
+        "capacity": 2,
+        "cost": 100,
+        "in_slots": 2,
+        "ex_slots": 0,
+
+        "exp_cap_in_slots": 1,
+        "exp_cap_ex_slots": 0,
+        "exp_cap_cost": 100
+    },
+    {
+        "name": "Cleaning Block",
+        "class": "Cleaners",
+        "desc": "Allows to use cleaners in the building",
+        "img": "content/buildings/upgrades/cleaners.webp",
+        "materials": {"Wood": 2, "Bricks": 2},
+
+        "capacity": 2,
+        "cost": 100,
+        "in_slots": 4,
+        "ex_slots": 0
+    },
+    {
+        "name": "Warrior Quarters",
+        "class": "WarriorQuarters",
+        "desc": "Allows to use guards in the building",
+        "img": "content/buildings/upgrades/guard_qt.webp",
+        "materials": {"Wood": 15, "Bricks": 30, "Glass": 3},
+
+        "capacity": 2,
+        "cost": 300,
+        "in_slots": 4,
+        "ex_slots": 0
+    },
+    {
+        "name": "Bar",
+        "class": "BarBusiness",
+        "desc": "Allows to serve drinks and snacks to your customers",
+        "img": "content/buildings/upgrades/bar.webp",
+        "materials": {"Wood": 50, "Bricks": 30, "Glass": 5},
+
+        "capacity": 2,
+        "cost": 500,
+        "in_slots": 3,
+        "ex_slots": 0,
+
+        "exp_cap_in_slots": 1,
+        "exp_cap_ex_slots": 0,
+        "exp_cap_cost": 100,
+
+        "allowed_upgrades": ["TapBeer"]
+    },
+    {
+        "name": "Strip Club",
+        "class": "StripClub",
+        "desc": "Allows to use strippers to make customers hornier and get occasional tips",
+        "img": "content/buildings/upgrades/strip_club.webp",
+        "materials": {"Wood": 30, "Bricks": 50, "Glass": 10},
+
+        "capacity": 2,
+        "cost": 500,
+        "in_slots": 2,
+        "ex_slots": 0,
+
+        "exp_cap_in_slots": 1,
+        "exp_cap_ex_slots": 0,
+        "exp_cap_cost": 100,
+
+        "allowed_upgrades": ["Catwalk"]
+    },
+    {
+        "name": "Brothel",
+        "class": "BrothelBlock",
+        "desc": "Allows to whore out your girls in the building",
+        "img": "content/buildings/upgrades/room.webp",
+        "materials": {"Wood": 70, "Bricks": 30, "Glass": 5},
+
+        "capacity": 2,
+        "cost": 100,
+        "in_slots": 2,
+        "ex_slots": 0,
+
+        "exp_cap_in_slots": 1,
+        "exp_cap_ex_slots": 0,
+        "exp_cap_cost": 100
+    },
+    {
+        "name": "Exploration Guild",
+        "class": "ExplorationGuild",
+        "desc": "Travel to exotic places, meet new monsters and people... and take their shit!",
+        "img": "content/gfx/bg/buildings/Chorrol_Fighters_Guild.webp",
+        "materials": {"Wood": 70, "Bricks": 50, "Glass": 5},
+
+        "capacity": 2,
+        "cost": 100,
+        "in_slots": 4,
+        "ex_slots": 0
+    }]

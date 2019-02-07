@@ -1,13 +1,7 @@
 init -5 python:
     class StripClub(PublicBusiness):
-        SORTING_ORDER = 4
-        MATERIALS = {"Wood": 30, "Bricks": 50, "Glass": 10}
-        NAME = "Strip Club"
-        DESC = "Allows to use strippers to make customers hornier and get occasional tips"
-        IMG = "content/buildings/upgrades/strip_club.webp"
-        COST = 500
-        def __init__(self, **kwargs):
-            super(StripClub, self).__init__(**kwargs)
+        def __init__(self):
+            super(StripClub, self).__init__()
 
             self.jobs = set([simple_jobs["Striptease Job"]])
             # For now, before we'll have to split the method.

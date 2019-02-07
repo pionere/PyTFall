@@ -7,7 +7,7 @@ init python:
 
         base = {"IDLE": 0, "Service": 0, "Warriors": 0, "Managers": 0}
 
-        for setup in ["ALL"] + [b for b in hero.buildings if isinstance(b, Building)]:
+        for setup in ["ALL"] + [b for b in hero.buildings if b.workable]:
             actions[setup] = base.copy()
             rest[setup] = base.copy()
             events[setup] = base.copy()
@@ -22,7 +22,7 @@ init python:
             if setup == "ALL":
                 container = hero.chars
             else:
-                container = [c for c in hero.chars if setup in (c.workplace, )]
+                container = [c for c in hero.chars if setup == c.workplace]
 
             for char in container:
                 cat = 0
@@ -495,7 +495,7 @@ screen next_day():
                     has vbox
 
                     # Buildings:
-                    for building in [b for b in hero.buildings if len(b.allowed_businesses) != 0]:
+                    for building in [b for b in hero.buildings if b.expects_clients]:
                         # Image/Name:
                         null height 4
                         label "[building.name]" xpos 10

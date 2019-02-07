@@ -1,4 +1,3 @@
-
 init 5 python:
     # Sub Upgrades:     # ==========================>>>
     class BBUpgrade(_object):
@@ -8,40 +7,39 @@ init 5 python:
         def __init__(self):
             super(BBUpgrade, self).__init__()
 
-    class MainHall(BBUpgrade):
+    class MainHall(CoreExtension):
         def __init__(self):
             super(MainHall, self).__init__()
 
 
-
-    class Garden(BBUpgrade):
+    class Garden(CoreExtension):
         def __init__(self):
             super(Garden, self).__init__()
 
-    class SQLandscape(BBUpgrade):
+    class SQLandscape(CoreExtension):
         def __init__(self):
             super(SQLandscape, self).__init__()
 
-    class Catwalk(BBUpgrade):
+    class Catwalk(CoreExtension):
         def __init__(self):
             super(Catwalk, self).__init__()
 
-    class TapBeer(BBUpgrade):
+    class TapBeer(CoreExtension):
         def __init__(self):
             super(TapBeer, self).__init__()
 
-    class StatueOfSexGoddess(BBUpgrade):
+    class StatueOfSexGoddess(CoreExtension):
         def __init__(self):
             super(StatueOfSexGoddess, self).__init__()
 
-    class SparringQuarters(BBUpgrade):
+    class SparringQuarters(CoreExtension):
         def __init__(self):
             super(SparringQuarters, self).__init__()
 
-    class EnforcedOrder(BBUpgrade):
+    class EnforcedOrder(CoreExtension):
         def __init__(self):
             super(EnforcedOrder, self).__init__()
 
-    class BroomCloset(BBUpgrade):
+    class BroomCloset(CoreExtension):
         def __init__(self):
             super(BroomCloset, self).__init__()

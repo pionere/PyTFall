@@ -100,7 +100,7 @@ label building_management:
                         renpy.show_screen("message_screen", "Not enough cash on hand!")
             elif result[1] == "sell":
                 python:
-                    price = int(bm_building.price*.9)
+                    price = int(bm_building.get_price()*.9)
 
                     if renpy.call_screen("yesno_prompt",
                                          message="Are you sure you wish to sell %s for %d Gold?" % (bm_building.name, price),
@@ -127,7 +127,7 @@ label building_management:
         elif result[0] == 'upgrade':
             if result[1] == "build":
                 python hide:
-                    temp = result[2]()
+                    temp = result[2]
                     if isinstance(temp, Business):
                         bm_building.add_business(temp, normalize_jobs=True, pay=True)
                     else:
@@ -273,8 +273,8 @@ init:
         # Slots for New Style Buildings:
         $ c0 = bm_building.in_slots_max != 0
         $ c1 = bm_building.ex_slots_max != 0 
-        $ c2 = bm_building.workable != 0
-        $ c3 = bm_building.habitable != 0 
+        $ c2 = bm_building.workable
+        $ c3 = bm_building.habitable
         if any([c0, c1, c2, c3]):
             frame:
                 xalign .5
@@ -340,7 +340,7 @@ init:
                 pos 25, 20
                 xysize 260, 40
                 background Frame("content/gfx/frame/namebox5.png", 10, 10)
-                label (u"__ [bm_mid_frame_mode.name] __") text_size 18 text_color ivory align .5, .6
+                label str(bm_mid_frame_mode.name) text_size 18 text_color ivory align .5, .6
             null height 5
 
             frame:
@@ -466,8 +466,8 @@ init:
                                 idle ProportionalScale("content/gfx/interface/buttons/close4.png", 20, 24)
                                 hover ProportionalScale("content/gfx/interface/buttons/close4_h.png", 20, 24)
                                 action Show("yesno_prompt",
-                                     message="Are you sure you wish to close this %s for %d Gold?" % (u.name, u.get_price()),
-                                     yes_action=[Function(bm_building.close_business, u, normalize_jobs=True, pay=True), Hide("yesno_prompt")], no_action=Hide("yesno_prompt"))
+                                     message="Are you sure you wish to close this %s for %d Gold?" % (u.name, u.get_cost()[0]),
+                                     yes_action=[Function(bm_building.close_business, u), Hide("yesno_prompt")], no_action=Hide("yesno_prompt"))
                                 tooltip "Close the business"
 
     screen building_management_leftframe_businesses_mode:
@@ -509,6 +509,7 @@ init:
                     if c0:
                         null height 5
                         text "To Expand:"
+                        $ cost = bm_mid_frame_mode.get_expansion_cost()
                         frame:
                             xysize (290, 27)
                             xalign .5
@@ -523,7 +524,7 @@ init:
                             xysize (290, 27)
                             xalign .5
                             text "Cost:" xalign .02 color ivory
-                            text "[bm_mid_frame_mode.exp_cap_cost]"  xalign .98 style_suffix "value_text" yoffset 4
+                            text "[cost]"  xalign .98 style_suffix "value_text" yoffset 4
                         null height 1
                         textbutton "Expand Capacity":
                             style "pb_button"
@@ -552,7 +553,7 @@ init:
                             xysize (290, 27)
                             xalign .5
                             text "Cost:" xalign .02 color ivory
-                            text "[bm_mid_frame_mode.exp_cap_cost]"  xalign .98 style_suffix "value_text" yoffset 4
+                            text "[cost]"  xalign .98 style_suffix "value_text" yoffset 4
                         null height 1
                         textbutton "Reduce Capacity":
                             style "pb_button"
@@ -582,11 +583,11 @@ init:
                         button:
                             xsize 309
                             style "pb_button"
-                            text "[u.NAME]":
+                            text "[u.name]":
                                 align .5, .5
                                 color ivory
                             action NullAction()
-                            tooltip u.DESC
+                            tooltip u.desc
 
         if isinstance(bm_mid_frame_mode, ExplorationGuild):
             use building_management_leftframe_exploration_guild_mode
@@ -670,18 +671,18 @@ init:
                                     background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
                                     has fixed xysize 500, 150
 
-                                    $ cost, materials, in_slots, ex_slots = bm_building.get_extension_cost(u)
-
+                                    $ cost, materials, in_slots, ex_slots = u.get_cost()
+                                    $ can_build = True
                                     hbox:
                                         xalign .5
                                         xsize 340
-                                        textbutton "[u.NAME]":
+                                        textbutton "[u.name]":
                                             xalign .5
                                             ypadding 5
                                             style "stats_text"
                                             text_size 18
                                             action NullAction()
-                                            tooltip u.DESC
+                                            tooltip u.desc
 
                                     # Materials and GOLD
                                     vbox:
@@ -703,6 +704,7 @@ init:
                                             if hero.gold >= cost:
                                                 text "[cost]" align .95, .5
                                             else:
+                                                $ can_build = False
                                                 text "[cost]" align .95, .5 color grey
 
                                         # We presently allow for 3 resources each upgrade. If more, this needs to be a conditioned viewport:
@@ -722,6 +724,7 @@ init:
                                                 if hero.inventory[r.id] >= amount:
                                                     text "[amount]" align .95, .5
                                                 else:
+                                                    $ can_build = False
                                                     text "[amount]" align .95, .5 color grey
 
                                     hbox:
@@ -733,12 +736,14 @@ init:
                                             if (bm_building.in_slots_max - bm_building.in_slots) >= in_slots:
                                                 text "[in_slots]"
                                             else:
+                                                $ can_build = False
                                                 text "[in_slots]" color grey
                                         if ex_slots:
                                             text "Exterior Slots:"
                                             if (bm_building.ex_slots_max - bm_building.ex_slots) >= ex_slots:
                                                 text "[ex_slots]"
                                             else:
+                                                $ can_build = False
                                                 text "[ex_slots]" color grey
 
                                     vbox:
@@ -750,14 +755,13 @@ init:
                                             background Frame("content/gfx/frame/MC_bg3.png", 3, 3)
                                             foreground Transform(u.IMG, size=(120, 75), align=(.5, .5))
                                             action NullAction()
-                                            tooltip u.DESC
+                                            tooltip u.desc
                                         textbutton "Build":
                                             xalign .5
                                             style "pb_button"
                                             text_size 15
                                             action [Return(["upgrade", "build", u, bm_mid_frame_mode]),
-                                                    SensitiveIf(bm_building.eval_extension_build(u,
-                                                                price=(cost, materials, in_slots, ex_slots)))]
+                                                    SensitiveIf(can_build)]
 
     screen building_controls():
         modal True

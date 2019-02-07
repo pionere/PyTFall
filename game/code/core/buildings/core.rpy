@@ -106,7 +106,6 @@ init -10 python:
             id = The id of the building.
             name = The name of the building.
             desc = The description of the building.
-            price = The price of the building.
             mod = The modifier for the building.
             """
             super(BaseBuilding, self).__init__(id=id)
@@ -114,8 +113,6 @@ init -10 python:
 
             self.name = name
             self.desc = desc
-            self._price = price
-            self.price_overload = None
 
             self.jobs = set()
 
@@ -140,31 +137,6 @@ init -10 python:
             if self.name:
                 return str(self.name)
             return super(BaseBuilding, self).__str__()
-
-        @property
-        def price(self):
-            # Returns our best guess for price of the Building
-            # Needed for buying, selling the building or for taxation.
-            # **We may want to take reputation and fame into account as well.
-            if self.price_overload is not None:
-                return self.price_overload
-
-            price = self._price
-
-            if hasattr(self, "_upgrades"):
-                for u in self._upgrades:
-                    price += u.get_price()
-            if hasattr(self, "_businesses"):
-                for b in self._businesses:
-                    price += b.get_price()
-            return price
-
-        @price.setter
-        def price(self, value):
-            self._price = value
-
-        def get_price(self):
-            return self.price
 
         def get_workers(self):
             # I may want better handing for this...

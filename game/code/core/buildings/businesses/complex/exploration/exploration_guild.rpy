@@ -271,15 +271,9 @@ init -6 python: # Guild, Tracker and Log.
 
 
     class ExplorationGuild(TaskBusiness):
-        SORTING_ORDER = 10
-        COMPATIBILITY = []
-        MATERIALS = {"Wood": 70, "Bricks": 50, "Glass": 5}
-        NAME = "Exploration Guild"
-        IMG = "content/gfx/bg/buildings/Chorrol_Fighters_Guild.webp"
-        DESC = "Travel to exotic places, meet new monsters and people... and take their shit!"
 
-        def __init__(self, **kwargs):
-            super(ExplorationGuild, self).__init__(**kwargs)
+        def __init__(self):
+            super(ExplorationGuild, self).__init__()
 
             # Global Values that have effects on the whole business.
             self.teams = list() # List to hold all the teams formed in this guild. We should add at least one team or the guild will be useless...
@@ -287,7 +281,6 @@ init -6 python: # Guild, Tracker and Log.
 
             self.teams.append(Team("Avengers", free=True))
 
-            self.workable = True
             self.focus_team = None
             self.team_to_launch_index = 0
 

@@ -65,7 +65,7 @@ screen set_workplace_dropdown(char, pos=()):
     python:
         workable_buildings = []
         for b in hero.buildings:
-            if isinstance(b, Building) and b.workable:
+            if b.workable:
                 workable_buildings.append(b)
 
     frame:

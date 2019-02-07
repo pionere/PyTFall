@@ -458,10 +458,10 @@ init -11 python:
         return mobs
 
     def load_buildings():
-        # Load json content
-        upgrades_data = load_db_json("buildings/upgrades.json")
+        # Load static data of the upgrades
+        json_data = load_db_json("buildings/upgrades.json")
         idx = 0
-        for upgrade in upgrades_data:
+        for upgrade in json_data:
             up = getattr(store, upgrade.pop('class'))
 
             for key, value in upgrade.iteritems():
@@ -470,50 +470,76 @@ init -11 python:
             idx += 1
             up.ID = idx
 
+        # Load static data of the businesses
+        json_data = load_db_json("buildings/businesses.json")
+        idx = 0
+        for business in json_data:
+            b = getattr(store, business.pop('class'))
+
+            for key, value in business.iteritems():
+                setattr(b, key.upper(), value)
+
+            idx += 1
+            b.ID = idx
+
+        # Load json data of the buildings and the corresponding adverts
         adverts_data = load_db_json("buildings/adverts.json")
         buildings_data = load_db_json("buildings/buildings.json")
-        # Populate into brothel objects:
+        # Populate into building objects:
         buildings = dict()
         idx = 0
         for building in buildings_data:
             b = Building()
-            # Allowed upgrades for buildings we have not built yet!
-            allowed_businesses = building.pop("allowed_businesses", {})
+
+            # Create a list of allowed business-instances
+            allowed_businesses = building.pop("allowed_businesses", [])
             for business in allowed_businesses:
-                bu = getattr(store, business.pop('class'))
+                if isinstance(business, basestring):
+                    cls = business
+                    business = {}
+                else:
+                    cls = business.pop('class')
+                bu = getattr(store, cls)
                 bu = bu()
+                bu.building = b
+
+                allowed_upgrades = business.pop("allowed_upgrades", bu.allowed_upgrades)
+                bu.allowed_upgrades = []
+                for u in allowed_upgrades:
+                    u = getattr(store, u)
+                    u = u()
+                    u.building = b
+                    bu.allowed_upgrades.append(u)
+                
                 for key, value in business.iteritems():
-                    if key == "allowed_upgrades":
-                        for u in value:
-                            u = getattr(store, u)
-                            bu.allowed_upgrades.append(u)
-                    else:
-                        setattr(bu, key, value)
+                    setattr(bu, key, value)
                 b.allowed_businesses.append(bu)
 
-            for key, value in building.iteritems():
-                if key == "adverts":
-                    _adverts = []
-                    for a in adverts_data:
-                        if a['name'] in value:
-                            adv = {'active': False, 'price': 0, 'upkeep': 0}
-                            adv.update(a)
-                            _adverts.append(adv)
-                    b.adverts = _adverts
-                elif key == "build_businesses":
-                    for bu in b.allowed_businesses:
-                        if bu.__class__.__name__ in value:
-                            b.add_business(bu)
-                        else:
-                            if DEBUG:
-                                devlog.info("Business %s not built because it is not allowed." % bu.__class__.__name__)
+            # create a list of advert-structs
+            adverts = building.pop("adverts", [])
+            for a in adverts_data:
+                if a['name'] in adverts:
+                    adv = {'active': False, 'price': 0, 'upkeep': 0}
+                    adv.update(a)
+                    b.adverts.append(adv)
 
-                elif key == "allowed_upgrades":
-                    for u in value:
-                        u = getattr(store, u)
-                        b.allowed_upgrades.append(u)
-                else:
-                    setattr(b, key, value)
+            # add the prebuilt business-instances
+            build_businesses = building.pop("build_businesses", [])
+            for bu in b.allowed_businesses:
+                if bu.__class__.__name__ in build_businesses:
+                    b.add_business(bu)
+
+            # create the list of allowed upgrade-classes
+            allowed_upgrades = building.pop("allowed_upgrades", [])
+            for u in allowed_upgrades:
+                u = getattr(store, u)
+                u = u()
+                u.building = b
+                b.allowed_upgrades.append(u) 
+
+            # populate the remaining data
+            for key, value in building.iteritems():
+                setattr(b, key, value)
 
             b.init()
 

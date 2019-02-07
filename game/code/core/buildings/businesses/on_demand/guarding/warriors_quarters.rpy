@@ -1,13 +1,7 @@
 init -5 python:
     class WarriorQuarters(OnDemandBusiness):
-        SORTING_ORDER = 2
-        MATERIALS = {"Wood": 15, "Bricks": 30, "Glass": 3}
-        COST = 300
-        NAME = "Warrior Quarters"
-        IMG = "content/buildings/upgrades/guard_qt.webp"
-        DESC = "Allows to use guards in the building"
-        def __init__(self, **kwargs):
-            super(WarriorQuarters, self).__init__(**kwargs)
+        def __init__(self):
+            super(WarriorQuarters, self).__init__()
             self.jobs = set([simple_jobs["Guarding"]])
 
         def business_control(self):

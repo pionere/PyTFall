@@ -1,13 +1,7 @@
 init -5 python:
     class Cleaners(OnDemandBusiness):
-        SORTING_ORDER = 1
-        MATERIALS = {"Wood": 2, "Bricks": 2}
-        NAME = "Cleaning Block"
-        DESC = "Allows to use cleaners in the building"
-        IMG = "content/buildings/upgrades/cleaners.webp"
-
-        def __init__(self, **kwargs):
-            super(Cleaners, self).__init__(**kwargs)
+        def __init__(self):
+            super(Cleaners, self).__init__()
 
             self.jobs = set([simple_jobs["Cleaning"]])
 

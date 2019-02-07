@@ -293,6 +293,7 @@ init -9 python:
             super(Building, self).__init__()
 
             self.tier = 0
+            #self.price = 0
             self.rooms = 0
 
             self._upgrades = list()
@@ -421,63 +422,17 @@ init -9 python:
 
             return jobs
 
-        def get_extension_cost(self, extension):
-            # We figure out what it would take to add this extension (building or business)
-            # using it's class attributes to figure out the cost and the materials required.
-            mpl = self.tier + 1
+        def get_price(self):
+            # Returns our best guess for price of the Building
+            # Needed for buying, selling the building or for taxation.
+            # **We may want to take reputation and fame into account as well.
+            price = self.price
 
-            if isclass(extension):
-                ext = extension()
-            else:
-                ext = extension
-
-            if isinstance(ext, CoreExtension):
-                if ext.building is None:
-                    ext.building = self
-
-                cap = ext.capacity
-
-                cost = ext.get_price()
-
-                materials = ext.materials.copy()
-                for k, v in materials.items():
-                    materials[k] = round_int(v * mpl)
-
-                in_slots = ext.in_slots + cap*ext.exp_cap_in_slots
-                ex_slots = ext.ex_slots + cap*ext.exp_cap_ex_slots
-            else:
-                cost = ext.COST * mpl
-                materials = {}
-                for k, v in ext.MATERIALS.items():
-                    materials[k] = v * mpl
-
-                in_slots = ext.IN_SLOTS
-                ex_slots = ext.EX_SLOTS
-
-            return cost, materials, in_slots, ex_slots
-
-        def eval_extension_build(self, extension_class, price=None):
-            # If price is not None, we expect a tuple with requirements to build
-            # Check if we can build an upgrade:
-            if price is None:
-                cost, materials, in_slots, ex_slots = self.get_extension_cost(extension_class)
-            else:
-                cost, materials, in_slots, ex_slots = price
-
-            if (self.in_slots_max - self.in_slots) < in_slots or (self.ex_slots_max - self.ex_slots) < ex_slots:
-                return False
-
-            if self.has_extension(extension_class):
-                return False
-
-            if hero.gold < cost:
-                return False
-
-            for i, a in materials.iteritems():
-                if hero.inventory[i] < a:
-                    return False
-
-            return True
+            for u in self._upgrades:
+                price += u.get_price()
+            for b in self._businesses:
+                price += b.get_price()
+            return price
 
         def pay_for_extension(self, cost, materials):
             # This does assume that we checked and know that MC has the resources.
@@ -492,45 +447,41 @@ init -9 python:
         def add_business(self, business, normalize_jobs=False, pay=False):
             """Add business to the building.
             """
-            cost, materials, in_slots, ex_slots = self.get_extension_cost(business)
+            cost, materials, in_slots, ex_slots = business.get_cost()
             self.in_slots += in_slots
             self.ex_slots += ex_slots
 
             if pay:
                 self.pay_for_extension(cost, materials)
 
-            business.building = self
             business.in_slots = in_slots
             business.ex_slots = ex_slots
 
             self._businesses.append(business)
-            self._businesses.sort(key=attrgetter("SORTING_ORDER"), reverse=True)
+            self._businesses.sort(key=attrgetter("ID"), reverse=True)
 
             if normalize_jobs:
                 self.normalize_jobs()
 
-        def close_business(self, business, normalize_jobs=False, pay=False):
+        def close_business(self, business):
             """Remove a business from the building.
             """
             self._businesses.remove(business)
             self.in_slots -= business.in_slots
             self.ex_slots -= business.ex_slots
 
-            if pay:
-                self.pay_for_extension(business.get_price(), None)
+            self.pay_for_extension(business.get_cost()[0], None)
 
-            if normalize_jobs:
-                self.normalize_jobs()
+            self.normalize_jobs()
 
         def add_upgrade(self, upgrade, pay=False):
-            cost, materials, in_slots, ex_slots = self.get_extension_cost(upgrade)
+            cost, materials, in_slots, ex_slots = upgrade.get_cost()
             self.in_slots += in_slots
             self.ex_slots += ex_slots
 
             if pay:
                 self.pay_for_extension(cost, materials)
 
-            upgrade.building = self
             self._upgrades.append(upgrade)
             self._upgrades.sort(key=attrgetter("ID"), reverse=True)
 
@@ -541,20 +492,8 @@ init -9 python:
         def all_extensions(self):
             return self._businesses + self._upgrades
 
-        def has_extension(self, extension, include_business_upgrades=False):
-            if not isclass(extension):
-                extension = extension.__class__
-
-            for ex in self.all_extensions():
-                if isinstance(ex, extension):
-                    return True
-
-            if include_business_upgrades:
-                for ex in self.all_extensions():
-                    if ex.has_extension(extension):
-                        return True
-
-            return False
+        def has_extension(self, extension):
+            return extension in self.all_extensions()
 
         def get_business(self, up):
             # Takes a string as an argument
