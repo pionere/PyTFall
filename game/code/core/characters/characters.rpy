@@ -2290,7 +2290,7 @@ init -9 python:
             # Home location nd mods:
             loc = self.home
 
-            mod = loc.daily_modifier
+            mod = loc.get_daily_modifier()
             if mod > 0:
                 txt.append("You've comfortably spent a night.")
             elif mod < 0:
@@ -2421,6 +2421,7 @@ init -9 python:
             else:
                 self.home = pytfall.sm
 
+
             # Wagemod + auto-buy + auto-equip:
             if self.status == 'free':
                 self.wagemod = 100
@@ -2541,7 +2542,7 @@ init -9 python:
 
                 # Home location nd mods:
                 loc = self.home
-                mod = loc.daily_modifier
+                mod = loc.get_daily_modifier()
 
                 if mod > 0:
                     temp = "%s comfortably spent a night in %s." % (pC, str(loc))

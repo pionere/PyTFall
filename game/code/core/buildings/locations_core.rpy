@@ -38,6 +38,9 @@ init -20 python:
             self.daily_modifier = daily_modifier
             self.desc = desc
 
+        def get_daily_modifier(self):
+            return self.daily_modifier
+
         def get_all_chars(self):
             return self.inhabitants
 

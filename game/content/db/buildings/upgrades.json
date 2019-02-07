@@ -24,7 +24,7 @@
     {
         "name": "Garden",
         "class": "SQLandscape",
-        "desc": "Beautiful Garden!\nA large and beautiful garden to put your slaves at ease.\n(+25% Overnight restoration for slaves in this building!)",
+        "desc": "Beautiful Garden!\nA large and beautiful garden to put your slaves at ease.\n(+50% Overnight restoration for slaves in this building!)",
         "img": "content/buildings/upgrades/landscape.webp",
         "materials": {"Stone": 20, "Green Marble": 5, "Wood": 20},
         "cost": 3000,

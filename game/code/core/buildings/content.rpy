@@ -399,6 +399,17 @@ init -9 python:
                 else:
                     del self.inventory
 
+        def get_daily_modifier(self):
+            daily_modifier = self.daily_modifier
+            for b in self._businesses:
+                for u in b.upgrades:
+                    if hasattr(u, "daily_modifier_mod"):
+                        daily_modifier *= u.daily_modifier_mod
+            for u in self._upgrades:
+                if hasattr(u, "daily_modifier_mod"):
+                    daily_modifier *= u.daily_modifier_mod
+            return daily_modifier
+
         def normalize_jobs(self):
             jobs = set()
             for up in self._businesses:
