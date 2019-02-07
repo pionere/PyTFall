@@ -189,29 +189,26 @@ screen realtor_agency():
                                         text "Tier:" yalign .5
                                         label "[focus.tier]" align (1.0, .5)
 
-                        if isinstance(focus, Building):
-                            null height 10
+                        null height 10
 
+                        hbox:
+                            xalign .5
+                            xysize (400,30)
                             hbox:
                                 xalign .5
-                                xysize (400,30)
-                                hbox:
-                                    xalign .5
-                                    for business in focus.allowed_businesses:
-                                        $ img = ProportionalScale("content/buildings/upgrades/icons/" + business.__class__.__name__ + ".png", 24, 24)
-                                        if not (focus.has_extension(business)):
-                                            $ img = im.MatrixColor(img, im.matrix.desaturate())
-                                        imagebutton:
-                                            xpadding 5
-                                            ypadding 2
-                                            xysize 35, 29
-                                            tooltip ("%s" % (business.__class__.__name__))
-                                            action NullAction()
-                                            idle img
+                                for business in focus.allowed_businesses:
+                                    $ img = ProportionalScale("content/buildings/upgrades/icons/" + business.__class__.__name__ + ".png", 24, 24)
+                                    if not (focus.has_extension(business)):
+                                        $ img = im.MatrixColor(img, im.matrix.desaturate())
+                                    imagebutton:
+                                        xpadding 5
+                                        ypadding 2
+                                        xysize 35, 29
+                                        tooltip ("%s" % (business.__class__.__name__))
+                                        action NullAction()
+                                        idle img
 
-                            null height 10
-                        else:
-                            null height 50
+                        null height 10
 
                         hbox:
                             xalign .5
@@ -222,7 +219,7 @@ screen realtor_agency():
                                 xsize 400
                                 xpadding 10
                                 ypadding 10
-                                text ("{=content_text}{color=[ivory]}[focus.desc]")
+                                text "[focus.desc]" color ivory
 
                         null height 50
 

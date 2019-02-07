@@ -689,7 +689,7 @@ init -9 python:
             # Upgrades:
             temp = False
             for u in self._upgrades:
-                um = getattr(u, "CLIENT_FLOW_MOD", 0)
+                um = getattr(u, "client_flow_mod", 0)
                 if um != 0:
                     temp = True
                     mod *= um

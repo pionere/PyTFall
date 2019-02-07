@@ -10,15 +10,6 @@ init -12 python:
 
 
         def __init__(self):
-            self.name = self.NAME
-            self.desc = self.DESC
-            self.img = self.IMG
-
-            self.cost = self.COST
-            self.in_slots = self.IN_SLOTS
-            self.ex_slots = self.EX_SLOTS
-            self.materials = self.MATERIALS
-
             # This means that we can add capacity to this business.
             # Slots/Cost are the cost of a single expansion!
             self.expands_capacity = False
@@ -75,15 +66,10 @@ init -12 python:
             # we run "inactive" method with a corresponding simpy process in this case.
             self.active = True
 
-            self.capacity = self.CAPACITY
-            if hasattr(self, "EXP_CAP_COST"):
+            if hasattr(self, "exp_cap_cost"):
                 self.expands_capacity = True
 
-                self.exp_cap_cost = self.EXP_CAP_COST
-                self.exp_cap_in_slots = self.EXP_CAP_IN_SLOTS
-                self.exp_cap_ex_slots = self.EXP_CAP_EX_SLOTS
-
-            self.allowed_upgrades = getattr(self, "ALLOWED_UPGRADES", [])
+            self.allowed_upgrades = getattr(self, "allowed_upgrades", [])
             self.in_construction_upgrades = list() # Not used yet!
             self.upgrades = list()
 
@@ -612,7 +598,7 @@ init -12 python:
             # Move to Job method?
             eff_mod = 0
             for u in self.upgrades:
-                eff_mod += getattr(u, "JOB_EFFECTIVENESS_MOD", 0)
+                eff_mod += getattr(u, "job_effectiveness_mod", 0)
             effectiveness += eff_mod
 
             if DSNBR:
@@ -757,7 +743,7 @@ init -12 python:
                     value = -(5 * effectiveness_ratio)
 
                     for u in self.upgrades:
-                        value += getattr(u, "JOB_POWER_MOD", 0)
+                        value += getattr(u, "job_power_mod", 0)
 
                     w.set_flag(power_flag_name, value)
 

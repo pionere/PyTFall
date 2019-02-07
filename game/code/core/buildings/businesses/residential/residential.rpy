@@ -9,5 +9,5 @@ init -6 python:
         def daily_modifier(self):
             value = self._daily_modifier
             for u in self.upgrades:
-                value *= getattr(u, "DAILY_MODIFIER_MOD", 1)
+                value *= getattr(u, "daily_modifier_mod", 1)
             return value

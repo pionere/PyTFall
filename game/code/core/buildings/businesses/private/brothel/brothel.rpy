@@ -68,7 +68,7 @@ init -5 python:
             # Move to Job method?
             eff_mod = 0
             for u in self.upgrades:
-                eff_mod += getattr(u, "JOB_EFFECTIVENESS_MOD", 0)
+                eff_mod += getattr(u, "job_effectiveness_mod", 0)
             effectiveness += eff_mod
 
             effectiveness = job.work_brothel(worker=worker, client=client, building=building,

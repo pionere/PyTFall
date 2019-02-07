@@ -696,7 +696,7 @@ label after_load:
                         raise Exception("{} Building with an unknown location detected!".format(str(b)))
                 if b._businesses and not b.allowed_businesses:
                     for i in b._businesses:
-                        b.allowed_businesses.append(i.__class__.__name__)
+                        b.allowed_businesses.append(i.__class__)
                 if b.allowed_businesses and isclass(b.allowed_businesses[0]):
                     allowed_business_upgrades = getattr(b, "allowed_business_upgrades", {})
                     allowed_businesses = b._businesses[:]

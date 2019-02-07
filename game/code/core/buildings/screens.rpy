@@ -753,7 +753,7 @@ init:
                                             xalign .5
                                             xysize 133, 83
                                             background Frame("content/gfx/frame/MC_bg3.png", 3, 3)
-                                            foreground Transform(u.IMG, size=(120, 75), align=(.5, .5))
+                                            foreground Transform(u.img, size=(120, 75), align=(.5, .5))
                                             action NullAction()
                                             tooltip u.desc
                                         textbutton "Build":

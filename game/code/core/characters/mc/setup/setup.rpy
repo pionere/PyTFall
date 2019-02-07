@@ -111,12 +111,16 @@ label mc_setup_end:
     # Add Home apartment (Slums) to MC, unless we have set him up with a home in special labels.
     python hide:
         if not hero.home:
-            # Find the cheapest building
+            # Find the cheapest building with rooms
+            home = None
             for b in buildings.values():
-                if ((not hero.home) or hero.home.price > b.price):
-                    hero.home = b
-            if hero.home:
-                hero.add_building(hero.home)
+                if b.rooms == 0:
+                    continue
+                if home is None or home.price > b.price:
+                    home = b
+            if home:
+                hero.home = home
+                hero.add_building(home)
 
     # Set the default battle skill:
     if not hero.attack_skills:

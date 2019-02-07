@@ -458,26 +458,26 @@ init -11 python:
         return mobs
 
     def load_buildings():
-        # Load static data of the upgrades
+        # Load 'static' data of the upgrades
         json_data = load_db_json("buildings/upgrades.json")
         idx = 0
         for upgrade in json_data:
             up = getattr(store, upgrade.pop('class'))
 
             for key, value in upgrade.iteritems():
-                setattr(up, key.upper(), value)
+                setattr(up, key, value)
 
             idx += 1
             up.ID = idx
 
-        # Load static data of the businesses
+        # Load 'static' data of the businesses
         json_data = load_db_json("buildings/businesses.json")
         idx = 0
         for business in json_data:
             b = getattr(store, business.pop('class'))
 
             for key, value in business.iteritems():
-                setattr(b, key.upper(), value)
+                setattr(b, key, value)
 
             idx += 1
             b.ID = idx
