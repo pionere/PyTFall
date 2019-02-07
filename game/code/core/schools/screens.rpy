@@ -10,35 +10,42 @@ label school_training:
         $ result = ui.interact()
 
         if result[0] == "set_course":
-            $ course = result[1]
-            $ course_type = course.data.get("type", None)
-
-            if isinstance(char, PytCharacter):
-                $ students = [char]
-            else:
-                $ students = char
-
             python:
+                course = result[1]
+
+                if isinstance(char, PytCharacter):
+                    students = [char]
+                else:
+                    students = char
+
+                add = True
                 for s in students:
-                    if s.workplace == school:
-                        s.action.remove_student(s)
+                    if s.action != course:
+                        break
+                else:
+                    add = False
 
-                    # Blocks bad matches between student and course:
-                    # Slaves can't do combat:
-                    if course_type == "combat" and s.status == "slave":
-                        renpy.notify("Slaves cannot take combat courses")
-                        continue
+                if add is True:
+                    course_type = course.data.get("type", None)
+                    for s in students:
+                        # Blocks bad matches between student and course:
+                        # Slaves can't do combat:
+                        if course_type == "combat" and s.status == "slave":
+                            renpy.notify("Slaves cannot take combat courses")
+                            continue
 
-                    # Free girls without naughty basetraits won't do xxx
-                    c0 = course_type == "xxx"
-                    c1 = s.status == "free"
-                    c2 = "SIW" not in s.gen_occs
-                    if all([c0, c1, c2]):
-                        renpy.notify("Free non whores won't take XXX courses")
-                        continue
+                        # Free girls without naughty basetraits won't do xxx
+                        c0 = course_type == "xxx"
+                        c1 = s.status == "free"
+                        c2 = "SIW" not in s.gen_occs
+                        if all([c0, c1, c2]):
+                            renpy.notify("Free non whores won't take XXX courses")
+                            continue
 
-                    s.workplace = school
-                    course.add_student(s)
+                        course.add_student(s)
+                else:
+                    for s in students:
+                        course.remove_student(s)
 
         if result == ["control", "return"]:
             jump return_from_school_training

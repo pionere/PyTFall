@@ -11,21 +11,20 @@ init -10 python:
         """
         earned = pytfall.economy.get_clients_pay(job, difficulty)
 
+        is_plural = False
         if isinstance(clients, (set, list, tuple)):
             if len(clients) > 1:
-                plural = True
+                is_plural = True
                 client_name = "clients"
                 earned *= len(clients) # Make sure we adjust the payout to the actual number of clients served.
             else:
-                plural = False
                 client_name = "client"
         else:
-            plural = False
             client_name = clients.name
 
         me = building.manager_effectiveness
         if effectiveness <= 33: # Worker sucked so much, client just doesn't pay.
-            if plural:
+            if is_plural:
                 temp = "Clients leave the {} refusing to pay for the inadequate service {} provided.".format(
                                 business.name, worker.name)
             else:
@@ -34,7 +33,7 @@ init -10 python:
             log.append(temp)
             earned = 0
         elif effectiveness <= 90: # Worker sucked but situation may be salvageable by Manager.
-            if plural:
+            if is_plural:
                 temp = "Due to inadequate service provided by {} clients refuse to pay the full price.".format(worker.name)
             else:
                 temp = "Due to inadequate service provided by {} client refuses to pay the full price.".format(worker.name)
@@ -46,14 +45,14 @@ init -10 python:
                 building.manager.jobpoints -= 1
 
                 if me >= 150 and dice(85):
-                    if plural:
+                    if is_plural:
                         temp += " Client were so pleased for the attention and ended up paying full price."
                     else:
                         temp += " Client was so pleased for the attention and ended up paying full price."
                     log.append(temp)
                     earned *= .75
                 elif dice(75):
-                    if plural:
+                    if is_plural:
                         temp += " Clients agree to pay three quarters of the price."
                     else:
                         temp += " Client agreed to pay three quarters of the price."
@@ -68,13 +67,13 @@ init -10 python:
                 temp = " You will get half..."
                 log.append(temp)
         elif effectiveness <= 150:
-            if plural:
+            if is_plural:
                 temp = "Clients are very happy with {} service and pay the full price.".format(worker.name)
             else:
                 temp = "Client is very happy with {} service and pays the full price.".format(worker.name)
             log.append(temp)
         else:
-            if plural:
+            if is_plural:
                 temp = "Clients are ecstatic! {} service was beyond any expectations. +20% to payout!".format(worker.name)
             else:
                 temp = "Client is ecstatic! {} service was beyond any expectations. +20% to payout!".format(worker.name)
@@ -83,7 +82,7 @@ init -10 python:
 
         # Passive manager effect:
         if me >= 120 and dice(50):
-            if plural:
+            if is_plural:
                 temp = "Manager paid some extra attention to clients. +20% to payout!"
             else:
                 temp = "Manager paid some extra attention to the client. +20% to payout!"

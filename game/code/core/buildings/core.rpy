@@ -99,8 +99,7 @@ init -10 python:
     class BaseBuilding(HabitableLocation, Flags):
         """The super class for all Building logic.
         """
-        def __init__(self, id=None, name=None, desc=None,
-                     price=100, mod=1):
+        def __init__(self, id=None, name=None, desc=None):
             """Creates a new building.
 
             id = The id of the building.
@@ -114,14 +113,9 @@ init -10 python:
             self.name = name
             self.desc = desc
 
-            self.jobs = set()
-
             # Flagging:
             self.flag_red = False
             self.flag_green = False
-
-            # Rooms
-            self.mod = mod
 
             # Security:
 
@@ -149,14 +143,8 @@ init -10 python:
             for c in hero.chars:
                 if not c.is_available:
                     continue
-                if c.home == self:
+                if c.workplace == self or c.home == self:
                     all_chars.add(c)
-                    continue
-                if c.workplace == self:
-                    all_chars.add(c)
-
-            # if self.manager:
-            #     all_chars.add(self.manager)
 
             return all_chars
 

@@ -64,21 +64,21 @@ init python:
         def tooltip(self):
             tt = self.data.get("desc", "No Description Available")
 
-            temp = []
-            for s in self.students:
-                temp.append(s.nickname)
-
-            if temp:
-                tt += "\nStudents: "
-                tt += ", ".join(temp)
+            if self.students:
+                tt += "\nStudents: %s" % (", ".join([s.nickname for s in self.students]))
 
             return tt
 
         def add_student(self, student):
+            if student.workplace == pytfall.school:
+                student.action.remove_student(student)
+
             if student not in self.students:
                 self.students.append(student)
             if student not in self.students_progress:
                 self.students_progress[student] = 0
+
+            student.workplace = pytfall.school
             student.action = self
 
         def remove_student(self, student):
@@ -111,11 +111,11 @@ init python:
                 # Pay for the class:
                 if hero.take_money(self.price, reason="-PyTFall Educators-"):
                     char.fin.log_logical_expense(self.price, "-PyTFall Educators-")
-                    temp = "You've covered a fee of {color=[gold]}%s Gold!{/color}" % self.price
+                    temp = "You've covered a fee of {color=[gold]}%s Gold{/color}!" % self.price
                     txt.append(temp)
                 else:
                     self.remove_student(char)
-                    temp = "\nYou failed to cover the fee of {color=[gold]}%d Gold!{/color}." % self.price
+                    temp = "\nYou failed to cover the fee of {color=[gold]}%d Gold{/color}!" % self.price
                     temp += " The student has been kicked from the class!"
                     txt.append(temp)
 
@@ -212,8 +212,7 @@ init python:
                 if self.days_remaining <= 0:
                     txt.append("This Course has ended, all students have been sent back home.")
                     self.remove_student(char)
-                    if self.students:
-                        school.students_dismissed += 1
+                    school.students_dismissed += 1
 
                 self.build_nd_report(char, charmod=charmod,
                                      flag_green=flag_green, txt=txt)
@@ -226,32 +225,27 @@ init python:
                 txt = "\n".join(txt)
 
             if type == "normal":
-                evt = NDEvent()
-                evt.type = "course_nd_report"
-                evt.charmod = charmod
-                evt.red_flag = False
-                evt.green_flag = flag_green
-                evt.loc = pytfall.school
-                evt.char = char
-                evt.txt = txt
                 # Get char image from data:
                 tags = self.data.get("imageTags", ["profile"])
                 mode = self.data.get("imageMode", "reduce")
                 kwargs = dict(exclude=self.data.get("noImageTags", []),
                               resize=ND_IMAGE_SIZE, type=mode, add_mood=False)
-                evt.img = char.show(*tags, **kwargs)
+                img = char.show(*tags, **kwargs)
+                flag_red = False
 
-                NextDayEvents.append(evt)
             elif type == "failed_to_pay":
-                evt = NDEvent()
-                evt.type = "course_nd_report"
-                # evt.charmod = charmod
-                evt.red_flag = True
-                evt.loc = pytfall.school
-                evt.char = char
-                evt.img = char.show("profile", "sad", resize=ND_IMAGE_SIZE)
-                evt.txt = txt
-                NextDayEvents.append(evt)
+                img = char.show("profile", "sad", resize=ND_IMAGE_SIZE)
+                flag_red = True
+
+            evt = NDEvent(type="course_nd_report",
+                          red_flag=flag_red,
+                          green_flag=flag_green,
+                          loc=pytfall.school,
+                          char=char,
+                          charmod=charmod,
+                          img=img,
+                          txt=txt)
+            NextDayEvents.append(evt)
 
 
     class School(BaseBuilding):
@@ -331,18 +325,16 @@ init python:
                 txt.append("New Courses are available here today!")
 
             if self.successfully_completed:
-                temp = "Student(s) completed courses here today: {}!".format(self.successfully_completed)
+                temp = "Today %d %s completed a course here!" % (self.successfully_completed, plural("student", self.successfully_completed))
                 txt.append(temp)
 
             if self.students_dismissed:
-                temp = "{} Student(s) were sent home as their course has ended!".format(self.students_dismissed)
+                temp = "The course has ended for %d %s, have a look at our other courses!" % (self.students_dismissed, plural("student", self.students_dismissed))
                 txt.append(temp)
 
             if students:
                 txt.append("\n")
-                txt.append("Students:")
-                for s in students:
-                    txt.append("  {}".format(s.name))
+                txt.append("Students: %s" % (", ".join([s.name for s in students])))
 
             img = pscale(self.img, 820, 705)
             txt = "\n".join(txt)

@@ -317,6 +317,9 @@ init -9 python:
             #self.given_items = dict()
             #self.inventory = Inventory(15)
 
+            # Jobs - initialized later
+            #self.jobs = set()
+
             # Clients:
             self.all_clients = list() # All clients of this building are maintained here.
             self.regular_clients = set() # Subset of self.all_clients.
