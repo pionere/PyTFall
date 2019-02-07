@@ -200,15 +200,15 @@ init -5 python:
 
         def after_rest(self, worker, log):
             if self.is_rested(worker):
-                worker.action = action = worker.previousaction
-                worker.previousaction = ''
+                worker.action = self # toggle action
+                action = worker.action
 
                 if action:
                     log.append("\n\n{} is now both well rested and goes back to work as {}!".format(worker.name, action))
                 else:
                     log.append("\n\n{} is now both well rested and healthy!".format(worker.name))
 
-                aeq_purpose = getattr(action, "aeq_purpose", "")
-                if worker.autoequip and aeq_purpose:
-                    if worker.last_known_aeq_purpose != aeq_purpose:
+                if worker.autoequip:
+                    aeq_purpose = getattr(action, "aeq_purpose", None)
+                    if aeq_purpose and worker.last_known_aeq_purpose != aeq_purpose:
                         worker.equip_for(aeq_purpose)

@@ -26,37 +26,30 @@ init python:
 
             for char in container:
                 cat = 0
-                if char.action is None:
+                action = char.action
+                if action is None:
                     cat = "IDLE"
                     a["IDLE"] += 1
-                elif hasattr(char.action, "type"):
-                    if char.action.type == "Combat":
+                elif hasattr(action, "type"):
+                    if action.__class__ == AutoRest:
+                        action = char.previousaction
+                        if not hasattr(action, "type"):
+                            action = simple_jobs["Rest"]
+                    type = action.type
+                    if type == "Combat":
                         cat = "Warriors"
                         a["Warriors"] += 1
-                    elif char.action.type in ["Service", "SIW"]:
+                    elif type in ["Service", "SIW"]:
                         cat = "Service"
                         a["Service"] += 1
-                    elif char.action.type == "Management":
+                    elif type == "Management":
                         cat = "Managers"
                         a["Managers"] += 1
-                    elif char.action.type == "Resting":
+                    elif type == "Resting":
                         # This needs to be handled separately:
-                        if char.action.__class__ == Rest:
-                            cat = "IDLE"
-                            r["IDLE"] += 1
-                        elif char.action.__class__ == AutoRest:
-                            # We need to loop over it separately, based on previous occupation:
-                            if hasattr(char.previousaction, "type"):
-                                if char.previousaction.type == "Combat":
-                                    cat = "Warriors"
-                                    r["Warriors"] += 1
-                                elif char.previousaction.type in ["Service", "SIW"]:
-                                    cat = "Service"
-                                    r["Service"] += 1
-                                elif char.previousaction.type == "Management":
-                                    cat = "Managers"
-                                    r["Managers"] += 1
-
+                        cat = "IDLE"
+                        r["IDLE"] += 1
+                    
                 # Events:
                 if cat:
                     for event in NextDayEvents:

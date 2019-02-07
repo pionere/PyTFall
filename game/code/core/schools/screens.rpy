@@ -42,10 +42,10 @@ label school_training:
                             renpy.notify("Free non whores won't take XXX courses")
                             continue
 
-                        course.add_student(s)
+                        s.action = course 
                 else:
                     for s in students:
-                        course.remove_student(s)
+                        s.action = None
 
         if result == ["control", "return"]:
             jump return_from_school_training

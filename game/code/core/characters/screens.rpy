@@ -27,7 +27,7 @@ screen set_action_dropdown(char, pos=()):
                         Jump("school_training")]
                 tooltip "Change the training course to a different one."
             textbutton "Stop Course":
-                action [Function(stop_course, char),
+                action [Function(setattr, char, "action", None),
                         Hide("set_action_dropdown"), With(Dissolve(0.1))]
                 tooltip "Call your girl back from the Academy to do something useful in one of your businesses."
         elif isinstance(char.workplace, Building):

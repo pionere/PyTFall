@@ -70,22 +70,12 @@ init python:
             return tt
 
         def add_student(self, student):
-            if student.workplace == pytfall.school:
-                student.action.remove_student(student)
-
-            if student not in self.students:
-                self.students.append(student)
+            self.students.append(student)
             if student not in self.students_progress:
                 self.students_progress[student] = 0
 
-            student.workplace = pytfall.school
-            student.action = self
-
         def remove_student(self, student):
-            if student in self.students:
-                self.students.remove(student)
-            student.workplace = None
-            student.action = None
+            self.students.remove(student)
 
         def next_day(self):
             self.days_remaining -= 1
@@ -114,7 +104,7 @@ init python:
                     temp = "You've covered a fee of {color=[gold]}%s Gold{/color}!" % self.price
                     txt.append(temp)
                 else:
-                    self.remove_student(char)
+                    char.action = None
                     temp = "\nYou failed to cover the fee of {color=[gold]}%d Gold{/color}!" % self.price
                     temp += " The student has been kicked from the class!"
                     txt.append(temp)
@@ -211,7 +201,7 @@ init python:
 
                 if self.days_remaining <= 0:
                     txt.append("This Course has ended, all students have been sent back home.")
-                    self.remove_student(char)
+                    char.action = None
                     school.students_dismissed += 1
 
                 self.build_nd_report(char, charmod=charmod,
@@ -342,7 +332,3 @@ init python:
             evt = NDEvent(type=type, txt=txt, img=img)
             NextDayEvents.append(evt)
 
-
-    def stop_course(char):
-        course = char.action
-        course.remove_student(char)

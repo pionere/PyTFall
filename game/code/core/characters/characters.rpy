@@ -172,7 +172,7 @@ init -9 python:
             self._available = True
 
             # Action tracking (AutoRest job for instance):
-            self.previousaction = ''
+            self.previousaction = None
 
             self.clear_img_cache()
 
@@ -293,37 +293,53 @@ init -9 python:
             return self._action
         @action.setter
         def action(self, value):
-            # Resting considerations:
-            c0 = getattr(value, "type", None) == "Resting"
-            c1 = self.previousaction == value
-            if c0 or c1:
-                self._action = value
+            # Special handling for Rest actions
+            if value.__class__ in [Rest, AutoRest]:
+                if self._action == value:
+                    # Toggle *Rest
+                    self._action = self.previousaction
+                    self.previousaction = None
+                elif self._action.__class__ == AutoRest:
+                    # AutoRest -> Rest
+                    self._action = value
+                else:
+                    # *Action -> Rest
+                    self.previousaction = self._action
+                    self._action = value
                 return
 
-            # SchoolCourses, we need to remove the student as action is being changed:
-            course = None
-            if isinstance(self._action, SchoolCourse):
-                course = self._action
-            elif isinstance(self.previousaction, SchoolCourse):
-                course = self.previousaction
-            if course is not None:
-                self._action = None
-                course.remove_student(self)
+            # Find out the real action
+            curr_action = self._action
+            if curr_action.__class__ in [Rest, AutoRest]:
+                curr_action = self.previousaction
+                self.previousaction = None
 
-            old_action = self._action
-            wp = self.workplace
             mj = simple_jobs["Manager"]
 
-            if getattr(wp, "manager", None) == self:
-                # Works as a Manager so special considerations are needed:
-                wp.manager = None
-                #wp.manager_effectiveness = 0
-            if value == mj:
-                # Check if we already have a manager in the building:
-                if wp.manager:
-                    wp.manager.previousaction = ''
-                    wp.manager._action = None
-                    #wp.manager = None
+            if isinstance(curr_action, SchoolCourse):
+                # remove student from the active course
+                curr_action.remove_student(self)
+                self.workplace = None
+            elif curr_action == mj:
+                # remove manager from the previous job
+                self.workplace.manager = None
+                #self.workplace.manager_effectiveness = 0
+
+            if isinstance(value, SchoolCourse):
+                # subscribe student to the course
+                value.add_student(self)
+                # set workplace to the school
+                self.workplace = pytfall.school
+            elif value == mj:
+                # set manager of the workplace
+                wp = self.workplace
+                pm = wp.manager
+                if pm:
+                    # remove previous manager from the workplace
+                    if pm._action == mj:
+                        pm._action = None
+                    else:
+                        pm.previosaction = None
                     #wp.manager_effectiveness = 0
                 wp.manager = self
 
