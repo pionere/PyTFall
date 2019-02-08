@@ -121,6 +121,12 @@ init -12 python:
             self.building.fin.log_logical_expense(cost, "Business Expansion")
             self.capacity -= 1
 
+            # relocate the possible extra inhabitant
+            if self.habitable and self.building.vacancies < 0:
+                for char in self.building.inhabitants: break
+                char.home = pytfall.streets
+                set_location(char, None)
+
         def get_client_count(self):
             """Returns amount of clients we expect to come here.
 

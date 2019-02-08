@@ -440,12 +440,33 @@ init -10 python:
             """Remove a business from the building.
             """
             self._businesses.remove(business)
+
             self.in_slots -= business.in_slots
             self.ex_slots -= business.ex_slots
 
             self.pay_for_extension(business.get_cost()[0], None)
 
+            # reset the business
+            business.upgrades = list()
+            if business.expands_capacity:
+                business.in_slots -= business.capacity * business.exp_cap_in_slots
+                business.ex_slots -= business.capacity * business.exp_cap_ex_slots
+                business.capacity = 0
+
             self.normalize_jobs()
+
+            # update affected characters
+            if business.habitable:
+                vacs = self.vacancies
+                if vacs < 0:
+                    # move out the extra inhabitants
+                    for i in range(-vacs):
+                        for char in self.inhabitants: break
+                        char.home = pytfall.streets
+                        set_location(char, None)
+            if self.manager and simple_jobs["Manager"] not in self.jobs:
+                # remove manager
+                self.manager.action = None
 
         def add_upgrade(self, upgrade, pay=False):
             cost, materials, in_slots, ex_slots = upgrade.get_cost()
