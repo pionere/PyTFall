@@ -988,7 +988,7 @@ init -9 python:
                     else:
                         member.combat_stats = "K.O."
 
-                for mob in loser:
+                for mob in team:
                     defeated_mobs.add(mob.id)
 
                 # Ladder
@@ -1027,10 +1027,7 @@ init -9 python:
                 jump("arena_inside")
 
         def setup_minigame(self, luck):
-            # Color: range (int) pares =======>>>
-            data = OrderedDict()
-
-            # New total is 300, each of the stats may get 50!
+            # New total is 300, each of the stats may get 25!
             length = 300
             hpbar = 20
             mpbar = 20
@@ -1038,27 +1035,22 @@ init -9 python:
 
             # Luck mod:
             if dice(luck):
-                hpbar += 10
+                hpbar += 5
             if dice(luck):
-                mpbar += 10
+                mpbar += 5
             if dice(luck):
-                vpbar += 10
+                vpbar += 5
 
-            # Stabilize:
+            # Color: range (int) pares =======>>>
+            data = OrderedDict()
             data["red"] = hpbar
             data["blue"] = mpbar
             data["green"] = vpbar
             white = (length-sum(data.values()))/2 # Bupkis
-
-            # Mutating to a new dict of color: value pairs
-            colors = OrderedDict()
-            colors["white"] = white
-            for color, value in data.items():
-                colors[color] = value
-
+            data["white"] = white
             # Pass the minigame screen:
             renpy.play("win_screen.mp3", channel="world")
-            renpy.call_screen("arena_minigame", colors, length)
+            renpy.call_screen("arena_minigame", data, length)
 
         def settle_minigame(self, udd, d):
             # Award the bonuses:
