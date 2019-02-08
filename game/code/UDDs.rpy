@@ -425,15 +425,10 @@ init -960 python:
             self.slider = "content/gfx/interface/bars/thvslider_thumb.png"
             bar = Transform("content/gfx/interface/bars/vcryslider_full.png", size=(40, length))
             vbox = VBox(xysize=(40, length))
-            white = Solid("000", xysize=((40, data["white"])))
 
-            vbox.add(white)
-            for color, value in data.items():
-                if color == "white":
-                    continue
-                what = Transform(Solid(getattr(store, color)), size=(40, value), additive=.5)
+            for color, value in data:
+                what = Transform(Solid(getattr(store, color)), size=(40, value))
                 vbox.add(what)
-            vbox.add(white)
 
             fixed = AlphaBlend(bar, bar, vbox, alpha=True)
             self.displayable = fixed

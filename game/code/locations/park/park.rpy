@@ -24,10 +24,10 @@ label city_park:
             $ gm.start_gm(result[1], img=result[1].show("girlmeets", "outdoors", "nature", "urban", exclude=["swimsuit", "wildness", "indoors", "stage", "beach", "pool", "onsen", "indoor"], type="reduce", label_cache=True, resize=(300, 400), gm_mode=True))
 
         if result[0] == 'control':
-            if result[1] == 'jumpgates':
-                $ global_flags.set_flag("keep_playing_music")
-                $ hs()
-                $ jump('city_parkgates')
+            #if result[1] == 'jumpgates':
+            #    $ global_flags.set_flag("keep_playing_music")
+            #    $ hs()
+            #    $ jump('city_parkgates')
 
             if result[1] == 'return':
                 $ global_flags.set_flag("keep_playing_music")

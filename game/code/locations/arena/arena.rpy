@@ -1040,57 +1040,33 @@ init -9 python:
                 mpbar += 5
             if dice(luck):
                 vpbar += 5
+            black = (length-(hpbar+mpbar+vpbar))/2 # Bupkis
+ 
+            # Color: range (int) pairs =======>>>
+            data = (("black", black), ("red", hpbar), ("blue", mpbar), ("green", vpbar), ("black", black))
 
-            # Color: range (int) pares =======>>>
-            data = OrderedDict()
-            data["red"] = hpbar
-            data["blue"] = mpbar
-            data["green"] = vpbar
-            white = (length-sum(data.values()))/2 # Bupkis
-            data["white"] = white
             # Pass the minigame screen:
             renpy.play("win_screen.mp3", channel="world")
             renpy.call_screen("arena_minigame", data, length)
 
-        def settle_minigame(self, udd, d):
+        def settle_minigame(self, udd, data):
             # Award the bonuses:
             value = udd.value
-            result = None
-            # And lastly, mutating to a bonus: range pair, pairs dict :)
-            white = d.pop("white")
-            bonus = dict()
 
-            bonus["bupkis"] = (0, white)
+            for idx, (color, val) in enumerate(data):
+               value -= val
+               if value <= 0:
+                   break
 
-            level = white
-            newlevel = level + d["red"]
-            bonus["hp"] = (level, newlevel)
+            bonus = (None, "health", "mp", "vitality", None)
+            reward = bonus[idx]
 
-            level = newlevel
-            newlevel = level + d["blue"]
-            bonus["mp"] = (level, newlevel)
-
-            level = newlevel
-            newlevel = level + d["green"]
-            bonus["vp"] = (level, newlevel)
-
-            level = newlevel
-            newlevel = newlevel + white
-            bonus["bupkis_2"] = (level, newlevel)
-
-            for reward, levels in bonus.items():
-                if levels[0] <= value <= levels[1]:
-                    break
-
-            if reward == "hp":
+            if reward:
                 for member in hero.team:
-                    member.health = member.get_max("health")
-            elif reward == "mp":
-                for member in hero.team:
-                    member.mp = member.get_max("mp")
-            elif reward == "vp":
-                for member in hero.team:
-                    member.vitality = member.get_max("vitality")
+                    member.mod_stat(reward, member.get_max(reward))
+            else:
+                reward = "bupkis"
+
             return reward
 
         # -------------------------- Battle/Next Day ------------------------------->

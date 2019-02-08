@@ -94,9 +94,8 @@ init -11 python:
         scr = renpy.current_screen()
         if scr is not None:
             renpy.hide_screen(scr.tag)
-
-    def clear_screens():
-        renpy.scene("screens")
+        else:
+            renpy.scene("screens")
 
     def digital_screen_logic(string, value):
         # logic for digital input screen

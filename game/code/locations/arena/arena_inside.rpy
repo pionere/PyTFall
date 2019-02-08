@@ -1173,11 +1173,11 @@ init: # ChainFights vs Mobs:
                 timer 3.0 action Return()
                 key "mousedown_1" action Return()
 
-                if rolled == "hp":
+                if rolled == "health":
                     text "Rolled: HP" style "arena_header_text" color red size 30 xalign .5 ypos 10
                 elif rolled == "mp":
                     text "Rolled: MP" style "arena_header_text" color blue size 30 xalign .5 ypos 10
-                elif rolled == "vp":
+                elif rolled == "vitality":
                     text "Rolled: Vitality" style "arena_header_text" color green size 30 xalign .5 ypos 10
                 else:
                     text "Rolled: Bupkis" style "arena_header_text" color black size 30 xalign .5 ypos 10
@@ -1188,7 +1188,7 @@ init: # ChainFights vs Mobs:
                 sensitive my_udd.update
                 action [SetField(my_udd, "update", False),
                         SetScreenVariableC("rolled", pytfall.arena.settle_minigame,
-                            udd=my_udd, d=data)]
+                            udd=my_udd, data=data)]
 
         # Legenda:
         frame:

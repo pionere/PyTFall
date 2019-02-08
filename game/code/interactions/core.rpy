@@ -279,8 +279,7 @@ init -1 python:
             self.mode = mode
             self.char = girl
 
-            # hs() # Kill the current screen...
-            clear_screens()
+            hs() # Kill the current screen...
 
             if exit is not None:
                 self.label_cache = exit

@@ -57,15 +57,6 @@ init -1 python: # Core classes:
 
             self.resist = char.resist
 
-            # be_items only for non-logical battles (for the moment?)
-            self.be_items = {}
-            if hasattr(char, "inventory"): # Mobs and such do not have one
-                be_items = OrderedDict()
-                for item, amount in char.inventory.items.iteritems():
-                    if item.be:
-                        be_items[item] = amount
-                self.be_items = be_items
-
             # cached item bonuses
             items = char.eq_items()
 
@@ -216,6 +207,16 @@ init -1 python: # Core classes:
             self.delayedhp = self.health
             self.delayedmp = self.mp
             self.delayedvit = self.vitality
+
+        def get_be_items(self):
+            # be_items only for non-logical battles (for the moment?)
+            be_items = {}
+            if hasattr(char, "inventory"): # Mobs and such do not have one
+                be_items = OrderedDict()
+                for item, amount in char.inventory.items.iteritems():
+                    if item.be:
+                        be_items[item] = amount
+            return be_items
 
         def restore_char(self):
             self.char.health = self.health
