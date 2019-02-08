@@ -145,23 +145,8 @@ init -9 python:
                 # Effects assets:
                 self.effects = _dict()
 
-            # BE Bridge assets: @Review: Note: Maybe move this to a separate class/dict?
-            self.besprite = None # Used to keep track of sprite displayable in the BE.
-            self.beinx = 0 # Passes index from logical execution to SFX setup.
-            self.beteampos = None # This manages team position bound to target (left or right on the screen).
-            self.row = 1 # row on the battlefield, used to calculate range of weapons.
+            self.controller = None # by default the player is in control in BE
             self.front_row = True # 1 for front row and 0 for back row.
-            self.betag = None # Tag to keep track of the sprite.
-            self.dpos = None # Default position based on row + team.
-            self.sopos = () # Status underlay position, which should be fixed.
-            self.cpos = None # Current position of a sprite.
-            self.besk = None # BE Show **Kwargs!
-            # self.besprite_size = None # Sprite size in pixels. THIS IS NOW A PROPERTY!
-            self.allegiance = None # BE will default this to the team name.
-            self.controller = None # by default the player is in control
-            self.beeffects = []
-            self.dmg_font = "red"
-            self.status_overlay = [] # This is something I wanted to test out, trying to add tiny status icons somehow.
 
             self.attack_skills = SmartTracker(self)  # Attack Skills
             self.magic_skills = SmartTracker(self)  # Magic Skills
@@ -422,10 +407,6 @@ init -9 python:
 
         # -------------------------------------------------------------------------------->
         # Show to mimic girls method behavior:
-        @property
-        def besprite_size(self):
-            return get_size(self.besprite)
-
         def get_sprite_size(self, tag="vnsprite"):
             # First, lets get correct sprites:
             if tag == "battle_sprite":
@@ -820,16 +801,6 @@ init -9 python:
                 return self.eqslots.values()
             else:
                 return []
-
-        def get_be_items(self):
-            if not hasattr(self, "inventory"): # Mobs and such
-                return {}
-
-            be_items = OrderedDict()
-            for item, amount in self.inventory.items.iteritems():
-                if item.be:
-                    be_items[item] = amount
-            return be_items
 
         def get_owned_items_per_slot(self, slot):
             # figure out how many items actor owns:
@@ -1985,13 +1956,6 @@ init -9 python:
                 self.portrait = self.battle_sprite
 
             super(Mob, self).init()
-
-        @property
-        def besprite_size(self):
-            webm_spites = mobs[self.id].get("be_webm_sprites", None)
-            if webm_spites:
-                return webm_spites["idle"][1]
-            return get_size(self.besprite)
 
         def has_image(self, *tags):
             """

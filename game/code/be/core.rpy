@@ -22,6 +22,205 @@ init -1 python: # Core classes:
     del perfect_middle_xr
     del perfect_middle_yr
 
+    class BE_Combatant(_object):
+        def __init__(self, char):
+            self.char = char
+
+            # most commonly used variables during the battle
+            self.name = char.name
+            self.nickname = char.nickname
+            self.status = char.status
+            self.attack_skills = char.attack_skills
+            self.magic_skills = char.magic_skills
+
+            self.health = char.health
+            self.delayedhp = char.health
+            self.maxhp = char.get_max("health")
+            self.mp = char.mp
+            self.delayedmp = char.mp
+            self.maxmp = char.get_max("mp")
+            self.vitality = char.vitality
+            self.delayedvit = char.vitality
+            self.maxvit = char.get_max("vitality")
+
+            self.grimreaper = "Grim Reaper" in char.traits
+            self.is_mob = isinstance(char, Mob)
+
+            self.controller = char.controller
+            self.attack = char.attack
+            self.agility = char.agility
+            self.luck = char.luck
+            self.defence = char.defence
+            self.constitution = char.constitution
+            self.magic = char.magic
+            self.intelligence = char.intelligence
+
+            self.resist = char.resist
+
+            # be_items only for non-logical battles (for the moment?)
+            self.be_items = {}
+            if hasattr(char, "inventory"): # Mobs and such do not have one
+                be_items = OrderedDict()
+                for item, amount in char.inventory.items.iteritems():
+                    if item.be:
+                        be_items[item] = amount
+                self.be_items = be_items
+
+            # cached item bonuses
+            items = char.eq_items()
+
+            self.item_damage_multiplier = 0
+            self.item_ch_mpl = 0
+            self.item_delivery_bonus = {}
+            self.item_delivery_multiplier = {}
+            self.item_evasion_bonus = 0
+            self.item_defence_bonus = {}
+            self.item_defence_multiplier = {}
+            for i in items:
+                self.item_damage_multiplier += getattr(i, "damage_multiplier", 0)
+                self.item_ch_mpl += getattr(i, "ch_multiplier", 0)
+
+                if hasattr(i, "delivery_bonus"):
+                    for delivery, bonus in i.delivery_bonus.iteritems():
+                        bonus += self.item_delivery_bonus.get(delivery, 0)
+                        self.item_delivery_bonus[delivery] = bonus
+
+                if hasattr(i, "delivery_multiplier"):
+                    for delivery, mpl in i.delivery_multiplier.iteritems():
+                        mpl += self.item_delivery_multiplier.get(delivery, 0)
+                        self.item_delivery_multiplier[delivery] = mpl
+
+                self.item_evasion_bonus += getattr(i, "evasion_bonus", 0)
+
+                if hasattr(i, "defence_bonus"):
+                    for delivery, bonus in i.defence_bonus.iteritems():
+                        bonus += self.item_defence_bonus.get(delivery, 0)
+                        self.item_defence_bonus[delivery] = bonus
+
+                if hasattr(i, "defence_multiplier"):
+                    for delivery, mpl in i.defence_multiplier.iteritems():
+                        mpl += self.item_defence_multiplier.get(delivery, 0)
+                        self.item_defence_multiplier[delivery] = mpl
+
+            # cached trait bonuses
+            self.damage_multiplier = 0
+            self.ch_mpl = 0
+            self.delivery_bonus = {}
+            self.delivery_multiplier = {}
+            self.el_dmg = {}
+            self.el_def = {}
+            self.evasion_bonus = 0
+            self.absorbs = {}
+            self.defence_bonus = {}
+            self.defence_multiplier = {}
+            for trait in char.traits:
+                self.damage_multiplier += getattr(trait, "damage_multiplier", 0)
+                self.ch_mpl += getattr(trait, "ch_multiplier", 0)
+
+                if hasattr(trait, "delivery_bonus"):
+                    for delivery, bonus in trait.delivery_bonus.iteritems():
+                        # Reference: (minv, maxv, lvl)
+                        minv, maxv, lvl = bonus
+                        if lvl <= 0:
+                            lvl = 1
+                        if lvl < char.level:
+                            maxv = max(minv, float(char.level)*maxv/lvl)
+                        maxv += self.delivery_bonus.get(delivery, 0)
+                        self.delivery_bonus[delivery] = maxv
+
+                if hasattr(trait, "delivery_multiplier"):
+                    for delivery, mpl in trait.delivery_multiplier.iteritems():
+                        mpl += self.delivery_multiplier.get(delivery, 0)
+                        self.delivery_multiplier[delivery] = mpl
+
+                for type, val in trait.el_damage.iteritems():
+                    val += self.el_dmg.get(type, 0)
+                    self.el_dmg[type] = val
+
+                for type, val in trait.el_defence.iteritems():
+                    val += self.el_def.get(type, 0)
+                    self.el_def[type] = val
+
+                if hasattr(trait, "evasion_bonus"):
+                    # Reference: (minv, maxv, lvl)
+                    minv, maxv, lvl = trait.evasion_bonus
+                    if lvl <= 0:
+                        lvl = 1
+                    if lvl >= char.level:
+                        self.evasion_bonus += maxv
+                    else:
+                        self.evasion_bonus += max(minv, float(char.level)*maxv/lvl)
+
+                # Get all absorption capable traits:
+                if trait.el_absorbs:
+                    for type, val in trait.el_absorbs.iteritems():
+                        absorbs = self.absorbs.get(type, [])
+                        absorbs.append(val)
+                        self.absorbs[type] = absorbs
+
+                if hasattr(trait, "defence_bonus"):
+                    for delivery, bonus in trait.defence_bonus.iteritems():
+                        # Reference: (minv, maxv, lvl)
+                        minv, maxv, lvl = bonus
+                        if lvl <= 0:
+                            lvl = 1
+                        if lvl < char.level:
+                            maxv = max(minv, float(char.level)*maxv/lvl)
+                        maxv += self.defence_bonus.get(delivery, 0)
+                        self.defence_bonus[delivery] = maxv
+
+                if hasattr(trait, "defence_multiplier"):
+                    base_mpl = 1
+                    if trait in char.traits.basetraits and len(char.traits.basetraits)==1:
+                        base_mpl = 2
+                    
+                    for delivery, mpl in trait.defence_multiplier.iteritems():
+                        mpl *= base_mpl
+                        mpl += self.defence_multiplier.get(delivery, 0)
+                        self.defence_multiplier[delivery] = mpl
+
+            # Convert absorptions to ratios:
+            for type, val in self.absorbs.iteritems():
+                val = sum(val) / len(val)
+                self.absorbs[type] = val
+
+            self.front_row = char.front_row
+
+            # BE assets:
+            self.besprite = None # Used to keep track of sprite displayable in the BE.
+            self.besprite_size = None # Sprite size in pixels.
+            self.beinx = 0 # Passes index from logical execution to SFX setup.
+            self.beteampos = None # This manages team position bound to target (left or right on the screen).
+            self.row = 1 # row on the battlefield, used to calculate range of weapons.
+            self.betag = None # Tag to keep track of the sprite.
+            self.dpos = None # Default position based on row + team.
+            self.sopos = () # Status underlay position, which should be fixed.
+            self.cpos = None # Current position of a sprite.
+            self.besk = None # BE Show **Kwargs!
+            self.allegiance = None # BE will default this to the team name.
+            self.beeffects = []
+            self.dmg_font = "red"
+            self.status_overlay = [] # Status icons over the sprites.
+
+        def set_besprite(self, besprite):
+            self.besprite = besprite
+            if self.is_mob:
+                webm_spites = mobs[self.char.id].get("be_webm_sprites", None)
+                if webm_spites:
+                    self.besprite_size =  webm_spites["idle"][1]
+                    return
+            self.besprite_size = get_size(besprite)
+
+        # Delayed stats to use it in BE so we can delay updating stats on the GUI.
+        def update_delayed(self):
+            self.delayedhp = self.health
+            self.delayedmp = self.mp
+            self.delayedvit = self.vitality
+
+        def restore_char(self):
+            self.char.health = self.health
+            self.char.mp = self.mp
+            self.char.vitality = self.vitality
 
     class BE_Core(_object):
         """Main BE attrs, data and the loop!
@@ -195,7 +394,7 @@ init -1 python: # Core classes:
 
                 if not self.logical:
                     for c in self.get_fighters("all"):
-                        c.stats.update_delayed()
+                         c.update_delayed()
 
                 self.combat_log.extend(self.delayed_log)
                 self.delayed_log = list()
@@ -208,7 +407,7 @@ init -1 python: # Core classes:
 
         def start_battle(self):
 
-            self.prepear_teams()
+            self.prepare_teams()
 
             if not self.logical:
 
@@ -223,17 +422,11 @@ init -1 python: # Core classes:
                 renpy.scene()
 
                 # Lets render the teammembers:
-                # First the left team:
-                team = self.teams[0]
-                for i in team:
-                    self.show_char(i, at_list=[Transform(pos=self.get_icp(team, i))])
-                    if not i.attack_skills:
-                        # we never allow hero team members to have zero attacks
-                        i.attack_skills.append("Fist Attack")
-
-                team = self.teams[1]
-                for i in team:
-                    self.show_char(i, at_list=[Transform(pos=self.get_icp(team, i))])
+                for team in self.teams:
+                    for member in team:
+                        member.portrait = member.char.show('portrait', resize=(93, 93), cache=True)
+                        member.angry_portrait = member.char.show("portrait", "angry", resize=(65, 65), type='reduce', cache=True)
+                        self.show_char(member, at_list=[Transform(pos=self.get_icp(team, member))])
 
                 renpy.show("bg", what=self.bg)
                 renpy.show_screen("battle_overlay", self)
@@ -251,7 +444,7 @@ init -1 python: # Core classes:
 
             self.main_loop()
 
-        def prepear_teams(self):
+        def prepare_teams(self):
             # Plainly sets allegiance of chars to their teams.
             # Allegiance may change during the fight (confusion skill for example once we have one).
             # I've also included part of team/char positioning logic here.
@@ -259,22 +452,25 @@ init -1 python: # Core classes:
             for team in self.teams:
                 team.position = pos
                 size = len(team)
-                for idx, char in enumerate(team.members):
+                for idx in range(len(team)):
+                    char = BE_Combatant(team._members[idx])
+                    team._members[idx] = char
+                    if char.controller is not None:
+                        char.controller.source = char
+
                     # Position:
                     char.beteampos = pos
                     if size == 3 and idx < 2:
-                        idx = 1 - idx
-                    char.beinx = idx
+                        char.beinx = 1 - idx
+                    else:
+                        char.beinx = idx
                     if pos == "l":
                         char.row = int(char.front_row)
                     else: # Case "r"
                         char.row = 2 if char.front_row else 3
 
                     # Allegiance:
-                    char.allegiance = team.name or team
-
-                    if not self.logical:
-                        char.stats.update_delayed()
+                    char.allegiance = team
 
                 pos = "r"
 
@@ -300,16 +496,23 @@ init -1 python: # Core classes:
                 if self.music:
                     renpy.music.stop()
 
-            for f in self.get_fighters("all"):
-                for s in f.magic_skills:
-                    s.source = None
-                for s in f.attack_skills:
-                    s.source = None
+            for team in self.teams:
+                for idx in range(len(team)):
+                    f = team._members[idx]
+                    c = f.char
+                    if f in self.corpses:
+                        self.corpses.remove(f)
+                        self.corpses.add(c)
+                    team._members[idx] = c
 
-                f.betag = None
-                f.besk = None
-                f.dmg_font = "red"
-                f.status_overlay = []
+                    if c.controller is not None:
+                        c.controller.source = c
+                    for s in f.magic_skills:
+                        s.source = None
+                    for s in f.attack_skills:
+                        s.source = None
+
+                    f.restore_char()
 
         def next_turn(self):
             """
@@ -324,7 +527,7 @@ init -1 python: # Core classes:
                 self.queue = l
             return self.queue.pop()
 
-        def get_icp(self, team, char):
+        def get_icp(self, team, member):
             """Get Initial Character Position
 
             Basically this is what sets the characters up at the start of the battle-round.
@@ -332,70 +535,68 @@ init -1 python: # Core classes:
             Positions should always be retrieved using this method or errors may occur.
             """
             # We want different behavior for 3 member teams putting the leader in the middle:
-            char.besk = dict()
+            member.besk = dict()
             # Supplied to the show method.
-            char.betag = str(random.random())
+            member.betag = str(random.random())
             # First, lets get correct sprites:
-            if "Grim Reaper" in char.traits:
+            if member.grimreaper:
                 sprite = Image("content/gfx/images/reaper.png")
             else:
+                char = member.char
                 sprite = char.show("battle_sprite", resize=char.get_sprite_size("battle_sprite"))
-            # char.besprite_size = sprite.true_size()
 
             # We'll assign "indexes" from 0 to 3 from left to right [0, 1, 3, 4] to help calculating attack ranges.
             team_index = team.position
-            char_index = char.beinx
+            char_index = member.beinx
             # Sprite Flips:
             if team_index == "r":
-                if char.__class__ != Mob:
+                if not member.is_mob:
                     if isinstance(sprite, ProportionalScale):
-                        char.besprite = im.Flip(sprite, horizontal=True)
+                        sprite = im.Flip(sprite, horizontal=True)
                     else:
-                        char.besprite = Transform(sprite, xzoom=-1)
-                else:
-                    char.besprite = sprite
+                        sprite = Transform(sprite, xzoom=-1)
             else:
-                if char.__class__ == Mob:
+                if member.is_mob:
                     if isinstance(sprite, ProportionalScale):
-                        char.besprite = im.Flip(sprite, horizontal=True)
+                        sprite = im.Flip(sprite, horizontal=True)
                     else:
-                        char.besprite = Transform(sprite, xzoom=-1)
-                else:
-                    char.besprite = sprite
+                        sprite = Transform(sprite, xzoom=-1)
+
+            member.set_besprite(sprite)
 
             # We're going to land the character at the default position from now on,
             # with centered bottom of the image landing directly on the position!
             # This makes more sense for all purposes:
-            x, y = self.row_pos[team_index + str(int(char.front_row))][char_index]
-            w, h = char.besprite_size
+            x, y = self.row_pos[team_index + str(int(member.front_row))][char_index]
+            w, h = member.besprite_size
             xpos = round_int(x-w*.5)
             ypos = round_int(y-h)
-            char.dpos = char.cpos = (xpos, ypos)
+            member.dpos = member.cpos = (xpos, ypos)
 
-            char.besk["what"] = char.besprite
+            member.besk["what"] = member.besprite
             # Zorder defaults to characters (index + 1) * 100
-            char.besk["zorder"] = (char_index + 1) * 100
+            member.besk["zorder"] = (char_index + 1) * 100
 
             # ---------------------------------------------------->>>
-            return char.dpos
+            return member.dpos
 
-        def show_char(self, char, *args, **kwargs):
-            for key in char.besk:
+        def show_char(self, member, *args, **kwargs):
+            for key in member.besk:
                 if key not in kwargs: # We do not want to overwrite!
-                    kwargs[key] = char.besk[key]
-            renpy.show(char.betag, *args, **kwargs)
+                    kwargs[key] = member.besk[key]
+            renpy.show(member.betag, *args, **kwargs)
 
-        def move(self, char, pos, t, pause=True):
+        def move(self, member, pos, t, pause=True):
             """
             Move character to new position...
             """
-            renpy.hide(char.betag)
-            renpy.show(char.betag, what=char.besprite, at_list=[move_from_to_pos_with_ease(start_pos=char.cpos, end_pos=pos, t=t)], zorder=char.besk["zorder"])
-            char.cpos = pos
+            renpy.hide(member.betag)
+            renpy.show(member.betag, what=member.besprite, at_list=[move_from_to_pos_with_ease(start_pos=member.cpos, end_pos=pos, t=t)], zorder=member.besk["zorder"])
+            member.cpos = pos
             if pause:
                 renpy.pause(t)
 
-        def get_cp(self, char, type="pos", xo=0, yo=0, override=False,
+        def get_cp(self, member, type="pos", xo=0, yo=0, override=False,
                    use_absolute=False):
             """I am not sure how this is supposed to work yet in the grand scheme of things.
 
@@ -414,32 +615,32 @@ init -1 python: # Core classes:
             absolute: convert to absolute for subpixel positioning.
             """
             if not override:
-                if not char.cpos or not char.besprite_size:
-                    raise Exception([char.cpos, char.besprite_size])
+                if not member.cpos or not member.besprite_size:
+                    raise Exception([member.cpos, member.besprite_size])
 
                 if type == "sopos":
-                    xpos = char.dpos[0] + char.besprite_size[0] / 2
-                    ypos = char.dpos[1] + yo
+                    xpos = member.dpos[0] + member.besprite_size[0] / 2
+                    ypos = member.dpos[1] + yo
 
                 if type == "pos":
-                    xpos = char.cpos[0]
-                    ypos = char.cpos[1] + yo
+                    xpos = member.cpos[0]
+                    ypos = member.cpos[1] + yo
                 elif type == "center":
-                    xpos = char.cpos[0] + char.besprite_size[0] / 2
-                    ypos = char.cpos[1] + char.besprite_size[1] / 2 + yo
+                    xpos = member.cpos[0] + member.besprite_size[0] / 2
+                    ypos = member.cpos[1] + member.besprite_size[1] / 2 + yo
                 elif type == "tc":
-                    xpos = char.cpos[0] + char.besprite_size[0] / 2
-                    ypos = char.cpos[1] + yo
+                    xpos = member.cpos[0] + member.besprite_size[0] / 2
+                    ypos = member.cpos[1] + yo
                 elif type == "bc":
-                    xpos = char.cpos[0] + char.besprite_size[0] / 2
-                    ypos = char.cpos[1] + char.besprite_size[1] + yo
+                    xpos = member.cpos[0] + member.besprite_size[0] / 2
+                    ypos = member.cpos[1] + member.besprite_size[1] + yo
                 elif type == "fc":
-                    if char.row in [0, 1]:
-                        xpos = char.cpos[0] + char.besprite_size[0]
-                        ypos = char.cpos[1] + char.besprite_size[1] / 2 + yo
+                    if member.row in [0, 1]:
+                        xpos = member.cpos[0] + member.besprite_size[0]
+                        ypos = member.cpos[1] + member.besprite_size[1] / 2 + yo
                     else:
-                        xpos = char.cpos[0]
-                        ypos = char.cpos[1] + char.besprite_size[1] / 2 + yo
+                        xpos = member.cpos[0]
+                        ypos = member.cpos[1] + member.besprite_size[1] / 2 + yo
 
             # in case we do not care about position of a target/caster and just provide "overwrite" we should use instead:
             else:
@@ -448,7 +649,7 @@ init -1 python: # Core classes:
                     ypos = ypos + yo # Same as for comment below (Maybe I just forgot how offsets work and why...)
 
             # While yoffset is the same, x offset depends on the team position: @REVIEW: AM I TOO WASTED OR DOES THIS NOT MAKE ANY SENSE???
-            if char.row in [0, 1]:
+            if member.row in [0, 1]:
                 xpos = xpos + xo
             else:
                 xpos = xpos - xo # Is this a reasonable approach instead of providing correct (negative/positive) offsets? Something to consider during the code review...
@@ -569,14 +770,10 @@ init -1 python: # Core classes:
             # defence = 0
 
             # Damage first:
-            for trait in a.traits:
-                if type in trait.el_damage:
-                    m += trait.el_damage[type]
+            m += a.el_dmg.get(type, 0)
 
             # Defence next:
-            for trait in t.traits:
-                if type in trait.el_defence:
-                     m -= trait.el_defence[type]
+            m -= t.el_def.get(type, 0)
 
             damage *= m
 
@@ -742,43 +939,6 @@ init -1 python: # Core classes:
             elif self.type in ("all_allies", "sa"):
                 in_range = [f for f in in_range if char.allegiance == f.allegiance]
 
-            # In a perfect world, we're done, however we have to overwrite normal
-            # rules if no targets are found and backrow can hit over it's own range (for example):
-            #if not in_range: # <== We need to run "frenemy" code prior to this!
-            #    # Another step is to allow any range > 1 backrow attack and any frontrow attack hitting backrow of the opfor...
-            #    # and... if there is noone if front row, allow longer reach fighters in backrow even if their range normally would not allow it.
-            #    if char.row == 0:
-            #        # Case: Fighter in backrow and there is no defender on own team:
-            #        if not battle.get_fighters(rows=[1]):
-            #            # but there is at least one on the opfor:
-            #            in_range = battle.get_fighters(rows=[2])
-            #            if not in_range:
-            #                # else, there is are no defenders at all anywhere...
-            #                in_range = battle.get_fighters(rows=[3])
-            #    elif char.row == 1:
-            #        if not battle.get_fighters(rows=[2]):
-            #            # We add everyone in the back row for target practice :)
-            #            in_range = battle.get_fighters(rows=[3])
-            #    elif char.row == 2:
-            #        if not battle.get_fighters(rows=[1]):
-            #            # We add everyone in the back row for target practice :)
-            #            in_range = battle.get_fighters(rows=[0])
-            #    elif char.row == 3:
-            #        if not battle.get_fighters(rows=[1]) and self.range > 1:
-            #            # We add everyone in the back row for target practice :)
-            #            in_range = battle.get_fighters(rows=[0])
-            #        # Case: Fighter in backrow and there is no defender on own team,
-            #        if not battle.get_fighters(rows=[2]):
-            #            # but there is at least one on the opfor:
-            #            if battle.get_fighters(rows=[1]):
-            #                in_range = battle.get_fighters(rows=[1])
-            #            # else, there is are no defenders at all anywhere...
-            #            else:
-            #                in_range = battle.get_fighters(rows=[0])
-
-            #    # And we need to check for dead people again... better code is needed to avoid cr@p like this in the future:
-            #    in_range = [i for i in in_range if i in all_targets]
-
             # @Review: Prevent AI from casting the same Buffs endlessly:
             # Note that we do not have a concrete setup for buffs yet so this
             # is coded to be safe.
@@ -796,7 +956,7 @@ init -1 python: # Core classes:
 
         def check_conditions(self, source=None):
             """Checks if the source can manage the attack."""
-            char = source if source else self.source
+            member = source if source else self.source
 
             # Indoor check:
             if self.menu_pos >= battle.max_skill_lvl:
@@ -804,24 +964,24 @@ init -1 python: # Core classes:
 
             # Check if attacker has enough resources for the attack:
             if not isinstance(self.mp_cost, int):
-                mp_cost = int(char.get_max("mp")*self.mp_cost)
+                mp_cost = int(member.maxmp*self.mp_cost)
             else:
                 mp_cost = self.mp_cost
 
             if not isinstance(self.health_cost, int):
-                health_cost = int(char.get_max("health")*self.health_cost)
+                health_cost = int(member.maxhp*self.health_cost)
             else:
                 health_cost = self.health_cost
 
             if not isinstance(self.vitality_cost, int):
-                vitality_cost = int(char.get_max("vitality")*self.vitality_cost)
+                vitality_cost = int(member.maxvit*self.vitality_cost)
             else:
                 vitality_cost = self.vitality_cost
 
             # We need to make sure that we have enough resources for this one:
             # Making sure we cannot kill the source by taking off all the health:
-            if (char.mp - mp_cost >= 0) and (char.health - health_cost > 0) and (char.vitality - vitality_cost >= 0):
-                if self.get_targets(char):
+            if (member.mp - mp_cost >= 0) and (member.health - health_cost > 0) and (member.vitality - vitality_cost >= 0):
+                if self.get_targets(member):
                     return True
 
         # Logical Effects:
@@ -839,8 +999,6 @@ init -1 python: # Core classes:
 
             a = self.source
             attributes = self.attributes
-
-            attacker_items = a.eq_items()
 
             # Get the attack power:
             attack = self.get_attack()
@@ -868,18 +1026,10 @@ init -1 python: # Core classes:
                     ch = max(0, min((a.luck - t.luck + 10) * .75, 35)) # No more than 35% chance? Dark: we can add items/traits field capable to increase the max chance of crit hit
 
                     # Items bonuses:
-                    m = .0
-                    for i in attacker_items:
-                        if hasattr(i, "ch_multiplier"):
-                            m += i.ch_multiplier
-                    ch += 100*m
+                    ch += 100*a.item_ch_mpl
 
                     # Traits bonuses:
-                    m = .0
-                    for i in a.traits:
-                        if hasattr(i, "ch_multiplier"):
-                            m += i.ch_multiplier
-                    ch += 100*m
+                    ch += 100*a.ch_mpl
 
                     if dice(ch):
                         multiplier += 1.1 + self.critpower
@@ -888,27 +1038,12 @@ init -1 python: # Core classes:
                         ev = max(0, min(t.agility*.05-a.agility*.05, 15) + min(t.luck-a.luck, 15)) # Max 15 for agility and luck each...
 
                         # Items bonuses:
-                        temp = 0
-                        for i in t.eq_items():
-                            if hasattr(i, "evasion_bonus"):
-                                temp += i.evasion_bonus
-                        ev += temp
+                        ev += t.item_evasion_bonus
 
                         # Traits Bonuses:
-                        temp = 0
-                        for i in t.traits:
-                            if hasattr(i, "evasion_bonus"):
-                                # Reference: (minv, maxv, lvl)
-                                minv, maxv, lvl = i.evasion_bonus
-                                if lvl <= 0:
-                                    lvl = 1
-                                if lvl >= t.level:
-                                    temp += maxv
-                                else:
-                                    temp += max(minv, float(t.level)*maxv/lvl)
-                        ev += temp
+                        ev += t.evasion_bonus
 
-                        if t.health <= t.get_max("health")*.25:
+                        if t.health <= t.maxhp*.25:
                             if ev < 0:
                                 ev = 0 # Even when weighed down adrenaline takes over and allows for temporary superhuman movements
                             ev += randint(1,5) # very low health provides additional random evasion, 1-5%
@@ -943,7 +1078,7 @@ init -1 python: # Core classes:
                         absorbed = False
 
                     # Get the damage:
-                    result = self.damage_calculator(t, result, temp_def, multiplier, attacker_items, absorbed)
+                    result = self.damage_calculator(t, result, temp_def, multiplier, a, absorbed)
 
                     effects.append((type, result))
                     total_damage += result
@@ -979,19 +1114,8 @@ init -1 python: # Core classes:
                     return True
 
         def check_absorbtion(self, t, type):
-            # Get all absorption capable traits:
-            l = list(trait for trait in t.traits if trait.el_absorbs)
-
-            # # Get ratio:
-            ratio = []
-            for trait in l:
-                if type in trait.el_absorbs:
-                    ratio.append(trait.el_absorbs[type])
-            if ratio:
-                rv = sum(ratio) / len(ratio)
-                return rv
-            else:
-                return None
+            # Get ratio:
+            return t.absorbs.get(type, None)
 
         def get_attack(self):
             """
@@ -1011,37 +1135,20 @@ init -1 python: # Core classes:
             delivery = self.delivery
 
             # Items bonuses:
-            m = 1.0
-            items = a.eq_items()
-            for i in items:
-                if hasattr(i, "delivery_bonus"):
-                    attack = attack + i.delivery_bonus.get(delivery, 0)
-                if hasattr(i, "delivery_multiplier"):
-                    m = m + i.delivery_multiplier.get(delivery, 0)
-            attack = attack * m
+            attack += a.item_delivery_bonus.get(delivery, 0)
+            m = 1.0 + a.item_delivery_multiplier.get(delivery, 0)
+            attack *= m
 
             # Trait Bonuses:
-            m = 1.0
-            for i in a.traits:
-                if hasattr(i, "delivery_bonus"):
-                    # Reference: (minv, maxv, lvl)
-                    if self.delivery in i.delivery_bonus:
-                        minv, maxv, lvl = i.delivery_bonus[self.delivery]
-                        if lvl <= 0:
-                            lvl = 1
-                        if lvl >= a.level:
-                            attack += maxv
-                        else:
-                            attack += max(minv, float(a.level)*maxv/lvl)
-                if hasattr(i, "delivery_multiplier"):
-                    m = m + i.delivery_multiplier.get(self.delivery, 0)
+            attack += a.delivery_bonus.get(self.delivery, 0)
+            m = 1.0 + a.delivery_multiplier.get(self.delivery, 0)
             attack *= m
 
             # Simple randomization factor?:
             # attack *= uniform(.90, 1.10) # every time attack is random from 90 to 110% Alex: Why do we do this? Dark: we make damage calculations unpredictable (within reasonable limits); many games use much more harsh ways to add randomness to BE.
 
             # Decreasing based of current health:
-            # healthlevel=(1.0*a.health)/(1.0*a.get_max("health"))*.5 # low health decreases attack power, down to 50% at close to 0 health.
+            # healthlevel=(1.0*a.health)/(1.0*a.maxhp)*.5 # low health decreases attack power, down to 50% at close to 0 health.
             # attack *= (.5+healthlevel)
 
             return int(attack) if attack >= 1 else 1
@@ -1060,33 +1167,13 @@ init -1 python: # Core classes:
                 defense = round(target.defence*.4 + target.intelligence*.3 + target.constitution*.3)
 
             # Items bonuses:
-            items = target.eq_items()
-            m = 1.0
-            for i in items:
-                if hasattr(i, "defence_bonus"):
-                    defense = defense + i.defence_bonus.get(self.delivery, 0)
-                if hasattr(i, "defence_multiplier"):
-                    m = m + i.defence_multiplier.get(self.delivery, 0)
+            defense += target.item_defence_bonus.get(self.delivery, 0)
+            m = 1.0 + target.item_defence_multiplier.get(self.delivery, 0)
             defense *= m
 
             # Trait Bonuses:
-            m = 1.0
-            for i in target.traits:
-                if hasattr(i, "defence_bonus"):
-                    # Reference: (minv, maxv, lvl)
-                    if self.delivery in i.defence_bonus:
-                        minv, maxv, lvl = i.defence_bonus[self.delivery]
-                        if lvl <= 0:
-                            lvl = 1
-                        if lvl >= target.level:
-                            defense += maxv
-                        else:
-                            defense += max(minv, float(target.level)*maxv/lvl)
-                if hasattr(i, "defence_multiplier"):
-                    if i in target.traits.basetraits and len(target.traits.basetraits)==1:
-                        m = m + 2*i.defence_multiplier.get(self.delivery, 0)
-                    else:
-                        m = m + i.defence_multiplier.get(self.delivery, 0)
+            defense += target.defence_bonus.get(self.delivery, 0)
+            m = 1.0 + target.defence_multiplier.get(self.delivery, 0)
             defense *= m
 
             # Testing status mods through be skillz:
@@ -1127,17 +1214,11 @@ init -1 python: # Core classes:
             damage *= uniform(.90, 1.10)
 
             # Items Bonus:
-            m = 1.0
-            for i in attacker_items:
-                if hasattr(i, "damage_multiplier"):
-                    m = m + i.damage_multiplier
+            m = 1.0 + attacker_items.item_damage_multiplier
             damage *= m
 
             # Traits Bonus:
-            m = 1.0
-            for i in a.traits:
-                if hasattr(i, "damage_multiplier"):
-                    m = m + i.damage_multiplier
+            m = 1.0 + a.damage_multiplier
             damage *= m
 
             return round_int(damage)
@@ -1246,7 +1327,7 @@ init -1 python: # Core classes:
                 targets = [targets]
             for t in targets:
                 if t.health - t.beeffects[0] > 0:
-                    t.mod_stat("health", -t.beeffects[0])
+                    t.health -= t.beeffects[0]
                 else:
                     t.health = 1
                     battle.end_turn_events.append(RPG_Death(t))
@@ -1258,15 +1339,15 @@ init -1 python: # Core classes:
         def settle_cost(self):
             # Here we need to take of cost:
             if not(isinstance(self.mp_cost, int)):
-                mp_cost = int(self.source.get_max("mp")*self.mp_cost)
+                mp_cost = int(self.source.maxmp*self.mp_cost)
             else:
                 mp_cost = self.mp_cost
             if not(isinstance(self.health_cost, int)):
-                health_cost = int(self.source.get_max("health")*self.health_cost)
+                health_cost = int(self.source.maxhp*self.health_cost)
             else:
                 health_cost = self.health_cost
             if not(isinstance(self.vitality_cost, int)):
-                vitality_cost = int(self.source.get_max("vitality")*self.vitality_cost)
+                vitality_cost = int(self.source.maxvit*self.vitality_cost)
             else:
                 vitality_cost = self.vitality_cost
 
@@ -1275,7 +1356,7 @@ init -1 python: # Core classes:
             self.source.vitality -= vitality_cost
 
             if not battle.logical:
-                self.source.stats.update_delayed()
+                self.source.update_delayed()
 
         # Game/Gui Assists:
         def get_element(self):
@@ -1992,7 +2073,7 @@ init -1 python: # Core classes:
                 for skill in healing_skills:
                     targets = skill.get_targets(source=self.source)
                     for t in targets:
-                        if t.health < t.get_max("health")*.5:
+                        if t.health < t.maxhp*.5:
                             skill.source = self.source
                             targets = targets if "all" in skill.type else t
                             skill(ai=True, t=targets)

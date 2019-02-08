@@ -108,7 +108,7 @@ screen pick_skill(char):
     # First we'll get all the skills and sort them into: @Review: Might be a good idea to move this sorting off the screen!
     # *Attack (battle) skills.
     # *Magic skills.
-    default be_items = char.get_be_items()
+    default be_items = char.be_items
     python:
         attacks = list(char.attack_skills)
         attacks =  list(set(attacks)) # This will make sure that we'll never get two of the same attack skills.
@@ -310,7 +310,7 @@ screen battle_overlay(be):
         align .5, .01
         for member in battle.teams[0]:
             python:
-                profile_img = member.show('portrait', resize=(93, 93), cache=True)
+                profile_img = member.portrait
                 if member in battle.corpses:
                     try:
                         profile_img = im.Sepia(profile_img)
@@ -356,57 +356,47 @@ screen battle_overlay(be):
                         else:
                             text_color ivory
 
-                    $ health = member.stats.delayed_stats["health"]
+                    $ health = member.delayedhp
                     fixed:
                         ysize 25
                         bar:
                             left_bar ProportionalScale("content/gfx/interface/bars/hp1.png", 150, 20)
                             right_bar ProportionalScale("content/gfx/interface/bars/empty_bar1.png", 150, 20)
-                            value AnimatedValue(value=health, range=member.get_max("health"), delay=.5, old_value=None)
-                            # value health
-                            # range member.get_max("health")
+                            value AnimatedValue(value=health, range=member.maxhp, delay=.5, old_value=None)
                             thumb None
                             xysize (150, 20)
                         text "HP" size 14 color ivory bold True xpos 8
+                        text "[health]":
+                            color (ivory if health > member.maxhp*.2 else red)
+                            size 14 bold True style_suffix "value_text" xpos 125 yoffset -8
 
-                        if health <= member.get_max("health")*.2:
-                            text "[health]" size 14 color red bold True style_suffix "value_text" xpos 125 yoffset -8
-                        else:
-                            text "[health]" size 14 color ivory bold True style_suffix "value_text" xpos 125 yoffset -8
-
-                    $ mp = member.stats.delayed_stats["mp"]
+                    $ mp = member.delayedmp
                     fixed:
                         ysize 25
                         bar:
                             left_bar ProportionalScale("content/gfx/interface/bars/mp1.png", 150, 20)
                             right_bar ProportionalScale("content/gfx/interface/bars/empty_bar1.png", 150, 20)
-                            value AnimatedValue(value=mp, range=member.get_max("mp"), delay=.5, old_value=None)
-                            # value mp
-                            # range member.get_max("mp")
+                            value AnimatedValue(value=mp, range=member.maxmp, delay=.5, old_value=None)
                             thumb None
                             xysize (150, 20)
                         text "MP" size 14 color ivory bold True xpos 8
-                        if mp <= member.get_max("mp")*.2:
-                            text "[mp]" size 14 color red bold True style_suffix "value_text" xpos 125 yoffset -8
-                        else:
-                            text "[mp]" size 14 color ivory bold True style_suffix "value_text" xpos 125 yoffset -8
+                        text "[mp]":
+                            color (ivory if mp > member.maxmp*.2 else red)
+                            size 14 bold True style_suffix "value_text" xpos 125 yoffset -8
 
-                    $ vitality = member.stats.delayed_stats["vitality"]
+                    $ vitality = member.delayedvit
                     fixed:
                         ysize 25
                         bar:
                             left_bar ProportionalScale("content/gfx/interface/bars/vitality1.png", 150, 20)
                             right_bar ProportionalScale("content/gfx/interface/bars/empty_bar1.png", 150, 20)
-                            value AnimatedValue(value=vitality, range=member.get_max("vitality"), delay=.5, old_value=None)
-                            # value vitality
-                            # range member.get_max("vitality")
+                            value AnimatedValue(value=vitality, range=member.maxvit, delay=.5, old_value=None)
                             thumb None
                             xysize (150, 20)
                         text "VP" size 14 color ivory bold True xpos 8
-                        if vitality <= member.get_max("vitality")*.2:
-                            text "[vitality]" size 14 color red bold True style_suffix "value_text" xpos 125 yoffset -8
-                        else:
-                            text "[vitality]" size 14 color ivory bold True style_suffix "value_text" xpos 125 yoffset -8
+                        text "[vitality]":
+                            color (ivory if vitality > member.maxvit*.2 else red)
+                            size 14 bold True style_suffix "value_text" xpos 125 yoffset -8
 
     # Overlay for stats:
     # use be_status_overlay() Moving to a better location...

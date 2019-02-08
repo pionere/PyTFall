@@ -41,31 +41,30 @@ init -960 python:
             if getattr(skill, "kind", None) != "assault":
                 return
 
-            simpe_taunts = {"general_chars": ["You shall perish!",
-                                              "Die b*tch!",
-                                              "Disappear!",
-                                              "Don't take this personally...",
-                                              "Eat this!",
-                                              "I don't think you're going to like this",
-                                              "Let's dance!",
-                                              "I'm gonna teach you some manners",
-                                              "It's too late to run",
-                                              "Doesn't look like much of a challenge",
-                                              "You're history!",
-                                              "Have a nice day, hehe!",
-                                              "Enjoy this!"],
-                            "general_mobs": ["(Makes threatening noises)",
-                                             "(Looks murderous)",
-                                             "Urgggg!",
-                                             "Aaiiiieeee!",
-                                             "Argghhh!",
-                                             "Hnrgggg!",
-                                             "Grrr!"]}
-
-            if isinstance(attacker, Mob):
-                taunt = choice(simpe_taunts["general_mobs"])
+            if attacker.is_mob:
+                simpe_taunts = ["(Makes threatening noises)",
+                                "(Looks murderous)",
+                                "Urgggg!",
+                                "Aaiiiieeee!",
+                                "Argghhh!",
+                                "Hnrgggg!",
+                                "Grrr!"]
             else:
-                taunt = choice(simpe_taunts["general_chars"])
+                simpe_taunts = ["You shall perish!",
+                                "Die b*tch!",
+                                "Disappear!",
+                                "Don't take this personally...",
+                                "Eat this!",
+                                "I don't think you're going to like this",
+                                "Let's dance!",
+                                "I'm gonna teach you some manners",
+                                "It's too late to run",
+                                "Doesn't look like much of a challenge",
+                                "You're history!",
+                                "Have a nice day, hehe!",
+                                "Enjoy this!"]
+
+            taunt = choice(simpe_taunts)
 
             kwargs = dict()
 
@@ -73,8 +72,7 @@ init -960 python:
             fi = Fixed(xysize=(70, 70), pos=(10, -60))
             frame = Transform("content/gfx/frame/p_frame.png", size=(70, 70))
             fi.add(frame)
-            portrait = attacker.show("portrait", "angry", resize=(65, 65), type='reduce', cache=True)
-            portrait = Transform(portrait, align=(.5, .5))
+            portrait = Transform(attacker.angry_portrait, align=(.5, .5))
             fi.add(portrait)
 
             fixed = Fixed(xysize=(220, 40))

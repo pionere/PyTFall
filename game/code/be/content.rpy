@@ -172,7 +172,7 @@ init python:
                 msg = "{} skips a turn. ".format(source.nickname)
 
                 # Restoring Vitality:
-                temp = int(source.get_max("vitality") * uniform(.03, .06))
+                temp = int(source.maxvit * uniform(.03, .06))
                 source.vitality += temp
                 msg = msg + "Restored: {color=[green]}%d vitality{/color} points!"%(temp)
                 battle.log(msg)
@@ -274,10 +274,9 @@ init python:
 
         def apply_effects(self):
             t = self.target
-            s = self.source
 
             # Damage Calculations:
-            damage = t.get_max("health") * self.effect
+            damage = t.maxhp * self.effect
             damage = max(randint(5, 10), int(damage) + randint(-2, 2))
 
             # Take care of modifiers:
@@ -296,7 +295,7 @@ init python:
                 renpy.hide("bb")
 
             if t.health - damage > 0:
-                t.mod_stat("health", -damage)
+                t.health -= damage
                 msg = "%s is poisoned! {color=[green]}☠: %d{/color}" % (t.name, damage)
                 battle.log(msg)
             else:
@@ -307,7 +306,7 @@ init python:
                 death.apply_effects()
 
             if not battle.logical:
-                t.stats.update_delayed()
+                t.update_delayed()
 
             self.counter -= 1
 
@@ -729,7 +728,7 @@ init python:
             base_restore = self.get_attack()
 
             for t in targets:
-                base_restore = t.get_max("health") * self.effect
+                base_restore = t.maxhp * self.effect
                 effects = []
 
                 # We get the multi and any effects that those may bring:
@@ -746,7 +745,9 @@ init python:
             if not isinstance(targets, (list, tuple, set)):
                 targets = [targets]
             for t in targets:
-                t.mod_stat("health", t.beeffects[0])
+                t.health += t.beeffects[0]
+                if t.health > t.maxhp:
+                    t.health = t.maxhp
 
             self.settle_cost()
 
@@ -768,15 +769,15 @@ init python:
             else:
                 char = self.source
             if not(isinstance(self.mp_cost, int)):
-                mp_cost = int(char.get_max("mp")*self.mp_cost)
+                mp_cost = int(char.maxmp*self.mp_cost)
             else:
                 mp_cost = self.mp_cost
             if not(isinstance(self.health_cost, int)):
-                health_cost = int(char.get_max("health")*self.health_cost)
+                health_cost = int(char.maxhp*self.health_cost)
             else:
                 health_cost = self.health_cost
             if not(isinstance(self.vitality_cost, int)):
-                vitality_cost = int(char.get_max("vitality")*self.vitality_cost)
+                vitality_cost = int(char.maxvit*self.vitality_cost)
             else:
                 vitality_cost = self.vitality_cost
             if (char.mp - mp_cost >= 0) and (char.health - health_cost >= 0) and (char.vitality - vitality_cost >= 0):
@@ -790,7 +791,7 @@ init python:
             attributes = self.attributes
 
             for t in targets:
-                minh, maxh = int(t.get_max("health")*.1), int(t.get_max("health")*.3)
+                minh, maxh = int(t.maxhp*.1), int(t.maxhp*.3)
                 revive = randint(minh, maxh)
 
                 effects = list()
@@ -901,4 +902,6 @@ init python:
 
             self.source.remove_item(item)
             for t in targets:
-                t.equip(item)
+                t.restore_char()
+                t.char.equip(item)
+                t.__init__(t.char)

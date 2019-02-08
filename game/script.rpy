@@ -595,18 +595,18 @@ label after_load:
                 if hasattr(c, "UNIQUE_SAY_SCREEN_PORTRAIT_OVERLAYS"):
                     del c.UNIQUE_SAY_SCREEN_PORTRAIT_OVERLAYS
 
-        if hero.controller == "player":
-            hero.controller = None
-            clearCharacters = True
         if not hasattr(hero, "teams"):
             hero.teams = [hero.team]
         if not hasattr(hero, "txt"):
             hero.txt = list()
+
+        if hero.controller == "player":
+            clearCharacters = True
         if hasattr(hero, "_arena_rep"):
-            hero.arena_rep = hero._arena_rep
             clearCharacters = True
         if hasattr(hero, "_location"):
-            hero.location = hero._location
+            clearCharacters = True
+        if hasattr(hero.stats, "delayed_stats"):
             clearCharacters = True
 
         store.bm_mid_frame_mode = None
@@ -777,13 +777,43 @@ label after_load:
                     buildings[nb.id] = nb
 
         if "clearCharacters" in locals():
-            for girl in itertools.chain(chars.values(), hero.chars, npcs.values()):
-                if girl.controller == "player":
-                    girl.controller = None
-                if hasattr(girl, "_arena_rep"):
-                    girl.arena_rep = girl._arena_rep
-                if hasattr(girl, "_location"):
-                    girl.location = girl._location
+            for char in itertools.chain([hero], chars.values(), hero.chars, npcs.values()):
+                if char.controller == "player":
+                    char.controller = None
+                if hasattr(char, "_arena_rep"):
+                    char.arena_rep = char._arena_rep
+                if hasattr(char, "_location"):
+                    char.location = char._location
+                if hasattr(char.stats, "delayed_stats"):
+                    del char.stats.delayed_stats
+                if hasattr(char, "besprite"):
+                    del char.besprite
+                if hasattr(char, "beinx"):
+                    del char.beinx
+                if hasattr(char, "row"):
+                    del char.row
+                if hasattr(char, "beteampos"):
+                    del char.beteampos
+                if hasattr(char, "betag"):
+                    del char.betag
+                if hasattr(char, "dpos"):
+                    del char.dpos
+                if hasattr(char, "sopos"):
+                    del char.sopos
+                if hasattr(char, "cpos"):
+                    del char.cpos
+                if hasattr(char, "besk"):
+                    del char.besk
+                if hasattr(char, "allegiance"):
+                    del char.allegiance
+                if hasattr(char, "beeffects"):
+                    del char.beeffects
+                if hasattr(char, "dmg_font"):
+                    del char.dmg_font
+                if hasattr(char, "status_overlay"):
+                    del char.status_overlay
+                if hasattr(char, "besprite_size"):
+                    del char.besprite_size
 
             #for girl in itertools.chain(jail.chars_list, pytfall.ra.girls.keys()):
             #    if girl.controller == "player":

@@ -1025,12 +1025,10 @@ init -10 python:
             """
             self.instance = args[0]
             self.stats, self.imod, self.min, self.max, self.lvl_max = dict(), dict(), dict(), dict(), dict()
-            self.delayed_stats = dict() # We use it in BE so we can delay updating stats in GUI.
 
             # Load the stat values:
             for stat, values in kwargs.get("stats", {}).iteritems():
                 self.stats[stat] = values[0]
-                self.delayed_stats[stat] = values[0]
                 self.imod[stat] = 0
                 self.min[stat] = values[1]
                 self.max[stat] = values[2]
@@ -1055,14 +1053,6 @@ init -10 python:
 
             # Statslog:
             self.log = dict()
-
-        def update_delayed(self):
-            self.delayed_stats.update(self.stats)
-
-            battle = getattr(store, 'battle', None)
-            corpses = getattr(battle, 'corpses', [])
-            if self.instance in corpses:
-                self.delayed_stats['health'] = 0
 
         def get_base_stats(self):
             bts = self.instance.traits.basetraits
