@@ -13,7 +13,8 @@
 
         "exp_cap_in_slots": 1,
         "exp_cap_ex_slots": 0,
-        "exp_cap_cost": 100
+        "exp_cap_cost": 100,
+        "exp_cap_materials": {"Wood": 2, "Bricks": 2, "Glass": 1}
     },
     {
         "name": "Cleaning Block",
@@ -54,6 +55,7 @@
         "exp_cap_in_slots": 1,
         "exp_cap_ex_slots": 0,
         "exp_cap_cost": 100,
+        "exp_cap_materials": {"Wood": 5, "Bricks": 5, "Glass": 3},
 
         "allowed_upgrades": ["TapBeer"]
     },
@@ -72,6 +74,7 @@
         "exp_cap_in_slots": 1,
         "exp_cap_ex_slots": 0,
         "exp_cap_cost": 100,
+        "exp_cap_materials": {"Wood": 5, "Bricks": 5, "Glass": 1},
 
         "allowed_upgrades": ["Catwalk"]
     },
@@ -89,7 +92,8 @@
 
         "exp_cap_in_slots": 1,
         "exp_cap_ex_slots": 0,
-        "exp_cap_cost": 100
+        "exp_cap_cost": 100,
+        "exp_cap_materials": {"Wood": 10, "Bricks": 10, "Glass": 1}
     },
     {
         "name": "Exploration Guild",

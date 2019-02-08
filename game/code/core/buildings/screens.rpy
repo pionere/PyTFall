@@ -475,7 +475,7 @@ init:
             frame:
                 background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
                 style_group "proper_stats"
-                xsize 310
+                xsize 314
                 padding 12, 12
                 margin 0, 0
                 has vbox spacing 1
@@ -484,87 +484,132 @@ init:
                     xysize (290, 27)
                     xalign .5
                     text "Indoor Slots:" xalign .02 color ivory
-                    text "[bm_mid_frame_mode.in_slots]"  xalign .98 style_suffix "value_text" yoffset 4
+                    text "[bm_mid_frame_mode.in_slots]"  xalign .98 style_suffix "value_text"
                 frame:
                     xysize (290, 27)
                     xalign .5
                     text "Exterior Slots:" xalign .02 color ivory
-                    text "[bm_mid_frame_mode.ex_slots]"  xalign .98 style_suffix "value_text" yoffset 4
-            $ c0 = isinstance(bm_mid_frame_mode, CoreExtension) and bm_mid_frame_mode.expands_capacity
-            if bm_mid_frame_mode.capacity or c0:
-                null height 5
-                frame:
-                    background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
-                    style_prefix "proper_stats"
-                    xsize 310
-                    padding 12, 12
-                    margin 0, 0
-                    has vbox spacing 1
+                    text "[bm_mid_frame_mode.ex_slots]"  xalign .98 style_suffix "value_text"
+                if bm_mid_frame_mode.capacity or getattr(bm_mid_frame_mode, "expands_capacity", False):
                     frame:
                         xysize (290, 27)
                         xalign .5
                         text "Capacity:" xalign .02 color ivory
-                        text "[bm_mid_frame_mode.capacity]"  xalign .98 style_suffix "value_text" yoffset 4
+                        text "[bm_mid_frame_mode.capacity]"  xalign .98 style_suffix "value_text"
 
-                    if c0:
-                        null height 5
-                        text "To Expand:"
-                        $ cost = bm_mid_frame_mode.get_expansion_cost()
-                        frame:
-                            xysize (290, 27)
-                            xalign .5
-                            text "Indoor Slots Required:" xalign .02 color ivory
-                            text "[bm_mid_frame_mode.exp_cap_in_slots]"  xalign .98 style_suffix "value_text" yoffset 4
-                        frame:
-                            xysize (290, 27)
-                            xalign .5
-                            text "Exterior Slots Required:" xalign .02 color ivory
-                            text "[bm_mid_frame_mode.exp_cap_ex_slots]"  xalign .98 style_suffix "value_text" yoffset 4
-                        frame:
-                            xysize (290, 27)
-                            xalign .5
-                            text "Cost:" xalign .02 color ivory
-                            text "[cost]"  xalign .98 style_suffix "value_text" yoffset 4
-                        null height 1
-                        textbutton "Expand Capacity":
-                            style "pb_button"
-                            xalign .5
-                            if bm_mid_frame_mode.can_extend_capacity():
-                                action [Function(bm_mid_frame_mode.expand_capacity),
-                                    Play("audio", "content/sfx/sound/world/purchase_1.ogg")]
-                                tooltip "Add more space to this business!"
-                            else:
-                                action NullAction()
-                                tooltip "Can't add more space to this business at this time!"
+            if getattr(bm_mid_frame_mode, "expands_capacity", False):
+                null height 5
+                frame:
+                    background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
+                    style_prefix "proper_stats"
+                    xsize 314
+                    padding 12, 12
+                    margin 0, 0
+                    has vbox spacing 1
 
-                        null height 5
-                        text "To Cut Back:"
+                    text "To Expand:"
+
+                    $ cost, materials, in_slots, ex_slots = bm_mid_frame_mode.get_expansion_cost()
+                    $ can_build = True
+
+                    # Materials and GOLD
+                    vpgrid:
+                        cols 3
+                        xsize 290
+                        spacing 2
                         frame:
-                            xysize (290, 27)
-                            xalign .5
-                            text "Indoor Slots Freed:" xalign .02 color ivory
-                            text "[bm_mid_frame_mode.exp_cap_in_slots]"  xalign .98 style_suffix "value_text" yoffset 4
-                        frame:
-                            xysize (290, 27)
-                            xalign .5
-                            text "Exterior Slots Freed:" xalign .02 color ivory
-                            text "[bm_mid_frame_mode.exp_cap_ex_slots]"  xalign .98 style_suffix "value_text" yoffset 4
-                        frame:
-                            xysize (290, 27)
-                            xalign .5
-                            text "Cost:" xalign .02 color ivory
-                            text "[cost]"  xalign .98 style_suffix "value_text" yoffset 4
-                        null height 1
-                        textbutton "Reduce Capacity":
-                            style "pb_button"
-                            xalign .5
-                            if bm_mid_frame_mode.can_reduce_capacity():
-                                action [Function(bm_mid_frame_mode.reduce_capacity),
-                                    Play("audio", "content/sfx/sound/world/purchase_1.ogg")]
-                                tooltip "Add more space to the building!"
-                            else:
+                            xysize (95, 27)
+                            has hbox xysize (95, 27)
+                            imagebutton:
+                                idle ProportionalScale("content/gfx/animations/coin_top 0.13 1/1.webp", 20, 20)
+                                xysize 20, 20
+                                align 0.2, .5
                                 action NullAction()
-                                tooltip "The only remaining option is to close the business"
+                                tooltip "Gold"
+                            if hero.gold >= cost:
+                                text "[cost]" xalign .9 style_suffix "value_text"
+                            else:
+                                $ can_build = False
+                                text "[cost]" xalign .9 color grey style_suffix "value_text"
+
+                        for r, amount in materials.items():
+                            $ r = items[r]
+                            frame:
+                                xysize (95, 27)
+                                has hbox xysize (95, 27)
+                                imagebutton:
+                                    idle ProportionalScale(r.icon, 20, 20)
+                                    xysize 20, 20
+                                    align 0.2, .5
+                                    action NullAction()
+                                    tooltip "{}".format(r.id)
+                                if hero.inventory[r.id] >= amount:
+                                    text "[amount]" xalign .9 style_suffix "value_text"
+                                else:
+                                    $ can_build = False
+                                    text "[amount]" xalign .9 color grey style_suffix "value_text"
+
+                    vpgrid:
+                        cols 2
+                        xsize 290
+                        spacing 2
+                        if in_slots:
+                            frame:
+                                xysize (144, 27)
+                                has hbox xysize (144, 27)
+                                text "Indoor Slots:" xalign .1
+                                if (bm_building.in_slots_max - bm_building.in_slots) >= in_slots:
+                                    text "[in_slots]" xalign .8 style_suffix "value_text"
+                                else:
+                                    $ can_build = False
+                                    text "[in_slots]" xalign .8 color grey style_suffix "value_text"
+                        if ex_slots:
+                            frame:
+                                xysize (144, 27)
+                                has hbox xysize (144, 27)
+                                text "Exterior Slots:" xalign .1
+                                if (bm_building.ex_slots_max - bm_building.ex_slots) >= ex_slots:
+                                    text "[ex_slots]" xalign .8 style_suffix "value_text"
+                                else:
+                                    $ can_build = False
+                                    text "[ex_slots]" xalign .8 color grey style_suffix "value_text"
+                    null height 1
+                    textbutton "Expand Capacity":
+                        style "pb_button"
+                        xalign .5
+                        action [Function(bm_mid_frame_mode.expand_capacity),
+                                Play("audio", "content/sfx/sound/world/purchase_1.ogg"), SensitiveIf(can_build)]
+                        tooltip "Expand the business!"
+                    null height 5
+                    text "To Cut Back:"
+                    vbox:
+                            #has vbox
+                            frame:
+                                xysize (290, 27)
+                                xalign .5
+                                text "Indoor Slots Freed:" xalign .02 color ivory
+                                text "[in_slots]"  xalign .98 style_suffix "value_text"
+                            frame:
+                                xysize (290, 27)
+                                xalign .5
+                                text "Exterior Slots Freed:" xalign .02 color ivory
+                                text "[ex_slots]"  xalign .98 style_suffix "value_text"
+                            frame:
+                                xysize (290, 27)
+                                xalign .5
+                                text "Cost:" xalign .02 color ivory
+                                text "[cost]"  xalign .98 style_suffix "value_text"
+                    null height 1
+                    textbutton "Reduce Capacity":
+                        style "pb_button"
+                        xalign .5
+                        if bm_mid_frame_mode.can_reduce_capacity():
+                            action [Function(bm_mid_frame_mode.reduce_capacity),
+                                Play("audio", "content/sfx/sound/world/purchase_1.ogg")]
+                            tooltip "Add more space to the building!"
+                        else:
+                            action NullAction()
+                            tooltip "The only remaining option is to close the business"
 
             if getattr(bm_mid_frame_mode, "upgrades", None):
                 null height 5
@@ -678,17 +723,18 @@ init:
                                         xsize 340
                                         textbutton "[u.name]":
                                             xalign .5
-                                            ypadding 5
+                                            ypadding 2
                                             style "stats_text"
-                                            text_size 18
+                                            text_outlines [(1, black, 0, 0)]
+                                            text_size 23
                                             action NullAction()
                                             tooltip u.desc
 
                                     # Materials and GOLD
                                     vbox:
-                                        pos 5, 30
+                                        pos 5, 36
                                         box_wrap True
-                                        xysize 340, 100
+                                        xysize 340, 80
                                         spacing 2
                                         frame:
                                             background Frame("content/gfx/frame/p_frame5.png", 5, 5)
@@ -747,8 +793,9 @@ init:
                                                 text "[ex_slots]" color grey
 
                                     vbox:
-                                        align 1.0, .5
+                                        align 1.0, .8
                                         xsize 150
+                                        spacing 4
                                         button:
                                             xalign .5
                                             xysize 133, 83

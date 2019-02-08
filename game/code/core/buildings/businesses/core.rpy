@@ -12,6 +12,11 @@ init -12 python:
         def __init__(self):
             # This means that we can add capacity to this business.
             # Slots/Cost are the cost of a single expansion!
+            self.cost = getattr(self, "cost", 0)
+            self.in_slots = getattr(self, "in_slots", 0)
+            self.ex_slots = getattr(self, "ex_slots", 0)
+            self.materials = getattr(self, "materials", {})
+
             self.expands_capacity = False
 
         def get_price(self):
@@ -43,7 +48,20 @@ init -12 python:
 
             return cost, materials, in_slots, ex_slots
 
+        def get_expansion_cost(self):
+            # Assume self.expands_capacity is true
+            mpl = self.building.tier + 1
 
+            cost = self.exp_cap_cost * mpl
+
+            in_slots = self.exp_cap_in_slots
+            ex_slots = self.exp_cap_ex_slots
+
+            materials = self.exp_cap_materials.copy()
+            for k, v in materials.items():
+                materials[k] = v * mpl
+
+            return cost, materials, in_slots, ex_slots
 
     class Business(CoreExtension):
         """BaseClass for any building expansion! (aka Business)
@@ -66,34 +84,28 @@ init -12 python:
             # we run "inactive" method with a corresponding simpy process in this case.
             self.active = True
 
+            self.capacity = getattr(self, "capacity", 0)
             if hasattr(self, "exp_cap_cost"):
                 self.expands_capacity = True
+                self.exp_cap_in_slots = getattr(self, "exp_cap_in_slots", 0)
+                self.exp_cap_ex_slots = getattr(self, "exp_cap_ex_slots", 0)
+                self.exp_cap_materials = getattr(self, "exp_cap_materials", {})
 
             self.allowed_upgrades = getattr(self, "allowed_upgrades", [])
             self.in_construction_upgrades = list() # Not used yet!
             self.upgrades = list()
 
-        def get_expansion_cost(self):
-            return self.exp_cap_cost * (self.building.tier+1)
-
-        def can_extend_capacity(self):
-            if not self.expands_capacity:
-                return False
-            if (self.building.in_slots + self.exp_cap_in_slots) > self.building.in_slots_max:
-                return False
-            if (self.building.ex_slots + self.exp_cap_ex_slots) > self.building.ex_slots_max:
-                return False
-            return hero.gold >= self.get_expansion_cost()
-
         def expand_capacity(self):
-            self.in_slots += self.exp_cap_in_slots
-            self.building.in_slots += self.exp_cap_in_slots
-            self.ex_slots += self.exp_cap_ex_slots
-            self.building.ex_slots += self.exp_cap_ex_slots
+            cost, materials, in_slots, ex_slots = self.get_expansion_cost()
+            building = self.building
 
-            cost = self.get_expansion_cost()
-            hero.take_money(cost, "Business Expansion")
-            self.building.fin.log_logical_expense(cost, "Business Expansion")
+            self.in_slots += in_slots
+            building.in_slots += in_slots
+            self.ex_slots += ex_slots
+            building.ex_slots += ex_slots
+
+            building.pay_for_extension(cost, materials)
+
             self.capacity += 1
 
         def can_reduce_capacity(self):
@@ -101,7 +113,7 @@ init -12 python:
                 return False
             if self.capacity == 0:
                 return False
-            if hero.gold < self.get_expansion_cost():
+            if hero.gold < self.get_expansion_cost()[0]:
                 return False
             # these two should never happen, but check anyways...
             if self.in_slots < self.exp_cap_in_slots:
@@ -111,19 +123,21 @@ init -12 python:
             return True
 
         def reduce_capacity(self):
-            self.in_slots -= self.exp_cap_in_slots
-            self.building.in_slots -= self.exp_cap_in_slots
-            self.ex_slots -= self.exp_cap_ex_slots
-            self.building.ex_slots -= self.exp_cap_ex_slots
+            cost, materials, in_slots, ex_slots = self.get_expansion_cost()
+            building = self.building
 
-            cost = self.get_expansion_cost()
-            hero.take_money(cost, "Business Expansion")
-            self.building.fin.log_logical_expense(cost, "Business Expansion")
+            self.in_slots -= in_slots
+            building.in_slots -= in_slots
+            self.ex_slots -= ex_slots
+            building.ex_slots -= ex_slots
+
+            building.pay_for_extension(cost, None)
+
             self.capacity -= 1
 
             # relocate the possible extra inhabitant
-            if self.habitable and self.building.vacancies < 0:
-                for char in self.building.inhabitants: break
+            if self.habitable and building.vacancies < 0:
+                for char in building.inhabitants: break
                 char.home = pytfall.streets
                 set_location(char, None)
 
