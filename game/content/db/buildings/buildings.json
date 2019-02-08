@@ -21,8 +21,7 @@
                 "allowed_businesses": [{"class": "BrothelBlock", "capacity": 2, "in_slots": 2, "desc": "Small, private rooms that'll 'do the trick'!"},
                                        {"class": "Cleaners", "allowed_upgrades": ["BroomCloset"]},
                                        "SlaveQuarters",
-                                       "WarriorQuarters",
-                                       "ExplorationGuild"]
+                                       "WarriorQuarters"]
         },
         {
         "name": "Old Shack",

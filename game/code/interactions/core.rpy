@@ -33,7 +33,7 @@ init -1 python:
             for c in possible_chars:
                 if limited_location and c.location != name:
                     continue
-                if str(c.location) not in ["City", "girl_meets_quest"]:
+                if c.location != pytfall.city and str(c.location) != "girl_meets_quest":
                     continue
                 if has_tags and not c.has_image(*has_tags, exclude=has_no_tags):
                     continue
@@ -179,8 +179,7 @@ init -1 python:
             """
             l = list()
             for cell in self.girlcells.values():
-                for girl in cell:
-                    l.append(girl)
+                l.extend(cell.girls)
             return l
 
         def remove_girl(self, char):

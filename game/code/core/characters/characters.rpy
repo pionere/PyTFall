@@ -2481,6 +2481,13 @@ init -9 python:
                 self.action.after_rest(self, txt)
             return "".join(txt)
 
+        def in_training_location(girl):
+            """
+            Checks whether a girl is currently in a location that offers training.
+            girl = The girl to check.
+            """
+            return girl.location == pytfall.school
+
         def next_day(self):
             # Local vars
             img = 'profile'
