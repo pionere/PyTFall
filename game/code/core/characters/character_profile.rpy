@@ -143,8 +143,7 @@ label char_profile:
                                 python:
                                     hero.add_money(int(char.fin.get_price()*.8), reason="SlaveTrade")
                                     char.home = pytfall.sm
-                                    char.action = None
-                                    char.workplace = None
+                                    char.set_workplace(None, None)
                                     set_location(char, pytfall.sm)
                             else:
                                 if char.disposition >= 500:
@@ -159,8 +158,7 @@ label char_profile:
                                 python:
                                     char.disposition -= 400
                                     char.home = pytfall.city
-                                    char.action = None
-                                    char.workplace = None
+                                    char.set_workplace(None, None)
                                     set_location(char, pytfall.city)
 
                             python:

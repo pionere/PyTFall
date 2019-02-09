@@ -108,8 +108,7 @@ label building_management:
                         if hero.home == bm_building:
                             hero.home = pytfall.streets
                         if hero.workplace == bm_building:
-                            hero.action = None
-                            hero.workplace = None
+                            hero.set_workplace(None, None)
                         if hero.location == bm_building:
                             set_location(hero, None)
 

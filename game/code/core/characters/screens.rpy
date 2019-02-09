@@ -62,32 +62,20 @@ screen set_workplace_dropdown(char, pos=()):
         xval = 1.0 if x > config.screen_width/2 else .0
         yval = 1.0 if y > config.screen_height/2 else .0
 
-    python:
-        workable_buildings = []
-        for b in hero.buildings:
-            if b.workable:
-                workable_buildings.append(b)
-
+    $ workable_buildings = (b for b in hero.buildings if b.workable)
     frame:
         style_prefix "dropdown_gm"
         pos (x, y)
         anchor (xval, yval)
         has vbox
         for building in workable_buildings:
-            $ actions = []
-            if char.action in building.jobs:
-                $ actions.append(SetField(char, "workplace", building))
-            else:
-                $ actions.append(SetField(char, "action", None))
-                $ actions.append(SetField(char, "workplace", building))
-            $ actions.extend([Hide("set_workplace_dropdown"), With(Dissolve(0.1))])
+            $ action = char.action if char.action in building.jobs else None
             textbutton "[building.name]":
                 selected char.workplace == building
-                action actions
+                action Function(char.set_workplace, building, action), Hide("set_workplace_dropdown"), With(Dissolve(0.1))
         textbutton "None":
             selected char.workplace is None
-            action [SetField(char, "action", None),
-                    SetField(char, "workplace", None),
+            action [Function(char.set_workplace, None, None),
                     Hide("set_workplace_dropdown"), With(Dissolve(0.1))]
         textbutton "Close":
             action Hide("set_workplace_dropdown"), With(Dissolve(0.1))

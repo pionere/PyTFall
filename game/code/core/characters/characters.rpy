@@ -304,20 +304,20 @@ init -9 python:
             if isinstance(curr_action, SchoolCourse):
                 # remove student from the active course
                 curr_action.remove_student(self)
-                self.workplace = None
+                self._workplace = None
             elif curr_action == mj:
                 # remove manager from the previous job
-                self.workplace.manager = None
-                #self.workplace.manager_effectiveness = 0
+                self._workplace.manager = None
+                #self._workplace.manager_effectiveness = 0
 
             if isinstance(value, SchoolCourse):
                 # subscribe student to the course
                 value.add_student(self)
                 # set workplace to the school
-                self.workplace = pytfall.school
+                self._workplace = pytfall.school
             elif value == mj:
                 # set manager of the workplace
-                wp = self.workplace
+                wp = self._workplace
                 pm = wp.manager
                 if pm:
                     # remove previous manager from the workplace
@@ -333,18 +333,16 @@ init -9 python:
         @property
         def workplace(self):
             return self._workplace
-        @workplace.setter
-        def workplace(self, value):
-            if value != self._workplace:
-                # We need to make sure that manager is reassigned:
-                mj = simple_jobs["Manager"]
-                old_action = self.action
-                if old_action == mj:
-                    self.action = None
-                elif isinstance(value, Job):
-                    if old_action not in value.get_valid_jobs():
-                        self.action = None
+        def set_workplace(self, value, action):
+            if self._workplace == value:
+                if self._action != action:
+                    self.action = action
+                return
+
+            self.action = None
             self._workplace = value
+            if action is not None:
+                self.action = action
 
         @property
         def home(self):
@@ -2226,8 +2224,7 @@ init -9 python:
                         hero.remove_char(confiscate)
                         # locations:
                         confiscate.home = pytfall.sm
-                        confiscate.workplace = None
-                        confiscate.action = None
+                        confiscate.set_workplace(None, None)
                         set_location(confiscate, pytfall.sm)
 
                     temp = choice(["\n{} has been confiscated for a price of {}% of the original value. ".format(
@@ -2495,7 +2492,7 @@ init -9 python:
             flag_red = False
             flag_green = False
 
-            # Update upkeep, should always be a saf thing to do.
+            # Update upkeep, should always be a safe thing to do.
             self.fin.calc_upkeep()
 
             if self.location == RunawayManager.LOCATION:
@@ -2565,7 +2562,8 @@ init -9 python:
                 # Upkeep:
                 if not self.is_available:
                     pass
-                elif in_training_location(self):
+                elif self._workplace == pytfall.school:
+                    # currently in school
                     txt.append("Upkeep is included in price of the class your worker's taking.")
                 else:
                     # The whole upkeep thing feels weird, penalties to slaves are severe...
@@ -2708,8 +2706,7 @@ init -9 python:
                 flag_red = True
                 hero.remove_char(self)
                 self.home = pytfall.city
-                self.action = None
-                self.workplace = None
+                self.set_workplace(None, None)
                 set_location(self, pytfall.city)
             elif self.disposition < -500:
                 if self.status != "slave":
@@ -2718,8 +2715,7 @@ init -9 python:
                     img = self.show("profile", "sad", resize=size)
                     hero.remove_char(self)
                     self.home = pytfall.city
-                    self.action = None
-                    self.workplace = None
+                    self.set_workplace(None, None)
                     set_location(self, pytfall.city)
                 elif self.days_unhappy > 7:
                     img = self.show("profile", "sad", resize=size)

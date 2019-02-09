@@ -65,7 +65,7 @@ init -9 python:
                 if hero.take_money(self.get_price(girl), reason="Slave Purchase"):
                     renpy.play("content/sfx/sound/world/purchase_1.ogg")
                     hero.add_char(girl)
-                    girl.action = girl.workplace = None
+                    girl.set_workplace(None, None)
                     girl.home = pytfall.streets
                     set_location(girl, None)
                     self.chars_list.remove(girl)
@@ -210,8 +210,7 @@ init -9 python:
                 if update_location:
                     girl.home = pytfall.streets
                     set_location(girl, None)
-                    girl.action = None
-                    girl.workplace = None
+                    girl.set_workplace(None, None)
 
         # Deals with girls captured during SE:
         def sell_captured(self, girl, auto=False):
@@ -230,8 +229,7 @@ init -9 python:
             self.remove_prisoner(girl, False)
             girl.home = pytfall.sm
             set_location(girl, pytfall.sm)
-            girl.action = None
-            girl.workplace = None
+            girl.set_workplace(None, None)
 
         def next_day(self):
             for i in self.chars_list:

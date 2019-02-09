@@ -118,7 +118,7 @@ label slavel_market_controls:
                 play sound "content/sfx/sound/world/purchase_1.ogg"
                 $ hero.AP -= 1
                 $ hero.add_char(char)
-                $ char.action = char.workplace = None
+                $ char.set_workplace(None, None)
                 $ char.home = pytfall.streets
                 $ char.set_location(char, None)
                 $ pytfall.sm.chars_list.remove(char)

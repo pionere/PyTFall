@@ -385,10 +385,7 @@ init -10 python:
             for job in self.jobs:
                 # We need to check if there are any slots for a worker are left (atm only the Manager job):
                 if job.id == "Manager":
-                    # we get a list of all workers that are assigned for this job:
-                    temp = [w for w in self.all_workers if w.action == job or w.previousaction == job]
-                    # This isn't bulletproof... we prolly want to access building.manager here...
-                    if temp:
+                    if self.manager and char != self.manager:
                         continue
                 if job.is_valid_for(char):
                     jobs.append(job)

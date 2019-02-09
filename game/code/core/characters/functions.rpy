@@ -39,8 +39,7 @@ init -11 python:
                 else: # Weird case for free chars...
                     c.home = location["City Apartments"]
             if c.workplace == loc:
-                c.action = None
-                c.workplace = None
+                c.set_workplace(None, None)
             if c.location == loc:
                 set_location(c, None)
 
@@ -161,8 +160,7 @@ init -11 python:
             return
         char.home = pytfall.afterlife
         char.location = None
-        char.action = None
-        char.workplace = None
+        char.set_workplace(None, None)
         char.alive = False
         if char in hero.chars:
             hero.remove_char(char)
@@ -870,10 +868,9 @@ init -11 python:
 
     def remove_from_gameworld(char):
         # Try to properly delete the char...
-        char.action = None
         char.location = None
         char.home = None
-        char.workplace = None
+        char.set_workplace(None, None)
 
         sm = pytfall.sm # SlaveMarket
         if char in sm.chars_list:
@@ -892,30 +889,6 @@ init -11 python:
             del (chars[id])
 
         del(char)
-
-    def set_char_to_work(char, building, job=False):
-        """Attempts to find the best possible job to the char in given building.
-
-        For now it just randomly picks any fitting job or sets to None.
-        In the future, this should find the best possible job and set the char to it.
-
-        Note: Due to older logic, this function expects job argument to be None when a character is made jobless by player input or game logic!
-        """
-        if isinstance(char, PytGroup):
-            for c in char.lst:
-                set_char_to_work(c, building, job)
-            return
-
-        if job is False:
-            jobs = building.get_valid_jobs(char)
-            if not jobs:
-                job = None
-            else:
-                job = choice(jobs)
-
-        # We prolly still want to set a workplace...
-        char.workplace = building
-        char.action = job
 
     def tier_up_to(char, tier, level_bios=(.9, 1.1),
                    skill_bios=(.65, 1.0), stat_bios=(.65, 1.0)):
