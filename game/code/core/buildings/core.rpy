@@ -204,19 +204,19 @@ init -10 python:
             """
             # Get all girls
             if action is undefined:
-                g = [girl for girl in hero.chars if girl.location is self]
+                g = [girl for girl in hero.chars if girl.workplace is self]
 
             # Only get girls that (don't) match action list
             elif isinstance(action, (list,tuple)):
-                g = [girl for girl in hero.chars if girl.location is self and (girl.action in action) != nott]
+                g = [girl for girl in hero.chars if girl.workplace is self and (girl.action in action) != nott]
 
             # Only get girls that are training
             elif action == "Course":
-                g = [girl for girl in hero.chars if girl.location is self and isinstance(girl.action, basestring) and girl.action.endswith("Course") != nott]
+                g = [girl for girl in hero.chars if girl.workplace is self and isinstance(girl.action, basestring) and girl.action.endswith("Course") != nott]
 
             # Only get girls with specific action
             else:
-                g = [girl for girl in hero.chars if girl.location is self and (girl.action == action) != nott]
+                g = [girl for girl in hero.chars if girl.workplace is self and (girl.action == action) != nott]
 
             # Get all girls
             if occupation is undefined:
@@ -460,7 +460,6 @@ init -10 python:
                     for i in range(-vacs):
                         for char in self.inhabitants: break
                         char.home = pytfall.streets
-                        set_location(char, None)
             if self.manager and simple_jobs["Manager"] not in self.jobs:
                 # remove manager
                 self.manager.action = None

@@ -139,7 +139,6 @@ init -12 python:
             if self.habitable and building.vacancies < 0:
                 for char in building.inhabitants: break
                 char.home = pytfall.streets
-                set_location(char, None)
 
         def get_client_count(self):
             """Returns amount of clients we expect to come here.

@@ -33,7 +33,9 @@ init -1 python:
             for c in possible_chars:
                 if limited_location and c.location != name:
                     continue
-                if c.location != pytfall.city and str(c.location) != "girl_meets_quest":
+                if c.home != pytfall.city and str(c.location) != "girl_meets_quest":
+                    continue
+                if c.location == pytfall.jail:
                     continue
                 if has_tags and not c.has_image(*has_tags, exclude=has_no_tags):
                     continue

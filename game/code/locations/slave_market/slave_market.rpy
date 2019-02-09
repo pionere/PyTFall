@@ -173,7 +173,7 @@ label sm_free_slaves:
         s "And there is always also a flat 1000G government fee!"
         s "I hope those sluts will be grateful at least!"
 
-    $ chrs = list(i for i in hero.team if i.status == "slave")
+    $ chrs = list(i for i in hero.team if i.status == "slave" and i.location is None)
     if not chrs:
         s "Are you kidding me? You don't have any slaves with you!"
         s "Don't bother me without a good reason!!!"
@@ -220,7 +220,7 @@ label sm_free_slaves:
                     $ our_char.status = "free"
                     $ our_char.autobuy = True
                     $ our_char.home = pytfall.city
-                    $ set_location(our_char, pytfall.city)
+                    $ set_location(our_char, None)
                     # We give about a third of cash to the girl. Idea is that the rest goes to pay
                     # for a place to live and covering basic needs.
                     $ our_char.add_money(round_int((cost-1000)/3), "Freedom Fee")

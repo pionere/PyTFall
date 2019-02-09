@@ -93,12 +93,12 @@ label char_profile:
                                 girls.remove(char)
                                 char.disposition -= 400
 
-                                char.action = None
-
+                                char.set_workplace(None, None)
                                 if char.status == "slave":
-                                    set_location(char, pytfall.sm)
+                                    char.home = pytfall.sm
                                 else:
-                                    set_location(char, pytfall.city)
+                                    char.home = pytfall.city
+                                set_location(char, None)
 
                             if girls:
                                 $ change_char_in_profile("next")
@@ -143,8 +143,6 @@ label char_profile:
                                 python:
                                     hero.add_money(int(char.fin.get_price()*.8), reason="SlaveTrade")
                                     char.home = pytfall.sm
-                                    char.set_workplace(None, None)
-                                    set_location(char, pytfall.sm)
                             else:
                                 if char.disposition >= 500:
                                     $ block_say = True
@@ -158,10 +156,10 @@ label char_profile:
                                 python:
                                     char.disposition -= 400
                                     char.home = pytfall.city
-                                    char.set_workplace(None, None)
-                                    set_location(char, pytfall.city)
 
                             python:
+                                char.set_workplace(None, None)
+                                set_location(char, None)
                                 hero.remove_char(char)
                                 girls.remove(char)
 

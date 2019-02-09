@@ -54,6 +54,15 @@ init -9 python:
             self.jobpoints = 0
 
             # Locations and actions, most are properties with setters and getters.
+            #                    Home        Workplace        Action        Location 
+            #    -    "fighter"  city            -               -            arena  
+            #   char   "free"    city            -               -         [loc/jail]
+            #   char   "slave"    sm             -               -          [ra/jail]
+            # hero:            b/streets         b               j           [jail]  
+            #   char - "free"   b/city        b/school           j           [jail]  
+            #   char - "slave" b/streets      b/school           j          [ra/jail]
+            #                                                                        
+            #      *loc: a place in the city      *b: building      *ra: runaway     
             self.location = None # Present Location.
             self._workplace = None  # Place of work.
             self._home = None # Living location.
@@ -245,9 +254,9 @@ init -9 python:
             # False if we cannot reach the character.
             if not self.alive:
                 return False
-            if self.action == "Exploring":
+            if self.action == simple_jobs["Exploring"]:
                 return False
-            if self in pytfall.ra:
+            if self.location in (pytfall.ra, pytfall.jail):
                 return False
             return self._available
 
@@ -2212,7 +2221,7 @@ init -9 python:
                 temp = " {color=[red]}... And you're pretty much screwed because it is above 50000!{/color} Your property will now be confiscated!"
                 txt.append(temp)
 
-                slaves = [c for c in self.chars if c.status == "slave"]
+                slaves = [c for c in self.chars if c.status == "slave" and c.location is None]
                 all_properties = slaves + self.upgradable_buildings
                 shuffle(all_properties)
                 while total_debt and all_properties:
@@ -2224,17 +2233,13 @@ init -9 python:
                         price = confiscate.get_price()
                         if self.home == confiscate:
                             self.home = pytfall.streets
-                        if self.location == confiscate:
-                            set_location(self, None)
                         self.remove_building(confiscate)
-                        retire_chars_from_location(self.chars, confiscate)
+                        retire_chars_from_building(self.chars, confiscate)
                     elif isinstance(confiscate, Char):
                         price = confiscate.fin.get_price()
                         hero.remove_char(confiscate)
-                        # locations:
                         confiscate.home = pytfall.sm
                         confiscate.set_workplace(None, None)
-                        set_location(confiscate, pytfall.sm)
 
                     temp = choice(["\n{} has been confiscated for a price of {}% of the original value. ".format(
                                                                                     confiscate.name, multiplier*100),
@@ -2336,7 +2341,7 @@ init -9 python:
             super(Char, self).__init__(arena=True, inventory=True, effects=True)
             # Game mechanics assets
             self.desc = ""
-            self._location = "slavemarket"
+            self.location = "slavemarket"
 
             self.rank = 1
 
@@ -2389,27 +2394,14 @@ init -9 python:
                     self.traits.basetraits.add(i)
                     self.apply_trait(i)
 
-            # Locations + Home
-            # SM string --> object
-            if self.location == "slavemarket":
-                set_location(self, pytfall.sm)
-            if self.location == "city":
-                set_location(self, pytfall.city)
-
-            # Make sure all slaves that were not supplied custom locations string, find themselves in the SM
-            if self.status == "slave" and (str(self.location) == "City" or not self.location):
-                set_location(self, pytfall.sm)
-
-            # if character.location == existing location, then she only can be found in this location
-            if self.status == "free" and self.location == pytfall.sm:
-                set_location(self, pytfall.city)
-
-            # Home settings:
+            # Location + Home
             if self.status == "free":
+                if self.location == "city":
+                    set_location(self, None)
                 self.home = pytfall.city
             else:
+                set_location(self, None)
                 self.home = pytfall.sm
-
 
             # Wagemod + auto-buy + auto-equip:
             if self.status == 'free':
@@ -2532,13 +2524,13 @@ init -9 python:
             # Update upkeep, should always be a safe thing to do.
             self.fin.calc_upkeep()
 
-            if self.location == RunawayManager.LOCATION:
+            if self.location is not None:
                 # If escaped:
                 self.health = max(1, self.health - randint(3, 5))
                 txt.append("{color=[red]}This worker has escaped! Assign guards to search for %s or do so yourself.{/color}" % self.pp)
                 flag_red = True
             # TODO se/Char.nd(): This can't be right? This is prolly set to the exploration log object.
-            elif self.action == "Exploring":
+            elif self.action == simple_jobs["Exploring"]:
                 txt.append("{color=[green]}%s is currently on the exploration run!{/color}" % self.pC)
                 # Settle wages:
                 img = self.fin.settle_wage(txt, img)
@@ -2744,7 +2736,7 @@ init -9 python:
                 hero.remove_char(self)
                 self.home = pytfall.city
                 self.set_workplace(None, None)
-                set_location(self, pytfall.city)
+                set_location(self, None)
             elif self.disposition < -500:
                 if self.status != "slave":
                     self.txt.append("{color=[red]}%s has left your employment because %s no longer trusts or respects you!{/color}" % (self.pC, self.pp))
@@ -2753,7 +2745,7 @@ init -9 python:
                     hero.remove_char(self)
                     self.home = pytfall.city
                     self.set_workplace(None, None)
-                    set_location(self, pytfall.city)
+                    set_location(self, None)
                 elif self.days_unhappy > 7:
                     img = self.show("profile", "sad", resize=size)
                     flag_red = True

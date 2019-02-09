@@ -109,10 +109,8 @@ label building_management:
                             hero.home = pytfall.streets
                         if hero.workplace == bm_building:
                             hero.set_workplace(None, None)
-                        if hero.location == bm_building:
-                            set_location(hero, None)
 
-                        retire_chars_from_location(hero.chars, bm_building)
+                        retire_chars_from_building(hero.chars, bm_building)
 
                         hero.add_money(price, reason="Property")
                         hero.remove_building(bm_building)

@@ -480,16 +480,18 @@ init:
     default SKILLS_MAX = {k: 5000 for k in STATIC_CHAR.SKILLS}
     default SKILLS_THRESHOLD = {k: 2000 for k in STATIC_CHAR.SKILLS} # Must be exceeded before skills becomes harder to gain.
     $ DAILY_EXP_CORE = 100 # 1 lvl per 10 days give or take. This is a simple way to rebalance.
+    default block_say = False
     default just_view_next_day = False
+    default gallery = None
     default char = None
-    default char_equip = None
+    default char_profile_entry = None # Label to access chars profile from weird locations.
+    default came_to_equip_from = None # Girl equipment screen came from label holder
+    default eqtarget = None # Equipment screen
     default girls = None
     default bm_mid_frame_mode = None
-    default block_say = False
     define PytPix = renpy.display.transition.Pixellate
     default last_label_pure = ""
     default CHARS_INIT_PHASE = False # Special global we use to prevent (some) auto-leveling system from triggering when building chars.
-    default char_profile_entry = None # Label to access chars profile from weird locations.
 
     default special_save_number = 1
 

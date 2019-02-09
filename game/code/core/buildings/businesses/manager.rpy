@@ -1,12 +1,14 @@
 # Manager stuff goes here, will prolly be only one function but it doesn't fit anywhere else.
 init -5 python:
-    class Manager(Job):
+    class Manager(_object):
+        pass # obsolete
+    class ManagerJob(Job):
         """This is the manager Job, so far it just creates the instance we can use to assign the job.
 
         - Later we may use this to do mod stats and level up Managers somehow...
         """
         def __init__(self):
-            super(Manager, self).__init__()
+            super(ManagerJob, self).__init__()
             self.id = "Manager"
             self.type = "Management"
 

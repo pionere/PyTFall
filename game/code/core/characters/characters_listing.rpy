@@ -263,7 +263,7 @@ screen chars_list():
                                         status_img = "content/gfx/interface/icons/slave.png"
                                     else:
                                         status_img = "content/gfx/interface/icons/free.png"
-                                elif c.action == "Exploring":
+                                elif c.action == simple_jobs["Exploring"]:
                                     status_img = "content/gfx/interface/icons/exploring.png"
                                 elif c in pytfall.ra:
                                     status_img = "content/gfx/interface/images/MC/reflexes.png"

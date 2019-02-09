@@ -201,8 +201,7 @@ init -6 python: # Guild, Tracker and Log.
             # Restore Chars and Remove from guild:
             self.guild.explorers.remove(self)
             for char in self.team:
-                char.action = char.flag("loc_backup")
-                char.del_flag("loc_backup")
+                char.action = None
 
             # Next Day Stuff:
             # Not sure if this is required... we can add log objects and build
@@ -336,8 +335,7 @@ init -6 python: # Guild, Tracker and Log.
             # Setup Explorers:
             for char in team:
                 # We effectively remove char from the game so this is prolly ok.
-                char.action = "Exploring"
-                char.set_flag("loc_backup", char.location)
+                char.action = simple_jobs["Exploring"]
                 for t in hero.teams:
                     if char in t:
                         t.remove(char)

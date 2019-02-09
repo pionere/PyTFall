@@ -68,6 +68,7 @@ init -9 python:
                     girl.set_workplace(None, None)
                     girl.home = pytfall.streets
                     set_location(girl, None)
+                    girl.set_workplace(None, None)
                     self.chars_list.remove(girl)
 
                     if self.chars_list:
@@ -167,6 +168,7 @@ init -9 python:
                 if hero.take_money(self.get_price(), reason="Slave Repurchase"):
                     renpy.play("content/sfx/sound/world/purchase_1.ogg")
                     self.remove_prisoner(self.girl, True)
+                    self.girl.set_workplace(None, None)
                 else:
                     renpy.call_screen('message_screen', "You don't have enough money for this purchase!")
             else:
@@ -208,9 +210,8 @@ init -9 python:
                     self.worker = None
 
                 if update_location:
-                    girl.home = pytfall.streets
+                    girl.home = pytfall.city if girl.status == "free" else pytfall.streets
                     set_location(girl, None)
-                    girl.set_workplace(None, None)
 
         # Deals with girls captured during SE:
         def sell_captured(self, girl, auto=False):
@@ -228,8 +229,7 @@ init -9 python:
 
             self.remove_prisoner(girl, False)
             girl.home = pytfall.sm
-            set_location(girl, pytfall.sm)
-            girl.set_workplace(None, None)
+            set_location(girl, None)
 
         def next_day(self):
             for i in self.chars_list:
@@ -315,18 +315,20 @@ init -9 python:
             """
             if girl not in self:
                 self.girls[girl] = 0
-                girl.action = RunawayManager.ACTION
-                set_location(girl, RunawayManager.LOCATION)
                 for team in hero.teams:
                     if girl in team:
                         team.remove(girl)
                 girl_disobeys(girl, 10)
 
                 if jail:
+                    set_location(girl, pytfall.jail)
+
                     self.jail_cache[girl] = [4, False]
                     if self.girl is None:
                         self.girl = girl
                         self.index = 0
+                else:
+                    set_location(girl, pytfall.ra)
 
         def buy_girl(self):
             """
@@ -423,7 +425,7 @@ init -9 python:
                             if girl in guards: guards.remove(girl)
 
                             # Force simulation if hero not available
-                            if not simulate: simulate = hero.location is not location
+                            if not simulate: simulate = hero.workplace is not location
 
                             # If we are simulating
                             if simulate:
@@ -432,7 +434,7 @@ init -9 python:
                                 while len(guards) > gam: guards.remove(choice(guards))
 
                                 # Add hero
-                                if hero.location is location: guards.append(hero)
+                                if hero.workplace is location: guards.append(hero)
 
                             # Else we are BE
                             else:
@@ -688,18 +690,13 @@ init -9 python:
             # Get runaway modifier
             mod = 0
 
-            # If location has own function, use it
+            # If location has own function, use it # TODO check upgrades
             if hasattr(location, "mod_runaway"):
                 mod = location.mod_runaway()
 
-            # Else if location is upgradable, use its sutree @ Review: Alex: What the fuck is a sutree????
-            # elif isinstance(location, Building):
-            #     if sutree is None: sutree = location.security_upgrade_tree
-            #     mod = self.get_upgrade_mod(sutree) / len(self.upgrades[sutree])
-
             # Else if has guard action, use amount over total
             elif hasattr(location, "actions") and "Guard" in location.actions:
-                girls = [g for g in hero.chars if g.location == location]
+                girls = [g for g in hero.chars if g.workplace == location]
                 if girls:
                     mod = float(len(location.get_girls("Guard"))) / float(len(girls))
                 else:
@@ -707,7 +704,7 @@ init -9 python:
 
             # Else use warriors over total
             else:
-                girls = [g for g in hero.chars if g.location == location]
+                girls = [g for g in hero.chars if g.workplace == location]
                 if girls:
                     mod = float(len(location.get_girls(occupation="Combatant"))) / float(len(girls))
                 else:
@@ -859,13 +856,11 @@ init -9 python:
                         self.index = 0
                         self.girl = None
 
-                girl.action = None
                 if girl.status == "slave":
-                    girl.home = hero.home
-                    set_location(girl, None)
+                    girl.home = pytfall.streets 
                 else:
                     girl.home = pytfall.city
-                    set_location(girl, pytfall.city)
+                set_location(girl, None)
 
         def status(self, girl):
             """

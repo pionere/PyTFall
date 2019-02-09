@@ -654,6 +654,8 @@ init -9 python:
         def load_special_team_presets(self):
             female_fighters = store.female_fighters
             teams = json.load(renpy.file("content/db/arena_teams.json"))
+            team_members = set() # collect the fighters which are already added to teams
+            char_members = set() # collect the chars which are added as fighters
             for team in teams:
                 members = team["members"]
                 name = team["name"]
@@ -665,9 +667,9 @@ init -9 python:
                 teamsize = len(members)
 
                 if teamsize > 3:
-                    raise Exception("Arena Teams are not allowed to include more than 3 members!")
-                if teamsize == 1 and not team["lineups"]:
-                    raise Exception("Single member teams are only available for lineups!")
+                    raise Exception("Arena Team %s has more than the allowed 3 members!" % name)
+                elif teamsize == 0:
+                    raise Exception("Arena Team %s has no members at all!" % name)
 
                 a_team = Team(name=name, max_size=teamsize)
                 for index, member in enumerate(members):
@@ -676,24 +678,6 @@ init -9 python:
                                           tier=uniform(.8, 1.4),
                                           give_bt_items=True,
                                           spells_to_tier=True)
-                    elif member in chars:
-                        member = chars[member]
-                        if member in hero.chars:
-                            hero.remove_char(member)
-                        if member in self.get_teams_fighters(teams="2v2"):
-                            raise Exception("You've added unique character %s" \
-                                            " to 2v2 Arena teams twice!" % chars[member].name)
-                        if member in self.get_teams_fighters(teams="3v3"):
-                            raise Exception("You've added unique character %s to 3v3 Arena teams more than once!" % chars[member].name)
-                    elif member in female_fighters:
-                        member = female_fighters[member]
-                        if member in self.get_teams_fighters(teams="2v2"):
-                            raise Exception("You've added an unique Arena" \
-                                            " Fighter %s to 2v2 Arena teams twice!" % member.name)
-                        if member in self.get_teams_fighters(teams="3v3"):
-                            raise Exception("You've added an unique" \
-                                " Arena Fighter %s to 3v3 Arena teams more than once!" % member.name)
-                        self.arena_fighters[member.id] = member
                     elif member in rchars:
                         member = build_rc(id=member,
                                           bt_go_patterns=["Combatant"],
@@ -701,7 +685,24 @@ init -9 python:
                                           give_bt_items=True,
                                           spells_to_tier=True)
                     else:
-                        raise Exception("Team Fighter %s is of unknown origin!" % member)
+                        if teamsize != 1:
+                            if member in team_members:
+                                if member in chars:
+                                    msg = "Unique character %s is added to teams twice!" % member.name
+                                else: # member in (female_fighters + male_fighters):
+                                    msg = "Arena Fighter %s is added to teams twice!" % member.name
+                                raise Exception(msg)
+                            team_members.add(member)
+                        if member in chars:
+                            char_members.add(member)
+                            member = chars[member]
+                        elif member in female_fighters:
+                            member = female_fighters[member]
+                        elif member in male_fighters:
+                            member = male_fighters[member]
+                        else:
+                            raise Exception("Team Fighter %s is of unknown origin!" % member)
+                        self.arena_fighters[member.id] = member
 
                     member.set_status("free")
                     member.arena_active = True
@@ -728,7 +729,7 @@ init -9 python:
                             raise Exception("Team %s failed to take place %d in 1v1" \
                                             "lineups is already taken by another team (%s), check your arena_teams.json" \
                                             "file." % (a_team.name, team["lineups"], self.lineup_1v1[team["lineups"]-1].name))
-                    if teamsize == 2:
+                    elif teamsize == 2:
                         if not self.lineup_2v2[lineups-1]:
                             self.lineup_2v2[lineups-1] = a_team
                             self.teams_2v2.append(a_team)
@@ -737,7 +738,7 @@ init -9 python:
                                 "in 2v2 lineups is already taken by another team (%s), " \
                                 "check your arena_teams.json file."%(a_team.name,
                                 team["lineups"], self.lineup_2v2[lineups-1].name))
-                    if teamsize == 3:
+                    else: # if teamsize == 3:
                         if not self.lineup_3v3[lineups-1]:
                             self.lineup_3v3[lineups-1] = a_team
                             self.teams_3v3.append(a_team)
@@ -747,10 +748,17 @@ init -9 python:
                             "check your arena_teams.json file."%(a_team.name, lineups,
                             self.lineup_3v3[lineups-1].name))
                 else:
-                    if teamsize == 2:
+                    if teamsize == 1:
+                        raise Exception("Single member teams are only available for lineups!")
+                    elif teamsize == 2:
                         self.teams_2v2.append(a_team)
-                    if teamsize == 3:
+                    else: # if teamsize == 3:
                         self.teams_3v3.append(a_team)
+
+            for char in char_members:
+                member = chars.pop(member)
+                if member in hero.chars:
+                    hero.remove_char(member)
 
         def setup_arena(self):
             """Initial Arena Setup, this will be improved and prolly split several
@@ -781,6 +789,8 @@ init -9 python:
                     tier_up_to(char, 7, **tier_kwargs)
                     auto_buy_for_bt(char, casual=None)
                     give_tiered_magic_skills(char)
+                    if char.id in chars:
+                        chars.pop(char.id)
                 else:
                     char = build_rc(tier=7,
                                     tier_kwargs=tier_kwargs,
@@ -819,6 +829,8 @@ init -9 python:
                     tier_up_to(fighter, tier)
                     auto_buy_for_bt(fighter, casual=None)
                     give_tiered_magic_skills(fighter)
+                    if fighter.id in chars:
+                        chars.pop(fighter.id)
 
                 fighter.arena_active = True
                 fighter.arena_permit = True

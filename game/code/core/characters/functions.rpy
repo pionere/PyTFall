@@ -31,17 +31,15 @@ init -11 python:
             if msg:
                 msg.append("\n {} became pretty close to you.".format(char.nickname))
 
-    def retire_chars_from_location(chars, loc):
+    def retire_chars_from_building(chars, b):
         for c in chars:
-            if c.home == loc:
+            if c.home == b:
                 if c.status == "slave":
-                    c.home = hero.home
+                    c.home = pytfall.streets
                 else: # Weird case for free chars...
-                    c.home = location["City Apartments"]
-            if c.workplace == loc:
+                    c.home = pytfall.city
+            if c.workplace == b:
                 c.set_workplace(None, None)
-            if c.location == loc:
-                set_location(c, None)
 
     def check_stat_perc(char, stat, value, dir="lower"):
         """Checks if stat/skill is higher/lower (or eq) than given percentage of the max.
@@ -376,10 +374,10 @@ init -11 python:
         if set_locations:
             if rg.status == "slave":
                 rg.home = pytfall.sm
-                set_location(rg, pytfall.sm)
+                set_location(rg, None)
             else:
                 rg.home = pytfall.city
-                set_location(rg, pytfall.city)
+                set_location(rg, None)
 
         # BASE TRAITS:
         selection = None

@@ -22,13 +22,6 @@ label start:
     $ gfx_overlay = GFXOverlay()
     $ renpy.show("pf_gfx_overlay", what=gfx_overlay, layer="pytfall")
 
-    python: # Variable defaults:
-        chars_list_last_page_viewed = 0
-        char = None # Character global
-        came_to_equip_from = None # Girl equipment screen came from label holder
-        eqtarget = None # Equipment screen
-        gallery = None
-
     python: # Day/Calendar/Names/Menu Extensions and some other defaults.
         # Global variables and loading content:
         day = 1
@@ -97,7 +90,7 @@ label start:
     python: # Jobs:
         tl.start("Loading: Jobs")
         # This jobs are usually normal, most common type that we have in PyTFall
-        temp = [WhoreJob(), StripJob(), BarJob(), Manager(), CleaningJob(), GuardJob(), Rest(), AutoRest()]
+        temp = [WhoreJob(), StripJob(), BarJob(), ManagerJob(), CleaningJob(), GuardJob(), ExplorationJob(), Rest(), AutoRest()]
         simple_jobs = {j.id: j for j in temp}
         del temp
         tl.end("Loading: Jobs")
@@ -608,6 +601,17 @@ label after_load:
             clearCharacters = True
         if hasattr(hero.stats, "delayed_stats"):
             clearCharacters = True
+        if isinstance(simple_jobs["Manager"], Manager):
+            pmj = simple_jobs["Manager"]
+            mj = ManagerJob()
+            simple_jobs[mj.id] = mj
+            for b in hero.buildings:
+                if hasattr(b, "jobs") and pmj in b.jobs:
+                    b.jobs.remove(pmj)
+                    b.jobs.add(mj)
+            ej = ExplorationJob()
+            simple_jobs[ej.id] = ej
+            clearCharacters = True
 
         store.bm_mid_frame_mode = None
 
@@ -820,6 +824,8 @@ label after_load:
                     del char.status_overlay
                 if hasattr(char, "besprite_size"):
                     del char.besprite_size
+                if getattr(char._action, "id", None) == "Manager":
+                    char._action = simple_jobs["Manager"]
 
             #for girl in itertools.chain(jail.chars_list, pytfall.ra.girls.keys()):
             #    if girl.controller == "player":
@@ -924,12 +930,15 @@ label after_load:
             pytfall.afterlife.daily_modifier = pytfall.afterlife._daily_modifier
             del pytfall.afterlife._daily_modifier
 
-            city = store.locations["City"]
-            if hero.location == city:
-                hero.location = pytfall.city
-            for c in chars.values():
-                if c.location == city:
-                    c.location = pytfall.city
+            cities = (store.locations["City"], pytfall.city)
+            for c in itertools.chain([hero], chars.values(), hero.chars, npcs.values()):
+                if c.location in cities:
+                    c.location = None
+                if c.location == pytfall.sm:
+                    c.location = None
+                if c.location == RunawayManager.LOCATION:
+                    c.location = pytfall.ra
+
             del store.locations
 
     python hide:
