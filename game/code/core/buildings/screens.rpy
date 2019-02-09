@@ -300,8 +300,8 @@ init:
                 if c3:
                     frame:
                         xysize (296, 27)
-                        text "Habitable Capacity:" xalign .02 color ivory
-                        text "[bm_building.vacancies]/[bm_building.habitable_capacity]" xalign .98 style_suffix "value_text"
+                        text "Inhabitants:" xalign .02 color ivory
+                        text "%d/%d" % (len(bm_building.inhabitants),bm_building.habitable_capacity) xalign .98 style_suffix "value_text"
 
             null height 20
 

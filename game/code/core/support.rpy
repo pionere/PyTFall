@@ -85,43 +85,6 @@ init -9 python:
             self.arena.update_dogfights()
 
         # World AI ----------------------------->
-        @staticmethod
-        def restore_all_chars():
-            """
-            Heals, restores AP and MP for non player characters that may have been exposed to world events.
-            """
-            characters = (c for c in chars.itervalues() if c not in hero.chars)
-
-            for char in characters:
-                char.health = char.get_max("health")
-                char.mp = char.get_max("mp")
-                char.vitality = char.get_max("vitality")
-
-                # Resets and Counters
-                char.restore_ap()
-                char.item_counter()
-                char.clear_img_cache()
-                for effect in char.effects.values():
-                    effect.next_day(char)
-                char.del_flag("food_poison_counter")
-                char.del_flag("drunk_counter")
-
-                # Adding disposition/joy mods:
-                if char.disposition < 0:
-                    char.disposition += 1
-                elif char.disposition > 0:
-                    char.disposition -= 1
-
-                if char.joy < char.get_max("joy"):
-                    char.joy += 5
-
-            # Same for Arena Fighters:
-            for fighter in pytfall.arena.arena_fighters.values():
-                fighter.clear_img_cache()
-                fighter.health = fighter.get_max("health")
-                fighter.mp = fighter.get_max("mp")
-                fighter.vitality = fighter.get_max("vitality")
-
         def populate_world(self, tier_offset=.0):
             # Get all rcahrs in the game and sort by status.
             rc_free = []
@@ -221,7 +184,7 @@ init -9 python:
             gazette.clear()
 
             # Shops:
-            tl.start("Shops.next_day")
+            tl.start("Shops ND")
             self.general_store.next_day()
             self.cafe.next_day()
             self.tavern.next_day()
@@ -233,23 +196,23 @@ init -9 python:
             self.witch_spells_shop.next_day()
             self.aine_shop.next_day()
             self.angelica_shop.next_day()
-            tl.end("Shops.next_day")
+            tl.end("Shops ND")
 
             # Slave Market:
-            tl.start("SlaveMarket")
+            tl.start("SlaveMarket ND")
             self.sm.next_day()
-            tl.end("SlaveMarket")
+            tl.end("SlaveMarket ND")
 
             # Employment Agency:
-            tl.start("EmploymentAgency")
+            tl.start("EmploymentAgency ND")
             populate_ea()
-            tl.end("EmploymentAgency")
+            tl.end("EmploymentAgency ND")
 
             # Runaways:
-            tl.start("Runaway/Jail")
+            tl.start("Runaway/Jail ND")
             self.ra.next_day()
             self.jail.next_day()
-            tl.end("Runaway/Jail")
+            tl.end("Runaway/Jail ND")
 
             # Girlsmeets:
             # Termination:
@@ -264,35 +227,25 @@ init -9 python:
             tl.end("Schools ND")
 
             # Arena:
-            tl.start("Arena.next_day")
+            tl.start("Arena ND")
             self.arena.next_day()
-            tl.end("Arena.next_day")
+            tl.end("Arena ND")
 
             # Girls, Buildings income and Hero:
-            tl.start("MC's Chars .next_day")
-            for char in chars.values() + [hero]:
-                # Run the effects if they are available:
-                for effect in char.effects.values():
-                    effect.next_day(char)
-
-                if char in hero.chars or char == hero:
-                    char.next_day()
-                for flag in char.flags.keys():
-                    if flag.startswith("_day_countdown"):
-                        char.down_counter(flag, value=1, min=0, delete=True)
-                    elif flag.startswith("_jobs"):
-                        char.del_flag(flag)
-
-                char.up_counter("days_in_game")
-                char.log_stats()
-
+            tl.start("MC's Chars ND")
+            for char in chars.values():
+                char.next_day()
+            hero.next_day()
             for b in hero.buildings:
                 b.nd_log_income()
+            tl.end("MC's Chars ND")
 
-            tl.end("MC's Chars .next_day")
+            # Same for Arena Fighters:
+            tl.start("Arena-Fighter's ND")
+            for fighter in pytfall.arena.arena_fighters.values():
+                fighter.next_day()
+            tl.end("Arena-Fighter's ND")
 
-            # Restoring world girls:
-            self.restore_all_chars()
             if not day % 14:
                 self.populate_world(tier_offset=.0)
 

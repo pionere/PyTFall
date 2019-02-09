@@ -1851,6 +1851,15 @@ init -9 python:
             self.del_flag("drunk_counter")
             self.del_flag("_drag_container")
 
+            for flag in self.flags.keys():
+                if flag.startswith("_day_countdown"):
+                    self.down_counter(flag, value=1, min=0, delete=True)
+                elif flag.startswith("_jobs"):
+                    self.del_flag(flag)
+
+            self.up_counter("days_in_game")
+            self.log_stats()
+
         def auto_training(self, kind):
             """
             Training, right now by NPCs.
@@ -2257,6 +2266,10 @@ init -9 python:
             return flag_red
 
         def next_day(self):
+            # Run the effects if they are available:
+            for effect in self.effects.values():
+                effect.next_day(self)
+
             img = 'profile'
             txt = self.txt
             flag_red = False
@@ -2294,7 +2307,6 @@ init -9 python:
             # ------------->
             self.item_counter()
             self.restore_ap()
-            self.log_stats()
 
             # ------------>
             self.nd_log_report(txt, img, flag_red, type='mcndreport')
@@ -2478,14 +2490,39 @@ init -9 python:
                 self.action.after_rest(self, txt)
             return "".join(txt)
 
-        def in_training_location(girl):
-            """
-            Checks whether a girl is currently in a location that offers training.
-            girl = The girl to check.
-            """
-            return girl.location == pytfall.school
-
         def next_day(self):
+            # Run the effects if they are available:
+            for effect in self.effects.values():
+                effect.next_day(self)
+
+            if self not in hero.chars:
+                # character does not belong to the hero
+                # Home location nd mods:
+                #loc = self.home
+                #mod = loc.get_daily_modifier()
+                #for stat in ("health", "mp", "vitality"):
+                #    mod_by_max(self, stat, mod)
+                self.health = self.get_max("health")
+                self.mp = self.get_max("mp")
+                self.vitality = self.get_max("vitality")
+
+                #self.restore()
+                self.restore_ap()
+                self.item_counter()
+
+                # Adding disposition/joy mods:
+                if self.disposition < 0:
+                    self.disposition += 1
+                elif self.disposition > 0:
+                    self.disposition -= 1
+
+                if self.joy < self.get_max("joy"):
+                    self.joy += 5
+
+                super(Char, self).next_day()
+                return
+
+            # hero's worker
             # Local vars
             img = 'profile'
             txt = self.txt
