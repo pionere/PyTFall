@@ -2525,13 +2525,21 @@ init -9 python:
             self.fin.calc_upkeep()
 
             if self.location is not None:
-                # If escaped:
-                self.health = max(1, self.health - randint(3, 5))
-                txt.append("{color=[red]}This worker has escaped! Assign guards to search for %s or do so yourself.{/color}" % self.pp)
+                if self.location == pytfall.ra:
+                    # If escaped:
+                    self.health = max(1, self.health - randint(3, 5))
+                    txt.append("{color=[red]}%s has escaped! Assign guards to search for %s or do so yourself.{/color}" % (self.fullname, self.pp))
+                else:
+                    # your worker is in jail TODO might want to do this in the ND of the jail
+                    mod = pytfall.jail.get_daily_modifier()
+                    for stat in ("health", "mp", "vitality"):
+                        mod_by_max(self, stat, mod)
+
+                    txt.append("{color=[red]}%s is spending the night in the jail!{/color}" % self.fullname)
                 flag_red = True
             # TODO se/Char.nd(): This can't be right? This is prolly set to the exploration log object.
             elif self.action == simple_jobs["Exploring"]:
-                txt.append("{color=[green]}%s is currently on the exploration run!{/color}" % self.pC)
+                txt.append("{color=[green]}%s is currently on the exploration run!{/color}" % self.fullname)
                 # Settle wages:
                 img = self.fin.settle_wage(txt, img)
             else:

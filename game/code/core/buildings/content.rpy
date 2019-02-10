@@ -6,28 +6,23 @@ init -9 python:
     class SlaveMarket(HabitableLocation):
         """
         Class for populating and running of the slave market.
-
-        TODO sm/lt: (Refactor)
-        Use actors container from Location class and
         """
-        def __init__(self, type=None):
+        def __init__(self):
             """
             Creates a new SlaveMarket.
-            type = type girls predominantly present in the market. Not used.
             """
             super(SlaveMarket, self).__init__(id="PyTFall Slavemarket")
-            self.type = [] if type is None else type
 
-            self.chars_list = None
+            self.chars_list = None # slaves currently for sale
+            self.index = 0         # the selected slave
 
-            self.girl = None
+            self.blue_slaves = list() # slaves under Blue training
 
-            self.blue_girls = dict() # Girls (SE captured) blue is training for you.
             self.restock_day = 0
 
         def populate_chars_list(self):
             """
-            Populates the list of girls that are available.
+            Populates the list of characters that are available.
             """
             if day >= self.restock_day:
                 self.restock_day += locked_random("randint", 2, 3)
@@ -36,20 +31,20 @@ init -9 python:
                 uniques = []
                 randoms = []
                 total = randint(9, 12)
-                for c in chars.values():
-                    if c in hero.chars:
+                for c in self.inhabitants:
+                    if c.location == pytfall.jail:
                         continue
-                    if c.home == self:
-                        if c.__class__ == Char:
-                            uniques.append(c)
-                        elif c.__class__ == rChar:
-                            randoms.append(c)
+                    if c.__class__ == Char:
+                        uniques.append(c)
+                    elif c.__class__ == rChar:
+                        randoms.append(c)
 
                 # Prioritize unique chars:
                 slaves = random.sample(uniques, min(len(uniques), 7))
                 slaves.extend(random.sample(randoms, min(len(randoms), total-len(slaves))))
                 shuffle(slaves)
                 self.chars_list = slaves
+                self.index = 0
 
                 # Gazette:
                 temp = "Stan of the PyTFall's Slave Market was seen by our reporters "
@@ -57,56 +52,45 @@ init -9 python:
                 temp1 = "Blue of the Slave Market sent out a bulletin about new slave arrivals!"
                 gazette.other.append(choice([temp, temp1]))
 
-        def get_price(self, girl):
-            return girl.fin.get_price()
+        def get_price(self, char):
+            return char.fin.get_price()
 
-        def buy_girl(self, girl):
-            if hero.take_ap(1):
-                if hero.take_money(self.get_price(girl), reason="Slave Purchase"):
-                    renpy.play("content/sfx/sound/world/purchase_1.ogg")
-                    hero.add_char(girl)
-                    girl.set_workplace(None, None)
-                    girl.home = pytfall.streets
-                    set_location(girl, None)
-                    girl.set_workplace(None, None)
-                    self.chars_list.remove(girl)
+        def buy_slave(self, char):
+            if not hero.take_ap(1):
+                return "You don't have enough AP left for this action!"
 
-                    if self.chars_list:
-                        self.girl = choice(self.chars_list)
-                    else:
-                        self.girl = None
-                else:
-                    renpy.call_screen('message_screen', "You don't have enough money for this purchase!")
-            else:
-                renpy.call_screen('message_screen', "You don't have enough AP left for this action!")
+            if not hero.take_money(self.get_price(char), reason="Slave Purchase"):
+                return "You don't have enough money for this purchase!"
+
+            renpy.play("content/sfx/sound/world/purchase_1.ogg")
+            hero.add_char(char)
+            char.set_workplace(None, None)
+            char.home = pytfall.streets
+            set_location(char, None)
+            self.chars_list.remove(char)
+            self.index = 0
 
         def next_index(self):
             """
-            Sets the focus to the next girl.
+            Sets the focus to the next char.
             """
-            if self.chars_list:
-                index = self.chars_list.index(self.girl)
-                index = (index + 1) % len(self.chars_list)
-                self.girl = self.chars_list[index]
+            self.index += 1
+            if self.index == len(self.chars_list):
+                self.index = 0
 
         def previous_index(self):
             """
-            Sets the focus to the previous girl.
+            Sets the focus to the previous char.
             """
-            if self.chars_list:
-                index = self.chars_list.index(self.girl)
-                index = (index - 1) % len(self.chars_list)
-                self.girl = self.chars_list[index]
+            self.index -= 1
+            if self.index < 0:
+                self.index = len(self.chars_list) - 1
 
-        def set_girl(self, girl):
-            self.girl = girl
+        def get_char(self):
+            return self.chars_list[self.index]
 
-        def set_index(self):
-            """
-            Sets the focus to a random girl.
-            """
-            if self.chars_list:
-                self.girl = choice(self.chars_list)
+        def set_char(self, index):
+            self.index = index
 
         def next_day(self):
             """
@@ -114,163 +98,329 @@ init -9 python:
             """
             self.populate_chars_list()
 
-            for g in self.blue_girls.keys():
-                self.blue_girls[g] += 1
-                if self.blue_girls[g] == 30:
-                    hero.add_char(g)
-                    del self.blue_girls[g]
-                    # pytfall.temp_text.append("Blue has finished training %s! The girl has been delivered to you!" % chars[g].name)
+            # Blue training:
+            trained, trainee = [], []
+            for slave in self.blue_slaves:
+                if slave.flag("release_day" == day):
+                    trained.append(slave)
+                else:
+                    trainee.append(slave)
+            for slave in trained:
+                hero.add_char(slave)
+                slave.set_workplace(None, None)
+                slave.home = pytfall.streets
+                set_location(slave, None)
+                # pytfall.temp_text.append("Blue has finished training %s! The slave has been delivered to you!" % chars[g].name)
+            self.blue_slaves = trainee
 
     class CityJail(BaseBuilding):
         """
-        The jail where escaped slaves can turn up. May do other things later.
+        The jail where escaped slaves can turn up, captured characters of SE are listed
+         and misbehaving citizens are held as prisoners.
         """
-
-        # TODO lt: Needs recoding!
-
         def __init__(self):
             super(CityJail, self).__init__()
-            self.girl = None
-            self.chars_list = []
+
+            self.chars_list = None          # the list of chars for the current activity in the jail
+            self.index = None               # the selected char
+
+            self.slaves = list()            # caught runaway slaves currently for sale
+            self.slave_index = [0,]         # the selected slave
+            self.slave_restock_day = 0
+
+            self.captures = list()          # captured characters from SE
+            self.capt_index = [0,]          # the selected captured char
             self.auto_sell_captured = False # Do we auto-sell SE captured slaves?
 
-        def __contains__(self, char):
-            return char in self.chars_list
+            self.cells = list()             # civilian prisoners
+            self.cell_index = [0,]          # the selected prisoner
+            self.cell_restock_day = 0
 
-        def add_prisoner(self, char, flag=None):
+        def switch_mode(self, mode):
+            if mode == "slaves":
+                self.chars_list = self.slaves
+                self.index = self.slave_index
+            elif mode == "cells":
+                self.chars_list = self.cells
+                self.index = self.cell_index
+            else: # captures
+                self.chars_list = self.captures
+                self.index = self.capt_index
+
+        def populate_chars_list(self):
+            """
+            Populates the list of characters that are present.
+            """
+            if day >= self.slave_restock_day:
+                # populate the list of runaway slaves
+                self.slave_restock_day += locked_random("randint", 2, 3)
+
+                # Search for slaves to add to the jail.
+                slaves = [c for c in chars.values() if c.status == "slave" and c not in pytfall.sm.chars_list and c not in hero.chars and c.location != pytfall.jail]
+
+                slaves = random.sample(slaves, min(randint(0, 2), max(0, 12 - len(self.slaves))))
+
+                for c in slaves:
+                    if c.location == pytfall.ra:
+                        del pytfall.ra.girls[c]
+                    self.add_slave(c)
+
+                gazette.other.append("ReMoVe Me AnD dO nOt CoMmIt!!! %d" % len(self.slaves))
+
+            if day >= self.cell_restock_day:
+                # populate the list of free prisoners
+                self.cell_restock_day += locked_random("randint", 2, 3)
+
+                # Search for citizens to add to the jail.
+                PUNISHABLE_TRAITS = {"Aggressive": ("Fight", (4, 10)),
+                                     "Vicious": ("Bodily harm", (2, 10)),
+                                     "Sadist": ("Assault", (4, 10)),
+                                     "Exhibitionist": ("Indecent behavior", (1, 3)),
+                                     "Kleptomaniac": ("Theft", (1, 4)),
+                                     "Heavy Drinker": ("Brawl", (3, 6))}
+                temp = simple_jobs["Exploring"]
+                cells = []
+                for c in chars.values():
+                    if c.status != "free" or c.location == self or c.action == temp:
+                        continue
+                    traits = list(i.id for i in c.traits if i.id in PUNISHABLE_TRAITS)
+                    for t in traits:
+                        cells.append((c, t))
+
+                cells = random.sample(cells, min(randint(0, 2), max(0, 12 - len(self.cells))))
+                temp = set()
+                for c in cells:
+                    char = c[0]
+                    if char in temp:
+                        continue
+                    temp.add(char)
+                    sentence = PUNISHABLE_TRAITS[c[1]]
+                    self.add_prisoner(char, sentence[0], randint(*sentence[1]))
+                    # FIXME notify the player about the event
+
+                gazette.other.append("!!!ReMoVe Me dO nOt CoMmIt!!! %d" % len(self.cells))
+
+        def add_slave(self, char):
+            set_location(char, self)
+            char.set_flag("release_day", day + 10)
+            self.slaves.append(char)
+            #self.slave_index = [0,]
+
+        def add_capture(self, char):
+            set_location(char, self)
+            # Auto-selloff through flag set in SE module
+            # TODO se: Implement the button in SE!
+            char.set_flag("release_day", day + (0 if self.auto_sell_captured else 20))
+            self.captures.append(char)
+
+        def add_prisoner(self, char, sentence, days):
             """Adds a char to the jail.
 
             char: Character to throw into Jail
-            flag: Sentence type (reason to put in Jail)
+            sentence: Sentence type (reason to put in Jail)
+            days: the length of the sentence
             """
-            if char not in self:
-                if char in hero.team:
-                    hero.team.remove(char)
-                self.chars_list.append(char)
+            char.set_flag("sentence_type", sentence)
+            char.set_flag("release_day", day + days)
+            set_location(char, self)
+            self.cells.append(char)
+            #self.cell_index = [0,]
 
-                # Flag to determine how the girl is handled in the jail:
-                if flag:
-                    char.set_flag("sentence_type", flag)
-                    if flag == "SE_capture":
-                        char.set_flag("days_in_jail", 0)
+            if c in hero.chars:
+                for team in hero.teams:
+                    if char in team:
+                        team.remove(char)
+                return True
+            return False
 
-        def get_price(self):
-            """
-            Returns the price to retrieve the girl.
-            """
-            # In case of non-slave girl, use 3000 as base price
-            return (self.girl.fin.get_price() or 3000) / 2
 
-        def buy_girl(self):
-            """Buys an escaped girl from the jail.
+        def get_price(self, slave):
             """
-            if hero.take_ap(1):
-                if hero.take_money(self.get_price(), reason="Slave Repurchase"):
-                    renpy.play("content/sfx/sound/world/purchase_1.ogg")
-                    self.remove_prisoner(self.girl, True)
-                    self.girl.set_workplace(None, None)
-                else:
-                    renpy.call_screen('message_screen', "You don't have enough money for this purchase!")
+            Returns the price to retrieve the slave.
+            """
+            return int(slave.fin.get_price() * .9)
+
+        def get_bail(self, char):
+            """
+            Returns the price to bail the prisoner.
+            """
+            return (char.flag("release_day") - day) * 500
+
+        def buy_slave(self, char):
+            """Buys an escaped slave from the jail.
+            """
+            if not hero.take_ap(1):
+                return "You don't have enough AP left for this action!"
+            if not hero.take_money(self.get_price(char), reason="Slave (Re)Purchase"):
+                return "You don't have enough money for this purchase!"
+
+            renpy.play("content/sfx/sound/world/purchase_1.ogg")
+            self.slaves.remove(char)
+            self.index[0] = 0
+            if char not in hero.chars:
+                hero.add_char(char)
+                char.home = pytfall.streets
+                char.set_workplace(None, None)
+            set_location(char, None)
+
+        def sell_captured(self, char):
+            """
+            Sells off captured char from the jail for a flat price of 1500 Gold - the fees:
+            """
+            if not hero.take_ap(1):
+                return "You don't have enough AP left for this action!"
+
+            renpy.play("content/sfx/sound/world/purchase_1.ogg")
+            hero.add_money(1500 - self.get_fees4captured(char), "SlaveTrade")
+
+            self.captures.remove(char)
+            self.index[0] = 0
+
+            char.del_flag("release_day")
+            char.home = pytfall.sm
+            set_location(char, None)
+
+        def bail_char(self, char):
+            """Bails a prisoner from the jail.
+            """
+            if not hero.take_ap(1):
+                return "You don't have enough AP left for this action!"
+            price = self.get_bail(char)
+            if not hero.take_money(price, reason="Prisoner Bail"):
+                return "You don't have enough money to do this!"
+
+            renpy.play("content/sfx/sound/world/purchase_1.ogg")
+
+            self.cells.remove(char)
+            self.index[0] = 0
+
+            char.del_flag("sentence_type")
+            char.del_flag("release_day")
+
+            set_location(char, None)
+
+            if char in hero.chars:
+                char.disposition += randint(10, 40)
             else:
-                renpy.call_screen('message_screen', "You don't have enough AP left for this action!")
+                char.disposition += 50 + randint(price/10)
 
         def next_index(self):
             """
-            Sets the focus to the next girl.
+            Sets the focus to the next char.
             """
-            if self.chars_list:
-                index = self.chars_list.index(self.girl)
-                index = (index + 1) % len(self.chars_list)
-                self.girl = self.chars_list[index]
+            self.index[0] += 1
+            if self.index[0] == len(self.chars_list):
+                self.index[0] = 0
 
         def previous_index(self):
             """
-            Sets the focus to the previous girl.
+            Sets the focus to the previous char.
             """
-            if self.chars_list:
-                index = self.chars_list.index(self.girl)
-                index = (index - 1) % len(self.chars_list)
-                self.girl = self.chars_list[index]
+            self.index[0] -= 1
+            if self.index[0] < 0:
+                self.index[0] = len(self.chars_list) - 1
 
-        def remove_prisoner(self, girl, update_location=True):
-            """
-            Returns an actor to the player.
-            girl = The girl to return.
-            """
-            if girl in self:
-                girl.del_flag("sentence_type")
-                girl.del_flag("days_in_jail")
-                self.chars_list.remove(girl)
+        def get_char(self):
+            return self.chars_list[self.index[0]]
 
-                if self.chars_list:
-                    self.index %= len(self.chars_list)
-                    self.worker = self.chars_list[self.index]
-                else:
-                    self.index = 0
-                    self.worker = None
-
-                if update_location:
-                    girl.home = pytfall.city if girl.status == "free" else pytfall.streets
-                    set_location(girl, None)
-
-        # Deals with girls captured during SE:
-        def sell_captured(self, girl, auto=False):
-            # Flat price of 1500 Gold - the fees:
-            """
-            Sells off captured girl from the jail.
-            auto: Auto Selloff during next day.
-            """
-            if not auto:
-                if not hero.take_ap(1):
-                    renpy.call_screen('message_screen', "You don't have enough AP left for this action!")
-                    return
-                renpy.play("content/sfx/sound/world/purchase_1.ogg")
-                hero.add_money(1500 - self.get_fees4captured(girl), "SlaveTrade")
-
-            self.remove_prisoner(girl, False)
-            girl.home = pytfall.sm
-            set_location(girl, None)
+        def set_char(self, index):
+            self.index[0] = index
 
         def next_day(self):
-            for i in self.chars_list:
-                if i.flag("sentence_type") == "SE_capture":
-                    i.mod_flag("days_in_jail")
-                    if self.auto_sell_captured:
-                        # Auto-selloff through flag set in SE module
-                        # TODO se: Implement the button in SE!
-                        self.sell_captured(i, True)
-                        # pytfall.temp_text.append("Jail keepers sold off: {color=[red]}%s{/color}!" % i.name)
-                    if i.flag("days_in_jail") > 20:
-                        # Auto-Selloff in case of 20+ days:
-                        self.sell_captured(i, True)
-                        # pytfall.temp_text.append("Jail keepers sold off: {color=[red]}%s{/color}!" % i.name)
+            # auto-sell slaves if their time is expired
+            prisoners, frees = [], []
+            for char in self.slaves:
+                if char.flag("release_day") == day:
+                    frees.append(char)
+                else:
+                    prisoners.append(char)
+            if frees:
+                self.slaves = [0,]
+                for char in frees:
+                    char.del_flag("release_day")
+                    char.home = pytfall.sm
+                    set_location(char, None)
+                    if char in hero.chars:
+                        hero.remove_char(char)
+                        char.set_workplace(None, None)
+                        # FIXME notify the player
+                    # pytfall.temp_text.append("Jail keepers sold off: {color=[red]}%s{/color}!" % char.name)
+                self.slaves = prisoners
 
-        def get_fees4captured(self, girl):
+            # auto-sell the captured chars
+            prisoners, frees = [], []
+            for char in self.captures:
+                if char.flag("release_day") == day:
+                    frees.append(char)
+                else:
+                    prisoners.append(char)
+            if frees:
+                self.capt_index = [0,]
+                for char in frees:
+                    char.del_flag("release_day")
+                    char.home = pytfall.sm
+                    set_location(char, None)
+                    # pytfall.temp_text.append("Jail keepers sold off: {color=[red]}%s{/color}!" % char.name)
+                self.captures = prisoners
+
+            # release chars whose sentence is over
+            prisoners, frees = [], []
+            for char in self.cells:
+                char.joy -= randint(5, 10)
+                if char.flag("release_day") == day:
+                    frees.append(char)
+                else:
+                    prisoners.append(char)
+            if frees:
+                self.cell_index = [0,]
+                for char in frees:
+                    char.del_flag("release_day")
+                    set_location(char, None)
+                    if char in hero.chars:
+                        pass # FIXME notify the player!
+                    # If we know they're in jail
+                    #    txt.append("    %s, in jail for %s days"%(girl.fullname, days))
+                    #    if cdb: txt.append("{color=[blue]}    (%s days till escape){/color}"%(20-girl_away_days))
+                    #    txt.append("    %s"%girl.fullname)
+                    #    if cdb: txt.append("{color=[blue]}        in jail for %s days (%s days till escape){/color}"%(days, days)))
+
+                self.cells = prisoners
+
+            self.populate_chars_list()
+
+        def get_fees4captured(self, char):
             # 200 for registration with city hall + 30 per day for "rent"
-            return 200 + girl.flag("days_in_jail") * 30
+            return 200 + (20 + day - char.flag("release_day")) * 30
 
-        def retrieve_captured(self, girl, direction):
+        def retrieve_captured(self, char, direction):
             """
             Retrieve a captured character (during SE).
             We handle simple sell-off in a different method (self.sell_captured)
             """
-            if hero.take_ap(1):
-                base_price = self.get_fees4captured(girl)
-                if hero.take_money(base_price, reason="Jail Fees"):
-                    renpy.play("content/sfx/sound/world/purchase_1.ogg")
-                    if direction == "STinTD":
-                        self.remove_prisoner(girl, True)
-                    elif direction == "Blue":
-                        if hero.take_money(2000, reason="Blue's Fees"):
-                            pytfall.sm.blue_girls[girl] = 0
-                            self.remove_prisoner(girl, False)
-                        else:
-                            hero.add_money(base_price, reason="Jail Fees")
-                            renpy.call_screen('message_screen', "You don't have enough money for upfront payment for Blue's services!")
-                else:
-                    renpy.call_screen('message_screen', "You don't have enough money!")
+            if not hero.take_ap(1):
+                return "You don't have enough AP left for this action!"
+
+            blue_train = direction == "Blue"
+            base_price = self.get_fees4captured(char)
+            blue_price = 2000
+            if hero.gold < base_price:
+                return "You don't have enough money!"
+            if blue_train and hero.gold < base_price + blue_price:
+                return "You don't have enough money for upfront payment for Blue's services!"
+
+            renpy.play("content/sfx/sound/world/purchase_1.ogg")
+            hero.take_money(base_price, reason="Jail Fees")
+            if blue_train:
+                hero.take_money(blue_price, reason="Blue's Fees")
+                char.set_flag("release_day", day+30)
+                pytfall.sm.blue_slaves.append(char)
             else:
-                renpy.call_screen('message_screen', "You don't have enough AP left for this action!")
+                char.del_flag("release_day")
+                set_location(char, None)
+
+            
+            self.captures.remove(char)
+            self.capt_index = [0,]
 
     class RunawayManager(_object):
         """
@@ -292,20 +442,8 @@ init -9 python:
             Creates a new RunawwayManager.
             """
             self.girls = dict()
-            self.jail_cache = dict()
             self.look_cache = dict()
 
-            self.retrieve_jail = False
-
-            # Slavemarket stuff
-            self.girl = None
-            self.index = 0
-
-        def __contains__(self, girl):
-            """
-            Checks whether a girl has runaway.
-            """
-            return girl in self.girls
 
         def add(self, girl, jail=False):
             """
@@ -314,39 +452,17 @@ init -9 python:
             jail = Whether to add straight to jail.
             """
             if girl not in self:
-                self.girls[girl] = 0
                 for team in hero.teams:
                     if girl in team:
                         team.remove(girl)
-                girl_disobeys(girl, 10)
 
                 if jail:
-                    set_location(girl, pytfall.jail)
+                    pytfall.jail.add_slave(girl)
 
-                    self.jail_cache[girl] = [4, False]
-                    if self.girl is None:
-                        self.girl = girl
-                        self.index = 0
                 else:
+                    self.girls[girl] = 0
+                    #girl_disobeys(girl, 10)
                     set_location(girl, pytfall.ra)
-
-        def buy_girl(self):
-            """
-            Buys an escaped girl from the jail.
-            """
-            if hero.take_ap(1):
-                if hero.take_money(self.get_price(), reason="Slave Repurchase"):
-                    renpy.play("content/sfx/sound/world/purchase_1.ogg")
-                    self.retrieve(self.girl)
-
-                else:
-                    renpy.call_screen('message_screen', "You don't have enough money for this purchase!")
-
-            else:
-                renpy.call_screen('message_screen', "You don't have enough AP left for this action!!")
-
-            if not self.chars_list:
-                renpy.hide_screen("slave_shopping")
 
         def can_escape(self, girl, location, guards=None, girlmod=None, pos_traits=None,
                        neg_traits=["Restrained"], use_be=True, simulate=True, be_kwargs=None):
@@ -648,29 +764,6 @@ init -9 python:
             """
             return self.look_cache.pop(event.name, None)
 
-        def get_price(self):
-            """
-            Returns the price to retieve the girl.
-            """
-            # In case non-slaves escape, use 3000 as base price
-            base = self.girl.fin.get_price() or 3000
-            time = float(self.jail_cache[self.girl][0])
-            return int(base * (.75 - (.125 * time)))
-
-        def get_upkeep(self):
-            """
-            Return the upkeep cost for the girl.
-            """
-            return self.girl.fin.get_upkeep()
-
-        @property
-        def chars_list(self):
-            """
-            The list to use for the slavemarket interface.
-            """
-            if self.jail_cache: return self.jail_cache.keys()
-            else: return []
-
         def location_runaway(self, location, sutree=None):
             """
             Returns a runaway chance for the location.
@@ -679,7 +772,6 @@ init -9 python:
 
             Calculates the chance using:
             - The mod_runaway function if it exists.
-            - The sutree current / total, if it exists.
             - The amount of guards in the location, if the action exists.
             - The amount of warriors in the location
 
@@ -690,7 +782,7 @@ init -9 python:
             # Get runaway modifier
             mod = 0
 
-            # If location has own function, use it # TODO check upgrades
+            # If location has own function, use it # FIXME check upgrades and business!
             if hasattr(location, "mod_runaway"):
                 mod = location.mod_runaway()
 
@@ -729,7 +821,7 @@ init -9 python:
             """
             Solves the next day logic for the girls.
             """
-            type = "schoolndreport"
+            type = "runawayndreport"
             txt = ["Escaped girls:"]
 
             # Replace with better code to prevent mass-creation/destruction of events?
@@ -737,14 +829,6 @@ init -9 python:
             for i in self.look_cache.keys():
                 pytfall.world_events.kill_event(i, cached=True)
                 del self.look_cache[i]
-
-            # Clean jail_cache
-            for i in self.jail_cache.keys():
-                if self.jail_cache[i][0] == 0:
-                    del self.jail_cache[i]
-
-                else:
-                    self.jail_cache[i][0] -= 1
 
             # Loop through girls in a random order
             girls = list(self.girls.keys())
@@ -761,53 +845,40 @@ init -9 python:
                 status = self.status(girl)
                 if cdb: txt.append("{color=[blue]}        status: %s{/color}"%status)
 
-                # If girl is free
-                if girl not in self.jail_cache:
-                    # Chance to escape for good
-                    if girl_away_days > 20:
-                        if dice(status) and dice(girl_away_days):
-                            del self.girls[girl]
-                            hero.remove_char(girl)
-
-                            if cdb: txt.append("{color=[blue]}        escaped for good{/color}")
-                            continue
-
-                    # Chance to go to jail
-                    if girl_away_days > 10:
-                        if dice(status) and len(self.jail_cache) < 10:
-                            self.jail_cache[girl] = [4, False]
-
-                            if cdb: txt.append("{color=[blue]}        sent to jail for 4 days (%s days till escape){/color}"%(20-girl_away_days))
-                            continue
-
-                    # Chance to find in look_around
-                    if dice(status) and len(self.look_cache) < 5:
-                        ev = "runaway_look_around_%s"%str(girl)
-                        self.look_cache[ev] = girl
-                        # Add event for girl (do we want high priority?)
-                        register_event_in_label(ev, label=girl.runaway_look_event, trigger_type="look_around", locations=["all"], dice=status, max_runs=1, start_day=day+1, priority=999)
-
-                        if cdb: txt.append("{color=[blue]}        in look around (%s days till escape){/color}"%(20-girl_away_days))
+                # Chance to escape for good
+                if girl_away_days > 20:
+                    if dice(status) and dice(girl_away_days):
+                        del self.girls[girl]
+                        hero.remove_char(girl)
+                        char.home = pytfall.city
+                        set_location(char, None)
+                        char.set_workplace(None, None)
+                        char.status = "free"
+                        if cdb: txt.append("{color=[blue]}        escaped for good{/color}")
                         continue
 
-                    if cdb: txt.append("{color=[blue]}        %s days till escape{/color}"%(20-girl_away_days))
+                # Chance to go to jail
+                if girl_away_days > 10:
+                    if dice(status):
+                        del self.girls[girl]
+                        pytfall.jail.add_slave(char)
 
-                # Else if girl is jailed
-                else:
-                    # If we know they're in jail
-                    if self.jail_cache[girl][1]:
-                        txt.append("    %s, in jail for %s days"%(girl.fullname, self.jail_cache[girl][0]))
-                        if cdb: txt.append("{color=[blue]}    (%s days till escape){/color}"%(20-girl_away_days))
 
-                    # Else
-                    else:
-                        txt.append("    %s"%girl.fullname)
-                        if cdb: txt.append("{color=[blue]}        in jail for %s days (%s days till escape){/color}"%(self.jail_cache[girl], (20-girl_away_days)))
+                        if cdb: txt.append("{color=[blue]}        sent to jail.{/color}")
+                        continue
 
-            # Slavemarket update
-            self.index = 0
-            if self.jail_cache:
-                self.girl = self.chars_list[0]
+                # Chance to find in look_around
+                if dice(status) and len(self.look_cache) < 5:
+                    ev = "runaway_look_around_%s"%str(girl)
+                    self.look_cache[ev] = girl
+                    # Add event for girl (do we want high priority?)
+                    register_event_in_label(ev, label=girl.runaway_look_event, trigger_type="look_around", locations=["all"], dice=status, max_runs=1, start_day=day+1, priority=999)
+
+                    if cdb: txt.append("{color=[blue]}        in look around (%s days till escape){/color}"%(20-girl_away_days))
+                    continue
+
+                if cdb: txt.append("{color=[blue]}        %s days till escape{/color}"%(20-girl_away_days))
+
 
             # If we have escaped girls, post the event
             if self.girls:
@@ -818,19 +889,6 @@ init -9 python:
                 ev.txt = "\n".join(txt)
                 NextDayEvents.append(ev)
 
-        def next_index(self):
-            """
-            Sets the next index for the slavemarket.
-            """
-            self.index = (self.index+1) % len(self.chars_list)
-            self.girl = self.chars_list[self.index]
-
-        def previous_index(self):
-            """
-            Sets the previous index for the slavemarket.
-            """
-            self.index = (self.index-1) % len(self.chars_list)
-            self.girl = self.chars_list[self.index]
 
         def retrieve(self, girl):
             """
@@ -845,21 +903,8 @@ init -9 python:
                     del self.look_cache[ev]
                     pytfall.world_events.kill_event(ev)
 
-                if girl in self.jail_cache:
-                    del self.jail_cache[girl]
 
-                    if self.jail_cache:
-                        self.index %= len(self.jail_cache)
-                        self.girl = self.chars_list[self.index]
-
-                    else:
-                        self.index = 0
-                        self.girl = None
-
-                if girl.status == "slave":
-                    girl.home = pytfall.streets 
-                else:
-                    girl.home = pytfall.city
+                girl.home = pytfall.streets 
                 set_location(girl, None)
 
         def status(self, girl):

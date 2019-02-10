@@ -625,27 +625,29 @@ init -9 python:
             """
             if index in self._a: self._a.pop(index)
 
-        def slave_market(self, store, tt_text, button="Buy Slaves", null_button="N/A",
+        def slave_market(self, store, button="Buy Slaves", prep_actions=[],
+                         button_tooltip="Check today's offers!",
+                         null_button=None,
+                         null_condition="not pytfall.sm.chars_list",
                          buy_button="Purchase",
-                         buy_tt="You can buy this great girl for the sum of %s Gold!",
+                         buy_tooltip="You can buy this great girl for the sum of %s Gold!",
                          index="slave_market"):
             """
             Adds the default "Go Shopping" slave market action.
             store = The store interface to use.
-            tt_text = The default tooltip text.
             button = The text for the action button.
+            button_tooltip = The default tooltip text for the button.
             null_button = The text for the action button when no slaves are available.
             buy_button = The text for the buy girl button.
-            buy_tt = The tooltip for the buy girl button. Must contain 1 "%s" for the cost.
+            buy_tooltip = The tooltip for the buy girl button. Must contain 1 "%s" for the cost.
             index = The index to use. Defaults to "slave_market".
             """
+            prep_actions.extend((Show("slave_shopping", source=store,
+                                      buy_button=buy_button, buy_tt=buy_tooltip), With(dissolve)))
             self.add(index,
-                     WorldAction(button,
-                                 Show("slave_shopping", transition=Dissolve(1.0),
-                                      source=store, tt_text=tt_text,
-                                      buy_button=buy_button, buy_tt=buy_tt),
+                     WorldAction(button, action=prep_actions, tooltip=button_tooltip,
                                  null_button=null_button,
-                                 null_condition="not pytfall.sm.chars_list or not hero.AP"
+                                 null_condition=null_condition
                                  ))
 
         def tree(self, tree):
@@ -670,14 +672,12 @@ init -9 python:
 
             return level
 
-        def work(self, condition=True, index="work", name=None, returned="work"):
+        def work(self, condition=True, index="work", name="Work", returned="work"):
             """
-            Adds the default "Word" action.
+            Adds the default "Work" action.
             condition = The condition to check if the player can work here.
             index = The index to use. Defaults to "work".
             """
-            if not name:
-                name = "Work"
             self.add(index, WorldAction(name, Return(["control", returned]), condition=condition, null_button="Work", null_condition=Iff(S((hero, "AP")), "==", False)))
 
 
@@ -688,13 +688,14 @@ init -9 python:
 
         NO_EVENTS = "_events_not_found"
 
-        def __init__(self, button, action, label=None, cost=1,
+        def __init__(self, button, action, tooltip=None, label=None, cost=1,
                      condition=True, null_button=None, null_condition=None,
                      keysym=None):
             """
             Creates a new WorldAction.
             button = The label for the button.
             action = The string to use as an event trigger, or an actual screen action.
+            tooltip = Optional tooltip for the button
             label = The label to go to if no events are found for the event trigger.
             cost = The cost of the action in AP, only for event triggers.
             condition = The condition to check to see if the button should be shown.
@@ -705,6 +706,7 @@ init -9 python:
             """
             self.button = button
             self.action = action
+            self.tooltip = tooltip
             self.keysym = keysym
             self.label = label
             self.cost = cost
@@ -720,6 +722,7 @@ init -9 python:
             if not isinstance(other, WorldAction): return False
             if other.button != self.button: return False
             if other.action != self.action: return False
+            if other.tooltip != self.tooltip: return False
             if other.label != self.label: return False
             if other.cost != self.cost: return False
             if other.condition != self.condition: return False
@@ -770,11 +773,7 @@ init -9 python:
             """
             Whether this button should show its null variant.
             """
-            if self.null_button:
-                return solution(self.null_condition)
-
-            else:
-                return False
+            return self.null_condition is not None and solution(self.null_condition)
 
 
     class WorldActionMenu(Action):
@@ -1055,7 +1054,7 @@ screen location_actions(actions, girl=None, pos=(.98, .98), anchor=(1.0, 1.0), a
 screen action_button(a):
     if a.available:
         if a.is_null:
-            textbutton a.null_button:
+            textbutton str(a.null_button or a.button):
                 xsize 200
                 action NullAction(insensitive=True)
         elif isinstance(a, WorldAction) and a.is_event_trigger:

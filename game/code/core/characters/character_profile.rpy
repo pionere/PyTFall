@@ -79,7 +79,7 @@ label char_profile:
 
         if isinstance(result, (list, tuple)):
             # If the girl has runaway
-            if char in pytfall.ra:
+            if char.location == pytfall.ra:
                 if result[0] == "girl":
                     if result[1] == "gallery":
                         $ tl.start("Loading Gallery")
@@ -884,7 +884,7 @@ screen char_control():
             style_group "basic"
             align (.55, .5)
             if isinstance(char, PytGroup):
-                if char not in pytfall.ra:
+                if char.location != pytfall.ra:
                     button:
                         xysize (200, 32)
                         style_group "basic"

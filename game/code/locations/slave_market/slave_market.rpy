@@ -39,7 +39,7 @@ label slave_market:
             g "Hah? And who might you be?!"
             "Just want to check out the slave market":
                 g "Oh? We didn't expect to see any customers here so early."
-            "You should not be so hard on those girls":
+            "You should not be so hard on those poor creatures":
                 g "DON'T TELL ME HOW TO DO MY JOB YOU @$$#^*!!!"
                 extend " ... but I guess that since you had to witness that, I'll let this slide."
             "Omg stfu I just need to test something!" if config.developer:
@@ -87,20 +87,16 @@ label slavel_market_controls:
     python:
         # Build the actions
         if pytfall.world_actions.location("slave_market"):
-            pytfall.world_actions.add(3, "Find Blue", Jump("blue_menu"), condition=Iff(global_flag_complex("visited_sm")))
-            pytfall.world_actions.work(Iff(global_flag_complex("visited_sm")), index=100)
-            pytfall.world_actions.work(Iff(global_flag_complex("visited_sm")),
-                                       index=101, name="Work all day", returned="mc_action_work_in_slavemarket_all_day")
-            pytfall.world_actions.slave_market(pytfall.sm, "Get these girls while they're still Young and Hot!",
-                                                index=0)
-
+            pytfall.world_actions.slave_market(pytfall.sm, index=0)
             pytfall.world_actions.add(1, "Free Slaves", Jump("sm_free_slaves"))
+            pytfall.world_actions.add(2, "Find Blue", Jump("blue_menu"), condition=Iff(global_flag_complex("visited_sm")))
+            pytfall.world_actions.work(Iff(global_flag_complex("visited_sm")),
+                                       index=100, name="Work all day", returned="mc_action_work_in_slavemarket_all_day")
+
             pytfall.world_actions.look_around(index=1000)
             pytfall.world_actions.finish()
 
     scene bg slave_market
-
-    $ pytfall.sm.set_index()
 
     show screen slavemarket
     with fade
@@ -113,32 +109,14 @@ label slavel_market_controls:
         $ result = ui.interact()
 
         if result[0] == "buy":
-            $ char = pytfall.sm.girl
-            if hero.AP > 0 and hero.take_money(char.fin.get_price(), reason="Slave Purchase"):
-                play sound "content/sfx/sound/world/purchase_1.ogg"
-                $ hero.AP -= 1
-                $ hero.add_char(char)
-                $ char.set_workplace(None, None)
-                $ char.home = pytfall.streets
-                $ char.set_location(char, None)
-                $ pytfall.sm.chars_list.remove(char)
-
-                if pytfall.sm.chars_list:
-                    $ pytfall.sm.girl = choice(pytfall.sm.chars_list)
-                    $ pytfall.sm.index = pytfall.sm.chars_list.index(pytfall.sm.girl)
-                else:
-                    $ pytfall.sm.girl = None
-
-                if not hero.AP:
-                    $ renpy.hide_screen("slave_shopping")
-                    $ Return(("control", "return"))()
-            else:
-                call screen message_screen("You don't have enough money for this purchase!")
+            $ char = pytfall.sm.get_char()
+            $ msg = pytfall.sm.buy_slave(char)
+            if msg:
+                call screen message_screen(msg)
 
             if not pytfall.sm.chars_list:
                 hide screen slave_shopping
-
-        if result[0] == "control":
+        elif result[0] == "control":
             if result[1] == "work":
                 $ use_ap = 1
                 jump mc_action_work_in_slavemarket
@@ -151,8 +129,6 @@ label slavel_market_controls:
             elif result[1] == "return":
                 if not renpy.get_screen("slave_shopping"):
                     $ loop = False
-
-        $ renpy.hide("_tag")
 
     $ renpy.music.stop(channel="world")
     hide screen slavemarket
@@ -221,7 +197,7 @@ label sm_free_slaves:
                     $ our_char.autobuy = True
                     $ our_char.home = pytfall.city
                     $ set_location(our_char, None)
-                    # We give about a third of cash to the girl. Idea is that the rest goes to pay
+                    # We give about a third of cash to the ex-slave. Idea is that the rest goes to pay
                     # for a place to live and covering basic needs.
                     $ our_char.add_money(round_int((cost-1000)/3), "Freedom Fee")
                     "[our_char.name] is now a very grateful free citizen! She will also keep about a third of the fee for shopping needs!"
@@ -288,14 +264,15 @@ label blue_menu:
                 if not global_flags.flag("blue_cg"):
                     g "So, you now own an Exploration Guild?"
                     g "Well done, it's a well-known source of slaves of all kinds."
-                    g "Once a fresh girl is processed in the jail and registered with the authorities, I can train her to obey and do her job."
+                    g "Once a fresh slave is processed in the jail and registered with the authorities, I can train her to obey and do her job."
                     g "I don't train for any specific task but rather uncover their hidden talents. My price is 2000 Gold to be paid up front."
                     g "The training will take 30 days, and you don't have to worry because I always deliver :)"
                     $ global_flags.set_flag("blue_cg")
                 else:
-                    if pytfall.sm.blue_girls:
-                        $ var = plural("girl", len(pytfall.sm.blue_girls))
-                        g "I am currently training [var] girls for you."
+                    if pytfall.sm.blue_slaves:
+                        $ num = len(pytfall.sm.blue_slaves)
+                        $ var = plural("slave", num)
+                        g "I am currently training [num] [var] for you."
                         g "Don't worry. They'll all be ready as promised."
                     else:
                         g "I'll train anyone, without fail! Just send them my way!"
@@ -313,12 +290,12 @@ screen slavemarket():
 
     use location_actions("slave_market")
 
-screen slave_shopping(source, tt_text, buy_button, buy_tt):
+screen slave_shopping(source, buy_button, buy_tt):
     modal True
     zorder 1
 
     if source.chars_list:
-        $ char = source.girl
+        $ char = source.get_char()
 
         # Data (Left Frame): =============================================================================>>>
         frame:
@@ -491,42 +468,41 @@ screen slave_shopping(source, tt_text, buy_button, buy_tt):
         frame:
             pos (928, 41)
             style_group "content"
-            xysize (350, 334)
+            xysize (350, 361)
             background Frame(Transform("content/gfx/frame/p_frame53.png", alpha=.98), 10, 10)
-            has vbox align (.5, .5)
+            has vbox xalign .5 #ypos 5
             null height 5
             label (u"{size=20}{color=[ivory]}{b}Visible Traits") xalign .5 text_outlines [(2, "#424242", 0, 0)]
             null height 5
+            $ temp = list(t for t in char.traits if t.market and not t.hidden)
             frame:
                 left_padding 15
                 ypadding 10
                 xsize 226
                 background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
-                has viewport xysize (210, 253) draggable True mousewheel True scrollbars "vertical"
+                has viewport xysize (210, min(260, 26 * len(temp))) draggable True mousewheel True scrollbars "vertical"
                 vbox:
                     xalign .5
                     style_group "proper_stats"
                     spacing 1
-                    for trait in list(t for t in char.traits if any([t.market])):
-                        if not trait.hidden:
-                            frame:
+                    for trait in temp:
+                        frame:
+                            xysize (195, 25)
+                            button:
+                                background Null()
                                 xysize (195, 25)
-                                button:
-                                    background Null()
-                                    xysize (195, 25)
-                                    action NullAction()
-                                    if len(trait.id) < 15:
-                                        text trait.id idle_color bisque size 18 align .5, .5 hover_color crimson text_align .5
-                                    else:
-                                        text trait.id idle_color bisque size 15 align .5, .5 hover_color crimson text_align .5
-                                    tooltip trait.desc
-                                    hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
+                                action NullAction()
+                                text trait.id idle_color bisque size 18 align .5, .5 hover_color crimson text_align .5:
+                                    if len(trait.id) >= 15:
+                                        size 15
+                                tooltip trait.desc
+                                hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
 
         # Buttons:
         frame:
             background Frame(Transform("content/gfx/frame/p_frame53.png", alpha=.98), 10, 10)
             xpadding 5
-            pos(928, 370)
+            pos(928, 397)
             xsize 350
             hbox:
                 xalign .5
@@ -536,15 +512,13 @@ screen slave_shopping(source, tt_text, buy_button, buy_tt):
                     idle img
                     hover (im.MatrixColor(img, im.matrix.brightness(.15)))
                     action (Function(source.previous_index))
-                    tooltip "<== Previous Girl"
+                    tooltip "Previous Slave"
 
                 null width 10
 
                 frame:
                     align(.5, .5)
                     style_group "dropdown_gm"
-                    has vbox
-
                     # Decided to handle it on screen level since code required for this can get a bit messy when going through actions:
                     if source == pytfall.jail and char.flag("sentence_type") == "SE_capture":
                         textbutton "Retrieve":
@@ -554,8 +528,8 @@ screen slave_shopping(source, tt_text, buy_button, buy_tt):
                     else:
                         textbutton "[buy_button]":
                             xsize 150
-                            action Function(pytfall.sm.buy_girl, char)
-                            tooltip "" + buy_tt % char.fin.get_price()
+                            action Return(['buy', char])
+                            tooltip buy_tt % source.get_price(char)
 
                 null width 10
 
@@ -565,7 +539,7 @@ screen slave_shopping(source, tt_text, buy_button, buy_tt):
                     idle img
                     hover (im.MatrixColor(img, im.matrix.brightness(.15)))
                     action (Function(source.next_index))
-                    tooltip "Next Girl ==>"
+                    tooltip "Next Slave"
 
         # Girl choice:
         frame:
@@ -574,22 +548,22 @@ screen slave_shopping(source, tt_text, buy_button, buy_tt):
             background Frame(Transform("content/gfx/frame/p_frame53.png", alpha=.98), 10, 10)
             side "c t":
                 yoffset -2
-                viewport id "sm_vp_glist":
+                viewport id "sm_vp_list":
                     xysize 1001, 230
                     draggable True
                     mousewheel True
                     edgescroll [100, 200]
                     has hbox spacing 5
-                    for c in source.chars_list:
+                    for idx, c in enumerate(source.chars_list):
                         $ img = c.show("vnsprite", resize=(180, 206), cache=True)
                         frame:
                             background Frame("content/gfx/frame/Mc_bg3.png", 10, 10)
                             imagebutton:
                                 idle img
                                 hover (im.MatrixColor(img, im.matrix.brightness(.15)))
-                                action Function(source.set_girl, c)
+                                action Function(source.set_char, idx)
                                 tooltip u"{=proper_stats_text}%s\n{size=-5}{=proper_stats_value_text}%s"%(c.name, c.desc)
-                bar value XScrollValue("sm_vp_glist")
+                bar value XScrollValue("sm_vp_list")
 
     use top_stripe(show_return_button=True, return_button_action=[Hide("slave_shopping"), With(dissolve)], show_lead_away_buttons=False)
 

@@ -930,6 +930,12 @@ label after_load:
             pytfall.afterlife.daily_modifier = pytfall.afterlife._daily_modifier
             del pytfall.afterlife._daily_modifier
 
+            pytfall.jail.daily_modifier = pytfall.jail._daily_modifier
+            del pytfall.jail._daily_modifier
+
+            pytfall.sm.daily_modifier = pytfall.sm._daily_modifier
+            del pytfall.sm._daily_modifier
+
             cities = (store.locations["City"], pytfall.city)
             for c in itertools.chain([hero], chars.values(), hero.chars, npcs.values()):
                 if c.location in cities:
@@ -938,6 +944,26 @@ label after_load:
                     c.location = None
                 if c.location == RunawayManager.LOCATION:
                     c.location = pytfall.ra
+
+            if hasattr(pytfall.sm, "type"):
+                del pytfall.sm.type
+            if hasattr(pytfall.sm, "girl"):
+                del pytfall.sm.girl
+                pytfall.sm.index = 0
+                del pytfall.sm.blue_girls
+                pytfall.sm.blue_slaves = list()
+
+                pytfall.jail.index = None
+                pytfall.jail.slaves = list()            # caught runaway slaves currently for sale
+                pytfall.jail.slave_index = [0,]         # the selected slave
+                pytfall.jail.slave_restock_day = day
+
+                pytfall.jail.captures = list()          # captured characters from SE
+                pytfall.jail.capt_index = [0,]          # the selected captured char
+
+                pytfall.jail.cells = list()             # civilian prisoners
+                pytfall.jail.cell_index = [0,]          # the selected prisoner
+                pytfall.jail.cell_restock_day = day
 
             del store.locations
 

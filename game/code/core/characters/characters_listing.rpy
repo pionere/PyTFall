@@ -265,7 +265,9 @@ screen chars_list():
                                         status_img = "content/gfx/interface/icons/free.png"
                                 elif c.action == simple_jobs["Exploring"]:
                                     status_img = "content/gfx/interface/icons/exploring.png"
-                                elif c in pytfall.ra:
+                                elif c.location == pytfall.jail:
+                                    status_img = "content/gfx/interface/icons/arena.png"
+                                elif c.location == pytfall.ra:
                                     status_img = "content/gfx/interface/images/MC/reflexes.png"
                                 elif not c.alive:
                                     status_img = "content/gfx/interface/icons/gravestone.png"
