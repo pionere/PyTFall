@@ -36,7 +36,7 @@ label mainscreen:
                                  "content/gfx/images/m_2.webp",
                                  "content/gfx/images/fishy.png",
                                  "content/gfx/interface/buttons/compass.png",
-                                 "content/gfx/interface/buttons/IT2.png",
+                                 #"content/gfx/interface/buttons/IT2.png",
                                  "content/gfx/interface/buttons/sl_idle.png",
                                  "content/gfx/interface/icons/exp.webp",
                                  "content/gfx/interface/icons/gold.png",
@@ -57,13 +57,12 @@ label mainscreen:
     while 1:
         $ result = ui.interact()
 
-        if len(result) > 1:
-            python:
-                pytfall.sm.set_index()
-                renpy.hide_screen("mainscreen")
-                pytfall.arena.seen_report = True
-                jump(result[1])
-        elif result[0] == "chars_list":
+        #if len(result) > 1:
+        #    python:
+        #        renpy.hide_screen("mainscreen")
+        #        pytfall.arena.seen_report = True
+        #        jump(result[1])
+        if result[0] == "chars_list":
             stop world
             $ renpy.hide_screen("mainscreen")
             $ pytfall.arena.seen_report = True
@@ -87,7 +86,7 @@ screen mainscreen():
     key "mousedown_3" action Show("s_menu", transition=dissolve)
 
     # Main pic:
-    add im.Scale("content/gfx/bg/main_brothel.webp", config.screen_width, config.screen_height-40) at fade_from_to(.0, 1.0, 2.0) ypos 40
+    add im.Scale("content/gfx/bg/main_brothel.webp", config.screen_width, config.screen_height-40) at fade_from_to(.0, 1.0, (2.0 if fadein else 0.5)) ypos 40
 
     frame:
         align (.995, .88)
@@ -98,9 +97,9 @@ screen mainscreen():
 
         add "".join(["content/gfx/interface/images/calendar/","cal ", calendar.moonphase(), ".png"]) xalign .485 ypos 83
 
-        text "{font=fonts/TisaOTM.otf}{k=-1}{color=#FFEC8B}{size=18}%s" % calendar.weekday() xalign .5 ypos 210
+        text "%s" % calendar.weekday() color khaki font 'fonts/TisaOTM.otf' size 18 kerning -1 xalign .5 ypos 210
 
-        text "{font=fonts/TisaOTM.otf}{k=-0.5}{color=#FFEC8B}{size=18}%s" % calendar.string() xalign .5 ypos 250
+        text "%s" % calendar.string() color khaki font 'fonts/TisaOTM.otf' size 18 kerning -1 xalign .5 ypos 250
 
         vbox:
             style_group "main_screen_3"
@@ -119,26 +118,29 @@ screen mainscreen():
 
             null height 5
             if day > 1:
-                $ img = ProportionalScale(ImageReference("journal"), 40, 40)
-                imagebutton:
+                hbox:
                     xalign .5
-                    idle img
-                    hover im.MatrixColor(img, im.matrix.brightness(.15))
-                    tooltip "PyTFall's GAZETTE"
-                    action ToggleField(gazette, "show")
+                    spacing 30
+                    $ img = ProportionalScale("content/gfx/interface/images/merchant2.png", 40, 40)
+                    imagebutton:
+                        idle img
+                        hover im.MatrixColor(img, im.matrix.brightness(.15))
+                        tooltip "Review Reports!"
+                        action SetVariable("just_view_next_day", True), Hide("mainscreen"), Jump("next_day")
+                    $ img = ProportionalScale(ImageReference("journal"), 40, 40)
+                    imagebutton:
+                        idle img
+                        hover im.MatrixColor(img, im.matrix.brightness(.15))
+                        tooltip "PyTFall's GAZETTE"
+                        action ToggleField(gazette, "show")
             else:
                 null height 40
             null height 5
 
             textbutton "-Next Day-":
                 style "main_screen_4_button"
-                if day > 1:
-                    tooltip "Advance to next day!\nClick RMB to review reports!"
-                    action [Hide("mainscreen"), Jump("next_day")]
-                    alternate SetVariable("just_view_next_day", True), Hide("mainscreen"), Jump("next_day")
-                else:
-                    tooltip "Advance to next day!"
-                    action [Hide("mainscreen"), Jump("next_day")]
+                tooltip "Advance to next day!"
+                action [Hide("mainscreen"), Jump("next_day")]
 
     if DEBUG:
         vbox:

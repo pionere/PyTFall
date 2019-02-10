@@ -1272,7 +1272,7 @@ screen next_day():
                     textbutton "-Next Day-":
                         style "main_screen_4_button"
                         tooltip "Begin New day and watch the results."
-                        action [Hide("mainscreen"), Return(['control', "next_day_local"])]
+                        action Return(['control', "next_day_local"])
                         text_size 16
                         ypadding 5
                         xysize (150, 40)

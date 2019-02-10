@@ -146,7 +146,7 @@ screen city_jail_cells():
                     spacing 1
                     hbox:
                         xsize 220
-                        $ days = char.flag("release_day") - day
+                        $ days = char.flag("release_day") - day + 1
                         text "Remaining time:" xpos 2
                         text "%s %s" % (days, plural("day", days)) xalign .85
                     hbox:
