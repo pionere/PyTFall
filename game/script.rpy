@@ -825,6 +825,10 @@ label after_load:
                     del char.status_overlay
                 if hasattr(char, "besprite_size"):
                     del char.besprite_size
+                if hasattr(char, "_available"):
+                    del char._available
+                if hasattr(char, "alive"):
+                    del char.alive
                 if getattr(char._action, "id", None) == "Manager":
                     char._action = simple_jobs["Manager"]
 

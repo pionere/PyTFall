@@ -161,10 +161,6 @@ init -9 python:
             self.magic_skills = SmartTracker(self)  # Magic Skills
             self.default_attack_skill = battle_skills["Fist Attack"] # This can be overwritten on character creation!
 
-            # Game world status:
-            self.alive = True
-            self._available = True
-
             # Action tracking (AutoRest job for instance):
             self.previousaction = None
 
@@ -252,13 +248,13 @@ init -9 python:
         @property
         def is_available(self):
             # False if we cannot reach the character.
-            if not self.alive:
+            if self.home == pytfall.afterlife:
                 return False
             if self.action == simple_jobs["Exploring"]:
                 return False
             if self.location in (pytfall.ra, pytfall.jail):
                 return False
-            return self._available
+            return True
 
         @property
         def basetraits(self):

@@ -269,7 +269,7 @@ screen chars_list():
                                     status_img = "content/gfx/interface/icons/arena.png"
                                 elif c.location == pytfall.ra:
                                     status_img = "content/gfx/interface/images/MC/reflexes.png"
-                                elif not c.alive:
+                                elif c.home == pytfall.afterlife:
                                     status_img = "content/gfx/interface/icons/gravestone.png"
                                 else:
                                     status_img = "content/gfx/interface/icons/question.png"
