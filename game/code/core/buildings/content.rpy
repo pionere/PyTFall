@@ -210,14 +210,18 @@ init -9 python:
             self.captures.append(char)
 
         def add_prisoner(self, char, sentence, days):
-            """Adds a char to the jail.
+            """Sends a char to the jail, but bails them out if they can afford it.
 
             char: Character to throw into Jail
             sentence: Sentence type (reason to put in Jail)
             days: the length of the sentence
             """
-            char.set_flag("sentence_type", sentence)
             char.set_flag("release_day", day + days)
+            if char.take_money(self.get_bail(char), "Bail:%s" % sentence):
+                char.del_flag("release_day")
+                return False
+
+            char.set_flag("sentence_type", sentence)
             set_location(char, self)
             self.cells.append(char)
             #self.cell_index = [0,]
