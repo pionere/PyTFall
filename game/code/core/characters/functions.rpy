@@ -159,7 +159,6 @@ init -11 python:
         char.home = pytfall.afterlife
         char.location = None
         char.set_workplace(None, None)
-        char.alive = False
         if char in hero.chars:
             hero.remove_char(char)
         gm.remove_girl(char)
