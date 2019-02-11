@@ -180,6 +180,8 @@ init -6 python: # Guild, Tracker and Log.
             for i in self.found_items:
                 item = items[i]
                 hero.add_item(item)
+            for char in self.captured_chars:
+                pytfall.jail.add_capture(char)
 
             found_items = collections.Counter(self.found_items)
             cash_earned = sum(self.cash)

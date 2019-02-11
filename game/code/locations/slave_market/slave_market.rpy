@@ -468,25 +468,26 @@ screen slave_shopping(source, buy_button, buy_tt):
         frame:
             pos (928, 41)
             style_group "content"
-            xysize (350, 361)
+            xysize (350, 351)
             background Frame(Transform("content/gfx/frame/p_frame53.png", alpha=.98), 10, 10)
             has vbox xalign .5 #ypos 5
             null height 5
             label (u"{size=20}{color=[ivory]}{b}Visible Traits") xalign .5 text_outlines [(2, "#424242", 0, 0)]
             null height 5
             $ temp = list(t for t in char.traits if t.market and not t.hidden)
+            $ long = len(temp) > 10
             frame:
                 left_padding 15
                 ypadding 10
-                xsize 226
+                #xsize 226
                 background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
-                has viewport xysize (210, min(260, 26 * len(temp))) draggable True mousewheel True scrollbars "vertical"
+                has viewport xysize ((210 if long else 200), min(260, 26 * len(temp))) draggable long mousewheel long scrollbars ("vertical" if long else None)
                 vbox:
-                    xalign .5
                     style_group "proper_stats"
                     spacing 1
                     for trait in temp:
                         frame:
+                            xalign .5
                             xysize (195, 25)
                             button:
                                 background Null()
@@ -500,11 +501,12 @@ screen slave_shopping(source, buy_button, buy_tt):
 
         # Buttons:
         frame:
+            pos(928, 387)
+            style_group "content"
+            xysize (350, 73)
             background Frame(Transform("content/gfx/frame/p_frame53.png", alpha=.98), 10, 10)
-            xpadding 5
-            pos(928, 397)
-            xsize 350
             hbox:
+                ysize 63
                 xalign .5
                 $ img=im.Scale("content/gfx/interface/buttons/arrow_button_metal_gold_left.png", 50, 50)
                 imagebutton:
@@ -519,17 +521,21 @@ screen slave_shopping(source, buy_button, buy_tt):
                 frame:
                     align(.5, .5)
                     style_group "dropdown_gm"
-                    # Decided to handle it on screen level since code required for this can get a bit messy when going through actions:
-                    if source == pytfall.jail and char.flag("sentence_type") == "SE_capture":
-                        textbutton "Retrieve":
+                    padding (5, 5)
+                    has vbox
+                    $ text_s = 20
+                    if source.chars_list == pytfall.jail.captures:
+                        $ text_s = 14
+                        textbutton "Sell":
                             xsize 150
-                            action Show("se_captured_retrieval")
-                            tooltip "Retrieve %s for % gold." % (char.name, source.get_fees4captured(char))
-                    else:
-                        textbutton "[buy_button]":
-                            xsize 150
-                            action Return(['buy', char])
-                            tooltip buy_tt % source.get_price(char)
+                            text_size text_s
+                            action Function(pytfall.jail.sell_captured, char)
+                            tooltip "Sell %s for %d Gold." % (char.name, source.sell_price(char))
+                    textbutton "[buy_button]":
+                        xsize 150
+                        text_size text_s
+                        action Return(['buy', char])
+                        tooltip buy_tt % source.get_price(char)
 
                 null width 10
 
@@ -549,7 +555,7 @@ screen slave_shopping(source, buy_button, buy_tt):
             side "c t":
                 yoffset -2
                 viewport id "sm_vp_list":
-                    xysize 1001, 230
+                    xysize 1003, 238
                     draggable True
                     mousewheel True
                     edgescroll [100, 200]
@@ -557,6 +563,7 @@ screen slave_shopping(source, buy_button, buy_tt):
                     for idx, c in enumerate(source.chars_list):
                         $ img = c.show("vnsprite", resize=(180, 206), cache=True)
                         frame:
+                            yalign .5
                             background Frame("content/gfx/frame/Mc_bg3.png", 10, 10)
                             imagebutton:
                                 idle img
@@ -566,28 +573,3 @@ screen slave_shopping(source, buy_button, buy_tt):
                 bar value XScrollValue("sm_vp_list")
 
     use top_stripe(show_return_button=True, return_button_action=[Hide("slave_shopping"), With(dissolve)], show_lead_away_buttons=False)
-
-screen se_captured_retrieval(pos=(900, 300)):
-    # Not Used atm.
-    zorder 3
-    modal True
-
-    key "mousedown_4" action NullAction()
-    key "mousedown_5" action NullAction()
-
-    python:
-        x, y = pos
-        xval, yval = 1.0, 0
-    frame:
-        style_group "dropdown"
-        pos (x, y)
-        anchor (xval, yval)
-        vbox:
-            textbutton "Sell!":
-                action Function(pytfall.jail.sell_captured, char, False), renpy.restart_interaction, Hide("se_captured_retrieval")
-            if global_flags.flag("blue_cg"):
-                textbutton "Train with Blue!":
-                    action Function(pytfall.jail.retrieve_captured, char, "Blue"), Hide("se_captured_retrieval"), With(dissolve)
-            textbutton "Close":
-                action Hide("se_captured_retrieval"), With(dissolve)
-                keysym "mousedown_3"

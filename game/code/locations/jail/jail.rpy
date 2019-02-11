@@ -16,7 +16,7 @@ label city_jail:
             pytfall.world_actions.slave_market(pytfall.jail, button="Captured Slaves",
                                                button_tooltip="Sell or acquire the slaves captured by your explorers.",
                                                null_condition="not pytfall.jail.captures",
-                                               buy_button="Retrieve", buy_tooltip="Acquire this girl by paying %s Gold.",
+                                               buy_button="Train with Blue!", buy_tooltip="Train then acquire this girl by paying %s Gold.",
                                                prep_actions=[Function(pytfall.jail.switch_mode, "captures")],
                                                index=1)
             pytfall.world_actions.add(2, "Browse Cells",
@@ -49,6 +49,17 @@ label city_jail:
 
             if not pytfall.jail.chars_list:
                 hide screen city_jail_cells
+        elif result[0] == "buy":
+            $ char = result[1]
+            if pytfall.jail.chars_list == pytfall.jail.slaves:
+                $ msg = pytfall.jail.buy_slave(char)
+            else:
+                $ msg = pytfall.jail.retrieve_captured(char, "Blue")
+            if msg:
+                call screen message_screen(msg)
+
+            if not pytfall.jail.chars_list:
+                hide screen slave_shopping
 
         elif result[0] == "control":
             if result[1] == "return":
@@ -133,7 +144,7 @@ screen city_jail_cells():
             background Frame(Transform("content/gfx/frame/p_frame53.png", alpha=.98), 10, 10)
             has vbox xalign .5 #ypos 5
             null height 5
-            label (u"{size=20}{color=[ivory]}{b}Details:") xalign .5 text_outlines [(2, "#424242", 0, 0)]
+            label "Details:" xalign .5 text_color ivory text_size 20 text_bold True text_outlines [(2, "#424242", 0, 0)]
             null height 5
             frame:
                 left_padding 15
@@ -198,7 +209,7 @@ screen city_jail_cells():
             side "c t":
                 yoffset -2
                 viewport id "jail_vp_list":
-                    xysize 1256, 230
+                    xysize 1256, 238
                     draggable True
                     mousewheel True
                     edgescroll [100, 200]

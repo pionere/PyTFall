@@ -165,8 +165,6 @@ init -9 python:
                         del pytfall.ra.girls[c]
                     self.add_slave(c)
 
-                gazette.other.append("ReMoVe Me AnD dO nOt CoMmIt!!! %d" % len(self.slaves))
-
             if day >= self.cell_restock_day:
                 # populate the list of free prisoners
                 self.cell_restock_day += locked_random("randint", 2, 3)
@@ -197,8 +195,6 @@ init -9 python:
                     sentence = PUNISHABLE_TRAITS[c[1]]
                     self.add_prisoner(char, sentence[0], randint(*sentence[1]))
                     # FIXME notify the player about the event
-
-                gazette.other.append("!!!ReMoVe Me dO nOt CoMmIt!!! %d" % len(self.cells))
 
         def add_slave(self, char):
             set_location(char, self)
@@ -233,12 +229,21 @@ init -9 python:
                 return True
             return False
 
+        def get_fees4captured(self, char):
+            # 200 for registration with city hall + 30 per day for "rent"
+            return 200 + (20 + day - char.flag("release_day")) * 30
 
         def get_price(self, slave):
             """
             Returns the price to retrieve the slave.
             """
-            return int(slave.fin.get_price() * .9)
+            if self.chars_list == self.slaves:
+                return int(slave.fin.get_price() * .8)
+            else: # self.chars_list == self.captures
+                return self.get_fees4captured(slave) + 2000
+
+        def sell_price(self, slave):
+            return max(50, slave.fin.get_price()/4 - self.get_fees4captured(slave))
 
         def get_bail(self, char):
             """
@@ -271,7 +276,7 @@ init -9 python:
                 return "You don't have enough AP left for this action!"
 
             renpy.play("content/sfx/sound/world/purchase_1.ogg")
-            hero.add_money(1500 - self.get_fees4captured(char), "SlaveTrade")
+            hero.add_money(self.sell_price(char), "SlaveTrade")
 
             self.captures.remove(char)
             self.index[0] = 0
@@ -279,6 +284,35 @@ init -9 python:
             char.del_flag("release_day")
             char.home = pytfall.sm
             set_location(char, None)
+
+        def retrieve_captured(self, char, direction):
+            """
+            Retrieve a captured character (during SE).
+            We handle simple sell-off in a different method (self.sell_captured)
+            """
+            if not hero.take_ap(1):
+                return "You don't have enough AP left for this action!"
+
+            blue_train = direction == "Blue"
+            base_price = self.get_fees4captured(char)
+            blue_price = 2000
+            if hero.gold < base_price:
+                return "You don't have enough money!"
+            if blue_train and hero.gold < base_price + blue_price:
+                return "You don't have enough money for upfront payment for Blue's services!"
+
+            renpy.play("content/sfx/sound/world/purchase_1.ogg")
+            hero.take_money(base_price, reason="Jail Fees")
+            if blue_train:
+                hero.take_money(blue_price, reason="Blue's Fees")
+                char.set_flag("release_day", day+30)
+                pytfall.sm.blue_slaves.append(char)
+            else:
+                char.del_flag("release_day")
+                set_location(char, None)
+
+            self.captures.remove(char)
+            self.index[0] = 0
 
         def bail_char(self, char):
             """Bails a prisoner from the jail.
@@ -379,48 +413,15 @@ init -9 python:
                     if char in hero.chars:
                         pass # FIXME notify the player!
                     # If we know they're in jail
-                    #    txt.append("    %s, in jail for %s days"%(girl.fullname, days))
+                    #    txt.append("    %s, in jail for %s days"%(char.fullname, days))
                     #    if cdb: txt.append("{color=[blue]}    (%s days till escape){/color}"%(20-girl_away_days))
-                    #    txt.append("    %s"%girl.fullname)
+                    #    txt.append("    %s"%char.fullname)
                     #    if cdb: txt.append("{color=[blue]}        in jail for %s days (%s days till escape){/color}"%(days, days)))
 
                 self.cells = prisoners
 
             self.populate_chars_list()
 
-        def get_fees4captured(self, char):
-            # 200 for registration with city hall + 30 per day for "rent"
-            return 200 + (20 + day - char.flag("release_day")) * 30
-
-        def retrieve_captured(self, char, direction):
-            """
-            Retrieve a captured character (during SE).
-            We handle simple sell-off in a different method (self.sell_captured)
-            """
-            if not hero.take_ap(1):
-                return "You don't have enough AP left for this action!"
-
-            blue_train = direction == "Blue"
-            base_price = self.get_fees4captured(char)
-            blue_price = 2000
-            if hero.gold < base_price:
-                return "You don't have enough money!"
-            if blue_train and hero.gold < base_price + blue_price:
-                return "You don't have enough money for upfront payment for Blue's services!"
-
-            renpy.play("content/sfx/sound/world/purchase_1.ogg")
-            hero.take_money(base_price, reason="Jail Fees")
-            if blue_train:
-                hero.take_money(blue_price, reason="Blue's Fees")
-                char.set_flag("release_day", day+30)
-                pytfall.sm.blue_slaves.append(char)
-            else:
-                char.del_flag("release_day")
-                set_location(char, None)
-
-            
-            self.captures.remove(char)
-            self.capt_index = [0,]
 
     class RunawayManager(_object):
         """

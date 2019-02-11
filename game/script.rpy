@@ -256,9 +256,10 @@ label continue_with_start:
         for i in ("chars_unique_label", "char", "girl", "testBrothel", "all_chars", "temp", "utka"):
             del(i)
 
-        tl.start("Loading: Populating SlaveMarket")
+        tl.start("Loading: Populating SlaveMarket And Jail")
         pytfall.sm.populate_chars_list()
-        tl.end("Loading: Populating SlaveMarket")
+        pytfall.jail.populate_chars_list()
+        tl.end("Loading: Populating SlaveMarket And Jail")
 
     #  --------------------------------------
     # Put here to facilitate testing:
