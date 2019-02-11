@@ -154,13 +154,23 @@ label mc_action_city_beach_rest:
             # with dissolve
 
             # jump interactions_sex_scene_begins
+            if hero.gender == "male":
+                $ tags = [["bc handjob", "beach"], ["bc blowjob", "beach"], ["bc footjob", "beach"]]
+                if char.gender == "female":
+                    $ tags.append(["bc titsjob", "beach"])
+                $ msg = "Unfortunately %s forgot %s sunscreen today, so you had no choice but to provide another liquid as a replacement." % (char.name, char.pp) 
+            else:
+                if char.gender == "male":
+                    $ tags = (["2c handjob", "beach"], ["2c blowjob", "beach"], ["2c footjob", "beach"], ["2c titsjob", "beach"])
+                    $ msg = "Unfortunately you forgot your sunscreen today, so you had no choice but to use a replacement."
+                else: 
+                    $ tags = (["bc hug", "beach"], ["2c hug", "beach"])
+                    $ msg = "Unfortunately you forgot your sunscreen today and %s already applied hers. You had no choice but to use her body." % char.name
 
             $ excluded = ["rape", "bdsm", "group", "forced"]
-            $ tags = (["bc handjob", "beach"], ["bc blowjob", "beach"], ["bc footjob", "beach"], ["bc titsjob", "beach"])
             $ result = get_simple_act(char, tags, excluded)
             if not result:
-                $ tags = (["bc handjob", "no bg"], ["bc blowjob", "no bg"], ["bc footjob", "no bg"], ["bc titsjob", "no bg"],
-                        ["bc handjob", "simple bg"], ["bc blowjob", "simple bg"], ["bc footjob", "simple bg"], ["bc titsjob", "simple bg"])
+                $ tags = ([[act, "no bg"] for act, loc in tags] + [[act, "simple bg"] for act, loc in tags])
                 $ result = get_simple_act(char, tags, excluded)
                 if not result:
                     # give up
@@ -168,7 +178,7 @@ label mc_action_city_beach_rest:
 
             show expression char.show(*result, exclude=excluded, type="reduce", resize=(300, 400)) at truecenter with dissolve
 
-            "Unfortunately [char.name] forgot her sunscreen today, so you had no choice but to provide another liquid as a replacement."
+            $ narrator(msg)
             $ char.mod_skill("sex", 0, 1)
             $ hero.mod_skill("sex", 0, 1)
             $ char.disposition += 3
