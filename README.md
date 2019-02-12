@@ -16,8 +16,9 @@ Modules currently include:
 - Events tracker
 - Items/Inventory/Shops system
 - Advanced Characters (Random and Unique) system with many Stats, Traits and Skills
-- MC (limited to Male) with background stories/Setup Screen
+- MC with background stories/Setup Screen
 - Schools
+- Jail
 
 In the last few month a lot of work has been on interface and adding content to some of the modules
 as well as recoding part of the game. Other modules are planned or actively developed.
