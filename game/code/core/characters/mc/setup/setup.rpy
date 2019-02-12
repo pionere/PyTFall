@@ -3,6 +3,11 @@ label mc_setup:
     $ male_fighters, female_fighters = load_special_arena_fighters()
     $ mc_stories = load_db_json("mc_stories.json")
 
+    $ main_story = None # Fathers occupation
+    $ sub_story = None # Father specific occupation
+    $ mc_story = None # MCs mother
+    $ mc_substory = None # MCs heritage
+
     scene bg mc_setup
     show screen mc_setup
     with dissolve
@@ -17,12 +22,7 @@ label mc_setup:
 
         elif result[0] == "control":
             if result[1] == "build_mc":
-                python:
-                    af = result[2]
-                    del male_fighters[af.id]
-
-                    hero._path_to_imgfolder = af._path_to_imgfolder
-                    hero.id = af.id
+                $ fighter = result[2]
 
                 jump mc_setup_end
 
@@ -54,6 +54,13 @@ label mc_setup_end:
         mc_substory: Sword
         """
         # We build the MC here. First we get the classes player picked in the choices screen and add those to MC:
+        if hero.gender == "male":
+            del male_fighters[fighter.id]
+        else:
+            del female_fighters[fighter.id]
+        hero._path_to_imgfolder = fighter._path_to_imgfolder
+        hero.id = fighter.id
+
         temp = set()
         for story in [mc_substory, mc_story, sub_story, main_story]:
             t = story.pop("class", None)
@@ -197,18 +204,20 @@ label mc_setup_end:
         hero.log_stats()
 
     python:
+        del fighter
         del mc_stories
-        del main_story
-        del sub_story
-        del mc_story
         del mc_substory
+        del mc_story
+        del sub_story
+        del main_story
 
     return
 
 init: # MC Setup Screens:
     screen mc_setup():
-
-        default sprites = male_fighters.values()
+        default male_sprites = male_fighters.values()
+        default female_sprites = female_fighters.values()
+        default sprites = male_sprites if hero.gender == "male" else female_sprites
         default index = 0
         default left_index = -1
         default right_index = 1
@@ -222,7 +231,31 @@ init: # MC Setup Screens:
                 action [Stop("music"), Return(["control", "build_mc", sprites[index]])]
         vbox:
             # align (.37, .10)
-            pos (365, 68)
+            pos (365, 48)
+            hbox:
+                textbutton "Gender:" text_color goldenrod text_font "fonts/TisaOTM.otf" text_size 20:
+                    background Transform(Frame("content/gfx/interface/images/story12.png", 5, 5), alpha=.8)
+                    xpadding 12
+                    ypadding 8
+                $ ac_list = [Hide("mc_stories"), Hide("mc_sub_stories"), Hide("mc_sub_texts"),
+                     SetVariable("sub_story", None), SetVariable("mc_story", None),
+                     SetVariable("mc_substory", None), SetVariable("main_story", None)]
+                if hero.gender == "male":
+                    $ img = ProportionalScale("content/gfx/interface/icons/male.png", 30, 30)
+                    $ temp = "female"
+                    $ ss = female_sprites
+                else:
+                    $ img = ProportionalScale("content/gfx/interface/icons/female.png", 30, 30)
+                    $ temp = "male"
+                    $ ss = male_sprites
+                imagebutton:
+                    idle img
+                    hover im.MatrixColor(img, im.matrix.brightness(.20))
+                    hover_background Transform(Frame("content/gfx/interface/images/story12.png", 1, 1), alpha=.8)
+                    action ac_list + [Function(setattr, hero, "gender", temp), SetScreenVariable("sprites", ss)]
+                    tooltip "Click to change gender"
+                    xpadding 12
+                    ypadding 8
             hbox:
                 textbutton "Name:" text_color goldenrod text_font "fonts/TisaOTM.otf" text_size 20:
                     background Transform(Frame("content/gfx/interface/images/story12.png", 5, 5), alpha=.8)
@@ -351,6 +384,8 @@ init: # MC Setup Screens:
                         img = im.Sepia(img)
                 button:
                     $ temp = branch.get("name", "")
+                    if isinstance(temp, dict):
+                        $ temp = temp[hero.gender]
                     if idx % 2:
                         text str(temp) align (1.0, .52)
                         add img align (.0, .5)
@@ -387,15 +422,16 @@ init: # MC Setup Screens:
                                     spacing 1
                                     style_group "sqstory"
                                     for sub in sub_choices:
-                                        $ img = ProportionalScale(sub["img"], 46, 46, align=(.5, .5))
-                                        if mc_substory != sub:
-                                            $ img = im.Sepia(img, align=(.5, .5))
-                                        button:
-                                            background Frame("content/gfx/frame/MC_bg.png", 10, 10)
-                                            idle_foreground im.Sepia(img, align=(.5, .5))
-                                            hover_foreground im.MatrixColor(img, im.matrix.brightness(.15), align=(.5, .5))
-                                            selected_foreground img
-                                            action SetVariable("mc_substory", sub), SensitiveIf(branch == mc_story), SelectedIf(mc_substory == sub), Show("mc_sub_texts", transition=dissolve)
+                                        if sub.get("gender", hero.gender) == hero.gender:
+                                            $ img = ProportionalScale(sub["img"], 46, 46, align=(.5, .5))
+                                            if mc_substory != sub:
+                                                $ img = im.Sepia(img, align=(.5, .5))
+                                            button:
+                                                background Frame("content/gfx/frame/MC_bg.png", 10, 10)
+                                                idle_foreground im.Sepia(img, align=(.5, .5))
+                                                hover_foreground im.MatrixColor(img, im.matrix.brightness(.15), align=(.5, .5))
+                                                selected_foreground img
+                                                action SetVariable("mc_substory", sub), SensitiveIf(branch == mc_story), SelectedIf(mc_substory == sub), Show("mc_sub_texts", transition=dissolve)
 
     screen mc_sub_texts():
         tag mc_subtexts
@@ -423,6 +459,7 @@ init: # MC Setup Screens:
                 if temp:
                     text str(temp) style "garamond" size 18
                 use bonuses(mc_substory)
+
     screen bonuses(branch):
         $ result = []
         $ temp = branch.get("class", None)

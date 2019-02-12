@@ -701,7 +701,7 @@ init -9 python:
                         elif member in male_fighters:
                             member = male_fighters[member]
                         else:
-                            raise Exception("Team Fighter %s is of unknown origin!" % member)
+                            break
                         self.arena_fighters[member.id] = member
 
                     member.set_status("free")
@@ -718,6 +718,10 @@ init -9 python:
                     member.arena_rep = randint(int(tier*9000), int(tier*11000))
 
                     a_team.add(member)
+
+                if teamsize != len(a_team):
+                    char_debug("Team Fighter %s is of unknown origin! (Set as MC?)" % member)
+                    continue
 
                 if lineups:
                     if teamsize == 1:

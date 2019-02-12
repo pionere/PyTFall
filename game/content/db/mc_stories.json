@@ -60,7 +60,7 @@
                      "class": "Assassin",
                      "choices": [ { "name": "Princess",
                                     "img": "content/gfx/interface/images/mc/princess.jpg",
-                                    "desc": "He was instructed to eliminate a princess from another land while visiting their capital on a diplomatic mission. No one has seen her since then. Except you, her son. You were taught how to load and manage people and property.",
+                                    "desc": "He was instructed to eliminate a princess from another land while visiting their capital on a diplomatic mission. No one has seen her since then. Except you, her child. You were taught how to load and manage people and property.",
                                     "class": "Manager",
                                     "bonus": ["gold", 2000],
                                     "traits": "Royal Blood",
@@ -96,6 +96,7 @@
                                                    "traits": "Dagger Master"
                                                  },
                                                  { "name": "Sister Lover",
+                                                   "gender": "male",
                                                    "img": "content/gfx/interface/images/mc/sister.png",
                                                    "desc": "Incest is widespread in drow families, and you know a lot about it from your mother's stories. Characters with the Half-Sister trait will not reject you due to kinship and will have additional disposition bonus.",
                                                    "traits": "Sister Lover"
@@ -159,6 +160,7 @@
                                     "bonus": ["arena_rep", [5000, 5500]],
                                     "traits": "Amazon Blood",
                                     "choices": [ { "name":"Yuri Expert",
+                                                   "gender": "male",
                                                    "img":"content/gfx/interface/images/mc/amazon_yuri.png",
                                                    "desc":"Amazon tribes live without males, so you know a lot about lesbians from your mother's stories. Lesbian characters will not reject you due to your gender, and your oral skill is pretty good too.",
                                                    "traits": "Yuri Expert"
@@ -206,12 +208,12 @@
       "desc": "Your father was a powerful mage.",
       "img": "content/gfx/interface/images/magicP.png",
       "class": "Mage",
-      "choices": [ { "name": "Sorcerer",
+      "choices": [ { "name": { "male": "Sorcerer", "female": "Sorceress" },
                      "desc": "As a Sorcerer, he dedicated his life to the study of arcane arts.",
                      "img": "content/gfx/interface/images/mc/sorc.png",
                      "choices": [ { "name": "Kitsune",
                                     "img": "content/gfx/interface/images/mc/kitsune.jpg",
-                                    "desc": "Kitsunes are intelligent beings from a distant land. They possess potent magical abilities that increase as they grow older. Your mother, however, was very young and inexperienced when her clan sent her to study arcane arts under the guidance of your father.",
+                                    "desc": "Kitsunes are intelligent beings from a distant land. They possess potent magical abilities that increase as they grow older. Your mother however, was very young and inexperienced when her clan sent her to study arcane arts under the guidance of your father.",
                                     "traits": ["Kitsune Blood", "Fire"],
                                     "bonus": "magic_skills",
                                     "choices": [ { "name": "Fire Fox",
@@ -265,7 +267,7 @@
                                     "class": "Assassin",
                                     "choices": [ { "name": "Creature of Electricity",
                                                    "img": "content/gfx/interface/images/mc/ele.png",
-                                                   "desc": "Electricity spells heal you instead of dealing damage, but your Water spells are almost useless. You were left small inheritance by your parents.",
+                                                   "desc": "Electricity spells heal you instead of dealing damage, but your Water spells are almost useless.",
                                                    "traits": "Master of Electricity",
                                                    "bonus": ["scrolls", "electricity"]
                                                  },
@@ -319,13 +321,14 @@
                                                    "traits": "Incorporeal"
                                                  },
                                                  { "name": "Illusive",
+                                                   "gender": "male",
                                                    "img": "content/gfx/interface/images/mc/illusion.png",
                                                    "desc": "You exist between the realm of light and darkness. Physical damage is almost ineffective against you, but being ghostly, you can't take girls virginity.",
                                                    "traits": "Illusive"
                                                  },
                                                  { "name": "Creature of Light",
                                                    "img": "content/gfx/interface/images/elements/small_light.png",
-                                                   "desc": "Light spells heal you instead of dealing damage, but your Darkness spells are almost ineffective. You've were left some inheritance.",
+                                                   "desc": "Light spells heal you instead of dealing damage, but your Darkness spells are almost ineffective.",
                                                    "traits": "Master of Light",
                                                    "bonus": ["scrolls", "light"]
                                                  } ]
