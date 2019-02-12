@@ -73,8 +73,8 @@ screen hero_profile():
     add Transform(hero.show("profile", resize=(550, 550)), alpha=.97) align .65, .9
 
     # BASE FRAME 2 "bottom layer" and portrait ====================================>
+    add hero.show("portrait", "everyday", type="reduce", resize=(100, 100)) pos (64, 8) # portrait should be between "Base Frame 2" and "Base Frame 1" :Gismo
     add "content/gfx/frame/h_profile.webp"
-    add hero.show("everyday", resize=(100, 100)) pos (64, 8) # portrait should be between "Base Frame 2" and "Base Frame 1" :Gismo
 
     # BATTLE STATS ====================================>
     fixed:
