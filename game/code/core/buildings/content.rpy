@@ -226,7 +226,7 @@ init -9 python:
             self.cells.append(char)
             #self.cell_index = [0,]
 
-            if c in hero.chars:
+            if char in hero.chars:
                 for team in hero.teams:
                     if char in team:
                         team.remove(char)

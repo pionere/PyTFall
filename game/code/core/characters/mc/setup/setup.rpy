@@ -140,7 +140,7 @@ label mc_setup_end:
                     raise Exception("Unrecognized bonus '%s'." % str(temp))
 
             if len(story) != 0:
-                raise Exception("Unrecognized parameters '%s' in story of '%s'." % (str(temp), name))
+                raise Exception("Unrecognized parameters '%s' in story of '%s'." % (str(story), name))
 
         restore_battle_stats(hero) # We never really want to start with weakened MC?
 

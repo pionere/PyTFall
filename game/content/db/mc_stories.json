@@ -86,19 +86,16 @@
                                     "traits": ["Drow Blood", "Darkness"],
                                     "bonus": "magic_skill",
                                     "choices": [ { "name": "Poison Master",
-                                                   "group": "Drow",
                                                    "img": "content/gfx/interface/images/mc/poison.png",
                                                    "desc": "You know a lot about poisons from your mother. Toxins are much less effective against you, and your poison attacks are much stronger.",
                                                    "traits": "Poison Master"
                                                  },
                                                  { "name": "High-Speed Fencer",
-                                                   "group": "Drow",
                                                    "img": "content/items/sweapon/cd.png",
                                                    "desc": "You learned from your mother about rare combat style used by drow assassins. All daggers are more powerful than usual.",
                                                    "traits": "Dagger Master"
                                                  },
                                                  { "name": "Sister Lover",
-                                                   "group": "Drow",
                                                    "img": "content/gfx/interface/images/mc/sister.png",
                                                    "desc": "Incest is widespread in drow families, and you know a lot about it from your mother's stories. Characters with the Half-Sister trait will not reject you due to kinship and will have additional disposition bonus.",
                                                    "traits": "Sister Lover"
