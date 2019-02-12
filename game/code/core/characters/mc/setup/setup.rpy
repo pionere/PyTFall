@@ -1,8 +1,7 @@
 label mc_setup:
     $ persistent.intro = True
     $ male_fighters, female_fighters = load_special_arena_fighters()
-
-    # call build_mc_stories from _call_build_mc_stories
+    $ mc_stories = load_db_json("mc_stories.json")
 
     scene bg mc_setup
     show screen mc_setup
@@ -47,37 +46,104 @@ label mc_setup_end:
     $ renpy.scene(layer='screens')
     scene black
 
-    call set_mc_basetraits from _call_set_mc_basetraits
-
-    # Call all the labels:
-    python:
+    python hide:
         """
         main_story: Merchant
         substory: Caravan
         mc_story: Defender
         mc_substory: Sword
         """
-    $ hero.add_money(randint(2250, 2300), "Inheritance") # Barely enough to buy a slave and few items.
+        # We build the MC here. First we get the classes player picked in the choices screen and add those to MC:
+        temp = set()
+        for story in [mc_substory, mc_story, sub_story, main_story]:
+            t = story.pop("class", None)
+            if t is not None:
+                temp.add(t)
+                if len(temp) == 2:
+                    break
+        for t in temp:
+            t = traits[t]
+            hero.traits.basetraits.add(t)
+            hero.apply_trait(t)
 
-    $ temp = mc_stories[main_story].get('label', '')
-    if "label" in temp and renpy.has_label(temp["label"]):
-        call expression temp["label"] from _call_expression_2
+        SCROLLS = {"fire": ["Fire Scroll", "Fira Scroll", "Firaga Scroll", "Firaja Scroll", "Fireball Scroll", "Solar Flash Scroll"],
+                   "water": ["Water Scroll", "Watera Scroll", "Waterga Scroll", "Waterja Scroll", "Last Drop Scroll", "Geyser Scroll"],
+                   "air": ["Aero Scroll", "Aerora Scroll", "Aeroga Scroll", "Aeroja Scroll", "Pressure Scroll", "Air Blast Scroll"],
+                   "earth": ["Stone Scroll", "Stonera Scroll", "Stonega Scroll", "Stoneja Scroll", "Breach Scroll", "Transmutation Scroll"],
+                   "electricity": ["Thunder Scroll", "Thundara Scroll", "Thundaga Scroll", "Thundaja Scroll", "Ion Blast Scroll", "Electromagnetism Scroll"],
+                   "ice": ["Blizzard Scroll", "Blizzara Scroll", "Blizzarga Scroll", "Blizzarja Scroll", "Ice Blast Scroll", "Zero Prism Scroll"],
+                   "darkness": ["Dark Scroll", "Darkra Scroll", "Darkga Scroll", "Darkja Scroll", "Eternal Gluttony Scroll", "Black Hole Scroll", "Poison Scroll"],
+                   "light": ["Holy Scroll", "Holyra Scroll", "Holyda Scroll", "Holyja Scroll", "Star Light Scroll", "Photon Blade Scroll", "Restoration Scroll", "Revive Scroll"] }
 
-    $ temp = mc_stories[main_story][sub_story].get('label', '')
-    if renpy.has_label(temp):
-        call expression temp from _call_expression_3
+        for story in [main_story, sub_story, mc_story, mc_substory]:
+            name = story.pop("name", None)
+            temp = story.pop("header", None)
+            temp = story.pop("desc", None)
+            temp = story.pop("img", None)
+            temp = story.pop("choices", None)
 
-    $ temp = mc_stories[main_story]["MC"][sub_story][mc_story].get('label', '')
-    if renpy.has_label(temp):
-        call expression temp from _call_expression_4
+            temp = story.pop("traits", None)
+            if temp:
+                if isinstance(temp, basestring):
+                     temp = [temp]
+                for t in temp:
+                    t = traits[t]
+                    hero.apply_trait(t)
 
-    $ temp = mc_stories[main_story]["MC"][sub_story][mc_story][mc_substory].get('label', '')
-    if renpy.has_label(temp):
-        call expression temp from _call_expression_5
+            temp = story.pop("bonus", None)
+            if temp:
+                if temp == "arena_permit":
+                    hero.arena_permit = True
+                elif temp == "home":
+                    # find the second cheapest building (ap) with rooms
+                    ba = None #the cheapest building
+                    ap = None
+                    for b in buildings.values():
+                        if b.rooms == 0:
+                            continue
+                        if ba is None:
+                            ba = b
+                        elif ba.price > b.price:
+                            ap = ba
+                            ba = b
+                        elif ap is None or ap.price > b.price:
+                            ap = b
+                    if not ap:
+                        ap = ba
+                    if ap:
+                        hero.buildings.append(ap)
+                        hero.home = ap
+                elif temp == "magic_skills":
+                    give_tiered_magic_skills(hero, amount=randint(2, 3))
+                elif temp == "magic_skill":
+                    give_tiered_magic_skills(hero, amount=1)
+                elif temp == "ap":
+                    hero.baseAP += 1
+                elif isinstance(temp, list) and len(temp) > 1:
+                    t = temp[0]
+                    if t == "scrolls":
+                        t = SCROLLS.get(temp[1], None)
+                        if t is None:
+                            raise Exception("Unknown element '%s' defined for scrolls in %s" % (temp[1], name))
+                        temp = random.sample(t, 3)
+                        for t in temp:
+                            hero.add_item(items[t])
+                    elif t == "gold":
+                        hero.add_money(temp[1], "Inheritance")
+                    elif t == "arena_rep":
+                        hero.arena_rep += randint(*temp[1])
+                    elif t == "battle_skill" and len(temp) > 2:
+                        hero.default_attack_skill = battle_skills[temp[1]]
+                    else:
+                        raise Exception("Unrecognized bonus '%s'." % str(temp))
+                else:
+                    raise Exception("Unrecognized bonus '%s'." % str(temp))
 
-    $ restore_battle_stats(hero) # We never really want to start with weakened MC?
+            if len(story) != 0:
+                raise Exception("Unrecognized parameters '%s' in story of '%s'." % (str(temp), name))
 
-    python hide:
+        restore_battle_stats(hero) # We never really want to start with weakened MC?
+
         high_factor = partial(uniform, .5, .6)
         normal_factor = partial(uniform, .35, .45)
 
@@ -95,9 +161,8 @@ label mc_setup_end:
             value = high_factor()+.2
             set_stat_to_percentage(hero, s, value)
 
-    # Add default workable building to MC, but only if we didn't add one in special labels.
-    if not [b for b in hero.upgradable_buildings if b.is_business()]:
-        python hide:
+        # Add default workable building to MC, but only if we didn't add one in special labels.
+        if not [b for b in hero.upgradable_buildings if b.is_business()]:
             # Find the cheapest business-building
             scary = None 
             for b in buildings.values():
@@ -108,8 +173,7 @@ label mc_setup_end:
             if scary:
                 hero.add_building(scary)
 
-    # Add Home apartment (Slums) to MC, unless we have set him up with a home in special labels.
-    python hide:
+        # Add Home apartment (Slums) to MC, unless we have set him up with a home in special labels.
         if not hero.home:
             # Find the cheapest building with rooms
             home = None
@@ -122,35 +186,23 @@ label mc_setup_end:
                 hero.home = home
                 hero.add_building(home)
 
-    # Set the default battle skill:
-    if not hero.attack_skills:
-        $ hero.attack_skills.append(hero.default_attack_skill)
+        # Set the default battle skill:
+        if not hero.attack_skills:
+            hero.attack_skills.append(hero.default_attack_skill)
 
-    $ hero.init()
-    $ hero.log_stats()
+        # Some money, barely enough to buy a slave and few items.
+        hero.add_money(randint(2250, 2300), "Inheritance")
+
+        hero.init()
+        hero.log_stats()
 
     python:
-        del temp
         del mc_stories
         del main_story
         del sub_story
         del mc_story
         del mc_substory
 
-    return
-
-label set_mc_basetraits:
-    # We build the MC here. First we get the classes player picked in the choices screen and add those to MC:
-    python:
-        temp = set()
-        bt1 = mc_stories[main_story][sub_story].get("class", None) or mc_stories[main_story].get("class", None)
-        bt2 = mc_stories[main_story]["MC"][sub_story][mc_story][mc_substory].get("class", None) or mc_stories[main_story]["MC"][sub_story][mc_story].get("class", None)
-        temp = [t for t in (bt1, bt2) if t is not None]
-
-    python:
-        for t in temp:
-            hero.traits.basetraits.add(traits[t])
-            hero.apply_trait(traits[t])
     return
 
 init: # MC Setup Screens:
@@ -162,7 +214,7 @@ init: # MC Setup Screens:
         default right_index = 1
 
         # Rename and Start buttons + Classes are now here as well!!!:
-        if all([(hasattr(store, "mc_substory") and store.mc_substory)]):
+        if getattr(store, "mc_substory", None):
             textbutton "Start Game" text_color white text_font "fonts/TisaOTB.otf" text_size 40 at fade_in_out():
                 background Transform(Frame("content/gfx/interface/images/story12.png", 5, 5), alpha=1)
                 hover_background Transform(Frame(im.MatrixColor("content/gfx/interface/images/story12.png", im.matrix.brightness(.15)), 5, 5), alpha=1)
@@ -174,42 +226,36 @@ init: # MC Setup Screens:
             hbox:
                 textbutton "Name:" text_color goldenrod text_font "fonts/TisaOTM.otf" text_size 20:
                     background Transform(Frame("content/gfx/interface/images/story12.png", 5, 5), alpha=.8)
-                    hover_background Transform(Frame(im.MatrixColor("content/gfx/interface/images/story12.png", im.matrix.brightness(.15)), 5, 5), alpha=1)
                     xpadding 12
                     ypadding 8
-                textbutton str(hero.name) text_color white text_font "fonts/TisaOTM.otf" text_size 20:
+                textbutton str(hero.name) text_color white text_hover_color red text_font "fonts/TisaOTM.otf" text_size 20:
                     background Transform(Frame("content/gfx/interface/images/story12.png", 5, 5), alpha=.8)
                     hover_background Transform(Frame(im.MatrixColor("content/gfx/interface/images/story12.png", im.matrix.brightness(.15)), 5, 5), alpha=1)
+                    action Show("char_rename", char=hero)
+                    tooltip "Click to change name"
                     xpadding 12
                     ypadding 8
-
-            textbutton "Click to change name" text_color red text_font "fonts/TisaOTM.otf" text_size 20:
-                background Transform(Frame("content/gfx/interface/images/story12.png", 5, 5), alpha=.8)
-                hover_background Transform(Frame(im.MatrixColor("content/gfx/interface/images/story12.png", im.matrix.brightness(.15)), 5, 5), alpha=1)
-                xpadding 12
-                ypadding 8
-                align (.0, .10)
-                action Show("char_rename", char=hero)
 
         # MC Sprites:
         hbox:
-            spacing 4
+            spacing 10
             align (.463, .75)
             $ img = ProportionalScale("content/gfx/interface/buttons/blue_arrow_left.png", 40, 40)
             imagebutton:
+                yalign .5
                 idle img
                 hover im.MatrixColor(img, im.matrix.brightness(.20))
                 activate_sound "content/sfx/sound/sys/hover_2.wav"
                 action [SetScreenVariable("index", (index - 1) % len(sprites)),
                         SetScreenVariable("left_index", (left_index - 1) % len(sprites)),
                         SetScreenVariable("right_index", (right_index - 1) % len(sprites))]
+            frame:
+                background Frame(Transform("content/gfx/interface/images/story12.png", alpha=.8), 10, 10)
+                padding 15, 10
+                text "Select your appearance" size 20 font 'fonts/TisaOTm.otf'
             $ img = ProportionalScale("content/gfx/interface/buttons/blue_arrow_right.png", 40, 40)
-            textbutton "Select your appearance" text_color white text_font "fonts/TisaOTM.otf" text_size 20:
-                background Transform(Frame("content/gfx/interface/images/story12.png", 5, 5), alpha=.8)
-                hover_background Transform(Frame(im.MatrixColor("content/gfx/interface/images/story12.png", im.matrix.brightness(.15)), 5, 5), alpha=1)
-                xpadding 12
-                ypadding 8
             imagebutton:
+                yalign .5
                 idle img
                 hover im.MatrixColor(img, im.matrix.brightness(.20))
                 activate_sound "content/sfx/sound/sys/hover_2.wav"
@@ -243,8 +289,7 @@ init: # MC Setup Screens:
             background Frame(Transform("content/gfx/interface/images/story12.png", alpha=.8), 10, 10)
             pos 173, 16 anchor .5, .0
             padding 15, 10
-            # xysize (150, 40)
-            text ("{size=20}{font=fonts/TisaOTm.otf}Select your origin") # align (.53, .4)
+            text "Select your origin" size 20 font 'fonts/TisaOTm.otf'
 
         hbox: # Fathers Main occupation:
             style_group "sqstory"
@@ -254,16 +299,17 @@ init: # MC Setup Screens:
                          SetVariable("sub_story", None), SetVariable("mc_story", None),
                          SetVariable("mc_substory", None)]
             for branch in mc_stories:
-                $ img = im.Scale(mc_stories[branch]["img"], 50, 50, align=(.5, .5))
+                $ img = im.Scale(branch["img"], 50, 50, align=(.5, .5))
+                $ sub_choices = branch.get("choices", None)
                 button: ## Merchant ##
                     foreground im.Sepia(img, align=(.5, .5))
                     selected_foreground img
                     idle_foreground im.Sepia(img, align=(.5, .5))
                     hover_foreground im.MatrixColor(img, im.matrix.brightness(.15), align=(.5, .5))
-                    if mc_stories[branch].get("header", ""):
+                    if sub_choices:
                         action SelectedIf(main_story == branch), If(store.main_story == branch,
                                   false=ac_list + [SetVariable("main_story", branch),
-                                   Show("mc_stories", transition=dissolve, choices=mc_stories[branch])])
+                                   Show("mc_stories", transition=dissolve, choices=sub_choices)])
 
     screen mc_texts():
         tag mc_texts
@@ -272,57 +318,60 @@ init: # MC Setup Screens:
             ysize 370
             background Frame(Transform("content/gfx/frame/MC_bg.png", alpha=1), 30, 30)
             has vbox xsize 350
-            if main_story in mc_stories:
-                $ temp = mc_stories[main_story].get('header', "Add 'header' to {} story!".format(main_story))
-                text "[temp]" xalign .5 font "fonts/DeadSecretary.ttf" size 22
-                $ temp = mc_stories[main_story].get("text", False)
+            if main_story:
+                $ temp = main_story.get("header", "")
+                if temp:
+                    text str(temp) xalign .5 font "fonts/DeadSecretary.ttf" size 22
+                $ temp = main_story.get("desc", "")
                 if temp:
                     text str(temp) style "garamond" size 18
-                null height 15
-                vbox:
-                    if sub_story in mc_stories[main_story]:
-                        text str(mc_stories[main_story][sub_story]["text"]) style "garamond" size 18
-            else:
-                text "No [main_story] story found!!!" align (.5, .5)
-
-    screen mc_stories(choices=OrderedDict()): # This is the fathers SUB occupation choice.
+                use bonuses(main_story)
+                if sub_story:
+                    null height 15
+                    vbox:
+                        $ temp = sub_story.get("desc", "")
+                        if temp:
+                            text str(temp) style "garamond" size 18
+                        use bonuses(sub_story)
+    screen mc_stories(choices): # This is the fathers SUB occupation choice.
         tag mc_sub
         hbox:
             pos(0, 145)
             style_group "mcsetup"
             box_wrap True
             xsize 360
-            $ img_choices = choices["choices"]
-            for key in img_choices:
+            for idx, branch in enumerate(choices):
                 python:
-                    if choices["MC"][key].get("choices", ""):
+                    img = im.Scale(branch["img"], 39, 39)
+                    sub_choices = branch.get("choices", None)
+                    if sub_choices:
                         sepia = False
                     else:
                         sepia = True
-                    img = im.Scale(im.Sepia(img_choices[key]) if sepia else img_choices[key], 39, 39)
+                        img = im.Sepia(img)
                 button:
-                    if img_choices.keys().index(key) % 2:
-                        text key align (1.0, .52)
+                    $ temp = branch.get("name", "")
+                    if idx % 2:
+                        text str(temp) align (1.0, .52)
                         add img align (.0, .5)
                     else:
-                        text key align (.0, .52)
+                        text str(temp) align (.0, .52)
                         add img align (1.0, .5)
-                    action SensitiveIf(not sepia), SelectedIf(store.sub_story==key), If(store.sub_story==key, false=[Hide("mc_sub_texts"), Hide("mc_texts"),
-                                  SetVariable("mc_story", None), SetVariable("mc_substory", None), SetVariable("sub_story", key),
+                    action SensitiveIf(not sepia), SelectedIf(store.sub_story==branch), If(store.sub_story==branch, false=[Hide("mc_sub_texts"), Hide("mc_texts"),
+                                  SetVariable("mc_story", None), SetVariable("mc_substory", None), SetVariable("sub_story", branch),
                                   Show("mc_texts", transition=dissolve),
-                                  Show("mc_sub_stories", transition=dissolve, choices=mc_stories[main_story]["MC"][key]["choices"])])
+                                  Show("mc_sub_stories", transition=dissolve, choices=sub_choices)])
 
-    screen mc_sub_stories(choices=OrderedDict()): # This is the MC occupation choice.
+    screen mc_sub_stories(choices): # This is the MC occupation choice.
         if choices:
             hbox:
                 pos 870, 50
                 spacing 10
-                for i in ["l", "r"]:
-                    if choices.get(i, ""):
+                for branch in choices:
                         vbox:
                             spacing 2
-                            $ img = ProportionalScale(choices["".join([i, "_img"])], 150, 150, align=(.5, .5))
-                            if not choices[i] == mc_story:
+                            $ img = ProportionalScale(branch["img"], 150, 150, align=(.5, .5))
+                            if branch != mc_story:
                                 $ img = im.Sepia(img, align=(.5, .5))
                             button:
                                 xalign .5
@@ -330,23 +379,23 @@ init: # MC Setup Screens:
                                 background Frame("content/gfx/frame/MC_bg.png", 10, 10)
                                 idle_foreground img
                                 hover_foreground im.MatrixColor(img, im.matrix.brightness(.10), align=(.5, .5))
-                                action Hide("mc_sub_texts"), SetVariable("mc_story", choices[i]), SetVariable("mc_substory", None), Show("mc_sub_texts", transition=dissolve)
-                            hbox:
-                                xalign .5
-                                spacing 1
-                                style_group "sqstory"
-                                for sub in xrange(3):
-                                    $ sub = str(sub)
-                                    if choices.get(i + sub, ""):
-                                        $ img = ProportionalScale(choices["".join([i, sub, "_img"])], 46, 46, align=(.5, .5))
-                                        if not mc_substory == choices[i + sub]:
+                                action Hide("mc_sub_texts"), SetVariable("mc_story", branch), SetVariable("mc_substory", None), Show("mc_sub_texts", transition=dissolve)
+                            $ sub_choices = branch.get("choices", None)
+                            if sub_choices:
+                                hbox:
+                                    xalign .5
+                                    spacing 1
+                                    style_group "sqstory"
+                                    for sub in sub_choices:
+                                        $ img = ProportionalScale(sub["img"], 46, 46, align=(.5, .5))
+                                        if mc_substory != sub:
                                             $ img = im.Sepia(img, align=(.5, .5))
                                         button:
                                             background Frame("content/gfx/frame/MC_bg.png", 10, 10)
                                             idle_foreground im.Sepia(img, align=(.5, .5))
                                             hover_foreground im.MatrixColor(img, im.matrix.brightness(.15), align=(.5, .5))
                                             selected_foreground img
-                                            action SetVariable("mc_substory", choices[i + sub]), SensitiveIf(choices[i] == mc_story), SelectedIf(mc_substory == choices[i + sub]), Show("mc_sub_texts", transition=dissolve)
+                                            action SetVariable("mc_substory", sub), SensitiveIf(branch == mc_story), SelectedIf(mc_substory == sub), Show("mc_sub_texts", transition=dissolve)
 
     screen mc_sub_texts():
         tag mc_subtexts
@@ -355,20 +404,92 @@ init: # MC Setup Screens:
             anchor (1.0, 1.0)
             pos (1280, 721)
             xysize (450, 440)
-            # xmargin 20
             has vbox xmaximum 430 xfill True xalign .5
-            $ texts = mc_stories[main_story]["MC"][sub_story][mc_story]
-            if "header" in texts:
-                text str(texts["header"]) font "fonts/DeadSecretary.ttf" size 28 xalign .5
+            $ temp = mc_story.get("name", None)
+            if temp:
+                text str(temp) font "fonts/DeadSecretary.ttf" size 28 xalign .5
+                null height 10
+            $ temp = mc_story.get("desc", None)
+            if temp:
+                text str(temp) style "garamond" size 18
+                use bonuses(mc_story)
+                null height 20
+            if mc_substory:
+                $ temp = mc_substory.get("name", None)
+                if temp:
+                    text str(temp) font "fonts/DeadSecretary.ttf" size 23 xalign .5
+                    null height 5
+                $ temp = mc_substory.get("desc", None)
+                if temp:
+                    text str(temp) style "garamond" size 18
+                use bonuses(mc_substory)
+    screen bonuses(branch):
+        $ result = []
+        $ temp = branch.get("class", None)
+        if temp:
+            $ result.append(set_font_color("+ %s Class" % temp, color="green"))
+        $ temp = branch.get("traits", None)
+        $ el2color = {"fire": "orangered", "water": "dodgerblue", "air": "lightcyan", "earth": "sienna",
+                      "electricity": "yellow", "ice": "lightblue", "darkness": "purple", "light": "lemonchiffon"}
+        $ elMastery = {"Master of %s" % el.capitalize() : el for el in el2color}
+        $ elem = None
+        if temp:
+            if isinstance(temp, basestring):
+                $ temp = [temp]
+            for t in temp:
+                $ t_ = t.lower()
+                if t_ in el2color:
+                    $ elem = t_
+                    $ color = el2color[t_]
+                    $ t_ = "%s Elemental Ailment" % t
+                elif t in elMastery:
+                    $ elem = elMastery[t]
+                    $ color = el2color[elem]
+                    $ t_ = t
+                else:
+                    $ color = "green"
+                    $ t_ = "%s Trait" % t
+                $ t_ = set_font_color("%s" % t_, color=color)
+                $ result.append(set_font_color("+ {a=%s}%s{/a}" % (t, t_), color=color))
+        $ temp = branch.get("bonus", None)
+        if temp:
+            if temp == "arena_permit":
+                $ result.append(set_font_color("+ Arena Permit", color="green"))
+            elif temp == "home":
+                $ result.append(set_font_color("+ Better Starting Home", color="green"))
+            elif temp == "magic_skills":
+                if elem in el2color:
+                    $ color = el2color[elem]
+                    $ temp = elem.capitalize()
+                else:
+                    $ color = "green"
+                    $ temp = "?"
+                $ result.append(set_font_color("+ Couple of %s Spells" % temp, color=color))
+            elif temp == "magic_skill":
+                if elem in el2color:
+                    $ color = el2color[elem]
+                    $ temp = elem.capitalize()
+                else:
+                    $ color = "green"
+                    $ temp = "?"
+                $ result.append(set_font_color("+ One %s Spell" % temp, color=color))
+            elif temp == "ap":
+                $ result.append(set_font_color("+ One Action Point", color="green"))
+            elif isinstance(temp, list) and len(temp) > 1:
+                $ t = temp[0]
+                if t == "scrolls":
+                    $ color = el2color.get(temp[1], "green")
+                    $ result.append(set_font_color("+ Three Spell Scrolls", color=color))
+                elif t == "gold":
+                    $ result.append(set_font_color("+ %d Gold" % temp[1], color="gold"))
+                elif t == "arena_rep":
+                    $ result.append(set_font_color("+ Arena Reputation", color="green"))
+                elif t == "battle_skill" and len(temp) > 2:
+                    $ result.append(set_font_color("+ Special attack '%s' when fighting unarmed." % temp[1], color=temp[2]))
+                else:
+                    $ raise Exception("Unrecognized bonus '%s'." % str(temp))
             else:
-                text "Add Header text!"
-            null height 10
-            if "text" in texts:
-                text str(texts["text"]) style "garamond" size 18
-            else:
-                text "Add Main Text!"
-            null height 20
-            if mc_substory in texts:
-                text str(mc_substory) font "fonts/DeadSecretary.ttf" size 23 xalign .5
-                null height 5
-                text str(texts[mc_substory]["text"]) style "garamond" size 18
+                $ raise Exception("Unrecognized bonus '%s'." % str(temp))
+
+        for bonus in result:
+            text str(bonus) style "garamond" size 18

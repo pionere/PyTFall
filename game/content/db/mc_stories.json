@@ -1,0 +1,365 @@
+[   { "name": "Merchant",
+      "img": "content/gfx/interface/images/merchant.png",
+      "choices": []
+    },
+    { "name": "Warrior",
+      "header": "Fighter",
+      "desc": "Your father was a skilled fighter...",
+      "img": "content/gfx/interface/images/warriorP.png",
+      "choices": [ { "name": "Knight",
+                     "desc": "He was an experienced bodyguard. His skills secured him a place in high society, as he provided his service to the nobility and royalty alike.",
+                     "img": "content/gfx/interface/images/mc/defender_m.png",
+                     "class": "Knight",
+                     "choices": [ { "name": "Royal Guard",
+                                    "img": "content/gfx/interface/images/mc/knight.jpg",
+                                    "desc": "Many years of exemplary service made him the captain of Palace Guard. It was then that he met your future mother, a young knight from a poor but noble family.",
+                                    "bonus": "home",
+                                    "choices": [ { "name": "Royal Defender",
+                                                   "img": "content/gfx/interface/images/mc/crown.png",
+                                                   "desc": "You've learned much about armor from your parents. The equipment provides additional defense based on its price.",
+                                                   "traits": "Armor Expert"
+                                                 },
+                                                 { "name": "Left-Handed",
+                                                   "img": "content/gfx/interface/images/mc/left_hand.png",
+                                                   "desc": "You are left-handed, just like your mother. Items in your left hand (such as shields) is significantly more powerful, but equipment in your right hand (such as weapons) is less efficient.",
+                                                   "traits": "Left-Handed"
+                                                 },
+                                                 { "name": "Shield Master",
+                                                   "img": "content/gfx/interface/images/mc/shield.png",
+                                                   "desc": "Your mother taught you her fighting style. All shields are a bit more sturdy.",
+                                                   "traits": "Shield Master"
+                                                 } ]
+                                  },
+                                  { "name": "Harpy",
+                                    "img": "content/gfx/interface/images/mc/harpy.jpg",
+                                    "desc": "One day, he was given a task of guarding an ambassador of the Harpies Empire. Unable to move freely around the city due to her status, she gladly accepted him as the main source of entertainment.",
+                                    "traits": ["Harpy Priestess Blood", "Air"],
+                                    "bonus": "magic_skill",
+                                    "class": "Shooter",
+                                    "choices": [ { "name": "Hollow Bones",
+                                                   "img": "content/gfx/interface/images/mc/bones.png",
+                                                   "desc": "Harpies evolved to have hollow bones making their bodies significantly lighter. It makes you weaker against physical attacks but completely neutralizes any equipment penalties to agility.",
+                                                   "traits": "Hollow Bones"
+                                                 },
+                                                 { "name": "Effective Metabolism",
+                                                   "img": "content/gfx/interface/images/mc/meta.png",
+                                                   "desc": "Harpies digest food much more efficient than most other races. All consumables (and especially food) restore vitality far more effectively.",
+                                                   "traits": "Effective Metabolism"
+                                                 },
+                                                 { "name": "Sky Ward",
+                                                   "img": "content/gfx/interface/images/mc/wind.png",
+                                                   "desc": "Harpies use their mystical connection to the sky to fly. You may not be able to do that without wings, but that heritage is still of great help.",
+                                                   "traits": "Sky Ward",
+                                                   "bonus": "ap"
+                                                 } ]
+                                  }]
+                   },
+                   { "name": "Assassin",
+                     "desc": "He was a deadly assassin. Even royalties, diplomats and nobility would perish at the tip of his blade, for the right price.",
+                     "img": "content/gfx/interface/images/mc/assassin_m.png",
+                     "class": "Assassin",
+                     "choices": [ { "name": "Princess",
+                                    "img": "content/gfx/interface/images/mc/princess.jpg",
+                                    "desc": "He was instructed to eliminate a princess from another land while visiting their capital on a diplomatic mission. No one has seen her since then. Except you, her son. You were taught how to load and manage people and property.",
+                                    "class": "Manager",
+                                    "bonus": ["gold", 2000],
+                                    "traits": "Royal Blood",
+                                    "choices": [ { "name": "Heavy Knight",
+                                                   "img": "content/items/sweapon/bks.png",
+                                                   "desc": "Your mother taught you the combat style of Royal Knights, known only to members of the royal families. Defense provided by armor is a bit higher than usual.",
+                                                   "traits": "Knightly Stance"
+                                                 },
+                                                 { "name": "Fencer",
+                                                   "img": "content/items/weapon/og.png",
+                                                   "desc": "Your mother taught you the fencing style of Royal Knights, known only to members of the royal families. All swords are a bit more powerful than usual.",
+                                                   "traits": "Sword Master"
+                                                 },
+                                                 { "name": "Royal Assassin",
+                                                   "img": "content/gfx/interface/images/mc/crown.png",
+                                                   "desc": "Due to your heritage, you got used to the best of equipment. The more expensive your items are, the stronger is their attack.",
+                                                   "traits": "Royal Assassin"
+                                                 } ]
+                                  },
+                                  { "name": "Drow",
+                                    "img": "content/gfx/interface/images/mc/drow.jpg",
+                                    "desc": "Carrying out orders, your father often encountered competitors. He'd eliminate them together with the target, but one particularly skilled assassin evaded every one of his deadly strikes. It was your future mother, a lone elf from a distant, underground world.",
+                                    "traits": ["Drow Blood", "Darkness"],
+                                    "bonus": "magic_skill",
+                                    "choices": [ { "name": "Poison Master",
+                                                   "group": "Drow",
+                                                   "img": "content/gfx/interface/images/mc/poison.png",
+                                                   "desc": "You know a lot about poisons from your mother. Toxins are much less effective against you, and your poison attacks are much stronger.",
+                                                   "traits": "Poison Master"
+                                                 },
+                                                 { "name": "High-Speed Fencer",
+                                                   "group": "Drow",
+                                                   "img": "content/items/sweapon/cd.png",
+                                                   "desc": "You learned from your mother about rare combat style used by drow assassins. All daggers are more powerful than usual.",
+                                                   "traits": "Dagger Master"
+                                                 },
+                                                 { "name": "Sister Lover",
+                                                   "group": "Drow",
+                                                   "img": "content/gfx/interface/images/mc/sister.png",
+                                                   "desc": "Incest is widespread in drow families, and you know a lot about it from your mother's stories. Characters with the Half-Sister trait will not reject you due to kinship and will have additional disposition bonus.",
+                                                   "traits": "Sister Lover"
+                                                 } ]
+                                  } ]
+                   },
+                   { "name": "Shooter",
+                     "desc": "He was a skilled marksman. For many years together with other rangers, he hunted monsters and smugglers.",
+                     "img": "content/gfx/interface/images/mc/shooter_m.png",
+                     "class": "Shooter",
+                     "choices": [ { "name": "Forest Elf",
+                                    "img": "content/gfx/interface/images/mc/forest_elf.jpg",
+                                    "desc": "He worked closely together with elven rangers. As time passed, mistrust gave way to friendship and, eventually, to close relationships with one of their ranks.",
+                                    "traits": "Forest Elf Blood",
+                                    "choices": [ { "name": "Sniper",
+                                                   "img": "content/gfx/interface/images/mc/bow.png",
+                                                   "desc": "Your mother taught you to use bows, as only the Forest Elves can. All bows are more powerful than usual.",
+                                                   "traits": "Bow Master"
+                                                 },
+                                                 { "name": "Elven Farsightedness",
+                                                   "img": "content/gfx/interface/images/mc/aim.png",
+                                                   "desc": "Forest elves reliance on ranged weapons reduced their ability to fight in close combat but made them the best ranged weapon users amongst all races. This trait was passed to you from your mother.",
+                                                   "traits": "Farsightedness"
+                                                 },
+                                                 { "name": "Elven Ranger",
+                                                   "img": "content/gfx/interface/images/mc/ranger.png",
+                                                   "desc": "Your mother taught you the ways of elves. Most ranged weapons don't give you penalties to defense.",
+                                                   "traits": "Elven Ranger"
+                                                 } ]
+                                  },
+                                  { "name": "Summer Fay",
+                                    "img": "content/gfx/interface/images/mc/summer_fay.jpg",
+                                    "desc": "For eons, Fae race performs the same functions in Forest Courts, unable to change their fate or even to die. Summer Fae embody growth and the emergence of life. Making a child with an occasional mortal is one of the ways to fulfill that destiny.",
+                                    "traits": ["Fae Blood", "Light"],
+                                    "bonus": "magic_skill",
+                                    "choices": [ { "name": "Eternality",
+                                                   "img": "content/gfx/interface/images/mc/infinity.png",
+                                                   "desc": "Your body inherited some of your mother's unchangeability. You recover half of max-health every day, but all healing items are less efficient.",
+                                                   "traits": "Summer Eternality"
+                                                 },
+                                                 { "name": "Summer Affinity",
+                                                   "img": "content/gfx/interface/images/mc/sun.png",
+                                                   "desc": "You inherited some of your mother's mystical powers. Fire and Light elements are less effective against you and deal more damage to enemies.",
+                                                   "traits": "Summer Affinity"
+                                                 },
+                                                 { "name": "Life Beacon",
+                                                   "img": "content/gfx/interface/images/mc/beacon.png",
+                                                   "desc": "Your Fae inheritance gives you the Aura of Life which regenerates some health for you and all characters under your command every day, making them a bit happier.",
+                                                   "traits": "Life Beacon"
+                                                 } ]
+                                  } ]
+                   },
+                   { "name": "Warrior",
+                     "desc": "He was a famous gladiator. Decades of fighting at the arena made him competent with almost every known weapon and brought fame and wealth.",
+                     "img": "content/gfx/interface/images/mc/warrior_m.png",
+                     "class": "Warrior",
+                     "bonus": "arena_permit",
+                     "choices": [ { "name": "Amazon",
+                                    "img": "content/gfx/interface/images/mc/amazon.jpg",
+                                    "desc": "It was there that he met your mother, an Amazon from a remote tribe. After defeating her in battle, he took her body instead of taking her life.",
+                                    "bonus": ["arena_rep", [5000, 5500]],
+                                    "traits": "Amazon Blood",
+                                    "choices": [ { "name":"Yuri Expert",
+                                                   "img":"content/gfx/interface/images/mc/amazon_yuri.png",
+                                                   "desc":"Amazon tribes live without males, so you know a lot about lesbians from your mother's stories. Lesbian characters will not reject you due to your gender, and your oral skill is pretty good too.",
+                                                   "traits": "Yuri Expert"
+                                                 },
+                                                 {
+                                                   "name": "Muscle",
+                                                   "img":"content/gfx/interface/images/mc/amazon_const.png",
+                                                   "desc":"You inherited your mother's strength. Melee weapons deal more damage than usual.",
+                                                   "traits": "Amazon Musculature"
+                                                 },
+                                                 {
+                                                   "name": "Berserk",
+                                                   "img": "content/gfx/interface/images/mc/berserk.png",
+                                                   "desc": "Your mother taught you her fighting style. All defense bonuses from equipment are lower, but all attack bonuses are higher.",
+                                                   "traits": "Berserk"
+                                                 } ]
+                                  },
+                                  { "name": "Dragon",
+                                    "img": "content/gfx/interface/images/mc/dragon.jpg",
+                                    "desc": "It was there that he met your mother, one of the last half-dragons. Being a monster, she was supposed to fight him to the death, but her dislike for clothes changed his mind.",
+                                    "traits": "Dragon Blood",
+                                    "class": "Assassin",
+                                    "choices": [ { "name": "Fire",
+                                                   "img": "content/gfx/interface/images/mc/fire_dragon.jpg",
+                                                   "desc": "Your body is covered with tiny scales. They are almost unnoticeable, but at extreme temperatures they actively absorb and dissipate heat, making fire and, to some extent, electricity less effective.",
+                                                   "traits": ["Fire Dragon Scales", "Fire"]
+                                                 },
+                                                 {
+                                                   "name": "Stone",
+                                                   "img": "content/gfx/interface/images/mc/stone_dragon.jpg",
+                                                   "desc": "Your body is covered with tiny scales. They are almost unnoticeable, but upon impact they become as hard as iron, softening the blow (+earth and physical resistance).",
+                                                   "traits": ["Stone Dragon Scales", "Earth"]
+                                                 },
+                                                 {
+                                                   "name": "Dragon Sight",
+                                                   "img": "content/gfx/interface/images/mc/dragon_eye.png",
+                                                   "desc": "Dragons have perfect vision, and so do you. You are competent with ranged weapons and deal (slightly) increased critical damage.",
+                                                   "traits": "Dragon Eyesight"
+                                                 } ]
+                                  } ]
+                 } ]
+    },
+    { "name": "Mage",
+      "header": "Arcane Artist",
+      "desc": "Your father was a powerful mage.",
+      "img": "content/gfx/interface/images/magicP.png",
+      "class": "Mage",
+      "choices": [ { "name": "Sorcerer",
+                     "desc": "As a Sorcerer, he dedicated his life to the study of arcane arts.",
+                     "img": "content/gfx/interface/images/mc/sorc.png",
+                     "choices": [ { "name": "Kitsune",
+                                    "img": "content/gfx/interface/images/mc/kitsune.jpg",
+                                    "desc": "Kitsunes are intelligent beings from a distant land. They possess potent magical abilities that increase as they grow older. Your mother, however, was very young and inexperienced when her clan sent her to study arcane arts under the guidance of your father.",
+                                    "traits": ["Kitsune Blood", "Fire"],
+                                    "bonus": "magic_skills",
+                                    "choices": [ { "name": "Fire Fox",
+                                                   "img": "content/gfx/interface/images/mc/fire.png",
+                                                   "desc": "Fire spells heal you instead of hurting, but your Ice spells are almost ineffective.",
+                                                   "traits": "Master of Fire",
+                                                   "bonus": ["scrolls", "fire"]
+                                                 },
+                                                 { "name": "Mana Source",
+                                                   "img": "content/gfx/interface/images/mc/flow.png",
+                                                   "desc": "Your magical origins allow you to restore the magical energy of your partners during intimate acts.",
+                                                   "traits": "Mana Source"
+                                                 },
+                                                 { "name": "Magical Kin",
+                                                   "img": "content/gfx/interface/images/mc/mana.png",
+                                                   "desc": "Consumables, especially alcoholic beverages, restore much more MP.",
+                                                   "traits": "Magical Kin"
+                                                 } ]
+                                  },
+                                  { "name": "Winter Fay",
+                                    "img": "content/gfx/interface/images/mc/winter.jpg",
+                                    "desc": "Winter Fae are known to be harsh and unyielding, embodying entropy and death in the circle of nature. Therefore the reason behind your birth remains to be discovered.",
+                                    "traits": ["Fae Blood", "Ice"],
+                                    "bonus": "magic_skills",
+                                    "choices": [ { "name": "Creature of Ice",
+                                                   "img": "content/gfx/interface/images/mc/ice.png",
+                                                   "desc": "Ice spells heal you instead of dealing damage, but your Fire spells are almost useless.",
+                                                   "traits": "Master of Ice",
+                                                   "bonus": ["scrolls", "ice"]
+                                                 },
+                                                 { "name": "Immutability",
+                                                   "img": "content/gfx/interface/images/mc/infinity_1.png",
+                                                   "desc": "Your body inherited some of your mother's unchangeability. You restore a third of maximum MP every day. Items that restore it are less effective.",
+                                                   "traits": "Winter Eternality"
+                                                 },
+                                                 { "name": "Winter Magician",
+                                                   "img": "content/gfx/interface/images/mc/winter_m.png",
+                                                   "desc": "The Winter itself gives you power. You have less MP, but it can never become exhausted.",
+                                                   "traits": "Winter Magician"
+                                                 } ]
+                                  } ]
+                   },
+                   { "name": "Researcher",
+                     "desc": "As a Researcher, he studied ruins of ancient civilizations in search of forgotten technologies and enchantments.",
+                     "img": "content/gfx/interface/images/mc/researcher.png",
+                     "choices": [ { "name": "Android",
+                                    "img": "content/gfx/interface/images/mc/android.jpg",
+                                    "desc": "In one of his expeditions, he found an ancient faulty android. He managed to repair and reprogram her to be his 'very' personal assistant.",
+                                    "traits": ["Artificial Body Structure", "Electricity"],
+                                    "bonus": ["battle_skill", "Lightning Whip", "yellow"],
+                                    "class": "Assassin",
+                                    "choices": [ { "name": "Creature of Electricity",
+                                                   "img": "content/gfx/interface/images/mc/ele.png",
+                                                   "desc": "Electricity spells heal you instead of dealing damage, but your Water spells are almost useless. You were left small inheritance by your parents.",
+                                                   "traits": "Master of Electricity",
+                                                   "bonus": ["scrolls", "electricity"]
+                                                 },
+                                                 { "name": "Looped Physiology",
+                                                   "img": "content/gfx/interface/images/mc/loop.png",
+                                                   "desc": "Healing spells don't affect you, but your vitality can never drop to zero.",
+                                                   "traits": "Looped Physiology"
+                                                 },
+                                                 { "name": "Recharge",
+                                                   "img": "content/gfx/interface/images/mc/recharge.png",
+                                                   "desc": "Most consumables, even those that don't typically increase MP, restore yours when you consume them.",
+                                                   "traits": "Recharging"
+                                                 } ]
+                                  },
+                                  { "name": "Slime",
+                                    "img": "content/gfx/interface/images/mc/slime.jpg",
+                                    "desc": "Pureblood slimes do not feel pleasure in the same way as non-liquid beings, but they are still interested in mating, especially with creatures of potent magic, like your father.",
+                                    "traits": ["Liquid Body Structure",  "Water"],
+                                    "bonus": "magic_skills",
+                                    "class": "Shooter",
+                                    "choices": [ { "name": "Creature of Water",
+                                                   "img": "content/gfx/interface/images/mc/water.png",
+                                                   "desc": "Water spells heal you instead of hurting, but your Electricity spells are almost ineffective.",
+                                                   "traits": "Master of Water",
+                                                   "bonus": ["scrolls", "water"]
+                                                 },
+                                                 { "name": "Arcane Archer",
+                                                   "img": "content/gfx/interface/images/mc/bow.png",
+                                                   "desc": "Most ranged weapons give a bonus to magic equal to their bonus to attack.",
+                                                   "traits": "Arcane Archer"
+                                                 },
+                                                 { "name": "Point Resilience",
+                                                   "img": "content/gfx/interface/images/mc/slime.png",
+                                                   "desc": "Ranged attacks are ineffective against you, but melee weapons are more dangerous.",
+                                                   "traits": "Resilience"
+                                                 } ]
+                                  } ]
+                   },
+                   { "name": "Arcane Knight",
+                     "desc": "As an Arcane Knight, he specialized in the extermination of dangerous magical creatures who were continually threatening the city.",
+                     "img": "content/gfx/interface/images/mc/arc.png",
+                     "choices": [ { "name": "Ghost",
+                                    "img": "content/gfx/interface/images/mc/ghost.jpg",
+                                    "desc": "While exploring an abandoned temple in an ancient forest, your father found a friendly, lonely spirit of a young priestess. She gladly joined with him, and soon enough they became a family.",
+                                    "traits": ["Ghostly Structure", "Light"],
+                                    "bonus": "magic_skills",
+                                    "class": "Warrior",
+                                    "choices": [ { "name": "Intangible",
+                                                   "img": "content/gfx/interface/images/mc/ill.png",
+                                                   "desc": "Just as your mother, you are do not entirely belong to the world of the living. All attacks and magic are less effective against you, but your attacks and magic are less efficient as well.",
+                                                   "traits": "Incorporeal"
+                                                 },
+                                                 { "name": "Illusive",
+                                                   "img": "content/gfx/interface/images/mc/illusion.png",
+                                                   "desc": "You exist between the realm of light and darkness. Physical damage is almost ineffective against you, but being ghostly, you can't take girls virginity.",
+                                                   "traits": "Illusive"
+                                                 },
+                                                 { "name": "Creature of Light",
+                                                   "img": "content/gfx/interface/images/elements/small_light.png",
+                                                   "desc": "Light spells heal you instead of dealing damage, but your Darkness spells are almost ineffective. You've were left some inheritance.",
+                                                   "traits": "Master of Light",
+                                                   "bonus": ["scrolls", "light"]
+                                                 } ]
+                                  },
+                                  { "name": "Vampire",
+                                    "img": "content/gfx/interface/images/mc/vampire.jpg",
+                                    "desc": "For decades he hunted vampires, protecting citizens from these nocturnal predators. One day, while clearing a nest, he captured a vampire queen, but her seductiveness kept her alive and even gave birth to you.",
+                                    "traits": ["Vampiric Blood", "Darkness"],
+                                    "bonus": "magic_skills",
+                                    "class": "Knight",
+                                    "choices": [ { "name": "Creature of Night",
+                                                   "img": "content/gfx/interface/images/mc/night.png",
+                                                   "desc": "Darkness spells heal you instead of dealing damage, but your Light spells are almost ineffective.",
+                                                   "traits": "Master of Darkness",
+                                                   "bonus": ["scrolls", "darkness"]
+                                                 },
+                                                 { "name": "Blood Master",
+                                                   "img": "content/gfx/interface/images/mc/blood.png",
+                                                   "desc": "Only true vampires have access to blood magic, but your heritage still gives a few perks. Girls who lose their virginity to you, become more obedient.",
+                                                   "traits": "Blood Master"
+                                                 },
+                                                 { "name": "Perfect Reflexes",
+                                                   "img": "content/gfx/interface/images/mc/reflexes.png",
+                                                   "desc": "You inherited your mother's reflexes, which help to evade attacks. Sadly, mortal body is not suitable for vampire speed, affecting your health.",
+                                                   "traits": "Perfect Reflexes"
+                                                 } ]
+                                  } ]
+                   } ]
+    },
+    { "name": "Noble",
+      "img": "content/gfx/interface/images/nobleP.png",
+      "choices": []
+    }
+]

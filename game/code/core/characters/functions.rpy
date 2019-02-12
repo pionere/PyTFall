@@ -87,10 +87,9 @@ init -11 python:
                 char.health = 1
             else:
                 setattr(char, stat, 0)
-                mod_by_max(char, stat, value, prevent_death=prevent_death)
         elif stats.is_skill(stat):
             stats.skills[stat] = [0, 0]
-            mod_by_max(char, stat, value, prevent_death=prevent_death)
+        mod_by_max(char, stat, value, prevent_death=prevent_death)
 
     def restore_battle_stats(char):
         for stat in ["health", "mp", "vitality"]:
