@@ -18,9 +18,8 @@ label slave_market_club:
         
         if result[0] == 'control':
             if result[1] == 'return': 
-                $ global_flags.set_flag("came_from_sc")
                 hide screen slavemarket_club
-                jump slave_market
+                jump slave_market_controls
                 
                 
 screen slavemarket_club():

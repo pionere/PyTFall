@@ -2,9 +2,7 @@ label slave_market:
     # Music related:
     if not "slavemarket" in ilists.world_music:
         $ ilists.world_music["slavemarket"] = [track for track in os.listdir(content_path("sfx/music/world")) if track.startswith("slavemarket")]
-    if not global_flags.has_flag("came_from_sc"):
-        play world choice(ilists.world_music["slavemarket"]) fadein 1.5
-    $ global_flags.del_flag("came_from_sc")
+    play world choice(ilists.world_music["slavemarket"]) fadein 1.5
 
     if not global_flags.has_flag("visited_sm"):
         $ global_flags.set_flag("visited_sm")
@@ -43,7 +41,7 @@ label slave_market:
                 g "DON'T TELL ME HOW TO DO MY JOB YOU @$$#^*!!!"
                 extend " ... but I guess that since you had to witness that, I'll let this slide."
             "Omg stfu I just need to test something!" if config.developer:
-                jump slavel_market_controls
+                jump slave_market_controls
         g "Everyone calls me Blue. Original isn't it?"
 
         $ g = npcs["Blue_slavemarket"].say
@@ -75,14 +73,12 @@ label slave_market:
         g "You won't be disappointed!"
         g "Goodbye!"
 
-label slavel_market_controls:
+label slave_market_controls:
     hide blue
     hide stan
     hide slave
     with dissolve
     show bg slave_market
-
-    $ global_flags.set_flag("visited_sm")
 
     python:
         # Build the actions
@@ -154,7 +150,7 @@ label sm_free_slaves:
         s "Are you kidding me? You don't have any slaves with you!"
         s "Don't bother me without a good reason!!!"
         "You need to bring slaves as a part of your team to free them!"
-        jump slavel_market_controls
+        jump slave_market_controls
     else:
         $ our_char = None
         menu:
@@ -165,7 +161,7 @@ label sm_free_slaves:
             "Nevermind":
                 $ del our_char
                 $ del chrs
-                jump slavel_market_controls
+                jump slave_market_controls
 
         show expression our_char.get_vnsprite() as slave at mid_right with dissolve
 
@@ -207,46 +203,47 @@ label sm_free_slaves:
         $ our_char.restore_portrait()
     $ del our_char
     $ del chrs
-    jump slavel_market_controls
+    jump slave_market_controls
 
 label mc_action_work_in_slavemarket:
-    python hide:
-        wage = 0
-        total = 0
-        for skill in STATIC_CHAR.SEX_SKILLS:
-            total += hero.get_skill(skill)
-        total /= len(STATIC_CHAR.SEX_SKILLS)
-        total += hero.expected_wage*6
+    if use_ap != 0:
+        python:
+            total = 0
+            for skill in STATIC_CHAR.SEX_SKILLS:
+                total += hero.get_skill(skill)
+            total /= len(STATIC_CHAR.SEX_SKILLS)
+            total += hero.expected_wage*6
 
-        if dice(hero.luck*.1):
-            total += hero.level*5
+            if dice(hero.luck*.1):
+                total += hero.level*5
 
-        wage = round_int(total/float(hero.setAP)*use_ap)
+            wage = round_int(total/float(hero.setAP)*use_ap)
 
-        if dice(.5 + hero.luck*.1):
-            hero.charisma += use_ap
-            hero.mod_skill("sex", 0, use_ap)
+            if dice(.5 + hero.luck*.1):
+                hero.charisma += use_ap
+                hero.mod_skill("sex", 0, use_ap)
 
-        hero.add_money(wage, reason="Job")
-        gfx_overlay.random_find(wage, 'work')
-        hero.exp += exp_reward(hero, hero, ap_used=use_ap)
-        hero.take_ap(use_ap)
+            hero.add_money(wage, reason="Job")
+            gfx_overlay.random_find(wage, 'work')
+            hero.exp += exp_reward(hero, hero, ap_used=use_ap)
+            hero.take_ap(use_ap)
 
-    pause 0.01
+            use_ap = 0 # prevent double reward when using last_label
+            del wage
+            del total
 
-    python:
+        pause 0.01
+
         if dice(50):
-            renpy.say("", choice(["You did some chores around the Slave Market!",
+            $ narrator(choice(["You did some chores around the Slave Market!",
                                   "Pay might be crap, but it's still money.",
                                   "You've helped out in da Club!"]))
         else:
-            hero.say(choice(["What a boring job...",
+            $ hero.say(choice(["What a boring job...",
                              "There's gotta be faster way to make money..."]))
 
-        global_flags.set_flag("came_from_sc")
-        del use_ap
-
-    jump slavel_market_controls
+    $ del use_ap
+    jump slave_market_controls
 
 label blue_menu:
     $ g = npcs["Blue_slavemarket"].say
