@@ -51,7 +51,7 @@ label interactions_hireforsex: # we go to this label from GM menu hire for sex. 
     elif char.disposition < -50:
         $ price = round(price * 1.3)
 
-    if ct("Lesbian") and not "Yuri Expert" in hero.traits:
+    if (ct("Lesbian") != (hero.gender == "female")) and not "Yuri Expert" in hero.traits:
         $ price = round(price * 2.5)
     if ct("Nymphomaniac"):
         $ price = round(price * .95)
@@ -157,9 +157,12 @@ label interactions_sex: # we go to this label from GM menu propose sex
         call interactions_sex_disagreement from _call_interactions_sex_disagreement_2
         jump girl_interactions
 
-    if ct("Lesbian") and not ct("Open Minded") and not "Yuri Expert" in hero.traits and char.status != "slave":
-        call interactions_lesbian_refuse_because_of_gender from _call_interactions_lesbian_refuse_because_of_gender_2 # you can hire them, but they will never do it for free with wrong orientation
-        jump girl_interactions
+    $ gender_disagreement = False
+    if (ct("Lesbian") != (hero.gender == "female")) and not ct("Open Minded") and not "Yuri Expert" in hero.traits:
+        if char.status != "slave":
+            call interactions_lesbian_refuse_because_of_gender from _call_interactions_lesbian_refuse_because_of_gender_2 # you can hire them, but they will never do it for free with wrong orientation
+            jump girl_interactions
+        $ gender_disagreement = True
 
     if char.vitality < round(char.get_max("vitality")*.25) or char.AP <= 0:
         call interactions_refused_because_tired from _call_interactions_refused_because_tired_3
@@ -227,10 +230,11 @@ label interactions_sex: # we go to this label from GM menu propose sex
                 "No":
                     jump girl_interactions
     else:
-        $ del disposition_level_for_sex
-        if ct("Lesbian") and not ct("Open Minded") and not "Yuri Expert" in hero.traits and char.status == "slave":
+        if gender_disagreement:
             "Although she prefers females, she reluctantly agrees."
             $ char.joy -= 10
+    $ del gender_disagreement
+    $ del disposition_level_for_sex
 
     if not char.has_flag("raped_by_player"):
         call interactions_sex_agreement from _call_interactions_sex_agreement
@@ -322,7 +326,7 @@ label interaction_scene_choice: # here we select specific scene, show needed ima
 
     if char.status == "slave":
         if sex_scene_libido == 0:
-            "[char.name] doesn't want to do it any longer. You can force her, but it will not be without consequences."
+            "[char.name] doesn't want to do it any longer. You can force [char.op], but it will not be without consequences."
             jump interaction_sex_scene_choice
         if char.vitality <= 30:
             "[char.name] looks very tired."
@@ -352,11 +356,11 @@ label interaction_scene_choice: # here we select specific scene, show needed ima
             else:
                 $ current_action = "vag"
             if sub < 0:
-                "She is so horny that she cannot control herself."
+                "[char.pC] is so horny that [char.p] cannot control [char.op]self."
             elif sub == 0:
-                "She wants to try something else with you."
+                "[char.pC] wants to try something else with you."
             else:
-                "She wants to do something else with you."
+                "[char.pC] wants to do something else with you."
             if current_action == "vag":
                 if ct("Virgin"):
                     jump interaction_check_for_virginity
@@ -382,12 +386,12 @@ label interaction_sex_scene_choice:
             $ sex_prelude = True
             jump interactions_sex_scene_logic_part
 
-        "Ask her to play with herself" if max_sex_scene_libido == sex_scene_libido and not sex_prelude:
+        "Ask [char.op] to play with [char.op]self" if max_sex_scene_libido == sex_scene_libido and not sex_prelude:
             $ current_action = "mast"
             $ sex_prelude = True
             jump interactions_sex_scene_logic_part
 
-        "Cuddle her":
+        "Cuddle [char.op]":
             $ current_action = "hug"
             jump interactions_sex_scene_logic_part
 
@@ -395,15 +399,15 @@ label interaction_sex_scene_choice:
             $ current_action = "kiss"
             jump interactions_sex_scene_logic_part
 
-        "Caress her tits":
+        "Caress her tits" if char.gender == "female":
             $ current_action = "caresstits"
             jump interactions_sex_scene_logic_part
 
-        "Finger her pussy":
+        "Finger her pussy" if char.gender == "female":
             $ current_action = "fingervag"
             jump interactions_sex_scene_logic_part
 
-        "Lick her pussy":
+        "Lick her pussy" if char.gender == "female":
             $ current_action = "lickvag"
             jump interactions_sex_scene_logic_part
 
@@ -411,7 +415,7 @@ label interaction_sex_scene_choice:
             $ current_action = "blow"
             jump interactions_sex_scene_logic_part
 
-        "Ask for paizuri":
+        "Ask for paizuri" if hero.gender == "male":
             $ current_action = "tits"
             jump interactions_sex_scene_logic_part
 
@@ -423,14 +427,14 @@ label interaction_sex_scene_choice:
             $ current_action = "foot"
             jump interactions_sex_scene_logic_part
 
-        "Ask for sex":
+        "Ask for sex" if char.gender == "female" and hero.gender == "male":
             if ct("Virgin"):
                 jump interaction_check_for_virginity
             else:
                 $ current_action = "vag"
                 jump interactions_sex_scene_logic_part
 
-        "Ask for anal sex":
+        "Ask for anal sex" if hero.gender == "male":
             $ current_action = "anal"
             jump interactions_sex_scene_logic_part
 
@@ -772,21 +776,21 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
     if current_action == "hug":
         $ get_single_sex_picture(char, act="2c hug", location=sex_scene_location, hidden_partner=True)
         if char.has_flag("raped_by_player"):
-            "You can feel her tense up as you put your arm around her."
+            "You can feel [char.pp] tense up as you put your arm around [char.op]."
         else:
-            "[char.name] feels comfortable in your arms. Her chest moves up and down as she breaths."
+            "[char.name] feels comfortable in your arms. [char.ppC] chest moves up and down as [char.p] breaths."
             if dice(30):
-                extend " You can feel her heart starts to beat faster. She is more aroused now."
+                extend " You can feel [char.pp] heart starts to beat faster. [char.pC] is more aroused now."
                 $ sex_scene_libido += 2
 
     elif current_action == "kiss":
         $ get_single_sex_picture(char, act="2c kiss", location=sex_scene_location, hidden_partner=True)
         if char.has_flag("raped_by_player"):
-            "Her lips are closed tightly. You have to force your tongue to reach inside."
+            "[char.ppC] lips are closed tightly. You have to force your tongue to reach inside."
         else:
-            "Her soft lips welcoming your approach. Your gently move around, back and forth in her mouth."
+            "[char.ppC] soft lips welcoming your approach. Your gently move around, back and forth in [char.pp] mouth."
             if dice(45):
-                extend " You don't have to wait too long for a response. She is more aroused now."
+                extend " You don't have to wait too long for a response. [char.pC] is more aroused now."
                 $ sex_scene_libido += 2
 
     elif current_action == "strip":
@@ -802,31 +806,31 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
         $ del temp
 
         if skill_for_checking >= 1000:
-            "She looks unbearably hot and sexy. After a short time, you cannot withstand it anymore and begin to masturbate, quickly cumming. She looks at you with a smile and superiority in her eyes."
+            "[char.pC] looks unbearably hot and sexy. After a short time, you cannot withstand it anymore and begin to masturbate, quickly cumming. [char.pC] looks at you with a smile and superiority in [char.pp] eyes."
         elif skill_for_checking >= 750:
-            "Her movements are so fascinating that you cannot look away from her. She looks proud and pleased."
+            "[char.ppC] movements are so fascinating that you cannot look away from [char.op]. [char.pC] looks proud and pleased."
         elif skill_for_checking >= 500:
-            "Looking at her graceful and elegant moves is nice."
+            "Looking at [char.pp] graceful and elegant moves is nice."
         elif skill_for_checking >= 200:
-            "She did her best to show you her body, but her skills could be improved."
+            "[char.pC] did [char.pp] best to show you [char.pp] body, but [char.pp] skills could be improved."
         elif skill_for_checking >= 50:
-            "She tried her best, but the moves were quite clumsy and unnatural. At least she learned something new today."
+            "[char.pC] tried [char.pp] best, but the moves were quite clumsy and unnatural. At least [char.p] learned something new today."
         else:
-            "It looks like [char.name] barely knows what she's doing. Even just standing still without clothes would have made a better impression."
+            "It looks like [char.name] barely knows what [char.p] is doing. Even just standing still without clothes would have made a better impression."
 
     elif current_action == "mast":
         $ get_single_sex_picture(char, act="masturbation", location=sex_scene_location, hidden_partner=True)
         if char.has_flag("raped_by_player"):
-            "She pleasures herself briefly, hesitantly avoiding your glance."
+            "[char.pC] pleasures [char.op]self briefly, hesitantly avoiding your glance."
         else:
             if sub > 0:
-                "She leisurely pleasures herself for a while, seductively glancing at you."
+                "[char.pC] leisurely pleasures [char.op]self for a while, seductively glancing at you."
             elif sub < 0:
-                "She diligently pleasures herself for a while until you tell her to stop."
+                "[char.pC] diligently pleasures [char.op]self for a while until you tell [char.op] to stop."
             else:
-                "She pleasures herself briefly, hesitantly avoiding your glance."
+                "[char.pC] pleasures [char.op]self briefly, hesitantly avoiding your glance."
             if dice(60):
-                extend " She is more aroused now."
+                extend " [char.pC] is more aroused now."
                 $ sex_scene_libido += 2
         $ char.vitality -= randint(5, 10)
         $ mast_count +=1
@@ -860,7 +864,7 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
         $ get_single_sex_picture(char, act="2c vaginalfingering", location=sex_scene_location, hidden_partner=True)
         $ image_tags = gm.img.get_image_tags()
         $ char_skill_for_checking = 2 * char.get_skill("sex")
-        if ct("Lesbian"):
+        if ct("Lesbian") != (hero.gender == "female"):
             $ char_skill_for_checking *= .8
         $ skill_for_checking = hero.get_skill("refinement") + hero.get_skill("sex")
         $ temp = randint(1, 5)
@@ -885,7 +889,7 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
         $ get_single_sex_picture(char, act="2c lickpussy", location=sex_scene_location, hidden_partner=True)
         $ image_tags = gm.img.get_image_tags()
         $ char_skill_for_checking = 2 * char.get_skill("sex")
-        if ct("Lesbian"):
+        if ct("Lesbian") != (hero.gender == "female"):
             $ char_skill_for_checking *= .8
         $ skill_for_checking = hero.get_skill("oral") + hero.get_skill("sex")
         $ temp = randint(1, 5)
@@ -907,11 +911,12 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
         call interaction_sex_scene_check_skill_gives from _call_interaction_sex_scene_check_skill_gives_1
 
     elif current_action == "blow":
-        $ get_single_sex_picture(char, act="bc blowjob", location=sex_scene_location, hidden_partner=True)
+        $ temp = "bc blowjob" if hero.gender == "male" else "bc lickpussy"
+        $ get_single_sex_picture(char, act=temp, location=sex_scene_location, hidden_partner=True)
         $ image_tags = gm.img.get_image_tags()
 
         $ skill_for_checking = char.get_skill("oral") + char.get_skill("sex")
-        if ct("Lesbian"):
+        if ct("Lesbian") != (hero.gender == "female"):
             $ skill_for_checking *= .8
         $ male_skill_for_checking = 2 * hero.get_skill("sex")
         $ temp = randint(1, 5)
@@ -924,35 +929,41 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
 
         if sub > 0:
             if sex_scene_libido > 0 and not char.has_flag("raped_by_player"):
-                "[char.name] licks her lips, defiantly looking at your crotch."
+                "[char.name] licks [char.pp] lips, defiantly looking at your crotch."
             else:
                 "[char.name] joylessly looks at your crotch."
             if "bc deepthroat" in image_tags:
                 extend " She shoves it all the way into her throat."
             elif not char.has_flag("raped_by_player"):
-                extend " She enthusiastically begins to lick and suck it."
+                extend " [char.pC] enthusiastically begins to lick and suck it."
             else:
-                extend " She begins to lick and suck it."
+                extend " [char.pC] begins to lick and suck it."
         elif sub < 0:
             if sex_scene_libido > 0 and not char.has_flag("raped_by_player"):
                 "Glancing at your crotch, [char.name] is patiently waiting for your orders."
             else:
                 "[char.name] is waiting for your orders."
-            if "bc deepthroat" in image_tags:
-                extend " You told her to take your dick in her mouth as deeply as she can, and she diligently obeyed."
-            elif not char.has_flag("raped_by_player"):
-                extend " You told her to lick and suck your dick, and she immediately obeyed."
+            if hero.gender == "male":
+                if "bc deepthroat" in image_tags:
+                    extend " You told [char.op] to take your dick in [char.op] mouth as deeply as [char.p] can, and [char.p] diligently obeyed."
+                elif not char.has_flag("raped_by_player"):
+                    extend " You told [char.op] to lick and suck your dick, and [char.p] immediately obeyed."
+                else:
+                    extend " You told [char.op] to lick and suck your dick."
             else:
-                extend " You told her to lick and suck your dick."
+                extend " You told [char.op] to lick and suck your pussy."
         else:
             if sex_scene_libido > 0 and not char.has_flag("raped_by_player"):
                 "[char.name] quickly approached your crotch."
             else:
                 "[char.name] slowly approached your crotch."
-            if "bc deepthroat" in image_tags:
-                extend " You shove your dick deep into her throat."
+            if hero.gender == "male":
+                if "bc deepthroat" in image_tags:
+                    extend " You shove your dick deep into her throat."
+                else:
+                    extend " [char.pC] begins to lick and suck your dick."
             else:
-                extend " She begins to lick and suck your dick."
+                extend " [char.pC] begins to lick and suck your pussy."
 
         call interaction_sex_scene_check_skill_jobs from _call_interaction_sex_scene_check_skill_jobs
 
@@ -998,11 +1009,12 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
         call interaction_sex_scene_check_skill_jobs from _call_interaction_sex_scene_check_skill_jobs_1
 
     elif current_action == "hand":
-        $ get_single_sex_picture(char, act="bc handjob", location=sex_scene_location, hidden_partner=True)
+        $ temp = "bc handjob" if hero.gender == "male" else "bc vaginalhandjob"
+        $ get_single_sex_picture(char, act=temp, location=sex_scene_location, hidden_partner=True)
         $ image_tags = gm.img.get_image_tags()
 
         $ skill_for_checking = char.get_skill("oral") + char.get_skill("sex")
-        if ct("Lesbian"):
+        if ct("Lesbian") != (hero.gender == "female"):
             $ skill_for_checking *= .8
         $ male_skill_for_checking = 2 * hero.get_skill("sex")
         $ temp = randint(2, 10)
@@ -1013,20 +1025,27 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
         $ del temp
 
         if sub > 0:
-            "[char.name] grabs you with her soft hands."
+            "[char.name] grabs you with [char.pp] soft hands."
         elif sub < 0:
-            "[char.name] wraps her soft hands around your dick."
+            if hero.gender == "male":
+                "[char.name] wraps [char.pp] soft hands around your dick."
+            else:
+                "[char.name] takes your pussy in [char.pp] palms."
         else:
-            "[char.name] takes your dick in her soft hands."
+            if hero.gender == "male":
+                "[char.name] takes your dick in [char.pp] soft hands."
+            else:
+                "[char.name] puts [char.pp] hands on your pussy."
 
         call interaction_sex_scene_check_skill_jobs from _call_interaction_sex_scene_check_skill_jobs_2
 
     elif current_action == "foot":
+        $ temp = "bc footjob" if hero.gender == "male" else "bc vaginalfootjob"
         $ get_single_sex_picture(char, act="bc footjob", location=sex_scene_location, hidden_partner=True)
         $ image_tags = gm.img.get_image_tags()
 
         $ skill_for_checking = char.get_skill("refinement") + char.get_skill("sex")
-        if ct("Lesbian"):
+        if ct("Lesbian") != (hero.gender == "female"):
             $ skill_for_checking *= .8
         $ male_skill_for_checking = 2 * hero.get_skill("sex")
         $ temp = randint(2, 10)
@@ -1042,36 +1061,37 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
             else:
                 "[char.name] gets closer to you."
         elif sub < 0:
-            "You asked [char.name] to use her feet."
+            "You asked [char.name] to use [char.pp] feet."
         else:
             "[char.name] sits next to you."
-        if ct("Athletic"):
-            if ct("Long Legs"):
-                "She squeezes your dick her between her long muscular legs and stimulates it until you cum."
+        if hero.gender == "male":
+            if ct("Athletic"):
+                if ct("Long Legs"):
+                    "[char.pC] squeezes your dick between [char.op] long muscular legs and stimulates it until you cum."
+                else:
+                    "[char.pC] squeezes your dick between [char.op] muscular legs and stimulates it until you cum."
+            elif ct("Slim"):
+                if ct("Long Legs"):
+                    "[char.pC] squeezes your dick between [char.op] long slim legs and stimulates it until you cum."
+                else:
+                    "[char.pC] squeezes your dick between [char.op] slim legs and stimulates it until you cum."
+            elif ct("Lolita"):
+                if ct("Long Legs"):
+                    "[char.pC] squeezes your dick between [char.op] long thin legs and stimulates it until you cum."
+                else:
+                    "[char.pC] squeezes your dick between [char.op] thin legs and stimulates it until you cum."
             else:
-                "She squeezes your dick her between her muscular legs and stimulates it until you cum."
-        elif ct("Slim"):
-            if ct("Long Legs"):
-                "She squeezes your dick her between her long slim legs and stimulates it until you cum."
-            else:
-                "She squeezes your dick her between her slim legs and stimulates it until you cum."
-        elif ct("Lolita"):
-            if ct("Long Legs"):
-                "She squeezes your dick her between her long thin legs and stimulates it until you cum."
-            else:
-                "She squeezes your dick her between her thin legs and stimulates it until you cum."
-        else:
-            if ct("Long Legs"):
-                "She squeezes your dick her between her long legs and stimulates it until you cum."
-            else:
-                "She squeezes your dick her between her legs and stimulates it until you cum."
-        if "after sex" in image_tags:
-            extend " You generously cover her body with your thick liquid."
+                if ct("Long Legs"):
+                    "[char.pC] squeezes your dick between [char.op] long legs and stimulates it until you cum."
+                else:
+                    "[char.pC] squeezes your dick between [char.op] legs and stimulates it until you cum."
+            if "after sex" in image_tags:
+                extend " You generously cover [char.op] body with your thick liquid."
 
         call interaction_sex_scene_check_skill_jobs from _call_interaction_sex_scene_check_skill_jobs_3
 
     elif current_action == "vag":
-        $ get_single_sex_picture(char, act="bc vaginal", location=sex_scene_location, hidden_partner=True)
+        $ get_single_sex_picture(char, act="2c vaginal", location=sex_scene_location, hidden_partner=True)
         $ image_tags = gm.img.get_image_tags()
 
         $ skill_for_checking = char.get_skill("vaginal") + char.get_skill("sex")
@@ -1177,71 +1197,70 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
 
         if sub > 0:
             if sex_scene_libido > 0 and not char.has_flag("raped_by_player"):
-                "[char.name] looking forward to something big inside her ass."
+                "[char.name] looking forward to something big inside [char.pp] ass."
             else:
-                "[char.name] unenthusiastically prepares her ass."
+                "[char.name] unenthusiastically prepares [char.pp] ass."
             if "ontop" in image_tags:
-                extend " She sits on top of you, immersing your dick inside."
+                extend " [char.pC] sits on top of you, immersing your dick inside."
             elif "doggy" in image_tags:
-                extend " She bent over, pushing her anus toward your dick."
+                extend " [char.pC] bent over, pushing [char.pp] anus toward your dick."
             elif "missionary" in image_tags:
-                extend " She lay on her back spreading her legs, waiting for your dick."
+                extend " [char.pC] lay on [char.pp] back spreading [char.pp] legs, waiting for your dick."
             elif "onside" in image_tags:
-                extend " She lay down on her side, waiting for you to join her."
+                extend " [char.pC] lay down on [char.pp] side, waiting for you to join [char.pp]."
             elif "standing" in image_tags:
-                extend " She spreads her legs waiting for you, not even bothering to lay down."
+                extend " [char.pC] spreads [char.pp] legs waiting for you, not even bothering to lay down."
             elif "spooning" in image_tags:
-                extend " She snuggled to you, being in a mood for some spooning."
+                extend " [char.pC] snuggled to you, being in a mood for some spooning."
             elif "sitting" in image_tags:
-                extend " She sat on your lap, immersing your dick inside."
+                extend " [char.pC] sat on your lap, immersing your dick inside."
             else:
-                extend " She confidently pushes your dick inside and starts to move."
+                extend " [char.pC] confidently pushes your dick inside and starts to move."
         elif sub < 0:
             "[char.name] prepares herself, waiting for further orders."
             if "ontop" in image_tags:
-                extend " You ask her to sit on top of you, immersing your dick inside."
+                extend " You ask [char.pp] to sit on top of you, immersing your dick inside."
             elif "doggy" in image_tags:
-                extend " You ask her to bend over, allowing you to take her from behind."
+                extend " You ask [char.pp] to bend over, allowing you to take [char.pp] from behind."
             elif "missionary" in image_tags:
-                extend " You ask her to lay on her back and spread legs, allowing you to shove your dick inside."
+                extend " You ask [char.pp] to lay on [char.pp] back and spread legs, allowing you to shove your dick inside."
             elif "onside" in image_tags:
-                extend "  You asked her to lay down on her side, allowing you to get inside."
+                extend "  You asked [char.pp] to lay down on [char.pp] side, allowing you to get inside."
             elif "standing" in image_tags:
-                extend " You asked her to spread her legs and pushed your dick inside."
+                extend " You asked [char.pp] to spread [char.pp] legs and pushed your dick inside."
             elif "spooning" in image_tags:
-                extend " You asked her to snuggle with you, spooning her in the process."
+                extend " You asked [char.pp] to snuggle with you, spooning [char.pp] in the process."
             elif "sitting" in image_tags:
-                extend " You asked her to sit on your lap, immersing your dick inside."
+                extend " You asked [char.pp] to sit on your lap, immersing your dick inside."
             else:
-                extend " You entered her and asked to start moving."
+                extend " You entered [char.pp] and asked to start moving."
         else:
             if sex_scene_libido > 0 and not char.has_flag("raped_by_player"):
-                "[char.name] doesn't mind you to do her ass."
+                "[char.name] doesn't mind you to do [char.pp] ass."
             else:
-                "[char.name] silently offers her ass."
+                "[char.name] silently offers [char.pp] ass."
             if "ontop" in image_tags:
-                extend " You invite her to sit on top of you, preparing your dick for some penetration."
+                extend " You invite [char.pp] to sit on top of you, preparing your dick for some penetration."
             elif "doggy" in image_tags:
-                extend " She bent over, welcoming your dick from behind."
+                extend " [char.pC] bent over, welcoming your dick from behind."
             elif "missionary" in image_tags:
-                extend " She lays on her back and spreads legs, inviting you to enter inside."
+                extend " [char.pC] lays on [char.pp] back and spreads legs, inviting you to enter inside."
             elif "onside" in image_tags:
-                extend " She lays down on her side, inviting you to enter inside."
+                extend " [char.pC] lays down on [char.pp] side, inviting you to enter inside."
             elif "standing" in image_tags:
-                extend " You proceed to penetrate her not even bothering to lay down."
+                extend " You proceed to penetrate [char.pp] not even bothering to lay down."
             elif "spooning" in image_tags:
                 extend " You two snuggle with each other, trying out spooning."
             elif "sitting" in image_tags:
-                extend " She sits on your lap while you prepare your dick for going inside her."
+                extend " [char.pC] sits on your lap while you prepare your dick for going inside [char.pp]."
             else:
-                extend " You enter her anus, and you two begin to move."
+                extend " You enter [char.pp] anus, and you two begin to move."
         call interaction_sex_scene_check_skill_acts from _call_interaction_sex_scene_check_skill_acts_1
 
     $ sex_scene_libido -= 1
     jump interaction_scene_choice
 
 label interaction_sex_scene_check_skill_jobs: # skill level check for girl side actions
-
     if current_action == "hand":
         if skill_for_checking <= 200:
             if sub > 0:

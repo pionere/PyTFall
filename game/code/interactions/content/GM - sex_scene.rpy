@@ -28,7 +28,7 @@ init python:
         """
 
         # prepare excludeds
-        excluded = ["in pain", "scared", "sad", "rape", "sex", "forced", "group"]
+        excluded = ["in pain", "scared", "angry", "sad", "rape", "forced", "group"]
 
         # prepare for location
         loc_tag = location
@@ -90,17 +90,11 @@ init python:
                     gm.set_img("nude", loc_tag, *optional_included, exclude=excluded, type="reduce")
 
         else: # any 2c/bc sexual act
-            # prepare base excludeds
-            excluded_1 = list(excluded)
-            excluded.extend(["restrained", "angry"])
-            
             # partner filters
             if char.gender == hero.gender:
                 excluded.append("straight")
-                excluded_1.append("straight")
             else:
                 excluded.append("gay")
-                excluded_1.append("gay") 
             if hidden_partner:
                 optional_included.append("partnerhidden")
             else:
@@ -109,12 +103,8 @@ init python:
             # image selection
             if char.has_image(act, loc_tag, exclude=excluded):
                 gm.set_img(act, loc_tag, *optional_included, exclude=excluded, type="reduce")
-            elif char.has_image(act, loc_tag, exclude=excluded_1):
-                gm.set_img(act, loc_tag, *optional_included, exclude=excluded_1, type="reduce")
             elif char.has_image("after sex", loc_tag, exclude=excluded):
                 gm.set_img("after sex", loc_tag, *optional_included, exclude=excluded, type="reduce")
-            elif char.has_image("after sex", loc_tag, exclude=excluded_1):
-                gm.set_img("after sex", loc_tag, *optional_included, exclude=excluded_1, type="reduce")
             else:
                 tags = ([act, "simple bg"], [act, "no bg"], ["after sex", "simple bg"], ["after sex", "no bg"])
                 result = get_simple_act(char, tags, excluded)
