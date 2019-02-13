@@ -3,7 +3,7 @@
         "id": "Northern Route",
         "main": true,
         "unlocked": true,
-        "img": "content/gfx/bg/locations/fg_areas_northern.webp"
+        "img": "content/maps/northern.webp"
     },
     {
         "id": "Northern Forest",
@@ -38,7 +38,7 @@
             "Huntsman Hat": 10,
             "Scarf": 7
         },
-        "img": "content/gfx/bg/locations/fg_areas_northern.webp"
+        "img": "content/maps/northern.webp"
     },
     {
         "id": "Deep Northern Forest",
@@ -81,7 +81,7 @@
             "Huntsman Hat": 25,
             "Scarf": 7
         },
-        "img": "content/gfx/bg/locations/fg_areas_northern_deep.webp"
+        "img": "content/maps/northern_deep.webp"
     },
     {
         "id": "Burial Grounds - lv 1",
@@ -133,7 +133,7 @@
             "Bone Knife": 15,
             "Darksome Trophy": 10
         },
-        "img": "content/gfx/bg/locations/fg_areas_burial_1.webp"
+        "img": "content/maps/burial_1.webp"
     },
     {
         "id": "Burial Grounds - lv 2",
@@ -179,7 +179,7 @@
             "Bone Knife": 20,
             "Darksome Trophy": 20
         },
-        "img": "content/gfx/bg/locations/fg_areas_burial_2.webp"
+        "img": "content/maps/burial_2.webp"
     },
     {
         "id": "Hearth of the Forest",
@@ -213,7 +213,7 @@
             "Claws": 35,
             "Minor Reflector": 20
         },
-        "img": "content/gfx/bg/locations/fg_areas_northern_heart.webp"
+        "img": "content/maps/northern_heart.webp"
     },
     {
         "id": "Mountain Pass",
@@ -241,7 +241,7 @@
             "Tanned Leather Boots": 20,
             "Tanned Leather Gloves": 20
         },
-        "img": "content/gfx/bg/locations/fg_areas_mountain_pass.webp"
+        "img": "content/maps/mountain_pass.webp"
     },
     {
         "id": "High Pass",
@@ -267,7 +267,7 @@
             "Fur Coat": 8,
             "Leather Kilt": 4
         },
-        "img": "content/gfx/bg/locations/fg_areas_high_pass.webp"
+        "img": "content/maps/high_pass.webp"
     },
     {
         "id": "Frozen Passage - Entrance",
@@ -304,7 +304,7 @@
             "Fur Coat": 12,
             "Leather Kilt": 12
         },
-        "img": "content/gfx/bg/locations/fg_areas_frozen_entry.webp"
+        "img": "content/maps/frozen_entry.webp"
     },
     {
         "id": "Frozen Passage - lv 1",
@@ -344,7 +344,7 @@
             "Fur Coat": 2,
             "Leather Kilt": 2
         },
-        "img": "content/gfx/bg/locations/fg_areas_frozen_2.webp"
+        "img": "content/maps/frozen_2.webp"
     },
     {
         "id": "Frozen Passage - lv 2",
@@ -376,6 +376,6 @@
             "Snow-knit Gown": 4,
             "Crystal Shard": 20
         },
-        "img": "content/gfx/bg/locations/fg_areas_frozen_1.webp"
+        "img": "content/maps/frozen_1.webp"
     }
 ]
