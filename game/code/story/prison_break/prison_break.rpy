@@ -33,13 +33,13 @@ screen prison_break_controls(): # control buttons screen
                 yalign 0.5
                 action [Hide("prison_break_controls"), Play("events2", "events/letter.mp3"), Jump("storyi_map")]
                 text "Show map" size 15
-            if not hero.has_flag("ndd_storyi_rest"):
+            if hero.get_flag("storyi_rest", None) != day:
                 button:
                     xysize (120, 40)
                     yalign 0.5
                     action [Hide("prison_break_controls"), Jump("mc_action_storyi_rest")]
                     text "Rest" size 15
-            if not hero.has_flag("ndd_storyi_heal"):
+            if hero.get_flag("storyi_heal", None) != day:
                 if storyi_prison_location == 3:
                     button:
                         xysize (120, 40)
@@ -155,7 +155,7 @@ label storyi_bossroom:
         jump game_over
 
 label mc_action_storyi_rest: # resting inside the dungeon; team may be attacked during the rest
-    $ hero.set_flag("ndd_storyi_rest")
+    $ hero.set_flag("storyi_rest", day)
     show bg tent with q_dissolve
     python:
         for i in hero.team:
@@ -226,7 +226,7 @@ label storyi_treat_wounds:
         python:
             for i in hero.team:
                 i.health = i.get_max("health")
-        $ hero.set_flag("ndd_storyi_heal")
+        $ hero.set_flag("storyi_heal", day)
         "Health is restored!"
     else:
         "Everyone is healthy already."

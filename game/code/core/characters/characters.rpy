@@ -2628,8 +2628,9 @@ init -9 python:
                 # Settle wages:
                 img = self.fin.settle_wage(txt, img)
 
-                tips = self.flag("ndd_accumulated_tips")
+                tips = self.flag("accumulated_tips")
                 if tips:
+                    self.del_flag("accumulated_tips")
                     temp = choice(["Total tips earned: {color=[gold]}%d Gold{/color}. " % tips,
                                    "%s got {color=[gold]}%d Gold{/color} in tips. " % (self.nickname, tips)])
                     txt.append(temp)
@@ -2675,6 +2676,7 @@ init -9 python:
                 if not self.action:
                     flag_red = True
                     txt.append("  {color=[red]}Please note that she is not really doing anything productive!-{/color}")
+                    NextDayEvents.unassigned_chars += 1
 
             # Finances related:
             self.fin.next_day()

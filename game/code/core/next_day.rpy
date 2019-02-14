@@ -1,76 +1,134 @@
 init python:
-    def sort_for_nd_summary():
-        # By Actions, Flags and Buildings...
-        events = dict()
-        rest = dict()
-        actions = dict()
+    class NextDayStats(_object):
+        def __init__(self):
+            super(NextDayStats, self).__init__()
+            self.event_list = list()
+            self.unassigned_chars = 0
 
-        base = {"IDLE": 0, "Service": 0, "Warriors": 0, "Managers": 0}
+        def append(self, evt):
+            self.event_list.append(evt)
 
-        for setup in ["ALL"] + [b for b in hero.buildings if b.workable]:
-            actions[setup] = base.copy()
-            rest[setup] = base.copy()
-            events[setup] = base.copy()
-            for i in events[setup]:
-                events[setup][i] = {"count": 0, "red_flag": 0, "green_flag": 0}
+        def prepare_summary(self):
+            # By Actions, Flags and Buildings...
 
-            # Actions/Rest first:
-            a = actions[setup]
-            r = rest[setup]
-            e = events[setup]
+            nd_stats = OrderedDict()
 
-            if setup == "ALL":
-                container = hero.chars
-            else:
-                container = [c for c in hero.chars if setup == c.workplace]
+            base = {"IDLE": 0, "Service": 0, "Warriors": 0, "Managers": 0}
+            total_clients = 0
+            for setup in [b for b in hero.buildings if b.expects_clients] + ["ALL"]:
+                a = base.copy()
+                r = base.copy()
+                e = base.copy()
+                for i in e:
+                    e[i] = {"count": 0, "red_flag": 0, "green_flag": 0}
 
-            for char in container:
-                cat = 0
-                action = char.action
-                if action is None:
-                    cat = "IDLE"
-                    a["IDLE"] += 1
-                elif hasattr(action, "type"):
-                    if action.__class__ == AutoRest:
-                        action = char.previousaction
-                        if not hasattr(action, "type"):
-                            action = simple_jobs["Rest"]
-                    type = action.type
-                    if type == "Combat":
-                        cat = "Warriors"
-                        a["Warriors"] += 1
-                    elif type in ["Service", "SIW"]:
-                        cat = "Service"
-                        a["Service"] += 1
-                    elif type == "Management":
-                        cat = "Managers"
-                        a["Managers"] += 1
-                    elif type == "Resting":
-                        # This needs to be handled separately:
+                # Actions/Rest first:
+                if setup == "ALL":
+                    container = hero.chars
+                else:
+                    container = [c for c in hero.chars if setup == c.workplace]
+
+                for char in container:
+                    cat = 0
+                    action = char.action
+                    if action is None:
                         cat = "IDLE"
-                        r["IDLE"] += 1
-                    
-                # Events:
-                if cat:
-                    for event in NextDayEvents:
-                        if isinstance(setup, Building):
-                            if event.loc != setup:
-                                continue
-                        if event.char == char:
-                            e[cat]["count"] += 1
-                            if event.red_flag:
-                                e[cat]["red_flag"] += 1
-                            if event.green_flag:
-                                e[cat]["green_flag"] += 1
+                        a["IDLE"] += 1
+                    elif hasattr(action, "type"):
+                        if action.__class__ == AutoRest:
+                            action = char.previousaction
+                            if not hasattr(action, "type"):
+                                action = simple_jobs["Rest"]
+                        type = action.type
+                        if type == "Combat":
+                            cat = "Warriors"
+                            a["Warriors"] += 1
+                        elif type in ["Service", "SIW"]:
+                            cat = "Service"
+                            a["Service"] += 1
+                        elif type == "Management":
+                            cat = "Managers"
+                            a["Managers"] += 1
+                        elif type == "Resting":
+                            # This needs to be handled separately:
+                            cat = "IDLE"
+                            r["IDLE"] += 1
 
-        return actions, rest, events
+                    # Events:
+                    if cat:
+                        for event in self.event_list:
+                            if isinstance(setup, Building):
+                                if event.loc != setup:
+                                    continue
+                            if event.char == char:
+                                e[cat]["count"] += 1
+                                if event.red_flag:
+                                    e[cat]["red_flag"] += 1
+                                if event.green_flag:
+                                    e[cat]["green_flag"] += 1
+
+                stats = {"actives": a, "rests": r, "events": e}
+                if setup == "ALL":
+                    stats["clients"] = total_clients
+
+                    self.nd_all_stats = stats
+                else:
+                    if setup.maxfame != 0:
+                        stats["fame"] = (setup.fame, setup.maxfame)
+                    if setup.maxrep != 0:
+                        stats["rep"] = (setup.rep, setup.maxrep)
+                    if setup.maxdirt != 0:
+                        stats["dirt"] = setup.get_dirt_percentage()
+                    if setup.maxthreat != 0:
+                        stats["threat"] = setup.get_threat_percentage()
+
+                    clients = len(setup.all_clients)
+                    stats["clients"] = total_clients
+
+                    total_clients += clients
+
+                    nd_stats[setup] = stats
+
+            self.nd_stats = nd_stats
+
+            self.hero_hp = hero.health
+            self.hero_mp = hero.mp
+            self.hero_vp = hero.vitality
+
+            self.hero_max_hp = hero.get_max("health")
+            self.hero_max_mp = hero.get_max("mp")
+            self.hero_max_vp = hero.get_max("vitality")
+
+            self.hero_income, self.hero_expense, self.hero_total = hero.fin.get_game_total()
+
+            free = slaves = 0
+            for char in hero.chars:
+                if char.status == "slave":
+                    slaves += 1
+                else:
+                    free += 1
+            self.free = free
+            self.slaves = slaves
+
+        def get_nd_stats(self):
+            return self.nd_stats, self.nd_all_stats
+
+        def get_hero_hp(self):
+            return self.hero_hp, self.hero_max_hp
+        def get_hero_mp(self):
+            return self.hero_mp, self.hero_max_mp
+        def get_hero_vp(self):
+            return self.hero_vp, self.hero_max_vp
+
+        def get_hero_fin(self):
+            return self.hero_income, self.hero_expense, self.hero_total
+
+        def get_chars_dist(self):
+            return self.free, self.slaves
 
     def auto_rest_conditions(char):
         # returns True if a char can go AutoResting, False if not.
-        c0 = char.is_available
-        c1 = isinstance(char.action, Rest)
-        c2 = char.AP > 0
-        return all([c0, c1, c2])
+        return isinstance(char.action, Rest) and char.is_available and char.AP > 0
 
 
 label next_day:
@@ -88,13 +146,15 @@ label next_day:
             call next_day_effects_check from _call_next_day_effects_check
             $ nd_turns -= 1
         $ nd_turns = 1
+        # prepare the data to show to the player
+        $ NextDayEvents.prepare_summary()
 
     # Preparing to display ND.
     ####### - - - - - #######
     # Sort data for summary reports:
-    $ ndactive, ndresting, ndevents = sort_for_nd_summary()
+    $ nd_stats, nd_all_stats = NextDayEvents.get_nd_stats()
     # Setting index and picture
-    $ FilteredList = NextDayEvents * 1
+    $ FilteredList = NextDayEvents.event_list
     if FilteredList:
         $ event = FilteredList[0]
         $ gimg = event.load_image()
@@ -109,7 +169,6 @@ label next_day:
     if next_day_local:
         jump next_day
 
-    #$ girls = None
     hide screen next_day
 
     if persistent.auto_saves:
@@ -127,13 +186,13 @@ label next_day_calculations:
     $ global_flags.set_flag("keep_playing_music")
 
     $ tl.start("Next Day")
-    $ NextDayEvents = list()
+    $ NextDayEvents = NextDayStats()
     python hide:
         nd_debug("Day: %s, Girls (Player): %s, Girls (Game): %s" % (day, len(hero.chars), len(chars)))
 
         # Restore (AutoEquip for HP/Vit/MP) before the jobs:
         tl.start("AutoEquip Consumables for Workers")
-        list(c.restore() for c in list(c for c in hero.chars if c.is_available))
+        (c.restore() for c in hero.chars if c.is_available)
         tl.end("AutoEquip Consumables for Workers")
 
         # Building events Start:
@@ -167,9 +226,7 @@ label next_day_calculations:
 
         # Second iteration of Rest:
         tl.start("ND-Rest (Second pass)")
-        for c in hero.chars:
-            if auto_rest_conditions(c):
-                c.action(c) # <--- Looks odd and off?
+        (c.action(c) for c in hero.chars if auto_rest_conditions(c))
         tl.end("ND-Rest (Second pass)")
 
         ################## Logic ##################
@@ -180,7 +237,7 @@ label next_day_calculations:
         tl.end("pytfall/calender .next_day")
 
         # Reset Flags:
-        for char in chars.values():
+        for char in hero.chars:
             for flag in char.flags.keys():
                 if flag.startswith("ndd"):
                     char.del_flag(flag)
@@ -197,30 +254,31 @@ label next_day_controls:
             result = ui.interact()
 
             if result[0] == 'filter':
+                FilteredList = NextDayEvents.event_list
                 if result[1] == 'all':
-                    FilteredList = NextDayEvents * 1
+                    pass
                 elif result[1] == 'red_flags':
-                    FilteredList = [e for e in NextDayEvents if e.red_flag]
+                    FilteredList = [e for e in FilteredList if e.red_flag]
                 elif result[1] == 'mc':
-                    FilteredList = [e for e in NextDayEvents if e.type == 'mcndreport']
+                    FilteredList = [e for e in FilteredList if e.type == 'mcndreport']
                 elif result[1] == 'school':
                     order = {"school_nd_report": 1, "course_nd_report": 2}
-                    temp = [e for e in NextDayEvents if e.type in order]
+                    temp = [e for e in FilteredList if e.type in order]
                     # temp.sort(key=itemgetter(1))
                     # FilteredList = temp
                     temp.sort(key=lambda e: order[e.type])
                     FilteredList = temp
                 elif result[1] == 'gndreports': # Girl Next Day Reports
-                    FilteredList = [e for e in NextDayEvents if e.type == 'girlndreport']
+                    FilteredList = [e for e in FilteredList if e.type == 'girlndreport']
                 elif result[1] == 'xndreports': # Exploration Next Day Reports
-                    FilteredList = [e for e in NextDayEvents if e.type == 'explorationndreport']
+                    FilteredList = [e for e in FilteredList if e.type == 'explorationndreport']
                 elif result[1] == 'building':
                     building = result[2]
                     order = {"buildingreport": 1, "manager_report": 2, "explorationndreport": 2.5, "jobreport": 3}
-                    FilteredList = sorted([e for e in NextDayEvents if e.loc == building and e.type in order], key=lambda e: order[e.type])
+                    FilteredList = sorted([e for e in FilteredList if e.loc == building and e.type in order], key=lambda e: order[e.type])
                 elif result[1] == "fighters_guild":
                     order = {"fg_report": 1, "exploration_report": 2, "fg_job": 3}
-                    FilteredList = sorted([e for e in NextDayEvents if e.type in order], key=lambda e: order[e.type])
+                    FilteredList = sorted([e for e in FilteredList if e.type in order], key=lambda e: order[e.type])
                 else:
                     nd_debug("unhandled event:"+result[1], "warn")
 
@@ -232,7 +290,7 @@ label next_day_controls:
                     nd_debug("all NextDayEvents were filtered for: "+result[0]+", "+result[1], "warn")
                     # if result[1] == 'gndreports':
                     # Preventing Index Exception on empty filter
-                    FilteredList = NextDayEvents
+                    FilteredList = NextDayEvents.event_list
 
         if result[0] == 'control':
             if result[1] == 'left':
@@ -257,10 +315,7 @@ label next_day_controls:
 
 label next_day_effects_check:  # all traits and effects which require some unusual checks every turn do it here
     python hide:
-        if "Life Beacon" in hero.traits:
-            mod_by_max(hero, "health", .1)
-
-        for i in hero.chars: # chars with low or high joy get joy-related effects every day
+        for i in chars.values(): # chars with low or high joy get joy-related effects every day
 
             if 'Depression' in i.effects:
                 i.AP -= 1
@@ -287,10 +342,6 @@ label next_day_effects_check:  # all traits and effects which require some unusu
             if i.get_flag("exhausted_counter", 0) >= 5 and not 'Exhausted' in i.effects:
                 i.enable_effect('Exhausted')
 
-            if "Life Beacon" in hero.traits: # hero-only trait which heals everybody
-                mod_by_max(i, "health", .1)
-                i.joy += 1
-
             if 'Horny' in i.effects: # horny effect which affects various sex-related things and scenes
                 i.disable_effect("Horny")
             else:
@@ -299,6 +350,15 @@ label next_day_effects_check:  # all traits and effects which require some unusu
                         i.enable_effect("Horny")
                     elif not ("Frigid" in i.traits) and locked_dice(30) and i.joy > 50:
                         i.enable_effect("Horny")
+
+        # hero-only trait which heals everybody
+        if "Life Beacon" in hero.traits:
+            for i in hero.chars:
+                mod_by_max(i, "health", .1)
+                i.joy += 1
+
+            mod_by_max(hero, "health", .1)
+
     return
 
 label special_auto_save: # since built-in autosave works like shit, I use normal saves to save in auto slots
@@ -365,29 +425,29 @@ screen next_day():
                             frame:
                                 xysize (285, 25)
                                 text "Active" yalign .5 xpos 3
-                                text str(ndactive["ALL"]["Service"]) style_suffix "value_text" xpos 135
-                                text str(ndactive["ALL"]["Warriors"]) style_suffix "value_text" xpos 175
-                                text str(ndactive["ALL"]["Managers"]) style_suffix "value_text" xpos 215
-                                text str(ndactive["ALL"]["IDLE"]) style_suffix "value_text" xpos 255
+                                text str(nd_all_stats["actives"]["Service"]) style_suffix "value_text" xpos 135
+                                text str(nd_all_stats["actives"]["Warriors"]) style_suffix "value_text" xpos 175
+                                text str(nd_all_stats["actives"]["Managers"]) style_suffix "value_text" xpos 215
+                                text str(nd_all_stats["actives"]["IDLE"]) style_suffix "value_text" xpos 255
 
                             # Resting:
                             frame:
                                 xysize (285, 25)
                                 text "Resting" yalign .5 xpos 3
-                                text str(ndresting["ALL"]["Service"]) style_suffix "value_text" xpos 135
-                                text str(ndresting["ALL"]["Warriors"]) style_suffix "value_text" xpos 175
-                                text str(ndresting["ALL"]["Managers"]) style_suffix "value_text" xpos 215
-                                text str(ndresting["ALL"]["IDLE"]) style_suffix "value_text" xpos 255
+                                text str(nd_all_stats["rests"]["Service"]) style_suffix "value_text" xpos 135
+                                text str(nd_all_stats["rests"]["Warriors"]) style_suffix "value_text" xpos 175
+                                text str(nd_all_stats["rests"]["Managers"]) style_suffix "value_text" xpos 215
+                                text str(nd_all_stats["rests"]["IDLE"]) style_suffix "value_text" xpos 255
 
                             # Events:
                             frame:
                                 xysize (285, 25)
                                 text "Events" yalign .5 xpos 3
-                                text str(ndevents["ALL"]["Service"]["count"]) style_suffix "value_text" xpos 135
+                                text str(nd_all_stats["events"]["Service"]["count"]) style_suffix "value_text" xpos 135
                                 hbox:
                                     xpos 138
                                     xmaximum 40
-                                    if ndevents["ALL"]["Service"]["red_flag"]:
+                                    if nd_all_stats["events"]["Service"]["red_flag"]:
                                         button:
                                             yoffset 4
                                             padding 1, 1
@@ -395,7 +455,7 @@ screen next_day():
                                             text "!" style "next_day_summary_text" color red
                                             action NullAction()
 
-                                    if ndevents["ALL"]["Service"]["green_flag"]:
+                                    if nd_all_stats["events"]["Service"]["green_flag"]:
                                         button:
                                             yoffset 4
                                             padding 1, 1
@@ -403,11 +463,11 @@ screen next_day():
                                             text "!" style "next_day_summary_text" color green
                                             action NullAction()
 
-                                text str(ndevents["ALL"]["Warriors"]["count"]) style_suffix "value_text" xpos 175
+                                text str(nd_all_stats["events"]["Warriors"]["count"]) style_suffix "value_text" xpos 175
                                 hbox:
                                     xpos 178
                                     xmaximum 40
-                                    if ndevents["ALL"]["Warriors"]["red_flag"]:
+                                    if nd_all_stats["events"]["Warriors"]["red_flag"]:
                                         button:
                                             yoffset 4
                                             padding 1, 1
@@ -415,7 +475,7 @@ screen next_day():
                                             text "!" style "next_day_summary_text" color red
                                             action NullAction()
 
-                                    if ndevents["ALL"]["Warriors"]["green_flag"]:
+                                    if nd_all_stats["events"]["Warriors"]["green_flag"]:
                                         button:
                                             yoffset 4
                                             padding 1, 1
@@ -423,11 +483,11 @@ screen next_day():
                                             text "!" style "next_day_summary_text" color green
                                             action NullAction()
 
-                                text str(ndevents["ALL"]["Managers"]["count"]) style_suffix "value_text" xpos 215
+                                text str(nd_all_stats["events"]["Managers"]["count"]) style_suffix "value_text" xpos 215
                                 hbox:
                                     xpos 218
                                     xmaximum 40
-                                    if ndevents["ALL"]["Managers"]["red_flag"]:
+                                    if nd_all_stats["events"]["Managers"]["red_flag"]:
                                         button:
                                             yoffset 4
                                             padding 1, 1
@@ -435,7 +495,7 @@ screen next_day():
                                             text "!" style "next_day_summary_text" color red
                                             action NullAction()
 
-                                    if ndevents["ALL"]["Managers"]["green_flag"]:
+                                    if nd_all_stats["events"]["Managers"]["green_flag"]:
                                         button:
                                             yoffset 4
                                             padding 1, 1
@@ -443,11 +503,11 @@ screen next_day():
                                             text "!" style "next_day_summary_text" color green
                                             action NullAction()
 
-                                text str(ndevents["ALL"]["IDLE"]["count"]) style_suffix "value_text" xpos 255
+                                text str(nd_all_stats["events"]["IDLE"]["count"]) style_suffix "value_text" xpos 255
                                 hbox:
                                     xpos 258
                                     xmaximum 40
-                                    if ndevents["ALL"]["IDLE"]["red_flag"]:
+                                    if nd_all_stats["events"]["IDLE"]["red_flag"]:
                                         button:
                                             yoffset 4
                                             padding 1, 1
@@ -455,7 +515,7 @@ screen next_day():
                                             text "!" style "next_day_summary_text" color red
                                             action NullAction()
 
-                                    if ndevents["ALL"]["IDLE"]["green_flag"]:
+                                    if nd_all_stats["events"]["IDLE"]["green_flag"]:
                                         button:
                                             yoffset 4
                                             padding 1, 1
@@ -466,12 +526,7 @@ screen next_day():
                             frame:
                                 xysize (285, 25)
                                 text "Customers:" xpos 3
-                                python:
-                                    clnts = 0
-                                    for b in hero.buildings:
-                                        if hasattr(b, "all_clients"):
-                                            clnts += len(b.all_clients)
-                                text "[clnts]" style_suffix "value_text"  xpos 135
+                                text str(nd_all_stats["clients"]) style_suffix "value_text" xpos 135
 
                         null width 4
 
@@ -488,7 +543,7 @@ screen next_day():
                     has vbox
 
                     # Buildings:
-                    for building in [b for b in hero.buildings if b.expects_clients]:
+                    for building, curr_stats in nd_stats.items():
                         # Image/Name:
                         null height 4
                         label "[building.name]" xpos 10
@@ -535,34 +590,34 @@ screen next_day():
                                     frame:
                                         xysize 410, 25
                                         text "Active" yalign .5 xpos 3
-                                        text str(ndactive[building]["Service"]) style_suffix "value_text" xpos 135
-                                        text str(ndactive[building]["Warriors"]) style_suffix "value_text" xpos 175
-                                        text str(ndactive[building]["Managers"]) style_suffix "value_text" xpos 215
-                                        text str(ndactive[building]["IDLE"]) style_suffix "value_text" xpos 255
-                                        if building.maxdirt != 0:
+                                        text str(curr_stats["actives"]["Service"]) style_suffix "value_text" xpos 135
+                                        text str(curr_stats["actives"]["Warriors"]) style_suffix "value_text" xpos 175
+                                        text str(curr_stats["actives"]["Managers"]) style_suffix "value_text" xpos 215
+                                        text str(curr_stats["actives"]["IDLE"]) style_suffix "value_text" xpos 255
+                                        if "dirt" in curr_stats:
                                             text "Dirt" yalign .5 xpos 285
-                                            text ("%d%%" % building.get_dirt_percentage()[0]) style_suffix "value_text" xalign .99
+                                            text ("%d%%" % curr_stats["dirt"]) style_suffix "value_text" xalign .99
 
                                     # Resting:
                                     frame:
                                         xysize (410, 25)
                                         text "Resting" yalign .5 xpos 3
-                                        text str(ndresting[building]["Service"]) style_suffix "value_text" xpos 135
-                                        text str(ndresting[building]["Warriors"]) style_suffix "value_text" xpos 175
-                                        text str(ndresting[building]["Managers"]) style_suffix "value_text" xpos 215
-                                        text str(ndresting[building]["IDLE"]) style_suffix "value_text" xpos 255
-                                        if building.maxthreat != 0:
+                                        text str(curr_stats["rests"]["Service"]) style_suffix "value_text" xpos 135
+                                        text str(curr_stats["rests"]["Warriors"]) style_suffix "value_text" xpos 175
+                                        text str(curr_stats["rests"]["Managers"]) style_suffix "value_text" xpos 215
+                                        text str(curr_stats["rests"]["IDLE"]) style_suffix "value_text" xpos 255
+                                        if "threat" in curr_stats:
                                             text "Threat" yalign .5 xpos 285
-                                            text ("%d%%" % (building.get_threat_percentage())) style_suffix "value_text" xalign .99
+                                            text ("%d%%" % curr_stats["threat"]) style_suffix "value_text" xalign .99
 
                                     # Events:
                                     frame:
                                         xysize (410, 25)
                                         text "Events" yalign .5 xpos 3
-                                        text str(ndevents[building]["Service"]["count"]) style_suffix "value_text" xpos 135
+                                        text str(curr_stats["events"]["Service"]["count"]) style_suffix "value_text" xpos 135
                                         hbox:
                                             xpos 137
-                                            if ndevents[building]["Service"]["red_flag"]:
+                                            if curr_stats["events"]["Service"]["red_flag"]:
                                                 button:
                                                     yoffset 4
                                                     padding 1, 1
@@ -570,7 +625,7 @@ screen next_day():
                                                     text "!" style "next_day_summary_text" color red
                                                     action NullAction()
 
-                                            if ndevents[building]["Service"]["green_flag"]:
+                                            if curr_stats["events"]["Service"]["green_flag"]:
                                                 button:
                                                     yoffset 4
                                                     padding 1, 1
@@ -578,12 +633,12 @@ screen next_day():
                                                     text "!" style "next_day_summary_text" color green
                                                     action NullAction()
 
-                                        text str(ndevents[building]["Warriors"]["count"]) style_suffix "value_text" xpos 175
+                                        text str(curr_stats["events"]["Warriors"]["count"]) style_suffix "value_text" xpos 175
                                         hbox:
                                             xpos 178
                                             xmaximum 40
 
-                                            if ndevents[building]["Warriors"]["red_flag"]:
+                                            if curr_stats["events"]["Warriors"]["red_flag"]:
                                                 button:
                                                     yoffset 4
                                                     padding 1, 1
@@ -591,7 +646,7 @@ screen next_day():
                                                     text "{color=[red]}!" style "next_day_summary_text"
                                                     action NullAction()
 
-                                            if ndevents[building]["Warriors"]["green_flag"]:
+                                            if curr_stats["events"]["Warriors"]["green_flag"]:
                                                 button:
                                                     yoffset 4
                                                     padding 1, 1
@@ -599,12 +654,12 @@ screen next_day():
                                                     text "{color=[green]}!" style "next_day_summary_text"
                                                     action NullAction()
 
-                                        text str(ndevents[building]["Managers"]["count"]) style_suffix "value_text" xpos 215
+                                        text str(curr_stats["events"]["Managers"]["count"]) style_suffix "value_text" xpos 215
                                         hbox:
                                             xpos 218
                                             xmaximum 40
 
-                                            if ndevents[building]["Managers"]["red_flag"]:
+                                            if curr_stats["events"]["Managers"]["red_flag"]:
                                                 button:
                                                     yoffset 4
                                                     padding 1, 1
@@ -612,7 +667,7 @@ screen next_day():
                                                     text "{color=[red]}!" style "next_day_summary_text"
                                                     action NullAction()
 
-                                            if ndevents[building]["Managers"]["green_flag"]:
+                                            if curr_stats["events"]["Managers"]["green_flag"]:
                                                 button:
                                                     yoffset 4
                                                     padding 1, 1
@@ -620,12 +675,12 @@ screen next_day():
                                                     text "{color=[green]}!" style "next_day_summary_text"
                                                     action NullAction()
 
-                                        text str(ndevents[building]["IDLE"]["count"]) style_suffix "value_text" xpos 255
+                                        text str(curr_stats["events"]["IDLE"]["count"]) style_suffix "value_text" xpos 255
                                         hbox:
                                             xpos 258
                                             xmaximum 40
 
-                                            if ndevents[building]["IDLE"]["red_flag"]:
+                                            if curr_stats["events"]["IDLE"]["red_flag"]:
                                                 button:
                                                     yoffset 4
                                                     padding 1, 1
@@ -633,7 +688,7 @@ screen next_day():
                                                     text "{color=[red]}!" style "next_day_summary_text"
                                                     action NullAction()
 
-                                            if ndevents[building]["IDLE"]["green_flag"]:
+                                            if curr_stats["events"]["IDLE"]["green_flag"]:
                                                 button:
                                                     yoffset 4
                                                     padding 1, 1
@@ -641,19 +696,17 @@ screen next_day():
                                                     text "{color=[green]}!" style "next_day_summary_text"
                                                     action NullAction()
 
-                                        if building.maxfame != 0:
+                                        if "fame" in curr_stats:
                                             text "Fame" yalign .5 xpos 285
-                                            text ("%d/%d" % (building.fame, building.maxfame)) style_suffix "value_text" xalign .99
+                                            text ("%d/%d" % curr_stats["fame"]) style_suffix "value_text" xalign .99
 
                                     frame:
                                         xysize (410, 25)
-                                        if hasattr(building, "all_clients"):
-                                            $ clnts = len(building.all_clients)
-                                            text "Customers:" xpos 3
-                                            text "[clnts]" style_suffix "value_text" xpos 135
-                                        if building.maxrep != 0:
+                                        text "Customers:" xpos 3
+                                        text str(curr_stats["clients"]) style_suffix "value_text" xpos 135
+                                        if "rep" in curr_stats:
                                             text "Rep." yalign .5 xpos 285
-                                            text ("%d/%d" % (building.rep, building.maxrep)) style_suffix "value_text" xalign .99
+                                            text ("%d/%d" % curr_stats["rep"]) style_suffix "value_text" xalign .99
 
                 vbar value YScrollValue("Reports")
 
@@ -759,7 +812,7 @@ screen next_day():
                 background Frame("content/gfx/frame/namebox5.png", 10, 10)
                 label (u"Game Total") text_size 23 text_color ivory align .5, .6
 
-            $ income, expense, total = hero.fin.get_game_total()
+            $ income, expense, total = NextDayEvents.get_hero_fin()
             null height 1
             frame:
                 align .5, .95
@@ -824,6 +877,7 @@ screen next_day():
                             xpos 38
                             yalign .03
                             text_color ivory
+                        $ temp, tmp = NextDayEvents.get_hero_hp()
                         fixed: # HP
                             xysize (150, 25)
                             xanchor -8
@@ -831,16 +885,14 @@ screen next_day():
                                 yalign .5
                                 left_bar ProportionalScale("content/gfx/interface/bars/hp1.png", 150, 20)
                                 right_bar ProportionalScale("content/gfx/interface/bars/empty_bar1.png", 150, 20)
-                                value hero.health
-                                range hero.get_max("health")
+                                value temp
+                                range tmp
                                 thumb None
                                 xysize (150, 20)
                             text "HP" size 14 color ivory bold True yalign .1 xpos 8
-                            if hero.health <= hero.get_max("health")*.2:
-                                text "[hero.health]" size 14 color red bold True style_suffix "value_text" yoffset -3 xpos 102
-                            else:
-                                text "[hero.health]" size 14 color ivory bold True style_suffix "value_text" yoffset -3 xpos 102
+                            text "[temp]" size 14 color (red if temp <= tmp*.2 else ivory) bold True style_suffix "value_text" yoffset -3 xpos 102
 
+                        $ temp, tmp = NextDayEvents.get_hero_mp()
                         fixed: # MP
                             xysize (150, 25)
                             xanchor -5
@@ -848,16 +900,14 @@ screen next_day():
                                 yalign .2
                                 left_bar ProportionalScale("content/gfx/interface/bars/mp1.png", 150, 20)
                                 right_bar ProportionalScale("content/gfx/interface/bars/empty_bar1.png", 150, 20)
-                                value hero.mp
-                                range hero.get_max("mp")
+                                value temp
+                                range tmp
                                 thumb None
                                 xysize (150, 20)
                             text "MP" size 14 color ivory bold True yalign .8 xpos 7
-                            if hero.mp <= hero.get_max("mp")*.2:
-                                text "[hero.mp]" size 14 color red bold True style_suffix "value_text" yoffset 2 xpos 99
-                            else:
-                                text "[hero.mp]" size 14 color ivory bold True style_suffix "value_text" yoffset 2 xpos 99
+                            text "[temp]" size 14 color (red if temp <= tmp*.2 else ivory) bold True style_suffix "value_text" yoffset 2 xpos 99
 
+                        $ temp, tmp = NextDayEvents.get_hero_vp()
                         fixed: # VIT
                             xysize (150, 25)
                             xanchor -2
@@ -865,25 +915,19 @@ screen next_day():
                                 yalign .5
                                 left_bar ProportionalScale("content/gfx/interface/bars/vitality1.png", 150, 20)
                                 right_bar ProportionalScale("content/gfx/interface/bars/empty_bar1.png", 150, 20)
-                                value hero.vitality
-                                range hero.get_max("vitality")
+                                value temp
+                                range tmp
                                 thumb None
                                 xysize (150, 20)
                             text "VP" size 14 color ivory bold True yalign .8 xpos 7
-                            if hero.vitality <= hero.get_max("vitality")*.2:
-                                text "[hero.vitality]" size 14 color red bold True style_suffix "value_text" yoffset 2 xpos 99
-                            else:
-                                text "[hero.vitality]" size 14 color ivory bold True style_suffix "value_text" yoffset 2 xpos 99
+                            text "[temp]" size 14 color (red if temp <= tmp*.2 else ivory) bold True style_suffix "value_text" yoffset 2 xpos 99
                             add ProportionalScale("content/gfx/images/c1.png", 123, 111) pos (-42, 55)
 
                 # MC (extra info) -------------------------------------------->>>
                 # Preparing info:
-                python:
-                    for i in NextDayEvents:
-                        if i.type == "mcndreport":
-                            report = i
+                $ temp = any(i.type == "mcndreport" and i.red_flag for i in NextDayEvents.event_list)
 
-                if i.red_flag:
+                if temp:
                     button:
                         align .99, .99
                         background Frame("content/gfx/frame/p_frame5.png", 5, 5)
@@ -908,12 +952,7 @@ screen next_day():
 
                 # RED FLAG Button:
                 # View all red flagged events:
-                python:
-                    red_flags = False
-                    for i in NextDayEvents:
-                        if i.red_flag:
-                            red_flags = True
-                            break
+                $ red_flags = any(i.red_flag for i in NextDayEvents.event_list)
                 $ img = "content/gfx/frame/p_frame5.png"
                 button:
                     yalign .5
@@ -932,7 +971,7 @@ screen next_day():
                 # School:
                 # Preparing info:
                 python:
-                    for school_report in NextDayEvents:
+                    for school_report in NextDayEvents.event_list:
                         if school_report.type == "school_nd_report":
                             break
 
@@ -984,18 +1023,11 @@ screen next_day():
                 xalign .5 ypos 300
                 spacing 80
                 # Getting .status field data:
-                python:
-                    free = 0
-                    slaves = 0
-                    for girl in hero.chars:
-                        if girl.status == "slave":
-                            slaves = slaves + 1
-                        else:
-                            free = free + 1
+                $ free, slaves = NextDayEvents.get_chars_dist()
                 python:
                     red_flags = False
                     explorers = False
-                    for i in NextDayEvents:
+                    for i in NextDayEvents.event_list:
                         if i.type == "explorationndreport":
                             explorers = True
                         elif i.type == "girlndreport" and i.red_flag:
@@ -1052,19 +1084,11 @@ screen next_day():
                     text "[free]" xalign .5 style "agrevue"
 
             # Data:
-            python:
-                unas = list()
-                for girl in hero.chars:
-                    if not girl.action:
-                        unas.append(girl)
-                unas = len(unas)
-            text "Unassigned: [unas]":
+            $ temp = NextDayEvents.unassigned_chars
+            text "Unassigned: [temp]":
                 yalign .5 ypos 420
                 style "agrevue"
-                if unas:
-                    color red
-                else:
-                    color green
+                color (red if temp > 0 else green)
 
         use top_stripe(True)
 

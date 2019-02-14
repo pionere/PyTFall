@@ -381,7 +381,11 @@ init:
                         tooltip "Dirt will never pile up in smaller buildings (10 workable capacity for any and 15 for buildings with a competent manager). Your workers will take care of it before it gets a chance!"
                         action NullAction()
                         text "Dirt:" color brown hover_color green
-                    text "%s (%s %%)" % (bm_building.get_dirt_percentage()[1], bm_building.get_dirt_percentage()[0]) xalign .98 style_suffix "value_text" yoffset 4
+                    $ tmp = bm_building.get_dirt_percentage()
+                    $ temp = ("Immaculate", "Sterile", "Spotless", "Clean", "Tidy",
+                              "Messy", "Dirty", "Grimy", "Filthy", "Disgusting")
+                    $ temp = temp[min(9, tmp/10)]
+                    text "%s (%d %%)" % (temp, tmp) xalign .98 style_suffix "value_text" yoffset 4
             # Threat
             if bm_building.maxthreat != 0:
                 frame:

@@ -241,9 +241,6 @@ init -10 python:
             "loose": "Workers may choose to do a job that is at least loosely matches to their class if they are not busy otherwise! (for example a Stripper doing a Whore Job)"
         }
 
-        DIRT_STATES = ("Immaculate", "Sterile", "Spotless", "Clean", "Tidy",
-                       "Messy", "Dirty", "Grimy", "Filthy", "Disgusting")
-
         def __init__(self):
             """
             Creates a new Building.
@@ -562,10 +559,7 @@ init -10 python:
             """
             Returns percentage of dirt in the building as (percent, description).
             """
-            dirt = self.dirt * 100 / self.maxdirt
-            dirt_string = self.DIRT_STATES[min(9, dirt/10)]
-
-            return dirt, dirt_string
+            return self.dirt*100/self.maxdirt
 
         @property
         def fame_percentage(self):
@@ -644,7 +638,7 @@ init -10 python:
                 self.manager.jobpoints = value
 
         # Clients related:
-        def get_client_count(self, write_to_nd=False):
+        def get_client_count(self, txt):
             """Get the amount of clients that will visit the building the next day.
 
             Weakness of this method atm is this:
@@ -672,8 +666,7 @@ init -10 python:
 
             # Special check for larger buildings:
             if mod > 80 and self.maxfame > 400:
-                if write_to_nd:
-                    self.log("Extra clients are coming in! You business is getting very popular with the people")
+                txt.append("Extra clients are coming in! You business is getting very popular with the people")
                 mod *= 1.1
 
             # Upgrades:
@@ -683,18 +676,11 @@ init -10 python:
                 if um != 0:
                     temp = True
                     mod *= um
-            if temp and write_to_nd:
-                self.log("Your building upgrades are attracting extra clients!")
+            if temp:
+                txt.append("Your building upgrades are attracting extra clients!")
 
             # Normalize everything:
             clients = min(min_clients + round_int(clients * mod), clients)
-
-            if write_to_nd:
-                if clients != 0:
-                    self.log("Total of {} clients are expected to visit this establishment!".format(set_font_color(clients, "lawngreen")))
-                else:
-                    self.log("{}".format(set_font_color("You may want to put up a sign!\n", "red")))
-                    self.flag_red =  True
 
             return clients
 
@@ -752,11 +738,13 @@ init -10 python:
             """
             tl.start("{}.run_nd (SimPy/Clients, etc.)".format(self.name))
             # Setup and start the simulation
+            txt = self.nd_events_report
+
             self.flag_red = False
 
             temp = "{} General Report:".format(self.name)
-            self.log("{}".format(set_font_color(temp, "lawngreen")))
-            self.log("")
+            txt.append("{}".format(set_font_color(temp, "lawngreen")))
+            txt.append("")
 
             # Get businesses we wish SimPy to manage! business_manager method is expected here.
             self.nd_ups = list(up for up in self._businesses if up.workable)
@@ -777,7 +765,13 @@ init -10 python:
 
                 # Clients:
                 tl.start("Generating clients in {}".format(self.name))
-                total_clients = self.get_client_count(write_to_nd=True)
+                total_clients = self.get_client_count(txt)
+
+                if total_clients != 0:
+                    txt.append("Total of {} clients are expected to visit this establishment!".format(set_font_color(total_clients, "lawngreen")))
+                else:
+                    txt.append("{}".format(set_font_color("You may want to put up a sign!\n", "red")))
+                    self.flag_red =  True
 
                 # Note (Beta): currently all clients are regulars
                 # remove maximum of 100 clients at a time (better perfomance, closer to RL)
@@ -810,28 +804,28 @@ init -10 python:
 
             if self.nd_ups or client_businesses:
                 # Building Stats:
-                self.log("")
-                self.log("Reputation: {}%".format(self.rep_percentage))
-                self.log("Fame: {}%".format(self.fame_percentage))
-                self.log("Dirt: {}%".format(self.get_dirt_percentage()[0]))
-                self.log("Threat: {}%".format(self.get_threat_percentage()))
+                txt.append("")
+                txt.append("Reputation: {}%".format(self.rep_percentage))
+                txt.append("Fame: {}%".format(self.fame_percentage))
+                txt.append("Dirt: {}%".format(self.get_dirt_percentage()))
+                txt.append("Threat: {}%".format(self.get_threat_percentage()))
 
-                self.log("")
+                txt.append("")
                 # We can calculate manager effectiveness once, so we don't have to do
                 # expensive calculations 10 000 000 times:
                 if self.manager:
                     job = simple_jobs["Manager"]
                     self.manager_effectiveness = job.effectiveness(self.manager,
                                                     self.tier, None, False)
-                    self.log("This building is managed by {} at {}% effectiveness!".format(
+                    txt.append("This building is managed by {} at {}% effectiveness!".format(
                                 self.manager.name, self.manager_effectiveness
                     ))
                 else:
-                    self.log("This building has no manager assigned to it.")
+                    txt.append("This building has no manager assigned to it.")
                     self.manager_effectiveness = 0
-                self.log("")
+                txt.append("")
 
-                self.log("{}".format(set_font_color("Starting the workday:", "lawngreen")))
+                txt.append("{}".format(set_font_color("Starting the workday:", "lawngreen")))
                 # Create an environment and start the setup process:
                 self.env = simpy.Environment()
                 for up in self._businesses:
@@ -841,20 +835,20 @@ init -10 python:
                 proc = self.env.process(self.building_manager(end=111))
 
                 self.env.run(until=proc)
-                self.log("{}".format(set_font_color("Ending the workday.", "green")))
+                txt.append("{}".format(set_font_color("Ending the workday.", "green")))
 
                 # Building Stats:
-                self.log("Reputation: {}%".format(self.rep_percentage))
-                self.log("Fame: {}%".format(self.fame_percentage))
-                self.log("Dirt: {}%".format(self.get_dirt_percentage()[0]))
-                self.log("Threat: {}%".format(self.get_threat_percentage()))
+                txt.append("Reputation: {}%".format(self.rep_percentage))
+                txt.append("Fame: {}%".format(self.fame_percentage))
+                txt.append("Dirt: {}%".format(self.get_dirt_percentage()))
+                txt.append("Threat: {}%".format(self.get_threat_percentage()))
 
                 income = self.fin.get_logical_income()
                 if income > 0:
-                    self.log("\nA total of {} Gold was earned here today!".format(set_font_color(str(income), "lawngreen")))
+                    txt.append("\nA total of {} Gold was earned here today!".format(set_font_color(str(income), "lawngreen")))
                 elif income < 0:
-                    self.log("\nYou are losing money with this business! After the night your pockets are lighter with {} Gold".format(set_font_color(str(-income), "red")))
-                self.log("{}".format(set_font_color("===================", "lawngreen")))
+                    txt.append("\nYou are losing money with this business! After the night your pockets are lighter with {} Gold".format(set_font_color(str(-income), "red")))
+                txt.append("{}".format(set_font_color("===================", "lawngreen")))
 
                 # finish the business by resetting the variables
                 for c in self.all_clients:
@@ -871,8 +865,8 @@ init -10 python:
                 self.nd_ups = list()
                 self.env = None
             else:
-                self.log(set_font_color("===================", "lawngreen"))
-                self.log("This is a residential building. Nothing much happened here today.")
+                txt.append(set_font_color("===================", "lawngreen"))
+                txt.append("This is a residential building. Nothing much happened here today.")
 
             tl.end("{}.run_nd (SimPy/Clients, etc.)".format(self.name))
 
