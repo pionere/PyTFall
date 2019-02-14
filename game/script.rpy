@@ -658,8 +658,8 @@ label after_load:
                     del b._price
                 if not isinstance(b.stats_log, OrderedDict):
                     b.stats_log = OrderedDict(b.stats_log)
-                if b.DIRT_STATES != Building.DIRT_STATES:
-                    b.DIRT_STATES = Building.DIRT_STATES
+                if hasattr(b, "DIRT_STATES"):
+                    del b.DIRT_STATES
                 if hasattr(b, "max_stats"):
                     b.maxdirt = b.max_stats["dirt"]
                     b.maxthreat = b.max_stats["threat"]
@@ -973,6 +973,13 @@ label after_load:
             del store.locations
 
     python hide:
+        if hasattr(store, "NextDayEvents") and not isinstance(store.NextDayEvents, NextDayStats):
+            nds = NextDayStats()
+            nds.event_list = store.NextDayEvents
+            nds.unassigned_chars = 0
+            nds.prepare_summary()
+            store.NextDayEvents = nds
+
         for d in pytfall.world_actions.nest:
             if hasattr(d, "values"):
                 for obj in d.values():
