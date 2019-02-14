@@ -204,17 +204,24 @@ label mc_action_work_swim_pool: # here we could use an option to meet characters
         "You are too wounded at the moment."
         jump swimming_pool
 
-    $ result = randint(5, round(hero.get_skill("swimming")*.1))
-    if result > 200:
-        $ result = randint (190, 220)
-    $ hero.AP -= 1
-    $ hero.mod_skill("swimming", 0, randint(0,2))
-    $ hero.mod_skill("swimming", 1, randint(1,2))
-    $ hero.vitality -= randint (20, 35)
     $ picture = "content/gfx/images/swim_kids/sk_" + str(renpy.random.randint(1, 4)) + ".webp"
     show expression picture at truecenter with dissolve
-    $ narrator ("You teach local kids to swim. The payment is low, but at least you can use the pool for free. (+ %d) G" %result)
-    $ hero.add_money (result, reason="Job")
+    $ narrator ("You teach local kids to swim. The payment is low, but at least you can use the pool for free.")
+
+label mc_action_work_swim_pool_reward:
+    python:
+        result = randint(5, round(hero.get_skill("swimming")*.1))
+        if result > 200:
+            result = randint (190, 220)
+        result = gold_reward(hero, result)
+        hero.AP -= 1
+        hero.mod_skill("swimming", 0, randint(0,2))
+        hero.mod_skill("swimming", 1, randint(1,2))
+        hero.vitality -= randint (20, 35)
+        hero.add_money(result, reason="Job")
+        gfx_overlay.random_find(result, 'work')
+        hero.exp += exp_reward(hero, hero)
+        del result
+
     hide expression picture with dissolve
-    $ del result
     jump swimming_pool

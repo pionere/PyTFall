@@ -760,15 +760,11 @@ init -9 python:
         # AP + Training ------------------------------------------------------------->
         def restore_ap(self):
             ap = self.baseAP
-            base = 35
+            base = 40
             c = self.constitution
             while c >= base:
-                c -= base
                 ap += 1
-                if base == 35:
-                    base = 100
-                else:
-                    base = base * 2
+                base *= 2
 
             self.setAP = ap
 

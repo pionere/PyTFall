@@ -42,7 +42,8 @@ init -10 python:
             We will aim at specific values and interpolate.
             In case of one basetrait, we multiply result by 2!
             """
-            if self.tier >= 10:
+            if self.tier >= MAX_TIER:
+                self.tier = MAX_TIER
                 return False
 
             target_tier = self.tier+1.0 # To get a float for Py2.7
@@ -104,7 +105,7 @@ init -10 python:
                 if total_points < 100:
                     return False
 
-            self.tier = min(10, self.tier+1)
+            self.tier = min(MAX_TIER, self.tier+1)
             return True
 
         def calc_expected_wage(self, kind=None):

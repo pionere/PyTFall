@@ -479,7 +479,8 @@ init python: # Locking random seed of internal renpys random
 init:
     default SKILLS_MAX = {k: 5000 for k in STATIC_CHAR.SKILLS}
     default SKILLS_THRESHOLD = {k: 2000 for k in STATIC_CHAR.SKILLS} # Must be exceeded before skills becomes harder to gain.
-    $ DAILY_EXP_CORE = 100 # 1 lvl per 10 days give or take. This is a simple way to rebalance.
+    default DAILY_EXP_CORE = 20 # 1 lvl per 10 days give or take. This is a simple way to rebalance.
+    default MAX_TIER = 20 # to limit the characters tier
     default block_say = False
     default just_view_next_day = False
     default gallery = None

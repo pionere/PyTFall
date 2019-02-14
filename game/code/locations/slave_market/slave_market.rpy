@@ -206,43 +206,40 @@ label sm_free_slaves:
     jump slave_market_controls
 
 label mc_action_work_in_slavemarket:
-    if use_ap != 0:
-        python:
-            total = 0
-            for skill in STATIC_CHAR.SEX_SKILLS:
-                total += hero.get_skill(skill)
-            total /= len(STATIC_CHAR.SEX_SKILLS)
-            total += hero.expected_wage*6
+    pause 0.01
 
-            if dice(hero.luck*.1):
-                total += hero.level*5
+    if dice(50):
+        $ narrator(choice(["You did some chores around the Slave Market!",
+                           "Pay might be crap, but it's still money.",
+                           "You've helped out in da Club!"]))
+    else:
+        $ hero.say(choice(["What a boring job...",
+                           "There's gotta be faster way to make money..."]))
 
-            wage = round_int(total/float(hero.setAP)*use_ap)
+label mc_action_work_in_slavemarket_reward:
+    python:
+        result = 0
+        for skill in STATIC_CHAR.SEX_SKILLS:
+            result += hero.get_skill(skill)
+        result /= len(STATIC_CHAR.SEX_SKILLS)
+        result += hero.expected_wage*6
 
-            if dice(.5 + hero.luck*.1):
-                hero.charisma += use_ap
-                hero.mod_skill("sex", 0, use_ap)
+        if dice(hero.luck*.1):
+            result += hero.level*5
 
-            hero.add_money(wage, reason="Job")
-            gfx_overlay.random_find(wage, 'work')
-            hero.exp += exp_reward(hero, hero, ap_used=use_ap)
-            hero.take_ap(use_ap)
+        result = gold_reward(hero, result, use_ap)
 
-            use_ap = 0 # prevent double reward when using last_label
-            del wage
-            del total
+        if dice(.5 + hero.luck*.1):
+            hero.charisma += use_ap
+            hero.mod_skill("sex", 0, use_ap)
 
-        pause 0.01
+        hero.add_money(result, reason="Job")
+        gfx_overlay.random_find(result, 'work')
+        hero.exp += exp_reward(hero, hero, ap_used=use_ap)
+        hero.take_ap(use_ap)
 
-        if dice(50):
-            $ narrator(choice(["You did some chores around the Slave Market!",
-                                  "Pay might be crap, but it's still money.",
-                                  "You've helped out in da Club!"]))
-        else:
-            $ hero.say(choice(["What a boring job...",
-                             "There's gotta be faster way to make money..."]))
-
-    $ del use_ap
+        del result
+        del use_ap
     jump slave_market_controls
 
 label blue_menu:

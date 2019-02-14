@@ -207,10 +207,7 @@ init -12 python:
             rules = building.WORKER_RULES
             local_index = rules.index(rule)
             building_rule_index = rules.index(building.workers_rule)
-            if local_index > building_rule_index:
-                slice_by = building_rule_index + 1
-            else:
-                slice_by = local_index + 1
+            slice_by = min(local_index, building_rule_index) + 1
             rules = rules[:slice_by]
 
             for r in rules:
@@ -240,7 +237,7 @@ init -12 python:
             Right now it will not try to find the very best match and instead will break on the first match found.
             Returns a worker at random if that fails.
             """
-            for w in workers[:]:
+            for w in workers:
                 likes = client.likes.intersection(w.traits)
                 if likes:
                     slikes = ", ".join([str(l) for l in likes])
@@ -253,13 +250,10 @@ init -12 python:
                         slikes, plural("trait", len(likes)),
                         set_font_color(w.nickname, "pink"))
                     self.log(choice([temp0, temp1]))
-                    worker = w
-                    workers.remove(w)
                     client.set_flag("jobs_matched_traits", likes)
-                    break
-            else:
-                worker = workers.pop()
-            return worker
+                    workers.remove(w)
+                    return w
+            return workers.pop()
 
         def check_worker_willing(self, worker, job):
             """Checks if the worker is willing to do the job.

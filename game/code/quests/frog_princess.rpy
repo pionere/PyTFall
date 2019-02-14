@@ -267,7 +267,7 @@ label frog_deathfight:
     if result:
         python:
             for member in hero.team:
-                member.exp += exp_reward(member, enemy_team, value=200)
+                member.exp += exp_reward(member, enemy_team, final_mod=2)
     else:
         jump game_over
 

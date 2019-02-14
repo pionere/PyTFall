@@ -204,7 +204,7 @@ init -5 python:
                         log.logws("magic", 1, char=w)
                         if dice(10):
                             log.logws("constitution", 1, char=w)
-                        log.logws("exp", exp_reward(w, loc.tier, value=10,
+                        log.logws("exp", exp_reward(w, loc.tier, final_mod=.1,
                                                     ap_used=ap_used), char=w)
 
                         log.logws("vitality", -5, char=w)

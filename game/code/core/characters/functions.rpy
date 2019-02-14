@@ -973,46 +973,30 @@ init -11 python:
 
         char.tier = round_int(tier) # Makes sure we can use float tiers
 
-    def exp_reward(char, difficulty, value=None,
-                   ap_adjust=True, ap_used=1,
-                   char_tier_override=False,
-                   final_mod=None):
+    def exp_reward(char, difficulty, ap_used=1, final_mod=None): 
         """Adjusts the XP to be given to an actor. Doesn't actually award the EXP.
 
         char: Target actor.
         difficulty: Ranged 1 to 10. (will be normalized otherwise).
             This can be a number, Team or Char.
-        value: Value to award, if None, we interpolate.
-        ap_adjust: Makes sure that chars with loads of AP don't snowball.
         ap_used: AP used for the action, can be a float!
-        char_tier_override: If not False, should be a number between 1 - 10.
-            It will be used to match difficulty against.
         final_mod: We multiply the result with it. Could be useful when failing
             a task, give at least 10% of the exp (for example) is to set this mod
             to .1 in case of a failed action.
         """
-        # Figure out the value:
-        if value is None:
-            value = DAILY_EXP_CORE
-
-        if ap_adjust:
-            value = float(value)/(char.setAP or 3)
-
-        value *= ap_used
-
-        # Now let's see about the difficulty:
-        char_tier = char_tier_override or char.tier
+        # find out the difficulty:
         if isinstance(difficulty, Team):
             difficulty = difficulty.get_level()/20.0
         elif isinstance(difficulty, PytCharacter):
             difficulty = difficulty.tier
         elif isinstance(difficulty, (float, int)):
-            difficulty = max(0, min(10, difficulty))
+            difficulty = max(0, min(MAX_TIER, difficulty))
         else:
             raise Exception("Invalid difficulty type {} provided to exp_reward function.")
 
         # Difficulty modifier:
         # Completed task oh higher difficulty:
+        char_tier = char.tier
         if difficulty >= char_tier:
             diff = difficulty - char_tier
             diff = min(2, diff)
@@ -1023,8 +1007,9 @@ init -11 python:
             if diff > 2:
                 diff = 2
             mod = 1-diff/2.0
-
-        value *= mod
+        # add tier modifier to limit the value
+        mod *= 1 - float(char_tier)/MAX_TIER
+        value = DAILY_EXP_CORE * ap_used * mod
 
         # Apply the final mod:
         if final_mod is not None:
@@ -1032,11 +1017,13 @@ init -11 python:
 
         return round_int(value)
 
-    def gold_reward():
+    def gold_reward(char, value, ap_used=1):
         """
-        TODO: Do the same as above for money using one or more functions.
+        Similar to above but less strict about the tier limit (let the max-players earn some money)
         """
-        pass
+        mod = 1 - float(char.tier)/(2*MAX_TIER)
+        value *= mod * ap_used
+        return round_int(value)
 
     #def get_act(character, tags): # copypaste from jobs without the self part, allows to randomly select one of existing tags sets
     #        acts = list()

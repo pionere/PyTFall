@@ -267,7 +267,7 @@ init python:
             id = choice(school_courses.keys())
 
             v0 = max(0, hero.tier - 1)
-            v1 = min(10, hero.tier + 3)
+            v1 = min(MAX_TIER, hero.tier + 3)
             difficulty = randint(v0, v1)
 
             duration = randint(20, 40)
