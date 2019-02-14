@@ -16,7 +16,7 @@ init -5 python:
             # Relevant skills and stats:
             self.base_stats = {"attack": 20, "defence": 20,
                                "agility": 20, "magic": 20}
-            self.base_skills = {"security": 100}
+            self.base_skills = {"exploration": 100}
 
             self.desc = "Explores the world for you"
 

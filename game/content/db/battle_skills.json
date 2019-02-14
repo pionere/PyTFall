@@ -1,14 +1,14 @@
 [{
-		"_COMMENT0": " fields named _COMMENT are ignored, only purpose to serve as a meta_data",
-		"_COMMENT1": "# Skillz (We do not want to do this in the init so I am making it a label):",
+		"_COMMENT": " fields named _COMMENT are ignored, only purpose to serve as a meta_data",
+		"_COMMENT": "# Skillz (We do not want to do this in the init so I am making it a label):",
 
-		"_COMMENT2": "# Sorting notes:",
-		"_COMMENT3": "# 1) skills with 'item_only':true are available for characters only if some item is equipped. it's mostly weapon skills, but there is already one shield spell too; they still are freely available for mobs though.",
-		"_COMMENT4": "# 2) skills with 'mob_only':true should only be available for mobs via mobs json",
-		"_COMMENT5": "# 3) spells have tiers from 0 to 4. we need at very least twice as many spells to have tiers from 0 to 9, so 0-4 will do for now",
-		"_COMMENT6": "# Note that item_only and mob_only skills don't have tiers, they are not needed as long as tiers are not a part of BE AI",
+		"_COMMENT": "# Sorting notes:",
+		"_COMMENT": "# 1) skills with 'item_only':true are available for characters only if some item is equipped. it's mostly weapon skills, but there is already one shield spell too; they still are freely available for mobs though.",
+		"_COMMENT": "# 2) skills with 'mob_only':true should only be available for mobs via mobs json",
+		"_COMMENT": "# 3) spells have tiers from 0 to 4. we need at very least twice as many spells to have tiers from 0 to 9, so 0-4 will do for now",
+		"_COMMENT": "# Note that item_only and mob_only skills don't have tiers, they are not needed as long as tiers are not a part of BE AI",
 
-		"_COMMENT7": "# Sword attacks",
+		"_COMMENT": "# Sword attacks",
 
 		"class": "BE_Action",
 		"name": "Sword Slash",
@@ -1426,8 +1426,8 @@
 		}
 	},
 	{
-		"_COMMENT0": "# Arrow skills are setup poorly! Everything is handle in main_effect method!!!",
-		"_COMMENT1": "# Attacker Effect: 0.6 (Default)",
+		"_COMMENT": "# Arrow skills are setup poorly! Everything is handle in main_effect method!!!",
+		"_COMMENT": "# Attacker Effect: 0.6 (Default)",
 
 		"class": "ArrowsSkill",
 		"name": "Fire Arrow",
@@ -3249,8 +3249,8 @@
 		}
 	},
 	{
-		"_COMMENT0": "##### Magic:",
-		"_COMMENT1": "# Fire:",
+		"_COMMENT": "##### Magic:",
+		"_COMMENT": "# Fire:",
 
 		"class": "BE_Action",
 		"name": "Fire",
@@ -6587,8 +6587,8 @@
 		}
 	},
 	{
-		"_COMMENT0": "# Healing:",
-		"_COMMENT1": "# effect should be from 0 to 1, heals the max health*effect",
+		"_COMMENT": "# Healing:",
+		"_COMMENT": "# effect should be from 0 to 1, heals the max health*effect",
 
 		"class": "BasicHealingSpell",
 		"name": "Life Wind",
@@ -6896,9 +6896,9 @@
 		}
 	},
 	{
-		"_COMMENT0": "# effect should be from 0 to 1, ie part of max health the poison takes every turn",
-		"_COMMENT1": "###### Effects:",
-		"_COMMENT2": "# Poison:",
+		"_COMMENT": "# effect should be from 0 to 1, ie part of max health the poison takes every turn",
+		"_COMMENT": "###### Effects:",
+		"_COMMENT": "# Poison:",
 
 		"class": "BasicPoisonSpell",
 		"name": "Poison",

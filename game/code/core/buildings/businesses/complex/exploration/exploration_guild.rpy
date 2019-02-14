@@ -1,84 +1,93 @@
-init -9 python: # FG Area
+init -9 python:
+    class FG_Object(_object):
+        """Dummy class for objects in camps (for now).
+        """
+        def __init__(self):
+            pass
+
+    # FG Area
     class FG_Area(_object):
         """Dummy class for areas (for now).
 
         Tracks the progress in SE areas as well as storing their data.
         """
         def __init__(self):
-            self.stage = 0 # For Sorting.
-            self.tier = .2 # Difficulty
-            self.days = 3
-            self.max_days = 15
-            self.risk = 50
-            self._explored = 0
-
-            self.main = False
+            self.unlocked = False
             self.area = None
 
-            self.travel_time = 0
-            self.hazard = dict()
-            self.items = dict()
-            self.mobs = dict()
-
-            # Special fields for quests, keys are chars or items and values are
-            # exploration progress required to get them. Later we might add
-            # some complex conditions instead, like fighting mobs.
-            self.special_items = dict()
-            self.special_chars = dict()
-
-            # Chars capture:
-            self.capture_chars = False
-            self.chars = dict() # id: [explored, chance_per_day]
-            self.rchars = dict() # id can be 'any' here, meaning any rChar.
-
-            self.items_price_limit = 0
-
-            # Use dicts instead of sets as we want counters:
+            # Statistics:
             self.mobs_defeated = dict()
             self.found_items = dict()
             self.chars_captured = 0
             self.cash_earned = 0
 
-            # Flags for exploration tasks on "area" scope.
-            self.camp = None
-            self.building_camp = False
-            self.camp_build_points_current = 0
-            self.camp_build_points_required = 1000
+        def init(self):
+            if self.area:
+                # add required field for sub-areas
+                self.stage = getattr(self, "stage", 0) # For Sorting.
+                self.tier = getattr(self, "tier", 0) # Difficulty
+                self.maxdays = getattr(self, "maxdays", 15) # maximum number of days to spend on site
+                self.maxexplored = getattr(self, "maxexplored", 1000) # the required points to fully explore an area
+                self.items_price_limit = getattr(self, "items_price_limit", 0) # limit on the price of items which can be found in the area
 
-            # Generated Content:
-            self.logs = collections.deque(maxlen=15)
+                # Traveling to and from: Input is in number of days which is converted to KM units
+                # 20KM is what we expect the team to be able to travel in a day.
+                # This may be offset through traits and stats/skills.
+                self.travel_time = round_int(getattr(self, "travel_time", 0) * 20)
 
-            # Trackers exploring the area at any given time, this can be used for easy access!
-            self.trackers = set()
+                self.hazard = getattr(self, "hazard", dict()) # possible hazads on site
+                self.items = getattr(self, "items", dict())   # possible items to be found
+                self.mobs = getattr(self, "mobs", dict())     # possible mobs to encounter
+                #self.allowed_objects = ...                   # possible camp objects, set at loading time
+                # Special fields for quests, keys are chars or items and values are
+                # exploration progress required to get them. Later we might add
+                # some complex conditions instead, like fighting mobs.
+                self.special_items = getattr(self, "special_items", dict())
+                self.special_chars = getattr(self, "special_chars", dict())
 
-        @property
-        def camp_build_status(self):
-            return "%d%%" % (100.0*self.camp_build_points_current/self.camp_build_points_required)
+                # Chars capture:
+                self.chars = dict() # id: [explored, chance_per_day]
+                self.rchars = dict() # id can be 'any' here, meaning any rChar.
 
-        @property
-        def teams(self):
-            # Teams presently exploring this area:
-            return [t.team for t in self.trackers]
+                # the initial state of the area
+                self.explored = 0         # the counter to keep track of the exploration
+                self.camp_build_points= 0 # the counter to keep track of construction
+                self.camp_objects = []    # built objects on site
+                self.camp_queue = []      # objects to be built on site
 
-        @property
-        def explored(self):
-            return self._explored
+                # Flags for exploration tasks on "area" scope.
+                self.building_camp = False
+                self.capture_chars = False
+                self.days = 3
+                self.risk = 50
 
-        @explored.setter
-        def explored(self, value):
-            if value >= 100:
-                self._explored = 100
+                # Trackers exploring the area at any given time, this can be used for easy access!
+                self.trackers = []
+
+                # Generated Content:
+                self.logs = collections.deque(maxlen=15)
+
+        def get_explored_percentage(self):
+            return self.explored * 100 / self.maxexplored
+
+        def dequeue(self, obj):
+            self.camp_queue.remove(obj)
+            for idx, o in enumerate(self.allowed_objects):
+                if o.idx > obj.idx:
+                    self.allowed_objects.insert(idx, obj)
+                    break
             else:
-                self._explored = value
+                self.allowed_objects.append(obj)
 
+        def queue(self, obj):
+            self.camp_queue.append(obj)
+            self.allowed_objects.remove(obj)
 
 init -6 python: # Guild, Tracker and Log.
     # ======================= (Simulated) Exploration code =====================>>>
-    class ExplorationTracker(Job):
-        # Added inheritance for Job so we can use the required methods.
-        """The class that stores data for an exploration job.
+    class ExplorationTracker(_object):
+        """The class that stores data for an exploration run.
 
-        *Not really a Job, it stores data and doesn't write any reports to ND. **Maybe it should create ND report once the run is done!
         Adapted from old FG, not sure what we can keep here..."""
         def __init__(self, team, area, guild):
             """Creates a new ExplorationJob.
@@ -87,18 +96,6 @@ init -6 python: # Guild, Tracker and Log.
             area = The area that is being explored.
             """
             super(ExplorationTracker, self).__init__()
-            self.id = "Exploration"
-            self.type = "Combat"
-
-            # Traits/Job-types associated with this job:
-            self.occupations = ["Combatant"] # General Strings likes SIW, Combatant, Server...
-            self.occupation_traits = [traits["Warrior"], traits["Mage"]] # Corresponding traits...
-
-            self.base_stats = {"attack": 20, "defence": 20,
-                               "agility": 60, "magic": 20}
-            self.base_skills = {"exploration": 100}
-
-            self.desc = "Explore the world, find new places, meet new people... and take their shit!"
 
             self.team = team
             self.area = area
@@ -119,21 +116,13 @@ init -6 python: # Guild, Tracker and Log.
                                           "Exploration" in item.locations and
                                           area.items_price_limit >= item.price])
 
-            # Traveling to and from + Status flags:
-            # We may be setting this directly in the future.
-            # Distance in KM as units. 20 is what we expect the
-            # team to be able to travel in a day.
-            # This may be offset through traits and stats/skills.
             # We assume that it's never right outside of the
             # freaking city walls:
-            self.base_distance = max(round_int(area.travel_time * 20), 6)
+            self.base_distance = max(area.travel_time, 6)
 
             self.traveled = None # Distance traveled in "KM"...
 
             # Exploration:
-            # Used to be effectiveness, but that would collide with a method of parent class
-            self.ability = 0 # How well the team can perform any given exploration task.
-
             self.state = "traveling to" # Instead of a bunch of properties, we'll use just the state as string and set it accordingly.
             # Use dicts instead of sets as we want counters:
             self.mobs_defeated = defaultdict(int)
@@ -147,10 +136,15 @@ init -6 python: # Guild, Tracker and Log.
             self.logs = list() # List of all log object we create during this exploration run.
             self.died = list()
 
-        @property
-        def obj_area(self):
-            # "Global" area object, we usually update this where we're done.
-            return fg_areas[self.area.id]
+        def get_team_ability(self):
+            # Effectiveness (Ability):
+            ability = 0
+            # Difficulty is tier of the area explored + 1/10 of the same value / 100 * risk.
+            difficulty = self.area.tier*(1 + .001*self.risk)
+            for char in self.team:
+                # Set their exploration capabilities as temp flag
+                ability += char.action.effectiveness(char, difficulty, log=None, return_ratio=False)
+            return ability
 
         def log(self, txt, name="", nd_log=True, ui_log=False, **kwargs):
             if DEBUG_SE:
@@ -203,13 +197,12 @@ init -6 python: # Guild, Tracker and Log.
             # Restore Chars and Remove from guild:
             self.guild.explorers.remove(self)
             for char in self.team:
-                char.action = None
+                char.set_flag("back_from_track", True)
 
             # Next Day Stuff:
             # Not sure if this is required... we can add log objects and build
             # reports from them in real-time instead of replicating data we already have.
             txt = []
-            event_type = "explorationndreport"
 
             # Build an image combo for the report:
             img = Fixed(xysize=(820, 705))
@@ -223,14 +216,19 @@ init -6 python: # Guild, Tracker and Log.
             for log in [l for l in self.logs if l.nd_log]:
                 txt.append("\n".join(log.txt))
 
-            evt = NDEvent(type=event_type,
+            if len(self.team) != 0:
+                team = self.team
+                char = self.team[0]
+            else:
+                # all dead -> just report
+                team = None
+                char = None
+            evt = NDEvent(type='explorationndreport',
                           img=img,
                           txt=txt,
-                          char=self.team[0],
-                          team=self.team,
-                          charmod={},
+                          char=char,
+                          team=team,
                           loc=self.guild.building,
-                          locmod={},
                           green_flag=self.flag_green,
                           red_flag=self.flag_red)
             NextDayEvents.append(evt)
@@ -343,7 +341,7 @@ init -6 python: # Guild, Tracker and Log.
                         t.remove(char)
 
             tracker = ExplorationTracker(team, area, self)
-            area.trackers.add(tracker)
+            area.trackers.append(tracker)
             self.explorers.append(tracker)
 
             if not _team:
@@ -386,13 +384,23 @@ init -6 python: # Guild, Tracker and Log.
                     temp = "{color=[red]}%s{/color} did not make it through the night. RIP." % ", ".join([d.fullname for d in tracker.died])
                     tracker.log(temp)
                 if len(tracker.team) == 0:
-                    # The team died out during the night
+                    # The team died out during the night FIXME handle (special)items, loot
                     tracker.finish_exploring() # Build the ND report!
                     self.env.exit() # They're done...
                 # The remaining team is heading home -> reset the died list so they can sleep during the nights
                 tracker.died = list()
+            # Set the state to traveling back if we're done:
+            elif tracker.day - tracker.traveled >= tracker.days:
+                tracker.state = "traveling back"
+                tracker.traveled = None # Reset for traveling back.
 
-            if self.env.now < 75: # do not go on exploring if the day is mostly over
+            if tracker.state == "traveling back":
+                result = yield process(self.travel_back(tracker))
+                if result == "back2guild":
+                    tracker.finish_exploring() # Build the ND report!
+                    self.env.exit() # We're done...
+
+            elif self.env.now < 75: # do not go on exploring if the day is mostly over
                 if tracker.state is None:
                     # just arrived to the location -> decide what to do
                     if tracker.building_camp:
@@ -400,10 +408,6 @@ init -6 python: # Guild, Tracker and Log.
                     else:
                         tracker.state = "exploring"
                     tracker.traveled = tracker.day # number of days it took to get to the location
-                # Set the state to traveling back if we're done:
-                elif tracker.day - tracker.traveled >= tracker.days:
-                    tracker.state = "traveling back"
-                    tracker.traveled = None # Reset for traveling back.
 
                 while 1:
                     if tracker.state == "exploring":
@@ -416,13 +420,10 @@ init -6 python: # Guild, Tracker and Log.
                         result = yield process(self.camping(tracker))
                         if result == "restored":
                             tracker.state = "exploring"
-                    elif tracker.state == "traveling back":
-                        result = yield process(self.travel_back(tracker))
-                        if result == "back2guild":
-                            tracker.finish_exploring() # Build the ND report!
-                            self.env.exit() # We're done...
                     elif tracker.state == "build camp":
-                        yield process(self.build_camp(tracker))
+                        result = yield process(self.build_camp(tracker))
+                        if result == "done":
+                            tracker.state = "exploring"
                     if self.env.now >= 99:
                         break
 
@@ -468,9 +469,9 @@ init -6 python: # Guild, Tracker and Log.
 
                     temp = "{} arrived at {}!".format(team_name, area_name)
                     if tracker.day > 1:
-                        temp = temp + " It took {} {} to get there.".format(tracker.day, plural("day", tracker.day))
+                        temp += " It took {} {} to get there.".format(tracker.day, plural("day", tracker.day))
                     else:
-                        temp = temp + " The trip took less then one day!"
+                        temp += " The trip took less then one day!"
                     tracker.log(temp, name="Arrival")
                     self.env.exit("arrived")
 
@@ -674,12 +675,7 @@ init -6 python: # Guild, Tracker and Log.
                 tracker.daily_mobs = 0
 
                 # Effectiveness (Ability):
-                ability = 0
-                # Difficulty is tier of the area explored + 1/10 of the same value / 100 * risk.
-                difficulty = area.tier*(1 + .001*tracker.risk)
-                for char in team:
-                    # Set their exploration capabilities as temp flag
-                    ability += tracker.effectiveness(char, difficulty, log=None, return_ratio=False)
+                ability = tracker.get_team_ability()
                 ability = (ability+tracker.risk)*.01
                 # Max cash to be found this day:
                 tracker.max_cash = int(area.cash_limit*ability*(1 + .1*tracker.day))
@@ -732,10 +728,11 @@ init -6 python: # Guild, Tracker and Log.
                 yield self.env.timeout(5) # We'll go with 5 du per one iteration of "exploration loop".
 
                 # record the exploration, unlock new maps
-                if area.explored < 100 and dice(5):
-                    area.explored += 1
+                if area.explored < area.maxexplored and dice(5):
+                    area.explored = min(area.maxexplored, area.explored + randint(8, 12))
+                    ep = area.get_explored_percentage()
                     for key, value in area.unlocks.items():
-                        if value <= area.explored and not fg_areas[key].unlocked:
+                        if value <= ep and not fg_areas[key].unlocked:
                             fg_areas[key].unlocked = True
                             temp = "Found a new path in the wilderness. It might worth to explore %s!" % key
                             temp = set_font_color(temp, "green")
@@ -756,8 +753,9 @@ init -6 python: # Guild, Tracker and Log.
                 # Handle the special items (must be done here so it doesn't collide with other teams)
                 special_items = []
                 if area.special_items:
+                    ep = area.get_explored_percentage()
                     for item, explored in area.special_items.items():
-                        if area.explored >= explored:
+                        if ep >= explored:
                             special_items.append(item)
 
                 if tracker.chosen_items or special_items:
@@ -771,6 +769,7 @@ init -6 python: # Guild, Tracker and Log.
                     if dice(chance):
                         if special_items:
                             item = special_items.pop()
+                            del area.special_items[item]
                             temp = "Found a special item %s!" % item
                             temp = set_font_color(temp, "orange")
                             tracker.log(temp, "Item", ui_log=True, item=store.items[item])
@@ -792,7 +791,7 @@ init -6 python: # Guild, Tracker and Log.
                     give = max(1, randint(1, tracker.max_cash/2))
                     tracker.daily_cash += give
 
-                    temp = "{color=[gold]}Found %d Gold!{/color}" % give
+                    temp = "Found {color=[gold]}%d Gold{/color}!" % give
                     tracker.log(temp)
                     if DEBUG_SE:
                         msg = "{} Found {} Gold!".format(team.name, give)
@@ -802,9 +801,10 @@ init -6 python: # Guild, Tracker and Log.
                 # Copied area must be used for checks here as it preserves state.
                 if tracker.capture_chars and not self.env.now % 10:
                     # Special Chars:
+                    ep = area.get_explored_percentage()
                     if area.special_chars:
                         for char, explored in area.special_chars.items():
-                            if area.explored >= explored:
+                            if ep >= explored:
                                 del(area.special_chars[char])
                                 tracker.captured_chars.append(char)
 
@@ -821,7 +821,7 @@ init -6 python: # Guild, Tracker and Log.
                     if area.chars:
                         for id, data in area.chars.items():
                             explored, chance = data
-                            if area.explored >= explored and dice(chance*.1):
+                            if ep >= explored and dice(chance*.1):
                                 del(area.chars[id])
 
                                 char = store.chars[id]
@@ -839,7 +839,7 @@ init -6 python: # Guild, Tracker and Log.
                     if area.rchars:
                         for id, data in area.rchars.items():
                             explored, chance = data
-                            if area.explored >= explored and dice(chance*.1):
+                            if ep >= explored and dice(chance*.1):
                                 # Get tier:
                                 if area.tier == 0:
                                     tier = random.uniform(.1, .3)
@@ -961,7 +961,7 @@ init -6 python: # Guild, Tracker and Log.
                     tracker.mobs_defeated[mob.id] += 1
 
             if battle.winner == team:
-                log.suffix = "{color=[lawngreen]}Victory{/color}"
+                log.suffix = set_font_color("Victory", "lawngreen")
                 for member in team:
                     if member in battle.corpses:
                         continue
@@ -971,17 +971,15 @@ init -6 python: # Guild, Tracker and Log.
                     member.magic += randrange(3)
                     member.exp += exp_reward(member, opfor)
 
-                temp = "{color=[lawngreen]}Your team won!!{/color}"
-                log.add(temp)
+                log.add(set_font_color("Your team won!!", "lawngreen"))
 
                 if DEBUG_SE:
                     msg = "{} finished a battle scenario. Result: victory".format(team.name)
                     se_debug(msg, mode="info")
 
             else: # Defeat here...
-                log.suffix = "{color=[red]}Defeat{/color}"
-                temp = "{color=[red]}Your team got their asses kicked!!{/color}"
-                log.add(temp)
+                log.suffix = set_font_color("Defeat", "red")
+                log.add(set_font_color("Your team got their asses kicked!!", "red"))
 
                 if DEBUG_SE:
                     msg = "{} finished a battle scenario. Result: defeat".format(team.name)
@@ -989,36 +987,56 @@ init -6 python: # Guild, Tracker and Log.
 
         def build_camp(self, tracker):
             # New type of shit, trying to get teams to coop here...
-            area = tracker.obj_area
+            area = tracker.area
             team = tracker.team
             teams = [t.team for t in area.trackers if t.state == "build camp"]
 
             if DEBUG_SE:
-                msg = "Team {} is setting up basecamp.".format(team.name)
+                msg = "Team %s is building the basecamp." % team.name
                 se_debug(msg, mode="info")
 
             # TODO: Make sure this is adapted to building skill(s) once we have it!
-            build_power = max(1, tracker.ability/20)
+            # Effectiveness (Ability):
+            build_power = max(1, tracker.get_team_ability())
 
-            if len(teams) > 1:
-                temp = "Teams: {} are setting up basecamp!".format(", ".join([t.name for t in teams]))
-            else:
-                temp = "Team {} is setting up basecamp!".format(team.name)
+            name = team.name if len(teams) == 1 else ", ".join([t.name for t in teams])
+            temp = "The basecamp is being built by the %s: %s!" % (plural("team", len(teams)), name)
             tracker.log(temp)
 
             while 1:
-                if area.camp_build_points_current >= area.camp_build_points_required:
-                    # Team done setting up the encampment:
-                    temp = "Encampment is finished! Team is moving onto exploration!"
-                    area.camp = True
-                    tracker.log(temp)
-                    self.env.exit()
-
-                area.camp_build_points_current += build_power
                 yield self.env.timeout(5) # We build...
 
-                if not self.env.now % 25:
-                    temp = "Basecamp is {} complete!".format(area.camp_build_status)
+                if len(area.camp_queue) == 0:
+                    # Nothing to build -> done
+                    temp = "Team is moving onto exploration!"
+                    tracker.log(temp)
+                    self.env.exit("done")
+
+                area.camp_build_points += build_power
+
+                task = area.camp_queue[0]
+                if area.camp_build_points >= task.cost:
+                    # Finished with the first task
+                    del area.camp_queue[0]
+                    for idx, o in enumerate(area.camp_objects):
+                        if o.type == task.type:
+                            area.camp_objects[idx] = task
+                            break
+                    else:
+                        area.camp_objects.append(task)
+
+                    temp = "%s %s finished building a %s." % (plural("Team", len(teams)), name, task.name)
+                    tracker.log(temp)
+
+                    area.camp_build_points = 0
+                    if len(area.camp_queue) == 0:
+                        # Nothing more to build -> done
+                        temp = "Team is moving onto exploration!"
+                        tracker.log(temp)
+                        self.env.exit("done")
+
+                elif not self.env.now % 25:
+                    temp = "%s is %d%% complete!" % (task.name, area.camp_build_points * 100 / task.cost)
                     tracker.log(temp)
 
                 if self.env.now >= 99:

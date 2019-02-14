@@ -2478,6 +2478,45 @@ init -9 python:
                 self.action.after_rest(self, txt)
             return "".join(txt)
 
+        def nd_sleep(self, txt):
+            # Home location nd mods:
+            loc = self.home
+            mod = loc.get_daily_modifier()
+
+            pC = self.pC
+            if mod > 0:
+                flag_red = False
+                temp = "%s comfortably spent a night in %s." % (pC, str(loc))
+                if self.home == hero.home:
+                    if self.disposition > -500:
+                        self.disposition += 1
+                        self.joy += randint(1, 3)
+
+                        if self.status == "slave":
+                            temp += " %s is happy to live under the same roof as %s master!" % (pC, self.pp)
+                        else:
+                            temp += " %s is content living with you." % pC
+                    else:
+                        if self.status == "slave":
+                            temp += " Even though you both live in the same house, %s hates you too much to really care." % self.name
+                        else:
+                            self.disposition -= 100
+                            self.joy -= 20
+                            self.home = pytfall.city
+                            temp += " After a rough fight %s moves out of your aparment." % self.name
+                txt.append(temp)
+
+            elif mod < 0:
+                flag_red = True
+                txt.append("{color=[red]}%s presently resides in the %s.{/color}" % (pC, str(loc)))
+                txt.append("{color=[red]}It's not a comfortable or healthy place to sleep in.{/color}")
+                txt.append("{color=[red]}Try finding better accommodations for your worker!{/color}")
+
+            for stat in ("health", "mp", "vitality"):
+                mod_by_max(self, stat, mod)
+            return flag_red
+
+
         def next_day(self):
             # Run the effects if they are available:
             for effect in self.effects.values():
@@ -2533,9 +2572,15 @@ init -9 python:
 
                     txt.append("{color=[red]}%s is spending the night in the jail!{/color}" % self.fullname)
                 flag_red = True
-            # TODO se/Char.nd(): This can't be right? This is prolly set to the exploration log object.
             elif self.action == simple_jobs["Exploring"]:
-                txt.append("{color=[green]}%s is currently on the exploration run!{/color}" % self.fullname)
+                if self.has_flag("back_from_track"):
+                    txt.append("{color=[green]}%s arrived back from the exploration run!{/color}" % self.fullname)
+                    self.action = None
+                    self.del_flag("back_from_track")
+                    flag_red = self.nd_sleep(txt)
+                else:
+                    txt.append("{color=[green]}%s is currently on the exploration run!{/color}" % self.fullname)
+
                 # Settle wages:
                 img = self.fin.settle_wage(txt, img)
             else:
@@ -2550,7 +2595,6 @@ init -9 python:
 
                 # commonly used pronouns
                 pC = self.pC
-                pp = self.pp
 
                 if self.status == "slave":
                     txt.append("%s is a slave." % pC)
@@ -2558,38 +2602,7 @@ init -9 python:
                     txt.append("%s is a free citizen." % pC)
 
                 # Home location nd mods:
-                loc = self.home
-                mod = loc.get_daily_modifier()
-
-                if mod > 0:
-                    temp = "%s comfortably spent a night in %s." % (pC, str(loc))
-                    if self.home == hero.home:
-                        if self.disposition > -500:
-                            self.disposition += 1
-                            self.joy += randint(1, 3)
-
-                            if self.status == "slave":
-                                temp += " %s is happy to live under the same roof as %s master!" % (pC, pp)
-                            else:
-                                temp += " %s is content living with you." % pC
-                        else:
-                            if self.status == "slave":
-                                temp += " Even though you both live in the same house, %s hates you too much to really care." % self.name
-                            else:
-                                self.disposition -= 100
-                                self.joy -= 20
-                                self.home = pytfall.city
-                                temp += " After a rough fight %s moves out of your aparment." % self.name
-                    txt.append(temp)
-
-                elif mod < 0:
-                    flag_red = True
-                    txt.append("{color=[red]}%s presently resides in the %s.{/color}" % (pC, str(loc)))
-                    txt.append("{color=[red]}It's not a comfortable or healthy place to sleep in.{/color}")
-                    txt.append("{color=[red]}Try finding better accommodations for your worker!{/color}")
-
-                for stat in ("health", "mp", "vitality"):
-                    mod_by_max(self, stat, mod)
+                flag_red = self.nd_sleep(txt)
 
                 # Finances:
                 # Upkeep:
@@ -2611,12 +2624,12 @@ init -9 python:
                         self.fin.log_logical_expense(amount, "Upkeep")
                         if hasattr(self.workplace, "fin"):
                             self.workplace.fin.log_logical_expense(amount, "Workers Upkeep")
-                        txt.append("You paid {color=[gold]}%d Gold{/color} for %s upkeep." % (amount, pp))
+                        txt.append("You paid {color=[gold]}%d Gold{/color} for %s upkeep." % (amount, self.pp))
                     else:
                         if self.status != "slave":
                             self.joy -= randint(3, 5)
                             self.disposition -= randint(5, 10)
-                            txt.append("You failed to pay %s upkeep, %s's a bit cross with your because of that..." % (pp, self.p))
+                            txt.append("You failed to pay %s upkeep, %s's a bit cross with your because of that..." % (self.pp, self.p))
                         else:
                             self.joy -= 20
                             self.disposition -= randint(25, 50)
@@ -2636,7 +2649,7 @@ init -9 python:
                     txt.append(temp)
 
                     if self.autocontrol["Tips"]:
-                        temp = choice(["As per agreement, your worker gets to keep all %s tips! This is a very good motivator. " % pp,
+                        temp = choice(["As per agreement, your worker gets to keep all %s tips! This is a very good motivator. " % self.pp,
                                        "%s's happy to keep it." % pC])
                         txt.append(temp)
 
@@ -2648,7 +2661,7 @@ init -9 python:
                         self.disposition += (1 + round_int(tips*.05))
                         self.joy += (1 + round_int(tips*.025))
                     else:
-                        temp = choice(["You take all of %s tips for yourself. " % pp,
+                        temp = choice(["You take all of %s tips for yourself. " % self.pp,
                                        "You keep all of it."])
                         txt.append(temp)
                         hero.add_money(tips, reason="Worker Tips")
@@ -2668,7 +2681,7 @@ init -9 python:
                     txt.append("%s will go shopping whenever it may please %s from now on!" % (pC, pp))
                 if all([self.status != "slave", self.disposition < 850, not self.autoequip]):
                     self.autoequip = True
-                    txt.append("%s will be handling %s own equipment from now on!" % (pC, pp))
+                    txt.append("%s will be handling %s own equipment from now on!" % (pC, self.pp))
 
                 # Prolly a good idea to throw a red flag if she is not doing anything:
                 # I've added another check to make sure this doesn't happen if

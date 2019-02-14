@@ -578,14 +578,88 @@ init -11 python:
                 with open(in_file) as f:
                     content.extend(json.load(f))
 
-        areas = dict()
+        areas, named_areas = dict(), dict()
+        idx = 0
         for area in content:
             a = FG_Area()
             for attr in area:
                 setattr(a, attr, area[attr])
-            if not hasattr(a, "name"):
-                a.name = a.id
-            areas[a.id] = a
+
+            a.init()
+            idx += 1
+            a.id = idx
+            areas[idx] = a
+            named_areas[a.name] = a
+
+        # post process to link ids instead of names
+        for area in areas.values():
+            if area.area:
+                if area.area in named_areas:
+                    area.area = named_areas[area.area].id
+                else:
+                    devlog.warning("Unknown area '%s' referenced in map '%s'." % (area.area, area.name))
+                unlocks = dict()
+                for a, v in area.unlocks.items():
+                    if a in named_areas:
+                        a = named_areas[a]
+                        unlocks[a.id] = v
+                    else:
+                        devlog.warning("Unknown area '%s' to unlock by map '%s'." % (a, area.name))
+                area.unlocks = unlocks
+
+        # initialize the possible objects
+        objects = load_db_json('maps/data/objects.json')
+        om = dict()
+        for o in objects:
+            om[o['id']] = o
+
+        for area in areas.values():
+            if area.area is None:
+                continue # skip main areas
+            if hasattr(area, "allowed_objects"):
+                allowed_objects = area.allowed_objects
+                if not isinstance(allowed_objects, list):
+                    allowed_objects = [allowed_objects]
+                if len(allowed_objects) != 0 and allowed_objects[0] == "+":
+                    # inherit objects from parent
+                    allowed_objects = getattr(areas[area.area], "allowed_objects", []) + allowed_objects[1:]
+            else:
+                # map without set allowed_objects -> use its parent
+                allowed_objects = getattr(areas[area.area], "allowed_objects", [])
+            aos = OrderedDict()
+            for o in allowed_objects:
+                if isinstance(o, basestring):
+                    o = { "id": o }
+                id = o.get("id", None)
+                # use the base object setting as default
+                obj = om.get(id, None)
+                if obj is None:
+                    devlog.warning("Unknown object '%s' referenced by map(or its parent) '%s'." % (id, area.name))
+                    continue
+                obj = deepcopy(obj)
+                # update the objects settings by the current attributes
+                obj.update(o)
+                curr_obj = aos.get(id, None)
+                if curr_obj is None:
+                    # no previous object with the same id -> done
+                    aos[id] = obj
+                else:
+                    # use previous object as base if exist
+                    curr_obj.update(obj)
+            def to_object(o, idx):
+                #t = []
+                o["idx"] = idx[0]
+                idx[0] += 1
+                #for attr in o:
+                #    t.append(attr)
+                #temp = collections.namedtuple('temp', t)
+                #result = temp(**o)
+                result = FG_Object()
+                for attr, value in o.items():
+                    setattr(result, attr, value)
+                return result
+            idx = [0]
+            area.allowed_objects = list(to_object(o, idx) for o in aos.values())
 
         return areas
 
@@ -655,7 +729,7 @@ init -11 python:
                 elif key == "_DEBUG_BE":
                     if not DEBUG_BE:
                         break
-                elif key.startswith("_COMMENT"):
+                elif key == "_COMMENT":
                     pass
                 else:
                     setattr(s, key, value)

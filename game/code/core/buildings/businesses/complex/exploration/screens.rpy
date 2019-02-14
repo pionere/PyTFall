@@ -3,7 +3,7 @@ screen building_management_leftframe_exploration_guild_mode:
 
         default focused_area_index = 0
 
-        $ temp = sorted([a for a in fg_areas.values() if a.main and a.unlocked], key=attrgetter("name"))
+        $ temp = sorted([a for a in fg_areas.values() if a.area is None and a.unlocked], key=attrgetter("name"))
         vbox:
             xsize 320 spacing 1
             # Maps sign:
@@ -192,7 +192,7 @@ screen building_management_leftframe_exploration_guild_mode:
                 xysize 224, 500
                 xalign .5 ypos 57
                 has vbox spacing 4
-                $ temp = sorted([a for a in fg_areas.values() if a.main and a.unlocked], key=attrgetter("name"))
+                $ temp = sorted([a for a in fg_areas.values() if a.area is None and a.unlocked], key=attrgetter("name"))
                 if temp and not bm_selected_exp_area:
                     $ mid_frame_focus = temp[0]
 
@@ -250,7 +250,7 @@ screen building_management_midframe_exploration_guild_mode:
                     hbox:
                         align (.5, .9)
                         # Get the correct stars:
-                        use stars(area.explored, 100)
+                        use stars(area.explored, area.maxexplored)
 
                 # Buttons with logs (Events):
                 frame:
@@ -347,7 +347,7 @@ screen building_management_midframe_exploration_guild_mode:
                             text temp color gold style "interactions_text" size 14 outlines [(1, "#3a3a3a", 0, 0)] align (.5, .3)
                             hbox:
                                 align (.5, .9)
-                                use stars(area.explored, 100)
+                                use stars(area.explored, area.maxexplored)
     elif bm_exploration_view_mode == "team":
         # Backgrounds:
         frame:
@@ -578,13 +578,11 @@ screen fg_area(area):
         button:
             xalign .5
             xysize 300, 30
-            if not area.camp:
+            if len(area.camp_queue) != 0:
                 action ToggleField(area, "building_camp")
-            else:
-                action NullAction()
-            selected area.building_camp
+                tooltip "Activate if you want the team to spend its time on building the camp."
+                selected area.building_camp
             text "Build the camp" xalign .5
-            tooltip "Activate if you want the team to spend its time on building the camp."
         button:
             xalign .5
             xysize 300, 30
@@ -619,7 +617,7 @@ screen fg_area(area):
             null width 5
             bar:
                 align .5, 1.0
-                value FieldValue(area, 'days', area.max_days-3, max_is_zero=False, style='scrollbar', offset=3, step=1)
+                value FieldValue(area, 'days', area.maxdays-3, max_is_zero=False, style='scrollbar', offset=3, step=1)
                 xmaximum 150
                 thumb 'content/gfx/interface/icons/move15.png'
                 tooltip "How many days do you wish for the team to spend questing?"
@@ -701,6 +699,51 @@ screen fg_area(area):
                 tooltip "Next Team"
                 sensitive len(teams) > 1
 
+        if area.allowed_objects:
+            null height 10
+            frame:
+                align .5, .02
+                background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
+                xysize (180, 40)
+                label 'Possible addons:' text_size 16 text_color ivory align (.5, .5) text_bold True
+            viewport:
+                xalign .5
+                xysize 310, 150
+                mousewheel True
+                scrollbars "vertical"
+                has vbox
+                $ temp = set([u.type for u in area.camp_queue])
+                for u in area.allowed_objects:
+                    if u.type not in temp:
+                        $ temp.add(u.type)
+                        button:
+                            xysize 309, 25
+                            style "pb_button"
+                            text "[u.name]" align .5, .5 color ivory
+                            action Function(area.queue, u)
+                            tooltip u.desc
+
+        if area.camp_queue:
+            null height 10
+            frame:
+                align .5, .02
+                background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
+                xysize (180, 40)
+                label 'In queue:' text_size 16 text_color ivory align (.5, .5) text_bold True
+            viewport:
+                xalign .5
+                xysize 310, 150
+                mousewheel True
+                scrollbars "vertical"
+                has vbox
+                for u in area.camp_queue:
+                    button:
+                        xysize 309, 25
+                        style "pb_button"
+                        text "[u.name]" align .5, .5 color ivory
+                        action Function(area.dequeue, u)
+                        tooltip u.desc
+
     # Mid-Frame:
     frame:
         ypos 40
@@ -708,21 +751,54 @@ screen fg_area(area):
         background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
         style_prefix "content"
         xysize (630, 680)
-
-        $ fbg = "content/gfx/frame/mes11.webp"
+        # Area-Name
         frame:
-            background Transform(Frame(fbg, 10, 10), alpha=.9)
+            background Transform(Frame("content/gfx/frame/mes11.webp", 10, 10), alpha=.9)
             xysize (620, 90)
             ymargin 1
             ypadding 1
-            $ temp = area.name
-            text temp color gold style "interactions_text" size 35 outlines [(1, "#3a3a3a", 0, 0)] align (.5, .3)
+            text "[area.name]" color gold style "interactions_text" size 35 outlines [(1, "#3a3a3a", 0, 0)] align (.5, .3)
+            hbox:
+                align (.5, .9)
+                # Get the correct stars:
+                use stars(area.explored, area.maxexplored)
 
-        hbox:
+        # Area image
+        frame:
+            ypos 100 
+            align .5, .0
+            background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.95), 10, 10)
+            add pscale(area.img, 600, 450)
+
+        frame:
+            ypos 100
+            xalign .5
+            background Null()
+            $ objects = sorted(area.camp_objects, key=attrgetter("layer"))
+            #for o in objects:
+            for o in area.allowed_objects:
+             if o.name == "Fire":
+                button:
+                    style 'image_button'
+                    pos o.pos
+                    idle_background o.img
+                    focus_mask True
+                    action NullAction()
+                    hover_background im.MatrixColor(o.img, im.matrix.brightness(.25))
+                    tooltip o.name
+
+    ## Right frame:
+    frame:
+        xysize (330, 720)
+        ypos 40
+        xalign 1.0
+        background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
+        vbox:
+            spacing -1
             align .5, .5
             frame:
                 background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
-                xysize (310, 410)
+                xysize (310, 340)
                 xpadding 5
                 frame:
                     style_group "content"
@@ -732,7 +808,9 @@ screen fg_area(area):
                     label (u"Enemies") text_size 23 text_color ivory align .5, .5
                 viewport:
                     style_prefix "proper_stats"
-                    xysize (300, 340)
+                    xysize (300, 290)
+                    mousewheel True
+                    draggable True
                     ypos 50
                     xalign .5
                     has vbox spacing 3
@@ -770,7 +848,7 @@ screen fg_area(area):
 
             frame:
                 background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
-                xysize (310, 410)
+                xysize (310, 340)
                 xpadding 5
                 frame:
                     style_group "content"
@@ -780,8 +858,9 @@ screen fg_area(area):
                     label (u"Items") text_size 23 text_color ivory align .5, .5
                 viewport:
                     style_prefix "proper_stats"
-                    mousewheel 1
-                    xysize (300, 340)
+                    mousewheel True
+                    draggable True
+                    xysize (300, 290)
                     ypos 50
                     xalign .5
                     has vbox spacing 3
@@ -812,14 +891,14 @@ screen fg_area(area):
                                 align .99, .5
                                 add ProportionalScale(i.icon, 57, 57) align .5, .5
 
-        hbox:
-            align .5, .98
-            button:
-                style_group "basic"
-                action Hide("fg_area"), With(dissolve)
-                minimum (50, 30)
-                text "Back"
-                keysym "mousedown_3"
+            hbox:
+                align .5, .98
+                button:
+                    style_group "basic"
+                    action Hide("fg_area"), With(dissolve)
+                    minimum (50, 30)
+                    text "Back"
+                    keysym "mousedown_3"
 
 screen fg_char_dropdown(char, team=None, remove=False):
     # Trying to create a drop down screen with choices of actions:
