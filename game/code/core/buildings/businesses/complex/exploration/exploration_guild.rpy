@@ -354,6 +354,12 @@ init -6 python: # Guild, Tracker and Log.
         def business_control(self):
             """SimPy business controller.
             """
+            # reset usage of objects with limited capacity
+            for tracker in self.explorers:
+                for o in tracker.area.camp_objects:
+                    if hasattr(o, "capacity"):
+                        setattr(o, "in_use", 0)
+
             for tracker in self.explorers:
                 self.env.process(self.exploration_controller(tracker))
 
@@ -627,11 +633,12 @@ init -6 python: # Guild, Tracker and Log.
 
             multiplier = .1 * (200 - self.env.now) / 100
 
+            in_camp = True
             if tracker.state is None:
                 temp = "After their journey {} spends the night in the camp!".format(team.name)
             elif tracker.state == "traveling to":
                 temp = "The members of {} are sleeping in their tents en route to the destination! ".format(team.name)
-                multiplier *= .5
+                in_camp = False
             elif tracker.state == "exploring":
                 temp = "{} are done with exploring for the day and will now rest and recover! ".format(team.name)
             elif tracker.state == "camping":
@@ -640,7 +647,7 @@ init -6 python: # Guild, Tracker and Log.
                 temp = "The members of {} are taking their well deserved rest from building the camp! ".format(team.name)
             elif tracker.state == "traveling back":
                 temp = "{} set up their tents for the overnight en route to the guild! ".format(team.name)
-                multiplier *= .5
+                in_camp = False
             else:
                 if DEBUG_SE:
                    msg = "State '{}' unrecognized while team {} is overnighting in camp".format(tracker.state, team.name)
@@ -648,13 +655,48 @@ init -6 python: # Guild, Tracker and Log.
                 temp = ""
             tracker.log(temp)
 
+            rv = "ok"
+            if in_camp:
+                for o in tracker.area.camp_objects:
+                    if hasattr(o, "daily_modifier_mod"):
+                        if hasattr(o, "capacity"):
+                            used_capacity = getattr(o, "in_use", 0) + len(team)
+                            if o.capacity < used_capacity:
+                                continue
+                            setattr(o, "in_use", used_capacity)
+                        multiplier *= o.daily_modifier_mod
+
+                num_chars = len(tracker.captured_chars)
+                if num_chars != 0:
+                    capt_multiplier = [.95] * num_chars
+
+                    for o in tracker.area.camp_objects:
+                        if hasattr(o, "capt_daily_modifier_mod"):
+                            if hasattr(o, "capacity"):
+                                used_capacity = getattr(o, "in_use", 0)
+                                limit = min(num_chars, o.capacity - used_capacity)
+                                if limit == 0:
+                                    continue
+                                setattr(o, "in_use", used_capacity + limit)
+                            else:
+                                limit = num_chars
+                            mod = o.capt_daily_modifier_mod
+                            for i in range(limit):
+                                capt_multiplier[i] *= mod
+                    for c, mod in zip(tracker.captured_chars, capt_multiplier):
+                        for stat in ("health", "mp", "vitality"):
+                            mod_by_max(c, stat, mod)
+                        if mod < 1.0:
+                            rv = "go2guild"
+            else:
+                multiplier *= .5
+
             for c in team:
                 c.health += round_int(c.get_max("health")*multiplier)
                 c.mp += round_int(c.get_max("mp")*multiplier)
                 c.vitality += round_int(c.get_max("vitality")*multiplier)
 
-            if tracker.captured_chars and tracker.state != "traveling back":
-                return "go2guild"
+            return rv
 
         def explore(self, tracker):
             """SimPy process that handles the exploration itself.

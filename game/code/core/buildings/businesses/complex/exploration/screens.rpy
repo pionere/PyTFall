@@ -775,9 +775,7 @@ screen fg_area(area):
             xalign .5
             background Null()
             $ objects = sorted(area.camp_objects, key=attrgetter("layer"))
-            #for o in objects:
-            for o in area.allowed_objects:
-             if o.name == "Fire":
+            for o in objects:
                 button:
                     style 'image_button'
                     pos o.pos
