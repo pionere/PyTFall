@@ -169,7 +169,7 @@ label mc_action_hero_ocean_skill_checks:
                 "You are fast enough to avoid the fight."
                 "Swim away":
                     $ narrator ("You quickly increase the distance between you and the monsters {color=[green]}(max agility +1){/color}.")
-                    $ hero.mod_skill("swimming", 0, randint(2, 4))
+                    $ hero.gfx_mod_skill("swimming", 0, randint(2, 4))
                     $ hero.stats.lvl_max["agility"] += 1
                     $ hero.stats.max["agility"] += 1
                     $ hero.mod_stat("agility", 1)
@@ -207,7 +207,7 @@ label mc_action_hero_ocean_skill_checks:
         "You take your time enjoying the water. Even big ocean waves are no match for your swimming skill."
         $ swim_act = randint(10, 15)
         $ swim_vit = randint (15, 25)
-    $ hero.mod_skill("swimming", 0, swim_act)
+    $ hero.gfx_mod_skill("swimming", 0, swim_act)
     $ hero.vitality -= swim_vit
 
     if locked_dice(temp) and hero.flag("constitution_bonus_from_swimming_at_beach") <= 30:

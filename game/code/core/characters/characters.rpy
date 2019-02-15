@@ -370,6 +370,11 @@ init -9 python:
 
         def mod_skill(self, skill, at, value):
             self.stats._mod_raw_skill(skill, at, value)
+        def gfx_mod_skill(self, skill, at, value):
+            if value == 0:
+                return
+            gfx_overlay.mod_stat(skill, value, self)
+            self.stats._mod_raw_skill(skill, at, value)
 
         def get_max(self, stat):
             return self.stats.get_max(stat)
@@ -388,6 +393,8 @@ init -9 python:
         def mod_exp(self, value):
             self.stats.mod_exp(value)
         def gfx_mod_exp(self, value):
+            if value == 0:
+                return
             gfx_overlay.mod_stat("exp", value, self)
             self.stats.mod_exp(value)
 

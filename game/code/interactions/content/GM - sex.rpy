@@ -699,10 +699,10 @@ label interactions_lesbian_choice:
     $ char.health = max(1, char.health - 2)
     if char.get_skill("oral") < 100 and char.get_skill("sex") < 100 and char2.get_skill("oral") < 100 and char2.get_skill("sex") < 100:
         "They both were not skilled enough to give each other enough pleasure, no matter how they tried. That was quite awkward."
-        $ char.mod_skill("oral", 0, randint (0,1))
-        $ char2.mod_skill("oral", 0, randint (0,1))
-        $ char.mod_skill("sex", 0, randint (0,1))
-        $ char2.mod_skill("sex", 0, randint (0,1))
+        $ char.gfx_mod_skill("oral", 0, randint (0,1))
+        $ char2.gfx_mod_skill("oral", 0, randint (0,1))
+        $ char.gfx_mod_skill("sex", 0, randint (0,1))
+        $ char2.gfx_mod_skill("sex", 0, randint (0,1))
         $ char.vitality -= 20
         $ char2.vitality -= 20
         $ sex_scene_libido -= 5
@@ -710,10 +710,10 @@ label interactions_lesbian_choice:
         char.say "Sorry..."
     elif char.get_skill("oral") < 100 and char.get_skill("sex") < 100:
         "[char.nickname] was not skilled enough to make her partner cum. On the bright side, [char2.nickname] made her cum a lot."
-        $ char.mod_skill("oral", 0, randint (2,4))
-        $ char2.mod_skill("oral", 0, randint (2,4))
-        $ char.mod_skill("sex", 0, randint (0,1))
-        $ char2.mod_skill("sex", 0, randint (0,1))
+        $ char.gfx_mod_skill("oral", 0, randint (2,4))
+        $ char2.gfx_mod_skill("oral", 0, randint (2,4))
+        $ char.gfx_mod_skill("sex", 0, randint (0,1))
+        $ char2.gfx_mod_skill("sex", 0, randint (0,1))
         $ char.vitality -= 20
         $ char2.vitality -= 15
         $ sex_scene_libido -= 10
@@ -721,10 +721,10 @@ label interactions_lesbian_choice:
         char2.say "Don't worry. You'll become better in time."
     elif char2.get_skill("oral") < 100 and char2.get_skill("sex") < 100:
         "[char2.nickname] was not skilled enough to make her partner cum. On the bright side, [char.nickname] made her cum a lot."
-        $ char.mod_skill("oral", 0, randint (2,4))
-        $ char2.mod_skill("oral", 0, randint (2,4))
-        $ char.mod_skill("sex", 0, randint (0,1))
-        $ char2.mod_skill("sex", 0, randint (0,1))
+        $ char.gfx_mod_skill("oral", 0, randint (2,4))
+        $ char2.gfx_mod_skill("oral", 0, randint (2,4))
+        $ char.gfx_mod_skill("sex", 0, randint (0,1))
+        $ char2.gfx_mod_skill("sex", 0, randint (0,1))
         $ char.vitality -= 20
         $ char2.vitality -= 15
         $ sex_scene_libido -= 10
@@ -732,10 +732,10 @@ label interactions_lesbian_choice:
         char.say "Don't be. We had our fun (*looking at you*)."
     else:
         "They both cum a lot. What a beautiful sight."
-        $ char.mod_skill("oral", 0, randint (2,4))
-        $ char2.mod_skill("oral", 0, randint (2,4))
-        $ char.mod_skill("sex", 0, randint (2,4))
-        $ char2.mod_skill("sex", 0, randint (2,4))
+        $ char.gfx_mod_skill("oral", 0, randint (2,4))
+        $ char2.gfx_mod_skill("oral", 0, randint (2,4))
+        $ char.gfx_mod_skill("sex", 0, randint (2,4))
+        $ char2.gfx_mod_skill("sex", 0, randint (2,4))
         $ char.vitality -= 15
         $ char2.vitality -= 15
         $ sex_scene_libido -= 10
@@ -801,7 +801,7 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
         $ temp = randint(1, 5)
         if (male_skill_for_checking - skill_for_checking) > 250 and dice(75):
             $ temp += randint(1, 5)
-        $ char.mod_skill("strip", 0, temp)
+        $ char.gfx_mod_skill("strip", 0, temp)
         $ char.vitality -= randint(1, 5)
         $ del temp
 
@@ -870,9 +870,9 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
         $ temp = randint(1, 5)
         if (char_skill_for_checking - skill_for_checking) > 250 and dice(75):
             $ temp += randint(1, 5)
-        $ hero.mod_skill("refinement", 0, temp)
-        $ char.mod_skill("sex", 0, randint(2, 6))
-        $ hero.mod_skill("sex", 0, randint(1, 4))
+        $ hero.gfx_mod_skill("refinement", 0, temp)
+        $ char.gfx_mod_skill("sex", 0, randint(2, 6))
+        $ hero.gfx_mod_skill("sex", 0, randint(1, 4))
 
         if sex_scene_libido > 0 and not char.has_flag("raped_by_player"):
             "[char.name] opens her mouth a bit. Her gaze is filled with anticipation."
@@ -895,9 +895,9 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
         $ temp = randint(1, 5)
         if (char_skill_for_checking - skill_for_checking) > 250 and dice(75):
             $ temp += randint(1, 5)
-        $ hero.mod_skill("oral", 0, temp)
-        $ char.mod_skill("sex", 0, randint(2, 6))
-        $ hero.mod_skill("sex", 0, randint(1, 4))
+        $ hero.gfx_mod_skill("oral", 0, temp)
+        $ char.gfx_mod_skill("sex", 0, randint(2, 6))
+        $ hero.gfx_mod_skill("sex", 0, randint(1, 4))
 
         if sex_scene_libido > 0 and not char.has_flag("raped_by_player"):
             "[char.name] spreads her legs to let you closer."
@@ -922,10 +922,10 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
         $ temp = randint(1, 5)
         if (male_skill_for_checking - skill_for_checking) > 250 and dice(75):
             $ temp += randint(1, 5)
-        $ char.mod_skill("oral", 0, temp)
+        $ char.gfx_mod_skill("oral", 0, temp)
         $ del temp
-        $ char.mod_skill("sex", 0, randint(1, 4))
-        $ hero.mod_skill("sex", 0, randint(2, 6))
+        $ char.gfx_mod_skill("sex", 0, randint(1, 4))
+        $ hero.gfx_mod_skill("sex", 0, randint(2, 6))
 
         if sub > 0:
             if sex_scene_libido > 0 and not char.has_flag("raped_by_player"):
@@ -978,10 +978,10 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
         $ temp = randint(1, 5)
         if (male_skill_for_checking - skill_for_checking) > 250 and dice(75):
             $ temp += randint(1, 5)
-        $ char.mod_skill("oral", 0, temp)
+        $ char.gfx_mod_skill("oral", 0, temp)
         $ del temp
-        $ char.mod_skill("sex", 0, randint(1, 4))
-        $ hero.mod_skill("sex", 0, randint(2, 6))
+        $ char.gfx_mod_skill("sex", 0, randint(1, 4))
+        $ hero.gfx_mod_skill("sex", 0, randint(2, 6))
 
         if sex_scene_libido > 0 and not char.has_flag("raped_by_player"):
             if sub > 0:
@@ -1020,8 +1020,8 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
         $ temp = randint(2, 10)
         if (male_skill_for_checking - skill_for_checking) > 250 and dice(75):
             $ temp += randint(2, 10)
-        $ char.mod_skill("sex", 0, temp)
-        $ hero.mod_skill("sex", 0, randint(2, 6))
+        $ char.gfx_mod_skill("sex", 0, temp)
+        $ hero.gfx_mod_skill("sex", 0, randint(2, 6))
         $ del temp
 
         if sub > 0:
@@ -1051,8 +1051,8 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
         $ temp = randint(2, 10)
         if (male_skill_for_checking - skill_for_checking) > 250 and dice(75):
             $ temp += randint(2, 10)
-        $ char.mod_skill("sex", 0, temp)
-        $ hero.mod_skill("sex", 0, randint(2, 6))
+        $ char.gfx_mod_skill("sex", 0, temp)
+        $ hero.gfx_mod_skill("sex", 0, randint(2, 6))
         $ del temp
 
         if sub > 0:
@@ -1103,14 +1103,14 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
             $ temp = randint(5, 10)
         else:
             $ temp = randint(2, 6)
-        $ hero.mod_skill("vaginal", 0, temp)
+        $ hero.gfx_mod_skill("vaginal", 0, temp)
         $ temp = randint(1, 5)
         if (male_skill_for_checking - skill_for_checking) > 250 and dice(75):
             $ temp += randint(1, 5)
-        $ char.mod_skill("vaginal", 0, temp)
+        $ char.gfx_mod_skill("vaginal", 0, temp)
         $ del temp
-        $ char.mod_skill("sex", 0, randint(1, 5))
-        $ hero.mod_skill("sex", 0, randint(2, 6))
+        $ char.gfx_mod_skill("sex", 0, randint(1, 5))
+        $ hero.gfx_mod_skill("sex", 0, randint(2, 6))
 
         if sub > 0:
             if sex_scene_libido > 0 and not char.has_flag("raped_by_player"):
@@ -1186,14 +1186,14 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
             $ temp = randint(5, 10)
         else:
             $ temp = randint(2, 6)
-        $ hero.mod_skill("anal", 0, temp)
+        $ hero.gfx_mod_skill("anal", 0, temp)
         $ temp = randint(1, 5)
         if (male_skill_for_checking - skill_for_checking) > 250 and dice(75):
             $ temp += randint(1, 5)
-        $ char.mod_skill("anal", 0, temp)
+        $ char.gfx_mod_skill("anal", 0, temp)
         $ del temp
-        $ char.mod_skill("sex", 0, randint(1, 4))
-        $ hero.mod_skill("sex", 0, randint(2, 6))
+        $ char.gfx_mod_skill("sex", 0, randint(1, 4))
+        $ hero.gfx_mod_skill("sex", 0, randint(2, 6))
 
         if sub > 0:
             if sex_scene_libido > 0 and not char.has_flag("raped_by_player"):

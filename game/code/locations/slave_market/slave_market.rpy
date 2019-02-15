@@ -231,7 +231,7 @@ label mc_action_work_in_slavemarket_reward:
 
         if dice(.5 + hero.luck*.1):
             hero.charisma += use_ap
-            hero.mod_skill("sex", 0, use_ap)
+            hero.gfx_mod_skill("sex", 0, use_ap)
 
         hero.add_money(result, reason="Job")
         gfx_overlay.random_find(result, 'work')

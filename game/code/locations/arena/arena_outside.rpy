@@ -282,7 +282,7 @@ label xeona_talking:
                     $ xeona_status.meet_day = day
                     ax "Alright, hehe. Come, I know a good place nearby!"
                     $ img = npcs["Xeona_arena"].show('sex', resize=(590, 600))
-                    $ hero.mod_skill("sex", 0, randint(5, 10))
+                    $ hero.gfx_mod_skill("sex", 0, randint(5, 10))
                     show expression img at truecenter as ddd
                     with dissolve
                     "You spent some pleasant time together."

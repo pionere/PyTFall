@@ -150,7 +150,7 @@ label mc_action_swimming_pool_skill_checks:
         "It feels nice swimming in the pool, but the sea is more suitable to learn something new."
         $ swim_act = randint(0,1)
         $ swim_vit = randint (10, 15)
-    $ hero.mod_skill("swimming", 0, swim_act)
+    $ hero.gfx_mod_skill("swimming", 0, swim_act)
     $ hero.vitality -= swim_vit 
     if locked_dice(75) and hero.get_skill("swimming") >= 50 and hero.constitution < hero.get_max("constitution"):
         $ hero.mod_stat("constitution", 1)
@@ -185,8 +185,8 @@ label mc_action_instructor_swimming_pool_skill_checks:
         $ swim_act = randint(0,1)
         $ swim_tra = randint(5,10)
         $ swim_vit = randint (5, 10)
-    $ hero.mod_skill("swimming", 0, swim_act)
-    $ hero.mod_skill("swimming", 1, swim_tra)
+    $ hero.gfx_mod_skill("swimming", 0, swim_act)
+    $ hero.gfx_mod_skill("swimming", 1, swim_tra)
     $ hero.vitality -= swim_vit
     
     if locked_dice(65) and hero.get_skill("swimming") >= 50:
@@ -215,8 +215,8 @@ label mc_action_work_swim_pool_reward:
             result = randint (190, 220)
         result = gold_reward(hero, result)
         hero.AP -= 1
-        hero.mod_skill("swimming", 0, randint(0,2))
-        hero.mod_skill("swimming", 1, randint(1,2))
+        hero.gfx_mod_skill("swimming", 0, randint(0,2))
+        hero.gfx_mod_skill("swimming", 1, randint(1,2))
         hero.vitality -= randint (20, 35)
         hero.add_money(result, reason="Job")
         gfx_overlay.random_find(result, 'work')

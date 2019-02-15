@@ -1093,9 +1093,7 @@ init: # ChainFights vs Mobs:
                     mousewheel True
                     child_size (700, 5000)
                     has vbox spacing 5
-                    $ i = -1
-                    for setup in pytfall.arena.chain_fights_order:
-                        $ i+= 1
+                    for setup, portrait in zip(pytfall.arena.chain_fights_order, pytfall.arena.chain_fights_order_portraits):
                         frame:
                             xysize (695, 55)
                             background Frame(Transform("content/gfx/frame/p_frame7.webp", alpha=1.0), 10, 10)
@@ -1112,8 +1110,7 @@ init: # ChainFights vs Mobs:
                                     yalign .5
                                     xysize (45, 45)
                                     background Frame("content/gfx/frame/rank_frame.png", 5, 5)
-                                    add pytfall.arena.chain_fights_order_portraits[i]:
-                                        align (.5, .5)
+                                    add portrait align (.5, .5)
                                 frame:
                                     yalign .5
                                     xysize (100, 45)
