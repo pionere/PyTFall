@@ -16,13 +16,13 @@ label interactions_smalltalk:
             $ narrator(choice(["You feel especially close."]))
             $ char.joy += randint(0, 1)
             $ char.disposition += randint(1, 2)
-            $ hero.exp += exp_reward(hero, char, ap_used=.33)
-            $ char.exp += exp_reward(char, hero, ap_used=.33)
+            $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
+            $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
 
         else:
             $ narrator(choice(["[char.pC] was much more approachable."]))
-            $ hero.exp += exp_reward(hero, char, ap_used=.33)
-            $ char.exp += exp_reward(char, hero, ap_used=.33)
+            $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
+            $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
             $ char.disposition += randint(2, 4)
 
     if char.disposition >= 100:
@@ -56,8 +56,8 @@ label interactions_smalltalk:
         $ char.disposition += 1
     else:
         $ char.joy += 1
-    $ hero.exp += exp_reward(hero, char, ap_used=.33)
-    $ char.exp += exp_reward(char, hero, ap_used=.33)
+    $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
+    $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
     $ del m
     jump girl_interactions
 
@@ -72,7 +72,7 @@ label girl_interactions_aboutjob: # TO DO: here would help additional logic base
         jump girl_interactions
     $ del m
 
-    $ hero.exp += exp_reward(hero, char, ap_used=.33)
+    $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
 
     if char.flag("daysemployed") < 5:
         # Less than 10 days in service:
@@ -263,21 +263,19 @@ label interactions_abouther:
         if dice(50) and dice(char.joy-20):
             if char.disposition >= 400:
                 $ narrator(choice(["You feel especially close."]))
-                $ hero.exp += exp_reward(hero, char, ap_used=.33)
-                $ char.exp += exp_reward(char, hero, ap_used=.33)
                 $ char.joy += randint(0, 1)
                 $ char.disposition += randint(1, 2)
             else:
                 $ narrator(choice(["She was much more approachable."]))
-                $ hero.exp += exp_reward(hero, char, ap_used=.33)
-                $ char.exp += exp_reward(char, hero, ap_used=.33)
                 $ char.disposition += randint(2, 6)
+            $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
+            $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
 
         $ char.disposition += randint(5, 15)
         $ del m
 
-        $ hero.exp += exp_reward(hero, char, ap_used=.33)
-        $ char.exp += exp_reward(char, hero, ap_used=.33)
+        $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
+        $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
 
         $ gm_abouther_list = []
         if ct("Half-Sister"):
@@ -511,7 +509,7 @@ label interactions_aboutoccupation:
         jump girl_interactions
     $ del m
 
-    $ hero.exp += exp_reward(hero, char, ap_used=.33)
+    $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
 
     if char.disposition > -250 or char.status == "slave":
         python:
@@ -589,15 +587,13 @@ label interactions_interests:
         if dice(50) and dice(char.joy-20):
             if char.disposition >= 400:
                 $ narrator(choice(["You feel especially close."]))
-                $ hero.exp += exp_reward(hero, char, ap_used=.15)
-                $ char.exp += exp_reward(char, hero, ap_used=.15)
                 $ char.joy += randint(0, 1)
                 $ char.disposition += randint(1, 2)
             else:
                 $ narrator(choice(["She was much more approachable."]))
-                $ hero.exp += exp_reward(hero, char, ap_used=.15)
-                $ char.exp += exp_reward(char, hero, ap_used=.15)
                 $ char.disposition += randint(2, 6)
+            $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.15))
+            $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.15))
 
         $ line = rts(char, {
         "Exhibitionist": ["[char.pC] tells you pretty hot stories about [char.op] exhibitionistic adventures in a local park."],
@@ -649,8 +645,8 @@ label interactions_interests:
         $ del line
         $ char.disposition += randint(10, 20)
 
-        $ hero.exp += exp_reward(hero, char, ap_used=.20)
-        $ char.exp += exp_reward(char, hero, ap_used=.20)
+        $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.20))
+        $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.20))
 
         $ del m
         if char.joy >= 65:
@@ -694,8 +690,8 @@ label interactions_flirt:
     if char.disposition > 150:
         $ char.override_portrait("portrait", "shy")
 
-        $ hero.exp += exp_reward(hero, char, ap_used=.33)
-        $ char.exp += exp_reward(char, hero, ap_used=.33)
+        $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
+        $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
         $ char.disposition += randint(15, 25)
 
         $ del m

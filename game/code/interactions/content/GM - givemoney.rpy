@@ -33,27 +33,27 @@ label interactions_giftmoney:
             "She enthusiastically accepts your money. It looks like it's a considerable sum for her."
             $ a = 20
             $ b = 50
-            $ hero.exp += exp_reward(hero, char, ap_used=.33, final_mod=1.5)
-            $ char.exp += exp_reward(char, hero, ap_used=.33, final_mod=1.5)
+            $ mod = 1.5
         elif round(char.gold/money) <= 3:
             "She gratefully accepts your money. Times are tough."
             $ a = 10
             $ b = 25
-            $ hero.exp += exp_reward(hero, char, ap_used=.33, final_mod=1.25)
-            $ char.exp += exp_reward(char, hero, ap_used=.33, final_mod=1.25)
+            $ mod = 1.25
         else:
             "She takes your money."
             $ a = 5
             $ b = 15
-            $ hero.exp += exp_reward(hero, char, ap_used=.33)
-            $ char.exp += exp_reward(char, hero, ap_used=.33)
+            $ mod = 1
         call interactions_enough_gold from _call_interactions_enough_gold
+        $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33, final_mod=mod))
+        $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33, final_mod=mod))
         if char.disposition >= 90:
             $ char.disposition += round(randint(a, b)/(char.disposition*.01))
         else:
             $ char.disposition += randint(a, b)
         $ del a
         $ del b
+        $ del mod
         $ del money
     else:
         "You don't have that amount of gold."
@@ -79,7 +79,7 @@ label interactions_askmoney:
             if char.take_money(temp, reason="Charity"):
                 $ hero.add_money(temp, reason="Charity")
                 "She gave you [temp] G."
-                $ hero.exp += exp_reward(hero, char, ap_used=.33)
+                $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
                 $ char.disposition -= randint (20, 40)
                 $ del temp
         else:

@@ -124,7 +124,7 @@
             else:
                 raise Exception("Stat: {} does not exits for Businesses".format(key))
 
-        def update_char_data(self, char, adjust_exp=True):
+        def update_char_data(self, char):
             """Settles stats, exp and skills for workers.
 
             # After a long conversation with Dark and CW, we've decided to prevent workers dieing during jobs
@@ -136,10 +136,7 @@
             data = char.stats_skills
             for key, value in data.iteritems():
                 if key == "exp":
-                    if adjust_exp:
-                        value = char.adjust_exp(value)
-                        data[key] = value
-                    char.exp += value
+                    char.mod_exp(value)
                 elif key == 'health' and (char.health + value) <= 0:
                     char.health = 1
                     # if char.constitution > 5: # @Review (Alex): Why??? This is insane??

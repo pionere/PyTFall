@@ -82,7 +82,7 @@ label special_items_slime_bottle:
                     $ new_slime.health = 0
                     python:
                         for member in hero.team:
-                            member.exp += exp_reward(member, enemy_team)
+                            member.gfx_mod_exp(exp_reward(member, enemy_team))
         "No":
             "Maybe another time."
             $ inv_source.add_item("Unusual Bottle")
@@ -151,7 +151,7 @@ label special_items_full_extractor:
     else:
         $ renpy.show_screen('message_screen', "The energy of knowledge slowly flows inside you. You became more experienced.")
 
-    $ eqtarget.exp += 1500
+    $ eqtarget.gfx_mod_exp(exp_reward(eqtarget, eqtarget, final_mod=1500.0/DAILY_EXP_CORE))
 
     jump char_equip
 

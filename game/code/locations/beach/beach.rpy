@@ -240,7 +240,7 @@ label city_beach_monsters_fight:
     if result is True:
         python:
             for member in hero.team:
-                member.exp += exp_reward(member, enemy_team)
+                member.gfx_mod_exp(exp_reward(member, enemy_team))
     elif result is False:
         "The guards managed to drive away monsters, but your wounds are deep..."
     else:

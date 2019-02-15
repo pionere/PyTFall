@@ -133,7 +133,7 @@ label mc_action_cafe_eat_alone_cafe_invitation:
                 if result_m > 0:
                     $ result += "{color=[blue]} +%d MP{/color}" % result_m
                 $ hero.say("%s" % result)
-                $ hero.exp += exp_reward(hero, hero)
+                $ hero.gfx_mod_exp(exp_reward(hero, hero))
                 $ del result
                 $ del result_v
                 $ del result_m
@@ -172,7 +172,7 @@ label mc_action_cafe_eat_alone_cafe_invitation:
                 if result_h > 0:
                     $ result += "{color=[red]} +%d Health{/color}" % result_h
                 $ hero.say ("%s" % result)
-                $ hero.exp += exp_reward(hero, hero)
+                $ hero.gfx_mod_exp(exp_reward(hero, hero))
                 $ del result
                 $ del result_v
                 $ del result_m
@@ -224,7 +224,7 @@ label mc_action_cafe_eat_alone_cafe_invitation:
                 if result_h > 0:
                     $ result += "{color=[red]} +%d Health{/color}" % result_h
                 $ hero.say ("%s" % result)
-                $ hero.exp += exp_reward(hero, hero)
+                $ hero.gfx_mod_exp(exp_reward(hero, hero))
                 $ del result
                 $ del result_v
                 $ del result_m

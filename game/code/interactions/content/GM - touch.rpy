@@ -28,8 +28,8 @@ label interactions_hug:
         $ del m
         $ del n
         $ del sub
-        $ hero.exp += exp_reward(hero, char, ap_used=.33)
-        $ char.exp += exp_reward(char, hero, ap_used=.33)
+        $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
+        $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
         $ char.override_portrait("portrait", "confident")
         $ char.show_portrait_overlay("zoom_slow", "reset")
         if ct("Impersonal"):
@@ -138,8 +138,8 @@ label interactions_grabbutt:
     if char.disposition > (m+50*sub) or slave_siw_check(char):
         $ char.disposition += randint(20, 35)
 
-        $ hero.exp += exp_reward(hero, char, ap_used=.33)
-        $ char.exp += exp_reward(char, hero, ap_used=.33)
+        $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
+        $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
 
         $ del m
         $ del n
@@ -250,8 +250,8 @@ label interactions_grabbreasts:
         $ m = 250
 
     if char.disposition > (m+50*sub) or slave_siw_check(char):
-        $ hero.exp += exp_reward(hero, char, ap_used=.33)
-        $ char.exp += exp_reward(char, hero, ap_used=.33)
+        $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
+        $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
         $ char.disposition += randint(25, 35)
         $ del m
         $ del n

@@ -38,8 +38,8 @@ label interactions_kiss:
         $ m = 350
 
     if char.disposition > (m+50*sub) or slave_siw_check(char):
-        $ hero.exp += exp_reward(hero, char, ap_used=.33)
-        $ char.exp += exp_reward(char, hero, ap_used=.33)
+        $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
+        $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
         $ char.disposition += randint(40, 55)
         $ del m
         $ del sub

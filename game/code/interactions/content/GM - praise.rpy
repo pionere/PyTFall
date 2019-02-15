@@ -30,10 +30,10 @@ label interactions_clever:
 
         if inter_praise == 3:
             "She looks excited."
-            $ hero.exp += exp_reward(hero, char, ap_used=.33)
+            $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
         elif inter_praise == 2:
             "She looks happy."
-            $ hero.exp += exp_reward(hero, char, ap_used=.33, final_mod=.8)
+            $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33, final_mod=.8))
         elif inter_praise == 1:
             "She looks a bit happier than before."
         else:
@@ -84,10 +84,10 @@ label interactions_strong:
 
         if inter_praise == 3:
             "She looks pleased.."
-            $ hero.exp += exp_reward(hero, char, ap_used=.33)
+            $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
         elif inter_praise == 2:
             "She looks happy."
-            $ hero.exp += exp_reward(hero, char, ap_used=.33, final_mod=.8)
+            $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33, final_mod=.8))
         elif inter_praise == 1:
             "She looks a bit happier than before."
         else:
@@ -138,10 +138,10 @@ label interactions_cute:
 
         if inter_praise == 3:
             "She looks very happy."
-            $ hero.exp += exp_reward(hero, char, ap_used=.33)
+            $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
         elif inter_praise == 2:
             "She looks happy."
-            $ hero.exp += exp_reward(hero, char, ap_used=.33, final_mod=.8)
+            $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33, final_mod=.8))
         elif inter_praise == 1:
             "She looks a bit happier than before."
         else:

@@ -235,7 +235,7 @@ label mc_action_work_in_slavemarket_reward:
 
         hero.add_money(result, reason="Job")
         gfx_overlay.random_find(result, 'work')
-        hero.exp += exp_reward(hero, hero, ap_used=use_ap)
+        hero.gfx_mod_exp(exp_reward(hero, hero, ap_used=use_ap))
         hero.take_ap(use_ap)
 
         del result

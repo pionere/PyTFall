@@ -608,12 +608,12 @@ init -9 python:
                             if girlmod:
                                 girlmod["health"] -= randint(20, 30)
                                 girlmod["vitality"] -= randint(20, 30)
-                                girlmod["joy"] -= choice([0,2,2,4,6])
+                                girlmod["joy"] -= randint(0, 6)
 
                             else:
                                 girl.health = max(1, girl.health - randint(20, 30))
                                 girl.vitality -= randint(20, 30)
-                                girl.joy -= choice([0,2,2,4,6])
+                                girl.joy -= randint(0, 6)
 
                             return False, self.DEFEATED
 
@@ -632,12 +632,12 @@ init -9 python:
                             if girlmod:
                                 girlmod["health"] -= randint(10, 20)
                                 girlmod["vitality"] -= randint(10, 20)
-                                girlmod["joy"] -= choice([0,1,1,2,3])
+                                girlmod["joy"] -= randint(0, 3)
 
                             else:
                                 girl.health = max(1, girl.health - randint(10, 20))
                                 girl.vitality -= randint(10, 20)
-                                girl.joy -= choice([0,1,2,2,3])
+                                girl.joy -= randint(0, 3)
 
                             return False, self.DEFEATED
 
@@ -660,7 +660,7 @@ init -9 python:
                             else:
                                 girl.health = max(1, girl.health - randint(10, 20))
                                 girl.vitality -= randint(10, 20)
-                                girl.exp += exp
+                                girl.mod_exp(exp)
 
                             return False, self.DEFEATED
 
@@ -679,13 +679,13 @@ init -9 python:
                                 girlmod["health"] -= randint(10, 20)
                                 girlmod["vitality"] -= randint(10, 20)
                                 girlmod["exp"] += exp
-                                girlmod["joy"] += choice([0,1,1,2,3])
+                                girlmod["joy"] += randint(0, 3)
 
                             else:
                                 girl.health = max(1, girl.health - randint(10, 20))
                                 girl.vitality -= randint(10, 20)
-                                girl.exp += exp
-                                girl.joy += choice([0,1,1,2,3])
+                                girl.mod_exp(exp)
+                                girl.joy += randint(0, 3)
 
                             return True, self.FOUGHT
 
@@ -699,11 +699,11 @@ init -9 python:
 
                             if girlmod:
                                 girlmod["exp"] += exp
-                                girlmod["joy"] += choice([0,2,2,4,6])
+                                girlmod["joy"] += randint(0, 6)
 
                             else:
-                                girl.exp += exp
-                                girl.joy += choice([0,2,2,4,6])
+                                girl.mod_exp(exp)
+                                girl.joy += randint(0, 6)
 
                             return True, self.ESCAPED
 
@@ -729,11 +729,11 @@ init -9 python:
 
                             if girlmod:
                                 girlmod["vitality"] -= randint(10, 20)
-                                girlmod["joy"] -= choice([0,1,1,2,3])
+                                girlmod["joy"] -= randint(0, 3)
 
                             else:
                                 girl.health = max(1, girl.health - randint(10, 20))
-                                girl.joy -= choice([0,1,1,2,3])
+                                girl.joy -= randint(0, 3)
 
                             return True, self.DEFEATED
 
@@ -750,12 +750,12 @@ init -9 python:
                             if girlmod:
                                 girlmod["vitality"] -= randint(10, 20)
                                 girlmod["exp"] += exp
-                                girlmod["joy"] += choice([0,1,1,2,3])
+                                girlmod["joy"] += randint(0, 3)
 
                             else:
                                 girlmod.vitality -= randint(10, 20)
-                                girlmod.exp += exp
-                                girl.joy += choice([0,1,1,2,3])
+                                girlmod.mod_exp(exp)
+                                girl.joy += randint(0, 3)
 
                             return False, self.FOUGHT
 

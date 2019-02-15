@@ -253,7 +253,7 @@ label mc_action_tavern_look_around: # various bonuses to theoretical skills for 
         else:
             show expression "content/gfx/interface/icons/exp.webp" as sign at truecenter with dissolve
             "You are sharing fresh rumors with patrons over a beer."
-            $ hero.exp += exp_reward(hero, hero)
+            $ hero.gfx_mod_exp(exp_reward(hero, hero))
             hide sign with dissolve
 
         $ del N
@@ -282,7 +282,7 @@ label city_tavern_thugs_fight: # fight with random thugs in the brawl mode
     if result is True:
         python:
             for member in hero.team:
-                member.exp += exp_reward(member, enemy_team)
+                member.gfx_mod_exp(exp_reward(member, enemy_team))
 
     else:
         $ hero.set_flag("fought_in_tavern", value = day)

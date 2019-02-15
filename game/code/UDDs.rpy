@@ -558,10 +558,10 @@ init -960 python:
                     char = self.char
                     step = self.step
                     if self.active_pool > step:
-                        char.exp += step
+                        char.mod_exp(step)
                         self.active_pool -= step
                     else:
-                        char.exp += self.active_pool
+                        char.mod_exp(self.active_pool)
                         self.active_pool = 0
 
                     if self.last_known_level != char.level:

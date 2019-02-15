@@ -94,8 +94,7 @@ init python:
                 txt = [] # Append all events we want to relay to the player.
                 flag_green = False
 
-                temp = "{} is taking a {} Course!".format(char.fullname,
-                                                          self.name)
+                temp = "%s is taking a %s Course!" % (char.fullname, self.name)
                 txt.append(temp)
 
                 # Pay for the class:
@@ -130,9 +129,7 @@ init python:
                     elif char.stats.is_skill(s):
                         primary_skills.append(s)
                     else:
-                        raise Exception("{} is not a valid stat/skill for {} course.".format(
-                                s, self.name
-                        ))
+                        raise Exception("%s is not a valid stat/skill for %s course." % (s, self.name))
 
                 for s in self.data["secondary"]:
                     if char.stats.is_stat(s):
@@ -141,17 +138,13 @@ init python:
                     elif char.stats.is_skill(s):
                         secondary_skills.append(s)
                     else:
-                        raise Exception("{} is not a valid stat/skill for {} course.".format(
-                                s, self.name
-                        ))
+                        raise Exception("%s is not a valid stat/skill for %s course." % (s, self.name))
 
                 stats = primary_stats*3 + secondary_stats
                 skills = primary_skills*3 + secondary_skills
-                exp = exp_reward(char, self.difficulty,
-                                 ap_used=ap_spent)
-                charmod = defaultdict(int) # Dict of changes of stats and skills for ND
 
                 # Add stats/skills/exp mods.
+                exp_mod = 1.0
                 points = max(1, self.difficulty-char.tier)
                 if char == best_student:
                     temp = "%s has been a perfect student today and went every extra mile she could." % char.name
@@ -159,20 +152,20 @@ init python:
                     flag_green = True
                     txt.append(temp)
                     points *= 1.5
-                    exp *= 1.5
+                    exp_mod = 1.5
 
                 if completed and char not in self.completed:
                     school.successfully_completed += 1
                     self.completed.add(char)
                     points *= 2
-                    exp *= 2
+                    exp_mod *= 2
                     temp = "%s has completed the course today!" % char.nickname
                     temp += " {color=[lawngreen]}+100% Stats/Skills/EXP Bonus!{/color}"
                     flag_green = True
                     txt.append(temp)
                 elif char in self.completed:
                     points *= .8
-                    exp *= .8
+                    exp_mod *= .8
                     temp = "%s has already finished this course!" % char.nickname
                     temp += " {color=[red]}-20% Stats/Skills/EXP Bonus!{/color}"
                     txt.append(temp)
@@ -182,12 +175,13 @@ init python:
                 points *= effectiveness
 
                 stats_pool = round_int(points*ap_spent)
-                skills_pool = round_int(points*2*ap_spent)
+                skills_pool = 2*stats_pool
 
-                exp = round_int(exp)
-                char.exp += exp
+                exp = exp_reward(char, self.difficulty, ap_used=ap_spent, final_mod=exp_mod)
+                char.mod_exp(exp)
+
+                charmod = defaultdict(int) # Dict of changes of stats and skills for ND
                 charmod["exp"] = exp
-
                 if stats:
                     for i in xrange(stats_pool):
                         stat = choice(stats)

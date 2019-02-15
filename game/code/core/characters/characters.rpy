@@ -365,13 +365,6 @@ init -9 python:
                 value.inhabitants.add(self)
             self._home = value
 
-        # Alternative Method for modding first layer of stats:
-        def add_exp(self, value, adjust=True):
-            # Adds experience, adjusts it by default...
-            if adjust:
-                value = adjust_exp(self, value)
-            self.exp += value
-
         def mod_stat(self, stat, value):
             self.stats._mod_base_stat(stat, value)
 
@@ -380,12 +373,6 @@ init -9 python:
 
         def get_max(self, stat):
             return self.stats.get_max(stat)
-
-        def adjust_exp(self, exp):
-            '''
-            Temporary measure to handle experience...
-            '''
-            return adjust_exp(self, exp)
 
         def get_skill(self, skill):
             return self.stats.get_skill(skill)
@@ -397,9 +384,12 @@ init -9 python:
         @property
         def exp(self):
             return self.stats.exp
-        @exp.setter
-        def exp(self, value):
-            self.stats._mod_exp(value)
+
+        def mod_exp(self, value):
+            self.stats.mod_exp(value)
+        def gfx_mod_exp(self, value):
+            gfx_overlay.mod_stat("exp", value, self)
+            self.stats.mod_exp(value)
 
         @property
         def level(self):
@@ -1583,7 +1573,7 @@ init -9 python:
                     else:
                         temp.add_money(value, reason="Items")
                 elif stat == "exp":
-                    self.exp += value
+                    self.mod_exp(exp_reward(self, self, final_mod=float(value)/DAILY_EXP_CORE))
                 elif stat in ['health', 'mp', 'vitality', 'joy'] or (item.slot in ['consumable', 'misc'] and not (item.slot == 'consumable' and item.ctemp)):
                     if item.type == "food" and 'Fast Metabolism' in self.effects:
                         value *= 2
@@ -1867,7 +1857,7 @@ init -9 python:
             *kind = is a string referring to the NPC
             """
             # Any training:
-            self.exp += exp_reward(self, self.tier)
+            self.mod_exp(exp_reward(self, self))
 
             if kind == "Abby Training":
                 self.magic += randint(1, 3)

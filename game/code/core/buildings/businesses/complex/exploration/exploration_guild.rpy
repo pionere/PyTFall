@@ -1011,7 +1011,7 @@ init -6 python: # Guild, Tracker and Log.
                     member.defence + randrange(3)
                     member.agility += randrange(3)
                     member.magic += randrange(3)
-                    member.exp += exp_reward(member, opfor)
+                    member.mod_exp(exp_reward(member, opfor))
 
                 log.add(set_font_color("Your team won!!", "lawngreen"))
 

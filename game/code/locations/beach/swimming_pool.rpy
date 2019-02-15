@@ -220,7 +220,7 @@ label mc_action_work_swim_pool_reward:
         hero.vitality -= randint (20, 35)
         hero.add_money(result, reason="Job")
         gfx_overlay.random_find(result, 'work')
-        hero.exp += exp_reward(hero, hero)
+        hero.gfx_mod_exp(exp_reward(hero, hero))
         del result
 
     hide expression picture with dissolve

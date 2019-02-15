@@ -1182,25 +1182,11 @@ init -10 python:
                         value = round_int(value*.5)
             return value
 
-        def _mod_exp(self, value):
+        def mod_exp(self, value):
             # Assumes input from setattr of self.instance:
             char = self.instance
-            global CHARS_INIT_PHASE
 
-            if not CHARS_INIT_PHASE:
-                if hasattr(char, "effects"):
-                    effects = char.effects
-                    if "Slow Learner" in effects:
-                        val = value - self.exp
-                        value = self.exp + int(round(val*.9))
-                    if "Fast Learner" in effects:
-                        val = value - self.exp
-                        value = self.exp + int(round(val*1.1))
-
-                if value and last_label_pure.startswith(AUTO_OVERLAY_STAT_LABELS):
-                    temp = value - self.exp
-                    gfx_overlay.mod_stat("exp", temp, char)
-
+            value += self.exp
             self.exp = value
 
             if self.exp >= self.goal:
@@ -1235,43 +1221,32 @@ init -10 python:
                         #        self.max[stat] +=1
 
                 # Super Bonuses from Base Traits:
-                if hasattr(char, "traits"):
-                    traits = char.traits.basetraits
-                    multiplier = 2 if len(traits) == 1 else 1
-                    multiplier *= num_lvl
-                    for trait in traits:
-                        # Super Stat Bonuses:
-                        for stat in trait.leveling_stats:
-                            if stat not in STATIC_CHAR.FIXED_MAX and stat in self.stats:
-                                self.lvl_max[stat] += trait.leveling_stats[stat][0] * multiplier
-                                self.max[stat] += trait.leveling_stats[stat][1] * multiplier
-                            else:
-                                msg = "Trait %s tried to raise unknown stat %s on leveling up (max mods) to %s!"
-                                char_debug(str(msg % (trait.id, stat, char.__class__)))
+                traits = char.traits.basetraits
+                multiplier = 2 if len(traits) == 1 else 1
+                multiplier *= num_lvl
+                for trait in traits:
+                    # Super Stat Bonuses:
+                    for stat in trait.leveling_stats:
+                        if stat not in STATIC_CHAR.FIXED_MAX and stat in self.stats:
+                            self.lvl_max[stat] += trait.leveling_stats[stat][0] * multiplier
+                            self.max[stat] += trait.leveling_stats[stat][1] * multiplier
+                        else:
+                            msg = "Trait %s tried to raise unknown stat %s on leveling up (max mods) to %s!"
+                            char_debug(str(msg % (trait.id, stat, char.__class__)))
 
-                        if not CHARS_INIT_PHASE:
-                            # Super Skill Bonuses:
-                            for skill in trait.init_skills:
-                                if self.is_skill(skill):
-                                    self.mod_full_skill(skill, 20*num_lvl)
-                                else:
-                                    msg = "Trait %s tried to raise unknown skill %s on leveling up to %s!"
-                                    char_debug(str(msg % (trait.id, skill, char.__class__)))
-
-                        # for skill in trait.init_skills:
-                        #     if self.is_skill(skill):
-                        #         ac_val = round(trait.init_skills[skill][0] * .02) + self.level / 5
-                        #         tr_val = round(trait.init_skills[skill][1] * .08) + self.level / 2
-                        #         self.skills[skill][0] += ac_val
-                        #         self.skills[skill][1] += tr_val
-                        #     else:
-                        #         msg = "'{}' skill applied on leveling up to {} ({})!"
-                        #         char_debug(str(msg.format(stat, self.instance.__class__, trait.id)))
+                    # Super Skill Bonuses:
+                    for skill in trait.init_skills:
+                        if self.is_skill(skill):
+                            self.mod_full_skill(skill, 20*num_lvl)
+                        else:
+                            msg = "Trait %s tried to raise unknown skill %s on leveling up to %s!"
+                            char_debug(str(msg % (trait.id, skill, char.__class__)))
 
                 self.level += num_lvl
 
                 # Bonuses from traits:
-                self.apply_trait_statsmod(trait, self.level-num_lvl, self.level)
+                for trait in char.traits:
+                    self.apply_trait_statsmod(trait, self.level-num_lvl, self.level)
 
                 self.stats["health"] = self.get_max("health")
                 self.stats["mp"] = self.get_max("mp")
@@ -1281,6 +1256,8 @@ init -10 python:
 
         def apply_trait_statsmod(self, trait, from_lvl, to_lvl):
             """Applies "stats_mod" field on characters.
+               A mod_stats entry is a pair of integers (x, y), which means the character
+               gains x points every y level.
             """
             delta_lvl = to_lvl - from_lvl
             for key in trait.mod_stats:
