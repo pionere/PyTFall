@@ -252,24 +252,16 @@ label blue_menu:
     while loop:
         menu:
             g "Slave Training is an Art!"
-            "Tell me about Slave Training.":
-                "PlaceHolder until we figure out how ST works :)"
-            "Ask about Captured Girls." if False: # fg in hero.buildings:
-                if not global_flags.flag("blue_cg"):
-                    g "So, you now own an Exploration Guild?"
-                    g "Well done, it's a well-known source of slaves of all kinds."
-                    g "Once a fresh slave is processed in the jail and registered with the authorities, I can train her to obey and do her job."
-                    g "I don't train for any specific task but rather uncover their hidden talents. My price is 2000 Gold to be paid up front."
-                    g "The training will take 30 days, and you don't have to worry because I always deliver :)"
-                    $ global_flags.set_flag("blue_cg")
+            "Tell me about Capturing Slaves":
+                "You need to estabilish an Exploration Guild. Once you have it, just send your trackers on an exploration run. With enough luck you can catch slaves who run away from their former owner."
+            "Ask about Slave Training":
+                if pytfall.sm.blue_slaves:
+                    $ num = len(pytfall.sm.blue_slaves)
+                    $ var = plural("slave", num)
+                    g "I am currently training [num] [var] for you."
+                    g "Don't worry. They'll all be ready as promised."
                 else:
-                    if pytfall.sm.blue_slaves:
-                        $ num = len(pytfall.sm.blue_slaves)
-                        $ var = plural("slave", num)
-                        g "I am currently training [num] [var] for you."
-                        g "Don't worry. They'll all be ready as promised."
-                    else:
-                        g "I'll train anyone, without fail! Just send them my way!"
+                    g "I'll train anyone, without fail! Just send them my way! My price is 2000 Gold up front."
             "That will be all":
                 g "Goodbye!"
                 $ loop = False

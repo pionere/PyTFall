@@ -1,21 +1,5 @@
 ﻿init -10 python:
-    class JobLog(_object):
-        """Stores text reports during the job execution.
-        """
-        def __init__(self, txt=""):
-            self.log = []
-            if txt: self.log.append(txt)
-
-        def add(self, text, newline=True):
-            # Adds a text to the log.
-            self.log.append(text)
-
-        def append(self, text, newline=True):
-            # Adds a text to the log.
-            self.log.append(text)
-
-
-    class NDEvent(JobLog):
+    class NDEvent(_object):
         """Next Day Report. Logs in a single event to be read in next_day label.
 
         The load_image method will always return the same image. If you want to
@@ -37,7 +21,10 @@
         def __init__(self, type='', txt='', img='', char=None, charmod=None,
                      loc=None, locmod=None, red_flag=False, green_flag=False,
                      team=None, job=None, **kwargs):
-            super(NDEvent, self).__init__(txt)
+            super(NDEvent, self).__init__()
+
+            self.log = []
+            if txt: self.log.append(txt)
 
             self.job = job
             if not type and job:
@@ -74,20 +61,23 @@
 
             self.earned = 0
 
+        def append(self, text):
+            # Adds a text to the log.
+            self.log.append(text)
+
         def load_image(self):
             """
             Returns a renpy image showing the event.
 
             The image is selected based on the event type and the character.
             """
-
             # select/load an image according to img
-            width, height = size = ND_IMAGE_SIZE
-
             d = self.img
             # Try to analyze self.img in order to figure out what it represents:
             if isinstance(d, renpy.display.core.Displayable):
                 return d
+
+            size = ND_IMAGE_SIZE
             if isinstance(d, basestring):
                 if not d:
                     raise Exception("Basestring Supplied as img {}: Ev.type: {}, Ev.loc.name: {}".format(
@@ -95,11 +85,11 @@
                                 self.type,
                                 self.loc.name if self.loc else "Unknown"))
                 elif "." in d:
-                    return ProportionalScale(d, width, height)
+                    return ProportionalScale(d, *size)
                 else:
                     return self.char.show(self.img, resize=size, cache=True)
             nd_debug("Unknown Image Type: {} Provided to Event (Next Day Events class)".format(self.img), "warning")
-            return ProportionalScale("content/gfx/interface/images/no_image.png", width, height)
+            return ProportionalScale("content/gfx/interface/images/no_image.png", *size)
 
         # Data logging and application:
         def logws(self, s, value, char=None):
@@ -154,7 +144,7 @@
                 worker.mod_flag("accumulated_tips", tips)
 
                 temp = "{} gets {} Gold in tips!".format(worker.name, tips)
-                self.add(temp, True)
+                self.append(temp)
                 loc.fin.log_logical_income(tips, job.id + " Tips")
 
         def after_job(self):

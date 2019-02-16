@@ -1922,7 +1922,7 @@ init -9 python:
                         temp = "Not enough AP left to train with %s. Auto-Training will not be disabled." % trainer
                     self.txt.append(temp)
 
-        def nd_log_report(self, txt, img, flag_red, type='girlndreport'):
+        def nd_log_report(self, txt, img, flag_red, type):
             # Change in stats during the day:
             charmod = dict()
             for stat, value in self.stats.log.items():
@@ -1936,13 +1936,12 @@ init -9 python:
                     charmod[stat] = self.stats.stats[stat] - value
 
             # Create the event:
-            evt = NDEvent()
-            evt.red_flag = flag_red
-            evt.charmod = charmod
-            evt.type = type
-            evt.char = self
-            evt.img = img
-            evt.txt = txt
+            evt = NDEvent(red_flag = flag_red,
+                          charmod = charmod,
+                          type = type,
+                          char = self,
+                          img = img,
+                          txt = txt)
             NextDayEvents.append(evt)
 
 
@@ -2091,6 +2090,8 @@ init -9 python:
 
             self._buildings = workable + habitable + rest
 
+        def get_guild_businesses(self):
+            return [u for u in itertools.chain(b._businesses for b in self.buildings) if u.__class__ == ExplorationGuild]
 
         def remove_building(self, building):
             if building in self._buildings:
@@ -2118,12 +2119,10 @@ init -9 python:
                     if char in team:
                         team.remove(char)
 
-                for b in self.upgradable_buildings:
-                    fg = b.get_business("fg")
-                    if fg:
-                        for team in fg.teams:
-                            if char in team:
-                                team.remove(char)
+                for fg in self.get_guild_businesses():
+                    for team in fg.teams:
+                        if char in team:
+                            team.remove(char)
 
             else:
                 raise Exception, "This char (ID: %s) is not in service to the player!!!" % self.id
@@ -2277,7 +2276,6 @@ init -9 python:
             for effect in self.effects.values():
                 effect.next_day(self)
 
-            img = 'profile'
             txt = self.txt
             flag_red = False
 
@@ -2298,8 +2296,7 @@ init -9 python:
                 mod_by_max(self, stat, mod)
 
             # Taxes:
-            if all([calendar.weekday() == "Monday",
-                    day != 1]):
+            if calendar.weekday() == "Monday" and day != 1:
                 flag_red = self.nd_pay_taxes(txt, flag_red)
 
             if self.arena_rep <= -500 and self.arena_permit:
@@ -2316,7 +2313,7 @@ init -9 python:
             self.restore_ap()
 
             # ------------>
-            self.nd_log_report(txt, img, flag_red, type='mcndreport')
+            self.nd_log_report(txt, 'profile', flag_red, type='mcndreport')
             self.txt = list()
 
             self.arena_stats = dict()
@@ -2557,10 +2554,9 @@ init -9 python:
 
             # hero's worker
             # Local vars
-            img = 'profile'
+            mood = None
             txt = self.txt
             flag_red = False
-            flag_green = False
 
             # Update upkeep, should always be a safe thing to do.
             self.fin.calc_upkeep()
@@ -2588,7 +2584,7 @@ init -9 python:
                     txt.append("{color=[green]}%s is currently on the exploration run!{/color}" % self.fullname)
 
                 # Settle wages:
-                img = self.fin.settle_wage(txt, img)
+                mood = self.fin.settle_wage(txt, mood)
             else:
                 # Front text (Days employed)
                 name = set_font_color(self.fullname, "green")
@@ -2645,7 +2641,7 @@ init -9 python:
 
                 # This whole routine is basically fucked and done twice or more. Gotta do a whole check of all related parts tomorrow.
                 # Settle wages:
-                img = self.fin.settle_wage(txt, img)
+                mood = self.fin.settle_wage(txt, mood)
 
                 tips = self.flag("accumulated_tips")
                 if tips:
@@ -2695,7 +2691,7 @@ init -9 python:
                     NextDayEvents.unassigned_chars += 1
 
                 # Unhappiness and related:
-                img = self.nd_joy_disposition_checks(img)
+                mood, flag_red = self.nd_joy_disposition_checks(mood, flag_red)
 
             # Finances related:
             self.fin.next_day()
@@ -2703,6 +2699,8 @@ init -9 python:
             # Resets and Counters:
             self.restore_ap()
             self.item_counter()
+
+            img = 'profile' if mood is None else self.show("profile", mood, resize=ND_IMAGE_SIZE)
 
             self.nd_log_report(txt, img, flag_red, type='girlndreport')
             self.txt = list()
@@ -2744,14 +2742,12 @@ init -9 python:
                                "But %s could not find what %s was looking for..." % (self.p, self.p)])
             self.txt.append(temp)
 
-        def nd_joy_disposition_checks(self, img):
-            size = ND_IMAGE_SIZE
-
+        def nd_joy_disposition_checks(self, mood, flag_red):
             friends_disp_check(self, self.txt)
 
             if self.get_stat("joy") <= 25:
                 self.txt.append("This worker is unhappy!")
-                img = self.show("profile", "sad", resize=size)
+                mood = "sad"
                 self.days_unhappy += 1
             else:
                 if self.days_unhappy > 0:
@@ -2768,13 +2764,13 @@ init -9 python:
                 if self.status != "slave":
                     self.txt.append("{color=[red]}%s has left your employment because %s no longer trusts or respects you!{/color}" % (self.pC, self.pp))
                     flag_red = True
-                    img = self.show("profile", "sad", resize=size)
+                    mood = "sad"
                     hero.remove_char(self)
                     self.home = pytfall.city
                     self.set_workplace(None, None)
                     set_location(self, None)
                 elif self.days_unhappy > 7:
-                    img = self.show("profile", "sad", resize=size)
+                    mood = "sad"
                     flag_red = True
                     if dice(50):
                         self.txt.append("{color=[red]}Took %s own life because %s could no longer live as your slave!{/color}" % (self.pp, self.p))
@@ -2783,7 +2779,7 @@ init -9 python:
                         self.txt.append("{color=[red]}Tried to take %s own life because %s could no longer live as your slave!{/color}" % (self.pp, self.p))
                         self.set_stat("health", 1)
 
-            return img
+            return mood, flag_red
 
 
     class rChar(Char):

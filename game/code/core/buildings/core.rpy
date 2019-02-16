@@ -482,15 +482,6 @@ init -10 python:
         def has_extension(self, extension):
             return extension in self.all_extensions()
 
-        def get_business(self, up):
-            # Takes a string as an argument
-            if up == "fg":
-                temp = [u for u in building._businesses if u.__class__ == ExplorationGuild]
-                if temp:
-                    return temp[0]
-                else:
-                    return False
-
         # Describing building purposes:
         def is_business(self):
             return len(self.allowed_businesses) != 0

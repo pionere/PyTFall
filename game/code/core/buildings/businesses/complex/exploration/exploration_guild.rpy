@@ -71,6 +71,8 @@ init -9 python:
             return self.explored * 100 / self.maxexplored
 
         def dequeue(self, obj):
+            if self.camp_queue[0] == obj:
+                self.camp_build_points = 0
             self.camp_queue.remove(obj)
             for idx, o in enumerate(self.allowed_objects):
                 if o.idx > obj.idx:
@@ -257,7 +259,7 @@ init -6 python: # Guild, Tracker and Log.
             self.found_items = []
             self.item = item # Item object for the UI log if one was found!
 
-        def add(self, text, newline=True):
+        def add(self, text):
             # Adds a text to the log.
             self.txt.append(text)
 

@@ -871,16 +871,12 @@ init -10 python:
             return self.get_income_tax(days) + self.get_property_tax
 
         # Rest ================================>>>
-        def settle_wage(self, txt, img):
+        def settle_wage(self, txt, mood):
             """
             Settle wages between player and chars.
             Called during next day method per each individual girl.
             """
             char = self.instance
-            size = ND_IMAGE_SIZE
-
-            # expected_wage_mod = 100 if char.status == "free" else 0
-            expected_wage_mod = 0
 
             real_wagemod = char.wagemod
             got_paid = False
@@ -891,7 +887,7 @@ init -10 python:
                 paid_wage = round_int(char.expected_wage/100.0*real_wagemod) if real_wagemod else 0
                 if paid_wage == 0:
                     txt.append(temp)
-                    return img
+                    return mood
                 temp += " And yet... you chose to pay %s %d%% of the fair wage (%d Gold)!" % (char.op, real_wagemod, paid_wage)
                 txt.append(temp)
             else: # Free girls:
@@ -914,7 +910,7 @@ init -10 python:
                 txt.append("You lacked the funds to pay %s the promised wage." % char.pp)
                 if char.status == "slave":
                     temp += " But being a slave %s will not hold that against you." % char.nickname
-                    return img
+                    return mood
 
             # So... if we got this far, we're either talking slaves that player
             # chose to pay a wage or free girls who expect that.
@@ -926,7 +922,7 @@ init -10 python:
                 dismod = .09
                 joymod = .06
                 if diff > 0:
-                    img = char.show("profile", "happy", resize=size)
+                    mood = "happy"
                     dismod = max(1, round_int(diff*dismod))
                     joymod = max(1, round_int(diff*joymod))
                     if DEBUG:
@@ -935,7 +931,7 @@ init -10 python:
                     char.mod_stat("disposition", dismod)
                     char.mod_stat("joy", joymod)
                 elif diff < 0:
-                    img = char.show("profile", "angry", resize=size)
+                    mood = "angry"
                     dismod = min(-2, round_int(diff*dismod)) * (char.tier or 1)
                     joymod = min(-1, round_int(diff*joymod)) * (char.tier or 1)
                     if DEBUG:
@@ -948,7 +944,7 @@ init -10 python:
                         char.mod_stat("disposition", 1)
                         char.mod_stat("joy", 1)
             else: # Slave case:
-                img = char.show("profile", "happy", resize=size)
+                mood = "happy"
                 diff = real_wagemod # Slaves just get the raw value.
                 dismod = .1
                 joymod = .1
@@ -960,7 +956,7 @@ init -10 python:
                 char.mod_stat("disposition", dismod)
                 char.mod_stat("joy", joymod)
 
-            return img
+            return mood
 
         def get_price(self):
             char = self.instance
