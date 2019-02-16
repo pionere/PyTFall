@@ -138,11 +138,12 @@ screen r_lightbutton:
         action Return(return_value)
 
 screen rg_lightbutton:
+    $ tmp = entry.get_stat("disposition")
     if entry.flag("_day_countdown_interactions_blowoff"):
         $ temp = "angry"
-    elif entry.disposition >= 500:
+    elif tmp >= 500:
         $ temp = "shy"
-    elif entry.disposition >= 100:
+    elif tmp >= 100:
         $ temp = "happy"
     else:
         $ temp = "indifferent"
@@ -162,18 +163,18 @@ screen rg_lightbutton:
                 action Return(return_value)
             hbox:
                 align 1.0, 1.0
-                if entry.disposition > 0:
+                if tmp > 0:
                     add "green_dot_gm"
-                if entry.disposition > 100:
+                if tmp > 100:
                     add "green_dot_gm"
-                if entry.disposition > 250:
+                if tmp > 250:
                     add "green_dot_gm"
 
-                if entry.disposition < 0:
+                if tmp < 0:
                     add "red_dot_gm"
-                if entry.disposition < -100:
+                if tmp < -100:
                     add "red_dot_gm"
-                if entry.disposition < -250:
+                if tmp < -250:
                     add "red_dot_gm"
 
         frame:
@@ -414,7 +415,7 @@ screen top_stripe(show_return_button=True, return_button_action=None,
                         bar:
                             right_bar im.Scale("content/gfx/interface/bars/empty_bar2.png", 102, 14)
                             left_bar im.Scale("content/gfx/interface/bars/hp2.png", 102, 14)
-                            value l.health
+                            value l.get_stat("health")
                             range l.get_max("health")
                             thumb None
                             left_gutter 0
@@ -423,7 +424,7 @@ screen top_stripe(show_return_button=True, return_button_action=None,
                         bar:
                             right_bar im.Scale("content/gfx/interface/bars/empty_bar2.png", 102, 14)
                             left_bar im.Scale("content/gfx/interface/bars/mp2.png", 102, 14)
-                            value l.mp
+                            value l.get_stat("mp")
                             range l.get_max("mp")
                             thumb None
                             left_gutter 0
@@ -432,7 +433,7 @@ screen top_stripe(show_return_button=True, return_button_action=None,
                         bar:
                             right_bar im.Scale("content/gfx/interface/bars/empty_bar2.png", 102, 14)
                             left_bar im.Scale("content/gfx/interface/bars/vitality2.png", 102, 14)
-                            value l.vitality
+                            value l.get_stat("vitality")
                             range l.get_max("vitality")
                             thumb None
                             left_gutter 0

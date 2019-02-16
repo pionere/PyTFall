@@ -919,7 +919,7 @@ init -10 python:
 
                     if has_garden and dice(25):
                         for w in self.all_workers:
-                            w.joy += 1
+                            w.mod_stat("joy", 1)
 
             # post-process of the manager
             if self.manager:

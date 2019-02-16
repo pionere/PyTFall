@@ -119,8 +119,8 @@ init -11 python:
         '''Punished Hero team for escaping'''
         for i in team:
             i.AP = 0
-            i.vitality -= int(i.get_max("vitality")*.3)
-            i.mp -= int(i.get_max("mp")*.3)
+            mod_by_max(i, "vitality", -.3)
+            mod_by_max(i, "mp", -.3)
 
     def run_default_be(enemy_team, slaves=False, your_team=None,
                        background="content/gfx/bg/be/battle_arena_1.webp",
@@ -165,11 +165,11 @@ init -11 python:
         for member in your_team:
             if member in battle.corpses:
                 if death:
-                    member.health = 0
+                    kill_char(member)
                 else:
-                    member.health = 1
+                    member.set_stat("health", 1)
                     if member != hero:
-                        member.joy -= randint(5, 15)
+                        member.mod_stat("joy", -randint(5, 15))
 
         if battle.combat_status in ("escape", "surrender"):
             rv = battle.combat_status

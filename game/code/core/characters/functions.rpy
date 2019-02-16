@@ -15,18 +15,19 @@ init -11 python:
 
     def friends_disp_check(char, msg=None):
         """Sets up friendship with characters based on disposition"""
+        temp = char.get_stat("disposition")
         if hero in char.lovers:
-            if (char.disposition < 200 and char.status == "free") or (char.disposition < 50): # and self.status == "slave"):
+            if (temp < 200 and char.status == "free") or (temp < 50): # and self.status == "slave"):
                     end_lovers(char, hero)
                     if msg:
                         msg.append("\n {} and you are no longer lovers...".format(char.nickname))
 
         if hero in char.friends:
-            if char.disposition <=0:
+            if temp <= 0:
                 end_friends(char, hero)
                 if msg:
                     msg.append("\n {} is no longer friends with you...".format(char.nickname))
-        elif char.disposition > 400:
+        elif temp > 400:
             set_friends(char, hero)
             if msg:
                 msg.append("\n {} became pretty close to you.".format(char.nickname))
@@ -48,7 +49,7 @@ init -11 python:
         """
         if char.stats.is_stat(stat):
             max_value = char.get_max(stat)
-            val = getattr(char, stat)
+            val = char.get_stat(stat)
             if dir == "lower":
                 if val <= max_value*value:
                     return True
@@ -59,41 +60,15 @@ init -11 python:
         elif char.stats.is_skill(stat):
             raise NotImplementedError("Skills are not yet implemented in this function.")
 
-    def mod_by_max(char, stat, value, prevent_death=True):
+    def mod_by_max(char, stat, value):
         """Modifies a stat by a float multiplier (value) based of it's max value.
-
-        prevent_death will not allow health to go below 1.
         """
-        if char.stats.is_stat(stat):
-            value = round_int(char.get_max(stat)*value)
-            if prevent_death and stat == "health" and (char.health + value <= 0):
-                char.health = 1
-            else:
-                char.mod_stat(stat, value)
-        elif char.stats.is_skill(stat):
-            value = round_int(char.get_max_skill(stat)*value)
-            char.stats.mod_full_skill(stat, value)
-
-    def set_stat_to_percentage(char, stat, value, prevent_death=True):
-        """Sets stat/skill to a percentage of max. Forcing the matter.
-        DevNote: Use with caution as this can have unexpected side effects.
-
-        prevent_death will not allow health to go below 1.
-        """
-        stats = char.stats
-
-        if stats.is_stat(stat):
-            if stat == "health":
-                char.health = 1
-            else:
-                setattr(char, stat, 0)
-        elif stats.is_skill(stat):
-            stats.skills[stat] = [0, 0]
-        mod_by_max(char, stat, value, prevent_death=prevent_death)
+        value = round_int(char.get_max(stat)*value)
+        char.mod_stat(stat, value)
 
     def restore_battle_stats(char):
-        for stat in ["health", "mp", "vitality"]:
-            char.mod_stat(stat, char.get_max(stat))
+        for stat in ("health", "mp", "vitality"):
+            char.set_stat(stat, char.get_max(stat))
 
     def build_multi_elemental_icon(size=70, elements=None):
         if elements is None: # Everything except "Neutral"
@@ -151,10 +126,12 @@ init -11 python:
 
     def kill_char(char):
         # Attempts to remove a character from the game world.
-        # This happens automatically if char.health goes 0 or below.
+        # This happens automatically if char's health goes 0 or below.
         if "Undead" in char.traits:
-            char.health = 1
+            char.set_stat("health", 1)
             return
+        if char == hero:
+            jump("game_over")
         char.home = pytfall.afterlife
         char.location = None
         char.set_workplace(None, None)
@@ -259,8 +236,9 @@ init -11 python:
         if not max_out_stats:
             for stat, value in data.get("stats", {}).iteritems():
                 if stat != "luck":
-                    value = getattr(mob, stat) + abs(value)
-                setattr(mob, stat, value)
+                    mob.mod_stat(stat, value)
+                else:
+                    mob.set_stat(stat, value)
 
         return mob
 
@@ -911,7 +889,7 @@ init -11 python:
         # Now that we're done with baseskills, we can play with other stats/skills a little bit
         for stat in char.stats.stats:
             if stat not in STATIC_CHAR.FIXED_MAX and stat not in base_stats:
-                if dice(char.luck*.5):
+                if dice(char.get_stat("luck")*.5):
                     value = char.get_max(stat)*.3
                     value = round_int(value*stat_bios())
                     char.mod_stat(stat, value)
@@ -921,7 +899,7 @@ init -11 python:
                     char.mod_stat(stat, value)
         for skill in char.stats.skills:
             if skill not in base_skills:
-                if dice(char.luck*.5):
+                if dice(char.get_stat("luck")*.5):
                     value = (SKILLS_MAX[skill]*(tier*.1))*.3
                 else:
                     value = (SKILLS_MAX[skill]*(tier*.1))*uniform(.05, .15)

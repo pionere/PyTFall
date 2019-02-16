@@ -91,7 +91,7 @@ label char_profile:
                             python:
                                 hero.remove_char(char)
                                 girls.remove(char)
-                                char.disposition -= 400
+                                char.mod_stat("disposition", -400)
 
                                 char.set_workplace(None, None)
                                 if char.status == "slave":
@@ -144,7 +144,7 @@ label char_profile:
                                     hero.add_money(int(char.fin.get_price()*.8), reason="SlaveTrade")
                                     char.home = pytfall.sm
                             else:
-                                if char.disposition >= 500:
+                                if char.get_stat("disposition") >= 500:
                                     $ block_say = True
                                     call interactions_good_goodbye from _call_interactions_good_goodbye
                                     $ block_say = False
@@ -154,7 +154,7 @@ label char_profile:
                                     $ block_say = False
 
                                 python:
-                                    char.disposition -= 400
+                                    char.gfx_mod_stat("disposition", -400)
                                     char.home = pytfall.city
 
                             python:
@@ -457,10 +457,11 @@ screen char_profile():
                                 background pscale("content/gfx/interface/icons/stars/legendary.png", 20, 20)
                                 action NullAction()
                                 tooltip "This is a Class Stat!"
-                        if char.health <= char.get_max("health")*.3:
-                            text (u"{color=[red]}%s/%s"%(char.health, char.get_max("health"))) xalign 1.0 style_suffix "value_text"
+                        $ temp, tmp = char.get_stat("health"), char.get_max("health")
+                        if temp <= tmp*.3:
+                            text (u"{color=[red]}%d/%d"%(temp, tmp)) xalign 1.0 style_suffix "value_text"
                         else:
-                            text (u"%s/%s"%(char.health, char.get_max("health"))) xalign 1.0 style_suffix "value_text"
+                            text (u"%d/%d"%(temp, tmp)) xalign 1.0 style_suffix "value_text"
                     frame:
                         xoffset 4
                         xysize (270, 27)
@@ -473,26 +474,28 @@ screen char_profile():
                                 background pscale("content/gfx/interface/icons/stars/legendary.png", 20, 20)
                                 action NullAction()
                                 tooltip "This is a Class Stat!"
-                        if char.vitality < char.get_max("vitality")*.3:
-                            text (u"{color=[red]}%s/%s"%(char.vitality, char.get_max("vitality"))) xalign 1.0 style_suffix "value_text"
+                        $ temp, tmp = char.get_stat("vitality"), char.get_max("vitality")
+                        if temp < tmp*.3:
+                            text (u"{color=[red]}%d/%d"%(temp, tmp)) xalign 1.0 style_suffix "value_text"
                         else:
-                            text (u"%s/%s"%(char.vitality, char.get_max("vitality"))) xalign 1.0 style_suffix "value_text"
+                            text (u"%d/%d"%(temp, tmp)) xalign 1.0 style_suffix "value_text"
 
-                    $ stats = [("MP", "#009ACD"), ("Luck", "#00FA9A")]
+                    $ stats = [("mp", "#009ACD"), ("luck", "#00FA9A")]
                     for stat, color in stats:
                         frame:
                             xoffset 4
                             xysize (270, 27)
                             xpadding 7
-                            text "[stat]" color color
-                            if stat.lower() in base_ss:
+                            text "%s"%stat.capitalize() color color
+                            $ stat = stat
+                            if stat in base_ss:
                                 button:
                                     xysize 20, 20
                                     offset -10, -5
                                     background pscale("content/gfx/interface/icons/stars/legendary.png", 20, 20)
                                     action NullAction()
                                     tooltip "This is a Class Stat!"
-                            text "{}/{}".lower().format(getattr(char, stat.lower()), char.get_max(stat.lower())) style_suffix "value_text" color color
+                            text "%d/%d"%(char.get_stat(stat), char.get_max(stat)) style_suffix "value_text" color color
 
                     null height 10
 
@@ -502,15 +505,15 @@ screen char_profile():
                             xoffset 4
                             xysize (270, 27)
                             xpadding 7
-                            text '{}'.format(stat.capitalize()) color "#79CDCD"
-                            if stat.lower() in base_ss:
+                            text "%s"%stat.capitalize() color "#79CDCD"
+                            if stat in base_ss:
                                 button:
                                     xysize 20, 20
                                     offset -10, -5
                                     background pscale("content/gfx/interface/icons/stars/legendary.png", 20, 20)
                                     action NullAction()
                                     tooltip "This is a Class Stat!"
-                            text ('%d/%d'%(getattr(char, stat), char.get_max(stat))) xalign 1.0 style_suffix "value_text"
+                            text "%d/%d"%(char.get_stat(stat), char.get_max(stat)) xalign 1.0 style_suffix "value_text"
 
                     null height 10
 
@@ -1027,7 +1030,7 @@ screen aeq_button(char):
 
     button:
         xysize (200, 32)
-        sensitive char.status == "slave" or char.disposition > 850
+        sensitive char.status == "slave" or char.get_stat("disposition") > 850
         action ToggleField(char, "autoequip")
         tooltip "Try to equip items favorable for the job automatically (results may vary)."
         text "Auto Equip" align (.0, .5)

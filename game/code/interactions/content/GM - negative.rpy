@@ -9,13 +9,13 @@ label interactions_harrasment_after_battle: # after MC provoked a free character
                 if char.gold <= 0:
                     "Sadly, she has no money. What a waste."
                 else:
-                    $ char.disposition -= randint(10, 25)
+                    $ char.gfx_mod_stat("disposition", -randint(10, 25))
                     $ g = char.gold
                     while g >= randint(500, 1000):
                         $ g = round(g*.1)
                     $ char.take_money(g, reason="Robbery")
                     $ hero.add_money(g, reason="Robbery")
-                    "In her pockets, you found [g] G. Lucky!"
+                    "In her pockets, you found [g] Gold Lucky!"
             "Search her for items.":
                 # We unequip all of the inventory first:
                 python:
@@ -30,20 +30,20 @@ label interactions_harrasment_after_battle: # after MC provoked a free character
                 if hasattr(store, "temp"):
                     "On [char.op] person, you found [temp.id]!"
                     $ transfer_items(char, hero, temp, amount=1, silent=True, force=True)
-                    $ char.disposition -= randint(20, 45)
+                    $ char.gfx_mod_stat("disposition", -randint(20, 45))
                 else:
                     "You didn't find anything..."
             "Kill her" if (char not in hero.chars): # direct killing of hired free chars is unavailable, only in dungeon on via other special means
                 "She stopped moving. Serves her right."
                 $ hero.gfx_mod_exp(exp_reward(hero, char))
-                $ char.health = 0
+                $ kill_char(char)
                 python:
                     for member in hero.team:
                         if all([member.status <> "slave", not("Vicious" in member.traits), not("Yandere" in member.traits), member<>hero]):
                             if "Virtuous" in member.traits:
-                                member.disposition -= randint(200, 300) # you really don't want to do it with non evil chars in team
+                                member.gfx_mod_stat("disposition", -randint(200, 300)) # you really don't want to do it with non evil chars in team
                             else:
-                                member.disposition -= randint(100, 200)
+                                member.gfx_mod_stat("disposition", -randint(100, 200))
             "Nothing":
                 $ pass
         "You quickly leave before someone sees you."
@@ -70,16 +70,16 @@ label interactions_escalation: # character was provoked to attack MC
         python:
             for member in hero.team:
                 member.gfx_mod_exp(exp_reward(member, enemy_team, ap_used=.33))
-            char.health = 1
+            char.set_stat("health", 1)
         show expression gm.bg_cache
         python:
             for member in hero.team:
                 if all([member.status != "slave", not("Vicious" in member.traits), not("Yandere" in member.traits), member != hero]): # they don't like when MC harasses and then beats other chars, unless they are evil
                     if "Virtuous" in member.traits:
-                        member.disposition -= randint(20, 40) # double for kind characters
+                        member.gfx_mod_stat("disposition", -randint(20, 40)) # double for kind characters
                     else:
-                        member.disposition -= randint(10, 20)
-        $ char.disposition -= randint(100, 200) # that's the beaten character, big penalty to disposition
+                        member.gfx_mod_stat("disposition", -randint(10, 20))
+        $ char.gfx_mod_stat("disposition", -randint(100, 200)) # that's the beaten character, big penalty to disposition
         call interactions_fight_lost from _call_interactions_fight_lost
         jump interactions_harrasment_after_battle
     else:
@@ -93,26 +93,26 @@ label interactions_escalation: # character was provoked to attack MC
 
 label interactions_insult:
     $ m = interactions_flag_count_checker(char, "flag_interactions_insult")
-    $ char.joy -= randint(2,4)
+    $ char.gfx_mod_stat("joy", -randint(2, 4))
     $ sub = check_submissivity(char)
     if dice(50-25*sub):
-        $ char.character -= randint(0,1)
-    if (char.disposition >= 250 and char.status<>"slave") or check_lovers(char, hero) or (char.disposition >= 700 and char.status=="slave"):
-        $ char.disposition -= randint(1,5)
+        $ char.gfx_mod_stat("character", -randint(0,1))
+    if (char.get_stat("disposition") >= 250 and char.status<>"slave") or check_lovers(char, hero) or (char.get_stat("disposition") >= 700 and char.status=="slave"):
+        $ char.gfx_mod_stat("disposition", -randint(1, 5))
         if m < 3:
             call interactions_got_insulted_hdisp from _call_interactions_got_insulted_hdisp
         else:
             call interactions_too_many_lines from _call_interactions_too_many_lines_9
-            $ char.disposition -= randint(1,m)
-    elif char.disposition > -100 and char.status=="slave":
-        $ char.disposition -= randint(1,5)
+            $ char.gfx_mod_stat("disposition", -randint(1, m))
+    elif char.get_stat("disposition") > -100 and char.status=="slave":
+        $ char.gfx_mod_stat("disposition", -randint(1, 5))
         if m < 3:
             call interactions_got_insulted_slave from _call_interactions_got_insulted_slave
         else:
             call interactions_too_many_lines from _call_interactions_too_many_lines_10
-            $ char.disposition -= randint(1,m)
+            $ char.gfx_mod_stat("disposition", -randint(1, m))
     else:
-        $ char.disposition -= (randint(15,25))
+        $ char.gfx_mod_stat("disposition", -randint(15,25))
         if ct("Aggressive") and m>1 and char.status != "slave" and dice(50):
             jump interactions_escalation
         elif m < randint(2,3):

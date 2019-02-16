@@ -579,7 +579,7 @@ init -10 python:
             if trait.mod_stats:
                 char.upkeep += trait.mod_stats.get("upkeep", [0, 0])[0]
                 if hasattr(char, "disposition"):
-                    char.disposition += trait.mod_stats.get("disposition", [0, 0])[0]
+                    char.mod_stat("disposition", trait.mod_stats.get("disposition", [0, 0])[0])
                 char.stats.apply_trait_statsmod(trait, 0, char.level)
 
             if hasattr(trait, "mod_skills"):
@@ -667,7 +667,7 @@ init -10 python:
             if trait.mod_stats:
                 char.upkeep -= trait.mod_stats.get("upkeep", [0, 0])[0]
                 if hasattr(char, "disposition"):
-                    char.disposition -= trait.mod_stats.get("disposition", [0, 0])[0]
+                    char.mod_stat("disposition", -trait.mod_stats.get("disposition", [0, 0])[0])
                 char.stats.apply_trait_statsmod(trait, char.level, 0)
 
             if hasattr(trait, "mod_skills"):
@@ -927,13 +927,13 @@ init -10 python:
                 joymod = .06
                 if diff > 0:
                     img = char.show("profile", "happy", resize=size)
-                    dismod = min(1, round_int(diff*dismod))
-                    joymod = min(1, round_int(diff*joymod))
+                    dismod = max(1, round_int(diff*dismod))
+                    joymod = max(1, round_int(diff*joymod))
                     if DEBUG:
                         txt.append("Debug: Disposition mod: {}".format(dismod))
                         txt.append("Debug: Joy mod: {}".format(joymod))
-                    char.disposition += dismod
-                    char.joy += joymod
+                    char.mod_stat("disposition", dismod)
+                    char.mod_stat("joy", joymod)
                 elif diff < 0:
                     img = char.show("profile", "angry", resize=size)
                     dismod = min(-2, round_int(diff*dismod)) * (char.tier or 1)
@@ -941,24 +941,24 @@ init -10 python:
                     if DEBUG:
                         txt.append("Debug: Disposition mod: {}".format(dismod))
                         txt.append("Debug: Joy mod: {}".format(joymod))
-                    char.disposition += dismod
-                    char.joy += joymod
+                    char.mod_stat("disposition", dismod)
+                    char.mod_stat("joy", joymod)
                 else: # Paying a fair wage
                     if dice(10): # just a small way to appreciate that:
-                        char.disposition += 1
-                        char.joy += 1
+                        char.mod_stat("disposition", 1)
+                        char.mod_stat("joy", 1)
             else: # Slave case:
                 img = char.show("profile", "happy", resize=size)
                 diff = real_wagemod # Slaves just get the raw value.
                 dismod = .1
                 joymod = .1
-                dismod = min(1, round_int(diff*dismod))
-                joymod = min(1, round_int(diff*joymod))
+                dismod = max(1, round_int(diff*dismod))
+                joymod = max(1, round_int(diff*joymod))
                 if DEBUG:
                     txt.append("Debug: Disposition mod: {}".format(dismod))
                     txt.append("Debug: Joy mod: {}".format(joymod))
-                char.disposition += round_int(dismod)
-                char.joy += round_int(joymod)
+                char.mod_stat("disposition", dismod)
+                char.mod_stat("joy", joymod)
 
             return img
 
@@ -1159,28 +1159,6 @@ init -10 python:
             if key in self.stats:
                 self.imod[key] = self.imod[key] + value
 
-        def settle_effects(self, key, value):
-            if hasattr(self.instance, "effects"):
-                effects = self.instance.effects
-
-                if key == 'disposition':
-                    if 'Insecure' in effects:
-                        if value >= 5:
-                            self.instance.joy += 1
-                        elif value <= -5:
-                            self.instance.joy -= 1
-                    if 'Introvert' in effects:
-                        value = round_int(value*.8)
-                    elif 'Extrovert' in effects:
-                        value = round_int(value*1.2)
-                    if 'Loyal' in effects and value < 0: # works together with other traits
-                        value = round_int(value*.8)
-                elif key == 'joy':
-                    if 'Impressible' in effects:
-                        value = round_int(value*1.5)
-                    elif 'Calm' in effects:
-                        value = round_int(value*.5)
-            return value
 
         def mod_exp(self, value):
             # Assumes input from setattr of self.instance:
@@ -1278,67 +1256,61 @@ init -10 python:
         def _mod_base_stat(self, key, value):
             # Modifies the first layer of stats (self.stats)
             # As different character types may come with different stats.
-            char = self.instance
-            value = self.settle_effects(key, value)
+            curr_value = self.stats[key]
+            value += curr_value
 
-            if value and last_label_pure.startswith(AUTO_OVERLAY_STAT_LABELS):
-                gfx_overlay.mod_stat(key, value, char)
-
-            val = self.stats[key] + value
-
-            if val <= 0 and key == 'health':
-                if isinstance(char, Player):
-                    jump("game_over")
-                elif isinstance(char, Char):
-                    kill_char(char)
-                    return
+            if value <= 0 and key == 'health':
+                value = 1 # use kill_char if you want to remove a char from the game
+                #char = self.instance
+                #if isinstance(char, Player):
+                #    jump("game_over")
+                #elif isinstance(char, Char):
+                #    kill_char(char)
+                #    return
 
             maxval = self.get_max(key)
             minval = self.min[key]
 
-            if val >= maxval:
-                val = maxval
-            elif val <= minval:
-                val = minval
-            self.stats[key] = val
+            if value >= maxval:
+                value = maxval
+            elif value <= minval:
+                value = minval
+            self.stats[key] = value
+            return value - curr_value # return the real delta
 
-        def _mod_raw_skill(self, key, at, value, use_overlay=True):
+        def _mod_raw_skill(self, key, at, value):
             """Modifies a skill.
 
             key: the skill to be modified (must be lower case)
             at: 0 - Action Skill
                 1 - Training (knowledge part) skill...
             value: the value to be added
-            use_overlay: set to true to add a gfx effect
             """
 
-            current_full_value = self.get_skill(key)
+            curr_value = self.get_skill(key)
             skill_max = SKILLS_MAX[key]
-            if current_full_value >= skill_max: # Maxed out...
-                return
+            if curr_value >= skill_max:
+                return 0 # Maxed out...
 
             value *= max(.5, min(self.skills_multipliers[key][at], 2.5))
 
             threshold = SKILLS_THRESHOLD[key]
-            beyond_training = current_full_value - threshold
+            beyond_training = curr_value - threshold
 
             if beyond_training > 0: # insufficient training... lessened increase beyond
                 at_zero = skill_max - threshold
                 value *= max(.1, 1 - float(beyond_training)/at_zero)
 
-            if use_overlay and value and last_label_pure.startswith(AUTO_OVERLAY_STAT_LABELS):
-                gfx_overlay.mod_stat(key, value, self.instance)
-
-            self.skills[key][at] += value
+            curr_value = self.skills[key][at]
+            value += curr_value
+            self.skills[key][at] = value
+            return round_int(value)-round_int(curr_value) # return the real delta
 
         def mod_full_skill(self, skill, value):
             """This spreads the skill bonus over both action and training.
             """
-            if last_label_pure.startswith(AUTO_OVERLAY_STAT_LABELS):
-                gfx_overlay.mod_stat(skill.capitalize(), value, self.instance)
-
-            self._mod_raw_skill(skill, 0, value*(2/3.0), use_overlay=False)
-            self._mod_raw_skill(skill, 1, value*(1/3.0), use_overlay=False)
+            self._mod_raw_skill(skill, 0, value*(2/3.0))
+            self._mod_raw_skill(skill, 1, value*(1/3.0))
 
         def eval_inventory(self, inventory, weighted, target_stats, target_skills,
                            exclude_on_skills, exclude_on_stats,
@@ -1637,81 +1609,78 @@ init -10 python:
 
             if self.name == "Poisoned":
                 self.ss_mod["health"] -= self.duration*5
-                char.health = max(1, char.health+self.ss_mod["health"])
+                char.mod_stat("health", self.ss_mod["health"])
                 if self.days_active >= self.duration:
                     self.end(char)
             elif self.name == "Unstable":
                 if self.days_active == self.duration:
-                    char.joy += self.ss_mod["joy"]
+                    char.mod_stat("joy", self.ss_mod["joy"])
                     self.duration += randint(2, 4)
                     self.ss_mod['joy'] = randint(20, 30) if randrange(2) else -randint(20, 30)
             elif self.name == "Optimist":
-                if char.joy >= 30:
-                    char.joy += 1
+                if char.get_stat("joy") >= 30:
+                    char.mod_stat("joy", 1)
             elif self.name == "Blood Connection":
-                char.disposition += 2
-                char.character -=1
+                char.mod_stat("disposition", 2)
+                char.mod_stat("character", -1)
             elif self.name == "Regeneration":
                 h = 30
                 if "Summer Eternality" in char.traits:
-                    h += int(char.get_max("health")*.5)
-                h = max(1, h)
-                char.health += h
+                    h += char.get_max("health")/2
+                char.mod_stat("health", max(1, h))
             elif self.name == "MP Regeneration":
                 h = 30
                 if "Winter Eternality" in char.traits:
-                    h += int(char.get_max("mp")*.5)
-                if h <= 0:
-                    h = 1
-                char.mp += h
+                    h += char.get_max("mp")/2
+                char.mod_stat("mp", max(1, h))
             elif self.name == "Small Regeneration":
-                char.health += 15
+                char.mod_stat("health", 15)
             elif self.name == "Depression":
-                if char.joy >= 30:
+                if char.get_stat("joy") >= 30:
                     self.end(char)
             elif self.name == "Elation":
-                if char.joy < 95:
+                if char.get_stat("joy") < 95:
                     self.end(char)
             elif self.name == "Pessimist":
-                if char.joy > 80:
-                    char.joy -= 2
-                elif char.joy > 10 and dice(60):
-                    char.joy -= 1
+                if char.get_stat("joy") > 80:
+                    char.mod_stat("joy", -2)
+                elif char.get_stat("joy") > 10 and dice(60):
+                    char.mod_stat("joy", -1)
             elif self.name == "Assertive":
-                if char.character < char.get_max("character")*.5:
-                    char.character += 2
+                if char.get_stat("character") < char.get_max("character")/2:
+                    char.mod_stat("character", 2)
             elif self.name == "Diffident":
-                if char.character > char.get_max("character")*.55:
-                    char.character -= 2
+                if char.get_stat("character") > char.get_max("character")/2:
+                    char.mod_stat("character", -2)
             elif self.name == "Composure":
-                if char.joy < 50:
-                    char.joy += 1
-                elif char.joy > 70:
-                    char.joy -= 1
+                if char.get_stat("joy") < 50:
+                    char.mod_stat("joy", 1)
+                elif char.get_stat("joy") > 70:
+                    char.mod_stat("joy", -1)
             elif self.name == "Vigorous":
-                if char.vitality < char.get_max("vitality")*.25:
-                    char.vitality += randint(2, 3)
-                elif char.vitality < char.get_max("vitality")*.5:
-                    char.vitality += randint(1, 2)
+                if char.get_stat("vitality") < char.get_max("vitality")/4:
+                    char.mod_stat("vitality", randint(2, 3))
+                elif char.get_stat("vitality") < char.get_max("vitality")/2:
+                    char.mod_stat("vitality", randint(1, 2))
             elif self.name == "Down with Cold":
-                char.health = max(1, char.health+self.ss_mod["health"])
-                char.vitality += self.ss_mod['vitality']
-                char.joy += self.ss_mod['joy']
+                char.mod_stat("health", self.ss_mod["health"])
+                char.mod_stat("vitality", self.ss_mod['vitality'])
+                char.mod_stat("joy", self.ss_mod['joy'])
                 if self.days_active >= self.duration:
                     self.end(char)
             elif self.name == "Kleptomaniac":
-                if dice(char.luck+55):
+                if dice(char.get_stat("luck")+55):
                     char.add_money(randint(5, 25), reason="Kleptomania")
             elif self.name == "Injured":
-                if char.health > char.get_max("health")*.2:
-                    char.health = int(char.get_max("health")*.2)
-                if char.vitality > char.get_max("vitality")*.5:
-                    char.vitality = int(char.get_max("vitality")*.5)
-                char.joy -= 10
+                if char.get_stat("health") > char.get_max("health")/5:
+                    char.set_stat("health", char.get_max("health")/5)
+                if char.get_stat("vitality") > char.get_max("vitality")/2:
+                    char.set_stat("vitality", char.get_max("vitality")/2)
+                char.mod_stat("joy", -10)
             elif self.name == "Exhausted":
-                char.vitality -= int(char.get_max("vitality")*.2)
+                char.mod_stat("vitality", -char.get_max("vitality")/5)
             elif self.name == "Lactation": # TODO add milking activities, to use this fetish more widely
-                if char.health >= 30 and char.vitality >= 30 and char in hero.chars and char.is_available:
+                if char.get_stat("health") >= 30 and char.get_stat("vitality") >= 30 and char in hero.chars and char.is_available:
                     if char.status == "slave" or check_lovers(char, hero):
                         if "Small Boobs" in char.traits:
                             if "Slime" in char.traits:
@@ -1741,32 +1710,32 @@ init -10 python:
                             if not(has_items("Bottle of Milk", [char])): # in order to not stack bottles of milk into free chars inventories they get only one, and only if they had 0
                                 char.add_item("Bottle of Milk")
             elif self.name == "Silly":
-                if char.intelligence >= 200:
-                    char.intelligence -= 20
-                if char.intelligence >= 100:
-                    char.intelligence -= 10
-                elif char.intelligence >= 25:
-                    char.intelligence -= 5
+                if char.get_stat("intelligence") >= 200:
+                    char.mod_stat("intelligence", -20)
+                elif char.get_stat("intelligence") >= 100:
+                    char.mod_stat("intelligence", -10)
+                elif char.get_stat("intelligence") >= 25:
+                    char.mod_stat("intelligence", -5)
                 else:
-                    char.intelligence = 20
+                    char.set_stat("intelligence", 20)
             elif self.name == "Intelligent":
-                if char.joy >= 75 and char.vitality >= char.get_max("vitality")*.75 and char.health >= char.get_max("health")*.75:
-                    char.intelligence += 1
+                if char.get_stat("joy") >= 75 and char.get_stat("vitality") >= char.get_max("vitality")*.75 and char.get_stat("health") >= char.get_max("health")*.75:
+                    char.mod_stat("intelligence", 1)
             elif self.name == "Sibling":
-                if char.disposition < 100:
-                    char.disposition += 2
-                elif char.disposition < 200:
-                    char.disposition += 1
+                if char.get_stat("disposition") < 100:
+                    char.mod_stat("disposition", 2)
+                elif char.get_stat("disposition") < 200:
+                    char.mod_stat("disposition", 1)
             elif self.name == "Drunk":
-                char.vitality -= char.get_flag("drunk_counter", 0)
-                char.health = max(1, char.health-10)
-                char.joy -= 5
-                char.mp -= 20
+                char.mod_stat("vitality", -char.get_flag("drunk_counter", 0))
+                char.mod_stat("health", -10)
+                char.mod_stat("joy", -5)
+                char.mod_stat("mp", -20)
                 self.end(char)
             elif self.name == "Food Poisoning":
-                char.health = max(1, char.health+self.ss_mod["health"])
-                char.vitality += self.ss_mod['vitality']
-                char.joy += self.ss_mod['joy']
+                char.mod_stat("health", self.ss_mod["health"])
+                char.mod_stat("vitality", self.ss_mod['vitality'])
+                char.mod_stat("joy", self.ss_mod['joy'])
                 if self.days_active >= self.duration:
                     self.end(char)
 

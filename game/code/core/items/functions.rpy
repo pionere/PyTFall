@@ -194,7 +194,7 @@ init -11 python:
         # Free girls should always refuse giving up their items unless MC gave it to them:
         # (Unless action is forced):
         if not force:
-            if all([isinstance(source, Char), source.status != "slave", not(item.price <= (hero.charisma-source.character)*10 and check_lovers(source, hero))]):
+            if all([isinstance(source, Char), source.status != "slave", not(item.price <= (hero.get_stat("charisma")-source.get_stat("character"))*10 and check_lovers(source, hero))]):
                 if any([item.slot == "consumable", (item.slot == "misc" and item.mdestruct), source.given_items.get(item.id, 0) - amount < 0]):
                     if not silent:
                         source.override_portrait("portrait", "indifferent")
@@ -266,14 +266,15 @@ init -11 python:
             return True
 
         # Always refuse if character hates the player:
-        if character.disposition <= -500:
+        char_dispo = character.get_stat("disposition")
+        if char_dispo <= -500:
             if not silent:
                 interactions_girl_disp_is_too_low_to_give_money(character) # turns out money lines are perfect here
             return False
 
         if item:
             if unequip:
-                if character.disposition >= 900 or check_lovers(character, hero) or check_friends(character, hero):
+                if char_dispo >= 900 or check_lovers(character, hero) or check_friends(character, hero):
                     return True
 
                 if item.eqchance <= 20 or item.badness >= 80:
@@ -312,7 +313,7 @@ init -11 python:
                         interactions_character_doesnt_want_bad_item(character)
                     return not allowed_to_equip
 
-        if character.disposition < 900 and not check_lovers(character, hero):
+        if char_dispo < 900 and not check_lovers(character, hero):
             if not silent:
                 interactions_character_doesnt_want_to_equip_item(character)
             return False

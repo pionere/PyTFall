@@ -39,15 +39,15 @@ init:
 
 init python:
     def build_str_for_eq(eqtarget, dummy, stat, tempc):
-        temp = getattr(dummy, stat) - getattr(eqtarget, stat) if dummy else False
+        temp = dummy.get_stat(stat) - eqtarget.get_stat(stat) if dummy else False
         tempmax = dummy.get_max(stat) - eqtarget.get_max(stat) if dummy else False
         if temp: # Case: Any Change to stat
             # The first is the absolute change, we want it to be colored green if it is positive, and red if it is not.
-            tempstr = "{color=[green]}%s{/color}"%getattr(dummy, stat) if temp > 0 else "{color=[red]} %d{/color}"%getattr(dummy, stat)
+            tempstr = "{color=[green]}%s{/color}"%dummy.get_stat(stat) if temp > 0 else "{color=[red]} %d{/color}"%dummy.get_stat(stat)
             # Next is the increase:
             tempstr = tempstr + "{=positive_item_eqeffects_change}(+%d){/=}"%temp if temp > 0 else tempstr + "{=negative_item_eqeffects_chage}(%d){/=}"%temp
         else: # No change at all...
-            tempstr = "{color=[tempc]}%s{/color}"%getattr(eqtarget, stat)
+            tempstr = "{color=[tempc]}%s{/color}"%eqtarget.get_stat(stat)
 
         tempstr = tempstr + "{color=[tempc]}/{/color}"
 
@@ -459,35 +459,37 @@ screen char_equip_left_frame(stats_display):
                         frame:
                             xysize 204, 25
                             text "Health:" xalign .02 color "#CD4F39"
-                            $ tempc = red if eqtarget.health <= eqtarget.get_max("health")*.3 else "#F5F5DC"
+                            $ temp, tmp = eqtarget.get_stat("health"), eqtarget.get_max("health")
+                            $ tempc = red if temp <= tmp*.3 else "#F5F5DC"
                             if getattr(store, "dummy", None) is not None:
-                                $ tempstr = build_str_for_eq(eqtarget, dummy, "health", tempc)
-                                text tempstr style_suffix "value_text" xalign .98 yoffset 3
+                                $ temp = build_str_for_eq(eqtarget, dummy, "health", tempc)
+                                text temp style_suffix "value_text" xalign .98 yoffset 3
                             else:
-                                text u"[eqtarget.health]/{}".format(eqtarget.get_max("health")) xalign .98 yoffset 3 style_suffix "value_text" color tempc
+                                text "[temp]/[tmp]" xalign .98 yoffset 3 style_suffix "value_text" color tempc
 
                         # Vitality:
                         frame:
                             xysize 204, 25
                             text "Vitality:" xalign .02 color "#43CD80"
-                            $ tempc = red if eqtarget.vitality <= eqtarget.get_max("vitality")*.3 else "#F5F5DC"
+                            $ temp, tmp = eqtarget.get_stat("vitality"), eqtarget.get_max("vitality")
+                            $ tempc = red if temp <= tmp*.3 else "#F5F5DC"
                             if getattr(store, "dummy", None) is not None:
-                                $ tempstr = build_str_for_eq(eqtarget, dummy, "vitality", tempc)
-                                text tempstr style_suffix "value_text" xalign .98 yoffset 3
+                                $ temp = build_str_for_eq(eqtarget, dummy, "vitality", tempc)
+                                text temp style_suffix "value_text" xalign .98 yoffset 3
                             else:
-                                text u"[eqtarget.vitality]/{}".format(eqtarget.get_max("vitality")) xalign .98 yoffset 3 style_suffix "value_text" color tempc
+                                text "[temp]/[tmp]" xalign .98 yoffset 3 style_suffix "value_text" color tempc
 
                         # Rest of stats:
                         for stat in stats:
                             frame:
                                 xysize 204, 25
-                                text "{}".format(stat.capitalize()) xalign .02 color "#79CDCD"
+                                text "%s"%stat.capitalize() xalign .02 color "#79CDCD"
                                 $ tempc = "#F5F5DC"
                                 if getattr(store, "dummy", None) is not None:
-                                    $ tempstr = build_str_for_eq(eqtarget, dummy, stat, "#F5F5DC")
-                                    text tempstr style_suffix "value_text" xalign .98 yoffset 3
+                                    $ temp = build_str_for_eq(eqtarget, dummy, stat, "#F5F5DC")
+                                    text temp style_suffix "value_text" xalign .98 yoffset 3
                                 else:
-                                    text u"{}/{}".format(getattr(eqtarget, stat), eqtarget.get_max(stat)) xalign .98 yoffset 3 style_suffix "value_text" color "#F5F5DC"
+                                    text "%d/%d"%(eqtarget.get_stat(stat), eqtarget.get_max(stat)) xalign .98 yoffset 3 style_suffix "value_text" color "#F5F5DC"
 
                     # BATTLE STATS ============================>
                     frame:
@@ -499,23 +501,22 @@ screen char_equip_left_frame(stats_display):
 
                         null height 1
                         label (u"{size=18}{color=#CDCDC1}{b}Battle Stats:") xalign .49
-                        $ stats = [("Attack", "#CD4F39"), ("Defence", "#dc762c"), ("Magic", "#8470FF"), ("MP", "#009ACD"), ("Agility", "#1E90FF"), ("Luck", "#00FA9A")]
+                        $ stats = [("attack", "#CD4F39"), ("defence", "#dc762c"), ("magic", "#8470FF"), ("mp", "#009ACD"), ("agility", "#1E90FF"), ("luck", "#00FA9A")]
                         null height 1
 
                         for stat, color in stats:
                             frame:
                                 xysize 204, 25
-                                text "[stat]" color color
-                                $ stat = stat.lower()
+                                text "%s"%stat.capitalize() color color
                                 if stat == "mp":
-                                    $ tempc = red if eqtarget.mp <= eqtarget.get_max("mp")*.3 else color
+                                    $ tempc = red if eqtarget.get_stat("mp") <= eqtarget.get_max("mp")*.3 else color
                                 else:
                                     $ tempc = color
                                 if getattr(store, "dummy", None) is not None:
-                                    $ tempstr = build_str_for_eq(eqtarget, dummy, stat, tempc)
-                                    text tempstr style_suffix "value_text" xalign .98 yoffset 3
+                                    $ temp = build_str_for_eq(eqtarget, dummy, stat, tempc)
+                                    text temp style_suffix "value_text" xalign .98 yoffset 3
                                 else:
-                                    text "{}/{}".lower().format(getattr(eqtarget, stat.lower()), eqtarget.get_max(stat.lower())) xalign .98 yoffset 3 style_suffix "value_text" color tempc
+                                    text "%d/%d"%(eqtarget.get_stat(stat), eqtarget.get_max(stat)) xalign .98 yoffset 3 style_suffix "value_text" color tempc
             elif stats_display == "pro":
                 frame:
                     background Transform(Frame(im.MatrixColor("content/gfx/frame/p_frame5.png", im.matrix.brightness(-.1)), 5, 5), alpha=.7)
@@ -1294,7 +1295,7 @@ screen diff_item_effects(char, dummy):
         vbox:
             text "Stats:"
             for stat in char.stats:
-                text "[stat]: {}".format(getattr(dummy, stat) - getattr(char, stat))
+                text "[stat]: {}".format(dummy.get_stat(stat) - char.get_stat(stat))
         vbox:
             text "Max Stats:"
             for stat in char.stats:

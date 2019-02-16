@@ -141,11 +141,11 @@ label city_beach_swimming_checks:
         with dissolve
         "You stay in shallow water not too far from land to get used to the water. It feels nice, but the real swimming will require some skills next time."
     else:
-        if hero.vitality < 30:
+        if hero.get_stat("vitality") < 30:
             "You are too tired at the moment."
         elif hero.AP <= 0:
             "You don't have Action Points at the moment. Try again tomorrow."
-        elif hero.health < hero.get_max("health")*.25:
+        elif hero.get_stat("health") < hero.get_max("health")/4:
             "You are too wounded at the moment."
         else:
             scene bg open_sea with dissolve
@@ -158,9 +158,9 @@ label mc_action_hero_ocean_skill_checks:
     if locked_dice(20):
         $ narrator ("A group of sea monsters surrounded you!")
         if hero.get_skill("swimming") < 50:
-            if hero.health > 100 and locked_dice(75):
+            if hero.get_stat("health") > 100 and locked_dice(75):
                 $ narrator ("They managed to attack you a few times before you got a chance to react.")
-                $ hero.health -= randint(15, 30)
+                $ hero.mod_stat("health", -randint(15, 30))
             jump city_beach_monsters_fight
         elif hero.get_skill("swimming") < 200:
             jump city_beach_monsters_fight
@@ -172,7 +172,7 @@ label mc_action_hero_ocean_skill_checks:
                     $ hero.gfx_mod_skill("swimming", 0, randint(2, 4))
                     $ hero.stats.lvl_max["agility"] += 1
                     $ hero.stats.max["agility"] += 1
-                    $ hero.mod_stat("agility", 1)
+                    $ hero.gfx_mod_stat("agility", 1)
                 "Fight":
                     jump city_beach_monsters_fight
     $ temp = hero.get_skill("swimming")
@@ -184,9 +184,9 @@ label mc_action_hero_ocean_skill_checks:
         else:
             scene bg ocean_underwater with dissolve
             "Waves are pretty big today. You try fighting them, but quickly lose, pulling you under the water."
-            $ narrator ("Nearly drowned, you get out of the ocean {color=[red]}(- health){/color}.")
+            $ narrator ("Nearly drowned, you get out of the ocean.")
             $ narrator ("You need higher swimming skill to prevent it. Consider training in the swimming pool.")
-            $ hero.health = max(1, hero.health - 50)
+            $ hero.gfx_mod_stat("health", -50)
             $ swim_act = randint(1, 2)
         $ swim_vit = randint (40, 50)
     elif temp < 100:
@@ -195,8 +195,8 @@ label mc_action_hero_ocean_skill_checks:
             scene bg ocean_underwater with dissolve
             "Waves are pretty big today. You try to fight them, but they win, sending you under the water."
             $ narrator ("You need higher swimming skill to prevent it. Consider training in the swimming pool.")
-            $ narrator ("Nearly drowned, you get out of the ocean {color=[red]}(- health){/color}.")
-            $ hero.health = max(1, hero.health - 50)
+            $ narrator ("Nearly drowned, you get out of the ocean.")
+            $ hero.gfx_mod_stat("health", -50)
         $ swim_act = randint(4, 8)
         $ swim_vit = randint (30, 40)
     elif temp < 200:
@@ -208,12 +208,12 @@ label mc_action_hero_ocean_skill_checks:
         $ swim_act = randint(10, 15)
         $ swim_vit = randint (15, 25)
     $ hero.gfx_mod_skill("swimming", 0, swim_act)
-    $ hero.vitality -= swim_vit
+    $ hero.mod_stat("vitality", -swim_vit)
 
     if locked_dice(temp) and hero.flag("constitution_bonus_from_swimming_at_beach") <= 30:
         $ hero.stats.lvl_max["constitution"] += 1
         $ hero.stats.max["constitution"] += 1
-        $ hero.mod_stat("constitution", 1)
+        $ hero.gfx_mod_stat("constitution", 1)
         $ hero.set_flag("constitution_bonus_from_swimming_at_beach", value=hero.flag("constitution_bonus_from_swimming_at_beach")+1)
         $ narrator ("You feel more endurant than before {color=[green]}(max constitution +1){/color}.")
 
@@ -293,10 +293,10 @@ label mc_action_city_beach_diving_checks:
     if hero.AP <= 0:
         "You don't have Action Points at the moment. Try again tomorrow."
         jump city_beach
-    elif hero.vitality < 20:
+    elif hero.get_stat("vitality") < 20:
         "You're too tired at the moment."
         jump city_beach
-    elif hero.health < hero.get_max("health")*.5:
+    elif hero.get_stat("health") < hero.get_max("health")/2:
         "You are too wounded at the moment."
         jump city_beach
 
@@ -311,13 +311,13 @@ label mc_action_city_beach_diving_checks:
         $ j = 120
     else:
         $ j = 60
-    $ vitality = hero.vitality
+    $ vitality = hero.get_stat("vitality")
     show screen diving_progress_bar(i, i)
     while vitality > 10:
         if not renpy.get_screen("diving_progress_bar"):
             hide screen hidden_area
-            "You've run out of air! (health -10)"
-            $ hero.health = max(1, hero.health - 10)
+            "You've run out of air!"
+            $ hero.gfx_mod_stat("health", -10)
             jump city_beach
 
         $ underwater_loot = tuple([choice(list(i for i in items.values() if "Diving" in i.locations and dice(i.chance)) or [False]), (j, j), (random.random(), random.random())] for i in range(4))
@@ -327,8 +327,8 @@ label mc_action_city_beach_diving_checks:
 
         if result == "All out of Air!":
             hide screen hidden_area
-            "You've run out of air! {color=[red]}(health -10)"
-            $ hero.health = max(1, hero.health - 10)
+            "You've run out of air!"
+            $ hero.gfx_mod_stat("health", -10)
             jump city_beach
         elif result == "Swim Out":
             hide screen hidden_area
@@ -356,7 +356,7 @@ label mc_action_city_beach_diving_checks:
     hide screen hidden_area
     hide screen diving_progress_bar
     "You're too tired to continue!"
-    $ hero.vitality -= randint(10, 15)
+    $ hero.mod_stat("vitality", -randint(10, 15))
     if locked_dice(hero.get_skill("swimming")) and hero.flag("vitality_bonus_from_diving_at_beach") < 100:
         $ hero.stats.lvl_max["vitality"] += 1
         $ hero.stats.max["vitality"] += 1

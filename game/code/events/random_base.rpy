@@ -1,10 +1,10 @@
 # Base Events File
 init -1 python:
-    register_event("found_money_event", locations=["all"], run_conditions=["dice(max(15, hero.luck+10))"], priority=50, dice=0, restore_priority=0)
-    register_event("found_item_event", locations=["all"], run_conditions=["dice(max(35, hero.luck+20))"], priority=50, dice=0, restore_priority=0)
+    register_event("found_money_event", locations=["all"], run_conditions=["dice(max(15, hero.get_stat('luck')+10))"], priority=50, dice=0, restore_priority=0)
+    register_event("found_item_event", locations=["all"], run_conditions=["dice(max(35, hero.get_stat('luck')+20))"], priority=50, dice=0, restore_priority=0)
 
 label found_money_event(event):
-    $ amount = locked_random("randint", 5, 10) + max(0, hero.luck) + hero.level
+    $ amount = locked_random("randint", 5, 10) + max(0, hero.get_stat("luck")) + hero.level
     $ hero.add_money(amount, "Luck")
     $ gfx_overlay.random_find(amount, 'gold')
     $ hero.say(choice(["Some money... Excellent.", "Free gold, nice!",

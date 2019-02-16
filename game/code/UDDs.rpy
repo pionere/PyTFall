@@ -117,20 +117,13 @@ init -960 python:
             self.add_atl(char_stats_effect, duration, kwargs)
 
         def mod_stat(self, stat, value, char):
-            value = round_int(value)
-            if not value:
-                return
-
-            if stat not in BLOCKED_OVERLAY_STATS or\
-               stat in BLOCKED_OVERLAY_STATS and\
-               last_label_pure.endswith(UNBLOCK_OVERLAY_STATS_LABELNAME_SUFFIX):
-                if isinstance(char, Char):
-                    if stat == "disposition":
-                        self.disposition_mod(value)
-                    else:
-                        self.mod_char_stat(stat, value, char)
-                elif char == hero:
-                    self.mod_mc_stat(stat, value)
+            if isinstance(char, Char):
+                if stat == "disposition":
+                    self.disposition_mod(value)
+                else:
+                    self.mod_char_stat(stat, value, char)
+            elif char == hero:
+                self.mod_mc_stat(stat, value)
 
         def mod_char_stat(self, stat, value, char):
             kwargs = dict()

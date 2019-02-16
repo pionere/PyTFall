@@ -152,21 +152,24 @@ label mc_setup_end:
         restore_battle_stats(hero) # We never really want to start with weakened MC?
 
         high_factor = partial(uniform, .5, .6)
-        normal_factor = partial(uniform, .35, .45)
+        normal_factor = partial(uniform, .3, .4)
 
-        base_stats = hero.stats.get_base_stats()
+        stats = hero.stats
+        base_stats = stats.get_base_stats()
         for s in ['constitution', 'intelligence', 'charisma', 'attack', 'magic', 'defence', 'agility']:
             if s in base_stats:
                 value = high_factor()
-                mod_by_max(hero, s, value)
             else:
                 value = normal_factor()
-                set_stat_to_percentage(hero, s, value)
+            mod_by_max(hero, s, value)
 
-        base_skills = hero.stats.get_base_skills()
+        base_skills = stats.get_base_skills()
         for s in base_skills:
             value = high_factor()+.2
-            set_stat_to_percentage(hero, s, value)
+            # set skill to the given percentage
+            stats.skills[s] = [0, 0] 
+            value = round_int(hero.get_max_skill(s)*value)
+            stats.mod_full_skill(s, value)
 
         # Add default workable building to MC, but only if we didn't add one in special labels.
         if not [b for b in hero.upgradable_buildings if b.is_business()]:

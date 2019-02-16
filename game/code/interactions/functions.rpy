@@ -210,7 +210,7 @@ init -11 python:
 
         if c.status == "slave":
             patience += 1
-        patience += int((hero.charisma-c.character)/100)
+        patience += int((hero.get_stat("charisma")-c.get_stat("character"))/100)
         return patience
 
     def interactions_drinking_outside_of_inventory(character, count): # allows to raise activation count and become drunk without using real items
@@ -234,57 +234,57 @@ init -11 python:
     def interactions_silent_check_for_bad_stuff(char): # we check issues without outputting any lines or doing something else, and just return True/False
         if "Food Poisoning" in char.effects:
             return False
-        elif char.vitality <= round(char.get_max("vitality")*.1):
+        elif char.get_stat("vitality") <= char.get_max("vitality")/10:
             return False
-        elif char.health < (round(char.get_max("health")*.2)):
+        elif char.get_stat("health") < char.get_max("health")/5:
             return False
-        elif (not("Pessimist" in char.traits) and char.joy <= 25) or (("Pessimist" in char.traits) and char.joy < 10):
+        elif (not("Pessimist" in char.traits) and char.get_stat("joy") <= 25) or (("Pessimist" in char.traits) and char.get_stat("joy") < 10):
             return False
         elif char.AP <= 0:
             return False
         else:
             return True
 
-    def interactions_check_for_bad_stuff(character): # we check major issues when the character will refuse almost anything
-        if "Food Poisoning" in character.effects:
-            character.override_portrait("portrait", "indifferent")
-            character.say(choice(["But [char.name] was too ill to pay any serious attention to you.", "But her aching stomach completely occupies her thoughts."]))
-            character.restore_portrait()
-            character.disposition -= randint(2, 5)
+    def interactions_check_for_bad_stuff(char): # we check major issues when the character will refuse almost anything
+        if "Food Poisoning" in char.effects:
+            char.override_portrait("portrait", "indifferent")
+            char.say(choice(["But [char.name] was too ill to pay any serious attention to you.", "But her aching stomach completely occupies her thoughts."]))
+            char.restore_portrait()
+            char.gfx_mod_stat("disposition", -randint(2, 5))
             renpy.jump("girl_interactions_end")
-        elif character.vitality <= round(character.get_max("vitality")*.1):
-            character.override_portrait("portrait", "indifferent")
-            character.say(choice(["But [char.name] was too tired to even talk.", "Sadly, [char.name] was not very happy that you interrupted her rest.", "But she is simply too tired to pay any serious attention to you.", "Unfortunately she so tired she almost falls asleep on the move."]))
-            character.restore_portrait()
-            character.disposition -= randint(5, 10)
-            character.vitality -= 2
+        elif char.get_stat("vitality") <= char.get_max("vitality")/10:
+            char.override_portrait("portrait", "indifferent")
+            char.say(choice(["But [char.name] was too tired to even talk.", "Sadly, [char.name] was not very happy that you interrupted her rest.", "But she is simply too tired to pay any serious attention to you.", "Unfortunately she so tired she almost falls asleep on the move."]))
+            char.restore_portrait()
+            char.gfx_mod_stat("disposition", -randint(5, 10))
+            char.mod_stat("vitality", -2)
             renpy.jump("girl_interactions_end")
-        elif character.health < (round(character.get_max("health")*.2)):
-            character.override_portrait("portrait", "indifferent")
-            character.say(choice(["But [char.name] is too wounded for that.", "But her wounds completely occupy her thoughts."]))
-            character.restore_portrait()
-            character.disposition -= randint(5, 15)
-            character.vitality -= 2
+        elif char.get_stat("health") < char.get_max("health")/5:
+            char.override_portrait("portrait", "indifferent")
+            char.say(choice(["But [char.name] is too wounded for that.", "But her wounds completely occupy her thoughts."]))
+            char.restore_portrait()
+            char.gfx_mod_stat("disposition", -randint(5, 15))
+            char.mod_stat("vitality", -2)
             renpy.jump("girl_interactions_end")
 
-    def interactions_check_for_minor_bad_stuff(character): # we check minor issues when character might refuse to do something based on dice
-        if (not("Pessimist" in character.traits) and character.joy <= 25) or (("Pessimist" in character.traits) and character.joy < 10):
-            if dice(hero.charisma-char.character) and dice(80):
+    def interactions_check_for_minor_bad_stuff(char): # we check minor issues when character might refuse to do something based on dice
+        if (not("Pessimist" in char.traits) and char.get_stat("joy") <= 25) or (("Pessimist" in char.traits) and char.get_stat("joy") < 10):
+            if dice(hero.get_stat("charisma")-char.get_stat("character")) and dice(80):
                 narrator(choice(["It looks like she is in a bad mood, however you managed to cheer her up."]))
-                character.disposition += 1
-                character.joy += randint(3, 6)
+                char.gfx_mod_stat("disposition", 1)
+                char.gfx_mod_stat("joy", randint(3, 6))
             else:
                 narrator(choice(["It looks like she is in a bad mood today and not does not want to do anything."]))
                 renpy.jump ("girl_interactions")
-        elif "Down with Cold" in character.effects: #if she's ill, there is a chance that she will disagree to chat
-            if dice(hero.charisma-char.character) and dice(80):
+        elif "Down with Cold" in char.effects: #if she's ill, there is a chance that she will disagree to chat
+            if dice(hero.get_stat("charisma")-char.get_stat("character")) and dice(80):
                 narrator(choice(["It looks like she is not feeling well today, however you managed to cheer her up a bit."]))
-                character.disposition += 2
-                character.joy += randint(1, 5)
+                char.gfx_mod_stat("disposition", 2)
+                char.gfx_mod_stat("joy", randint(1, 5))
             else:
                 narrator(choice(["She is not feeling well today and not in the mood to do anything."]))
                 renpy.jump ("girl_interactions")
-        elif character.vitality <= round(character.get_max("vitality")*.2) and dice (35):
+        elif char.get_stat("vitality") <= char.get_max("vitality")/5 and dice (35):
             char.override_portrait("portrait", "tired")
             if ct("Impersonal"):
                 rc("I don't have required endurance at the moment. Let's postpone it.", "No. Not enough energy.")
@@ -309,35 +309,35 @@ init -11 python:
             else:
                 rc("*sign* I'm soo tired lately, all I can think about is a cozy warm bed...", "I am ready to drop. Some other time perhaps.")
             char.restore_portrait()
-            character.disposition -= randint(0, 1)
-            character.vitality -= randint(1, 2)
+            char.gfx_mod_stat("disposition", -randint(0, 1))
+            char.mod_stat("vitality", -randint(1, 2))
             renpy.jump("girl_interactions")
 
-    def interactions_checks_for_bad_stuff_greetings(character): # Special beginnings for greetings if something is off, True/False show that sometimes we even will need to skip a normal greeting altogether
-        if "Food Poisoning" in character.effects:
-            character.override_portrait("portrait", "indifferent")
-            character.say("She does not look good...")
-            character.restore_portrait()
+    def interactions_checks_for_bad_stuff_greetings(char): # Special beginnings for greetings if something is off, True/False show that sometimes we even will need to skip a normal greeting altogether
+        if "Food Poisoning" in char.effects:
+            char.override_portrait("portrait", "indifferent")
+            charter.say("She does not look good...")
+            char.restore_portrait()
             return True
-        elif character.vitality <= 40:
-            character.override_portrait("portrait", "indifferent")
-            character.say("She looks very tired...")
-            character.restore_portrait()
+        elif char.get_stat("vitality") <= 40:
+            char.override_portrait("portrait", "indifferent")
+            char.say("She looks very tired...")
+            char.restore_portrait()
             return True
-        elif character.health < (round(character.get_max("health")*.2)):
-            character.override_portrait("portrait", "indifferent")
-            character.say("She does not look good...")
-            character.restore_portrait()
+        elif char.get_stat("health") < char.get_max("health")/5:
+            char.override_portrait("portrait", "indifferent")
+            char.say("She does not look good...")
+            char.restore_portrait()
             return True
-        elif "Down with Cold" in character.effects:
-            character.override_portrait("portrait", "indifferent")
-            character.say("She looks a bit pale...")
-            character.restore_portrait()
+        elif "Down with Cold" in char.effects:
+            char.override_portrait("portrait", "indifferent")
+            char.say("She looks a bit pale...")
+            char.restore_portrait()
             return False
-        elif character.joy <= 25:
-            character.override_portrait("portrait", "sad")
-            character.say("She looks pretty sad...")
-            character.restore_portrait()
+        elif charcter.get_stat("joy") <= 25:
+            char.override_portrait("portrait", "sad")
+            char.say("She looks pretty sad...")
+            char.restore_portrait()
             return False
         else:
             return False
@@ -490,10 +490,11 @@ init -11 python:
         # high enough for them to agree and/or they are lovers of char.
         willing_partners = set()
         for i in partners:
-            lovers = (check_lovers(i, hero) or check_lovers(char, i))
-            stats = (i.vitality < 25 or i.health < i.get_max("health")*.6)
-            disposition = (i.disposition <= -50)
-            if lovers and not stats and not disposition:
+            if not (check_lovers(i, hero) or check_lovers(char, i)):
+                continue
+            if i.get_stat("vitality") < 25 or i.get_stat("health") < i.get_max("health")*3/5:
+                continue
+            if i.get_stat("disposition") > -50:
                 willing_partners.add(i)
 
         return willing_partners

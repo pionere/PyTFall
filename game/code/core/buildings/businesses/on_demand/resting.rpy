@@ -28,13 +28,13 @@ init -5 python:
             worker.disable_effect('Exhausted') # rest immediately disables the effect and removes its counter
 
             # at first we set excluded tags
-            if (worker.disposition >= 500) or ("Exhibitionist" in worker.traits) or check_lovers(worker, hero):
+            if (worker.get_stat("disposition") >= 500) or ("Exhibitionist" in worker.traits) or check_lovers(worker, hero):
                 kwargs = dict(exclude=["dungeon", "angry", "in pain", "after sex", "group", "normalsex", "bdsm"], add_mood=False) # with not too low disposition nude pics become available during rest
             else:
                 kwargs = dict(exclude=["dungeon", "nude", "angry", "in pain", "after sex", "group", "normalsex", "bdsm"], add_mood=False)
 
             # if vitality is really low, they try to sleep, assuming there is a sleeping picture
-            if worker.vitality < worker.get_max("vitality")*.2 and worker.has_image("sleeping", **kwargs):
+            if worker.get_stat("vitality") < worker.get_max("vitality")/5 and worker.has_image("sleeping", **kwargs):
                 log.img = worker.show("sleeping", resize=ND_IMAGE_SIZE, **kwargs)
                 log.append("{} is too tired to do anything but sleep at her free time.".format(worker.name))
             else:
@@ -45,13 +45,13 @@ init -5 python:
                     available.append("sleeping")
                 if worker.has_image("reading", **kwargs):
                     available.append("reading")
-                if worker.vitality >= worker.get_max("vitality")*.3: # not too tired for more active rest
+                if worker.get_stat("vitality") >= worker.get_max("vitality")*.3: # not too tired for more active rest
                     if worker.has_image("shopping", **kwargs) and (worker.gold >= 200): # eventually there should be a real existing event about going to shop and buy a random item there for gold. after all we do have an algorithm for that. but atm it might be broken, so...
                         available.append("shopping")
                     if "Nymphomaniac" in worker.traits or "Horny" in worker.effects:
                         if worker.has_image("masturbation", **kwargs):
                             available.append("masturbation")
-                if worker.vitality >= worker.get_max("vitality")*.5: # not too tired for sport stuff
+                if worker.get_stat("vitality") >= worker.get_max("vitality")/2: # not too tired for sport stuff
                     if worker.has_image("sport", **kwargs):
                         available.append("sport")
                     if worker.has_image("exercising", **kwargs):
@@ -176,8 +176,8 @@ init -5 python:
                     break
 
         def is_rested(self, worker):
-            c0 = worker.vitality >= worker.get_max("vitality")*.95
-            c1 = worker.health >= worker.get_max('health')*.95
+            c0 = worker.get_stat("vitality") >= worker.get_max("vitality")*.95
+            c1 = worker.get_stat("health") >= worker.get_max('health')*.95
             c2 = not 'Food Poisoning' in worker.effects
 
             if all([c0, c1, c2]):

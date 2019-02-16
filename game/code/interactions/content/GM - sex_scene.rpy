@@ -165,7 +165,7 @@ init python:
         
         if mc:
             if ct("Half-Sister") and not "Sister Lover" in hero.traits:
-                if char.disposition >= 700:
+                if char.get_stat("disposition") >= 700:
                     l += locked_random("randint", 1, 2)
                 else:
                     l -= 1

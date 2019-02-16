@@ -159,27 +159,27 @@ init -5 python:
                         worker.logws('vitality', -randint(2, 5)) # a small vitality penalty for wrong job
                     else:
                         if sub < 0:
-                            if worker.disposition < self.calculate_disposition_level(worker):
+                            if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
                                 log("%s is a slave so no one really cares but, being forced to work as a guard, she's quite upset." % worker.name)
                             else:
                                 log("%s will do as she's told, but this doesn't mean that she'll be happy about her guarding duties." % worker.name)
                             if dice(25):
                                 worker.logws('character', 1)
                         elif sub == 0:
-                            if worker.disposition < self.calculate_disposition_level(worker):
+                            if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
                                 log("%s will do as you command, but she will hate every second of being forced to work as a guard..." % worker.name)
                             else:
                                 log("%s was very displeased by her order to work as a guard, but didn't dare to refuse." % worker.name)
                             if dice(35):
                                 worker.logws('character', 1)
                         else:
-                            if worker.disposition < self.calculate_disposition_level(worker):
+                            if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
                                 log("%s was very displeased by her order to work as a guard." % worker.name)
                             else:
                                 log("%s will do as you command and work as a guard, but not without a lot of grumbling and complaining." % worker.name)
                             if dice(45):
                                 worker.logws('character', 1)
-                        if worker.disposition < self.calculate_disposition_level(worker):
+                        if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
                             worker.logws("joy", -randint(4, 8))
                             worker.logws("disposition", -randint(5, 10))
                             worker.logws('vitality', -randint(5, 10))

@@ -22,13 +22,13 @@ label interactions_giftmoney:
     if char.gold >= locked_random("randint", 500, 1000):
         if round(char.gold/money) > 5:
             call interactions_not_enough_gold from _call_interactions_not_enough_gold
-            $ char.disposition -= (randint(9, 25))
+            $ char.gfx_mod_stat("disposition", -randint(9, 25))
             $ del money
             jump girl_interactions
 
     if hero.take_money(money, reason="Charity"):
         $ char.add_money(money, reason="Charity")
-        "You gave her [money] G."
+        "You gave her [money] Gold."
         if round(char.gold/money) <= 1:
             "She enthusiastically accepts your money. It looks like it's a considerable sum for her."
             $ a = 20
@@ -47,10 +47,10 @@ label interactions_giftmoney:
         call interactions_enough_gold from _call_interactions_enough_gold
         $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33, final_mod=mod))
         $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33, final_mod=mod))
-        if char.disposition >= 90:
-            $ char.disposition += round(randint(a, b)/(char.disposition*.01))
-        else:
-            $ char.disposition += randint(a, b)
+        $ mod = randint(a, b)
+        if char.get_stat("disposition") >= 90:
+            $ mod = round(mod/(char.get_stat("disposition")*.01))
+        $ char.gfx_mod_stat("disposition", mod)
         $ del a
         $ del b
         $ del mod
@@ -65,10 +65,10 @@ label interactions_askmoney:
         $char.set_flag("flag_interactions_askmoney", value=day)
     else:
         call interactions_recently_gave_money from _call_interactions_recently_gave_money
-        $ char.disposition -= randint(2, 5)
+        $ char.gfx_mod_stat("disposition", -randint(2, 5))
         jump girl_interactions
     "You asked for her help with money."
-    if char.disposition >= 400 or check_lovers(char, hero) or check_friends(char, hero):
+    if char.get_stat("disposition") >= 400 or check_lovers(char, hero) or check_friends(char, hero):
         if char.gold < locked_random("randint", 500, 1000):
             call interactions_girl_is_too_poor_to_give_money from _call_interactions_girl_is_too_poor_to_give_money
             jump girl_interactions
@@ -78,19 +78,19 @@ label interactions_askmoney:
                 $ temp = round(temp*.1)
             if char.take_money(temp, reason="Charity"):
                 $ hero.add_money(temp, reason="Charity")
-                "She gave you [temp] G."
+                "She gave you [temp] Gold."
                 $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
-                $ char.disposition -= randint (20, 40)
+                $ char.gfx_mod_stat("disposition", -randint(20, 40))
                 $ del temp
         else:
             "But it looks like she needs the money more than you."
             call interactions_girl_is_too_poor_to_give_money from _call_interactions_girl_is_too_poor_to_give_money_1
-            $ char.disposition -= randint (10, 20)
+            $ char.gfx_mod_stat("disposition", -randint(10, 20))
             jump girl_interactions
     else:
         "But she doesn't know you well enough yet."
         $ interactions_girl_disp_is_too_low_to_give_money(char)
-        $ char.disposition -= randint (5, 15)
+        $ char.gfx_mod_stat("disposition", -randint(5, 15))
     jump girl_interactions
 
 label interactions_give_money:
@@ -102,7 +102,7 @@ label interactions_give_money:
         jump girl_interactions
     if hero.take_money(money, reason="Exchange"):
         $ char.add_money(money, reason="Exchange")
-        "You gave her [money] G."
+        "You gave her [money] Gold."
         $ del money
     else:
         "You don't have that amount of gold."
@@ -118,7 +118,7 @@ label interactions_take_money:
 
     if char.take_money(money, reason="Exchange"):
         $ hero.add_money(money, reason="Exchange")
-        "You took [money] G."
+        "You took [money] Gold."
         $ del money
     else:
         "She doesn't have that amount of gold."

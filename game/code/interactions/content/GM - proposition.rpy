@@ -50,10 +50,10 @@ label interactions_sparring: # sparring with MC, for Combatant occupations only
     $ interactions_check_for_bad_stuff(char)
     $ m = interactions_flag_count_checker(char, "flag_interactions_girlfriend")
 
-    if char.health < char.get_max("health")*.5:
+    if char.get_stat("health") < char.get_max("health")/2:
         call interactions_refused_because_tired from _call_interactions_refused_because_tired
         jump girl_interactions
-    elif hero.health < hero.get_max("health")*.5:
+    elif hero.get_stat("health") < hero.get_max("health")/2:
         "Unfortunately, you are not in shape for sparring."
         jump girl_interactions
     elif m > 1:
@@ -81,10 +81,10 @@ label interactions_sparring: # sparring with MC, for Combatant occupations only
     elif result is False:
         $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
 
-    if char.health < char.get_max("health")*.5:
-        $ char.health = int(char.get_max("health")*.5)
-    if hero.health < hero.get_max("health")*.5:
-        $ hero.health = int(hero.get_max("health")*.5)
+    if char.get_stat("health") < char.get_max("health")/2:
+        $ char.set_stat("health", char.get_max("health")/2)
+    if hero.get_stat("health") < hero.get_max("health")/2:
+        $ hero.set_stat("health", hero.get_max("health")/2)
     if last_track:
         play world last_track
 
@@ -125,9 +125,9 @@ label interactions_presparring_lines: # lines before sparring
 
 label interactions_postsparring_lines: # lines after sparring
     if result:
-        $ char.disposition += randint(15, 30)
+        $ char.gfx_mod_stat("disposition", randint(15, 30))
     else:
-        $ char.disposition += randint(2, 5)
+        $ char.gfx_mod_stat("disposition", randint(2, 5))
     if ct("Impersonal") in  char.traits:
         $ rc("Practice is over. Switching to standby mode.", "An unsurprising victory.")
     elif ct("Imouto"):
@@ -158,9 +158,9 @@ label interactions_girlfriend:
     $ m = interactions_flag_count_checker(char, "flag_interactions_girlfriend")
     if m > 1:
         call interactions_too_many_lines from _call_interactions_too_many_lines_8
-        $ char.disposition -= randint(1,m)
-        if char.joy > 50:
-            $ char.joy -= randint(0,1)
+        $ char.gfx_mod_stat("disposition", -randint(1, m))
+        if char.get_stat("joy") > 50:
+            $ char.gfx_mod_stat("joy", -randint(0, 1))
         $ del m
         jump girl_interactions
     if ct("Lesbian") and not "Yuri Expert" in hero.traits:
@@ -203,11 +203,11 @@ label interactions_girlfriend:
     if char.status == "slave":
         $ l_ch += 200
 
-    if (char.flag("quest_cannot_be_lover") != True) and (char.disposition >= (600 - l_ch)) and (dice(round((l_ch + char.disposition)*.2))):
+    if (char.flag("quest_cannot_be_lover") != True) and (char.get_stat("disposition") >= (600 - l_ch)) and (dice(l_ch + char.get_stat("disposition")/5)):
         $ set_lovers(hero, char)
         $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
         $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
-        $ char.joy += 25
+        $ char.gfx_mod_stat("joy", 25)
         $ char.override_portrait("portrait", "shy")
         if ct("Impersonal") in  char.traits:
             $ rc("You want me to have an affair with you. Understood.", "As you wish. I'm yours.", "I understand. I suppose we're now lovers.")
@@ -296,8 +296,7 @@ label interactions_breakup:
     $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
     $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
     if True: # FIXME imlement the responses if ct("Impersonal") in  char.traits:
-        #$ char.disposition -= 0
-        $ char.joy -= 25
+        $ char.gfx_mod_stat("joy", -25)
         $ char.override_portrait("portrait", "indifferent")
         $ rc("If that's what you want.", "As you wish. Bye.", "I understand. I suppose that was it.")
 
@@ -333,7 +332,7 @@ label interactions_hire:
             target_val = 150 + (char.tier-hero.tier)*400
 
     # Solve chance
-    if char.disposition > ((target_val * charvalue) / herovalue):
+    if char.get_stat("disposition") > ((target_val * charvalue) / herovalue):
         call interactions_agrees_to_be_hired from _call_interactions_agrees_to_be_hired
         menu:
             "Hire her? Her average wage will be [char.expected_wage]":

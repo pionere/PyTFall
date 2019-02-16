@@ -60,7 +60,7 @@ label girl_interactions:
                     $ char.set_flag("gm_char_proposed_sex", value=day)
                     $ char.override_portrait("portrait", "indifferent")
                     $ rc("...", "I see...", "Maybe next time then...")
-                    $ char.joy -= randint(1, 5)
+                    $ char.gfx_mod_stat("joy", -randint(1, 5))
                     $ char.restore_portrait()
                     jump girl_interactions_after_greetings
 
@@ -279,7 +279,7 @@ label interactions_control:
                     item.hidden = False # We'll use existing hidden flag to hide items effectiveness.
                     dismod = getattr(item, "dismod", 0)
 
-                    if item.type == "romantic" and not(check_lovers(char, hero)) and char.disposition < 700:  # cannot give romantic gifts to anyone
+                    if item.type == "romantic" and not(check_lovers(char, hero)) and char.get_stat("disposition") < 700:  # cannot give romantic gifts to anyone
                             dismod = -10
                     else:
                         for t, v in getattr(item, "traits", {}).iteritems():
@@ -292,13 +292,13 @@ label interactions_control:
                     # Add the appropriate dismod value:
                     if flag_value != 0:
                         if flag_value < item.cblock:
-                            char.disposition = int(round(float(dismod)*(item.cblock-flag_value)/item.cblock))
+                            dismod = int(round(float(dismod)*(item.cblock-flag_value)/item.cblock))
                         elif flag_value >= item.cblock:
                             setattr(gm, "show_menu", True)
                             setattr(gm, "show_menu_givegift", False)
                             gm.jump("refusegift")
-                    else:
-                        char.disposition += dismod
+
+                    char.gfx_mod_stat("disposition", dismod)
 
                     hero.inventory.remove(item)
                     setattr(gm, "show_menu", True)
@@ -329,7 +329,7 @@ screen girl_interactions():
         vbar:
             top_gutter 13
             bottom_gutter 0
-            value AnimatedValue(value=gm.char.disposition, range=gm.char.get_max("disposition"), delay=4.0)
+            value AnimatedValue(value=gm.char.get_stat("disposition"), range=gm.char.get_max("disposition"), delay=4.0)
             bottom_bar "content/gfx/interface/bars/progress_bar_full1.png"
             top_bar "content/gfx/interface/bars/progress_bar_1.png"
             thumb None
@@ -337,8 +337,8 @@ screen girl_interactions():
 
         python:
             # Trying to invert the values (bar seems messed up with negative once):
-            if gm.char.disposition < 0:
-                inverted_disposition = -gm.char.disposition
+            if gm.char.get_stat("disposition") < 0:
+                inverted_disposition = -gm.char.get_stat("disposition")
             else:
                 inverted_disposition = 0
 
@@ -398,7 +398,7 @@ screen girl_interactions():
                     if item.slot == "gift":
                         python:
                             dismod = getattr(item, "dismod", 0)
-                            if item.type == "romantic" and not(check_lovers(char, hero)) and char.disposition < 700: # cannot give romantic gifts to anyone
+                            if item.type == "romantic" and not(check_lovers(char, hero)) and char.get_stat("disposition") < 700: # cannot give romantic gifts to anyone
                                 dismod = -10
                             else:
                                 for t, v in getattr(item, "traits", {}).iteritems():

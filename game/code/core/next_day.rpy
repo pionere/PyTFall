@@ -91,9 +91,9 @@ init python:
 
             self.nd_stats = nd_stats
 
-            self.hero_hp = hero.health
-            self.hero_mp = hero.mp
-            self.hero_vp = hero.vitality
+            self.hero_hp = hero.get_stat("health")
+            self.hero_mp = hero.get_stat("mp")
+            self.hero_vp = hero.get_stat("vitality")
 
             self.hero_max_hp = hero.get_max("health")
             self.hero_max_mp = hero.get_max("mp")
@@ -319,9 +319,9 @@ label next_day_effects_check:  # all traits and effects which require some unusu
 
             if 'Depression' in i.effects:
                 i.AP -= 1
-            elif not "Pessimist" in i.traits and i.joy <= randint(15, 20):
+            elif not "Pessimist" in i.traits and i.get_stat("joy") <= randint(15, 20):
                 i.up_counter("depression_counter", 1)
-            elif i.joy > 25:
+            elif i.get_stat("joy") > 25:
                 i.del_flag("depression_counter")
 
             if i.get_flag("depression_counter", 0) >= 3 and not 'Depression' in i.effects:
@@ -330,14 +330,14 @@ label next_day_effects_check:  # all traits and effects which require some unusu
             if 'Elation' in i.effects:
                 if dice(10):
                     i.AP += 1
-            elif i.joy >= 95:
+            elif i.get_stat("joy") >= 95:
                 i.up_counter("elation_counter", 1)
             else:
                 i.del_flag("elation_counter")
             if i.get_flag("elation_counter", 0) >= 3 and not 'Elation' in i.effects:
                 i.enable_effect('Elation')
 
-            if i.vitality < i.get_max("vitality")*.3 and not 'Exhausted' in i.effects: # 5+ days with vitality < .3 max lead to Exhausted effect, can be removed by one day of rest or some items
+            if i.get_stat("vitality") < i.get_max("vitality")*.3 and not 'Exhausted' in i.effects: # 5+ days with vitality < .3 max lead to Exhausted effect, can be removed by one day of rest or some items
                 i.up_counter("exhausted_counter", 1)
             if i.get_flag("exhausted_counter", 0) >= 5 and not 'Exhausted' in i.effects:
                 i.enable_effect('Exhausted')
@@ -348,14 +348,14 @@ label next_day_effects_check:  # all traits and effects which require some unusu
                 if interactions_silent_check_for_bad_stuff(i):
                     if "Nymphomaniac" in i.traits and locked_dice(60):
                         i.enable_effect("Horny")
-                    elif not ("Frigid" in i.traits) and locked_dice(30) and i.joy > 50:
+                    elif not ("Frigid" in i.traits) and locked_dice(30) and i.get_stat("joy") > 50:
                         i.enable_effect("Horny")
 
         # hero-only trait which heals everybody
         if "Life Beacon" in hero.traits:
             for i in hero.chars:
                 mod_by_max(i, "health", .1)
-                i.joy += 1
+                i.mod_stat("joy", 1)
 
             mod_by_max(hero, "health", .1)
 

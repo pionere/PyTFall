@@ -107,9 +107,9 @@ init -5 python:
                     self.log("Enforced order is making your civilian workers uneasy...")
                     for w in building.all_workers:
                         if not "Combatant" in w.gen_occs:
-                            w.disposition -= 1
+                            w.mod_stat("disposition", -1)
                             if dice(50):
-                                w.joy -= 1
+                                w.mod_stat("joy", -1)
 
                 # Create actual report:
                 c0 = self.env.now >= make_nd_report_at

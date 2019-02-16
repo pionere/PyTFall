@@ -51,9 +51,9 @@ label test_be:
         n.AP = 6
 
         for i in hero.team:
-            i.health = i.get_max("health")
-            i.mp = i.get_max("mp")
-            i.vitality = i.get_max("vitality")
+            i.set_stat("health", i.get_max("health"))
+            i.set_stat("mp", i.get_max("mp"))
+            i.set_stat("vitality", i.get_max("vitality"))
 
         for i in enemy_team:
             # i.controller = Complex_BE_AI(i)
@@ -121,9 +121,6 @@ label test_be_logical:
         n.apply_trait("Air")
         n.front_row = True
         initial_levelup(n, 50, True)
-
-        for i in hero.team:
-            i.besk = None
 
         if len(hero.team) != 3 and h not in hero.team:
             hero.team.add(h)

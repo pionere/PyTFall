@@ -544,9 +544,9 @@ init -6 python: # Guild, Tracker and Log.
 
                 # Base stats:
                 for c in team:
-                    c.health += randint(8, 12)
-                    c.mp += randint(8, 12)
-                    c.vitality += randint(20, 50)
+                    c.mod_stat("health", randint(8, 12))
+                    c.mod_stat("mp", randint(8, 12))
+                    c.mod_stat("vitality", randint(20, 50))
 
                 # Apply items:
                 if auto_equip_counter < 2:
@@ -557,7 +557,7 @@ init -6 python: # Guild, Tracker and Log.
                         if explorer.health <= explorer.get_max("health")*.8:
                             for inv in invlist:
                                 l.extend(explorer.auto_equip(["health"], inv=inv))
-                        if explorer.vitality <= explorer.get_max("vitality")*.8:
+                        if explorer.get_stat("vitality") <= explorer.get_max("vitality")*.8:
                             for inv in invlist:
                                 l.extend(explorer.auto_equip(["vitality"], inv=inv))
                         if explorer.mp <= explorer.get_max("mp")*.8:
@@ -569,11 +569,11 @@ init -6 python: # Guild, Tracker and Log.
                     auto_equip_counter += 1
 
                 for c in team:
-                    if c.health <= c.get_max("health")*.9:
+                    if c.get_stat("health") <= c.get_max("health")*.9:
                         break
-                    if c.mp <= c.get_max("mp")*.9:
+                    if c.get_stat("mp") <= c.get_max("mp")*.9:
                         break
-                    if c.vitality <= c.get_max("vitality")*.8:
+                    if c.get_stat("vitality") <= c.get_max("vitality")*.8:
                         break
                 else:
                     tracker.days_in_camp = 0
@@ -684,17 +684,17 @@ init -6 python: # Guild, Tracker and Log.
                             for i in range(limit):
                                 capt_multiplier[i] *= mod
                     for c, mod in zip(tracker.captured_chars, capt_multiplier):
+                        mod -= 1.0
                         for stat in ("health", "mp", "vitality"):
                             mod_by_max(c, stat, mod)
-                        if mod < 1.0:
+                        if mod < 0:
                             rv = "go2guild"
             else:
                 multiplier *= .5
 
             for c in team:
-                c.health += round_int(c.get_max("health")*multiplier)
-                c.mp += round_int(c.get_max("mp")*multiplier)
-                c.vitality += round_int(c.get_max("vitality")*multiplier)
+                for stat in ("health", "mp", "vitality"):
+                    mod_by_max(c, stat, multiplier)
 
             return rv
 
@@ -944,7 +944,7 @@ init -6 python: # Guild, Tracker and Log.
 
                     temp = .8 - (tracker.risk/200.0)
                     for c in team:
-                        if c.health > c.get_max("health")*temp and c.mp > c.get_max("mp")*temp and c.vitality > c.get_max("vitality")*temp:
+                        if c.get_stat("health") > c.get_max("health")*temp and c.get_stat("mp") > c.get_max("mp")*temp and c.get_stat("vitality") > c.get_max("vitality")*temp:
                             continue
 
                         temp = "Your team needs some rest before they can continue with the exploration."
@@ -1007,10 +1007,10 @@ init -6 python: # Guild, Tracker and Log.
                 for member in team:
                     if member in battle.corpses:
                         continue
-                    member.attack += randrange(3)
-                    member.defence + randrange(3)
-                    member.agility += randrange(3)
-                    member.magic += randrange(3)
+                    member.mod_stat("attack", randrange(3))
+                    member.mod_stat("defence", randrange(3))
+                    member.mod_stat("agility", randrange(3))
+                    member.mod_stat("magic", randrange(3))
                     member.mod_exp(exp_reward(member, opfor))
 
                 log.add(set_font_color("Your team won!!", "lawngreen"))

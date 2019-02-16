@@ -108,7 +108,7 @@ init -9 python:
                     remove_from_gameworld(c)
 
             for c in rc_free[:]:
-                if c.get_flag("days_in_game", 0) > 20 and c.disposition <= 0:
+                if c.get_flag("days_in_game", 0) > 20 and c.get_stat("disposition") <= 0:
                     rc_free.remove(c)
                     remove_from_gameworld(c)
 

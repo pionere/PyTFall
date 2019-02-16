@@ -38,7 +38,7 @@ label cafe:
             members = [] # all chars willing to invite will be in this list
             for member in hero.team:
                 if member != hero:
-                    if member.status == "free" and member.gold >= locked_random("randint", 500, 1000) and member.disposition >= 200 and member.joy >= 30:
+                    if member.status == "free" and member.gold >= locked_random("randint", 500, 1000) and member.get_stat("disposition") >= 200 and member.get_stat("joy") >= 30:
                         members.append(member)
             if members:
                 inviting_character = random.choice(members)
@@ -116,18 +116,18 @@ label mc_action_cafe_eat_alone_cafe_invitation:
                 # show image random.choice(movie_list)
                 $ hero.set_flag("ate_in_cafe", value=day)
                 $ result = "You feel a bit better!"
-                if hero.vitality < hero.get_max("vitality"):
+                if hero.get_stat("vitality") < hero.get_max("vitality"):
                     $ result_v = randint(4, 10)
                 else:
                     $ result_v = 0
                 if "Effective Metabolism" in hero.traits:
                     $ result_v *= 2
-                $ hero.mod_stat("vitality", result_v)
-                if hero.mp < hero.get_max("mp"):
+                $ hero.gfx_mod_stat("vitality", result_v)
+                if hero.get_stat("mp") < hero.get_max("mp"):
                     $ result_m = randint(4, 10)
                 else:
                     $ result_m = 0
-                $ hero.mod_stat("mp", result_m)
+                $ hero.gfx_mod_stat("mp", result_m)
                 if result_v > 0:
                     $ result += "{color=[green]} +%d Vitality{/color}" % result_v
                 if result_m > 0:
@@ -148,23 +148,23 @@ label mc_action_cafe_eat_alone_cafe_invitation:
                 show image name at truecenter with dissolve
                 $ hero.set_flag("ate_in_cafe", value=day)
                 $ result = "You feel quite satisfied."
-                if hero.vitality < hero.get_max("vitality"):
+                if hero.get_stat("vitality") < hero.get_max("vitality"):
                     $ result_v = randint(8, 15)
                 else:
                     $ result_v = 0
                 if "Effective Metabolism" in hero.traits:
                     $ result_v *= 2
-                $ hero.mod_stat("vitality", result_v)
-                if hero.mp < hero.get_max("mp"):
+                $ hero.gfx_mod_stat("vitality", result_v)
+                if hero.get_stat("mp") < hero.get_max("mp"):
                     $ result_m = randint(8, 15)
                 else:
                     $ result_m = 0
-                $ hero.mod_stat("mp", result_m)
-                if hero.health < hero.get_max("health"):
+                $ hero.gfx_mod_stat("mp", result_m)
+                if hero.get_stat("health") < hero.get_max("health"):
                     $ result_h = randint(8, 15)
                 else:
                     $ result_h = 0
-                $ hero.mod_stat("health", result_h)
+                $ hero.gfx_mod_stat("health", result_h)
                 if result_v > 0:
                     $ result += "{color=[green]} +%d Vitality{/color}" % result_v
                 if result_m > 0:
@@ -187,33 +187,33 @@ label mc_action_cafe_eat_alone_cafe_invitation:
                 show image name at truecenter with dissolve
                 $ hero.set_flag("ate_in_cafe", value=day)
                 $ result = "You feel extremely full and satisfied."
-                if hero.vitality < hero.get_max("vitality"):
+                if hero.get_stat("vitality") < hero.get_max("vitality"):
                     $ result_v = randint(10, 20)
                 else:
                     $ result_v = 0
                 if "Effective Metabolism" in hero.traits:
                     $ result_v *= 2
-                $ hero.mod_stat("vitality", result_v)
-                if hero.mp < hero.get_max("mp"):
+                $ hero.gfx_mod_stat("vitality", result_v)
+                if hero.get_stat("mp") < hero.get_max("mp"):
                     $ result_m = randint(10, 20)
                 else:
                     $ result_m = 0
-                $ hero.mod_stat("mp", result_m)
-                if hero.health < hero.get_max("health"):
+                $ hero.gfx_mod_stat("mp", result_m)
+                if hero.get_stat("health") < hero.get_max("health"):
                     $ result_h = randint(10, 20)
                 else:
                     $ result_h = 0
-                $ hero.mod_stat("health", result_h)
+                $ hero.gfx_mod_stat("health", result_h)
                 if hero.flag("health_bonus_from_eating_in_cafe") <= 25 and locked_dice(75):
                     $ hero.stats.lvl_max["health"] += 2
                     $ hero.stats.max["health"] += 2
-                    $ hero.mod_stat("health", 2)
+                    $ hero.gfx_mod_stat("health", 2)
                     $ result += "{color=[goldenrod]} +2 Max Health{/color}"
                     $ hero.set_flag("health_bonus_from_eating_in_cafe", value=hero.flag("health_bonus_from_eating_in_cafe")+1)
                 elif locked_dice(10) and hero.flag("health_bonus_from_eating_in_cafe") <= 50: # after 50 successful attempts bonus no longer applies
                     $ hero.stats.lvl_max["health"] += 1
                     $ hero.stats.max["health"] += 1
-                    $ hero.mod_stat("health", 1)
+                    $ hero.gfx_mod_stat("health", 1)
                     $ result += "{color=[goldenrod]} +1 Max Health{/color}"
                     $ hero.set_flag("health_bonus_from_eating_in_cafe", value=hero.flag("health_bonus_from_eating_in_cafe")+1)
 
@@ -248,7 +248,7 @@ label mc_action_cafe_invitation: # we jump here when the group was invited by on
         for member in hero.team:
             if member != hero:
                 if member.status != "free":
-                    if member.disposition < -50:
+                    if member.get_stat("disposition") < -50:
                         money = randint(5, 10) # slaves with negative disposition will afraid to order too much, and also will have low bonuses
                     else:
                         money = randint(20, 45)
@@ -269,25 +269,25 @@ label mc_action_cafe_invitation: # we jump here when the group was invited by on
         $ hero.set_flag("ate_in_cafe", value=day)
         python:
             for member in hero.team:
-                if member.status != "free" and member.disposition < -50:
+                if member.status != "free" and member.get_stat("disposition") < -50:
                     d = .5
                 else:
                     d = 1
                 stat = int(randint(5, 10)*d)
                 if "Effective Metabolism" in member.traits:
                     stat *= 2
-                member.mod_stat("vitality", stat)
+                member.gfx_mod_stat("vitality", stat)
                 stat = int(randint(5, 10)*d)
-                member.mod_stat("health", stat)
+                member.gfx_mod_stat("health", stat)
                 stat = int(randint(5, 10)*d)
-                member.mod_stat("mp", stat)
+                member.gfx_mod_stat("mp", stat)
                 if member != hero:
                     stat = int(randint(4, 8)*d)
-                    member.mod_stat("joy", stat)
+                    member.gfx_mod_stat("joy", stat)
                     stat = int(randint(10, 20)*d)
                     if len(hero.team)<3: # when there is only one char, disposition bonus is higher
                         stat += randint(5, 10)
-                    member.mod_stat("disposition", stat)
+                    member.gfx_mod_stat("disposition", stat)
 
         $ del result
         $ del stat

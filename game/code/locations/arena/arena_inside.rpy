@@ -43,15 +43,21 @@ label arena_inside:
 
         elif result[0] == "challenge":
             if result[1] == "dogfights":
-                $ pytfall.arena.dogfight_challenge(result[2])
-                # pytfall.arena.start_dogfight(result[2])
+                $ msg = pytfall.arena.dogfight_challenge(result[2])
+                if msg:
+                    call screen message_screen(msg)
             elif result[1] == "match":
-                $ pytfall.arena.setup = result[2]
-                $ pytfall.arena.match_challenge(result[2])
+                $ msg = pytfall.arena.match_challenge(result[2])
+                if msg:
+                    call screen message_screen(msg)
             elif result[1] == "start_match":
-                $ pytfall.arena.check_before_matchfight()
+                $ msg = pytfall.arena.check_before_matchfight()
+                if msg:
+                    call screen message_screen(msg)
             elif result[1] == "start_chainfight":
-                $ pytfall.arena.check_before_chainfight()
+                $ msg = pytfall.arena.check_before_chainfight()
+                if msg:
+                    call screen message_screen(msg)
             elif result[1] == "chainfight":
                 $ pytfall.arena.execute_chainfight(result[2])
 
@@ -258,48 +264,42 @@ init: # Main Screens:
 
                     fixed: # HP:
                         ysize 25
+                        $ temp, tmp = hero.get_stat("health"), hero.get_max("health")
                         bar:
                             left_bar ProportionalScale("content/gfx/interface/bars/hp1.png", 150, 20)
                             right_bar ProportionalScale("content/gfx/interface/bars/empty_bar1.png", 150, 20)
-                            value hero.health
-                            range hero.get_max("health")
+                            value temp
+                            range tmp
                             thumb None
                             xysize (150, 20)
                         text "HP" size 14 color ivory bold True xpos 8
-                        if hero.health <= hero.get_max("health")*.2:
-                            text "[hero.health]" size 14 color red style_suffix "value_text" xpos 125 yoffset -8
-                        else:
-                            text "[hero.health]" size 14 color ivory bold True style_suffix "value_text" xpos 125 yoffset -8
+                        text "[temp]" size 14 color (red if temp <= tmp/5 else ivory) bold True style_suffix "value_text" xpos 125 yoffset -8
 
                     fixed: # MP:
                         ysize 25
+                        $ temp, tmp = hero.get_stat("mp"), hero.get_max("mp")
                         bar:
                             left_bar ProportionalScale("content/gfx/interface/bars/mp1.png", 150, 20)
                             right_bar ProportionalScale("content/gfx/interface/bars/empty_bar1.png", 150, 20)
-                            value hero.mp
-                            range hero.get_max("mp")
+                            value temp
+                            range tmp
                             thumb None
                             xysize (150, 20)
                         text "MP" size 14 color ivory bold True xpos 8
-                        if hero.mp <= hero.get_max("mp")*.2:
-                            text "[hero.mp]" size 14 color red bold True style_suffix "value_text" xpos 125 yoffset -8
-                        else:
-                            text "[hero.mp]" size 14 color ivory bold True style_suffix "value_text" xpos 125 yoffset -8
+                        text "[temp]" size 14 color (red if temp <= tmp/5 else ivory) bold True style_suffix "value_text" xpos 125 yoffset -8
 
                     fixed: # VP:
                         ysize 25
+                        $ temp, tmp = hero.get_stat("vitality"), hero.get_max("vitality")
                         bar:
                             left_bar ProportionalScale("content/gfx/interface/bars/vitality1.png", 150, 20)
                             right_bar ProportionalScale("content/gfx/interface/bars/empty_bar1.png", 150, 20)
-                            value hero.vitality
-                            range hero.get_max("vitality")
+                            value temp
+                            range tmp
                             thumb None
                             xysize (150, 20)
                         text "VP" size 14 color ivory bold True xpos 8
-                        if hero.vitality <= hero.get_max("vitality")*.2:
-                            text "[hero.vitality]" size 14 color red bold True style_suffix "value_text" xpos 125 yoffset -8
-                        else:
-                            text "[hero.vitality]" size 14 color ivory bold True style_suffix "value_text" xpos 125 yoffset -8
+                        text "[temp]" size 14 color (red if temp <= tmp/5 else ivory) bold True style_suffix "value_text" xpos 125 yoffset -8
 
             # Rep:
             frame:

@@ -334,14 +334,6 @@ init python:
 
             if bonus:
                 self.defence_bonus = bonus
-                # if "melee" in self.attributes:
-                    # self.defence_bonus["melee"] = int(round(source.defence*.8 + source.constitution*.4) / 3)
-                # elif "ranged" in self.attributes:
-                    # self.defence_bonus["ranged"] = int(round(source.defence*.8 + source.constitution*.2 + source.agility*.2) / 3)
-                # elif "magic" in self.attributes:
-                    # self.defence_bonus["magic"] = int(round(source.defence*.8 + source.magic*.3 + source.intelligence*.1) / 3)
-                # elif "status" in self.attributes:
-                    # self.defence_bonus["status"] = int(round(source.defence*.6 + source.magic*.1 + source.intelligence*.5) / 3)
 
             if multi:
                 self.defence_multiplier = multi

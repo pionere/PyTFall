@@ -571,6 +571,8 @@ label after_load:
         if not hasattr(pytfall.arena, "df_count"):
             pytfall.arena.df_count = 0
             pytfall.arena.hero_match_result = None 
+        if hasattr(pytfall.arena, "setup"):
+            del pytfall.arena.setup
 
         if hasattr(hero, "STATS"):
             for c in itertools.chain(chars.values(), [hero], hero.chars, npcs.values()):
@@ -979,6 +981,11 @@ label after_load:
             nds.unassigned_chars = 0
             nds.prepare_summary()
             store.NextDayEvents = nds
+
+        for e in pytfall.world_events.events:
+            for i, c in enumerate(e.simple_conditions):
+                if ".magic" in c:
+                    e.simple_conditions[i] = c.replace(".magic", ".get_stat('magic')")
 
         for d in pytfall.world_actions.nest:
             if hasattr(d, "values"):

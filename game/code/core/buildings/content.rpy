@@ -338,9 +338,9 @@ init -9 python:
             set_location(char, None)
 
             if char in hero.chars:
-                char.disposition += randint(10, 40)
+                char.gfx_mod_stat("disposition", randint(10, 40))
             else:
-                char.disposition += 50 + randint(price/10)
+                char.gfx_mod_stat("disposition", 50 + randint(price/10))
 
         def next_index(self):
             """
@@ -404,7 +404,7 @@ init -9 python:
             # release chars whose sentence is over
             prisoners, frees = [], []
             for char in self.cells:
-                char.joy -= randint(5, 10)
+                char.mod_stat("joy", -randint(5, 10))
                 if char.flag("release_day") == day:
                     frees.append(char)
                 else:
@@ -521,8 +521,8 @@ init -9 python:
                     return True, self.ESCAPED
 
                 # If girl is too injured to fight
-                elif girl.health < girl.get_max("health")*.25 or girl.vitality < girl.get_max("vitality")*.25 :
-                    # Girl was caight without fighting
+                elif girl.get_stat("health") < girl.get_max("health")/4 or girl.get_stat("vitality") < girl.get_max("vitality")/4:
+                    # Girl was caught without fighting
                     return False, self.CAUGHT
 
                 # BE simultaion
@@ -537,11 +537,11 @@ init -9 python:
                         else:
                             # Get guards if available action
                             if hasattr(location, "actions") and "Guard" in location.actions:
-                                guards = [g for g in location.get_girls("Guard") if g.AP > 0 and g.health > 40 and g.vitality > 40]
+                                guards = [g for g in location.get_girls("Guard") if g.AP > 0 and g.get_stat("health") > 40 and g.get_stat("vitality") > 40]
 
                             # Get warriors
                             else:
-                                guards = [g for g in location.get_girls(occupation="Combatant") if g.AP > 0 and g.health > 40 and g.vitality > 40]
+                                guards = [g for g in location.get_girls(occupation="Combatant") if g.AP > 0 and g.get_stat("health") > 40 and g.get_stat("vitality") > 40]
 
                             if girl in guards: guards.remove(girl)
 
@@ -611,9 +611,9 @@ init -9 python:
                                 girlmod["joy"] -= randint(0, 6)
 
                             else:
-                                girl.health = max(1, girl.health - randint(20, 30))
-                                girl.vitality -= randint(20, 30)
-                                girl.joy -= randint(0, 6)
+                                girl.mod_stat("health", -randint(20, 30))
+                                girl.mod_stat("vitality", -randint(20, 30))
+                                girl.mod_stat("joy", -randint(0, 6))
 
                             return False, self.DEFEATED
 
@@ -635,9 +635,9 @@ init -9 python:
                                 girlmod["joy"] -= randint(0, 3)
 
                             else:
-                                girl.health = max(1, girl.health - randint(10, 20))
-                                girl.vitality -= randint(10, 20)
-                                girl.joy -= randint(0, 3)
+                                girl.mod_stat("health", -randint(10, 20))
+                                girl.mod_stat("vitality", -randint(10, 20))
+                                girl.mod_stat("joy", -randint(0, 3))
 
                             return False, self.DEFEATED
 
@@ -658,8 +658,8 @@ init -9 python:
                                 girlmod["exp"] += exp
 
                             else:
-                                girl.health = max(1, girl.health - randint(10, 20))
-                                girl.vitality -= randint(10, 20)
+                                girl.mod_stat("health", -randint(10, 20))
+                                girl.mod_stat("vitality", -randint(10, 20))
                                 girl.mod_exp(exp)
 
                             return False, self.DEFEATED
@@ -682,10 +682,10 @@ init -9 python:
                                 girlmod["joy"] += randint(0, 3)
 
                             else:
-                                girl.health = max(1, girl.health - randint(10, 20))
-                                girl.vitality -= randint(10, 20)
+                                girl.mod_stat("health", -randint(10, 20))
+                                girl.mod_stat("vitality", -randint(10, 20))
                                 girl.mod_exp(exp)
-                                girl.joy += randint(0, 3)
+                                girl.mod_stat("joy", randint(0, 3))
 
                             return True, self.FOUGHT
 
@@ -703,7 +703,7 @@ init -9 python:
 
                             else:
                                 girl.mod_exp(exp)
-                                girl.joy += randint(0, 6)
+                                girl.mod_stat("joy", randint(0, 6))
 
                             return True, self.ESCAPED
 
@@ -732,8 +732,8 @@ init -9 python:
                                 girlmod["joy"] -= randint(0, 3)
 
                             else:
-                                girl.health = max(1, girl.health - randint(10, 20))
-                                girl.joy -= randint(0, 3)
+                                girl.mod_stat("health", -randint(10, 20))
+                                girl.mod_stat("joy", -randint(0, 3))
 
                             return True, self.DEFEATED
 
@@ -751,11 +751,10 @@ init -9 python:
                                 girlmod["vitality"] -= randint(10, 20)
                                 girlmod["exp"] += exp
                                 girlmod["joy"] += randint(0, 3)
-
                             else:
-                                girlmod.vitality -= randint(10, 20)
-                                girlmod.mod_exp(exp)
-                                girl.joy += randint(0, 3)
+                                girl.mod_stat("vitality", -randint(10, 20))
+                                girl.mod_exp(exp)
+                                girl.mod_stat("joy", randint(0, 3))
 
                             return False, self.FOUGHT
 

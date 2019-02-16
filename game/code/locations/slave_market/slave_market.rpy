@@ -142,7 +142,7 @@ label sm_free_slaves:
         s "You see, every freed slave is a blow to the city's economy. We get a new worker, but not a new workplace."
         $ renpy.notify("Freeing a slave will cost you three month of their full wages!")
         s "So you'll have to pay for their freedom, make sure they can support themselves for couple of month without being a burden."
-        s "And there is always also a flat 1000G government fee!"
+        s "And there is always also a flat 1000 Gold government fee!"
         s "I hope those sluts will be grateful at least!"
 
     $ chrs = list(i for i in hero.team if i.status == "slave" and i.location is None)
@@ -165,8 +165,8 @@ label sm_free_slaves:
 
         show expression our_char.get_vnsprite() as slave at mid_right with dissolve
 
-        if char.disposition > 0:
-            if our_char.disposition >= 700 or check_lovers(hero, our_char):
+        if char.get_stat("disposition") > 0:
+            if our_char.get_stat("disposition") >= 700 or check_lovers(hero, our_char):
                 $ our_char.override_portrait("portrait", "shy")
                 $ our_char.say("I don't really mind being your slave, [hero.name]...  ")
             elif "Dedicated" in our_char.traits or "Masochist" in our_char.traits:
@@ -188,7 +188,7 @@ label sm_free_slaves:
                 "Yes":
                     $ hero.take_money(cost, reason="Slave Freedom")
                     s "Done and done! Congrats, I hope it was worth it."
-                    $ our_char.disposition += randint(400, 500)
+                    $ our_char.gfx_mod_stat("disposition", randint(400, 500))
                     $ our_char.status = "free"
                     $ our_char.autobuy = True
                     $ our_char.home = pytfall.city
@@ -224,13 +224,13 @@ label mc_action_work_in_slavemarket_reward:
         result /= len(STATIC_CHAR.SEX_SKILLS)
         result += hero.expected_wage*6
 
-        if dice(hero.luck*.1):
+        if dice(hero.get_stat("luck")*.1):
             result += hero.level*5
 
         result = gold_reward(hero, result, use_ap)
 
-        if dice(.5 + hero.luck*.1):
-            hero.charisma += use_ap
+        if dice(.5 + hero.get_stat("luck")*.1):
+            hero.gfx_mod_stat("charisma", use_ap)
             hero.gfx_mod_skill("sex", 0, use_ap)
 
         hero.add_money(result, reason="Job")
@@ -362,31 +362,31 @@ screen slave_shopping(source, buy_button, buy_tt):
                 frame:
                     xysize 245, 20
                     text "{color=#79CDCD}{size=-1}Health:" pos (1, -4)
-                    label (u"{size=-5}%s/%s"%(char.health, char.get_max("health"))) align (1.0, .5) ypos 10
+                    label (u"{size=-5}%s/%s"%(char.get_stat("health"), char.get_max("health"))) align (1.0, .5) ypos 10
                 frame:
                     xysize 245, 20
                     text "{color=#79CDCD}{size=-1}Vitality:" pos (1, -4)
-                    label (u"{size=-5}%s/%s"%(char.vitality, char.get_max("vitality"))) align (1.0, .5) ypos 10
+                    label (u"{size=-5}%s/%s"%(char.get_stat("vitality"), char.get_max("vitality"))) align (1.0, .5) ypos 10
                 frame:
                     xysize 245, 20
                     text "{color=#79CDCD}Agility{size=-1}:" pos (1, -4)
-                    label (u"{size=-5}%s/%s"%(char.agility, char.get_max("agility"))) align (1.0, .5) ypos 10
+                    label (u"{size=-5}%s/%s"%(char.get_stat("agility"), char.get_max("agility"))) align (1.0, .5) ypos 10
                 frame:
                     xysize 245, 20
                     text "{color=#79CDCD}{size=-1}Charisma:" pos (1, -4)
-                    label (u"{size=-5}%s/%s"%(char.charisma, char.get_max("charisma"))) align (1.0, .5) ypos 10
+                    label (u"{size=-5}%s/%s"%(char.get_stat("charisma"), char.get_max("charisma"))) align (1.0, .5) ypos 10
                 frame:
                     xysize 245, 20
                     text "{color=#79CDCD}{size=-1}Character:" pos (1, -4)
-                    label (u"{size=-5}%s/%s"%(char.character, char.get_max("character"))) align (1.0, .5) ypos 10
+                    label (u"{size=-5}%s/%s"%(char.get_stat("character"), char.get_max("character"))) align (1.0, .5) ypos 10
                 frame:
                     xysize 245, 20
                     text "{color=#79CDCD}{size=-1}Constitution:" pos (1, -4)
-                    label (u"{size=-5}%s/%s"%(char.constitution, char.get_max("constitution"))) align (1.0, .5) ypos 10
+                    label (u"{size=-5}%s/%s"%(char.get_stat("constitution"), char.get_max("constitution"))) align (1.0, .5) ypos 10
                 frame:
                     xysize 245, 20
                     text "{color=#79CDCD}{size=-1}Intelligence:" pos (1, -4)
-                    label (u"{size=-5}%s/%s"%(char.intelligence, char.get_max("intelligence"))) align (1.0, .5) ypos 10
+                    label (u"{size=-5}%s/%s"%(char.get_stat("intelligence"), char.get_max("intelligence"))) align (1.0, .5) ypos 10
 
             # Skills: =============================================================================>>>
             null height 5

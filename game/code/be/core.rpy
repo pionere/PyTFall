@@ -33,27 +33,27 @@ init -1 python: # Core classes:
             self.attack_skills = char.attack_skills
             self.magic_skills = char.magic_skills
 
-            self.health = char.health
-            self.delayedhp = char.health
+            self.health = char.get_stat("health")
+            self.delayedhp = self.health
             self.maxhp = char.get_max("health")
-            self.mp = char.mp
-            self.delayedmp = char.mp
+            self.mp = char.get_stat("mp")
+            self.delayedmp = self.mp
             self.maxmp = char.get_max("mp")
-            self.vitality = char.vitality
-            self.delayedvit = char.vitality
+            self.vitality = char.get_stat("vitality")
+            self.delayedvit = self.vitality
             self.maxvit = char.get_max("vitality")
 
             self.grimreaper = "Grim Reaper" in char.traits
             self.is_mob = isinstance(char, Mob)
 
             self.controller = char.controller
-            self.attack = char.attack
-            self.agility = char.agility
-            self.luck = char.luck
-            self.defence = char.defence
-            self.constitution = char.constitution
-            self.magic = char.magic
-            self.intelligence = char.intelligence
+            self.attack = char.get_stat("attack")
+            self.agility = char.get_stat("agility")
+            self.luck = char.get_stat("luck")
+            self.defence = char.get_stat("defence")
+            self.constitution = char.get_stat("constitution")
+            self.magic = char.get_stat("magic")
+            self.intelligence = char.get_stat("intelligence")
 
             self.resist = char.resist
 
@@ -219,9 +219,9 @@ init -1 python: # Core classes:
             return be_items
 
         def restore_char(self):
-            self.char.health = self.health
-            self.char.mp = self.mp
-            self.char.vitality = self.vitality
+            self.char.set_stat("health", self.health)
+            self.char.set_stat("mp", self.mp)
+            self.char.set_stat("vitality", self.vitality)
 
     class BE_Core(_object):
         """Main BE attrs, data and the loop!

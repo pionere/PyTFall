@@ -19,7 +19,7 @@ label special_items_slime_bottle:
             $ del patterns_
             $ del tier
 
-            $ new_slime.disposition += 300
+            $ new_slime.gfx_mod_stat("disposition", 300)
             $ spr = new_slime.get_vnsprite()
             if locked_dice(50):
                 $ new_slime.override_portrait("portrait", "happy")
@@ -79,7 +79,7 @@ label special_items_slime_bottle:
                 else:
                     scene bg h_profile
                     "You managed to beat her. Her liquid body quickly decays. It looks like she spent way too long in captivity and lost her mind..."
-                    $ new_slime.health = 0
+                    $ kill_char(new_slime)
                     python:
                         for member in hero.team:
                             member.gfx_mod_exp(exp_reward(member, enemy_team))
@@ -108,10 +108,10 @@ label special_items_empty_extractor:
             $ spr = eqtarget.get_vnsprite()
             show expression spr at center with dissolve
             "This device will extract some of [eqtarget.name]'s experience."
-            if eqtarget.disposition > 0:
-                $ eqtarget.disposition -= randint(25, 50)
-            if eqtarget.joy >= 55:
-                $ eqtarget.joy -= 10
+            if eqtarget.get_stat("disposition") > 0:
+                $ eqtarget.mod_stat("disposition", -randint(25, 50))
+            if eqtarget.get_stat("joy") >= 55:
+                $ eqtarget.gfx_mod_stat("joy", -10)
         else:
             "This device will extract some of your experience."
 
@@ -120,10 +120,10 @@ label special_items_empty_extractor:
             "Yes":
                 if eqtarget <> hero:
                     "She slightly shudders when the device starts to work."
-                    $ eqtarget.disposition -= randint(20, 30)
+                    $ eqtarget.gfx_mod_stat("disposition", -randint(20, 30))
                 else:
                     "For a moment you feel weak, but unpleasant pain somewhere inside your head."
-                $ eqtarget.exp -= 2000
+                $ eqtarget.gfx_mod_exp(-2000)
                 $ hero.add_item("Full Extractor", 1)
                 "The device seems to be full of energy."
             "No":
@@ -144,10 +144,10 @@ label special_items_full_extractor:
         $ spr = eqtarget.get_vnsprite()
         show expression spr at center with dissolve
         $ renpy.show_screen('message_screen', "The energy of knowledge slowly flows inside [eqtarget.name]. She became more experienced.")
-        if eqtarget.disposition < 750:
-            $ eqtarget.disposition += randint(25, 50)
-        if eqtarget.joy <50:
-            $ eqtarget.joy += 10
+        if eqtarget.get_stat("disposition") < 750:
+            $ eqtarget.gfx_mod_stat("disposition", randint(25, 50))
+        if eqtarget.get_stat("joy") < 50:
+            $ eqtarget.gfx_mod_stat("joy", 10)
     else:
         $ renpy.show_screen('message_screen', "The energy of knowledge slowly flows inside you. You became more experienced.")
 
@@ -166,7 +166,7 @@ label special_items_one_for_all:
         $ inv_source.add_item("One For All")
         jump char_equip
 
-    if eqtarget.health < 50 and eqtarget.mp < 50 and eqtarget.vitality < 50:
+    if eqtarget.get_stat("health") < 50 and eqtarget.get_stat("mp") < 50 and eqtarget.get_stat("vitality") < 50:
         $ renpy.show_screen('message_screen', "Her body is in a poor condition. It will be a waste to use this item on her.")
         $ inv_source.add_item("One For All")
         jump char_equip
@@ -183,7 +183,7 @@ label special_items_one_for_all:
         "No":
             $ inv_source.add_item("One For All")
             jump char_equip
-    $ health = eqtarget.health
+    $ health = eqtarget.get_stat("health")
     $ n = health/100
     if n > 0:
         $ hero.add_item("Great Healing Potion", amount=n)
@@ -199,7 +199,7 @@ label special_items_one_for_all:
     if health > 0:
         $ hero.add_item("Small Healing Potion")
 
-    $ mp = eqtarget.mp
+    $ mp = eqtarget.get_stat("mp")
     $ n = mp/100
     if n > 0:
         $ hero.add_item("Great Mana Potion", amount=n)
@@ -215,7 +215,7 @@ label special_items_one_for_all:
     if mp > 0:
         $ hero.add_item("Small Mana Potion")
 
-    $ vitality = eqtarget.vitality
+    $ vitality = eqtarget.get_stat("vitality")
     $ n = vitality/100
     if n > 0:
         $ hero.add_item("Great Potion of Serenity", amount=n)
@@ -237,35 +237,36 @@ label special_items_one_for_all:
     pause 2.5
     hide death
     "[eqtarget.name]'s body crumbles as her life energies turn into potions in your inventory."
-    $ eqtarget.disposition -= 1000 # in case if we'll have reviving one day
-    $ eqtarget.health = 0
+    $ eqtarget.mod_stat("disposition", -1000) # in case if we'll have reviving one day
+    $ kill_char(eqtarget)
     jump mainscreen
 
 label special_items_herbal_extract:
-    $ h = eqtarget.get_max("health") - eqtarget.health
+    $ h = eqtarget.get_max("health") - eqtarget.get_stat("health")
     if h <= 0:
         $ inv_source.add_item("Herbal Extract")
         $ renpy.show_screen('message_screen', "There is no need to use it at the moment, health is full.")
         jump char_equip
-    if eqtarget.vitality <= 10:
+    $ v = eqtarget.get_stat("vitality")
+    if v <= 10:
         $ inv_source.add_item("Herbal Extract")
         $ renpy.show_screen('message_screen', "Not enough vitality to use it.")
         jump char_equip
-    if h <= eqtarget.vitality:
-        $ eqtarget.health = eqtarget.get_max("health")
-        $ eqtarget.vitality -= h
+    if h <= v:
+        $ eqtarget.mod_stat("health", h)
+        $ eqtarget.mod_stat("vitality", -h)
     else:
-        $ eqtarget.health += eqtarget.vitality
-        $ eqtarget.vitality = 0
+        $ eqtarget.mod_stat("health", v)
+        $ eqtarget.mod_stat("vitality", -v)
     play events "events/item_2.wav"
     jump char_equip
 
 label special_items_emerald_tincture:
-    $ h = eqtarget.get_max("health") - eqtarget.health
-    $ eqtarget.health += int(.5*h)
-    $ h = eqtarget.get_max("vitality") - eqtarget.vitality
-    $ eqtarget.vitality += int(.5*h)
-    $ eqtarget.mp = int(eqtarget.get_max("mp")*.25)
+    $ h = eqtarget.get_max("health") - eqtarget.get_stat("health")
+    $ eqtarget.mod_stat("health", h/2)
+    $ h = eqtarget.get_max("vitality") - eqtarget.get_stat("vitality")
+    $ eqtarget.mod_stat("vitality", h/2)
+    $ eqtarget.mod_stat("mp", -eqtarget.get_max("mp")/4)
     play events "events/item_2.wav"
     jump char_equip
 
@@ -283,7 +284,7 @@ label special_items_flashing_extract:
 
 label special_items_puke_cola:
     if not 'Food Poisoning' in eqtarget.effects:
-        $ eqtarget.health += randint(85, 255)
+        $ eqtarget.mod_stat("health", randint(85, 255))
         $ eqtarget.up_counter("food_poison_counter", 5)
         if eqtarget.get_flag("food_poison_counter", 0) >= 7:
             $ eqtarget.enable_effect('Food Poisoning')

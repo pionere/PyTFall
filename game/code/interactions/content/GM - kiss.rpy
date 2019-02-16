@@ -3,8 +3,8 @@ label interactions_kiss:
         $ m = interactions_flag_count_checker(char, "flag_interactions_kiss_lesbian_refuses")
         if m > 1:
             call interactions_too_many_lines from _call_interactions_too_many_lines
-            $ char.disposition -= randint(5, 15)
-            $ char.joy -= randint(0,1)
+            $ char.gfx_mod_stat("disposition", -randint(5, 15))
+            $ char.gfx_mod_stat("joy", -randint(0, 1))
             $ del m
             jump girl_interactions
         else:
@@ -16,16 +16,16 @@ label interactions_kiss:
     $ m = interactions_flag_count_checker(char, "flag_interactions_kiss")
     if ct("Nymphomaniac") or check_lovers(char, hero):
         $ n = 1
-    elif (ct("Half-Sister") and char.disposition < 500 and "Sister Lover" not in hero.traits) or ct("Frigid"):
+    elif (ct("Half-Sister") and char.get_stat("disposition") < 500 and "Sister Lover" not in hero.traits) or ct("Frigid"):
         $ n = -1
     else:
         $ n = 0
 
     if m > (2 + n + interactions_set_repeating_lines_limit(char)):
         call interactions_too_many_sex_lines from _call_interactions_too_many_sex_lines
-        $ char.disposition -= randint(10, 25)
-        if char.joy>30:
-            $ char.joy -= randint(2,4)
+        $ char.gfx_mod_stat("disposition", -randint(10, 25))
+        if char.get_stat("joy") > 30:
+            $ char.gfx_mod_stat("joy", -randint(2, 4))
         $ del m
         $ del n
         jump girl_interactions
@@ -37,26 +37,27 @@ label interactions_kiss:
     else:
         $ m = 350
 
-    if char.disposition > (m+50*sub) or slave_siw_check(char):
+    if char.get_stat("disposition") > (m+50*sub) or slave_siw_check(char):
         $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
         $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
-        $ char.disposition += randint(40, 55)
+        $ char.gfx_mod_stat("disposition", randint(40, 55))
         $ del m
         $ del sub
 
         $ char.override_portrait("portrait", "shy")
         $ char.show_portrait_overlay("love", "reset")
 
+        $ char_dispo = char.get_stat("disposition")
         if check_lovers(char, hero):
             char.say "Your hands slide down her body as your lips press hers."
-        elif char.disposition < 400:
+        elif char_dispo < 400:
             char.say "Your lips gently slide across hers."
-        elif char.disposition < 600:
+        elif char_dispo < 600:
             char.say "You two kiss deeply and passionately."
         else:
             char.say "You two kiss deeply and passionately. Her tongue dances around yours."
 
-        if ct("Half-Sister") and not(check_lovers(char, hero)) and char.disposition < 650 and not "Sister Lover" in hero.traits:
+        if ct("Half-Sister") and not(check_lovers(char, hero)) and char_dispo < 650 and not "Sister Lover" in hero.traits:
             "She looks a bit uncomfortable."
             if ct("Impersonal"):
                 $ rc("It's okay for siblings to kiss, isn't it?", "Do you like your sister's kisses?")
@@ -110,7 +111,7 @@ label interactions_kiss:
         $ char.show_portrait_overlay("sweat", "reset")
         $ del n
         if char.status == "free":
-            $ char.disposition -= randint(25, 35)
+            $ char.gfx_mod_stat("disposition", -randint(25, 35))
             if ct("Impersonal"):
                 $ char.override_portrait("portrait", "indifferent")
                 $ rc("I see no possible benefit in doing that with you so I will have to decline.", "Denied. Please refrain from this in the future.")
@@ -145,7 +146,7 @@ label interactions_kiss:
                 $ char.override_portrait("portrait", "indifferent")
                 $ rc("With you? Of course not!", "Huh?! No, I don't want to! Pervert...", "Woah, hold on there. Maybe after we get to know each other better.")
                 
-            if char.disposition < (350+50*sub) and not cgo("SIW"):
+            if char.get_stat("disposition") < (350+50*sub) and not cgo("SIW"):
                 $ char.set_flag("_day_countdown_interactions_blowoff", 2)
                 $ del sub
                 $ del m

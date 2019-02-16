@@ -137,15 +137,10 @@
             for key, value in data.iteritems():
                 if key == "exp":
                     char.mod_exp(value)
-                elif key == 'health' and (char.health + value) <= 0:
-                    char.health = 1
-                    # if char.constitution > 5: # @Review (Alex): Why??? This is insane??
-                    #     char.constitution -= 5
-                else:
-                    if char.stats.is_stat(key):
-                        char.mod_stat(key, value)
-                    elif char.stats.is_skill(key):
-                        char.mod_skill(key, 0, value)
+                elif char.stats.is_stat(key):
+                    char.mod_stat(key, value)
+                elif char.stats.is_skill(key):
+                    char.mod_skill(key, 0, value)
 
         def log_tips(self, worker):
             # logically logs tips as income of this business.
@@ -281,7 +276,7 @@
                 return False
 
             if not isinstance(worker, PytGroup):
-                # if worker.disposition >= self.calculate_disposition_level(worker):
+                # if worker.get_stat("disposition") >= self.calculate_disposition_level(worker):
                 #     return True
                 # Considering the next check, this is more or less useless.
                 if set(self.occupation_traits).intersection(worker.traits):
@@ -302,7 +297,7 @@
             return True
 
         def normalize_required_stat(self, worker, stat, effectiveness, difficulty):
-            value = getattr(worker, stat)
+            value = worker.get_stat(stat)
             if difficulty < .5:
                 difficulty = .5
             max_value = worker.get_relative_max_stat(stat, difficulty)
@@ -403,7 +398,7 @@
                     weight_ratio = float(weight)/total_weight_points
                     max_p = default_points*weight_ratio
 
-                    sp = getattr(worker, stat)
+                    sp = worker.get_stat(stat)
                     if stat in STATIC_CHAR.FIXED_MAX:
                         sp_required = worker.get_max(stat)
                     else:
@@ -432,7 +427,7 @@
                          traits_bonus, total_skills, total_stats])
 
             # Disposition Bonus (Percentage bonus):
-            disposition_multiplier = worker.disposition*.0001 + 1.0
+            disposition_multiplier = worker.get_stat("disposition")*.0001 + 1.0
             total = round_int(total*disposition_multiplier)
 
             # Normalize:
@@ -444,7 +439,7 @@
             if DEBUG_SIMPY:
                 temp = {}
                 for stat in self.base_stats:
-                    temp[stat] = getattr(worker, stat)
+                    temp[stat] = worker.get_stat(stat)
                 devlog.info("Calculating Jobs Relative Ability, Char/Job: {}/{}:".format(worker.name, self.id))
                 devlog.info("Stats: {}:".format(temp))
                 args = (bt_bonus, tier_bonus, traits_bonus, total_skills, total_stats, disposition_multiplier, total)

@@ -80,12 +80,12 @@ screen hero_profile():
     fixed:
         xysize (270, 270)
         pos (300, 413)
-        add Transform(child=RadarChart((float(hero.attack)/hero.get_max("attack")), (float(hero.defence)/hero.get_max("defence")), (float(hero.agility)/hero.get_max("agility")),
-                                                              (float(hero.luck)/hero.get_max("luck")), (float(hero.magic)/hero.get_max("magic")), 112, 126, 148, darkgreen), alpha=.4) align (.5, .5)
-        add Transform(child=RadarChart((float(hero.attack)/hero.get_max("attack")), (float(hero.defence)/hero.get_max("defence")), (float(hero.agility)/hero.get_max("agility")),
-                                                              (float(hero.luck)/hero.get_max("luck")), (float(hero.magic)/hero.get_max("magic")), 65, 126, 148, green), alpha=.3) align (.5, .5)
-        add Transform(child=RadarChart((float(hero.attack)/hero.get_max("attack")), (float(hero.defence)/hero.get_max("defence")), (float(hero.agility)/hero.get_max("agility")),
-                                                              (float(hero.luck)/hero.get_max("luck")), (float(hero.magic)/hero.get_max("magic")), 33, 126, 148, lightgreen), alpha=.2) align (.5, .5)
+        add Transform(child=RadarChart((float(hero.get_stat("attack"))/hero.get_max("attack")), (float(hero.get_stat("defence"))/hero.get_max("defence")), (float(hero.get_stat("agility"))/hero.get_max("agility")),
+                                       (float(hero.get_stat("luck"))/hero.get_max("luck")), (float(hero.get_stat("magic"))/hero.get_max("magic")), 112, 126, 148, darkgreen), alpha=.4) align (.5, .5)
+        add Transform(child=RadarChart((float(hero.get_stat("attack"))/hero.get_max("attack")), (float(hero.get_stat("defence"))/hero.get_max("defence")), (float(hero.get_stat("agility"))/hero.get_max("agility")),
+                                       (float(hero.get_stat("luck"))/hero.get_max("luck")), (float(hero.get_stat("magic"))/hero.get_max("magic")), 65, 126, 148, green), alpha=.3) align (.5, .5)
+        add Transform(child=RadarChart((float(hero.get_stat("attack"))/hero.get_max("attack")), (float(hero.get_stat("defence"))/hero.get_max("defence")), (float(hero.get_stat("agility"))/hero.get_max("agility")),
+                                       (float(hero.get_stat("luck"))/hero.get_max("luck")), (float(hero.get_stat("magic"))/hero.get_max("magic")), 33, 126, 148, lightgreen), alpha=.2) align (.5, .5)
         add ProportionalScale("content/gfx/interface/images/pentagon1.png", 250, 250) align (.01, .5)
 
     fixed:
@@ -96,7 +96,7 @@ screen hero_profile():
             hbox:
                 align .5, .5
                 add pscale("content/gfx/interface/images/atk.png", 24, 24)
-                text("{size=-5}[hero.attack]|%d"%(hero.get_max("attack"))):
+                text("{size=-5}%d|%d"%(hero.get_stat("attack"), hero.get_max("attack"))):
                     yalign .5
                     font "fonts/Rubius.ttf"
                     color red
@@ -115,7 +115,7 @@ screen hero_profile():
             hbox:
                 align .5, .5
                 add pscale("content/gfx/interface/images/def.png", 24, 24)
-                text("{size=-5}[hero.defence]|%d"%(hero.get_max("defence"))):
+                text("{size=-5}%d|%d"%(hero.get_stat("defence"), hero.get_max("defence"))):
                     yalign .5
                     color "#dc762c"
                     font "fonts/Rubius.ttf"
@@ -134,7 +134,7 @@ screen hero_profile():
             hbox:
                 align .5, .5
                 add pscale("content/gfx/interface/images/agi.png", 24, 24)
-                text("{size=-5}[hero.agility]|%d"%(hero.get_max("agility"))):
+                text("{size=-5}%d|%d"%(hero.get_stat("agility"), hero.get_max("agility"))):
                     yalign .5
                     color "#1E90FF"
                     font "fonts/Rubius.ttf"
@@ -153,7 +153,7 @@ screen hero_profile():
             hbox:
                 align .5, .5
                 add pscale("content/gfx/interface/images/luck.png", 24, 24)
-                text("{size=-5}[hero.luck]|%d" % (hero.get_max("luck"))):
+                text("{size=-5}%d|%d" % (hero.get_stat("luck"), hero.get_max("luck"))):
                     yalign .5
                     color "#00FA9A"
                     font "fonts/Rubius.ttf"
@@ -172,7 +172,7 @@ screen hero_profile():
             hbox:
                 align .5, .5
                 add pscale("content/gfx/interface/images/mag.png", 24, 24)
-                text("{size=-5}{color=#8470FF}[hero.magic]|%d" % (hero.get_max("magic"))):
+                text("{size=-5}{color=#8470FF}%d|%d" % (hero.get_stat("magic"), hero.get_max("magic"))):
                     yalign .5
                     font "fonts/Rubius.ttf"
                     outlines [(1, "#0d0d0d", 0, 0)]
@@ -238,14 +238,12 @@ screen hero_profile():
                             background pscale("content/gfx/interface/icons/stars/legendary.png", 20, 20)
                             action NullAction()
                             tooltip "This is a Class Stat!"
-                    if hero.health <= hero.get_max("health")*.3:
-                        text (u"{color=[red]}%s/%s"%(hero.health, hero.get_max("health"))) xalign 1.0 style_suffix "value_text" xoffset -6 yoffset 4
-                    else:
-                        text (u"{color=#F5F5DC}%s/%s"%(hero.health, hero.get_max("health"))) xalign 1.0 style_suffix "value_text" xoffset -6 yoffset 4
+                    $ temp, tmp = hero.get_stat("health"), hero.get_max("health")
+                    text "%s/%s"%(temp, tmp) color (red if temp <= tmp*.3 else "#F5F5DC") xalign 1.0 style_suffix "value_text" xoffset -6 yoffset 4
                 frame:
                     xysize (212, 27)
                     xalign .5
-                    text "MP:" xalign .02 color "#009ACD"
+                    text "Mp:" xalign .02 color "#009ACD"
                     if "mp" in base_ss:
                         button:
                             xysize 20, 20
@@ -253,10 +251,8 @@ screen hero_profile():
                             background pscale("content/gfx/interface/icons/stars/legendary.png", 20, 20)
                             action NullAction()
                             tooltip "This is a Class Stat!"
-                    if hero.mp <= hero.get_max("mp")*.3:
-                        text (u"{color=[red]}%s/%s"%(hero.mp, hero.get_max("mp"))) xalign 1.0 style_suffix "value_text" xoffset -6 yoffset 4
-                    else:
-                        text (u"{color=#F5F5DC}%s/%s"%(hero.mp, hero.get_max("mp"))) xalign 1.0 style_suffix "value_text" xoffset -6 yoffset 4
+                    $ temp, tmp = hero.get_stat("mp"), hero.get_max("mp")
+                    text "%s/%s"%(temp, tmp) color (red if temp <= tmp*.3 else "#F5F5DC") xalign 1.0 style_suffix "value_text" xoffset -6 yoffset 4
                 frame:
                     xysize (212, 27)
                     xalign .5
@@ -268,15 +264,13 @@ screen hero_profile():
                             background pscale("content/gfx/interface/icons/stars/legendary.png", 20, 20)
                             action NullAction()
                             tooltip "This is a Class Stat!"
-                    if hero.vitality <= hero.get_max("vitality")*.3:
-                        text (u"{color=[red]}%s/%s"%(hero.vitality, hero.get_max("vitality"))) xalign 1.0 style_suffix "value_text" xoffset -6 yoffset 4
-                    else:
-                        text (u"{color=#F5F5DC}%s/%s"%(hero.vitality, hero.get_max("vitality"))) xalign 1.0 style_suffix "value_text" xoffset -6 yoffset 4
+                    $ temp, tmp = hero.get_stat("vitality"), hero.get_max("vitality")
+                    text "%s/%s"%(temp, tmp) color (red if temp <= tmp*.3 else "#F5F5DC") xalign 1.0 style_suffix "value_text" xoffset -6 yoffset 4
                 for stat in stats:
                     frame:
                         xysize (212, 27)
                         xalign .5
-                        text '{}'.format(stat.capitalize()) xalign .02 color "#79CDCD"
+                        text "%s"%stat.capitalize() xalign .02 color "#79CDCD"
                         if stat in base_ss:
                             button:
                                 xysize 20, 20
@@ -284,7 +278,7 @@ screen hero_profile():
                                 background pscale("content/gfx/interface/icons/stars/legendary.png", 20, 20)
                                 action NullAction()
                                 tooltip "This is a Class Stat!"
-                        text ('%d/%d'%(getattr(hero, stat), hero.get_max(stat))) xalign 1.0 style_suffix "value_text" xoffset -6 yoffset 4
+                        text "%d/%d"%(hero.get_stat(stat), hero.get_max(stat)) xalign 1.0 style_suffix "value_text" xoffset -6 yoffset 4
 
             null height 5
 
@@ -699,44 +693,47 @@ screen hero_team():
                     # HP:
                     fixed:
                         ysize 25
+                        $ temp, tmp = member.get_stat("health"), member.get_max("health")
                         bar:
                             left_bar ProportionalScale("content/gfx/interface/bars/hp1.png", 150, 20)
                             right_bar ProportionalScale("content/gfx/interface/bars/empty_bar1.png", 150, 20)
-                            value member.health
-                            range member.get_max("health")
+                            value temp
+                            range tmp
                             thumb None
                             xysize (150, 20)
                         text "HP" size 14 color "#F5F5DC" bold True xpos 8
-                        $ tmb = red if member.health <= member.get_max("health")*.3 else "#F5F5DC"
-                        text "[member.health]" size 14 color tmb bold True style_suffix "value_text" xpos 125 yoffset -8
+                        $ tmb = red if temp <= tmp*.3 else "#F5F5DC"
+                        text "[temp]" size 14 color tmb bold True style_suffix "value_text" xpos 125 yoffset -8
 
                     # MP:
                     fixed:
                         ysize 25
+                        $ temp, tmp = member.get_stat("mp"), member.get_max("mp")
                         bar:
                             left_bar ProportionalScale("content/gfx/interface/bars/mp1.png", 150, 20)
                             right_bar ProportionalScale("content/gfx/interface/bars/empty_bar1.png", 150, 20)
-                            value member.mp
-                            range member.get_max("mp")
+                            value temp
+                            range tmp
                             thumb None
                             xysize (150, 20)
-                        text "{color=#F5F5DC}MP" size 14 bold True xpos 8
-                        $ tmb = red if member.mp <= member.get_max("mp")*.3 else "#F5F5DC"
-                        text "[member.mp]" size 14 color tmb bold True style_suffix "value_text" xpos 125 yoffset -8
+                        text "MP" size 14 color "#F5F5DC" bold True xpos 8
+                        $ tmb = red if temp <= tmp*.3 else "#F5F5DC"
+                        text "[temp]" size 14 color tmb bold True style_suffix "value_text" xpos 125 yoffset -8
 
                     # VP
                     fixed:
                         ysize 25
+                        $ temp, tmp = member.get_stat("vitality"), member.get_max("vitality")
                         bar:
                             left_bar ProportionalScale("content/gfx/interface/bars/vitality1.png", 150, 20)
                             right_bar ProportionalScale("content/gfx/interface/bars/empty_bar1.png", 150, 20)
-                            value member.vitality
-                            range member.get_max("vitality")
+                            value temp
+                            range tmp
                             thumb None
                             xysize (150, 20)
-                        text "{color=#F5F5DC}VP" size 14 bold True xpos 8
-                        $ tmb = red if member.vitality <= member.get_max("vitality")*.3 else "#F5F5DC"
-                        text "[member.vitality]" size 14 color tmb bold True style_suffix "value_text" xpos 125 yoffset -8
+                        text "VP" size 14 color "#F5F5DC" bold True xpos 8
+                        $ tmb = red if temp <= tmp*.3 else "#F5F5DC"
+                        text "[temp]" size 14 color tmb bold True style_suffix "value_text" xpos 125 yoffset -8
 
         # Preset teams
         for team in hero.teams:

@@ -134,7 +134,7 @@ label mc_action_city_beach_rest:
 
         "You're relaxing at the beach with your team."
 
-        $ members = list(x for x in hero.team if (x != hero and 'Horny' in x.effects and (check_lovers(x, hero) or x.disposition >= 500) and interactions_silent_check_for_bad_stuff(x)))
+        $ members = list(x for x in hero.team if (x != hero and 'Horny' in x.effects and (check_lovers(x, hero) or x.get_stat("disposition") >= 500) and interactions_silent_check_for_bad_stuff(x)))
         if members:
             $ char = choice(members)
             hide temp1
@@ -181,16 +181,16 @@ label mc_action_city_beach_rest:
             $ narrator(msg)
             $ char.gfx_mod_skill("sex", 0, 1)
             $ hero.gfx_mod_skill("sex", 0, 1)
-            $ char.disposition += 3
+            $ char.gfx_mod_stat("disposition", 3)
 
     else:
         "You're relaxing at the beach."
 
     python:
         for member in hero.team:
-            member.vitality += randint(10, 15)
+            member.gfx_mod_stat("vitality", randint(10, 15))
             if member != hero:
-                member.disposition += 1
+                member.gfx_mod_stat("disposition", 1)
     jump city_beach_left
 
 label fishing_logic_mor_quest_part:
@@ -379,7 +379,7 @@ label mc_action_beach_start_fishing:
         while fishing_attempts > 0:
             $ fishing_attempts -= 1
                 
-            $ num_fish = randint(1 + (hero.luck/7), 8)
+            $ num_fish = randint(1 + (hero.get_stat("luck")/7), 8)
 
             call screen fishing_area(num_fish)
 

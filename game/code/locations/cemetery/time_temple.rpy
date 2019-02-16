@@ -44,14 +44,10 @@ label time_temple:
             python:
                 temp_charcters = {}
                 for i in hero.team:
-                    if i.health < i.get_max("health") or i.mp< i.get_max("mp") or i.vitality < i.get_max("vitality"):
-                        temp_charcters[i] = 0
-                        if i.health < i.get_max("health"):
-                            temp_charcters[i] += i.get_max("health") - i.health
-                        if i.mp < i.get_max("mp"):
-                            temp_charcters[i] += i.get_max("mp") - i.mp
-                        if i.vitality < i.get_max("vitality"):
-                            temp_charcters[i] += i.get_max("vitality") - i.vitality
+                    temp = i.get_max("health") + i.get_max("mp") + i.get_max("vitality") - \
+                           (i.get_stat("health") + i.get_stat("mp") + i.get_stat("vitality"))
+                    if temp != 0:
+                        temp_charcters[i] = temp
 
             if not temp_charcters:
                 t "I don't see the need in healing right now."
@@ -78,9 +74,9 @@ label time_temple:
                         $ hero.take_money(res, reason="Time Temple")
                         python:
                             for i in temp_charcters:
-                                i.health = i.get_max("health")
-                                i.mp = i.get_max("mp")
-                                i.vitality = i.get_max("vitality")
+                                i.gfx_mod_stat("health", i.get_max("health") - i.get_stat("health"))
+                                i.gfx_mod_stat("mp", i.get_max("mp") - i.get_stat("mp"))
+                                i.gfx_mod_stat("vitality", i.get_max("vitality") - i.get_stat("vitality"))
                         t "Done. Please come again if you need our help."
                         $ del res
                         $ del temp_charcters

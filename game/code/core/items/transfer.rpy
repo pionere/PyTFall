@@ -182,9 +182,9 @@ screen items_transfer(it_members):
                 action Return(["transfer", rc, lc, selection[1], transfer_amount])
                 sensitive selection[1] and lc and rc
                 if len(selection[1]) == 1:
-                    tooltip "Transfer %s from %s to %s!" % (iter(selection[1]).next().id, rc.nickname, lc.nickname)
+                    tooltip "Transfer %s from %s to %s!" % (iter(selection[1]).next().id, rc.name, lc.name)
                 else:
-                    tooltip "Transfer the selected items from %s to %s!" % (rc.nickname, lc.nickname)
+                    tooltip "Transfer the selected items from %s to %s!" % (rc.name, lc.name)
 
             $ img = ProportionalScale('content/gfx/interface/buttons/right.png', 25, 25, align=(.5, .5))
             button:
@@ -197,9 +197,9 @@ screen items_transfer(it_members):
                 action Return(["transfer", lc, rc, selection[1], transfer_amount])
                 sensitive selection[1] and lc and rc
                 if len(selection[1]) == 1:
-                    tooltip "Transfer %s from %s to %s!" % (iter(selection[1]).next().id, lc.nickname, rc.nickname)
+                    tooltip "Transfer %s from %s to %s!" % (iter(selection[1]).next().id, lc.name, rc.name)
                 else:
-                    tooltip "Transfer the selected items from %s to %s!" % (lc.nickname, rc.nickname)
+                    tooltip "Transfer the selected items from %s to %s!" % (lc.name, rc.name)
 
         null height 1
         frame:

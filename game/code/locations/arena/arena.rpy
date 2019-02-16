@@ -51,7 +51,6 @@ init -9 python:
             self.hero_match_result = None 
             self.daily_report = []
 
-            self.setup = None # Setup in focus
             self.result = None
 
             # Chanfighting:
@@ -207,29 +206,8 @@ init -9 python:
 
         # -------------------------- Teams control/checks -------------------------------------->
         def remove_team_from_dogfights(self, fighter):
-            """
-            Goes through every team in the dogfights and removes them if fighter is low on AP or injured.
-            This is not very performance efficient but it is not likely to be called during the next day so it doesn't matter.
-            """
-            for team in self.dogfights_1v1:
-                for fighter in team:
-                    if fighter.health < fighter.get_max("health") * .9 or fighter.AP < 2:
-                        if team in self.dogfights_1v1:
-                            self.dogfights_1v1.remove(team)
-
-            for team in self.dogfights_2v2:
-                for fighter in team:
-                    if fighter.health < fighter.get_max("health") * .9 or fighter.AP < 2:
-                        if team in self.dogfights_2v2:
-                            self.dogfights_2v2.remove(team)
-
-            for team in self.dogfights_3v3:
-                for fighter in team:
-                    if fighter.health < fighter.get_max("health") * .9 or fighter.AP < 2:
-                        if team in self.dogfights_3v3:
-                            self.dogfights_3v3.remove(team)
-
-            restore_battle_stats(fighter)
+            for group in (self.dogfights_1v1, self.dogfights_2v2, self.dogfights_3v3):
+                group[:] = [team for team in group if fighter not in team]
 
         @staticmethod
         def check_if_team_ready_for_dogfight(unit, dogfighters):
@@ -238,7 +216,7 @@ init -9 python:
             """
             if isinstance(unit, Team):
                 for member in unit:
-                    if member.health < int(member.get_max("health") * .9):
+                    if member.get_stat("health") < member.get_max("health")*9/10:
                         return False
                     if day+1 in member.fighting_days:
                         return False
@@ -248,7 +226,7 @@ init -9 python:
                     return False
 
             else:   # Any single fighter.
-                if unit.health < int(unit.get_max("health") * .9):
+                if unit.get_stat("health") < unit.get_max("health")*9/10:
                     return False
                 if day+1 in unit.fighting_days:
                     return False
@@ -549,12 +527,10 @@ init -9 python:
                 return
             for member in hero.team:
                 if member != hero and member.status == "slave":
-                    renpy.call_screen("message_screen", "%s is a slave and slaves are not allowed to fight in the Arena under the penalty of death to both a slave and the owner!"%member.name)
-                    return
+                    return "%s is a slave and slaves are not allowed to fight in the Arena under the penalty of death to both a slave and the owner!"%member.name
             for member in hero.team:
                 if member.AP < 2:
-                    renpy.call_screen("message_screen", "%s does not have enough Action Points for a fight (2 required)!"%member.name)
-                    return
+                    return "%s does not have enough Action Points for a fight (2 required)!"%member.name
 
             hlvl = hero.team.get_level()
             elvl = team.get_level()
@@ -590,18 +566,15 @@ init -9 python:
             Now also checks if player has an Arena permit.
             """
             if not hero.arena_permit:
-                renpy.call_screen("message_screen", "Arena Permit is required to fight in the official matches!")
-                return
+                return "Arena Permit is required to fight in the official matches!"
 
             fight_day = setup[2]
 
             if fight_day in hero.fighting_days:
-                renpy.call_screen("message_screen", "You already have a fight planned for day %d. Having two official matches on the same day is not allowed!"%fight_day)
-                return
+                return "You already have a fight planned for day %d. Having two official matches on the same day is not allowed!"%fight_day
 
             if fight_day == day and self.hero_match_result:
-                renpy.call_screen("message_screen", "You already had a fight today. Having two official matches on the same day is not allowed!")
-                return
+                return "You already had a fight today. Having two official matches on the same day is not allowed!"
  
             result = renpy.call_screen("yesno_prompt",
                 "Are you sure you want to schedule a fight? Backing out of it later will mean a hit on reputation!",
@@ -621,16 +594,14 @@ init -9 python:
                     team = setup[1]
 
             if len(hero.team) != len(team):
-                renpy.call_screen("message_screen", "Make sure that your team has %d members!"%len(team))
-                return
+                return "Make sure that your team has %d members!"%len(team)
+
             for member in hero.team:
-                if member != hero and member.status == "slave":
-                    renpy.call_screen("message_screen", "%s is a slave and slaves are not allowed to fight in the Arena under the penalty of death to both slave and the owner!"%member.name)
-                    return
+                if member.status == "slave":
+                    return "%s is a slave and slaves are not allowed to fight in the Arena under the penalty of death to both slave and the owner!"%member.name
             for member in hero.team:
                 if member.AP < 2:
-                    renpy.call_screen("message_screen", "%s does not have enough Action Points for a fight (3 required)!"%member.name)
-                    return
+                    return "%s does not have enough Action Points for a fight (2 required)!"%member.name
 
             # If we got this far, we can safely take AP off teammembers:
             for member in hero.team:
@@ -897,11 +868,9 @@ init -9 python:
             """
             for member in hero.team:
                 if member.AP < 2:
-                    renpy.call_screen("message_screen", "%s does not have enough Action Points to start a chain fight (2 AP required)!"%member.name)
-                    return
+                    return "%s does not have enough Action Points to start a chain fight (2 AP required)!"%member.name
                 if member.status == "slave":
-                    renpy.call_screen("message_screen", "%s is a Slave forbidden from participation in Combat!"%member.name)
-                    return
+                    return "%s is a Slave forbidden from participation in Combat!"%member.name
 
             self.cf_count = 1
 
@@ -951,7 +920,7 @@ init -9 python:
             luck = 0
             # Get team luck:
             for member in hero.team:
-                luck += member.luck
+                luck += member.get_stat("luck")
             luck = float(luck)/len(hero.team)
 
             # Bonus:
@@ -1138,7 +1107,7 @@ init -9 python:
                 member.controller = Complex_BE_AI(member)
 
             for member in hero.team:
-                start_health += member.health
+                start_health += member.get_stat("health")
 
             battle = BE_Core(ImageReference("bg battle_dogfights_1"),
                              start_sfx=get_random_image_dissolve(1.5),
@@ -1156,7 +1125,7 @@ init -9 python:
                 loser = hero.team
 
             for member in hero.team:
-                finish_health += member.health
+                finish_health += member.get_stat("health")
 
             # Idea for awards in DF: Decent cash, low a-rep and normal EXP.
             # Max gold as a constant:

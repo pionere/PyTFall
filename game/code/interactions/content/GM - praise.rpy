@@ -1,33 +1,25 @@
 label interactions_clever:
-    if (day - char.flag("gm_praise_day")) > 0 or char.flag("gm_praise_day") == 0:
+    if (not char.has_flag("gm_praise_day")) or char.flag("gm_praise_day") < day:
         "You are trying to compliment her intelligence."
         $ interactions_check_for_bad_stuff(char)
         $ char.set_flag("gm_praise_day", value=day)
         $ inter_praise = 0
         $ stats = ["charisma", "intelligence", "character", "constitution"]
-        $ mean = sum(getattr(char, i) for i in stats)/len(stats) # we check the difference between the stat and average stats value
-        $ int_differ = mean - char.intelligence
-        if int_differ >= 0:
+        $ mean = sum(char.get_stat(i) for i in stats)/len(stats) # we check the difference between the stat and average stats value
+        $ char_int = char.get_stat("intelligence")
+        if mean >= char_int:
             $ inter_praise += 1
 
-        $ characters = [hero, char]
-        $ char_with_the_highest_stat = max(characters, key=attrgetter("intelligence")) # we check who has higher stat
-        if char_with_the_highest_stat != char:
+        if hero.get_stat("intelligence") > char_int:
             $ inter_praise += 1
 
-        $ statsmore = {s: getattr(char, s) for s in stats}
-        $ stat_with_min_value = min(statsmore.iteritems(), key=itemgetter(1))[0] # we check if the stat is a min stat
-        if stat_with_min_value == "intelligence":
+        # we check if the stat is a min stat
+        if all(char.get_stat(s) >= char_int for s in stats):
             $ inter_praise += 1
 
         $ del stats
         $ del mean
-        $ del int_differ
-        $ del characters
-        $ del char_with_the_highest_stat
-        $ del statsmore
-        $ del stat_with_min_value
-
+        $ del char_int
         if inter_praise == 3:
             "She looks excited."
             $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
@@ -41,8 +33,8 @@ label interactions_clever:
             call praise_nope from _call_praise_nope
             jump girl_interactions
 
-        $ char.disposition += (randint (10, 15))*inter_praise
-        $ char.joy += randint (15, 20)
+        $ char.gfx_mod_stat("disposition", randint(10, 15)*inter_praise)
+        $ char.gfx_mod_stat("joy", randint(15, 20))
 
         call praise_yes from _call_praise_yes
         $ del inter_praise
@@ -53,35 +45,27 @@ label interactions_clever:
         jump girl_interactions
 
 label interactions_strong:
-    if (day - char.flag("gm_praise_day")) > 0 or char.flag("gm_praise_day") == 0:
+    if (not char.has_flag("gm_praise_day")) or char.flag("gm_praise_day") < day:
         "You are trying to compliment her physique."
         $ interactions_check_for_bad_stuff(char)
         $ char.set_flag("gm_praise_day", value=day)
         $ inter_praise = 0
         $ stats = ["charisma", "intelligence", "character", "constitution"]
-        $ mean = sum(getattr(char, i) for i in stats)/len(stats) # we check the difference between the stat and average stats value
-        $ int_differ = mean - char.constitution
-        if int_differ >= 0:
+        $ mean = sum(char.get_stat(i) for i in stats)/len(stats) # we check the difference between the stat and average stats value
+        $ char_const = char.get_stat("constitution")
+        if mean >= char_const:
             $ inter_praise += 1
 
-        $ characters = [hero, char]
-        $ char_with_the_highest_stat = max(characters, key=attrgetter("constitution")) # we check who has higher stat
-        if char_with_the_highest_stat != char:
+        if hero.get_stat("constitution") > char_const:
             $ inter_praise += 1
 
-        $ statsmore = {s: getattr(char, s) for s in stats}
-        $ stat_with_min_value = min(statsmore.iteritems(), key=itemgetter(1))[0] # we check if the stat is a min stat
-        if stat_with_min_value == "constitution":
+        # we check if the stat is a min stat
+        if all(char.get_stat(s) >= char_const for s in stats):
             $ inter_praise += 1
 
         $ del stats
         $ del mean
-        $ del int_differ
-        $ del characters
-        $ del char_with_the_highest_stat
-        $ del statsmore
-        $ del stat_with_min_value
-
+        $ del char_const
         if inter_praise == 3:
             "She looks pleased.."
             $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
@@ -95,8 +79,8 @@ label interactions_strong:
             call praise_nope from _call_praise_nope_2
             jump girl_interactions
 
-        $ char.disposition += (randint (10, 15))*inter_praise
-        $ char.joy += randint (15, 20)
+        $ char.gfx_mod_stat("disposition", randint(10, 15)*inter_praise)
+        $ char.gfx_mod_stat("joy", randint (15, 20))
         
         call praise_yes from _call_praise_yes_1
         $ del inter_praise
@@ -107,35 +91,27 @@ label interactions_strong:
         jump girl_interactions
 
 label interactions_cute:
-    if (day - char.flag("gm_praise_day")) > 0 or char.flag("gm_praise_day") == 0:
+    if (not char.has_flag("gm_praise_day")) or char.flag("gm_praise_day") < day:
         "You are trying to compliment her appearance."
         $ interactions_check_for_bad_stuff(char)
         $ char.set_flag("gm_praise_day", value=day)
         $ inter_praise = 0
         $ stats = ["charisma", "intelligence", "character", "constitution"]
-        $ mean = sum(getattr(char, i) for i in stats)/len(stats) # we check the difference between the stat and average stats value
-        $ int_differ = mean - char.charisma
-        if int_differ >= 0:
+        $ mean = sum(char.get_stat(i) for i in stats)/len(stats) # we check the difference between the stat and average stats value
+        $ char_charisma = char.get_stat("charisma")
+        if mean >= char_charisma:
             $ inter_praise += 1
 
-        $ characters = [hero, char]
-        $ char_with_the_highest_stat = max(characters, key=attrgetter("charisma")) # we check who has higher stat
-        if char_with_the_highest_stat != char:
+        if hero.get_stat("charisma") > char_charisma:
             $ inter_praise += 1
 
-        $ statsmore = {s: getattr(char, s) for s in stats}
-        $ stat_with_min_value = min(statsmore.iteritems(), key=itemgetter(1))[0] # we check if the stat is a min stat
-        if stat_with_min_value == "charisma":
+        # we check if the stat is a min stat
+        if all(char.get_stat(s) >= char_charisma for s in stats):
             $ inter_praise += 1
 
         $ del stats
         $ del mean
-        $ del int_differ
-        $ del characters
-        $ del char_with_the_highest_stat
-        $ del statsmore
-        $ del stat_with_min_value
-
+        $ del char_charisma
         if inter_praise == 3:
             "She looks very happy."
             $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
@@ -149,8 +125,8 @@ label interactions_cute:
             call praise_nope from _call_praise_nope_4
             jump girl_interactions
 
-        $ char.disposition += (randint (10, 15))*inter_praise
-        $ char.joy += randint (15, 20)
+        $ char.gfx_mod_stat("disposition", randint(10, 15)*inter_praise)
+        $ char.gfx_mod_stat("joy", randint (15, 20))
 
         call praise_yes from _call_praise_yes_2
         $ del inter_praise

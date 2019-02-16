@@ -48,18 +48,18 @@ label mc_action_wood_cutting:
         "You need a Woodcutting Axe before doing anything."
     elif hero.AP <= 0:
         "You don't have Action Points left. Try again tomorrow."
-    elif hero.vitality < 50:
+    elif hero.get_stat("vitality") < 50:
         "You are too tired for that."
     
     else:
-        $ hero.AP -= 1
-        $ hero.vitality -= 50
         "You grab your axe and start working."
-        $ wood = (hero.constitution+hero.attack) // 10 + randint(1, 2)
+        $ wood = (hero.get_stat("constitution")+hero.get_stat("attack")) // 10 + randint(1, 2)
+        $ hero.AP -= 1
+        $ hero.mod_stat("vitality", -50)
         if dice(50):
-            $ hero.attack += randint(0, 2)
+            $ hero.gfx_mod_stat("attack", randint(0, 2))
         if dice(50):
-            $ hero.constitution += 1
+            $ hero.gfx_mod_stat("constitution", 1)
         $ hero.add_item("Wood", wood)
         $ gfx_overlay.random_find(items["Wood"], 'items', wood)
         $ del wood

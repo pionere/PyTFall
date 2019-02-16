@@ -146,7 +146,7 @@ init -10 python:
         if isinstance(c.action, SchoolCourse):
             return True
 
-        if c.health < c.get_max("health")*.25:
+        if c.get_stat("health") < c.get_max("health")/4:
             if log:
                 log.append("%s is injured and in need of medical attention! "%c.name)
             # self.img = c.show("profile", "sad", resize=(740, 685))
@@ -155,7 +155,7 @@ init -10 python:
                 if log:
                     log.append("And going to take few days off to heal. ")
             return False
-        if c.vitality <= c.get_max("vitality")*.2:
+        if c.get_stat("vitality") <= c.get_max("vitality")/5:
             if log:
                 log.append("%s is too tired! "%c.name)
             # self.img = c.show("profile", "sad", resize=(740, 685))
@@ -188,7 +188,7 @@ init -10 python:
         return True
 
     def slave_siw_check(c): # slaves-SIWs allow more than other characters
-        if c.status == "slave" and ("SIW" in c.gen_occs) and c.disposition >= -150:
+        if c.status == "slave" and ("SIW" in c.gen_occs) and c.get_stat("disposition") >= -150:
             return True
         else:
             return False
@@ -199,7 +199,7 @@ init -10 python:
         if not c.get_max("character"):
             return -1
 
-        mult = 1.0*c.character/c.get_max("character") # the idea is based on the character stat, we check how close is she to max possible character at her level
+        mult = 1.0*c.get_stat("character")/c.get_max("character") # the idea is based on the character stat, we check how close is she to max possible character at her level
         if "Impersonal" in c.traits: # and traits, they can make mult more or less, so for example even low character tsundere might be more stubborn than high character dandere
             mult -= .1
         elif "Imouto" in c.traits:
@@ -217,7 +217,7 @@ init -10 python:
         elif "Ane" in c.traits:
             mult += .05
         elif "Yandere" in c.traits: # in case of yandere disposition is everything
-            if c.disposition <= 500:
+            if c.get_stat("disposition") <= 500:
                 mult += .25
             else:
                 mult -= .25

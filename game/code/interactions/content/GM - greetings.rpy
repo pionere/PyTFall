@@ -54,7 +54,8 @@ label girl_meets_greeting: # also lines for sad and angry flags are needed. but 
             $ rc("I really like you, you know...", "A-As lovers, let's love each other a lot, okay...?", "We shouldn't flirt too much in front of the others, okay?", "I-I love you... Hehehe...♪", "I love you ♪ I love you so much ♪", "I want you to love me more and more! Prepare yourself for it, okay?", "Ehehe, don't you ever, ever leave me...", "I wish we could be together forever...♪", "What do you think other people think when they see us? ...you think maybe, 'Hey, look at that cute couple'...?")
         $ char.restore_portrait()
     elif m < 2:
-        if char.disposition <= -200:
+        $ char_dispo = char.get_stat("disposition")
+        if char_dispo <= -200:
             if char.status <> "slave":
                 if ct("Yandere"):
                     $ char.override_portrait("portrait", "angry")
@@ -90,7 +91,7 @@ label girl_meets_greeting: # also lines for sad and angry flags are needed. but 
                     $ char.override_portrait("portrait", "indifferent")
                     $ rc("...Hey! Could you not get any closer to me, please?", "Sigh... What is it?", "Ah... I-I have stuff to do, so....", "U-Um... right now is a bit, err...")
             else:
-                if char.disposition <= -500:
+                if char_dispo <= -500:
                     $ char.override_portrait("portrait", "sad")
                     char.say "..."
                 else:
@@ -118,7 +119,7 @@ label girl_meets_greeting: # also lines for sad and angry flags are needed. but 
                     else:
                         $ rc("*sigh* What is it, [char.mc_ref]?", "...Yes, [char.mc_ref]. I'm here.")
 
-        elif check_friends(hero, char) or (char.disposition >= 500 and char.status <> "slave") or (char.disposition >= 850 and char.status == "slave"):
+        elif check_friends(hero, char) or (char_dispo >= 500 and char.status <> "slave") or (char_dispo >= 850 and char.status == "slave"):
             $ char.override_portrait("portrait", "happy")
             if ct("Impersonal"):
                 $ rc("Talk, I'll listen.", "...Being with you makes me feel extraordinarily comfortable.", "What is your purpose in getting close to me?", "Being with you... calms me.")
@@ -143,7 +144,7 @@ label girl_meets_greeting: # also lines for sad and angry flags are needed. but 
             else:
                 $ rc("Hey, how's it going?", "Well, what shall we talk about..?", "What do you want to do?", "Ah, [char.mc_ref]! Let's talk for a while.", "Hi! Another splendid day today!")
                 $ char.restore_portrait()
-        elif char.disposition >= 300 and char.status == "slave":
+        elif char_dispo and char.status == "slave":
             $ char.override_portrait("portrait", "happy")
             if ct("Impersonal"):
                 $ rc("I'm waiting for your orders, [char.mc_ref].", "Yes, [char.mc_ref]. I'm yours to command.", "Another task for me, [char.mc_ref]? I'll do my best.")
@@ -219,7 +220,7 @@ label girl_meets_greeting: # also lines for sad and angry flags are needed. but 
                     $ rc("You called, [char.mc_ref]?", "Is something the matter, [char.mc_ref]?", "Yes, what is it, [char.mc_ref]?")
     elif m < 3:
  # when MC approaches character not the first time; after 4 times we stop showing greetings at all
-        if char.disposition <= -50:
+        if char.get_stat("disposition") <= -50:
             $ char.override_portrait("portrait", "angry")
             char.say "..."
         else:
@@ -253,8 +254,8 @@ label girl_meets_greeting: # also lines for sad and angry flags are needed. but 
         $ char.override_portrait("portrait", "happy")
         $ char.show_portrait_overlay("note", "reset")
         cat.say "Meow!"
-        if char.disposition <= 500:
-            $ char.disposition += locked_random("randint", 5, 10)
+        if char.get_stat("disposition") <= 500:
+            $ char.gfx_mod_stat("disposition", locked_random("randint", 5, 10))
         if ct("Impersonal"):
             $ rc("Oh? I'm sorry, cat, I don't have any treats.")
         elif ct("Shy") and dice(50):
@@ -1101,7 +1102,7 @@ label interactions_character_recovers: # char recovers from wound
     return
 
 label klepto_stealing:
-    if ct("Kleptomaniac") and dice(char.luck + 100):
+    if ct("Kleptomaniac") and not dice(char.get_stat("luck")):
         $ temp = randint(1, 5)
         $ hero.take_money(temp, reason="Stolen!")
         $ char.add_money(temp, reason="Stealing")

@@ -159,8 +159,8 @@ label mc_action_storyi_rest: # resting inside the dungeon; team may be attacked 
     show bg tent with q_dissolve
     python:
         for i in hero.team:
-            i.vitality += int(i.get_max("vitality")*0.3)
-            i.mp +=  int(i.get_max("mp")*0.1)
+            i.gfx_mod_stat("vitality", i.get_max("vitality")/3)
+            i.gfx_mod_stat("mp", i.get_max("mp")/10)
     "You set up a small camp and rest for a bit."
     $ fight_chance += 10
     call storyi_show_bg from _call_storyi_show_bg_2
@@ -219,13 +219,13 @@ label storyi_treat_wounds:
     $ j = False
     python:
         for i in hero.team:
-            if i.health < i.get_max("health"):
+            if i.get_stat("health") < i.get_max("health"):
                 j = True
                 break
     if j:
         python:
             for i in hero.team:
-                i.health = i.get_max("health")
+                i.gfx_mod_stat("health", i.get_max("health") - i.get_stat("health"))
         $ hero.set_flag("storyi_heal", day)
         "Health is restored!"
     else:
@@ -330,48 +330,48 @@ label storyi_search_items:
         "... This is pointless."
         show screen prison_break_controls
         jump storyi_gui_loop
-    if not dice((day - search_day) * 8 * (100 + hero.luck) / 100):
+    if not dice((day - search_day) * 8 * (100 + hero.get_stat("luck")) / 100):
         "There is only trash on the floor."
         $ storyi_treasures[storyi_prison_location] += 1 
         show screen prison_break_controls
         jump storyi_gui_loop
 
-    if dice(hero.luck / 3):
+    if dice(hero.get_stat("luck") / 3):
         "There is something shiny in the corner of the room..."
         $ give_to_mc_item_reward("loot", price=100)
         $ give_to_mc_item_reward("loot", price=200)
-        if dice(hero.luck):
+        if dice(hero.get_stat("luck")):
             $ give_to_mc_item_reward("loot", price=300)
 
     if storyi_prison_location == 3:
         "Surveying the room, you found a few portable restoration items. Sadly, others are too heavy and big to carry around."
         $ give_to_mc_item_reward("restore", price=100)
         $ give_to_mc_item_reward("restore", price=200)
-        if dice(hero.luck):
+        if dice(hero.get_stat("luck")):
             $ give_to_mc_item_reward("restore", price=400)
     elif storyi_prison_location == 7:
         "You see some old armor on the shelves."
         $ give_to_mc_item_reward("armor", price=500)
         $ give_to_mc_item_reward("armor", price=700)
-        if dice(hero.luck):
+        if dice(hero.get_stat("luck")):
             $ give_to_mc_item_reward("armor", price=1000)
     elif storyi_prison_location == 11:
         "Among a heap of rusty blades, you see some good weapons."
         $ give_to_mc_item_reward("weapon", price=500)
         $ give_to_mc_item_reward("weapon", price=700)
-        if dice(hero.luck):
+        if dice(hero.get_stat("luck")):
             $ give_to_mc_item_reward("weapon", price=1000)
     elif storyi_prison_location == 13:
         "Most of the food is spoiled, but some of it is still edible."
         $ give_to_mc_item_reward("food", price=500)
         $ give_to_mc_item_reward("food", price=500)
-        if dice(hero.luck):
+        if dice(hero.get_stat("luck")):
             $ give_to_mc_item_reward("food", price=500)
     elif storyi_prison_location == 10:
         "There is a pile of clothes in the corner, probably remained from the former prisoners."
         $ give_to_mc_item_reward("dress", price=500)
         $ give_to_mc_item_reward("dress", price=500)
-        if dice(hero.luck):
+        if dice(hero.get_stat("luck")):
             $ give_to_mc_item_reward("dress", price=500)
 
     $ storyi_treasures[storyi_prison_location] = day

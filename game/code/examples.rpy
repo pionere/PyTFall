@@ -294,7 +294,7 @@ label simple_numbers_game:
             t "You still suck! "
             extend "The number was [n]!"
        # Now: [n] is an interpolation. We can put contents of a variable into the text this way. In this case it's a number.
-       # Same thing can be used for player name for example: [hero.name] or a stat value: [hero.attack].
+       # Same thing can be used for player name for example: [hero.name].
 
     $ global_flags.set_flag("been_here_once")
     # This is an example of flags used in PyTFall. Flags are set to remember something that happened at one point of the game. It can be set to anything at all, set or read anywhere.

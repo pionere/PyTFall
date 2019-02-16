@@ -200,24 +200,6 @@ init -9 python:
             if not self.origin:
                 self.origin = choice(STATIC_CHAR.ORIGIN)
 
-        def __getattr__(self, key):
-            if key in STATIC_CHAR.STATS:
-                return self.stats._get_stat(key)
-            elif key in STATIC_CHAR.SKILLS:
-                return self.stats._action_skill(key)
-            raise AttributeError("Object of %r class has no attribute %r" % (self.__class__, key))
-
-        def __setattr__(self, key, value):
-            if key in STATIC_CHAR.STATS:
-                # Primary stat dict modifier...
-                value -= self.stats._get_stat(key)
-                self.stats._mod_base_stat(key, value)
-            elif key in STATIC_CHAR.SKILLS:
-                value -= self.stats._action_skill(key)
-                self.stats._mod_raw_skill(key, 0, value)
-            else:
-                super(PytCharacter, self).__setattr__(key, value)
-
         # Money:
         def take_money(self, value, reason="Other"):
             if hasattr(self, "fin"):
@@ -365,16 +347,52 @@ init -9 python:
                 value.inhabitants.add(self)
             self._home = value
 
+        def settle_effects(self, key, value):
+            if hasattr(self, "effects"):
+                effects = self.effects
+
+                if key == 'disposition':
+                    if 'Insecure' in effects:
+                        if value >= 5:
+                            self.stats._mod_base_stat("joy", 1)
+                        elif value <= -5:
+                            self.stats._mod_base_stat("joy", -1)
+                    if 'Introvert' in effects:
+                        value = round_int(value*.8)
+                    elif 'Extrovert' in effects:
+                        value = round_int(value*1.2)
+                    if 'Loyal' in effects and value < 0: # works together with other traits
+                        value = round_int(value*.8)
+                elif key == 'joy':
+                    if 'Impressible' in effects:
+                        value = round_int(value*1.5)
+                    elif 'Calm' in effects:
+                        value = round_int(value*.5)
+            return value
+
         def mod_stat(self, stat, value):
+            value = self.settle_effects(stat, value)
             self.stats._mod_base_stat(stat, value)
+        def gfx_mod_stat(self, stat, value):
+            value = self.settle_effects(stat, value)
+            value = self.stats._mod_base_stat(stat, value)
+            if value != 0:
+                gfx_overlay.mod_stat(stat, value, self)
+
+        # direct setter to ignore effects and everything
+        def set_stat(self, stat, value):
+            value -= self.stats._get_stat(stat)
+            self.stats._mod_base_stat(stat, value)
+
+        def get_stat(self, stat):
+            return self.stats._get_stat(stat)
 
         def mod_skill(self, skill, at, value):
             self.stats._mod_raw_skill(skill, at, value)
         def gfx_mod_skill(self, skill, at, value):
-            if value == 0:
-                return
-            gfx_overlay.mod_stat(skill, value, self)
-            self.stats._mod_raw_skill(skill, at, value)
+            value = self.stats._mod_raw_skill(skill, at, value)
+            if value != 0:
+                gfx_overlay.mod_stat(skill, value, self)
 
         def get_max(self, stat):
             return self.stats.get_max(stat)
@@ -500,11 +518,11 @@ init -9 python:
             # tags = list()
             # if self.fatigue < 50:
                 # return "tired"
-            # if self.health < 15:
+            # if self.get_stat("health") < 15:
                 # return "hurt"
-            if self.joy > 75:
+            if self.get_stat("joy") > 75:
                 return "happy"
-            elif self.joy > 40:
+            elif self.get_stat("joy") > 40:
                 return "indifferent"
             else:
                 return "sad"
@@ -758,7 +776,7 @@ init -9 python:
         def restore_ap(self):
             ap = self.baseAP
             base = 40
-            c = self.constitution
+            c = self.get_stat("constitution")
             while c >= base:
                 ap += 1
                 base *= 2
@@ -1562,7 +1580,7 @@ init -9 python:
 
             # Items Stats:
             for stat, value in item.mod.items():
-                if item.statmax and getattr(self, stat) >= item.statmax and value > 0:
+                if item.statmax and self.get_stat(stat) >= item.statmax and value > 0:
                     continue
 
                 # Reverse the value if appropriate:
@@ -1602,11 +1620,6 @@ init -9 python:
                                     value *= 2
                                 else:
                                     value *= 1.5
-
-                    # This health thing could be handled differently (note for the post-beta refactor)
-                    if stat == "health" and self.health + value <= 0:
-                        self.health = 1 # prevents death by accident...
-                        continue
 
                     self.mod_stat(stat, int(value))
                 else:
@@ -1769,7 +1782,7 @@ init -9 python:
                                 if temp.gold + value < 0:
                                     break
                             else:
-                                if getattr(self, stat) + value < self.stats.min[stat]:
+                                if self.get_stat(stat) + value < self.stats.min[stat]:
                                     break
                     else:
                         self.apply_item_effects(item, misc_mode=True)
@@ -1867,28 +1880,28 @@ init -9 python:
             self.mod_exp(exp_reward(self, self))
 
             if kind == "Abby Training":
-                self.magic += randint(1, 3)
-                self.intelligence += randint(1, 2)
+                self.mod_stat("magic", randint(1, 3))
+                self.mod_stat("intelligence", randint(1, 2))
                 mod_by_max(self, "mp", .5)
                 if dice(50):
-                    self.agility += randint(1, 2)
+                    self.mod_stat("agility", randint(1, 2))
 
             elif kind == "Aine Training":
-                self.charisma += randint(1, 3)
+                self.mod_stat("charisma", randint(1, 3))
                 mod_by_max(self, "vitality", .5)
-                if dice(max(10, self.luck)):
-                    self.reputation += 1
-                    self.fame += 1
-                if dice(1 + self.luck*.05):
-                    self.luck += randint(1, 2)
+                if dice(max(10, self.get_stat("luck"))):
+                    self.mod_stat("reputation", 1)
+                    self.mod_stat("fame", 1)
+                if dice(1 + self.get_stat("luck")*.05):
+                    self.mod_stat("luck", randint(1, 2))
             elif kind == "Xeona Training":
-                self.attack += randint(1, 2)
-                self.defence += randint(1, 2)
+                self.mod_stat("attack", randint(1, 2))
+                self.mod_stat("defence", randint(1, 2))
                 if dice(50):
-                    self.agility += 1
+                    self.mod_stat("agility", 1)
                 mod_by_max(self, "health", .5)
-                if dice(25 + max(5, int(self.luck/3))):
-                    self.constitution += randint(1, 2)
+                if dice(25 + max(5, int(self.get_stat("luck")/3))):
+                    self.mod_stat("constitution", randint(1, 2))
 
         @property
         def npc_training_price(self):
@@ -1993,7 +2006,7 @@ init -9 python:
                 return ProportionalScale(what, resize[0], resize[1])
 
         def restore_ap(self):
-            self.AP = self.baseAP + int(self.constitution / 20)
+            self.AP = self.baseAP + self.get_stat("constitution")/20
 
     class Player(PytCharacter):
         def __init__(self):
@@ -2413,7 +2426,7 @@ init -9 python:
 
             # Second round of stats normalization:
             for stat in ["health", "joy", "mp", "vitality"]:
-                setattr(self, stat, self.get_max(stat))
+                self.set_stat(stat, self.get_max(stat))
 
             # Battle and Magic skills:
             if not self.attack_skills:
@@ -2440,7 +2453,7 @@ init -9 python:
         def allowed_to_view_personal_finances(self):
             if self.status == "slave":
                 return True
-            elif self.disposition > 900:
+            elif self.get_stat("disposition") > 900:
                 return True
             return False
 
@@ -2449,13 +2462,13 @@ init -9 python:
             # Called whenever character needs to have one of the main stats restored.
             l = list()
             if self.autoequip:
-                if self.health < self.get_max("health")*.3:
+                if self.get_stat("health") < self.get_max("health")*.3:
                     l.extend(self.auto_equip(["health"]))
-                if self.vitality < self.get_max("vitality")*.2:
+                if self.get_stat("vitality") < self.get_max("vitality")/5:
                     l.extend(self.auto_equip(["vitality"]))
-                if self.mp < self.get_max("mp")*.1:
+                if self.get_stat("mp") < self.get_max("mp")/10:
                     l.extend(self.auto_equip(["mp"]))
-                if self.joy < self.get_max("joy")*.4:
+                if self.get_stat("joy") < self.get_max("joy")*.4:
                     l.extend(self.auto_equip(["joy"]))
             if l:
                 self.txt.append("%s used: %s %s during the day!" % (self.pC, ", ".join(l), plural("item", len(l))))
@@ -2481,9 +2494,9 @@ init -9 python:
                 flag_red = False
                 temp = "%s comfortably spent a night in %s." % (pC, str(loc))
                 if self.home == hero.home:
-                    if self.disposition > -500:
-                        self.disposition += 1
-                        self.joy += randint(1, 3)
+                    if self.get_stat("disposition") > -500:
+                        self.mod_stat("disposition", 1)
+                        self.mod_stat("joy", randint(1, 3))
 
                         if self.status == "slave":
                             temp += " %s is happy to live under the same roof as %s master!" % (pC, self.pp)
@@ -2493,8 +2506,8 @@ init -9 python:
                         if self.status == "slave":
                             temp += " Even though you both live in the same house, %s hates you too much to really care." % self.name
                         else:
-                            self.disposition -= 100
-                            self.joy -= 20
+                            self.mod_stat("disposition", -100)
+                            self.mod_stat("joy", -20)
                             self.home = pytfall.city
                             temp += " After a rough fight %s moves out of your aparment." % self.name
                 txt.append(temp)
@@ -2522,22 +2535,22 @@ init -9 python:
                 #mod = loc.get_daily_modifier()
                 #for stat in ("health", "mp", "vitality"):
                 #    mod_by_max(self, stat, mod)
-                self.health = self.get_max("health")
-                self.mp = self.get_max("mp")
-                self.vitality = self.get_max("vitality")
+                self.set_stat("health", self.get_max("health"))
+                self.set_stat("mp", self.get_max("mp"))
+                self.set_stat("vitality", self.get_max("vitality"))
 
                 #self.restore()
                 self.restore_ap()
                 self.item_counter()
 
                 # Adding disposition/joy mods:
-                if self.disposition < 0:
-                    self.disposition += 1
-                elif self.disposition > 0:
-                    self.disposition -= 1
+                if self.get_stat("disposition") < 0:
+                    self.mod_stat("disposition", 1)
+                elif self.get_stat("disposition") > 0:
+                    self.mod_stat("disposition", -1)
 
-                if self.joy < self.get_max("joy"):
-                    self.joy += 5
+                if self.get_stat("joy") < self.get_max("joy"):
+                    self.mod_stat("joy", 5)
 
                 super(Char, self).next_day()
                 return
@@ -2555,7 +2568,7 @@ init -9 python:
             if self.location is not None:
                 if self.location == pytfall.ra:
                     # If escaped:
-                    self.health = max(1, self.health - randint(3, 5))
+                    self.mod_stat("health", -randint(3, 5))
                     txt.append("{color=[red]}%s has escaped! Assign guards to search for %s or do so yourself.{/color}" % (self.fullname, self.pp))
                 else:
                     # your worker is in jail TODO might want to do this in the ND of the jail
@@ -2620,14 +2633,14 @@ init -9 python:
                         txt.append("You paid {color=[gold]}%d Gold{/color} for %s upkeep." % (amount, self.pp))
                     else:
                         if self.status != "slave":
-                            self.joy -= randint(3, 5)
-                            self.disposition -= randint(5, 10)
+                            self.mod_stat("joy", -randint(3, 5))
+                            self.mod_stat("disposition", -randint(5, 10))
                             txt.append("You failed to pay %s upkeep, %s's a bit cross with your because of that..." % (self.pp, self.p))
                         else:
-                            self.joy -= 20
-                            self.disposition -= randint(25, 50)
-                            self.health = max(1, self.health - 10)
-                            self.vitality -= 25
+                            self.mod_stat("joy", -20)
+                            self.mod_stat("disposition", -randint(25, 50))
+                            self.mod_stat("health", -10)
+                            self.mod_stat("vitality", -25)
                             txt.append("You've failed to provide even the most basic needs for your slave. This will end badly...")
 
                 # This whole routine is basically fucked and done twice or more. Gotta do a whole check of all related parts tomorrow.
@@ -2651,8 +2664,8 @@ init -9 python:
                         if isinstance(self.workplace, Building):
                             self.workplace.fin.log_logical_expense(tips, "Tips")
 
-                        self.disposition += (1 + round_int(tips*.05))
-                        self.joy += (1 + round_int(tips*.025))
+                        self.mod_stat("disposition", 1 + round_int(tips*.05))
+                        self.mod_stat("joy", 1 + round_int(tips*.025))
                     else:
                         temp = choice(["You take all of %s tips for yourself. " % self.pp,
                                        "You keep all of it."])
@@ -2662,17 +2675,14 @@ init -9 python:
                 self.restore()
                 self.check_resting()
 
-                # Unhappiness and related:
-                img = self.nd_joy_disposition_checks(img)
-
                 # Effects:
                 if 'Poisoned' in self.effects:
                     txt.append("{color=[red]}This worker is suffering from the effects of Poison!{/color}")
                     flag_red = True
-                if all([not self.autobuy, self.status != "slave", self.disposition < 950]):
+                if (not self.autobuy) and self.status != "slave" and self.get_stat("disposition") < 950:
                     self.autobuy = True
                     txt.append("%s will go shopping whenever it may please %s from now on!" % (pC, pp))
-                if all([self.status != "slave", self.disposition < 850, not self.autoequip]):
+                if (not self.autoequip) and self.status != "slave" and self.get_stat("disposition") < 850:
                     self.autoequip = True
                     txt.append("%s will be handling %s own equipment from now on!" % (pC, self.pp))
 
@@ -2683,6 +2693,9 @@ init -9 python:
                     flag_red = True
                     txt.append("  {color=[red]}Please note that she is not really doing anything productive!-{/color}")
                     NextDayEvents.unassigned_chars += 1
+
+                # Unhappiness and related:
+                img = self.nd_joy_disposition_checks(img)
 
             # Finances related:
             self.fin.next_day()
@@ -2718,7 +2731,7 @@ init -9 python:
             result = self.auto_buy(amount=randint(1, 2))
             if result:
                 flag_green = True
-                self.joy += 5 * len(result)
+                self.mod_stat("joy", 5 * len(result))
 
                 temp = choice(("%s bought %sself {color=[blue]}%s %s{/color}.", 
                                "%s got %s hands on {color=[blue]}%s %s{/color}!"))
@@ -2734,12 +2747,14 @@ init -9 python:
         def nd_joy_disposition_checks(self, img):
             size = ND_IMAGE_SIZE
 
-            if self.joy <= 25:
+            friends_disp_check(self, self.txt)
+
+            if self.get_stat("joy") <= 25:
                 self.txt.append("This worker is unhappy!")
                 img = self.show("profile", "sad", resize=size)
                 self.days_unhappy += 1
             else:
-                if self.days_unhappy - 1 >= 0:
+                if self.days_unhappy > 0:
                     self.days_unhappy -= 1
 
             if self.days_unhappy > 7 and self.status != "slave":
@@ -2749,7 +2764,7 @@ init -9 python:
                 self.home = pytfall.city
                 self.set_workplace(None, None)
                 set_location(self, None)
-            elif self.disposition < -500:
+            elif self.get_stat("disposition") < -500:
                 if self.status != "slave":
                     self.txt.append("{color=[red]}%s has left your employment because %s no longer trusts or respects you!{/color}" % (self.pC, self.pp))
                     flag_red = True
@@ -2763,12 +2778,10 @@ init -9 python:
                     flag_red = True
                     if dice(50):
                         self.txt.append("{color=[red]}Took %s own life because %s could no longer live as your slave!{/color}" % (self.pp, self.p))
-                        self.health = 0
+                        kill_char(self)
                     else:
                         self.txt.append("{color=[red]}Tried to take %s own life because %s could no longer live as your slave!{/color}" % (self.pp, self.p))
-                        self.health = 1
-
-            friends_disp_check(self, self.txt)
+                        self.set_stat("health", 1)
 
             return img
 

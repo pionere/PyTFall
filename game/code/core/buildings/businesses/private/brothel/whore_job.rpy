@@ -143,7 +143,7 @@ init -5 python:
                 else:
                     disposition -= 100
             elif check_friends(hero, worker):
-                if "Virgin" in worker.traits and worker.disposition >= 900 and not('Chastity' in worker.effects):
+                if "Virgin" in worker.traits and worker.get_stat("disposition") >= 900 and not('Chastity' in worker.effects):
                     disposition += 100
                 else:
                     disposition -= 50
@@ -173,27 +173,27 @@ init -5 python:
                     worker.logws('vitality', -randint(2, 8)) # a small vitality penalty for wrong job
                 else:
                     if sub < 0:
-                        if worker.disposition < self.calculate_disposition_level(worker):
+                        if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
                             log.append("%s is a slave so no one really cares but, being forced to work as a whore, she's quite upset." % worker.name)
                         else:
                             log.append("%s will do as she is told, but doesn't mean that she'll be happy about doing 'it' with strangers." % worker.name)
                         if dice(25):
                             worker.logws('character', 1)
                     elif sub == 0:
-                        if worker.disposition < self.calculate_disposition_level(worker):
+                        if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
                             log.append("%s will do as you command, but she will hate every second of her working as a harlot..." % worker.name)
                         else:
                             log.append("%s was very displeased by her order to work as a whore, but didn't dare to refuse." % worker.name)
                         if dice(35):
                             worker.logws('character', 1)
                     else:
-                        if worker.disposition < self.calculate_disposition_level(worker):
+                        if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
                             log.append("%s was very displeased by her order to work as a whore, and makes it clear for everyone before getting busy with clients." % worker.name)
                         else:
                             log.append("%s will do as you command and work as a harlot, but not without a lot of grumbling and complaining." % worker.name)
                         if dice(45):
                             worker.logws('character', 1)
-                    if worker.disposition < self.calculate_disposition_level(worker):
+                    if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
                         worker.logws("joy", -randint(8, 15))
                         worker.logws("disposition", -randint(25, 50))
                         worker.logws('vitality', -randint(10, 15))
@@ -810,7 +810,7 @@ init -5 python:
             elif effectiveness >= 35:
                 log.append("The girl performed quite poorly. Still, %s somewhat managed to provide required service, following impatient instructions of the client." % worker.name)
             else:
-                if worker.charisma >= 200:
+                if worker.get_stat("charisma") >= 200:
                     log.append("Even though %s failed to satisfy the client, her performance was however somewhat saved by her looks." % worker.name)
                 else:
                     log.append("Unfortunately, %s failed to satisfy the client. Her looks were not likely to be of any help to her either." % worker.name)
@@ -868,7 +868,7 @@ init -5 python:
         def take_virginity(self, worker, loc, log):
             # let's just assume (for now) that dildos are too small to take virginity, otherwise it becomes too complicated in terms of girls control :)
             if traits["Virgin"] in worker.traits and not ('Chastity' in worker.effects):
-                tips = 100 + worker.charisma * 3
+                tips = 100 + worker.get_stat("charisma") * 3
                 log.append("\n{color=[pink]}%s lost her virginity!{/color} Customer thought that was super hot and left a tip of {color=[gold]}%d Gold{/color} for the girl.\n\n" % (worker.nickname, tips))
                 worker.remove_trait(traits["Virgin"])
                 if tips:

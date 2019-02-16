@@ -85,20 +85,20 @@ label city_tavern_menu: # "lively" status is limited by drunk effect; every acti
 
 label city_tavern_choose_label:
     "Here you can set how much to bet to avoid doing it before every game in the tavern. The more your tier, the higher bets are available."
-    "The current bet is [city_tavern_dice_bet] G."
+    "The current bet is [city_tavern_dice_bet] Gold."
     menu:
-        "How much do you wish to bet?"
-        "10 G":
+        "How much Gold do you wish to bet?"
+        "10":
             $ city_tavern_dice_bet = 10
-        "25 G" if hero.tier >= 1:
+        "25" if hero.tier >= 1:
             $ city_tavern_dice_bet = 25
-        "50 G" if hero.tier >= 2:
+        "50" if hero.tier >= 2:
             $ city_tavern_dice_bet = 50
-        "100 G" if hero.tier >= 3:
+        "100" if hero.tier >= 3:
             $ city_tavern_dice_bet = 100
-        "200 G" if hero.tier >= 4:
+        "200" if hero.tier >= 4:
             $ city_tavern_dice_bet = 200
-        "500 G" if hero.tier >= 5:
+        "500" if hero.tier >= 5:
             $ city_tavern_dice_bet = 500
     jump city_tavern_menu
 
@@ -161,7 +161,7 @@ label mc_action_tavern_relax:
     if len(hero.team) < 2:
         $ hero.set_flag("rest_in_tavern", value = day)
         "You relax for awhile, but there isn't much to do here. Perhaps it would be more fun if you weren't alone."
-        $ hero.vitality += 5
+        $ hero.gfx_mod_stat("vitality", 5)
     else:
         if hero.take_money(randint(30, 50), reason="Tavern"):
             $ hero.set_flag("rest_in_tavern", value = day)
@@ -176,8 +176,8 @@ label mc_action_tavern_relax:
             "You ordered a few drinks and spent some time together."
             python:
                 for member in members:
-                    member.joy += randint(2, 4)
-                    member.disposition += randint(3, 5)
+                    member.gfx_mod_stat("joy", randint(2, 4))
+                    member.gfx_mod_stat("disposition", randint(3, 5))
                     interactions_drinking_outside_of_inventory(character=member, count=randint(15, 40))
                 interactions_drinking_outside_of_inventory(character=hero, count=randint(15, 25))
             hide temp1

@@ -112,7 +112,7 @@ label xeona_goodbye:
 
 label xeona_talking:
     $ loop = True
-    if (hero.get_max("health") - hero.health >= 10) and xeona_status.disposition >= 10 and xeona_status.heal_day != day:
+    if (hero.get_max("health") - hero.get_stat("health") >= 10) and xeona_status.disposition >= 10 and xeona_status.heal_day != day:
         $ xeona_status.heal_day = day
         ax "Wait, you are wounded! That won't do! One second..."
         $ img = npcs["Xeona_arena"].show('nurse', resize=(590, 600))
@@ -122,7 +122,7 @@ label xeona_talking:
         hide ddd
         with dissolve
         $ del img
-        $ hero.health += 250
+        $ hero.mod_stat("health", 250)
         ax "Much better!"
 
     while loop:

@@ -171,7 +171,7 @@ init -5 python:
             "jobs_stripintro" flag is unused.
             """
             # Formerly check_occupation
-            if not("Stripper" in worker.traits) and worker.disposition < self.calculate_disposition_level(worker):
+            if not("Stripper" in worker.traits) and worker.get_stat("disposition") < self.calculate_disposition_level(worker):
                 sub = check_submissivity(worker)
                 if worker.status != 'slave':
                     if sub < 0:
@@ -192,28 +192,28 @@ init -5 python:
                 else:
                     sub = check_submissivity(worker)
                     if sub< 0:
-                        if worker.disposition < self.calculate_disposition_level(worker):
+                        if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
                             log.append("%s is a slave so no one really cares but, being forced to work as a stripper, she's quite upset." % worker.name)
                         else:
                             log.append("%s will do as she is told, but doesn't mean that she'll be happy about showing her body to strangers." % worker.name)
                         if dice(25):
                             log.logws('character', 1)
                     elif sub == 0:
-                        if worker.disposition < self.calculate_disposition_level(worker):
+                        if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
                             log.append("%s will do as you command, but she will hate every second of her stripper shift..." % worker.name)
                         else:
                             log.append("%s was very displeased by her order to work as a stripper, but didn't dare to refuse." % worker.name)
                         if dice(35):
                             log.logws('character', 1)
                     else:
-                        if worker.disposition < self.calculate_disposition_level(worker):
+                        if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
                             log.append("%s was very displeased by her order to work as a stripper, and makes it clear for everyone before going to the stage." % worker.name)
                         else:
                             log.append("%s will do as you command and work as a stripper, but not without a lot of grumbling and complaining." % worker.name)
                         if dice(45):
                             log.logws('character', 1)
 
-                    if worker.disposition < self.calculate_disposition_level(worker):
+                    if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
                         worker.logws("joy", -randint(5, 10))
                         worker.logws("disposition", -randint(15, 30))
                         worker.logws('vitality', -randint(10, 15))
@@ -281,7 +281,7 @@ init -5 python:
             elif skill >= 50:
                 log.append("She barely knew what she was doing. Her performance can hardly be called a striptease, but at least she showed enough skin to arouse some men and women in the club.")
             else:
-                if worker.charisma >= 200:
+                if worker.get_stat("charisma") >= 200:
                     log.append("She tripped several times while trying to undress herself as she 'stripdanced' on the floor. Still, she was pretty enough to arouse some men and women in the club.")
                 else:
                     log.append("She certainly did not shine as she clumsily 'danced' on the floor. Neither her looks nor her skill could save the performance...")

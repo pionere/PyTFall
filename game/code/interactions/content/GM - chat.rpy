@@ -6,16 +6,16 @@ label interactions_smalltalk:
     $ m = interactions_flag_count_checker(char, "flag_interactions_general")
     if m >= (2 + interactions_set_repeating_lines_limit(char)):
         call interactions_too_many_lines from _call_interactions_too_many_lines_1
-        $ char.disposition -= 5
-        if char.joy > 80:
-            $ char.joy -= 1
+        $ char.gfx_mod_stat("disposition", -5)
+        if char.get_stat("joy") > 80:
+            $ char.gfx_mod_stat("joy", -1)
         $ del m
         jump girl_interactions
-    if dice(50) and dice(char.joy):
-        if char.disposition >= 50:
+    if dice(50) and dice(char.get_stat("joy")):
+        if char.get_stat("disposition") >= 50:
             $ narrator(choice(["You feel especially close."]))
-            $ char.joy += randint(0, 1)
-            $ char.disposition += randint(1, 2)
+            $ char.gfx_mod_stat("joy", randint(0, 1))
+            $ char.gfx_mod_stat("disposition", randint(1, 2))
             $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
             $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
 
@@ -23,9 +23,10 @@ label interactions_smalltalk:
             $ narrator(choice(["[char.pC] was much more approachable."]))
             $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
             $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
-            $ char.disposition += randint(2, 4)
+            $ char.gfx_mod_stat("disposition", randint(2, 4))
 
-    if char.disposition >= 100:
+    $ m = char.get_stat("disposition")
+    if m >= 100:
         if ct("Impersonal") or ct("Dandere") or ct("Shy"):
             $ narrator(choice(["[char.pC] didn't talked much, but [char.pC] enjoyed your company nevertheless.",
                                "You had to do most of the talking, but [char.p] listened you with a smile.",
@@ -37,25 +38,27 @@ label interactions_smalltalk:
                                "[char.pC] welcomed the chance to spend some time with you.",
                                "[char.pC] is visibly at ease when talking to you.",
                                "You both have enjoyed the conversation."]))
-    elif char.disposition >= -100:
+    elif m >= -100:
         if ct("Impersonal") or ct("Dandere") or ct("Shy"):
             $ narrator(choice(["But there was a lot of awkward silence.", "But you had to do most of the talking.", "There is no sign of [char.op] opening up to you yet.", "But it was kind of one-sided."]))
         else:
             $ narrator(choice(["It's all a little bit stiff.", "There's some reservation though...", "It's hard to find common ground.", "But it was somewhat forced."]))
     else:
         $ narrator(choice(["It looks like there's a good amount of mistrust between you.", "But it was difficult for both of you.", "Sadly, [char.p] was not very interested in chatting with you.", "It was clearly uncomfortable for [char.op] to speak to you.", "[char.pC] was suspicious of you the entire time and never let [char.op] guard down."]))
-    if char.disposition <= -250:
-        $ char.disposition += randint(1, 3)
-    if char.disposition <= 0:
-        $ char.disposition += randint(2, 5)
-    if char.disposition <= 200:
-        $ char.disposition += randint(1, 4)
+    if m <= -250:
+        $ m = randint(1, 3)
+    elif m <= 0:
+        $ m = randint(2, 5)
+    elif m <= 200:
+        $ m = randint(1, 4)
     elif dice(30):
-        $ char.disposition += randint(1, 2)
+        $ m = randint(1, 2)
     elif dice(50):
-        $ char.disposition += 1
+        $ m = 1
     else:
-        $ char.joy += 1
+        $ char.gfx_mod_stat("joy", 1)
+        $ m = 0
+    $ char.gfx_mod_stat("disposition", m)
     $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
     $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
     $ del m
@@ -67,7 +70,7 @@ label girl_interactions_aboutjob: # TO DO: here would help additional logic base
     $ m = interactions_flag_count_checker(char, "flag_girl_interactions_aboutjob")
     if m >= 1:
         call interactions_too_many_lines from _call_interactions_too_many_lines_2
-        $ char.disposition -= 5
+        $ char.gfx_mod_stat("disposition", -5)
         $ del m
         jump girl_interactions
     $ del m
@@ -81,10 +84,10 @@ label girl_interactions_aboutjob: # TO DO: here would help additional logic base
             $ rc("I'm still adjusting to the new position.", "I'm trying to find my bearings with this new career.")
         else:
             $ rc("I want to serve you better, [char.mc_ref].", "A new master takes a while to get used to...")
-        $ char.disposition += 1
-        $ char.joy += 1
+        $ char.gfx_mod_stat("disposition", 1)
+        $ char.gfx_mod_stat("joy", 1)
         $ char.restore_portrait()
-    elif char.disposition <= -350:
+    elif char.get_stat("disposition") <= -350:
         $ char.override_portrait("portrait", "sad")
         if char.status != "slave":
             if ct("Impersonal") or ct("Dandere") or ct("Kuudere"):
@@ -98,12 +101,12 @@ label girl_interactions_aboutjob: # TO DO: here would help additional logic base
                 $ rc("...I don't want to live.", "My life is awful. I want to end this...", "... <She looks extremely depressed>")
             else:
                 $ rc("I wish that I the resolve to kill myself...", "My life in your service is awful.", "Just sell me off to someone. To anyone!")
-        $ char.disposition += randint(0, 1)
+        $ char.gfx_mod_stat("disposition", randint(0, 1))
         $ char.restore_portrait()
-    elif char.disposition <= -50:
+    elif char.get_stat("disposition") <= -50:
         $ char.override_portrait("portrait", "indifferent")
         if char.status != "slave":
-            if char.joy >= 50:
+            if char.get_stat("joy") >= 50:
                 if ct("Impersonal") or ct("Dandere") or ct("Kuudere"):
                     $ rc("I don't like my job.", "You are a bad employer.")
                 elif ct("Shy"):
@@ -118,7 +121,7 @@ label girl_interactions_aboutjob: # TO DO: here would help additional logic base
                 else:
                     $ rc("I'm sad and you are the worst... what else do you want me to say?", "I'm looking for new employment opportunities; that's how I'm feeling...")
         else:
-            if char.joy >= 50:
+            if char.get_stat("joy") >= 50:
                 if ct("Impersonal") or ct("Dandere") or ct("Kuudere"):
                     $ rc("I suppose a slave like me doesn't have much of a choice.", "I follow your orders. That's all.")
                 elif ct("Shy"):
@@ -132,13 +135,13 @@ label girl_interactions_aboutjob: # TO DO: here would help additional logic base
                     $ rc("...Yes, [char.mc_ref]. I'm fine. <you notice tears in her eyes>")
                 else:
                     $ rc("There isn't much to say... I'm sad and you're mean...", "I feel like it would be better if you sold me off at the next auction.")
-        $ char.disposition += randint(1, 2)
-        $ char.joy += randint(0, 1)
+        $ char.gfx_mod_stat("disposition", randint(1, 2))
+        $ char.gfx_mod_stat("joy", randint(0, 1))
         $ char.restore_portrait()
     else:
         $ char.override_portrait("portrait", "happy")
         if char.status != "slave":
-            if char.joy >= 50:
+            if char.get_stat("joy") >= 50:
                 if ct("Impersonal") or ct("Dandere") or ct("Kuudere"):
                     $ rc("I like my job. Nothing more to say.", "No complaints.")
                 elif ct("Shy"):
@@ -153,7 +156,7 @@ label girl_interactions_aboutjob: # TO DO: here would help additional logic base
                 else:
                     $ rc("Not very chipper but I hope things become better soon.", "Bit sad, if truth be told. Don't want to complain though.")
         else:
-            if char.joy >= 50:
+            if char.get_stat("joy") >= 50:
                 if ct("Impersonal") or ct("Dandere") or ct("Kuudere"):
                     $ rc("I'm satisfied with everything, [char.mc_ref].", "I am at your service, [char.mc_ref]. My life is my job.")
                 elif ct("Shy"):
@@ -167,8 +170,8 @@ label girl_interactions_aboutjob: # TO DO: here would help additional logic base
                     $ rc("Y-yes, [char.mc_ref]. I can do it, I know I can!", "It's normal, I suppose...")
                 else:
                     $ rc("I'm a bit sad, but you are kind so I'm looking for a brighter tomorrow!", "You've been very nice to me in general, so I won't complain!")
-        $ char.disposition += randint(1, 3)
-        $ char.joy += randint(0, 1)
+        $ char.gfx_mod_stat("disposition", randint(1, 3))
+        $ char.gfx_mod_stat("joy", randint(0, 1))
         $ char.restore_portrait()
     jump girl_interactions
 
@@ -177,7 +180,7 @@ label interactions_howshefeels:
     $ m = interactions_flag_count_checker(char, "flag_interactions_howshefeels")
     if m >= 5: # we don't have to limit it because of bonuses (there are none), but because of the common sense
         call interactions_too_many_lines from _call_interactions_too_many_lines_3
-        $ char.disposition -= 5
+        $ char.gfx_mod_stat("disposition", -5)
         $ del m
         jump girl_interactions
     $ del m
@@ -186,9 +189,9 @@ label interactions_howshefeels:
         $ rc("I ate something wrong. Ow-ow-ow...", "Ouh. I think I need to use bathroom again...")
         $ char.restore_portrait()
         jump girl_interactions_end
-    elif 'Down with Cold' in char.effects or char.vitality < round(char.get_max("vitality")*.3) or (char.health < round(char.get_max("health")*.2)) or char.joy<25: # we select one suitable image in the very beginning
+    elif 'Down with Cold' in char.effects or char.get_stat("vitality") < round(char.get_max("vitality")*.3) or (char.get_stat("health") < char.get_max("health")/5) or char.get_stat("joy") < 25: # we select one suitable image in the very beginning
         $ char.override_portrait("portrait", "sad")
-    elif char.joy>70:
+    elif char.get_stat("joy") > 70:
         if ct("Shy"):
             $ char.override_portrait("portrait", "shy")
         else:
@@ -203,32 +206,32 @@ label interactions_howshefeels:
         $ rc("I think I caught a cold...", "I'm not feeling well today. *sneezes*", "I have a fever... <She looks pale>")
 
     #body checks
-    if char.vitality <= round(char.get_max("vitality")*.1):
+    if char.get_stat("vitality") <= char.get_max("vitality")/10:
         $ rc("I want to sleep so badly... <yawns>", "I'm very tired lately... <yawns>")
-    elif char.vitality < round(char.get_max("vitality")*.3):
+    elif char.get_stat("vitality") < char.get_max("vitality")/3:
         $ rc("My body a bit tired.", "I could use some rest.", "I feel weakness, I really should rest more...")
-    elif char.vitality >= round(char.get_max("vitality")*.9):
+    elif char.get_stat("vitality") >= char.get_max("vitality")*9/10:
         $ rc("I'm full of strength and energy.", "My body rested very well lately.")
 
-    if char.health <= round(char.get_max("health")*.3):
+    if char.get_stat("health") <= char.get_max("health")/3:
         $ rc("My whole body hurts. I think I need a doctor.", "My body is not feeling very well lately... I could use some medical attention.")
-    elif char.health >= round(char.get_max("health")*.9) and not('Food Poisoning' in char.effects) and not('Down with Cold' in char.effects):
+    elif char.get_stat("health") >= char.get_max("health")*9/10 and not('Food Poisoning' in char.effects) and not('Down with Cold' in char.effects):
         $ rc("My body is in top condition.", "My health is pretty good lately.")
 
     if cgo("Caster"):
-        if char.mp <= round(char.get_max("mp")*.2):
+        if char.get_stat("mp") <= char.get_max("mp")/5:
             $ rc("I feel drained.", "My mind is tired. Perhaps I should use magic less frequently.")
-        elif char.mp >= round(char.get_max("mp")*.9):
+        elif char.get_stat("mp") >= char.get_max("mp")*9/10:
             $ rc("I feel like magic overflows me.", "I'm filled with magic energy.")
 
-    if char.joy <= 30: #begin joy checks
+    if char.get_stat("joy") <= 30: #begin joy checks
         if ct("Impersonal") or ct("Dandere"):
             $ rc("I'm not in the mood today.", "I'm just a bit sad. That's all.")
         elif ct("Shy"):
             $ rc("I'm kinda sad...", "I-I cried a bit some time ago. Why? Because I felt like it...")
         else:
             $ rc("I'm depressed. Don't wanna talk about it.", "I'm sad. Isn't it obvious to you?")
-    elif char.joy >= 65:
+    elif char.get_stat("joy") >= 65:
         if ct("Impersonal") or ct("Dandere") or ct("Kuudere"):
             $ rc("I'm pretty happy. I think.", "I'm fine. <barely smiling>")
         elif ct("Shy"):
@@ -253,25 +256,25 @@ label interactions_abouther:
     $ m = interactions_flag_count_checker(char, "flag_interactions_abouther")
     if m > (2 + interactions_set_repeating_lines_limit(char)):
         call interactions_too_many_lines from _call_interactions_too_many_lines_4
-        $ char.disposition -= randint(1, m+3)
-        if char.joy > 40:
-            $ char.joy -= randint(0,2)
+        $ char.gfx_mod_stat("disposition", -randint(1, m+3))
+        if char.get_stat("joy") > 40:
+            $ char.gfx_mod_stat("joy", -randint(0,2))
         $ del m
         jump girl_interactions
 
-    if char.disposition > 50:
-        if dice(50) and dice(char.joy-20):
-            if char.disposition >= 400:
+    if char.get_stat("disposition") > 50:
+        if dice(50) and dice(char.get_stat("joy")-20):
+            if char.get_stat("disposition") >= 400:
                 $ narrator(choice(["You feel especially close."]))
-                $ char.joy += randint(0, 1)
-                $ char.disposition += randint(1, 2)
+                $ char.gfx_mod_stat("joy", randint(0, 1))
+                $ char.gfx_mod_stat("disposition", randint(1, 2))
             else:
                 $ narrator(choice(["She was much more approachable."]))
-                $ char.disposition += randint(2, 6)
+                $ char.gfx_mod_stat("disposition", randint(2, 6))
             $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
             $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
 
-        $ char.disposition += randint(5, 15)
+        $ char.gfx_mod_stat("disposition", randint(5, 15))
         $ del m
 
         $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
@@ -487,8 +490,8 @@ label interactions_abouther:
             $gm_abouther_list.append(choice(["Hm? A little of this, a little of that?", "...I don't really have much to say.", "Nothing much, there's nothing worth mentioning.", "What I'm doing? The usual stuff...", "I'm just normal, I guess.", "I like just about anything.", "Hmm, there's not much to talk about.", "Now that I think about it... am I just boring?", "I'm just about average, I guess."]))
 
     else:
-        $ char.disposition -= randint(3, 10)
-        $ char.joy -= randint(0,1)
+        $ char.gfx_mod_stat("disposition", -randint(3, 10))
+        $ char.gfx_mod_stat("joy", -randint(0, 1))
         $ del m
         if char.status != "free":
             "You tried to know [char.nickname] better."
@@ -504,14 +507,14 @@ label interactions_aboutoccupation:
     $ m = interactions_flag_count_checker(char, "flag_interactions_aboutoccupation")
     if m > 5:
         call interactions_too_many_lines from _call_interactions_too_many_lines_5
-        $ char.disposition -= 5
+        $ char.gfx_mod_stat("disposition", -5)
         $ del m
         jump girl_interactions
     $ del m
 
     $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
 
-    if char.disposition > -250 or char.status == "slave":
+    if char.get_stat("disposition") > -250 or char.status == "slave":
         python:
             options = OrderedDict()
             options["Knight"] = ("I'm more like a bodyguard.", "In battle I was taught to protect others.", "My job is to hold the enemy.")
@@ -538,7 +541,7 @@ label interactions_aboutoccupation:
         $ ignore = []
         jump interactions_aboutoccupation_logic
     else:
-        $ char.disposition -= 5
+        $ char.gfx_mod_stat("disposition", -5)
         jump interactions_refused
 
 label interactions_aboutoccupation_logic:
@@ -577,21 +580,21 @@ label interactions_interests:
     $ m = interactions_flag_count_checker(char, "flag_interactions_interests")
     if m > (2 + interactions_set_repeating_lines_limit(char)):
         call interactions_too_many_lines from _call_interactions_too_many_lines_6
-        $ char.disposition -= 10
-        if char.joy > 40:
-            $ char.joy -= randint(1,2)
+        $ char.gfx_mod_stat("disposition", -10)
+        if char.get_stat("joy") > 40:
+            $ char.gfx_mod_stat("joy", -randint(1, 2))
         $ del m
         jump girl_interactions
 
-    if char.disposition > 100:
-        if dice(50) and dice(char.joy-20):
-            if char.disposition >= 400:
+    if char.get_stat("disposition") > 100:
+        if dice(50) and dice(char.get_stat("joy")-20):
+            if char.get_stat("disposition") >= 400:
                 $ narrator(choice(["You feel especially close."]))
-                $ char.joy += randint(0, 1)
-                $ char.disposition += randint(1, 2)
+                $ char.gfx_mod_stat("joy", randint(0, 1))
+                $ char.gfx_mod_stat("disposition", randint(1, 2))
             else:
                 $ narrator(choice(["She was much more approachable."]))
-                $ char.disposition += randint(2, 6)
+                $ char.gfx_mod_stat("disposition", randint(2, 6))
             $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.15))
             $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.15))
 
@@ -643,33 +646,33 @@ label interactions_interests:
 
         $ narrator(line)
         $ del line
-        $ char.disposition += randint(10, 20)
+        $ char.gfx_mod_stat("disposition", randint(10, 20))
 
         $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.20))
         $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.20))
 
         $ del m
-        if char.joy >= 65:
-            if dice(char.joy-20):
+        if char.get_stat("joy") >= 65:
+            if dice(char.get_stat("joy")-20):
                 "It was a very lively and enjoyable conversation."
-                $ char.joy += randint(3, 5)
+                $ char.gfx_mod_stat("joy", randint(3, 5))
             else:
                 "It was a pretty lively conversation."
-                $ char.joy += randint(2, 4)
-        elif char.joy >= 30:
-            if dice(char.joy + 20):
+                $ char.gfx_mod_stat("joy", randint(2, 4))
+        elif char.get_stat("joy") >= 30:
+            if dice(char.get_stat("joy") + 20):
                 "You had a fairly normal conversation."
-                $ char.joy += randint(1, 3)
+                $ char.gfx_mod_stat("joy", randint(1, 3))
             else:
                 "You had a short conversation."
         else:
             "It was a short and not very pleasant conversation."
-            $ char.joy -= randint(0, 2)
+            $ char.gfx_mod_stat("joy", -randint(0, 2))
         jump girl_interactions
     else:
         $ del m
-        $ char.disposition -= randint(3, 10)
-        $ char.joy -= randint(0,1)
+        $ char.gfx_mod_stat("disposition", -randint(3, 10))
+        $ char.gfx_mod_stat("joy", -randint(0, 1))
         if char.status != "free":
             "You tried to know [char.nickname] better."
         jump interactions_refused
@@ -681,18 +684,18 @@ label interactions_flirt:
     $ m = interactions_flag_count_checker(char, "flag_interactions_flirt")
     if m > (2 + interactions_set_repeating_lines_limit(char)):
         call interactions_too_many_lines from _call_interactions_too_many_lines_7
-        $ char.disposition -= randint(5,15)
-        if char.joy > 30:
-            $ char.joy -= randint(2,4)
+        $ char.gfx_mod_stat("disposition", -randint(5,15))
+        if char.get_stat("joy") > 30:
+            $ char.gfx_mod_stat("joy", -randint(2, 4))
         $ del m
         jump girl_interactions
 
-    if char.disposition > 150:
+    if char.get_stat("disposition") > 150:
         $ char.override_portrait("portrait", "shy")
 
         $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
         $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
-        $ char.disposition += randint(15, 25)
+        $ char.gfx_mod_stat("disposition", randint(15, 25))
 
         $ del m
 
@@ -726,8 +729,8 @@ label interactions_flirt:
         jump girl_interactions
     else:
         $ del m
-        $ char.disposition -= randint(5, 10)
-        $ char.joy -= randint(0,1)
+        $ char.gfx_mod_stat("disposition", -randint(5, 10))
+        $ char.gfx_mod_stat("joy", -randint(0, 1))
         if char.status != "free":
             "You tried to flirt with [char.nickname]."
         jump interactions_refused
@@ -766,15 +769,15 @@ label interactions_refused:
 
 # testing stuff
 label interactions_disp:
-    $ char.disposition += 250
+    $ char.gfx_mod_stat("disposition", 250)
     jump girl_interactions
 
 label interactions_becomefr:
-    $ char.disposition += 500
+    $ char.gfx_mod_stat("disposition", 500)
     $ set_friends(hero, char)
     jump girl_interactions
 
 label interactions_becomelv:
-    $ char.disposition += 500
+    $ char.gfx_mod_stat("disposition", 500)
     $ set_lovers(hero, char)
     jump girl_interactions

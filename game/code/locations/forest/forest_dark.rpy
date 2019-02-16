@@ -94,7 +94,7 @@ label city_dark_forest_explore:
         $ forest_bg_change = False
         jump forest_dark_continue
     else:
-        if hero.flag("dark_forest_found_river") != day and hero.vitality < hero.get_max("vitality") and dice(35):
+        if hero.flag("dark_forest_found_river") != day and hero.get_stat("vitality") < hero.get_max("vitality") and dice(35):
             jump mc_action_city_dark_forest_river
         elif not hero.has_flag("found_old_ruins") and day >= 10 and dice(50):
             $ hero.set_flag("found_old_ruins")
@@ -135,9 +135,9 @@ label mc_action_city_dark_forest_rest:
 
     python:
         for i in hero.team:
-            i.vitality += int(i.get_max("vitality")*.25)
-            i.health += int(i.get_max("health")*.05)
-            i.mp += int(i.get_max("mp")*.2)
+            i.gfx_mod_stat("vitality", i.get_max("vitality")/4)
+            i.gfx_mod_stat("health", i.get_max("health")/20)
+            i.gfx_mod_stat("mp", i.get_max("mp")/5)
     jump forest_dark_continue
 
 label city_dark_forest_hideout:
@@ -318,10 +318,10 @@ label dark_forest_girl_meet:
         $ character.override_portrait("portrait", "happy")
         $ character.show_portrait_overlay("love", "reset")
         $ character.say("She happily kisses you in the chick as a thanks. Maybe you should try to find her in the city later.")
-        if character.disposition < 450:
-            $ character.disposition += 100
+        if character.get_stat("disposition") < 450:
+            $ character.gfx_mod_stat("disposition", 100)
         else:
-            $ character.disposition += 50
+            $ character.gfx_mod_stat("disposition", 50)
         hide expression spr with dissolve
         $ character.restore_portrait()
         $ character.hide_portrait_overlay()
@@ -338,5 +338,5 @@ label mc_action_city_dark_forest_river:
     "You found a river. Fresh, clean water restores some of your vitality."
     python:
         for i in hero.team:
-            i.vitality += int(i.get_max("vitality")*.5)
+            i.gfx_mod_stat("vitality", i.get_max("vitality")/2)
     jump forest_dark_continue

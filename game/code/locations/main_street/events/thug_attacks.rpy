@@ -11,7 +11,7 @@ label city_events_thugs_robbery:
     show expression npcs["street_thug"].get_vnsprite() as npc with dissolve
     $ t = npcs["street_thug"].say
     t "A word, my friend!"
-    t "These streets are unsafe if you know what I mean. But I can ensure your safety. 200 G per week. The price is pretty reasonable, right?"
+    t "These streets are unsafe if you know what I mean. But I can ensure your safety. 200 Gold per week. The price is pretty reasonable, right?"
     if hero.gold < 200:
         "Unfortunately, you don't have enough money."
         t "Hard times, eh... Well, there you go then."
@@ -22,7 +22,7 @@ label city_events_thugs_robbery:
         jump main_street
     else:
         menu:
-            "Give him 200 G?"
+            "Give him 200 Gold?"
             "Yes":
                 t "Thank you kindly. Worry not, no one will bother you. For now."
                 $ pytfall.world_events.kill_event("city_events_thugs_robbery_attack")

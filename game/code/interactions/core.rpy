@@ -57,8 +57,8 @@ init -1 python:
             conditioned_choices = list(conditioned_choices.intersection(gt + occs)) if gt or occs else list(conditioned_choices)
 
             # Sort the list based on disposition:
-            conditioned_choices.sort(key=attrgetter("disposition"))
-            choices.sort(key=attrgetter("disposition"))
+            conditioned_choices.sort(key=lambda x: x.get_stat("disposition"))
+            choices.sort(key=lambda x: x.get_stat("disposition"))
 
             # =====================================>>>
             # We add an absolute overwrite for any character that has the location string set as the name:
@@ -76,13 +76,13 @@ init -1 python:
             # Append to the list (1st girl) Best disposition:
             # This whole codebit needs to be rewritten when Interactions are restructured.
             if conditioned_choices and len(self.girls) < 3:
-                if not conditioned_choices[len(conditioned_choices)-1].disposition:
+                if not conditioned_choices[len(conditioned_choices)-1].get_stat("disposition"):
                     shuffle(conditioned_choices)
                     self.girls.append(conditioned_choices.pop())
                 else:
                     self.girls.append(conditioned_choices.pop())
             elif choices and len(self.girls) < 3:
-                if not choices[len(choices)-1].disposition:
+                if not choices[len(choices)-1].get_stat("disposition"):
                     shuffle(choices)
                     self.girls.append(choices.pop())
                 else:
