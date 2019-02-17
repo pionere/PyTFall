@@ -770,6 +770,7 @@ screen fg_area(area):
             background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.95), 10, 10)
             add pscale(area.img, 600, 450)
 
+        # Overlay objects
         frame:
             ypos 100
             xalign .5
@@ -784,6 +785,15 @@ screen fg_area(area):
                     action NullAction()
                     hover_background im.MatrixColor(o.img, im.matrix.brightness(.25))
                     tooltip o.name
+
+        hbox:
+            align .5, .98
+            button:
+                style_group "basic"
+                action Hide("fg_area"), With(dissolve)
+                minimum (50, 30)
+                text "Back"
+                keysym "mousedown_3"
 
     ## Right frame:
     frame:
@@ -888,15 +898,6 @@ screen fg_area(area):
                                 xysize 60, 60
                                 align .99, .5
                                 add ProportionalScale(i.icon, 57, 57) align .5, .5
-
-            hbox:
-                align .5, .98
-                button:
-                    style_group "basic"
-                    action Hide("fg_area"), With(dissolve)
-                    minimum (50, 30)
-                    text "Back"
-                    keysym "mousedown_3"
 
 screen fg_char_dropdown(char, team=None, remove=False):
     # Trying to create a drop down screen with choices of actions:

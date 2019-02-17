@@ -34,21 +34,18 @@ init -5 python:
             while 1:
                 simpy_debug("Entering Cleaners.business_control iteration at %s", self.env.now)
 
-                dirt = building.dirt
                 if DSNBR and not self.env.now % 5:
-                    temp = "{color=[red]}" + "DEBUG: {0:.2f} DIRT IN THE BUILDING!".format(dirt)
+                    temp = "{color=[red]}" + "DEBUG: {0:.2f} DIRT IN THE BUILDING!".format(building.dirt)
                     self.log(temp, True)
 
-                if dirt > (building.auto_clean*10):
-                    if building.auto_clean != 100:
-                        price = building.get_cleaning_price()
-                        if hero.take_money(price, "Hired Cleaners"):
-                            building.dirt = 0
-                            dirt = 0
-                            temp = "{}: {} Building was auto-cleaned!".format(self.env.now,
-                                                building.name)
-                            self.log(temp)
+                if building.get_dirt_percentage() > building.auto_clean and building.auto_clean != 100:
+                    price = building.get_cleaning_price()
+                    if hero.take_money(price, "Hired Cleaners"):
+                        building.dirt = 0
+                        temp = "%s: %s Building was auto-cleaned!" % (self.env.now, building.name)
+                        self.log(temp)
 
+                dirt = building.dirt
                 if dirt >= 200:
                     wlen_color = "green"
                     if dirt >= 500:

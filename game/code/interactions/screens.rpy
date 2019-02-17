@@ -179,8 +179,10 @@ label girl_interactions_after_greetings: # when character wants to say something
             pytfall.world_actions.menu(m, "Propose")
             pytfall.world_actions.gm_choice("Girlfriend", condition="not check_lovers(char, hero)", index=(m, 0))
             pytfall.world_actions.gm_choice("Break Up", condition="check_lovers(char, hero)", index=(m, 1))
-            pytfall.world_actions.gm_choice("Hire", condition="not(char in hero.chars) and not char.flag('quest_cannot_be_hired')", index=(m, 2))
-            pytfall.world_actions.gm_choice("Sparring", condition="'Combatant' in char.occupations", index=(m, 3))
+            pytfall.world_actions.gm_choice("Move in", condition="char.home != hero.home and char.status == 'free'", index=(m, 2))
+            pytfall.world_actions.gm_choice("Move out", condition="char.home == hero.home and char.status == 'free'", index=(m, 3))
+            pytfall.world_actions.gm_choice("Hire", condition="not(char in hero.chars) and not char.flag('quest_cannot_be_hired')", index=(m, 4))
+            pytfall.world_actions.gm_choice("Sparring", condition="'Combatant' in char.occupations", index=(m, 5))
 
             # INTIMACY
             m = 7

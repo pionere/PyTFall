@@ -838,6 +838,74 @@ init -10 python:
                 self.nd_ups = list()
                 self.env = None
             else:
+                if self.maxdirt != 0:
+                    # check current status of the building and update its inhabitants
+                    dirt = self.get_dirt_percentage()
+                    if dirt < 30:
+                        # the place is clean
+                        for c in self.inhabitants:
+                            if c != hero:
+                                c.mod_stat("joy", 5)
+                    elif dirt > 50:
+                        # the place is dirty
+                        for c in self.habitants:
+                            if c != hero:
+                                c.mod_stat("joy", (dirt-50)/2)
+                            
+                        txt.append("The place is quite dirty. You might want to call the cleaners.")
+
+                    # accumulate dirt based on the number of inhabitants
+                    self.dirt += len(self.inhabitants) * 10
+
+                    # handle auto cleaning
+                    if self.get_dirt_percentage() > self.auto_clean and self.auto_clean != 100:
+                        price = self.get_cleaning_price()
+                        if hero.take_money(price, "Hired Cleaners"):
+                            self.dirt = 0
+                            txt.append("Cleaners arrived to tidy up the place. You had to pay {color=[gold]}%d Gold{/color}." % price)
+                        else:
+                            txt.append("You wanted to hire cleaners, but could not afford it.")
+
+                    # 'auto cleaning' by the inhabitants 
+                    for c in self.inhabitants:
+                        if self.dirt <= 200:
+                            break
+                        if c != hero and c.get_stat("disposition") > 800 and c.get_stat("joy") > 80:
+                            effectiveness_ratio = simple_jobs["Cleaning"].effectiveness(c, self.tier)
+
+                            self.dirt -= (5 * effectiveness_ratio)
+                            
+                            c.mod_stat("disposition", -50)
+                            c.mod_stat("joy", -10)
+                            txt.append("%s cleaned up a bit." % c.nickname)
+                
+                # in-house fighting between the inhabitants
+                for c in self.inhabitants:
+                    if c == hero or c.get_stat("vitality") < 25:
+                        continue
+                    traits = [t for t in c.traits if t.id in ("Aggressive", "Vicious", "Sadist", "Extremely Jealous")]
+                    if not traits:
+                        continue
+                    trait = choice(traits)
+                    others = [o for o in self.inhabitants if o != c and o != hero]
+                    if trait == "Extremely Jealous":
+                        if not check_lovers(c, hero):
+                            continue
+                        others = [o for o in others if check_lovers(o, hero)]
+                    if not others:
+                        continue
+                    o = choice(others)
+                    if self.maxdirt != 0:
+                        txt.append("%s and %s started to fight over a minor issue. The building suffered the most." % (c.nickname, o.nickname))
+                        self.dirt += 50
+                    else:
+                        txt.append("%s and %s started to fight over a minor issue. They became very tense." % (c.nickname, o.nickname))
+                    o.mod_stat("joy", -20)
+                    c.mod_stat("joy", -20)
+                    o.mod_stat("vitality", -10)
+                    c.mod_stat("vitality", -10)
+                    self.flag_red =  True
+
                 txt.append(set_font_color("===================", "lawngreen"))
                 txt.append("This is a residential building. Nothing much happened here today.")
 

@@ -316,7 +316,7 @@ init -11 python:
     def interactions_checks_for_bad_stuff_greetings(char): # Special beginnings for greetings if something is off, True/False show that sometimes we even will need to skip a normal greeting altogether
         if "Food Poisoning" in char.effects:
             char.override_portrait("portrait", "indifferent")
-            charter.say("She does not look good...")
+            char.say("She does not look good...")
             char.restore_portrait()
             return True
         elif char.get_stat("vitality") <= 40:
@@ -334,7 +334,7 @@ init -11 python:
             char.say("She looks a bit pale...")
             char.restore_portrait()
             return False
-        elif charcter.get_stat("joy") <= 25:
+        elif char.get_stat("joy") <= 25:
             char.override_portrait("portrait", "sad")
             char.say("She looks pretty sad...")
             char.restore_portrait()

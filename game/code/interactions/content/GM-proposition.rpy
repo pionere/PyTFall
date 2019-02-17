@@ -286,6 +286,56 @@ label int_girl_proposes_girlfriend: # character proposes to become lovers
     $ char.restore_portrait()
     return
 
+label interactions_movein:
+    $ interactions_check_for_bad_stuff(char)
+    if not check_lovers(char, hero):
+        "But we are not that close!"
+        jump girl_interactions
+
+    $ home = hero.home
+    if home is None:
+        "Where should we settle? You are a homeless!"
+        jump girl_interactions
+    if home.get_daily_modifier() <= char.home.get_daily_modifier():
+        "You ought to find a better place before you suggest such a thing."
+        jump girl_interactions
+    if home.maxdirt != 0 and home.get_dirt_percentage() > 50:
+        "Into that shit-hole? You expect me to clean your underwear too?"
+        jump girl_interactions
+    if home.vacancies <= 0:
+        "That place is too small for us."
+        jump girl_interactions
+
+    $ char.home = home
+    
+    $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
+    $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
+    if True: # FIXME imlement the responses if ct("Impersonal") in  char.traits:
+        $ char.gfx_mod_stat("joy", 15)
+        $ char.override_portrait("portrait", "indifferent")
+        $ rc("Sure thing.", "As you wish.", "Of course, but I need my own room.")
+        $ char.restore_portrait()
+
+    jump girl_interactions
+
+label interactions_moveout:
+    $ interactions_check_for_bad_stuff(char)
+    if char.home != hero.home: # you never know
+        "But we aren't!"
+        jump girl_interactions
+
+    $ char.home = pytfall.city
+    $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
+    $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
+    if True: # FIXME imlement the responses if ct("Impersonal") in  char.traits:
+        $ char.gfx_mod_stat("joy", -15)
+        $ char.gfx_mod_stat("disposition", -150)
+        $ char.override_portrait("portrait", "indifferent")
+        $ rc("If that's what you want.", "As you wish. Bye.", "I understand. I suppose that was it.")
+        $ char.restore_portrait()
+
+    jump girl_interactions 
+
 label interactions_breakup:
     $ interactions_check_for_bad_stuff(char)
     if not check_lovers(char, hero): # you never know
@@ -299,8 +349,8 @@ label interactions_breakup:
         $ char.gfx_mod_stat("joy", -25)
         $ char.override_portrait("portrait", "indifferent")
         $ rc("If that's what you want.", "As you wish. Bye.", "I understand. I suppose that was it.")
+        $ char.restore_portrait()
 
-    $ char.restore_portrait()
     jump girl_interactions 
 
 ##### j3
