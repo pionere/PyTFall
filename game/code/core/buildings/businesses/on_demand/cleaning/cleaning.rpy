@@ -3,7 +3,7 @@ init -5 python:
         def __init__(self):
             super(Cleaners, self).__init__()
 
-            self.jobs = set([simple_jobs["Cleaning"]])
+            self.jobs = [simple_jobs["Cleaning"]]
 
         def business_control(self):
             """This checks if there are idle workers willing/ready to clean in the building.
@@ -123,7 +123,7 @@ init -5 python:
         def write_nd_report(self, strict_workers, all_workers, dirt_cleaned):
             simpy_debug("Entering Cleaners.write_nd_report at %s", self.env.now)
 
-            job, loc = self.job, self.building
+            job, loc = self.jobs[0], self.building
             log = NDEvent(job=job, loc=loc, locmod={'dirt':dirt_cleaned}, team=all_workers, business=self)
 
             extra_workers = all_workers - strict_workers

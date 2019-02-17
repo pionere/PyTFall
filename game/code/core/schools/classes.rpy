@@ -197,6 +197,7 @@ init python:
                     txt.append("This Course has ended, all students have been sent back home.")
                     char.action = None
                     school.students_dismissed += 1
+                school.students_attended += 1
 
                 self.build_nd_report(char, charmod=charmod,
                                      flag_green=flag_green, txt=txt)
@@ -238,9 +239,6 @@ init python:
             super(School, self).__init__(id=id, name=id)
             self.img = renpy.displayable(img)
             self.courses = []
-            self.new_courses_created = False
-            self.successfully_completed = 0 # Students --- Courses
-            self.students_dismissed = 0 # Due to courses end!
 
         def add_courses(self):
             forced = max(0, 12-len(self.courses))
@@ -252,10 +250,6 @@ init python:
 
             if dice(10) and len(self.courses) < 30:
                 self.create_course()
-
-        def remove_course(self, course):
-            if course in self.courses:
-                self.courses.remove(course)
 
         def create_course(self):
             id = choice(school_courses.keys())
@@ -276,18 +270,19 @@ init python:
             self.courses.insert(0, course)
 
         def next_day(self):
-            for c in self.courses[:]:
-                c.next_day()
-                if c.days_remaining <= 0:
-                    self.remove_course(c)
-
-            self.add_courses()
-            self.build_nd_report()
-
             # Resets:
             self.new_courses_created = False
             self.successfully_completed = 0
             self.students_dismissed = 0
+            self.students_attended = 0
+
+            for c in self.courses:
+                c.next_day()
+
+            self.courses = [c for c in self.courses if c.days_remaining > 0]
+
+            self.add_courses()
+            self.build_nd_report()
 
         def build_nd_report(self):
             txt = []
@@ -296,29 +291,19 @@ init python:
             temp = "{} Report: \n".format(self.name)
             txt.append(temp)
 
-            students = self.get_all_chars()
-
-            if not students:
+            if self.students_attended == 0:
                 txt.append("Excellent courses are available here today! Remember our Motto: Education is Gold!")
             else:
-                temp = choice(["You currently have %d students training with us!" % len(students),
-                               "Excellent courses are available today! Remember our Motto: Education is Gold!"])
-                txt.append(temp)
+                txt.append("You currently have %d %s training with us!" % (self.students_attended, plural("student", self.students_attended)))
 
             if self.new_courses_created:
-                txt.append("New Courses are available here today!")
+                txt.append("New Courses are available from today!")
 
             if self.successfully_completed:
-                temp = "Today %d %s completed a course here!" % (self.successfully_completed, plural("student", self.successfully_completed))
-                txt.append(temp)
+                txt.append("Today %d %s completed a course here!" % (self.successfully_completed, plural("student", self.successfully_completed)))
 
             if self.students_dismissed:
-                temp = "The course has ended for %d %s, have a look at our other courses!" % (self.students_dismissed, plural("student", self.students_dismissed))
-                txt.append(temp)
-
-            if students:
-                txt.append("\n")
-                txt.append("Students: %s" % (", ".join([s.name for s in students])))
+                txt.append("The course has ended for %d %s, have a look at our other courses!" % (self.students_dismissed, plural("student", self.students_dismissed)))
 
             img = pscale(self.img, 820, 705)
             txt = "\n".join(txt)

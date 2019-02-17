@@ -300,6 +300,8 @@ init -9 python:
             if isinstance(value, SchoolCourse):
                 # subscribe student to the course
                 value.add_student(self)
+                if isinstance(self._workplace, Building):
+                    self._workplace.workers.remove(self)
                 # set workplace to the school
                 self._workplace = pytfall.school
             elif value == mj:
@@ -317,6 +319,20 @@ init -9 python:
 
             self._action = value
 
+        def get_job(self):
+            if self.previousaction is None:
+                return self._action
+            else:
+                return self.previousaction
+            
+        def set_job(self, job):
+            if self.previousaction is None:
+                self.action = job
+            else:
+                act = self._action
+                self.action = job
+                self.action = act
+                
         @property
         def workplace(self):
             return self._workplace
@@ -327,7 +343,11 @@ init -9 python:
                 return
 
             self.action = None
+            if isinstance(self._workplace, Building):
+                self._workplace.all_workers.remove(self)
             self._workplace = value
+            if isinstance(value, Building):
+                value.all_workers.append(self)
             if action is not None:
                 self.action = action
 

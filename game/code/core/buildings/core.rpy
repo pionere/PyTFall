@@ -123,9 +123,6 @@ init -10 python:
         def get_daily_modifier(self):
             return self.daily_modifier
 
-        def get_all_chars(self):
-            return self.inhabitants
-
         def __str__(self):
             if hasattr(self, "name"):
                 return str(self.name)
@@ -175,22 +172,6 @@ init -10 python:
             if self.name:
                 return str(self.name)
             return super(BaseBuilding, self).__str__()
-
-        def get_workers(self):
-            # I may want better handing for this...
-            # Returns a list of all chars in heros service that have their workplaces set to this building.
-            return [c for c in hero.chars + [hero] if c.workplace == self and c.is_available]
-
-        def get_all_chars(self):
-            all_chars = set()
-
-            for c in hero.chars:
-                if not c.is_available:
-                    continue
-                if c.workplace == self or c.home == self:
-                    all_chars.add(c)
-
-            return all_chars
 
         def get_girls(self, action=undefined, occupation=undefined, nott=False):
             """
@@ -276,31 +257,7 @@ init -10 python:
             # Jobs - initialized later
             #self.jobs = set()
 
-            # Clients:
-            self.all_clients = list() # All clients of this building are maintained here.
-            self.regular_clients = set() # Subset of self.all_clients.
-            self.clients = list() # temp clients, this is used during SimPy cals and reset on when that ends.
-            # This is the amount of clients that will visit the Building:
-            self.clients_regen_day = 0
-
-            # Management:
             # Note: We also use .inhabitants set inherited from all the way over location.
-            self.manager = None
-            self.manager_effectiveness = 0 # Calculated once at start of each working day (performance)
-            self.workers_rule = "normal"
-            self.init_pep_talk = True
-            self.cheering_up = True
-            self.asks_clients_to_wait = True
-            self.help_ineffective_workers = True # Bad performance still may get a payout.
-            self.works_other_jobs = False
-            # TODO Before some major release that breaks saves, move manager and effectiveness fields here.
-            self.mlog = None # Manager job log
-
-            # Workers:
-            # Bit of an issue could be that we're using all_workers in SimPy as well? :D
-            # TODO (bb) Look into the above.
-            self.all_workers = list() # All workers presently assigned to work in this building.
-            self.available_workers = list() # This is built and used during the next day (SimPy).
 
             # Upgrades:
             self.nd_ups = list() # Upgrades active during the next day...
@@ -334,6 +291,29 @@ init -10 python:
             self.nd_events_report = list()
 
         def init(self):
+            if any(b.workable for b in self.allowed_businesses):
+                # Management:
+                self.manager = None
+                self.manager_effectiveness = 0 # Calculated once at start of each working day (performance)
+                self.workers_rule = "normal"
+                self.init_pep_talk = True
+                self.cheering_up = True
+                self.asks_clients_to_wait = True
+                self.help_ineffective_workers = True # Bad performance still may get a payout.
+                self.works_other_jobs = False
+                # TODO Before some major release that breaks saves, move manager and effectiveness fields here.
+                self.mlog = None # Manager job log
+
+                # Workers:
+                self.all_workers = list() # All workers presently assigned to work in this building.
+                self.available_workers = list() # This is built and used during the next day (SimPy).
+
+                # Clients:
+                self.all_clients = list() # All clients of this building are maintained here.
+                self.regular_clients = set() # Subset of self.all_clients.
+                self.clients = list() # temp clients, this is used during SimPy cals and reset on when that ends.
+                self.clients_regen_day = 0 # The day when the clients are regenerated
+                
             self.normalize_jobs()
 
             if not hasattr(self, "threat_mod"):
@@ -368,6 +348,8 @@ init -10 python:
 
         def normalize_jobs(self):
             jobs = set()
+            if hasattr(self, "manager"):
+                jobs.add(simple_jobs["Manager"])
             for up in self._businesses:
                 jobs.update(up.jobs)
             self.jobs = jobs
@@ -447,8 +429,6 @@ init -10 python:
                 business.ex_slots -= business.capacity * business.exp_cap_ex_slots
                 business.capacity = 0
 
-            self.normalize_jobs()
-
             # update affected characters
             if business.habitable:
                 vacs = self.vacancies
@@ -457,9 +437,14 @@ init -10 python:
                     for i in range(-vacs):
                         for char in self.inhabitants: break
                         char.home = pytfall.streets
-            if self.manager and simple_jobs["Manager"] not in self.jobs:
-                # remove manager
-                self.manager.action = None
+
+            # inactivate jobless workers
+            if hasattr(self, "all_workers"):
+                self.normalize_jobs()
+                
+                for worker in self.all_workers:
+                    if worker.get_job() not in self.jobs:
+                        worker.set_job(None)
 
         def add_upgrade(self, upgrade, pay=False):
             cost, materials, in_slots, ex_slots = upgrade.get_cost()
@@ -742,18 +727,6 @@ init -10 python:
 
             client_businesses = list(up for up in self._businesses if up.expects_clients)
             if client_businesses:
-                self.all_workers = self.get_workers()
-
-                # All workers and workable businesses:
-                # This basically roots out Resting/None chars!
-                self.available_workers = list(c for c in self.all_workers if
-                                              c.action in self.jobs)
-                for w in self.all_workers:
-                    convert_ap_to_jp(w)
-                    # And AEQ
-                    if isinstance(w.action, Job):
-                        w.action.auto_equip(w)
-
                 # Clients:
                 tl.start("Generating clients in {}".format(self.name))
                 total_clients = self.get_client_count(txt)
@@ -800,21 +773,30 @@ init -10 python:
                 txt.append("Fame: {}%".format(self.fame_percentage))
                 txt.append("Dirt: {}%".format(self.get_dirt_percentage()))
                 txt.append("Threat: {}%".format(self.get_threat_percentage()))
-
                 txt.append("")
+                
+                # All workers and workable businesses:
+                # This basically roots out Resting/None chars!
+                self.available_workers = [w for w in self.all_workers if w.is_available]
+                for w in self.available_workers:
+                    convert_ap_to_jp(w)
+                    # And AEQ
+                    if isinstance(w.action, Job):
+                        w.action.auto_equip(w)
+
                 # We can calculate manager effectiveness once, so we don't have to do
                 # expensive calculations 10 000 000 times:
-                if self.manager:
-                    job = simple_jobs["Manager"]
-                    self.manager_effectiveness = job.effectiveness(self.manager,
+                if hasattr(self, "manager"):
+                    if self.manager:
+                        job = simple_jobs["Manager"]
+                        self.manager_effectiveness = job.effectiveness(self.manager,
                                                     self.tier, None, False)
-                    txt.append("This building is managed by {} at {}% effectiveness!".format(
-                                self.manager.name, self.manager_effectiveness
-                    ))
-                else:
-                    txt.append("This building has no manager assigned to it.")
-                    self.manager_effectiveness = 0
-                txt.append("")
+                        txt.append("This building is managed by {} at {}% effectiveness!".format(
+                                self.manager.name, self.manager_effectiveness))
+                    else:
+                        txt.append("This building has no manager assigned to it.")
+                        self.manager_effectiveness = 0
+                    txt.append("")
 
                 txt.append("{}".format(set_font_color("Starting the workday:", "lawngreen")))
                 # Create an environment and start the setup process:
@@ -867,7 +849,7 @@ init -10 python:
             env = self.env
 
             # Run the manager process:
-            if self.manager:
+            if getattr(self, "manager", None):
                 init_jp = self.manager.jobpoints
                 self.mlog = NDEvent(job=simple_jobs["Manager"], char=self.manager, loc=self)
                 env.process(manager_process(env, self))
@@ -913,7 +895,7 @@ init -10 python:
                             w.mod_stat("joy", 1)
 
             # post-process of the manager
-            if self.manager:
+            if getattr(self, "manager", None):
                 log = self.mlog
                 manager = self.manager
                 points_used = init_jp - manager.jobpoints

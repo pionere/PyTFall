@@ -71,7 +71,7 @@ init -12 python:
 
             # Jobs this upgrade can add. *We add job instances here!
             # It may be a good idea to turn this into a direct job assignment instead of a set...
-            self.jobs = set()
+            self.jobs = list()
             self.workers = set() # List of on duty characters.
             self.clients = set() # Local clients, this is used during next day and reset on when that ends.
 
@@ -153,12 +153,6 @@ init -12 python:
             amount = round_int(((101.0/self.time)*self.capacity)*.7)
 
             return amount
-
-        @property
-        def job(self):
-            # This may not be required if we stick to a single job per business scenario:
-            if self.jobs:
-                return choice(tuple(self.jobs))
 
         @property
         def env(self):
@@ -373,8 +367,7 @@ init -12 python:
             self.is_running = False
 
         def has_workers(self):
-            return list(i for i in self.building.available_workers if
-                                              self.all_occs & i.occupations)
+            return any((self.all_occs & i.occupations) for i in self.building.available_workers)
 
         def business_control(self):
             while 1:
@@ -511,10 +504,10 @@ init -12 python:
 
                 simpy_debug("Exiting PublicBusiness(%s).client_control iteration at %s", self.name, self.env.now)
 
-        def add_worker(self):
+        def add_worker(self, job):
             simpy_debug("Entering PublicBusiness(%s).add_worker at %s", self.name, self.env.now)
             # Get all candidates:
-            ws = self.get_workers(self.job)
+            ws = self.get_workers(job)
             if ws:
                 w = ws.pop()
                 self.active_workers.add(w)
@@ -522,7 +515,7 @@ init -12 python:
                 self.env.process(self.worker_control(w))
             else:
                 temp = "{color=[red]}"
-                temp += "Could not find an available {} worker".format(self.job)
+                temp += "Could not find an available {} worker".format(job)
                 self.log(temp)
             simpy_debug("Exiting PublicBusiness(%s).add_worker at %s", self.name, self.env.now)
 
@@ -532,6 +525,7 @@ init -12 python:
             #counter = 0
             building = self.building
             #tier = building.tier
+            job = self.jobs[0] # there is a single job per business at the moment -> the client should now what kind of worker is expected anyway
 
             while 1:
                 simpy_debug("Entering PublicBusiness(%s).business_control iteration at %s", self.name, self.env.now)
@@ -546,7 +540,7 @@ init -12 python:
                                     set_font_color(self.send_in_worker, "red"))
                         self.log(temp, True)
                     for i in range(new_workers_required):
-                        self.add_worker()
+                        self.add_worker(job)
                     self.send_in_worker = False
 
                 # Could be flipped to a job Brawl event?:
@@ -574,7 +568,7 @@ init -12 python:
                         temp = temp + " {} Workers are currently on duty in {}!".format(
                                 set_font_color(len(self.active_workers), "blue"),
                                 self.name)
-                        siw_workers = len([w for w in building.available_workers if set(w.gen_occs).intersection(self.job.occupations)])
+                        siw_workers = len([w for w in building.available_workers if set(w.gen_occs).intersection(self.all_occs)])
                         temp = temp + " {} (gen_occ) workers are available in the Building for the job!".format(
                                 set_font_color(siw_workers, "green"))
                         self.log(temp, True)
@@ -596,14 +590,13 @@ init -12 python:
             du_working = 35
 
             # We create the log object here! And start logging to it directly!
-            building = self.building
-            job, loc = self.job, self.building
-            log = NDEvent(job=job, char=worker, loc=loc, business=self)
+            job, building = self.jobs[0], self.building # a single job per business at the moment
+            log = NDEvent(job=job, char=worker, loc=building, business=self)
 
             log.append(self.log_intro_string % (worker.name))
             log.append("\n")
 
-            difficulty = loc.tier
+            difficulty = building.tier
             effectiveness = job.effectiveness(worker, difficulty, log, False,
                                 manager_effectiveness=building.manager_effectiveness)
 

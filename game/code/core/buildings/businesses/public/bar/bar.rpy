@@ -3,7 +3,7 @@ init -5 python:
         def __init__(self):
             super(BarBusiness, self).__init__()
 
-            self.jobs = set([simple_jobs["Bartending"]])
+            self.jobs = [simple_jobs["Bartending"]]
 
             # For now, before we'll have to split the method.
             self.intro_string = "{color=[pink]}%s{/color} comes out to tend the Bar!"

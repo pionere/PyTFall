@@ -4,7 +4,7 @@ init -5 python:
         def __init__(self):
             super(BrothelBlock, self).__init__()
 
-            self.jobs = set([simple_jobs["Whore Job"]])
+            self.jobs = [simple_jobs["Whore Job"]]
 
         def request_resource(self, client, worker):
             """Requests a room from Sim'Py, under the current code,

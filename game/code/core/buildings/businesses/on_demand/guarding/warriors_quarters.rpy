@@ -2,7 +2,7 @@ init -5 python:
     class WarriorQuarters(OnDemandBusiness):
         def __init__(self):
             super(WarriorQuarters, self).__init__()
-            self.jobs = set([simple_jobs["Guarding"]])
+            self.jobs = [simple_jobs["Guarding"]]
 
         def business_control(self):
             """We decided for this to work similarly (or the same as cleaning routines)
@@ -149,7 +149,7 @@ init -5 python:
         def write_nd_report(self, strict_workers, all_workers, threat_cleared, **kwargs):
             simpy_debug("Entering WarriorQuarters.write_nd_report at %s", self.env.now)
 
-            job, loc = self.job, self.building
+            job, loc = self.jobs[0], self.building
             log = NDEvent(job=job, loc=loc, locmod={'threat':threat_cleared}, team=all_workers, business=self)
 
             extra_workers = all_workers - strict_workers

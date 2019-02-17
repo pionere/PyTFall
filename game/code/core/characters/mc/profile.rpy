@@ -663,7 +663,6 @@ screen hero_team():
                             idle Transform("content/gfx/interface/buttons/Profile.png", alpha=.9)
                             hover Transform("content/gfx/interface/buttons/Profile.png", alpha=1.0)
                             insensitive im.Sepia("content/gfx/interface/buttons/Profile.png")
-                            sensitive member in hero.chars
                             action If(member.is_available, true=[Hide("hero_profile"),
                                                                       Hide("hero_team"),
                                                                       SetVariable("char", member),

@@ -629,7 +629,7 @@ label after_load:
 
         for b in itertools.chain(hero.buildings, buildings.values()):
             if isinstance(b, Building):
-                if not hasattr(b, "init_pep_talk"):
+                if hasattr(b, "manager") and not hasattr(b, "init_pep_talk"):
                     b.init_pep_talk = True
                     b.cheering_up = True
                     b.asks_clients_to_wait = True
@@ -678,7 +678,6 @@ label after_load:
                         if not isinstance(v, int):
                             b.stats_log[s] = int(v)
                 if hasattr(b, "building_jobs"):
-                    b.needs_management = True
                     del b.building_jobs
                 if isinstance(getattr(b, "all_clients", None), set):
                     b.all_clients = list(b.all_clients)
@@ -719,6 +718,8 @@ label after_load:
                                     a.exp_cap_in_slots = 0
                                 if not hasattr(a, "exp_cap_ex_slots"):
                                     a.exp_cap_ex_slots = 0
+                                if isinstance(getattr(a, "jobs", None), set):
+                                    a.jobs = list(a.jobs)
                                 break
                         else:
                             a = bclass()
@@ -791,6 +792,10 @@ label after_load:
 
         if "clearCharacters" in locals():
             for char in itertools.chain([hero], chars.values(), hero.chars, npcs.values()):
+                if not char.previousaction:
+                    char.previousaction = None
+                if isinstance(char.workplace, Building) and char not in char.workplace.all_workers:
+                    char.workplace.all_workers.append(char)
                 if char.controller == "player":
                     char.controller = None
                 if hasattr(char, "_arena_rep"):
@@ -869,7 +874,7 @@ label after_load:
                         fighter.location = fighter._location
 
             for b in hero.buildings:
-                if isinstance(b, Building):
+                if hasattr(b, "all_clients"):
                     for client in b.all_clients:
                         if client.controller == "player":
                             client.controller = None

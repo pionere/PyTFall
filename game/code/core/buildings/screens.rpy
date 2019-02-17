@@ -235,7 +235,9 @@ init:
                     sensitive len(bm_building.adverts) != 0
                     tooltip 'Advertise this building to attract more and better customers'
                     text "Advertise"
-                $ bm_building_chars = bm_building.get_all_chars()
+                $ bm_building_chars = set(bm_building.inhabitants)
+                if hasattr(bm_building, "all_workers"):
+                    $ bm_building_chars.update(bm_building.all_workers)
                 button:
                     xysize (135, 40)
                     action Return(['building', "items_transfer", bm_building_chars])
@@ -304,7 +306,7 @@ init:
             null height 20
 
         # Manager?
-        if simple_jobs["Manager"] in bm_building.jobs:
+        if hasattr(bm_building, "manager"):
             vbox:
                 xalign .5
                 frame:
@@ -338,11 +340,48 @@ init:
                 xysize 260, 40
                 background Frame("content/gfx/frame/namebox5.png", 10, 10)
                 label str(bm_mid_frame_mode.name) text_size 18 text_color ivory align .5, .6
-            null height 5
 
+            if isinstance(bm_mid_frame_mode, Business) and hasattr(bm_building, "all_workers"):
+                $ workers = [w for w in bm_building.all_workers if w.get_job() in bm_mid_frame_mode.jobs]
+                if workers:
+                    if bm_building.manager in workers:
+                        $ workers.remove(bm_building.manager)
+                        $ workers.sort(key=attrgetter("level"), reverse=True)
+                    hbox:
+                        pos (0, 70)
+                        xsize 315
+                        text "Staff:" align (.5, .5) size 25 color goldenrod drop_shadow [(1, 2)] drop_shadow_color black antialias True style_prefix "proper_stats"
+                        
+                    vpgrid:
+                        pos (5, 120)
+                        style_group "dropdown_gm"
+                        xysize 300, 420
+                        cols 5
+                        spacing 2
+                        draggable True
+                        mousewheel True
+                
+                        for w in workers:
+                            frame:
+                                xysize 60, 60
+                                padding 5, 5
+                                background Frame(gfxframes + "p_frame53.png", 5, 5)
+                                $ img = w.show("portrait", resize=(50, 50), cache=True)
+                                imagebutton:
+                                    idle img
+                                    hover (im.MatrixColor(img, im.matrix.brightness(.15)))
+                                    action If(w.is_available, true=[SetVariable("char", w),
+                                                                    SetVariable("eqtarget", w),
+                                                                    SetVariable("equip_girls", [w]),
+                                                                    SetVariable("came_to_equip_from", last_label),
+                                                                    Jump("char_equip")],
+                                                              false=NullAction())
+                                    tooltip "Check %s's equipment" % w.name
+                               
+            
             frame:
                 background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
-                align .5, .5
+                align .5, .95
                 padding 10, 10
                 vbox:
                     style_group "wood"
@@ -462,14 +501,15 @@ init:
                                     top_padding 4
                                     action Return(["bm_mid_frame_mode", u])
 
-                            imagebutton:
-                                align 1.0, 0 offset 2, -2
-                                idle ProportionalScale("content/gfx/interface/buttons/close4.png", 20, 24)
-                                hover ProportionalScale("content/gfx/interface/buttons/close4_h.png", 20, 24)
-                                action Show("yesno_prompt",
-                                     message="Are you sure you wish to close this %s for %d Gold?" % (u.name, u.get_cost()[0]),
-                                     yes_action=[Function(bm_building.close_business, u), Hide("yesno_prompt")], no_action=Hide("yesno_prompt"))
-                                tooltip "Close the business"
+                            if not (isinstance(u, ExplorationGuild) and u.explorers):
+                                imagebutton:
+                                    align 1.0, 0 offset 2, -2
+                                    idle ProportionalScale("content/gfx/interface/buttons/close4.png", 20, 24)
+                                    hover ProportionalScale("content/gfx/interface/buttons/close4_h.png", 20, 24)
+                                    action Show("yesno_prompt",
+                                                message="Are you sure you wish to close this %s for %d Gold?" % (u.name, u.get_cost()[0]),
+                                                yes_action=[Function(bm_building.close_business, u), Hide("yesno_prompt")], no_action=Hide("yesno_prompt"))
+                                    tooltip "Close the business"
 
     screen building_management_leftframe_businesses_mode:
         if not isinstance(bm_mid_frame_mode, ExplorationGuild):
@@ -883,7 +923,7 @@ init:
                         tooltip "Hire cleaners to completely clean all buildings for %d Gold." % price
                         text "Clean: All Buildings"
 
-                if simple_jobs["Manager"] in bm_building.jobs:
+                if hasattr(bm_building, "manager"):
                     null height 20
                     label u"Management Options:":
                          style "proper_stats_label"
