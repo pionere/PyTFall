@@ -132,12 +132,11 @@ label special_items_empty_extractor:
     jump char_equip
 
 label special_items_full_extractor:
-    if not(eqtarget.has_flag("exp_extractor")):
-        $ eqtarget.set_flag("exp_extractor", value=day)
-    elif eqtarget.flag("exp_extractor") == day:
+    if eqtarget.has_flag("dnd_exp_extractor"):
         $ renpy.show_screen('message_screen', "Experience already has been transferred to this person today. It cannot be done too often.")
         $ inv_source.add_item("Full Extractor")
         jump char_equip
+    $ eqtarget.set_flag("dnd_exp_extractor")
 
     $ inv_source.add_item("Empty Extractor")
     if eqtarget <> hero:
@@ -285,8 +284,8 @@ label special_items_flashing_extract:
 label special_items_puke_cola:
     if not 'Food Poisoning' in eqtarget.effects:
         $ eqtarget.mod_stat("health", randint(85, 255))
-        $ eqtarget.up_counter("food_poison_counter", 5)
-        if eqtarget.get_flag("food_poison_counter", 0) >= 7:
+        $ eqtarget.up_counter("dnd_food_poison_counter", 5)
+        if eqtarget.flag("dnd_food_poison_counter") >= 7:
             $ eqtarget.enable_effect('Food Poisoning')
         play events "events/item_cola.mp3"
     else:

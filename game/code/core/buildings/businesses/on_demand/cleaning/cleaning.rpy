@@ -24,7 +24,7 @@ init -5 python:
 
             using_all_workers = False
 
-            power_flag_name = "ndd_cleaning_power"
+            power_flag_name = "dnd_cleaning_power"
             job = simple_jobs["Cleaning"]
 
             # Pure cleaners, container is kept around for checking during all_on_deck scenarios

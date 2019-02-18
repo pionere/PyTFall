@@ -886,7 +886,10 @@ init -10 python:
                     traits = [t for t in c.traits if t.id in ("Aggressive", "Vicious", "Sadist", "Extremely Jealous")]
                     if not traits:
                         continue
+                    traits.append(None)
                     trait = choice(traits)
+                    if trait is None:
+                        continue
                     others = [o for o in self.inhabitants if o != c and o != hero]
                     if trait == "Extremely Jealous":
                         if not check_lovers(c, hero):

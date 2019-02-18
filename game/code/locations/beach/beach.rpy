@@ -114,7 +114,7 @@ screen city_beach_swim():
             textbutton "Diving":
                 action Hide("city_beach_swim"), Jump("mc_action_city_beach_diving_checks")
 
-        if global_flags.has_flag('swam_city_beach'):
+        if global_flags.has_flag('constitution_bonus_from_swimming_at_beach'):
             textbutton "About swimming":
                 action Hide("city_beach_swim"), Jump("city_beach_about_swimming")
 
@@ -131,9 +131,8 @@ label city_beach_about_swimming:
 
 label city_beach_swimming_checks:
 
-    if not global_flags.flag('swam_city_beach'):
-        $ global_flags.set_flag('swam_city_beach')
-        $ hero.set_flag("constitution_bonus_from_swimming_at_beach", value=0)
+    if not global_flags.has_flag('constitution_bonus_from_swimming_at_beach'):
+        $ global_flags.set_flag("constitution_bonus_from_swimming_at_beach", value=0)
         "The water is quite warm all year round, but it can be pretty dangerous for novice swimmers due to big waves and sea monsters."
         "Those who are not confident in their abilities prefer the local swimming pool, although it's not free, unlike the sea."
         "In general, the swimming skill will increase faster in the ocean, unless you drown immediately due to low skill."
@@ -210,11 +209,11 @@ label mc_action_hero_ocean_skill_checks:
     $ hero.gfx_mod_skill("swimming", 0, swim_act)
     $ hero.mod_stat("vitality", -swim_vit)
 
-    if locked_dice(temp) and hero.flag("constitution_bonus_from_swimming_at_beach") <= 30:
+    if locked_dice(temp) and global_flags.flag("constitution_bonus_from_swimming_at_beach") <= 30:
         $ hero.stats.lvl_max["constitution"] += 1
         $ hero.stats.max["constitution"] += 1
         $ hero.gfx_mod_stat("constitution", 1)
-        $ hero.set_flag("constitution_bonus_from_swimming_at_beach", value=hero.flag("constitution_bonus_from_swimming_at_beach")+1)
+        $ global_flags.up_counter("constitution_bonus_from_swimming_at_beach")
         $ narrator ("You feel more endurant than before {color=[green]}(max constitution +1){/color}.")
 
     $ global_flags.set_flag("keep_playing_music")
@@ -282,7 +281,7 @@ screen diving_progress_bar(o2, max_o2): # oxygen bar for diving
 
 label mc_action_city_beach_diving_checks:
     if not global_flags.has_flag('vitality_bonus_from_diving_at_beach'):
-         $ hero.set_flag("vitality_bonus_from_diving_at_beach", value=0)
+        $ global_flags.set_flag("vitality_bonus_from_diving_at_beach", value=0)
          
     if not global_flags.flag('diving_city_beach'):
         $ global_flags.set_flag('diving_city_beach')
@@ -357,11 +356,11 @@ label mc_action_city_beach_diving_checks:
     hide screen diving_progress_bar
     "You're too tired to continue!"
     $ hero.mod_stat("vitality", -randint(10, 15))
-    if locked_dice(hero.get_skill("swimming")) and hero.flag("vitality_bonus_from_diving_at_beach") < 100:
+    if locked_dice(hero.get_skill("swimming")) and global_flags.flag("vitality_bonus_from_diving_at_beach") <= 100:
         $ hero.stats.lvl_max["vitality"] += 1
         $ hero.stats.max["vitality"] += 1
         $ hero.mod_stat("vitality", 1)
-        $ hero.set_flag("vitality_bonus_from_diving_at_beach", value=hero.flag("vitality_bonus_from_diving_at_beach")+1)
+        $ global_flags.up_counter("vitality_bonus_from_diving_at_beach")
         $ narrator ("You feel more endurant than before {color=[green]}(max vitality +1){/color}.")
     
     jump city_beach

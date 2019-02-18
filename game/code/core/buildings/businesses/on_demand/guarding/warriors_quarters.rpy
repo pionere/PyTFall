@@ -16,7 +16,7 @@ init -5 python:
 
             using_all_workers = False
 
-            power_flag_name = "ndd_guarding_power"
+            power_flag_name = "dnd_guarding_power"
             job = simple_jobs["Guarding"]
 
             # Upgrades:
@@ -344,13 +344,6 @@ init -5 python:
             #     for i in active_workers_backup:
             #         if can_do_work(i, check_ap=False): # Check if we're still ok to work...
             #             self.active_workers.append(i)
-
-            # Build a Job report:
-            # Create flag object first to pass data to the Job:
-            # flag = Flags()
-            # flag.set_flag("result", battle.winner == defence_team)
-            # flag.set_flag("opfor", opfor)
-            # job(defenders, defenders, building, action="intercept", flag=flag)
 
             # decided to add report in debug mode after all :)
             self.log(set_font_color("Battle Starts!", "crimson"))

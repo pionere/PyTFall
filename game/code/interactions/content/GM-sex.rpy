@@ -194,7 +194,7 @@ label interactions_sex: # we go to this label from GM menu propose sex
         else:
             $ disposition_level_for_sex += randint(50, 100)
 
-    if char.flag("flag_int_had_sex_with_mc"):
+    if char.has_flag("flag_int_had_sex_with_mc"):
         $ disposition_level_for_sex -= 50+char.flag("flag_int_had_sex_with_mc")*10 # the more char does it with MC, the less needed disposition is, despite everything else
 
     # so normal (without flag) required level of disposition could be from 200 to 1200 for non lovers
@@ -300,10 +300,7 @@ label interactions_sex_scene_begins: # here we set initial picture before the sc
     $ max_sex_scene_libido = sex_scene_libido = get_character_libido(char)
     $ char.AP -= 1
 
-    if not(char.flag("flag_int_had_sex_with_mc")):
-        $ char.set_flag("flag_int_had_sex_with_mc", 1)
-    else:
-        $ char.set_flag("flag_int_had_sex_with_mc", char.flag("flag_int_had_sex_with_mc")+1)
+    $ char.up_counter("flag_int_had_sex_with_mc")
 
     if not char.has_flag("raped_by_player"):
         call interactions_sex_begins from _call_interactions_sex_begins

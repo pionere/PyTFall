@@ -480,7 +480,7 @@ init -9 python:
                 return self._path_to_imgfolder
 
         def _portrait(self, st, at):
-            if self.flag("fixed_portrait"):
+            if self.has_flag("fixed_portrait"):
                 return self.flag("fixed_portrait"), None
             else:
                 return self.show("portrait", self.get_mood_tag(), type="first_default", add_mood=False, cache=True, resize=(120, 120)), None
@@ -488,32 +488,38 @@ init -9 python:
         def override_portrait(self, *args, **kwargs):
             kwargs["resize"] = kwargs.get("resize", (120, 120))
             kwargs["cache"] = kwargs.get("cache", True)
-            if self.has_image(*args, **kwargs): # if we have the needed portrait, we just show it
+            # if we have the needed portrait, we just show it
+            if self.has_image(*args, **kwargs):
                 self.set_flag("fixed_portrait", self.show(*args, **kwargs))
-            elif "confident" in args: # if not...
-                if self.has_image("portrait", "happy"): # then we replace some portraits with similar ones
-                    self.set_flag("fixed_portrait", self.show("portrait", "happy", **kwargs))
+                return
+            # if not... then we replace some portraits with similar ones
+            mood = None
+            if "confident" in args: 
+                if self.has_image("portrait", "happy"):
+                    mood = "happy"
                 elif self.has_image("portrait", "indifferent"):
-                    self.set_flag("fixed_portrait", self.show("portrait", "indifferent", **kwargs))
+                    mood = "indifferent"
             elif "suggestive" in args:
                 if self.has_image("portrait", "shy"):
-                    self.set_flag("fixed_portrait", self.show("portrait", "shy", **kwargs))
+                    mood = "shy"
                 elif self.has_image("portrait", "happy"):
-                    self.set_flag("fixed_portrait", self.show("portrait", "happy", **kwargs))
+                    mood = "happy"
             elif "ecstatic" in args:
                 if self.has_image("portrait", "happy"):
-                    self.set_flag("fixed_portrait", self.show("portrait", "happy", **kwargs))
-                elif self.set_flag("fixed_portrait", self.show("portrait", "shy")):
-                    self.set_flag("fixed_portrait", self.show("portrait", "shy", **kwargs))
+                    mood = "happy"
+                elif self.has_image("portrait", "shy"):
+                    mood = "shy"
             elif "shy" in args:
                 if self.has_image("portrait", "uncertain"):
-                    self.set_flag("fixed_portrait", self.show("portrait", "uncertain", **kwargs))
+                    mood = "uncertain"
             elif "uncertain" in args:
                 if self.has_image("portrait", "shy"):
-                    self.set_flag("fixed_portrait", self.show("portrait", "shy", **kwargs))
+                    mood = "shy"
             else: # most portraits will be replaced by indifferent
                 if self.has_image("portrait", "indifferent"):
-                    self.set_flag("fixed_portrait", self.show("portrait", "indifferent", **kwargs))
+                    mood = "indifferent"
+            if mood is not None:
+                self.set_flag("fixed_portrait", self.show("portrait", mood, **kwargs))
 
         def show_portrait_overlay(self, s, mode="normal"):
             self.say_screen_portrait_overlay_mode = s
@@ -660,7 +666,7 @@ init -9 python:
             if cache:
                 for entry in self.cache:
                     if entry[0] == tags:
-                         return ProportionalScale(entry[1], maxw, maxh)
+                        return ProportionalScale(entry[1], maxw, maxh)
 
             imgpath = ""
             if type in ["normal", "first_default", "reduce"]:
@@ -1013,12 +1019,12 @@ init -9 python:
                 if item in self.constemp:
                     return None
                 if item.type == "alcohol":
-                    if self.get_flag("drunk_counter", 0) >= when_drunk:
+                    if self.get_flag("dnd_drunk_counter", 0) >= when_drunk:
                         return None
                     if 'Depression' in self.effects:
                         chance.append(30 + when_drunk)
                 elif item.type == "food":
-                    food_poisoning = self.get_flag("food_poison_counter", 0)
+                    food_poisoning = self.get_flag("dnd_food_poison_counter", 0)
                     if food_poisoning:
                         appetite -= food_poisoning * 8
                     chance.append(appetite)
@@ -1163,56 +1169,56 @@ init -9 python:
                     continue
 
                 if slot in ("consumable", "ring"):
-                   # create a list of weight/item pairs for consumables
-                   #  and rings we may want to equip more than one of.
-                   selected = [[sum(_weight), item] for _weight, item in picks if sum(_weight) > 0]
-                   selected.sort(key=itemgetter(0), reverse=True)
+                    # create a list of weight/item pairs for consumables
+                    #  and rings we may want to equip more than one of.
+                    selected = [[sum(_weight), item] for _weight, item in picks if sum(_weight) > 0]
+                    selected.sort(key=itemgetter(0), reverse=True)
 
-                   rings_to_equip = 3 if slot == "ring" else -1
-                   for weight, item in selected:
-                       while 1:
-                           # Recheck the situation before using an item
+                    rings_to_equip = 3 if slot == "ring" else -1
+                    for weight, item in selected:
+                        while 1:
+                            # Recheck the situation before using an item
 
-                           # consider the effects of Drunk, overeating, etc...
-                           if rings_to_equip == -1:
-                               result = self.equip_chance(item)
-                               if result is None or sum(result) <= 0:
-                                   break
+                            # consider the effects of Drunk, overeating, etc...
+                            if rings_to_equip == -1:
+                                result = self.equip_chance(item)
+                                if result is None or sum(result) <= 0:
+                                    break
 
-                           # test if the item is still useful
-                           for stat in target_stats:
-                               if stat in item.max and item.max[stat] > 0:
-                                   break # useful
-                               if stat in item.mod:
-                                   bonus = item.mod[stat]
-                                   if bonus < 0:
-                                       continue
-                                   gain = item.get_stat_eq_bonus(self.stats, stat)
-                                   if gain > bonus/2: # We basically allow 50% waste
-                                       break # useful
-                           else:
-                               # not useful for stat -> Let's try skills:
-                               for skill in item.mod_skills:
-                                   if skill in target_skills:
-                                       break # useful
-                               else:
-                                   # not useful for skills either -> next
-                                   break
+                            # test if the item is still useful
+                            for stat in target_stats:
+                                if stat in item.max and item.max[stat] > 0:
+                                    break # useful
+                                if stat in item.mod:
+                                    bonus = item.mod[stat]
+                                    if bonus < 0:
+                                        continue
+                                    gain = item.get_stat_eq_bonus(self.stats, stat)
+                                    if gain > bonus/2: # We basically allow 50% waste
+                                        break # useful
+                            else:
+                                # not useful for stat -> Let's try skills:
+                                for skill in item.mod_skills:
+                                    if skill in target_skills:
+                                        break # useful
+                                else:
+                                    # not useful for skills either -> next
+                                    break
 
-                           inv.remove(item)
-                           self.equip(item, remove=False, aeq_mode=True)
-                           returns.append(item.id)
-                           if rings_to_equip > 0:
-                               rings_to_equip -= 1
-                               if rings_to_equip == 0:
-                                   break
+                            inv.remove(item)
+                            self.equip(item, remove=False, aeq_mode=True)
+                            returns.append(item.id)
+                            if rings_to_equip > 0:
+                                rings_to_equip -= 1
+                                if rings_to_equip == 0:
+                                    break
 
-                           # Move on if we don't have any more of the item.
-                           if item not in inv:
-                               break
+                            # Move on if we don't have any more of the item.
+                            if item not in inv:
+                                break
 
-                       if rings_to_equip == 0:
-                           break
+                        if rings_to_equip == 0:
+                            break
                 else:
                     # Standard item -> track one item we think is best of all
                     selected = [0, None]
@@ -1220,20 +1226,20 @@ init -9 python:
                     # Get the total weight for every item:
                     c0 = real_weapons is False and slot in ("weapon", "smallweapon")
                     for _weight, item in picks:
-                       if c0 and item.type != "tool":
-                           if DEBUG_AUTO_ITEM:
-                               msg = []
-                               msg.append("Skipping AE Weapons!")
-                               msg.append("Real Weapons: {}".format(real_weapons))
-                               if base_purpose:
-                                   msg.append("Base: {}".format(base_purpose))
-                               if sub_purpose:
-                                   msg.append("Sub: {}".format(sub_purpose))
-                               aeq_debug(" ".join(msg))
-                           continue
-                       _weight = sum(_weight)
-                       if _weight > selected[0]:
-                           selected = [_weight, item] # store weight and item for the highest weight
+                        if c0 and item.type != "tool":
+                            if DEBUG_AUTO_ITEM:
+                                msg = []
+                                msg.append("Skipping AE Weapons!")
+                                msg.append("Real Weapons: {}".format(real_weapons))
+                                if base_purpose:
+                                    msg.append("Base: {}".format(base_purpose))
+                                if sub_purpose:
+                                    msg.append("Sub: {}".format(sub_purpose))
+                                aeq_debug(" ".join(msg))
+                            continue
+                        _weight = sum(_weight)
+                        if _weight > selected[0]:
+                            selected = [_weight, item] # store weight and item for the highest weight
 
                     # equip one item we selected:
                     item = selected[1]
@@ -1744,13 +1750,13 @@ init -9 python:
             if hasattr(self, "effects"):
                 if item.slot == 'consumable' and direction:
                     if item.type == 'food':
-                        self.up_counter("food_poison_counter", 1)
-                        if self.get_flag("food_poison_counter", 0) >= 7 and not ('Food Poisoning' in self.effects):
+                        self.up_counter("dnd_food_poison_counter", 1)
+                        if self.get_flag("dnd_food_poison_counter", 0) >= 7 and not ('Food Poisoning' in self.effects):
                             self.enable_effect('Food Poisoning')
 
                     elif item.type == 'alcohol':
-                        self.up_counter("drunk_counter", item.mod["joy"])
-                        if self.get_flag("drunk_counter", 0) >= 35 and not ('Drunk' in self.effects):
+                        self.up_counter("dnd_drunk_counter", item.mod["joy"])
+                        if self.get_flag("dnd_drunk_counter", 0) >= 35 and not ('Drunk' in self.effects):
                             self.enable_effect('Drunk')
                         elif 'Drunk' in self.effects and self.AP > 0 and not ('Drinker' in self.effects):
                             self.AP -=1
@@ -1877,16 +1883,6 @@ init -9 python:
         def next_day(self):
             self.jobpoints = 0
             self.clear_img_cache()
-
-            self.del_flag("food_poison_counter")
-            self.del_flag("drunk_counter")
-            self.del_flag("_drag_container")
-
-            for flag in self.flags.keys():
-                if flag.startswith("_day_countdown"):
-                    self.down_counter(flag, value=1, min=0, delete=True)
-                elif flag.startswith("_jobs"):
-                    self.del_flag(flag)
 
             self.up_counter("days_in_game")
             self.log_stats()
@@ -2595,10 +2591,9 @@ init -9 python:
                     txt.append("{color=[red]}%s is spending the night in the jail!{/color}" % self.fullname)
                 flag_red = True
             elif self.action == simple_jobs["Exploring"]:
-                if self.has_flag("back_from_track"):
+                if self.has_flag("dnd_back_from_track"):
                     txt.append("{color=[green]}%s arrived back from the exploration run!{/color}" % self.fullname)
                     self.action = None
-                    self.del_flag("back_from_track")
                     flag_red = self.nd_sleep(txt)
                 else:
                     txt.append("{color=[green]}%s is currently on the exploration run!{/color}" % self.fullname)
@@ -2628,9 +2623,7 @@ init -9 python:
 
                 # Finances:
                 # Upkeep:
-                if not self.is_available:
-                    pass
-                elif self._workplace == pytfall.school:
+                if self._workplace == pytfall.school:
                     # currently in school
                     txt.append("Upkeep is included in price of the class your worker's taking.")
                 else:
@@ -2663,9 +2656,8 @@ init -9 python:
                 # Settle wages:
                 mood = self.fin.settle_wage(txt, mood)
 
-                tips = self.flag("accumulated_tips")
+                tips = self.flag("dnd_accumulated_tips")
                 if tips:
-                    self.del_flag("accumulated_tips")
                     temp = choice(["Total tips earned: {color=[gold]}%d Gold{/color}. " % tips,
                                    "%s got {color=[gold]}%d Gold{/color} in tips. " % (self.nickname, tips)])
                     txt.append(temp)

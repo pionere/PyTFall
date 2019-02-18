@@ -1723,7 +1723,7 @@ init -10 python:
                 elif char.get_stat("disposition") < 200:
                     char.mod_stat("disposition", 1)
             elif self.name == "Drunk":
-                char.mod_stat("vitality", -char.get_flag("drunk_counter", 0))
+                char.mod_stat("vitality", -char.get_flag("dnd_drunk_counter", 0))
                 char.mod_stat("health", -10)
                 char.mod_stat("joy", -5)
                 char.mod_stat("mp", -20)
@@ -1743,9 +1743,9 @@ init -10 python:
                 if self.name == "Exhausted":
                     char.del_flag("exhausted_counter")
                 elif self.name == "Drunk":
-                    char.del_flag("drunk_counter")
+                    char.del_flag("dnd_drunk_counter")
                 elif self.name == "Food Poisoning":
-                    char.del_flag("food_poison_counter")
+                    char.del_flag("dnd_food_poison_counter")
                 elif self.name == "Depression":
                     char.del_flag("depression_counter")
                 elif self.name == "Elation":

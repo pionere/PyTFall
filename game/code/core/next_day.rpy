@@ -237,10 +237,12 @@ label next_day_calculations:
         tl.end("pytfall/calender .next_day")
 
         # Reset Flags:
-        for char in hero.chars:
+        for char in itertools.chain(chars.values(), [hero]):
             for flag in char.flags.keys():
-                if flag.startswith("ndd"):
+                if flag.startswith("dnd"):
                     char.del_flag(flag)
+                elif flag.startswith("_day_countdown"):
+                    char.down_counter(flag, value=1, min=0, delete=True)
 
     $ tl.end("Next Day")
     return

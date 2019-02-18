@@ -421,11 +421,11 @@ init -9 python:
                 # check if the hero has an another team in the lineup
                 if winner == hero.team:
                     for idx, t in enumerate(lineup):
-                         if t.leader == hero:
-                             # another team in the lineup -> replace it with the current one
-                             lineup[idx] = winner 
-                             winner_added = True
-                             break
+                        if t.leader == hero:
+                            # another team in the lineup -> replace it with the current one
+                            lineup[idx] = winner 
+                            winner_added = True
+                            break
                 if not "winner_added" in locals():
                     del lineup[-1]
                     lineup.append(winner)
@@ -626,7 +626,6 @@ init -9 python:
             female_fighters = store.female_fighters
             teams = json.load(renpy.file("content/db/arena_teams.json"))
             team_members = set() # collect the fighters which are already added to teams
-            char_members = set() # collect the chars which are added as fighters
             for team in teams:
                 members = team["members"]
                 name = team["name"]
@@ -665,8 +664,9 @@ init -9 python:
                                 raise Exception(msg)
                             team_members.add(member)
                         if member in chars:
-                            char_members.add(member)
                             member = chars[member]
+                            if member in hero.chars:
+                                hero.remove_char(member)
                         elif member in female_fighters:
                             member = female_fighters[member]
                         elif member in male_fighters:
@@ -730,10 +730,6 @@ init -9 python:
                     else: # if teamsize == 3:
                         self.teams_3v3.append(a_team)
 
-            for char in char_members:
-                member = chars.pop(member)
-                if member in hero.chars:
-                    hero.remove_char(member)
 
         def setup_arena(self):
             """Initial Arena Setup, this will be improved and prolly split several
@@ -764,8 +760,6 @@ init -9 python:
                     tier_up_to(char, 7, **tier_kwargs)
                     auto_buy_for_bt(char, casual=None)
                     give_tiered_magic_skills(char)
-                    if char.id in chars:
-                        chars.pop(char.id)
                 else:
                     char = build_rc(tier=7,
                                     tier_kwargs=tier_kwargs,
@@ -804,8 +798,6 @@ init -9 python:
                     tier_up_to(fighter, tier)
                     auto_buy_for_bt(fighter, casual=None)
                     give_tiered_magic_skills(fighter)
-                    if fighter.id in chars:
-                        chars.pop(fighter.id)
 
                 fighter.arena_active = True
                 fighter.arena_permit = True
@@ -859,9 +851,6 @@ init -9 python:
                     team.add(f)
 
         # -------------------------- ChainFights vs Mobs ------------------------>
-        def update_cf(self):
-            pass
-
         def check_before_chainfight(self):
             """
             Checks before chainfight.
@@ -1039,9 +1028,9 @@ init -9 python:
             value = udd.value
 
             for idx, (color, val) in enumerate(data):
-               value -= val
-               if value <= 0:
-                   break
+                value -= val
+                if value <= 0:
+                    break
 
             bonus = (None, "health", "mp", "vitality", None)
             reward = bonus[idx]

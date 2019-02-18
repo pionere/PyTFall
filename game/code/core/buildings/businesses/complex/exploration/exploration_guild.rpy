@@ -199,7 +199,7 @@ init -6 python: # Guild, Tracker and Log.
             # Restore Chars and Remove from guild:
             self.guild.explorers.remove(self)
             for char in self.team:
-                char.set_flag("back_from_track", True)
+                char.set_flag("dnd_back_from_track", True)
 
             # Next Day Stuff:
             # Not sure if this is required... we can add log objects and build

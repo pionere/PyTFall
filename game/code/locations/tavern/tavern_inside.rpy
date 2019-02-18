@@ -18,7 +18,7 @@ label tavern_town:
 
 
     $ tavern_event_list = []
-    if hero.flag("fought_in_tavern") == day: # after a brawl tavern will be unavailable until the next turn
+    if hero.has_flag("dnd_fought_in_tavern"): # after a brawl tavern will be unavailable until the next turn
         show expression npcs["Rita_tavern"].get_vnsprite() as npc
         with dissolve
         tavern_rita "I'm sorry, we are closed for maintenance. Please return tomorrow."
@@ -125,7 +125,7 @@ screen city_tavern_inside():
                     yalign .5
                     action [Hide("city_tavern_inside"), Jump("mc_action_tavern_look_around")]
                     text "Look around" size 15
-            if hero.AP > 0 and global_flags.flag("tavern_status")[1] == "cozy" and hero.flag("rest_in_tavern") != day:
+            if hero.AP > 0 and global_flags.flag("tavern_status")[1] == "cozy" and not hero.has_flag("dnd_rest_in_tavern"):
                 button:
                     xysize (120, 40)
                     yalign .5
@@ -159,12 +159,12 @@ screen city_tavern_inside():
 label mc_action_tavern_relax:
     hide drunkards with dissolve
     if len(hero.team) < 2:
-        $ hero.set_flag("rest_in_tavern", value = day)
+        $ hero.set_flag("dnd_rest_in_tavern")
         "You relax for awhile, but there isn't much to do here. Perhaps it would be more fun if you weren't alone."
         $ hero.gfx_mod_stat("vitality", 5)
     else:
         if hero.take_money(randint(30, 50), reason="Tavern"):
-            $ hero.set_flag("rest_in_tavern", value = day)
+            $ hero.set_flag("dnd_rest_in_tavern")
             $ members = list(x for x in hero.team if (x != hero))
             if len(members) == 1:
                 show expression members[0].get_vnsprite() at center as temp1
@@ -193,40 +193,33 @@ label city_tavern_brawl_fight:
     else:
         "You nod to your teammates and go inside. A few thugs immediately notice you."
 
-    call city_tavern_thugs_fight from _call_city_tavern_thugs_fight
-    if hero.flag("fought_in_tavern") == day:
-        if hero.take_money(randint(50, 250), reason="Tavern"):
-            "You were beaten and robbed..."
-        else:
-            "You were beaten..."
-        jump city
+    $ num = randint(2, 5)
+    $ i = 0
+    while i < num:
+        if i != 0:
+            "Another group is approaching you!"
+            menu:
+                "Fight!":
+                    $ pass
+                "Run away":
+                    "You quickly leave the tavern."
+                    $ hero.set_flag("dnd_fought_in_tavern")
+                    jump city
 
-    $ i = 1
-    $ N = randint(2, 5)
-    while i < N:
-        if hero.flag("fought_in_tavern") == day:
-            if hero.take_money(randint(150, 250), reason="Tavern"):
+        call city_tavern_thugs_fight from _call_city_tavern_thugs_fight
+        if hero.has_flag("dnd_fought_in_tavern"):
+            if hero.gold > 50:
+                $ hero.take_money(min(hero.gold, randint(50, 150)*(i+1)), reason="Tavern")
                 "You were beaten and robbed..."
             else:
                 "You were beaten..."
                 jump city
 
-        scene bg tavern_inside
-        with dissolve
-        "Another group is approaching you!"
-        menu:
-            "Fight!":
-                $ pass
-            "Run away":
-                "You quickly leave the tavern."
-                $ hero.set_flag("fought_in_tavern", value = day)
-                jump city
-        call city_tavern_thugs_fight from _call_city_tavern_thugs_fight_1
         $ i += 1
 
     "The fight is finally over. You found a few coins in thugs pockets."
-    $ hero.add_money(randint(50, 150)*i, reason="Tavern")
-    $ hero.set_flag("fought_in_tavern", value = day)
+    $ hero.add_money(randint(50, 150)*(i+1), reason="Tavern")
+    $ hero.set_flag("dnd_fought_in_tavern")
     jump city
 
 
@@ -285,7 +278,7 @@ label city_tavern_thugs_fight: # fight with random thugs in the brawl mode
                 member.gfx_mod_exp(exp_reward(member, enemy_team))
 
     else:
-        $ hero.set_flag("fought_in_tavern", value = day)
+        $ hero.set_flag("dnd_fought_in_tavern")
     return
 
 

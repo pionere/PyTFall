@@ -791,7 +791,125 @@ label after_load:
                     buildings[nb.id] = nb
 
         if "clearCharacters" in locals():
+            if hero.has_flag("mor_fish_dice"):
+                if pytfall.world_quests.check_stage("Fishery") == 1:
+                    hero.set_flag("mor_fish_quest", (store.mor_fish, store.mor_quantity))
+                if hero.flag("mor_fish_dice") == day:
+                    hero.set_flag("dnd_mor_fish_quest", (store.mor_fish, store.mor_quantity))
+
+                hero.del_flag("mor_fish_dice")
+                hero.del_flag("mor_fish_quest")
+
+                del store.mor_fish
+                del store.mor_quantity
+
+            if hero.has_flag("dark_forest_rested_today"):
+                if hero.flag("dark_forest_rested_today") == day:
+                    hero.set_flag("dnd_dark_forest_rested")
+                hero.del_flag("dark_forest_rested_today")
+
+            if hero.has_flag("dark_forest_met_bandits"):
+                if hero.flag("dark_forest_met_bandits") == day:
+                    hero.set_flag("dnd_dark_forest_bandits")
+                hero.del_flag("dark_forest_met_bandits")
+
+            if hero.has_flag("dark_forest_met_girl"):
+                if hero.flag("dark_forest_met_girl") == day:
+                    hero.set_flag("dnd_dark_forest_girl")
+                hero.del_flag("dark_forest_met_girl")
+
+            if hero.has_flag("dark_forest_found_river"):
+                if hero.flag("dark_forest_found_river") == day:
+                    hero.set_flag("dnd_dark_forest_river")
+                hero.del_flag("dark_forest_found_river")
+
+            if hero.has_flag("ate_in_cafe"):
+                if hero.flag("ate_in_cafe") == day:
+                    hero.set_flag("dnd_ate_in_cafe")
+                hero.del_flag("ate_in_cafe")
+
+            if hero.has_flag("rest_in_tavern"):
+                if hero.flag("rest_in_tavern") == day:
+                    hero.set_flag("dnd_rest_in_tavern")
+                hero.del_flag("rest_in_tavern")
+
+            if hero.has_flag("fought_in_tavern"):
+                if hero.flag("fought_in_tavern") == day:
+                    hero.set_flag("dnd_fought_in_tavern")
+                hero.del_flag("fought_in_tavern")
+
+            if hero.has_flag("storyi_rest"):
+                if hero.flag("storyi_rest") == day:
+                    hero.set_flag("dnd_storyi_rest")
+                hero.del_flag("storyi_rest")
+
+            if hero.has_flag("storyi_heal"):
+                if hero.flag("storyi_heal") == day:
+                    hero.set_flag("dnd_storyi_heal")
+                hero.del_flag("storyi_heal")
+
+            if hero.has_flag("rest_at_beach"):
+                if hero.flag("rest_at_beach") == day:
+                    hero.set_flag("dnd_rest_at_beach")
+                hero.del_flag("rest_at_beach")
+            
+            if hero.has_flag("constitution_bonus_from_swimming_at_beach"):
+                global_flags.set_flag("constitution_bonus_from_swimming_at_beach", hero.flag("constitution_bonus_from_swimming_at_beach"))
+                hero.del_flag("constitution_bonus_from_swimming_at_beach")
+
+            if hero.has_flag("vitality_bonus_from_diving_at_beach"):
+                global_flags.set_flag("vitality_bonus_from_diving_at_beach", hero.flag("vitality_bonus_from_diving_at_beach"))
+                hero.del_flag("vitality_bonus_from_diving_at_beach")
+            global_flags.del_flag("swam_city_beach")
+
+            if hero.has_flag("visited_deep_forest"):
+                global_flags.set_flag("visited_deep_forest")
+                hero.del_flag("visited_deep_forest")
+
+            if hero.has_flag("found_old_ruins"):
+                global_flags.set_flag("found_old_ruins")
+                hero.del_flag("found_old_ruins")
+
+            if hero.has_flag("defeated_boss_1"):
+                global_flags.set_flag("defeated_boss_1")
+                hero.del_flag("defeated_boss_1")
+
+            if hero.has_flag("been_in_old_ruins"):
+                global_flags.set_flag("been_in_old_ruins")
+                hero.del_flag("been_in_old_ruins")
+
             for char in itertools.chain([hero], chars.values(), hero.chars, npcs.values()):
+                if char.has_flag("drunk_counter"):
+                    char.set_flag("dnd_drunk_counter", char.get_flag("drunk_counter"))
+                    char.del_flag("drunk_counter")
+                if char.has_flag("food_poison_counter"):
+                    char.set_flag("dnd_food_poison_counter", char.get_flag("food_poison_counter"))
+                    char.del_flag("food_poison_counter")
+                if char.has_flag("exp_extractor"):
+                    if char.flag("exp_extractor") == day:
+                        char.set_flag("dnd_exp_extractor")
+                    char.del_flag("exp_extractor")
+                if char.has_flag("gm_praise_day"):
+                    if char.flag("gm_praise_day") == day:
+                        char.set_flag("dnd_flag_interactions_praise", 1)
+                    char.del_flag("gm_praise_day")
+                if char.has_flag("gm_char_proposed_sex"):
+                    char.del_flag("gm_char_proposed_sex")
+
+                for flag in ("flag_interactions_general","flag_girl_interactions_aboutjob","flag_interactions_howshefeels","flag_interactions_abouther",
+                             "flag_interactions_greeting", "flag_interactions_kiss_lesbian_refuses", "flag_interactions_kiss", "harrasment_after_battle",
+                             "flag_interactions_insult","flag_interactions_girlfriend","flag_interactions_hireforsex", "flag_interactions_sex",
+                             "flag_interactions_hug", "flag_interactions_slapbutt", "flag_interactions_grabbreasts", "flag_interactions_general",
+                             "flag_interactions_aboutoccupation", "flag_interactions_interests","flag_interactions_flirt"):
+                    if char.has_flag(flag):
+                        if char.flag(flag)["day"] == day:
+                            char.set_flag("dnd_" + flag, char.flag(flag)["times"])
+                        char.del_flag(flag)
+
+                if char.has_flag("dnd_flag_girl_interactions_aboutjob"):
+                    char.set_flag("dnd_flag_interactions_aboutjob", char.get_flag("dnd_flag_girl_interactions_aboutjob"))
+                    char.del_flag("dnd_flag_girl_interactions_aboutjob")
+
                 if not char.previousaction:
                     char.previousaction = None
                 if isinstance(char.workplace, Building) and char not in char.workplace.all_workers:

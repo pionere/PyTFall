@@ -12,13 +12,12 @@ label interactions_shopping:
     scene bg tailor_store
     with dissolve
 
-
-    if global_flags.flag('visited_tailor_store'):
+    if global_flags.has_flag('visited_tailor_store'):
         "Welcome back!"
         "Ah with one of your ladies. Let see what they'd like! "
 
     else:
-        $global_flags.set_flag('visited_tailor_store')
+        $ global_flags.set_flag('visited_tailor_store')
         "Welcome to my store!"
         "Just the best clothing you'll ever see! "
         "Check out our latest collection. Your girl will love it: "

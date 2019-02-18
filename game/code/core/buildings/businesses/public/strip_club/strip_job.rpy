@@ -166,9 +166,6 @@ init -5 python:
         def settle_workers_disposition(self, worker, log):
             """
             Handles penalties in case of wrong job
-
-            Note:
-            "jobs_stripintro" flag is unused.
             """
             # Formerly check_occupation
             if not("Stripper" in worker.traits) and worker.get_stat("disposition") < self.calculate_disposition_level(worker):
@@ -177,15 +174,15 @@ init -5 python:
                     if sub < 0:
                         if dice(15):
                             log.logws('character', 1)
-                        worker.set_flag("jobs_stripintro", "%s is not very happy with her current job as a stripper, but she will get the job done." % worker.name)
+                        log.append("%s is not very happy with her current job as a stripper, but she will get the job done." % worker.name)
                     elif sub == 0:
                         if dice(25):
                             log.logws('character', 1)
-                        worker.set_flag("jobs_stripintro", "%s shows her goods to customers, but she would prefer to do something else." % worker.nickname)
+                        log.append("%s shows her goods to customers, but she would prefer to do something else." % worker.nickname)
                     else:
                         if dice(35):
                             log.logws('character', 1)
-                        worker.set_flag("jobs_stripintro", "%s makes it clear that she wants another job before going to the stage." % worker.name)
+                        log.append("%s makes it clear that she wants another job before going to the stage." % worker.name)
                     worker.logws("joy", -randint(1, 10))
                     worker.logws("disposition", -randint(10, 15))
                     worker.logws('vitality', -randint(5, 10))
@@ -221,10 +218,9 @@ init -5 python:
                         worker.logws("joy", -randint(2, 4))
                         worker.logws('vitality', -randint(2, 6))
             else:
-                worker.set_flag("jobs_stripintro",
-                    choice(["%s is doing her shift as a stripper." % worker.name,
-                    "%s shows her goods to clients." % worker.fullname,
-                    "%s entertains customers with her body at the stage." % worker.nickname]))
+                log.append(choice(["%s is doing her shift as a stripper." % worker.name,
+                                   "%s shows her goods to clients." % worker.fullname,
+                                   "%s entertains customers with her body at the stage." % worker.nickname]))
 
             return True
 

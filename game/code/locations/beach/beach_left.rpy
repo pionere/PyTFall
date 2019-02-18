@@ -99,10 +99,10 @@ screen city_beach_left():
 
 label mc_action_city_beach_rest:
     show bg beach_rest with dissolve
-    if hero.flag("rest_at_beach") == day:
+    if hero.has_flag("dnd_rest_at_beach"):
         "You already relaxed at the beach today. Doing it again will lead to sunburns."
         jump city_beach_left
-    $ hero.set_flag("rest_at_beach", value=day)
+    $ hero.set_flag("dnd_rest_at_beach")
 
     if len(hero.team) > 1:
         python:
@@ -128,9 +128,9 @@ label mc_action_city_beach_rest:
             show expression picture[0] at truecenter as temp1
             with dissolve
         elif len(picture) == 2:
-           show expression picture[0] at center_left as temp1
-           show expression picture[1] at center_right as temp2
-           with dissolve
+            show expression picture[0] at center_left as temp1
+            show expression picture[1] at center_right as temp2
+            with dissolve
 
         "You're relaxing at the beach with your team."
 
@@ -195,24 +195,59 @@ label mc_action_city_beach_rest:
 
 label fishing_logic_mor_quest_part:
     $ m = npcs["Mor"].say
-    show expression npcs["Mor"].get_vnsprite() as npc
-    if hero.flag("mor_fish_quest") != day: # no more than one quest per day
-        if hero.get_skill("fishing") < 10:
+
+    if hero.has_flag("dnd_mor_fish_quest"):
+        $ fish, num = hero.flag("dnd_mor_fish_quest")
+        if fish is None:
+            # quest already done today
+            m "Sorry, I don't have anything else at the moment. Maybe tomorrow."
+            return
+        # no rerolling quest after asking again at the same day
+    else:
+        # roll a fish to catch
+        $ fish = hero.get_skill("fishing")
+        $ fish = list(i for i in items.values() if i.type == "fish" and "Fishing" in i.locations and 10 <= i.price <= fish)
+        if not fish:
             m "Yeah, I have special requests sometimes, but you need to learn something about fishing for a start. Practice a bit, ok?"
-        else:
-            if hero.flag("mor_fish_dice") != day: # no rerolling quest after asking again at the same day
-                $ fish = list(i for i in items.values() if i.type == "fish" and "Fishing" in i.locations and 3 <= i.price <= hero.get_skill("fishing"))
-                $ mor_fish = random.choice(fish)
-                $ mor_quantity = locked_random("randint", 3, 10)
-                $ hero.set_flag("mor_fish_dice", value = day)
-            m "I need some [mor_fish.id]. About [mor_quantity] should be enough. Think you can handle it?"
-            menu:
-                "Yes":
-                    m "Awesome!"
-                    $ advance_quest("Fishery", "Mor asked you to catch some [mor_fish.id], about [mor_quantity] should be sufficient.", to=1, clear_logs=True)
-                    $ hero.set_flag("mor_fish_quest", value = day)
-                "No":
-                    m "Your choice. You know where to find me."
+            return
+
+        $ fish = random.choice(fish)
+        $ num = locked_random("randint", 3, 10)
+        $ hero.set_flag("dnd_mor_fish_quest", (fish, num))
+    m "I need some [fish.id]. About [num] should be enough. Think you can handle it?"
+    menu:
+        "Yes":
+            m "Awesome!"
+            $ advance_quest("Fishery", "Mor asked you to catch some [fish.id], about [num] should be sufficient.", to=1, clear_logs=True)
+            $ hero.set_flag("mor_fish_quest", (fish, num))
+        "No":
+            m "Your choice. You know where to find me."
+    $ del fish
+    $ del num
+    return
+
+label fishing_logic_mor_quest_bring:
+    $ fish, num = hero.flag("mor_fish_quest")
+    $ hero.del_flag("mor_fish_quest")
+    if hero.has_flag("dnd_mor_fish_quest"): # only one quest per day
+        $ hero.set_flag("dnd_mor_fish_quest", (None, None))
+    $ hero.remove_item(fish, num)
+    $ price = fish.price * num * 5
+    $ hero.add_money(price, reason="Quests")
+    m "Magnificent. Take your reward, [price] coins, and these baits. It's much more than any city merchant can give you, trust me."
+    if dice(20):
+        $ hero.add_item("Magic Bait", 3)
+        "You've obtained 3 Magic Baits!"
+    elif dice(40):
+        $ hero.add_item("Good Bait", 6)
+        "You've obtained 6 Good Baits!"
+    else:
+        $ hero.add_item("Simple Bait", 9)
+        "You've obtained 9 Simple Baits!"
+    $ finish_quest("Fishery", "You brought required fish to Mor and got your reward.", "complete")
+    $ del fish
+    $ del num
+    $ del price
     return
 
 label fishing_logic_mor_dialogue:
@@ -222,26 +257,10 @@ label fishing_logic_mor_dialogue:
     m "Hey, what's up?"
     menu Mor_dialogue_usual:
         "Fishing Requests" if pytfall.world_quests.check_stage("Fishery") != 1:
-            if hero.flag("mor_fish_quest") != day: # no more than one quest per day
-                call fishing_logic_mor_quest_part from _call_fishing_logic_mor_quest_part
-            else:
-                m "Sorry, I don't have anything else at the moment. Maybe tomorrow."
+            call fishing_logic_mor_quest_part from _call_fishing_logic_mor_quest_part
             jump Mor_dialogue_usual
-        "Bring the Fish" if pytfall.world_quests.check_stage("Fishery") == 1 and has_items(mor_fish, [hero]) >= mor_quantity:
-            $ hero.remove_item(mor_fish, mor_quantity)
-            $ price = mor_fish.price * mor_quantity * 5
-            $ hero.add_money(price, reason="Quests")
-            m "Magnificent. Take your reward, [price] coins, and these baits. It's much more than any city merchant can give you, trust me."
-            if dice(20):
-                $ hero.add_item("Magic Bait", 3)
-                "You've obtained 3 Magic Baits!"
-            elif dice(40):
-                $ hero.add_item("Good Bait", 6)
-                "You've obtained 6 Good Baits!"
-            else:
-                $ hero.add_item("Simple Bait", 9)
-                "You've obtained 9 Simple Baits!"
-            $ finish_quest("Fishery", "You brought required fish to Mor and got your reward.", "complete")
+        "Bring the Fish" if pytfall.world_quests.check_stage("Fishery") == 1 and has_items(hero.flag("mor_fish_quest")[0], [hero]) >= hero.flag("mor_fish_quest")[1]:
+            call fishing_logic_mor_quest_bring from _fishing_logic_mor_quest_bring
             jump Mor_dialogue_usual
         "Buy a Fishing Pole (250G)" if hero.gold >= 250:
             $ hero.take_money(250, reason="Items")
@@ -298,31 +317,15 @@ label fishing_logic:
         "Find Mor":
             jump fishing_logic_mor_dialogue
         "Check Mor requests" if pytfall.world_quests.check_stage("Fishery") != 1:
-            if hero.flag("mor_fish_quest") != day: # no more than one quest per day
-                call fishing_logic_mor_quest_part from _call_fishing_logic_mor_quest_part_1
-            else:
-                show expression npcs["Mor"].get_vnsprite() as npc
-                with dissolve
-                m "Sorry, I don't have anything else at the moment. Maybe tomorrow."
-            hide npc with dissolve
-            jump beach_fighing_menu
-        "Bring the Fish" if pytfall.world_quests.check_stage("Fishery") == 1 and has_items(mor_fish, [hero]) >= mor_quantity:
             show expression npcs["Mor"].get_vnsprite() as npc
             with dissolve
-            $ hero.remove_item(mor_fish, mor_quantity)
-            $ price = mor_fish.price * mor_quantity + randint(2, 8)
-            $ hero.add_money(price, reason="Quests")
-            m "Magnificent. Take your reward, [price] coins, and these baits. It's much more than any city merchant can give you, trust me."
-            if dice(20):
-                $ hero.add_item("Magic Bait", 3)
-                "You've obtained 3 Magic Baits!"
-            elif dice(40):
-                $ hero.add_item("Good Bait", 6)
-                "You've obtained 6 Good Baits!"
-            else:
-                $ hero.add_item("Simple Bait", 9)
-                "You've obtained 9 Simple Baits!"
-            $ finish_quest("Fishery", "You brought required fish to Mor and got your reward.", "complete")
+            call fishing_logic_mor_quest_part from _call_fishing_logic_mor_quest_part_1
+            hide npc with dissolve
+            jump beach_fighing_menu
+        "Bring the Fish" if pytfall.world_quests.check_stage("Fishery") == 1 and has_items(hero.flag("mor_fish_quest")[0], [hero]) >= hero.flag("mor_fish_quest")[1]:
+            show expression npcs["Mor"].get_vnsprite() as npc
+            with dissolve
+            call fishing_logic_mor_quest_bring from _fishing_logic_mor_quest_bring_1
             hide npc with dissolve
             jump beach_fighing_menu
         "Try Fishing (-1 AP)":

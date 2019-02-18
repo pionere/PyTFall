@@ -52,12 +52,10 @@ label girl_interactions:
             menu:
                 "Do you wish to have sex with [char.name]?"
                 "Yes":
-                    $ char.set_flag("gm_char_proposed_sex", value=day)
                     if 'Horny' in char.effects:
                         $ char.disable_effect("Horny")
                     jump interactions_sex_scene_select_place
                 "No":
-                    $ char.set_flag("gm_char_proposed_sex", value=day)
                     $ char.override_portrait("portrait", "indifferent")
                     $ rc("...", "I see...", "Maybe next time then...")
                     $ char.gfx_mod_stat("joy", -randint(1, 5))
@@ -272,17 +270,14 @@ label interactions_control:
                 # Give gift:
                 else:
                     # Prevent repetition of this action (any gift, we do this on per gift basis already):
-                    flag_name = "_day_countdown_interactions_gifts"
-                    flag_value = int(char.flag(flag_name))
-
-                    char.set_flag(flag_name, flag_value + 1)
+                    char.up_counter("_day_countdown_interactions_gifts")
 
                     item = result[1]
                     item.hidden = False # We'll use existing hidden flag to hide items effectiveness.
                     dismod = getattr(item, "dismod", 0)
 
                     if item.type == "romantic" and not(check_lovers(char, hero)) and char.get_stat("disposition") < 700:  # cannot give romantic gifts to anyone
-                            dismod = -10
+                        dismod = -10
                     else:
                         for t, v in getattr(item, "traits", {}).iteritems():
                             if t in char.traits:
@@ -420,20 +415,15 @@ screen girl_interactions():
                                     text str(hero.inventory[item]) color ivory style "library_book_header_main" align (0, 0)
                                     if not item.hidden:
                                         if dismod <= 0:
-                                            if flag_value != 0:
-                                                add im.Sepia(im.Scale("content/gfx/interface/icons/gifts_0.png", 65, 35)) align (.0, .9)
-                                            else:
-                                                add im.Scale("content/gfx/interface/icons/gifts_0.png", 65, 35) align (.0, .9)
+                                            $ img = "content/gfx/interface/icons/gifts_0.png"
                                         elif dismod <= 30:
-                                            if flag_value != 0:
-                                                add im.Sepia(im.Scale("content/gfx/interface/icons/gifts_1.png", 65, 35)) align (.0, .9)
-                                            else:
-                                                add im.Scale("content/gfx/interface/icons/gifts_1.png", 65, 35) align (.0, .9)
+                                            $ img = "content/gfx/interface/icons/gifts_1.png"
                                         elif dismod > 30:
-                                            if flag_value != 0:
-                                                add im.Sepia(im.Scale("content/gfx/interface/icons/gifts_2.png", 65, 35)) align (.0, .9)
-                                            else:
-                                                add im.Scale("content/gfx/interface/icons/gifts_2.png", 65, 35) align (.0, .9)
+                                            $ img = "content/gfx/interface/icons/gifts_2.png"
+                                        $ img = im.Scale(img, 65, 35)
+                                        if flag_value != 0:
+                                            $ img = im.Sepia(img)
+                                        add img align (.0, .9)
                                 null width 10
                                 text "[item.id]" yalign .5 style "library_book_header_sub" color ivory
                             sensitive hero.AP > 0 or gm.gm_points > 0

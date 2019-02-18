@@ -28,7 +28,7 @@ label interactions_harrasment_after_battle: # after MC provoked a free character
                         temp = choice(pool)
 
                 if hasattr(store, "temp"):
-                    "On [char.op] person, you found [temp.id]!"
+                    "On [char.op] you found [temp.id]!"
                     $ transfer_items(char, hero, temp, amount=1, silent=True, force=True)
                     $ char.gfx_mod_stat("disposition", -randint(20, 45))
                 else:

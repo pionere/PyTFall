@@ -283,7 +283,7 @@ init -1 python:
         drag = drags[0]
         item = drag.drag_name
         x, y = drag.old_position[0], drag.old_position[1]
-        src_container = item.get_flag("_drag_container")
+        src_container = item.get_flag("dnd_drag_container")
 
         if not drop:
             drag.snap(x, y, delay=.2)

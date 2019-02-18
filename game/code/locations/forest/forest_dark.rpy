@@ -23,8 +23,8 @@ label forest_dark_continue:
         play world choice(ilists.world_music["forest_entrance"])
     $ global_flags.del_flag("keep_playing_music")
 
-    if not hero.flag('visited_deep_forest'):
-        $ hero.set_flag('visited_deep_forest')
+    if not global_flags.has_flag('visited_deep_forest'):
+        $ global_flags.set_flag('visited_deep_forest')
         $ block_say = True
         "You step away from the city walls and go deep into the forest. It's not safe here, better to be on guard."
         $ block_say = False
@@ -65,9 +65,9 @@ screen city_dark_forest():
             button:
                 xysize (120, 40)
                 yalign .5
-                action [Hide("city_dark_forest"), Jump("mc_action_city_dark_forest_rest"), With(dissolve), SensitiveIf(hero.flag("dark_forest_rested_today") != day)]
+                action [Hide("city_dark_forest"), Jump("mc_action_city_dark_forest_rest"), With(dissolve), SensitiveIf(not hero.has_flag("dnd_dark_forest_rested"))]
                 text "Rest" size 15
-            if hero.has_flag("found_old_ruins"):
+            if global_flags.has_flag("found_old_ruins"):
                 button:
                     xysize (120, 40)
                     yalign .5
@@ -94,18 +94,18 @@ label city_dark_forest_explore:
         $ forest_bg_change = False
         jump forest_dark_continue
     else:
-        if hero.flag("dark_forest_found_river") != day and hero.get_stat("vitality") < hero.get_max("vitality") and dice(35):
+        if (not hero.has_flag("dnd_dark_forest_river")) and hero.get_stat("vitality") < hero.get_max("vitality") and dice(35):
             jump mc_action_city_dark_forest_river
-        elif not hero.has_flag("found_old_ruins") and day >= 10 and dice(50):
-            $ hero.set_flag("found_old_ruins")
+        elif not global_flags.has_flag("found_old_ruins") and day >= 10 and dice(50):
+            $ global_flags.set_flag("found_old_ruins")
             hide screen city_dark_forest
             jump storyi_start
-        elif dice(20) and hero.flag("dark_forest_met_girl") != day:
+        elif dice(20) and not hero.has_flag("dnd_dark_forest_girl"):
             jump dark_forest_girl_meet
-        elif dice(70) or hero.flag("dark_forest_met_bandits") == day:
+        elif dice(70) or hero.has_flag("dnd_dark_forest_bandits"):
             jump city_dark_forest_fight
         else:
-            $ hero.set_flag("dark_forest_met_bandits", value=day)
+            $ hero.set_flag("dnd_dark_forest_bandits")
             jump city_dark_forest_hideout
 
 label city_dark_forest_ruines_part:
@@ -124,7 +124,7 @@ label city_dark_forest_ruines_part:
         jump storyi_start
 
 label mc_action_city_dark_forest_rest:
-    $ hero.set_flag("dark_forest_rested_today", value=day)
+    $ hero.set_flag("dnd_dark_forest_rested")
     $ forest_bg_change = False
     scene bg camp
     with dissolve
@@ -301,7 +301,7 @@ label city_dark_forest_fight:
         jump game_over
 
 label dark_forest_girl_meet:
-    $ hero.set_flag("dark_forest_met_girl", value=day)
+    $ hero.set_flag("dnd_dark_forest_girl")
     python:
         choices = list(i for i in chars.values() if
                        str(i.location) == "City" and
@@ -331,7 +331,7 @@ label dark_forest_girl_meet:
 label mc_action_city_dark_forest_river:
     play world "forest_lake.ogg"
     $ global_flags.set_flag("keep_playing_music")
-    $ hero.set_flag("dark_forest_found_river", value=day)
+    $ hero.set_flag("dnd_dark_forest_river")
     $ forest_bg_change = False
     scene bg forest_lake
     with dissolve

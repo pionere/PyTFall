@@ -67,7 +67,7 @@ label interactions_smalltalk:
 # ask about job
 label girl_interactions_aboutjob: # TO DO: here would help additional logic based on actual recent jobs events
     $ interactions_check_for_bad_stuff(char)
-    $ m = interactions_flag_count_checker(char, "flag_girl_interactions_aboutjob")
+    $ m = interactions_flag_count_checker(char, "flag_interactions_aboutjob")
     if m >= 1:
         call interactions_too_many_lines from _call_interactions_too_many_lines_2
         $ char.gfx_mod_stat("disposition", -5)

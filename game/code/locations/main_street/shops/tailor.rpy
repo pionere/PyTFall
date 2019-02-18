@@ -19,7 +19,7 @@ label tailor_store:
         t "Welcome back, take a look at our latest arrivals!"
 
     else:
-        $global_flags.set_flag('visited_tailor_store')
+        $ global_flags.set_flag('visited_tailor_store')
 
         "You entered the shop. The shelves are filled with colorful silks, and some exquisite dresses are displayed on the mannequins. Noticing your arrival, a tailor lady comes in from the back room and approaches you."
 

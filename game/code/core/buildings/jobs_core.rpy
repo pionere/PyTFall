@@ -141,7 +141,7 @@
                 job = self.job
 
                 worker.del_flag("_jobs_tips")
-                worker.mod_flag("accumulated_tips", tips)
+                worker.mod_flag("dnd_accumulated_tips", tips)
 
                 temp = "{} gets {} Gold in tips!".format(worker.name, tips)
                 self.append(temp)

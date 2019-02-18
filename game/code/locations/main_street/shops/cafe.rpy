@@ -33,7 +33,7 @@ label cafe:
 
     $ inviting_character = hero
 
-    if dice(50) and len(hero.team)>1 and hero.flag("ate_in_cafe") != day: # the chance for a member of MC team to invite team
+    if dice(50) and len(hero.team)>1 and not hero.has_flag("dnd_ate_in_cafe"): # the chance for a member of MC team to invite team
         python:
             members = [] # all chars willing to invite will be in this list
             for member in hero.team:
@@ -94,11 +94,11 @@ screen cafe_eating():
             action [Hide("cafe_eating"), Jump("cafe_shopping")]
 
         textbutton "Eat alone":
-            sensitive hero.flag("ate_in_cafe") != day
+            sensitive not hero.has_flag("dnd_ate_in_cafe")
             action [Hide("cafe_eating"), Jump("mc_action_cafe_eat_alone_cafe_invitation")]
 
         textbutton "Eat with group":
-            sensitive len(hero.team)>1 and hero.flag("ate_in_cafe") != day
+            sensitive len(hero.team)>1 and not hero.has_flag("dnd_ate_in_cafe")
             action [Hide("cafe_eating"), Jump("cafe_eat_group")]
 
         textbutton "Leave":
@@ -114,7 +114,7 @@ label mc_action_cafe_eat_alone_cafe_invitation:
                 $ name = "small_food_" + str(renpy.random.randint(1, 3))
                 show image name at truecenter with dissolve
                 # show image random.choice(movie_list)
-                $ hero.set_flag("ate_in_cafe", value=day)
+                $ hero.set_flag("dnd_ate_in_cafe")
                 $ result = "You feel a bit better!"
                 if hero.get_stat("vitality") < hero.get_max("vitality"):
                     $ result_v = randint(4, 10)
@@ -146,7 +146,7 @@ label mc_action_cafe_eat_alone_cafe_invitation:
             if hero.take_money(25, reason="Cafe"):
                 $ name = "medium_food_" + str(renpy.random.randint(1, 3))
                 show image name at truecenter with dissolve
-                $ hero.set_flag("ate_in_cafe", value=day)
+                $ hero.set_flag("dnd_ate_in_cafe")
                 $ result = "You feel quite satisfied."
                 if hero.get_stat("vitality") < hero.get_max("vitality"):
                     $ result_v = randint(8, 15)
@@ -185,7 +185,7 @@ label mc_action_cafe_eat_alone_cafe_invitation:
             if hero.take_money(50, reason="Cafe"):
                 $ name = "big_food_" + str(renpy.random.randint(1, 3))
                 show image name at truecenter with dissolve
-                $ hero.set_flag("ate_in_cafe", value=day)
+                $ hero.set_flag("dnd_ate_in_cafe")
                 $ result = "You feel extremely full and satisfied."
                 if hero.get_stat("vitality") < hero.get_max("vitality"):
                     $ result_v = randint(10, 20)
@@ -266,7 +266,7 @@ label mc_action_cafe_invitation: # we jump here when the group was invited by on
         show expression img at truecenter with dissolve
         $ interactions_eating_line(hero.team)
         "You enjoy your meals together. Overall health and mood were improved."
-        $ hero.set_flag("ate_in_cafe", value=day)
+        $ hero.set_flag("dnd_ate_in_cafe")
         python:
             for member in hero.team:
                 if member.status != "free" and member.get_stat("disposition") < -50:

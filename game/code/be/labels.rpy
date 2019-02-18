@@ -79,9 +79,6 @@ label test_be:
         battle.teams.append(enemy_team)
         battle.start_battle()
 
-    # for m in hero.team:
-    #     m.set_flag("xp_to_award", 1000000)
-
     jump mainscreen
 
 label test_be_logical:

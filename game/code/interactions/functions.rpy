@@ -214,21 +214,17 @@ init -11 python:
         return patience
 
     def interactions_drinking_outside_of_inventory(character, count): # allows to raise activation count and become drunk without using real items
-        character.up_counter('drunk_counter', count)
-        if character.get_flag("drunk_counter", 0) >= 35 and not 'Drunk' in character.effects:
+        character.up_counter("dnd_drunk_counter", count)
+        if character.get_flag("dnd_drunk_counter", 0) >= 35 and not 'Drunk' in character.effects:
             character.enable_effect('Drunk')
         elif 'Drunk' in character.effects and character.AP > 0 and not 'Drinker' in character.effects:
             character.AP -= 1
         return
 
-    def interactions_flag_count_checker(character, char_flag): # this function is used to check how many times a certain interaction was used during the current turn; every interaction should have a unique flag name and call this function after every use
-        global day
-        if not(character.flag(char_flag)) or character.flag(char_flag)["day"] != day:
-            character.set_flag(char_flag, {"day": day, "times": 1})
-            result = 0
-        else:
-            result = character.flag(char_flag)["times"]
-            character.set_flag(char_flag, {"day": day, "times": character.flag(char_flag)["times"] + 1})
+    def interactions_flag_count_checker(char, char_flag): # this function is used to check how many times a certain interaction was used during the current turn; every interaction should have a unique flag name and call this function after every use
+        char_flag = "dnd_" + char_flag
+        result = char.get_flag(char_flag, 0)
+        char.set_flag(char_flag, result+1)
         return result
 
     def interactions_silent_check_for_bad_stuff(char): # we check issues without outputting any lines or doing something else, and just return True/False

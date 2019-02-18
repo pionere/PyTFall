@@ -33,20 +33,20 @@ screen prison_break_controls(): # control buttons screen
                 yalign 0.5
                 action [Hide("prison_break_controls"), Play("events2", "events/letter.mp3"), Jump("storyi_map")]
                 text "Show map" size 15
-            if hero.get_flag("storyi_rest", None) != day:
+            if not hero.has_flag("dnd_storyi_rest"):
                 button:
                     xysize (120, 40)
                     yalign 0.5
                     action [Hide("prison_break_controls"), Jump("mc_action_storyi_rest")]
                     text "Rest" size 15
-            if hero.get_flag("storyi_heal", None) != day:
+            if not hero.has_flag("dnd_storyi_heal"):
                 if storyi_prison_location == 3:
                     button:
                         xysize (120, 40)
                         yalign 0.5
                         action [Hide("prison_break_controls"), Jump("storyi_treat_wounds")]
                         text "Heal" size 15
-            if storyi_prison_location == 5 and not hero.has_flag("defeated_boss_1"):
+            if storyi_prison_location == 5 and not global_flags.has_flag("defeated_boss_1"):
                 button:
                     xysize (120, 40)
                     yalign 0.5
@@ -140,7 +140,7 @@ label storyi_bossroom:
             anchor (0.5, 0.5)
             zoom 1.0
             alpha 1.0
-        $ hero.set_flag("defeated_boss_1")
+        $ global_flags.set_flag("defeated_boss_1")
         "The star loses its strength, and the air temperature drops."
         hide sinister_star with dissolve
         extend " You pick it up and put in your pocket."
@@ -155,7 +155,7 @@ label storyi_bossroom:
         jump game_over
 
 label mc_action_storyi_rest: # resting inside the dungeon; team may be attacked during the rest
-    $ hero.set_flag("storyi_rest", day)
+    $ hero.set_flag("dnd_storyi_rest")
     show bg tent with q_dissolve
     python:
         for i in hero.team:
@@ -226,7 +226,7 @@ label storyi_treat_wounds:
         python:
             for i in hero.team:
                 i.gfx_mod_stat("health", i.get_max("health") - i.get_stat("health"))
-        $ hero.set_flag("storyi_heal", day)
+        $ hero.set_flag("dnd_storyi_heal")
         "Health is restored!"
     else:
         "Everyone is healthy already."
@@ -249,8 +249,8 @@ label storyi_start: # beginning point of the dungeon;
     show bg story d_entrance with eye_open
     $ storyi_prison_stage = 1
     $ storyi_prison_location = 6
-    if not hero.has_flag("been_in_old_ruins"):
-        $ hero.set_flag("been_in_old_ruins")
+    if not global_flags.has_flag("been_in_old_ruins"):
+        $ global_flags.set_flag("been_in_old_ruins")
         $ storyi_treasures = {1: -1, 3: -1, 7: -1, 10: -1, 11: -1, 13: -1}
         hero.say "I've found the ruins of a tower near the city."
         hero.say "It may be not safe here, but I bet there is something valuable deep inside!"
@@ -692,7 +692,7 @@ label prison_storyi_event_barracks:
     play events2 "events/prison_cell_door.mp3"
     call storyi_move_map_point from _call_storyi_move_map_point_12
     call storyi_show_bg from _call_storyi_show_bg_16
-    if not hero.has_flag("defeated_boss_1"):
+    if not global_flags.has_flag("defeated_boss_1"):
         hero.say "I see old stairs. I wonder where they lead."
     if dice(fight_chance):
         jump storyi_randomfight
