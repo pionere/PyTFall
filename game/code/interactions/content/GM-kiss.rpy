@@ -147,7 +147,7 @@ label interactions_kiss:
                 $ rc("With you? Of course not!", "Huh?! No, I don't want to! Pervert...", "Woah, hold on there. Maybe after we get to know each other better.")
                 
             if char.get_stat("disposition") < (350+50*sub) and not cgo("SIW"):
-                $ char.set_flag("_day_countdown_interactions_blowoff", 2)
+                $ char.set_flag("cnd_interactions_blowoff", day+2)
                 $ del sub
                 $ del m
                 $ char.restore_portrait()

@@ -872,4 +872,4 @@ init -5 python:
                 log.append("\n{color=[pink]}%s lost her virginity!{/color} Customer thought that was super hot and left a tip of {color=[gold]}%d Gold{/color} for the girl.\n\n" % (worker.nickname, tips))
                 worker.remove_trait(traits["Virgin"])
                 if tips:
-                    worker.mod_flag("_jobs_tips", tips)
+                    worker.up_counter("_jobs_tips", tips)

@@ -90,7 +90,7 @@ label interactions_hug:
             else:
                 $ rc("What are you doing all of a sudden!?", "[char.mc_ref], you're too close, too clooose.", "What are you doing! Please don't touch me!", "<Steps back> I don't want to.")
             if char.get_stat("disposition") <= (200+50*sub) and not cgo("SIW"):
-                $ char.set_flag("_day_countdown_interactions_blowoff", 1)
+                $ char.set_flag("cnd_interactions_blowoff", day+1)
                 $ del sub
                 $ char.restore_portrait()
                 $ char.hide_portrait_overlay()
@@ -205,7 +205,7 @@ label interactions_grabbutt:
             else:
                 $ rc("Geez! If you don't stop, I'll get angry.", "Whoa! Hey, don't just touch me out of the blue!", "[char.mc_ref]...! I'd rather you do this sort of thing with someone else...!", "Hey! Quit it, already!", "Aah! C...cut it out! ", "What are you doing over there, you sneak?", "Hmph, how unromantic! Know some shame!")
             if char.get_stat("disposition") <= (200+50*sub) and not cgo("SIW"):
-                $ char.set_flag("_day_countdown_interactions_blowoff", 2)
+                $ char.set_flag("cnd_interactions_blowoff", day+2)
                 $ char.restore_portrait()
                 $ char.hide_portrait_overlay()
                 jump girl_interactions_end
@@ -316,7 +316,7 @@ label interactions_grabbreasts:
             else:
                 $ rc("You certainly have courage, asshole!", "What are you doing!!! They are not an invitation, asshole!", "Hey! Where are those hands of yours going?", "Don't touch me, asshole!", "You're... terrible! Must you do such a thing!", "What are you trying to...?! To hell with you!", "You filthy pig! Who gave you permission to touch me?!")
             if char.get_stat("disposition") <= (200+50*sub) and not cgo("SIW"):
-                $ char.set_flag("_day_countdown_interactions_blowoff", 2)
+                $ char.set_flag("cnd_interactions_blowoff", day+2)
                 $ del sub
                 $ char.restore_portrait()
                 $ char.hide_portrait_overlay()

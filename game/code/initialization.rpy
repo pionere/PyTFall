@@ -205,7 +205,8 @@ init -950 python:
 
         PF Flags:
         starts with "jobs": Reset internally in SimPy land! Usually at the end of Env.
-        starts with "ndd": Deleted at the very end of next day logic!
+        starts with "dnd": Deleted at the very end of next day logic!
+        starts with "cnd": Deleted at the very end of next day logic if its value matches the current day!
         """
         def __init__(self):
             self.flags = dict()
@@ -216,19 +217,19 @@ init -950 python:
         def flag(self, flag):
             return self.flags.get(flag, False)
 
-        def mod_flag(self, flag, value):
-            """Can be used as a simple counter for integer based flags.
+        #def mod_flag(self, flag, value):
+        #    """Can be used as a simple counter for integer based flags.
 
-            Simply changes the value of the flag otherwise.
-            """
-            if DEBUG_LOG:
-                if not self.has_flag(flag) and "next" not in last_label:
-                    devlog.warning("{} flag modded before setting it's value!".format(flag))
+        #   Simply changes the value of the flag otherwise.
+        #    """
+        #    if DEBUG_LOG:
+        #        if not self.has_flag(flag) and "next" not in last_label:
+        #            devlog.warning("{} flag modded before setting it's value!".format(flag))
 
-            if isinstance(value, int):
-                self.flags[flag] = self.flags.get(flag, 0) + value
-            else:
-                self.set_flag(flag, value)
+        #    if isinstance(value, int):
+        #        self.flags[flag] = self.flags.get(flag, 0) + value
+        #    else:
+        #        self.set_flag(flag, value)
 
         def get_flag(self, flag, default=None):
             # works similar to dicts .get method
@@ -239,41 +240,46 @@ init -950 python:
 
         def del_flag(self, flag):
             if flag in self.flags:
-                del(self.flags[flag])
+                del self.flags[flag]
 
         def has_flag(self, flag):
             """Check if flag exists at all (not just set to False).
             """
             return flag in self.flags
 
-        def up_counter(self, flag, value=1, max=None, delete=False):
+        def up_counter(self, flag, value=1):
             """A more advanced version of a counter than mod_flag.
-
-            This can keep track of max and delete a flag upon meeting it.
             """
-            result = self.flags.get(flag, 0) + value
-            if max is not None and result >= max:
-                if delete:
-                    self.del_flag(flag)
-                else:
-                    self.set_flag(flag, max)
-            else:
-                self.set_flag(flag, result)
+            self.flags[flag] = self.flags.get(flag, 0) + value
 
-        def down_counter(self, flag, value=1, min=None, delete=False):
-            """A more advanced version of a counter than mod_flag.
+        #def up_counter(self, flag, value=1, max=None, delete=False):
+        #    """A more advanced version of a counter than mod_flag.
 
-            This can keep track of min and delete a flag upon meeting it.
-            """
-            result = self.flags.get(flag, 0) - value
+        #    This can keep track of max and delete a flag upon meeting it.
+        #    """
+        #    result = self.flags.get(flag, 0) + value
+        #    if max is not None and result >= max:
+        #        if delete:
+        #            self.del_flag(flag)
+        #        else:
+        #            self.set_flag(flag, max)
+        #    else:
+        #        self.set_flag(flag, result)
 
-            if min is not None and result <= min:
-                if delete:
-                    self.del_flag(flag)
-                else:
-                    self.set_flag(flag, min)
-            else:
-                self.set_flag(flag, result)
+        #def down_counter(self, flag, value=1, min=None, delete=False):
+        #    """A more advanced version of a counter than mod_flag.
+
+        #    This can keep track of min and delete a flag upon meeting it.
+        #    """
+        #    result = self.flags.get(flag, 0) - value
+
+        #    if min is not None and result <= min:
+        #        if delete:
+        #            self.del_flag(flag)
+        #        else:
+        #            self.set_flag(flag, min)
+        #    else:
+        #        self.set_flag(flag, result)
 
         def set_union(self, flag, value):
             """Can be used to create sets.

@@ -52,7 +52,7 @@ label interactions_harrasment_after_battle: # after MC provoked a free character
 
     if char not in hero.chars:
         $ gm.remove_girl(char)
-    $ char.set_flag("_day_countdown_interactions_blowoff", 5)
+    $ char.set_flag("cnd_interactions_blowoff", day+5)
     jump girl_interactions_end
 
 label interactions_escalation: # character was provoked to attack MC
@@ -88,7 +88,7 @@ label interactions_escalation: # character was provoked to attack MC
         show screen girl_interactions
         $ gm.restore_img()
         call interactions_fight_won from _call_interactions_fight_won
-        $ char.set_flag("_day_countdown_interactions_blowoff", 1)
+        $ char.set_flag("cnd_interactions_blowoff", day+1)
         jump girl_interactions_end
 
 label interactions_insult:
@@ -119,7 +119,7 @@ label interactions_insult:
             call interactions_got_insulted from _call_interactions_got_insulted
         else:
             call interactions_got_insulted from _call_interactions_got_insulted_1
-            $ char.set_flag("_day_countdown_interactions_blowoff", (2+sub))
+            $ char.set_flag("cnd_interactions_blowoff", day+2+sub)
             jump girl_interactions_end
     jump girl_interactions
 

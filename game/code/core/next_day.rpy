@@ -241,8 +241,8 @@ label next_day_calculations:
             for flag in char.flags.keys():
                 if flag.startswith("dnd"):
                     char.del_flag(flag)
-                elif flag.startswith("_day_countdown"):
-                    char.down_counter(flag, value=1, min=0, delete=True)
+                elif flag.startswith("cnd") and char.flags[flag] == day:
+                    char.del_flag(flag)
 
     $ tl.end("Next Day")
     return

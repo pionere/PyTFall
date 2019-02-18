@@ -139,7 +139,7 @@ screen r_lightbutton:
 
 screen rg_lightbutton:
     $ tmp = entry.get_stat("disposition")
-    if entry.flag("_day_countdown_interactions_blowoff"):
+    if entry.has_flag("cnd_interactions_blowoff"):
         $ temp = "angry"
     elif tmp >= 500:
         $ temp = "shy"

@@ -2598,6 +2598,8 @@ init -9 python:
                 else:
                     txt.append("{color=[green]}%s is currently on the exploration run!{/color}" % self.fullname)
 
+                self.up_counter("daysemployed")
+
                 # Settle wages:
                 mood = self.fin.settle_wage(txt, mood)
             else:
@@ -2727,12 +2729,11 @@ init -9 python:
 
         def nd_autoshop(self):
             if self.autobuy is False or self.gold < 1000:
-                return
-            last_shopping_day = self.get_flag("last_shopping_day", 0)
-            if day < last_shopping_day + 5:
-                return
+                return # can not afford it
+            if self.has_flag("cnd_shopping_day"):
+                return # recently shopped
+            self.set_flag("cnd_shopping_day", day+5)
 
-            self.set_flag("last_shopping_day", day)
             temp = choice(["%s decided to go on a shopping tour :)" % self.nickname,
                                "%s went to town to relax, take %s mind of things and maybe even do some shopping!" % (self.nickname, self.pp)])
 

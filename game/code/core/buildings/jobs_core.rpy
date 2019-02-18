@@ -8,9 +8,9 @@
         MONEY:
         During jobs, we log cash that players gets to self.earned
         Cash that workers may get during the job:
-        worker.mod_flag("_jobs_tips", value) # tips
-        worker.mod_flag("jobs_earned", value) # Normal stuff other than tips?
-        worker.mod_flag("jobs_earned_dishonestly", value) # Stole a wallet from client?
+        worker.up_counter("_jobs_tips", value) # tips
+        #worker.mod_flag("jobs_earned", value) # Normal stuff other than tips?
+        #worker.mod_flag("jobs_earned_dishonestly", value) # Stole a wallet from client?
 
         DevNote: We used to create this at the very end of an action,
         now, we are creating the event as the action starts and pass it around
@@ -141,7 +141,7 @@
                 job = self.job
 
                 worker.del_flag("_jobs_tips")
-                worker.mod_flag("dnd_accumulated_tips", tips)
+                worker.up_counter("dnd_accumulated_tips", tips)
 
                 temp = "{} gets {} Gold in tips!".format(worker.name, tips)
                 self.append(temp)

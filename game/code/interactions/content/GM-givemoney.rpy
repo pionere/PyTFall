@@ -1,6 +1,6 @@
 label interactions_giftmoney:
-    if (day - char.flag("flag_interactions_giftmoney")) > 3 or char.flag("flag_interactions_giftmoney") == 0:
-        $ char.set_flag("flag_interactions_giftmoney", value=day)
+    if not char.has_flag("cnd_flag_interactions_giftmoney"):
+        $ char.set_flag("cnd_flag_interactions_giftmoney", value=day+3)
     else:
         "You already did this recently, she does not want to abuse your generosity."
         jump girl_interactions
@@ -61,8 +61,8 @@ label interactions_giftmoney:
     jump girl_interactions
 
 label interactions_askmoney:
-    if (day - char.flag("flag_interactions_askmoney")) > 7 or char.flag("flag_interactions_askmoney") == 0:
-        $char.set_flag("flag_interactions_askmoney", value=day)
+    if not char.has_flag("cnd_flag_interactions_askmoney"):
+        $ char.set_flag("cnd_flag_interactions_askmoney", value=day+7)
     else:
         call interactions_recently_gave_money from _call_interactions_recently_gave_money
         $ char.gfx_mod_stat("disposition", -randint(2, 5))

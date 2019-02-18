@@ -168,9 +168,7 @@ label girl_interactions_after_greetings: # when character wants to say something
 
             # GIVE GIFT
             m = 5
-            flag_name = "_day_countdown_interactions_gifts"
-            flag_value = int(char.flag(flag_name))
-            pytfall.world_actions.add(m, "Give Gift", Return(["gift", True]), condition="flag_value < 3")
+            pytfall.world_actions.add(m, "Give Gift", Return(["gift", True]), condition="char.get_flag('cnd_interactions_gift', day)-day < 3")
 
             # PROPOSITION
             m = 6
@@ -270,7 +268,10 @@ label interactions_control:
                 # Give gift:
                 else:
                     # Prevent repetition of this action (any gift, we do this on per gift basis already):
-                    char.up_counter("_day_countdown_interactions_gifts")
+                    if char.has_flag("cnd_interactions_gifts"):
+                        char.up_counter("cnd_interactions_gifts")
+                    else:
+                        char.set_flag("cnd_interactions_gifts", day)
 
                     item = result[1]
                     item.hidden = False # We'll use existing hidden flag to hide items effectiveness.
@@ -283,14 +284,14 @@ label interactions_control:
                             if t in char.traits:
                                 dismod += v
 
-                    flag_name = "_day_countdown_{}".format(item.id)
-                    flag_value = int(char.flag(flag_name))
+                    flag_name = "cnd_item_%s" % item.id
+                    flag_value = char.get_flag(flag_name, day) - day
 
                     # Add the appropriate dismod value:
                     if flag_value != 0:
                         if flag_value < item.cblock:
-                            dismod = int(round(float(dismod)*(item.cblock-flag_value)/item.cblock))
-                        elif flag_value >= item.cblock:
+                            dismod = round_int(float(dismod)*(item.cblock-flag_value)/item.cblock)
+                        else:
                             setattr(gm, "show_menu", True)
                             setattr(gm, "show_menu_givegift", False)
                             gm.jump("refusegift")
@@ -301,7 +302,10 @@ label interactions_control:
                     setattr(gm, "show_menu", True)
                     setattr(gm, "show_menu_givegift", False)
 
-                    char.up_counter(flag_name, item.cblock)
+                    if flag_value == 0:
+                        char.set_flag(flag_name, item.cblock+day)
+                    else:
+                        char.up_counter(flag_name, item.cblock)
                     if dismod <= 0:
                         gm.jump("badgift")
                     elif dismod <= 30:
@@ -401,8 +405,8 @@ screen girl_interactions():
                                 for t, v in getattr(item, "traits", {}).iteritems():
                                     if t in char.traits:
                                         dismod += v
-                            flag_name = "_day_countdown_{}".format(item.id)
-                            flag_value = int(char.flag(flag_name))
+                            flag_name = "cnd_item_%s" % item.id
+                            flag_value = char.get_flag(flag_name, day) - day
 
                         button:
                             style "main_screen_3_button"

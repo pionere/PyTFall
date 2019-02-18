@@ -910,6 +910,36 @@ label after_load:
                     char.set_flag("dnd_flag_interactions_aboutjob", char.get_flag("dnd_flag_girl_interactions_aboutjob"))
                     char.del_flag("dnd_flag_girl_interactions_aboutjob")
 
+                if char.has_flag("flag_interactions_giftmoney"):
+                    if char.flag("flag_interactions_giftmoney")+3 >= day:
+                        char.set_flag("cnd_flag_interactions_giftmoney", char.flag("flag_interactions_giftmoney")+3)
+                    char.del_flag("flag_interactions_giftmoney")
+
+                if char.has_flag("flag_interactions_askmoney"):
+                    if char.flag("flag_interactions_askmoney")+7 >= day:
+                        char.set_flag("cnd_flag_interactions_askmoney", char.flag("flag_interactions_askmoney")+7)
+                    char.del_flag("flag_interactions_askmoney")
+
+                if char.has_flag("last_shopping_day"):
+                    if char.flag("last_shopping_day")+5 >= day:
+                        char.set_flag("cnd_shopping_day", char.flag("last_shopping_day")+5)
+                    char.del_flag("last_shopping_day")
+
+                if char.has_flag("_day_countdown_interactions_gifts"):
+                    char.set_flag("cnd_interactions_gifts", day+char.flag("_day_countdown_interactions_gifts")-1)
+                    char.del_flag("_day_countdown_interactions_gifts")
+
+                if char.has_flag("_day_countdown_interactions_blowoff"):
+                    char.set_flag("cnd_interactions_blowoff", day+char.flag("_day_countdown_interactions_blowoff")-1)
+                    char.del_flag("_day_countdown_interactions_blowoff")
+
+                for flag in char.flags.keys():
+                    if flag.startswith("_day_countdown"):
+                        v = char.flag(flag)
+                        char.flags.del_flag(flag)
+                        flag = flag.replace("_day_countdown", "cnd_item")
+                        char.flags.set_flag(flag, day+v-1)
+
                 if not char.previousaction:
                     char.previousaction = None
                 if isinstance(char.workplace, Building) and char not in char.workplace.all_workers:
