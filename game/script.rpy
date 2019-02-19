@@ -879,6 +879,11 @@ label after_load:
                 hero.del_flag("been_in_old_ruins")
 
             for char in itertools.chain([hero], chars.values(), hero.chars, npcs.values()):
+                if char.action == "Arena Combat":
+                    char.action = None
+                if char.location == pytfall.arena:
+                    char.location = None
+                    char.arena_active = True
                 if char.has_flag("drunk_counter"):
                     char.set_flag("dnd_drunk_counter", char.get_flag("drunk_counter"))
                     char.del_flag("drunk_counter")
@@ -1005,6 +1010,11 @@ label after_load:
                     fighter.arena_rep = fighter._arena_rep
                 if hasattr(fighter, "_location"):
                     fighter.location = fighter._location
+                if fighter.location == arena:
+                    fighter.location = None
+                    fighter.arena_active = True
+                if fighter.action == "Arena Combat":
+                    fighter.action = None
 
             for team in itertools.chain(arena.teams_2v2, arena.teams_3v3,\
                  arena.dogfights_1v1, arena.dogfights_2v2, arena.dogfights_3v3,\
@@ -1056,6 +1066,24 @@ label after_load:
                     fighter._path_to_imgfolder = fighter._path_to_imgfolder.replace("npc/arena_json_adjusted", "fighters/females/json_adjusted")
 
             del store.json_fighters
+
+            arena = pytfall.arena
+            for fighter in itertools.chain(arena.ladder, arena.arena_fighters.values()):
+                if fighter.__class__ == rChar:
+                    continue
+                fighter._path_to_imgfolder = fighter._path_to_imgfolder.replace("npc/arena_males", "fighters/males/warriors")
+                fighter._path_to_imgfolder = fighter._path_to_imgfolder.replace("npc/arena_females", "fighters/females")
+
+            for team in itertools.chain(arena.teams_2v2, arena.teams_3v3,\
+                 arena.dogfights_1v1, arena.dogfights_2v2, arena.dogfights_3v3,\
+                 arena.lineup_1v1, arena.lineup_2v2, arena.lineup_3v3):
+
+                    for fighter in team:
+                        if fighter.__class__ == rChar:
+                            continue
+                        fighter._path_to_imgfolder = fighter._path_to_imgfolder.replace("npc/arena_males", "fighters/males/warriors")
+                        fighter._path_to_imgfolder = fighter._path_to_imgfolder.replace("npc/arena_females", "fighters/females")
+
 
         for obj in pytfall.__dict__.values():
             if isinstance(obj, ItemShop) and not hasattr(obj, "total_items_price"):
@@ -1164,5 +1192,24 @@ label after_load:
                 if not hasattr(d, "keysym"):
                     d.keysym = None
 
+    #python:    
+        #def testrun(x):
+        #    if x == 0:
+        #       return
+        #    msg = "Attempt to auto-buy 3 items for {} girls!".format(len(chars))
+        #    tl.start(msg)
+        #    for i in chars.values():
+        #        i.gold = 100000
+        #        i.autobuy = True
+        #        i.auto_buy(amount=3, smart_ownership_limit=False)
+        #         i.equip_for("Combat")
+        #    tl.end(msg)
+        #    tl.start("Create Chars")
+        #    for i in range(1000):
+        #        build_rc(tier=10, give_bt_items=True, give_civilian_items=True)
+        #    tl.end("Create Chars")
+        #testrun(0)
+        #import cProfile
+        #cProfile.runctx('testrun(1)', globals(), locals(), 'results')
     stop music
     return

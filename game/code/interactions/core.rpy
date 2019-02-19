@@ -20,16 +20,16 @@ init -1 python:
 
             self.name = name
             self.curious_priority = curious_priority
-            self.limited_location = limited_location
+            self.termination_day = day + randint(3, 5)
+            self.creation_day = day
 
-            self.girls = list()
-            choices = list()
-            interactive_chars = gm.get_all_girls()
-            possible_chars = list(c for c in chars.itervalues() if (c not in interactive_chars)
-                                                                 and (c not in hero.chars)
-                                                                 and (not c.arena_active))
+            cell_chars = list()
+            self.girls = cell_chars
+            interactive_chars = set(gm.get_all_girls()) | set(hero.chars)
+            possible_chars = [c for c in chars.itervalues() if (not c.arena_active) and (c not in interactive_chars)]
 
             # Get available girls and check stuff:
+            choices = list()
             for c in possible_chars:
                 if limited_location and c.location != name:
                     continue
@@ -63,60 +63,44 @@ init -1 python:
             # =====================================>>>
             # We add an absolute overwrite for any character that has the location string set as the name:
             # Make sure that we do not get the char in two locations on the same day:
-            local_chars = list()
-            for c in possible_chars:
-                if c.location == name:
-                    if c in interactive_chars:
-                        gm.remove_girl(c)
-                    local_chars.append(c)
+            local_chars = [c for c in possible_chars if c.location == name]
             shuffle(local_chars)
-            while local_chars and len(self.girls) < 3:
-                self.girls.append(local_chars.pop())
+            while local_chars:
+                cell_chars.append(local_chars.pop())
+                if len(cell_chars) == 3:
+                    return
 
             # Append to the list (1st girl) Best disposition:
-            # This whole codebit needs to be rewritten when Interactions are restructured.
-            if conditioned_choices and len(self.girls) < 3:
-                if not conditioned_choices[len(conditioned_choices)-1].get_stat("disposition"):
-                    shuffle(conditioned_choices)
-                    self.girls.append(conditioned_choices.pop())
-                else:
-                    self.girls.append(conditioned_choices.pop())
-            elif choices and len(self.girls) < 3:
-                if not choices[len(choices)-1].get_stat("disposition"):
-                    shuffle(choices)
-                    self.girls.append(choices.pop())
-                else:
-                    self.girls.append(choices.pop())
-
-            # Last two, Second one should be an Unique char, Third = Any char:
+            if conditioned_choices:
+                if conditioned_choices[-1].get_stat("disposition"):
+                    c = conditioned_choices.pop()
+                    cell_chars.append(c)
+                    choices.remove(c)
+            elif choices:
+                if choices[-1].get_stat("disposition"):
+                    cell_chars.append(choices.pop())
+            if len(cell_chars) == 3:
+                return
+            
+            # select a unique char if possible
             shuffle(conditioned_choices)
-            while conditioned_choices and len(self.girls) < 3:
-                for i in conditioned_choices:
-                    if i.__class__ == Char:
-                        self.girls.append(i)
-                        conditioned_choices.remove(i)
-                        break
-                if conditioned_choices and len(self.girls) < 3:
-                    self.girls.append(conditioned_choices.pop())
-                # In the perfect world, we'd be done... yet...
-
-            # This last bit we do in case conditioned choices had failed:
-            if len(self.girls) < 3:
-                choices = list(i for i in choices if i not in self.girls)
-                shuffle(choices)
-                while choices and len(self.girls) < 3:
-                    for i in choices:
-                        if i.__class__ == Char:
-                            self.girls.append(i)
-                            choices.remove(i)
-                            break
-                    if len(self.girls) < 3 and choices:
-                        self.girls.append(choices.pop())
-
-            if len(self) > 3:
-                raise Exception("Something went wrong during girls sorting in {}.\n List: {}".format(self.__class__.__name__, ", ".join(c.name for c in self)))
-            self.termination_day = day + randint(3, 5)
-            self.creation_day = day
+            shuffle(choices)
+            for c in itertools.chain(conditioned_choices, choices):
+                if c.__class__ == Char:
+                    cell_chars.append(c)
+                    if len(cell_chars) == 3:
+                        return
+                    if c in conditioned_choices:
+                        conditioned_choices.remove(c)
+                    choices.remove(c)
+                    break
+            
+            # fill the rest with random chars
+            for c in itertools.chain(conditioned_choices, choices):
+                if c not in cell_chars:
+                    cell_chars.append(c)
+                    if len(cell_chars) == 3:
+                        return
 
         # and easy access:
         def __len__(self):

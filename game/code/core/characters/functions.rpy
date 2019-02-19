@@ -421,7 +421,7 @@ init -11 python:
 
         # Normalizing new girl:
         # We simply run the init method of parent class for this:
-        super(rChar, rg).init()
+        rg.init()
 
         # And at last, leveling up and stats/skills applications:
         tier_up_to(rg, tier, **tier_kwargs)

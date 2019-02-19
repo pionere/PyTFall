@@ -55,7 +55,7 @@ init -9 python:
 
             # Locations and actions, most are properties with setters and getters.
             #                    Home        Workplace        Action        Location 
-            #    -    "fighter"  city            -               -            arena  
+            #    -    "fighter"  city            -               -             -  
             #   char   "free"    city            -               -         [loc/jail]
             #   char   "slave"    sm             -               -          [ra/jail]
             # hero:            b/streets         b               j           [jail]  
@@ -85,7 +85,7 @@ init -9 python:
             # Arena related:
             if arena:
                 self.fighting_days = list() # Days of fights taking place
-                self.arena_willing = False # Indicates the desire to fight in the Arena
+                self.arena_willing = None # Indicates the desire to fight in the Arena
                 self.arena_permit = False # Has a permit to fight in main events of the arena.
                 self.arena_active = False # Indicates that girl fights at Arena at the time.
                 self.arena_rep = 0 # Arena reputation
@@ -2454,8 +2454,8 @@ init -9 python:
                 self.attack_skills.append(self.default_attack_skill)
 
             # Arena:
-            if self.arena_willing is not False and "Combatant" in self.gen_occs and self not in hero.chars:
-                self.arena_willing = True
+            if self.arena_willing is None:
+                self.arena_willing = self.status == "free" and "Combatant" in self.gen_occs
 
             # add ADVCharacter:
             self.update_sayer()

@@ -552,7 +552,7 @@ init -10 python:
 
             for key in trait.max:
                 if key in stats.max:
-                   stats.max[key] += trait.max[key]
+                    stats.max[key] += trait.max[key]
                 else:
                     msg = "'%s' trait tried to apply unknown max stat: %s!"
                     char_debug(str(msg % (trait.id, key)))
@@ -1178,14 +1178,14 @@ init -10 python:
                         value = min(random.expovariate(100.0/chance), num_lvl)
                         val = int(value)
                         if val != 0:
-                             self.lvl_max[stat] += val
-                             self.max[stat] += val
-                             value -= val
+                            self.lvl_max[stat] += val
+                            self.max[stat] += val
+                            value -= val
                         value *= 100
                         if dice(value):
-                             self.lvl_max[stat] += 1
+                            self.lvl_max[stat] += 1
                         if dice(value):
-                             self.max[stat] += 1
+                            self.max[stat] += 1
 
                         #if self.level >= 20:
                         #    val = self.level / 20.0
@@ -1356,7 +1356,7 @@ init -10 python:
                 if smart_ownership_limit is True:
                     owned = count_owned_items(char, item)
                     if slot == "ring":
-                       if owned >= 3:
+                        if owned >= 3:
                             continue
                     elif slot == "consumable":
                         if owned >= 5:

@@ -152,6 +152,7 @@ init -9 python:
                 distibution[key] = round_int(required*value/total)
 
             # We are done with distibution, now tiers:
+            give_bt_items = status == "free"
             for bt_group, amount in distibution.items():
                 for i in range(amount):
                     if dice(1): # Super char!
@@ -161,13 +162,6 @@ init -9 python:
                     else: # Ok char...
                         tier = hero.tier + uniform(.1, 1.0)
                     tier += tier_offset
-
-                    if status == "slave" and bt_group in ["Combatant", "Specialist", "Healer"]:
-                        if DEBUG:
-                            devlog.warning("Tried to populate with weird slave {}!".format())
-                        status = "free"
-
-                    give_bt_items = status == "free"
 
                     build_rc(bt_group=bt_group,
                              set_status=status,

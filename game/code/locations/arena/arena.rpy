@@ -69,23 +69,16 @@ init -9 python:
             '''
             Returns all fighters that are set to participate at official maches.
             '''
-            fighters = set()
             if matches == "1v1":
-                for lineup in self.matches_1v1:
-                    for fighter in list(itertools.chain(lineup[0].members, lineup[1].members)):
-                        fighters.add(fighter)
+                fighters = set([f for lineup in self.matches_1v1 for f in itertools.chain(lineup[0].members, lineup[1].members)])
             elif matches == "2v2":
-                for lineup in self.matches_2v2:
-                    for fighter in list(itertools.chain(lineup[0].members, lineup[1].members)):
-                        fighters.add(fighter)
+                fighters = set([f for lineup in self.matches_2v2 for f in itertools.chain(lineup[0].members, lineup[1].members)])
             elif matches == "3v3":
-                for lineup in self.matches_3v3:
-                    for fighter in list(itertools.chain(lineup[0].members, lineup[1].members)):
-                        fighters.add(fighter)
-            elif matches == "all":
-                fighters = fighters.union(self.get_matches_fighters(matches="1v1"))
-                fighters = fighters.union(self.get_matches_fighters(matches="2v2"))
-                fighters = fighters.union(self.get_matches_fighters(matches="3v3"))
+                fighters = set([f for lineup in self.matches_3v3 for f in itertools.chain(lineup[0].members, lineup[1].members)])
+            else:
+                fighters = set([f for lineup in self.matches_1v1 for f in itertools.chain(lineup[0].members, lineup[1].members)])
+                fighters.update([f for lineup in self.matches_2v2 for f in itertools.chain(lineup[0].members, lineup[1].members)])
+                fighters.update([f for lineup in self.matches_3v3 for f in itertools.chain(lineup[0].members, lineup[1].members)])
 
             return fighters
 
@@ -93,90 +86,29 @@ init -9 python:
             """
             Returns fighters that are in the Arena teams.
             """
-            fighters = set()
             if teams == "2v2":
-                for team in self.teams_2v2:
-                    for fighter in team:
-                        fighters.add(fighter)
+                fighters = set([f for team in self.teams_2v2 for f in team.members])
             elif teams == "3v3":
-                for team in self.teams_3v3:
-                    for fighter in team:
-                        fighters.add(fighter)
-            elif teams == "all":
-                fighters = fighters.union(self.get_teams_fighters(teams="2v2"))
-                fighters = fighters.union(self.get_teams_fighters(teams="3v3"))
-
-            return fighters
-
-        def get_arena_fighters(self, include_hero_girls=False, include_af=True,
-                                     exclude_matches=False):
-            '''
-            Returns all fighters active at the arena.
-            hero = true will include all girls in heros employment as well.
-            matches = exclude (False) or include (True) fighters participating in official matches.
-            Updated to include all Arena Fighters as well!
-            Note to self: This REALLY should simply be a list in the Arena namespace...
-            '''
-            fighters = list()
-            if include_hero_girls:
-                for fighter in chars.values():
-                    if fighter.arena_active:
-                        fighters.append(fighter)
+                fighters = set([f for team in self.teams_3v3 for f in team.members])
             else:
-                for fighter in chars.values():
-                    if fighter.arena_active and fighter not in hero.chars:
-                        fighters.append(fighter)
-
-            if include_af:
-                fighters.extend(self.arena_fighters.values())
-
-            if exclude_matches:
-                busy_in_matches = self.get_matches_fighters()
-                fighters = list(fighter for fighter in fighters if fighter not in busy_in_matches)
-
+                fighters = set([f for team in self.teams_2v2 for f in team.members])
+                fighters.update([f for team in self.teams_3v3 for f in team.members])
             return fighters
-
-        def get_arena_candidates_from_chars(self):
-            '''
-            Returns a list of all characters available/willing to fight in the Arena.
-            Excludes all girls participating in girl_meets to avoid them being at multiple locations (this needs better handling)
-            '''
-            interactions_chars = gm.get_all_girls()
-            arena_ready = [c for c in chars.values() if c.arena_willing and
-                           "Combatant" in c.gen_occs and
-                           c.status != "slave" and c not in hero.chars and
-                           c not in interactions_chars]
-            unique = []
-            rand = []
-            for char in arena_ready:
-                if isinstance(char, rChar):
-                    rand.append(char)
-                elif char.__class__ == Char:
-                    unique.append(char)
-
-            return unique + rand
 
         def get_lineups_fighters(self, lineup="all"):
             """
             Returns fighters currently in Arena lineups (heavyweights basically)
             """
-            fighters = set()
             if lineup == "1v1":
-                for team in self.lineup_1v1:
-                    for fighter in team:
-                        fighters.add(fighter)
+                fighters = set([f for team in self.lineup_1v1 for f in team.members])
             elif lineup == "2v2":
-                for team in self.lineup_2v2:
-                    for fighter in team:
-                        fighters.add(fighter)
+                fighters = set([f for team in self.lineup_2v2 for f in team.members])
             elif lineup == "3v3":
-                for team in self.lineup_3v3:
-                    for fighter in team:
-                        fighters.add(fighter)
-            elif lineup == "all":
-                fighters = fighters.union(self.get_lineups_fighters(lineup="1v1"))
-                fighters = fighters.union(self.get_lineups_fighters(lineup="2v2"))
-                fighters = fighters.union(self.get_lineups_fighters(lineup="3v3"))
+                fighters = set([f for team in self.lineup_3v3 for f in team.members])
+            else:
+                fighters = set([f for team in self.lineup_1v1 for f in team.members])
+                fighters.update([f for team in self.lineup_2v2 for f in team.members])
+                fighters.update([f for team in self.lineup_3v3 for f in team.members])
 
             return fighters
 
@@ -184,25 +116,36 @@ init -9 python:
             """
             All fighters that are currently in dogfights!
             """
-            fighters = set()
             if dogfights == "1v1":
-                for team in self.dogfights_1v1:
-                    for fighter in team:
-                        fighters.add(fighter)
+                fighters = set([f for team in self.dogfights_1v1 for f in team.members])
             elif dogfights == "2v2":
-                for team in self.dogfights_2v2:
-                    for fighter in team:
-                        fighters.add(fighter)
+                fighters = set([f for team in self.dogfights_2v2 for f in team.members])
             elif dogfights == "3v3":
-                for team in self.dogfights_3v3:
-                    for fighter in team:
-                        fighters.add(fighter)
-            elif dogfights == "all":
-                fighters = self.get_dogfights_fighters(dogfights="1v1")
-                fighters.update(self.get_dogfights_fighters(dogfights="2v2"))
-                fighters.update(self.get_dogfights_fighters(dogfights="3v3"))
+                fighters = set([f for team in self.dogfights_3v3 for f in team.members])
+            else:
+                fighters = set([f for team in self.dogfights_1v1 for f in team.members])
+                fighters.update([f for team in self.dogfights_2v2 for f in team.members])
+                fighters.update([f for team in self.dogfights_3v3 for f in team.members])
 
             return fighters
+
+        def get_arena_fighters(self):
+            '''
+            Returns all fighters active at the arena.
+            hero = true will include all girls in heros employment as well.
+            Updated to include all Arena Fighters as well!
+            Note to self: This REALLY should simply be a list in the Arena namespace...
+            '''
+            return [f for f in itertools.chain(chars.values(), self.arena_fighters.values()) if f.arena_active]
+
+        def get_arena_candidates(self):
+            '''
+            Returns a list of all characters available/willing to fight in the Arena.
+            Excludes all girls participating in girl_meets to avoid them being at multiple locations (this needs better handling)
+            '''
+            interactions_chars = set(gm.get_all_girls())
+            interactions_chars.update(hero.chars)
+            return [c for c in chars.values() if c.arena_willing and c not in interactions_chars] + self.arena_fighters.values()
 
         # -------------------------- Teams control/checks -------------------------------------->
         def remove_team_from_dogfights(self, fighter):
@@ -214,25 +157,20 @@ init -9 python:
             """
             Checks if a team/fighter is ready for dogfight by eliminating them on grounds of health, scheduled matches, presense in other dogfights or lack of AP.
             """
+            if unit in dogfighters:
+                return False
+            
             if isinstance(unit, Team):
-                for member in unit:
-                    if member.get_stat("health") < member.get_max("health")*9/10:
-                        return False
-                    if day+1 in member.fighting_days:
-                        return False
-                    if member.AP < 2:
-                        return False
-                if unit in dogfighters:
+                fighters = unit.members
+            else:
+                fighters = [unit]
+                
+            for member in fighters:
+                if member.get_stat("health") < member.get_max("health")*9/10:
                     return False
-
-            else:   # Any single fighter.
-                if unit.get_stat("health") < unit.get_max("health")*9/10:
+                if day+1 in member.fighting_days:
                     return False
-                if day+1 in unit.fighting_days:
-                    return False
-                if unit.AP < 2:
-                    return False
-                if unit in dogfighters:
+                if member.AP < 2:
                     return False
 
             return True
@@ -245,8 +183,7 @@ init -9 python:
             candidates = None
             if len(self.teams_2v2) < 30:
                 if candidates is None:
-                    candidates = self.get_arena_candidates_from_chars()
-                    candidates.extend(self.arena_fighters.values())
+                    candidates = self.get_arena_candidates()
                 inteams_2v2 = self.get_teams_fighters(teams="2v2")
                 templist = [fighter for fighter in candidates if fighter not in inteams_2v2]
                 shuffle(templist)
@@ -254,14 +191,17 @@ init -9 python:
                 for __ in xrange(min(30, len(templist)/2)):
                     team = Team(max_size=2)
                     team.name = get_team_name()
-                    team.add(templist.pop())
-                    team.add(templist.pop())
+                    f = templist.pop()
+                    f.arena_active = True
+                    team.add(f)
+                    f = templist.pop()
+                    f.arena_active = True
+                    team.add(f)
                     self.teams_2v2.append(team)
 
             if len(self.teams_3v3) < 30:
                 if candidates is None:
-                    candidates = self.get_arena_candidates_from_chars()
-                    candidates.extend(self.arena_fighters.values())
+                    candidates = self.get_arena_candidates()
                 inteams_3v3 = self.get_teams_fighters(teams="3v3")
                 templist = [fighter for fighter in candidates if fighter not in inteams_3v3]
                 shuffle(templist)
@@ -269,9 +209,15 @@ init -9 python:
                 for __ in xrange(min(30, len(templist)/3)):
                     team = Team(max_size=3)
                     team.name = get_team_name()
-                    team.add(templist.pop())
-                    team.add(templist.pop())
-                    team.add(templist.pop())
+                    f = templist.pop()
+                    f.arena_active = True
+                    team.add(f)
+                    f = templist.pop()
+                    f.arena_active = True
+                    team.add(f)
+                    f = templist.pop()
+                    f.arena_active = True
+                    team.add(f)
                     self.teams_3v3.append(team)
 
         def update_dogfights(self):
@@ -282,37 +228,36 @@ init -9 python:
 
             # 1v1
             if len(self.dogfights_1v1) < 20:
+                candidates = self.get_arena_candidates()
                 dogfighters = self.get_dogfights_fighters()
-                candidates = [f for f in self.arena_fighters.values() if f not in dogfighters]
-                chars_fighters = self.get_arena_candidates_from_chars()
-                chars_fighters = [f for f in chars_fighters if f not in dogfighters]
-                candidates.extend(chars_fighters)
+                candidates = [f for f in candidates if f not in dogfighters]
+                shuffle(candidates)
 
                 amount = min(min(randint(15, 20), 20 - len(self.dogfights_1v1)), len(candidates))
                 in_range_exists = len([f for f in dogfighters if f.level in level_range])
 
                 # do first pass over those candidates who's level is near Hero's
-                for i in candidates[:]:
+                for f in candidates[:]:
                     if amount == 0 or in_range_exists >= 5:
                         break
 
-                    if i.level in level_range:
+                    if f.level in level_range:
                         amount -= 1
                         in_range_exists += 1
                         team = Team(max_size=1)
-                        team.add(i)
-                        candidates.remove(i)
+                        f.arena_active = True
+                        team.add(f)
+                        candidates.remove(f)
                         self.dogfights_1v1.append(team)
 
 
-                if amount != 0:
-                    shuffle(candidates)
-
-                    while amount != 0:
-                        amount -= 1
-                        team = Team(max_size=1)
-                        team.add(candidates.pop())
-                        self.dogfights_1v1.append(team)
+                while amount != 0:
+                    amount -= 1
+                    team = Team(max_size=1)
+                    f = candidates.pop()
+                    f.arena_active = True
+                    team.add(f)
+                    self.dogfights_1v1.append(team)
 
             # 2v2
             for teams, teams_setup in ([self.teams_2v2, self.dogfights_2v2],
@@ -453,13 +398,14 @@ init -9 python:
                 if dice(deadline):
                     if fighters is None:
                         match_fighters = self.get_matches_fighters(matches="1v1")
-                        fighters = list(i for i in self.get_arena_fighters() if i.arena_permit and setup[2] not in i.fighting_days and i not in match_fighters)
+                        fighters = [i for i in self.get_arena_candidates() if setup[2] not in i.fighting_days and i not in match_fighters]
                         shuffle(fighters)
 
                     if fighters:
-                        c_fighter = fighters.pop()
-                        c_fighter.fighting_days.append(setup[2])
-                        setup[0].add(c_fighter)
+                        f = fighters.pop()
+                        f.fighting_days.append(setup[2])
+                        f.arena_active = True
+                        setup[0].add(f)
 
             # 2vs2
             teams = None
@@ -617,10 +563,17 @@ init -9 python:
         # -------------------------- Setup Methods -------------------------------->
         def update_ladder(self):
             # Update top 100 ladder:
-            candidates = self.get_arena_fighters(include_hero_girls=True)
+            candidates = self.get_arena_fighters()
             candidates.append(hero)
             candidates.sort(reverse=True, key=attrgetter("arena_rep"))
             self.ladder = candidates[:len(self.ladder)]
+
+        def update_actives(self):
+            actives = set(self.ladder) | self.get_teams_fighters() | self.get_lineups_fighters() | self.get_dogfights_fighters() | self.get_matches_fighters()
+
+            for c in chars.values():
+                if c.arena_active and c not in actives:
+                    c.arena_active = False
 
         def load_special_team_presets(self):
             female_fighters = store.female_fighters
@@ -665,8 +618,10 @@ init -9 python:
                             team_members.add(member)
                         if member in chars:
                             member = chars[member]
-                            if member in hero.chars:
-                                hero.remove_char(member)
+                            if member.status != "free":
+                                raise Exception("Only free citizens can participate in arena fighting. A slave called '%s' added to arena teams." % member.name)
+                            #if member in hero.chars:
+                            #    hero.remove_char(member)
                         elif member in female_fighters:
                             member = female_fighters[member]
                         elif member in male_fighters:
@@ -675,12 +630,8 @@ init -9 python:
                             break
                         self.arena_fighters[member.id] = member
 
-                    member.set_status("free")
                     member.arena_active = True
-                    member.arena_permit = True
-                    member.home = pytfall.city
-                    set_location(member, self)
-                    member.action = "Arena Combat"
+                    #member.arena_permit = True
 
                     tier = tiers[index]
                     tier_up_to(member, tier)
@@ -741,13 +692,7 @@ init -9 python:
             self.arena_fighters.update(store.female_fighters)
 
             # Loading rest of Arena Combatants:
-            candidates = store.male_fighters.values() + store.female_fighters.values()
-            candidates.extend(self.get_arena_candidates_from_chars())
-
-            # Bad place to put this, but for now:
-            for c in candidates:
-                c.set_status("free")
-
+            candidates = self.get_arena_candidates()
             shuffle(candidates)
 
             # print("CANDIDATES: {}".format(len(candidates)))
@@ -767,10 +712,7 @@ init -9 python:
                                     spells_to_tier=True)
 
                 char.arena_active = True
-                char.arena_permit = True
-                char.home = pytfall.city
-                set_location(char, self)
-                char.action = "Arena Combat"
+                #char.arena_permit = True
 
                 char.arena_rep = randint(79000, 81000)
                 self.king = char
@@ -799,18 +741,12 @@ init -9 python:
                     auto_buy_for_bt(fighter, casual=None)
                     give_tiered_magic_skills(fighter)
 
-                fighter.arena_active = True
-                fighter.arena_permit = True
-                fighter.home = pytfall.city
-                set_location(fighter, self)
-                fighter.action = "Arena Combat"
+                #fighter.arena_active = True
+                #fighter.arena_permit = True
 
-                fighter.arena_rep = randint(int(tier*9000), int(tier*11000))
+                #fighter.arena_rep = randint(int(tier*9000), int(tier*11000))
 
             candidates.extend(new_candidates)
-
-            # Populate the reputation ladder:
-            self.update_ladder()
 
             # Populate tournament ladders:
             # 1v1 Ladder lineup:
@@ -822,6 +758,9 @@ init -9 python:
                 if not team:
                     f = temp.pop()
                     f.arena_active = True
+                    #f.arena_permit = True
+                    if f.arena_rep == 0:
+                        f.arena_rep = randint(int(f.level*450), int(f.level*550))
                     team.add(f)
 
             # 2v2 Ladder lineup:
@@ -835,6 +774,9 @@ init -9 python:
                 while len(team) < 2:
                     f = temp.pop()
                     f.arena_active = True
+                    #f.arena_permit = True
+                    if f.arena_rep == 0:
+                        f.arena_rep = randint(int(f.level*450), int(f.level*550))
                     team.add(f)
 
             # 3v3 Ladder lineup:
@@ -848,7 +790,13 @@ init -9 python:
                 while len(team) < 3:
                     f = temp.pop()
                     f.arena_active = True
+                    #f.arena_permit = True
+                    if f.arena_rep == 0:
+                        f.arena_rep = randint(int(f.level*450), int(f.level*550))
                     team.add(f)
+
+            # Populate the reputation ladder:
+            self.update_ladder()
 
         # -------------------------- ChainFights vs Mobs ------------------------>
         def check_before_chainfight(self):
@@ -1369,7 +1317,7 @@ init -9 python:
             tl.start("Arena: Dogfights")
             opfor_pool = list()
             dogfighters = self.get_dogfights_fighters()
-            for fighter in self.get_arena_fighters():
+            for fighter in self.get_arena_candidates():
                 if self.check_if_team_ready_for_dogfight(fighter, dogfighters):
                     opfor_pool.append(fighter)
 
@@ -1424,6 +1372,9 @@ init -9 python:
 
             # Update top 100 ladder:
             self.update_ladder()
+
+            # Update arena actives
+            self.update_actives()
 
             # Reset daily variables
             self.df_count = 0
