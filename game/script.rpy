@@ -950,6 +950,12 @@ label after_load:
                     char.arena_rep = char._arena_rep
                 if hasattr(char, "_location"):
                     char.location = char._location
+                if hasattr(char, "price"):
+                    del char.price
+                if hasattr(char, "days_depressed"):
+                    del char.days_depressed
+                if hasattr(char, "exp_bar"):
+                    del char.exp_bar
                 if hasattr(char.stats, "delayed_stats"):
                     del char.stats.delayed_stats
                 if hasattr(char, "besprite"):

@@ -1113,17 +1113,13 @@ screen panic_screen():
     key "й" action Hide("panic_screen")
     key "Й" action Hide("panic_screen")
 
-init python:
-    def get_exp_bars(group):
-        return [c.exp_bar for c in group]
-
 screen give_exp_after_battle(group, enemy_team, ap_used=1, money=0):
     modal True
     zorder 100
 
     use keymap_override
 
-    default bars = get_exp_bars(group)
+    default bars = [ExpBarController(c) for c in group]
 
     frame:
         align (.5, .5)
@@ -1139,8 +1135,8 @@ screen give_exp_after_battle(group, enemy_team, ap_used=1, money=0):
             add b
 
         # actually give the EXP:
-        for c in group:
-            timer .01 action Function(c.exp_bar.mod_exp, exp_reward(c, enemy_team, ap_used=ap_used)) repeat False
+        for b in bars:
+            timer .01 action Function(b.mod_exp, exp_reward(b.char, enemy_team, ap_used=ap_used)) repeat False
 
         if money > 0:
             hbox:
@@ -1154,16 +1150,11 @@ screen give_exp_after_battle(group, enemy_team, ap_used=1, money=0):
         button:
             xalign .5
             xysize (120, 40)
-            if all(c.finished for c in bars):
+            if all(b.done for b in bars):
                 action Return()
                 keysym ("K_ESCAPE", "K_RETURN", "mousedown_3")
             text "OK" size 15
 
-
-
-    # if all(c.finished for c in bars):
-    #     key "K_ESCAPE" action Return()
-    #     key "K_RETURN" action Return()
 
 screen tutorial(level=1):
     modal True

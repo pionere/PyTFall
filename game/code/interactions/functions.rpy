@@ -411,7 +411,7 @@ init -11 python:
         gen_occs = set()
         for occ in char.traits:
             if hasattr(occ, "occupations"):
-                gen_occs = gen_occs.union(set(occ.occupations))
+                gen_occs.update(occ.occupations)
         return any(i for i in list(args) if i in gen_occs)
 
     def cgochar(char, *args):
@@ -421,17 +421,16 @@ init -11 python:
         gen_occs = set()
         for occ in char.traits:
             if hasattr(occ, "occupations"):
-                gen_occs = gen_occs.union(set(occ.occupations))
+                gen_occs.update(occ.occupations)
         return any(i for i in list(args) if i in gen_occs)
 
     # Relationships:
     def check_friends(*args):
-        friends = list()
         for i in args:
             for z in args:
-                if i != z:
-                    friends.append(i.is_friend(z))
-        return all(friends)
+                if i != z and not i.is_friend(z):
+                    return False
+        return True
 
     def set_friends(*args):
         for i in args:
@@ -446,12 +445,11 @@ init -11 python:
                     i.friends.remove(z)
 
     def check_lovers(*args):
-        lovers = list()
         for i in args:
             for z in args:
-                if i != z:
-                    lovers.append(i.is_lover(z))
-        return all(lovers)
+                if i != z and not i.is_lover(z):
+                    return False
+        return True
 
     def set_lovers(*args):
         for i in args:

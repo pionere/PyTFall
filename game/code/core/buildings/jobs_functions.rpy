@@ -82,10 +82,7 @@ init -10 python:
 
         # Passive manager effect:
         if me >= 120 and dice(50):
-            if is_plural:
-                temp = "Manager paid some extra attention to clients. +20% to payout!"
-            else:
-                temp = "Manager paid some extra attention to the client. +20% to payout!"
+            temp = "Manager paid some extra attention to the %s. +20%% to payout!" % plural("client", is_plural)
             log.append(temp)
             earned *= 1.2
             building.mlog.append("\n"+temp)

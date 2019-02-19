@@ -465,40 +465,24 @@ init -960 python:
             self.last_known_level = char.level
             self.active_pool = 0
             self.update_st = 0
-            self.level_changed = False
             self.set_step()
 
-            self.exp_mod_sound = "content/sfx/sound/events/counting_long.ogg"
-            self.level_up_sound = "content/sfx/sound/events/go_for_it.mp3"
-
-            self.finished = True # Done adding experience...
+            self.done = False    # Done adding experience...
+            self.running = False # Still adding experience...
 
         def set_step(self):
-            step = int(round(self.char.stats.goal_increase/60.0))
+            step = round_int(self.char.stats.goal_increase/60.0)
             if str(step).endswith('0'):
                 step += 6
-            self._step = step
+            self.step = step
 
         def mod_exp(self, value):
             self.active_pool += value
             self.update_st = 0
-            self.finished = False
+            self.running = True
 
-            self.last_known_level = self.char.level
-            self.set_step()
-
-            renpy.music.play(self.exp_mod_sound, channel="sound", loop=True)
+            renpy.music.play("content/sfx/sound/events/counting_long.ogg", channel="sound", loop=True)
             renpy.redraw(self, 0)
-
-        def check_finished(self):
-            return not self.active_pool
-
-        @property
-        def step(self):
-            if self.level_changed:
-                self.level_changed = False
-                self.set_step()
-            return self._step
 
         def bar_and_text(self):
             char = self.char
@@ -545,9 +529,8 @@ init -960 python:
             return fixed
 
         def render(self, width, height, st, at):
-            if self.active_pool:
+            if self.running:
                 if self.update_st <= st:
-                    value = 0
                     char = self.char
                     step = self.step
                     if self.active_pool > step:
@@ -559,23 +542,24 @@ init -960 python:
 
                     if self.last_known_level != char.level:
                         self.last_known_level = char.level
-                        self.level_changed = True
-                        renpy.music.play(self.level_up_sound, channel="audio")
+                        self.set_step()
+                        renpy.music.play("content/sfx/sound/events/go_for_it.mp3", channel="audio")
 
                     self.update_st = st + .05
 
             render = renpy.Render(326, 130)
             render.place(self.bar_and_text(), st=st)
 
-            if not self.finished and self.check_finished():
-                self.update_st = 0
-                self.finished = True
+            if self.running:
+                if not self.active_pool:
+                    self.update_st = 0
+                    self.running = False
+                    self.done = True
 
-                renpy.music.stop(channel="sound")
-                renpy.restart_interaction()
-
-            if not self.finished:
-                renpy.redraw(self, 0)
+                    renpy.music.stop(channel="sound")
+                    renpy.restart_interaction()
+                else:
+                    renpy.redraw(self, 0)
             return render
 
 

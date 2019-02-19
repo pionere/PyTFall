@@ -393,7 +393,7 @@ screen finances(obj, mode="logical"):
                 button:
                     minimum (100, 30)
                     if fin_mode == "logical":
-                        sensitive focused.allowed_to_view_personal_finances()
+                        sensitive focused.allowed_to_view_personal_finances
                         action SetScreenVariable('fin_mode', "main")
                         text "Personal"
                     elif fin_mode == "main":

@@ -886,43 +886,45 @@ screen char_control():
         vbox:
             style_group "basic"
             align (.55, .5)
-            if isinstance(char, PytGroup):
-                if char.location != pytfall.ra:
-                    button:
-                        xysize (200, 32)
-                        style_group "basic"
-                        action Return(["dropdown", "workplace", char])
-                        tooltip "Choose a location for %s to work at" % char.nickname
-                        if len(str(char.location)) > 18:
-                            text "[char.location]" size 15
-                        elif len(str(char.location)) > 10:
-                            text "[char.location]" size 18
-                        else:
-                            text "Work: [char.location]" size 18
-                    button:
-                        xysize (200, 32)
-                        style_group "basic"
-                        action Return(["dropdown", "action", char])
-                        tooltip "Choose a task for %s to do" % char.nickname
-                        if len(str(char.action)) > 18:
-                            text "[char.action]" size 15
-                        elif len(str(char.action)) > 12:
-                            text "[char.action]" size 18
-                        else:
-                            text "Action: [char.action]" size 18
-                else:
-                    text "{size=15}Location: Unknown"
-                    text "{size=15}Action: Hiding"
+            if isinstance(char, PytGroup) and char.is_available:
+                button:
+                    xysize (200, 32)
+                    style_group "basic"
+                    action Return(["dropdown", "workplace", char])
+                    tooltip "Choose a place for %s to work at" % char.nickname
+                    $ temp = str(char.workplace)
+                    if len(temp) <= 10:
+                        text "Work: [temp]" size 18 yalign .5
+                    else:
+                        text "[temp]" size 16 yalign .5:
+                            if len(temp) > 18:
+                                size 13
+                                line_spacing -6
+                            else:
+                                layout "nobreak"
+
+                button:
+                    xysize (200, 32)
+                    style_group "basic"
+                    action Return(["dropdown", "action", char])
+                    tooltip "Choose a task for %s to do" % char.nickname
+                    $ temp = str(char.action)
+                    if len(temp) <= 10:
+                        text "Action: [temp]" size 18 yalign .5 
+                    else:
+                        text "[temp]" size 16 yalign .5:
+                            if len(temp) > 18:
+                                size 13
+                                line_spacing -6
+                            else:
+                                layout "nobreak"
 
             null height 30
             button:
                 action ToggleField(char, "front_row")
                 xysize (200, 32)
                 text "Front Row" align (.0, .5)
-                if char.front_row:
-                    tooltip "{} fights in the front row!".format(char.name)
-                else:
-                    tooltip "{} fights in the back row!".format(char.name)
+                tooltip "%s fights in the %s row!" % (char.name, "front" if char.front_row else "back")
                 if isinstance(char.front_row, list):
                     add cb_some_checked align (1.0, .5)
                 elif char.front_row:
@@ -945,7 +947,7 @@ screen char_control():
             # Autobuy:
             button:
                 xysize (200, 32)
-                sensitive char.status == "slave"
+                sensitive char.allowed_to_define_autobuy
                 action ToggleField(char, "autobuy")
                 tooltip "Give {} permission to go shopping for items if she has enough money.".format(char.nickname)
                 text "Auto Buy" align (.0, .5)
@@ -1030,7 +1032,7 @@ screen aeq_button(char):
 
     button:
         xysize (200, 32)
-        sensitive char.status == "slave" or char.get_stat("disposition") > 850
+        sensitive char.allowed_to_define_autoequip
         action ToggleField(char, "autoequip")
         tooltip "Try to equip items favorable for the job automatically (results may vary)."
         text "Auto Equip" align (.0, .5)

@@ -63,11 +63,11 @@ init:
                         self.class_filters.add(bt)
 
             def reset_filters(self):
-               self.selected_filters = set()
-               self.update_filter_sets()
+                self.selected_filters = set()
+                self.update_filter_sets()
 
-               self.source.clear()
-               self.source.filter()
+                self.source.clear()
+                self.source.filter()
 
             def toggleChosenMembership(self, chars):
                 if self.the_chosen.issuperset(chars):

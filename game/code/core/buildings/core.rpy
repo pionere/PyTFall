@@ -366,7 +366,7 @@ init -10 python:
                 if job.id == "Manager":
                     if self.manager and char != self.manager:
                         continue
-                if job.is_valid_for(char):
+                if char.can_work(job):
                     jobs.append(job)
 
             return jobs

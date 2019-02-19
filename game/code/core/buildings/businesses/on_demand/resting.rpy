@@ -187,7 +187,7 @@ init -5 python:
 
         def after_rest(self, worker, log):
             # Must check for is_rested first always.
-            if self.is_rested(worker):
+            if self.is_rested(worker) and log is not None:
                 log.append("\n\nShe is both well rested and healthy so at this point this is simply called: {color=[red]}slacking off :){/color}")
 
 
@@ -203,10 +203,11 @@ init -5 python:
                 worker.action = self # toggle action
                 action = worker.action
 
-                if action:
-                    log.append("\n\n{} is now both well rested and goes back to work as {}!".format(worker.name, action))
-                else:
-                    log.append("\n\n{} is now both well rested and healthy!".format(worker.name))
+                if log is not None:
+                    if action:
+                        log.append("\n\n{} is now both well rested and goes back to work as {}!".format(worker.name, action))
+                    else:
+                        log.append("\n\n{} is now both well rested and healthy!".format(worker.name))
 
                 if worker.autoequip:
                     aeq_purpose = getattr(action, "aeq_purpose", None)

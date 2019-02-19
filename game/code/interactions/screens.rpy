@@ -303,7 +303,7 @@ label interactions_control:
                     setattr(gm, "show_menu_givegift", False)
 
                     if flag_value == 0:
-                        char.set_flag(flag_name, item.cblock+day)
+                        char.set_flag(flag_name, item.cblock+day-1)
                     else:
                         char.up_counter(flag_name, item.cblock)
                     if dismod <= 0:
@@ -406,7 +406,7 @@ screen girl_interactions():
                                     if t in char.traits:
                                         dismod += v
                             flag_name = "cnd_item_%s" % item.id
-                            flag_value = char.get_flag(flag_name, day) - day
+                            flag_value = char.get_flag(flag_name, day-1) - day
 
                         button:
                             style "main_screen_3_button"
@@ -425,7 +425,7 @@ screen girl_interactions():
                                         elif dismod > 30:
                                             $ img = "content/gfx/interface/icons/gifts_2.png"
                                         $ img = im.Scale(img, 65, 35)
-                                        if flag_value != 0:
+                                        if flag_value >= 0:
                                             $ img = im.Sepia(img)
                                         add img align (.0, .9)
                                 null width 10

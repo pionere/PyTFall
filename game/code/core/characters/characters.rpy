@@ -260,6 +260,23 @@ init -9 python:
                     allowed = allowed.union(t.occupations)
             return allowed
 
+        def can_work(self, job):
+            """Returns True if char is willing to do the job else False.
+
+            elif worker.status in ("free", "various"): ~==various==~ was added by pico to handle groups!
+            """
+            if self.status not in job.allowed_status:
+                return False
+
+            # if worker.get_stat("disposition") >= self.calculate_disposition_level(worker):
+            #     return True
+            # Considering the next check, this is more or less useless.
+            if set(job.occupation_traits).intersection(self.traits):
+                return True
+            if set(job.occupations).intersection(self.gen_occs):
+                return True
+            return False
+
         @property
         def action(self):
             return self._action
@@ -2049,9 +2066,6 @@ init -9 python:
             self.team.name = "Player Team"
             self.teams = [self.team]
 
-            # Exp Bar:
-            self.exp_bar = ExpBarController(self)
-
             self.autocontrol = {
                 "Rest": False,
                 "Tips": False,
@@ -2365,14 +2379,11 @@ init -9 python:
             # Can set character specific event for recapture
             self.runaway_look_event = "escaped_girl_recapture"
 
-            self.price = 500
-
             # Relays for game mechanics
             #self.wagemod = 100 # Percentage to change wage payout
 
-            # Unhappy/Depressed counters:
+            # Unhappy counter:
             self.days_unhappy = 0
-            self.days_depressed = 0
 
             # Trait assets
             self.init_traits = list() # List of traits to be enabled on game startup (should be deleted in init method)
@@ -2395,9 +2406,6 @@ init -9 python:
 
             self.txt = list()
             self.fin = Finances(self)
-
-            # Exp Bar:
-            self.exp_bar = ExpBarController(self)
 
         def init(self):
             """Normalizes after __init__"""
@@ -2463,18 +2471,21 @@ init -9 python:
             self.say = Character(self.nickname, show_two_window=True, show_side_image=self, **self.say_style)
 
         # Logic assists:
+        @property
         def allowed_to_view_personal_finances(self):
-            if self.status == "slave":
-                return True
-            elif self.get_stat("disposition") > 900:
-                return True
-            return False
+            return self.status == "slave" or self.get_stat("disposition") >= 900
+        @property
+        def allowed_to_define_autobuy(self):
+            return self.status == "slave" or self.get_stat("disposition") >= 950
+        @property
+        def allowed_to_define_autoequip(self):
+            return self.status == "slave" or self.get_stat("disposition") >= 850
 
         ### Next Day Methods
         def restore(self):
             # Called whenever character needs to have one of the main stats restored.
-            l = list()
             if self.autoequip:
+                l = list()
                 if self.get_stat("health") < self.get_max("health")*.3:
                     l.extend(self.auto_equip(["health"]))
                 if self.get_stat("vitality") < self.get_max("vitality")/5:
@@ -2483,19 +2494,16 @@ init -9 python:
                     l.extend(self.auto_equip(["mp"]))
                 if self.get_stat("joy") < self.get_max("joy")*.4:
                     l.extend(self.auto_equip(["joy"]))
-            if l:
-                self.txt.append("%s used: %s %s during the day!" % (self.pC, ", ".join(l), plural("item", len(l))))
-            return l
+                if l:
+                    self.txt.append("%s used: %s %s during the day!" % (self.pC, ", ".join(l), plural("item", len(l))))
 
         def check_resting(self):
             # Auto-Rest should return a well rested girl back to work (or send them auto-resting!):
-            txt = []
             if not isinstance(self.action, Rest):
                 # This will set this char to AutoRest using normal checks!
-                can_do_work(self, check_ap=False, log=txt)
+                can_do_work(self, check_ap=False, log=None)
             else: # Char is resting already, we can check if is no longer required.
-                self.action.after_rest(self, txt)
-            return "".join(txt)
+                self.action.after_rest(self, log=None)
 
         def nd_sleep(self, txt):
             # Home location nd mods:
@@ -2689,10 +2697,10 @@ init -9 python:
                 if 'Poisoned' in self.effects:
                     txt.append("{color=[red]}This worker is suffering from the effects of Poison!{/color}")
                     flag_red = True
-                if (not self.autobuy) and self.status != "slave" and self.get_stat("disposition") < 950:
+                if (not self.autobuy) and not self.allowed_to_define_autobuy:
                     self.autobuy = True
-                    txt.append("%s will go shopping whenever it may please %s from now on!" % (pC, pp))
-                if (not self.autoequip) and self.status != "slave" and self.get_stat("disposition") < 850:
+                    txt.append("%s will go shopping whenever it may please %s from now on!" % (pC, self.pp))
+                if (not self.autoequip) and not self.allowed_to_define_autoequip:
                     self.autoequip = True
                     txt.append("%s will be handling %s own equipment from now on!" % (pC, self.pp))
 
@@ -2732,7 +2740,7 @@ init -9 python:
                 return # can not afford it
             if self.has_flag("cnd_shopping_day"):
                 return # recently shopped
-            self.set_flag("cnd_shopping_day", day+5)
+            self.set_flag("cnd_shopping_day", day+4)
 
             temp = choice(["%s decided to go on a shopping tour :)" % self.nickname,
                                "%s went to town to relax, take %s mind of things and maybe even do some shopping!" % (self.nickname, self.pp)])

@@ -83,7 +83,7 @@ init python:
                         stats["threat"] = setup.get_threat_percentage()
 
                     clients = len(setup.all_clients)
-                    stats["clients"] = total_clients
+                    stats["clients"] = clients
 
                     total_clients += clients
 
@@ -192,20 +192,22 @@ label next_day_calculations:
 
         # Restore (AutoEquip for HP/Vit/MP) before the jobs:
         tl.start("AutoEquip Consumables for Workers")
-        (c.restore() for c in hero.chars if c.is_available)
+        for c in hero.chars:
+            if c.is_available:
+                c.restore()
         tl.end("AutoEquip Consumables for Workers")
 
         # Building events Start:
         tl.start("ND-Buildings")
         tl.start("ND-Rest (First pass)")
         for c in hero.chars:
-            if not isinstance(c.action, (Rest, SchoolCourse)):
+            if not isinstance(c.action, Rest):
                 # check whether the char needs rest
-                can_do_work(c, check_ap=False, log=None)
+                if can_do_work(c, check_ap=False, log=None):
+                    continue
             if auto_rest_conditions(c):
                 # rest
                 c.action(c) # <--- Looks odd and off?
-
         tl.end("ND-Rest (First pass)")
 
         # run the next day logic of the building:
@@ -226,7 +228,9 @@ label next_day_calculations:
 
         # Second iteration of Rest:
         tl.start("ND-Rest (Second pass)")
-        (c.action(c) for c in hero.chars if auto_rest_conditions(c))
+        for c in hero.chars:
+            if auto_rest_conditions(c):
+                c.action(c)
         tl.end("ND-Rest (Second pass)")
 
         ################## Logic ##################

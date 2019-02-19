@@ -190,6 +190,8 @@ init -8 python:
                 ".autobuy": [], ".front_row": [], ".autoequip": [],
                 ".autocontrol{}": [], ".sex_acts{}": [], ".miscblock": [],
                 ".flag()": False, ".has_flag()": False,
+                ".allowed_to_define_autobuy": False, ".allowed_to_define_autoequip": False,
+                ".allowed_to_view_personal_finances": False, ".can_work": False,
                 "flatten": [".traits", ".attack_skills", ".magic_skills"]
             }
             super(PytGroup, self).__init__(l=chars, remedy=remedy, at="")

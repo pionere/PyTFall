@@ -255,15 +255,14 @@ init -12 python:
             Removes worker from instances master list.
             Returns True is yes, False otherwise.
             """
-            building = self.building
-
-            if job.is_valid_for(worker):
+            if worker.can_work(job):
                 if DSNBR:
                     temp = set_font_color("Debug: {} worker (Occupations: {}) with action: {} is doing {}.".format(
                                           worker.nickname, ", ".join(list(str(t) for t in worker.occupations)), worker.action, job.id), "lawngreen")
                     self.log(temp, True)
                 return True
             else:
+                building = self.building
                 if worker in building.available_workers:
                     building.available_workers.remove(worker)
 
@@ -284,11 +283,10 @@ init -12 python:
             Removes worker from instances master list.
             Returns True is yes, False otherwise.
             """
-            building = self.building
-
             if can_do_work(worker):
                 return True
             else:
+                building = self.building
                 if worker in building.available_workers:
                     building.available_workers.remove(worker)
                 temp = set_font_color('{} is done working for the day.'.format(worker.name), "cadetblue")
@@ -417,7 +415,7 @@ init -12 python:
 
             self.active_workers = set() # On duty Workers.
             self.clients_waiting = set() # Clients waiting to be served.
-            self.clients_being_served = set() # Clients that we serve.
+            #self.clients_being_served = set() # Clients that we serve.
 
             # SimPy and etc follows (L33t stuff :) ):
             self.res = None # Restored before every job... Resource Instance that may not be useful here...
@@ -439,7 +437,7 @@ init -12 python:
                 self.log(temp, True)
 
                 dirt = 0
-                flag_name = "jobs_spent_in_{}".format(self.name)
+                #flag_name = "jobs_spent_in_{}".format(self.name)
                 du_to_spend_here = self.time
                 du_spent_here = 0
                 client.du_without_service = 0
@@ -458,7 +456,7 @@ init -12 python:
                         simpy_debug("Client %s is about to be served.", client.name)
                         yield self.env.timeout(3)
                         du_spent_here += 3
-                        self.clients_being_served.remove(client)
+                        #self.clients_being_served.remove(client)
                         self.clients_waiting.add(client)
                         dirt += randint(2, 3) # Move to business_control?
 
@@ -474,13 +472,13 @@ init -12 python:
                         if tips:
                             for u in self.upgrades:
                                 if isinstance(u, TapBeer) and dice(75):
-                                    tips += 1*tier
+                                    tips += tier
                             worker.up_counter("_jobs_tips", tips)
 
                         # And remove client from actively served clients by the worker:
                         worker.serving_clients.discard(client)
 
-                    if client.du_without_service >= 2 and not self.send_in_worker:
+                    if client.du_without_service >= 2:
                         # We need a worker ASAP:
                         self.send_in_worker = True
 
@@ -498,7 +496,7 @@ init -12 python:
                                         set_font_color(client.name, "beige"), self.name, dirt)
                 self.log(temp, True)
 
-                self.clients_being_served.discard(client)
+                #self.clients_being_served.discard(client)
                 self.clients_waiting.discard(client)
                 client.del_flag("jobs_busy")
 
@@ -573,7 +571,7 @@ init -12 python:
                                 set_font_color(siw_workers, "green"))
                         self.log(temp, True)
 
-                    if not self.all_workers and not self.active_workers:
+                    if not self.active_workers and not self.all_workers:
                         break
 
                 simpy_debug("Exiting PublicBusiness(%s).business_control iteration at %s", self.name, self.env.now)
@@ -623,7 +621,7 @@ init -12 python:
                 for c in self.clients_waiting.copy():
                     if len(worker.serving_clients) < can_serve:
                         self.clients_waiting.remove(c)
-                        self.clients_being_served.add(c)
+                        #self.clients_being_served.add(c)
                         c.du_without_service = 0 # Prevent more worker from being called on duty.
                         c.served_by = (worker, effectiveness)
                         worker.serving_clients.add(c)
@@ -639,6 +637,10 @@ init -12 python:
                 simpy_debug("Exiting PublicBusiness(%s).worker_control iteration at %s", self.name, self.env.now)
 
             if clients_served:
+                # wait for the clients to finish
+                while worker.serving_clients:
+                    yield self.env.timeout(1)
+
                 if DSNBR:
                     temp = "Logging {} for {}!".format(self.name, worker.name)
                     self.log(temp, True)
@@ -651,8 +653,6 @@ init -12 python:
                 temp = "{} earns {} by serving {} clients!".format(
                                 worker.name, earned, self.res.count)
                 self.log(temp, True)
-
-                worker.serving_clients = set() # Clean-up.
 
                 # Create the job report and settle!
                 log.after_job()
