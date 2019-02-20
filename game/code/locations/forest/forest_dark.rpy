@@ -303,11 +303,10 @@ label city_dark_forest_fight:
 label dark_forest_girl_meet:
     $ hero.set_flag("dnd_dark_forest_girl")
     python:
+        temp = set(gm.get_all_girls()) | set(hero.chars)
         choices = list(i for i in chars.values() if
-                       str(i.location) == "City" and
-                       i not in hero.chars and
-                       not i.arena_active and
-                       i not in gm.get_all_girls())
+                       i not in temp and i.location != pytfall.jail and
+                       not i.arena_active)
     $ badtraits = ["Homebody", "Indifferent", "Coward"]
     $ choices = list(i for i in choices if not any(trait in badtraits for trait in i.traits))
     if choices:

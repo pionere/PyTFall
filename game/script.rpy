@@ -879,11 +879,6 @@ label after_load:
                 hero.del_flag("been_in_old_ruins")
 
             for char in itertools.chain([hero], chars.values(), hero.chars, npcs.values()):
-                if char.action == "Arena Combat":
-                    char.action = None
-                if char.location == pytfall.arena:
-                    char.location = None
-                    char.arena_active = True
                 if char.has_flag("drunk_counter"):
                     char.set_flag("dnd_drunk_counter", char.get_flag("drunk_counter"))
                     char.del_flag("drunk_counter")
@@ -955,6 +950,11 @@ label after_load:
                     char.arena_rep = char._arena_rep
                 if hasattr(char, "_location"):
                     char.location = char._location
+                if char.action == "Arena Combat":
+                    char.action = None
+                if char.location == pytfall.arena:
+                    char.location = None
+                    char.arena_active = True
                 if hasattr(char, "price"):
                     del char.price
                 if hasattr(char, "days_depressed"):

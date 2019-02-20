@@ -209,13 +209,11 @@ init -1 python: # Core classes:
             self.delayedvit = self.vitality
 
         def get_be_items(self):
-            # be_items only for non-logical battles (for the moment?)
-            be_items = {}
-            if hasattr(char, "inventory"): # Mobs and such do not have one
-                be_items = OrderedDict()
-                for item, amount in char.inventory.items.iteritems():
-                    if item.be:
-                        be_items[item] = amount
+            # be_items only for non-logical battles (for the moment? Mobs do not have inventory anyway)
+            be_items = OrderedDict()
+            for item, amount in self.char.inventory.items.iteritems():
+                if item.be:
+                    be_items[item] = amount
             return be_items
 
         def restore_char(self):
