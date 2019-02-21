@@ -445,9 +445,9 @@ init -12 python:
                 while 1:
                     simpy_debug("Entering PublicBusiness(%s).client_control iteration at %s", self.name, self.env.now)
 
+                    yield self.env.timeout(1) # wait to be served
                     if client in self.clients_waiting:
-                        simpy_debug("Client %s will wait to be served.", client.name)
-                        yield self.env.timeout(1)
+                        simpy_debug("Client %s is waiting to be served.", client.name)
                         du_spent_here += 1
                         client.du_without_service += 1
                     else:
@@ -458,7 +458,7 @@ init -12 python:
                         du_spent_here += 3
                         #self.clients_being_served.remove(client)
                         self.clients_waiting.add(client)
-                        dirt += randint(2, 3) # Move to business_control?
+                        dirt += 3
 
                         # Tips:
                         worker, effectiveness = client.served_by
@@ -490,7 +490,8 @@ init -12 python:
                         self.log(temp, True)
                         break
 
-                building.moddirt(dirt)
+                dirt = randint(0, dirt)
+                building.moddirt(dirt) # Move to business_control?)
 
                 temp = "{} exits the {} leaving {} dirt behind.".format(
                                         set_font_color(client.name, "beige"), self.name, dirt)
@@ -727,9 +728,7 @@ init -12 python:
 
             # Throw in the manager:
             if self.building.works_other_jobs:
-                manager = self.building.manager
-                if manager:
-                    workers.add(manager)
+                workers.update(self.building.available_managers)
 
             return workers
 

@@ -81,18 +81,16 @@ init python:
             self.days_remaining -= 1
 
             school = pytfall.school
-            students = [s for s in self.students if s.AP > 0]
-            if not students:
-                return
 
-            if len(students) >= 3 and dice(25):
-                best_student = choice(students)
+            if len(self.students) >= 3 and dice(25):
+                best_student = choice(self.students)
             else:
                 best_student = None
 
             for char in self.students[:]:
                 txt = [] # Append all events we want to relay to the player.
                 flag_green = False
+                charmod = None
 
                 temp = "%s is taking a %s Course!" % (char.fullname, self.name)
                 txt.append(temp)
@@ -103,7 +101,7 @@ init python:
                     temp = "You've covered a fee of {color=[gold]}%s Gold{/color}!" % self.price
                     txt.append(temp)
                 else:
-                    char.action = None
+                    char.action = simple_jobs["Study"] # toggle action
                     temp = "\nYou failed to cover the fee of {color=[gold]}%d Gold{/color}!" % self.price
                     temp += " The student has been kicked from the class!"
                     txt.append(temp)
@@ -111,93 +109,94 @@ init python:
                     self.build_nd_report(char, type="failed_to_pay", txt=txt)
                     continue
 
-                self.students_progress[char] += 1
-                completed = self.days_to_complete == self.students_progress[char]
                 ap_spent = char.AP
-                char.AP = 0
+                if ap_spent != 0:
+                    self.students_progress[char] += 1
+                    completed = self.days_to_complete == self.students_progress[char]
+                    char.AP = 0
+                    school.students_attended += 1
 
-                primary_stats = []
-                secondary_stats = []
+                    primary_stats = []
+                    secondary_stats = []
 
-                primary_skills = []
-                secondary_skills = []
+                    primary_skills = []
+                    secondary_skills = []
 
-                for s in self.data["primary"]:
-                    if char.stats.is_stat(s):
-                        if char.stats.stats[s] < char.get_max(s):
-                            primary_stats.append(s)
-                    elif char.stats.is_skill(s):
-                        primary_skills.append(s)
-                    else:
-                        raise Exception("%s is not a valid stat/skill for %s course." % (s, self.name))
+                    for s in self.data["primary"]:
+                        if is_stat(s):
+                            if char.stats.stats[s] < char.get_max(s):
+                                primary_stats.append(s)
+                        elif is_skill(s):
+                            primary_skills.append(s)
+                        else:
+                            raise Exception("%s is not a valid stat/skill for %s course." % (s, self.name))
 
-                for s in self.data["secondary"]:
-                    if char.stats.is_stat(s):
-                        if char.stats.stats[s] < char.get_max(s):
-                            secondary_stats.append(s)
-                    elif char.stats.is_skill(s):
-                        secondary_skills.append(s)
-                    else:
-                        raise Exception("%s is not a valid stat/skill for %s course." % (s, self.name))
+                    for s in self.data["secondary"]:
+                        if is_stat(s):
+                            if char.stats.stats[s] < char.get_max(s):
+                                secondary_stats.append(s)
+                        elif is_skill(s):
+                            secondary_skills.append(s)
+                        else:
+                            raise Exception("%s is not a valid stat/skill for %s course." % (s, self.name))
 
-                stats = primary_stats*3 + secondary_stats
-                skills = primary_skills*3 + secondary_skills
+                    stats = primary_stats*3 + secondary_stats
+                    skills = primary_skills*3 + secondary_skills
 
-                # Add stats/skills/exp mods.
-                exp_mod = 1.0
-                points = max(1, self.difficulty-char.tier)
-                if char == best_student:
-                    temp = "%s has been a perfect student today and went every extra mile she could." % char.name
-                    temp += " {color=[lawngreen]}+50% Stats/Skills/EXP Bonus!{/color}"
-                    flag_green = True
-                    txt.append(temp)
-                    points *= 1.5
-                    exp_mod = 1.5
+                    # Add stats/skills/exp mods.
+                    exp_mod = 1.0
+                    points = max(1, self.difficulty-char.tier)
+                    if char == best_student:
+                        temp = "%s has been a perfect student today and went every extra mile she could." % char.name
+                        temp += " {color=[lawngreen]}+50% Stats/Skills/EXP Bonus!{/color}"
+                        flag_green = True
+                        txt.append(temp)
+                        points *= 1.5
+                        exp_mod = 1.5
 
-                if completed and char not in self.completed:
-                    school.successfully_completed += 1
-                    self.completed.add(char)
-                    points *= 2
-                    exp_mod *= 2
-                    temp = "%s has completed the course today!" % char.nickname
-                    temp += " {color=[lawngreen]}+100% Stats/Skills/EXP Bonus!{/color}"
-                    flag_green = True
-                    txt.append(temp)
-                elif char in self.completed:
-                    points *= .8
-                    exp_mod *= .8
-                    temp = "%s has already finished this course!" % char.nickname
-                    temp += " {color=[red]}-20% Stats/Skills/EXP Bonus!{/color}"
-                    txt.append(temp)
+                    if char in self.completed:
+                        points *= .8
+                        exp_mod *= .8
+                        temp = "%s has already finished this course!" % char.nickname
+                        temp += " {color=[red]}-20% Stats/Skills/EXP Bonus!{/color}"
+                        txt.append(temp)
+                    elif completed:
+                        school.successfully_completed += 1
+                        self.completed.add(char)
+                        points *= 2
+                        exp_mod *= 2
+                        temp = "%s has completed the course today!" % char.nickname
+                        temp += " {color=[lawngreen]}+100% Stats/Skills/EXP Bonus!{/color}"
+                        flag_green = True
+                        txt.append(temp)
 
-                # Effectiveness mod (simple)
-                effectiveness = self.effectiveness/100.0
-                points *= effectiveness
+                    # Effectiveness mod (simple)
+                    effectiveness = self.effectiveness/100.0
+                    points *= effectiveness
 
-                stats_pool = round_int(points*ap_spent)
-                skills_pool = 2*stats_pool
+                    stats_pool = round_int(points*ap_spent)
+                    skills_pool = 2*stats_pool
 
-                exp = exp_reward(char, self.difficulty, ap_used=ap_spent, final_mod=exp_mod)
-                char.mod_exp(exp)
+                    exp = exp_reward(char, self.difficulty, ap_used=ap_spent, final_mod=exp_mod)
+                    char.mod_exp(exp)
 
-                charmod = defaultdict(int) # Dict of changes of stats and skills for ND
-                charmod["exp"] = exp
-                if stats:
-                    for i in xrange(stats_pool):
-                        stat = choice(stats)
-                        char.mod_stat(stat, 1)
-                        charmod[stat] += 1
-                if skills:
-                    for i in xrange(skills_pool):
-                        skill = choice(skills)
-                        char.mod_skill(skill, 1, 1)
-                        charmod[skill] += 1
+                    charmod = defaultdict(int) # Dict of changes of stats and skills for ND
+                    charmod["exp"] = exp
+                    if stats:
+                        for i in xrange(stats_pool):
+                            stat = choice(stats)
+                            char.mod_stat(stat, 1)
+                            charmod[stat] += 1
+                    if skills:
+                        for i in xrange(skills_pool):
+                            skill = choice(skills)
+                            char.mod_skill(skill, 1, 1)
+                            charmod[skill] += 1
 
                 if self.days_remaining <= 0:
                     txt.append("This Course has ended, all students have been sent back home.")
-                    char.action = None
+                    char.action = simple_jobs["Study"] # toggle action
                     school.students_dismissed += 1
-                school.students_attended += 1
 
                 self.build_nd_report(char, charmod=charmod,
                                      flag_green=flag_green, txt=txt)
@@ -239,6 +238,7 @@ init python:
             super(School, self).__init__(id=id, name=id)
             self.img = renpy.displayable(img)
             self.courses = []
+            self.students = {} # cached map of student:course pairs to faster access
 
         def add_courses(self):
             forced = max(0, 12-len(self.courses))
@@ -268,6 +268,17 @@ init python:
                                   data)
             self.new_courses_created = True
             self.courses.insert(0, course)
+
+        def get_course(self, student):
+            return self.students.get(student, None)
+
+        def add_student(self, student, course):
+            course.add_student(student)
+            self.students[student] = course
+
+        def remove_student(self, student):
+            course = self.students.pop(student)
+            course.remove_student(student)
 
         def next_day(self):
             # Resets:

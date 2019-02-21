@@ -23,30 +23,73 @@ init -5 python:
 
             self.allowed_status = ["free"]
 
+    def manager_pre_nd(building):
+        if not building.needs_manager:
+            return
+
+        workers = building.available_workers
+
+        mj = simple_jobs["Manager"]
+        managers = [w for w in workers if w.action == mj]
+
+        effectiveness = 0
+        if managers:
+            for m in managers:
+                m._dnd_effectiveness = m.action.effectiveness(m, building.tier, None, False)
+                m._dnd_mlog = NDEvent(job=m.action, char=m, loc=building)
+                m._dnd_jobpoints = m.jobpoints
+
+                workers.remove(m)
+
+            managers.sort(key=attrgetter("_dnd_effectiveness"))
+            effectiveness = managers[-1]._dnd_effectiveness
+            building.log("This building is managed by {} at {}% effectiveness!".format(
+                    managers[-1].name, effectiveness))
+        else:
+            building.log("This building has no manager assigned to it.")
+
+        building.manager_effectiveness = effectiveness
+        building.available_managers = managers
 
     def manager_process(env, building):
-        manager = building.manager
-        effectiveness = building.manager_effectiveness
+        managers = getattr(building, "available_managers", None)
+        if not managers:
+            return
 
-        log = building.mlog
-        log.append("{} is overseeing the building!".format(manager.name))
-        log.append("")
+        building._dnd_managers = managers[:]
+        manager = managers.pop()
+        effectiveness = manager._dnd_effectiveness
+        #building.manager_effectiveness = effectiveness
+        building._dnd_manager = manager
+        manager._dnd_mlog.append("%s is overseeing %s!" % (manager.name, building.name))
+        #building.log("%s is overseeing the building!" % manager.name)
 
         # Special bonus to JobPoints (aka pep talk) :D
-        if building.init_pep_talk and effectiveness > 95 and manager.jobpoints >= 10:
-            mp_init_jp_bonus(manager, building, effectiveness, log)
+        if building.init_pep_talk and manager.jobpoints >= 10:
+            mp_init_jp_bonus(manager, building, effectiveness)
 
         cheered_up_workers = set()
 
         while (1):
             yield env.timeout(5)
             simpy_debug("Entering manager_process at %s", env.now)
+            # select a new manager if the current one is exhausted
+            if manager.jobpoints <= 10:
+                if managers:
+                    manager = managers.pop()
+                    effectiveness = manager._dnd_effectiveness
+                    building.manager_effectiveness = effectiveness
+                    building._dnd_manager = manager
+                    manager._dnd_mlog.append("%s is overseeing %s!" % (manager.name, building.name))
+                    building.log("From now on %s is overseeing the building!" % manager.name)
+                else:
+                    building._dnd_manager = None
+                    building.manager_effectiveness = 0
+                    break
+
             # Special direct bonus to tired/sad characters
-            c0 = building.cheering_up
             #c1 = not env.now % 5
-            if c0 and all([
-                    manager.jobpoints > 10,
-                    dice(effectiveness-50)]):
+            if building.cheering_up and manager.jobpoints > 10 and dice(effectiveness-50):
                 workers = [w for w in building.available_workers if
                            w != manager and
                            w not in cheered_up_workers and
@@ -63,8 +106,7 @@ init -5 python:
                         handle = "sad"
                     else:
                         handle = "tired"
-                    temp0 = "\n{} noticed that {} looks a bit {}.".format(manager.nickname,
-                                                    worker.nickname, handle)
+                    temp0 = "%s noticed that %s looks a bit %s." % (manager.nickname, worker.nickname, handle)
 
                     if give_joy and give_vit:
                         bonus_str = "(+10% Joy, +15% Vitality)"
@@ -77,32 +119,30 @@ init -5 python:
                         bonus_str = "(+30% Vitality)"
                         mod_by_max(worker, "vitality", .3)
 
-                    temp1 = " Your manager cheered her up. {}".format(
-                        set_font_color("{}".format(bonus_str), "lawngreen"))
-                    log.append(temp0+temp1)
+                    temp1 = " Your manager cheered %s up. %s" % (worker.op, set_font_color(bonus_str, "lawngreen"))
+                    manager._dnd_mlog.append(temp0+temp1)
 
-                    building.log("Your manager cheered up {}.".format(worker.name))
+                    building.log("Your manager cheered up %s." % worker.name)
 
                     manager.jobpoints -= 10
 
             simpy_debug("Exiting manager_process at %s", env.now)
 
 
-    def mp_init_jp_bonus(manager, building, effectiveness, log):
+    def mp_init_jp_bonus(manager, building, effectiveness):
         # Special bonus to JobPoints (aka pep talk) :D
-        init_jp_bonus = (effectiveness-95.0)/100
-        if init_jp_bonus < 0:
-            init_jp_bonus = 0
-        elif init_jp_bonus > .3: # Too much power otherwise...
+        init_jp_bonus = effectiveness-95
+        if init_jp_bonus <= 0:
+            return
+
+        init_jp_bonus /= 100.0
+        if init_jp_bonus > .3: # Too much power otherwise...
             init_jp_bonus = .3
         elif init_jp_bonus < .05: # Less than 5% is absurd...
             init_jp_bonus = .05
 
         workers = building.available_workers
-        if manager in workers:
-            workers.remove(manager)
-
-        if init_jp_bonus and workers:
+        if workers:
             # Bonus to the maximum amount of workers:
             max_job_points = manager.jobpoints*.5
             per_worker = 10
@@ -116,10 +156,52 @@ init -5 python:
             temp += " responded positively! "
             temp_p = "(+{}% Job Points)".format(round_int(init_jp_bonus*100))
             temp += set_font_color(temp_p, "lawngreen")
-            log.append(temp)
+            manager._dnd_mlog.append(temp)
             building.log("{} gave a motivational speech!".format(manager.name))
 
             init_jp_bonus += 1.0
             for w in workers:
                 w.jobpoints = round_int(w.jobpoints*init_jp_bonus)
             manager.jobpoints -= len(workers)*per_worker
+            
+    def manager_post_nd(building):
+        managers = getattr(building, "_dnd_managers", None)
+        if managers is None:
+            return
+
+        del building._dnd_managers
+        del building._dnd_manager
+        building.manager_effectiveness = 0
+
+        for m in managers:
+            points_used = m._dnd_jobpoints - m.jobpoints
+            log = m._dnd_mlog
+            if points_used != 0:
+                if points_used > 100:
+                    log.logws("management", randint(1, 2))
+                    log.logws("intelligence", randrange(2))
+                    log.logws("refinement", 1)
+                    log.logws("character", 1)
+
+                ap_used = (points_used)/100.0
+                log.logws("exp", exp_reward(m, building.tier, ap_used=ap_used))
+
+                if points_used > m._dnd_jobpoints*3/4:
+                    log.append("%s had a long working day." % m.name)
+                elif points_used > m._dnd_jobpoints/2:
+                    log.append("%s's day was quite busy on the job." % m.name)
+                else:
+                    log.append("%s had only a few things to accomplish during the day." % m.name)
+            else:
+                log.append("%s had nothing to do on the job." % m.name)
+
+            # finalize the log:
+            log.img = m.show("profile", resize=ND_IMAGE_SIZE, add_mood=True)
+            log.type = "manager_report"
+            log.after_job()
+
+            NextDayEvents.append(log)
+
+            del m._dnd_effectiveness
+            del m._dnd_mlog
+            del m._dnd_jobpoints

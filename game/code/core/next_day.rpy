@@ -13,7 +13,9 @@ init python:
 
             nd_stats = OrderedDict()
 
-            base = {"IDLE": 0, "Service": 0, "Warriors": 0, "Managers": 0}
+            base = {}
+            for j in simple_jobs.values():
+                base[j.type] = 0
             total_clients = 0
             for setup in [b for b in hero.buildings if b.expects_clients] + ["ALL"]:
                 a = base.copy()
@@ -29,43 +31,27 @@ init python:
                     container = [c for c in hero.chars if setup == c.workplace]
 
                 for char in container:
-                    cat = 0
                     action = char.action
-                    if action is None:
-                        cat = "IDLE"
-                        a["IDLE"] += 1
-                    elif hasattr(action, "type"):
-                        if action.__class__ == AutoRest:
-                            action = char.previousaction
-                            if not hasattr(action, "type"):
-                                action = simple_jobs["Rest"]
-                        type = action.type
-                        if type == "Combat":
-                            cat = "Warriors"
-                            a["Warriors"] += 1
-                        elif type in ["Service", "SIW"]:
-                            cat = "Service"
-                            a["Service"] += 1
-                        elif type == "Management":
-                            cat = "Managers"
-                            a["Managers"] += 1
-                        elif type == "Resting":
-                            # This needs to be handled separately:
-                            cat = "IDLE"
-                            r["IDLE"] += 1
-
+                    job = char.get_job()
+                    
+                    cat = getattr(job, "type", "Resting")
+                    if cat == "SIW":
+                        cat = "Service" # merge SIW and Service jobs
+                    if action == job:
+                        a[cat] += 1
+                    elif action.__class__ in [Rest, AutoRest]:
+                        r[cat] += 1
+                    
                     # Events:
-                    if cat:
-                        for event in self.event_list:
-                            if isinstance(setup, Building):
-                                if event.loc != setup:
-                                    continue
-                            if event.char == char:
-                                e[cat]["count"] += 1
-                                if event.red_flag:
-                                    e[cat]["red_flag"] += 1
-                                if event.green_flag:
-                                    e[cat]["green_flag"] += 1
+                    for event in self.event_list:
+                        if setup != "ALL" and event.loc != setup:
+                            continue
+                        if event.char == char:
+                            e[cat]["count"] += 1
+                            if event.red_flag:
+                                e[cat]["red_flag"] += 1
+                            if event.green_flag:
+                                e[cat]["green_flag"] += 1
 
                 stats = {"actives": a, "rests": r, "events": e}
                 if setup == "ALL":
@@ -280,7 +266,7 @@ label next_day_controls:
                     FilteredList = [e for e in FilteredList if e.type == 'explorationndreport']
                 elif result[1] == 'building':
                     building = result[2]
-                    order = {"buildingreport": 1, "manager_report": 2, "explorationndreport": 2.5, "jobreport": 3}
+                    order = {"buildingreport": 1, "manager_report": 2, "explorationndreport": 3, "jobreport": 4, "taskreport": 5}
                     FilteredList = sorted([e for e in FilteredList if e.loc == building and e.type in order], key=lambda e: order[e.type])
                 elif result[1] == "fighters_guild":
                     order = {"fg_report": 1, "exploration_report": 2, "fg_job": 3}
@@ -432,18 +418,18 @@ screen next_day():
                                 xysize (285, 25)
                                 text "Active" yalign .5 xpos 3
                                 text str(nd_all_stats["actives"]["Service"]) style_suffix "value_text" xpos 135
-                                text str(nd_all_stats["actives"]["Warriors"]) style_suffix "value_text" xpos 175
-                                text str(nd_all_stats["actives"]["Managers"]) style_suffix "value_text" xpos 215
-                                text str(nd_all_stats["actives"]["IDLE"]) style_suffix "value_text" xpos 255
+                                text str(nd_all_stats["actives"]["Combat"]) style_suffix "value_text" xpos 175
+                                text str(nd_all_stats["actives"]["Management"]) style_suffix "value_text" xpos 215
+                                text str(nd_all_stats["actives"]["Resting"]) style_suffix "value_text" xpos 255
 
                             # Resting:
                             frame:
                                 xysize (285, 25)
                                 text "Resting" yalign .5 xpos 3
                                 text str(nd_all_stats["rests"]["Service"]) style_suffix "value_text" xpos 135
-                                text str(nd_all_stats["rests"]["Warriors"]) style_suffix "value_text" xpos 175
-                                text str(nd_all_stats["rests"]["Managers"]) style_suffix "value_text" xpos 215
-                                text str(nd_all_stats["rests"]["IDLE"]) style_suffix "value_text" xpos 255
+                                text str(nd_all_stats["rests"]["Combat"]) style_suffix "value_text" xpos 175
+                                text str(nd_all_stats["rests"]["Management"]) style_suffix "value_text" xpos 215
+                                text str(nd_all_stats["rests"]["Resting"]) style_suffix "value_text" xpos 255
 
                             # Events:
                             frame:
@@ -469,11 +455,11 @@ screen next_day():
                                             text "!" style "next_day_summary_text" color green
                                             action NullAction()
 
-                                text str(nd_all_stats["events"]["Warriors"]["count"]) style_suffix "value_text" xpos 175
+                                text str(nd_all_stats["events"]["Combat"]["count"]) style_suffix "value_text" xpos 175
                                 hbox:
                                     xpos 178
                                     xmaximum 40
-                                    if nd_all_stats["events"]["Warriors"]["red_flag"]:
+                                    if nd_all_stats["events"]["Combat"]["red_flag"]:
                                         button:
                                             yoffset 4
                                             padding 1, 1
@@ -481,7 +467,7 @@ screen next_day():
                                             text "!" style "next_day_summary_text" color red
                                             action NullAction()
 
-                                    if nd_all_stats["events"]["Warriors"]["green_flag"]:
+                                    if nd_all_stats["events"]["Combat"]["green_flag"]:
                                         button:
                                             yoffset 4
                                             padding 1, 1
@@ -489,11 +475,11 @@ screen next_day():
                                             text "!" style "next_day_summary_text" color green
                                             action NullAction()
 
-                                text str(nd_all_stats["events"]["Managers"]["count"]) style_suffix "value_text" xpos 215
+                                text str(nd_all_stats["events"]["Management"]["count"]) style_suffix "value_text" xpos 215
                                 hbox:
                                     xpos 218
                                     xmaximum 40
-                                    if nd_all_stats["events"]["Managers"]["red_flag"]:
+                                    if nd_all_stats["events"]["Management"]["red_flag"]:
                                         button:
                                             yoffset 4
                                             padding 1, 1
@@ -501,7 +487,7 @@ screen next_day():
                                             text "!" style "next_day_summary_text" color red
                                             action NullAction()
 
-                                    if nd_all_stats["events"]["Managers"]["green_flag"]:
+                                    if nd_all_stats["events"]["Management"]["green_flag"]:
                                         button:
                                             yoffset 4
                                             padding 1, 1
@@ -509,11 +495,11 @@ screen next_day():
                                             text "!" style "next_day_summary_text" color green
                                             action NullAction()
 
-                                text str(nd_all_stats["events"]["IDLE"]["count"]) style_suffix "value_text" xpos 255
+                                text str(nd_all_stats["events"]["Resting"]["count"]) style_suffix "value_text" xpos 255
                                 hbox:
                                     xpos 258
                                     xmaximum 40
-                                    if nd_all_stats["events"]["IDLE"]["red_flag"]:
+                                    if nd_all_stats["events"]["Resting"]["red_flag"]:
                                         button:
                                             yoffset 4
                                             padding 1, 1
@@ -521,7 +507,7 @@ screen next_day():
                                             text "!" style "next_day_summary_text" color red
                                             action NullAction()
 
-                                    if nd_all_stats["events"]["IDLE"]["green_flag"]:
+                                    if nd_all_stats["events"]["Resting"]["green_flag"]:
                                         button:
                                             yoffset 4
                                             padding 1, 1
@@ -597,9 +583,9 @@ screen next_day():
                                         xysize 410, 25
                                         text "Active" yalign .5 xpos 3
                                         text str(curr_stats["actives"]["Service"]) style_suffix "value_text" xpos 135
-                                        text str(curr_stats["actives"]["Warriors"]) style_suffix "value_text" xpos 175
-                                        text str(curr_stats["actives"]["Managers"]) style_suffix "value_text" xpos 215
-                                        text str(curr_stats["actives"]["IDLE"]) style_suffix "value_text" xpos 255
+                                        text str(curr_stats["actives"]["Combat"]) style_suffix "value_text" xpos 175
+                                        text str(curr_stats["actives"]["Management"]) style_suffix "value_text" xpos 215
+                                        text str(curr_stats["actives"]["Resting"]) style_suffix "value_text" xpos 255
                                         if "dirt" in curr_stats:
                                             text "Dirt" yalign .5 xpos 285
                                             text ("%d%%" % curr_stats["dirt"]) style_suffix "value_text" xalign .99
@@ -609,9 +595,9 @@ screen next_day():
                                         xysize (410, 25)
                                         text "Resting" yalign .5 xpos 3
                                         text str(curr_stats["rests"]["Service"]) style_suffix "value_text" xpos 135
-                                        text str(curr_stats["rests"]["Warriors"]) style_suffix "value_text" xpos 175
-                                        text str(curr_stats["rests"]["Managers"]) style_suffix "value_text" xpos 215
-                                        text str(curr_stats["rests"]["IDLE"]) style_suffix "value_text" xpos 255
+                                        text str(curr_stats["rests"]["Combat"]) style_suffix "value_text" xpos 175
+                                        text str(curr_stats["rests"]["Management"]) style_suffix "value_text" xpos 215
+                                        text str(curr_stats["rests"]["Resting"]) style_suffix "value_text" xpos 255
                                         if "threat" in curr_stats:
                                             text "Threat" yalign .5 xpos 285
                                             text ("%d%%" % curr_stats["threat"]) style_suffix "value_text" xalign .99
@@ -639,12 +625,12 @@ screen next_day():
                                                     text "!" style "next_day_summary_text" color green
                                                     action NullAction()
 
-                                        text str(curr_stats["events"]["Warriors"]["count"]) style_suffix "value_text" xpos 175
+                                        text str(curr_stats["events"]["Combat"]["count"]) style_suffix "value_text" xpos 175
                                         hbox:
                                             xpos 178
                                             xmaximum 40
 
-                                            if curr_stats["events"]["Warriors"]["red_flag"]:
+                                            if curr_stats["events"]["Combat"]["red_flag"]:
                                                 button:
                                                     yoffset 4
                                                     padding 1, 1
@@ -652,7 +638,7 @@ screen next_day():
                                                     text "{color=[red]}!" style "next_day_summary_text"
                                                     action NullAction()
 
-                                            if curr_stats["events"]["Warriors"]["green_flag"]:
+                                            if curr_stats["events"]["Combat"]["green_flag"]:
                                                 button:
                                                     yoffset 4
                                                     padding 1, 1
@@ -660,12 +646,12 @@ screen next_day():
                                                     text "{color=[green]}!" style "next_day_summary_text"
                                                     action NullAction()
 
-                                        text str(curr_stats["events"]["Managers"]["count"]) style_suffix "value_text" xpos 215
+                                        text str(curr_stats["events"]["Management"]["count"]) style_suffix "value_text" xpos 215
                                         hbox:
                                             xpos 218
                                             xmaximum 40
 
-                                            if curr_stats["events"]["Managers"]["red_flag"]:
+                                            if curr_stats["events"]["Management"]["red_flag"]:
                                                 button:
                                                     yoffset 4
                                                     padding 1, 1
@@ -673,7 +659,7 @@ screen next_day():
                                                     text "{color=[red]}!" style "next_day_summary_text"
                                                     action NullAction()
 
-                                            if curr_stats["events"]["Managers"]["green_flag"]:
+                                            if curr_stats["events"]["Management"]["green_flag"]:
                                                 button:
                                                     yoffset 4
                                                     padding 1, 1
@@ -681,12 +667,12 @@ screen next_day():
                                                     text "{color=[green]}!" style "next_day_summary_text"
                                                     action NullAction()
 
-                                        text str(curr_stats["events"]["IDLE"]["count"]) style_suffix "value_text" xpos 255
+                                        text str(curr_stats["events"]["Resting"]["count"]) style_suffix "value_text" xpos 255
                                         hbox:
                                             xpos 258
                                             xmaximum 40
 
-                                            if curr_stats["events"]["IDLE"]["red_flag"]:
+                                            if curr_stats["events"]["Resting"]["red_flag"]:
                                                 button:
                                                     yoffset 4
                                                     padding 1, 1
@@ -694,7 +680,7 @@ screen next_day():
                                                     text "{color=[red]}!" style "next_day_summary_text"
                                                     action NullAction()
 
-                                            if curr_stats["events"]["IDLE"]["green_flag"]:
+                                            if curr_stats["events"]["Resting"]["green_flag"]:
                                                 button:
                                                     yoffset 4
                                                     padding 1, 1
@@ -719,7 +705,7 @@ screen next_day():
         # Buttons will be drawn over the frame ================================================>>>>
         if summary_filter == "buildings":
             $ start_pos = 844
-            for i in ("Servers", "Combatant", "Managers", "IDLE"):
+            for i in ("Servers", "Combatant", "Managers", "Resting"):
                 $ start_pos = start_pos + 42
                 frame:
                     at rotate_by(45)

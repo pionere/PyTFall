@@ -176,10 +176,9 @@ init -9 python:
                                      "Exhibitionist": ("Indecent behavior", (1, 3)),
                                      "Kleptomaniac": ("Theft", (1, 4)),
                                      "Heavy Drinker": ("Brawl", (3, 6))}
-                temp = simple_jobs["Exploring"]
                 cells = []
                 for c in chars.values():
-                    if c.status != "free" or c.location == self or c.action == temp:
+                    if c.status != "free" or c.location == self or c.action.__class__ == ExplorationJob or c.home == pytfall.afterlife:
                         continue
                     traits = list(i.id for i in c.traits if i.id in PUNISHABLE_TRAITS)
                     for t in traits:

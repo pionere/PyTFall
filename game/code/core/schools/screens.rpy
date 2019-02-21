@@ -4,28 +4,20 @@ label school_training:
 
     # Make sure we set char to the_chosen (means we came from listing)
     if the_chosen:
-        $ char = the_chosen
+        $ students = the_chosen
+    else:
+        $ students = [char]
 
     while 1:
         $ result = ui.interact()
 
         if result[0] == "set_course":
-            python:
+            python hide:
                 course = result[1]
 
-                if isinstance(char, PytCharacter):
-                    students = [char]
-                else:
-                    students = char
-
-                add = True
-                for s in students:
-                    if s.action != course:
-                        break
-                else:
-                    add = False
-
-                if add is True:
+                job = simple_jobs["Study"]
+                if any((s not in course.students) for s in students):
+                    # add students to the course
                     course_type = course.data.get("type", None)
                     for s in students:
                         # Blocks bad matches between student and course:
@@ -42,10 +34,17 @@ label school_training:
                             renpy.notify("Free non whores won't take XXX courses")
                             continue
 
-                        s.action = course 
+                        curr_course = school.get_course(s)
+                        if curr_course != course:
+                            if s.action != job:
+                                s.action = job
+                            else:
+                                school.remove_student(s)
+                            school.add_student(s, course)
                 else:
+                    # remove students from the course
                     for s in students:
-                        s.action = None
+                        s.action = job # toggle course
 
         if result == ["control", "return"]:
             jump return_from_school_training
@@ -178,21 +177,27 @@ screen school_training():
                                 color "#79CDCD"
                                 hover_color ivory
                                 size 15
-                            if isinstance(char, PytCharacter):
-                                $ days_left = course.days_to_complete - course.students_progress.get(char, 0)
-                                text "[days_left]/[course.days_to_complete]":
-                                    style_suffix "value_text"
-                                    if days_left <= course.days_remaining:
-                                        hover_color green
+                            python:
+                                temp = None # days_left
+                                tmp = None  # enough days left to complete
+                                for s in students:
+                                    t = course.days_to_complete - course.students_progress.get(s, 0)
+                                    c = green if t <= course.days_remaining else red
+                                    if temp is None:
+                                        temp = t
+                                        tmp = c
                                     else:
-                                        hover_color red
-                                    size 14
-                                    xalign .99 yoffset -1
-                            else:
-                                text "--/[course.days_to_complete]":
-                                    style_suffix "value_text"
-                                    size 14
-                                    xalign .99 yoffset -1
+                                        if temp != t:
+                                            temp = "--"
+                                        if tmp != c:
+                                            tmp = None
+
+                            text "[temp]/[course.days_to_complete]":
+                                style_suffix "value_text"
+                                if tmp is not None:
+                                    hover_color tmp
+                                size 14
+                                xalign .99 yoffset -1
 
                         frame:
                             xysize (160, 20)
@@ -202,13 +207,19 @@ screen school_training():
                                 color "#79CDCD"
                                 hover_color ivory
                                 size 15
+                            python:
+                                temp = None  # appropriate difficulty
+                                for s in students:
+                                    t = green if s.tier <= course.difficulty else red
+                                    if temp is None:
+                                        temp = t
+                                    elif temp != t:
+                                        temp = None
+                                        break
                             text "[course.difficulty]":
                                 style_suffix "value_text"
-                                if isinstance(char, PytCharacter):
-                                    if char.tier <= course.difficulty:
-                                        hover_color green
-                                    else:
-                                        hover_color red
+                                if temp is not None:
+                                    hover_color temp
                                 size 14
                                 xalign .99 yoffset -1
                         frame:
@@ -245,22 +256,32 @@ screen school_training():
                                 color "#79CDCD"
                                 hover_color ivory
                                 size 15
-                            if isinstance(char, PytCharacter):
-                                $ status = course.get_status(char)
-                                text "[status]":
-                                    style_suffix "value_text"
-                                    hover_color green size 14
-                                    xalign .99 yoffset -1
-                            else:
-                                text "N/A":
-                                    style_suffix "value_text"
-                                    hover_color green size 14
-                                    xalign .99 yoffset -1
+                            python:
+                                temp = None  # status
+                                for s in students:
+                                    t = course.get_status(s)
+                                    if temp is None:
+                                        temp = t
+                                    elif temp != t:
+                                        temp = "N/A"
+                                        break
+                            text "[temp]":
+                                style_suffix "value_text"
+                                hover_color green size 14
+                                xalign .99 yoffset -1
 
-                    if char in course.completed:
+                    python:
+                        temp = None  # completed
+                        for s in students:
+                            t = s in course.completed
+                            if temp is None:
+                                temp = t
+                            elif temp != t:
+                                temp = None
+                                break
+                    if temp is True:
                         add pscale("content/gfx/interface/images/completed_stamp.webp", 130, 130):
                             xalign .5 ypos 210
-
 
 
     use top_stripe(True, show_lead_away_buttons=False)

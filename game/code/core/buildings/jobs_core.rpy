@@ -1,4 +1,4 @@
-﻿init -10 python:
+init -10 python:
     class NDEvent(_object):
         """Next Day Report. Logs in a single event to be read in next_day label.
 
@@ -127,9 +127,9 @@
             for key, value in data.iteritems():
                 if key == "exp":
                     char.mod_exp(value)
-                elif char.stats.is_stat(key):
+                elif is_stat(key):
                     char.mod_stat(key, value)
-                elif char.stats.is_skill(key):
+                elif is_skill(key):
                     char.mod_skill(key, 0, value)
 
         def log_tips(self, worker):
@@ -197,12 +197,9 @@
         """
         def __init__(self, event_type="jobreport"):
             """Creates a new Job.
-
-            worker = The worker doing the job.
-            workers = A container with all the workers. (May not be useful anymore)
             """
             self.id = "Base Job"
-            self.type = None # Is this still at all useful? Feels like a simple version of self.occupations
+            self.type = None # job group to use in the report
 
             # Payout per single client, this is passed to Economy class and modified if needs be.
             self.per_client_payout = 5
@@ -219,7 +216,7 @@
             self.allowed_status = ["free", "slave"]
             self.allowed_genders = ["male", "female"]
 
-            self.event_type = "jobreport"
+            self.event_type = event_type
 
             # Each job should have two dicts of stats/skills to evaluate chars ability of performing it:
             self.base_skills = dict()

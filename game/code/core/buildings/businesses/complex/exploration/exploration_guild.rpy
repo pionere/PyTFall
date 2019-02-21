@@ -652,8 +652,8 @@ init -6 python: # Guild, Tracker and Log.
                 in_camp = False
             else:
                 if DEBUG_SE:
-                   msg = "State '{}' unrecognized while team {} is overnighting in camp".format(tracker.state, team.name)
-                   se_debug(msg, mode="warn")
+                    msg = "State '{}' unrecognized while team {} is overnighting in camp".format(tracker.state, team.name)
+                    se_debug(msg, mode="warn")
                 temp = ""
             tracker.log(temp)
 

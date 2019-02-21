@@ -18,18 +18,36 @@ screen set_action_dropdown(char, pos=()):
         anchor (xval, yval)
         has vbox
 
-        if isinstance(char.workplace, School):
+        if char.action.__class__ == StudyingJob:
             textbutton "Change Course":
                 action [Hide("set_action_dropdown"),
                         If(renpy.get_screen("chars_list"),
-                          true=[SetVariable("the_chosen", char), Hide("chars_list")],
-                          false=[SetVariable("char", char), Hide("char_profile")]), 
+                          true=[SetVariable("the_chosen", [char]), Hide("chars_list")],
+                          false=[Hide("char_profile")]), 
                         Jump("school_training")]
                 tooltip "Change the training course to a different one."
             textbutton "Stop Course":
-                action [Function(setattr, char, "action", None),
+                action [SetField(char, "action", char.action),
                         Hide("set_action_dropdown"), With(Dissolve(0.1))]
-                tooltip "Call your girl back from the Academy to do something useful in one of your businesses."
+                selected False
+                tooltip "Call your worker back from the Academy."
+        elif char.action.__class__ in [Rest, AutoRest]:
+            $ jobs = char.workplace.get_valid_jobs(char)
+            for i in jobs:
+                textbutton "[i.id]":
+                    action [Function(char.set_job, i),
+                            Hide("set_action_dropdown"), With(Dissolve(0.1))]
+                    selected char.get_job() == i
+                    tooltip "Do [i.id] after rest."
+            textbutton "None":
+                action [Function(char.set_job, None),
+                        Hide("set_action_dropdown"), With(Dissolve(0.1))]
+                tooltip "Stop doing anything after rest."
+            textbutton "Back To Work":
+                action [SetField(char, "action", char.action),
+                        Hide("set_action_dropdown"), With(Dissolve(0.1))]
+                selected False
+                tooltip "Call your worker back from resting."            
         elif isinstance(char.workplace, Building):
             $ jobs = char.workplace.get_valid_jobs(char)
             if char != hero: # Rest is not really useful for MC, which player controls.
@@ -69,13 +87,12 @@ screen set_workplace_dropdown(char, pos=()):
         anchor (xval, yval)
         has vbox
         for building in workable_buildings:
-            $ action = char.action if char.action in building.jobs else None
             textbutton "[building.name]":
                 selected char.workplace == building
-                action Function(char.set_workplace, building, action), Hide("set_workplace_dropdown"), With(Dissolve(0.1))
+                action Function(char.mod_workplace, building), Hide("set_workplace_dropdown"), With(Dissolve(0.1))
         textbutton "None":
             selected char.workplace is None
-            action [Function(char.set_workplace, None, None),
+            action [Function(char.mod_workplace, None),
                     Hide("set_workplace_dropdown"), With(Dissolve(0.1))]
         textbutton "Close":
             action Hide("set_workplace_dropdown"), With(Dissolve(0.1))

@@ -8,6 +8,12 @@ init -11 python:
         #Should be updated when Slave Training is implemented.
         return False
 
+    def is_skill(skill):
+        return skill in STATIC_CHAR.SKILLS
+
+    def is_stat(stat):
+        return stat in STATIC_CHAR.STATS
+
     def get_average_wage():
         wages = STATIC_CHAR.BASE_WAGES.values()
         wage = sum(wages)/len(wages)
@@ -47,7 +53,7 @@ init -11 python:
 
         value should be a float to check against. (.1 = 10%, .34 = 34% and etc.)
         """
-        if char.stats.is_stat(stat):
+        if is_stat(stat):
             max_value = char.get_max(stat)
             val = char.get_stat(stat)
             if dir == "lower":
@@ -57,7 +63,7 @@ init -11 python:
                 if val >= max_value*value:
                     return True
             return False
-        elif char.stats.is_skill(stat):
+        elif is_skill(stat):
             raise NotImplementedError("Skills are not yet implemented in this function.")
 
     def mod_by_max(char, stat, value):
@@ -206,7 +212,7 @@ init -11 python:
                 setattr(mob, i, data[i])
 
         for skill, value in data.get("skills", {}).iteritems():
-            if mob.stats.is_skill(skill):
+            if is_skill(skill):
                 mob.stats.mod_full_skill(skill, value)
             else:
                 char_debug(str("Skill: {} for Mob with id: {} is invalid! ".format(skill, id)))

@@ -38,30 +38,28 @@ init -10 python:
             else:
                 temp = "Due to inadequate service provided by {} client refuses to pay the full price.".format(worker.name)
             log.append(temp)
-            if me >= 90 and building.help_ineffective_workers and building.manager.jobpoints >= 1:
-                temp = "Your skilled manager {} intervened and straitened things out.".format(building.manager.name)
-                building.mlog.append("\n{} helped to calm a client down after {}'s poor performance and salvaged part of the payment!".format(
-                                                    building.manager.name, worker.name))
-                building.manager.jobpoints -= 1
+            if me >= 90 and building.help_ineffective_workers and building._dnd_manager.jobpoints >= 1:
+                manager = building._dnd_manager
+                temp = "Your skilled manager {} intervened and straitened things out.".format(manager.name)
+                manager._dnd_mlog.append("{} helped to calm a client down after {}'s poor performance and salvaged part of the payment!".format(
+                                                    manager.name, worker.name))
+                manager.jobpoints -= 1
 
                 if me >= 150 and dice(85):
                     if is_plural:
                         temp += " Client were so pleased for the attention and ended up paying full price."
                     else:
                         temp += " Client was so pleased for the attention and ended up paying full price."
-                    log.append(temp)
-                    earned *= .75
                 elif dice(75):
                     if is_plural:
                         temp += " Clients agree to pay three quarters of the price."
                     else:
                         temp += " Client agreed to pay three quarters of the price."
-                    log.append(temp)
                     earned *= .75
                 else:
                     earned *= .6
-                    temp = " You will get 60%..."
-                    log.append(temp)
+                    temp += " You will get 60%..."
+                log.append(temp)
             else:
                 earned *= .5
                 temp = " You will get half..."
@@ -85,7 +83,6 @@ init -10 python:
             temp = "Manager paid some extra attention to the %s. +20%% to payout!" % plural("client", is_plural)
             log.append(temp)
             earned *= 1.2
-            building.mlog.append("\n"+temp)
 
         earned = round_int(earned)
         if earned:
@@ -140,7 +137,7 @@ init -10 python:
         """
         # We do not want girls in school to AutoRest,
         # Idea is that the school is taking care of this.
-        if isinstance(c.action, SchoolCourse):
+        if c.action.__class__ in [StudyingJob, ExplorationJob]:
             return True
 
         if c.get_stat("health") < c.get_max("health")/4:

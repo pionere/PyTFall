@@ -291,9 +291,8 @@ init -10 python:
             self.nd_events_report = list()
 
         def init(self):
-            if any(b.workable for b in self.allowed_businesses):
+            if self.needs_manager:
                 # Management:
-                self.manager = None
                 self.manager_effectiveness = 0 # Calculated once at start of each working day (performance)
                 self.workers_rule = "normal"
                 self.init_pep_talk = True
@@ -302,11 +301,11 @@ init -10 python:
                 self.help_ineffective_workers = True # Bad performance still may get a payout.
                 self.works_other_jobs = False
                 # TODO Before some major release that breaks saves, move manager and effectiveness fields here.
-                self.mlog = None # Manager job log
 
                 # Workers:
                 self.all_workers = list() # All workers presently assigned to work in this building.
                 self.available_workers = list() # This is built and used during the next day (SimPy).
+                self.available_managers = list() # This is built and used during the next day (SimPy).
 
                 # Clients:
                 self.all_clients = list() # All clients of this building are maintained here.
@@ -335,6 +334,10 @@ init -10 python:
                 else:
                     del self.inventory
 
+        @property
+        def needs_manager(self):
+            return any(b.workable for b in self.allowed_businesses)
+
         def get_daily_modifier(self):
             daily_modifier = self.daily_modifier
             for b in self._businesses:
@@ -348,7 +351,7 @@ init -10 python:
 
         def normalize_jobs(self):
             jobs = set()
-            if hasattr(self, "manager"):
+            if self.needs_manager:
                 jobs.add(simple_jobs["Manager"])
             for up in self._businesses:
                 jobs.update(up.jobs)
@@ -359,17 +362,7 @@ init -10 python:
 
             Returns an empty list if no jobs is available for the character.
             """
-            jobs = []
-
-            for job in self.jobs:
-                # We need to check if there are any slots for a worker are left (atm only the Manager job):
-                if job.id == "Manager":
-                    if self.manager and char != self.manager:
-                        continue
-                if char.can_work(job):
-                    jobs.append(job)
-
-            return jobs
+            return [job for job in self.jobs if char.can_work(job)]
 
         def get_price(self):
             # Returns our best guess for price of the Building
@@ -602,17 +595,6 @@ init -10 python:
                 value = self.minrep
             self.rep = value
 
-        @property
-        def mjp(self):
-            if self.manager:
-                return self.manager.jobpoints
-            else:
-                return 0
-        @mjp.setter
-        def mjp(self, value):
-            if self.manager:
-                self.manager.jobpoints = value
-
         # Clients related:
         def get_client_count(self, txt):
             """Get the amount of clients that will visit the building the next day.
@@ -777,28 +759,16 @@ init -10 python:
                 
                 # All workers and workable businesses:
                 # This basically roots out Resting/None chars!
-                self.available_workers = [w for w in self.all_workers if w.is_available]
-                for w in self.available_workers:
+                workers = [w for w in self.all_workers if w.is_available and w.action.__class__ not in [Rest, AutoRest, StudyingJob]]
+                for w in workers:
                     convert_ap_to_jp(w)
-                    # And AEQ
-                    if isinstance(w.action, Job):
-                        w.action.auto_equip(w)
+                    w.action.auto_equip(w)
+                self.available_workers = workers
 
-                # We can calculate manager effectiveness once, so we don't have to do
-                # expensive calculations 10 000 000 times:
-                if hasattr(self, "manager"):
-                    if self.manager:
-                        job = simple_jobs["Manager"]
-                        self.manager_effectiveness = job.effectiveness(self.manager,
-                                                    self.tier, None, False)
-                        txt.append("This building is managed by {} at {}% effectiveness!".format(
-                                self.manager.name, self.manager_effectiveness))
-                    else:
-                        txt.append("This building has no manager assigned to it.")
-                        self.manager_effectiveness = 0
-                    txt.append("")
+                # Do the expensive manager preparation out of the loop once
+                manager_pre_nd(self)
 
-                txt.append("{}".format(set_font_color("Starting the workday:", "lawngreen")))
+                txt.append(set_font_color("Starting the workday:", "lawngreen"))
                 # Create an environment and start the setup process:
                 self.env = simpy.Environment()
                 for up in self._businesses:
@@ -829,8 +799,8 @@ init -10 python:
                         if f.startswith("jobs"):
                             c.del_flag(f)
 
-                # Uncomment when we allow inter-building actions...
-                #self.manager_effectiveness = 0
+                # Clear manager attributes which are used only during the nd run
+                manager_post_nd(self)
 
                 for up in self._businesses:
                     up.post_nd()
@@ -920,10 +890,7 @@ init -10 python:
             env = self.env
 
             # Run the manager process:
-            if getattr(self, "manager", None):
-                init_jp = self.manager.jobpoints
-                self.mlog = NDEvent(job=simple_jobs["Manager"], char=self.manager, loc=self)
-                env.process(manager_process(env, self))
+            env.process(manager_process(env, self))
 
             for u in self.nd_ups:
                 # Trigger all public businesses:
@@ -964,31 +931,6 @@ init -10 python:
                     if has_garden and dice(25):
                         for w in self.all_workers:
                             w.mod_stat("joy", 1)
-
-            # post-process of the manager
-            if getattr(self, "manager", None):
-                log = self.mlog
-                manager = self.manager
-                points_used = init_jp - manager.jobpoints
-
-                # Handle stats:
-                if points_used > 0:
-                    if points_used > 100:
-                        log.logws("management", randint(1, 2))
-                        log.logws("intelligence", randrange(2))
-                        log.logws("refinement", 1)
-                        log.logws("character", 1)
- 
-                    ap_used = (points_used)/100.0
-                    log.logws("exp", exp_reward(manager, self.tier, ap_used=ap_used))
-
-                # finalize the log:
-                log.img = manager.show("profile", resize=ND_IMAGE_SIZE, add_mood=True)
-                log.type = "manager_report"
-                log.after_job()
-
-                NextDayEvents.append(log)
-                self.mlog = None
 
         def clients_dispatcher(self, end):
             """This method provides stream of clients to the building following it's own algorithm.
@@ -1099,20 +1041,20 @@ init -10 python:
 
                 # Manager active effect:
                 # Wait for the business to open in case of a favorite:
-                if self.manager and self.asks_clients_to_wait and all([
-                        self.manager.jobpoints >= 1,
+                if all((self.asks_clients_to_wait,
+                        self.manager_effectiveness and self._dnd_manager.jobpoints >= 1,
                         (business == fav_business),
                         (business.res.count >= business.capacity),
-                        self.env.now < 85]):
-                    wait_till = min(self.env.now + 7, 85)
+                        self.env.now < 85)):
+                    wait_till = self.env.now + 5
                     temp = "Your manager convinced {} to wait till {} for a slot in {} favorite {} to open up!".format(
                                     set_font_color(client.name, "beige"), wait_till, client.op, fav_business.name)
                     self.log(temp)
 
-                    self.mlog.append("\nAsked a client to wait for a spot in {} to open up!".format(fav_business.name))
+                    self._dnd_manager._dnd_mlog.append("\nAsked a client to wait for a spot in {} to open up!".format(fav_business.name))
 
-                    self.manager.jobpoints -= 1
-                    while (wait_till < self.env.now) and (business.res.count < business.capacity):
+                    self._dnd_manager.jobpoints -= 1
+                    while (wait_till >= self.env.now) and (business.res.count >= business.capacity):
                         yield self.env.timeout(1)
 
                 if business.type == "personal_service" and business.res.count < business.capacity:

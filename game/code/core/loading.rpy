@@ -197,7 +197,7 @@ init -11 python:
                             #
                             # if "skills" in gd:
                             #     for skill, value in gd["skills"].items():
-                            #         if char.stats.is_skill(skill):
+                            #         if is_skill(skill):
                             #             char.stats.mod_full_skill(skill, value)
                             #         else:
                             #             devlog.warning("%s skill is unknown for %s!" % (skill, gd["id"]))

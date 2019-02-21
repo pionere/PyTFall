@@ -109,7 +109,7 @@ label chars_list:
                 jump('char_profile')
             elif result[0] == "group":
                 if result[1] == "control":
-                    char = PytGroup(chars_list_state.the_chosen)
+                    char = PytGroup(list(chars_list_state.the_chosen))
                     renpy.show_screen("char_control")
                 elif result[1] == "equip":
                     renpy.hide_screen("chars_list")
@@ -263,7 +263,7 @@ screen chars_list():
                                         status_img = "content/gfx/interface/icons/slave.png"
                                     else:
                                         status_img = "content/gfx/interface/icons/free.png"
-                                elif c.action == simple_jobs["Exploring"]:
+                                elif c.action.__class__ == ExplorationJob:
                                     status_img = "content/gfx/interface/icons/exploring.png"
                                 elif c.location == pytfall.jail:
                                     status_img = "content/gfx/interface/icons/arena.png"

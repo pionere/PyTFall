@@ -90,7 +90,7 @@ label start:
     python: # Jobs:
         tl.start("Loading: Jobs")
         # This jobs are usually normal, most common type that we have in PyTFall
-        temp = [WhoreJob(), StripJob(), BarJob(), ManagerJob(), CleaningJob(), GuardJob(), ExplorationJob(), Rest(), AutoRest()]
+        temp = [WhoreJob(), StripJob(), BarJob(), ManagerJob(), CleaningJob(), GuardJob(), ExplorationJob(), StudyingJob(), Rest(), AutoRest()]
         simple_jobs = {j.id: j for j in temp}
         del temp
         tl.end("Loading: Jobs")
@@ -615,6 +615,8 @@ label after_load:
             ej = ExplorationJob()
             simple_jobs[ej.id] = ej
             clearCharacters = True
+        if "Study" not in simple_jobs:
+            simple_jobs["Study"] = StudyingJob()
 
         store.bm_mid_frame_mode = None
 
@@ -629,15 +631,6 @@ label after_load:
 
         for b in itertools.chain(hero.buildings, buildings.values()):
             if isinstance(b, Building):
-                if hasattr(b, "manager") and not hasattr(b, "init_pep_talk"):
-                    b.init_pep_talk = True
-                    b.cheering_up = True
-                    b.asks_clients_to_wait = True
-                    b.help_ineffective_workers = True # Bad performance still may get a payout.
-                    b.works_other_jobs = False
-
-                    # TODO Before some major release that breaks saves, move manager and effectiveness fields here.
-                    b.mlog = None # Manager job log
                 if isinstance(b.auto_clean, bool):
                     val = 90 if b.auto_clean else 100
                     del b.auto_clean
@@ -754,6 +747,16 @@ label after_load:
                             if au.__class__ == u.__class__:
                                 b._upgrades.append(au)
                                 break
+                if hasattr(b, "mlog"):
+                    del b.mlog
+                if hasattr(b, "manager"):
+                    del b.manager
+                if b.needs_manager and not hasattr(b, "init_pep_talk"):
+                    b.init_pep_talk = True
+                    b.cheering_up = True
+                    b.asks_clients_to_wait = True
+                    b.help_ineffective_workers = True # Bad performance still may get a payout.
+                    b.works_other_jobs = False
             else:
                 nb = Building()
                 nb.init()
@@ -1082,6 +1085,8 @@ label after_load:
 
         if hasattr(store, "schools"):
             pytfall.school = store.schools.popitem()[1]
+            if not hasattr(pytfall.school, "students"):
+                pytfall.school.students = {}
             del store.schools
 
         if not hasattr(pytfall, "city"):
@@ -1120,6 +1125,12 @@ label after_load:
                     c.location = None
                 if c.location == RunawayManager.LOCATION:
                     c.location = pytfall.ra
+                if c.workplace == pytfall.school:
+                    c._workplace = None
+                    course = c.action
+                    c._action = simple_jobs["Study"]
+                    course.remove_student(c)
+                    pytfall.school.add_student(c, course)
 
             if hasattr(pytfall.sm, "type"):
                 del pytfall.sm.type

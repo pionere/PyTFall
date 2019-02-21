@@ -1116,14 +1116,6 @@ init -10 python:
                 training += action
             return training * max(min(self.skills_multipliers[skill][2], 2.5), .5)
 
-        def is_skill(self, key):
-            # Easy check for skills.
-            return key in self.skills
-
-        def is_stat(self, key):
-            # Easy check for stats.
-            return key in self.stats
-
         def normalize_stats(self, stats=None):
             # Makes sure main stats dict is properly aligned to max/min values
 
@@ -1210,7 +1202,7 @@ init -10 python:
 
                     # Super Skill Bonuses:
                     for skill in trait.init_skills:
-                        if self.is_skill(skill):
+                        if is_skill(skill):
                             self.mod_full_skill(skill, 20*num_lvl)
                         else:
                             msg = "Trait %s tried to raise unknown skill %s on leveling up to %s!"

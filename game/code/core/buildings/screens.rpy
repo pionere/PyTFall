@@ -306,22 +306,65 @@ init:
             null height 20
 
         # Manager?
-        if hasattr(bm_building, "manager"):
+        if getattr(bm_building, "needs_manager", False):
+            $ managers = simple_jobs["Manager"]
+            $ managers = [w for w in bm_building.all_workers if w.get_job() == managers]
             vbox:
                 xalign .5
-                frame:
-                    xmaximum 220
-                    ymaximum 220
+                $ temp = ("Current manager" if len(managers) == 1 else "Managers") if managers else "No manager" 
+                text "[temp]" align (.5, .5) size 25 color goldenrod drop_shadow [(1, 2)] drop_shadow_color black antialias True style_prefix "proper_stats"                
+                if len(managers) <= 1:
+                    frame:
+                        xmaximum 220
+                        ymaximum 220
 
-                    xalign .5
-                    background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.95), 10, 10)
-                    if bm_building.manager:
-                        add bm_building.manager.show("profile", resize=(190, 190), add_mood=True, cache=True) align .5, .5
-                    else:
-                        xysize (190, 190)
-                        text "No manager" align (.5, .5) size 25 color goldenrod drop_shadow [(1, 2)] drop_shadow_color black antialias True style_prefix "proper_stats"
-                if bm_building.manager:
-                    text "Current manager" align (.5, .5) size 25 color goldenrod drop_shadow [(1, 2)] drop_shadow_color black antialias True style_prefix "proper_stats"
+                        xalign .5
+                        background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.95), 10, 10)
+                        if managers:
+                            $ w = managers[0]
+                            $ img = w.show("profile", resize=(190, 190), add_mood=True, cache=True)
+                            imagebutton:
+                                idle img
+                                hover (im.MatrixColor(img, im.matrix.brightness(.15)))
+                                action If(w.is_available, true=[SetVariable("char", w),
+                                                                SetVariable("eqtarget", w),
+                                                                SetVariable("equip_girls", [w]),
+                                                                SetVariable("came_to_equip_from", last_label),
+                                                                Jump("char_equip")],
+                                                          false=NullAction())
+                                tooltip "Check %s's equipment" % w.name
+                else:
+                    $ managers.sort(key=attrgetter("level"), reverse=True)
+                    frame:
+                        background Null()
+                        
+                        xysize 300, 220
+                        vpgrid:
+                            xpos 5
+                            style_group "dropdown_gm"
+                            xysize 300, 200
+                            cols 5
+                            spacing 2
+                            draggable True
+                            mousewheel True
+                    
+                            for w in managers:
+                                frame:
+                                    xysize 60, 60
+                                    padding 5, 5
+                                    background Frame(gfxframes + "p_frame53.png", 5, 5)
+                                    $ img = w.show("portrait", resize=(50, 50), cache=True)
+                                    imagebutton:
+                                        idle img
+                                        hover (im.MatrixColor(img, im.matrix.brightness(.15)))
+                                        action If(w.is_available, true=[SetVariable("char", w),
+                                                                        SetVariable("eqtarget", w),
+                                                                        SetVariable("equip_girls", [w]),
+                                                                        SetVariable("came_to_equip_from", last_label),
+                                                                        Jump("char_equip")],
+                                                                  false=NullAction())
+                                        tooltip "Check %s's equipment" % w.name
+
             null height 20
         if bm_building.desc:
             text bm_building.desc xalign.5 style_prefix "proper_stats" text_align .5 color goldenrod outlines [(1, "#3a3a3a", 0, 0)]
@@ -344,9 +387,7 @@ init:
             if isinstance(bm_mid_frame_mode, Business) and hasattr(bm_building, "all_workers"):
                 $ workers = [w for w in bm_building.all_workers if w.get_job() in bm_mid_frame_mode.jobs]
                 if workers:
-                    if bm_building.manager in workers:
-                        $ workers.remove(bm_building.manager)
-                        $ workers.sort(key=attrgetter("level"), reverse=True)
+                    $ workers.sort(key=attrgetter("level"), reverse=True)
                     hbox:
                         pos (0, 70)
                         xsize 315
@@ -926,9 +967,9 @@ init:
                 if hasattr(bm_building, "manager"):
                     null height 20
                     label u"Management Options:":
-                         style "proper_stats_label"
-                         xalign .5
-                         text_bold True
+                        style "proper_stats_label"
+                        xalign .5
+                        text_bold True
                     null height 5
 
                     default fields = [

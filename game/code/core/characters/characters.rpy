@@ -232,9 +232,9 @@ init -9 python:
             # False if we cannot reach the character.
             if self.home == pytfall.afterlife:
                 return False
-            if self.action == simple_jobs["Exploring"]:
+            if self.action.__class__ == ExplorationJob:
                 return False
-            if self.location in (pytfall.ra, pytfall.jail):
+            if self.location in (pytfall.jail, pytfall.ra):
                 return False
             return True
 
@@ -257,7 +257,7 @@ init -9 python:
             for t in self.traits:
                 if t.basetrait:
                     allowed.add(t)
-                    allowed = allowed.union(t.occupations)
+                    allowed.update(t.occupations)
             return allowed
 
         def can_work(self, job):
@@ -282,7 +282,7 @@ init -9 python:
             return self._action
         @action.setter
         def action(self, value):
-            # Special handling for Rest actions
+            # Special handling for Tasks
             if value.__class__ in [Rest, AutoRest]:
                 if self._action == value:
                     # Toggle *Rest
@@ -291,8 +291,27 @@ init -9 python:
                 elif self._action.__class__ == AutoRest:
                     # AutoRest -> Rest
                     self._action = value
+                elif self._action.__class__ == StudyingJob:
+                    # Study -> Rest
+                    pytfall.school.remove_student(self)
+                    self._action = value
                 else:
                     # *Action -> Rest
+                    self.previousaction = self._action
+                    self._action = value
+                return
+            if value.__class__ == StudyingJob:
+                if self._action == value:
+                    # Toggle Study
+                    pytfall.school.remove_student(self)
+                    
+                    self._action = self.previousaction
+                    self.previousaction = None
+                elif self._action.__class__ in [Rest, AutoRest]:
+                    # *Rest -> Study
+                    self._action = value
+                else:
+                    # *Action -> Study
                     self.previousaction = self._action
                     self._action = value
                 return
@@ -302,37 +321,12 @@ init -9 python:
             if curr_action.__class__ in [Rest, AutoRest]:
                 curr_action = self.previousaction
                 self.previousaction = None
-
-            mj = simple_jobs["Manager"]
-
-            if isinstance(curr_action, SchoolCourse):
+            elif curr_action.__class__ == StudyingJob:
                 # remove student from the active course
-                curr_action.remove_student(self)
-                self._workplace = None
-            elif curr_action == mj:
-                # remove manager from the previous job
-                self._workplace.manager = None
-                #self._workplace.manager_effectiveness = 0
+                pytfall.school.remove_student(self)
 
-            if isinstance(value, SchoolCourse):
-                # subscribe student to the course
-                value.add_student(self)
-                if isinstance(self._workplace, Building):
-                    self._workplace.workers.remove(self)
-                # set workplace to the school
-                self._workplace = pytfall.school
-            elif value == mj:
-                # set manager of the workplace
-                wp = self._workplace
-                pm = wp.manager
-                if pm:
-                    # remove previous manager from the workplace
-                    if pm._action == mj:
-                        pm._action = None
-                    else:
-                        pm.previosaction = None
-                    #wp.manager_effectiveness = 0
-                wp.manager = self
+                curr_action = self.previousaction
+                self.previousaction = None
 
             self._action = value
 
@@ -354,19 +348,34 @@ init -9 python:
         def workplace(self):
             return self._workplace
         def set_workplace(self, value, action):
-            if self._workplace == value:
+            wp = self._workplace
+            if wp == value:
                 if self._action != action:
                     self.action = action
                 return
 
             self.action = None
-            if isinstance(self._workplace, Building):
-                self._workplace.all_workers.remove(self)
+            if isinstance(wp, Building):
+                wp.all_workers.remove(self)
             self._workplace = value
             if isinstance(value, Building):
                 value.all_workers.append(self)
             if action is not None:
                 self.action = action
+        def mod_workplace(self, value):
+            wp = self._workplace
+            if wp == value:
+                return
+            job = self.get_job()
+            if all((job is not None,
+                   job.__class__ not in [StudyingJob, Rest, AutoRest],
+                   job not in getattr(value, "jobs", ()))):
+                self.set_job(None)
+            if isinstance(wp, Building):
+                wp.all_workers.remove(self)
+            self._workplace = value
+            if isinstance(value, Building):
+                value.all_workers.append(self)
 
         @property
         def home(self):
@@ -1729,7 +1738,7 @@ init -9 python:
 
             # Skills:
             for skill, data in item.mod_skills.items():
-                if not self.stats.is_skill(skill):
+                if not is_skill(skill):
                     msg = "'%s' item tried to apply unknown skill: %s!"
                     char_debug(str(msg % (item.id, skill)))
                     continue
@@ -2598,7 +2607,7 @@ init -9 python:
 
                     txt.append("{color=[red]}%s is spending the night in the jail!{/color}" % self.fullname)
                 flag_red = True
-            elif self.action == simple_jobs["Exploring"]:
+            elif self.action.__class__ == ExplorationJob:
                 if self.has_flag("dnd_back_from_track"):
                     txt.append("{color=[green]}%s arrived back from the exploration run!{/color}" % self.fullname)
                     self.action = None
@@ -2633,7 +2642,7 @@ init -9 python:
 
                 # Finances:
                 # Upkeep:
-                if self._workplace == pytfall.school:
+                if self.action.__class__ == StudyingJob:
                     # currently in school
                     txt.append("Upkeep is included in price of the class your worker's taking.")
                 else:
