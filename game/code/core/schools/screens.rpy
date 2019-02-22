@@ -45,7 +45,28 @@ label school_training:
                     # remove students from the course
                     for s in students:
                         s.action = job # toggle course
-
+        elif result[0] == "stop_student":
+            python hide:
+                s = result[1]
+                s.action = s.action # toggle course
+        elif result[0] == "toggle_student":
+            python hide:
+                s = result[1]
+                if s in students:
+                    students.remove(s)
+                else:
+                    students.append(s)
+        elif result[0] == "toggle_course":
+            python hide:
+                course = result[1]
+                if result[2] == "remove":
+                    for s in course.students:
+                        if s in students:
+                            students.remove(s) 
+                else: # "add"
+                    for s in course.students:
+                        if s not in students:
+                            students.append(s)
         elif result == ["control", "return"]:
             jump return_from_school_training
 
@@ -93,35 +114,128 @@ screen school_training():
         null height 8
         default desc = school_desc_string()
         text "[desc]" color ivory
+        default selected_list = "courses"
+        default hidden_courses = set()
+        $ extra_students = [s for s in students if school.get_course(s) is None]
         null height 5
-        text "Girls currently taking courses here:" color ivory
-        null height 3
-        viewport:
-            xsize 480
-            draggable False
-            mousewheel True
-            scrollbars "vertical"
-            vbox:
-                spacing 10
-                for c in school.courses:
-                    if c.students:
-                        vbox:
-                            xsize 450
-                            text ("[c.name] Course:") color goldenrod xalign .0
-                            for s in c.students:
+        if selected_list == "extra" and extra_students:
+            button:
+                background None
+                xalign .5
+                text "Students in your group who are not taking courses:" color ivory hover_color red
+                action SetScreenVariable("selected_list", "courses")
+                tooltip "View active students."
+            null height 3
+            viewport:
+                xsize 480
+                draggable True
+                mousewheel True
+                scrollbars "vertical"
+                vbox:
+                    xsize 460
+                    for s in extra_students:
+                        hbox:
+                            xsize 460
+                            button:
+                                xsize 20
+                                background None
+                                text "+" color yellow align (.5, .5)
+                                #tooltip "%s is currently in your group." % s.name
+                                action NullAction()
+
+                            button:
+                                xalign -1.0
+                                background None
+                                text ("[s.fullname]") color lawngreen hover_color red xalign .0
+                                action [Return(["toggle_student", s]), renpy.force_full_redraw]
+                                tooltip "Remove %s from your group." % s.name
+        else:
+            $ selected_list = "courses"
+            button:
+                background None
+                xalign .5
+                text "Students currently taking courses here:" color ivory:
+                    if extra_students:
+                        hover_color red
+                if extra_students:
+                    action SetScreenVariable("selected_list", "extra")
+                    tooltip "View students in your group who are not taking courses."
+            null height 3
+            viewport:
+                xsize 480
+                draggable True
+                mousewheel True
+                scrollbars "vertical"
+                vbox:
+                    xsize 460
+                    spacing 10
+                    for c in school.courses:
+                        if c.students:
+                            vbox:
+                                xsize 460
                                 hbox:
-                                    xalign .05
-                                    xsize 450
-                                    text ("[s.fullname]") color lawngreen
-                                    if s in c.completed:
-                                        text "(Completed)" color goldenrod
-                                    else:
-                                        $ days_left = c.days_to_complete - c.students_progress.get(s, 0)
-                                        $ can_complete = c.days_remaining >= days_left
-                                        if can_complete:
-                                            text "([days_left] days to complete)" color ivory xalign 1.0
+                                    xsize 460
+                                    button:
+                                        xsize 20
+                                        background None
+                                        if c in hidden_courses:
+                                            text ">" color yellow align (.5, .5)
+                                            tooltip "Show course members."
+                                            action Function(hidden_courses.discard, c)
                                         else:
-                                            text "(can't complete)" color ivory xalign 1.0
+                                            text "v" color yellow align (.5, .5)
+                                            tooltip "Hide course members."
+                                            action Function(hidden_courses.add, c)
+    
+                                    $ temp = any(s in students for s in c.students)
+                                    button:
+                                        xalign -1.02
+                                        background None
+                                        text "[c.name] Course:" color goldenrod hover_color red
+                                        if temp:
+                                            action Return(["toggle_course", c, "remove"])
+                                            tooltip "Remove course members from your group."
+                                        else:
+                                            action Return(["toggle_course", c, "add"])
+                                            tooltip "Add course members to your group."
+
+                                if c not in hidden_courses:
+                                    for s in c.students:
+                                        hbox:
+                                            xsize 460
+                                            if s in students:
+                                                button:
+                                                    xsize 20
+                                                    background None
+                                                    text "+" color yellow align (.5, .5)
+                                                    #tooltip "%s is currently in your group." % s.name
+                                                    action NullAction()
+                                            else:
+                                                null width 20
+
+                                            button:
+                                                xalign -1.0
+                                                background None
+                                                text ("[s.fullname]") color lawngreen hover_color red xalign .0
+                                                action Return(["toggle_student", s])
+                                                if s in students:
+                                                    tooltip "Remove %s from your group." % s.name
+                                                else:
+                                                    tooltip "Add %s to your group." % s.name
+                                            button:
+                                                xalign .9
+                                                background None
+                                                if s in c.completed:
+                                                    text "(Completed)" color goldenrod hover_color red
+                                                else:
+                                                    $ days_left = c.days_to_complete - c.students_progress.get(s, 0)
+                                                    $ can_complete = c.days_remaining >= days_left
+                                                    if can_complete:
+                                                        text "([days_left] days to complete)" color ivory hover_color red
+                                                    else:
+                                                        text "(can't complete)" color ivory hover_color red
+                                                action Return(["stop_student", s])
+                                                tooltip "Stop %s from taking the course." % s.name
 
     frame:
         style_prefix "content"
@@ -179,7 +293,7 @@ screen school_training():
                                 hover_color ivory
                                 size 15
                             python:
-                                temp = None # days_left
+                                temp = None if students else "--" # days_left
                                 tmp = None  # enough days left to complete
                                 for s in students:
                                     t = course.days_to_complete - course.students_progress.get(s, 0)
@@ -258,13 +372,13 @@ screen school_training():
                                 hover_color ivory
                                 size 15
                             python:
-                                temp = None  # status
+                                temp = None if students else "--"  # status
                                 for s in students:
                                     t = course.get_status(s)
                                     if temp is None:
                                         temp = t
                                     elif temp != t:
-                                        temp = "N/A"
+                                        temp = "--"
                                         break
                             text "[temp]":
                                 style_suffix "value_text"

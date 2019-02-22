@@ -119,7 +119,7 @@ label chars_list:
                     jump('char_equip')
                 elif result[1] == "training":
                     renpy.hide_screen("chars_list")
-                    the_chosen = chars_list_state.the_chosen
+                    the_chosen = list(chars_list_state.the_chosen)
                     jump('school_training')
 
     hide screen chars_list

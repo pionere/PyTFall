@@ -272,7 +272,7 @@ label city_dark_forest_fight:
             mob = build_mob(id=mob_id, level=randint(min_lvl, min_lvl+20))
             enemy_team.add(mob)
 
-        $ narrator(msg)
+        narrator(msg)
 
     $ result = interactions_pick_background_for_fight("forest")
     $ result = run_default_be(enemy_team, background=result,
