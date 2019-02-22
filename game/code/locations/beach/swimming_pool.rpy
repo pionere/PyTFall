@@ -28,26 +28,26 @@ label swimming_pool:
     show screen swimming_pool
     $ pytfall.world_quests.run_quests("auto")
     $ pytfall.world_events.run_events("auto")
+
     while 1:
         $ result = ui.interact()
 
         if result[0] == 'jump':
-            $ girl = result[1]
-            $ tags = girl.get_tags_from_cache(last_label)
-            if not tags:
-                $ img_tags = (["girlmeets", "pool"], ["girlmeets", "swimsuit", "simple bg"], ["girlmeets", "swimsuit", "no bg"])
-                $ result = get_simple_act(girl, img_tags)
-                if not result:
-                    $ img_tags = (["girlmeets", "simple bg"], ["girlmeets", "no bg"])
-                    $ result = get_simple_act(girl, img_tags)
-                    if not result:
-                        # giveup
-                        $ result = ("girlmeets", "swimsuit")
-                $ tags.extend(result)
+            python hide:
+                char = result[1]
+                tags = char.get_tags_from_cache(last_label)
+                if not tags:
+                    img_tags = (["girlmeets", "pool"], ["girlmeets", "swimsuit", "simple bg"], ["girlmeets", "swimsuit", "no bg"])
+                    tags = get_simple_act(char, img_tags)
+                    if not tags:
+                        img_tags = (["girlmeets", "simple bg"], ["girlmeets", "no bg"])
+                        tags = get_simple_act(char, img_tags)
+                        if not tags:
+                            # giveup
+                            tags = ["girlmeets", "swimsuit"]
+                gm.start_gm(char, img=char.show(*tags, type="reduce", label_cache=True, resize=(300, 400), gm_mode=True))
 
-            $ gm.start_gm(girl, img=girl.show(*tags, type="reduce", label_cache=True, resize=(300, 400), gm_mode=True))
-
-        if result[0] == 'control':
+        elif result[0] == 'control':
             if result[1] == 'return':
                 hide screen swimming_pool
                 jump city_beach

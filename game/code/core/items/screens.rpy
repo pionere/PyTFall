@@ -433,8 +433,7 @@ label shop_control:
 
         elif result[1] == 'buy/sell':
             if purchasing_dir == 'buy':
-                $ result = char.take_money(item_price*amount, "Items")
-                if result:
+                if char.take_money(item_price*amount, "Items"):
                     play sound "content/sfx/sound/world/purchase_1.ogg"
                     python:
                         for i in xrange(amount):
@@ -443,10 +442,9 @@ label shop_control:
                             shop.gold += item_price
                             shop.total_items_price -= item_price
                 else:
-                    $ focus = None
                     $ renpy.say("", choice(["Not enough money.", "No freebees.", "You'll need more money for this purchase"]))
                 $ amount = 1
-                $ focus = False
+                $ focus = None
             elif purchasing_dir == 'sell':
                 if not can_sell(focus, silent=False):
                     jump shop_control
@@ -454,8 +452,7 @@ label shop_control:
                     $ focus = None
                     $ renpy.say("", "This shop doesn't buy such things.")
                 else:
-                    $ result = bool(shop.gold - (item_price*amount) >= 0)
-                    if result:
+                    if shop.gold >= (item_price*amount):
                         play sound "content/sfx/sound/world/purchase_1.ogg"
                         python:
                             for i in xrange(amount):
@@ -465,7 +462,6 @@ label shop_control:
                                 shop.inventory.append(focus)
                                 shop.total_items_price += item_price
                     else:
-                        $ focus = None
                         $ renpy.say("", "The shop doesn't have enough money.")
                     $ amount = 1
                     $ focus = None
@@ -473,7 +469,6 @@ label shop_control:
     elif result[0] == 'control':
         if isinstance(result[1], basestring):
             if result[1] == 'return':
-                $ focus = None
                 return
         elif result[1] > 0:
             if purchasing_dir == 'sell':

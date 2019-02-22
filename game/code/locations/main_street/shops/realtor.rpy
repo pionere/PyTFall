@@ -49,7 +49,6 @@ label realtor_agency:
     show screen realtor_agency
 
     while 1:
-
         $ result = ui.interact()
 
         if result[0] == 'buy':
@@ -75,8 +74,11 @@ label realtor_agency:
 label realtor_exit:
     $ renpy.music.stop(channel="world")
     hide screen realtor_agency
-    jump main_street
+    with dissolve
+    hide rose
 
+    $ del market_buildings, focus
+    jump main_street
 
 screen realtor_agency():
     modal True

@@ -203,17 +203,17 @@ label storyi_randomfight:  # initiates fight with random enemy team
 
         if persistent.battle_results:
             call screen give_exp_after_battle(hero.team, enemy_team, money=money)
-
+        $ del result, enemy_team, money
         show screen prison_break_controls
         jump storyi_gui_loop
     elif result == "escape":
         $ be_hero_escaped(hero.team)
+        $ del result, enemy_team
         scene black
         pause 1.0
         jump forest_entrance
-    elif result is False:
+    else:
         jump game_over
-
 
 label storyi_treat_wounds:
     $ j = False

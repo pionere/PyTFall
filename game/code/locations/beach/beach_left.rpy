@@ -16,6 +16,7 @@ label city_beach_left:
             pytfall.world_actions.finish()
 
     scene bg city_beach_left
+    with dissolve
     show screen city_beach_left
 
     $ pytfall.world_quests.run_quests("auto")
@@ -26,22 +27,22 @@ label city_beach_left:
         $ result = ui.interact()
 
         if result[0] == 'jump':
-            $ girl = result[1]
-            $ tags = girl.get_tags_from_cache(last_label)
-            if not tags:
-                $ img_tags = (["girlmeets", "beach"], ["girlmeets", "swimsuit", "simple bg"], ["girlmeets", "swimsuit", "no bg"])
-                $ result = get_simple_act(girl, img_tags)
-                if not result:
-                    $ img_tags = (["girlmeets", "simple bg"], ["girlmeets", "no bg"])
-                    $ result = get_simple_act(girl, img_tags)
-                    if not result:
-                        # giveup
-                        $ result = ("girlmeets", "swimsuit")
-                $ tags.extend(result)
+            python hide:
+                char = result[1]
+                tags = char.get_tags_from_cache(last_label)
+                if not tags:
+                    img_tags = (["girlmeets", "beach"], ["girlmeets", "swimsuit", "simple bg"], ["girlmeets", "swimsuit", "no bg"])
+                    tags = get_simple_act(char, img_tags)
+                    if not tags:
+                        img_tags = (["girlmeets", "simple bg"], ["girlmeets", "no bg"])
+                        tags = get_simple_act(char, img_tags)
+                        if not tags:
+                            # giveup
+                            tags = ["girlmeets", "swimsuit"]
 
-            $ gm.start_gm(girl, img=girl.show(*tags, type="reduce", label_cache=True, resize=(300, 400), gm_mode=True))
+                gm.start_gm(char, img=char.show(*tags, type="reduce", label_cache=True, resize=(300, 400), gm_mode=True))
 
-        if result[0] == 'control':
+        elif result[0] == 'control':
             if result[1] == 'return':
                 $ global_flags.set_flag("keep_playing_music")
                 hide screen city_beach_left
@@ -49,8 +50,8 @@ label city_beach_left:
 
 
 screen city_beach_left():
-
     use top_stripe(True)
+
     if not gm.show_girls:
         # Jump buttons:
         $img = ProportionalScale("content/gfx/interface/icons/beach_cafe.png", 80, 80)
@@ -105,20 +106,20 @@ label mc_action_city_beach_rest:
     $ hero.set_flag("dnd_rest_at_beach")
 
     if len(hero.team) > 1:
-        python:
-            picture = []
+        $ picture = []
+        python hide:
             excluded = ["sex", "stripping"]
             for member in hero.team:
                 if member != hero:
-                    tags = (["rest", "beach"], ["bathing", "beach"], ["sleeping", "beach"])
-                    result = get_simple_act(member, tags, excluded)
+                    result = (["rest", "beach"], ["bathing", "beach"], ["sleeping", "beach"])
+                    result = get_simple_act(member, result, excluded)
                     if result:
                         picture.append(member.show(*result, exclude=excluded, type="reduce", resize=(300, 400)))
                         continue
 
-                    tags = (["rest", "swimsuit", "no bg"], ["bathing", "swimsuit", "no bg"], ["sleeping", "swimsuit", "no bg"],
+                    result = (["rest", "swimsuit", "no bg"], ["bathing", "swimsuit", "no bg"], ["sleeping", "swimsuit", "no bg"],
                             ["rest", "swimsuit", "simple bg"], ["bathing", "swimsuit", "simple bg"], ["sleeping", "swimsuit", "simple bg"])
-                    result = get_simple_act(member, tags, excluded)
+                    result = get_simple_act(member, result, excluded)
                     if result:
                         picture.append(member.show(*result, exclude=excluded, type="reduce", resize=(300, 400)))
                     elif member.has_image("beach", exclude=excluded):
@@ -131,6 +132,7 @@ label mc_action_city_beach_rest:
             show expression picture[0] at center_left as temp1
             show expression picture[1] at center_right as temp2
             with dissolve
+        $ del picture
 
         "You're relaxing at the beach with your team."
 
@@ -182,11 +184,13 @@ label mc_action_city_beach_rest:
             $ char.gfx_mod_skill("sex", 0, 1)
             $ hero.gfx_mod_skill("sex", 0, 1)
             $ char.gfx_mod_stat("disposition", 3)
+            $ del msg, result, excluded, tags, char
+        $ del members
 
     else:
         "You're relaxing at the beach."
 
-    python:
+    python hide:
         for member in hero.team:
             member.gfx_mod_stat("vitality", randint(10, 15))
             if member != hero:
@@ -201,6 +205,7 @@ label fishing_logic_mor_quest_part:
         if fish is None:
             # quest already done today
             m "Sorry, I don't have anything else at the moment. Maybe tomorrow."
+            $ del fish, num
             return
         # no rerolling quest after asking again at the same day
     else:
@@ -209,6 +214,7 @@ label fishing_logic_mor_quest_part:
         $ fish = list(i for i in items.values() if i.type == "fish" and "Fishing" in i.locations and 10 <= i.price <= fish)
         if not fish:
             m "Yeah, I have special requests sometimes, but you need to learn something about fishing for a start. Practice a bit, ok?"
+            $ del fish
             return
 
         $ fish = random.choice(fish)
@@ -222,8 +228,7 @@ label fishing_logic_mor_quest_part:
             $ hero.set_flag("mor_fish_quest", (fish, num))
         "No":
             m "Your choice. You know where to find me."
-    $ del fish
-    $ del num
+    $ del fish, num
     return
 
 label fishing_logic_mor_quest_bring:
@@ -245,9 +250,7 @@ label fishing_logic_mor_quest_bring:
         $ hero.add_item("Simple Bait", 9)
         "You've obtained 9 Simple Baits!"
     $ finish_quest("Fishery", "You brought required fish to Mor and got your reward.", "complete")
-    $ del fish
-    $ del num
-    $ del price
+    $ del fish, num, price
     return
 
 label fishing_logic_mor_dialogue:
@@ -429,18 +432,16 @@ label mc_action_beach_start_fishing:
                 hero.gfx_mod_skill("fishing", 0, temp)
 
 label end_fishing:
-    $ temp = getattr(store, "exit_string", "This is all for now.")
-    $ hero.say(temp)
+    $ hero.say(getattr(store, "exit_string", "This is all for now."))
     # safe(r) cleanup:
     python hide:
-        cleaup = ["all_fish", "selected_fish", "fishing_attempts",
-                  "selected_fish", "min_fish_price", "exit_string",
-                  "use_baits", "c0", "c1", "c2", "temp"]
-        for i in cleaup:
-            try:
+        cleanup = ["fishing_attempts", "min_fish_price",
+                  "c0", "c1", "c2", "use_baits",
+                  "num_fish", "stop_fishing", "exit_string",
+                  "item", "fishing_skill", "num", "all_fish"]
+        for i in cleanup:
+            if hasattr(store, i):
                 delattr(store, i)
-            except:
-                pass
     $ global_flags.set_flag("keep_playing_music")
     jump city_beach_left
 

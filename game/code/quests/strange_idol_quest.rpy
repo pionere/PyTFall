@@ -1,5 +1,4 @@
-init python:
-
+init python hide:
     # Add quest
     # Alex: We've changed manual to True to be used as a default setting for all quests.
     q = register_quest("Strange Idol", manual=None)

@@ -5,19 +5,15 @@ label tavern_town:
         play world choice(ilists.world_music["tavern_inside"])
     $ global_flags.del_flag("keep_playing_music")
 
-
     scene bg tavern_inside
     with dissolve
+    $ pytfall.world_quests.run_quests("auto")
+    $ pytfall.world_events.run_events("auto")
 
     $ tavern_dizzy = False
 
     $ tavern_rita = npcs["Rita_tavern"].say
 
-    $ pytfall.world_quests.run_quests("auto")
-    $ pytfall.world_events.run_events("auto")
-
-
-    $ tavern_event_list = []
     if hero.has_flag("dnd_fought_in_tavern"): # after a brawl tavern will be unavailable until the next turn
         show expression npcs["Rita_tavern"].get_vnsprite() as npc
         with dissolve
@@ -37,6 +33,7 @@ label tavern_town:
         if global_flags.flag("tavern_status")[0] != day: # every day tavern can randomly have one of three statuses, depending on the status it has very different activities available
             $ tavern_status = weighted_choice([["cozy", 40], ["lively", 40], ["brawl", 20]])
             $ global_flags.set_flag("tavern_status", value=[day, tavern_status])
+    $ tavern_event_list = []
     if global_flags.flag("tavern_status")[1] == "cozy":
         python:
             for file in os.listdir(content_path("events/tavern_entry/cozy/")):
@@ -46,6 +43,7 @@ label tavern_town:
             renpy.show("drunkards", what=img, at_list=[Position(ypos = .5, xpos = .5, yanchor = .5, xanchor = .5)])
             renpy.with_statement(dissolve)
             narrator ("The tavern is warm and cozy with only a handful of drunkards enjoying the stay.")
+            del tavern_event_list, img
     elif global_flags.flag("tavern_status")[1] == "lively":
         python:
             for file in os.listdir(content_path("events/tavern_entry/lively/")):
@@ -55,6 +53,7 @@ label tavern_town:
             renpy.show("drunkards", what=img, at_list=[Position(ypos = .5, xpos = .5, yanchor = .5, xanchor = .5)])
             renpy.with_statement(dissolve)
             narrator ("The place is loud and lively today, with townsmen drinking and talking at every table.")
+            del tavern_event_list, img
     else:
         python:
             for file in os.listdir(content_path("events/tavern_entry/brawl/")):
@@ -66,6 +65,7 @@ label tavern_town:
             renpy.music.stop(channel="world")
             renpy.music.play("brawl.mp3",channel="world")
             narrator ("You step into the room... right into a fierce tavern brawl!")
+            del tavern_event_list, img
         menu:
             "Join it!":
                 jump city_tavern_brawl_fight
@@ -290,13 +290,11 @@ label city_tavern_shopping: # tavern shop with alcohol, available in all modes e
     python:
         focus = None
         item_price = 0
-        filter = "all"
         amount = 1
+        purchasing_dir = None
         shop = pytfall.tavern
-        shop.inventory.apply_filter(filter)
         char = hero
         char.inventory.set_page_size(18)
-        char.inventory.apply_filter(filter)
 
     show screen shopping(left_ref=hero, right_ref=shop)
     with dissolve
@@ -305,8 +303,10 @@ label city_tavern_shopping: # tavern shop with alcohol, available in all modes e
 
     $ global_flags.del_flag("keep_playing_music")
     hide screen shopping
-    hide npc
     with dissolve
+    hide npc
+
+    $ del shop, focus, item_price, amount, purchasing_dir
     jump city_tavern_menu
 
 screen tavern_inside():

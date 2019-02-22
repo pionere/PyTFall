@@ -21,7 +21,6 @@ label arena_inside:
         for scr in store.arena_scr_predict:
             renpy.start_predict_screen(scr)
 
-
     $ pytfall.world_quests.run_quests("auto")
     $ pytfall.world_events.run_events("auto")
     $ renpy.retain_after_load()
@@ -66,6 +65,7 @@ label arena_inside_end:
     python hide:
         for scr in store.arena_scr_predict:
             renpy.stop_predict_screen(scr)
+    $ del arena_img_predict, arena_scr_predict
 
     stop world fadeout 1.5
     hide screen arena_inside

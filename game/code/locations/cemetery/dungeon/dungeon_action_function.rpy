@@ -8,8 +8,8 @@ init python:
             mob = build_mob(id=mob_id, level=randint(min_lvl, min_lvl+10))
             enemy_team.add(mob)
 
-        place = "content/gfx/bg/be/b_dungeon_1.webp"
-        result = run_default_be(enemy_team, background=place,
+        result = run_default_be(enemy_team,
+                                background="content/gfx/bg/be/b_dungeon_1.webp",
                                 slaves=False, prebattle=False,
                                 death=True, use_items=True) # TODO: maybe make escape working here too?
 
@@ -19,9 +19,7 @@ init python:
             return
             # hero.say("Serves you right!")
         else:
-            # Hero is dead, right?
-            # Should just be the game over screen.
-            return
+            jump("game_over")
 
     def dungeon_grab_item(item, sound=None):
         if sound is not None:

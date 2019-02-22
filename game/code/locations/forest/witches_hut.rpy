@@ -38,51 +38,47 @@ label witch_menu:
 label witches_hut_shopping:
     $ gfx_overlay.notify(msg="Sweet!", tkwargs={"style": "interactions_text"})
     python:
-        witches_hut = ItemShop('Witches Hut', 18, ['Witches Hut'], sells=["amulet", "restore", "smallweapon"])
         focus = False
         item_price = 0
-        filter = "all"
         amount = 1
+        purchasing_dir = None
         shop = pytfall.witches_hut
-        shop.inventory.apply_filter(filter)
         char = hero
         char.inventory.set_page_size(18)
-        char.inventory.apply_filter(filter)
 
     show screen shopping(left_ref=hero, right_ref=shop)
-
     with dissolve
+
     call shop_control from _call_shop_control_8
 
     $ global_flags.del_flag("keep_playing_music")
     hide screen shopping
     with dissolve
     $ gfx_overlay.notify("Let me know if you need anything else.", tkwargs={"style": "interactions_text"}, duration=1.5)
+    $ del shop, focus, item_price, amount, purchasing_dir
     jump witch_menu
 
 label witches_hut_shopping_spells:
     $ gfx_overlay.notify(msg="Sweet!", tkwargs={"style": "interactions_text"})
     python:
-        witch_spells_shop = ItemShop("Witch Spells Shop", 18, ["Witch Spells Shop"], gold=5000, sells=["scroll"], sell_margin=.25, buy_margin=5.0)
         focus = False
         item_price = 0
-        filter = "all"
         amount = 1
+        purchasing_dir = None
         shop = pytfall.witch_spells_shop
-        shop.inventory.apply_filter(filter)
         char = hero
         char.inventory.set_page_size(18)
-        char.inventory.apply_filter(filter)
 
     show screen shopping(left_ref=hero, right_ref=shop)
     with dissolve
-    $ pytfall.world_events.run_events("auto")
+
     call shop_control from _call_shop_control_9
 
     $ global_flags.del_flag("keep_playing_music")
     hide screen shopping
     with dissolve
     $ gfx_overlay.notify("Let me know if you need anything else.", tkwargs={"style": "interactions_text"}, duration=1.5)
+    $ del shop, focus, item_price, amount, purchasing_dir
     jump witch_menu
 
 label witch_training:
@@ -129,6 +125,7 @@ label witch_training:
                     $ char = _return
             "Do Nothing":
                 $ loop = False
+    $ del loop
     jump witch_menu
 
 label witch_talking_menu:
@@ -141,8 +138,9 @@ label witch_talking_menu:
             "Nevermind":
                 $ loop = False
             "Leave the shop":
-                $ loop = False
+                $ del loop
                 jump forest_entrance
+    $ del loop
     jump witch_menu
 
 screen witch_shop():

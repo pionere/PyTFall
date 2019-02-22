@@ -157,6 +157,7 @@ label city_tavern_play_show_dice:
             else:
                 "You won!"
                 $ hero.add_money(city_tavern_current_dice_bet, reason="Tavern")
+        $ del city_tavern_current_dice_bet
         hide screen city_tavern_show_dices
         with dissolve
         jump city_tavern_menu
@@ -209,6 +210,7 @@ screen city_tavern_dicing(): # dice game controls menu
 
 label city_tavern_dices_give_up:
     $ hero.take_money(city_tavern_current_dice_bet, reason="Tavern")
+    $ del city_tavern_current_dice_bet
     hide screen city_tavern_dicing
     hide screen city_tavern_show_dices
     with dissolve

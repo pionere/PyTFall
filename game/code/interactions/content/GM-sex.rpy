@@ -626,6 +626,9 @@ label mc_action_scene_finish_sex:
         $ char.mod_stat("vitality", -randint(5, 10))
 
     $ gm.restore_img()
+
+    $ del sex_count, guy_count, girl_count, together_count, cum_count, mast_count, sex_prelude, max_sex_scene_libido, sex_scene_libido, scene_picked_by_character
+
     jump girl_interactions_end
 
 label interactions_lesbian_choice:

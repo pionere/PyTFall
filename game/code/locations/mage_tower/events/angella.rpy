@@ -46,26 +46,24 @@ label angelica_menu:
 label angelica_spells:
     a "Magic is knowledge and knowledge is power!"
     python:
-        angelica_shop = ItemShop("Angelica Shop", 18, ["Angelica Shop"], gold=5000, sells=["scroll"], sell_margin=1, buy_margin=5.0)
         focus = False
         item_price = 0
-        filter = "all"
         amount = 1
+        purchasing_dir = None
         shop = pytfall.angelica_shop
-        shop.inventory.apply_filter(filter)
         char = hero
         char.inventory.set_page_size(18)
-        char.inventory.apply_filter(filter)
 
     show screen shopping(left_ref=hero, right_ref=shop)
-
     with dissolve
+
     call shop_control from _call_shop_control_1
 
     $ global_flags.del_flag("keep_playing_music")
     hide screen shopping
     with dissolve
     a "Use your magic responsibly."
+    $ del shop, focus, item_price, amount, purchasing_dir
     jump angelica_menu
 
 label angelica_add_alignment:

@@ -174,18 +174,18 @@ label interactions_shopping:
                         focus = False
 
                 elif result[1] == 'return':
-                    focus = False
                     break
 
     hide screen tailor_store_shopping_girl
     with dissolve
 
+    if txt !='':
+        g "[txt]"
+
     python:
         pytfall.tailor_store.inventory.apply_filter('all')
         char.inventory.apply_filter('all')
-
-    if txt !='':
-        g "[txt]"
+        del txt, focus, purchasing_dir
 
     scene bg gallery
     with dissolve

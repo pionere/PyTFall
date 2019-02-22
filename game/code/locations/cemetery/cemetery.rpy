@@ -18,12 +18,9 @@ label graveyard_town:
             pytfall.world_actions.meet_girls()
             pytfall.world_actions.finish()
 
-    $ dungeon_access = day >= global_flags.get_flag("can_access_cemetery_dungeon", 0)
-
     scene bg graveyard_town
     with dissolve
     show screen graveyard_town
-    $ number = 0
 
     while 1:
         $ result = ui.interact()
@@ -32,7 +29,7 @@ label graveyard_town:
             $ gm.start_gm(result[1], img=result[1].show('girlmeets', type="first_default", label_cache=True, resize=(300, 400),
                         exclude=["swimsuit", "wildness", "beach", "pool", "urban", "stage", "onsen", "indoors", "indoor"]))
 
-        if result[0] == 'control':
+        elif result[0] == 'control':
             $ renpy.hide_screen("graveyard_town")
             if result[1] == 'return':
                 $ renpy.music.stop(channel="world")
@@ -43,12 +40,14 @@ label show_dead_list:
     $ dead_list = list(pytfall.afterlife.inhabitants) # list of dead characters
     if dead_list:
         $ random.shuffle(dead_list) # randomizing list every time the screen opens
+        $ number = 0
         show screen cemetry_list_of_dead_chars (dead_list, number)
         with dissolve
         while 1:
             $ result = ui.interact()
     else:
         "You look around, but all tombstones are old and worn out. Nothing interesting."
+        $ del dead_list
         jump graveyard_town
 
 label show_dead_list_without_shuffle:
@@ -160,7 +159,7 @@ screen graveyard_town():
             pos(1090, 180)
             idle (img_mausoleum)
             hover (im.MatrixColor(img_mausoleum, im.matrix.brightness(.15)))
-            if dungeon_access:
+            if day >= global_flags.get_flag("can_access_cemetery_dungeon", 0):
                 tooltip "Dungeon\nBeware all who enter here"
                 action [Hide("graveyard_town"), Jump("enter_dungeon")]
             else:

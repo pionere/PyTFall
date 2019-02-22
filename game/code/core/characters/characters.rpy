@@ -2130,7 +2130,7 @@ init -9 python:
             self._buildings = workable + habitable + rest
 
         def get_guild_businesses(self):
-            return [u for u in itertools.chain(b._businesses for b in self.buildings) if u.__class__ == ExplorationGuild]
+            return [u for b in self.buildings for u in b._businesses if u.__class__ == ExplorationGuild]
 
         def remove_building(self, building):
             if building in self._buildings:

@@ -204,13 +204,9 @@ label char_equip_loop:
                     eqsave = {0:False, 1:False, 2:False}
         elif result[0] == 'control':
             if result[1] == 'return':
-                python:
-                    if hasattr(store, "dummy"):
-                        del dummy
                 jump char_equip_finish
             else:
                 python:
-
                     focusitem = None
                     selectedslot = None
                     unequip_slot = None
@@ -237,26 +233,21 @@ label char_equip_finish:
 
     python:
         # Reset all globals so screens that lead here don't get thrown off:
-        focusitem = None
-        selectedslot = None
-        unequip_slot = None
-        item_direction = None
-        dummy = None
-        eqsave = None
-        equip_girls = None
+        del focusitem, selectedslot, unequip_slot, item_direction, dummy, eqsave, inv_source
+        equip_girls = None # FIXME delete the object when renpy is ready
         equipment_safe_mode = False
 
         # eqtarget.inventory.female_filter = False
         # hero.inventory.female_filter = False
         if eqtarget.location == pytfall.afterlife:
             renpy.show_screen("message_screen", "{} dies as a result of item manipulations...".format(eqtarget.fullname))
-            eqtarget = None
-            came_to_equip_from = None
+            eqtarget = came_to_equip_from = None # FIXME delete the object when renpy is ready
             jump("mainscreen")
 
         eqtarget = None
 
-    $ last_label, came_to_equip_from = came_to_equip_from, None
+    $ last_label = came_to_equip_from
+    $ eqtarget = came_to_equip_from = None # FIXME delete the object when renpy is ready
     jump expression last_label
 
 screen equip_for(pos=()):

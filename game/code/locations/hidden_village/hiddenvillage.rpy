@@ -18,6 +18,7 @@ label hiddenvillage_entrance:
         $ global_flags.set_flag('visited_hidden_village')
 
     scene bg hiddenvillage_entrance
+    with dissolve
     show screen hiddenvillage_entrance
 
     $ pytfall.world_quests.run_quests("auto")
@@ -30,12 +31,10 @@ label hiddenvillage_entrance:
         if result[0] == 'jump':
             $ gm.start_gm(result[1], img=result[1].show("girlmeets", "suburb", exclude=["beach", "winter", "night", "formal", "indoors", "swimsuit"], type="first_default", label_cache=True, resize=(300, 400), gm_mode=True))
 
-        if result[0] == 'control':
+        elif result == ['control', 'return']:
+            $ renpy.music.stop(channel="world")
             hide screen hiddenvillage_entrance
-            if result[1] == 'return':
-                $ renpy.music.stop(channel="world")
-                hide screen hiddenvillage_entrance
-                jump city
+            jump city
 
 
 screen hiddenvillage_entrance:
@@ -74,7 +73,6 @@ label hidden_village_shop: # ninja shop logic
     with dissolve
     show expression npcs["Ren_hidden_village"].get_vnsprite() as ren
     with dissolve
-    $ hidden_village_shop = ItemShop("Ninja Tools Shop", 18, ["Ninja Shop"], gold=1000, sells=["armor", "dagger", "fists", "rod", "claws", "sword", "bow", "amulet", "smallweapon", "restore", "dress"], sell_margin=.85, buy_margin=3.0)
     $ r = npcs["Ren_hidden_village"].say
 
     if global_flags.flag('hidden_village_shop_first_enter'):
@@ -92,21 +90,21 @@ label hidden_village_shop: # ninja shop logic
     python:
         focus = False
         item_price = 0
-        filter = "all"
         amount = 1
+        purchasing_dir = None
         shop = pytfall.hidden_village_shop
-        shop.inventory.apply_filter(filter)
         char = hero
         char.inventory.set_page_size(18)
-        char.inventory.apply_filter(filter)
 
     show screen shopping(left_ref=hero, right_ref=shop)
     with dissolve
-    $ pytfall.world_events.run_events("auto")
 
     call shop_control from _call_shop_control_5
 
     $ global_flags.del_flag("keep_playing_music")
     hide screen shopping
     with dissolve
+    hide ren
+
+    $ del shop, focus, item_price, amount, purchasing_dir
     jump hiddenvillage_entrance

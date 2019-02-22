@@ -393,7 +393,7 @@ init -1 python: # Core classes:
 
                 if not self.logical:
                     for c in self.get_fighters("all"):
-                         c.update_delayed()
+                        c.update_delayed()
 
                 self.combat_log.extend(self.delayed_log)
                 self.delayed_log = list()

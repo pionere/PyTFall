@@ -37,13 +37,6 @@ init -950 python:
     # to the conventions of the local OS
     gamedir = os.path.normpath(config.gamedir)
 
-    # Binding for easy access to major gfx folders.
-    gfxpath = "content/gfx/"
-    gfxframes = "content/gfx/frame/"
-    gfximages = "content/gfx/images/"
-    interfaceimages = "content/gfx/interface/images/"
-    interfacebuttons = "content/gfx/interface/buttons/"
-
     if persistent.use_quest_popups is None:
         persistent.use_quest_popups = True
     if persistent.tooltips is None:
@@ -370,6 +363,7 @@ init -950 python:
     # Backrounds are automatically registered in the game and set to width/height of the default screen
     # displayed by "show bg <filename>" or similar commands
     # file name without the extention
+    fname = tag = image = None
     for fname in os.listdir(gamedir + '/content/gfx/bg'):
         if check_image_extension(fname):
             tag = 'bg ' + fname.rsplit(".", 1)[0]
@@ -398,7 +392,16 @@ init -950 python:
             renpy.image(tag, im.Scale(image, config.screen_width,
                         config.screen_height))
 
+    for fname in os.listdir(gamedir + '/content/events/slave_club'):
+        if check_image_extension(fname):
+            tag = 'smc ' + fname[:-5]
+            image = 'content/events/slave_club/' + fname
+            renpy.image(tag, im.Scale(image, config.screen_width,
+                        config.screen_height))
+    del fname, tag, image
+
     # Dungeon:
+    light = blend = fname = orientations = ori = wall = bgfname = fn_end = bg_img = tag = fg_img = None
     for light in ('', '_torch'):
         # 4 sided symmetry (or symmetry ignored)
         for blend in ('bluegrey', 'door', 'barrel', 'mossy', 'pilar', 'more_barrels', 'barrel_crate',
@@ -428,6 +431,7 @@ init -950 python:
                             renpy.image(tag, im.Composite((1280,720), (0, 0), bg_img, (0, 0), fg_img))
                         else:
                             renpy.image(tag, bgfname[:-5])
+    del light, blend, fname, orientations, ori, wall, bgfname, fn_end, bg_img, tag, fg_img
 
     # Auto-Animations are last
     def load_frame_by_frame_animations_from_dir(folder):
@@ -506,11 +510,12 @@ init:
     default eq_target = None
     default the_chosen = None
     default equip_girls = None
-    default focus = None
+    #default focus = None
 
 init 999 python:
     # ensure that all initialization debug messages have been written to disk
     if DEBUG_LOG:
         devlogfile.flush()
+        del devlogfile
 
     tl.end("Ren'Py User Init!")

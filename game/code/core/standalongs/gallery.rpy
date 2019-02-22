@@ -7,7 +7,7 @@ label gallery:
 
     hide screen gallery
     with dissolve
-    $ gallery = None
+    $ del gallery
     jump char_profile
 
 screen gallery():

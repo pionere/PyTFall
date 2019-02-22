@@ -1,19 +1,4 @@
 init python:
-    # The dice value for gm scenes
-    gm_dice = 100
-
-    # The disposition multiplier for gm scenes
-    gm_disp_mult = 1
-
-    # Whether the gm scene was successful
-    gm_last_success = False
-
-    # List for possible about her text
-    gm_abouther_list = None
-
-    # The background for the date fight
-    gm_fight_bg = None
-
     # The job for the GT mode
     gm_job = None
 
@@ -292,6 +277,7 @@ label interactions_control:
                         if flag_value < item.cblock:
                             dismod = round_int(float(dismod)*(item.cblock-flag_value)/item.cblock)
                         else:
+                            del flag_name, flag_value, dismod, item
                             setattr(gm, "show_menu", True)
                             setattr(gm, "show_menu_givegift", False)
                             gm.jump("refusegift")
@@ -306,11 +292,15 @@ label interactions_control:
                         char.set_flag(flag_name, item.cblock+day-1)
                     else:
                         char.up_counter(flag_name, item.cblock)
+                    del flag_name, flag_value, item
                     if dismod <= 0:
+                        del dismod
                         gm.jump("badgift")
                     elif dismod <= 30:
+                        del dismod
                         gm.jump("goodgift")
                     else:
+                        del dismod
                         gm.jump("perfectgift")
         # Controls
         elif result[0] == "control":

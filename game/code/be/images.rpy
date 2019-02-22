@@ -137,11 +137,10 @@ init -1: # Images and Animations
     # filmstrip for spray simple attack:
     image simple_spray_attack = Transform(FilmStrip("content/gfx/be/filmstrips/spray.webp", (192, 192), (5, 8), .03, loop=False), zoom=1.2)
 
-    python:
+    python hide:
         for i in xrange(1, 6):
             renpy.image("melee_%d" % i, FilmStrip("content/gfx/be/filmstrips/melee_%d.webp" % i, (192, 192), (5, 2), .05, loop=False))
-    # Casting:
-    python:
+        # Casting:
         # be_dark_mask = Transform(Movie(channel="main_gfx_bow", play="content/gfx/autowebm/be_dark_mask inf main_gfx_bow/movie.webm", mask="content/gfx/autowebm/be_dark_mask inf main_gfx_bow/mask.webm"), zoom=1.2, alpha=.8)
         for i in ["cast_dark_2", "cast_light_2", "cast_water_2", "cast_air_2", "cast_fire_2", "cast_earth_2", "cast_electricity_2", "cast_ice_2"]:
             renpy.image(i, FilmStrip("content/gfx/be/filmstrips/%s.webp" % i, (192, 192), (5, 4), .07, loop=False))

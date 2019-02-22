@@ -17,7 +17,6 @@ label tailor_store:
         show expression npcs["Kayo_Sudou"].get_vnsprite() as npc
         with dissolve
         t "Welcome back, take a look at our latest arrivals!"
-
     else:
         $ global_flags.set_flag('visited_tailor_store')
 
@@ -43,22 +42,23 @@ label tailor_store_shopping:
     python:
         focus = False
         item_price = 0
-        filter = "all"
         amount = 1
+        purchasing_dir = None
         shop = pytfall.tailor_store
-        shop.inventory.apply_filter(filter)
         char = hero
         char.inventory.set_page_size(18)
-        char.inventory.apply_filter(filter)
 
     show screen shopping(left_ref=hero, right_ref=shop)
     with dissolve
+
     call shop_control from _call_shop_control_4
 
     $ global_flags.del_flag("keep_playing_music")
-
     hide screen shopping
     with dissolve
+    hide npc
+
+    $ del shop, focus, item_price, amount, purchasing_dir
     jump tailor_menu
 
 screen shopkeeper_items_upgrades(upgrades_list):
@@ -163,7 +163,7 @@ label tailor_special_order:
         $ upgrade_list = list(i for i in items_upgrades if i["location"] == "Tailor")
 
         $ result = renpy.call_screen("shopkeeper_items_upgrades", upgrade_list)
-        # t "[result]"
+        $ del upgrade_list
         if result == -1:
             t "If you want anything, please don't hesitate to tell me."
         else:

@@ -51,10 +51,7 @@ label interactions_giftmoney:
         if char.get_stat("disposition") >= 90:
             $ mod = round(mod/(char.get_stat("disposition")*.01))
         $ char.gfx_mod_stat("disposition", mod)
-        $ del a
-        $ del b
-        $ del mod
-        $ del money
+        $ del a, b, mod, money
     else:
         "You don't have that amount of gold."
         $ del money
@@ -97,31 +94,27 @@ label interactions_give_money:
     $ line = "You have " + str(hero.gold) + " gold. How much money do you want to give?"
     $ money = renpy.call_screen("digital_keyboard", line=line)
 
-    if money <= 0  or not money:
+    if money <= 0 or not money:
         "You changed your mind."
-        jump girl_interactions
-    if hero.take_money(money, reason="Exchange"):
+    elif hero.take_money(money, reason="Exchange"):
         $ char.add_money(money, reason="Exchange")
         "You gave her [money] Gold."
-        $ del money
     else:
         "You don't have that amount of gold."
+    $ del money
     jump girl_interactions
 
 label interactions_take_money:
     $ line = "She has " + str(char.gold) + " gold. How much money do you want to take?"
     $ money = renpy.call_screen("digital_keyboard", line=line)
-
     if not money:
         "You changed your mind."
-        jump girl_interactions
-
-    if char.take_money(money, reason="Exchange"):
+    elif char.take_money(money, reason="Exchange"):
         $ hero.add_money(money, reason="Exchange")
         "You took [money] Gold."
-        $ del money
     else:
         "She doesn't have that amount of gold."
+    $ del money
     jump girl_interactions
 
 label interactions_not_enough_gold:

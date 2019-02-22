@@ -42,22 +42,23 @@ label aine_menu_return:
 label aine_shop:
     a "Of course!"
     python:
-        aine_shop = ItemShop("Aine Shop", 18, ["Aine Shop"], gold=5000, sells=["scroll"], sell_margin=.25, buy_margin=5.0)
         focus = False
         item_price = 0
-        filter = "all"
         amount = 1
+        purchasing_dir = None
         shop = pytfall.aine_shop
-        shop.inventory.apply_filter(filter)
         char = hero
         char.inventory.set_page_size(18)
-        char.inventory.apply_filter(filter)
+
     show screen shopping(left_ref=hero, right_ref=shop)
     with dissolve
+
     call shop_control from _call_shop_control_10
+
     hide screen shopping
     with dissolve
     a " Come back with more gold!"
+    $ del shop, focus, item_price, amount, purchasing_dir
     jump aine_menu_return
 
 label aine_training:

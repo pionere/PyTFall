@@ -92,7 +92,7 @@ label mc_setup_end:
             temp = story.pop("traits", None)
             if temp:
                 if isinstance(temp, basestring):
-                     temp = [temp]
+                    temp = [temp]
                 for t in temp:
                     t = traits[t]
                     hero.apply_trait(t)

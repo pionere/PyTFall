@@ -351,7 +351,7 @@ screen building_management_midframe_exploration_guild_mode:
     elif bm_exploration_view_mode == "team":
         # Backgrounds:
         frame:
-            background Frame(gfxframes + "p_frame52.webp", 10, 10)
+            background Frame("content/gfx/frame/p_frame52.webp", 10, 10)
             xysize 622, 344
             yoffset -5
             xalign .5
@@ -363,7 +363,7 @@ screen building_management_midframe_exploration_guild_mode:
                         xysize 90, 90
                         xmargin 2
                         ymargin 2
-                        background Frame(gfxframes + "p_frame53.png", 5, 5)
+                        background Frame("content/gfx/frame/p_frame53.png", 5, 5)
             # Page control buttons:
             hbox:
                 style_prefix "paging_green"
@@ -398,7 +398,7 @@ screen building_management_midframe_exploration_guild_mode:
 
         # Downframe (for the teams and team paging)
         frame:
-            background Frame(gfxframes + "p_frame52.webp", 10, 10)
+            background Frame("content/gfx/frame/p_frame52.webp", 10, 10)
             xysize 700, 349
             ypos 331 xalign .5
 
@@ -479,7 +479,7 @@ screen building_management_midframe_exploration_guild_mode:
                     pos pos
                     frame:
                         xysize (208, 83)
-                        background gfxframes + "team_frame_4.png"
+                        background "content/gfx/frame/team_frame_4.png"
                         button:
                             background Frame("content/gfx/frame/namebox4.png")
                             padding 12, 4

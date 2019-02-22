@@ -200,12 +200,14 @@ label library_eleven_dialogue:
             e "{b}This unit and the city appreciate your services. Keep it up, [hero.name]. Here is your reward, [money] coins.{/b}"
             $ hero.remove_item("Rebels Leaflet", has_items("Rebels Leaflet", [hero]))
             $ hero.add_money(money, reason="Items")
+            $ del money
             jump eleven_menu
         "Sell old books" if has_items("Old Books", [hero]) and global_flags.flag('player_knows_about_eleven_jobs'):
             $ money = has_items("Old Books", [hero])*15
             e "{b}I appreciate your concern about the archive collection, [hero.name]. [money] coins should be sufficient.{/b}"
             $ hero.add_money(money, reason="Items")
             $ hero.remove_item("Old Books", has_items("Old Books", [hero]))
+            $ del money
             jump eleven_menu
         "Ask about him":
             e "{b}This unit was found and activated during excavations in Crossgate city among other units classified amount of time ago. It was eleventh, so it was called Eleven.{/b}"

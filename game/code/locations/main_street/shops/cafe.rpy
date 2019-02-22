@@ -11,7 +11,6 @@ label cafe:
     with dissolve
     $ pytfall.world_quests.run_quests("auto")
     $ pytfall.world_events.run_events("auto")
-    # show npc cafe_assistant
 
     if global_flags.flag("waitress_chosen_today") != day:
         $ cafe_waitress_who = npcs[(choice(["Mel_cafe", "Monica_cafe", "Chloe_cafe"]))]
@@ -19,7 +18,6 @@ label cafe:
 
     $ w = cafe_waitress_who.say
 
-    # $ renpy.show(cafe_waitress_who, at_list=[left])
     show expression cafe_waitress_who.get_vnsprite() as npc
     with dissolve
 
@@ -43,15 +41,15 @@ label cafe:
             if members:
                 inviting_character = random.choice(members)
                 interactions_eating_propose(inviting_character)
+            del members
 
     if inviting_character != hero:
         menu:
             "Do you want to accept her invitation (free of charge)?"
             "Yes":
-                $ del members
                 jump mc_action_cafe_invitation
             "No":
-                $ del members
+                $ pass
 
 label cafe_menu: # after she said her lines but before we show menu controls, to return here when needed
     scene bg cafe
@@ -64,13 +62,11 @@ label cafe_shopping:
     python:
         focus = None
         item_price = 0
-        filter = "all"
         amount = 1
+        purchasing_dir = None
         shop = pytfall.cafe
-        shop.inventory.apply_filter(filter)
         char = hero
         char.inventory.set_page_size(18)
-        char.inventory.apply_filter(filter)
 
     show screen shopping(left_ref=hero, right_ref=shop)
     with dissolve
@@ -80,6 +76,7 @@ label cafe_shopping:
     $ global_flags.del_flag("keep_playing_music")
     hide screen shopping
     with dissolve
+    $ del shop, focus, item_price, amount, purchasing_dir
     jump cafe_menu
 
 screen cafe_eating():
@@ -249,25 +246,25 @@ label mc_action_cafe_invitation: # we jump here when the group was invited by on
             if member != hero:
                 if member.status != "free":
                     if member.get_stat("disposition") < -50:
-                        money = randint(5, 10) # slaves with negative disposition will afraid to order too much, and also will have low bonuses
+                        result += randint(5, 10) # slaves with negative disposition will afraid to order too much, and also will have low bonuses
                     else:
-                        money = randint(20, 45)
+                        result += randint(20, 45)
                     if "Always Hungry" in member.traits:
-                        money += randint(5, 10)
+                        result += randint(5, 10)
                 else:
-                    money = randint(25, 50)
+                    result += randint(25, 50)
                     if "Always Hungry" in member.traits:
-                        money += randint(10, 20)
-                result += money
+                        result += randint(10, 20)
+        del member
 
     if inviting_character.take_money(result, reason="Cafe"):
-        $ n = renpy.random.randint(1, 9)
-        $ img = "content/gfx/images/food/cafe_mass_%d.webp" % n
+        $ img = renpy.random.randint(1, 9)
+        $ img = "content/gfx/images/food/cafe_mass_%d.webp" % img
         show expression img at truecenter with dissolve
         $ interactions_eating_line(hero.team)
         "You enjoy your meals together. Overall health and mood were improved."
         $ hero.set_flag("dnd_ate_in_cafe")
-        python:
+        python hide:
             for member in hero.team:
                 if member.status != "free" and member.get_stat("disposition") < -50:
                     d = .5
@@ -289,12 +286,7 @@ label mc_action_cafe_invitation: # we jump here when the group was invited by on
                         stat += randint(5, 10)
                     member.gfx_mod_stat("disposition", stat)
 
-        $ del result
-        $ del stat
-        $ del img
-        $ del n
         hide expression img with dissolve
-        jump cafe_menu
-    else:
-        $ del result
-        jump cafe_menu
+        $ del img
+    $ del result, inviting_character
+    jump cafe_menu

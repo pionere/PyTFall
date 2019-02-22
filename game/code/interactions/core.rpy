@@ -353,9 +353,6 @@ init -1 python:
             if not self.mode in self.USE_GI and renpy.music.get_playing(channel='world'):
                 global_flags.set_flag("keep_playing_music")
 
-            # Reset GM counters
-            store.gm_disp_mult = 1
-
             # Reset scene
             renpy.scene()
             renpy.hide_screen("girl_interactions")
@@ -397,9 +394,10 @@ init -1 python:
         locations_list = []
         if char.has_image("girlmeets", "beach"):
             locations_list.append("beach")
-        if char.has_image("girlmeets", "urban") or char.has_image("girlmeets", "suburb"):
+        if char.has_image("girlmeets", "urban"):
             locations_list.append("urban")
         if char.has_image("girlmeets", "suburb"):
+            locations_list.append("urban")
             locations_list.append("suburb")
         if char.has_image("girlmeets", "nature"):
             locations_list.append("nature")

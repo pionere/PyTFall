@@ -122,8 +122,8 @@ label next_day:
 
     $ next_day_local = None
 
-    if just_view_next_day: # Review old reports:
-        $ just_view_next_day = False
+    if getattr(store, "just_view_next_day", False): # Review old reports:
+        $ del just_view_next_day
     else: # Do the calculations:
         show screen next_day_calculations
         $ nd_turns = getattr(store, "nd_turns", 1)
@@ -131,7 +131,7 @@ label next_day:
             call next_day_calculations from _call_next_day_calculations
             call next_day_effects_check from _call_next_day_effects_check
             $ nd_turns -= 1
-        $ nd_turns = 1
+        $ del nd_turns
         # prepare the data to show to the player
         $ NextDayEvents.prepare_summary()
 
@@ -141,6 +141,7 @@ label next_day:
     $ nd_stats, nd_all_stats = NextDayEvents.get_nd_stats()
     # Setting index and picture
     $ FilteredList = NextDayEvents.event_list
+    $ event = gimg = None
     if FilteredList:
         $ event = FilteredList[0]
         $ gimg = event.load_image()
@@ -160,6 +161,7 @@ label next_day:
     if persistent.auto_saves:
         call special_auto_save from _call_special_auto_save
 
+    $ del FilteredList, nd_stats, nd_all_stats, gimg, event, next_day_local
     jump mainscreen
 
 label next_day_calculations:

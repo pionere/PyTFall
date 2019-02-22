@@ -188,10 +188,10 @@ screen quest_notifications(q, type, align=None, autohide=2.5):
 
     fixed:
         at slide(so1=(0, -600), eo1=(0, 40), t1=.4,
-                     so2=(0, 40), eo2=(0, -600), t2=.6)
+                 so2=(0, 40), eo2=(0, -600), t2=.6)
         # else:
             # at slide(so1=(0, -600), eo1=(0, 0), t1=1.0,
-                         # so2=(0, 0), eo2=(0, -600), t2=1.0)
+            #          so2=(0, 0), eo2=(0, -600), t2=1.0)
         if align:
             align align
         else:
@@ -210,7 +210,7 @@ screen quest_notifications(q, type, align=None, autohide=2.5):
                 hover "content/gfx/interface/buttons/close3_h.png"
                 action Hide("quest_notifications"), With(dissolve)
 
-        add ProportionalScale(interfaceimages + "quest.png", 170, 120) pos (100, 0)
+        add ProportionalScale("content/gfx/interface/images/quest.png", 170, 120) pos (100, 0)
         frame:
             pos 400, 140 xanchor 1.0
             xpadding 15

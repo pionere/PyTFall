@@ -46,11 +46,12 @@ label school_training:
                     for s in students:
                         s.action = job # toggle course
 
-        if result == ["control", "return"]:
+        elif result == ["control", "return"]:
             jump return_from_school_training
 
 label return_from_school_training:
     hide screen school_training
+    $ del school, students
 
     if the_chosen is None:
         jump char_profile

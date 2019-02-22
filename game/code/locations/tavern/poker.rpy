@@ -133,6 +133,7 @@ transform dice_roll_null(x):
 
 label city_tavern_poker_give_up:
     $ hero.take_money(city_tavern_current_dice_bet, reason="Tavern")
+    $ del city_tavern_current_dice_bet
     hide screen city_tavern_show_poker_dices
     hide screen city_tavern_show_poker_dices_controls
     with dissolve
@@ -173,6 +174,7 @@ label city_tavern_show_poker_shuffle:
             $ hero.add_money(city_tavern_current_dice_bet, reason="Tavern")
     else:
         $ narrator("It's a draw! You break even.")
+    $ del city_tavern_current_dice_bet
     hide screen city_tavern_show_poker_dices
     jump city_tavern_menu
 

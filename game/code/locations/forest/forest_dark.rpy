@@ -8,8 +8,7 @@ label forest_dark:
 
 label forest_dark_continue:
     if forest_bg_change:
-        $ background_number_list = list(i for i in range(1, 7) if i != background_number)
-        $ background_number = choice(background_number_list)
+        $ background_number = choice(list(i for i in range(1, 7) if i != background_number))
         $ forest_location = "content/gfx/bg/locations/forest_" + str(background_number) + ".webp"
     else:
         $ forest_bg_change = True
@@ -158,11 +157,6 @@ label city_dark_forest_hideout:
             jump forest_dark_continue
 
     call city_dark_forest_hideout_fight from _call_city_dark_forest_hideout_fight
-    if not (result is True):
-        $ be_hero_escaped(hero.team)
-        scene black
-        pause 1.0
-        jump forest_dark_continue
 
     $ N = randint(1, 3)
     $ j = 0
@@ -173,11 +167,6 @@ label city_dark_forest_hideout:
         "Another group is approaching you!"
 
         call city_dark_forest_hideout_fight from _call_city_dark_forest_hideout_fight_1
-        if not (result is True):
-            $ be_hero_escaped(hero.team)
-            scene black
-            pause 1.0
-            jump forest_dark_continue
 
         $ j += 1
 
@@ -212,8 +201,8 @@ label city_dark_forest_hideout_fight:
             mob = build_mob(id=mob_id, level=randint(min_lvl, min_lvl+20))
             enemy_team.add(mob)
 
-    $ place = interactions_pick_background_for_fight("forest")
-    $ result = run_default_be(enemy_team, background=place,
+    $ result = interactions_pick_background_for_fight("forest")
+    $ result = run_default_be(enemy_team, background=result,
                               slaves=True, prebattle=False,
                               death=False, give_up="escape",
                               use_items=True)
@@ -221,15 +210,23 @@ label city_dark_forest_hideout_fight:
         scene expression forest_location
         if persistent.battle_results:
             call screen give_exp_after_battle(hero.team, enemy_team)
-    elif result is False:
+        $ del result, enemy_team
+
+    elif result == "escaoe":
+        $ be_hero_escaped(hero.team)
+        $ del result, enemy_team
+        scene black
+        pause 1.0
+        jump forest_dark_continue
+    else:
         jump game_over
     return
 
 label city_dark_forest_fight:
     $ forest_bg_change = False
 
-    python:
-        enemy_team = Team(name="Enemy Team", max_size=3)
+    $ enemy_team = Team(name="Enemy Team", max_size=3)
+    python hide:
         mob = choice(["slime", "were", "harpy", "goblin", "wolf", "bear",
                       "druid", "rat", "undead", "butterfly"])
         et_len = min(len(hero.team) + 1, 3)
@@ -275,10 +272,10 @@ label city_dark_forest_fight:
             mob = build_mob(id=mob_id, level=randint(min_lvl, min_lvl+20))
             enemy_team.add(mob)
 
-    narrator "[msg]"
+        $ narrator(msg)
 
-    $ place = interactions_pick_background_for_fight("forest")
-    $ result = run_default_be(enemy_team, background=place,
+    $ result = interactions_pick_background_for_fight("forest")
+    $ result = run_default_be(enemy_team, background=result,
                               slaves=True, prebattle=False,
                               death=False, give_up="escape",
                               use_items=True)
@@ -290,14 +287,15 @@ label city_dark_forest_fight:
             call screen give_exp_after_battle(hero.team, enemy_team)
         $ give_to_mc_item_reward(["treasure", "scrolls", "consumables",
                                  "potions", "restore"])
-
+        $ del result, enemy_team
         jump forest_dark_continue
     elif result == "escape":
         $ be_hero_escaped(hero.team)
+        $ del result, enemy_team
         scene black
         pause 1.0
         jump forest_dark_continue
-    elif result is False:
+    else:
         jump game_over
 
 label dark_forest_girl_meet:

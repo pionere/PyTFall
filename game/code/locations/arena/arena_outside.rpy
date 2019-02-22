@@ -46,7 +46,6 @@ label arena_outside:
         # Texts: ---------------------------------------------------------->
         if not global_flags.flag("visited_arena"):
             $ global_flags.set_flag("visited_arena")
-            $ heard_about_arena = False
             'You see a pretty, confident girl approaching you.'
             show expression xeona_status.sprite as xeona
             with dissolve
@@ -144,9 +143,9 @@ label xeona_talking:
                 ax "However, those who are not at that level usually have some extra source of income, like guard duties or treasure hunting."
                 ax "Well, that about enough for you to form a general picture?"
                 ax "Are you going in?"
-                $ heard_about_arena = True
+                $ global_flags.set_flag("heard_about_arena")
 
-            "Buy the Arena Permit?" if not hero.arena_permit and heard_about_arena:
+            "Buy the Arena Permit?" if not hero.arena_permit and global_flags.flag("heard_about_arena"):
                 if hero.arena_rep >= 5000:
                     ax "It looks like you've managed to gain enough reputation. Congratulations!"
                     menu:
@@ -165,22 +164,22 @@ label xeona_talking:
                 else:
                     ax "With the amount of rep you have? No chance in hell!!!"
 
-            "What's an 'arena permit'?" if heard_about_arena and not hero.arena_permit:
+            "What's an 'arena permit'?" if not hero.arena_permit and global_flags.flag("heard_about_arena"):
                 ax "An arena permit is something you get to pay a lot of Gold for when you've managed to gain enough reputation."
                 ax "Then you can fight in official matches and take your place in the ladders."
                 ax "Seems simple enough, doesn't it?"
 
-            "How do I gain arena reputation?" if heard_about_arena:
+            "How do I gain arena reputation?" if global_flags.flag("heard_about_arena"):
                 ax "By fighting and winning obviously."
                 ax "Decent rep and some gold just might get you a permit so you could fight in the Arena matches one day."
                 ax "Good teammates are also easier to find if your rep is higher than theirs."
 
-            "Dogfights?" if heard_about_arena:
+            "Dogfights?" if global_flags.flag("heard_about_arena"):
                 ax "It's just the nickname that the arena crowd gave to unofficial matches."
                 ax "To take part in one does not require a permit, just yourself or a capable team."
                 ax "Spectators do enjoy watching a decent Dogfight as well, and you'll get paid so long as you deliver."
 
-            "Official matches and ladders?" if heard_about_arena:
+            "Official matches and ladders?" if global_flags.flag("heard_about_arena"):
                 ax "Oh, those are the real thing! If you win, you get to be on the official ladders of fame and glory!"
                 ax "All gladiators who seek recognition try to get on them. Few succeed."
                 ax "It's a great honor to be listed in any of the ladders. If you have the skills and tools required you should give it a go."
@@ -188,7 +187,7 @@ label xeona_talking:
                 ax "As you've probably figured out, you can lose your place in the ladder without actually losing a fight."
                 ax "But that's the incentive to keep fighting everyone, I suppose."
 
-            "How does team combat work?" if heard_about_arena:
+            "How does team combat work?" if global_flags.flag("heard_about_arena"):
                 ax "The team 'Leader' is what's really important."
                 ax "Each team has a leader. The leader decides who fights by their side. "
                 ax "There are {color=[red]}2vs2 and 3vs3{/color} fights."

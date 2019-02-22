@@ -83,6 +83,7 @@ label start:
         tiered_magic_skills = dict()
         for s in battle_skills.values():
             tiered_magic_skills.setdefault(s.tier, []).append(s)
+        del s
         tl.end("Loading: Battle Skills")
 
     $ hero = Player()
@@ -227,7 +228,8 @@ label dev_testing_menu_and_load_mc:
                 if ap:
                     hero.buildings.append(ap)
                     hero.home = ap
-                del ap
+                del ap, b
+            del af
 
     # Set Human trait for the MC: (We may want to customize this in the future)
     python:
@@ -283,35 +285,36 @@ label sort_items_for_gameplay:
         # Items sorting for AutoBuy:
         shop_items = [item for item in items.values() if (set(pytfall.shops) & set(item.locations))]
         all_auto_buy_items = [item for item in shop_items if item.usable and not item.jump_to_label]
+        del shop_items
 
-        trait_selections = {"goodtraits": {}, "badtraits": {}}
-        auto_buy_items = {k: [] for k in ("body", "restore", "food", "dress", "rest", "warrior", "scroll")}
+        #trait_selections = {"goodtraits": {}, "badtraits": {}}
+        #auto_buy_items = {k: [] for k in ("body", "restore", "food", "dress", "rest", "warrior", "scroll")}
 
-        for item in all_auto_buy_items:
-            for k in ("goodtraits", "badtraits"):
-                if hasattr(item, k):
-                    for t in getattr(item, k):
-                        # same item may occur multiple times for different traits.
-                        trait_selections[k].setdefault(t, []).append(item)
+        #for item in all_auto_buy_items:
+        #    for k in ("goodtraits", "badtraits"):
+        #        if hasattr(item, k):
+        #            for t in getattr(item, k):
+        #                # same item may occur multiple times for different traits.
+        #                trait_selections[k].setdefault(t, []).append(item)
 
-            if item.type != "permanent":
-                if item.type == "armor" or item.slot == "weapon":
-                    auto_buy_items["warrior"].append(item)
-                else:
-                    if item.slot == "body":
-                        auto_buy_items["body"].append(item)
-                    if item.type in ("restore", "food", "scroll", "dress"):
-                        auto_buy_items[item.type].append(item)
-                    else:
-                        auto_buy_items["rest"].append(item)
+        #    if item.type != "permanent":
+        #        if item.type == "armor" or item.slot == "weapon":
+        #            auto_buy_items["warrior"].append(item)
+        #        else:
+        #            if item.slot == "body":
+        #                auto_buy_items["body"].append(item)
+        #            if item.type in ("restore", "food", "scroll", "dress"):
+        #                auto_buy_items[item.type].append(item)
+        #            else:
+        #                auto_buy_items["rest"].append(item)
 
-        for k in trait_selections:
-            for v in trait_selections[k].values():
-                v = sorted(v, key=lambda i: i.price)
+        #for k in trait_selections:
+        #    for v in trait_selections[k].values():
+        #        v = sorted(v, key=lambda i: i.price)
 
-        for k in ("body", "restore", "food", "dress", "rest", "warrior", "scroll"):
-            auto_buy_items[k] = [(i.price, i) for i in auto_buy_items[k]]
-            auto_buy_items[k].sort()
+        #for k in ("body", "restore", "food", "dress", "rest", "warrior", "scroll"):
+        #    auto_buy_items[k] = [(i.price, i) for i in auto_buy_items[k]]
+        #    auto_buy_items[k].sort()
 
         # Items sorting per Tier:
         tiered_items = {}
@@ -338,6 +341,7 @@ label sort_traits_for_gameplay:
         for t in tgs.base:
             for occ in t.occupations:
                 gen_occ_basetraits[occ].add(t)
+        del t, occ
         gen_occ_basetraits = dict(gen_occ_basetraits)
     return
 
@@ -465,11 +469,10 @@ label after_load:
         # Arena Chars (We need this for databases it would seem...):
         load_special_arena_fighters()
 
-    python:
         if hasattr(store, "dummy"):
-            del dummy
+            del store.dummy
 
-    python hide: # Do we need/want this?
+        # Do we need/want this?
         for skill in store.battle_skills.values():
             skill.source = None
 
@@ -1184,6 +1187,53 @@ label after_load:
             else:
                 if not hasattr(d, "keysym"):
                     d.keysym = None
+
+        if hasattr(store, "gfxpath"):
+            del store.gfxpath
+        if hasattr(store, "gfxframes"):
+            del store.gfxframes
+        if hasattr(store, "gfximages"):
+            del store.gfximages
+        if hasattr(store, "interfaceimages"):
+            del store.interfaceimages
+        if hasattr(store, "interfacebuttons"):
+            del store.interfacebuttons
+        if hasattr(store, "ndresting"):
+            del store.ndresting
+        if hasattr(store, "nd_buildings"):
+            del store.nd_buildings
+        if hasattr(store, "ndactive"):
+            del store.ndactive
+        if hasattr(store, "ndevents"):
+            del store.ndevents
+        if hasattr(store, "hidden_village_shop"):
+            del store.hidden_village_shop
+        if hasattr(store, "witches_hut"):
+            del store.witches_hut
+        if hasattr(store, "witch_spells_shop"):
+            del store.witch_spells_shop
+        if hasattr(store, "angelica_shop"):
+            del store.angelica_shop
+        if hasattr(store, "aine_shop"):
+            del store.aine_shop
+        if hasattr(store, "peevish_shop"):
+            del store.peevish_shop
+        if hasattr(store, "filter"):
+            del store.filter
+        if hasattr(store, "background_number_list"):
+            del store.background_number_list
+        if hasattr(store, "gm_dice"):
+            del store.gm_dice
+        if hasattr(store, "gm_last_success"):
+            del store.gm_last_success
+        if hasattr(store, "gm_disp_mult"):
+            del store.gm_disp_mult
+        if hasattr(store, "gm_fight_bg"):
+            del store.gm_fight_bg
+        if hasattr(store, "heard_about_arena"):
+            if store.heard_about_arena:
+                global_flags.set_flag("heard_about_arena")
+            del store.heard_about_arena
 
     stop music
     return

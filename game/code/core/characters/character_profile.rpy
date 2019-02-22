@@ -78,8 +78,16 @@ label char_profile:
         $ result = ui.interact()
 
         if isinstance(result, (list, tuple)):
+            if result[0] == 'control':
+                if result[1] == 'left':
+                    $ change_char_in_profile("prev")
+                elif result[1] == 'right':
+                    $ change_char_in_profile("next")
+                elif result[1] == 'return':
+                    jump char_profile_end
+
             # If the girl has runaway
-            if char.location == pytfall.ra:
+            elif char.location == pytfall.ra:
                 if result[0] == "girl":
                     if result[1] == "gallery":
                         $ tl.start("Loading Gallery")
@@ -106,7 +114,7 @@ label char_profile:
                                 jump char_profile_end
                     else:
                         $ renpy.show_screen("message_screen", "This girl has run away!")
-                elif result[0] != "control":
+                else:
                     $ renpy.show_screen("message_screen", "This girl has run away!")
             # Else if you still have the girl
             else:
@@ -139,6 +147,7 @@ label char_profile:
                                              yes_action=Return(True),
                                              no_action=Return(False)):
 
+                            $ del message
                             if char.status == 'slave':
                                 python:
                                     hero.add_money(int(char.fin.get_price()*.8), reason="SlaveTrade")
@@ -167,27 +176,23 @@ label char_profile:
                                 $ change_char_in_profile("next")
                             else:
                                 jump char_profile_end
+                        else:
+                            $ del message
                 elif result[0] == "rename":
+                    $ n = None
                     if result[1] == "name":
                         $ n = renpy.call_screen("pyt_input", char.name, "Enter Name", 20)
                         if len(n):
                             $ char.name = n
-                    if result[1] == "nick":
+                    elif result[1] == "nick":
                         $ n = renpy.call_screen("pyt_input", char.nickname, "Enter Nick Name", 20)
                         if len(n):
                             $ char.nickname = n
-                    if result[1] == "full":
+                    elif result[1] == "full":
                         $ n = renpy.call_screen("pyt_input", char.fullname, "Enter Full Name", 20)
                         if len(n):
                             $ char.fullname = n
-
-            if result[0] == 'control':
-                if result[1] == 'left':
-                    $ change_char_in_profile("prev")
-                elif result[1] == 'right':
-                    $ change_char_in_profile("next")
-                elif result[1] == 'return':
-                    jump char_profile_end
+                    $ del n
 
 label char_profile_end:
     hide screen char_profile

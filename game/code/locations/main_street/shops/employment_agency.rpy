@@ -74,12 +74,21 @@ label employment_agency:
             $ char = result[1]
             $ cost = calc_hire_price_for_ea(char) # Two month of wages to hire.
             $ container = result[2]
+            $ block_say = True
             if hero.gold >= cost:
-                jump employment_agency_hire
+                menu:
+                    ea "The fee to hire [char.name] is [cost]! What do you say?"
+                    "Yes":
+                        $ renpy.play("content/sfx/sound/world/purchase_1.ogg")
+                        $ hero.take_money(cost, reason="Hiring Workers")
+                        $ hero.chars.append(char)
+                        $ container.remove(char)
+                    "No":
+                        "Would you like to pick someone else?"
             else:
-                $ block_say = True
                 ea "You look a bit light on the Gold [hero.name]..."
-                $ block_say = False
+            $ block_say = False
+            $ del cost, container
 
         if result[0] == 'control':
             if result[1] == 'return':
@@ -88,22 +97,9 @@ label employment_agency:
 label employment_agency_exit:
     $ renpy.music.stop(channel="world")
     hide screen employment_agency
+    with dissolve
+    hide charla
     jump main_street
-
-label employment_agency_hire:
-    $ block_say = True
-    menu:
-        ea "The fee to hire [char.name] is [cost]! What do you say?"
-        "Yes":
-            $ renpy.play("content/sfx/sound/world/purchase_1.ogg")
-            $ hero.take_money(cost, reason="Hiring Workers")
-            $ hero.chars.append(char)
-            $ container.remove(char)
-        "No":
-            "Would you like to pick someone else?"
-    $ block_say = False
-    jump employment_agency
-
 
 screen employment_agency():
     modal True

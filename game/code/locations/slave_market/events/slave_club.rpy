@@ -1,11 +1,4 @@
 init python:
-    for fname in os.listdir(gamedir + '/content/events/slave_club'):
-        if check_image_extension(fname):
-            tag = 'smc ' + fname[:-5]
-            image = 'content/events/slave_club/' + fname
-            renpy.image(tag, ProportionalScale(image, config.screen_width,
-                        config.screen_height))
-
     register_event("smc_1", locations=["slave_market_club"], priority=100,
                     start_day=5, dice=100, max_runs=1, trigger_type="auto")
 

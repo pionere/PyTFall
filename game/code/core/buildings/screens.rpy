@@ -47,25 +47,28 @@ label building_management:
                 $ bm_selected_exp_area = None
 
         elif result[0] == "fg_team":
-            python:
-                if result[1] == "rename":
-                    n = renpy.call_screen("pyt_input", result[2].name, "Enter Name", 20)
-                    if len(n):
-                        result[2].name = n
-                elif result[1] == "clear":
-                    for i in result[2]:
-                        workers.add(i)
-                    del result[2].members[:]
-                elif result[1] == "create":
+            python hide:
+                action = result[1]
+                if action == "create":
                     n = renpy.call_screen("pyt_input", "", "Enter Name", 20)
                     if len(n):
                         t = bm_mid_frame_mode.new_team(n)
                         guild_teams.add(t)
-                elif result[1] == "dissolve":
-                    for i in result[2]:
-                        workers.add(i)
-                    bm_mid_frame_mode.remove_team(result[2])
-                    guild_teams.remove(result[2])
+                else:
+                    team = result[2]
+                    if action == "rename":
+                        n = renpy.call_screen("pyt_input", team.name, "Enter Name", 20)
+                        if len(n):
+                            team.name = n
+                    elif action == "clear":
+                        for i in team:
+                            workers.add(i)
+                        del team.members[:]
+                    elif action == "dissolve":
+                        for i in team:
+                            workers.add(i)
+                        bm_mid_frame_mode.remove_team(team)
+                        guild_teams.remove(team)
         elif result[0] == "building":
             if result[1] == 'items_transfer':
                 python:
@@ -75,7 +78,7 @@ label building_management:
                 $ items_transfer(it_members)
                 show screen building_management
             elif result[1] == "sign":
-                python:
+                python hide:
                     ad = result[2]
 
                     if bm_building.flag('bought_sign'):
@@ -90,7 +93,7 @@ label building_management:
                     else:
                         renpy.show_screen("message_screen", "Not enough cash on hand!")
             elif result[1] == "celeb":
-                python:
+                python hide:
                     ad = result[2]
                     price = ad['price']
                     if hero.take_money(price, reason="Building Ads"):
@@ -352,7 +355,7 @@ init:
                                 frame:
                                     xysize 60, 60
                                     padding 5, 5
-                                    background Frame(gfxframes + "p_frame53.png", 5, 5)
+                                    background Frame("content/gfx/frame/p_frame53.png", 5, 5)
                                     $ img = w.show("portrait", resize=(50, 50), cache=True)
                                     imagebutton:
                                         idle img
@@ -406,7 +409,7 @@ init:
                             frame:
                                 xysize 60, 60
                                 padding 5, 5
-                                background Frame(gfxframes + "p_frame53.png", 5, 5)
+                                background Frame("content/gfx/frame/p_frame53.png", 5, 5)
                                 $ img = w.show("portrait", resize=(50, 50), cache=True)
                                 imagebutton:
                                     idle img
