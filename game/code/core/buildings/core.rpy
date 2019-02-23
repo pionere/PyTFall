@@ -791,7 +791,7 @@ init -10 python:
                     txt.append("\nA total of {} Gold was earned here today!".format(set_font_color(str(income), "lawngreen")))
                 elif income < 0:
                     txt.append("\nYou are losing money with this business! After the night your pockets are lighter with {} Gold".format(set_font_color(str(-income), "red")))
-                txt.append("{}".format(set_font_color("===================", "lawngreen")))
+                txt.append(set_font_color("===================", "lawngreen"))
 
                 # finish the business by resetting the variables
                 for c in self.all_clients:
@@ -913,8 +913,9 @@ init -10 python:
                 has_garden = False
 
             while (1):
-                temp = "\n{color=[green]}%d =========>>>{/color}" % (env.now)
-                self.log(temp)
+                if not env.now % 20:
+                    temp = "{color=[green]} =========>>>{/color}\n"
+                    self.log(temp, True)
                 yield env.timeout(1)
                 simpy_debug("%s DU Executing =====================>>>", env.now)
 
@@ -1022,8 +1023,7 @@ init -10 python:
             # Case where clients fav business was removed from the building, client to react appropriately.
             if not fav_business:
                 self.all_clients.remove(client)
-                temp = "{}: {} storms out of the building pissed off as his favorite business was removed!".format(
-                                        self.env.now, set_font_color(client.name, "beige"))
+                temp = "%s storms out of the building pissed off as %s favorite business was removed!" % (set_font_color(client.name, "beige"), client.pp)
                 self.log(temp)
                 self.env.exit()
             else:
@@ -1173,8 +1173,10 @@ init -10 python:
 
         def log(self, item, add_time=False):
             # Logs the item (text) to the Building log...
-            # if add_time and self.env:
-            #     item = "{}: ".format(self.env.now) + item
+            if add_time:
+                # try to create a timestamp between 18:00 and 23:00 assuming env.now is between 0 and 100
+                now = self.env.now
+                item = "%02d:%02d - %s" % (18+now/20,(now*3)%60, item)
             self.nd_events_report.append(item)
             if DSNBR:
                 devlog.info(item)

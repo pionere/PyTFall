@@ -45,16 +45,16 @@ init -5 python:
 
                 if threat >= 900:
                     if True: # Add a condition similar to auto-cleaning? Or should this be forced?
-                        temp = "{}: Police arrived at {}!".format(self.env.now, building.name)
+                        temp = "Police arrived at %s!" % building.name
                         price = 500*building.get_max_client_capacity()*(building.tier or 1)
                         if hero.take_money(price, "Police"):
-                            temp += " You paid {} in penalty fees for allowing things to get this out of hand.".format(price)
+                            temp += " You paid %d in penalty fees for allowing things to get this out of hand." % price
                         else:
                             price = int(price*1.25)
-                            temp += " You could not settle the due penalty fees. Now you have to pay {} as a property tax with interest.".format(price)
+                            temp += " You could not settle the due penalty fees. Now you have to pay %d as a property tax with interest." % price
                             hero.fin.property_tax_debt += price
                         temp += " The building's reputation also took a very serious hit!"
-                        self.log(temp)
+                        self.log(temp, True)
 
                         building.modrep(-(20*max(1, building.tier)))
                         building.threat = 0
@@ -71,9 +71,8 @@ init -5 python:
                         wlen = len(workers)
                         make_nd_report_at = min(self.env.now+25, 100)
                         if wlen:
-                            temp = "{}: {} Workers have started to guard {}!".format(self.env.now,
-                                      set_font_color(wlen, "red"), building.name)
-                            self.log(temp)
+                            temp = "%s Workers have started to guard %s!" % (set_font_color(wlen, "red"), building.name)
+                            self.log(temp, True)
 
                 # Actually handle threat cleared:
                 if make_nd_report_at and building.threat > 0:
@@ -97,10 +96,9 @@ init -5 python:
                             w.jobpoints -= 5
                             w.up_counter("jobs_points_spent", 5)
                             if w.jobpoints <= 0:
-                                temp = "{} is done guarding for the day!".format(
-                                                    w.nickname)
+                                temp = "%s is done guarding for the day!" % w.nickname
                                 temp = set_font_color(temp, "cadetblue")
-                                self.log(temp)
+                                self.log(temp, True)
                                 workers.remove(w)
 
                 if EnforcedOrder_active and self.env.now > 0 and not self.env.now % 50:
@@ -116,8 +114,8 @@ init -5 python:
                 c1 = defenders # No point in a report if no workers participated in the guarding.
                 if c0 and c1:
                     if DSNBR:
-                        temp = "{}: DEBUG! WRITING GUARDING REPORT! ({}, {})".format(self.env.now, c0, c1)
-                        self.log(temp)
+                        temp = "DEBUG! WRITING GUARDING REPORT! (%s, %s)" % (c0, c1)
+                        self.log(temp, True)
 
                     c0 = not make_nd_report_at % 25 # what is this? some kind of random?
                     if all([SparringQuarters_active, c0, threat < 500]):

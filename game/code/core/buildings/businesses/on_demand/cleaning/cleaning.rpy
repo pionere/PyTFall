@@ -42,8 +42,8 @@ init -5 python:
                     price = building.get_cleaning_price()
                     if hero.take_money(price, "Hired Cleaners"):
                         building.dirt = 0
-                        temp = "%s: %s Building was auto-cleaned!" % (self.env.now, building.name)
-                        self.log(temp)
+                        temp = "%s Building was auto-cleaned!" % building.name
+                        self.log(temp, True)
 
                 dirt = building.dirt
                 if dirt >= 200:
@@ -60,9 +60,8 @@ init -5 python:
                         wlen = len(workers)
                         make_nd_report_at = min(self.env.now+25, 100)
                         if wlen:
-                            temp = "{}: {} Workers have started to clean {}!".format(self.env.now,
-                                            set_font_color(wlen, wlen_color), building.name)
-                            self.log(temp)
+                            temp = "%s Workers have started to clean %s!" % (set_font_color(wlen, wlen_color), building.name)
+                            self.log(temp, True)
 
                 # Actually handle dirt cleaning:
                 if make_nd_report_at and building.dirt > 0:
@@ -87,10 +86,9 @@ init -5 python:
                             w.jobpoints -= 5
                             w.up_counter("jobs_points_spent", 5)
                             if w.jobpoints <= 0:
-                                temp = "{} is done cleaning for the day!".format(
-                                                w.nickname)
+                                temp = "%s is done cleaning for the day!" % w.nickname
                                 temp = set_font_color(temp, "cadetblue")
-                                self.log(temp)
+                                self.log(temp, True)
                                 workers.remove(w)
 
                 # Create actual report:
