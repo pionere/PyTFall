@@ -42,7 +42,6 @@ label realtor_agency:
             # yoffset -100
 
     $ market_buildings = sorted(set(buildings.values()) - set(hero.buildings), key=attrgetter("id"))
-    $ focus = None
 
     if not market_buildings:
         npcs["Rose_estate"].say "I'm sorry, we don't have anything for sale at the moment."
@@ -57,17 +56,15 @@ label realtor_agency:
                 $ renpy.play("content/sfx/sound/world/purchase_1.ogg")
                 $ hero.add_building(result[1])
                 $ market_buildings.remove(result[1])
-                $ focus = None
 
                 if hero.AP <= 0:
-                    $ Return(["control", "return"])()
+                    jump realtor_exit
             else:
                 if hero.AP <= 0:
                     $ renpy.call_screen('message_screen', "You don't have enough Action Points!")
                 else:
                     $ renpy.call_screen('message_screen', "You don't have enough Gold!")
-
-        if result[0] == 'control':
+        elif result[0] == 'control':
             if result[1] == 'return':
                 jump realtor_exit
 
@@ -77,13 +74,13 @@ label realtor_exit:
     with dissolve
     hide rose
 
-    $ del market_buildings, focus
+    $ del market_buildings
     jump main_street
 
 screen realtor_agency():
     modal True
     zorder 1
-
+    default focus = None
     if market_buildings:
         frame:
             style_group "content"
@@ -124,10 +121,10 @@ screen realtor_agency():
                                         imagebutton:
                                             idle (img)
                                             hover (im.MatrixColor(img, im.matrix.brightness(.25)))
-                                            action SetVariable("focus", building)
+                                            action SetScreenVariable("focus", building)
                 vbar value YScrollValue("brothelmarket_vp")
 
-    if focus:
+    if focus and focus in market_buildings:
         frame:
             style_group "content"
             background Frame("content/gfx/frame/p_frame53.png", 10, 10)

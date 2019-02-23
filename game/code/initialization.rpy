@@ -488,14 +488,6 @@ init:
     default DAILY_EXP_CORE = 20 # 1 lvl per 10 days give or take. This is a simple way to rebalance.
     default MAX_TIER = 10 # to limit the characters tier
     default block_say = False
-    default just_view_next_day = False
-    default gallery = None
-    default char = None
-    default char_profile_entry = None # Label to access chars profile from weird locations.
-    default came_to_equip_from = None # Girl equipment screen came from label holder
-    default eqtarget = None # Equipment screen
-    default girls = None
-    default bm_mid_frame_mode = None
     define PytPix = renpy.display.transition.Pixellate
     default last_label_pure = ""
 
@@ -504,13 +496,19 @@ init:
     $ renpyd = renpy.displayable
 
     # Or we crash due to an engine bug (going to MMS):
+    default char = None
+    default char_profile_entry = None # Label to access chars profile from weird locations.
+    default girls = None
+    default came_to_equip_from = None # Girl equipment screen came from label holder
+    default eqtarget = None # Equipment screen
+    default just_view_next_day = False
+    default bm_mid_frame_mode = None
     default bm_selected_exp_area = None
     default bm_exploration_view_mode = None
     default bm_selected_log_area = None
     default eq_target = None
     default the_chosen = None
     default equip_girls = None
-    #default focus = None
 
 init 999 python:
     # ensure that all initialization debug messages have been written to disk

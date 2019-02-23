@@ -122,8 +122,8 @@ label next_day:
 
     $ next_day_local = None
 
-    if getattr(store, "just_view_next_day", False): # Review old reports:
-        $ del just_view_next_day
+    if just_view_next_day: # Review old reports:
+        $ just_view_next_day = False
     else: # Do the calculations:
         show screen next_day_calculations
         $ nd_turns = getattr(store, "nd_turns", 1)

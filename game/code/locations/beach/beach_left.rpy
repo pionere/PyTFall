@@ -224,7 +224,7 @@ label fishing_logic_mor_quest_part:
     menu:
         "Yes":
             m "Awesome!"
-            $ advance_quest("Fishery", "Mor asked you to catch some [fish.id], about [num] should be sufficient.", to=1, clear_logs=True)
+            $ advance_quest("Fishery", "Mor asked you to catch some %s, about %s should be sufficient." % (fish.id, num), to=1, clear_logs=True)
             $ hero.set_flag("mor_fish_quest", (fish, num))
         "No":
             m "Your choice. You know where to find me."

@@ -147,7 +147,7 @@ screen school_training():
                                 xalign -1.0
                                 background None
                                 text ("[s.fullname]") color lawngreen hover_color red xalign .0
-                                action [Return(["toggle_student", s]), renpy.force_full_redraw]
+                                action Return(["toggle_student", s])
                                 tooltip "Remove %s from your group." % s.name
         else:
             $ selected_list = "courses"
