@@ -1039,25 +1039,32 @@ init -10 python:
                 else:
                     business = businesses.pop()
 
-                # Manager active effect:
-                # Wait for the business to open in case of a favorite:
-                if all((self.asks_clients_to_wait,
-                        self.manager_effectiveness and self._dnd_manager.jobpoints >= 1,
-                        (business == fav_business),
-                        (business.res.count >= business.capacity),
-                        self.env.now < 85)):
-                    wait_till = self.env.now + 5
-                    temp = "Your manager convinced {} to wait till {} for a slot in {} favorite {} to open up!".format(
-                                    set_font_color(client.name, "beige"), wait_till, client.op, fav_business.name)
+                if business.res.count >= business.capacity:
+                    # not enough capacity to handle the client 
+                    # Wait for the business to open in case of a favorite:
+                    if any((not self.asks_clients_to_wait,
+                            self.manager_effectiveness == 0 or self._dnd_manager.jobpoints == 0,
+                            business != fav_business,
+                            self.env.now > 85)):
+                        continue # no one can help -> skip
+                    
+                    # Manager active effect:
+                    temp = "Your manager convinced {} to wait a bit for a slot in {} favorite {} to open up!".format(
+                                    set_font_color(client.name, "beige"), client.pp, fav_business.name)
                     self.log(temp)
 
                     self._dnd_manager._dnd_mlog.append("\nAsked a client to wait for a spot in {} to open up!".format(fav_business.name))
-
                     self._dnd_manager.jobpoints -= 1
-                    while (wait_till >= self.env.now) and (business.res.count >= business.capacity):
-                        yield self.env.timeout(1)
 
-                if business.type == "personal_service" and business.res.count < business.capacity:
+                    # the actual waiting
+                    for i in range(5):
+                        yield self.env.timeout(1)
+                        if business.res.count < business.capacity:
+                            break # a free spot -> jump
+                    else:
+                        continue # timeout -> skip
+
+                if business.type == "personal_service":
                     # Personal Service (Brothel-like):
                     job = business.job
                     workers = business.get_workers(job, amount=1, match_to_client=client)
@@ -1072,27 +1079,22 @@ init -10 python:
 
                         # We bind the process to a flag and wait until it is interrupted:
                         visited += 1
-                        self.env.process(business.request_resource(client, worker))
-                        client.set_flag("jobs_busy")
-                        while client.flag("jobs_busy"):
-                            yield self.env.timeout(1)
-                # Jobs like the Club:
-                elif business.type == "public_service" and business.res.count < business.capacity:
-                    self.env.process(business.client_control(client))
+                        with self.res.request() as request:
+                            yield request
+                            yield self.env.process(business.request_resource(client, worker))
+                elif business.type == "public_service":
+                    # Jobs like the Club:
                     visited += 1
-                    client.set_flag("jobs_busy")
-                    while client.flag("jobs_busy"):
-                        yield self.env.timeout(1)
+                    with business.res.request() as request:
+                        yield request
+                        yield self.env.process(business.client_control(client))
 
             if not visited:
-                temp = "There is not much for the {} to do...".format(set_font_color(client.name, "beige"))
-                self.log(temp)
-                temp = "So {} leaves your establishment cursing...".format(set_font_color(client.name, "beige"))
-                self.log(temp)
-                self.env.exit()
+                temp = "There is not much for %s to do, so %s leaves your establishment cursing..." % (set_font_color(client.name, "beige"), client.p)
             else:
-                temp = '{} is leaving after visiting {} business(es).'.format(set_font_color(client.name, "beige"), visited)
-                self.log(temp)
+                temp = "%s is leaving after visiting %d %s." % (set_font_color(client.name, "beige"), visited, plural("business", visited))
+            self.log(temp, True)
+            self.env.exit()
 
         def nd_log_stats(self):
             # Get a list of stats, usually all 4.

@@ -1271,7 +1271,6 @@ screen next_day():
                         xysize (120, 40)
                         style "left_wood_button"
                         action Return(['control', 'left'])
-                        tooltip "<== View Previous Event"
                         text "Previous Event" style "wood_text" xalign(.6) size 10
                     frame:
                         align (.5, .5)
@@ -1282,7 +1281,6 @@ screen next_day():
                         xysize (120, 40)
                         style "right_wood_button"
                         action Return(['control', 'right'])
-                        tooltip "View Next Event ==>"
                         text "Next Event" style "wood_text" xalign .4 size 10
                 hbox:
                     align .5, .5
@@ -1305,7 +1303,7 @@ screen next_day():
 
                     textbutton "-Summary-":
                         style "main_screen_4_button"
-                        tooltip "Back to ND Summary!"
+                        tooltip "Back to the Summary!"
                         action SetScreenVariable("show_summary", True)
                         text_size 16
                         ypadding 5

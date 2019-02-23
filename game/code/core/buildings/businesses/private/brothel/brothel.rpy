@@ -10,42 +10,37 @@ init -5 python:
             """Requests a room from Sim'Py, under the current code,
                this will not be called if there are no rooms available...
             """
+            simpy_debug("Entering BrothelBlock.request_resource after-yield at %s (W:%s/C:%s)", self.env.now, worker.name, client.name)
 
-            with self.res.request() as request:
-                yield request
-                simpy_debug("Entering BrothelBlock.request_resource after-yield at %s (W:%s/C:%s)", self.env.now, worker.name, client.name)
+            # All is well and the client enters:
+            temp0 = "{} and {} enter the room.".format(
+                set_font_color(client.name, "beige"),
+                set_font_color(worker.name, "pink"))
+            temp1 = "{} and {} find a very private room for themselves.".format(
+                set_font_color(worker.name, "pink"),
+                set_font_color(client.name, "beige"))
+            self.log(choice([temp0, temp1]), True)
 
-                # All is well and the client enters:
-                temp0 = "{} and {} enter the room.".format(
-                    set_font_color(client.name, "beige"),
-                    set_font_color(worker.name, "pink"))
-                temp1 = "{} and {} find a very private room for themselves.".format(
-                    set_font_color(worker.name, "pink"),
-                    set_font_color(client.name, "beige"))
-                self.log(choice([temp0, temp1]))
+            # This line will make sure code halts here until run_job ran it's course...
+            yield self.env.timeout(self.time)
 
-                # This line will make sure code halts here until run_job ran it's course...
-                yield self.env.timeout(self.time)
+            result = self.run_job(client, worker)
 
-                result = self.run_job(client, worker)
-
-                if result >= 150:
-                    line = "The service was excellent!"
-                elif result >= 100:
-                    line = "The service was good!"
-                elif result >= 50:
-                    line = "The service was 'meh'."
-                else:
-                    line = "The service was shit."
-                temp = "{} 'did' {}... {}".format(
-                            set_font_color(worker.name, "pink"),
-                            set_font_color(client.name, "beige"),
-                            line)
-                self.log(temp, True)
-                temp = "{} leaves the {}.".format(set_font_color(client.name, "beige"), self.name)
-                self.log(temp, True)
-                # client.flag("jobs_busy").interrupt()
-            client.del_flag("jobs_busy")
+            if result >= 150:
+                line = "The service was excellent!"
+            elif result >= 100:
+                line = "The service was good!"
+            elif result >= 50:
+                line = "The service was 'meh'."
+            else:
+                line = "The service was shit."
+            temp = "{} 'did' {}... {}".format(
+                        set_font_color(worker.name, "pink"),
+                        set_font_color(client.name, "beige"),
+                        line)
+            self.log(temp, True)
+            temp = "{} leaves the {}.".format(set_font_color(client.name, "beige"), self.name)
+            self.log(temp, True)
 
             simpy_debug("Exiting BrothelBlock.request_resource after-yield at %s (W:%s/C:%s)", self.env.now, worker.name, client.name)
 

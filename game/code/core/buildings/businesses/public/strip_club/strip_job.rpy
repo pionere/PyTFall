@@ -32,7 +32,7 @@ init -5 python:
                 log = []
 
             effectiveness = 0
-             # effects always work
+            # effects always work
             if 'Food Poisoning' in worker.effects:
                 log.append("%s suffers from Food Poisoning, and is very far from her top shape." % worker.name)
                 effectiveness -= 50

@@ -156,8 +156,6 @@ init -5 python:
 
             for i in range(3):
                 worker.jobpoints -= jp_step
-                if worker.jobpoints < 0:
-                    worker.jobpoints = 0
 
                 value = round_int(health/3)
                 log.logws('health', value)
@@ -173,6 +171,9 @@ init -5 python:
 
                 if self.is_rested(worker):
                     break
+
+            if worker.jobpoints < 0:
+                worker.jobpoints = 0
 
         def is_rested(self, worker):
             c0 = worker.get_stat("vitality") >= worker.get_max("vitality")*.95

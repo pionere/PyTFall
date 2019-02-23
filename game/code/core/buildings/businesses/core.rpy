@@ -423,85 +423,79 @@ init -12 python:
             self.is_running = False # Active/Inactive.
 
         def client_control(self, client):
-            """Request for a spot for a client...
+            """Handles the client after a spot is reserved...
             We add dirt here.
             """
-            building = self.building
-            tier = building.tier or 1
+            tier = self.building.tier or 1
 
-            with self.res.request() as request:
-                yield request
+            self.clients_waiting.add(client)
+            temp = "{color=[beige]}%s{/color} enters the %s." % (client.name, self.name)
+            self.log(temp, True)
 
-                self.clients_waiting.add(client)
-                temp = "{color=[beige]}%s{/color} enters the %s." % (client.name, self.name)
-                self.log(temp, True)
+            dirt = 0
+            du_to_spend_here = self.time
+            du_spent_here = 0
+            client.du_without_service = 0
 
-                dirt = 0
-                #flag_name = "jobs_spent_in_{}".format(self.name)
-                du_to_spend_here = self.time
-                du_spent_here = 0
-                client.du_without_service = 0
+            while 1:
+                simpy_debug("Entering PublicBusiness(%s).client_control iteration at %s", self.name, self.env.now)
 
-                while 1:
-                    simpy_debug("Entering PublicBusiness(%s).client_control iteration at %s", self.name, self.env.now)
+                yield self.env.timeout(1) # wait to be served
+                if client in self.clients_waiting:
+                    simpy_debug("Client %s is waiting to be served.", client.name)
+                    du_spent_here += 1
+                    client.du_without_service += 1
+                else:
+                    client.du_without_service = 0
 
-                    yield self.env.timeout(1) # wait to be served
-                    if client in self.clients_waiting:
-                        simpy_debug("Client %s is waiting to be served.", client.name)
-                        du_spent_here += 1
-                        client.du_without_service += 1
+                    simpy_debug("Client %s is about to be served.", client.name)
+                    yield self.env.timeout(3)
+                    du_spent_here += 3
+                    #self.clients_being_served.remove(client)
+                    self.clients_waiting.add(client)
+                    dirt += 3
+
+                    # Tips:
+                    worker, effectiveness = client.served_by
+                    client.served_by = ()
+                    if effectiveness >= 150:
+                        tips = tier*randint(2, 3)
+                    elif effectiveness >= 100:
+                        tips = tier*randint(1, 2)
                     else:
-                        client.du_without_service = 0
+                        tips = 0
+                    if tips:
+                        for u in self.upgrades:
+                            if isinstance(u, TapBeer) and dice(75):
+                                tips += tier
+                        worker.up_counter("_jobs_tips", tips)
 
-                        simpy_debug("Client %s is about to be served.", client.name)
-                        yield self.env.timeout(3)
-                        du_spent_here += 3
-                        #self.clients_being_served.remove(client)
-                        self.clients_waiting.add(client)
-                        dirt += 3
+                    # And remove client from actively served clients by the worker:
+                    worker.serving_clients.discard(client)
 
-                        # Tips:
-                        worker, effectiveness = client.served_by
-                        client.served_by = ()
-                        if effectiveness >= 150:
-                            tips = tier*randint(2, 3)
-                        elif effectiveness >= 100:
-                            tips = tier*randint(1, 2)
-                        else:
-                            tips = 0
-                        if tips:
-                            for u in self.upgrades:
-                                if isinstance(u, TapBeer) and dice(75):
-                                    tips += tier
-                            worker.up_counter("_jobs_tips", tips)
+                if client.du_without_service >= 2:
+                    # We need a worker ASAP:
+                    self.send_in_worker = True
 
-                        # And remove client from actively served clients by the worker:
-                        worker.serving_clients.discard(client)
+                if du_spent_here >= du_to_spend_here:
+                    break
 
-                    if client.du_without_service >= 2:
-                        # We need a worker ASAP:
-                        self.send_in_worker = True
+                if client.du_without_service >= 5:
+                    temp = "{color=[beige]}%s{/color} spent too long waiting for service!" % client.name
+                    self.log(temp, True)
+                    break
 
-                    if du_spent_here >= du_to_spend_here:
-                        break
+            dirt = randint(0, dirt)
+            self.building.moddirt(dirt) # Move to business_control?)
 
-                    if client.du_without_service >= 5:
-                        temp = "{color=[beige]}%s{/color} spent too long waiting for service!" % client.name
-                        self.log(temp, True)
-                        break
+            temp = "{} exits the {} leaving {} dirt behind.".format(
+                                    set_font_color(client.name, "beige"), self.name, dirt)
+            self.log(temp, True)
 
-                dirt = randint(0, dirt)
-                building.moddirt(dirt) # Move to business_control?)
+            #self.clients_being_served.discard(client)
+            self.clients_waiting.discard(client)
 
-                temp = "{} exits the {} leaving {} dirt behind.".format(
-                                        set_font_color(client.name, "beige"), self.name, dirt)
-                self.log(temp, True)
-
-                #self.clients_being_served.discard(client)
-                self.clients_waiting.discard(client)
-                client.del_flag("jobs_busy")
-
-                simpy_debug("Exiting PublicBusiness(%s).client_control iteration at %s", self.name, self.env.now)
+            simpy_debug("Exiting PublicBusiness(%s).client_control iteration at %s", self.name, self.env.now)
 
         def add_worker(self, job):
             simpy_debug("Entering PublicBusiness(%s).add_worker at %s", self.name, self.env.now)
@@ -651,8 +645,8 @@ init -12 python:
 
                 earned = payout(job, effectiveness, difficulty, building,
                                 self, worker, clients_served, log)
-                temp = "{} earns {} by serving {} clients!".format(
-                                worker.name, earned, self.res.count)
+                temp = "%s earns %s by serving %d clients!" % (set_font_color(worker.name, "pink"),
+                                                               set_font_color("%d Gold" % earned, "gold"), len(clients_served))
                 self.log(temp, True)
 
                 # Create the job report and settle!
