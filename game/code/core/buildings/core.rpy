@@ -436,7 +436,7 @@ init -10 python:
                 self.normalize_jobs()
                 
                 for worker in self.all_workers:
-                    if worker.get_job() not in self.jobs:
+                    if worker.job not in self.jobs:
                         worker.set_job(None)
 
         def add_upgrade(self, upgrade, pay=False):
@@ -759,7 +759,7 @@ init -10 python:
                 
                 # All workers and workable businesses:
                 # This basically roots out Resting/None chars!
-                workers = [w for w in self.all_workers if w.is_available and w.action.__class__ not in [Rest, AutoRest, StudyingJob]]
+                workers = [w for w in self.all_workers if w.is_available and w.task is None]
                 for w in workers:
                     convert_ap_to_jp(w)
                     w.action.auto_equip(w)

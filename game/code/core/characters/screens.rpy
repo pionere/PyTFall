@@ -27,9 +27,8 @@ screen set_action_dropdown(char, pos=()):
                         Jump("school_training")]
                 tooltip "Change the training course to a different one."
             textbutton "Stop Course":
-                action [SetField(char, "action", char.action),
+                action [Function(char.set_task, None),
                         Hide("set_action_dropdown"), With(Dissolve(0.1))]
-                selected False
                 tooltip "Call your worker back from the Academy."
         elif char.action.__class__ in [Rest, AutoRest]:
             $ jobs = char.workplace.get_valid_jobs(char)
@@ -37,28 +36,31 @@ screen set_action_dropdown(char, pos=()):
                 textbutton "[i.id]":
                     action [Function(char.set_job, i),
                             Hide("set_action_dropdown"), With(Dissolve(0.1))]
-                    selected char.get_job() == i
+                    selected char.job == i
                     tooltip "Do [i.id] after rest."
             textbutton "None":
                 action [Function(char.set_job, None),
                         Hide("set_action_dropdown"), With(Dissolve(0.1))]
                 tooltip "Stop doing anything after rest."
             textbutton "Back To Work":
-                action [SetField(char, "action", char.action),
+                action [Function(char.set_task, None),
                         Hide("set_action_dropdown"), With(Dissolve(0.1))]
-                selected False
-                tooltip "Call your worker back from resting."            
+                tooltip "Call your worker back from resting."
         elif isinstance(char.workplace, Building):
             $ jobs = char.workplace.get_valid_jobs(char)
-            if char != hero: # Rest is not really useful for MC, which player controls.
-                $ jobs.append(simple_jobs["Rest"])
             for i in jobs:
                 textbutton "[i.id]":
-                    action [SetField(char, "action", i),
+                    action [Function(char.set_job, i),
                             Hide("set_action_dropdown"), With(Dissolve(0.1))]
+                    selected char.job == i
                     tooltip i.desc
+            if char != hero: # Rest is not really useful for MC, which player controls.
+                textbutton "Rest":
+                    action [Function(char.set_task, simple_jobs["Rest"]),
+                            Hide("set_action_dropdown"), With(Dissolve(0.1))]
+                    tooltip "To prevent overworking..."
             textbutton "None":
-                action [SetField(char, "action", None),
+                action [Function(char.set_job, None),
                         Hide("set_action_dropdown"), With(Dissolve(0.1))]
                 tooltip "In case you are in a great need of a slacker..."
 

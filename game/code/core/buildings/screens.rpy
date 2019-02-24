@@ -111,7 +111,7 @@ label building_management:
                         if hero.home == bm_building:
                             hero.home = pytfall.streets
                         if hero.workplace == bm_building:
-                            hero.set_workplace(None, None)
+                            hero.reset_workplace_action()
 
                         retire_chars_from_building(hero.chars, bm_building)
 
@@ -311,7 +311,7 @@ init:
         # Manager?
         if getattr(bm_building, "needs_manager", False):
             $ managers = simple_jobs["Manager"]
-            $ managers = [w for w in bm_building.all_workers if w.get_job() == managers]
+            $ managers = [w for w in bm_building.all_workers if w.job == managers]
             vbox:
                 xalign .5
                 $ temp = ("Current manager" if len(managers) == 1 else "Managers") if managers else "No manager" 
@@ -388,7 +388,7 @@ init:
                 label str(bm_mid_frame_mode.name) text_size 18 text_color ivory align .5, .6
 
             if isinstance(bm_mid_frame_mode, Business) and hasattr(bm_building, "all_workers"):
-                $ workers = [w for w in bm_building.all_workers if w.get_job() in bm_mid_frame_mode.jobs]
+                $ workers = [w for w in bm_building.all_workers if w.job in bm_mid_frame_mode.jobs]
                 if workers:
                     $ workers.sort(key=attrgetter("level"), reverse=True)
                     hbox:

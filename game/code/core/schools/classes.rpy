@@ -101,7 +101,7 @@ init python:
                     temp = "You've covered a fee of {color=[gold]}%s Gold{/color}!" % self.price
                     txt.append(temp)
                 else:
-                    char.action = simple_jobs["Study"] # toggle action
+                    char.set_task(None)
                     temp = "\nYou failed to cover the fee of {color=[gold]}%d Gold{/color}!" % self.price
                     temp += " The student has been kicked from the class!"
                     txt.append(temp)
@@ -195,7 +195,7 @@ init python:
 
                 if self.days_remaining <= 0:
                     txt.append("This Course has ended, all students have been sent back home.")
-                    char.action = simple_jobs["Study"] # toggle action
+                    char.set_task(None)
                     school.students_dismissed += 1
 
                 self.build_nd_report(char, charmod=charmod,

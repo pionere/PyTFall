@@ -54,19 +54,21 @@ init -9 python:
             self.jobpoints = 0
 
             # Locations and actions, most are properties with setters and getters.
-            #                    Home        Workplace        Action        Location 
-            #    -    "fighter"  city            -               -             -  
-            #   char   "free"    city            -               -         [loc/jail]
-            #   char   "slave"    sm             -               -          [ra/jail]
-            # hero:            b/streets         b               j           [jail]  
-            #   char - "free"   b/city        b/school           j           [jail]  
-            #   char - "slave" b/streets      b/school           j          [ra/jail]
+            #                    Home        Workplace         Job  Action  Task        Location 
+            #    -    "fighter"  city            -               -            -             -    
+            #   char   "free"    city            -               -            -        [loc/jail]
+            #   char   "slave"    sm             -               -            -         [ra/jail]
+            # hero:            b/streets         b               j            -          [jail]  
+            #   char - "free"   b/city           b               j       [r/ar/s/x]      [jail]  
+            #   char - "slave" b/streets         b               j       [r/ar/s/x]     [ra/jail]
             #                                                                        
             #      *loc: a place in the city      *b: building      *ra: runaway     
-            self.location = None # Present Location.
-            self._workplace = None  # Place of work.
-            self._home = None # Living location.
-            self._action = None
+            #      *r: rest    *ar: auto rest    *s: study    *x: exploration
+            self.location = None   # Present Location.
+            self._workplace = None # Place of work.
+            self._home = None      # Living location.
+            self._job = None       # Permanent job to work in a building
+            self._task = None      # Temporary task (Rest/Study/Exploration)
 
             # Traits:
             self.upkeep = 0 # Required for some traits...
@@ -160,9 +162,6 @@ init -9 python:
             self.attack_skills = SmartTracker(self)  # Attack Skills
             self.magic_skills = SmartTracker(self)  # Magic Skills
             self.default_attack_skill = battle_skills["Fist Attack"] # This can be overwritten on character creation!
-
-            # Action tracking (AutoRest job for instance):
-            self.previousaction = None
 
             self.clear_img_cache()
 
@@ -279,98 +278,44 @@ init -9 python:
 
         @property
         def action(self):
-            return self._action
-        @action.setter
-        def action(self, value):
-            # Special handling for Tasks
-            if value.__class__ in [Rest, AutoRest]:
-                if self._action == value:
-                    # Toggle *Rest
-                    self._action = self.previousaction
-                    self.previousaction = None
-                elif self._action.__class__ == AutoRest:
-                    # AutoRest -> Rest
-                    self._action = value
-                elif self._action.__class__ == StudyingJob:
-                    # Study -> Rest
-                    pytfall.school.remove_student(self)
-                    self._action = value
-                else:
-                    # *Action -> Rest
-                    self.previousaction = self._action
-                    self._action = value
-                return
-            if value.__class__ == StudyingJob:
-                if self._action == value:
-                    # Toggle Study
-                    pytfall.school.remove_student(self)
-                    
-                    self._action = self.previousaction
-                    self.previousaction = None
-                elif self._action.__class__ in [Rest, AutoRest]:
-                    # *Rest -> Study
-                    self._action = value
-                else:
-                    # *Action -> Study
-                    self.previousaction = self._action
-                    self._action = value
-                return
+            return self._task if self._task is not None else self._job
 
-            # Find out the real action
-            curr_action = self._action
-            if curr_action.__class__ in [Rest, AutoRest]:
-                curr_action = self.previousaction
-                self.previousaction = None
-            elif curr_action.__class__ == StudyingJob:
-                # remove student from the active course
-                pytfall.school.remove_student(self)
+        @property
+        def job(self):
+            return self._job
 
-                curr_action = self.previousaction
-                self.previousaction = None
-
-            self._action = value
-
-        def get_job(self):
-            if self.previousaction is None:
-                return self._action
-            else:
-                return self.previousaction
-            
         def set_job(self, job):
-            if self.previousaction is None:
-                self.action = job
-            else:
-                act = self._action
-                self.action = job
-                self.action = act
-                
+            self._job = job
+
+        @property
+        def task(self):
+            return self._task
+
+        def set_task(self, task, *args):
+            if self._task.__class__ == StudyingJob:
+                pytfall.school.remove_student(self)
+            self._task = task
+            if task.__class__ == StudyingJob:
+                pytfall.school.add_student(self, args[0])
+
         @property
         def workplace(self):
             return self._workplace
-        def set_workplace(self, value, action):
-            wp = self._workplace
-            if wp == value:
-                if self._action != action:
-                    self.action = action
-                return
+        def reset_workplace_action(self):
+            # reset task and job
+            self.set_task(None)
+            self._job = None
 
-            self.action = None
+            wp = self._workplace
             if isinstance(wp, Building):
                 wp.all_workers.remove(self)
-            self._workplace = value
-            if isinstance(value, Building):
-                value.all_workers.append(self)
-            if action is not None:
-                self.action = action
+            self._workplace = None
         def mod_workplace(self, value):
             wp = self._workplace
             if wp == value:
                 return
-            job = self.get_job()
-            if all((job is not None,
-                   job.__class__ not in [StudyingJob, Rest, AutoRest],
-                   job not in getattr(value, "jobs", ()))):
-                self.set_job(None)
+            if self._job not in getattr(value, "jobs", []):
+                self._job = None
             if isinstance(wp, Building):
                 wp.all_workers.remove(self)
             self._workplace = value
@@ -2279,7 +2224,7 @@ init -9 python:
                         price = confiscate.fin.get_price()
                         hero.remove_char(confiscate)
                         confiscate.home = pytfall.sm
-                        confiscate.set_workplace(None, None)
+                        confiscate.reset_workplace_action()
 
                     temp = choice(["\n{} has been confiscated for a price of {}% of the original value. ".format(
                                                                                     confiscate.name, multiplier*100),
@@ -2610,7 +2555,7 @@ init -9 python:
             elif self.action.__class__ == ExplorationJob:
                 if self.has_flag("dnd_back_from_track"):
                     txt.append("{color=[green]}%s arrived back from the exploration run!{/color}" % self.fullname)
-                    self.action = None
+                    self.set_task(None)
                     flag_red = self.nd_sleep(txt)
                 else:
                     txt.append("{color=[green]}%s is currently on the exploration run!{/color}" % self.fullname)
@@ -2788,7 +2733,7 @@ init -9 python:
                 flag_red = True
                 hero.remove_char(self)
                 self.home = pytfall.city
-                self.set_workplace(None, None)
+                self.reset_workplace_action()
                 set_location(self, None)
             elif self.get_stat("disposition") < -500:
                 if self.status != "slave":
@@ -2797,7 +2742,7 @@ init -9 python:
                     mood = "sad"
                     hero.remove_char(self)
                     self.home = pytfall.city
-                    self.set_workplace(None, None)
+                    self.reset_workplace_action()
                     set_location(self, None)
                 elif self.days_unhappy > 7:
                     mood = "sad"

@@ -101,7 +101,7 @@ label char_profile:
                                 girls.remove(char)
                                 char.mod_stat("disposition", -400)
 
-                                char.set_workplace(None, None)
+                                char.reset_workplace_action()
                                 if char.status == "slave":
                                     char.home = pytfall.sm
                                 else:
@@ -167,7 +167,7 @@ label char_profile:
                                     char.home = pytfall.city
 
                             python:
-                                char.set_workplace(None, None)
+                                char.reset_workplace_action()
                                 set_location(char, None)
                                 hero.remove_char(char)
                                 girls.remove(char)

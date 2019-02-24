@@ -36,19 +36,15 @@ label school_training:
 
                         curr_course = school.get_course(s)
                         if curr_course != course:
-                            if s.action != job:
-                                s.action = job
-                            else:
-                                school.remove_student(s)
-                            school.add_student(s, course)
+                            s.set_task(job, course)
                 else:
                     # remove students from the course
                     for s in students:
-                        s.action = job # toggle course
+                        s.set_task(None)
         elif result[0] == "stop_student":
             python hide:
                 s = result[1]
-                s.action = s.action # toggle course
+                s.set_task(None)
         elif result[0] == "toggle_student":
             python hide:
                 s = result[1]

@@ -186,8 +186,8 @@ init -8 python:
         def __init__(self, chars):
             remedy = {
                 ".eqslots{}": self._ordered_on_abundance, ".equip_for()": self._list_for_caller, ".home": ".home",
-                ".status": "various", ".location": "various", ".workplace": "various", ".action": "Several jobs", ".disposition": min,
-                ".autobuy": [], ".front_row": [], ".autoequip": [], ".get_job()": "Several jobs",
+                ".status": "various", ".location": "various", ".workplace": "various", ".action": "Several actions", ".disposition": min,
+                ".autobuy": [], ".front_row": [], ".autoequip": [], ".job": "Several jobs",
                 ".autocontrol{}": [], ".sex_acts{}": [], ".miscblock": [],
                 ".flag()": False, ".has_flag()": False,
                 ".allowed_to_define_autobuy": False, ".allowed_to_define_autoequip": False,
@@ -219,14 +219,6 @@ init -8 python:
 
         def __len__(self):
             return len(self.lst)
-
-        @property
-        def action(self):
-            return self._defer(arr=[c.action for c in self.lst], at=".action")
-        @action.setter
-        def name(self, v):
-            for c in self.lst:
-                c.action = v
 
         @property
         def gen_occs(self):

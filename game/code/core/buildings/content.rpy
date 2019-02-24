@@ -64,7 +64,7 @@ init -9 python:
 
             renpy.play("content/sfx/sound/world/purchase_1.ogg")
             hero.add_char(char)
-            char.set_workplace(None, None)
+            char.reset_workplace_action()
             char.home = pytfall.streets
             set_location(char, None)
             self.chars_list.remove(char)
@@ -107,7 +107,7 @@ init -9 python:
                     trainee.append(slave)
             for slave in trained:
                 hero.add_char(slave)
-                slave.set_workplace(None, None)
+                slave.reset_workplace_action()
                 slave.home = pytfall.streets
                 set_location(slave, None)
                 # pytfall.temp_text.append("Blue has finished training %s! The slave has been delivered to you!" % chars[g].name)
@@ -226,6 +226,7 @@ init -9 python:
             #self.cell_index = [0,]
 
             if char in hero.chars:
+                char.set_task(None)
                 for team in hero.teams:
                     if char in team:
                         team.remove(char)
@@ -268,7 +269,7 @@ init -9 python:
             if char not in hero.chars:
                 hero.add_char(char)
                 char.home = pytfall.streets
-                char.set_workplace(None, None)
+                char.reset_workplace_action()
             set_location(char, None)
 
         def sell_captured(self, char):
@@ -379,7 +380,7 @@ init -9 python:
                     set_location(char, None)
                     if char in hero.chars:
                         hero.remove_char(char)
-                        char.set_workplace(None, None)
+                        char.reset_workplace_action()
                         # FIXME notify the player
                     # pytfall.temp_text.append("Jail keepers sold off: {color=[red]}%s{/color}!" % char.name)
                 self.slaves = prisoners
@@ -855,7 +856,7 @@ init -9 python:
                         hero.remove_char(girl)
                         char.home = pytfall.city
                         set_location(char, None)
-                        char.set_workplace(None, None)
+                        char.reset_workplace_action()
                         char.status = "free"
                         if cdb: txt.append("{color=[blue]}        escaped for good{/color}")
                         continue

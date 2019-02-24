@@ -145,7 +145,7 @@ init -6 python: # Guild, Tracker and Log.
             difficulty = self.area.tier*(1 + .001*self.risk)
             for char in self.team:
                 # Set their exploration capabilities as temp flag
-                ability += char.action.effectiveness(char, difficulty, log=None, return_ratio=False)
+                ability += char.task.effectiveness(char, difficulty, log=None, return_ratio=False)
             return ability
 
         def log(self, txt, name="", nd_log=True, ui_log=False, **kwargs):
@@ -199,7 +199,7 @@ init -6 python: # Guild, Tracker and Log.
             # Restore Chars and Remove from guild:
             self.guild.explorers.remove(self)
             for char in self.team:
-                char.set_flag("dnd_back_from_track", True)
+                char.set_flag("dnd_back_from_track")
 
             # Next Day Stuff:
             # Not sure if this is required... we can add log objects and build
@@ -337,7 +337,7 @@ init -6 python: # Guild, Tracker and Log.
             # Setup Explorers:
             for char in team:
                 # We effectively remove char from the game so this is prolly ok.
-                char.action = simple_jobs["Exploring"]
+                char.set_task(simple_jobs["Exploring"])
                 for t in hero.teams:
                     if char in t:
                         t.remove(char)
@@ -556,13 +556,13 @@ init -6 python: # Guild, Tracker and Log.
                     random.shuffle(invlist)
                     for explorer in team:
                         l = list()
-                        if explorer.health <= explorer.get_max("health")*.8:
+                        if explorer.get_stat("health") <= explorer.get_max("health")*.8:
                             for inv in invlist:
                                 l.extend(explorer.auto_equip(["health"], inv=inv))
                         if explorer.get_stat("vitality") <= explorer.get_max("vitality")*.8:
                             for inv in invlist:
                                 l.extend(explorer.auto_equip(["vitality"], inv=inv))
-                        if explorer.mp <= explorer.get_max("mp")*.8:
+                        if explorer.get_stat("mp") <= explorer.get_max("mp")*.8:
                             for inv in invlist:
                                 l.extend(explorer.auto_equip(["mp"], inv=inv))
                         if l:

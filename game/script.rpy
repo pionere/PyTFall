@@ -949,8 +949,6 @@ label after_load:
                         flag = flag.replace("_day_countdown", "cnd_item")
                         char.flags.set_flag(flag, day+v-1)
 
-                if not char.previousaction:
-                    char.previousaction = None
                 if isinstance(char.workplace, Building) and char not in char.workplace.all_workers:
                     char.workplace.all_workers.append(char)
                 if char.controller == "player":
@@ -959,8 +957,25 @@ label after_load:
                     char.arena_rep = char._arena_rep
                 if hasattr(char, "_location"):
                     char.location = char._location
-                if char.action == "Arena Combat":
-                    char.action = None
+                if hasattr(char, "_action"):
+                    action = char._action
+                    if action == "Arena Combat":
+                        action = None
+                    elif getattr(action, "id", None) == "Manager":
+                        action = simple_jobs["Manager"]
+                    prev_action = char.previousaction
+                    if not prev_action:
+                        prev_action = None
+                    elif getattr(prev_action, "id", None) == "Manager":
+                        prev_action = simple_jobs["Manager"]
+                    if action.__class__ in [AutoRest, Rest, ExplorationJob, SchoolCourse]:
+                        char._job = prev_action
+                        char._task = action
+                    else:
+                        char._job = action
+                        char._task = None
+                    del char._action
+                    del char.previousaction
                 if char.location == pytfall.arena:
                     char.location = None
                     char.arena_active = True
@@ -1004,8 +1019,6 @@ label after_load:
                     del char._available
                 if hasattr(char, "alive"):
                     del char.alive
-                if getattr(char._action, "id", None) == "Manager":
-                    char._action = simple_jobs["Manager"]
 
             #for girl in itertools.chain(jail.chars_list, pytfall.ra.girls.keys()):
             #    if girl.controller == "player":
@@ -1022,8 +1035,11 @@ label after_load:
                 if fighter.location == arena:
                     fighter.location = None
                     fighter.arena_active = True
-                if fighter.action == "Arena Combat":
-                    fighter.action = None
+                if hasattr(fighter, "_action"):
+                    del fighter._action
+                    del fighter.previousaction
+                    fighter._job = None
+                    fighter._task = None
 
             for team in itertools.chain(arena.teams_2v2, arena.teams_3v3,\
                  arena.dogfights_1v1, arena.dogfights_2v2, arena.dogfights_3v3,\
@@ -1134,7 +1150,7 @@ label after_load:
                 if c.workplace == pytfall.school:
                     c._workplace = None
                     course = c.action
-                    c._action = simple_jobs["Study"]
+                    c._task = simple_jobs["Study"]
                     course.remove_student(c)
                     pytfall.school.add_student(c, course)
 

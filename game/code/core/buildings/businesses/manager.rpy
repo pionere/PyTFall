@@ -35,8 +35,8 @@ init -5 python:
         effectiveness = 0
         if managers:
             for m in managers:
-                m._dnd_effectiveness = m.action.effectiveness(m, building.tier, None, False)
-                m._dnd_mlog = NDEvent(job=m.action, char=m, loc=building)
+                m._dnd_effectiveness = mj.effectiveness(m, building.tier, None, False)
+                m._dnd_mlog = NDEvent(job=mj, char=m, loc=building)
                 m._dnd_jobpoints = m.jobpoints
 
                 workers.remove(m)

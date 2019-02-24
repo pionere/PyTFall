@@ -32,7 +32,7 @@ init python:
 
                 for char in container:
                     action = char.action
-                    job = char.get_job()
+                    job = char.job
                     
                     cat = getattr(job, "type", "Resting")
                     if cat == "SIW":

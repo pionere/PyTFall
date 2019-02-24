@@ -200,8 +200,8 @@ init -5 python:
 
         def after_rest(self, worker, log):
             if self.is_rested(worker):
-                worker.action = self # toggle action
-                action = worker.action
+                worker.set_task(None)
+                action = worker.job
 
                 if log is not None:
                     if action:

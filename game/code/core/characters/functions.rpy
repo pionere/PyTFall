@@ -46,7 +46,7 @@ init -11 python:
                 else: # Weird case for free chars...
                     c.home = pytfall.city
             if c.workplace == b:
-                c.set_workplace(None, None)
+                c.mod_workplace(None)
 
     def check_stat_perc(char, stat, value, dir="lower"):
         """Checks if stat/skill is higher/lower (or eq) than given percentage of the max.
@@ -140,7 +140,7 @@ init -11 python:
             jump("game_over")
         char.home = pytfall.afterlife
         char.location = None
-        char.set_workplace(None, None)
+        char.reset_workplace_action()
         if char in hero.chars:
             hero.remove_char(char)
         gm.remove_girl(char)
@@ -807,7 +807,7 @@ init -11 python:
         # Try to properly delete the char...
         char.location = None
         char.home = None
-        char.set_workplace(None, None)
+        char.reset_workplace_action()
 
         sm = pytfall.sm # SlaveMarket
         if char in sm.chars_list:
