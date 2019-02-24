@@ -74,32 +74,23 @@ init -5 python:
                             temp = "%s Workers have started to guard %s!" % (set_font_color(wlen, "red"), building.name)
                             self.log(temp, True)
 
-                # Actually handle threat cleared:
-                if make_nd_report_at and building.threat > 0:
-                    # Special considerations for small buildings:
-                    if building.capacity < 10 and using_all_workers: # Only after threat is 500+
-                        temp = "The business is relatively small."
-                        temp += " Your employees made sure it was safe for your clients!"
-                        self.log(temp)
-                        temp = "Don't expect it to remain this easy as your business empire grows and expands!"
-                        self.log(temp)
-                        building.threat = 0
-                    else:
-                        for w in workers.copy():
-                            value = int(w.flag(power_flag_name))
-                            building.modthreat(value)
+                # Actually handle threat:
+                if make_nd_report_at and threat > 0:
+                    for w in workers.copy():
+                        value = int(w.flag(power_flag_name))
+                        building.modthreat(value)
 
-                            threat_cleared += value
-                            defenders.add(w)
+                        threat_cleared += value
+                        defenders.add(w)
 
-                            # Adjust JP and Remove the clear after running out of jobpoints:
-                            w.jobpoints -= 5
-                            w.up_counter("jobs_points_spent", 5)
-                            if w.jobpoints <= 0:
-                                temp = "%s is done guarding for the day!" % w.nickname
-                                temp = set_font_color(temp, "cadetblue")
-                                self.log(temp, True)
-                                workers.remove(w)
+                        # Adjust JP and Remove the clear after running out of jobpoints:
+                        w.jobpoints -= 5
+                        w.up_counter("jobs_points_spent", 5)
+                        if w.jobpoints <= 0:
+                            temp = "%s is done guarding for the day!" % w.nickname
+                            temp = set_font_color(temp, "cadetblue")
+                            self.log(temp, True)
+                            workers.remove(w)
 
                 if EnforcedOrder_active and self.env.now > 0 and not self.env.now % 50:
                     self.log("Enforced order is making your civilian workers uneasy...")

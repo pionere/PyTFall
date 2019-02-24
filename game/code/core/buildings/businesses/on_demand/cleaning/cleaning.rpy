@@ -38,13 +38,6 @@ init -5 python:
                     temp = "{color=[red]}" + "DEBUG: {0:.2f} DIRT IN THE BUILDING!".format(building.dirt)
                     self.log(temp, True)
 
-                if building.get_dirt_percentage() > building.auto_clean and building.auto_clean != 100:
-                    price = building.get_cleaning_price()
-                    if hero.take_money(price, "Hired Cleaners"):
-                        building.dirt = 0
-                        temp = "%s Building was auto-cleaned!" % building.name
-                        self.log(temp, True)
-
                 dirt = building.dirt
                 if dirt >= 200:
                     wlen_color = "green"
@@ -64,32 +57,21 @@ init -5 python:
                             self.log(temp, True)
 
                 # Actually handle dirt cleaning:
-                if make_nd_report_at and building.dirt > 0:
-                    # A special case to handle a small building:
-                    # Clear threat and dirt for smaller buildings:
-                    # Maybe require any kind of manager???
-                    if building.capacity < 10 and using_all_workers:
-                        temp = "The business is relatively small."
-                        temp += " Your employees cleaned it up with ease!"
-                        self.log(temp)
-                        temp = "Don't expect it to remain this easy as your business empire grows and expands!"
-                        self.log(temp)
-                        building.dirt = 0
-                    else:
-                        for w in workers.copy():
-                            value = int(w.flag(power_flag_name))
-                            building.moddirt(value)
+                if make_nd_report_at and dirt > 0:
+                    for w in workers.copy():
+                        value = int(w.flag(power_flag_name))
+                        building.moddirt(value)
 
-                            dirt_cleaned += value
-                            cleaners.add(w)
+                        dirt_cleaned += value
+                        cleaners.add(w)
 
-                            w.jobpoints -= 5
-                            w.up_counter("jobs_points_spent", 5)
-                            if w.jobpoints <= 0:
-                                temp = "%s is done cleaning for the day!" % w.nickname
-                                temp = set_font_color(temp, "cadetblue")
-                                self.log(temp, True)
-                                workers.remove(w)
+                        w.jobpoints -= 5
+                        w.up_counter("jobs_points_spent", 5)
+                        if w.jobpoints <= 0:
+                            temp = "%s is done cleaning for the day!" % w.nickname
+                            temp = set_font_color(temp, "cadetblue")
+                            self.log(temp, True)
+                            workers.remove(w)
 
                 # Create actual report:
                 c0 = self.env.now >= make_nd_report_at

@@ -294,7 +294,7 @@ label special_items_puke_cola:
     jump char_equip
 
 label special_items_cleaning_cloud:
-    $ clean_list = list(i for i in hero.buildings if hasattr(i, 'dirt'))
+    $ clean_list = list(i for i in hero.buildings if i.dirt > 0)
     if clean_list:
         python:
             for i in clean_list:

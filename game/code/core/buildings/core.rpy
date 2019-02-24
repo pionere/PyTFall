@@ -270,10 +270,11 @@ init -10 python:
             # Dirt/Threat
             self.maxdirt = 1000
             self.dirt = 0
+            self.auto_clean = 100 # percentage at the cleaners should be called
             self.maxthreat = 1000
             self.threat = 0
+            self.auto_guard = 0   # amount of money spent on guards (per day)
             #self.threat_mod = 5 initialized later
-            self.auto_clean = 100
 
             # Fame/Reputation
             self.minfame = 0 # The minimum amount of fame the building can have.
@@ -321,7 +322,7 @@ init -10 python:
                 elif self.location == "Midtown":
                     self.threat_mod = 2
                 elif self.location == "Richford":
-                    self.threat_mod = -1
+                    self.threat_mod = 0
                 else:
                     devlog.warn("{} Building with an unknown location detected!".format(self.name))
 
@@ -522,52 +523,34 @@ init -10 python:
             """
             Returns percentage of dirt in the building as (percent, description).
             """
-            return self.threat * 100 / self.maxthreat
+            return 0 if self.maxthreat == 0 else self.threat*100/self.maxthreat
 
         def get_dirt_percentage(self):
             """
             Returns percentage of dirt in the building as (percent, description).
             """
-            return self.dirt*100/self.maxdirt
+            return 0 if self.maxdirt == 0 else self.dirt*100/self.maxdirt
 
-        @property
-        def fame_percentage(self):
-            return self.fame*100/max(1, self.maxfame)
+        def get_fame_percentage(self):
+            return 0 if self.maxfame == 0 else self.fame*100/self.maxfame
 
-        @property
-        def rep_percentage(self):
-            return self.rep*100/max(1, self.maxrep)
+        def get_rep_percentage(self):
+            return 0 if self.maxrep == 0 else self.rep*100/self.maxrep
 
         def moddirt(self, value):
-            # Ignore dirt for small buildings!
-            cap = getattr(self, "workable_capacity", 0)
-
-            if self.manager_effectiveness >= 100 and cap <= 15:
+            value += self.dirt
+            if value > self.maxdirt:
+                value = self.maxdirt
+            elif value < 0:
                 value = 0
-            elif cap <= 10:
-                value = 0
-            else:
-                value += self.dirt
-                if value > self.maxdirt:
-                    value = self.maxdirt
-                elif value < 0:
-                    value = 0
             self.dirt = value
 
         def modthreat(self, value):
-            # Ignore threat for small buildings!
-            cap = getattr(self, "workable_capacity", 0)
-
-            if self.manager_effectiveness >= 100 and cap <= 20:
+            value += self.threat
+            if value > self.maxthreat:
+                value = self.maxthreat
+            elif value < 0:
                 value = 0
-            elif cap <= 15:
-                value = 0
-            else:
-                value += self.threat
-                if value > self.maxthreat:
-                    value = self.maxthreat
-                elif value < 0:
-                    value = 0
 
             self.threat = value
 
@@ -620,7 +603,7 @@ init -10 python:
                     devlog.info("{} pure clients for {}".format(u.get_client_count(), u.name))
 
             # Fame percentage mod (linear scale):
-            mod = self.fame_percentage / 100.0
+            mod = self.get_fame_percentage() / 100.0
 
             # Special check for larger buildings:
             if mod > 80 and self.maxfame > 400:
@@ -751,8 +734,8 @@ init -10 python:
             if self.nd_ups or client_businesses:
                 # Building Stats:
                 txt.append("")
-                txt.append("Reputation: {}%".format(self.rep_percentage))
-                txt.append("Fame: {}%".format(self.fame_percentage))
+                txt.append("Reputation: {}%".format(self.get_rep_percentage()))
+                txt.append("Fame: {}%".format(self.get_fame_percentage()))
                 txt.append("Dirt: {}%".format(self.get_dirt_percentage()))
                 txt.append("Threat: {}%".format(self.get_threat_percentage()))
                 txt.append("")
@@ -778,11 +761,11 @@ init -10 python:
                 proc = self.env.process(self.building_manager(end=111))
 
                 self.env.run(until=proc)
-                txt.append("{}".format(set_font_color("Ending the workday.", "green")))
+                txt.append(set_font_color("Ending the workday.", "green"))
 
                 # Building Stats:
-                txt.append("Reputation: {}%".format(self.rep_percentage))
-                txt.append("Fame: {}%".format(self.fame_percentage))
+                txt.append("Reputation: {}%".format(self.get_rep_percentage()))
+                txt.append("Fame: {}%".format(self.get_fame_percentage()))
                 txt.append("Dirt: {}%".format(self.get_dirt_percentage()))
                 txt.append("Threat: {}%".format(self.get_threat_percentage()))
 
@@ -821,14 +804,14 @@ init -10 python:
                         for c in self.habitants:
                             if c != hero:
                                 c.mod_stat("joy", (dirt-50)/2)
-                            
+
                         txt.append("The place is quite dirty. You might want to call the cleaners.")
 
                     # accumulate dirt based on the number of inhabitants
-                    self.dirt += len(self.inhabitants) * 10
+                    self.moddirt(len(self.inhabitants) * 10)
 
                     # handle auto cleaning
-                    if self.get_dirt_percentage() > self.auto_clean and self.auto_clean != 100:
+                    if self.get_dirt_percentage() > self.auto_clean:
                         price = self.get_cleaning_price()
                         if hero.take_money(price, "Hired Cleaners"):
                             self.dirt = 0
@@ -843,12 +826,12 @@ init -10 python:
                         if c != hero and c.get_stat("disposition") > 800 and c.get_stat("joy") > 80:
                             effectiveness_ratio = simple_jobs["Cleaning"].effectiveness(c, self.tier)
 
-                            self.dirt -= (5 * effectiveness_ratio)
-                            
+                            self.moddirt(-5 * effectiveness_ratio)
+
                             c.mod_stat("disposition", -50)
                             c.mod_stat("joy", -10)
                             txt.append("%s cleaned up a bit." % c.nickname)
-                
+
                 # in-house fighting between the inhabitants
                 for c in self.inhabitants:
                     if c == hero or c.get_stat("vitality") < 25:
@@ -870,7 +853,7 @@ init -10 python:
                     o = choice(others)
                     if self.maxdirt != 0:
                         txt.append("%s and %s started to fight over a minor issue. The building suffered the most." % (c.nickname, o.nickname))
-                        self.dirt += 50
+                        self.moddirt(50)
                     else:
                         txt.append("%s and %s started to fight over a minor issue. They became very tense." % (c.nickname, o.nickname))
                     o.mod_stat("joy", -20)
@@ -905,12 +888,18 @@ init -10 python:
             if self.clients:
                 env.process(self.clients_dispatcher(end=end-10))
 
-            for u in self._upgrades:
-                if isinstance(u, Garden):
-                    has_garden = True
-                    break
-            else:
-                has_garden = False
+            has_garden = any(isinstance(u, Garden) for u in self._upgrades)
+            auto_guard = self.auto_guard
+            if auto_guard != 0:
+                if hero.take_money(auto_guard, "Hired Guards"):
+                    self.fin.log_logical_expense(auto_guard, "Hired Guards")
+                    self.log("Hired guards are protecting the building.")
+                    auto_guard /= 2
+                else:
+                    self.log("You could not pay the hired guards so they left the building.")
+                    auto_guard = 0
+            threatmod = self.threat_mod * max(1, min(self.fame - self.rep - self.threat, 50))
+            dirtmod = 5*self.tier # 5 dirt each 25 turns even if nothing is happening.
 
             while (1):
                 if not env.now % 20:
@@ -919,19 +908,32 @@ init -10 python:
                 yield env.timeout(1)
                 simpy_debug("%s DU Executing =====================>>>", env.now)
 
-                # Delete the line if nothing happened on this turn:
-                if self.nd_events_report[-1] == temp:
-                    del self.nd_events_report[-1]
+                # handle auto-clean
+                if self.get_dirt_percentage() > self.auto_clean:
+                    price = self.get_cleaning_price()
+                    if hero.take_money(price, "Hired Cleaners"):
+                        self.fin.log_logical_expense(price, "Hired Cleaners")
+                        self.log("The building was cleaned by hired professionals!", True)
+                        self.dirt = 0
 
-                if env.now >= end:
-                    break
+                # handle auto-guard
+                if auto_guard > 0 and self.threat > 200:
+                    temp = min(auto_guard, 200)
+                    self.threat -= temp
+                    auto_guard -= temp
+                    self.log("The hired guards eliminated %d threat." % temp, True)
+                    
+                # add default mods of the building
                 if not env.now % 25:
-                    self.moddirt(5) # 5 dirt each 25 turns even if nothing is happening.
-                    self.modthreat(self.threat_mod)
+                    self.moddirt(dirtmod)
+                    self.modthreat(threatmod)
 
                     if has_garden and dice(25):
                         for w in self.all_workers:
                             w.mod_stat("joy", 1)
+
+                if env.now >= end:
+                    break
 
         def clients_dispatcher(self, end):
             """This method provides stream of clients to the building following it's own algorithm.

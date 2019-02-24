@@ -693,9 +693,11 @@ label after_load:
                     elif b.location == "Midtown":
                         b.threat_mod = 2
                     elif b.location == "Richford":
-                        b.threat_mod = -1
+                        b.threat_mod = 0
                     else:
                         raise Exception("{} Building with an unknown location detected!".format(str(b)))
+                if not hasattr(b, "auto_guard"):
+                    b.auto_guard = 0
                 if b._businesses and not b.allowed_businesses:
                     for i in b._businesses:
                         b.allowed_businesses.append(i.__class__)

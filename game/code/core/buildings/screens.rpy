@@ -457,13 +457,7 @@ init:
             if bm_building.maxdirt != 0:
                 frame:
                     xysize (296, 27)
-                    button:
-                        background Null()
-                        xalign .02
-                        margin 0, 0 padding 0, 0
-                        tooltip "Dirt will never pile up in smaller buildings (10 workable capacity for any and 15 for buildings with a competent manager). Your workers will take care of it before it gets a chance!"
-                        action NullAction()
-                        text "Dirt:" color brown hover_color green
+                    text "Dirt:" xalign .02 color brown
                     $ tmp = bm_building.get_dirt_percentage()
                     $ temp = ("Immaculate", "Sterile", "Spotless", "Clean", "Tidy",
                               "Messy", "Dirty", "Grimy", "Filthy", "Disgusting")
@@ -473,13 +467,7 @@ init:
             if bm_building.maxthreat != 0:
                 frame:
                     xysize (296, 27)
-                    button:
-                        background Null()
-                        xalign .02
-                        margin 0, 0 padding 0, 0
-                        tooltip "Threat will never effect the smaller buildings (15 workable capacity for any and 20 for buildings with a competent manager). Your workers will never allow it to increase!"
-                        action NullAction()
-                        text "Threat:" color crimson hover_color green
+                    text "Threat:" xalign .02 color crimson
                     text "%s %%" % bm_building.get_threat_percentage():
                         xalign .98
                         style_suffix "value_text"
@@ -919,6 +907,46 @@ init:
                     tooltip "Give new name to your Building!"
                     text "Rename Building"
 
+                if bm_building.maxthreat != 0:
+                    null height 20
+                    label (u"Guarding Options:"):
+                        style "proper_stats_label"
+                        align .5, .05
+                        text_bold True
+                    null height 5
+
+                    hbox:
+                        xysize(200,32)
+                        xalign .5
+                        if bm_building.auto_guard != 0:
+                            button:
+                                xysize(170,32)
+                                xalign .1
+                                selected True
+                                text "%d Gold a day" % bm_building.auto_guard
+                                tooltip "Hired guards are protecting your building for % Gold per day." % bm_building.auto_guard
+                                action SetField(bm_building, "auto_guard", 0)
+                            vbox:
+                                xysize 20, 32
+                                xalign 1.0
+                                button:
+                                    xysize 20, 16
+                                    background None
+                                    text "+" style "proper_stats_text" hover_color red align (.5, .5)
+                                    action SensitiveIf(bm_building.auto_guard < 9900), SetField(bm_building, "auto_guard", bm_building.auto_guard+100)
+                                button:
+                                    xysize 20, 16
+                                    background None
+                                    text "_" style "proper_stats_text" hover_color red align (.5, 1.1)
+                                    action SetField(bm_building, "auto_guard", bm_building.auto_guard-100)
+                        else:
+                            button:
+                                xysize(200,32)
+                                xalign .5
+                                action SetField(bm_building, "auto_guard", 100)
+                                tooltip "Hire professional guards to protect your building."
+                                text "Hire Guards"
+
                 if bm_building.maxdirt != 0:
                     null height 20
                     label (u"Cleaning Options:"):
@@ -952,7 +980,7 @@ init:
                         xalign .5
                         action Return(['maintenance', "clean"])
                         tooltip "Hire cleaners to completely clean this building for %d Gold." % bm_building.get_cleaning_price()
-                        text "Clean: Building"
+                        text "Clean This Building"
 
                     python:
                         price = 0
@@ -965,9 +993,9 @@ init:
                         xalign .5
                         action Return(['maintenance', "clean_all", price])
                         tooltip "Hire cleaners to completely clean all buildings for %d Gold." % price
-                        text "Clean: All Buildings"
+                        text "Clean All Buildings"
 
-                if hasattr(bm_building, "manager"):
+                if bm_building.needs_manager:
                     null height 20
                     label u"Management Options:":
                         style "proper_stats_label"

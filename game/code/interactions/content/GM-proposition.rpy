@@ -299,7 +299,7 @@ label interactions_movein:
     if home.get_daily_modifier() <= char.home.get_daily_modifier():
         "You ought to find a better place before you suggest such a thing."
         jump girl_interactions
-    if home.maxdirt != 0 and home.get_dirt_percentage() > 50:
+    if home.get_dirt_percentage() > 50:
         "Into that shit-hole? You expect me to clean your underwear too?"
         jump girl_interactions
     if home.vacancies <= 0:
