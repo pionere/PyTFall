@@ -143,7 +143,7 @@ init -10 python:
                 worker.del_flag("_jobs_tips")
                 worker.up_counter("dnd_accumulated_tips", tips)
 
-                temp = "{} gets {} Gold in tips!".format(worker.name, tips)
+                temp = "%s gets {color=[gold]}%d Gold{/color} in tips!" % (worker.name, tips)
                 self.append(temp)
                 loc.fin.log_logical_income(tips, job.id + " Tips")
 
@@ -178,9 +178,10 @@ init -10 python:
                 self.loc.fin.log_logical_income(self.earned, fin_source)
             if self.earned:
                 store.hero.add_money(self.earned, str(self.loc))
-                self.append("{color=[gold]}\nA total of %d Gold was earned!{/color}" % self.earned)
+                #self.append("{color=[gold]}A total of %d Gold was earned!{/color}" % self.earned)
+                self.append("You've earned {color=[gold]}%d Gold{/color}!" % self.earned) # use the line above if there are multiple shifts in one NDEvent
             else:
-                self.append("{color=[gold]}\nNo Gold was earned!{/color}")
+                self.append("{color=[gold]}No Gold{/color} was earned!")
             self.txt = self.log
             self.log = []
 

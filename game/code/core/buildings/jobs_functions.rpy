@@ -86,8 +86,9 @@ init -10 python:
 
         earned = round_int(earned)
         if earned:
-            temp = "You've earned {} Gold!".format(earned)
-            log.append(temp)
+            # uncomment these if there is a possibility to log multiple shifts in one NDEvent 
+            #temp = "You've earned {} Gold!".format(earned)
+            #log.append(temp)
             log.earned += earned
 
         return earned

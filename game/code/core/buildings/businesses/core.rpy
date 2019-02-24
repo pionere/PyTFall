@@ -507,8 +507,7 @@ init -12 python:
                 self.building.available_workers.remove(w)
                 self.env.process(self.worker_control(w))
             else:
-                temp = "{color=[red]}"
-                temp += "Could not find an available {} worker".format(job)
+                temp = "{color=[red]}Could not find an available %s worker" % job
                 self.log(temp)
             simpy_debug("Exiting PublicBusiness(%s).add_worker at %s", self.name, self.env.now)
 
@@ -580,7 +579,7 @@ init -12 python:
         def worker_control(self, worker):
             self.log(self.intro_string % (worker.name), True)
 
-            du_working = 35
+            du_working = min(35, 100 - self.env.now) # FIXME MAX_DU ?
 
             # We create the log object here! And start logging to it directly!
             job, building = self.jobs[0], self.building # a single job per business at the moment
@@ -658,9 +657,7 @@ init -12 python:
 
             self.active_workers.remove(worker)
             building.available_workers.append(worker) # Put the worker back in the pool.
-            temp = "{} is done with the job in {} for the day!".format(
-                                worker.name,
-                                self.name)
+            temp = "%s is finished with %s shift in %s!" % (worker.name, worker.pp, self.name)
             temp = set_font_color(temp, "cadetblue")
             self.log(temp, True)
 
