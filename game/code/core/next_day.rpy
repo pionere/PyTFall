@@ -1001,7 +1001,7 @@ screen next_day():
                                 yalign .5
                                 background Null()
                                 action NullAction()
-                                tooltip "One of your girls has successfully completed her course (this doesn't mean that a course has ended)!"
+                                tooltip "One of your workers has successfully completed their course (this doesn't mean that a course has ended)!"
                                 text "!" color yellow size 40 style "proper_stats_text" align .5, .5
                         if "Student(s) were sent" in school_report.txt:
                             button:
@@ -1009,7 +1009,7 @@ screen next_day():
                                 yalign .5
                                 background Null()
                                 action NullAction()
-                                tooltip "A course one of your girls attended has ended!"
+                                tooltip "A course one of your workers attended has ended!"
                                 text "!" color yellow size 40 style "proper_stats_text" align .5, .5
 
             # # Girls and Other Related data:

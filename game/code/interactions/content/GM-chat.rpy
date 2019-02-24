@@ -132,7 +132,7 @@ label girl_interactions_aboutjob: # TO DO: here would help additional logic base
                 if ct("Impersonal") or ct("Dandere") or ct("Kuudere"):
                     $ rc("...I want another owner.", "I wish I had a better life as a slave.")
                 elif ct("Shy"):
-                    $ rc("...Yes, [char.mc_ref]. I'm fine. <you notice tears in her eyes>")
+                    $ rc("...Yes, [char.mc_ref]. I'm fine. <you notice tears in [char.pp] eyes>")
                 else:
                     $ rc("There isn't much to say... I'm sad and you're mean...", "I feel like it would be better if you sold me off at the next auction.")
         $ char.gfx_mod_stat("disposition", randint(1, 2))
@@ -374,7 +374,7 @@ label interactions_abouther:
         $ gm_abouther_list.append(choice(["People often say that my eyes are unusual. What do you think of them?", "Do you like my eyes? As a child I was often teased because of them."]))
 
     if ct("Manly"):
-        $ gm_abouther_list.append(choice(["Do you like my muscles? It took a while to build them.", "Every girl should build herself some muscles for self-protection, don't you think?"]))
+        $ gm_abouther_list.append(choice(["Do you like my muscles? It took a while to build them.", "Everyone should build [char.op]self some muscles for self-protection, don't you think?"]))
 
     if ct("Lolita"):
         $ gm_abouther_list.append(choice(["My body is so small, everyone think I'm still a child.", "Maybe I should drink more milk to grow up... What do you think?"]))
@@ -600,11 +600,11 @@ label interactions_interests:
         "Exhibitionist": ["[char.pC] tells you pretty hot stories about [char.op] exhibitionistic adventures in a local park."],
         "Athletic": ["You discuss beach volleyball which became quite popular among local girls lately.", "You discuss places for swimming. It looks like most girls prefer beaches to pools because it's free."],
         "Manly": ["[char.pC] gives you a lecture on how to build your muscles properly. You feel a bit offended, but keep your cool.", "[char.pC] casually remarks that you should exercise more often, and gives you some advice."],
-        "Chubby": ["You have a lively discussion about your favorite local bakeries and pastry shops.", "Your conversation turns toward cooking, and [char.p] shares some of her recipes. They are all pretty high in calories..."],
-        "Slim": ["You compliment [char.op] figure, and the conversation quickly turns toward healthy lifestyle. Ugh.", "[char.pC] brags about [char.op] metabolism, allowing [char.op] to eat sweets and not get fat. You envy her."],
-        "Alien": ["[char.pC] talks about her homeland. You are listening with interest.", "You discuss local events she witnessed. [char.pC] doesn't understand the meaning of some of them, and you spend some of your time to explain."],
-        "Half-Sister": ["You discuss your common father. The sad discussion quickly turns into a sarcastic one, when you try to count all his lovers and daughters.", "[char.pC] tells you about her mother. You listen in silence, trying to imagine yours.", "You spend time together you reminiscing about fun and embarrassing moments from your childhood."],
-        "Scars": ["She complains about how her scars cause inconvenience. You comfort her."],
+        "Chubby": ["You have a lively discussion about your favorite local bakeries and pastry shops.", "Your conversation turns toward cooking, and [char.p] shares some of [char.pp] recipes. They are all pretty high in calories..."],
+        "Slim": ["You compliment [char.op] figure, and the conversation quickly turns toward healthy lifestyle. Ugh.", "[char.pC] brags about [char.op] metabolism, allowing [char.op] to eat sweets and not get fat. You envy [char.op]."],
+        "Alien": ["[char.pC] talks about [char.pp] homeland. You are listening with interest.", "You discuss local events [char.p] witnessed. [char.pC] doesn't understand the meaning of some of them, and you spend some of your time to explain."],
+        "Half-Sister": ["You discuss your common father. The sad discussion quickly turns into a sarcastic one, when you try to count all his lovers and daughters.", "[char.pC] tells you about [char.pp] mother. You listen in silence, trying to imagine yours.", "You spend time together you reminiscing about fun and embarrassing moments from your childhood."],
+        "Scars": ["She complains about how [char.pp] scars cause inconvenience. You comfort [char.op]."],
         "Artificial Body": ["Tempted by curiosity, you ask about [char.op] artificial body. [char.opC] explanations are very long and confusing.", "You discuss the regular maintenance required by [char.op] body. It's a pretty complex, but piquant conversation."],
         "Lolita": ["[char.pC] complains about how hard it is to find adult clothes for [char.op] figure. You're trying to take [char.op] away from this sensitive topic.", "[char.pC] tells you funny stories about disappointed (and imprisoned) pedophiles confused by [char.op] body size. What a strange topic."],
         "Strange Eyes": ["[char.pC] notices how you look at [char.op] unusual eyes. Embarrassed, [char.p] refuses to look at you or discuss anything."],

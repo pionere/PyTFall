@@ -963,7 +963,7 @@ screen mc_friends_list:
         $ temp = sorted(list(hero.friends | hero.lovers), key=attrgetter("name"))
         $ temp = list(i for i in temp if (i not in hero.chars) and i.is_available)
         if temp:
-            text "Click on the character to meet her in the city" style "TisaOTMol" size 23 xalign .5
+            text "Click on the character to meet them in the city" style "TisaOTMol" size 23 xalign .5
         else:
             text "No unhired friends/lovers" style "TisaOTMol" size 23 xalign .5
         imagebutton:

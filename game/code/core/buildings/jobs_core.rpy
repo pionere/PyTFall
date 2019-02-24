@@ -434,7 +434,7 @@ init -10 python:
 
             # Good manager, we only use 50% of the original cost. (passive effect)
             if manager_effectiveness > 130 and dice(manager_effectiveness-100):
-                log.append("{} is very motivated by your manager! She feels less tired after doing her work-shift!".format(worker.name))
+                log.append("%s is very motivated by your manager! %s feels less tired after doing %s work-shift!" % (worker.name, worker.pC, worker.pp))
                 cost = round_int(cost*.5)
 
             return cost

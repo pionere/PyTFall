@@ -2663,7 +2663,7 @@ init -9 python:
                 # a girl is in FG as there is always something to do there:
                 if not self.action:
                     flag_red = True
-                    txt.append("  {color=[red]}Please note that she is not really doing anything productive!-{/color}")
+                    txt.append("  {color=[red]}Please note that %s is not really doing anything productive!-{/color}" % self.p)
                     NextDayEvents.unassigned_chars += 1
 
                 # Unhappiness and related:

@@ -34,7 +34,7 @@ init -5 python:
 
             effectiveness = 0
             if 'Food Poisoning' in worker.effects:
-                log.append("%s suffers from Food Poisoning, and is very far from her top shape." % worker.name)
+                log.append("%s suffers from Food Poisoning, and is very far from %s top shape." % (worker.name, worker.pp))
                 effectiveness -= 50
             elif 'Exhausted' in worker.effects:
                 log.append("%s is exhausted and is in need of some rest." % worker.name)
@@ -43,15 +43,8 @@ init -5 python:
                 log.append("%s is not feeling well due to colds..." % worker.name)
                 effectiveness -= 15
             elif 'Drunk' in worker.effects:
-                log.append("%s is drunk, which affects her coordination. Not the best thing when you need to guard something." % worker.name)
+                log.append("%s is drunk, which affects %s coordination. Not the best thing when you need to guard something." % (worker.name, worker.pp))
                 effectiveness -= 20
-            elif 'Revealing Clothes' in worker.effects:
-                if dice(50):
-                    log.append("Her revealing clothes attract unneeded attention, interfering with work.")
-                    effectiveness -= 10
-                else:
-                    log.append("Her revealing clothes help to pacify some aggressive customers.")
-                    effectiveness += 10
 
             if locked_dice(65): # traits don't always work, even with high amount of traits there are normal days when performance is not affected
                 traits = list(i.id for i in worker.traits if i.id in ["Abnormally Large Boobs",
@@ -86,7 +79,7 @@ init -5 python:
                     log.append("%s keeps learning new ways to track the enemy." % worker.name)
                     effectiveness += 15
                 elif trait == "Neat":
-                    log.append("%s refuses to dirty her hands on some of the uglier looking beasts." % worker.name)
+                    log.append("%s refuses to dirty %s hands on some of the uglier looking beasts." % (worker.name, worker.pp))
                     effectiveness -= 15
                 elif trait == "Psychic":
                     log.append("%s knows the enemy movements and always steps in the right direction." % worker.name)
@@ -104,13 +97,13 @@ init -5 python:
                     log.append("%s refuses to back down no matter the odds, making a great explorer." % worker.name)
                     effectiveness += 25
                 elif trait == "Manly":
-                    log.append("Considering %s is bigger than a number of the guys, she does not shy away in dire situations." % worker.name)
+                    log.append("%s is bigger than usual and does not shy away in dire situations." % worker.name)
                     effectiveness += 35
                 elif trait == "Nerd":
                     log.append("%s feels like a super hero while walking in the forest." % worker.name)
                     effectiveness += 15
                 elif trait == "Peaceful":
-                    log.append("%s has to deal with some very unruly opponents that give her a hard time." % worker.name)
+                    log.append("%s has to deal with some very unruly opponents that give %s a hard time." % (worker.name, worker.op))
                     effectiveness -= 35
             return effectiveness
 
@@ -128,7 +121,7 @@ init -5 python:
                     if sub < 0:
                         if dice(15):
                             worker.logws('character', 1)
-                        log("%s doesn't enjoy going on exploration, but she will get the job done." % worker.name)
+                        log("%s doesn't enjoy going on exploration, but %s will get the job done." % (worker.name, worker.p))
                     elif sub == 0:
                         if dice(25):
                             worker.logws('character', 1)
@@ -136,7 +129,7 @@ init -5 python:
                     else:
                         if dice(35):
                             worker.logws('character', 1)
-                        log("%s makes it clear that she wants to do something else." % worker.name)
+                        log("%s makes it clear that %s wants to do something else." % (worker.name, worker.p))
                     worker.logws("joy", -randint(3, 5))
                     worker.logws("disposition", -randint(5, 10))
                     worker.logws('vitality', -randint(2, 5)) # a small vitality penalty for wrong job

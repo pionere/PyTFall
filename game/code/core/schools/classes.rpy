@@ -147,7 +147,7 @@ init python:
                     exp_mod = 1.0
                     points = max(1, self.difficulty-char.tier)
                     if char == best_student:
-                        temp = "%s has been a perfect student today and went every extra mile she could." % char.name
+                        temp = "%s has been a perfect student today and went every extra mile %s could." % (char.name, char.p)
                         temp += " {color=[lawngreen]}+50% Stats/Skills/EXP Bonus!{/color}"
                         flag_green = True
                         txt.append(temp)

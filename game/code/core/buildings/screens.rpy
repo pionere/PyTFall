@@ -1014,7 +1014,7 @@ init:
                         "Manager will try to cheer up girls who seem sad or tired.",
                         "Manager will ask clients to wait if there is no spot available in their favorite business.",
                         "Manager will try to talk down clients who received inadequate service and attempt to salvage payment for the service provided.",
-                        "Manager will work other Jobs than her own if there are no dedicated worker available."]
+                        "Manager will work other Jobs than their own if there are no dedicated worker available."]
 
                     for field, name, tt in zip(fields, human_readable, tts):
                         button:

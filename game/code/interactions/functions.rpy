@@ -244,20 +244,20 @@ init -11 python:
     def interactions_check_for_bad_stuff(char): # we check major issues when the character will refuse almost anything
         if "Food Poisoning" in char.effects:
             char.override_portrait("portrait", "indifferent")
-            char.say(choice(["But [char.name] was too ill to pay any serious attention to you.", "But her aching stomach completely occupies her thoughts."]))
+            char.say(choice(["But [char.name] was too ill to pay any serious attention to you.", "But [char.pp] aching stomach completely occupies [char.pp] thoughts."]))
             char.restore_portrait()
             char.gfx_mod_stat("disposition", -randint(2, 5))
             renpy.jump("girl_interactions_end")
         elif char.get_stat("vitality") <= char.get_max("vitality")/10:
             char.override_portrait("portrait", "indifferent")
-            char.say(choice(["But [char.name] was too tired to even talk.", "Sadly, [char.name] was not very happy that you interrupted her rest.", "But she is simply too tired to pay any serious attention to you.", "Unfortunately she so tired she almost falls asleep on the move."]))
+            char.say(choice(["But [char.name] was too tired to even talk.", "Sadly, [char.name] was not very happy that you interrupted [char.pp] rest.", "But [char.p] is simply too tired to pay any serious attention to you.", "Unfortunately [char.p] so tired [char.p] almost falls asleep on the move."]))
             char.restore_portrait()
             char.gfx_mod_stat("disposition", -randint(5, 10))
             char.mod_stat("vitality", -2)
             renpy.jump("girl_interactions_end")
         elif char.get_stat("health") < char.get_max("health")/5:
             char.override_portrait("portrait", "indifferent")
-            char.say(choice(["But [char.name] is too wounded for that.", "But her wounds completely occupy her thoughts."]))
+            char.say(choice(["But [char.name] is too wounded for that.", "But [char.pp] wounds completely occupy [char.pp] thoughts."]))
             char.restore_portrait()
             char.gfx_mod_stat("disposition", -randint(5, 15))
             char.mod_stat("vitality", -2)
@@ -266,19 +266,19 @@ init -11 python:
     def interactions_check_for_minor_bad_stuff(char): # we check minor issues when character might refuse to do something based on dice
         if (not("Pessimist" in char.traits) and char.get_stat("joy") <= 25) or (("Pessimist" in char.traits) and char.get_stat("joy") < 10):
             if dice(hero.get_stat("charisma")-char.get_stat("character")) and dice(80):
-                narrator(choice(["It looks like she is in a bad mood, however you managed to cheer her up."]))
+                narrator(choice(["It looks like [char.p] is in a bad mood, however you managed to cheer [char.op] up."]))
                 char.gfx_mod_stat("disposition", 1)
                 char.gfx_mod_stat("joy", randint(3, 6))
             else:
-                narrator(choice(["It looks like she is in a bad mood today and not does not want to do anything."]))
+                narrator(choice(["It looks like [char.p] is in a bad mood today and not does not want to do anything."]))
                 renpy.jump ("girl_interactions")
         elif "Down with Cold" in char.effects: #if she's ill, there is a chance that she will disagree to chat
             if dice(hero.get_stat("charisma")-char.get_stat("character")) and dice(80):
-                narrator(choice(["It looks like she is not feeling well today, however you managed to cheer her up a bit."]))
+                narrator(choice(["It looks like [char.p] is not feeling well today, however you managed to cheer [char.op] up a bit."]))
                 char.gfx_mod_stat("disposition", 2)
                 char.gfx_mod_stat("joy", randint(1, 5))
             else:
-                narrator(choice(["She is not feeling well today and not in the mood to do anything."]))
+                narrator(choice(["[char.pC] is not feeling well today and not in the mood to do anything."]))
                 renpy.jump ("girl_interactions")
         elif char.get_stat("vitality") <= char.get_max("vitality")/5 and dice (35):
             char.override_portrait("portrait", "tired")

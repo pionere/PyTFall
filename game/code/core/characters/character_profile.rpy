@@ -664,19 +664,19 @@ screen char_profile():
                         xysize (150, 40)
                         action Show("char_control")
                         sensitive controlled_char(char)
-                        tooltip "Set desired behavior for {}!".format(char.nickname)
+                        tooltip "Set desired behavior for %s!" % char.op
                         text "Controls"
                     button:
                         xysize (150, 40)
                         action Hide("char_profile"), SetVariable("came_to_equip_from", "char_profile"), SetVariable("eqtarget", char), SetVariable("equip_girls", girls), Jump('char_equip')
                         sensitive controlled_char(char)
-                        tooltip "Manage this girl's inventory and equipment!"
+                        tooltip "Manage %s inventory and equipment!" % char.pp
                         text "Equipment"
                     button:
                         xysize (150, 40)
                         action [Hide("char_profile"), With(dissolve), Return(["girl", "gallery"])]
                         sensitive controlled_char(char)
-                        tooltip "View this girl's gallery!\n(building a gallery may take some time for large packs)"
+                        tooltip "View %s gallery!\n(building a gallery may take some time for large packs)" % char.pp
                         text "Gallery"
 
                 vbox:
@@ -685,7 +685,7 @@ screen char_profile():
                         xysize (150, 40)
                         action Hide("char_profile"), With(dissolve), Jump('school_training')
                         sensitive controlled_char(char)
-                        tooltip "Send her to School!"
+                        tooltip "Send %s to School!" % char.op
                         text "Training"
                     button:
                         xysize (150, 40)
@@ -697,7 +697,7 @@ screen char_profile():
                         xysize (150, 40)
                         action Return(["girl", "get_rid"])
                         sensitive controlled_char(char)
-                        tooltip "Get rid of her!"
+                        tooltip "Get rid of %s!" % char.op
                         if char.status == "slave":
                             text "Sell"
                         else:
@@ -845,7 +845,7 @@ screen char_control():
                 xysize 150, 33
                 align .5, .05
                 action ToggleDict(char.autocontrol, "Tips")
-                tooltip "Does {} keep her tips?".format(char.nickname)
+                tooltip "Does %s keep %s tips?" % (char.nickname, char.pp)
                 text "Tips:" align .0, .5
                 if isinstance(char.autocontrol["Tips"], list):
                     add cb_some_checked align 1.0, .5
@@ -954,7 +954,7 @@ screen char_control():
                 xysize (200, 32)
                 sensitive char.allowed_to_define_autobuy
                 action ToggleField(char, "autobuy")
-                tooltip "Give {} permission to go shopping for items if she has enough money.".format(char.nickname)
+                tooltip "Give %s permission to go shopping for items if %s has enough money." % (char.nickname, char.p)
                 text "Auto Buy" align (.0, .5)
                 if isinstance(char.autobuy, list):
                     add cb_some_checked align (1.0, .5)

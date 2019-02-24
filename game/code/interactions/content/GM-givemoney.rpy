@@ -2,7 +2,7 @@ label interactions_giftmoney:
     if not char.has_flag("cnd_flag_interactions_giftmoney"):
         $ char.set_flag("cnd_flag_interactions_giftmoney", value=day+3)
     else:
-        "You already did this recently, she does not want to abuse your generosity."
+        "You already did this recently, [char.p] does not want to abuse your generosity."
         jump girl_interactions
 
     $ line = "You have " + str(hero.gold) + " gold. How much money do you want to give?"
@@ -28,7 +28,7 @@ label interactions_giftmoney:
 
     if hero.take_money(money, reason="Charity"):
         $ char.add_money(money, reason="Charity")
-        "You gave her [money] Gold."
+        "You gave [char.op] [money] Gold."
         if round(char.gold/money) <= 1:
             "She enthusiastically accepts your money. It looks like it's a considerable sum for her."
             $ a = 20
@@ -64,7 +64,7 @@ label interactions_askmoney:
         call interactions_recently_gave_money from _call_interactions_recently_gave_money
         $ char.gfx_mod_stat("disposition", -randint(2, 5))
         jump girl_interactions
-    "You asked for her help with money."
+    "You asked for [char.pp] help with money."
     if char.get_stat("disposition") >= 400 or check_lovers(char, hero) or check_friends(char, hero):
         if char.gold < locked_random("randint", 500, 1000):
             call interactions_girl_is_too_poor_to_give_money from _call_interactions_girl_is_too_poor_to_give_money
@@ -80,12 +80,12 @@ label interactions_askmoney:
                 $ char.gfx_mod_stat("disposition", -randint(20, 40))
                 $ del temp
         else:
-            "But it looks like she needs the money more than you."
+            "But it looks like [char.p] needs the money more than you."
             call interactions_girl_is_too_poor_to_give_money from _call_interactions_girl_is_too_poor_to_give_money_1
             $ char.gfx_mod_stat("disposition", -randint(10, 20))
             jump girl_interactions
     else:
-        "But she doesn't know you well enough yet."
+        "But [char.p] doesn't know you well enough yet."
         $ interactions_girl_disp_is_too_low_to_give_money(char)
         $ char.gfx_mod_stat("disposition", -randint(5, 15))
     jump girl_interactions
@@ -98,7 +98,7 @@ label interactions_give_money:
         "You changed your mind."
     elif hero.take_money(money, reason="Exchange"):
         $ char.add_money(money, reason="Exchange")
-        "You gave her [money] Gold."
+        "You gave [char.op] [money] Gold."
     else:
         "You don't have that amount of gold."
     $ del money

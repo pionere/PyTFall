@@ -1,10 +1,10 @@
 label interactions_clever:
     if interactions_flag_count_checker(char, "flag_interactions_praise") != 0:
-        "You already complimented her recently, so she's not impressed."
+        "You already complimented [char.op] recently, so [char.p]'s not impressed."
         call praise_nope from _call_praise_nope_1
         jump girl_interactions
 
-    "You are trying to compliment her intelligence."
+    "You are trying to compliment [char.pp] intelligence."
     $ interactions_check_for_bad_stuff(char)
     $ inter_praise = 0
     $ stats = ["charisma", "intelligence", "character", "constitution"]
@@ -24,15 +24,15 @@ label interactions_clever:
     $ del mean
     $ del char_int
     if inter_praise == 3:
-        "She looks excited."
+        "[char.pC] looks excited."
         $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
     elif inter_praise == 2:
-        "She looks happy."
+        "[char.pC] looks happy."
         $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33, final_mod=.8))
     elif inter_praise == 1:
-        "She looks a bit happier than before."
+        "[char.pC] looks a bit happier than before."
     else:
-        "She's not impressed at all."
+        "[char.pC]'s not impressed at all."
         call praise_nope from _call_praise_nope
         jump girl_interactions
 
@@ -45,11 +45,11 @@ label interactions_clever:
 
 label interactions_strong:
     if interactions_flag_count_checker(char, "flag_interactions_praise") != 0:
-        "You already complimented her recently, so she's not impressed."
+        "You already complimented [char.op] recently, so [char.p]'s not impressed."
         call praise_nope from _call_praise_nope_3
         jump girl_interactions
         
-    "You are trying to compliment her physique."
+    "You are trying to compliment [char.pp] physique."
     $ interactions_check_for_bad_stuff(char)
     $ inter_praise = 0
     $ stats = ["charisma", "intelligence", "character", "constitution"]
@@ -69,15 +69,15 @@ label interactions_strong:
     $ del mean
     $ del char_const
     if inter_praise == 3:
-        "She looks pleased.."
+        "[char.pC] looks pleased.."
         $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
     elif inter_praise == 2:
-        "She looks happy."
+        "[char.pC] looks happy."
         $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33, final_mod=.8))
     elif inter_praise == 1:
-        "She looks a bit happier than before."
+        "[char.pC] looks a bit happier than before."
     else:
-        "She's not impressed at all."
+        "[char.pC]'s not impressed at all."
         call praise_nope from _call_praise_nope_2
         jump girl_interactions
 
@@ -90,11 +90,11 @@ label interactions_strong:
 
 label interactions_cute:
     if interactions_flag_count_checker(char, "flag_interactions_praise") != 0:
-        "You already complimented her recently, so she's not impressed."
+        "You already complimented [char.op] recently, so [char.p]'s not impressed."
         call praise_nope from _call_praise_nope_5
         jump girl_interactions
         
-    "You are trying to compliment her appearance."
+    "You are trying to compliment [char.pp] appearance."
     $ interactions_check_for_bad_stuff(char)
     $ inter_praise = 0
     $ stats = ["charisma", "intelligence", "character", "constitution"]
@@ -114,15 +114,15 @@ label interactions_cute:
     $ del mean
     $ del char_charisma
     if inter_praise == 3:
-        "She looks very happy."
+        "[char.pC] looks very happy."
         $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
     elif inter_praise == 2:
-        "She looks happy."
+        "[char.pC] looks happy."
         $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33, final_mod=.8))
     elif inter_praise == 1:
-        "She looks a bit happier than before."
+        "[char.pC] looks a bit happier than before."
     else:
-        "She's not impressed at all."
+        "[char.pC]'s not impressed at all."
         call praise_nope from _call_praise_nope_4
         jump girl_interactions
 

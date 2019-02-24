@@ -3,11 +3,11 @@ label interactions_harrasment_after_battle: # after MC provoked a free character
     $ m = interactions_flag_count_checker(hero, "harrasment_after_battle") # we don't allow to do it infinitely, chance of success reduces after every attempt
     if dice(100-30*m): # base chance is 70%, -30 per attempt
         menu:
-            "She's unconscious. You have some time before City Guards will arrive." # after adding dungeon here will be options to get her there; after adding drugs here will be option to force her consume some;
+            "[char.pC]'s unconscious. You have some time before City Guards will arrive." # after adding dungeon here will be options to get her there; after adding drugs here will be option to force her consume some;
             # no rape since it takes a lot of time, and time here is kinda limited
-            "Rob her":
+            "Rob [char.op]":
                 if char.gold <= 0:
-                    "Sadly, she has no money. What a waste."
+                    "Sadly, [char.p] has no money. What a waste."
                 else:
                     $ char.gfx_mod_stat("disposition", -randint(10, 25))
                     $ g = char.gold
@@ -15,8 +15,8 @@ label interactions_harrasment_after_battle: # after MC provoked a free character
                         $ g = round(g*.1)
                     $ char.take_money(g, reason="Robbery")
                     $ hero.add_money(g, reason="Robbery")
-                    "In her pockets, you found [g] Gold Lucky!"
-            "Search her for items.":
+                    "In [char.pp] pockets, you found [g] Gold Lucky!"
+            "Search [char.op] for items.":
                 # We unequip all of the inventory first:
                 python:
                     for item in [i for i in char.eqslots.values() if i]:
@@ -33,8 +33,8 @@ label interactions_harrasment_after_battle: # after MC provoked a free character
                     $ char.gfx_mod_stat("disposition", -randint(20, 45))
                 else:
                     "You didn't find anything..."
-            "Kill her" if (char not in hero.chars): # direct killing of hired free chars is unavailable, only in dungeon on via other special means
-                "She stopped moving. Serves her right."
+            "Kill [char.op]" if (char not in hero.chars): # direct killing of hired free chars is unavailable, only in dungeon on via other special means
+                "[char.pC] stopped moving. Serves [char.op] right."
                 $ hero.gfx_mod_exp(exp_reward(hero, char))
                 $ kill_char(char)
                 python:

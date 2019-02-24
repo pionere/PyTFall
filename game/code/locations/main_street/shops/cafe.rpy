@@ -45,7 +45,7 @@ label cafe:
 
     if inviting_character != hero:
         menu:
-            "Do you want to accept her invitation (free of charge)?"
+            "Do you want to accept [inviting_character.pp] invitation (free of charge)?"
             "Yes":
                 jump mc_action_cafe_invitation
             "No":
