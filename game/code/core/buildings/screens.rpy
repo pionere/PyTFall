@@ -241,6 +241,9 @@ init:
                 $ bm_building_chars = set(bm_building.inhabitants)
                 if hasattr(bm_building, "all_workers"):
                     $ bm_building_chars.update(bm_building.all_workers)
+                if hasattr(bm_building, "inventory"):
+                    $ bm_building_chars.add(bm_building)
+                $ bm_building_chars.add(hero)
                 button:
                     xysize (135, 40)
                     action Return(['building', "items_transfer", bm_building_chars])
