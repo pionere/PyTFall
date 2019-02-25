@@ -774,6 +774,7 @@ screen fg_area(area):
         frame:
             ypos 100
             xalign .5
+            padding 10, 10
             background Null()
             $ objects = sorted(area.camp_objects, key=attrgetter("layer"))
             for o in objects:

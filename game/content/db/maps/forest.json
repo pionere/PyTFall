@@ -4,11 +4,12 @@
         "main": true,
         "unlocked": true,
         "img": "content/maps/night_forest.webp",
-        "allowed_objects": ["firepit", "bench", {"id": "tent", "cost": 3000}, "bungalow", "house", "cantine", "kitchen", "cell", "barrack"]
+        "allowed_objects": ["firepit", "bench", {"id": "tent", "cost": 3000}, "hut", "house", "kitchen", "cantine", "cage", "cell"]
     },
     {
         "name": "Forest Entrance",
         "stage": 1,
+        "daily_modifier": 0.10,
         "items": {
             "Worn Clothes": 34,
             "Wooden Club": 34,
@@ -40,11 +41,18 @@
         "cash_limit": 1000,
         "items_limit": 1000,
         "img": "content/maps/night_forest.webp",
-        "allowed_objects": ["+", { "id": "bench", "pos": [75, 75]}, {"id":"tent", "cost": 3500, "capacity":3} ]
+        "allowed_objects": ["+", { "id": "bench", "pos": [130, 240]},
+                            {"id":"tent", "pos": [0, 230], "cost": 3500, "capacity":3, "img": "content/maps/objects/tent_cf.webp"},
+                            {"id": "kitchen", "pos": [316, 140]},
+                            {"id": "cantine", "pos": [319, 131], "img": "content/maps/objects/cantine_cf.webp"},
+                            {"id": "cage", "img": "content/maps/objects/cage_cf.webp"},
+                            {"id": "cell", "img": "content/maps/objects/cell_cf.webp"},
+                            {"id": "house", "img": "content/maps/objects/house_cf.webp"} ]
     },
     {
         "name": "Cursed Forest lvl-1",
         "stage": 2,
+        "daily_modifier": 0.09,
         "area": "Cursed Forest",
         "unlocked": false,
         "mobs": ["Orc", "Earth Elemental", "Goblin Archer", "Goblin Warrior"],

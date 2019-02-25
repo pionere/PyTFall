@@ -13,7 +13,7 @@ init -9 python:
         """
         def __init__(self):
             self.unlocked = False
-            self.area = None
+            self.area = None      # parent area
 
             # Statistics:
             self.mobs_defeated = dict()
@@ -25,7 +25,8 @@ init -9 python:
             if self.area:
                 # add required field for sub-areas
                 self.stage = getattr(self, "stage", 0) # For Sorting.
-                self.tier = getattr(self, "tier", 0) # Difficulty
+                self.tier = getattr(self, "tier", 0)   # Difficulty
+                self.daily_modifier = getattr(self, "daily_modifier", 0.1) # modifer when spending the night on the site
                 self.maxdays = getattr(self, "maxdays", 15) # maximum number of days to spend on site
                 self.maxexplored = getattr(self, "maxexplored", 1000) # the required points to fully explore an area
                 self.items_price_limit = getattr(self, "items_price_limit", 0) # limit on the price of items which can be found in the area
@@ -167,20 +168,23 @@ init -6 python: # Guild, Tracker and Log.
             global fg_areas
             global items
             area = self.area
+            building = self.guild.building
 
             # Main and Sub Area Stuff:
             area.logs.extend([l for l in self.logs if l.ui_log])
             area.trackers.remove(self)
 
             # Settle rewards and update data:
-            for i in self.found_items:
+            found_items = collections.Counter(self.found_items)
+            cash_earned = sum(self.cash)
+            hero.add_money(cash_earned, reason="Exploration")
+            inv = building.inventory if hasattr(building, "inventory") else hero.inventory
+            for i, a in found_items.items():
                 item = items[i]
-                hero.add_item(item)
+                inv.append(item, a)
             for char in self.captured_chars:
                 pytfall.jail.add_capture(char)
 
-            found_items = collections.Counter(self.found_items)
-            cash_earned = sum(self.cash)
             chars_captured = len(self.captured_chars)
 
             area.mobs_defeated = add_dicts(area.mobs_defeated, self.mobs_defeated)
@@ -230,7 +234,7 @@ init -6 python: # Guild, Tracker and Log.
                           txt=txt,
                           char=char,
                           team=team,
-                          loc=self.guild.building,
+                          loc=building,
                           green_flag=self.flag_green,
                           red_flag=self.flag_red)
             NextDayEvents.append(evt)
@@ -432,7 +436,7 @@ init -6 python: # Guild, Tracker and Log.
                         result = yield process(self.build_camp(tracker))
                         if result == "done":
                             tracker.state = "exploring"
-                    if self.env.now >= 99:
+                    if self.env.now >= 99: # FIXME MAX_DU
                         break
 
             # Go to rest
@@ -483,7 +487,7 @@ init -6 python: # Guild, Tracker and Log.
                     tracker.log(temp, name="Arrival")
                     self.env.exit("arrived")
 
-                if self.env.now >= 99: # We couldn't make it there before the days end...
+                if self.env.now >= 99: # FIXME MAX_DU We couldn't make it there before the days end...
                     temp = "{} spent the entire day traveling to {}! ".format(team_name, area_name)
                     tracker.log(temp)
                     if DEBUG_SE:
@@ -522,7 +526,7 @@ init -6 python: # Guild, Tracker and Log.
                     tracker.log(temp, name="Return")
                     self.env.exit("back2guild")
 
-                if self.env.now >= 99: # We couldn't make it there before the days end...
+                if self.env.now >= 99: # FIXME MAX_DU We couldn't make it there before the days end...
                     temp = "{} spent the entire day traveling back to the guild from {}! ".format(team_name, tracker.area.name)
                     tracker.log(temp)
                     self.env.exit("on the way back")
@@ -583,7 +587,7 @@ init -6 python: # Guild, Tracker and Log.
                     tracker.log(temp)
                     self.env.exit("restored")
 
-                if self.env.now >= 99:
+                if self.env.now >= 99: # FIXME MAX_DU
                     tracker.days_in_camp += 1
 
                     if DEBUG_SE:
@@ -633,7 +637,7 @@ init -6 python: # Guild, Tracker and Log.
                     tracker.log("The remaining of % has a sleepless night at the base camp." % team.name)
                 return "go2guild"
 
-            multiplier = .1 * (200 - self.env.now) / 100
+            multiplier = tracker.area.daily_modifier * (200 - self.env.now) / 100
 
             in_camp = True
             if tracker.state is None:
@@ -670,7 +674,7 @@ init -6 python: # Guild, Tracker and Log.
 
                 num_chars = len(tracker.captured_chars)
                 if num_chars != 0:
-                    capt_multiplier = [.95] * num_chars
+                    capt_multiplier = [1.0] * num_chars
 
                     for o in tracker.area.camp_objects:
                         if hasattr(o, "capt_daily_modifier_mod"):
@@ -686,7 +690,7 @@ init -6 python: # Guild, Tracker and Log.
                             for i in range(limit):
                                 capt_multiplier[i] *= mod
                     for c, mod in zip(tracker.captured_chars, capt_multiplier):
-                        mod -= 1.0
+                        mod -= 1.15 - tracker.area.daily_modifier
                         for stat in ("health", "mp", "vitality"):
                             mod_by_max(c, stat, mod)
                         if mod < 0:
@@ -956,7 +960,9 @@ init -6 python: # Guild, Tracker and Log.
                             se_debug(msg, mode="info")
                         self.env.exit("rest") # need to rest -> got to camping mode
 
-                if self.env.now >= 99:
+                    del check_team
+
+                if self.env.now >= 99: # FIXME MAX_DU
                     self.env.exit()
 
         def combat_mobs(self, tracker, mob, opfor_team_size, log):
@@ -1083,5 +1089,5 @@ init -6 python: # Guild, Tracker and Log.
                     temp = "%s is %d%% complete!" % (task.name, area.camp_build_points * 100 / task.cost)
                     tracker.log(temp)
 
-                if self.env.now >= 99:
+                if self.env.now >= 99: # FIXME MAX_DU
                     self.env.exit()
