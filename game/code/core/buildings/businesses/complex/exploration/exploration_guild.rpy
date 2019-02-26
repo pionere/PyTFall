@@ -289,6 +289,9 @@ init -6 python: # Guild, Tracker and Log.
             self.focus_team = None
             self.team_to_launch_index = 0
 
+        def can_close(self):
+            return not self.explorers
+
         # Teams control/sorting/grouping methods:
         def new_team(self, name):
             team = Team(name, free=True)
@@ -920,9 +923,7 @@ init -6 python: # Guild, Tracker and Log.
 
                         mob = choice(area.mobs)
 
-                        min_enemies = max(1, len(team) - 1)
-                        max_ememies = max(3, len(team) + randrange(2))
-                        enemies = randint(min_enemies, max_ememies)
+                        enemies = randint(2, 4)
 
                         temp = "{} were attacked by ".format(team.name)
                         temp = temp + "%d %s!" % (enemies, plural("mob", enemies))

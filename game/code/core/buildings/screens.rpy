@@ -273,6 +273,7 @@ init:
                     xysize (135, 40)
                     action Return(["building", "sell"])
                     tooltip 'Get rid of this building'
+                    sensitive all(u.can_close() for u in bm_building.all_extensions())
                     text "Sell"
 
         # Slots for New Style Buildings:
@@ -536,7 +537,7 @@ init:
                                     top_padding 4
                                     action Return(["bm_mid_frame_mode", u])
 
-                            if not (isinstance(u, ExplorationGuild) and u.explorers):
+                            if u.can_close():
                                 imagebutton:
                                     align 1.0, 0 offset 2, -2
                                     idle ProportionalScale("content/gfx/interface/buttons/close4.png", 20, 24)

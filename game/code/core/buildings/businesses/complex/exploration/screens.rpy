@@ -461,11 +461,12 @@ screen building_management_midframe_exploration_guild_mode:
                         dragged dragged
                         droppable 0
                         draggable idle_t
-                        tooltip w.fullname
+                        tooltip "%s\nClick to check equipment\nDrag And Drop to remove from team" % w.fullname
                         drag_name w
                         pos w_pos
                         if idle_t:
-                            clicked Show("fg_char_dropdown", dissolve, w, team=t, remove=True)
+                            clicked [SetVariable("came_to_equip_from", last_label), SetVariable("char", w),
+                                    SetVariable("eqtarget", w), SetVariable("equip_girls", [w]), Jump("char_equip")]
                             hovered Function(setattr, config, "mouse", mouse_drag)
                             unhovered Function(setattr, config, "mouse", mouse_cursor)
 
@@ -520,10 +521,11 @@ screen building_management_midframe_exploration_guild_mode:
                 drag:
                     dragged dragged
                     droppable 0
-                    tooltip w.fullname
+                    tooltip "%s\nClick to check equipment\nDrag And Drop to build teams" % w.fullname
                     drag_name w
                     pos pos
-                    clicked Show("fg_char_dropdown", dissolve, w, team=None, remove=False)
+                    clicked [SetVariable("came_to_equip_from", last_label), SetVariable("char", w),
+                             SetVariable("eqtarget", w), SetVariable("equip_girls", [w]), Jump("char_equip")]
                     add w.show("portrait", resize=(70, 70), cache=1)
                     hovered Function(setattr, config, "mouse", mouse_drag)
                     unhovered Function(setattr, config, "mouse", mouse_cursor)
@@ -699,50 +701,72 @@ screen fg_area(area):
                 tooltip "Next Team"
                 sensitive len(teams) > 1
 
-        if area.allowed_objects:
-            null height 10
-            frame:
-                align .5, .02
-                background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
-                xysize (180, 40)
-                label 'Possible addons:' text_size 16 text_color ivory align (.5, .5) text_bold True
-            viewport:
-                xalign .5
-                xysize 310, 150
-                mousewheel True
-                scrollbars "vertical"
-                has vbox
-                $ temp = set([u.type for u in area.camp_queue])
-                for u in area.allowed_objects:
-                    if u.type not in temp:
-                        $ temp.add(u.type)
-                        button:
-                            xysize 309, 25
-                            style "pb_button"
-                            text "[u.name]" align .5, .5 color ivory
-                            action Function(area.queue, u)
-                            tooltip u.desc
+        default objects_mode = "allowed"
+        null height 10
+        frame:
+            align .5, .02
+            xsize 330
+            background None
+            if objects_mode == "allowed":
+                button:
+                    xalign .5
+                    xsize 300
+                    text "To build" color ivory align (.0, .5) size 17 outlines [(1, "#3a3a3a", 0, 0)]
+                    background im.Scale("content/gfx/interface/buttons/tablefts.webp", 300, 30)
+                    action NullAction()
+                    focus_mask True
+                button:
+                    xalign .5
+                    xsize 300
+                    text "In queue" color ivory align (1.0, .5) size 16
+                    background im.Scale("content/gfx/interface/buttons/tabright.webp", 300, 30)
+                    action SetScreenVariable("objects_mode", "queue")
+                    tooltip "View Objects In Queue"
+                    focus_mask True
+                vbox:
+                    ypos 40
+                    xalign .5
+                    xsize 330 #, 150
+                    $ temp = set([u.type for u in area.camp_queue])
+                    for u in area.allowed_objects:
+                        if u.type not in temp:
+                            $ temp.add(u.type)
+                            button:
+                                xalign .5
+                                xysize 300, 25
+                                style "pb_button"
+                                text "[u.name]" align (.5, .5) color ivory
+                                action Function(area.queue, u)
+                                tooltip u.desc
+            else:
+                button:
+                    xalign .5
+                    xsize 300
+                    text "To build" color ivory align (.0, .5) size 16
+                    background im.Scale("content/gfx/interface/buttons/tableft.webp", 300, 30)
+                    action SetScreenVariable("objects_mode", "allowed")
+                    tooltip "View Objects To Build"
+                    focus_mask True
+                button:
+                    xalign .5
+                    xsize 300
+                    text "In queue" color ivory align (1.0, .5) size 17 outlines [(1, "#3a3a3a", 0, 0)]
+                    background im.Scale("content/gfx/interface/buttons/tabrights.webp", 300, 30)
+                    action NullAction()
+                    focus_mask True
 
-        if area.camp_queue:
-            null height 10
-            frame:
-                align .5, .02
-                background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
-                xysize (180, 40)
-                label 'In queue:' text_size 16 text_color ivory align (.5, .5) text_bold True
-            viewport:
-                xalign .5
-                xysize 310, 150
-                mousewheel True
-                scrollbars "vertical"
-                has vbox
-                for u in area.camp_queue:
-                    button:
-                        xysize 309, 25
-                        style "pb_button"
-                        text "[u.name]" align .5, .5 color ivory
-                        action Function(area.dequeue, u)
-                        tooltip u.desc
+                vbox:
+                    ypos 40
+                    xalign .5 #, .2
+                    xsize 330 #, 150
+                    for u in area.camp_queue:
+                        button:
+                            xalign .5
+                            xysize 300, 25
+                            style "pb_button"
+                            text "[u.name]" align (.5, .5) color ivory
+                            action Function(area.dequeue, u)
+                            tooltip u.desc
 
     # Mid-Frame:
     frame:
@@ -899,51 +923,6 @@ screen fg_area(area):
                                 xysize 60, 60
                                 align .99, .5
                                 add ProportionalScale(i.icon, 57, 57) align .5, .5
-
-screen fg_char_dropdown(char, team=None, remove=False):
-    # Trying to create a drop down screen with choices of actions:
-    zorder 3
-    modal True
-
-    default pos = renpy.get_mouse_pos()
-
-    key "mousedown_4" action NullAction()
-    key "mousedown_5" action NullAction()
-
-    # Get mouse coords:
-    python:
-        x, y = pos
-        xval = 1.0 if x > config.screen_width/2 else .0
-        yval = 1.0 if y > config.screen_height/2 else .0
-
-    frame:
-        style_prefix "dropdown_gm"
-        pos (x, y)
-        anchor (xval, yval)
-        has vbox
-
-        textbutton "Profile":
-            action [SetVariable("char_profile_entry", last_label),
-                    SetVariable("char", char),
-                    SetVariable("girls", [char]),
-                    Hide("fg_char_dropdown"),
-                    Jump("char_profile")]
-        textbutton "Equipment":
-            action [SetVariable("came_to_equip_from", last_label),
-                    SetVariable("char", char),
-                    SetVariable("eqtarget", char),
-                    SetVariable("equip_girls", [char]),
-                    Hide("fg_char_dropdown"),
-                    Jump("char_equip")]
-        if remove: # and team[0] != girl:
-            textbutton "Remove from the Team":
-                action [Function(team.remove, char), Function(workers.add, char), Hide("fg_char_dropdown"), With(dissolve)]
-
-        null height 10
-
-        textbutton "Close":
-            action Hide("fg_char_dropdown"), With(dissolve)
-            keysym "mouseup_3"
 
 screen se_debugger():
     zorder 200

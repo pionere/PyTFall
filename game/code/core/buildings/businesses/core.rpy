@@ -95,6 +95,10 @@ init -12 python:
             self.in_construction_upgrades = list() # Not used yet!
             self.upgrades = list()
 
+        def can_close(self):
+            # test if the business can be closed
+            return True
+
         def expand_capacity(self):
             cost, materials, in_slots, ex_slots = self.get_expansion_cost()
             building = self.building
