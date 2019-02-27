@@ -378,7 +378,7 @@ init -10 python:
             self.basetrait = False
             self.personality = False
             self.race = False
-            self.breasts = False
+            self.gents = False
             self.body = False
             self.elemental = False
 
@@ -496,11 +496,11 @@ init -10 python:
                     return
                 else:
                     char.race = trait
-            if trait.breasts:
-                if list(t for t in self if t.breasts):
+            if trait.gents:
+                if list(t for t in self if t.gents):
                     return
                 else:
-                    char.breasts = trait
+                    char.gents = trait
             if trait.body:
                 if list(t for t in self if t.body):
                     return
@@ -624,7 +624,7 @@ init -10 python:
                 return
 
             # WE NEVER REMOVE PERMANENT TRAITS FAMILY:
-            if any([trait.personality, trait.race, trait.breasts, trait.body]):
+            if any([trait.personality, trait.race, trait.gents, trait.body]):
                 return
 
             if not super(Traits, self).remove(trait, truetrait):

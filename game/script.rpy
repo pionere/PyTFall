@@ -326,7 +326,7 @@ label sort_traits_for_gameplay:
     python:
         # This should be reorganized later:
         tgs = object() # TraitGoups!
-        tgs.breasts = [i for i in traits.values() if i.breasts]
+        tgs.gents = [i for i in traits.values() if i.gents]
         tgs.body = [i for i in traits.values() if i.body]
         tgs.base = [i for i in traits.values() if i.basetrait and not i.mob_only]
         tgs.elemental = [i for i in traits.values() if i.elemental]
@@ -983,6 +983,23 @@ label after_load:
                 if char.location == pytfall.arena:
                     char.location = None
                     char.arena_active = True
+                if hasattr(char, "breasts"):
+                    char.gents = char.breasts
+                    del char.gents
+                if hasattr(char, "likes"):
+                    del char.likes
+                if hasattr(char, "dislikes"):
+                    del char.dislikes
+                if hasattr(char, "init_traits"):
+                    del char.init_traits
+                if char.__class__ in [Char, rChar] and not hasattr(char, "preferences"):
+                    char.preferences = dict([(p, randint(0, 100)) for p in STATIC_CHAR.PREFS])
+                if not "affection" in char.stats:
+                    char.stats["affection"] = 0
+                    char.imod["affection"] = 0
+                    char.min["affection"] = -1000
+                    char.max["affection"] = 1000
+                    char.lvl_max["affection"] = 1000
                 if hasattr(char, "price"):
                     del char.price
                 if hasattr(char, "days_depressed"):

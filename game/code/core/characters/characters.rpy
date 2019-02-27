@@ -1,9 +1,9 @@
 # Characters classes and methods:
 init -9 python:
     class STATIC_CHAR():
-        __slots__ = ("STATS", "SKILLS", "GEN_OCCS", "STATUS", "ORIGIN", "MOOD_TAGS", "UNIQUE_SAY_SCREEN_PORTRAIT_OVERLAYS", "BASE_UPKEEP", "BASE_WAGES", "TRAININGS", "FIXED_MAX", "SEX_SKILLS")
-        STATS =  {"charisma", "constitution", "joy", "character", "reputation",
-                  "health", "fame", "mood", "disposition", "vitality", "intelligence",
+        __slots__ = ("STATS", "SKILLS", "GEN_OCCS", "STATUS", "ORIGIN", "MOOD_TAGS", "UNIQUE_SAY_SCREEN_PORTRAIT_OVERLAYS", "BASE_UPKEEP", "BASE_WAGES", "TRAININGS", "FIXED_MAX", "SEX_SKILLS", "PREFS")
+        STATS =  {"charisma", "constitution", "joy", "character", "fame", "reputation",
+                  "health", "mood", "disposition", "affection", "vitality", "intelligence",
                   "luck", "attack", "magic", "defence", "agility", "mp"}
         SKILLS = {"vaginal", "anal", "oral", "sex", "strip", "service",
                       "refinement", "group", "bdsm", "dancing",
@@ -23,8 +23,11 @@ init -9 python:
         TRAININGS = {"Abby Training": "Abby the Witch",
                      "Aine Training": "Aine",
                      "Xeona Training": "Xeona"}
-        FIXED_MAX = {"joy", "mood", "disposition", "vitality", "luck", "alignment"}
+        FIXED_MAX = {"joy", "mood", "disposition", "affection", "vitality", "luck"}
         SEX_SKILLS = {"vaginal", "anal", "oral", "sex", "group", "bdsm"}
+        PREFS = {"gold", "fame", "reputation", "charisma", "constitution", "character",
+                  "intelligence", "attack", "magic", "defence", "agility", "luck",
+                  "vaginal", "anal", "oral", "sex", "group", "bdsm"}
 
     ###### Character Classes ######
     class PytCharacter(Flags, Tier, JobsLogger, Pronouns):
@@ -79,10 +82,6 @@ init -9 python:
             # Relationships:
             self.friends = set()
             self.lovers = set()
-
-            # Preferences:
-            self.likes = set() # These are simple sets containing objects and possibly strings of what this character likes or dislikes...
-            self.dislikes = set() # ... more often than not, this is used to compliment same params based of traits. Also (for example) to set up client preferences.
 
             # Arena related:
             if arena:
@@ -139,6 +138,7 @@ init -9 python:
                 'fame': [0, 0, 100, 100],
                 'mood': [0, 0, 1000, 1000], # not used...
                 'disposition': [0, -1000, 1000, 1000],
+                'affection': [0, -1000, 1000, 1000],
                 'vitality': [100, 0, 100, 200],
                 'intelligence': [5, 0, 50, 60],
 
@@ -2319,7 +2319,7 @@ init -9 python:
                 # 'r7': dict(id=7, name=("Rank 7: Koshi", "(Nation famous)"), price=25000, ref=200, exp=400000),
                 # 'r8': dict(id=8, name=("Rank 8: Tayu", "(Legendary)"), price=50000, ref=250, exp=800000)
             # }
-        RANKS = {}
+        #RANKS = {}
         def __init__(self):
             super(Char, self).__init__(arena=True, inventory=True, effects=True)
             # Game mechanics assets
@@ -2340,7 +2340,7 @@ init -9 python:
             self.days_unhappy = 0
 
             # Trait assets
-            self.init_traits = list() # List of traits to be enabled on game startup (should be deleted in init method)
+            #self.init_traits = list() # List of traits to be enabled on game startup (should be deleted in init method)
 
             # Autocontrol of girls action (during the next day mostly)
             # TODO lt: Enable/Fix (to work with new skills/traits) this!
@@ -2357,6 +2357,9 @@ init -9 python:
             #self.autobuy = False
             #self.autoequip = False
             self.given_items = dict()
+
+            # Preferences
+            #self.preferences = {}
 
             self.txt = list()
             self.fin = Finances(self)
@@ -2390,13 +2393,16 @@ init -9 python:
             self.autoequip = True
 
             # FOUR BASE TRAITS THAT EVERY GIRL SHOULD HAVE AT LEAST ONE OF:
-            if not list(t for t in self.traits if t.personality):
+            if all(not t.personality for t in self.traits):
                 self.apply_trait(traits["Deredere"])
-            if not list(t for t in self.traits if t.race):
+            if all(not t.race for t in self.traits):
                 self.apply_trait(traits["Unknown"])
-            if not list(t for t in self.traits if t.breasts):
-                self.apply_trait(traits["Average Boobs"])
-            if not list(t for t in self.traits if t.body):
+            if all(not t.gents for t in self.traits):
+                if self.gender == "female":
+                    self.apply_trait(traits["Average Boobs"])
+                else:
+                    self.apply_trait(traits["Average Dick"])
+            if all(not t.body for t in self.traits):
                 self.apply_trait(traits["Slim"])
 
             # Second round of stats normalization:
@@ -2792,6 +2798,9 @@ init -9 python:
             elif self.gender == 'female':
                 self.act = "lesbian"
 
+            # Preferences:
+            self.likes = set() # These are simple sets containing objects and possibly strings of what this character likes or dislikes...
+            self.dislikes = set() # ... more often than not, this is used to compliment same params based of traits. Also (for example) to set up client preferences.
 
     class NPC(Char):
         """There is no point in this other than an ability to check for instances of NPCs

@@ -281,7 +281,7 @@ init -11 python:
         if not id:
             id = choice(rchars.keys())
         elif id not in rchars:
-            raise Exception(str("Unknown id %s when creating a random character!" % (id)))
+            raise Exception("Unknown id %s when creating a random character!" % id)
         data = rchars[id]
         rg.id = id
 
@@ -338,13 +338,14 @@ init -11 python:
             rg.set_status(choice(["free", "slave"]))
 
         # Locations:
-        if set_locations:
-            if rg.status == "slave":
-                rg.home = pytfall.sm
-                set_location(rg, None)
-            else:
-                rg.home = pytfall.city
-                set_location(rg, None)
+        if set_locations is False:
+            pass
+        elif set_locations is not True:
+            rg.home = set_locations
+            set_location(rg, None)
+        elif set_locations:
+            rg.home = pytfall.sm if rg.status == "slave" else pytfall.city
+            set_location(rg, None)
 
         # BASE TRAITS:
         selection = None
@@ -409,6 +410,14 @@ init -11 python:
                         char_debug("Invalid %s: %s for random girl: %s!" % (key, data[key], id))
                         color = ivory
                 rg.say_style[key] = color
+
+        # add a random character trait if none exists yet
+        if all(not t.character_trait for t in rg.traits) and dice(50):
+            rg.apply_trait(choice(tgs.ct))
+
+        # generate random preferenes
+        if not hasattr(rg, "preferences"):
+            rg.preferences = dict([(p, randint(0, 100)) for p in STATIC_CHAR.PREFS])
 
         # Normalizing new girl:
         # We simply run the init method of parent class for this:
@@ -712,7 +721,7 @@ init -11 python:
         # Likes:
         # Add some traits from trait groups:
         cl = set()
-        cl.add(choice(tgs.breasts))
+        cl.add(choice(tgs.gents))
         cl.add(choice(tgs.body))
         cl.add(choice(tgs.race))
         cl.update(random.sample(tgs.base, randint(1, 2)))
@@ -724,10 +733,10 @@ init -11 python:
             cl.update(likes)
             # We pick some of the traits to like/dislike at random.
 
-        if gender == "female":
-            cl.add(traits["Lesbian"])
-        else: #if gender == "male":
-            cl.discard(traits["Lesbian"])
+        #if gender == "female":
+        #    cl.add(traits["Lesbian"])
+        #else: #if gender == "male":
+        #    cl.discard(traits["Lesbian"])
 
         client.likes = cl
 
@@ -803,7 +812,8 @@ init -11 python:
         gm.remove_girl(char) # gm is poorly named and can be overwritten...
 
         global chars
-        del chars[char.id]
+        temp = getattr(char, "dict_id", char.id)
+        del chars[temp]
 
         del char
 
@@ -975,6 +985,38 @@ init -11 python:
         value *= mod * ap_used
         return round_int(value)
 
+    def affection_reward(char, value, stat=None):
+        """
+        Adjusts the affection increase of an actor. Doesn't actually raise the affection.
+        
+        char: the affected actor
+        value: the base affection increment
+        stat: the stat on which the affection increment is based on
+             only the given stat-preference of the actor is counted if defined,
+             otherwise every preference of the actor is calculated 
+        """
+        temp = char.preferences
+        if stat is not None:
+            temp = temp.get(stat, 0)
+            if temp == 0:
+                return 0
+            temp = {stat, temp}
+        mod = 1.0
+        for p, v in temp.items():
+            if v == 0:
+                continue
+            if is_stat(p):
+                max_val = char.get_relative_max_stat(p)
+                val = hero.get_stat(p)
+            elif is_skill(p):
+                max_val = char.get_max_skill(p)
+                val = hero.get_skill(p)
+            else: # gold
+                max_val = getattr(char, p)
+                val = getattr(hero, p)
+            mod *= min(5, float(val * v) / (100 * max(max_val, 1))) 
+        value *= mod
+        return round_int(value)
     #def get_act(character, tags): # copypaste from jobs without the self part, allows to randomly select one of existing tags sets
     #        acts = list()
     #        for t in tags:

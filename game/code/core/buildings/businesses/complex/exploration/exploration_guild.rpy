@@ -881,7 +881,7 @@ init -6 python: # Guild, Tracker and Log.
                                 del(area.special_chars[char])
                                 tracker.captured_chars.append(char)
 
-                                temp = "Your team has captured a 'special' character: {}!".format(char.name)
+                                temp = "Your team has captured a 'special' character: %s!" % char.name
                                 temp = set_font_color(temp, "orange")
                                 tracker.log(temp)
                                 if DEBUG_SE:
@@ -899,7 +899,7 @@ init -6 python: # Guild, Tracker and Log.
 
                                 char = store.chars[id]
                                 tracker.captured_chars.append(char)
-                                temp = "Your team has captured a character: {}!".format(char.name)
+                                temp = "Your team has captured {color=[pink]}%s{/color}!" % char.name
                                 temp = set_font_color(temp, "lawngreen")
                                 tracker.log(temp)
                                 if DEBUG_SE:
@@ -921,9 +921,9 @@ init -6 python: # Guild, Tracker and Log.
 
                                 if id == "any":
                                     id = None
-                                char = build_rc(id=id, tier=tier, set_status="slave")
+                                char = build_rc(id=id, tier=tier, set_status="slave", set_locations=pytfall.streets)
                                 tracker.captured_chars.append(char)
-                                temp = "Your team has captured a character: {}!".format(char.name)
+                                temp = "Your team has captured %s!" % char.name
                                 temp = set_font_color(temp, "lawngreen")
                                 tracker.log(temp)
                                 if DEBUG_SE:
