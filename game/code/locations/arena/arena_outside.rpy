@@ -90,8 +90,6 @@ label arena_outside:
             if result[1] == 'return':
                 $ loop = False
 
-        $ renpy.hide("_tag")
-
     $ renpy.music.stop(channel="gamemusic")
     hide screen arena_outside
     jump city

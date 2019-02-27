@@ -43,7 +43,7 @@ init -10 python:
             In case of one basetrait, we multiply result by 2!
             """
             if self.tier >= MAX_TIER:
-                self.tier = MAX_TIER
+                #self.tier = MAX_TIER
                 return False
 
             target_tier = self.tier+1.0 # To get a float for Py2.7

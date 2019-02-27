@@ -86,13 +86,13 @@ init -9 python:
 
         # World AI ----------------------------->
         def populate_world(self, tier_offset=.0):
-            # Get all rcahrs in the game and sort by status.
+            # Get all rchars in the game and sort by status.
             rc_free = []
             rc_slaves = []
             for c in chars.values():
                 if c.__class__ != rChar:
                     continue
-                if c.arena_active: # Check if this is correct...
+                if c.arena_active:
                     continue
                 if c in hero.chars:
                     continue

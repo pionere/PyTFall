@@ -130,21 +130,6 @@ init -11 python:
 
         return elements
 
-    def kill_char(char):
-        # Attempts to remove a character from the game world.
-        # This happens automatically if char's health goes 0 or below.
-        if "Undead" in char.traits:
-            char.set_stat("health", 1)
-            return
-        if char == hero:
-            jump("game_over")
-        char.home = pytfall.afterlife
-        char.location = None
-        char.reset_workplace_action()
-        if char in hero.chars:
-            hero.remove_char(char)
-        gm.remove_girl(char)
-
     def take_team_ap(value):
         """
         Checks the whole hero team for enough AP;
@@ -272,7 +257,7 @@ init -11 python:
         bt_group: Groups of custom selections of basetraits.
         bt_preset: Random choice from custom presets of basetraits.
 
-        teir: Tier of the character... floats are allowed.
+        tier: Tier of the character... floats are allowed.
         add_to_gameworld: Adds to characters dictionary, should always
             be True unless character is created not to participate in the game world...
 
@@ -809,23 +794,36 @@ init -11 python:
         char.home = None
         char.reset_workplace_action()
 
-        sm = pytfall.sm # SlaveMarket
-        if char in sm.chars_list:
-            sm.chars_list.remove(char)
+        # SlaveMarket
+        pytfall.sm.remove_char(char)
+        # Jail
+        pytfall.jail.remove_char(char)
 
         global gm
         gm.remove_girl(char) # gm is poorly named and can be overwritten...
 
-        if getattr(char, "dict_id", None):
-            id = char.dict_id
-        else:
-            id = char.id
-
         global chars
-        if id in chars:
-            del (chars[id])
+        del chars[char.id]
 
-        del(char)
+        del char
+
+    def kill_char(char):
+        # Attempts to remove a character from the game world.
+        # This happens automatically if char's health goes 0 or below.
+        if "Undead" in char.traits:
+            char.set_stat("health", 1)
+            return
+        if char == hero:
+            jump("game_over")
+
+        char.location = None
+        char.home = pytfall.afterlife
+        char.reset_workplace_action()
+
+        if char in hero.chars:
+            hero.remove_char(char)
+
+        gm.remove_girl(char)
 
     def tier_up_to(char, tier, level_bios=(.9, 1.1),
                    skill_bios=(.65, 1.0), stat_bios=(.65, 1.0)):
@@ -840,6 +838,10 @@ init -11 python:
 
         Important: Should only be used right after the character was created!
         """
+        # limit tier
+        if tier > MAX_TIER:
+            tier = MAX_TIER
+
         level_bios = partial(uniform, level_bios[0], level_bios[1])
         skill_bios = partial(uniform, skill_bios[0], skill_bios[1])
         stat_bios = partial(uniform, stat_bios[0], stat_bios[1])

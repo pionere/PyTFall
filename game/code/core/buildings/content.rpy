@@ -52,6 +52,13 @@ init -9 python:
                 temp1 = "Blue of the Slave Market sent out a bulletin about new slave arrivals!"
                 gazette.other.append(choice([temp, temp1]))
 
+        def remove_char(self, char):
+            if char in self.chars_list:
+                self.chars_list.remove(char)
+                self.index = 0
+            if char in self.blue_slaves:
+                self.blue_slaves.remove(char)
+
         def get_price(self, char):
             return char.fin.get_price()
 
@@ -194,6 +201,19 @@ init -9 python:
                     sentence = PUNISHABLE_TRAITS[c[1]]
                     self.add_prisoner(char, sentence[0], randint(*sentence[1]))
                     # FIXME notify the player about the event
+
+        def remove_char(self, char):
+            if char in self.slaves:
+                self.slaves.remove(char)
+                self.slave_index = [0,]
+
+            if char in self.captures:
+                self.captures = list()
+                self.capt_index = [0,]
+
+            if char in self.cells:
+                self.cells = list()
+                self.cell_index = [0,]
 
         def add_slave(self, char):
             set_location(char, self)

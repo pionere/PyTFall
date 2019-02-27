@@ -957,8 +957,10 @@ label after_load:
                     char.controller = None
                 if hasattr(char, "_arena_rep"):
                     char.arena_rep = char._arena_rep
+                    del char._arena_rep
                 if hasattr(char, "_location"):
                     char.location = char._location
+                    del char._location
                 if hasattr(char, "_action"):
                     action = char._action
                     if action == "Arena Combat":
@@ -1032,8 +1034,10 @@ label after_load:
                     fighter.controller = None
                 if hasattr(fighter, "_arena_rep"):
                     fighter.arena_rep = fighter._arena_rep
+                    del fighter._arena_rep
                 if hasattr(fighter, "_location"):
                     fighter.location = fighter._location
+                    del fighter._location
                 if fighter.location == arena:
                     fighter.location = None
                     fighter.arena_active = True
@@ -1052,8 +1056,10 @@ label after_load:
                             fighter.controller = None
                         if hasattr(fighter, "_arena_rep"):
                             fighter.arena_rep = fighter._arena_rep
+                            del fighter._arena_rep
                         if hasattr(fighter, "_location"):
                             fighter.location = fighter._location
+                            del fighter._location
 
             for setup in itertools.chain(arena.matches_1v1, arena.matches_2v2, arena.matches_3v3):
                 for fighter in itertools.chain(setup[0].members, setup[1].members):
@@ -1061,8 +1067,10 @@ label after_load:
                         fighter.controller = None
                     if hasattr(fighter, "_arena_rep"):
                         fighter.arena_rep = fighter._arena_rep
+                        del fighter._arena_rep
                     if hasattr(fighter, "_location"):
                         fighter.location = fighter._location
+                        del fighter._location
 
             for b in hero.buildings:
                 if hasattr(b, "all_clients"):
@@ -1071,8 +1079,10 @@ label after_load:
                             client.controller = None
                         if hasattr(client, "_arena_rep"):
                             client.arena_rep = client._arena_rep
+                            del client._arena_rep
                         if hasattr(client, "_location"):
                             client.location = client._location
+                            del client._location
 
     python hide:
         if hasattr(store, "json_fighters"):
