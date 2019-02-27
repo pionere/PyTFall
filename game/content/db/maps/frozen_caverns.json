@@ -1,0 +1,79 @@
+[
+    {
+        "name": "Frozen Caverns",
+        "main": true,
+        "unlocked": false,
+        "img": "content/maps/frozen_1.webp"
+    },
+    {
+        "name": "Frozen Passage Entrance",
+        "img": "content/maps/frozen_entry.webp",
+        "stage": 1,
+        "tier": 1.75,
+        "area": "Frozen Caverns",
+        "desc": "Entrance to the frozen passage that is rumored to lead to the other side of the mountains.",
+        "unlocked": true,
+        "travel_time": 2.2,
+        "maxexplored": 2500,
+        "daily_modifier": 0.08,
+        "mobs": ["Yeti", "Polar Bear", "Tundra Wolf", "Wadding"],
+        "hazard": {
+            "health": 5,
+            "mp": 0,
+            "vitality": 5
+        },
+        "unlocks": {"Frozen Passage": 75},
+        "cash_limit": 20,
+        "items_limit": 600,
+        "items": {"Ice Daggers": 40, "Ice Axe": 40, "Icy Sword": 20}
+    },
+    {
+        "name": "Frozen Passage",
+        "area": "Frozen Caverns",
+        "img": "content/maps/frozen_1.webp",
+        "stage": 2,
+        "tier": 2.25,
+        "desc": "An unnaturally cold complex of caverns bellow the mountains.",
+        "unlocked": false,
+        "travel_time": 2.3,
+        "maxexplored": 1700,
+        "daily_modifier": 0.08,
+        "mobs": ["Frozen Heart", "Frost Giant", "Ice Golem"],
+        "hazard": {
+            "health": 1,
+            "mp": 0,
+            "vitality": 2
+        },
+        "unlocks": {"Frozen Throne": 99},
+        "cash_limit": 40,
+        "items_limit": 700,
+        "items": {"Crystal Wand": 30, "Ice Charm": 20, "Winter Ring": 25
+        }
+    },
+    {
+        "name": "Frozen Throne",
+        "area": "Frozen Caverns",
+        "img": "content/maps/frozen_2.webp",
+        "stage": 3,
+        "tier": 2.5,
+        "desc": "An unnaturally cold complex of caverns bellow the mountains attracting creatures from the Ice dimension.",
+        "unlocked": false,
+        "travel_time": 2.5,
+        "maxexplored": 700,
+        "daily_modifier": 0.05,
+        "mobs": ["Ice Maiden", "Winter Queen", "Ice Golem"],
+        "hazard": {
+            "health": 10,
+            "mp": 5,
+            "vitality": 10
+        },
+        "unlocks": {},
+        "cash_limit": 100,
+        "items_limit": 1000,
+        "items": {
+            "Icicle Staff": 20,
+            "Frost Cape": 20,
+            "Ice Shoes": 50
+        }
+    }
+]
