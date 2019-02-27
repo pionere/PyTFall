@@ -107,10 +107,8 @@ label interactions_shopping:
                             if char.get_stat("joy") < 40:
                                 if focus.price > 1000:
                                     txt += "Thank you very much Master. I will put the %s to good use.\n"%focus.id
-                                    char.gfx_mod_stat('joy', 2)
                                     char.gfx_mod_stat('disposition', 4)
-                                    char.gfx_mod_stat('disposition', 1)
-
+                                    char.gfx_mod_stat('joy', 2)
                                 else:
                                     txt += "Thank you Master for the %s.\n"%focus.id
                                     char.gfx_mod_stat('disposition', 2)

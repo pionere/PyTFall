@@ -1136,9 +1136,9 @@ screen next_day():
                                 fixed:
                                     xysize xsize, 355
                                     if not i:
-                                        at mm_clouds(xsize, 0, 5)
+                                        at mm_clouds(xsize, 0, 10)
                                     else:
-                                        at mm_clouds(0, -xsize, 5)
+                                        at mm_clouds(0, -xsize, 10)
                                     $ xpos = 0
                                     for w, charmod in event.team_charmod.iteritems():
                                         vbox:

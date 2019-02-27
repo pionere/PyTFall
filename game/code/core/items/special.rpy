@@ -108,8 +108,8 @@ label special_items_empty_extractor:
             $ spr = eqtarget.get_vnsprite()
             show expression spr at center with dissolve
             "This device will extract some of [eqtarget.name]'s experience."
-            if eqtarget.get_stat("disposition") > 0:
-                $ eqtarget.mod_stat("disposition", -randint(25, 50))
+            $ eqtarget.gfx_mod_stat("disposition", -randint(25, 50))
+            $ eqtarget.gfx_mod_stat("affection", -randint(2, 5))
             if eqtarget.get_stat("joy") >= 55:
                 $ eqtarget.gfx_mod_stat("joy", -10)
         else:
@@ -121,6 +121,7 @@ label special_items_empty_extractor:
                 if eqtarget <> hero:
                     "She slightly shudders when the device starts to work."
                     $ eqtarget.gfx_mod_stat("disposition", -randint(20, 30))
+                    $ eqtarget.gfx_mod_stat("affection", -randint(2, 3))
                 else:
                     "For a moment you feel weak, but unpleasant pain somewhere inside your head."
                 $ eqtarget.gfx_mod_exp(-2000)
@@ -237,6 +238,7 @@ label special_items_one_for_all:
     hide death
     "[eqtarget.name]'s body crumbles as her life energies turn into potions in your inventory."
     $ eqtarget.mod_stat("disposition", -1000) # in case if we'll have reviving one day
+    $ eqtarget.mod_stat("affection", -1000)   # in case if we'll have reviving one day
     $ kill_char(eqtarget)
     jump mainscreen
 

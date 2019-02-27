@@ -10,6 +10,7 @@ label interactions_harrasment_after_battle: # after MC provoked a free character
                     "Sadly, [char.p] has no money. What a waste."
                 else:
                     $ char.gfx_mod_stat("disposition", -randint(10, 25))
+                    $ char.gfx_mod_stat("affection", -randint(1,3))
                     $ g = char.gold
                     while g >= randint(500, 1000):
                         $ g = round(g*.1)
@@ -31,6 +32,7 @@ label interactions_harrasment_after_battle: # after MC provoked a free character
                     "On [char.op] you found [temp.id]!"
                     $ transfer_items(char, hero, temp, amount=1, silent=True, force=True)
                     $ char.gfx_mod_stat("disposition", -randint(20, 45))
+                    $ char.gfx_mod_stat("affection", -randint(3,5))
                 else:
                     "You didn't find anything..."
             "Kill [char.op]" if (char not in hero.chars): # direct killing of hired free chars is unavailable, only in dungeon on via other special means
@@ -42,8 +44,10 @@ label interactions_harrasment_after_battle: # after MC provoked a free character
                         if all([member.status <> "slave", not("Vicious" in member.traits), not("Yandere" in member.traits), member<>hero]):
                             if "Virtuous" in member.traits:
                                 member.gfx_mod_stat("disposition", -randint(200, 300)) # you really don't want to do it with non evil chars in team
+                                member.gfx_mod_stat("affection", -randint(30,50))
                             else:
                                 member.gfx_mod_stat("disposition", -randint(100, 200))
+                                member.gfx_mod_stat("affection", -randint(20,30))
             "Nothing":
                 $ pass
         "You quickly leave before someone sees you."
@@ -77,9 +81,12 @@ label interactions_escalation: # character was provoked to attack MC
                 if all([member.status != "slave", not("Vicious" in member.traits), not("Yandere" in member.traits), member != hero]): # they don't like when MC harasses and then beats other chars, unless they are evil
                     if "Virtuous" in member.traits:
                         member.gfx_mod_stat("disposition", -randint(20, 40)) # double for kind characters
+                        member.gfx_mod_stat("affection", -randint(3,5))
                     else:
                         member.gfx_mod_stat("disposition", -randint(10, 20))
+                        member.gfx_mod_stat("affection", -randint(1,3))
         $ char.gfx_mod_stat("disposition", -randint(100, 200)) # that's the beaten character, big penalty to disposition
+        $ char.gfx_mod_stat("affection", -randint(20,30))
         call interactions_fight_lost from _call_interactions_fight_lost
         jump interactions_harrasment_after_battle
     else:
@@ -99,20 +106,25 @@ label interactions_insult:
         $ char.gfx_mod_stat("character", -randint(0,1))
     if (char.get_stat("disposition") >= 250 and char.status<>"slave") or check_lovers(char, hero) or (char.get_stat("disposition") >= 700 and char.status=="slave"):
         $ char.gfx_mod_stat("disposition", -randint(1, 5))
+        $ char.gfx_mod_stat("affection", -randint(1,3))
         if m < 3:
             call interactions_got_insulted_hdisp from _call_interactions_got_insulted_hdisp
         else:
             call interactions_too_many_lines from _call_interactions_too_many_lines_9
             $ char.gfx_mod_stat("disposition", -randint(1, m))
+            $ char.gfx_mod_stat("affection", -randint(8,12))
     elif char.get_stat("disposition") > -100 and char.status=="slave":
         $ char.gfx_mod_stat("disposition", -randint(1, 5))
+        $ char.gfx_mod_stat("affection", -randint(1,3))
         if m < 3:
             call interactions_got_insulted_slave from _call_interactions_got_insulted_slave
         else:
             call interactions_too_many_lines from _call_interactions_too_many_lines_10
             $ char.gfx_mod_stat("disposition", -randint(1, m))
+            $ char.gfx_mod_stat("affection", -randint(8,12))
     else:
         $ char.gfx_mod_stat("disposition", -randint(15,25))
+        $ char.gfx_mod_stat("affection", -randint(4,6))
         if ct("Aggressive") and m>1 and char.status != "slave" and dice(50):
             jump interactions_escalation
         elif m < randint(2,3):

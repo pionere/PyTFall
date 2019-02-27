@@ -32,6 +32,7 @@ label interactions_hireforsex: # we go to this label from GM menu hire for sex. 
         $ char.gfx_mod_stat("disposition", -randint(15, 35))
         if char.get_stat("joy") > 50:
             $ char.gfx_mod_stat("joy", -randint(2, 4))
+            $ char.gfx_mod_stat("affection", -randint(3,5))
         $ del m
         $ del n
         jump girl_interactions
@@ -149,6 +150,7 @@ label interactions_sex: # we go to this label from GM menu propose sex
     if m > n:
         call interactions_too_many_sex_lines from _call_interactions_too_many_sex_lines_2
         $ char.gfx_mod_stat("disposition", -randint(15, 30))
+        $ char.gfx_mod_stat("affection", -randint(4,6))
         if char.get_stat("joy") > 50:
             $ char.gfx_mod_stat("joy", -randint(2, 4))
         jump girl_interactions
@@ -209,8 +211,10 @@ label interactions_sex: # we go to this label from GM menu propose sex
             $ dif = disposition_level_for_sex - char.get_stat("disposition") # the difference between required for sex and current disposition
             if dif <= 100:
                 $ char.gfx_mod_stat("disposition", -randint(20, 35)) # if it's low, then disposition penalty will be low too
+                $ char.gfx_mod_stat("affection", -randint(8,12))
             else:
                 $ char.gfx_mod_stat("disposition", -randint(30, 60)) # otherwise it will be significant
+                $ char.gfx_mod_stat("affection", -randint(10,20))
             $ del dif
             $ del disposition_level_for_sex
             jump girl_interactions
@@ -223,9 +227,11 @@ label interactions_sex: # we go to this label from GM menu propose sex
                         $ char.gfx_mod_stat("joy", -randint(1, 5))
                         if char.get_stat("disposition") > 50:
                             $ char.gfx_mod_stat("disposition", -randint(25, 50))
+                        $ char.gfx_mod_stat("affection", -randint(8,12))
                     else:
                         $ char.gfx_mod_stat("joy", -randint(20, 30))
                         $ char.gfx_mod_stat("disposition", -randint(50, 100))
+                        $ char.gfx_mod_stat("affection", -randint(15,25))
                         $ char.set_flag("raped_by_player")
                 "No":
                     jump girl_interactions
@@ -447,6 +453,7 @@ label mc_action_scene_finish_sex:
         $ get_single_sex_picture(char, act="masturbation", location=sex_scene_location, hidden_partner=True)
         "[char.name] is not satisfied yet, so she quickly masturbates right in front of you."
         $ char.gfx_mod_stat("disposition", -round(sex_scene_libido*3))
+        $ char.gfx_mod_stat("affection", -1)
 
     if (together_count > 0 and sex_count >1) or (sex_count >2 and girl_count >=1 and guy_count >= 1):
         $ excluded = ["angry", "sad", "scared", "in pain"]
@@ -494,6 +501,7 @@ label mc_action_scene_finish_sex:
 
             if not char.has_flag("raped_by_player"):
                 $ char.gfx_mod_stat("disposition", -randint(15, 35))
+                $ char.gfx_mod_stat("affection", -randint(8,12))
                 $ char.gfx_mod_stat("joy", -randint(2, 5))
                 call interactions_girl_never_come from _call_interactions_girl_never_come
             else:
@@ -573,6 +581,7 @@ label mc_action_scene_finish_sex:
         else:
             "She is quite upset and irritated because you didn't do anything. She quickly leaves, probably thinking that you teased her."
             $ char.gfx_mod_stat("disposition", -randint(50, 100))
+            $ char.gfx_mod_stat("affection", -randint(8,12))
             $ char.gfx_mod_stat("joy", -randint(15, 30))
             $ char.mod_stat("vitality", -5)
     elif mast_count > 0 and guy_count < 1 and girl_count < 1:
@@ -597,6 +606,7 @@ label mc_action_scene_finish_sex:
         "She did nothing but masturbated in front of you. Be prepared for rumors about your impotence or orientation."
         if not char.has_flag("raped_by_player"):
             $ char.gfx_mod_stat("disposition", -randint(10, 25))
+            $ char.gfx_mod_stat("affection", -randint(0,3))
         call interactions_girl_dissapointed from _call_interactions_girl_dissapointed_3
         $ char.mod_stat("vitality", -5)
     else:
@@ -696,6 +706,7 @@ label interactions_lesbian_choice:
         $ char.gfx_mod_stat("joy", -5)
     if char.get_stat("joy") <= 10:
         $ char.gfx_mod_stat("disposition", -5)
+        $ char.gfx_mod_stat("affection", -10)
     $ char.mod_stat("health", -2)
     if char.get_skill("oral") < 100 and char.get_skill("sex") < 100 and char2.get_skill("oral") < 100 and char2.get_skill("sex") < 100:
         "They both were not skilled enough to give each other enough pleasure, no matter how they tried. That was quite awkward."

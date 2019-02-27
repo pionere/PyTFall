@@ -829,6 +829,7 @@ init -10 python:
                             self.moddirt(-5 * effectiveness_ratio)
 
                             c.mod_stat("disposition", -50)
+                            c.mod_stat("affection", -10)
                             c.mod_stat("joy", -10)
                             txt.append("%s cleaned up a bit." % c.nickname)
 

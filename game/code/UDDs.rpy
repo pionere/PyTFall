@@ -118,8 +118,8 @@ init -960 python:
 
         def mod_stat(self, stat, value, char):
             if isinstance(char, Char):
-                if stat == "disposition":
-                    self.disposition_mod(value)
+                if stat == "affection":
+                    self.affection_mod(value)
                 else:
                     self.mod_char_stat(stat, value, char)
             elif char == hero:
@@ -214,7 +214,7 @@ init -960 python:
             self.add_atl(mc_stats_effect, duration, kwargs)
             self.add_sfx("content/sfx/sound/events/bing.ogg", .5+time_offset)
 
-        def disposition_mod(self, value):
+        def affection_mod(self, value):
             value = round_int(value)
             kwargs = dict()
             time_offset = self.get_time_offset()
@@ -243,7 +243,7 @@ init -960 python:
             kwargs["start"] = time_offset
             duration = uniform(1.2, 2.3)
             kwargs["duration"] = duration
-            self.add_atl(dispostion_effect, duration, kwargs)
+            self.add_atl(affection_effect, duration, kwargs)
 
         def random_find(self, item, mode='gold', count=None):
             # Can be used to show that we've found something.

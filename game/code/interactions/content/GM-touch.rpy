@@ -10,6 +10,7 @@ label interactions_hug:
     if m > (1 + n + interactions_set_repeating_lines_limit(char)):
         call interactions_too_many_sex_lines from _call_interactions_too_many_sex_lines_3
         $ char.gfx_mod_stat("disposition", -randint(5, 15))
+        $ char.gfx_mod_stat("affection", -randint(1, 3))
         if char.get_stat("joy") > 40:
             $ char.gfx_mod_stat("joy", -randint(1, 3))
         $ del m
@@ -66,6 +67,7 @@ label interactions_hug:
         
         if char.status == "free":
             $ char.gfx_mod_stat("disposition", -randint(15, 25))
+            $ char.gfx_mod_stat("affection", -randint(4,6))
             if ct("Impersonal"):
                 $ rc("Please get off me, I can't breathe.", "<she moved back you as you tried to hug her>")
             elif ct("Shy") and dice(50):
@@ -118,6 +120,7 @@ label interactions_grabbutt:
     if m > (2 + n + interactions_set_repeating_lines_limit(char)):
         call interactions_too_many_sex_lines from _call_interactions_too_many_sex_lines_4
         $ char.gfx_mod_stat("disposition", -randint(5, 15))
+        $ char.gfx_mod_stat("affection", -randint(4,6))
         if char.get_stat("joy") > 30:
             $ char.gfx_mod_stat("joy", -randint(1, 3))
         $ del m
@@ -181,6 +184,7 @@ label interactions_grabbutt:
         
         if char.status == "free":
             $ char.gfx_mod_stat("disposition", -randint(10, 25))
+            $ char.gfx_mod_stat("affection", -randint(5,7))
 
             if ct("Yandere"):
                 $ rc("Hey, it hurts! Stop it!", "Touching is forbidden. That hand, don't blame me if it falls off.", "You have some nerve putting your hands on me!", "Could you refrain from touching me with your dirty hands?")
@@ -232,6 +236,7 @@ label interactions_grabbreasts:
     if m > (2 + n + interactions_set_repeating_lines_limit(char)):
         call interactions_too_many_sex_lines from _call_interactions_too_many_sex_lines_5
         $ char.gfx_mod_stat("disposition", -randint(5, 15))
+        $ char.gfx_mod_stat("affection", -randint(5,7))
         if char.get_stat("joy") > 30:
             $ char.gfx_mod_stat("joy", -randint(1, 3))
         $ del m
@@ -292,6 +297,7 @@ label interactions_grabbreasts:
         $ del n
         if char.status == "free":
             $ char.gfx_mod_stat("disposition", -randint(15, 25))
+            $ char.gfx_mod_stat("affection", -randint(7,9))
 
             if ct("Yandere"):
                 $ rc("Hey, it hurts! Stop it!", "How... dare you!", "Huhuhuh... I wonder how warm it would be to bathe in your blood...?")

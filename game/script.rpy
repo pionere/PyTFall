@@ -995,11 +995,11 @@ label after_load:
                 if char.__class__ in [Char, rChar] and not hasattr(char, "preferences"):
                     char.preferences = dict([(p, randint(0, 100)) for p in STATIC_CHAR.PREFS])
                 if not "affection" in char.stats:
-                    char.stats["affection"] = 0
-                    char.imod["affection"] = 0
-                    char.min["affection"] = -1000
-                    char.max["affection"] = 1000
-                    char.lvl_max["affection"] = 1000
+                    char.stats.stats["affection"] = 0
+                    char.stats.imod["affection"] = 0
+                    char.stats.min["affection"] = -1000
+                    char.stats.max["affection"] = 1000
+                    char.stats.lvl_max["affection"] = 1000
                 if hasattr(char, "price"):
                     del char.price
                 if hasattr(char, "days_depressed"):
@@ -1063,6 +1063,12 @@ label after_load:
                     del fighter.previousaction
                     fighter._job = None
                     fighter._task = None
+                if not "affection" in fighter.stats:
+                    fighter.stats.stats["affection"] = 0
+                    fighter.stats.imod["affection"] = 0
+                    fighter.stats.min["affection"] = -1000
+                    fighter.stats.max["affection"] = 1000
+                    fighter.stats.lvl_max["affection"] = 1000
 
             for team in itertools.chain(arena.teams_2v2, arena.teams_3v3,\
                  arena.dogfights_1v1, arena.dogfights_2v2, arena.dogfights_3v3,\
@@ -1077,6 +1083,12 @@ label after_load:
                         if hasattr(fighter, "_location"):
                             fighter.location = fighter._location
                             del fighter._location
+                        if not "affection" in fighter.stats:
+                            fighter.stats.stats["affection"] = 0
+                            fighter.stats.imod["affection"] = 0
+                            fighter.stats.min["affection"] = -1000
+                            fighter.stats.max["affection"] = 1000
+                            fighter.stats.lvl_max["affection"] = 1000
 
             for setup in itertools.chain(arena.matches_1v1, arena.matches_2v2, arena.matches_3v3):
                 for fighter in itertools.chain(setup[0].members, setup[1].members):
@@ -1088,6 +1100,12 @@ label after_load:
                     if hasattr(fighter, "_location"):
                         fighter.location = fighter._location
                         del fighter._location
+                    if not "affection" in fighter.stats:
+                        fighter.stats.stats["affection"] = 0
+                        fighter.stats.imod["affection"] = 0
+                        fighter.stats.min["affection"] = -1000
+                        fighter.stats.max["affection"] = 1000
+                        fighter.stats.lvl_max["affection"] = 1000
 
             for b in hero.buildings:
                 if hasattr(b, "all_clients"):
@@ -1100,6 +1118,12 @@ label after_load:
                         if hasattr(client, "_location"):
                             client.location = client._location
                             del client._location
+                        if not "affection" in fighter.stats:
+                            fighter.stats.stats["affection"] = 0
+                            fighter.stats.imod["affection"] = 0
+                            fighter.stats.min["affection"] = -1000
+                            fighter.stats.max["affection"] = 1000
+                            fighter.stats.lvl_max["affection"] = 1000
 
     python hide:
         if hasattr(store, "json_fighters"):

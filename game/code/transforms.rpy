@@ -327,7 +327,7 @@ init -948: # Transforms:
         ease duration*.15  zoom 1.2
         easeout_circ duration*.1 alpha .0 zoom .0
 
-    transform dispostion_effect(d, start, pos, yoffset, duration):
+    transform affection_effect(d, start, pos, yoffset, duration):
         subpixel True
         pause start
         d

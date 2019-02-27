@@ -2488,9 +2488,10 @@ init -9 python:
                             temp += " Even though you both live in the same house, %s hates you too much to really care." % self.name
                         else:
                             self.mod_stat("disposition", -100)
+                            self.mod_stat("affection", -20)
                             self.mod_stat("joy", -20)
                             self.home = pytfall.city
-                            temp += " After a rough fight %s moves out of your aparment." % self.name
+                            temp += " After a rough fight %s moves out of your apartment." % self.name
                 txt.append(temp)
 
             elif mod < 0:
@@ -2509,6 +2510,18 @@ init -9 python:
             for effect in self.effects.values():
                 effect.next_day(self)
 
+            # Adjust disposition/affection
+            temp = self.get_stat("disposition")
+            if temp < 0:
+                self.mod_stat("disposition", 1)
+            elif temp > 0:
+                self.mod_stat("disposition", -min(5, temp))
+            temp = self.get_stat("affection")
+            if temp < 0:
+                self.mod_stat("affection", 1)
+            elif temp > 0:
+                self.mod_stat("affection", -1)
+
             if self not in hero.chars:
                 # character does not belong to the hero
                 # Home location nd mods:
@@ -2524,12 +2537,7 @@ init -9 python:
                 self.restore_ap()
                 self.item_counter()
 
-                # Adding disposition/joy mods:
-                if self.get_stat("disposition") < 0:
-                    self.mod_stat("disposition", 1)
-                elif self.get_stat("disposition") > 0:
-                    self.mod_stat("disposition", -1)
-
+                # Adding joy mods:
                 if self.get_stat("joy") < self.get_max("joy"):
                     self.mod_stat("joy", 5)
 

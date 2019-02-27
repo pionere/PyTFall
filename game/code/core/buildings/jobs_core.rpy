@@ -18,8 +18,8 @@ init -10 python:
         be kept in check because older parts of code still just create this
         object at the end of their lifetime.
         """
-        def __init__(self, type='', txt='', img='', char=None, charmod={},
-                     loc=None, locmod={}, red_flag=False, green_flag=False,
+        def __init__(self, type='', txt='', img='', char=None, charmod=None,
+                     loc=None, locmod=None, red_flag=False, green_flag=False,
                      team=None, job=None, business=None):
             super(NDEvent, self).__init__()
 
@@ -37,6 +37,8 @@ init -10 python:
 
             self.char = char
             self.team = team
+            if charmod is None:
+                charmod = {}
             if team:
                 self.team_charmod = charmod.copy()
                 self.charmod = None
@@ -46,7 +48,7 @@ init -10 python:
 
             # the location of the event (optional):
             self.loc = loc
-            self.locmod = locmod
+            self.locmod = {} if locmod is None else locmod
 
             self.business = business
 

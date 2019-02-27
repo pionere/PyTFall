@@ -100,6 +100,7 @@ label char_profile:
                                 hero.remove_char(char)
                                 girls.remove(char)
                                 char.mod_stat("disposition", -400)
+                                char.mod_stat("affection", -50)
 
                                 char.reset_workplace_action()
                                 if char.status == "slave":
@@ -164,6 +165,7 @@ label char_profile:
 
                                 python:
                                     char.gfx_mod_stat("disposition", -400)
+                                    char.mod_stat("affection", -40)
                                     char.home = pytfall.city
 
                             python:

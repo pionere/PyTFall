@@ -7,6 +7,7 @@ label interactions_smalltalk:
     if m >= (2 + interactions_set_repeating_lines_limit(char)):
         call interactions_too_many_lines from _call_interactions_too_many_lines_1
         $ char.gfx_mod_stat("disposition", -5)
+        $ char.gfx_mod_stat("affection", -1)
         if char.get_stat("joy") > 80:
             $ char.gfx_mod_stat("joy", -1)
         $ del m
@@ -71,6 +72,7 @@ label girl_interactions_aboutjob: # TO DO: here would help additional logic base
     if m >= 1:
         call interactions_too_many_lines from _call_interactions_too_many_lines_2
         $ char.gfx_mod_stat("disposition", -5)
+        $ char.gfx_mod_stat("affection", -1)
         $ del m
         jump girl_interactions
     $ del m
@@ -181,6 +183,7 @@ label interactions_howshefeels:
     if m >= 5: # we don't have to limit it because of bonuses (there are none), but because of the common sense
         call interactions_too_many_lines from _call_interactions_too_many_lines_3
         $ char.gfx_mod_stat("disposition", -5)
+        $ char.gfx_mod_stat("affection", -1)
         $ del m
         jump girl_interactions
     $ del m
@@ -257,6 +260,7 @@ label interactions_abouther:
     if m > (2 + interactions_set_repeating_lines_limit(char)):
         call interactions_too_many_lines from _call_interactions_too_many_lines_4
         $ char.gfx_mod_stat("disposition", -randint(1, m+3))
+        $ char.gfx_mod_stat("affection", -randint(0,2))
         if char.get_stat("joy") > 40:
             $ char.gfx_mod_stat("joy", -randint(0,2))
         $ del m
@@ -265,6 +269,7 @@ label interactions_abouther:
 
     if char.get_stat("disposition") <= 50:
         $ char.gfx_mod_stat("disposition", -randint(3, 10))
+        $ char.gfx_mod_stat("affection", -randint(0,2))
         $ char.gfx_mod_stat("joy", -randint(0, 1))
         if char.status != "free":
             "You tried to know [char.nickname] better."
@@ -506,6 +511,7 @@ label interactions_aboutoccupation:
     if m > 5:
         call interactions_too_many_lines from _call_interactions_too_many_lines_5
         $ char.gfx_mod_stat("disposition", -5)
+        $ char.gfx_mod_stat("affection", -1)
         $ del m
         jump girl_interactions
     $ del m
@@ -540,6 +546,7 @@ label interactions_aboutoccupation:
         jump interactions_aboutoccupation_logic
     else:
         $ char.gfx_mod_stat("disposition", -5)
+        $ char.gfx_mod_stat("affection", -1)
         jump interactions_refused
 
 label interactions_aboutoccupation_logic:
@@ -579,6 +586,7 @@ label interactions_interests:
     if m > (2 + interactions_set_repeating_lines_limit(char)):
         call interactions_too_many_lines from _call_interactions_too_many_lines_6
         $ char.gfx_mod_stat("disposition", -10)
+        $ char.gfx_mod_stat("affection", -2)
         if char.get_stat("joy") > 40:
             $ char.gfx_mod_stat("joy", -randint(1, 2))
         $ del m
@@ -670,6 +678,7 @@ label interactions_interests:
     else:
         $ del m
         $ char.gfx_mod_stat("disposition", -randint(3, 10))
+        $ char.gfx_mod_stat("affection", -randint(0,2))
         $ char.gfx_mod_stat("joy", -randint(0, 1))
         if char.status != "free":
             "You tried to know [char.nickname] better."
@@ -683,6 +692,7 @@ label interactions_flirt:
     if m > (2 + interactions_set_repeating_lines_limit(char)):
         call interactions_too_many_lines from _call_interactions_too_many_lines_7
         $ char.gfx_mod_stat("disposition", -randint(5,15))
+        $ char.gfx_mod_stat("affection", -randint(0,2))
         if char.get_stat("joy") > 30:
             $ char.gfx_mod_stat("joy", -randint(2, 4))
         $ del m
@@ -728,6 +738,7 @@ label interactions_flirt:
     else:
         $ del m
         $ char.gfx_mod_stat("disposition", -randint(5, 10))
+        $ char.gfx_mod_stat("affection", -randint(0,2))
         $ char.gfx_mod_stat("joy", -randint(0, 1))
         if char.status != "free":
             "You tried to flirt with [char.nickname]."
@@ -768,14 +779,17 @@ label interactions_refused:
 # testing stuff
 label interactions_disp:
     $ char.gfx_mod_stat("disposition", 250)
+    $ char.gfx_mod_stat("affection", 250)
     jump girl_interactions
 
 label interactions_becomefr:
     $ char.gfx_mod_stat("disposition", 500)
+    $ char.gfx_mod_stat("affection", 500)
     $ set_friends(hero, char)
     jump girl_interactions
 
 label interactions_becomelv:
     $ char.gfx_mod_stat("disposition", 500)
+    $ char.gfx_mod_stat("affection", 500)
     $ set_lovers(hero, char)
     jump girl_interactions

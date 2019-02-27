@@ -159,6 +159,7 @@ label interactions_girlfriend:
     if m > 1:
         call interactions_too_many_lines from _call_interactions_too_many_lines_8
         $ char.gfx_mod_stat("disposition", -randint(1, m))
+        $ char.gfx_mod_stat("affection", -randint(8,12))
         if char.get_stat("joy") > 50:
             $ char.gfx_mod_stat("joy", -randint(0, 1))
         $ del m
@@ -330,6 +331,7 @@ label interactions_moveout:
     if True: # FIXME imlement the responses if ct("Impersonal") in  char.traits:
         $ char.gfx_mod_stat("joy", -15)
         $ char.gfx_mod_stat("disposition", -150)
+        $ char.gfx_mod_stat("affection", -15)
         $ char.override_portrait("portrait", "indifferent")
         $ rc("If that's what you want.", "As you wish. Bye.", "I understand. I suppose that was it.")
         $ char.restore_portrait()

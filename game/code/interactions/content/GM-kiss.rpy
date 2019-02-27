@@ -4,6 +4,7 @@ label interactions_kiss:
         if m > 1:
             call interactions_too_many_lines from _call_interactions_too_many_lines
             $ char.gfx_mod_stat("disposition", -randint(5, 15))
+            $ char.gfx_mod_stat("affection", -randint(1,3))
             $ char.gfx_mod_stat("joy", -randint(0, 1))
             $ del m
             jump girl_interactions
@@ -24,6 +25,7 @@ label interactions_kiss:
     if m > (2 + n + interactions_set_repeating_lines_limit(char)):
         call interactions_too_many_sex_lines from _call_interactions_too_many_sex_lines
         $ char.gfx_mod_stat("disposition", -randint(10, 25))
+        $ char.gfx_mod_stat("affection", -randint(3,5))
         if char.get_stat("joy") > 30:
             $ char.gfx_mod_stat("joy", -randint(2, 4))
         $ del m
@@ -112,6 +114,7 @@ label interactions_kiss:
         $ del n
         if char.status == "free":
             $ char.gfx_mod_stat("disposition", -randint(25, 35))
+            $ char.gfx_mod_stat("affection", -randint(3,5))
             if ct("Impersonal"):
                 $ char.override_portrait("portrait", "indifferent")
                 $ rc("I see no possible benefit in doing that with you so I will have to decline.", "Denied. Please refrain from this in the future.")

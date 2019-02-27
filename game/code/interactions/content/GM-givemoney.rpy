@@ -23,6 +23,7 @@ label interactions_giftmoney:
         if round(char.gold/money) > 5:
             call interactions_not_enough_gold from _call_interactions_not_enough_gold
             $ char.gfx_mod_stat("disposition", -randint(9, 25))
+            $ char.gfx_mod_stat("affection", -randint(1,4))
             $ del money
             jump girl_interactions
 
@@ -63,6 +64,7 @@ label interactions_askmoney:
     else:
         call interactions_recently_gave_money from _call_interactions_recently_gave_money
         $ char.gfx_mod_stat("disposition", -randint(2, 5))
+        $ char.gfx_mod_stat("affection", -randint(0,2))
         jump girl_interactions
     "You asked for [char.pp] help with money."
     if char.get_stat("disposition") >= 400 or check_lovers(char, hero) or check_friends(char, hero):
@@ -78,16 +80,19 @@ label interactions_askmoney:
                 "She gave you [temp] Gold."
                 $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
                 $ char.gfx_mod_stat("disposition", -randint(20, 40))
+                $ char.gfx_mod_stat("affection", -randint(8,12))
                 $ del temp
         else:
             "But it looks like [char.p] needs the money more than you."
             call interactions_girl_is_too_poor_to_give_money from _call_interactions_girl_is_too_poor_to_give_money_1
             $ char.gfx_mod_stat("disposition", -randint(10, 20))
+            $ char.gfx_mod_stat("affection", -randint(4,6))
             jump girl_interactions
     else:
         "But [char.p] doesn't know you well enough yet."
         $ interactions_girl_disp_is_too_low_to_give_money(char)
         $ char.gfx_mod_stat("disposition", -randint(5, 15))
+        $ char.gfx_mod_stat("affection", -randint(1,3))
     jump girl_interactions
 
 label interactions_give_money:

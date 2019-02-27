@@ -577,9 +577,15 @@ init -10 python:
                     char.enable_effect(entry)
 
             if trait.mod_stats:
-                char.upkeep += trait.mod_stats.get("upkeep", [0, 0])[0]
-                if hasattr(char, "disposition"):
-                    char.mod_stat("disposition", trait.mod_stats.get("disposition", [0, 0])[0])
+                temp = trait.mod_stats.get("upkeep", None)
+                if temp is not None:
+                    char.upkeep += temp[0]
+                temp = trait.mod_stats.get("disposition", None)
+                if temp is not None:
+                    char.mod_stat("disposition", temp[0])
+                temp = trait.mod_stats.get("affection", None)
+                if temp is not None:
+                    char.mod_stat("affection", temp[0])
                 char.stats.apply_trait_statsmod(trait, 0, char.level)
 
             if hasattr(trait, "mod_skills"):
@@ -665,9 +671,15 @@ init -10 python:
                     self.instance.disable_effect(entry)
 
             if trait.mod_stats:
-                char.upkeep -= trait.mod_stats.get("upkeep", [0, 0])[0]
-                if hasattr(char, "disposition"):
-                    char.mod_stat("disposition", -trait.mod_stats.get("disposition", [0, 0])[0])
+                temp = trait.mod_stats.get("upkeep", None)
+                if temp is not None:
+                    char.upkeep -= temp[0]
+                temp = trait.mod_stats.get("disposition", None)
+                if temp is not None:
+                    char.mod_stat("disposition", -temp[0])
+                temp = trait.mod_stats.get("affection", None)
+                if temp is not None:
+                    char.mod_stat("affection", -temp[0])
                 char.stats.apply_trait_statsmod(trait, char.level, 0)
 
             if hasattr(trait, "mod_skills"):
@@ -1052,22 +1064,10 @@ init -10 python:
             self.log = dict()
 
         def get_base_stats(self):
-            bts = self.instance.traits.basetraits
-
-            stats = set()
-            for t in bts:
-                for s in t.base_stats:
-                    stats.add(s)
-            return stats
+            return set(s for t in self.instance.traits.basetraits for s in t.base_stats)
 
         def get_base_skills(self):
-            bts = self.instance.traits.basetraits
-
-            skills = set()
-            for t in bts:
-                for s in t.base_skills:
-                    skills.add(s)
-            return skills
+            return set(s for t in self.instance.traits.basetraits for s in t.base_skills)
 
         def get_base_ss(self):
             return self.get_base_stats().union(self.get_base_skills())
@@ -1085,17 +1085,9 @@ init -10 python:
 
             # Normalization:
             if val > maxval:
-                if self.stats[key] > maxval:
-                    self.stats[key] = maxval
                 val = maxval
-
             elif val < minval:
-                if self.stats[key] < minval:
-                    self.stats[key] = minval
                 val = minval
-
-            if key not in ["disposition", "luck"] and val < 0:
-                val = 0
 
             return val
 
@@ -1138,15 +1130,7 @@ init -10 python:
             return iter(self.stats)
 
         def get_max(self, key):
-            val = min(self.max[key], self.lvl_max[key])
-            if val <= 0 and key != "disposition":
-                val = 1 # may prevent a zero dev error on fucked up items...
-            return val
-
-        def mod_item_stat(self, key, value):
-            if key in self.stats:
-                self.imod[key] = self.imod[key] + value
-
+            return min(self.max[key], self.lvl_max[key])
 
         def mod_exp(self, value):
             # Assumes input from setattr of self.instance:
@@ -1226,8 +1210,9 @@ init -10 python:
                gains x points every y level.
             """
             delta_lvl = to_lvl - from_lvl
+            temp = ["disposition", "affection", "upkeep"]
             for key in trait.mod_stats:
-                if key in ["disposition", "upkeep"]:
+                if key in temp:
                     continue
                 mod = trait.mod_stats[key][1]
                 delta = delta_lvl / mod
