@@ -1124,9 +1124,7 @@ screen next_day():
                         background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.7), 10, 10)
                         label (u"Stat Changes:") text_size 18 text_color ivory align (.5, .5)
 
-                    if event.team:
-                        pass # Preventing crash before system is adjusted to team jobs again.
-                    elif event.team_charmod:
+                    if event.team_charmod:
                         viewport:
                             xalign .5
                             ypos 45
@@ -1138,11 +1136,11 @@ screen next_day():
                                 fixed:
                                     xysize xsize, 355
                                     if not i:
-                                        at mm_clouds(xsize, 0, 25)
+                                        at mm_clouds(xsize, 0, 5)
                                     else:
-                                        at mm_clouds(0, -xsize, 25)
+                                        at mm_clouds(0, -xsize, 5)
                                     $ xpos = 0
-                                    for w, stats in event.team_charmod.iteritems():
+                                    for w, charmod in event.team_charmod.iteritems():
                                         vbox:
                                             style_group "proper_stats"
                                             xsize 136
@@ -1151,19 +1149,16 @@ screen next_day():
                                             frame:
                                                 xysize 132, 25
                                                 xalign .5
-                                                if len(w.nickname) > 20:
-                                                    $ size = 16
-                                                else:
-                                                    $ size = 20
-                                                text w.nickname align .5, .5 style "TisaOTM" size size
+                                                text w.nickname align .5, .5 style "TisaOTM" size 20:
+                                                    if len(w.nickname) > 20:
+                                                        size 16
                                             null height 4
-                                            for key in sorted(stats.keys()):
-                                                $ value = stats[key]
-                                                if value:
+                                            for key, value in charmod.items():
+                                                if value != 0:
                                                     frame:
                                                         xalign .5
                                                         xysize 130, 25
-                                                        text (u"%s:"%str(key).capitalize()) align .02, .5
+                                                        text ("%s:" % key.capitalize()) align .02, .5
                                                         label "[value]" text_color (lawngreen if value > 0 else red) align .98, .5
                                         $ xpos += 136
                     # Normal, one worker report case:

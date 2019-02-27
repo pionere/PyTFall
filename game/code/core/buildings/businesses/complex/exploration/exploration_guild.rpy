@@ -137,6 +137,7 @@ init -6 python: # Guild, Tracker and Log.
             self.flag_red = False
             self.flag_green = False
             self.logs = list() # List of all log object we create during this exploration run.
+            self.team_charmod = dict([(w, {}) for w in team])
             self.died = list()
 
         def get_team_ability(self):
@@ -159,6 +160,25 @@ init -6 python: # Guild, Tracker and Log.
             self.logs.append(obj)
             return obj
 
+        def logws(self, stat_skill, value=1, char=None):
+            # Similar to JobLogger, but here we need to handle team members and modify the stat directly 
+            if char is None:
+                team = self.team
+            else:
+                team = [char]
+
+            temp = is_stat(stat_skill)
+            for char in team:
+                if stat_skill == "exp":
+                    char.mod_exp(value)
+                    val = value
+                elif temp:
+                    val = char.mod_stat(stat_skill, value)
+                else:
+                    val = char.mod_skill(stat_skill, 0, value)
+                charmod = self.team_charmod[char]
+                charmod[stat_skill] = charmod.get(stat_skill, 0) + val
+
         def finish_exploring(self):
             """
             Build one major report for next day!
@@ -177,7 +197,9 @@ init -6 python: # Guild, Tracker and Log.
             # Settle rewards and update data:
             found_items = collections.Counter(self.found_items)
             cash_earned = sum(self.cash)
-            hero.add_money(cash_earned, reason="Exploration")
+            if cash_earned:
+                hero.add_money(cash_earned, reason="Exploration Guild")
+                building.fin.log_logical_income(cash_earned, "Exploration Guild")
             inv = building.inventory if hasattr(building, "inventory") else hero.inventory
             for i, a in found_items.items():
                 item = items[i]
@@ -224,16 +246,14 @@ init -6 python: # Guild, Tracker and Log.
 
             if len(self.team) != 0:
                 team = self.team
-                char = self.team[0]
             else:
                 # all dead -> just report
                 team = None
-                char = None
             evt = NDEvent(type='explorationndreport',
                           img=img,
                           txt=txt,
-                          char=char,
                           team=team,
+                          charmod=self.team_charmod,
                           loc=building,
                           green_flag=self.flag_green,
                           red_flag=self.flag_red)
@@ -779,15 +799,17 @@ init -6 python: # Guild, Tracker and Log.
                 yield self.env.timeout(5) # We'll go with 5 du per one iteration of "exploration loop".
 
                 # record the exploration, unlock new maps
-                if area.explored < area.maxexplored and dice(5):
-                    area.explored = min(area.maxexplored, area.explored + randint(8, 12))
-                    ep = area.get_explored_percentage()
-                    for key, value in area.unlocks.items():
-                        if value <= ep and not fg_areas[key].unlocked:
-                            fg_areas[key].unlocked = True
-                            temp = "Found a new path in the wilderness. It might worth to explore %s!" % key
-                            temp = set_font_color(temp, "green")
-                            tracker.log(temp)
+                if dice(5):
+                    if area.explored < area.maxexplored:
+                        area.explored = min(area.maxexplored, area.explored + randint(8, 12))
+                        ep = area.get_explored_percentage()
+                        for key, value in area.unlocks.items():
+                            if value <= ep and not fg_areas[key].unlocked:
+                                fg_areas[key].unlocked = True
+                                temp = "Found a new path in the wilderness. It might worth to explore %s!" % key
+                                temp = set_font_color(temp, "green")
+                                tracker.log(temp)
+                    tracker.logws("exploration")
 
                 # Hazzard:
                 if area.hazard:
@@ -796,8 +818,9 @@ init -6 python: # Guild, Tracker and Log.
                     for char in team:
                         for stat, value in area.hazard:
                             # value, because we calculated effects on daily base in the past...
-                            var = max(1, round_int(value*.05))
-                            char.mod_stat(stat, -var)
+                            if value:
+                                var = max(1, (value+10)/20)
+                                char.mod_stat(stat, -var)
                     check_team = True # initiate a check at the end of the loop
 
                 # Items:
@@ -849,7 +872,6 @@ init -6 python: # Guild, Tracker and Log.
                         se_debug(msg, mode="info")
 
                 #  =================================================>>>
-                # Copied area must be used for checks here as it preserves state.
                 if tracker.capture_chars and not self.env.now % 10:
                     # Special Chars:
                     ep = area.get_explored_percentage()
@@ -896,14 +918,10 @@ init -6 python: # Guild, Tracker and Log.
                                     tier = random.uniform(.1, .3)
                                 else:
                                     tier = random.uniform(area.tier*.8, area.tier*1.2)
-                                tier = min(.1, tier)
-                                tier = max(8, tier) # never build rChars over tier 8?
 
-                                kwargs = {"tier": tier, "set_status": True}
-                                if id != "any":
-                                    kwargs["id"] = id
-
-                                char = build_rc(**kwargs)
+                                if id == "any":
+                                    id = None
+                                char = build_rc(id=id, tier=tier, set_status="slave")
                                 tracker.captured_chars.append(char)
                                 temp = "Your team has captured a character: {}!".format(char.name)
                                 temp = set_font_color(temp, "lawngreen")
@@ -923,12 +941,12 @@ init -6 python: # Guild, Tracker and Log.
 
                         mob = choice(area.mobs)
 
-                        enemies = randint(2, 4)
+                        enemy_team_size = randint(2, 4)
 
                         temp = "{} were attacked by ".format(team.name)
-                        temp = temp + "%d %s!" % (enemies, plural("mob", enemies))
+                        temp = temp + "%d %s!" % (enemy_team_size, plural("mob", enemy_team_size))
                         log = tracker.log(temp, "Combat!", ui_log=True)
-                        self.combat_mobs(tracker, mob, enemies, log)
+                        self.combat_mobs(tracker, mob, enemy_team_size, log)
 
                         check_team = True # initiate a check at the end of the loop
 
@@ -966,11 +984,11 @@ init -6 python: # Guild, Tracker and Log.
                 if self.env.now >= 99: # FIXME MAX_DU
                     self.env.exit()
 
-        def combat_mobs(self, tracker, mob, opfor_team_size, log):
+        def combat_mobs(self, tracker, mob, enemy_team_size, log):
             # log is the Exploration Log object we add be reports to!
             # Do we really need to pass team size to this method instead of figuring everything out here?
             team = tracker.team
-            opfor = Team(name="Enemy Team", max_size=opfor_team_size)
+            enemy_team = Team(name="Enemy Team", max_size=enemy_team_size)
 
             if DEBUG_SE:
                 msg = "{} is stating a battle scenario.".format(team.name)
@@ -978,10 +996,10 @@ init -6 python: # Guild, Tracker and Log.
 
             # Get a level we'll set the mobs to:
             min_lvl = max(mobs[mob]["min_lvl"], tracker.area.tier*20)
-            for i in xrange(opfor_team_size):
+            for i in xrange(enemy_team_size):
                 temp = build_mob(id=mob, level=randint(min_lvl, min_lvl+10))
                 temp.controller = BE_AI(temp)
-                opfor.add(temp)
+                enemy_team.add(temp)
 
             for i in team:
                 i.controller = BE_AI(i)
@@ -990,7 +1008,7 @@ init -6 python: # Guild, Tracker and Log.
             battle = BE_Core(logical=True)
             store.battle = battle # Making battle global... I need to make sure this is not needed.
             battle.teams.append(team)
-            battle.teams.append(opfor)
+            battle.teams.append(enemy_team)
             battle.start_battle()
 
             # Add the battle report to log!:
@@ -998,7 +1016,7 @@ init -6 python: # Guild, Tracker and Log.
 
             # Reset the controllers:
             team.reset_controller()
-            opfor.reset_controller()
+            enemy_team.reset_controller()
 
             # No death below risk 40:
             if tracker.risk > 40 and dice(tracker.risk):
@@ -1007,20 +1025,26 @@ init -6 python: # Guild, Tracker and Log.
                         tracker.flag_red = True
                         tracker.died.append(member)
 
-            for mob in opfor:
+            for mob in enemy_team:
                 if mob in battle.corpses:
                     tracker.mobs_defeated[mob.id] += 1
 
             if battle.winner == team:
                 log.suffix = set_font_color("Victory", "lawngreen")
-                for member in team:
-                    if member in battle.corpses:
+                for w in team:
+                    if w in battle.corpses:
                         continue
-                    member.mod_stat("attack", randrange(3))
-                    member.mod_stat("defence", randrange(3))
-                    member.mod_stat("agility", randrange(3))
-                    member.mod_stat("magic", randrange(3))
-                    member.mod_exp(exp_reward(member, opfor))
+                    if dice(10):
+                        tracker.logws("attack", char=w)
+                    if dice(10):
+                        tracker.logws("defence", char=w)
+                    if dice(10):
+                        tracker.logws("magic", char=w)
+                    if dice(10):
+                        tracker.logws("agility", char=w)
+                    if dice(10):
+                        tracker.logws("constitution", char=w)
+                    tracker.logws("exp", exp_reward(w, enemy_team), char=w)
 
                 log.add(set_font_color("Your team won!!", "lawngreen"))
 

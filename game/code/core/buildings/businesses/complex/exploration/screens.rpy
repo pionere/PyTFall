@@ -189,8 +189,9 @@ screen building_management_leftframe_exploration_guild_mode:
                 label (u"Maps") text_size 23 text_color ivory align (.5, .8)
 
             viewport:
-                xysize 224, 500
+                xysize 224, 600
                 xalign .5 ypos 57
+                mousewheel True
                 has vbox spacing 4
                 $ temp = sorted([a for a in fg_areas.values() if a.area is None and a.unlocked], key=attrgetter("name"))
                 if temp and not bm_selected_exp_area:
@@ -591,6 +592,7 @@ screen fg_area(area):
             action ToggleField(area, "capture_chars")
             text "Capture Chars" xalign .5
             selected area.capture_chars
+            sensitive area.chars or area.rchars or area.special_chars
 
         null height 5
         $ distance = round_int(area.travel_time)

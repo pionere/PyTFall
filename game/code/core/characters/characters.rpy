@@ -363,7 +363,7 @@ init -9 python:
 
         def mod_stat(self, stat, value):
             value = self.settle_effects(stat, value)
-            self.stats._mod_base_stat(stat, value)
+            return self.stats._mod_base_stat(stat, value)
         def gfx_mod_stat(self, stat, value):
             value = self.settle_effects(stat, value)
             value = self.stats._mod_base_stat(stat, value)
@@ -379,7 +379,7 @@ init -9 python:
             return self.stats._get_stat(stat)
 
         def mod_skill(self, skill, at, value):
-            self.stats._mod_raw_skill(skill, at, value)
+            return self.stats._mod_raw_skill(skill, at, value)
         def gfx_mod_skill(self, skill, at, value):
             value = self.stats._mod_raw_skill(skill, at, value)
             if value != 0:
