@@ -178,6 +178,12 @@ label next_day_calculations:
     python hide:
         nd_debug("Day: %s, Girls (Player): %s, Girls (Game): %s" % (day, len(hero.chars), len(chars)))
 
+        # Fog of war over fg areas:
+        for area in store.fg_areas.values():
+            temp = getattr(area, "explored", 0) 
+            if temp > 0:
+                area.explored -= 1
+
         # Restore (AutoEquip for HP/Vit/MP) before the jobs:
         tl.start("AutoEquip Consumables for Workers")
         for c in hero.chars:

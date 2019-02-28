@@ -1,9 +1,8 @@
 [
     {
         "name": "Forest Catacombs",
-        "main": true,
         "unlocked": false,
-        "stage": 1,
+        "stage": 2,
         "img": "content/gfx/bg/locations/burial_2.webp",
         "allowed_objects": []
     },
@@ -46,7 +45,8 @@
             "health": 100,
             "mp": 0,
             "vitality": 50
-        }
+        },
+        "items": {"Old Chest": 90, "One For All": 20, "Golden Mask": 30, "Ultimate Healing Potion": 10, "Ultimate Mana Potion": 10}
     },
     {
         "name": "The Bottom",
@@ -67,6 +67,7 @@
             "health": 0,
             "mp": 20,
             "vitality": 20
-        }
+        },
+        "items": {"Scythe of Death": 2}
     }
 ]

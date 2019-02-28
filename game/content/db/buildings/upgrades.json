@@ -102,5 +102,47 @@
         "ex_slots": 0,
 
         "job_power_mod": 2
+    },
+    {
+        "name": "The Eye",
+        "class": "TheEye",
+        "img": "content/buildings/upgrades/the_eye.webp",
+        "materials": {"Bricks": 20, "Stone": 10,
+                     "Steel": 10, "Wood": 50},
+        "desc": "The Eye of Sauron!\nPowerful energy field with powerful effects.\n(+Exploration never falls below 50%)\n(+Reveals information about unexplored areas)",
+        "cost": 500000,
+        "in_slots": 5,
+        "ex_slots": 20
+    },
+    {
+        "name": "Stables",
+        "class": "GuildStables",
+        "img": "content/buildings/upgrades/stables.webp",
+        "materials": {"Bricks": 20, "Stone": 10,
+                     "Steel": 10, "Wood": 50},
+        "desc": "Stables!\nA man on a horse is spiritually, as well as physically, bigger then a man on foot.\n(+100% Traveling Speed)",
+        "cost": 10000,
+        "in_slots": 2,
+        "ex_slots": 10
+    },
+    {
+        "name": "Healing Springs",
+        "class": "HealingSprings",
+        "img": "content/buildings/upgrades/onsen.webp",
+        "materials": {"Green Marble": 20, "Stone": 10},
+        "desc": "Healing Springs!\nProvides the much needed relief when returning to Guild after a difficult quest.\n(+25% HP when returning to Guild)\n(+25% MP when returning to Guild)\n(+25% VP when returning to Guild)",
+        "cost": 5000,
+        "in_slots": 2,
+        "ex_slots": 10
+    },
+    {
+        "name": "Cartography Lab",
+        "class": "CartographyLab",
+        "img": "content/buildings/upgrades/map.webp",
+        "materials": {"Green Marble": 20, "Stone": 10, "Wood": 50},
+        "desc": "Cartography Lab!\nEven a complete idiot would make the best of maps in this lab!\n(+50% Exploration rate)",
+        "cost": 5000,
+        "in_slots": 2,
+        "ex_slots": 10
     }
 ]

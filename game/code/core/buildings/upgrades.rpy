@@ -43,3 +43,19 @@ init 5 python:
     class BroomCloset(CoreExtension):
         def __init__(self):
             super(BroomCloset, self).__init__()
+
+    class TheEye(CoreExtension):
+        def __init__(self):
+            super(TheEye, self).__init__()
+
+    class GuildStables(CoreExtension):
+        def __init__(self):
+            super(GuildStables, self).__init__()
+
+    class HealingSprings(CoreExtension):
+        def __init__(self):
+            super(HealingSprings, self).__init__()
+
+    class CartographyLab(CoreExtension):
+        def __init__(self):
+            super(CartographyLab, self).__init__()

@@ -1,9 +1,10 @@
 [
     {
         "name": "Burial Grounds",
-        "main": true,
         "unlocked": false,
-        "img": "content/maps/burial_1.webp"
+        "stage": 6,
+        "img": "content/maps/burial_1.webp",
+        "allowed_objects": []
     },
     {
         "name": "Burial Grounds Entrance",

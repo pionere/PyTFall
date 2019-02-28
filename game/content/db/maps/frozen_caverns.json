@@ -1,9 +1,10 @@
 [
     {
         "name": "Frozen Caverns",
-        "main": true,
         "unlocked": false,
-        "img": "content/maps/frozen_1.webp"
+        "stage": 8,
+        "img": "content/maps/frozen_1.webp",
+        "allowed_objects": []
     },
     {
         "name": "Frozen Passage Entrance",

@@ -1,8 +1,8 @@
 [
     {
         "name": "Dark Forest",
-        "main": true,
         "unlocked": true,
+        "stage": 1,
         "img": "content/maps/night_forest.webp",
         "allowed_objects": ["firepit", "bench", {"id": "tent", "cost": 3000}, "hut", "house", "kitchen", "cantine", "cage", "cell"]
     },

@@ -180,6 +180,8 @@ init:
             # Main Building mode:
             if bm_mid_frame_mode is None:
                 use building_management_midframe_building_mode
+            elif isinstance(bm_mid_frame_mode, ExplorationGuild):
+                use building_management_midframe_exploration_guild_mode
             else: # Upgrade mode:
                 use building_management_midframe_businesses_mode
 
@@ -193,6 +195,8 @@ init:
                 has vbox
                 if bm_mid_frame_mode is None:
                     use building_management_leftframe_building_mode
+                elif isinstance(bm_mid_frame_mode, ExplorationGuild):
+                    use building_management_leftframe_exploration_guild_mode
                 else: # Upgrade mode:
                     use building_management_leftframe_businesses_mode
 
@@ -548,171 +552,167 @@ init:
                                     tooltip "Close the business"
 
     screen building_management_leftframe_businesses_mode:
-        if not isinstance(bm_mid_frame_mode, ExplorationGuild):
+        frame:
+            background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
+            style_group "proper_stats"
+            xsize 314
+            padding 12, 12
+            margin 0, 0
+            has vbox spacing 1
+            # Slots:
+            frame:
+                xysize (290, 27)
+                xalign .5
+                text "Indoor Slots:" xalign .02 color ivory
+                text "[bm_mid_frame_mode.in_slots]"  xalign .98 style_suffix "value_text"
+            frame:
+                xysize (290, 27)
+                xalign .5
+                text "Exterior Slots:" xalign .02 color ivory
+                text "[bm_mid_frame_mode.ex_slots]"  xalign .98 style_suffix "value_text"
+            if bm_mid_frame_mode.capacity or getattr(bm_mid_frame_mode, "expands_capacity", False):
+                frame:
+                    xysize (290, 27)
+                    xalign .5
+                    text "Capacity:" xalign .02 color ivory
+                    text "[bm_mid_frame_mode.capacity]"  xalign .98 style_suffix "value_text"
+
+        if getattr(bm_mid_frame_mode, "expands_capacity", False):
+            null height 5
             frame:
                 background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
-                style_group "proper_stats"
+                style_prefix "proper_stats"
                 xsize 314
                 padding 12, 12
                 margin 0, 0
                 has vbox spacing 1
-                # Slots:
-                frame:
-                    xysize (290, 27)
-                    xalign .5
-                    text "Indoor Slots:" xalign .02 color ivory
-                    text "[bm_mid_frame_mode.in_slots]"  xalign .98 style_suffix "value_text"
-                frame:
-                    xysize (290, 27)
-                    xalign .5
-                    text "Exterior Slots:" xalign .02 color ivory
-                    text "[bm_mid_frame_mode.ex_slots]"  xalign .98 style_suffix "value_text"
-                if bm_mid_frame_mode.capacity or getattr(bm_mid_frame_mode, "expands_capacity", False):
+
+                text "To Expand:"
+
+                $ cost, materials, in_slots, ex_slots = bm_mid_frame_mode.get_expansion_cost()
+                $ can_build = True
+
+                # Materials and GOLD
+                vpgrid:
+                    cols 3
+                    xsize 290
+                    spacing 2
                     frame:
-                        xysize (290, 27)
-                        xalign .5
-                        text "Capacity:" xalign .02 color ivory
-                        text "[bm_mid_frame_mode.capacity]"  xalign .98 style_suffix "value_text"
+                        xysize (95, 27)
+                        has hbox xysize (95, 27)
+                        imagebutton:
+                            idle ProportionalScale("content/gfx/animations/coin_top 0.13 1/1.webp", 20, 20)
+                            xysize 20, 20
+                            align 0.2, .5
+                            action NullAction()
+                            tooltip "Gold"
+                        if hero.gold >= cost:
+                            text "[cost]" xalign .9 style_suffix "value_text"
+                        else:
+                            $ can_build = False
+                            text "[cost]" xalign .9 color grey style_suffix "value_text"
 
-            if getattr(bm_mid_frame_mode, "expands_capacity", False):
-                null height 5
-                frame:
-                    background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
-                    style_prefix "proper_stats"
-                    xsize 314
-                    padding 12, 12
-                    margin 0, 0
-                    has vbox spacing 1
-
-                    text "To Expand:"
-
-                    $ cost, materials, in_slots, ex_slots = bm_mid_frame_mode.get_expansion_cost()
-                    $ can_build = True
-
-                    # Materials and GOLD
-                    vpgrid:
-                        cols 3
-                        xsize 290
-                        spacing 2
+                    for r, amount in materials.items():
+                        $ r = items[r]
                         frame:
                             xysize (95, 27)
                             has hbox xysize (95, 27)
                             imagebutton:
-                                idle ProportionalScale("content/gfx/animations/coin_top 0.13 1/1.webp", 20, 20)
+                                idle ProportionalScale(r.icon, 20, 20)
                                 xysize 20, 20
                                 align 0.2, .5
                                 action NullAction()
-                                tooltip "Gold"
-                            if hero.gold >= cost:
-                                text "[cost]" xalign .9 style_suffix "value_text"
+                                tooltip "{}".format(r.id)
+                            if hero.inventory[r.id] >= amount:
+                                text "[amount]" xalign .9 style_suffix "value_text"
                             else:
                                 $ can_build = False
-                                text "[cost]" xalign .9 color grey style_suffix "value_text"
+                                text "[amount]" xalign .9 color grey style_suffix "value_text"
 
-                        for r, amount in materials.items():
-                            $ r = items[r]
-                            frame:
-                                xysize (95, 27)
-                                has hbox xysize (95, 27)
-                                imagebutton:
-                                    idle ProportionalScale(r.icon, 20, 20)
-                                    xysize 20, 20
-                                    align 0.2, .5
-                                    action NullAction()
-                                    tooltip "{}".format(r.id)
-                                if hero.inventory[r.id] >= amount:
-                                    text "[amount]" xalign .9 style_suffix "value_text"
-                                else:
-                                    $ can_build = False
-                                    text "[amount]" xalign .9 color grey style_suffix "value_text"
-
-                    vpgrid:
-                        cols 2
-                        xsize 290
-                        spacing 2
-                        if in_slots:
-                            frame:
-                                xysize (144, 27)
-                                has hbox xysize (144, 27)
-                                text "Indoor Slots:" xalign .1
-                                if (bm_building.in_slots_max - bm_building.in_slots) >= in_slots:
-                                    text "[in_slots]" xalign .8 style_suffix "value_text"
-                                else:
-                                    $ can_build = False
-                                    text "[in_slots]" xalign .8 color grey style_suffix "value_text"
-                        if ex_slots:
-                            frame:
-                                xysize (144, 27)
-                                has hbox xysize (144, 27)
-                                text "Exterior Slots:" xalign .1
-                                if (bm_building.ex_slots_max - bm_building.ex_slots) >= ex_slots:
-                                    text "[ex_slots]" xalign .8 style_suffix "value_text"
-                                else:
-                                    $ can_build = False
-                                    text "[ex_slots]" xalign .8 color grey style_suffix "value_text"
-                    null height 1
-                    textbutton "Expand Capacity":
-                        style "pb_button"
-                        xalign .5
-                        action [Function(bm_mid_frame_mode.expand_capacity),
-                                Play("audio", "content/sfx/sound/world/purchase_1.ogg"), SensitiveIf(can_build)]
-                        tooltip "Expand the business!"
-                    null height 5
-                    text "To Cut Back:"
-                    vbox:
-                            #has vbox
-                            frame:
-                                xysize (290, 27)
-                                xalign .5
-                                text "Indoor Slots Freed:" xalign .02 color ivory
-                                text "[in_slots]"  xalign .98 style_suffix "value_text"
-                            frame:
-                                xysize (290, 27)
-                                xalign .5
-                                text "Exterior Slots Freed:" xalign .02 color ivory
-                                text "[ex_slots]"  xalign .98 style_suffix "value_text"
-                            frame:
-                                xysize (290, 27)
-                                xalign .5
-                                text "Cost:" xalign .02 color ivory
-                                text "[cost]"  xalign .98 style_suffix "value_text"
-                    null height 1
-                    textbutton "Reduce Capacity":
-                        style "pb_button"
-                        xalign .5
-                        if bm_mid_frame_mode.can_reduce_capacity():
-                            action [Function(bm_mid_frame_mode.reduce_capacity),
-                                Play("audio", "content/sfx/sound/world/purchase_1.ogg")]
-                            tooltip "Add more space to the building!"
-                        else:
-                            action NullAction()
-                            tooltip "The only remaining option is to close the business"
-
-            if getattr(bm_mid_frame_mode, "upgrades", None):
+                vpgrid:
+                    cols 2
+                    xsize 290
+                    spacing 2
+                    if in_slots:
+                        frame:
+                            xysize (144, 27)
+                            has hbox xysize (144, 27)
+                            text "Indoor Slots:" xalign .1
+                            if (bm_building.in_slots_max - bm_building.in_slots) >= in_slots:
+                                text "[in_slots]" xalign .8 style_suffix "value_text"
+                            else:
+                                $ can_build = False
+                                text "[in_slots]" xalign .8 color grey style_suffix "value_text"
+                    if ex_slots:
+                        frame:
+                            xysize (144, 27)
+                            has hbox xysize (144, 27)
+                            text "Exterior Slots:" xalign .1
+                            if (bm_building.ex_slots_max - bm_building.ex_slots) >= ex_slots:
+                                text "[ex_slots]" xalign .8 style_suffix "value_text"
+                            else:
+                                $ can_build = False
+                                text "[ex_slots]" xalign .8 color grey style_suffix "value_text"
+                null height 1
+                textbutton "Expand Capacity":
+                    style "pb_button"
+                    xalign .5
+                    action [Function(bm_mid_frame_mode.expand_capacity),
+                            Play("audio", "content/sfx/sound/world/purchase_1.ogg"), SensitiveIf(can_build)]
+                    tooltip "Expand the business!"
                 null height 5
-                frame:
-                    align .5, .02
-                    background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
-                    xysize (180, 40)
-                    label 'Constructed:' text_color ivory xalign .5 text_bold True
-                viewport:
-                    pos 3, 10
-                    xysize 310, 406
-                    mousewheel True
-                    scrollbars "vertical"
-                    has vbox
-                    for u in bm_mid_frame_mode.upgrades:
-                        button:
-                            xsize 309
-                            style "pb_button"
-                            text "[u.name]":
-                                align .5, .5
-                                color ivory
-                            action NullAction()
-                            tooltip u.desc
+                text "To Cut Back:"
+                vbox:
+                        #has vbox
+                        frame:
+                            xysize (290, 27)
+                            xalign .5
+                            text "Indoor Slots Freed:" xalign .02 color ivory
+                            text "[in_slots]"  xalign .98 style_suffix "value_text"
+                        frame:
+                            xysize (290, 27)
+                            xalign .5
+                            text "Exterior Slots Freed:" xalign .02 color ivory
+                            text "[ex_slots]"  xalign .98 style_suffix "value_text"
+                        frame:
+                            xysize (290, 27)
+                            xalign .5
+                            text "Cost:" xalign .02 color ivory
+                            text "[cost]"  xalign .98 style_suffix "value_text"
+                null height 1
+                textbutton "Reduce Capacity":
+                    style "pb_button"
+                    xalign .5
+                    if bm_mid_frame_mode.can_reduce_capacity():
+                        action [Function(bm_mid_frame_mode.reduce_capacity),
+                            Play("audio", "content/sfx/sound/world/purchase_1.ogg")]
+                        tooltip "Add more space to the building!"
+                    else:
+                        action NullAction()
+                        tooltip "The only remaining option is to close the business"
 
-        if isinstance(bm_mid_frame_mode, ExplorationGuild):
-            use building_management_leftframe_exploration_guild_mode
+        if getattr(bm_mid_frame_mode, "upgrades", None):
+            null height 5
+            frame:
+                align .5, .02
+                background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
+                xysize (180, 40)
+                label 'Constructed:' text_color ivory xalign .5 text_bold True
+            viewport:
+                pos 3, 10
+                xysize 310, 406
+                mousewheel True
+                scrollbars "vertical"
+                has vbox
+                for u in bm_mid_frame_mode.upgrades:
+                    button:
+                        xsize 309
+                        style "pb_button"
+                        text "[u.name]":
+                            align .5, .5
+                            color ivory
+                        action NullAction()
+                        tooltip u.desc
 
     screen building_management_midframe_building_mode:
         frame:
@@ -776,116 +776,112 @@ init:
             xalign .5
             ypos 40
 
-            # Fighter Guild, team launch and area info:
-            if isinstance(bm_mid_frame_mode, ExplorationGuild):
-                use building_management_midframe_exploration_guild_mode
-            else:
-                viewport:
-                    xysize 620, 668
-                    mousewheel True
-                    xalign .5
-                    has vbox xsize 618
-                    if hasattr(bm_mid_frame_mode, "all_possible_extensions"):
-                        for u in bm_mid_frame_mode.all_possible_extensions():
-                            if not bm_mid_frame_mode.has_extension(u):
-                                frame:
+            viewport:
+                xysize 620, 668
+                mousewheel True
+                xalign .5
+                has vbox xsize 618
+                if hasattr(bm_mid_frame_mode, "all_possible_extensions"):
+                    for u in bm_mid_frame_mode.all_possible_extensions():
+                        if not bm_mid_frame_mode.has_extension(u):
+                            frame:
+                                xalign .5
+                                background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
+                                has fixed xysize 500, 150
+
+                                $ cost, materials, in_slots, ex_slots = u.get_cost()
+                                $ can_build = True
+                                hbox:
                                     xalign .5
-                                    background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
-                                    has fixed xysize 500, 150
-
-                                    $ cost, materials, in_slots, ex_slots = u.get_cost()
-                                    $ can_build = True
-                                    hbox:
+                                    xsize 340
+                                    textbutton "[u.name]":
                                         xalign .5
-                                        xsize 340
-                                        textbutton "[u.name]":
-                                            xalign .5
-                                            ypadding 2
-                                            style "stats_text"
-                                            text_outlines [(1, black, 0, 0)]
-                                            text_size 23
-                                            action NullAction()
-                                            tooltip u.desc
+                                        ypadding 2
+                                        style "stats_text"
+                                        text_outlines [(1, black, 0, 0)]
+                                        text_size 23
+                                        action NullAction()
+                                        tooltip u.desc
 
-                                    # Materials and GOLD
-                                    vbox:
-                                        pos 5, 36
-                                        box_wrap True
-                                        xysize 340, 80
-                                        spacing 2
+                                # Materials and GOLD
+                                vbox:
+                                    pos 5, 36
+                                    box_wrap True
+                                    xysize 340, 80
+                                    spacing 2
+                                    frame:
+                                        background Frame("content/gfx/frame/p_frame5.png", 5, 5)
+                                        xsize 100
+                                        has hbox xsize 90
+                                        button:
+                                            background Frame("content/gfx/animations/coin_top 0.13 1/1.webp")
+                                            xysize 25, 25
+                                            align 0, .5
+                                            action NullAction()
+                                            tooltip "Gold"
+                                        style_prefix "proper_stats"
+                                        if hero.gold >= cost:
+                                            text "[cost]" align .95, .5
+                                        else:
+                                            $ can_build = False
+                                            text "[cost]" align .95, .5 color grey
+
+                                    # We presently allow for 3 resources each upgrade. If more, this needs to be a conditioned viewport:
+                                    for r, amount in materials.items():
+                                        $ r = items[r]
                                         frame:
                                             background Frame("content/gfx/frame/p_frame5.png", 5, 5)
                                             xsize 100
                                             has hbox xsize 90
                                             button:
-                                                background Frame("content/gfx/animations/coin_top 0.13 1/1.webp")
                                                 xysize 25, 25
+                                                background Frame(r.icon)
                                                 align 0, .5
                                                 action NullAction()
-                                                tooltip "Gold"
+                                                tooltip "{}".format(r.id)
                                             style_prefix "proper_stats"
-                                            if hero.gold >= cost:
-                                                text "[cost]" align .95, .5
+                                            if hero.inventory[r.id] >= amount:
+                                                text "[amount]" align .95, .5
                                             else:
                                                 $ can_build = False
-                                                text "[cost]" align .95, .5 color grey
+                                                text "[amount]" align .95, .5 color grey
 
-                                        # We presently allow for 3 resources each upgrade. If more, this needs to be a conditioned viewport:
-                                        for r, amount in materials.items():
-                                            $ r = items[r]
-                                            frame:
-                                                background Frame("content/gfx/frame/p_frame5.png", 5, 5)
-                                                xsize 100
-                                                has hbox xsize 90
-                                                button:
-                                                    xysize 25, 25
-                                                    background Frame(r.icon)
-                                                    align 0, .5
-                                                    action NullAction()
-                                                    tooltip "{}".format(r.id)
-                                                style_prefix "proper_stats"
-                                                if hero.inventory[r.id] >= amount:
-                                                    text "[amount]" align .95, .5
-                                                else:
-                                                    $ can_build = False
-                                                    text "[amount]" align .95, .5 color grey
+                                hbox:
+                                    align .01, .98
+                                    spacing 2
+                                    style_prefix "proper_stats"
+                                    if in_slots:
+                                        text "Indoor Slots:"
+                                        if (bm_building.in_slots_max - bm_building.in_slots) >= in_slots:
+                                            text "[in_slots]"
+                                        else:
+                                            $ can_build = False
+                                            text "[in_slots]" color grey
+                                    if ex_slots:
+                                        text "Exterior Slots:"
+                                        if (bm_building.ex_slots_max - bm_building.ex_slots) >= ex_slots:
+                                            text "[ex_slots]"
+                                        else:
+                                            $ can_build = False
+                                            text "[ex_slots]" color grey
 
-                                    hbox:
-                                        align .01, .98
-                                        spacing 2
-                                        style_prefix "proper_stats"
-                                        if in_slots:
-                                            text "Indoor Slots:"
-                                            if (bm_building.in_slots_max - bm_building.in_slots) >= in_slots:
-                                                text "[in_slots]"
-                                            else:
-                                                $ can_build = False
-                                                text "[in_slots]" color grey
-                                        if ex_slots:
-                                            text "Exterior Slots:"
-                                            if (bm_building.ex_slots_max - bm_building.ex_slots) >= ex_slots:
-                                                text "[ex_slots]"
-                                            else:
-                                                $ can_build = False
-                                                text "[ex_slots]" color grey
-
-                                    vbox:
-                                        align 1.0, .8
-                                        xsize 150
-                                        spacing 4
-                                        button:
-                                            xalign .5
-                                            xysize 133, 83
-                                            background Frame("content/gfx/frame/MC_bg3.png", 3, 3)
-                                            foreground Transform(u.img, size=(120, 75), align=(.5, .5))
-                                            action NullAction()
-                                            tooltip u.desc
-                                        textbutton "Build":
-                                            xalign .5
-                                            style "pb_button"
-                                            text_size 15
-                                            action [Return(["upgrade", "build", u, bm_mid_frame_mode]),
-                                                    SensitiveIf(can_build)]
+                                vbox:
+                                    align 1.0, .8
+                                    xsize 150
+                                    spacing 4
+                                    button:
+                                        xalign .5
+                                        xysize 133, 83
+                                        background Frame("content/gfx/frame/MC_bg3.png", 3, 3)
+                                        foreground Transform(u.img, size=(120, 75), align=(.5, .5))
+                                        action NullAction()
+                                        tooltip u.desc
+                                    textbutton "Build":
+                                        xalign .5
+                                        style "pb_button"
+                                        text_size 15
+                                        action [Return(["upgrade", "build", u, bm_mid_frame_mode]),
+                                                SensitiveIf(can_build)]
 
     screen building_controls():
         modal True

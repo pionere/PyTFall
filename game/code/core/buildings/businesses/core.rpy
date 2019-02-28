@@ -353,7 +353,7 @@ init -12 python:
 
         def has_extension(self, upgrade):
             # Named this was to conform to GUI (same as for Buildings)
-            return upgrade in self.upgrades
+            return any(u.__class__ == upgrade for u in self.upgrades)
 
     class PrivateBusiness(Business):
         def __init__(self):

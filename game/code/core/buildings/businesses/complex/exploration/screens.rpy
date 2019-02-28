@@ -1,9 +1,8 @@
 screen building_management_leftframe_exploration_guild_mode:
     if bm_exploration_view_mode == "log":
-
         default focused_area_index = 0
 
-        $ temp = sorted([a for a in fg_areas.values() if a.area is None and a.unlocked], key=attrgetter("name"))
+        $ temp = sorted([a for a in fg_areas.values() if a.area is None and a.unlocked], key=attrgetter("stage"))
         vbox:
             xsize 320 spacing 1
             # Maps sign:
@@ -72,6 +71,7 @@ screen building_management_leftframe_exploration_guild_mode:
                                     selected True
                                 else:
                                     action SetVariable("bm_selected_log_area", area)
+                                tooltip area.desc
                                 $ tmp = area.name
                             else:
                                 $ tmp = "?????????"
@@ -135,6 +135,8 @@ screen building_management_leftframe_exploration_guild_mode:
                     text "[main_area.chars_captured]":
                         style_suffix "value_text"
                         color ivory
+    elif bm_exploration_view_mode == "upgrades":
+        use building_management_leftframe_businesses_mode
     elif bm_exploration_view_mode == "team":
         # Filters:
         frame:
@@ -239,6 +241,7 @@ screen building_management_midframe_exploration_guild_mode:
                 background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
                 style_prefix "content"
                 xysize (630, 680)
+                ypos 40
 
                 $ fbg = "content/gfx/frame/mes11.webp"
                 frame:
@@ -299,23 +302,38 @@ screen building_management_midframe_exploration_guild_mode:
                         has viewport draggable 1 mousewheel 1
                         if focused_log:
                             if focused_log.battle_log:
-                                text "\n".join(focused_log.battle_log) color white
+                                text "\n".join(focused_log.battle_log) style "stats_value_text" size 14 color ivory
                             elif focused_log.item:
                                 $ item = focused_log.item
                                 vbox:
                                     spacing 10 xfill 1
                                     add ProportionalScale(item.icon, 100, 100) xalign .5
-                                    text item.desc xalign .5 color white
+                                    text item.desc xalign .5 style "stats_value_text" size 14 color ivory
         else:
             # bm_selected_log_area is None
-            vbox:
-                xsize 630
-                frame: # Image
-                    xalign .5
-                    padding 5, 5
-                    background Frame("content/gfx/frame/MC_bg3.png", 10 ,10)
-                    add im.Scale("content/gfx/bg/buildings/log.webp", 600, 390)
+            frame:
+                background Frame("content/gfx/frame/p_frame6.png", 10, 10)
+                style_prefix "content"
+                xysize (630, 685)
+                xpadding 0
+                xalign .5
+                ypos 40
+                vbox:
+                    xsize 630
+                    frame: # Image
+                        xalign .5
+                        padding 5, 5
+                        background Frame("content/gfx/frame/MC_bg3.png", 10 ,10)
+                        add im.Scale("content/gfx/bg/buildings/log.webp", 600, 390)
     elif bm_exploration_view_mode == "explore":
+      frame:
+        background Frame("content/gfx/frame/p_frame6.png", 10, 10)
+        style_prefix "content"
+        xysize (630, 685)
+        xpadding 0
+        xalign .5
+        ypos 40
+
         vbox:
             xsize 630
             frame: # Image
@@ -349,11 +367,19 @@ screen building_management_midframe_exploration_guild_mode:
                             hbox:
                                 align (.5, .9)
                                 use stars(area.explored, area.maxexplored)
+    elif bm_exploration_view_mode == "upgrades":
+        use building_management_midframe_businesses_mode
     elif bm_exploration_view_mode == "team":
+      frame:
+        style_prefix "content"
+        xysize (630, 685)
+        xpadding 0
+        xalign .5
+        ypos 40
         # Backgrounds:
         frame:
-            background Frame("content/gfx/frame/p_frame52.webp", 10, 10)
-            xysize 622, 344
+            background Frame("content/gfx/frame/p_frame52.webp", 5, 5)
+            xysize 630, 344
             yoffset -5
             xalign .5
             hbox:
@@ -400,7 +426,7 @@ screen building_management_midframe_exploration_guild_mode:
         # Downframe (for the teams and team paging)
         frame:
             background Frame("content/gfx/frame/p_frame52.webp", 10, 10)
-            xysize 700, 349
+            xysize 630, 349
             ypos 331 xalign .5
 
         # Paging guild teams!
@@ -457,7 +483,7 @@ screen building_management_midframe_exploration_guild_mode:
                 $ idle_t = t not in bm_mid_frame_mode.exploring_teams()
                 for idx, w in enumerate(t):
                     $ w_pos = (pos[0]+17+idx*63, pos[1]+12)
-                    $ w.set_flag("_drag_container", t)
+                    $ w.set_flag("dnd_drag_container", t)
                     drag:
                         dragged dragged
                         droppable 0
@@ -518,7 +544,7 @@ screen building_management_midframe_exploration_guild_mode:
                             tooltip "Remove all members!"
 
             for w, pos in workers:
-                $ w.set_flag("_drag_container", workers)
+                $ w.set_flag("dnd_drag_container", workers)
                 drag:
                     dragged dragged
                     droppable 0
@@ -542,9 +568,15 @@ screen building_management_rightframe_exploration_guild_mode:
     button:
         xysize (150, 40)
         yalign .5
+        action SetVariable("bm_exploration_view_mode", "upgrades")
+        tooltip "Expand your Guild"
+        text "Upgrades" size 15
+    button:
+        xysize (150, 40)
+        yalign .5
         action SetVariable("bm_exploration_view_mode", "team")
-        tooltip "You can customize your team here or hire Guild members."
-        text "Team" size 15
+        tooltip "You can customize your teams here or hire Guild members."
+        text "Teams" size 15
     button:
         xysize (150, 40)
         yalign .5
@@ -653,7 +685,7 @@ screen fg_area(area):
                 xmaximum 150
                 thumb 'content/gfx/interface/icons/move15.png'
                 tooltip ("How much risk does the team take when exploring? The more significant the risk,"+
-                         "the higher the reward but your team may not even return of you push this too far!")
+                         "the higher the reward but your team may not even return if you push this too far!")
             null width 5
             imagebutton:
                 yalign .5

@@ -105,5 +105,7 @@
         "capacity": 2,
         "cost": 100,
         "in_slots": 4,
-        "ex_slots": 0
+        "ex_slots": 0,
+
+        "allowed_upgrades": ["TheEye", "GuildStables", "HealingSprings", "CartographyLab"]
     }]
