@@ -993,7 +993,7 @@ label after_load:
                 if hasattr(char, "init_traits"):
                     del char.init_traits
                 if char.__class__ in [Char, rChar] and not hasattr(char, "preferences"):
-                    char.preferences = dict([(p, randint(0, 100)) for p in STATIC_CHAR.PREFS])
+                    char.preferences = dict([(p, randint(0, 100)/100.0) for p in STATIC_CHAR.PREFS])
                 if not "affection" in char.stats:
                     char.stats.stats["affection"] = 0
                     char.stats.imod["affection"] = 0

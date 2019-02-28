@@ -268,6 +268,7 @@ init -11 python:
             if dice(hero.get_stat("charisma")-char.get_stat("character")) and dice(80):
                 narrator(choice(["It looks like [char.p] is in a bad mood, however you managed to cheer [char.op] up."]))
                 char.gfx_mod_stat("disposition", 1)
+                char.gfx_mod_stat("affection", affection_reward(char, .1))
                 char.gfx_mod_stat("joy", randint(3, 6))
             else:
                 narrator(choice(["It looks like [char.p] is in a bad mood today and not does not want to do anything."]))
@@ -276,6 +277,7 @@ init -11 python:
             if dice(hero.get_stat("charisma")-char.get_stat("character")) and dice(80):
                 narrator(choice(["It looks like [char.p] is not feeling well today, however you managed to cheer [char.op] up a bit."]))
                 char.gfx_mod_stat("disposition", 2)
+                char.gfx_mod_stat("affection", affection_reward(char, .2))
                 char.gfx_mod_stat("joy", randint(1, 5))
             else:
                 narrator(choice(["[char.pC] is not feeling well today and not in the mood to do anything."]))
@@ -394,8 +396,8 @@ init -11 python:
         Check traits function.
         Checks is character in girl_meets has any trait in entered as an argument.
         """
-        l = list(traits[i] for i in list(args))
-        return any(i in l for i in char.traits)
+        l = list(args)
+        return any(i.id in l for i in char.traits)
 
     def co(*args):
         """

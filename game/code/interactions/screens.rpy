@@ -224,41 +224,26 @@ label interactions_control:
     while 1:
         $ result = ui.interact()
 
-        # Testing
-        if result[0] == "test":
-            python:
-                gm.end(safe=True)
-
-                # Girls Meets
-                if result[1] == "GM":
-                    # Include img as coming from int and tr prevents the "img from last location" from working
-                    gm.start_gm(char, img=char.show("profile", resize=gm.img_size, exclude=["nude", "bikini", "swimsuit", "beach", "angry", "scared", "ecstatic"]))
-                # Interactions
-                elif result[1] == "GI":
-                    gm.start_int(char)
-                # Training
-                elif result[1] == "GT":
-                    gm.start_tr(char)
         # Gifts
-        elif result[0] == "gift":
-            python:
-                # Show menu:
-                if result[1] is True:
-                    gm.show_menu = False
-                    gm.show_menu_givegift = True
-                # Hide menu:
-                elif result[1] is None:
-                    gm.show_menu = True
-                    gm.show_menu_givegift = False
-                # Give gift:
-                else:
+        if result[0] == "gift":
+            # Show menu:
+            if result[1] is True:
+                $ gm.show_menu = False
+                $ gm.show_menu_givegift = True
+            # Hide menu:
+            elif result[1] is None:
+                $ gm.show_menu = True
+                $ gm.show_menu_givegift = False
+            # Give gift:
+            else:
+                $ item = result[1]
+                python hide:
                     # Prevent repetition of this action (any gift, we do this on per gift basis already):
                     if char.has_flag("cnd_interactions_gifts"):
                         char.up_counter("cnd_interactions_gifts")
                     else:
                         char.set_flag("cnd_interactions_gifts", day)
 
-                    item = result[1]
                     item.hidden = False # We'll use existing hidden flag to hide items effectiveness.
                     dismod = getattr(item, "dismod", 0)
 
@@ -277,37 +262,52 @@ label interactions_control:
                         if flag_value < item.cblock:
                             dismod = round_int(float(dismod)*(item.cblock-flag_value)/item.cblock)
                         else:
-                            del flag_name, flag_value, dismod, item
-                            setattr(gm, "show_menu", True)
-                            setattr(gm, "show_menu_givegift", False)
+                            gm.show_menu = True
+                            gm.show_menu_givegift = False
+                            delattr(store, "item")
                             gm.jump("refusegift")
 
                     char.gfx_mod_stat("disposition", dismod)
 
                     hero.inventory.remove(item)
-                    setattr(gm, "show_menu", True)
-                    setattr(gm, "show_menu_givegift", False)
+                    gm.show_menu = True
+                    gm.show_menu_givegift = False
 
                     if flag_value == 0:
                         char.set_flag(flag_name, item.cblock+day-1)
                     else:
                         char.up_counter(flag_name, item.cblock)
-                    del flag_name, flag_value, item
-                    if dismod <= 0:
-                        del dismod
-                        gm.jump("badgift")
-                    elif dismod <= 30:
-                        del dismod
-                        gm.jump("goodgift")
+                    if dismod > 0:
+                        result = "perfectgift" if dismod > 30 else "goodgift"
+                        if item.type == "romantic":
+                            dismod *= 2
+                        dismod /= 10.0
+                        char.gfx_mod_stat("affection", affection_reward(char, dismod))
                     else:
-                        del dismod
-                        gm.jump("perfectgift")
+                        result = "badgift"
+                        char.gfx_mod_stat("affection", affection_reward(char, -1))
+                    delattr(store, "item")
+                    gm.jump(result)
         # Controls
         elif result[0] == "control":
             # Return / Back
             if result[1] in ("back", "return"):
                 jump girl_interactions_end
+        # Testing
+        elif result[0] == "test":
+            python:
+                gm.end(safe=True)
 
+                # Girls Meets
+                if result[1] == "GM":
+                    # Include img as coming from int and tr prevents the "img from last location" from working
+                    gm.start_gm(char, img=char.show("profile", resize=gm.img_size, exclude=["nude", "bikini", "swimsuit", "beach", "angry", "scared", "ecstatic"]))
+                # Interactions
+                elif result[1] == "GI":
+                    gm.start_int(char)
+                # Training
+                elif result[1] == "GT":
+                    gm.start_tr(char)
 
 screen girl_interactions():
     # BG
@@ -317,29 +317,47 @@ screen girl_interactions():
     vbox:
         align (.95, .31)
 
+        $ temp = gm.char.get_stat("disposition")
         vbar:
             top_gutter 13
             bottom_gutter 0
-            value AnimatedValue(value=gm.char.get_stat("disposition"), range=gm.char.get_max("disposition"), delay=4.0)
+            value AnimatedValue(value=max(temp, 0), range=gm.char.get_max("disposition"), delay=4.0)
             bottom_bar "content/gfx/interface/bars/progress_bar_full1.png"
             top_bar "content/gfx/interface/bars/progress_bar_1.png"
             thumb None
             xysize (22, 175)
 
-        python:
-            # Trying to invert the values (bar seems messed up with negative once):
-            if gm.char.get_stat("disposition") < 0:
-                inverted_disposition = -gm.char.get_stat("disposition")
-            else:
-                inverted_disposition = 0
+        vbar:
+            bar_invert True
+            top_gutter 12
+            bottom_gutter 0
+            value AnimatedValue(value=max(-temp, 0), range=-gm.char.stats.min["disposition"], delay=4.0)
+            bottom_bar im.Flip("content/gfx/interface/bars/progress_bar_1.png", vertical=True)
+            top_bar "content/gfx/interface/bars/bar_mine.png"
+            thumb None
+            xysize(22, 175)
+
+    # Affection bar
+    vbox:
+        align (.97, .31)
+
+        $ temp = gm.char.get_stat("affection")
+        vbar:
+            top_gutter 13
+            bottom_gutter 0
+            value AnimatedValue(value=max(temp, 0), range=gm.char.get_max("affection"), delay=4.0)
+            bottom_bar im.Flip("content/gfx/interface/bars/bar_mine.png", vertical=True)
+            top_bar "content/gfx/interface/bars/progress_bar_1.png"
+            thumb None
+            xysize (22, 175)
 
         vbar:
             bar_invert True
             top_gutter 12
             bottom_gutter 0
-            value AnimatedValue(value=inverted_disposition, range=-gm.char.stats.min["disposition"], delay=4.0)
+            value AnimatedValue(value=max(-temp, 0), range=-gm.char.stats.min["affection"], delay=4.0)
             bottom_bar im.Flip("content/gfx/interface/bars/progress_bar_1.png", vertical=True)
-            top_bar "content/gfx/interface/bars/bar_mine.png"
+            top_bar im.Flip("content/gfx/interface/bars/progress_bar_full1.png", vertical=True)
             thumb None
             xysize(22, 175)
 

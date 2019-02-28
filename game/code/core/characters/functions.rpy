@@ -417,7 +417,7 @@ init -11 python:
 
         # generate random preferenes
         if not hasattr(rg, "preferences"):
-            rg.preferences = dict([(p, randint(0, 100)) for p in STATIC_CHAR.PREFS])
+            rg.preferences = dict([(p, randint(0, 100)/100.0) for p in STATIC_CHAR.PREFS])
 
         # Normalizing new girl:
         # We simply run the init method of parent class for this:
@@ -985,7 +985,43 @@ init -11 python:
         value *= mod * ap_used
         return round_int(value)
 
-    def affection_reward(char, value, stat=None):
+    def dice_int(value):
+        if dice((abs(value)*100)%100):
+            value += (1 if value >= 0 else -1)
+        return int(value)
+
+    def limited_affection(char, value):
+        curr_affection = char.get_stat("affection")
+        if value > 0:
+            if curr_affection >= 200:
+                return 0
+            if curr_affection < 0:
+                full_value = -curr_affection
+                if value <= full_value:
+                    return dice_int(value)
+                value -= full_value
+                curr_affection = 0
+            else:
+                value = min(value, 200 - curr_affection)
+                full_value = 0
+            value *= (1.0 - curr_affection/200.0)
+        elif value < 0:
+            if curr_affection <= -200:
+                return 0
+            if curr_affection > 0:
+                full_value = -curr_affection
+                if value >= full_value:
+                    return dice_int(value)
+                value -= full_value
+                curr_affection = 0
+            else:
+                value = max(value, -200 - curr_affection)
+                full_value = 0
+            value *= (1.0 + curr_affection/200.0)
+
+        return dice_int(value)
+
+    def affection_reward(char, value=1, stat=None):
         """
         Adjusts the affection increase of an actor. Doesn't actually raise the affection.
         
@@ -998,25 +1034,40 @@ init -11 python:
         temp = char.preferences
         if stat is not None:
             temp = temp.get(stat, 0)
-            if temp == 0:
-                return 0
-            temp = {stat, temp}
-        mod = 1.0
-        for p, v in temp.items():
-            if v == 0:
-                continue
-            if is_stat(p):
-                max_val = char.get_relative_max_stat(p)
-                val = hero.get_stat(p)
-            elif is_skill(p):
-                max_val = char.get_max_skill(p)
-                val = hero.get_skill(p)
+            temp = {stat: temp}
+        mod = .0
+        for k, v in temp.items():
+            if is_stat(k):
+                max_val = char.get_relative_max_stat(k)
+                val = hero.get_stat(k)
+            elif is_skill(k):
+                max_val = char.get_max_skill(k)
+                val = hero.get_skill(k)
             else: # gold
-                max_val = getattr(char, p)
-                val = getattr(hero, p)
-            mod *= min(5, float(val * v) / (100 * max(max_val, 1))) 
+                max_val = getattr(char, k)
+                val = getattr(hero, k)
+            mod += v * min(5, float(val) / (max(max_val, 1)))
+        mod /= len(temp)
+        mod *= len(STATIC_CHAR.PREFS)
+
+        if ct("Frigid"):
+            mod *= .8
+        elif ct("Nymphomaniac"):
+            mod *= 1.2
+
         value *= mod
-        return round_int(value)
+
+        temp = ct("Lesbian" if char.gender == "female" else "Gay")
+        if char.gender != hero.gender:
+            if temp and "Yuri Expert" not in hero.traits:
+                return limited_affection(char, value)
+        else:
+            if not temp:
+                return limited_affection(char, value)
+        if ct("Half-Sister") and "Sister Lover" not in hero.traits:
+            return limited_affection(char, value)
+
+        return dice_int(value)
     #def get_act(character, tags): # copypaste from jobs without the self part, allows to randomly select one of existing tags sets
     #        acts = list()
     #        for t in tags:

@@ -753,9 +753,9 @@ init: # Main Screens:
                             frame:
                                 xysize (130, 22)
                                 xalign .5
-                                text '{}'.format(stat.capitalize()) xalign .02 color "#43CD80" size 16
+                                text stat.capitalize() xalign .02 color "#43CD80" size 16
                                 # if stat in data["stats"]:
-                                text "{}".format(getattr(mob, stat)) xalign .98 style "stats_value_text" color "#79CDCD" size 17
+                                text mob.get_stat(stat) xalign .98 style "stats_value_text" color "#79CDCD" size 17
                                 # else:
                                 #     text str(20) xalign .98 style "stats_value_text" color "#79CDCD" size 17
                     null width 2
@@ -768,8 +768,8 @@ init: # Main Screens:
                             frame:
                                 xysize (130, 22)
                                 xalign .5
-                                text '{}'.format(stat.capitalize()) xalign .02 color "#43CD80" size 16
-                                text "{}".format(getattr(mob, stat)) xalign .98 style "stats_value_text" color "#79CDCD" size 17
+                                text stat.capitalize() xalign .02 color "#43CD80" size 16
+                                text mob.get_stat(stat) xalign .98 style "stats_value_text" color "#79CDCD" size 17
                                 # if stat in data["stats"]:
                                 #     text str(data["stats"][stat]) xalign .98 style "stats_value_text" color "#79CDCD" size 17
                                 # else:
@@ -1032,7 +1032,7 @@ init: # Main Screens:
                         frame:
                             xalign .5
                             xysize (190, 27)
-                            text '{}'.format(stat.capitalize()) xalign .02 color "#79CDCD"
+                            text stat.capitalize() xalign .02 color "#79CDCD"
                             label str(winner.combat_stats[stat]) xalign 1.0 yoffset -1
 
         # Looser Details Display on the left:

@@ -12,20 +12,6 @@ label interactions_smalltalk:
             $ char.gfx_mod_stat("joy", -1)
         $ del m
         jump girl_interactions
-    if dice(50) and dice(char.get_stat("joy")):
-        if char.get_stat("disposition") >= 50:
-            $ narrator(choice(["You feel especially close."]))
-            $ char.gfx_mod_stat("joy", randint(0, 1))
-            $ char.gfx_mod_stat("disposition", randint(1, 2))
-            $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
-            $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
-
-        else:
-            $ narrator(choice(["[char.pC] was much more approachable."]))
-            $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
-            $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
-            $ char.gfx_mod_stat("disposition", randint(2, 4))
-
     $ m = char.get_stat("disposition")
     if m >= 100:
         if ct("Impersonal") or ct("Dandere") or ct("Shy"):
@@ -39,6 +25,14 @@ label interactions_smalltalk:
                                "[char.pC] welcomed the chance to spend some time with you.",
                                "[char.pC] is visibly at ease when talking to you.",
                                "You both have enjoyed the conversation."]))
+
+        if dice(50) and dice(char.get_stat("joy")):
+            $ narrator(choice(["You feel especially close.", "[char.pC] was much more approachable."]))
+            $ char.gfx_mod_stat("joy", randint(0, 1))
+            $ char.gfx_mod_stat("disposition", randint(1, 2))
+            $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
+            $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
+            $ char.gfx_mod_stat("affection", affection_reward(char))
     elif m >= -100:
         if ct("Impersonal") or ct("Dandere") or ct("Shy"):
             $ narrator(choice(["But there was a lot of awkward silence.", "But you had to do most of the talking.", "There is no sign of [char.op] opening up to you yet.", "But it was kind of one-sided."]))
@@ -60,6 +54,7 @@ label interactions_smalltalk:
         $ char.gfx_mod_stat("joy", 1)
         $ m = 0
     $ char.gfx_mod_stat("disposition", m)
+    $ char.gfx_mod_stat("affection", affection_reward(char))
     $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
     $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
     $ del m
@@ -77,8 +72,6 @@ label girl_interactions_aboutjob: # TO DO: here would help additional logic base
         jump girl_interactions
     $ del m
 
-    $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
-
     if char.flag("daysemployed") < 5:
         # Less than 10 days in service:
         $ char.override_portrait("portrait", "indifferent")
@@ -87,6 +80,7 @@ label girl_interactions_aboutjob: # TO DO: here would help additional logic base
         else:
             $ rc("I want to serve you better, [char.mc_ref].", "A new master takes a while to get used to...")
         $ char.gfx_mod_stat("disposition", 1)
+        $ char.gfx_mod_stat("affection", .5, affection_reward(char))
         $ char.gfx_mod_stat("joy", 1)
         $ char.restore_portrait()
     elif char.get_stat("disposition") <= -350:
@@ -104,6 +98,7 @@ label girl_interactions_aboutjob: # TO DO: here would help additional logic base
             else:
                 $ rc("I wish that I the resolve to kill myself...", "My life in your service is awful.", "Just sell me off to someone. To anyone!")
         $ char.gfx_mod_stat("disposition", randint(0, 1))
+        $ char.gfx_mod_stat("affection", .25, affection_reward(char))
         $ char.restore_portrait()
     elif char.get_stat("disposition") <= -50:
         $ char.override_portrait("portrait", "indifferent")
@@ -138,6 +133,7 @@ label girl_interactions_aboutjob: # TO DO: here would help additional logic base
                 else:
                     $ rc("There isn't much to say... I'm sad and you're mean...", "I feel like it would be better if you sold me off at the next auction.")
         $ char.gfx_mod_stat("disposition", randint(1, 2))
+        $ char.gfx_mod_stat("affection", affection_reward(char))
         $ char.gfx_mod_stat("joy", randint(0, 1))
         $ char.restore_portrait()
     else:
@@ -173,8 +169,13 @@ label girl_interactions_aboutjob: # TO DO: here would help additional logic base
                 else:
                     $ rc("I'm a bit sad, but you are kind so I'm looking for a brighter tomorrow!", "You've been very nice to me in general, so I won't complain!")
         $ char.gfx_mod_stat("disposition", randint(1, 3))
+        $ char.gfx_mod_stat("affection", affection_reward(char))
         $ char.gfx_mod_stat("joy", randint(0, 1))
         $ char.restore_portrait()
+
+    $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
+    $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
+
     jump girl_interactions
 
 # ask how she feels
@@ -250,6 +251,13 @@ label interactions_howshefeels:
             $ rc("I'm ok, I guess.", "Everything is as usual.")
 
     $ char.restore_portrait()
+
+    $ char.gfx_mod_stat("disposition", randint(2, 4))
+    $ char.gfx_mod_stat("affection", affection_reward(char))
+
+    $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
+    $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
+
     jump girl_interactions
 
 # ask about her
@@ -274,22 +282,6 @@ label interactions_abouther:
         if char.status != "free":
             "You tried to know [char.nickname] better."
         jump interactions_refused
-
-    if dice(50) and dice(char.get_stat("joy")-20):
-        if char.get_stat("disposition") >= 400:
-            $ narrator(choice(["You feel especially close."]))
-            $ char.gfx_mod_stat("joy", randint(0, 1))
-            $ char.gfx_mod_stat("disposition", randint(1, 2))
-        else:
-            $ narrator(choice(["She was much more approachable."]))
-            $ char.gfx_mod_stat("disposition", randint(2, 6))
-        $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
-        $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
-
-    $ char.gfx_mod_stat("disposition", randint(5, 15))
-
-    $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
-    $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
 
     $ gm_abouther_list = []
     if ct("Half-Sister"):
@@ -496,12 +488,74 @@ label interactions_abouther:
     if ct("Always Hungry"):
         $ gm_abouther_list.append(choice(["I'm still hungry, no matter how much I eat.", "I can eat nonstop, is there something wrong with that?", "No matter how much I devour, my stomach is still empty. Am I still growing or something?", "You'll get heat fatigue if you don't eat properly.", "I wonder why I'm always so hungry. I'm not gaining much weight, so it's fine, but...", "I really do eat too much but I still manage to keep in shape, so....", "I've got a craving for sweets just now...", "I've had a huge appetite lately. If this continues then I might gain weight... This has to stop."]))
 
+    $ pref_list = {"gold": [["I really hate that everything revolves around money in this city."],
+                            ["Successful people are only successful, because they had something to start with."]],
+                   "fame": [["Never trust the crowd to make the right decision."],
+                            ["One has to have good connections if they want to achieve anything in this city."]],
+                   "reputation": [["Not long ago the king was passing near by me on the street. Everyone was awestruck by him. So disgusting..."],
+                                  ["I would love to meet the king sometime."]],
+                   "charisma": [["I tend to ignore people who think only look matters."],
+                                ["Not everyone is born to be a leader."]],
+                   "constitution": [["Common people just use their endurance, but it is important to step back sometimes."],
+                                    ["You can always reach your goals, just have to put yourself to the task."]],
+                   "character": [["Just because someone does not change their opinion, does not mean that they are unique."],
+                                 ["The average people change with the winds."]],
+                   "intelligence": [["I really loath people who boast about their knowledge."],
+                                    ["There is so much to study at the library. I think it is even impossible to learn everything."]],
+                   "attack": [["It is sickening that some people can not solve their problems in a peaceful way."],
+                              ["If nothing else, the force is always there as a last resort."]],
+                   "magic": [["I'm really afraid that sometime someone lose control of the power their acquired."],
+                             ["So much can be achieved using the powers of the ancestors."]],
+                   "defence": [["I do not really like overprotective people. I can take care of myself!"],
+                               ["It is really important to feel safe around your closest friends, don't you think?"]],
+                   "agility": [["If someone bends easily, they are going to be bent, right?"],
+                               ["Dancing is an important part of our social life."]],
+                   "luck": [["Some people bet everything on poor luck, then wonder why they lose."],
+                            ["There are people who got everything by luck, I really envy them."]],
+                   "vaginal": [["Todays people are so conservative in their thinking."],
+                               ["I feel like much can be achieved by convervative approach."]],
+                   "anal": [["I prefer to look at people face-to-face, always afraid that they stab me in the back."],
+                            ["There is always an other option if the common way is closed."]],
+                   "oral": [["People have to be on the same level when they are approaching each other, right?"],
+                            ["Sometimes you give, sometimes you get. The important thing is to feel good. Am I right?"]],
+                   "sex": [["Maybe I was born in the wrong world. Everyone wants the same."],
+                           ["Never had trouble to find something to do."]],
+                   "group": [["I do not really like crowded places."],
+                             ["It is really boring to do the same over and over again."]],
+                   "bdsm": [["I think there are people who do not value their freedom enough."],
+                            ["It is really hard to earn someones trust. That is why it is so valuable."]]}
+
+    python hide:
+        for k, v in char.preferences.items():
+            if v < 20:
+                gm_abouther_list.append(choice(pref_list[k][0]))
+            elif v > 80:
+                gm_abouther_list.append(choice(pref_list[k][1]))
+
     # if there is not enough specific answers, a vague one is added to the list
     if len(gm_abouther_list) < 3:
         $ gm_abouther_list.append(choice(["Hm? A little of this, a little of that?", "...I don't really have much to say.", "Nothing much, there's nothing worth mentioning.", "What I'm doing? The usual stuff...", "I'm just normal, I guess.", "I like just about anything.", "Hmm, there's not much to talk about.", "Now that I think about it... am I just boring?", "I'm just about average, I guess."]))
 
     $ g(choice(gm_abouther_list))
-    $ del gm_abouther_list
+    $ del gm_abouther_list, pref_list
+
+    if dice(50) and dice(char.get_stat("joy")-20):
+        if char.get_stat("disposition") >= 400:
+            $ narrator(choice(["You feel especially close."]))
+            $ char.gfx_mod_stat("joy", randint(0, 1))
+            $ char.gfx_mod_stat("disposition", randint(1, 2))
+        else:
+            $ narrator(choice(["She was much more approachable."]))
+            $ char.gfx_mod_stat("disposition", randint(2, 6))
+        $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
+        $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
+
+    $ char.gfx_mod_stat("disposition", randint(5, 15))
+    $ char.gfx_mod_stat("affection", affection_reward(char))
+
+    $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
+    $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
+
     jump girl_interactions
 
 # ask about occupation
@@ -516,68 +570,45 @@ label interactions_aboutoccupation:
         jump girl_interactions
     $ del m
 
-    $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
-
-    if char.get_stat("disposition") > -250 or char.status == "slave":
-        python:
-            options = OrderedDict()
-            options["Knight"] = ("I'm more like a bodyguard.", "In battle I was taught to protect others.", "My job is to hold the enemy.")
-            options["Shooter"] = ("I prefer to keep the enemy at a distance.", "I prefer to use ranged weapons.", "I'm a pretty good marksman.")
-            options["Assassin"] = ("I was taught the art of stealthy assassination.", "I'm an assassin. They never see me coming.", "I have had training to kill at any cost. So my methods are... concealed.")
-            options["Healer"] = ("I know a lot about healing magic.", "My job is to heal wounds.", "I'm a healer, my magic helps other people.")
-            options["Stripper"] = ("I specialize in erotic dances.", "I'm undressing on stage, if you know what I mean.")
-            options["Maid"] = ("I perform menial tasks around the household.", "I'm a professional maid.")
-            options["Cleaner"] = ("I'm good at cleaning stuff.", "I'm a just a cleaner.")
-            options["Barmaid"] = ("I'm a decent bartender.", "I'm decent at pouring drinks and chatting with people about their problems.")
-            options["Manager"] = ("I know a thing or two about managing.", "I know how to manage people.")
-            options["Prostitute"] = ("I'm a fancy girl.", "I'm a merchant. And my merchandise is my beautiful body ♪", "I provide personal services. I mean very personal.", "I sell my love to those who need it.")
-            options["Mage"] = ("I'm a magician.", "I have arcane energies at my command.", "I have a magical talent. It's very useful in many cases.")
-            options["Warrior"] = ("I was trained to fight.", "I have combat training.", "I know how to fight.", "I know how to behave on the battlefield.")
-
-            gen_occ_options = OrderedDict()
-            gen_occ_options["Combatant"] = ["I can fight pretty well!"]
-            gen_occ_options["Caster"] = ['I am very decent at spellcasting!']
-            gen_occ_options["Server"] = ["I specialize in service industry!"]
-            gen_occ_options["Specialist"] = ["I am Specialist!"]
-            gen_occ_options["SIW"] = ["I specialize in Adult Industry!"]
-
-        $ iterations = len(char.traits.basetraits)
-        $ ignore = []
-        jump interactions_aboutoccupation_logic
-    else:
+    if char.get_stat("disposition") <= -250 and char.status == "free":
         $ char.gfx_mod_stat("disposition", -5)
         $ char.gfx_mod_stat("affection", -1)
         jump interactions_refused
 
-label interactions_aboutoccupation_logic:
-    if iterations > 0:
-        python hide:
-            for base, values in options.iteritems():
-                if base not in ignore and co(base):
-                    store.iterations -= 1
-                    store.ignore.append(base)
-                    rc(*values)
-                    jump("interactions_aboutoccupation_logic")
+    python hide:
+        options = OrderedDict()
+        options["Knight"] = ("I'm more like a bodyguard.", "In battle I was taught to protect others.", "My job is to hold the enemy.")
+        options["Shooter"] = ("I prefer to keep the enemy at a distance.", "I prefer to use ranged weapons.", "I'm a pretty good marksman.")
+        options["Assassin"] = ("I was taught the art of stealthy assassination.", "I'm an assassin. They never see me coming.", "I have had training to kill at any cost. So my methods are... concealed.")
+        options["Healer"] = ("I know a lot about healing magic.", "My job is to heal wounds.", "I'm a healer, my magic helps other people.")
+        options["Stripper"] = ("I specialize in erotic dances.", "I'm undressing on stage, if you know what I mean.")
+        options["Maid"] = ("I perform menial tasks around the household.", "I'm a professional maid.")
+        options["Cleaner"] = ("I'm good at cleaning stuff.", "I'm a just a cleaner.")
+        options["Barmaid"] = ("I'm a decent bartender.", "I'm decent at pouring drinks and chatting with people about their problems.")
+        options["Manager"] = ("I know a thing or two about managing.", "I know how to manage people.")
+        options["Prostitute"] = ("I'm a fancy girl.", "I'm a merchant. And my merchandise is my beautiful body ♪", "I provide personal services. I mean very personal.", "I sell my love to those who need it.")
+        options["Mage"] = ("I'm a magician.", "I have arcane energies at my command.", "I have a magical talent. It's very useful in many cases.")
+        options["Warrior"] = ("I was trained to fight.", "I have combat training.", "I know how to fight.", "I know how to behave on the battlefield.")
 
-            for base, values in gen_occ_options.iteritems():
-                if base not in ignore and cgo(base):
-                    store.iterations -= 1
-                    store.ignore.append(base)
-                    rc(*values)
-                    jump("interactions_aboutoccupation_logic")
+        temp = [t.id for t in char.traits.basetraits]
+        for base, values in options.iteritems():
+            if base in temp:
+                rc(*values)
+                temp.remove(base)
 
-        # Make sure we can never go into infinite loop:
-        $ rc("I don't really have a profession... (Please tell the Devs about that!)")
-        $ iterations -= 1
-        jump interactions_aboutoccupation_logic
-    else:
-        # Cleanup:
-        python:
-            del(options)
-            del(gen_occ_options)
-            del(iterations)
-            del(ignore)
-        jump girl_interactions
+        #gen_occ_options = OrderedDict()
+        #gen_occ_options["Combatant"] = ["I can fight pretty well!"]
+        #gen_occ_options["Caster"] = ['I am very decent at spellcasting!']
+        #gen_occ_options["Server"] = ["I specialize in service industry!"]
+        #gen_occ_options["Specialist"] = ["I am Specialist!"]
+        #gen_occ_options["SIW"] = ["I specialize in Adult Industry!"]
+        for t in temp:
+            rc("Something is amiss with my profession: %s... (Please tell the Devs about that!)" % t)
+
+    $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.20))
+    $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.20))
+
+    jump girl_interactions
 
 label interactions_interests:
     $ interactions_check_for_bad_stuff(char)
@@ -591,20 +622,17 @@ label interactions_interests:
             $ char.gfx_mod_stat("joy", -randint(1, 2))
         $ del m
         jump girl_interactions
+    $ del m
 
-    if char.get_stat("disposition") > 100:
-        if dice(50) and dice(char.get_stat("joy")-20):
-            if char.get_stat("disposition") >= 400:
-                $ narrator(choice(["You feel especially close."]))
-                $ char.gfx_mod_stat("joy", randint(0, 1))
-                $ char.gfx_mod_stat("disposition", randint(1, 2))
-            else:
-                $ narrator(choice(["She was much more approachable."]))
-                $ char.gfx_mod_stat("disposition", randint(2, 6))
-            $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.15))
-            $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.15))
+    if char.get_stat("disposition") <= 100:
+        $ char.gfx_mod_stat("disposition", -randint(3, 10))
+        $ char.gfx_mod_stat("affection", -randint(0,2))
+        $ char.gfx_mod_stat("joy", -randint(0, 1))
+        if char.status != "free":
+            "You tried to know [char.nickname] better."
+        jump interactions_refused
 
-        $ line = rts(char, {
+    $ line = rts(char, {
         "Exhibitionist": ["[char.pC] tells you pretty hot stories about [char.op] exhibitionistic adventures in a local park."],
         "Athletic": ["You discuss beach volleyball which became quite popular among local girls lately.", "You discuss places for swimming. It looks like most girls prefer beaches to pools because it's free."],
         "Manly": ["[char.pC] gives you a lecture on how to build your muscles properly. You feel a bit offended, but keep your cool.", "[char.pC] casually remarks that you should exercise more often, and gives you some advice."],
@@ -650,39 +678,44 @@ label interactions_interests:
         "default": ["You chat for some time."]
         })
 
-        $ narrator(line)
-        $ del line
-        $ char.gfx_mod_stat("disposition", randint(10, 20))
+    $ narrator(line)
+    $ del line
 
-        $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.20))
-        $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.20))
-
-        $ del m
-        if char.get_stat("joy") >= 65:
-            if dice(char.get_stat("joy")-20):
-                "It was a very lively and enjoyable conversation."
-                $ char.gfx_mod_stat("joy", randint(3, 5))
-            else:
-                "It was a pretty lively conversation."
-                $ char.gfx_mod_stat("joy", randint(2, 4))
-        elif char.get_stat("joy") >= 30:
-            if dice(char.get_stat("joy") + 20):
-                "You had a fairly normal conversation."
-                $ char.gfx_mod_stat("joy", randint(1, 3))
-            else:
-                "You had a short conversation."
+    if dice(50) and dice(char.get_stat("joy")-20):
+        if char.get_stat("disposition") >= 400:
+            $ narrator(choice(["You feel especially close."]))
+            $ char.gfx_mod_stat("joy", randint(0, 1))
+            $ char.gfx_mod_stat("disposition", randint(1, 2))
         else:
-            "It was a short and not very pleasant conversation."
-            $ char.gfx_mod_stat("joy", -randint(0, 2))
-        jump girl_interactions
+            $ narrator(choice(["She was much more approachable."]))
+            $ char.gfx_mod_stat("disposition", randint(2, 6))
+        $ char.gfx_mod_stat("affection", affection_reward(char))
+        $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.15))
+        $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.15))
+
+    $ char.gfx_mod_stat("disposition", randint(10, 20))
+    $ char.gfx_mod_stat("affection", affection_reward(char))
+    
+    $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.20))
+    $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.20))
+
+    if char.get_stat("joy") >= 65:
+        if dice(char.get_stat("joy")-20):
+            "It was a very lively and enjoyable conversation."
+            $ char.gfx_mod_stat("joy", randint(3, 5))
+        else:
+            "It was a pretty lively conversation."
+            $ char.gfx_mod_stat("joy", randint(2, 4))
+    elif char.get_stat("joy") >= 30:
+        if dice(char.get_stat("joy") + 20):
+            "You had a fairly normal conversation."
+            $ char.gfx_mod_stat("joy", randint(1, 3))
+        else:
+            "You had a short conversation."
     else:
-        $ del m
-        $ char.gfx_mod_stat("disposition", -randint(3, 10))
-        $ char.gfx_mod_stat("affection", -randint(0,2))
-        $ char.gfx_mod_stat("joy", -randint(0, 1))
-        if char.status != "free":
-            "You tried to know [char.nickname] better."
-        jump interactions_refused
+        "It was a short and not very pleasant conversation."
+        $ char.gfx_mod_stat("joy", -randint(0, 2))
+    jump girl_interactions
 
 # flirt
 label interactions_flirt:
@@ -697,52 +730,52 @@ label interactions_flirt:
             $ char.gfx_mod_stat("joy", -randint(2, 4))
         $ del m
         jump girl_interactions
-
-    if char.get_stat("disposition") > 150:
-        $ char.override_portrait("portrait", "shy")
-
-        $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
-        $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
-        $ char.gfx_mod_stat("disposition", randint(15, 25))
-
-        $ del m
-
-        if ct("Impersonal"):
-            $ rc("To express it in words is very difficult...", "Infatuation and love are different. Infatuation will fade, but love's memory continues forever.", "I think it is a good thing to be loved by someone.")
-        elif ct("Shy") and dice(40):
-            $ rc("Lovers... Th-they're supposed to...hold hands, after all... Right?", "Wh-what comes after a k-kiss is... It's... Awawa...", "If it's the person you love, just having them turn around and smile... Is enough to make you happy...", "Love... sure is a good thing...")
-        elif ct("Nymphomaniac") and dice(40):
-            $ rc("*sigh* I always have such a high libido...", "Um... Love can start from lust... right?", "If you are in love, having sex is totally normal, right?", "People are no more than animals, so it's only natural to copulate...", "Well, doing perverted stuff is proof that you're healthy.", "Me thinking about sex? Not at all... Great. Now that you brought it up...")
-        elif ct("Bisexual", "Lesbian") and dice(20):
-            $ rc("Love runs deeper than gender.")
-        elif ct("Dandere"):
-            $ rc("If you like them, you like them. If you hate them, you hate them. That's all there is to it.", "My dream yesterday... It was so lovey-dovey and erotic.", "Getting close to people other than the one you love is kind of...", "You can still live a good life without a lover, don't you think?")
-        elif ct("Tsundere"):
-            $ rc("M...men and women feel arousal differently.... F-f-forget what I just said!", "Thick and hard? What the... You idiot, what are you saying! That's not what you meant? ... You idiot!", "E-even I want to be a good bride someday, you know...?", "Things like l-love or affection, are all excuses.")
-        elif ct("Kuudere"):
-            $ rc("To feel the same feelings towards each other... To be partners for life... That's what I long for.", "Two people in love devoting themselves to each other, that sounds like pure bliss to me...", "True love isn't about showing off to everyone else... It's the small things you do for your partner that matter.", "There's gotta be someone willing to support me out there somewhere...", "Chance encounters only happen with both time and luck... Well, I suppose you could call it fate.")
-        elif ct("Imouto"):
-            $ rc("That's weird... Today's love fortune was supposed to be a sure thing... Hmm...", "That book is very interesting... A boy and a girl who you'd think are twins get together, but in fact...", "L-love and affection and th-that stuff, I don't really get it very well...", "If I'm going to date someone, they should be rich ♪, and want kids ♪ And they should be totally committed to me ♪")
-        elif ct("Ane"):
-            $ rc("You're deciding who will be your partner for life.　It would be strange not to be worried about it.", "I think just having the one you love beside you is the ultimate happiness.", "I need a person whom I can rely on.", "Lost loves are important to build character, I think.", "As you've probably noticed, I'm the devoted type ♪", "Of course, I'd wanna stay by my loved one's side. Or, rather than being by their side, it's more, like, I want to support them?")
-        elif ct("Kamidere"):
-            $ rc("Seriously, how can I... think of such unpleasant thoughts...", "When my body gets hot, it's like my discipline starts to crumble...", "There are things more important than physical infatuation.", "Making lovers my playthings is a simple matter for one such as I. Eheh!", "Love is nothing but an expression of ego, you know.", "You can't disobey your instincts. Isn't keeping up this charade painful for you?")
-        elif ct("Bokukko"):
-            $ rc("Love is a competition! A conflict! A war!", "If the other person won't give you a second glance, you need to make 'em. It's simple, really.", "Love, hmm ♪ ... Hn, just thinking about it makes me sort of embarrassed...", "I'm gonna be the bestest wife!", "Is this that fate thing they're talking about?")
-        elif ct("Yandere"):
-            $ rc("Huhu, a girl in love is invincible ♪", "Nothing motivates you quite like 'love', huh...", "If it's just with their mouth, everyone can talk about love. Even though none of them know how hard it is in reality...", "I want to try many different ways to kiss, I think...")
-        else:
-            $ rc("Getting your heart broken is scary, but everything going too well is kinda scary for its own reasons too.", "One day, I want to be carried like a princess by the one I love ♪...", "Hehe! Love conquers all!", "I'm the type to stick to the one I love.", "Being next to someone who makes you feel safe, that must be happiness...", "Everyone wants to fall in love, I suppose. Don't you think?")
-        $ char.restore_portrait()
-        jump girl_interactions
-    else:
-        $ del m
+    $ del m
+    if char.get_stat("disposition") <= 150:
         $ char.gfx_mod_stat("disposition", -randint(5, 10))
         $ char.gfx_mod_stat("affection", -randint(0,2))
         $ char.gfx_mod_stat("joy", -randint(0, 1))
         if char.status != "free":
             "You tried to flirt with [char.nickname]."
         jump interactions_refused
+
+    $ char.override_portrait("portrait", "shy")
+
+    if ct("Impersonal"):
+        $ rc("To express it in words is very difficult...", "Infatuation and love are different. Infatuation will fade, but love's memory continues forever.", "I think it is a good thing to be loved by someone.")
+    elif ct("Shy") and dice(40):
+        $ rc("Lovers... Th-they're supposed to...hold hands, after all... Right?", "Wh-what comes after a k-kiss is... It's... Awawa...", "If it's the person you love, just having them turn around and smile... Is enough to make you happy...", "Love... sure is a good thing...")
+    elif ct("Nymphomaniac") and dice(40):
+        $ rc("*sigh* I always have such a high libido...", "Um... Love can start from lust... right?", "If you are in love, having sex is totally normal, right?", "People are no more than animals, so it's only natural to copulate...", "Well, doing perverted stuff is proof that you're healthy.", "Me thinking about sex? Not at all... Great. Now that you brought it up...")
+    elif ct("Bisexual", "Lesbian") and dice(20):
+        $ rc("Love runs deeper than gender.")
+    elif ct("Dandere"):
+        $ rc("If you like them, you like them. If you hate them, you hate them. That's all there is to it.", "My dream yesterday... It was so lovey-dovey and erotic.", "Getting close to people other than the one you love is kind of...", "You can still live a good life without a lover, don't you think?")
+    elif ct("Tsundere"):
+        $ rc("M...men and women feel arousal differently.... F-f-forget what I just said!", "Thick and hard? What the... You idiot, what are you saying! That's not what you meant? ... You idiot!", "E-even I want to be a good bride someday, you know...?", "Things like l-love or affection, are all excuses.")
+    elif ct("Kuudere"):
+        $ rc("To feel the same feelings towards each other... To be partners for life... That's what I long for.", "Two people in love devoting themselves to each other, that sounds like pure bliss to me...", "True love isn't about showing off to everyone else... It's the small things you do for your partner that matter.", "There's gotta be someone willing to support me out there somewhere...", "Chance encounters only happen with both time and luck... Well, I suppose you could call it fate.")
+    elif ct("Imouto"):
+        $ rc("That's weird... Today's love fortune was supposed to be a sure thing... Hmm...", "That book is very interesting... A boy and a girl who you'd think are twins get together, but in fact...", "L-love and affection and th-that stuff, I don't really get it very well...", "If I'm going to date someone, they should be rich ♪, and want kids ♪ And they should be totally committed to me ♪")
+    elif ct("Ane"):
+        $ rc("You're deciding who will be your partner for life.　It would be strange not to be worried about it.", "I think just having the one you love beside you is the ultimate happiness.", "I need a person whom I can rely on.", "Lost loves are important to build character, I think.", "As you've probably noticed, I'm the devoted type ♪", "Of course, I'd wanna stay by my loved one's side. Or, rather than being by their side, it's more, like, I want to support them?")
+    elif ct("Kamidere"):
+        $ rc("Seriously, how can I... think of such unpleasant thoughts...", "When my body gets hot, it's like my discipline starts to crumble...", "There are things more important than physical infatuation.", "Making lovers my playthings is a simple matter for one such as I. Eheh!", "Love is nothing but an expression of ego, you know.", "You can't disobey your instincts. Isn't keeping up this charade painful for you?")
+    elif ct("Bokukko"):
+        $ rc("Love is a competition! A conflict! A war!", "If the other person won't give you a second glance, you need to make 'em. It's simple, really.", "Love, hmm ♪ ... Hn, just thinking about it makes me sort of embarrassed...", "I'm gonna be the bestest wife!", "Is this that fate thing they're talking about?")
+    elif ct("Yandere"):
+        $ rc("Huhu, a girl in love is invincible ♪", "Nothing motivates you quite like 'love', huh...", "If it's just with their mouth, everyone can talk about love. Even though none of them know how hard it is in reality...", "I want to try many different ways to kiss, I think...")
+    else:
+        $ rc("Getting your heart broken is scary, but everything going too well is kinda scary for its own reasons too.", "One day, I want to be carried like a princess by the one I love ♪...", "Hehe! Love conquers all!", "I'm the type to stick to the one I love.", "Being next to someone who makes you feel safe, that must be happiness...", "Everyone wants to fall in love, I suppose. Don't you think?")
+    $ char.restore_portrait()
+
+    $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
+    $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
+
+    $ char.gfx_mod_stat("disposition", randint(15, 25))
+    $ char.gfx_mod_stat("affection", affection_reward(char))
+
+    jump girl_interactions
 
 # interaction check fail
 label interactions_refused:

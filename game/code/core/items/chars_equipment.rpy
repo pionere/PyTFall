@@ -444,7 +444,7 @@ screen char_equip_left_frame(stats_display):
                         style_group "proper_stats"
                         has vbox spacing 1
                         # STATS ============================>
-                        $ stats = ["constitution", "charisma", "intelligence"] if eqtarget == hero else ["constitution", "charisma", "intelligence", "character", "joy", "disposition"]
+                        $ stats = ["constitution", "charisma", "intelligence"] if eqtarget == hero else ["constitution", "charisma", "intelligence", "character", "joy", "disposition", "affection"]
 
                         # Health:
                         frame:

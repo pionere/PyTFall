@@ -950,6 +950,7 @@ init -10 python:
                         txt.append("Debug: Disposition mod: {}".format(dismod))
                         txt.append("Debug: Joy mod: {}".format(joymod))
                     char.mod_stat("disposition", dismod)
+                    char.mod_stat("affection", affection_reward(char, -1, stat="gold"))
                     char.mod_stat("joy", joymod)
                 else: # Paying a fair wage
                     if dice(10): # just a small way to appreciate that:
@@ -1699,6 +1700,8 @@ init -10 python:
                     char.mod_stat("disposition", 2)
                 elif char.get_stat("disposition") < 200:
                     char.mod_stat("disposition", 1)
+                if "Sister Lover" in hero.traits:
+                    char.mod_stat("affection", affection_reward(char))
             elif self.name == "Drunk":
                 char.mod_stat("vitality", -char.get_flag("dnd_drunk_counter", 0))
                 char.mod_stat("health", -10)

@@ -506,7 +506,7 @@ screen char_profile():
 
                     null height 10
 
-                    $ stats = ["joy", "disposition"]
+                    $ stats = ["joy", "disposition", "affection"]
                     for stat in stats:
                         frame:
                             xoffset 4
@@ -558,33 +558,33 @@ screen char_profile():
                             xoffset 4
                             xysize (270, 27)
                             xpadding 7
-                            text '{}'.format(stat.capitalize()) color "#79CDCD"
-                            if stat.lower() in base_ss:
+                            text stat.capitalize() color "#79CDCD"
+                            if stat in base_ss:
                                 button:
                                     xysize 20, 20
                                     offset -10, -5
                                     background pscale("content/gfx/interface/icons/stars/legendary.png", 20, 20)
                                     action NullAction()
                                     tooltip "This is a Class Stat!"
-                            text ('%d/%d'%(getattr(char, stat), char.get_max(stat))) xalign 1.0 style_suffix "value_text"
+                            text "%d/%d" % (char.get_stat(stat), char.get_max(stat)) xalign 1.0 style_suffix "value_text"
 
                     null height 10
 
-                    $ stats = [("Attack", "#CD4F39"), ("Defence", "#dc762c"), ("Magic", "#8470FF"), ("Agility", "#1E90FF")]
+                    $ stats = [("attack", "#CD4F39"), ("defence", "#dc762c"), ("magic", "#8470FF"), ("agility", "#1E90FF")]
                     for stat, color in stats:
                         frame:
                             xoffset 4
                             xysize (270, 27)
                             xpadding 7
-                            text "[stat]" color color
-                            if stat.lower() in base_ss:
+                            text stat.capitalize() color color
+                            if stat in base_ss:
                                 button:
                                     xysize 20, 20
                                     offset -10, -5
                                     background pscale("content/gfx/interface/icons/stars/legendary.png", 20, 20)
                                     action NullAction()
                                     tooltip "This is a Class Stat!"
-                            text "{}/{}".lower().format(getattr(char, stat.lower()), char.get_max(stat.lower())) style_suffix "value_text" color color
+                            text "%d/%d" % (char.get_stat(stat), char.get_max(stat)) style_suffix "value_text" color color
                 use race_and_elements(char=char)
             elif stats_display == "skills":
                 frame:

@@ -20,6 +20,7 @@ label special_items_slime_bottle:
             $ del tier
 
             $ new_slime.gfx_mod_stat("disposition", 300)
+            $ new_slime.gfx_mod_stat("affection", affection_reward(new_slime))
             $ spr = new_slime.get_vnsprite()
             if locked_dice(50):
                 $ new_slime.override_portrait("portrait", "happy")
@@ -146,6 +147,7 @@ label special_items_full_extractor:
         $ renpy.show_screen('message_screen', "The energy of knowledge slowly flows inside [eqtarget.name]. She became more experienced.")
         if eqtarget.get_stat("disposition") < 750:
             $ eqtarget.gfx_mod_stat("disposition", randint(25, 50))
+            $ eqtarget.gfx_mod_stat("affection", affection_reward(eqtarget))
         if eqtarget.get_stat("joy") < 50:
             $ eqtarget.gfx_mod_stat("joy", 10)
     else:

@@ -223,7 +223,7 @@ init -960 python:
                 fixed = Fixed(xysize=(130, 130))
                 d = Transform("hearts_flow", size=(130, 130), align=(.5, .5))
                 fixed.add(d)
-                d = Text(str(value), font="fonts/rubius.ttf", color=pink,
+                d = Text(str(value), font="fonts/rubius.ttf", color=deeppink,
                          size=60, align=(.5, .5))
                 fixed.add(d)
                 kwargs["pos"] = randint(680, 920), randint(500, 600)
@@ -234,6 +234,36 @@ init -960 python:
                 d = Transform("shy_blush", size=(130, 130), align=(.5, .5))
                 fixed.add(d)
                 d = Text(str(value), font="fonts/rubius.ttf", color=blue,
+                         size=60, align=(.5, .5))
+                fixed.add(d)
+                kwargs["pos"] = randint(680, 920), randint(100, 200)
+                kwargs["yoffset"] = randint(250, 300)
+
+            kwargs["d"] = fixed
+            kwargs["start"] = time_offset
+            duration = uniform(1.2, 2.3)
+            kwargs["duration"] = duration
+            self.add_atl(affection_effect, duration, kwargs)
+
+        def disposition_mod(self, value):
+            value = round_int(value)
+            kwargs = dict()
+            time_offset = self.get_time_offset()
+
+            if value > 0:
+                fixed = Fixed(xysize=(130, 130))
+                d = Transform("hearts_rise", size=(130, 130), align=(.5, .5))
+                fixed.add(d)
+                d = Text(str(value), font="fonts/rubius.ttf", color=pink,
+                         size=60, align=(.5, .5))
+                fixed.add(d)
+                kwargs["pos"] = randint(680, 920), randint(500, 600)
+                kwargs["yoffset"] = randint(-300, -250)
+            else:
+                fixed = Fixed(xysize=(130, 130))
+                d = Transform("shy_blush", size=(130, 130), align=(.5, .5))
+                fixed.add(d)
+                d = Text(str(value), font="fonts/rubius.ttf", color=lightblue,
                          size=60, align=(.5, .5))
                 fixed.add(d)
                 kwargs["pos"] = randint(680, 920), randint(100, 200)

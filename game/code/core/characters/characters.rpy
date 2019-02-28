@@ -2622,10 +2622,12 @@ init -9 python:
                         if self.status != "slave":
                             self.mod_stat("joy", -randint(3, 5))
                             self.mod_stat("disposition", -randint(5, 10))
+                            self.mod_stat("affection", affection_reward(self, -1, stat="gold"))
                             txt.append("You failed to pay %s upkeep, %s's a bit cross with your because of that..." % (self.pp, self.p))
                         else:
                             self.mod_stat("joy", -20)
                             self.mod_stat("disposition", -randint(25, 50))
+                            self.mod_stat("affection", affection_reward(self, -2, stat="gold"))
                             self.mod_stat("health", -10)
                             self.mod_stat("vitality", -25)
                             txt.append("You've failed to provide even the most basic needs for your slave. This will end badly...")
@@ -2651,6 +2653,7 @@ init -9 python:
                             self.workplace.fin.log_logical_expense(tips, "Tips")
 
                         self.mod_stat("disposition", 1 + round_int(tips*.05))
+                        self.mod_stat("affection", affection_reward(self, stat="gold"))
                         self.mod_stat("joy", 1 + round_int(tips*.025))
                     else:
                         temp = choice(["You take all of %s tips for yourself. " % self.pp,

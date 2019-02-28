@@ -52,6 +52,7 @@ label interactions_giftmoney:
         if char.get_stat("disposition") >= 90:
             $ mod = round(mod/(char.get_stat("disposition")*.01))
         $ char.gfx_mod_stat("disposition", mod)
+        $ char.gfx_mod_stat("affection", affection_reward(char, mod*.05, stat="gold"))
         $ del a, b, mod, money
     else:
         "You don't have that amount of gold."
