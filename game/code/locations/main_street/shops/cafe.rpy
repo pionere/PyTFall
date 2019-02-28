@@ -285,6 +285,7 @@ label mc_action_cafe_invitation: # we jump here when the group was invited by on
                     if len(hero.team)<3: # when there is only one char, disposition bonus is higher
                         stat += randint(5, 10)
                     member.gfx_mod_stat("disposition", stat)
+                    member.gfx_mod_stat("affection", affection_reward(member))
 
         hide expression img with dissolve
         $ del img

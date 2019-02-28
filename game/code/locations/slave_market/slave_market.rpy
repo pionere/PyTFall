@@ -189,6 +189,7 @@ label sm_free_slaves:
                     $ hero.take_money(cost, reason="Slave Freedom")
                     s "Done and done! Congrats, I hope it was worth it."
                     $ our_char.gfx_mod_stat("disposition", randint(400, 500))
+                    $ our_char.gfx_mod_stat("affection", affection_reward(our_char, 2))
                     $ our_char.status = "free"
                     $ our_char.autobuy = True
                     $ our_char.home = pytfall.city

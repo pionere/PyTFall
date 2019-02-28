@@ -26,9 +26,8 @@ label interactions_hug:
 
     if char.get_stat("disposition") > (m+50*sub) or slave_siw_check(char):
         $ char.gfx_mod_stat("disposition", randint(15, 30))
-        $ del m
-        $ del n
-        $ del sub
+        $ char.gfx_mod_stat("affection", affection_reward(char, 1.4))
+        $ del m, n, sub
         $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
         $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
         $ char.override_portrait("portrait", "confident")
@@ -140,12 +139,11 @@ label interactions_grabbutt:
     
     if char.get_stat("disposition") > (m+50*sub) or slave_siw_check(char):
         $ char.gfx_mod_stat("disposition", randint(20, 35))
-
+        $ char.gfx_mod_stat("affection", affection_reward(char, 1.2))
         $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
         $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
 
-        $ del m
-        $ del n
+        $ del m, n
         $ char.override_portrait("portrait", "happy")
         $ char.show_portrait_overlay("zoom_fast", "reset")
         if ct("Yandere"):
@@ -258,9 +256,8 @@ label interactions_grabbreasts:
         $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
         $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
         $ char.gfx_mod_stat("disposition", randint(25, 35))
-        $ del m
-        $ del n
-        $ del sub
+        $ char.gfx_mod_stat("affection", affection_reward(char, 1.3))
+        $ del m, n, sub
         $ char.override_portrait("portrait", "shy")
         $ char.show_portrait_overlay("zoom_fast", "reset")
         if ct("Impersonal"):

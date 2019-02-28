@@ -178,6 +178,7 @@ label mc_action_tavern_relax:
                 for member in members:
                     member.gfx_mod_stat("joy", randint(2, 4))
                     member.gfx_mod_stat("disposition", randint(3, 5))
+                    member.gfx_mod_stat("affection", affection_reward(member))
                     interactions_drinking_outside_of_inventory(character=member, count=randint(15, 40))
                 interactions_drinking_outside_of_inventory(character=hero, count=randint(15, 25))
             hide temp1

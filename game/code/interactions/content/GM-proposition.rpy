@@ -208,6 +208,7 @@ label interactions_girlfriend:
         $ set_lovers(hero, char)
         $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
         $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
+        $ char.gfx_mod_stat("affection", affection_reward(char))
         $ char.gfx_mod_stat("joy", 25)
         $ char.override_portrait("portrait", "shy")
         if ct("Impersonal") in  char.traits:

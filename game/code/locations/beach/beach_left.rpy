@@ -184,6 +184,7 @@ label mc_action_city_beach_rest:
             $ char.gfx_mod_skill("sex", 0, 1)
             $ hero.gfx_mod_skill("sex", 0, 1)
             $ char.gfx_mod_stat("disposition", 3)
+            $ char.gfx_mod_stat("affection", affection_reward(char))
             $ del msg, result, excluded, tags, char
         $ del members
 
@@ -195,6 +196,8 @@ label mc_action_city_beach_rest:
             member.gfx_mod_stat("vitality", randint(10, 15))
             if member != hero:
                 member.gfx_mod_stat("disposition", 1)
+                char.gfx_mod_stat("affection", affection_reward(char, .1))
+
     jump city_beach_left
 
 label fishing_logic_mor_quest_part:

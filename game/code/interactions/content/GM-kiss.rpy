@@ -42,6 +42,7 @@ label interactions_kiss:
     if char.get_stat("disposition") > (m+50*sub) or slave_siw_check(char):
         $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
         $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
+        $ char.gfx_mod_stat("affection", affection_reward(char, 1.5))
         $ char.gfx_mod_stat("disposition", randint(40, 55))
         $ del m
         $ del sub
