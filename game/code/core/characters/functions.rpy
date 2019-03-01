@@ -20,23 +20,24 @@ init -11 python:
         return round_int(wage)
 
     def friends_disp_check(char, msg=None):
-        """Sets up friendship with characters based on disposition"""
-        temp = char.get_stat("disposition")
+        """Sets up friendship with characters based on disposition and affection"""
         if hero in char.lovers:
+            temp = char.get_stat("affection")
             if (temp < 200 and char.status == "free") or (temp < 50): # and self.status == "slave"):
                     end_lovers(char, hero)
-                    if msg:
-                        msg.append("\n {} and you are no longer lovers...".format(char.nickname))
+                    if msg is not None:
+                        msg.append("%s and you are no longer lovers..." % char.nickname)
 
+        temp = char.get_stat("disposition")
         if hero in char.friends:
             if temp <= 0:
                 end_friends(char, hero)
-                if msg:
-                    msg.append("\n {} is no longer friends with you...".format(char.nickname))
+                if msg is not None:
+                    msg.append("%s is no longer friends with you..." % char.nickname)
         elif temp > 400:
             set_friends(char, hero)
-            if msg:
-                msg.append("\n {} became pretty close to you.".format(char.nickname))
+            if msg is not None:
+                msg.append("%s became pretty close to you." % char.nickname)
 
     def retire_chars_from_building(chars, b):
         for c in chars:
@@ -1057,6 +1058,8 @@ init -11 python:
             mod *= .8
         elif ct("Nymphomaniac"):
             mod *= 1.2
+        if 'Horny' in char.effects:
+            mod *= 1.1
 
         value *= mod
 

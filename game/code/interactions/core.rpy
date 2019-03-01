@@ -56,9 +56,9 @@ init -1 python:
             occs = list(i for i in conditioned_choices if i.occupations.intersection(goodoccupations)) if goodoccupations else list()
             conditioned_choices = list(conditioned_choices.intersection(gt + occs)) if gt or occs else list(conditioned_choices)
 
-            # Sort the list based on disposition:
-            conditioned_choices.sort(key=lambda x: x.get_stat("disposition"))
-            choices.sort(key=lambda x: x.get_stat("disposition"))
+            # Sort the list based on disposition and affection:
+            conditioned_choices.sort(key=lambda x: x.get_stat("disposition") + x.get_stat("affection"))
+            choices.sort(key=lambda x: x.get_stat("disposition") + x.get_stat("affection"))
 
             # =====================================>>>
             # We add an absolute overwrite for any character that has the location string set as the name:
@@ -72,12 +72,12 @@ init -1 python:
 
             # Append to the list (1st girl) Best disposition:
             if conditioned_choices:
-                if conditioned_choices[-1].get_stat("disposition"):
+                if conditioned_choices[-1].get_stat("disposition") or conditioned_choices[-1].get_stat("affection"):
                     c = conditioned_choices.pop()
                     cell_chars.append(c)
                     choices.remove(c)
             elif choices:
-                if choices[-1].get_stat("disposition"):
+                if choices[-1].get_stat("disposition") or choices[-1].get_stat("affection"):
                     cell_chars.append(choices.pop())
             if len(cell_chars) == 3:
                 return

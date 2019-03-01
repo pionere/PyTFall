@@ -305,25 +305,28 @@ label dark_forest_girl_meet:
         choices = list(i for i in chars.values() if
                        i not in temp and i.location != pytfall.jail and
                        not i.arena_active)
-    $ badtraits = ["Homebody", "Indifferent", "Coward"]
-    $ choices = list(i for i in choices if not any(trait in badtraits for trait in i.traits))
+        temp = ["Homebody", "Indifferent", "Coward"]
+        choices = list(i for i in choices if not any(trait in temp for trait in i.traits))
     if choices:
-        $ character = random.choice(choices)
-        $ spr = character.get_vnsprite()
+        $ char = random.choice(choices)
+        $ spr = char.get_vnsprite()
         show expression spr at center with dissolve
         "You found a girl lost in the woods and escorted her to the city."
-        $ character.override_portrait("portrait", "happy")
-        $ character.show_portrait_overlay("love", "reset")
-        $ character.say("She happily kisses you in the chick as a thanks. Maybe you should try to find her in the city later.")
-        if character.get_stat("disposition") < 450:
-            $ character.gfx_mod_stat("disposition", 100)
+        $ char.override_portrait("portrait", "happy")
+        $ char.show_portrait_overlay("love", "reset")
+        $ char.say("She happily kisses you in the chick as a thanks. Maybe you should try to find her in the city later.")
+        if char.get_stat("disposition") < 450:
+            $ char.gfx_mod_stat("disposition", 100)
         else:
-            $ character.gfx_mod_stat("disposition", 50)
+            $ char.gfx_mod_stat("disposition", 50)
+        $ char.gfx_mod_stat("affection", affection_reward(char))
         hide expression spr with dissolve
-        $ character.restore_portrait()
-        $ character.hide_portrait_overlay()
+        $ char.restore_portrait()
+        $ char.hide_portrait_overlay()
+        $ del spr, temp, choices # FIXME del char if possible
         $ global_flags.set_flag("keep_playing_music")
         jump forest_dark_continue
+    $ del temp, choices
 
 label mc_action_city_dark_forest_river:
     play world "forest_lake.ogg"

@@ -733,7 +733,7 @@ label interactions_flirt:
         $ del m
         jump girl_interactions
     $ del m
-    if char.get_stat("disposition") <= 150:
+    if char.get_stat("affection") <= 150:
         $ char.gfx_mod_stat("disposition", -randint(5, 10))
         $ char.gfx_mod_stat("affection", -randint(0,2))
         $ char.gfx_mod_stat("joy", -randint(0, 1))

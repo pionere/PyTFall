@@ -136,7 +136,7 @@ label mc_action_city_beach_rest:
 
         "You're relaxing at the beach with your team."
 
-        $ members = list(x for x in hero.team if (x != hero and 'Horny' in x.effects and (check_lovers(x, hero) or x.get_stat("disposition") >= 500) and interactions_silent_check_for_bad_stuff(x)))
+        $ members = list(x for x in hero.team if (x != hero and 'Horny' in x.effects and (check_lovers(x, hero) or x.get_stat("affection") >= 500) and interactions_silent_check_for_bad_stuff(x)))
         if members:
             $ char = choice(members)
             hide temp1

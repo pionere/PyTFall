@@ -147,6 +147,7 @@ label special_items_full_extractor:
         $ renpy.show_screen('message_screen', "The energy of knowledge slowly flows inside [eqtarget.name]. She became more experienced.")
         if eqtarget.get_stat("disposition") < 750:
             $ eqtarget.gfx_mod_stat("disposition", randint(25, 50))
+        if eqtarget.get_stat("affection") < 750:
             $ eqtarget.gfx_mod_stat("affection", affection_reward(eqtarget))
         if eqtarget.get_stat("joy") < 50:
             $ eqtarget.gfx_mod_stat("joy", 10)

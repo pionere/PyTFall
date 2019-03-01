@@ -204,7 +204,7 @@ label interactions_girlfriend:
     if char.status == "slave":
         $ l_ch += 200
 
-    if (char.flag("quest_cannot_be_lover") != True) and (char.get_stat("disposition") >= (600 - l_ch)) and (dice(l_ch + char.get_stat("disposition")/5)):
+    if (char.flag("quest_cannot_be_lover") != True) and (char.get_stat("affection") >= (600 - l_ch)) and (dice(l_ch + char.get_stat("affection")/5)):
         $ set_lovers(hero, char)
         $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
         $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))

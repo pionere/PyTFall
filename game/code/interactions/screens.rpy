@@ -247,7 +247,7 @@ label interactions_control:
                     item.hidden = False # We'll use existing hidden flag to hide items effectiveness.
                     dismod = getattr(item, "dismod", 0)
 
-                    if item.type == "romantic" and not(check_lovers(char, hero)) and char.get_stat("disposition") < 700:  # cannot give romantic gifts to anyone
+                    if item.type == "romantic" and not(check_lovers(char, hero)) and char.get_stat("affection") < 700:  # cannot give romantic gifts to anyone
                         dismod = -10
                     else:
                         for t, v in getattr(item, "traits", {}).iteritems():
@@ -407,7 +407,7 @@ screen girl_interactions():
                     if item.slot == "gift":
                         python:
                             dismod = getattr(item, "dismod", 0)
-                            if item.type == "romantic" and not(check_lovers(char, hero)) and char.get_stat("disposition") < 700: # cannot give romantic gifts to anyone
+                            if item.type == "romantic" and not(check_lovers(char, hero)) and char.get_stat("affection") < 700: # cannot give romantic gifts to anyone
                                 dismod = -10
                             else:
                                 for t, v in getattr(item, "traits", {}).iteritems():

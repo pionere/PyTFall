@@ -490,7 +490,7 @@ init -11 python:
                 continue
             if i.get_stat("vitality") < 25 or i.get_stat("health") < i.get_max("health")*3/5:
                 continue
-            if i.get_stat("disposition") > -50:
+            if i.get_stat("affection") > -50:
                 willing_partners.add(i)
 
         return willing_partners

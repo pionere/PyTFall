@@ -68,14 +68,13 @@ label interactions_askmoney:
         $ char.gfx_mod_stat("affection", -randint(0,2))
         jump girl_interactions
     "You asked for [char.pp] help with money."
-    if char.get_stat("disposition") >= 400 or check_lovers(char, hero) or check_friends(char, hero):
+    if char.get_stat("disposition") >= 400 or char.get_stat("affection") >= 400 or check_lovers(char, hero) or check_friends(char, hero):
         if char.gold < locked_random("randint", 500, 1000):
             call interactions_girl_is_too_poor_to_give_money from _call_interactions_girl_is_too_poor_to_give_money
             jump girl_interactions
         elif char.gold > hero.gold*2:
-            $ temp = randint (round(char.gold*.01), round(char.gold*.1))
-            while temp >= randint(500, 1000): # we will continue to divide it by 10 until it becomes less than 500-1000. a countermeasure against becoming too rich by persuading a high lvl rich character to give you money.
-                $ temp = round(temp*.1)
+            # make sure the char does not give all their money away, and also does not give too much
+            $ temp = randint(min(char.gold/100, 500), min(char.gold/10, 1000))
             if char.take_money(temp, reason="Charity"):
                 $ hero.add_money(temp, reason="Charity")
                 "She gave you [temp] Gold."

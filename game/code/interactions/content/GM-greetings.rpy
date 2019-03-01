@@ -218,6 +218,7 @@ label girl_meets_greeting: # also lines for sad and angry flags are needed. but 
                     $ rc("Is something wrong?", "What is it, [char.mc_ref]?", "...Spit it out already... Er, yes, [char.mc_ref]?")
                 else:
                     $ rc("You called, [char.mc_ref]?", "Is something the matter, [char.mc_ref]?", "Yes, what is it, [char.mc_ref]?")
+        $ del char_dispo
     elif m < 3:
  # when MC approaches character not the first time; after 4 times we stop showing greetings at all
         if char.get_stat("disposition") <= -50:
@@ -254,8 +255,6 @@ label girl_meets_greeting: # also lines for sad and angry flags are needed. but 
         $ char.override_portrait("portrait", "happy")
         $ char.show_portrait_overlay("note", "reset")
         cat.say "Meow!"
-        if char.get_stat("disposition") <= 500:
-            $ char.gfx_mod_stat("disposition", locked_random("randint", 5, 10))
         if ct("Impersonal"):
             $ rc("Oh? I'm sorry, cat, I don't have any treats.")
         elif ct("Shy") and dice(50):
@@ -278,6 +277,10 @@ label girl_meets_greeting: # also lines for sad and angry flags are needed. but 
             $ rc("Fine, fine, I'll pet you, so be thankful. *pets him*")
         else:
             $ rc("Oh, he's so fluffy and funny, hehe!")
+        if char.get_stat("disposition") <= 500:
+            $ char.gfx_mod_stat("disposition", locked_random("randint", 5, 10))
+        if char.get_stat("affection") <= 500:
+            $ char.gfx_mod_stat("affection", affection_reward(char))
         $ cat.restore_portrait()
     $ char.restore_portrait()
     $ char.hide_portrait_overlay()

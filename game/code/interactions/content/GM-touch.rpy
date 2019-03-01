@@ -24,7 +24,7 @@ label interactions_hug:
     else:
         $ m = 200
 
-    if char.get_stat("disposition") > (m+50*sub) or slave_siw_check(char):
+    if char.get_stat("affection") > (m+50*sub) or slave_siw_check(char):
         $ char.gfx_mod_stat("disposition", randint(15, 30))
         $ char.gfx_mod_stat("affection", affection_reward(char, 1.4))
         $ del m, n, sub
@@ -90,7 +90,7 @@ label interactions_hug:
                 $ rc("<Steps back> Don't think so.", "Let me go at once!", "You're making me uncomfortable.")
             else:
                 $ rc("What are you doing all of a sudden!?", "[char.mc_ref], you're too close, too clooose.", "What are you doing! Please don't touch me!", "<Steps back> I don't want to.")
-            if char.get_stat("disposition") <= (200+50*sub) and not cgo("SIW"):
+            if char.get_stat("affection") <= (200+50*sub) and not cgo("SIW"):
                 $ char.set_flag("cnd_interactions_blowoff", day+1)
                 $ del sub
                 $ char.restore_portrait()
@@ -112,7 +112,7 @@ label interactions_grabbutt:
     $ m = interactions_flag_count_checker(char, "flag_interactions_slapbutt")
     if check_lovers(char, hero) or ct("Nymphomaniac"):
         $ n = 1
-    elif (ct("Half-Sister") and char.get_stat("disposition") < 500 and not "Sister Lover" in hero.traits) or ct("Frigid"):
+    elif (ct("Half-Sister") and char.get_stat("affection") < 500 and not "Sister Lover" in hero.traits) or ct("Frigid"):
         $ n = -1
     else:
         $ n = 0
@@ -137,7 +137,7 @@ label interactions_grabbutt:
     else:
         $ m = 250
     
-    if char.get_stat("disposition") > (m+50*sub) or slave_siw_check(char):
+    if char.get_stat("affection") > (m+50*sub) or slave_siw_check(char):
         $ char.gfx_mod_stat("disposition", randint(20, 35))
         $ char.gfx_mod_stat("affection", affection_reward(char, 1.2))
         $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
@@ -206,7 +206,7 @@ label interactions_grabbutt:
                 $ rc("Geez! If you don't stop, I'm gonna get mad!", "Nooo, what are you doing!?", "Hya! Don't touch me there!", "*sob* that hurts...", "O-owowowowow! Sto-, Wai-, AGYAAA!!", "Hey! Where are you aiming?!")
             else:
                 $ rc("Geez! If you don't stop, I'll get angry.", "Whoa! Hey, don't just touch me out of the blue!", "[char.mc_ref]...! I'd rather you do this sort of thing with someone else...!", "Hey! Quit it, already!", "Aah! C...cut it out! ", "What are you doing over there, you sneak?", "Hmph, how unromantic! Know some shame!")
-            if char.get_stat("disposition") <= (200+50*sub) and not cgo("SIW"):
+            if char.get_stat("affection") <= (200+50*sub) and not cgo("SIW"):
                 $ char.set_flag("cnd_interactions_blowoff", day+2)
                 $ char.restore_portrait()
                 $ char.hide_portrait_overlay()
@@ -226,7 +226,7 @@ label interactions_grabbreasts:
     $ m = interactions_flag_count_checker(char, "flag_interactions_grabbreasts")
     if check_lovers(char, hero) or ct("Nymphomaniac"):
         $ n = 1
-    elif (ct("Half-Sister") and char.get_stat("disposition") < 500 and not "Sister Lover" in hero.traits) or ct("Frigid"):
+    elif (ct("Half-Sister") and char.get_stat("affection") < 500 and not "Sister Lover" in hero.traits) or ct("Frigid"):
         $ n = -1
     else:
         $ n = 0
@@ -252,7 +252,7 @@ label interactions_grabbreasts:
     else:
         $ m = 250
 
-    if char.get_stat("disposition") > (m+50*sub) or slave_siw_check(char):
+    if char.get_stat("affection") > (m+50*sub) or slave_siw_check(char):
         $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
         $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
         $ char.gfx_mod_stat("disposition", randint(25, 35))
@@ -318,7 +318,7 @@ label interactions_grabbreasts:
                 $ rc("How filthy. Get away from me!", "What an idiot. What do you mean by 'Oops'?", "How dare you?! Know your place your filthy piece of trash!", "Piss off you fucktard!", "<jumps away> Ha! Like I'll ever let a loser like you touch me.")
             else:
                 $ rc("You certainly have courage, asshole!", "What are you doing!!! They are not an invitation, asshole!", "Hey! Where are those hands of yours going?", "Don't touch me, asshole!", "You're... terrible! Must you do such a thing!", "What are you trying to...?! To hell with you!", "You filthy pig! Who gave you permission to touch me?!")
-            if char.get_stat("disposition") <= (200+50*sub) and not cgo("SIW"):
+            if char.get_stat("affection") <= (200+50*sub) and not cgo("SIW"):
                 $ char.set_flag("cnd_interactions_blowoff", day+2)
                 $ del sub
                 $ char.restore_portrait()

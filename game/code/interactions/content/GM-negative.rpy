@@ -104,9 +104,9 @@ label interactions_insult:
     $ sub = check_submissivity(char)
     if dice(50-25*sub):
         $ char.gfx_mod_stat("character", -randint(0,1))
-    if (char.get_stat("disposition") >= 250 and char.status<>"slave") or check_lovers(char, hero) or (char.get_stat("disposition") >= 700 and char.status=="slave"):
+    if char.get_stat("disposition") >= 700 or (char.get_stat("disposition") >= 250 and char.status != "slave") or check_lovers(char, hero):
         $ char.gfx_mod_stat("disposition", -randint(1, 5))
-        $ char.gfx_mod_stat("affection", -randint(1,3))
+        $ char.gfx_mod_stat("affection", -randint(0,1))
         if m < 3:
             call interactions_got_insulted_hdisp from _call_interactions_got_insulted_hdisp
         else:
@@ -115,7 +115,7 @@ label interactions_insult:
             $ char.gfx_mod_stat("affection", -randint(8,12))
     elif char.get_stat("disposition") > -100 and char.status=="slave":
         $ char.gfx_mod_stat("disposition", -randint(1, 5))
-        $ char.gfx_mod_stat("affection", -randint(1,3))
+        $ char.gfx_mod_stat("affection", -randint(0,1))
         if m < 3:
             call interactions_got_insulted_slave from _call_interactions_got_insulted_slave
         else:
@@ -124,7 +124,7 @@ label interactions_insult:
             $ char.gfx_mod_stat("affection", -randint(8,12))
     else:
         $ char.gfx_mod_stat("disposition", -randint(15,25))
-        $ char.gfx_mod_stat("affection", -randint(4,6))
+        $ char.gfx_mod_stat("affection", -randint(1,2))
         if ct("Aggressive") and m>1 and char.status != "slave" and dice(50):
             jump interactions_escalation
         elif m < randint(2,3):

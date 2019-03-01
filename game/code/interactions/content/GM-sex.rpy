@@ -51,6 +51,10 @@ label interactions_hireforsex: # we go to this label from GM menu hire for sex. 
         $ price = round(price * .9)
     elif char.get_stat("disposition") < -50:
         $ price = round(price * 1.3)
+    if char.get_stat("affection") > 400:
+        $ price = round(price * .8)
+    elif char.get_stat("affection") < -50:
+        $ price = round(price * 1.6)
 
     if (ct("Lesbian") != (hero.gender == "female")) and not "Yuri Expert" in hero.traits:
         $ price = round(price * 2.5)
@@ -205,10 +209,10 @@ label interactions_sex: # we go to this label from GM menu propose sex
     if disposition_level_for_sex < -500:
         $ disposition_level_for_sex = -500 # normalization, no free sex with too low disposition no matter the character
 
-    if char.get_stat("disposition") < disposition_level_for_sex:
+    if char.get_stat("affection") < disposition_level_for_sex:
         if char.status == "free":
             call interactions_sex_disagreement from _call_interactions_sex_disagreement_3
-            $ dif = disposition_level_for_sex - char.get_stat("disposition") # the difference between required for sex and current disposition
+            $ dif = disposition_level_for_sex - char.get_stat("affection") # the difference between required for sex and current disposition
             if dif <= 100:
                 $ char.gfx_mod_stat("disposition", -randint(20, 35)) # if it's low, then disposition penalty will be low too
                 $ char.gfx_mod_stat("affection", -randint(8,12))
@@ -245,7 +249,7 @@ label interactions_sex: # we go to this label from GM menu propose sex
     if not char.has_flag("raped_by_player"):
         call interactions_sex_agreement from _call_interactions_sex_agreement
 
-    if ct("Nymphomaniac") or check_lovers(char, hero) or char.get_stat("disposition") >= 600 or char.has_flag("raped_by_player"):
+    if ct("Nymphomaniac") or check_lovers(char, hero) or char.get_stat("affection") >= 600 or char.has_flag("raped_by_player"):
         menu:
             "Where would you like to do it?"
 
@@ -476,6 +480,8 @@ label mc_action_scene_finish_sex:
 
         if not char.has_flag("raped_by_player"):
             $ char.gfx_mod_stat("disposition", randint(50, 100))
+            $ char.gfx_mod_stat("affection", affection_reward(char, .5, "sex"))
+            $ char.gfx_mod_stat("affection", affection_reward(char, .5))
             call interactions_after_good_sex from _call_interactions_after_good_sex
         else:
             "She quickly dresses up and leaves."
@@ -528,6 +534,8 @@ label mc_action_scene_finish_sex:
 
         if not char.has_flag("raped_by_player"):
             $ char.gfx_mod_stat("disposition", randint(15, 30))
+            $ char.gfx_mod_stat("affection", affection_reward(char, .5, "sex"))
+            $ char.gfx_mod_stat("affection", affection_reward(char))
             $ char.gfx_mod_stat("joy", -randint(10, 15))
             call interactions_guy_never_came from _call_interactions_guy_never_came
         else:
@@ -554,6 +562,7 @@ label mc_action_scene_finish_sex:
 
         if not char.has_flag("raped_by_player"):
             $ char.gfx_mod_stat("disposition", randint(25, 50))
+            $ char.gfx_mod_stat("affection", affection_reward(char))
             call interactions_guy_cum_alot from _call_interactions_guy_cum_alot
         else:
             "She quickly dresses up and leaves."
@@ -630,6 +639,8 @@ label mc_action_scene_finish_sex:
 
         if not char.has_flag("raped_by_player"):
             $ char.gfx_mod_stat("disposition", randint(30, 60))
+            $ char.gfx_mod_stat("affection", affection_reward(char, .4, "sex"))
+            $ char.gfx_mod_stat("affection", affection_reward(char, .4))
             call interactions_after_normal_sex from _call_interactions_after_normal_sex
         else:
             "She quickly dresses up and leaves."
@@ -646,20 +657,20 @@ label interactions_lesbian_choice:
     # The interactions itself.
     # Since we called a function, we need to do so again (Consider making this func a method so it can be called just once)...
     if ct("Lesbian") or ct("Bisexual") or ct("Open Minded"):
-        if char.get_stat("disposition") <= 500 or not(check_friends(hero, char) or check_lovers(hero, char)):
+        if char.get_stat("affection") <= 500 or not(check_friends(hero, char) or check_lovers(hero, char)):
             "Unfortunately, she does not want to do it."
             jump interaction_scene_choice
         elif check_lovers(hero, char):
             "She gladly agrees to make a show for you."
-        elif check_friends(hero, char) or char.get_stat("disposition") > 600:
+        elif check_friends(hero, char) or char.get_stat("affection") > 600:
             "A bit hesitant, she agrees to do it for you."
     else:
-        if char.get_stat("disposition") <= 600 or not(check_friends(hero, char) or check_lovers(hero, char)) or not(cgo("SIW")):
+        if char.get_stat("affection") <= 600 or not(check_friends(hero, char) or check_lovers(hero, char)) or not(cgo("SIW")):
             "Unfortunately, she does not like girls in that way."
             jump interaction_scene_choice
         elif check_lovers(hero, char):
                 "She gladly agrees to make a show for you if there will be some straight sex as well today."
-        elif (check_friends(hero, char) or char.get_stat("disposition") > 600) and cgo("SIW"):
+        elif (check_friends(hero, char) or char.get_stat("affection") > 600) and cgo("SIW"):
                 "She prefers men but agrees to make a show for you if there will be some straight sex as well today."
     $ willing_partners = find_les_partners()
 
@@ -1679,18 +1690,19 @@ label interaction_check_for_virginity: # here we do all checks and actions with 
                     "Yes":
                         call interactions_girl_virgin_line from _call_interactions_girl_virgin_line
                     "No":
-                        if check_lovers(hero, char) or check_friends(hero, char) or char.get_stat("disposition") >= 600:
+                        if check_lovers(hero, char) or check_friends(hero, char) or char.get_stat("affection") >= 600:
                             "You changed your mind. She looks a bit disappointed."
                         else:
                             "You changed your mind."
                         jump interaction_scene_choice
             else:
-                if (check_lovers(hero, char)) or (check_friends(hero, char) and char.get_stat("disposition") >= 600) or ((cgo("SIW") or ct("Nymphomaniac")) and char.get_stat("disposition") >= 250) or (ct("Open Minded") and char.get_stat("disposition") >= 350):
+                if (check_lovers(hero, char)) or (check_friends(hero, char) and char.get_stat("affection") >= 600) or ((cgo("SIW") or ct("Nymphomaniac")) and char.get_stat("affection") >= 250) or (ct("Open Minded") and char.get_stat("affection") >= 350):
                     menu:
                         "It looks like this is her first time, and she does not mind. Do you want to continue?"
                         "Yes":
                             call interactions_girl_virgin_line from _call_interactions_girl_virgin_line_1
                             $ char.gfx_mod_stat("disposition", 50)
+                            $ char.gfx_mod_stat("affection", affection_reward(char))
                         "No":
                             "You changed your mind. She looks a bit disappointed."
                             jump interaction_scene_choice

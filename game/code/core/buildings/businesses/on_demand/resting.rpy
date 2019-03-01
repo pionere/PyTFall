@@ -28,8 +28,8 @@ init -5 python:
 
             # at first we set excluded tags
             kwargs = ["dungeon", "angry", "in pain", "after sex", "group", "normalsex", "bdsm"]
-            if (worker.get_stat("disposition") < 500) and ("Exhibitionist" not in worker.traits) and not check_lovers(worker, hero):
-                kwargs.append("nude") # with not too low disposition nude pics become available during rest
+            if (worker.get_stat("affection") < 500) and ("Exhibitionist" not in worker.traits) and not check_lovers(worker, hero):
+                kwargs.append("nude") # with not too low affection nude pics become available during rest
             kwargs = dict(exclude=kwargs, add_mood=False)
 
             # if vitality is really low, they try to sleep, assuming there is a sleeping picture

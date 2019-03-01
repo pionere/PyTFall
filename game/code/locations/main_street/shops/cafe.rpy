@@ -36,12 +36,12 @@ label cafe:
             members = [] # all chars willing to invite will be in this list
             for member in hero.team:
                 if member != hero:
-                    if member.status == "free" and member.gold >= locked_random("randint", 500, 1000) and member.get_stat("disposition") >= 200 and member.get_stat("joy") >= 30:
+                    if member.status == "free" and member.gold >= locked_random("randint", 500, 1000) and (member.get_stat("disposition") >= 200 or member.get_stat("affection") >= 200) and member.get_stat("joy") >= 30:
                         members.append(member)
             if members:
                 inviting_character = random.choice(members)
                 interactions_eating_propose(inviting_character)
-            del members
+            del member, members
 
     if inviting_character != hero:
         menu:

@@ -5,14 +5,15 @@ init python:
         global hero
         global index
         global img
-        global tt_str
         global gm_img
         global bg, hbg
 
         try:
             index = girls.index(char)
         except:
-            index = 0 # Char was sold
+            # Char was sold
+            if index >= len(girls):
+                index = 0 
 
         if dir == "next":
             index = (index + 1) % len(girls)
@@ -34,8 +35,6 @@ init python:
                             exclude=["nude", "revealing", "lingerie", "swimsuit"], label_cache=True)
 
         image_tags = img.get_image_tags()
-        tt_str = "\n".join(["Click to interact with {}!".format(char.nickname),
-                            "{}".format(char.desc)])
 
         if "Slime" in char.traits:
             gm_img = char.show("girlmeets", resize=gm.img_size)
@@ -110,7 +109,8 @@ label char_profile:
                                 set_location(char, None)
 
                             if girls:
-                                $ change_char_in_profile("next")
+                                hide screen char_profile
+                                jump char_profile
                             else:
                                 jump char_profile_end
                     else:
@@ -175,7 +175,8 @@ label char_profile:
                                 girls.remove(char)
 
                             if girls:
-                                $ change_char_in_profile("next")
+                                hide screen char_profile
+                                jump char_profile
                             else:
                                 jump char_profile_end
                         else:
@@ -225,7 +226,7 @@ screen char_profile():
                 hover_background store.hbg
                 action Hide("char_profile"), With(dissolve), Function(gm.start_int, char, img=gm_img)
                 sensitive controlled_char(char)
-                tooltip store.tt_str
+                tooltip "Click to interact with %s!\n%s" % (char.nickname, char.desc)
                 add store.img
                 alternate Return(['control', 'return']) # keep in sync with mousedown_3
 
@@ -243,7 +244,6 @@ screen char_profile():
                 action Return(['control', 'left'])
                 sensitive len(girls) > 1
                 text "Previous Girl" style "wood_text" xalign(.69)
-                tooltip "<== Previous Girl"
             fixed:
                 align .5, .5
                 xysize 230, 45
@@ -258,7 +258,6 @@ screen char_profile():
                 action Return(['control', 'right'])
                 sensitive len(girls) > 1
                 text "Next Girl" style "wood_text" xalign .19
-                tooltip "Next Girl ==>"
 
         # Left Frame with most of the info ====================================>
         frame:

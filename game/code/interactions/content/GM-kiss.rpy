@@ -17,7 +17,7 @@ label interactions_kiss:
     $ m = interactions_flag_count_checker(char, "flag_interactions_kiss")
     if ct("Nymphomaniac") or check_lovers(char, hero):
         $ n = 1
-    elif (ct("Half-Sister") and char.get_stat("disposition") < 500 and "Sister Lover" not in hero.traits) or ct("Frigid"):
+    elif (ct("Half-Sister") and char.get_stat("affection") < 500 and "Sister Lover" not in hero.traits) or ct("Frigid"):
         $ n = -1
     else:
         $ n = 0
@@ -39,7 +39,7 @@ label interactions_kiss:
     else:
         $ m = 350
 
-    if char.get_stat("disposition") > (m+50*sub) or slave_siw_check(char):
+    if char.get_stat("affection") > (m+50*sub) or slave_siw_check(char):
         $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
         $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
         $ char.gfx_mod_stat("affection", affection_reward(char, 1.5))
@@ -50,7 +50,7 @@ label interactions_kiss:
         $ char.override_portrait("portrait", "shy")
         $ char.show_portrait_overlay("love", "reset")
 
-        $ char_dispo = char.get_stat("disposition")
+        $ char_dispo = char.get_stat("affection")
         if check_lovers(char, hero):
             char.say "Your hands slide down her body as your lips press hers."
         elif char_dispo < 400:
@@ -110,6 +110,7 @@ label interactions_kiss:
         else:
             $ rc("Don't say anything.... *kiss*", "*kiss*, *lick*, I like, *kiss*, this...", "*kiss*, hmm... *sigh*, kissing feels so good...", "*kiss*...  My heart's racing ♪", "Hmm... *kiss, kiss*, ahm,.. I like... kissing... Hn, *smooch*...", "*slurp, kiss* Kissing this rough... feels so good.", "*kiss* You're sweet...", "Ahm... *kiss, lick*... nnn... Do you think touching tongues is a little... sexy?")
 
+        $ del char_dispo
     else:
         $ char.show_portrait_overlay("sweat", "reset")
         $ del n
@@ -150,7 +151,7 @@ label interactions_kiss:
                 $ char.override_portrait("portrait", "indifferent")
                 $ rc("With you? Of course not!", "Huh?! No, I don't want to! Pervert...", "Woah, hold on there. Maybe after we get to know each other better.")
                 
-            if char.get_stat("disposition") < (350+50*sub) and not cgo("SIW"):
+            if char.get_stat("affection") < (350+50*sub) and not cgo("SIW"):
                 $ char.set_flag("cnd_interactions_blowoff", day+2)
                 $ del sub
                 $ del m
