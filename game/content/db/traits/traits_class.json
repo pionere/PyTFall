@@ -367,20 +367,20 @@
         },
         "leveling_stats": {
             "constitution": [
-                1,
-                2
+                0,
+                1
             ],
             "agility": [
-                1,
-                2
+                0,
+                1
             ],
             "character": [
-                1,
-                2
+                0,
+                1
             ],
             "intelligence": [
-                1,
-                2
+                0,
+                1
             ]
         }
     },
@@ -445,6 +445,10 @@
             "intelligence": [
                 0,
                 1
+            ],
+            "character": [
+                0,
+                1
             ]
         }
     },
@@ -492,18 +496,21 @@
         },
         "init_skills": {},
         "leveling_stats": {
-            "attack": [-2, -1],
+            "attack": [
+               -2,
+               -1
+            ],
             "intelligence": [
                 1,
-                0
+                1
             ],
             "magic": [
                 2,
                 1
             ],
             "mp": [
-                2,
-                2
+                1,
+                1
             ],
             "health": [
                 1,
@@ -551,10 +558,17 @@
         },
         "init_skills": {},
         "leveling_stats": {
-            "attack": [-1, -1],
+            "attack": [
+               -1,
+               -1
+            ],
             "magic": [
                 1,
                 1
+            ],
+            "intelligence": [
+                1,
+                0
             ],
             "mp": [
                 2,
@@ -632,10 +646,12 @@
                 4,
                 4
             ],
-            "mp": [-1,
+            "mp": [
+                -1,
                 0
             ],
-            "intelligence": [-1,
+            "intelligence": [
+                -1,
                 0
             ]
         }
@@ -700,10 +716,14 @@
                 0,
                 1
             ],
-            "mp": [-1,
+            "mp": [
+                -1,
                 0
             ],
-            "intelligence": [-1, -1]
+            "intelligence": [
+                -1,
+                -1
+            ]
         }
     },
     {
@@ -772,7 +792,8 @@
                 2,
                 2
             ],
-            "intelligence": [-1,
+            "intelligence": [
+                -1,
                 0
             ]
         }
@@ -847,7 +868,8 @@
                 3,
                 3
             ],
-            "mp": [-1,
+            "mp": [
+                -1,
                 0
             ]
 

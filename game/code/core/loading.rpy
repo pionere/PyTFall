@@ -565,7 +565,62 @@ init -11 python:
             t = Trait()
             for attr in trait:
                 setattr(t, attr, trait[attr])
+            # validate traits so we do not have to do that runtime
+            temp = getattr(t, "leveling_stats", None)
+            if temp is not None:
+                for k in temp:
+                    if not (is_stat(k) and k not in STATIC_CHAR.FIXED_MAX):
+                        raise Exception("Invalid leveling stat %s in trait %s." % (k, t.id))
+            temp = getattr(t, "init_lvlmax", None)
+            if temp is not None:
+                for k in temp:
+                    if not is_stat(k):
+                        raise Exception("Invalid init lvl max stat %s in trait %s." % (k, t.id))
+            temp = getattr(t, "init_max", None)
+            if temp is not None:
+                for k in temp:
+                    if not is_stat(k):
+                        raise Exception("Invalid init max stat %s in trait %s." % (k, t.id))
+            temp = getattr(t, "init_mod", None)
+            if temp is not None:
+                for k in temp:
+                    if not is_stat(k):
+                        raise Exception("Invalid init mod stat %s in trait %s." % (k, t.id))
+            temp = getattr(t, "max", None)
+            if temp is not None:
+                for k in temp:
+                    if not is_stat(k):
+                        raise Exception("Invalid max stat %s in trait %s." % (k, t.id))
+            temp = getattr(t, "min", None)
+            if temp is not None:
+                for k in temp:
+                    if not is_stat(k):
+                        raise Exception("Invalid min stat %s in trait %s." % (k, t.id))
+            temp = getattr(t, "mod_stats", None)
+            if temp is not None:
+                for k in temp:
+                    if k != "upkeep" and not is_stat(k):
+                        raise Exception("Invalid mod stat %s in trait %s." % (k, t.id))
+            temp = getattr(t, "init_skills", None)
+            if temp is not None:
+                for k in temp:
+                    if not is_skill(k):
+                        raise Exception("Invalid init skill %s in trait %s." % (k, t.id))
+            temp = getattr(t, "mod_skills", None)
+            if temp is not None:
+                for k in temp:
+                    if not is_skill(k):
+                        raise Exception("Invalid mod skill %s in trait %s." % (k, t.id))
+            
             traits[t.id] = t
+
+        # final checks
+        for t in traits:
+            temp = getattr(t, "blocks", None)
+            if temp:
+                for k in temp:
+                    if k not in traits:
+                        raise Exception("Invalid trait (%s) to block by %s trait." % (k, t.id))
         return traits
 
     def load_fg_areas():

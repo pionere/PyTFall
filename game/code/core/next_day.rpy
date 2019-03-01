@@ -319,23 +319,24 @@ label next_day_effects_check:  # all traits and effects which require some unusu
 
             if 'Depression' in i.effects:
                 i.AP -= 1
-            elif not "Pessimist" in i.traits and i.get_stat("joy") <= randint(15, 20):
-                i.up_counter("depression_counter", 1)
             elif i.get_stat("joy") > 25:
                 i.del_flag("depression_counter")
-
-            if i.get_flag("depression_counter", 0) >= 3 and not 'Depression' in i.effects:
-                i.enable_effect('Depression')
+            else:
+                if not "Pessimist" in i.traits and i.get_stat("joy") <= randint(15, 20):
+                    i.up_counter("depression_counter", 1)
+                if i.get_flag("depression_counter", 0) >= 3:
+                    i.enable_effect('Depression')
 
             if 'Elation' in i.effects:
                 if dice(10):
                     i.AP += 1
-            elif i.get_stat("joy") >= 95:
-                i.up_counter("elation_counter", 1)
-            else:
+            elif i.get_stat("joy") < 85:
                 i.del_flag("elation_counter")
-            if i.get_flag("elation_counter", 0) >= 3 and not 'Elation' in i.effects:
-                i.enable_effect('Elation')
+            else:
+                if i.get_stat("joy") >= 95:
+                    i.up_counter("elation_counter", 1)
+                if i.get_flag("elation_counter", 0) >= 3:
+                    i.enable_effect('Elation')
 
             if i.get_stat("vitality") < i.get_max("vitality")*.3 and not 'Exhausted' in i.effects: # 5+ days with vitality < .3 max lead to Exhausted effect, can be removed by one day of rest or some items
                 i.up_counter("exhausted_counter", 1)

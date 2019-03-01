@@ -155,23 +155,6 @@ init -10 python:
                 continue 
             self.calc_expected_wage(kind=kind)
 
-        # We need "reverse" calculation for when leveling up characters
-        # Mainly to figure out their skill levels, maybe moar in the future
-        def level_up_tier_to(self, level):
-            level_mod = level*.5 # We take level 200 as max...
-
-            skills = {}
-            # First, we get highest skill relevance from basetraits:
-            for bt in self.traits.basetraits:
-                for skill, value in bt.base_skills.items():
-                    skills[skill] = max(skills.get(skill, 0), value)
-
-            # Bit of an issue here is that we do not mind threathholds, not sure that it's a good thing.
-            for skill, value in skills.items():
-                value = (MAX_SKILLS[skill]*.01*value)*(.01*level_mod)
-                self.stats.mod_full_skill(skill, value)
-
-
     class Team(_object):
         def __init__(self, name="", implicit=None, free=False, max_size=3):
             if not implicit:
@@ -515,35 +498,23 @@ init -10 python:
             stats = char.stats
             # If the trait is a basetrait:
             if trait in self.basetraits:
-                multiplier = 2 if len(self.basetraits) == 1 else 1
-                for stat in trait.init_lvlmax: # Mod value setting
-                    if stat in stats:
-                        stats.lvl_max[stat] += trait.init_lvlmax[stat]*multiplier
-                    else:
-                        msg = "'%s' trait tried to apply unknown init lvl max stat: %s!"
-                        char_debug(str(msg % (trait.id, stat)))
+                for k, v in trait.init_lvlmax.items(): # Mod value setting
+                    v *= 2
+                    stats.lvl_max[k] = max(v, stats.lvl_max[k])
 
-                for stat in trait.init_max: # Mod value setting
-                    if stat in stats:
-                        stats.max[stat] += trait.init_max[stat]*multiplier
-                    else:
-                        msg = "'%s' trait tried to apply unknown init max stat: %s!"
-                        char_debug(str(msg % (trait.id, stat)))
+                for k, v in trait.init_max.items(): # Mod value setting
+                    v *= 2
+                    stats.max[k] = max(v, stats.max[k]) 
 
-                # for stat in trait.init_mod: # Mod value setting
-                #     if stat in stats:
-                #         stats.stats[stat] += trait.init_mod[stat] * multiplier
-                #     else:
-                #         msg = "'%s' trait tried to apply unknown init max stat: %s!"
-                #         char_debug(str(msg % (trait.id, stat)))
+                for k, v in trait.init_mod.items(): # Mod value setting
+                    v *= 2
+                    stats.stats[k] = max(v, stats.stats[k])
 
-                # for skill in trait.init_skills: # Mod value setting
-                #     if skill in stats.skills:
-                #         stats.skills[skill][0] += trait.init_skills[skill][0] * multiplier
-                #         stats.skills[skill][1] += trait.init_skills[skill][1] * multiplier
-                #     else:
-                #         msg = "'%s' trait tried to apply unknown init skillt: %s!"
-                #         char_debug(str(msg % (trait.id, skill)))
+                for k, v in trait.init_skills.items(): # Mod value setting
+                    value = v[0]*2
+                    stats.skills[k][0] = max(value, stats.skills[k][0])
+                    value =  v[1]*2
+                    stats.skills[k][1] = max(value, stats.skills[k][1]) 
 
             # Only for body traits:
             if trait.body:
@@ -551,25 +522,13 @@ init -10 python:
                     char.baseAP += trait.mod_ap
 
             for key in trait.max:
-                if key in stats.max:
-                    stats.max[key] += trait.max[key]
-                else:
-                    msg = "'%s' trait tried to apply unknown max stat: %s!"
-                    char_debug(str(msg % (trait.id, key)))
+                stats.max[key] += trait.max[key]
 
             for key in trait.min:
-                # Preventing traits from messing up minimums of stats by pushing them into negative territory. @Review: No longer required as per new stats code.
-                if key in stats.min:
-                    stats.min[key] += trait.min[key]
-                else:
-                    msg = "'%s' trait tried to apply unknown min stat: %s!"
-                    char_debug(str(msg % (trait.id, key)))
+                stats.min[key] += trait.min[key]
 
             for entry in trait.blocks:
-                if entry in traits:
-                    self.blocked_traits.add(traits[entry])
-                else:
-                    char_debug(str("Tried to block unknown trait: %s, id: %s, class: %s" % (entry, char.id, char.__class__)))
+                self.blocked_traits.add(traits[entry])
 
             # For now just the girls get effects...
             if hasattr(char, "effects"):
@@ -590,15 +549,11 @@ init -10 python:
 
             if hasattr(trait, "mod_skills"):
                 for key in trait.mod_skills:
-                    if key in STATIC_CHAR.SKILLS:
-                        sm = stats.skills_multipliers[key] # skillz muplties
-                        m = trait.mod_skills[key] # mod
-                        sm[0] += m[0]
-                        sm[1] += m[1]
-                        sm[2] += m[2]
-                    else:
-                        msg = "'%s' trait tried to apply unknown skill: %s!"
-                        char_debug(str(msg % (trait.id, key)))
+                    sm = stats.skills_multipliers[key] # skillz muplties
+                    m = trait.mod_skills[key] # mod
+                    sm[0] += m[0]
+                    sm[1] += m[1]
+                    sm[2] += m[2]
 
             # Adding resisting elements and attacks:
             for i in trait.resist:
@@ -608,9 +563,6 @@ init -10 python:
             if trait.elemental:
                 if trait.id != "Neutral" and traits["Neutral"] in self:
                     self.remove(traits["Neutral"])
-
-            # Finally, make sure stats are working:
-            char.stats.normalize_stats()
 
         def remove(self, trait, truetrait=True):
             """
@@ -638,19 +590,10 @@ init -10 python:
 
             stats = char.stats
             for key in trait.max:
-                if key in stats.max:
-                    stats.max[key] -= trait.max[key]
-                else:
-                    char_debug(str('Maximum Value: %s for Trait: %s does not exist' % (key, trait.id)))
+                stats.max[key] -= trait.max[key]
 
             for key in trait.min:
-                if key in stats.min:
-                    # Preventing traits from messing up minimums of stats by pushing them into negative territory. @Review: No longer required as per new stats code.
-                    # if(self.stats.min[key] - trait.min[key]) >= 0:
-                    stats.min[key] -= trait.min[key]
-                else:
-                    msg = "'%s' trait tried to apply unknown min stat: %s!"
-                    char_debug(str(msg % (trait.id, key)))
+                stats.min[key] -= trait.min[key]
 
             if trait.blocks:
                 _traits = set()
@@ -684,15 +627,11 @@ init -10 python:
 
             if hasattr(trait, "mod_skills"):
                 for key in trait.mod_skills:
-                    if key in STATIC_CHAR.SKILLS:
-                        sm = stats.skills_multipliers[key] # skillz muplties
-                        m = trait.mod_skills[key] # mod
-                        sm[0] -= m[0]
-                        sm[1] -= m[1]
-                        sm[2] -= m[2]
-                    else:
-                        msg = "'%s' trait tried to apply unknown skill: %s!"
-                        char_debug(str(msg % (trait.id, key)))
+                    sm = stats.skills_multipliers[key] # skillz muplties
+                    m = trait.mod_skills[key] # mod
+                    sm[0] -= m[0]
+                    sm[1] -= m[1]
+                    sm[2] -= m[2]
 
             # Remove resisting elements and attacks:
             for i in trait.resist:
@@ -701,10 +640,6 @@ init -10 python:
             # We add the Neutral element if there are no elements left at all...
             if not self.instance.elements:
                 self.apply("Neutral")
-
-            # Finally, make sure stats are working:
-            char.stats.normalize_stats()
-
 
     class Finances(_object):
         """Helper class that handles finance related matters in order to reduce
@@ -1047,13 +982,13 @@ init -10 python:
             # [action_value, training_value]
             self.skills = dict()
             for s in STATIC_CHAR.SKILLS:
-                self.skills[s] = list([0, 0])
+                self.skills[s] = [0, 0]
             # {k: [0, 0] for k in STATIC_CHAR.SKILLS}
             # [actions_multi, training_multi, value_multi]
             # self.skills_multipliers = {k: [1, 1, 1] for k in self.skills}
             self.skills_multipliers = dict()
             for s in self.skills:
-                self.skills_multipliers[s] = list([1, 1, 1])
+                self.skills_multipliers[s] = [1, 1, 1]
 
             # Leveling system assets:
             self.goal = 1000
@@ -1109,21 +1044,6 @@ init -10 python:
                 training += action
             return training * max(min(self.skills_multipliers[skill][2], 2.5), .5)
 
-        def normalize_stats(self, stats=None):
-            # Makes sure main stats dict is properly aligned to max/min values
-
-            if not stats:
-                stats = self.stats
-
-            for stat in stats:
-                val = self.stats[stat]
-                minval = self.min[stat]
-                maxval = self.get_max(stat)
-                if val > maxval:
-                    self.stats[stat] = maxval
-                if val < minval:
-                    self.stats[stat] = minval
-
         def __getitem__(self, key):
             return self._get_stat(key)
 
@@ -1178,20 +1098,12 @@ init -10 python:
                 for trait in traits:
                     # Super Stat Bonuses:
                     for stat in trait.leveling_stats:
-                        if stat not in STATIC_CHAR.FIXED_MAX and stat in self.stats:
-                            self.lvl_max[stat] += trait.leveling_stats[stat][0] * multiplier
-                            self.max[stat] += trait.leveling_stats[stat][1] * multiplier
-                        else:
-                            msg = "Trait %s tried to raise unknown stat %s on leveling up (max mods) to %s!"
-                            char_debug(str(msg % (trait.id, stat, char.__class__)))
+                        self.lvl_max[stat] += trait.leveling_stats[stat][0] * multiplier
+                        self.max[stat] += trait.leveling_stats[stat][1] * multiplier
 
                     # Super Skill Bonuses:
                     for skill in trait.init_skills:
-                        if is_skill(skill):
-                            self.mod_full_skill(skill, 20*num_lvl)
-                        else:
-                            msg = "Trait %s tried to raise unknown skill %s on leveling up to %s!"
-                            char_debug(str(msg % (trait.id, skill, char.__class__)))
+                        self.mod_full_skill(skill, 20*num_lvl)
 
                 self.level += num_lvl
 
