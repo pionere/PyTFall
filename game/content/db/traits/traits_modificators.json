@@ -133,6 +133,16 @@
     "id": "Lesbian",
     "desc": "This girl prefers women to men.",
     "blocks": ["Bisexual"],
+    "gender": "female",
+    "sexual": true,
+    "client": true,
+    "character_trait": true
+    },
+    {
+    "id": "Gay",
+    "desc": "This guy prefers men to women.",
+    "blocks": ["Bisexual"],
+    "gender": "male",
     "sexual": true,
     "client": true,
     "character_trait": true
@@ -222,6 +232,7 @@
     },
     {
     "id": "Virgin",
+    "blocks": ["MILF"],
     "desc": "This girl has never had sex before.",
     "mod_skills": {"vaginal": [-0.2, 0.05, -0.1]},
     "virginity": true,
@@ -229,6 +240,7 @@
     },
     {
     "id": "MILF",
+    "blocks": ["Virgin"],
     "desc": "This woman has had children before.",
     "mod_skills": {"vaginal": [0.02, 0, 0.02]},
     "virginity": true,

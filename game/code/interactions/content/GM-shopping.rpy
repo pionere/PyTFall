@@ -68,7 +68,7 @@ label interactions_shopping:
                                     if set(t.base_skills).intersection(focus.mod_skills):
                                         txt =="%s will definitly make me a better %s for Master.\n" % (focus.id, t.id)
                                         char.gfx_mod_stat('disposition', 1)
-                                        char.gfx_mod_stat("affection", 2)
+                                        char.gfx_mod_stat("affection", affection_reward(char))
 
                                 if char.get_stat("joy") < 40:
                                     if focus.price > 1000:
@@ -106,7 +106,7 @@ label interactions_shopping:
                                     if set(t.base_skills).intersection(focus.mod_skills):
                                         txt =="%s will definitly make me a better %s.\n" % (focus.id, t.id)
                                         char.gfx_mod_stat('disposition', 1)
-                                        char.gfx_mod_stat("affection", 2)
+                                        char.gfx_mod_stat("affection", affection_reward(char))
 
                                 if focus.price > 1000:
                                     txt += "Ohh, thank you! I love the %s. Thank you so much.\n" % focus.id

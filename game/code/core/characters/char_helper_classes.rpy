@@ -20,6 +20,9 @@ init -10 python:
             return SKILLS_MAX[skill]*(tier*.1)
 
         def get_relative_max_stat(self, stat, tier=None):
+            if stat in STATIC_CHAR.FIXED_MAX:
+                return self.stats.get_max(stat)
+
             # used in a number of places to guess what the max stat for n tier might be.
             if tier is None:
                 tier = self.tier or .5
@@ -81,10 +84,7 @@ init -10 python:
                             max_p = default_points*weight_ratio
 
                             sp = self.stats.stats[stat]
-                            if stat in STATIC_CHAR.FIXED_MAX:
-                                sp_required = self.get_max(stat)
-                            else:
-                                sp_required = self.get_relative_max_stat(stat, target_tier)
+                            sp_required = self.get_relative_max_stat(stat, target_tier)
 
                             stat_bonus += min(float(sp)/sp_required, 1.1)*max_p
 

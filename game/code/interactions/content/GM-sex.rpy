@@ -781,6 +781,7 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
     $ char.mod_stat("health", -2)
     if current_action not in ["hug", "kiss", "caresstits", "strip"]:
         $ sex_count += 1
+        $ char.gfx_mod_stat("affection", affection_reward(char, .5, "sex"))
         if current_action in ["blow", "tits", "hand", "foot", "vag", "anal"] and "Mana Source" in hero.traits:
             $ mod_by_max(char, "mp", .5)
 
@@ -1354,6 +1355,7 @@ label interaction_sex_scene_check_skill_jobs: # skill level check for girl side 
                 "At the last moment, you pull it out from her mouth, covering her body with your thick liquid."
             else:
                 "She asked you to pull it out from her mouth at the last moment to cover her body with your thick liquid."
+        $ char.gfx_mod_stat("affection", affection_reward(char, .5, "oral"))
     if skill_for_checking >= 2000:
         "She was so good that you profusely came after a few seconds. Pretty impressive."
         $ char.gfx_mod_stat("joy", randint(3, 5))
@@ -1405,7 +1407,8 @@ label interaction_sex_scene_check_skill_gives: # # skill level check for MC side
             else:
                 extend " Unfortunately, you didn't have the skill to satisfy her as well. [char.name] looks disappointed."
                 $ hero.mod_stat("vitality", -randint(10, 15))
-
+            $ char.gfx_mod_stat("affection", affection_reward(char, .5, stat="oral"))
+            $ char.gfx_mod_stat("affection", affection_reward(char, .5, stat="vaginal"))
         elif current_action == "fingervag":
             if skill_for_checking >= 2000:
                 extend " Your bodies merged into a single entity, filling each other with pleasure and satisfaction."
@@ -1428,7 +1431,7 @@ label interaction_sex_scene_check_skill_gives: # # skill level check for MC side
             else:
                 extend " Unfortunately, you didn't have the skill to satisfy her as well. [char.name] looks disappointed."
                 $ hero.mod_stat("vitality", -randint(10, 15))
-
+            $ char.gfx_mod_stat("affection", affection_reward(char, .7, stat="vaginal"))
     else:
         if skill_for_checking >= 1000:
             extend " You did your best to make her cum, but it brought more pain than pleasure judging by her expression."
@@ -1464,6 +1467,7 @@ label interaction_sex_scene_check_skill_acts: # skill level check for two sides 
             "Her moves were clumsy and untimely, and her pussy was too dry. Sadly, she was unable to satisfy you adequately."
             $ char.gfx_mod_stat("joy", -randint(2, 4))
             $ char.mod_stat("vitality", -randint(10, 15))
+        $ char.gfx_mod_stat("affection", affection_reward(char, stat="vaginal"))
     elif current_action == "anal":
         if skill_for_checking >= 2000:
             "Her technique is fantastic, your bodies move in perfect synchronization, and her asshole feels nice and tight."
@@ -1486,6 +1490,7 @@ label interaction_sex_scene_check_skill_acts: # skill level check for two sides 
         else:
             "Her moves were clumsy and untimely, and her anus wasn't quite ready for that. Sadly, she was unable to satisfy you adequately."
             $ char.mod_stat("vitality", -randint(10, 15))
+        $ char.gfx_mod_stat("affection", affection_reward(char, stat="anal"))
     if sex_scene_libido > 0:
         if male_skill_for_checking >= 2000:
             extend " Your bodies merged into a single entity, filling each other with pleasure and satisfaction."

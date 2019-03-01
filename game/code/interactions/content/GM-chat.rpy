@@ -494,6 +494,8 @@ label interactions_abouther:
                             ["One has to have good connections if they want to achieve anything in this city."]],
                    "reputation": [["Not long ago the king was passing near by me on the street. Everyone was awestruck by him. So disgusting..."],
                                   ["I would love to meet the king sometime."]],
+                   "arena_rep": [["It is quite pointless to fight just for to show. Real heros need to put themselfs to worthy cause."],
+                                  ["Real fighters can not just sit back and relax. They must maintain their reputation by showing their strength."]],
                    "charisma": [["I tend to ignore people who think only look matters."],
                                 ["Not everyone is born to be a leader."]],
                    "constitution": [["Common people just use their endurance, but it is important to step back sometimes."],

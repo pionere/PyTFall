@@ -413,11 +413,9 @@ init -11 python:
 
         # add a random character trait if none exists yet
         if all(not t.character_trait for t in rg.traits) and dice(50):
-            rg.apply_trait(choice(tgs.ct))
-
-        # generate random preferenes
-        if not hasattr(rg, "preferences"):
-            rg.preferences = dict([(p, randint(0, 100)/100.0) for p in STATIC_CHAR.PREFS])
+            t = choice(tgs.ct)
+            if getattr(t, "gender", rg.gender) == rg.gender:
+                rg.apply_trait(t)
 
         # Normalizing new girl:
         # We simply run the init method of parent class for this:
@@ -1037,15 +1035,20 @@ init -11 python:
             temp = {stat: temp}
         mod = .0
         for k, v in temp.items():
-            if is_stat(k):
+            if k == "gold":
+                max_val = char.gold
+                val = hero.gold
+            elif k == "arena_rep":
+                max_val = pytfall.arena.ladder[0].arena_rep * .8
+                val = hero.arena_rep
+            elif is_stat(k):
                 max_val = char.get_relative_max_stat(k)
                 val = hero.get_stat(k)
             elif is_skill(k):
                 max_val = char.get_max_skill(k)
                 val = hero.get_skill(k)
-            else: # gold
-                max_val = getattr(char, k)
-                val = getattr(hero, k)
+            else:
+                raise Exception("Unknown stat %s in preferences of %s" % (k, char.name))
             mod += v * min(5, float(val) / (max(max_val, 1)))
         mod /= len(temp)
         mod *= len(STATIC_CHAR.PREFS)

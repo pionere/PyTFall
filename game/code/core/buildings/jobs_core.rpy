@@ -267,15 +267,10 @@ init -10 python:
             if difficulty < .5:
                 difficulty = .5
             max_value = worker.get_relative_max_stat(stat, difficulty)
-
             if max_value == 0:
-                max_value = 1
-                simpy_debug("normalize_required_stat max_value: %s", max_value)
+                raise Exception("Zero Dev #1 (%s)", stat)
 
-            value_cutoff = max_value*1.05
-            if value > value_cutoff:
-                value = value_cutoff
-
+            value = min(value, max_value*1.05)
             return value/float(max_value)*effectiveness
 
         def normalize_required_skill(self, worker, skill, effectiveness, difficulty):
@@ -283,15 +278,10 @@ init -10 python:
             if difficulty < .5:
                 difficulty = .5
             max_value = worker.get_max_skill(skill, tier=difficulty)
-
             if max_value == 0:
-                max_value = 1
-                simpy_debug("normalize_required_skill max_value: %s", max_value)
+                raise Exception("Zero Dev #2 (%s)", skill)
 
-            value_cutoff = max_value*1.05
-            if value > value_cutoff:
-                value = value_cutoff
-
+            value = min(value, max_value*1.05)
             return value/float(max_value)*effectiveness
 
         # We should also have a number of methods or properties to evaluate new dicts:
@@ -339,40 +329,35 @@ init -10 python:
                 total_skills = default_points*.33
             else:
                 total_weight_points = sum(skills.values())
+                #if total_weight_points == 0:
+                #    raise Exception("Zero Dev #3 sum")
                 total_skills = 0
                 for skill, weight in skills.items():
-                    # if not total_weight_points:
-                    #     raise Exception("Zero Dev #3")
                     weight_ratio = float(weight)/total_weight_points
                     max_p = default_points*weight_ratio
 
                     sp = worker.get_skill(skill)
                     sp_required = worker.get_max_skill(skill, difficulty)
                     # if not sp_required:
-                    #     raise Exception("Zero Dev #4")
+                    #     raise Exception("Zero Dev #4 (%s)", skill)
                     total_skills += min(sp*max_p/sp_required, max_p*1.1)
 
             stats = self.base_stats
             if not stats:
                 total_stats = default_points*.33
             else:
-                total_stats = 0
                 total_weight_points = sum(stats.values())
+                if total_weight_points == 0:
+                    raise Exception("Zero Dev #5 sum")
+                total_stats = 0
                 for stat, weight in stats.items():
-                    if not total_weight_points:
-                        raise Exception("Zero Dev #5")
                     weight_ratio = float(weight)/total_weight_points
                     max_p = default_points*weight_ratio
 
                     sp = worker.get_stat(stat)
-                    if stat in STATIC_CHAR.FIXED_MAX:
-                        sp_required = worker.get_max(stat)
-                    else:
-                        # 450 is my guess for a target stat of a maxed out character
-                        sp_required = worker.get_relative_max_stat(stat, difficulty)
-
-                    if not sp_required:
-                        raise Exception("Zero Dev #6")
+                    sp_required = worker.get_relative_max_stat(stat, difficulty)
+                    if sp_required == 0:
+                        raise Exception("Zero Dev #6 (%s)", stat)
                     total_stats += min(sp*max_p/sp_required, max_p*1.1)
 
             # Bonuses:

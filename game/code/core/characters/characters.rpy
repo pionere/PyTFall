@@ -25,7 +25,7 @@ init -9 python:
                      "Xeona Training": "Xeona"}
         FIXED_MAX = {"joy", "mood", "disposition", "affection", "vitality", "luck"}
         SEX_SKILLS = {"vaginal", "anal", "oral", "sex", "group", "bdsm"}
-        PREFS = {"gold", "fame", "reputation", "charisma", "constitution", "character",
+        PREFS = {"gold", "fame", "reputation", "arena_rep", "charisma", "constitution", "character",
                   "intelligence", "attack", "magic", "defence", "agility", "luck",
                   "vaginal", "anal", "oral", "sex", "group", "bdsm"}
 
@@ -2404,6 +2404,10 @@ init -9 python:
                     self.apply_trait(traits["Average Dick"])
             if all(not t.body for t in self.traits):
                 self.apply_trait(traits["Slim"])
+
+            # generate random preferences if none provided
+            if not hasattr(self, "preferences"):
+                self.preferences = dict([(p, randint(0, 100)/100.0) for p in STATIC_CHAR.PREFS])
 
             # Second round of stats normalization:
             for stat in ["health", "joy", "mp", "vitality"]:
