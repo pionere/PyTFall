@@ -923,7 +923,24 @@ init -10 python:
                     self.threat -= temp
                     auto_guard -= temp
                     self.log("The hired guards eliminated %d threat." % temp, True)
-                    
+
+                # check the need for police intervention
+                if self.threat >= 900:
+                    temp = "{color=[red]}Police{/color} arrived at %s!" % self.name
+                    price = 500*self.get_max_client_capacity()*(self.tier or 1)
+                    if hero.take_money(price, "Police"):
+                        temp += " You paid %d in penalty fees for allowing things to get this out of hand." % price
+                    else:
+                        price = int(price*1.25)
+                        temp += " You could not settle the due penalty fees. Now you have to pay %d as a property tax with interest." % price
+                        hero.fin.property_tax_debt += price
+                    temp += " The building's reputation also took a very serious hit!"
+                    self.log(temp, True)
+
+                    self.flag_red = True
+                    self.modrep(-(20*max(1, self.tier)))
+                    self.threat = 0
+
                 # add default mods of the building
                 if not env.now % 25:
                     self.moddirt(dirtmod)

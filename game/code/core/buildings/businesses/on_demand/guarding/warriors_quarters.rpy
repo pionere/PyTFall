@@ -43,23 +43,6 @@ init -5 python:
                     temp = "{color=[red]}" + "DEBUG: {0:.2f} Threat to THE BUILDING!".format(threat)
                     self.log(temp, True)
 
-                if threat >= 900:
-                    if True: # Add a condition similar to auto-cleaning? Or should this be forced?
-                        temp = "Police arrived at %s!" % building.name
-                        price = 500*building.get_max_client_capacity()*(building.tier or 1)
-                        if hero.take_money(price, "Police"):
-                            temp += " You paid %d in penalty fees for allowing things to get this out of hand." % price
-                        else:
-                            price = int(price*1.25)
-                            temp += " You could not settle the due penalty fees. Now you have to pay %d as a property tax with interest." % price
-                            hero.fin.property_tax_debt += price
-                        temp += " The building's reputation also took a very serious hit!"
-                        self.log(temp, True)
-
-                        building.modrep(-(20*max(1, building.tier)))
-                        building.threat = 0
-                        threat = 0
-
                 if threat >= 200:
                     if threat >= 500:
                         if not using_all_workers:
