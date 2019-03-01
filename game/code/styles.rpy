@@ -150,6 +150,7 @@ init -2: # Base Styles like Texts and Buttons just with the basic properties.
         background Frame("content/gfx/interface/buttons/idle_wood.png", 5, 5)
         hover_background Frame("content/gfx/interface/buttons/hover_wood.png", 5, 5)
         insensitive_background Frame(im.Sepia("content/gfx/interface/buttons/idle_wood.png"), 5, 5)
+        selected_background Frame(im.MatrixColor("content/gfx/interface/buttons/idle_wood.png", im.matrix.tint(.65, .65, .65)), 5, 5)
         hover_sound "content/sfx/sound/sys/hover_2.wav"
 
     style wood_text:

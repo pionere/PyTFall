@@ -439,14 +439,14 @@ init:
                     style_group "wood"
                     align .5, .5
                     spacing 10
+                    if isinstance(bm_mid_frame_mode, ExplorationGuild):
+                        use building_management_rightframe_exploration_guild_mode
                     button:
                         xysize 150, 40
                         yalign .5
                         action Return(["bm_mid_frame_mode", None])
                         tooltip ("Back to the main overview of the building.")
                         text "Back" size 15
-                    if isinstance(bm_mid_frame_mode, ExplorationGuild):
-                        use building_management_rightframe_exploration_guild_mode
 
     screen building_management_leftframe_building_mode:
         frame:

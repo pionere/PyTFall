@@ -616,15 +616,12 @@ screen fg_area(area):
             if len(area.camp_queue) != 0:
                 action ToggleField(area, "building_camp")
                 tooltip "Activate if you want the team to spend its time on building the camp."
-                selected area.building_camp
             text "Build the camp" xalign .5
         button:
             xalign .5
             xysize 300, 30
             action ToggleField(area, "capture_chars")
             text "Capture Chars" xalign .5
-            selected area.capture_chars
-            sensitive area.chars or area.rchars or area.special_chars
 
         null height 5
         $ distance = round_int(area.travel_time)
@@ -642,22 +639,20 @@ screen fg_area(area):
             xysize 300, 30
             text "Days Exploring:" xalign .0
             text "[area.days]" xalign 1.0
-            action NullAction()
         hbox:
             xalign .5
+            spacing 10
             imagebutton:
                 yalign .5
                 idle 'content/gfx/interface/buttons/prev.png'
                 hover im.MatrixColor('content/gfx/interface/buttons/prev.png', im.matrix.brightness(.15))
                 action SetField(area, "days", max(3, area.days-1))
-            null width 5
             bar:
-                align .5, 1.0
+                align .5, .5
                 value FieldValue(area, 'days', area.maxdays-3, max_is_zero=False, style='scrollbar', offset=3, step=1)
                 xmaximum 150
                 thumb 'content/gfx/interface/icons/move15.png'
-                tooltip "How many days do you wish for the team to spend questing?"
-            null width 5
+                tooltip "Adjust exploration length."
             imagebutton:
                 yalign .5
                 idle 'content/gfx/interface/buttons/next.png'
@@ -670,23 +665,21 @@ screen fg_area(area):
             xysize 300, 30
             text "Risk:" xalign .0
             text "[area.risk]" xalign 1.0
-            action NullAction()
         hbox:
             xalign .5
+            spacing 10
             imagebutton:
                 yalign .5
                 idle 'content/gfx/interface/buttons/prev.png'
                 hover im.MatrixColor('content/gfx/interface/buttons/prev.png', im.matrix.brightness(.15))
                 action SetField(area, "risk", max(0, area.risk-1))
-            null width 5
             bar:
-                align .5, 1.0
+                align .5, .5
                 value FieldValue(area, 'risk', 100, max_is_zero=False, style='scrollbar', offset=0, step=1)
                 xmaximum 150
                 thumb 'content/gfx/interface/icons/move15.png'
-                tooltip ("How much risk does the team take when exploring? The more significant the risk,"+
-                         "the higher the reward but your team may not even return if you push this too far!")
-            null width 5
+                tooltip ("Adjust the risk your team takes while exploring. Higher risk gives higher reward, " +
+                         "but your team may not even return if you push this too far!")
             imagebutton:
                 yalign .5
                 idle 'content/gfx/interface/buttons/next.png'
@@ -826,7 +819,7 @@ screen fg_area(area):
             ypos 100 
             align .5, .0
             background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.95), 10, 10)
-            add pscale(area.img, 600, 450)
+            add im.Scale(area.img, 600, 350)
 
         # Overlay objects
         frame:
@@ -845,8 +838,43 @@ screen fg_area(area):
                     hover_background im.MatrixColor(o.img, im.matrix.brightness(.25))
                     tooltip o.name
 
+        # Teams
+        frame:
+            background Null()
+            style_group "proper_stats"
+            pos 10, 460
+            has vbox
+            label "Teams Exploring:" xalign .5
+            if area.trackers:
+                vpgrid:
+                    xalign .5
+                    cols 2
+                    xysize 610, 130
+                    scrollbars "vertical"
+                    mousewheel True
+                    xspacing 10
+                    yspacing 3
+                    for tracker in area.trackers * 20:
+                        frame:
+                            background Frame(Transform("content/gfx/frame/Namebox.png", alpha=.9), 10, 10)
+                            xsize 290
+                            padding 3, 2
+                            margin 0, 0
+                            hbox:
+                                xalign .5
+                                xsize 280
+                                text "[tracker.team.name]" align (.02, .5)
+                                text "%d (%d)" % (tracker.day-1, tracker.days) align (.98, .5)
+            else:
+                frame:
+                    background Frame(Transform("content/gfx/frame/Namebox.png", alpha=.9), 10, 10)
+                    xsize 290
+                    padding 3, 2
+                    margin 0, 0
+                    text "No teams on exploration runs." align (.5, .5)
+
         hbox:
-            align .5, .98
+            align .5, .99
             button:
                 style_group "basic"
                 action Hide("fg_area"), With(dissolve)
