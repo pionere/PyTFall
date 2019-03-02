@@ -124,10 +124,7 @@ init -10 python:
             return self.daily_modifier
 
         def __str__(self):
-            if hasattr(self, "name"):
-                return str(self.name)
-            else:
-                return str(self.id)
+            return str(getattr(self, "name", self.id))
 
     class InvLocation(HabitableLocation):
         """Location with an inventory:
@@ -348,6 +345,7 @@ init -10 python:
             for u in self._upgrades:
                 if hasattr(u, "daily_modifier_mod"):
                     daily_modifier *= u.daily_modifier_mod
+            daily_modifier *= 1.0 - max(0, (self.get_dirt_percentage() - 40)/100.0)
             return daily_modifier
 
         def normalize_jobs(self):
@@ -803,7 +801,7 @@ init -10 python:
                                 c.mod_stat("joy", 5)
                     elif dirt > 50:
                         # the place is dirty
-                        for c in self.habitants:
+                        for c in self.inhabitants:
                             if c != hero:
                                 c.mod_stat("joy", (dirt-50)/2)
 

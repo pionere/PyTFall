@@ -237,7 +237,7 @@
     "chance": 50,
     "slot": "weapon",
     "type": "tool",
-    "sex": "male",
+    "sex": "unisex",
     "mod_skills": {"fishing": [0.05, 0.05, 0.05, 0, 0]},
     "locations": ["General Store"]
     },

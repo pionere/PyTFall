@@ -2500,7 +2500,7 @@ init -9 python:
             if temp < 0:
                 self.mod_stat("disposition", 1)
             elif temp > 0:
-                self.mod_stat("disposition", -min(5, temp))
+                self.mod_stat("disposition", -1)
             temp = self.get_stat("affection")
             if temp < 0:
                 self.mod_stat("affection", 1)

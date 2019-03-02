@@ -584,7 +584,7 @@
     "desc": "This special mask makes swimming a bit easier and increases the time you can spend underwater.",
     "icon": "content/items/head/snorkel.png",
     "price": 150,
-    "sex": "male",
+    "sex": "unisex",
     "chance": 30,
     "badness": 100,
     "eqchance": 0,

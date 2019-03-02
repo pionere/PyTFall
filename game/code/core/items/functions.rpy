@@ -4,19 +4,14 @@ init -11 python:
         if isinstance(item, basestring):
             item = items[item]
 
-        rv = char.inventory[item]
-        for i in char.eqslots.values():
-            if item == i:
-                rv += 1
-
-        return rv
+        return char.inventory[item] + char.eqslots.values().count(item)
 
     def has_items(item, char, equipped=True):
         if isinstance(item, basestring):
             item = items[item]
 
         if equipped:
-            amount = char.eqslots.itervalues().count(item)
+            amount = char.eqslots.values().count(item)
         else:
             amount = char.inventory[item]
 

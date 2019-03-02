@@ -138,7 +138,7 @@ label building_management:
                     else:
                         renpy.show_screen("message_screen", "You do not have the required funds!")
                 elif result[1] == "toggle_clean":
-                    bm_building.auto_clean = 90 if bm_building.auto_clean == 100 else 100
+                    bm_building.auto_clean = 50 if bm_building.auto_clean == 100 else 100
                 elif result[1] == "rename_building":
                     bm_building.name = renpy.call_screen("pyt_input", default=bm_building.name, text="Enter Building name:")
         elif result[0] == 'control':

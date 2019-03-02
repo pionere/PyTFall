@@ -50,6 +50,7 @@ label cafe:
                 jump mc_action_cafe_invitation
             "No":
                 $ pass
+    $ del inviting_character
 
 label cafe_menu: # after she said her lines but before we show menu controls, to return here when needed
     scene bg cafe
@@ -131,9 +132,7 @@ label mc_action_cafe_eat_alone_cafe_invitation:
                     $ result += "{color=[blue]} +%d MP{/color}" % result_m
                 $ hero.say("%s" % result)
                 $ hero.gfx_mod_exp(exp_reward(hero, hero))
-                $ del result
-                $ del result_v
-                $ del result_m
+                $ del result, result_v, result_m
                 hide image name with dissolve
                 $ del name
             else:
@@ -170,10 +169,7 @@ label mc_action_cafe_eat_alone_cafe_invitation:
                     $ result += "{color=[red]} +%d Health{/color}" % result_h
                 $ hero.say ("%s" % result)
                 $ hero.gfx_mod_exp(exp_reward(hero, hero))
-                $ del result
-                $ del result_v
-                $ del result_m
-                $ del result_h
+                $ del result, result_v, result_m, result_h
                 hide image name with dissolve
                 $ del name
             else:
@@ -222,10 +218,7 @@ label mc_action_cafe_eat_alone_cafe_invitation:
                     $ result += "{color=[red]} +%d Health{/color}" % result_h
                 $ hero.say ("%s" % result)
                 $ hero.gfx_mod_exp(exp_reward(hero, hero))
-                $ del result
-                $ del result_v
-                $ del result_m
-                $ del result_h
+                $ del result, result_v, result_m, result_h
                 hide image name with dissolve
                 $ del name
     jump cafe_menu
@@ -237,6 +230,7 @@ label cafe_eat_group:
         "Sadly, you don't have enough money to reserve a table." # MC doesn't even have 200 gold, it's not a good idea to spend money here so we just stop it immediately
         jump cafe_menu
     else:
+        $ inviting_character = hero
         jump mc_action_cafe_invitation
 
 label mc_action_cafe_invitation: # we jump here when the group was invited by one of chars

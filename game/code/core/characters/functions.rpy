@@ -1037,7 +1037,7 @@ init -11 python:
         mod = .0
         for k, v in temp.items():
             if k == "gold":
-                max_val = char.gold
+                max_val = 10*char.gold
                 val = hero.gold
             elif k == "arena_rep":
                 max_val = pytfall.arena.ladder[0].arena_rep * .8
