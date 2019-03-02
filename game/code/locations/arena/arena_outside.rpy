@@ -247,7 +247,7 @@ label xeona_talking:
                         ax "If you bring it to me, I'll make it worth your while."
                         $ xeona_status.stage = 1
             "Xeona's Favor" if xeona_status.stage == 1:
-                if has_items("Demonic Blade", [hero], equipped=False):
+                if has_items("Demonic Blade", hero, equipped=False):
                     ax "Did you find a Demonic Blade for me?"
                     menu:
                         "Give her blade":

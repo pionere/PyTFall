@@ -303,10 +303,10 @@ label mc_action_city_beach_diving_checks:
     $ hero.AP -= 1
     scene bg ocean_underwater_1 with dissolve
     $ i = int(hero.get_skill("swimming")+1)
-    if has_items("Snorkel Mask", [hero], equipped=True):
+    if has_items("Snorkel Mask", hero, equipped=True):
         $ i += 200
 
-    if has_items("Underwater Lantern", [hero], equipped=True):
+    if has_items("Underwater Lantern", hero, equipped=True):
         $ j = 120
     else:
         $ j = 60

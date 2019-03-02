@@ -265,7 +265,7 @@ label fishing_logic_mor_dialogue:
         "Fishing Requests" if pytfall.world_quests.check_stage("Fishery") != 1:
             call fishing_logic_mor_quest_part from _call_fishing_logic_mor_quest_part
             jump Mor_dialogue_usual
-        "Bring the Fish" if pytfall.world_quests.check_stage("Fishery") == 1 and has_items(hero.flag("mor_fish_quest")[0], [hero]) >= hero.flag("mor_fish_quest")[1]:
+        "Bring the Fish" if pytfall.world_quests.check_stage("Fishery") == 1 and has_items(hero.flag("mor_fish_quest")[0], hero, equipped=False) >= hero.flag("mor_fish_quest")[1]:
             call fishing_logic_mor_quest_bring from _fishing_logic_mor_quest_bring
             jump Mor_dialogue_usual
         "Buy a Fishing Pole (250G)" if hero.gold >= 250:
@@ -328,7 +328,7 @@ label fishing_logic:
             call fishing_logic_mor_quest_part from _call_fishing_logic_mor_quest_part_1
             hide npc with dissolve
             jump beach_fighing_menu
-        "Bring the Fish" if pytfall.world_quests.check_stage("Fishery") == 1 and has_items(hero.flag("mor_fish_quest")[0], [hero]) >= hero.flag("mor_fish_quest")[1]:
+        "Bring the Fish" if pytfall.world_quests.check_stage("Fishery") == 1 and has_items(hero.flag("mor_fish_quest")[0], hero, equipped=False) >= hero.flag("mor_fish_quest")[1]:
             show expression npcs["Mor"].get_vnsprite() as npc
             with dissolve
             call fishing_logic_mor_quest_bring from _fishing_logic_mor_quest_bring_1
@@ -340,7 +340,7 @@ label fishing_logic:
             jump city_beach_left
 
 label mc_action_beach_start_fishing:
-    if not has_items("Fishing Pole", [hero], equipped=True):
+    if not has_items("Fishing Pole", hero, equipped=True):
         "You don't have a fishing rode at the moment. Try to get one from local shops."
         jump city_beach_left
     elif hero.AP <= 0:

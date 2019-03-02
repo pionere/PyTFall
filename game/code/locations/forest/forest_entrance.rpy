@@ -44,7 +44,7 @@ label forest_entrance:
             $ jump(result[1])
             
 label mc_action_wood_cutting:
-    if not has_items("Woodcutting Axe", [hero], equipped=True):
+    if not has_items("Woodcutting Axe", hero, equipped=True):
         "You need a Woodcutting Axe before doing anything."
     elif hero.AP <= 0:
         "You don't have Action Points left. Try again tomorrow."

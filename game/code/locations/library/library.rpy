@@ -187,26 +187,26 @@ label library_eleven_dialogue:
     "The golem stands in the center of the hall, resembling a statue. But his head instantly turns to your direction when you approach."
     e "{b}...{/b}"
     menu eleven_menu:
-        "Show leaflets" if has_items("Rebels Leaflet", [hero]) and global_flags.flag('player_knows_about_eleven_jobs'):
+        "Show leaflets" if has_items("Rebels Leaflet", hero, equipped=False) and global_flags.flag('player_knows_about_eleven_jobs'):
             hide npc
             show expression npcs["Eleven"].show("battle", resize=(800, 600)) as npc
             with golem_change
-            $ money = has_items("Rebels Leaflet", [hero])*50
+            $ money = has_items("Rebels Leaflet", hero, equipped=False)*50
             "Without a single word, the golem destroys leaflets in your hands. Warm ash falls on the floor."
             hide npc
             show expression npcs["Eleven"].get_vnsprite() as npc
             with golem_change_back
             $ npcs["Eleven"].override_portrait("portrait", "confident")
             e "{b}This unit and the city appreciate your services. Keep it up, [hero.name]. Here is your reward, [money] coins.{/b}"
-            $ hero.remove_item("Rebels Leaflet", has_items("Rebels Leaflet", [hero]))
+            $ hero.remove_item("Rebels Leaflet", has_items("Rebels Leaflet", hero, equipped=False))
             $ hero.add_money(money, reason="Items")
             $ del money
             jump eleven_menu
-        "Sell old books" if has_items("Old Books", [hero]) and global_flags.flag('player_knows_about_eleven_jobs'):
-            $ money = has_items("Old Books", [hero])*15
+        "Sell old books" if has_items("Old Books", hero, equipped=False) and global_flags.flag('player_knows_about_eleven_jobs'):
+            $ money = has_items("Old Books", hero, equipped=False)*15
             e "{b}I appreciate your concern about the archive collection, [hero.name]. [money] coins should be sufficient.{/b}"
             $ hero.add_money(money, reason="Items")
-            $ hero.remove_item("Old Books", has_items("Old Books", [hero]))
+            $ hero.remove_item("Old Books", has_items("Old Books", hero, equipped=False))
             $ del money
             jump eleven_menu
         "Ask about him":

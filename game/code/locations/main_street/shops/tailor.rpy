@@ -168,7 +168,7 @@ label tailor_special_order:
             t "If you want anything, please don't hesitate to tell me."
         else:
             $ our_list = list(i for i in items_upgrades if i["first_item"] == result)[0]
-            if has_items(result, [hero], equipped=False) <= 0:
+            if not has_items(result, hero, equipped=False):
                 t "I'm sorry, you don't have the required base item. Please make sure to unequip it if it's equipped."
             elif hero.take_money(our_list["price"], reason="Tailor Upgrade"):
                 $ hero.remove_item(result)

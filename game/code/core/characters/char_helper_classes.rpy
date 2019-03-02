@@ -9,15 +9,13 @@ init -10 python:
         """
         def __init__(self):
             # self.instance = instance
-
             self.tier = 0
-
             self.expected_wage = 10
 
         def get_max_skill(self, skill, tier=None):
             if tier is None:
                 tier = self.tier or .5
-            return SKILLS_MAX[skill]*(tier*.1)
+            return SKILLS_MAX[skill]*tier/MAX_TIER
 
         def get_relative_max_stat(self, stat, tier=None):
             if stat in STATIC_CHAR.FIXED_MAX:
@@ -28,11 +26,11 @@ init -10 python:
                 tier = self.tier or .5
 
             if stat in self.stats.get_base_ss():
-                max_val = 1000
+                per_tier = 100
             else:
-                max_val = 500
+                per_tier = 50
 
-            return max_val*(tier*.1)
+            return per_tier * tier
 
         def recalculate_tier(self):
             """
@@ -1590,10 +1588,10 @@ init -10 python:
                                 hero.add_item("Bottle of Milk", randint(2, 5))
                     else:
                         if "Slime" in char.traits:
-                            if not(has_items("Slime's Milk", [char])):
+                            if not(has_items("Slime's Milk", char, equipped=False)):
                                 char.add_item("Slime's Milk")
                         else:
-                            if not(has_items("Bottle of Milk", [char])): # in order to not stack bottles of milk into free chars inventories they get only one, and only if they had 0
+                            if not(has_items("Bottle of Milk", char, equipped=False)): # in order to not stack bottles of milk into free chars inventories they get only one, and only if they had 0
                                 char.add_item("Bottle of Milk")
             elif self.name == "Silly":
                 if char.get_stat("intelligence") >= 200:
