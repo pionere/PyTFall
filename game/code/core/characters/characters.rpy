@@ -1462,12 +1462,7 @@ init -9 python:
             attack_skills = getattr(item, "attacks", None)
             if attack_skills is not None:
                 for battle_skill in attack_skills:
-                    if battle_skill not in store.battle_skills:
-                        msg = "Item: {} applied invalid {} battle skill to: {} ({})!".format(item.id, battle_skill, self.fullname, self.__class__)
-                        char_debug(msg)
-                        continue
-                    else:
-                        battle_skill = store.battle_skills[battle_skill]
+                    battle_skill = store.battle_skills[battle_skill]
                     func = self.attack_skills.append if direction else self.attack_skills.remove
                     func(battle_skill, False)
 
@@ -1480,12 +1475,7 @@ init -9 python:
 
             # Combat Spells:
             for battle_skill in itertools.chain(item.add_be_spells, item.remove_be_spells):
-                if battle_skill not in store.battle_skills:
-                    msg = "Item: {} applied invalid {} battle skill to: {} ({})!".format(item.id, battle_skill, self.fullname, self.__class__)
-                    char_debug(msg)
-                    continue
-                else:
-                    battle_skill = store.battle_skills[battle_skill]
+                battle_skill = store.battle_skills[battle_skill]
                 if battle_skill.name in item.add_be_spells:
                     func = self.magic_skills.append if direction else self.magic_skills.remove
                 else:
@@ -1683,11 +1673,6 @@ init -9 python:
 
             # Skills:
             for skill, data in item.mod_skills.items():
-                if not is_skill(skill):
-                    msg = "'%s' item tried to apply unknown skill: %s!"
-                    char_debug(str(msg % (item.id, skill)))
-                    continue
-
                 if not direction:
                     data = [-i for i in data]
 
@@ -1702,10 +1687,6 @@ init -9 python:
 
             # Traits:
             for trait in itertools.chain(item.removetraits, item.addtraits):
-                if trait not in store.traits:
-                    char_debug("Item: {} has tried to apply an invalid trait: {}!".format(item.id, trait))
-                    continue
-
                 if item.slot not in ['consumable', 'misc'] or (item.slot == 'consumable' and item.ctemp):
                     truetrait = False
                 else:

@@ -66,6 +66,9 @@ init -9 python:
             # why is it commented out though? BE attributes are widely used by items...
 
         def init(self):
+            if not hasattr(self, "id"):
+                raise Exception("Missing id of an item!")
+
             # make sure tier is always set
             if self.tier is None:
                 self.tier = 0
@@ -121,6 +124,25 @@ init -9 python:
 
             # Gets rid of possible caps:
             self.sex = self.sex.lower()
+
+            # validate references so we do not have to check runtime
+            for skill in self.mod_skills:
+                if not is_skill(skill):
+                    raise Exception("Invalid mod skill '%s' for item %s!" % (skill, self.id))
+
+            for trait in itertools.chain(self.removetraits, self.addtraits):
+                if trait not in store.traits:
+                    raise Exception("Invalid trait '%s' for item %s!" % (trait, self.id))
+
+            for battle_skill in itertools.chain(self.add_be_spells, self.remove_be_spells):
+                if battle_skill not in store.battle_skills:
+                    raise Exception("Invalid battle skill '%s' for item %s!" % (battle_skill, self.id))
+
+            attack_skills = getattr(self, "attacks", None)
+            if attack_skills is not None:
+                for battle_skill in attack_skills:
+                    if battle_skill not in store.battle_skills:
+                        raise Exception("Invalid attack skill '%s' for item %s!" % (battle_skill, self.id))
 
         def get_stat_eq_bonus(self, char_stats, stat):
             """Simple method that tries to get the real bonus an item can offer for the stat.
@@ -239,7 +261,7 @@ init -9 python:
         def paged_items(self):
             items = []
             for start in xrange(0, len(self.filtered_items), self.page_size):
-                 items.append(self.filtered_items[start:start+self.page_size])
+                items.append(self.filtered_items[start:start+self.page_size])
             return items
 
         def set_page_size(self, size):

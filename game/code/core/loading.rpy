@@ -503,6 +503,7 @@ init -11 python:
                 bu = bu()
                 bu.building = b
 
+                # create the list of allowed upgrade instances
                 allowed_upgrades = business.pop("allowed_upgrades", bu.allowed_upgrades)
                 bu.allowed_upgrades = []
                 for u in allowed_upgrades:
@@ -529,7 +530,7 @@ init -11 python:
                 if bu.__class__.__name__ in build_businesses:
                     b.add_business(bu)
 
-            # create the list of allowed upgrade-classes
+            # create the list of allowed upgrade instances
             allowed_upgrades = building.pop("allowed_upgrades", [])
             for u in allowed_upgrades:
                 u = getattr(store, u)
@@ -652,14 +653,14 @@ init -11 python:
                 if area.area in named_areas:
                     area.area = named_areas[area.area].id
                 else:
-                    devlog.warning("Unknown area '%s' referenced in map '%s'." % (area.area, area.name))
+                    raise Exception("Unknown area '%s' referenced in map '%s'." % (area.area, area.name))
                 unlocks = dict()
                 for a, v in area.unlocks.items():
                     if a in named_areas:
                         a = named_areas[a]
                         unlocks[a.id] = v
                     else:
-                        devlog.warning("Unknown area '%s' to unlock by map '%s'." % (a, area.name))
+                        raise Exception("Unknown area '%s' to unlock by map '%s'." % (a, area.name))
                 area.unlocks = unlocks
 
         # initialize the possible objects
@@ -689,8 +690,7 @@ init -11 python:
                 # use the base object setting as default
                 obj = om.get(id, None)
                 if obj is None:
-                    devlog.warning("Unknown object '%s' referenced by map(or its parent) '%s'." % (id, area.name))
-                    continue
+                    raise Exception("Unknown object '%s' referenced by map(or its parent) '%s'." % (id, area.name))
                 obj = deepcopy(obj)
                 # update the objects settings by the current attributes
                 obj.update(o)
@@ -738,12 +738,12 @@ init -11 python:
 
         for item in items:
             iteminst = Item()
-            for attr in item:
+            for k, v in item.items():
                 # We prolly want to convert to objects in case of traits:
-                if attr in ("badtraits", "goodtraits"):
-                    setattr(iteminst, attr, set(traits[i] for i in item[attr])) # More convinient to have these as sets...
+                if k in ("badtraits", "goodtraits"):
+                    setattr(iteminst, k, set(traits[i] for i in v)) # More convinient to have these as sets...
                 else:
-                    setattr(iteminst, attr, item[attr])
+                    setattr(iteminst, k, v)
             iteminst.init()
             content[iteminst.id] = iteminst
         for item in gifts:

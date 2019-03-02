@@ -49,30 +49,7 @@ label start:
         menu_extensions["Xeona Main"] = []
         tl.end("Loading: Menu Extensions")
 
-    python: # Traits:
-        # Load all game elements:
-        tl.start("Loading/Sorting: Traits")
-        traits = load_traits()
-        global_flags.set_flag("last_modified_traits", os.path.getmtime(content_path('db/traits')))
-
-    call sort_traits_for_gameplay from _call_sort_traits_for_gameplay
-
-    $ tl.end("Loading/Sorting: Traits")
-
-    python: # Items/Shops:
-        tl.start("Loading/Sorting: Items")
-        items = load_items()
-        global_flags.set_flag("last_modified_items", os.path.getmtime(content_path('db/items')))
-        items_upgrades = json.load(renpy.file("content/db/upgrades.json"))
-
-        # Build shops:
-        pytfall.init_shops()
-
-    call sort_items_for_gameplay from _call_sort_items_for_gameplay
-
-    $ tl.end("Loading/Sorting: Items")
-
-    python: # Dungeons (Building (Old))
+        # Dungeons (Building (Old))
         tl.start("Loading: Dungeons")
         dungeons = load_dungeons()
         tl.end("Loading: Dungeons")
@@ -85,6 +62,28 @@ label start:
             tiered_magic_skills.setdefault(s.tier, []).append(s)
         del s
         tl.end("Loading: Battle Skills")
+
+        # Traits:
+        tl.start("Loading/Sorting: Traits")
+        traits = load_traits()
+        global_flags.set_flag("last_modified_traits", os.path.getmtime(content_path('db/traits')))
+
+    call sort_traits_for_gameplay from _call_sort_traits_for_gameplay
+
+    $ tl.end("Loading/Sorting: Traits")
+
+    python: # Items/Shops: must be after traits and battle skills
+        tl.start("Loading/Sorting: Items")
+        items = load_items()
+        global_flags.set_flag("last_modified_items", os.path.getmtime(content_path('db/items')))
+        items_upgrades = json.load(renpy.file("content/db/upgrades.json"))
+
+        # Build shops:
+        pytfall.init_shops()
+
+    call sort_items_for_gameplay from _call_sort_items_for_gameplay
+
+    $ tl.end("Loading/Sorting: Items")
 
     $ hero = Player()
 
