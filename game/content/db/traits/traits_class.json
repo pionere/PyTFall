@@ -3,7 +3,7 @@
         "occupations": [
             "SIW"
         ],
-        "desc": "She will love anyone no matter who they are or what they look like as long as they have something in return.",
+        "desc": "They will love anyone no matter who they are or what they look like as long as they have something in return.",
         "base_skills": {
             "sex": 60,
             "vaginal": 40,
@@ -81,7 +81,7 @@
         "occupations": [
             "Server", "SIW"
         ],
-        "desc": "She specializes in striptease.",
+        "desc": "They know the right way how to undress.",
         "base_skills": {
             "strip": 80,
             "dancing": 40,
@@ -149,7 +149,7 @@
         "occupations": [
             "Server"
         ],
-        "desc": "She leaves no change to dirt and dust!",
+        "desc": "The enemy of dirt and dust.",
         "basetrait": true,
         "base_skills": {
             "cleaning": 100,
@@ -217,7 +217,7 @@
         "occupations": [
             "Server"
         ],
-        "desc": "She serves drinks and food.",
+        "desc": "Drinks and food were never more palatable.",
         "basetrait": true,
         "base_skills": {
             "bartending": 100,
@@ -285,7 +285,7 @@
         "occupations": [
             "Server"
         ],
-        "desc": "She is ready to serve customers in any possible decorous way.",
+        "desc": "Ready to serve customers in any possible decorous way.",
         "basetrait": true,
         "base_skills": {
             "service": 20,
@@ -389,7 +389,7 @@
         "occupations": [
             "Specialist"
         ],
-        "desc": "She knows how to manage people and resolve conflicts.",
+        "desc": "They know how to manage people and resolve conflicts.",
         "basetrait": true,
         "base_skills": {
             "management": 80,
@@ -872,7 +872,6 @@
                 -1,
                 0
             ]
-
         }
     }
 ]

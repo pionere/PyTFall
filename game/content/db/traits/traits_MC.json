@@ -36,7 +36,7 @@
     },
     {
     "id": "Amazon Blood",
-    "desc": "Your mother was a muscular woman with huge knockers. Fortunately, you have inherited only her muscles.",
+    "desc": "Your mother was a muscular woman with huge knockers. You have definitely inherited her muscles.",
     "max": {"attack": 25, "constitution": 25, "vitality": 25},
     "MC_only_trait": true,
     "permanent": true
