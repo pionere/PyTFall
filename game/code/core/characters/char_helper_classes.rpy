@@ -1523,7 +1523,7 @@ init -10 python:
                 if char.get_stat("joy") >= 30:
                     self.end(char)
             elif self.name == "Elation":
-                if char.get_stat("joy") < 95:
+                if char.get_stat("joy") < 85:
                     self.end(char)
             elif self.name == "Pessimist":
                 if char.get_stat("joy") > 80:

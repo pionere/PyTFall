@@ -2,7 +2,7 @@
     {
         "name": "Slave Quarters",
         "class": "SlaveQuarters",
-        "desc": "Place for slaves to live in",
+        "desc": "Home for slaves to live in",
         "img": "content/buildings/upgrades/guard_qt.webp",
         "materials": {"Wood": 10, "Bricks": 10, "Glass": 3},
 

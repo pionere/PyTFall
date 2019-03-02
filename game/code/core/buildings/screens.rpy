@@ -19,9 +19,6 @@ label building_management:
     show screen building_management
     with fade
 
-    $ pytfall.world_quests.run_quests("auto") # Added for completion, unnecessary?
-    $ pytfall.world_events.run_events("auto")
-
     $ global_flags.set_flag("keep_playing_music")
 
     while 1:
@@ -77,22 +74,7 @@ label building_management:
                 hide screen building_management
                 $ items_transfer(it_members)
                 show screen building_management
-            elif result[1] == "sign":
-                python hide:
-                    ad = result[2]
-
-                    if bm_building.flag('bought_sign'):
-                        price = ad['price']/10
-                    else:
-                        price = ad['price']
-
-                    if hero.take_money(price, reason="Building Ads"):
-                        bm_building.fin.log_logical_expense(price, "Ads")
-                        bm_building.set_flag('bought_sign', True)
-                        ad['active'] = not ad['active']
-                    else:
-                        renpy.show_screen("message_screen", "Not enough cash on hand!")
-            elif result[1] == "celeb":
+            elif result[1] == "sign" or result[1] == "celeb":
                 python hide:
                     ad = result[2]
                     price = ad['price']
@@ -117,10 +99,16 @@ label building_management:
 
                         hero.add_money(price, reason="Property")
                         hero.remove_building(bm_building)
+                        # 'cleanup' the building
+                        for advert in bm_building.adverts:
+                            advert['active'] = False
+                        bm_building.dirt = 0
+                        bm_building.threat = 0
 
                         if hero.buildings:
-                            bm_index = 0
-                            bm_building = hero.buildings[0]
+                            if bm_index >= len(hero.buildings):
+                                bm_index = 0
+                            bm_building = hero.buildings[bm_index]
                         else:
                             jump("building_management_end")
         # Upgrades:
@@ -1081,7 +1069,7 @@ init:
                                 tooltip advert['desc']
                                 action Return(["building", 'celeb', advert])
                                 sensitive not advert['active']
-                                if not not advert['active']:
+                                if not advert['active']:
                                     text "Hire a Celeb!" color black align (.5, .5) size 15
                                 else:
                                     text "Celebrity hired!" color black align (.5, .5) size 15

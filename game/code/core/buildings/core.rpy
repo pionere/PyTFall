@@ -369,12 +369,14 @@ init -10 python:
             # Returns our best guess for price of the Building
             # Needed for buying, selling the building or for taxation.
             # **We may want to take reputation and fame into account as well.
-            price = self.price
+            price = self.price - self.get_cleaning_price()
 
             for u in self._upgrades:
                 price += u.get_price()
             for b in self._businesses:
                 price += b.get_price()
+
+            price *= (1.0 - self.get_threat_percentage()/200.0)
             return price
 
         def pay_for_extension(self, cost, materials):
@@ -823,7 +825,11 @@ init -10 python:
                     for c in self.inhabitants:
                         if self.dirt <= 200:
                             break
-                        if c != hero and c.get_stat("disposition") > 800 and c.get_stat("joy") > 80:
+                        if c == hero or "Messy" in c.traits:
+                            continue
+                        c0 = c.get_stat("disposition") > 800 and c.get_stat("joy") > 80
+                        c1 = "Neat" in c.traits and c.get_stat("disposition") > 650 and c.get_stat("joy") > 60
+                        if c0 or c1:
                             effectiveness_ratio = simple_jobs["Cleaning"].effectiveness(c, self.tier)
 
                             self.moddirt(-5 * effectiveness_ratio)
