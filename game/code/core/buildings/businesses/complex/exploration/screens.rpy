@@ -232,81 +232,81 @@ screen building_management_leftframe_exploration_guild_mode:
 screen building_management_midframe_exploration_guild_mode:
     if bm_exploration_view_mode == "log":
         if isinstance(bm_selected_log_area, FG_Area):
-                default focused_log = None
-                $ area = bm_selected_log_area
+            default focused_log = None
+            $ area = bm_selected_log_area
 
+            frame:
+                background Transform(Frame("content/gfx/frame/mes11.webp", 10, 10), alpha=.9)
+                xysize (620, 90)
+                xalign .5
+                ymargin 1
+                ypadding 1
+                text area.name color gold style "interactions_text" size 35 outlines [(1, "#3a3a3a", 0, 0)] align (.5, .3)
+                hbox:
+                    align (.5, .9)
+                    # Get the correct stars:
+                    use stars(area.explored, area.maxexplored)
+
+            # Buttons with logs (Events):
+            frame:
+                background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
+                style_prefix "dropdown_gm2"
+                ypos 100 xalign .0
+                ysize 346
+                padding 10, 10
+                has vbox xsize 220 spacing 1
                 frame:
-                    background Transform(Frame("content/gfx/frame/mes11.webp", 10, 10), alpha=.9)
-                    xysize (620, 90)
+                    style_group "content"
                     xalign .5
-                    ymargin 1
-                    ypadding 1
-                    text area.name color gold style "interactions_text" size 35 outlines [(1, "#3a3a3a", 0, 0)] align (.5, .3)
-                    hbox:
-                        align (.5, .9)
-                        # Get the correct stars:
-                        use stars(area.explored, area.maxexplored)
+                    padding 15, 5
+                    background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.6), 10, 10)
+                    label "Events" text_size 20 text_color ivory align .5, .5
 
-                # Buttons with logs (Events):
-                frame:
-                    background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
-                    style_prefix "dropdown_gm2"
-                    ypos 100 xalign .0
-                    ysize 346
-                    padding 10, 10
-                    has vbox xsize 220 spacing 1
-                    frame:
-                        style_group "content"
+                for l in area.logs:
+                    button:
                         xalign .5
-                        padding 15, 5
-                        background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.6), 10, 10)
-                        label "Events" text_size 20 text_color ivory align .5, .5
+                        ysize 18
+                        action SetScreenVariable("focused_log", l)
+                        text str(l.name) size 12 xalign .02 yoffset 1
+                        # Resolve the suffix:
+                        if l.item:
+                            text "[l.item.type]" size 12 align (1.0, .5)
+                        else: # Suffix:
+                            text str(l.suffix) size 12 align (1.0, .5)
 
-                    for l in area.logs:
-                        button:
-                            xalign .5
-                            ysize 18
-                            action SetScreenVariable("focused_log", l)
-                            text str(l.name) size 12 xalign .02 yoffset 1
-                            # Resolve the suffix:
-                            if l.item:
-                                text "[l.item.type]" size 12 align (1.0, .5)
-                            else: # Suffix:
-                                text str(l.suffix) size 12 align (1.0, .5)
-
-                # Information (Story)
+            # Information (Story)
+            frame:
+                background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6, yzoom=-1), 10, 10)
+                ysize 346
+                padding 10, 10
+                ypos 100 xalign 1.0
+                has vbox xsize 350 spacing 1
                 frame:
-                    background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6, yzoom=-1), 10, 10)
-                    ysize 346
-                    padding 10, 10
-                    ypos 100 xalign 1.0
-                    has vbox xsize 350 spacing 1
-                    frame:
-                        style_group "content"
-                        xalign .5
-                        padding 15, 5
-                        background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.6), 10, 10)
-                        label "Story" text_size 20 text_color ivory align .5, .5
+                    style_group "content"
+                    xalign .5
+                    padding 15, 5
+                    background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.6), 10, 10)
+                    label "Story" text_size 20 text_color ivory align .5, .5
 
-                    frame:
-                        background Frame("content/gfx/frame/ink_box.png", 10, 10)
-                        has viewport draggable 1 mousewheel 1
-                        if focused_log:
-                            if focused_log.battle_log:
-                                text "\n".join(focused_log.battle_log) style "stats_value_text" size 14 color ivory
-                            elif focused_log.item:
-                                $ item = focused_log.item
-                                vbox:
-                                    spacing 10 xfill 1
-                                    add ProportionalScale(item.icon, 100, 100) xalign .5
-                                    text item.desc xalign .5 style "stats_value_text" size 14 color ivory
+                frame:
+                    background Frame("content/gfx/frame/ink_box.png", 10, 10)
+                    has viewport draggable 1 mousewheel 1
+                    if focused_log:
+                        if focused_log.battle_log:
+                            text "\n".join(focused_log.battle_log) style "stats_value_text" size 14 color ivory
+                        elif focused_log.item:
+                            $ item = focused_log.item
+                            vbox:
+                                spacing 10 xfill 1
+                                add ProportionalScale(item.icon, 100, 100) xalign .5
+                                text item.desc xalign .5 style "stats_value_text" size 14 color ivory
         else:
-                    # bm_selected_log_area is None
-                    frame: # Image
-                        xalign .5
-                        padding 5, 5
-                        background Frame("content/gfx/frame/MC_bg3.png", 10 ,10)
-                        add im.Scale("content/gfx/bg/buildings/log.webp", 600, 390)
+            # bm_selected_log_area is None
+            frame: # Image
+                xalign .5
+                padding 5, 5
+                background Frame("content/gfx/frame/MC_bg3.png", 10 ,10)
+                add im.Scale("content/gfx/bg/buildings/log.webp", 600, 390)
     elif bm_exploration_view_mode == "explore":
         vbox:
             xalign .5

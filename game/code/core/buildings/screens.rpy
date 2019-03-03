@@ -710,158 +710,158 @@ init:
                         tooltip u.desc
 
     screen building_management_midframe_building_mode:
-            frame:
-                xalign .5
-                xysize (380, 50)
-                background Frame("content/gfx/frame/namebox5.png", 10, 10)
-                label (u"[bm_building.name]") text_size 23 text_color ivory align (.5, .6)
+        frame:
+            xalign .5
+            xysize (380, 50)
+            background Frame("content/gfx/frame/namebox5.png", 10, 10)
+            label (u"[bm_building.name]") text_size 23 text_color ivory align (.5, .6)
 
-            frame:
-                align .5, .0
-                ypos 60
-                background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.95), 10, 10)
-                add pscale(bm_building.img, 600, 444)
+        frame:
+            align .5, .0
+            ypos 60
+            background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.95), 10, 10)
+            add pscale(bm_building.img, 600, 444)
 
-            # Left/Right Controls + Expand button:
-            vbox:
-                align .5, .99
+        # Left/Right Controls + Expand button:
+        vbox:
+            align .5, .99
+            frame:
+                background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.9), 10, 10)
+                has hbox xysize (600, 74)
+                button:
+                    align .1, .5
+                    xysize (140, 40)
+                    style "left_wood_button"
+                    action Return(['control', 'left'])
+                    tooltip "<== Previous"
+                    text "Previous" style "wood_text" xalign .69
                 frame:
-                    background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.9), 10, 10)
-                    has hbox xysize (600, 74)
-                    button:
-                        align .1, .5
-                        xysize (140, 40)
-                        style "left_wood_button"
-                        action Return(['control', 'left'])
-                        tooltip "<== Previous"
-                        text "Previous" style "wood_text" xalign .69
-                    frame:
-                        background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
-                        xysize 200, 50
-                        align (.5, .5)
-                        if len(bm_building.all_possible_extensions()) != 0:
-                            button:
-                                style_prefix "wood"
-                                align .5, .5
-                                xysize 135, 40
-                                action Return(["bm_mid_frame_mode", bm_building])
-                                tooltip 'Open a new business or upgrade this building!'
-                                text "Expand"
-                    button:
-                        align .9, .5
-                        xysize (140, 40)
-                        style "right_wood_button"
-                        action Return(['control', 'right'])
-                        tooltip "Next ==>"
-                        text "Next" style "wood_text" xalign .39
+                    background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
+                    xysize 200, 50
+                    align (.5, .5)
+                    if len(bm_building.all_possible_extensions()) != 0:
+                        button:
+                            style_prefix "wood"
+                            align .5, .5
+                            xysize 135, 40
+                            action Return(["bm_mid_frame_mode", bm_building])
+                            tooltip 'Open a new business or upgrade this building!'
+                            text "Expand"
+                button:
+                    align .9, .5
+                    xysize (140, 40)
+                    style "right_wood_button"
+                    action Return(['control', 'right'])
+                    tooltip "Next ==>"
+                    text "Next" style "wood_text" xalign .39
 
     screen building_management_midframe_businesses_mode:
-            viewport:
-                xysize 620, 668
-                mousewheel True
-                xalign .5
-                has vbox xsize 618
-                if hasattr(bm_mid_frame_mode, "all_possible_extensions"):
-                    for u in bm_mid_frame_mode.all_possible_extensions():
-                        if not bm_mid_frame_mode.has_extension(u):
-                            frame:
+        viewport:
+            xysize 620, 668
+            mousewheel True
+            xalign .5
+            has vbox xsize 618
+            if hasattr(bm_mid_frame_mode, "all_possible_extensions"):
+                for u in bm_mid_frame_mode.all_possible_extensions():
+                    if not bm_mid_frame_mode.has_extension(u):
+                        frame:
+                            xalign .5
+                            background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
+                            has fixed xysize 500, 150
+
+                            $ cost, materials, in_slots, ex_slots = u.get_cost()
+                            $ can_build = True
+                            hbox:
                                 xalign .5
-                                background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
-                                has fixed xysize 500, 150
-
-                                $ cost, materials, in_slots, ex_slots = u.get_cost()
-                                $ can_build = True
-                                hbox:
+                                xsize 340
+                                textbutton "[u.name]":
                                     xalign .5
-                                    xsize 340
-                                    textbutton "[u.name]":
-                                        xalign .5
-                                        ypadding 2
-                                        style "stats_text"
-                                        text_outlines [(1, black, 0, 0)]
-                                        text_size 23
-                                        action NullAction()
-                                        tooltip u.desc
+                                    ypadding 2
+                                    style "stats_text"
+                                    text_outlines [(1, black, 0, 0)]
+                                    text_size 23
+                                    action NullAction()
+                                    tooltip u.desc
 
-                                # Materials and GOLD
-                                vbox:
-                                    pos 5, 36
-                                    box_wrap True
-                                    xysize 340, 80
-                                    spacing 2
+                            # Materials and GOLD
+                            vbox:
+                                pos 5, 36
+                                box_wrap True
+                                xysize 340, 80
+                                spacing 2
+                                frame:
+                                    background Frame("content/gfx/frame/p_frame5.png", 5, 5)
+                                    xsize 100
+                                    has hbox xsize 90
+                                    button:
+                                        background Frame("content/gfx/animations/coin_top 0.13 1/1.webp")
+                                        xysize 25, 25
+                                        align 0, .5
+                                        action NullAction()
+                                        tooltip "Gold"
+                                    style_prefix "proper_stats"
+                                    if hero.gold >= cost:
+                                        text "[cost]" align .95, .5
+                                    else:
+                                        $ can_build = False
+                                        text "[cost]" align .95, .5 color grey
+
+                                # We presently allow for 3 resources each upgrade. If more, this needs to be a conditioned viewport:
+                                for r, amount in materials.items():
+                                    $ r = items[r]
                                     frame:
                                         background Frame("content/gfx/frame/p_frame5.png", 5, 5)
                                         xsize 100
                                         has hbox xsize 90
                                         button:
-                                            background Frame("content/gfx/animations/coin_top 0.13 1/1.webp")
                                             xysize 25, 25
+                                            background Frame(r.icon)
                                             align 0, .5
                                             action NullAction()
-                                            tooltip "Gold"
+                                            tooltip "{}".format(r.id)
                                         style_prefix "proper_stats"
-                                        if hero.gold >= cost:
-                                            text "[cost]" align .95, .5
+                                        if hero.inventory[r.id] >= amount:
+                                            text "[amount]" align .95, .5
                                         else:
                                             $ can_build = False
-                                            text "[cost]" align .95, .5 color grey
+                                            text "[amount]" align .95, .5 color grey
 
-                                    # We presently allow for 3 resources each upgrade. If more, this needs to be a conditioned viewport:
-                                    for r, amount in materials.items():
-                                        $ r = items[r]
-                                        frame:
-                                            background Frame("content/gfx/frame/p_frame5.png", 5, 5)
-                                            xsize 100
-                                            has hbox xsize 90
-                                            button:
-                                                xysize 25, 25
-                                                background Frame(r.icon)
-                                                align 0, .5
-                                                action NullAction()
-                                                tooltip "{}".format(r.id)
-                                            style_prefix "proper_stats"
-                                            if hero.inventory[r.id] >= amount:
-                                                text "[amount]" align .95, .5
-                                            else:
-                                                $ can_build = False
-                                                text "[amount]" align .95, .5 color grey
+                            hbox:
+                                align .01, .98
+                                spacing 2
+                                style_prefix "proper_stats"
+                                if in_slots:
+                                    text "Indoor Slots:"
+                                    if (bm_building.in_slots_max - bm_building.in_slots) >= in_slots:
+                                        text "[in_slots]"
+                                    else:
+                                        $ can_build = False
+                                        text "[in_slots]" color grey
+                                if ex_slots:
+                                    text "Exterior Slots:"
+                                    if (bm_building.ex_slots_max - bm_building.ex_slots) >= ex_slots:
+                                        text "[ex_slots]"
+                                    else:
+                                        $ can_build = False
+                                        text "[ex_slots]" color grey
 
-                                hbox:
-                                    align .01, .98
-                                    spacing 2
-                                    style_prefix "proper_stats"
-                                    if in_slots:
-                                        text "Indoor Slots:"
-                                        if (bm_building.in_slots_max - bm_building.in_slots) >= in_slots:
-                                            text "[in_slots]"
-                                        else:
-                                            $ can_build = False
-                                            text "[in_slots]" color grey
-                                    if ex_slots:
-                                        text "Exterior Slots:"
-                                        if (bm_building.ex_slots_max - bm_building.ex_slots) >= ex_slots:
-                                            text "[ex_slots]"
-                                        else:
-                                            $ can_build = False
-                                            text "[ex_slots]" color grey
-
-                                vbox:
-                                    align 1.0, .8
-                                    xsize 150
-                                    spacing 4
-                                    button:
-                                        xalign .5
-                                        xysize 133, 83
-                                        background Frame("content/gfx/frame/MC_bg3.png", 3, 3)
-                                        foreground Transform(u.img, size=(120, 75), align=(.5, .5))
-                                        action NullAction()
-                                        tooltip u.desc
-                                    textbutton "Build":
-                                        xalign .5
-                                        style "pb_button"
-                                        text_size 15
-                                        action [Return(["upgrade", "build", u, bm_mid_frame_mode]),
-                                                SensitiveIf(can_build)]
+                            vbox:
+                                align 1.0, .8
+                                xsize 150
+                                spacing 4
+                                button:
+                                    xalign .5
+                                    xysize 133, 83
+                                    background Frame("content/gfx/frame/MC_bg3.png", 3, 3)
+                                    foreground Transform(u.img, size=(120, 75), align=(.5, .5))
+                                    action NullAction()
+                                    tooltip u.desc
+                                textbutton "Build":
+                                    xalign .5
+                                    style "pb_button"
+                                    text_size 15
+                                    action [Return(["upgrade", "build", u, bm_mid_frame_mode]),
+                                            SensitiveIf(can_build)]
 
     screen building_controls():
         modal True
