@@ -252,10 +252,11 @@ label continue_with_start:
         if renpy.has_label(chars_unique_label):
             call expression chars_unique_label from _call_expression_1
 
-    python:
+    python hide:
         # Clean up globals after loading chars:
         for i in ("chars_unique_label", "char", "girl", "testBrothel", "all_chars", "temp", "utka"):
-            del(i)
+            if hasattr(store, i):
+                delattr(store, i)
 
         tl.start("Loading: Populating SlaveMarket And Jail")
         pytfall.sm.populate_chars_list()
@@ -282,8 +283,8 @@ label continue_with_start:
 label sort_items_for_gameplay:
     python:
         # Items sorting for AutoBuy:
-        shop_items = [item for item in items.values() if (set(pytfall.shops) & set(item.locations))]
-        all_auto_buy_items = [item for item in shop_items if item.usable and not item.jump_to_label]
+        shop_items = [i for i in items.values() if (set(pytfall.shops) & set(i.locations))]
+        all_auto_buy_items = [i for i in shop_items if i.usable and not i.jump_to_label]
         del shop_items
 
         #trait_selections = {"goodtraits": {}, "badtraits": {}}
@@ -319,6 +320,7 @@ label sort_items_for_gameplay:
         tiered_items = {}
         for i in items.values():
             tiered_items.setdefault(i.tier, []).append(i)
+        del i
     return
 
 label sort_traits_for_gameplay:
@@ -340,7 +342,7 @@ label sort_traits_for_gameplay:
         for t in tgs.base:
             for occ in t.occupations:
                 gen_occ_basetraits[occ].add(t)
-        del t, occ
+        del i, t, occ
         gen_occ_basetraits = dict(gen_occ_basetraits)
     return
 

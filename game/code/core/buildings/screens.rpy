@@ -3,11 +3,11 @@ label building_management:
         # Some Global Vars we use to pass data between screens:
         if hero.buildings:
             bm_index = getattr(store, "bm_index", 0)
-
             if bm_index >= len(hero.buildings):
                 bm_index = 0
 
             bm_building = hero.buildings[bm_index]
+            bm_mid_frame_mode = getattr(store, "bm_mid_frame_mode", None)
 
             # special cursor for DragAndDrop and the original value
             mouse_drag = {"default" :[("content/gfx/interface/cursors/hand.png", 0, 0)]}
@@ -30,14 +30,14 @@ label building_management:
             if isinstance(bm_mid_frame_mode, ExplorationGuild):
                 # Looks pretty ugly... this might be worth improving upon just for the sake of esthetics.
                 $ workers = CoordsForPaging(all_chars_for_se(), columns=6, rows=3,
-                        size=(80, 80), xspacing=10, yspacing=10, init_pos=(56, 11))
+                        size=(80, 80), xspacing=10, yspacing=10, init_pos=(46, 9))
                 $ fg_filters = CharsSortingForGui(all_chars_for_se)
                 $ fg_filters.occ_filters.add("Combatant")
                 $ fg_filters.target_container = [workers, "content"]
                 $ fg_filters.filter()
 
                 $ guild_teams = CoordsForPaging(bm_mid_frame_mode.idle_teams(), columns=3, rows=3,
-                                size=(208, 83), xspacing=0, yspacing=5, init_pos=(4, 340))
+                                size=(208, 83), xspacing=0, yspacing=5, init_pos=(4, 344))
 
                 $ bm_exploration_view_mode = "explore"
                 $ bm_selected_log_area = None
@@ -166,17 +166,24 @@ init:
     screen building_management():
         if hero.buildings:
             # Main Building mode:
-            if bm_mid_frame_mode is None:
-                use building_management_midframe_building_mode
-            elif isinstance(bm_mid_frame_mode, ExplorationGuild):
-                use building_management_midframe_exploration_guild_mode
-            else: # Upgrade mode:
-                use building_management_midframe_businesses_mode
+            frame:
+                background Frame(Transform("content/gfx/frame/p_frame6.png", alpha=.98), 10, 10)
+                style_prefix "content"
+                xysize (630, 680)
+                xalign .5
+                ypos 40
+    
+                if bm_mid_frame_mode is None:
+                    use building_management_midframe_building_mode
+                elif isinstance(bm_mid_frame_mode, ExplorationGuild):
+                    use building_management_midframe_exploration_guild_mode
+                else: # Upgrade mode:
+                    use building_management_midframe_businesses_mode
 
             ## Stats/Upgrades - Left Frame
             frame:
                 background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
-                xysize (330, 720)
+                xysize (330, 680)
                 # xanchor .01
                 ypos 40
                 style_group "content"
@@ -190,7 +197,7 @@ init:
 
             ## Right frame:
             frame:
-                xysize (330, 720)
+                xysize (330, 680)
                 ypos 40
                 xalign 1.0
                 background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
@@ -703,13 +710,6 @@ init:
                         tooltip u.desc
 
     screen building_management_midframe_building_mode:
-        frame:
-            background Frame("content/gfx/frame/p_frame6.png", 10, 10)
-            style_prefix "content"
-            xysize (630, 685)
-            xalign .5
-            ypos 40
-
             frame:
                 xalign .5
                 xysize (380, 50)
@@ -756,14 +756,6 @@ init:
                         text "Next" style "wood_text" xalign .39
 
     screen building_management_midframe_businesses_mode:
-        frame:
-            background Frame("content/gfx/frame/p_frame6.png", 10, 10)
-            style_prefix "content"
-            xysize (630, 685)
-            xpadding 0
-            xalign .5
-            ypos 40
-
             viewport:
                 xysize 620, 668
                 mousewheel True

@@ -489,7 +489,7 @@ init python: # Locking random seed of internal renpys random
             
         def get_selected(self):
             try:
-                return super(SetField, self).get_selected()
+                return super(SetVariable, self).get_selected()
             except:
                 return False
 init:

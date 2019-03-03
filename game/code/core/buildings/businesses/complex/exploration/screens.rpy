@@ -232,25 +232,16 @@ screen building_management_leftframe_exploration_guild_mode:
 screen building_management_midframe_exploration_guild_mode:
     if bm_exploration_view_mode == "log":
         if isinstance(bm_selected_log_area, FG_Area):
-            default focused_log = None
-            $ area = bm_selected_log_area
+                default focused_log = None
+                $ area = bm_selected_log_area
 
-            frame:
-                #ypos 40
-                xalign .5
-                background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
-                style_prefix "content"
-                xysize (630, 680)
-                ypos 40
-
-                $ fbg = "content/gfx/frame/mes11.webp"
                 frame:
-                    background Transform(Frame(fbg, 10, 10), alpha=.9)
+                    background Transform(Frame("content/gfx/frame/mes11.webp", 10, 10), alpha=.9)
                     xysize (620, 90)
+                    xalign .5
                     ymargin 1
                     ypadding 1
-                    $ temp = area.name
-                    text temp color gold style "interactions_text" size 35 outlines [(1, "#3a3a3a", 0, 0)] align (.5, .3)
+                    text area.name color gold style "interactions_text" size 35 outlines [(1, "#3a3a3a", 0, 0)] align (.5, .3)
                     hbox:
                         align (.5, .9)
                         # Get the correct stars:
@@ -310,32 +301,15 @@ screen building_management_midframe_exploration_guild_mode:
                                     add ProportionalScale(item.icon, 100, 100) xalign .5
                                     text item.desc xalign .5 style "stats_value_text" size 14 color ivory
         else:
-            # bm_selected_log_area is None
-            frame:
-                background Frame("content/gfx/frame/p_frame6.png", 10, 10)
-                style_prefix "content"
-                xysize (630, 685)
-                xpadding 0
-                xalign .5
-                ypos 40
-                vbox:
-                    xsize 630
+                    # bm_selected_log_area is None
                     frame: # Image
                         xalign .5
                         padding 5, 5
                         background Frame("content/gfx/frame/MC_bg3.png", 10 ,10)
                         add im.Scale("content/gfx/bg/buildings/log.webp", 600, 390)
     elif bm_exploration_view_mode == "explore":
-      frame:
-        background Frame("content/gfx/frame/p_frame6.png", 10, 10)
-        style_prefix "content"
-        xysize (630, 685)
-        xpadding 0
-        xalign .5
-        ypos 40
-
         vbox:
-            xsize 630
+            xalign .5
             frame: # Image
                 xalign .5
                 padding 5, 5
@@ -349,11 +323,9 @@ screen building_management_midframe_exploration_guild_mode:
                 if isinstance(bm_selected_exp_area, FG_Area):
                     $ temp = sorted([a for a in fg_areas.values() if a.area == bm_selected_exp_area.id], key=attrgetter("stage"))
                     for area in temp:
-                        $ fbg = "content/gfx/frame/mes12.jpg"
-                        $ hfbg = im.MatrixColor("content/gfx/frame/mes11.webp", im.matrix.brightness(.10))
                         button:
-                            background Transform(Frame(fbg, 10, 10), alpha=.9)
-                            hover_background Transform(Frame(hfbg, 10, 10), alpha=.9)
+                            background Transform(Frame("content/gfx/frame/mes12.jpg", 10, 10), alpha=.9)
+                            hover_background Transform(Frame(im.MatrixColor("content/gfx/frame/mes11.webp", im.matrix.brightness(.10)), 10, 10), alpha=.9)
                             xysize (150, 90)
                             ymargin 1
                             ypadding 1
@@ -370,16 +342,10 @@ screen building_management_midframe_exploration_guild_mode:
     elif bm_exploration_view_mode == "upgrades":
         use building_management_midframe_businesses_mode
     elif bm_exploration_view_mode == "team":
-      frame:
-        style_prefix "content"
-        xysize (630, 685)
-        xpadding 0
-        xalign .5
-        ypos 40
         # Backgrounds:
         frame:
-            background Frame("content/gfx/frame/p_frame52.webp", 5, 5)
-            xysize 630, 344
+            background Frame(Transform("content/gfx/frame/hp_1long.png", alpha=.9), 5, 5)
+            xysize 620, 344
             yoffset -5
             xalign .5
             hbox:
@@ -390,7 +356,7 @@ screen building_management_midframe_exploration_guild_mode:
                         xysize 90, 90
                         xmargin 2
                         ymargin 2
-                        background Frame("content/gfx/frame/p_frame53.png", 5, 5)
+                        background Frame("content/gfx/frame/MC_bg.png", 5, 5)
             # Page control buttons:
             hbox:
                 style_prefix "paging_green"
@@ -424,10 +390,11 @@ screen building_management_midframe_exploration_guild_mode:
                         sensitive temp
 
         # Downframe (for the teams and team paging)
-        frame:
-            background Frame("content/gfx/frame/p_frame52.webp", 10, 10)
-            xysize 630, 349
-            ypos 331 xalign .5
+        #frame:
+        #    #background Frame("content/gfx/frame/p_frame52.webp", 10, 10)
+        #    background Frame(Transform("content/gfx/frame/p_frame_.png", alpha=.9), 5, 5)
+        #    xysize 620, 349
+        #    ypos 331 xalign .5
 
         # Paging guild teams!
         hbox:
@@ -438,12 +405,12 @@ screen building_management_midframe_exploration_guild_mode:
                 $ temp = guild_teams.page - 1 >= 0
                 button:
                     style_suffix "button_left2x"
-                    tooltip "<== First Page"
+                    tooltip "First Page"
                     action Function(guild_teams.first_page)
                     sensitive temp
                 button:
                     style_suffix "button_left"
-                    tooltip "<== Previous Page"
+                    tooltip "Previous Page"
                     action Function(guild_teams.prev_page)
                     sensitive temp
             null width 20
@@ -460,12 +427,12 @@ screen building_management_midframe_exploration_guild_mode:
                 $ temp = guild_teams.page + 1 < guild_teams.max_page
                 button:
                     style_suffix "button_right"
-                    tooltip "Next Page ==>"
+                    tooltip "Next Page"
                     action Function(guild_teams.next_page)
                     sensitive temp
                 button:
                     style_suffix "button_right2x"
-                    tooltip "Last Page ==>"
+                    tooltip "Last Page"
                     action Function(guild_teams.last_page)
                     sensitive temp
 
@@ -553,7 +520,7 @@ screen building_management_midframe_exploration_guild_mode:
                     pos pos
                     clicked [SetVariable("came_to_equip_from", last_label), SetVariable("char", w),
                              SetVariable("eqtarget", w), SetVariable("equip_girls", [w]), Jump("char_equip")]
-                    add w.show("portrait", resize=(70, 70), cache=1)
+                    add w.show("portrait", resize=(74, 74), cache=True)
                     hovered Function(setattr, config, "mouse", mouse_drag)
                     unhovered Function(setattr, config, "mouse", mouse_cursor)
 
