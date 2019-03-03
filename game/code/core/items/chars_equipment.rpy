@@ -62,7 +62,7 @@ init python:
 label char_equip:
     python:
         focusitem = None
-        selectedslot = None
+        focusoutfit = None
         unequip_slot = None
         item_direction = None
         dummy = None
@@ -107,7 +107,7 @@ label char_equip_loop:
                         # Common to any eqtarget:
                         if not can_equip(focusitem, eqtarget, silent=False):
                             focusitem = None
-                            selectedslot = None
+                            focusoutfit = None
                             unequip_slot = None
                             item_direction = None
                             jump("char_equip_loop")
@@ -133,7 +133,7 @@ label char_equip_loop:
                                 transfer_items(eqtarget, inv_source, focusitem, silent=False)
 
                     focusitem = None
-                    selectedslot = None
+                    focusoutfit = None
                     unequip_slot = None
                     item_direction = None
             elif result[1] == "discard":
@@ -145,11 +145,10 @@ label char_equip_loop:
                         renpy.call_screen("discard_item", inv_source, focusitem)
 
                     focusitem = None
-                    selectedslot = None
                     unequip_slot = None
                     item_direction = None
                     dummy = None
-                    eqsave = {0:False, 1:False, 2:False}
+                    eqsave = [False, False, False]
             elif result[1] == "transfer":
                 python:
                     if inv_source == hero:
@@ -160,7 +159,6 @@ label char_equip_loop:
                 python:
                     focusitem = result[2]
 
-                    selectedslot = focusitem.slot
                     item_direction = 'equip'
 
                     # # To Calc the effects:
@@ -183,32 +181,75 @@ label char_equip_loop:
                         #renpy.show_screen("diff_item_effects", eqtarget, dummy)
         elif result[0] == "unequip_all":
             python:
-
                 if equipment_access(eqtarget, silent=False):
                     for slot in eqtarget.eqslots.values():
                         if slot:
                             eqtarget.unequip(slot)
+                    del slot
 
                 focusitem = None
-                selectedslot = None
+                focusoutfit = None
                 unequip_slot = None
                 item_direction = None
+        elif result[0] == "outfit":
+            if result[1] == "create":
+                python hide:
+                    n = renpy.call_screen("pyt_input", "", "Enter Name", 12)
+                    if len(n):
+                        _eqsave = eqtarget.eqslots.copy()
+                        _eqsave["name"] = n
+                        eqtarget.eqsave.append(_eqsave)
+            elif result[1] == "rename":
+                python:
+                    _eqsave = result[2]
+                    n = renpy.call_screen("pyt_input", _eqsave["name"], "Enter Name", 12)
+                    if len(n):
+                        _eqsave["name"] = n
+                    del _eqsave, n
+            elif result[1] == "save":
+                python:
+                    _eqsave = result[2]
+                    _eqsave.update(eqtarget.eqslots)
+                    
+                    if focusoutfit == _eqsave:
+                        dummy = copy_char(eqtarget)
+                    del _eqsave
+            elif result[1] == "remove":
+                python:
+                    _eqsave = result[2]
+                    eqtarget.eqsave.remove(_eqsave)
+                    if focusoutfit == _eqsave:
+                        focusoutfit = None
+                        dummy = None
+                    del _eqsave, eqsave[0]
+                    eqsave.append(0)
+            elif result[1] == "focus":
+                $ focusoutfit = result[2]
+
+                # To Calc the effects:
+                $ dummy = copy_char(eqtarget)
+                if eqtarget == hero:
+                    # make sure dummy lets us equip FIXME not perfect...
+                    $ dummy.mod_stat("disposition", dummy.get_max("disposition"))
+                # force the copy of the inventory
+                $ dummy.inventory.items = eqtarget.inventory.items.copy()
+                $ dummy.load_equip(focusoutfit, silent=True)
         elif result[0] == 'con':
             if result[1] == 'return':
                 python:
                     focusitem = None
-                    selectedslot = None
+                    focusoutfit = None
                     unequip_slot = None
                     item_direction = None
                     dummy = None
-                    eqsave = {0:False, 1:False, 2:False}
+                    eqsave = [False, False, False]
         elif result[0] == 'control':
             if result[1] == 'return':
                 jump char_equip_finish
             else:
                 python:
                     focusitem = None
-                    selectedslot = None
+                    focusoutfit = None
                     unequip_slot = None
                     item_direction = None
                     dummy = None
@@ -233,7 +274,7 @@ label char_equip_finish:
 
     python:
         # Reset all globals so screens that lead here don't get thrown off:
-        del focusitem, selectedslot, unequip_slot, item_direction, dummy, eqsave, inv_source
+        del focusitem, focusoutfit, unequip_slot, item_direction, dummy, eqsave, inv_source
         equip_girls = None # FIXME delete the object when renpy is ready
         equipment_safe_mode = False
 
@@ -1232,7 +1273,7 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
             background Null()
             left_padding 66
             hbox:
-                for i in range(0, 3):
+                for i, v in enumerate(eqtarget.eqsave):
                     vbox:
                         frame:
                             xpadding -50
@@ -1241,36 +1282,65 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                             hbox:
                                 button:
                                     xysize (90, 30)
-                                    action SelectedIf(eqsave[i] and any(eqtarget.eqsave[i].values())), ToggleDict(eqsave, i), With(dissolve)
-                                    tooltip "Show/hide equipment state if it's saved"
-                                    text "Outfit %d" % (i + 1) style "pb_button_text"
+                                    selected eqsave[i]
+                                    if focusoutfit == v:
+                                        action ToggleDict(eqsave, i), SetVariable("focusoutfit", None), SetVariable("dummy", None), With(dissolve)
+                                        tooltip "Hide the outfit"
+                                    elif eqsave[i]:
+                                        action Return(["outfit", "focus", v]), With(dissolve)
+                                        tooltip "Try the outfit"
+                                    else:
+                                        action ToggleDict(eqsave, i), With(dissolve)
+                                        tooltip "Show the outfit"
+                                        
+                                    text str(v["name"]) underline (focusoutfit == v) style "pb_button_text"
+                                imagebutton:
+                                    align (.0, .0)
+                                    idle im.Scale("content/gfx/interface/buttons/edit.png", 16, 20)
+                                    hover im.Scale("content/gfx/interface/buttons/edit_h.png", 16, 20)
+                                    focus_mask True
+                                    action Return(["outfit", "rename", v])
+                                    tooltip "Rename the outfit"
                                 button:
                                     align (.5, .5)
                                     xysize (30, 30)
-                                    action Function(eqtarget.eqsave.__setitem__, i, eqtarget.eqslots.copy()), SetDict(eqsave, i, True), With(dissolve)
+                                    action SensitiveIf(any(eqtarget.eqslots.values())), SetDict(eqsave, i, True), Return(["outfit", "save", v]), With(dissolve)
                                     text u"\u2193" align .5, .5
                                     padding (9, 1)
-                                    tooltip "Save equipment state"
+                                    tooltip "Update the outfit with the current equipment"
                                 if any(eqtarget.eqsave[i].values()):
                                     button:
                                         align (.5, .5)
                                         xysize (30, 30)
-                                        action Function(eqtarget.load_equip, eqtarget.eqsave[i]), With(dissolve)
-                                        text u"\u2191"
+                                        action Function(eqtarget.load_equip, v), With(dissolve)
+                                        text u"\u2191" align .5, .5
                                         padding (9, 1)
-                                        tooltip "Load equipment state"
+                                        tooltip "Use the outfit"
                                     button:
                                         align (.5, .5)
                                         xysize (30, 30)
-                                        action Function(eqtarget.eqsave.__setitem__, i, {k: False for k in eqtarget.eqslots}), SetDict(eqsave, i, False), With(dissolve)
-                                        text u"\u00D7"
+                                        action Return(["outfit", "remove", v]), With(dissolve)
+                                        text u"\u00D7" align .5, .5
                                         padding (8, 1)
-                                        tooltip "Discard equipment state"
+                                        tooltip "Discard the outfit"
                         frame:
                             xysize (234, 246)
                             background Null()
-                            if eqsave[i] and any(eqtarget.eqsave[i].values()):
-                                use eqdoll(active_mode=True, char=eqtarget.eqsave[i], scr_align=(.98, 1.0), return_value=['item', "save"], txt_size=17, fx_size=(304, 266))
+                            if eqsave[i]:
+                                use eqdoll(active_mode=True, char=v, scr_align=(.98, 1.0), return_value=['item', "save"], txt_size=17, fx_size=(304, 266))
+
+                if len(eqtarget.eqsave) < 3:
+                    vbox:
+                        frame:
+                            background Null()
+                            style_prefix "pb"
+                            hbox:
+                                xalign .5
+                                button:
+                                    xysize (90, 30)
+                                    action SensitiveIf(any(eqtarget.eqslots.values())), SetDict(eqsave, len(eqtarget.eqsave), True), Return(["outfit", "create"]), With(dissolve)
+                                    tooltip "Create a new outfit based on the current equipment"
+                                    text "..." style "pb_button_text"
 
 screen diff_item_effects(char, dummy):
     zorder 10

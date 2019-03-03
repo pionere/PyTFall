@@ -609,6 +609,8 @@ label after_load:
             clearCharacters = True
         if hasattr(hero.stats, "delayed_stats"):
             clearCharacters = True
+        if hero.eqsave and not hasattr(hero.eqsave[0], "name"):
+            clearCharacters = True
         if isinstance(simple_jobs["Manager"], Manager):
             pmj = simple_jobs["Manager"]
             mj = ManagerJob()
@@ -892,6 +894,14 @@ label after_load:
                 hero.del_flag("been_in_old_ruins")
 
             for char in itertools.chain([hero], chars.values(), hero.chars, npcs.values()):
+                outfits = char.eqsave
+                char.eqsave = []
+                for o in outfits:
+                    if any(o.values()):
+                        if not "name" in o:
+                            o["name"] = "Outfit %d" % (len(char.eqsave)+1)
+                        char.eqsave.append(o)
+
                 if char.has_flag("drunk_counter"):
                     char.set_flag("dnd_drunk_counter", char.get_flag("drunk_counter"))
                     char.del_flag("drunk_counter")

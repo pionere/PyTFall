@@ -230,14 +230,13 @@ init -11 python:
             return
         return True
 
-    def equipment_access(character, item=None, silent=False,
-                         allowed_to_equip=True, unequip=False):
+    def equipment_access(character, item=None, silent=False, unequip=False):
         # Here we determine if a character would be willing to give MC access to her equipment:
         # Like if MC asked this character to equip or unequip an item.
         # We return True if access is granted!
         #
-        # with allowed_to_equip=True (default) check whether we are allowed to equip the item,
-        # with allowed_to_equip=False, check whether we are allowed to *un*equip
+        # with unequip=False (default) check whether we are allowed to equip the item,
+        # with unequip=True, check whether we are allowed to *un*equip
         if character == hero:
             return True # Would be weird if we could not access MCs inventory....
 
@@ -247,8 +246,8 @@ init -11 python:
 
             # get a response from one single individual
             for c in character.shuffled:
-                store.char = c
-                if not equipment_access(c, item, silent, allowed_to_equip):
+                if not equipment_access(c, item, silent, unequip):
+                    store.char = c
                     return False
             store.char = character
             return True
@@ -280,7 +279,7 @@ init -11 python:
                 if not item.badtraits.isdisjoint(character.traits):
                     if not silent:
                         interactions_character_doesnt_want_bad_item(character)
-                    return not allowed_to_equip
+                    return False
 
                 # Always allow restorative items:
                 if item.type == "restore" and item.eqchance > 0:
@@ -295,15 +294,15 @@ init -11 python:
 
                 # Good traits:
                 if not item.goodtraits.isdisjoint(character.traits):
-                    return allowed_to_equip
+                    return True
 
                 # Just an awesome item in general:
                 if item.eqchance >= 70:
-                    return allowed_to_equip
+                    return True
                 elif item.eqchance <= 0: # 0 eqchance will make item unavailable, unless there is good trait or slave status
                     if not silent:
                         interactions_character_doesnt_want_bad_item(character)
-                    return not allowed_to_equip
+                    return False
 
         if char_dispo < 900 and not check_lovers(character, hero):
             if not silent:
