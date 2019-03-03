@@ -1,8 +1,6 @@
 default clone_id = 0
 
 label time_temple:
-    if not global_flags.has_flag("time_healing_day"):
-        $ global_flags.set_flag("time_healing_day", 0)
     if not "cemetery" in ilists.world_music:
         $ ilists.world_music["cemetery"] = [track for track in os.listdir(content_path("sfx/music/world")) if track.startswith("cemetery")]
     if not global_flags.has_flag("keep_playing_music"):
@@ -31,7 +29,7 @@ label time_temple:
 
     menu time_temple_menu:
         "Healing":
-            if global_flags.flag("time_healing_day") >= day:
+            if hero.has_flag("dnd_time_healing_day"):
                 t "I'm sorry, it's impossible to perform the procedure twice per day."
                 jump time_temple_menu
 
@@ -46,46 +44,39 @@ label time_temple:
                 for i in hero.team:
                     temp = i.get_max("health") + i.get_max("mp") + i.get_max("vitality") - \
                            (i.get_stat("health") + i.get_stat("mp") + i.get_stat("vitality"))
-                    if temp != 0:
+                    if temp > 0:
                         temp_charcters[i] = temp
+                del i
 
             if not temp_charcters:
                 t "I don't see the need in healing right now."
                 "Miel can only restore characters in your team, including the main hero."
+                $ del temp_charcters
                 jump time_temple_menu
             else:
-                python:
-                    res = 0
-                    for i in temp_charcters:
-                        res += temp_charcters[i]
+                $ res = sum(temp_charcters.values())
 
                 t "I see your team could use our services. It will be [res] gold."
                 if hero.gold < res:
                     "Unfortunately, you don't have enough money."
-                    $ del res
-                    $ del temp_charcters
-                    jump time_temple_menu
-
-                menu:
-                    "Pay":
-                        $ global_flags.set_flag("time_healing_day", day)
-                        play sound "content/sfx/sound/events/clock.ogg"
-                        with Fade(.5, .2, .5, color=goldenrod)
-                        $ hero.take_money(res, reason="Time Temple")
-                        python:
-                            for i in temp_charcters:
-                                i.gfx_mod_stat("health", i.get_max("health") - i.get_stat("health"))
-                                i.gfx_mod_stat("mp", i.get_max("mp") - i.get_stat("mp"))
-                                i.gfx_mod_stat("vitality", i.get_max("vitality") - i.get_stat("vitality"))
-                        t "Done. Please come again if you need our help."
-                        $ del res
-                        $ del temp_charcters
-                        jump time_temple_menu
-                    "Don't Pay":
-                        t "Very well."
-                        $ del res
-                        $ del temp_charcters
-                        jump time_temple_menu
+                else:
+                    menu:
+                        "Pay":
+                            $ hero.set_flag("dnd_time_healing_day")
+                            play sound "content/sfx/sound/events/clock.ogg"
+                            with Fade(.5, .2, .5, color=goldenrod)
+                            $ hero.take_money(res, reason="Time Temple")
+                            python:
+                                for i in temp_charcters:
+                                    i.gfx_mod_stat("health", i.get_max("health") - i.get_stat("health"))
+                                    i.gfx_mod_stat("mp", i.get_max("mp") - i.get_stat("mp"))
+                                    i.gfx_mod_stat("vitality", i.get_max("vitality") - i.get_stat("vitality"))
+                                del i
+                            t "Done. Please come again if you need our help."
+                        "Don't Pay":
+                            t "Very well."
+                $ del res, temp_charcters
+                jump time_temple_menu
                         
         "Restore AP":
             if not global_flags.has_flag("asked_miel_about_ap"):
@@ -127,10 +118,10 @@ label time_temple:
     hide npc
     with dissolve
     hide screen time_temple
+    $ del t
     $ global_flags.set_flag("keep_playing_music")
     stop sound
     jump graveyard_town
-
 
 screen time_temple():
 

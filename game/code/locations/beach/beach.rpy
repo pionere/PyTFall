@@ -208,6 +208,7 @@ label mc_action_hero_ocean_skill_checks:
         $ swim_vit = randint (15, 25)
     $ hero.gfx_mod_skill("swimming", 0, swim_act)
     $ hero.mod_stat("vitality", -swim_vit)
+    $ del swim_act, swim_vit
 
     if locked_dice(temp) and global_flags.flag("constitution_bonus_from_swimming_at_beach") <= 30:
         $ hero.stats.lvl_max["constitution"] += 1

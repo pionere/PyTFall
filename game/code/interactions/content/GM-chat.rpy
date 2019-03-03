@@ -32,7 +32,7 @@ label interactions_smalltalk:
             $ char.gfx_mod_stat("disposition", randint(1, 2))
             $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
             $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
-            $ char.gfx_mod_stat("affection", affection_reward(char))
+            $ char.gfx_mod_stat("affection", .1, affection_reward(char))
     elif m >= -100:
         if ct("Impersonal") or ct("Dandere") or ct("Shy"):
             $ narrator(choice(["But there was a lot of awkward silence.", "But you had to do most of the talking.", "There is no sign of [char.op] opening up to you yet.", "But it was kind of one-sided."]))
@@ -54,7 +54,7 @@ label interactions_smalltalk:
         $ char.gfx_mod_stat("joy", 1)
         $ m = 0
     $ char.gfx_mod_stat("disposition", m)
-    $ char.gfx_mod_stat("affection", affection_reward(char))
+    $ char.gfx_mod_stat("affection", .5, affection_reward(char))
     $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
     $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
     $ del m

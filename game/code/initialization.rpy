@@ -482,6 +482,16 @@ init python: # Locking random seed of internal renpys random
         store.stored_random_seed = renpy.random.getstate()
         return rv
 
+    # Or we crash due to an engine bug (going to MMS):
+    class SetVariable(SetField):
+        def __init__(self, name, value):
+            super(SetVariable, self).__init__(store, name, value, kind="variable")
+            
+        def get_selected(self):
+            try:
+                return super(SetField, self).get_selected()
+            except:
+                return False
 init:
     default SKILLS_MAX = {k: 5000 for k in STATIC_CHAR.SKILLS}
     default SKILLS_THRESHOLD = {k: 2000 for k in STATIC_CHAR.SKILLS} # Must be exceeded before skills becomes harder to gain.
@@ -496,19 +506,19 @@ init:
     $ renpyd = renpy.displayable
 
     # Or we crash due to an engine bug (going to MMS):
-    default char = None
-    default char_profile_entry = None # Label to access chars profile from weird locations.
-    default girls = None
-    default came_to_equip_from = None # Girl equipment screen came from label holder
-    default eqtarget = None # Equipment screen
-    default just_view_next_day = False
-    default bm_mid_frame_mode = None
-    default bm_selected_exp_area = None
-    default bm_exploration_view_mode = None
-    default bm_selected_log_area = None
-    default eq_target = None
-    default the_chosen = None
-    default equip_girls = None
+    #default char = None
+    #default char_profile_entry = None # Label to access chars profile from weird locations.
+    #default girls = None
+    #default came_to_equip_from = None # Girl equipment screen came from label holder
+    #default eqtarget = None # Equipment screen
+    #default just_view_next_day = False
+    #default bm_mid_frame_mode = None
+    #default bm_selected_exp_area = None
+    #default bm_exploration_view_mode = None
+    #default bm_selected_log_area = None
+    #default eq_target = None
+    #default the_chosen = None
+    #default equip_girls = None
 
 init 999 python:
     # ensure that all initialization debug messages have been written to disk

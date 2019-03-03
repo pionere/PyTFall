@@ -84,7 +84,6 @@ label angelica_add_alignment:
     else:
         call screen alignment_choice(character)
         $ alignment = _return
-
         if alignment:
             if "Neutral" in character.traits:
                 $ price = 10000
@@ -98,6 +97,8 @@ label angelica_add_alignment:
                     character.apply_trait(alignment)
             else:
                 a "You don't have enough money. It will be [price] gold."
+            $ del price
+        $ del alignment
     jump angelica_menu
 
 label angelica_remove_alignment:
@@ -109,6 +110,7 @@ label angelica_remove_alignment:
         $ character = hero
     if not character:
         a "Ok then."
+        $ del character
         jump angelica_menu
 
     if not "Neutral" in character.traits:
@@ -131,8 +133,11 @@ label angelica_remove_alignment:
                     $ character.remove_trait(alignment)
                 else:
                     a "You don't have enough money. It will be [price] gold."
+            $ del price
+        $ del alignment
     else:
         a "You have no elements that I can remove."
+    $ del character
     jump angelica_menu
 
 screen alignment_choice(character):

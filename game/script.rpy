@@ -490,6 +490,9 @@ label after_load:
 
         if hasattr(store, "storyi_treasures") and isinstance(store.storyi_treasures, list):
             hero.del_flag("been_in_old_ruins")
+        if global_flags.has_flag("time_healing_day"):
+            hero.set_flag("dnd_time_healing_day")
+            global_flags.del_flag("time_healing_day")
 
         pytfall.maps = OnScreenMap()
 

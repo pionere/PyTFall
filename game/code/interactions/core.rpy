@@ -176,6 +176,10 @@ init -1 python:
                 if char in cell:
                     cell.girls.remove(char)
 
+        def next_day(self):
+            # Termination:
+            self.girlcells = dict((k, v) for k, v in self.girlcells.iteritems() if v.termination_day > day)
+
         # Image Controls:
         def set_img(self, *args, **kwargs):
             """Sets the image, leaving the image cache untouched.

@@ -241,6 +241,7 @@ init -9 python:
                 return False
 
             char.set_flag("sentence_type", sentence)
+            char.set_flag("last_location", char.location)
             set_location(char, self)
             self.cells.append(char)
             #self.cell_index = [0,]
@@ -354,8 +355,8 @@ init -9 python:
 
             char.del_flag("sentence_type")
             char.del_flag("release_day")
-
-            set_location(char, None)
+            set_location(char, char.get_flag("last_location"))
+            char.del_flag("last_location")
 
             if char in hero.chars:
                 char.gfx_mod_stat("disposition", randint(10, 40))
@@ -433,8 +434,10 @@ init -9 python:
             if frees:
                 self.cell_index = [0,]
                 for char in frees:
+                    char.del_flag("sentence_type")
                     char.del_flag("release_day")
-                    set_location(char, None)
+                    set_location(char, char.get_flag("last_location"))
+                    char.del_flag("last_location")
                     if char in hero.chars:
                         pass # FIXME notify the player!
                     # If we know they're in jail

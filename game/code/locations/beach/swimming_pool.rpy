@@ -150,11 +150,12 @@ label mc_action_swimming_pool_skill_checks:
         "It feels nice swimming in the pool, but the sea is more suitable to learn something new."
         $ swim_act = randint(0,1)
         $ swim_vit = randint (10, 15)
+    if locked_dice(75) and hero.get_skill("swimming") >= 50 and hero.get_stat("constitution") < hero.get_max("constitution"):
+        "Swimming did you good."
+        $ hero.gfx_mod_stat("constitution", 1)
     $ hero.gfx_mod_skill("swimming", 0, swim_act)
     $ hero.mod_stat("vitality", -swim_vit)
-    if locked_dice(75) and hero.get_skill("swimming") >= 50 and hero.get_stat("constitution") < hero.get_max("constitution"):
-        $ hero.gfx_mod_stat("constitution", 1)
-        "Swimming did you good (constitution+)."
+    $ del swim_act, swim_vit
     return
 
 label mc_action_instructor_swimming_pool_skill_checks:
@@ -185,12 +186,13 @@ label mc_action_instructor_swimming_pool_skill_checks:
         $ swim_act = randint(0,1)
         $ swim_tra = randint(5,10)
         $ swim_vit = randint (5, 10)
+    if locked_dice(65) and hero.get_skill("swimming") >= 50:
+        "Swimming did you good."
+        $ hero.gfx_mod_stat("constitution", 1)
     $ hero.gfx_mod_skill("swimming", 0, swim_act)
     $ hero.gfx_mod_skill("swimming", 1, swim_tra)
     $ hero.mod_stat("vitality", -swim_vit)
-    
-    if locked_dice(65) and hero.get_skill("swimming") >= 50:
-        $ hero.gfx_mod_stat("constitution", 1)
+    $ del swim_act, swim_tra, swim_vit
     return
 
 label mc_action_work_swim_pool: # here we could use an option to meet characters with a certain probability

@@ -209,11 +209,9 @@ init -9 python:
             tl.end("Runaway/Jail ND")
 
             # Girlsmeets:
-            # Termination:
-            cells = gm.girlcells
-            for cell in cells.keys():
-                if cells[cell].termination_day <= day:
-                    del cells[cell]
+            tl.start("Girlsmeets ND")
+            gm.next_day()
+            tl.end("Girlsmeets ND")
 
             # Schools:
             tl.start("Schools ND")
