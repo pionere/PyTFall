@@ -37,7 +37,7 @@ init -11 python:
 
     # Interactions (Girlsmeets Helper Functions):
     def interactions_influence(c):
-        return ((hero.get_stat("charisma")*(1 + float(c.get_stat("disposition"))/c.get_max("disposition"))) - c.get_stat("character")) / (c.tier + 1) 
+        return ((hero.get_stat("charisma")*(1 + c.get_stat("disposition")/(3.0*c.get_max("disposition")))) - c.get_stat("character")) / (c.tier + 1) 
 
     def interactions_gender_mismatch(char, just_sex=True):
         if just_sex and ct("Open Minded"):
@@ -67,7 +67,7 @@ init -11 python:
 
         if c.status == "slave":
             patience += 1
-        patience += interactions_influence(c) / 10
+        patience += interactions_influence(c) / 20
         return patience
 
     def interactions_drinking_outside_of_inventory(char, count): # allows to raise activation count and become drunk without using real items

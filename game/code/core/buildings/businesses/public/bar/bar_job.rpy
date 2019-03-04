@@ -259,7 +259,7 @@ init -5 python:
             if effectiveness >= 90:
                 log.logws("exp", exp_reward(worker, log.loc.tier))
             else:
-                log.logws("exp", exp_reward(worker, log.loc.tier, final_mod=.5))
+                log.logws("exp", exp_reward(worker, log.loc.tier, exp_mod=.5))
 
             log.logws('bartending', choice([1, 2]))
             log.logws('refinement', choice([0, 0, 0, 1]))

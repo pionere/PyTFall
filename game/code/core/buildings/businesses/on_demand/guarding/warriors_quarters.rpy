@@ -167,7 +167,7 @@ init -5 python:
             if kwargs.get("use_SQ", False):
                 log.append("Your guards managed to sneak in a friendly sparring match between their patrol duties!")
                 for w in workers:
-                    ap_used = w.get_flag("jobs_points_spent", 0)/100.0
+                    exp_mod = w.get_flag("jobs_points_spent", 0)/1000.0
                     if dice(25):
                         log.logws("security", 1, char=w)
                         log.logws("attack", 1, char=w)
@@ -176,8 +176,7 @@ init -5 python:
                         log.logws("magic", 1, char=w)
                         if dice(10):
                             log.logws("constitution", 1, char=w)
-                        log.logws("exp", exp_reward(w, loc.tier, final_mod=.1,
-                                                    ap_used=ap_used), char=w)
+                        log.logws("exp", exp_reward(w, loc.tier, exp_mod=exp_mod), char=w)
 
                         log.logws("vitality", -5, char=w)
                         if dice(20): # Small chance to get hurt.
@@ -198,7 +197,7 @@ init -5 python:
                     log.logws("agility", 1, char=w)
                 if dice(10):
                     log.logws("constitution", 1, char=w)
-                log.logws("exp", exp_reward(w, loc.tier, ap_used=ap_used), char=w)
+                log.logws("exp", exp_reward(w, loc.tier, exp_mod=ap_used), char=w)
                 w.del_flag("jobs_points_spent")
             for w in extra_workers:
                 ap_used = w.get_flag("jobs_points_spent", 0)/100.0
@@ -215,8 +214,7 @@ init -5 python:
                 if dice(10):
                     log.logws("constitution", 1, char=w)
                 # Same imperfection as with Cleaning.
-                log.logws("exp", exp_reward(w, loc.tier,
-                                        ap_used=ap_used, final_mod=.5), char=w)
+                log.logws("exp", exp_reward(w, loc.tier, exp_mod=ap_used*.5), char=w)
                 w.del_flag("jobs_points_spent")
 
             log.type = "jobreport" # Come up with a new type for team reports?

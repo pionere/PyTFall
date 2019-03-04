@@ -177,7 +177,7 @@ init python:
                     stats_pool = round_int(points*ap_spent)
                     skills_pool = 2*stats_pool
 
-                    exp = exp_reward(char, self.difficulty, ap_used=ap_spent, final_mod=exp_mod)
+                    exp = exp_reward(char, self.difficulty, exp_mod=ap_spent*exp_mod)
                     char.mod_exp(exp)
 
                     charmod = defaultdict(int) # Dict of changes of stats and skills for ND

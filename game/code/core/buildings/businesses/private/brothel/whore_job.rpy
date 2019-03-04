@@ -783,7 +783,7 @@ init -5 python:
             if effectiveness >= 90:
                 log.logws("exp", exp_reward(worker, log.loc.tier))
             else:
-                log.logws("exp", exp_reward(worker, log.loc.tier, final_mod=.5))
+                log.logws("exp", exp_reward(worker, log.loc.tier, exp_mod=.5))
 
             if effectiveness >= 190:
                 if client.gender == "male":

@@ -36,8 +36,8 @@ label interactions_kiss:
         $ base = 350
 
     if char.get_stat("affection") > (base+50*sub) or slave_siw_check(char):
-        $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
-        $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
+        $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.33))
+        $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.33))
         $ char.gfx_mod_stat("affection", affection_reward(char, 1.5))
         $ char.gfx_mod_stat("disposition", randint(40, 55))
 
@@ -104,12 +104,12 @@ label interactions_kiss:
         else:
             $ rc("Don't say anything.... *kiss*", "*kiss*, *lick*, I like, *kiss*, this...", "*kiss*, hmm... *sigh*, kissing feels so good...", "*kiss*...  My heart's racing ♪", "Hmm... *kiss, kiss*, ahm,.. I like... kissing... Hn, *smooch*...", "*slurp, kiss* Kissing this rough... feels so good.", "*kiss* You're sweet...", "Ahm... *kiss, lick*... nnn... Do you think touching tongues is a little... sexy?")
 
-        if m <= n*2 and dice(50) and dice(char.get_stat("joy")-40):
+        if 2*m <= n and dice(50) and dice(char.get_stat("joy")-40):
             $ narrator(choice(["You feel especially close.", "It felt like it could go on forever."]))
             $ char.gfx_mod_stat("joy", randint(0, 1))
             $ char.gfx_mod_stat("disposition", randint(1, 2))
-            $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
-            $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
+            $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.33))
+            $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.33))
             $ char.gfx_mod_stat("affection", affection_reward(char, .1))
 
         $ del char_dispo

@@ -154,7 +154,7 @@ label special_items_full_extractor:
     else:
         $ renpy.show_screen('message_screen', "The energy of knowledge slowly flows inside you. You became more experienced.")
 
-    $ eqtarget.gfx_mod_exp(exp_reward(eqtarget, eqtarget, final_mod=1500.0/DAILY_EXP_CORE))
+    $ eqtarget.gfx_mod_exp(exp_reward(eqtarget, eqtarget, exp_mod=1500.0/DAILY_EXP_CORE))
 
     jump char_equip
 

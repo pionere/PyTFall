@@ -254,7 +254,7 @@ init -5 python:
             if effectiveness >= 90:
                 log.logws("exp", exp_reward(worker, building.tier))
             else:
-                log.logws("exp", exp_reward(worker, building.tier, final_mod=.5))
+                log.logws("exp", exp_reward(worker, building.tier, exp_mod=.5))
 
             log.append("\n")
             if skill >= 170:

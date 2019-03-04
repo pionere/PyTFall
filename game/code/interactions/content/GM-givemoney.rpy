@@ -46,8 +46,8 @@ label interactions_giftmoney:
             $ b = 15
             $ mod = 1
         call interactions_enough_gold from _call_interactions_enough_gold
-        $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33, final_mod=mod))
-        $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33, final_mod=mod))
+        $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.33*mod))
+        $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.33*mod))
         $ mod = randint(a, b)
         if char.get_stat("disposition") >= 90:
             $ mod = round(mod/(char.get_stat("disposition")*.01))
@@ -78,7 +78,7 @@ label interactions_askmoney:
             if char.take_money(temp, reason="Charity"):
                 $ hero.add_money(temp, reason="Charity")
                 "She gave you [temp] Gold."
-                $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
+                $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.33))
                 $ char.gfx_mod_stat("disposition", -randint(20, 40))
                 $ char.gfx_mod_stat("affection", -randint(8,12))
                 $ del temp

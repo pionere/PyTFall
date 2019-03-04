@@ -25,7 +25,7 @@ init -9 python:
                      "Xeona Training": "Xeona"}
         FIXED_MAX = {"joy", "mood", "disposition", "affection", "vitality", "luck"}
         SEX_SKILLS = {"vaginal", "anal", "oral", "sex", "group", "bdsm"}
-        PREFS = {"gold", "fame", "reputation", "arena_rep", "charisma", "constitution", "character",
+        PREFS = {"gold", "fame", "reputation", "arena_rep", "charisma", "constitution", # "character",
                   "intelligence", "attack", "magic", "defence", "agility", "luck",
                   "vaginal", "anal", "oral", "sex", "group", "bdsm"}
 
@@ -1586,7 +1586,7 @@ init -9 python:
                     else:
                         temp.add_money(value, reason="Items")
                 elif stat == "exp":
-                    self.mod_exp(exp_reward(self, self, final_mod=float(value)/DAILY_EXP_CORE))
+                    self.mod_exp(exp_reward(self, self, exp_mod=float(value)/DAILY_EXP_CORE))
                 elif stat in ['health', 'mp', 'vitality', 'joy'] or (item.slot in ['consumable', 'misc'] and not (item.slot == 'consumable' and item.ctemp)):
                     if item.type == "food" and 'Fast Metabolism' in self.effects:
                         value *= 2

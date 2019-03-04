@@ -1136,7 +1136,7 @@ screen give_exp_after_battle(group, enemy_team, ap_used=1, money=0):
 
         # actually give the EXP:
         for b in bars:
-            timer .01 action Function(b.mod_exp, exp_reward(b.char, enemy_team, ap_used=ap_used)) repeat False
+            timer .01 action Function(b.mod_exp, exp_reward(b.char, enemy_team, exp_mod=ap_used)) repeat False
 
         if money > 0:
             hbox:

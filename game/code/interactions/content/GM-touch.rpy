@@ -24,8 +24,8 @@ label interactions_hug:
     if char.get_stat("affection") > (base+50*sub) or slave_siw_check(char):
         $ char.gfx_mod_stat("disposition", randint(15, 30))
         $ char.gfx_mod_stat("affection", affection_reward(char, 1.4))
-        $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
-        $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
+        $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.33))
+        $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.33))
         $ char.override_portrait("portrait", "confident")
         $ char.show_portrait_overlay("zoom_slow", "reset")
         if ct("Impersonal"):
@@ -55,12 +55,12 @@ label interactions_hug:
         else:
             $ rc("There's no helping it, huh? Come to me.", "Whoa there... Are you all right? Hold onto me tightly.", "Can you hear my heartbeat too?", "Yes, you can hold me tighter if you wish.", "...Hmm, it feels good to be held like this ♪", "<Hugs you tightly> What do you think? Can you feel me up against you?")
 
-        if m <= n*2 and dice(50) and dice(char.get_stat("joy")-20):
+        if 2*m <= n and dice(50) and dice(char.get_stat("joy")-20):
             $ narrator(choice(["You feel especially close.", "It felt like it could go on forever."]))
             $ char.gfx_mod_stat("joy", randint(0, 1))
             $ char.gfx_mod_stat("disposition", randint(2, 4))
-            $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
-            $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
+            $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.33))
+            $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.33))
             $ char.gfx_mod_stat("affection", affection_reward(char, .1))
 
     else:
@@ -150,8 +150,8 @@ label interactions_grabbutt:
     if char.get_stat("affection") > (base+50*sub) or slave_siw_check(char):
         $ char.gfx_mod_stat("disposition", randint(20, 35))
         $ char.gfx_mod_stat("affection", affection_reward(char, 1.2))
-        $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
-        $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
+        $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.33))
+        $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.33))
 
         $ char.override_portrait("portrait", "happy")
         $ char.show_portrait_overlay("zoom_fast", "reset")
@@ -181,12 +181,12 @@ label interactions_grabbutt:
         else:
             $ rc("Hya! If you keep doing that, I'll get in the mood...", "Teasing people isn't good, you know ♪", "Kya...  Doing this all of sudden, that surprised me.", "Whoa... We're energetic, aren't we...", "Hya! S-such shameful hands... hnn", "Ooh! Are you hinting at something there, [char.mc_ref]? ♥")
 
-        if m <= n*2 and dice(50) and dice(char.get_stat("joy")-20):
+        if 2*m <= n and dice(50) and dice(char.get_stat("joy")-20):
             $ narrator(choice(["[char.name] looks at you with a mischievous smile.", "[char.name] looks at you with glowing eyes."]))
             $ char.gfx_mod_stat("joy", randint(1, 2))
             $ char.gfx_mod_stat("disposition", randint(1, 2))
-            $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
-            $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
+            $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.33))
+            $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.33))
             $ char.gfx_mod_stat("affection", affection_reward(char, .1))
 
     else:
@@ -274,8 +274,8 @@ label interactions_grabbreasts:
         $ base = 250
 
     if char.get_stat("affection") > (base+50*sub) or slave_siw_check(char):
-        $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
-        $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
+        $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.33))
+        $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.33))
         $ char.gfx_mod_stat("disposition", randint(25, 35))
         $ char.gfx_mod_stat("affection", affection_reward(char, 1.3))
         $ char.override_portrait("portrait", "shy")
@@ -305,12 +305,12 @@ label interactions_grabbreasts:
         else:
             $ rc("Nnn... It's okay to rub it just a little.", "Mm... Being touched every now and then isn't so bad, I guess?", "My soft tits feel good, don't they?", "Ah... You like my breasts, don't you?", "Y... Yes... Continue massaging... like that.", "Aah... my chest... it feels so good.", "Hnnn, you've got... some naughty hands... uhn!", "It feels good... m...my nipples... What you did just now felt so good... ♪")
 
-        if m <= 2*n and dice(50) and dice(char.get_stat("joy")-40):
+        if 2*m <= n and dice(50) and dice(char.get_stat("joy")-40):
             $ narrator(choice(["[char.pC] looks at you with a mischievous smile.", "[char.name] looks at you with glowing eyes."]))
             $ char.gfx_mod_stat("joy", randint(1, 2))
             $ char.gfx_mod_stat("disposition", randint(1, 2))
-            $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
-            $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
+            $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.33))
+            $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.33))
             $ char.gfx_mod_stat("affection", affection_reward(char, .1))
 
     else:

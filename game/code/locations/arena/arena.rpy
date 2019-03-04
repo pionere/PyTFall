@@ -900,7 +900,7 @@ init -9 python:
                 for member in hero.team:
                     # Awards:
                     if member not in battle.corpses:
-                        rew_xp = exp_reward(member, team, ap_used=.3)
+                        rew_xp = exp_reward(member, team, exp_mod=.3)
                         rew_rep = max(int(self.mob_power*.2), 1) # only little bit of reputation
                         #rew_gold = 0 # no gold for mobs, because they give items, unlike all other modes
                         member.mod_exp(rew_xp)
@@ -1013,7 +1013,7 @@ init -9 python:
                     for stat in ("attack", "defence", "agility", "magic"):
                         fighter.mod_stat(stat, randint(1, 2))
                     fighter.arena_rep += int(rep)
-                    fighter.mod_exp(exp_reward(fighter, loser, ap_used=2))
+                    fighter.mod_exp(exp_reward(fighter, loser, exp_mod=2))
 
             rep = rep / 10.0
             for fighter in loser:
@@ -1077,7 +1077,7 @@ init -9 python:
 
             for member in winner:
                 if member not in battle.corpses:
-                    rew_xp = exp_reward(member, loser, ap_used=2)
+                    rew_xp = exp_reward(member, loser, exp_mod=2)
                     rew_rep = int(rep)
 
                     member.mod_exp(rew_xp)
@@ -1100,7 +1100,7 @@ init -9 python:
             rep = rep / 10.0
             for member in loser:
                 member.arena_rep -= int(rep)
-                member.mod_exp(exp_reward(member, winner, ap_used=2, final_mod=.15))
+                member.mod_exp(exp_reward(member, winner, exp_mod=2*.15))
                 self.remove_team_from_dogfights(member)
 
             for member in enemy_team:
@@ -1163,7 +1163,7 @@ init -9 python:
 
             for member in winner:
                 if member not in battle.corpses:
-                    rew_xp = exp_reward(member, loser, ap_used=2)
+                    rew_xp = exp_reward(member, loser, exp_mod=2)
 
                     member.mod_exp(rew_xp)
                     member.arena_rep += int(rew_rep)
@@ -1186,7 +1186,7 @@ init -9 python:
             rew_rep = rew_rep / 10.0 
             for member in loser:
                 member.arena_rep -= int(rew_rep)
-                member.mod_exp(exp_reward(member, winner, ap_used=2, final_mod=.15))
+                member.mod_exp(exp_reward(member, winner, exp_mod=2*.15))
                 # self.remove_team_from_dogfights(member)
 
             for member in enemy_team:

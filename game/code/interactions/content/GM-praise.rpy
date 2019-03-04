@@ -25,10 +25,10 @@ label interactions_clever:
     $ del char_int
     if inter_praise == 3:
         "[char.pC] looks excited."
-        $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
+        $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.33))
     elif inter_praise == 2:
         "[char.pC] looks happy."
-        $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33, final_mod=.8))
+        $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.33*.8))
     elif inter_praise == 1:
         "[char.pC] looks a bit happier than before."
     else:
@@ -71,10 +71,10 @@ label interactions_strong:
     $ del char_const
     if inter_praise == 3:
         "[char.pC] looks pleased.."
-        $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
+        $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.33))
     elif inter_praise == 2:
         "[char.pC] looks happy."
-        $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33, final_mod=.8))
+        $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.33*.8))
     elif inter_praise == 1:
         "[char.pC] looks a bit happier than before."
     else:
@@ -117,10 +117,10 @@ label interactions_cute:
     $ del char_charisma
     if inter_praise == 3:
         "[char.pC] looks very happy."
-        $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
+        $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.33))
     elif inter_praise == 2:
         "[char.pC] looks happy."
-        $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33, final_mod=.8))
+        $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.33*.8))
     elif inter_praise == 1:
         "[char.pC] looks a bit happier than before."
     else:

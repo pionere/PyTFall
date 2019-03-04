@@ -184,7 +184,7 @@ init -5 python:
                     log.logws("character", 1)
 
                 ap_used = (points_used)/100.0
-                log.logws("exp", exp_reward(m, building.tier, ap_used=ap_used))
+                log.logws("exp", exp_reward(m, building.tier, exp_mod=ap_used))
 
                 if points_used > m._dnd_jobpoints*3/4:
                     log.append("%s had a long working day." % m.name)

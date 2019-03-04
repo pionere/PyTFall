@@ -73,7 +73,7 @@ label interactions_escalation: # character was provoked to attack MC
     if result is True:
         python:
             for member in hero.team:
-                member.gfx_mod_exp(exp_reward(member, enemy_team, ap_used=.33))
+                member.gfx_mod_exp(exp_reward(member, enemy_team, exp_mod=.33))
             char.set_stat("health", 1)
         show expression gm.bg_cache
         python:
@@ -90,7 +90,7 @@ label interactions_escalation: # character was provoked to attack MC
         call interactions_fight_lost from _call_interactions_fight_lost
         jump interactions_harrasment_after_battle
     else:
-        $ char.gfx_mod_exp(exp_reward(char, hero.team, ap_used=.33))
+        $ char.gfx_mod_exp(exp_reward(char, hero.team, exp_mod=.33))
         show expression gm.bg_cache
         show screen girl_interactions
         $ gm.restore_img()

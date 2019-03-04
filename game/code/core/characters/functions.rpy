@@ -925,14 +925,13 @@ init -11 python:
 
         char.tier = round_int(tier) # Makes sure we can use float tiers
 
-    def exp_reward(char, difficulty, ap_used=1, final_mod=None): 
+    def exp_reward(char, difficulty, exp_mod=1): 
         """Adjusts the XP to be given to an actor. Doesn't actually award the EXP.
 
         char: Target actor.
         difficulty: Ranged 1 to 10. (will be normalized otherwise).
             This can be a number, Team or Char.
-        ap_used: AP used for the action, can be a float!
-        final_mod: We multiply the result with it. Could be useful when failing
+        exp_mod: We multiply the result with it. Could be useful when failing
             a task, give at least 10% of the exp (for example) is to set this mod
             to .1 in case of a failed action.
         """
@@ -961,7 +960,7 @@ init -11 python:
             mod = 1-diff/2.0
         # add tier modifier to limit the value
         mod *= 1 - float(char_tier)/MAX_TIER
-        value = DAILY_EXP_CORE * ap_used * mod
+        value = DAILY_EXP_CORE * exp_mod * mod
 
         if hasattr(char, "effects"):
             effects = char.effects
@@ -969,10 +968,6 @@ init -11 python:
                 value *= .9
             if "Fast Learner" in effects:
                 value *= 1.1
-
-        # Apply the final mod:
-        if final_mod is not None:
-            value *= final_mod
 
         return round_int(value)
 

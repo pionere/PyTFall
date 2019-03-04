@@ -153,7 +153,7 @@ init -5 python:
                     log.logws("agility", 1, char=w)
                 if dice(10):
                     log.logws("constitution", 1, char=w)
-                log.logws("exp", exp_reward(w, loc.tier, ap_used=ap_used), char=w) # This is imperfect...
+                log.logws("exp", exp_reward(w, loc.tier, exp_mod=ap_used), char=w) # This is imperfect...
                 w.del_flag("jobs_points_spent")
             for w in extra_workers:
                 ap_used = w.get_flag("jobs_points_spent", 0)/100.0
@@ -164,7 +164,7 @@ init -5 python:
                 if dice(10):
                     log.logws("constitution", 1, char=w)
                 # This is imperfect. We need to track jobpoints spent to get this right...
-                log.logws("exp", exp_reward(w, loc.tier, ap_used=ap_used, final_mod=.5), char=w)
+                log.logws("exp", exp_reward(w, loc.tier, exp_mod=ap_used*.5), char=w)
                 w.del_flag("jobs_points_spent")
 
             log.type = "jobreport" # Come up with a new type for team reports?
