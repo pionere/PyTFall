@@ -282,6 +282,8 @@ label girl_meets_greeting: # also lines for sad and angry flags are needed. but 
         if char.get_stat("affection") <= 500:
             $ char.gfx_mod_stat("affection", affection_reward(char))
         $ cat.restore_portrait()
+        $ del cat
+    $ del m
     $ char.restore_portrait()
     $ char.hide_portrait_overlay()
     return

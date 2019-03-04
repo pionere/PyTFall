@@ -1,24 +1,22 @@
 label interactions_hug:
     $ interactions_check_for_bad_stuff(char)
     $ m = interactions_flag_count_checker(char, "flag_interactions_hug")
+    $ n = 1 + interactions_set_repeating_lines_limit(char)
     if check_lovers(char, hero):
-        $ n = 2
+        $ n += 2
     elif check_friends(char, hero) or ct("Half-Sister"):
-        $ n = 1
-    else:
-        $ n = 0
-    if m > (1 + n + interactions_set_repeating_lines_limit(char)):
+        $ n += 1
+    if m > n:
+        $ del m, n
         call interactions_too_many_sex_lines from _call_interactions_too_many_sex_lines_3
         $ char.gfx_mod_stat("disposition", -randint(5, 15))
         $ char.gfx_mod_stat("affection", -randint(1, 3))
         if char.get_stat("joy") > 40:
             $ char.gfx_mod_stat("joy", -randint(1, 3))
-        $ del m
-        $ del n
         jump girl_interactions
+    $ del n
 
     $ sub = check_submissivity(char)
-    
     if cgo("SIW"):
         $ m = 0
     else:
@@ -27,7 +25,6 @@ label interactions_hug:
     if char.get_stat("affection") > (m+50*sub) or slave_siw_check(char):
         $ char.gfx_mod_stat("disposition", randint(15, 30))
         $ char.gfx_mod_stat("affection", affection_reward(char, 1.4))
-        $ del m, n, sub
         $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
         $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
         $ char.override_portrait("portrait", "confident")
@@ -59,8 +56,6 @@ label interactions_hug:
         else:
             $ rc("There's no helping it, huh? Come to me.", "Whoa there... Are you all right? Hold onto me tightly.", "Can you hear my heartbeat too?", "Yes, you can hold me tighter if you wish.", "...Hmm, it feels good to be held like this ♪", "<Hugs you tightly> What do you think? Can you feel me up against you?")
     else:
-        $ del m
-        $ del n
         $ char.override_portrait("portrait", "indifferent")
         $ char.show_portrait_overlay("sweat", "reset")
         
@@ -92,13 +87,14 @@ label interactions_hug:
                 $ rc("What are you doing all of a sudden!?", "[char.mc_ref], you're too close, too clooose.", "What are you doing! Please don't touch me!", "<Steps back> I don't want to.")
             if char.get_stat("affection") <= (200+50*sub) and not cgo("SIW"):
                 $ char.set_flag("cnd_interactions_blowoff", day+1)
-                $ del sub
-                $ char.restore_portrait()
-                $ char.hide_portrait_overlay()
-                jump girl_interactions_end
+            $ del m, sub
+            $ char.restore_portrait()
+            $ char.hide_portrait_overlay()
+            jump girl_interactions_end
         else:
             char.say "..."
             "She doesn't resist, but also doesn't respond to your hug."
+    $ del m, sub
     $ char.restore_portrait()
     $ char.hide_portrait_overlay()
     jump girl_interactions
@@ -110,28 +106,35 @@ label interactions_grabbutt:
     $ narrator(choice(["You reach out and brush your hands across her ass.", "You put your hand against her firm rear and grind against it.", "You reach into her gap and she gasps as you slide your hand across and stroke her puckered hole.", "She gasps as you reach under her and lightly stroke her ass.", "You slide a hand up her inner thigh, she moans a little as it slides between her cheeks."]))
     $ interactions_check_for_bad_stuff(char)
     $ m = interactions_flag_count_checker(char, "flag_interactions_slapbutt")
+    if interactions_gender_mismatch(char) and char.status == "free":
+        if m > 1:
+            $ del m
+            call interactions_too_many_lines from _call_interactions_too_many_lines_11
+            $ char.gfx_mod_stat("disposition", -randint(5, 15))
+            $ char.gfx_mod_stat("affection", -randint(4,6))
+            if char.get_stat("joy") > 30:
+                $ char.gfx_mod_stat("joy", -randint(1, 3))
+        else:
+            $ del m
+            call interactions_lesbian_refuse_because_of_gender from _call_interactions_lesbian_refuse_because_of_gender_3
+        jump girl_interactions
+
+    $ n = 2 + interactions_set_repeating_lines_limit(char)
     if check_lovers(char, hero) or ct("Nymphomaniac"):
-        $ n = 1
+        $ n += 1
     elif (ct("Half-Sister") and char.get_stat("affection") < 500 and not "Sister Lover" in hero.traits) or ct("Frigid"):
-        $ n = -1
-    else:
-        $ n = 0
-    if m > (2 + n + interactions_set_repeating_lines_limit(char)):
+        $ n -= 1
+    if m > n:
+        $ del m, n
         call interactions_too_many_sex_lines from _call_interactions_too_many_sex_lines_4
         $ char.gfx_mod_stat("disposition", -randint(5, 15))
         $ char.gfx_mod_stat("affection", -randint(4,6))
         if char.get_stat("joy") > 30:
             $ char.gfx_mod_stat("joy", -randint(1, 3))
-        $ del m
-        $ del n
         jump girl_interactions
-        
-    if ct("Lesbian") and not ct("Open Minded") and not "Yuri Expert" in hero.traits and char.status != "slave":
-        call interactions_lesbian_refuse_because_of_gender from _call_interactions_lesbian_refuse_because_of_gender_3
-        jump girl_interactions
-        
+    $ del n
+
     $ sub = check_submissivity(char)
-    
     if cgo("SIW"):
         $ m = 50
     else:
@@ -143,7 +146,6 @@ label interactions_grabbutt:
         $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
         $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
 
-        $ del m, n
         $ char.override_portrait("portrait", "happy")
         $ char.show_portrait_overlay("zoom_fast", "reset")
         if ct("Yandere"):
@@ -171,15 +173,10 @@ label interactions_grabbutt:
             $ rc("*giggle* How troublesome ♪", "So pushy...  Are you proposing or something?", "Hmhm, don't feel like you have to hold back, hey?", "Hmhm, are you getting turned on?", "Your appetite for lust is proof of your health.")
         else:
             $ rc("Hya! If you keep doing that, I'll get in the mood...", "Teasing people isn't good, you know ♪", "Kya...  Doing this all of sudden, that surprised me.", "Whoa... We're energetic, aren't we...", "Hya! S-such shameful hands... hnn", "Ooh! Are you hinting at something there, [char.mc_ref]? ♥")
-        $ char.restore_portrait()
-        $ char.hide_portrait_overlay()
-        jump girl_interactions
     else:
         $ char.override_portrait("portrait", "angry")
         $ char.show_portrait_overlay("angry", "reset")
-        $ del m
-        $ del n
-        
+
         if char.status == "free":
             $ char.gfx_mod_stat("disposition", -randint(10, 25))
             $ char.gfx_mod_stat("affection", -randint(5,7))
@@ -208,15 +205,17 @@ label interactions_grabbutt:
                 $ rc("Geez! If you don't stop, I'll get angry.", "Whoa! Hey, don't just touch me out of the blue!", "[char.mc_ref]...! I'd rather you do this sort of thing with someone else...!", "Hey! Quit it, already!", "Aah! C...cut it out! ", "What are you doing over there, you sneak?", "Hmph, how unromantic! Know some shame!")
             if char.get_stat("affection") <= (200+50*sub) and not cgo("SIW"):
                 $ char.set_flag("cnd_interactions_blowoff", day+2)
-                $ char.restore_portrait()
-                $ char.hide_portrait_overlay()
-                jump girl_interactions_end
+            $ del m, sub
+            $ char.restore_portrait()
+            $ char.hide_portrait_overlay()
+            jump girl_interactions_end
         else:
             char.say "..."
             "She doesn't resist, but also doesn't react to your actions."
+    $ del m, sub
     $ char.restore_portrait()
     $ char.hide_portrait_overlay()
-    jump girl_interactions_end
+    jump girl_interactions
 
 
 ###### j4
@@ -224,29 +223,36 @@ label interactions_grabbreasts:
     $ narrator(choice(["You reach out and massage her glorious breasts.", "You pass your hands gently over her warm breasts.", "Her nipples catch lightly on your fingers as you grasp her warm flesh, you can feel them stiffen.", "She gasps as you lightly thumb her rigid nipples."]))
     $ interactions_check_for_bad_stuff(char)
     $ m = interactions_flag_count_checker(char, "flag_interactions_grabbreasts")
+    if interactions_gender_mismatch(char) and char.status == "free":
+        if m > 1:
+            $ del m
+            call interactions_too_many_lines from _call_interactions_too_many_lines_12
+            $ char.gfx_mod_stat("disposition", -randint(5, 15))
+            $ char.gfx_mod_stat("affection", -randint(5,7))
+            if char.get_stat("joy") > 30:
+                $ char.gfx_mod_stat("joy", -randint(1, 3))
+        else:
+            $ del m
+            call interactions_lesbian_refuse_because_of_gender from _call_interactions_lesbian_refuse_because_of_gender_4
+        jump girl_interactions
+
+    $ n = 2 + interactions_set_repeating_lines_limit(char)
     if check_lovers(char, hero) or ct("Nymphomaniac"):
-        $ n = 1
+        $ n += 1
     elif (ct("Half-Sister") and char.get_stat("affection") < 500 and not "Sister Lover" in hero.traits) or ct("Frigid"):
-        $ n = -1
-    else:
-        $ n = 0
-        
-    if m > (2 + n + interactions_set_repeating_lines_limit(char)):
+        $ n -= 1
+
+    if m > n:
+        $ del m, n
         call interactions_too_many_sex_lines from _call_interactions_too_many_sex_lines_5
         $ char.gfx_mod_stat("disposition", -randint(5, 15))
         $ char.gfx_mod_stat("affection", -randint(5,7))
         if char.get_stat("joy") > 30:
             $ char.gfx_mod_stat("joy", -randint(1, 3))
-        $ del m
-        $ del n
         jump girl_interactions
-        
-    if ct("Lesbian") and not ct("Open Minded") and not "Yuri Expert" in hero.traits and char.status != "slave":
-        call interactions_lesbian_refuse_because_of_gender from _call_interactions_lesbian_refuse_because_of_gender_4
-        jump girl_interactions
+    $ del n
 
     $ sub = check_submissivity(char)
-    
     if cgo("SIW"):
         $ m = 50
     else:
@@ -257,7 +263,6 @@ label interactions_grabbreasts:
         $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
         $ char.gfx_mod_stat("disposition", randint(25, 35))
         $ char.gfx_mod_stat("affection", affection_reward(char, 1.3))
-        $ del m, n, sub
         $ char.override_portrait("portrait", "shy")
         $ char.show_portrait_overlay("zoom_fast", "reset")
         if ct("Impersonal"):
@@ -284,14 +289,9 @@ label interactions_grabbreasts:
             $ rc("This feeling... from your massage... is so good.", "...You're surprisingly bold. I like that.", "Mmh, little to the left... Ah yes, yes, right there, oh god...", "Hyah! Ahn... please, spare me from this lewdness ♪", "Ah... Right there, keep your hands there...")
         else:
             $ rc("Nnn... It's okay to rub it just a little.", "Mm... Being touched every now and then isn't so bad, I guess?", "My soft tits feel good, don't they?", "Ah... You like my breasts, don't you?", "Y... Yes... Continue massaging... like that.", "Aah... my chest... it feels so good.", "Hnnn, you've got... some naughty hands... uhn!", "It feels good... m...my nipples... What you did just now felt so good... ♪")
-        $ char.restore_portrait()
-        $ char.hide_portrait_overlay()
-        jump girl_interactions
     else:
         $ char.override_portrait("portrait", "angry")
         $ char.show_portrait_overlay("angry", "reset")
-        $ del m
-        $ del n
         if char.status == "free":
             $ char.gfx_mod_stat("disposition", -randint(15, 25))
             $ char.gfx_mod_stat("affection", -randint(7,9))
@@ -320,16 +320,14 @@ label interactions_grabbreasts:
                 $ rc("You certainly have courage, asshole!", "What are you doing!!! They are not an invitation, asshole!", "Hey! Where are those hands of yours going?", "Don't touch me, asshole!", "You're... terrible! Must you do such a thing!", "What are you trying to...?! To hell with you!", "You filthy pig! Who gave you permission to touch me?!")
             if char.get_stat("affection") <= (200+50*sub) and not cgo("SIW"):
                 $ char.set_flag("cnd_interactions_blowoff", day+2)
-                $ del sub
-                $ char.restore_portrait()
-                $ char.hide_portrait_overlay()
-                jump girl_interactions_end
-                
+            $ del m, sub
+            $ char.restore_portrait()
+            $ char.hide_portrait_overlay()
+            jump girl_interactions_end
         else:
             char.say "..."
             "She doesn't resist, but also doesn't react to your actions."
-                
+    $ del m, sub
     $ char.restore_portrait()
     $ char.hide_portrait_overlay()
-    $ del sub
-    jump girl_interactions_end
+    jump girl_interactions

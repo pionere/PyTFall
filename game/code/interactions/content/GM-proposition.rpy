@@ -48,25 +48,27 @@
 
 label interactions_sparring: # sparring with MC, for Combatant occupations only
     $ interactions_check_for_bad_stuff(char)
-    $ m = interactions_flag_count_checker(char, "flag_interactions_girlfriend")
-
     if char.get_stat("health") < char.get_max("health")/2:
         call interactions_refused_because_tired from _call_interactions_refused_because_tired
         jump girl_interactions
     elif hero.get_stat("health") < hero.get_max("health")/2:
         "Unfortunately, you are not in shape for sparring."
         jump girl_interactions
-    elif m > 1:
+
+    $ m = interactions_flag_count_checker(char, "flag_interactions_girlfriend")
+    if m > 1:
+        $ del m
         call interactions_refused_because_tired from _call_interactions_refused_because_tired_1
         jump girl_interactions
+    $ del m
 
     call interactions_presparring_lines from _call_interactions_presparring_lines
     hide screen girl_interactions
 
     $ last_track = renpy.music.get_playing("world")
-    $ back = interactions_pick_background_for_fight(gm.label_cache)
+    python hide:
+        back = interactions_pick_background_for_fight(gm.label_cache)
 
-    python:
         enemy_team = Team(name="Enemy Team")
         enemy_team.add(char)
 
@@ -76,10 +78,12 @@ label interactions_sparring: # sparring with MC, for Combatant occupations only
                                 background=back, give_up="surrender",
                                 use_items=True)
 
-    if result is True:
-        $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
-    elif result is False:
-        $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
+        if result is True:
+            hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
+            char.gfx_mod_stat("disposition", randint(15, 30))
+        elif result is False:
+            char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
+            char.gfx_mod_stat("disposition", randint(2, 5))
 
     if char.get_stat("health") < char.get_max("health")/2:
         $ char.set_stat("health", char.get_max("health")/2)
@@ -87,6 +91,7 @@ label interactions_sparring: # sparring with MC, for Combatant occupations only
         $ hero.set_stat("health", hero.get_max("health")/2)
     if last_track:
         play world last_track
+    $ del last_track
 
     $ gm.restore_img()
 
@@ -124,10 +129,6 @@ label interactions_presparring_lines: # lines before sparring
     return
 
 label interactions_postsparring_lines: # lines after sparring
-    if result:
-        $ char.gfx_mod_stat("disposition", randint(15, 30))
-    else:
-        $ char.gfx_mod_stat("disposition", randint(2, 5))
     if ct("Impersonal") in  char.traits:
         $ rc("Practice is over. Switching to standby mode.", "An unsurprising victory.")
     elif ct("Imouto"):
@@ -157,14 +158,15 @@ label interactions_girlfriend:
         jump girl_interactions
     $ m = interactions_flag_count_checker(char, "flag_interactions_girlfriend")
     if m > 1:
+        $ del m
         call interactions_too_many_lines from _call_interactions_too_many_lines_8
-        $ char.gfx_mod_stat("disposition", -randint(1, m))
+        $ char.gfx_mod_stat("disposition", -randint(1, 5))
         $ char.gfx_mod_stat("affection", -randint(8,12))
         if char.get_stat("joy") > 50:
             $ char.gfx_mod_stat("joy", -randint(0, 1))
-        $ del m
         jump girl_interactions
-    if ct("Lesbian") and not "Yuri Expert" in hero.traits:
+    $ del m
+    if interactions_gender_mismatch(char, just_sex=False):
         call interactions_lesbian_refuse_because_of_gender from _call_interactions_lesbian_refuse_because_of_gender_1
         jump girl_interactions
     $ l_ch = 0
@@ -178,8 +180,6 @@ label interactions_girlfriend:
         $ l_ch += 30
     if ct("Frigid"):
         $ l_ch -= 30
-    if ct("Lesbian") and not "Yuri Expert" in hero.traits:
-        $ l_ch -= 50
     if ct("Impersonal"):
         $ l_ch += 50
     elif ct("Kuudere"):
@@ -294,22 +294,21 @@ label interactions_movein:
         "But we are not that close!"
         jump girl_interactions
 
-    $ home = hero.home
-    if home is None:
+    if hero.home is None:
         "Where should we settle? You are a homeless!"
         jump girl_interactions
-    if home.get_daily_modifier() <= char.home.get_daily_modifier():
+    if hero.home.get_daily_modifier() <= char.home.get_daily_modifier():
         "You ought to find a better place before you suggest such a thing."
         jump girl_interactions
-    if home.get_dirt_percentage() > 50:
+    if hero.home.get_dirt_percentage() > 50:
         "Into that shit-hole? You expect me to clean your underwear too?"
         jump girl_interactions
-    if home.vacancies <= 0:
+    if hero.home.vacancies <= 0:
         "That place is too small for us."
         jump girl_interactions
 
-    $ char.home = home
-    
+    $ char.home = hero.home
+
     $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
     $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
     if True: # FIXME imlement the responses if ct("Impersonal") in  char.traits:
@@ -386,6 +385,7 @@ label interactions_hire:
 
     # Solve chance
     if char.get_stat("disposition") > ((target_val * charvalue) / herovalue):
+        $ del herovalue, charvalue, target_val
         call interactions_agrees_to_be_hired from _call_interactions_agrees_to_be_hired
         menu:
             "Hire her? Her average wage will be [char.expected_wage]":
@@ -400,6 +400,7 @@ label interactions_hire:
             "Maybe later." :
                 jump girl_interactions
     else:
+        $ del herovalue, charvalue, target_val
         call interactions_refuses_to_be_hired from _call_interactions_refuses_to_be_hired_1
         jump girl_interactions
 

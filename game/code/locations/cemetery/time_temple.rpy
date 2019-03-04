@@ -1,5 +1,3 @@
-default clone_id = 0
-
 label time_temple:
     if not "cemetery" in ilists.world_music:
         $ ilists.world_music["cemetery"] = [track for track in os.listdir(content_path("sfx/music/world")) if track.startswith("cemetery")]
@@ -130,10 +128,10 @@ screen time_temple():
 label clone_character(character, add_to_hero=True):
     python:
         char = copy_char(character)
-        store.chars[char.id + str(clone_id)] = char
+        store.chars[char.id + str(global_flags.get_flag("clone_id", 0))] = char
         char.init() # Normalize.
         char.apply_trait("Temporal Clone")
         if add_to_hero:
             store.hero.add_char(char)
-        clone_id += 1
+        global_flags.up_counter("clone_id")
     return

@@ -11,10 +11,7 @@ init -9 python:
             store.xeona_status = xeona_status
             
         if xeona_status.disposition > 0:
-            if day%3 == 0:
-                xeona_status.flirt = True
-            else:
-                xeona_status.flirt = False
+            xeona_status.flirt = day%3 == 0
 
         if status is None:
             if xeona_status.flirt:
@@ -72,9 +69,7 @@ label arena_outside:
     $ pytfall.world_quests.run_quests("auto")
     $ pytfall.world_events.run_events("auto")
 
-    $ loop = True
-    while loop:
-
+    while 1:
         $ result = ui.interact()
 
         if result[0] == 'jump':
@@ -84,21 +79,18 @@ label arena_outside:
         if result[0] == 'control':
             if result[1] == "enter_arena":
                 $ renpy.music.stop(channel="gamemusic")
-                $ hs()
-                $ jump("arena_inside")
+                hide screen arena_outside
+                jump arena_inside
 
             if result[1] == 'return':
-                $ loop = False
-
-    $ renpy.music.stop(channel="gamemusic")
-    hide screen arena_outside
-    jump city
+                $ renpy.music.stop(channel="gamemusic")
+                hide screen arena_outside
+                jump city
 
 label xeona_menu:
     hide screen arena_outside
     show screen xeona_screen
-    $ loop = True
-    while loop:
+    while 1:
         $ result = ui.interact()
 
 label xeona_goodbye:
@@ -108,7 +100,6 @@ label xeona_goodbye:
     jump arena_outside
 
 label xeona_talking:
-    $ loop = True
     if (hero.get_max("health") - hero.get_stat("health") >= 10) and xeona_status.disposition >= 10 and xeona_status.heal_day != day:
         $ xeona_status.heal_day = day
         ax "Wait, you are wounded! That won't do! One second..."
@@ -122,7 +113,7 @@ label xeona_talking:
         $ hero.mod_stat("health", 250)
         ax "Much better!"
 
-    while loop:
+    while 1:
         menu:
             ax "Well?"
             
@@ -294,9 +285,7 @@ label xeona_talking:
                 ax "Is there anything else???"
 
             "I know all I need to":
-                $ loop = False
-    $ del loop
-    jump xeona_menu
+                jump xeona_menu
 
 label find_xeona:
     hide screen arena_outside
@@ -324,10 +313,10 @@ label xeona_training:
         $ char = hero
 
     if not char:
+        $ del char
         jump xeona_menu
-    $ loop = True
 
-    while loop:
+    while 1:
         menu:
             "About training sessions":
                 call about_personal_training(ax) from _call_about_personal_training
@@ -348,8 +337,8 @@ label xeona_training:
                 if _return:
                     $ char = _return
             "Do Nothing":
-                $ loop = False
-    jump xeona_menu
+                $ del char
+                jump xeona_menu
 
 screen arena_outside:
     use top_stripe(True)

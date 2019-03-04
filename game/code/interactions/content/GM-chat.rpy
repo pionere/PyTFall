@@ -5,12 +5,12 @@ label interactions_smalltalk:
     $ interactions_check_for_minor_bad_stuff(char)
     $ m = interactions_flag_count_checker(char, "flag_interactions_general")
     if m >= (2 + interactions_set_repeating_lines_limit(char)):
+        $ del m
         call interactions_too_many_lines from _call_interactions_too_many_lines_1
-        $ char.gfx_mod_stat("disposition", -5)
-        $ char.gfx_mod_stat("affection", -1)
+        $ char.gfx_mod_stat("disposition", -randint(3,6))
+        $ char.gfx_mod_stat("affection", -randint(0,3))
         if char.get_stat("joy") > 80:
             $ char.gfx_mod_stat("joy", -1)
-        $ del m
         jump girl_interactions
     $ m = char.get_stat("disposition")
     if m >= 100:
@@ -65,10 +65,10 @@ label girl_interactions_aboutjob: # TO DO: here would help additional logic base
     $ interactions_check_for_bad_stuff(char)
     $ m = interactions_flag_count_checker(char, "flag_interactions_aboutjob")
     if m >= 1:
-        call interactions_too_many_lines from _call_interactions_too_many_lines_2
-        $ char.gfx_mod_stat("disposition", -5)
-        $ char.gfx_mod_stat("affection", -1)
         $ del m
+        call interactions_too_many_lines from _call_interactions_too_many_lines_2
+        $ char.gfx_mod_stat("disposition", -randint(4,6))
+        $ char.gfx_mod_stat("affection", -randint(1,2))
         jump girl_interactions
     $ del m
 
@@ -182,10 +182,10 @@ label girl_interactions_aboutjob: # TO DO: here would help additional logic base
 label interactions_howshefeels:
     $ m = interactions_flag_count_checker(char, "flag_interactions_howshefeels")
     if m >= 5: # we don't have to limit it because of bonuses (there are none), but because of the common sense
-        call interactions_too_many_lines from _call_interactions_too_many_lines_3
-        $ char.gfx_mod_stat("disposition", -5)
-        $ char.gfx_mod_stat("affection", -1)
         $ del m
+        call interactions_too_many_lines from _call_interactions_too_many_lines_3
+        $ char.gfx_mod_stat("disposition", -randint(4,6))
+        $ char.gfx_mod_stat("affection", -randint(1,2))
         jump girl_interactions
     $ del m
     if 'Food Poisoning' in char.effects: # at least no penalty to disposition, unlike other cases with food poisoning
@@ -266,12 +266,12 @@ label interactions_abouther:
     $ interactions_check_for_minor_bad_stuff(char)
     $ m = interactions_flag_count_checker(char, "flag_interactions_abouther")
     if m > (2 + interactions_set_repeating_lines_limit(char)):
+        $ del m
         call interactions_too_many_lines from _call_interactions_too_many_lines_4
-        $ char.gfx_mod_stat("disposition", -randint(1, m+3))
+        $ char.gfx_mod_stat("disposition", -randint(1, 5))
         $ char.gfx_mod_stat("affection", -randint(0,2))
         if char.get_stat("joy") > 40:
             $ char.gfx_mod_stat("joy", -randint(0,2))
-        $ del m
         jump girl_interactions
     $ del m
 
@@ -565,10 +565,10 @@ label interactions_aboutoccupation:
     $ interactions_check_for_bad_stuff(char)
     $ m = interactions_flag_count_checker(char, "flag_interactions_aboutoccupation")
     if m > 5:
+        $ del m
         call interactions_too_many_lines from _call_interactions_too_many_lines_5
         $ char.gfx_mod_stat("disposition", -5)
         $ char.gfx_mod_stat("affection", -1)
-        $ del m
         jump girl_interactions
     $ del m
 
@@ -617,12 +617,12 @@ label interactions_interests:
     $ interactions_check_for_minor_bad_stuff(char)
     $ m = interactions_flag_count_checker(char, "flag_interactions_interests")
     if m > (2 + interactions_set_repeating_lines_limit(char)):
+        $ del m
         call interactions_too_many_lines from _call_interactions_too_many_lines_6
-        $ char.gfx_mod_stat("disposition", -10)
-        $ char.gfx_mod_stat("affection", -2)
+        $ char.gfx_mod_stat("disposition", -randint(5, 10))
+        $ char.gfx_mod_stat("affection", -randint(1,3))
         if char.get_stat("joy") > 40:
             $ char.gfx_mod_stat("joy", -randint(1, 2))
-        $ del m
         jump girl_interactions
     $ del m
 
@@ -733,7 +733,7 @@ label interactions_flirt:
         $ del m
         jump girl_interactions
     $ del m
-    if char.get_stat("affection") <= 150:
+    if char.get_stat("affection") <= 150 or char.get_stat("disposition") <= 50:
         $ char.gfx_mod_stat("disposition", -randint(5, 10))
         $ char.gfx_mod_stat("affection", -randint(0,2))
         $ char.gfx_mod_stat("joy", -randint(0, 1))
@@ -774,7 +774,7 @@ label interactions_flirt:
     $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
     $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
 
-    $ char.gfx_mod_stat("disposition", randint(15, 25))
+    $ char.gfx_mod_stat("disposition", randint(5, 15))
     $ char.gfx_mod_stat("affection", affection_reward(char))
 
     jump girl_interactions

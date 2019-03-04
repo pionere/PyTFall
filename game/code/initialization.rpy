@@ -516,7 +516,6 @@ init:
     #default bm_selected_exp_area = None
     #default bm_exploration_view_mode = None
     #default bm_selected_log_area = None
-    #default eq_target = None
     #default the_chosen = None
     #default equip_girls = None
 

@@ -1320,6 +1320,11 @@ label after_load:
             if store.heard_about_arena:
                 global_flags.set_flag("heard_about_arena")
             del store.heard_about_arena
+        if hasattr(store, "clone_id"):
+            cid = store.clone_id
+            if cid != 0:
+                global_flags.up_counter("clone_id", cid)
+            del store.clone_id
 
     stop music
     return

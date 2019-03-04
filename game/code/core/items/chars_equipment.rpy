@@ -274,21 +274,18 @@ label char_equip_finish:
 
     python:
         # Reset all globals so screens that lead here don't get thrown off:
-        del focusitem, focusoutfit, unequip_slot, item_direction, dummy, eqsave, inv_source
-        equip_girls = None # FIXME delete the object when renpy is ready
+        del focusitem, focusoutfit, unequip_slot, item_direction, dummy, eqsave, inv_source, equip_girls
         equipment_safe_mode = False
 
         # eqtarget.inventory.female_filter = False
         # hero.inventory.female_filter = False
         if eqtarget.location == pytfall.afterlife:
             renpy.show_screen("message_screen", "{} dies as a result of item manipulations...".format(eqtarget.fullname))
-            eqtarget = came_to_equip_from = None # FIXME delete the object when renpy is ready
+            del eqtarget, came_to_equip_from
             jump("mainscreen")
 
-        eqtarget = None
-
     $ last_label = came_to_equip_from
-    $ eqtarget = came_to_equip_from = None # FIXME delete the object when renpy is ready
+    $ del eqtarget, came_to_equip_from
     jump expression last_label
 
 screen equip_for(pos=()):

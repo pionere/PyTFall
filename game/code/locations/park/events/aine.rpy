@@ -75,10 +75,10 @@ label aine_training:
         $ char = hero
 
     if not char:
+        $ del char
         jump aine_menu_return
-    $ loop = True
 
-    while loop:
+    while 1:
         menu:
             "About training sessions":
                 call about_personal_training(a) from _call_about_personal_training_2
@@ -95,8 +95,8 @@ label aine_training:
                 if _return:
                     $ char = _return
             "Do Nothing":
-                $ loop = False
-    jump aine_menu_return
+                $ del char
+                jump aine_menu_return
 
 label about_personal_training(speaker):
     speaker "You can arrange for daily training sessions!"

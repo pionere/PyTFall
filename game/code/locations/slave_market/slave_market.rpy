@@ -72,12 +72,11 @@ label slave_market:
         g "Ah, visit our club as well, we do presentations, and you can do 'some sampling' if you have the Gold."
         g "You won't be disappointed!"
         g "Goodbye!"
+        hide blue with dissolve
+
+        $ del g, s
 
 label slave_market_controls:
-    hide blue
-    hide stan
-    hide slave
-    with dissolve
     show bg slave_market
 
     python:
@@ -100,8 +99,7 @@ label slave_market_controls:
     $ pytfall.world_quests.run_quests("auto")
     $ pytfall.world_events.run_events("auto")
 
-    $ loop = True
-    while loop:
+    while 1:
         $ result = ui.interact()
 
         if result[0] == "buy":
@@ -124,11 +122,9 @@ label slave_market_controls:
                 jump slave_market_club
             elif result[1] == "return":
                 if not renpy.get_screen("slave_shopping"):
-                    $ loop = False
-
-    $ renpy.music.stop(channel="world")
-    hide screen slavemarket
-    jump city
+                    $ renpy.music.stop(channel="world")
+                    hide screen slavemarket
+                    jump city
 
 label sm_free_slaves:
     hide screen slavemarket
@@ -150,6 +146,8 @@ label sm_free_slaves:
         s "Are you kidding me? You don't have any slaves with you!"
         s "Don't bother me without a good reason!!!"
         "You need to bring slaves as a part of your team to free them!"
+        $ del chrs, s
+        hide stan with dissolve
         jump slave_market_controls
     else:
         $ our_char = None
@@ -159,13 +157,13 @@ label sm_free_slaves:
             "[chrs[1].fullname]" if len(chrs) > 1:
                 $ our_char = chrs[1]
             "Nevermind":
-                $ del our_char
-                $ del chrs
+                hide stan with dissolve
+                $ del our_char, chrs, s
                 jump slave_market_controls
 
         show expression our_char.get_vnsprite() as slave at mid_right with dissolve
 
-        if char.get_stat("disposition") > 0:
+        if out_char.get_stat("disposition") > 0:
             if our_char.get_stat("disposition") >= 700 or our_char.get_stat("affection") >= 700 or check_lovers(hero, our_char):
                 $ our_char.override_portrait("portrait", "shy")
                 $ our_char.say("I don't really mind being your slave, [hero.name]...  ")
@@ -202,8 +200,9 @@ label sm_free_slaves:
                     s "Pff, beggars..."
 
         $ our_char.restore_portrait()
-    $ del our_char
-    $ del chrs
+    $ del our_char, chrs, cost, s
+    hide slave
+    hide stan with dissolve
     jump slave_market_controls
 
 label mc_action_work_in_slavemarket:
@@ -239,8 +238,7 @@ label mc_action_work_in_slavemarket_reward:
         hero.gfx_mod_exp(exp_reward(hero, hero, ap_used=use_ap))
         hero.take_ap(use_ap)
 
-        del result
-        del use_ap
+        del result, use_ap
     jump slave_market_controls
 
 label blue_menu:
@@ -249,8 +247,7 @@ label blue_menu:
     show expression npcs["Blue_slavemarket"].get_vnsprite() as blue with dissolve
     g "[hero.nickname]!"
     g "Welcome back to our fine establishment!"
-    $ loop = True
-    while loop:
+    while 1:
         menu:
             g "Slave Training is an Art!"
             "Tell me about Capturing Slaves":
@@ -265,9 +262,9 @@ label blue_menu:
                     g "I'll train anyone, without fail! Just send them my way! My price is 2000 Gold up front."
             "That will be all":
                 g "Goodbye!"
-                $ loop = False
-
-    jump slave_market
+                $ del g
+                hide blue with dissolve
+                jump slave_market
 
 screen slavemarket():
 

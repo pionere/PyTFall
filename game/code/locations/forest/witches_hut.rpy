@@ -100,10 +100,10 @@ label witch_training:
         $ char = hero
 
     if not char:
+        $ del char
         jump witch_menu
-    $ loop = True
 
-    while loop:
+    while 1:
         menu:
             "About training sessions":
                 call about_personal_training(w) from _call_about_personal_training_1
@@ -124,24 +124,19 @@ label witch_training:
                 if _return:
                     $ char = _return
             "Do Nothing":
-                $ loop = False
-    $ del loop
-    jump witch_menu
+                $ del char
+                jump witch_menu
 
 label witch_talking_menu:
-    $ loop = True
-    while loop:
+    while 1:
         menu:
             w "What do you want?"
             "Abby The Witch Main":
                 $ pass
             "Nevermind":
-                $ loop = False
+                jump witch_menu
             "Leave the shop":
-                $ del loop
                 jump forest_entrance
-    $ del loop
-    jump witch_menu
 
 screen witch_shop():
     style_prefix "dropdown_gm"

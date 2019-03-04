@@ -28,14 +28,14 @@ label interactions_hireforsex: # we go to this label from GM menu hire for sex. 
     else:
         $ n = 2
     if m > n:
+        $ del m, n
         call interactions_too_many_sex_lines from _call_interactions_too_many_sex_lines_1
         $ char.gfx_mod_stat("disposition", -randint(15, 35))
         if char.get_stat("joy") > 50:
             $ char.gfx_mod_stat("joy", -randint(2, 4))
             $ char.gfx_mod_stat("affection", -randint(3,5))
-        $ del m
-        $ del n
         jump girl_interactions
+    $ del m, n
 
     if char.flag("quest_cannot_be_fucked") == True or (ct("Half-Sister") and not "Sister Lover" in hero.traits): # cannot hire h-s for that stuff, only seduce, seems reasonable
         call interactions_sex_disagreement from _call_interactions_sex_disagreement
@@ -56,7 +56,7 @@ label interactions_hireforsex: # we go to this label from GM menu hire for sex. 
     elif char.get_stat("affection") < -50:
         $ price = round(price * 1.6)
 
-    if (ct("Lesbian") != (hero.gender == "female")) and not "Yuri Expert" in hero.traits:
+    if interactions_gender_mismatch(char):
         $ price = round(price * 2.5)
     if ct("Nymphomaniac"):
         $ price = round(price * .95)
@@ -67,6 +67,7 @@ label interactions_hireforsex: # we go to this label from GM menu hire for sex. 
 
     $ temp = round(hero.get_stat("charisma")/10)
     $ price = round(max(price*.35, price - temp))
+    $ del temp
 
     if ct("Impersonal"):
         $ rc("Affirmative. It will be %d Gold." % price, "Calculations completed. %d Gold to proceed." % price)
@@ -92,10 +93,7 @@ label interactions_hireforsex: # we go to this label from GM menu hire for sex. 
         $ rc("You want to hire me? Very well, it will be %d Gold." % price, "Of course. For you my body costs %d Gold." % price)
     if hero.gold < price:
         "You don't have that much money."
-        $ m = interactions_flag_count_checker(char, "flag_interactions_hireforsex") # additionally reduce the amount of tries
-        $ del price
-        $ del m
-        jump girl_interactions
+        $ interactions_flag_count_checker(char, "flag_interactions_hireforsex") # additionally reduce the amount of tries
     else:
         menu:
             "She wants [price] Gold. Do you want to pay?"
@@ -107,15 +105,11 @@ label interactions_hireforsex: # we go to this label from GM menu hire for sex. 
                     jump interactions_sex_scene_select_place
                 else:
                     "You don't have that much money."
-                    $ m = interactions_flag_count_checker(char, "flag_interactions_hireforsex")
-                    $ del m
-                    $ del price
-                    jump girl_interactions
+                    $ interactions_flag_count_checker(char, "flag_interactions_hireforsex")
             "No":
                 $ char.gfx_mod_stat("disposition", -randint(1, 3))
-                $ del price
-                jump girl_interactions
     $ del price
+    jump girl_interactions
 
 label interactions_sex_scene_select_place: # we go here if price for hiring is less than 0, ie no money checks and dialogues required; or after money check was successful
     if ct("Shy"):
@@ -144,33 +138,37 @@ label interactions_sex: # we go to this label from GM menu propose sex
     $ interactions_check_for_minor_bad_stuff(char)
     $ m = interactions_flag_count_checker(char, "flag_interactions_sex")
     $ n = randint(2,3)
-    if check_lovers(char, hero):
+    if ct("Nymphomaniac"):
+        $ n += 2
+    elif check_lovers(char, hero):
         $ n += randint(1,2)
     elif check_friends(char, hero):
         $ n += randint(0,1)
-    elif ct("Nymphomaniac"):
-        $ n += 2
 
     if m > n:
+        $ del m, n
         call interactions_too_many_sex_lines from _call_interactions_too_many_sex_lines_2
         $ char.gfx_mod_stat("disposition", -randint(15, 30))
         $ char.gfx_mod_stat("affection", -randint(4,6))
         if char.get_stat("joy") > 50:
             $ char.gfx_mod_stat("joy", -randint(2, 4))
         jump girl_interactions
+    $ del m, n
 
     if char.flag("quest_cannot_be_fucked") == True: # a special flag for chars we don't want to be accessible unless a quest will be finished
         call interactions_sex_disagreement from _call_interactions_sex_disagreement_2
         jump girl_interactions
 
-    $ gender_disagreement = False
-    if (ct("Lesbian") != (hero.gender == "female")) and not ct("Open Minded") and not "Yuri Expert" in hero.traits:
+    if interactions_gender_mismatch(char):
         if char.status != "slave":
             call interactions_lesbian_refuse_because_of_gender from _call_interactions_lesbian_refuse_because_of_gender_2 # you can hire them, but they will never do it for free with wrong orientation
             jump girl_interactions
         $ gender_disagreement = True
+    else:
+        $ gender_disagreement = False
 
     if char.get_stat("vitality") < char.get_max("vitality")/4 or char.AP <= 0:
+        $ del gender_disagreement
         call interactions_refused_because_tired from _call_interactions_refused_because_tired_3
         jump girl_interactions
 
@@ -179,6 +177,7 @@ label interactions_sex: # we go to this label from GM menu propose sex
         $ disposition_level_for_sex = randint(0, 100) + sub*200 # probably a placeholder until it becomes more difficult to keep lover status
     else:
         $ disposition_level_for_sex = randint(600, 700) + sub*100 # thus weak willed characters will need from 500 to 600 disposition, strong willed ones from 700 to 800, if there are no other traits that change it
+    $ del sub
 
     if 'Horny' in char.effects:
         $ disposition_level_for_sex -= randint(200, 300)
@@ -212,15 +211,14 @@ label interactions_sex: # we go to this label from GM menu propose sex
     if char.get_stat("affection") < disposition_level_for_sex:
         if char.status == "free":
             call interactions_sex_disagreement from _call_interactions_sex_disagreement_3
-            $ dif = disposition_level_for_sex - char.get_stat("affection") # the difference between required for sex and current disposition
-            if dif <= 100:
+            $ diff = disposition_level_for_sex - char.get_stat("affection") # the difference between required for sex and current disposition
+            if diff <= 100:
                 $ char.gfx_mod_stat("disposition", -randint(20, 35)) # if it's low, then disposition penalty will be low too
                 $ char.gfx_mod_stat("affection", -randint(8,12))
             else:
                 $ char.gfx_mod_stat("disposition", -randint(30, 60)) # otherwise it will be significant
                 $ char.gfx_mod_stat("affection", -randint(10,20))
-            $ del dif
-            $ del disposition_level_for_sex
+            $ del diff, gender_disagreement, disposition_level_for_sex
             jump girl_interactions
         else:
             call interactions_sex_disagreement_slave from _call_interactions_sex_disagreement_slave
@@ -238,13 +236,13 @@ label interactions_sex: # we go to this label from GM menu propose sex
                         $ char.gfx_mod_stat("affection", -randint(15,25))
                         $ char.set_flag("raped_by_player")
                 "No":
+                    $ del gender_disagreement, disposition_level_for_sex
                     jump girl_interactions
     else:
         if gender_disagreement:
             "Although she prefers females, she reluctantly agrees."
             $ char.gfx_mod_stat("joy", -10)
-    $ del gender_disagreement
-    $ del disposition_level_for_sex
+    $ del gender_disagreement, disposition_level_for_sex
 
     if not char.has_flag("raped_by_player"):
         call interactions_sex_agreement from _call_interactions_sex_agreement
@@ -317,7 +315,6 @@ label interactions_sex_scene_begins: # here we set initial picture before the sc
 
     jump interaction_scene_choice
 
-
 label interaction_scene_choice: # here we select specific scene, show needed image, jump to scene logic and return here after every scene
     if sex_scene_libido > 0:
         show screen int_libido_level(sex_scene_libido)
@@ -353,14 +350,12 @@ label interaction_scene_choice: # here we select specific scene, show needed ima
         $ scene_picked_by_character = True
 
         if dice(sex_scene_libido*10 + 20*sub) and sex_scene_libido > 1  and char.status == "free": # strong willed and/or very horny characters may pick action on their own from time to time
-            $ available = get_character_wishes(char)
-            if available == "sex":
+            $ current_action = get_character_wishes(char)
+            if current_action == "sex":
                 $ current_action = choice(["hand", "foot"])
-            elif available == "oral":
+            elif current_action == "oral":
                 $ current_action = choice(["blow", "tits"])
-            elif available == "anal":
-                $ current_action = "anal"
-            else:
+            elif current_action != "anal":
                 $ current_action = "vag"
             if sub < 0:
                 "[char.pC] is so horny that [char.p] cannot control [char.op]self."
@@ -368,9 +363,8 @@ label interaction_scene_choice: # here we select specific scene, show needed ima
                 "[char.pC] wants to try something else with you."
             else:
                 "[char.pC] wants to do something else with you."
-            if current_action == "vag":
-                if ct("Virgin"):
-                    jump interaction_check_for_virginity
+            if current_action == "vag" and ct("Virgin"):
+                jump interaction_check_for_virginity
             jump interactions_sex_scene_logic_part
 
 label interaction_sex_scene_choice:
@@ -446,8 +440,8 @@ label interaction_sex_scene_choice:
             jump interactions_sex_scene_logic_part
 
         "That's all.":
-            if 'current_action' in locals():
-                $ del current_action
+            if hasattr(store, "current_action"):
+                $ del store.current_action
 
 label mc_action_scene_finish_sex:
     hide screen int_libido_level
@@ -648,7 +642,7 @@ label mc_action_scene_finish_sex:
 
     $ gm.restore_img()
 
-    $ del sex_count, guy_count, girl_count, together_count, cum_count, mast_count, sex_prelude, max_sex_scene_libido, sex_scene_libido, scene_picked_by_character
+    $ del excluded, loc_tag, sub, sex_count, guy_count, girl_count, together_count, cum_count, mast_count, sex_prelude, max_sex_scene_libido, sex_scene_libido, scene_picked_by_character
 
     jump girl_interactions_end
 
@@ -774,10 +768,7 @@ label interactions_lesbian_choice:
     show screen girl_interactions
 
     # And finally clear all the variables for global scope:
-    python:
-        del resize
-        del char2
-        del willing_partners
+    $ del resize, char2, willing_partners
 
     stop events
 
@@ -825,8 +816,8 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
         if (male_skill_for_checking - skill_for_checking) > 250 and dice(75):
             $ temp += randint(1, 5)
         $ char.gfx_mod_skill("strip", 0, temp)
-        $ char.mod_stat("vitality", -randint(1, 5))
         $ del temp
+        $ char.mod_stat("vitality", -randint(1, 5))
 
         if skill_for_checking >= 1000:
             "[char.pC] looks unbearably hot and sexy. After a short time, you cannot withstand it anymore and begin to masturbate, quickly cumming. [char.pC] looks at you with a smile and superiority in [char.pp] eyes."
@@ -840,6 +831,8 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
             "[char.pC] tried [char.pp] best, but the moves were quite clumsy and unnatural. At least [char.p] learned something new today."
         else:
             "It looks like [char.name] barely knows what [char.p] is doing. Even just standing still without clothes would have made a better impression."
+
+        $ del skill_for_checking, male_skill_for_checking
 
     elif current_action == "mast":
         $ get_single_sex_picture(char, act="masturbation", location=sex_scene_location, hidden_partner=True)
@@ -887,13 +880,14 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
         $ get_single_sex_picture(char, act="2c vaginalfingering", location=sex_scene_location, hidden_partner=True)
         $ image_tags = gm.img.get_image_tags()
         $ char_skill_for_checking = 2 * char.get_skill("sex")
-        if ct("Lesbian") != (hero.gender == "female"):
+        if interactions_gender_mismatch(char):
             $ char_skill_for_checking *= .8
         $ skill_for_checking = hero.get_skill("refinement") + hero.get_skill("sex")
         $ temp = randint(1, 5)
         if (char_skill_for_checking - skill_for_checking) > 250 and dice(75):
             $ temp += randint(1, 5)
         $ hero.gfx_mod_skill("refinement", 0, temp)
+        $ del temp
         $ char.gfx_mod_skill("sex", 0, randint(2, 6))
         $ hero.gfx_mod_skill("sex", 0, randint(1, 4))
 
@@ -908,17 +902,20 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
 
         call interaction_sex_scene_check_skill_gives from _call_interaction_sex_scene_check_skill_gives
 
+        $ del char_skill_for_checking, skill_for_checking, image_tags
+
     elif current_action == "lickvag":
         $ get_single_sex_picture(char, act="2c lickpussy", location=sex_scene_location, hidden_partner=True)
         $ image_tags = gm.img.get_image_tags()
         $ char_skill_for_checking = 2 * char.get_skill("sex")
-        if ct("Lesbian") != (hero.gender == "female"):
+        if interactions_gender_mismatch(char):
             $ char_skill_for_checking *= .8
         $ skill_for_checking = hero.get_skill("oral") + hero.get_skill("sex")
         $ temp = randint(1, 5)
         if (char_skill_for_checking - skill_for_checking) > 250 and dice(75):
             $ temp += randint(1, 5)
         $ hero.gfx_mod_skill("oral", 0, temp)
+        $ del temp
         $ char.gfx_mod_skill("sex", 0, randint(2, 6))
         $ hero.gfx_mod_skill("sex", 0, randint(1, 4))
 
@@ -933,13 +930,15 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
 
         call interaction_sex_scene_check_skill_gives from _call_interaction_sex_scene_check_skill_gives_1
 
+        $ del char_skill_for_checking, skill_for_checking, image_tags
+
     elif current_action == "blow":
         $ temp = "bc blowjob" if hero.gender == "male" else "bc lickpussy"
         $ get_single_sex_picture(char, act=temp, location=sex_scene_location, hidden_partner=True)
         $ image_tags = gm.img.get_image_tags()
 
         $ skill_for_checking = char.get_skill("oral") + char.get_skill("sex")
-        if ct("Lesbian") != (hero.gender == "female"):
+        if interactions_gender_mismatch(char):
             $ skill_for_checking *= .8
         $ male_skill_for_checking = 2 * hero.get_skill("sex")
         $ temp = randint(1, 5)
@@ -990,12 +989,14 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
 
         call interaction_sex_scene_check_skill_jobs from _call_interaction_sex_scene_check_skill_jobs
 
+        $ del male_skill_for_checking, skill_for_checking, image_tags
+
     elif current_action == "tits":
         $ get_single_sex_picture(char, act="bc titsjob", location=sex_scene_location, hidden_partner=True)
         $ image_tags = gm.img.get_image_tags()
 
         $ skill_for_checking = char.get_skill("oral") + char.get_skill("sex")
-        if ct("Lesbian"):
+        if interactions_gender_mismatch(char):
             $ skill_for_checking *= .8
         $ male_skill_for_checking = 2 * hero.get_skill("sex")
         $ temp = randint(1, 5)
@@ -1031,13 +1032,15 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
 
         call interaction_sex_scene_check_skill_jobs from _call_interaction_sex_scene_check_skill_jobs_1
 
+        $ del male_skill_for_checking, skill_for_checking, image_tags
+
     elif current_action == "hand":
         $ temp = "bc handjob" if hero.gender == "male" else "bc vaginalhandjob"
         $ get_single_sex_picture(char, act=temp, location=sex_scene_location, hidden_partner=True)
         $ image_tags = gm.img.get_image_tags()
 
         $ skill_for_checking = char.get_skill("oral") + char.get_skill("sex")
-        if ct("Lesbian") != (hero.gender == "female"):
+        if interactions_gender_mismatch(char):
             $ skill_for_checking *= .8
         $ male_skill_for_checking = 2 * hero.get_skill("sex")
         $ temp = randint(2, 10)
@@ -1062,13 +1065,15 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
 
         call interaction_sex_scene_check_skill_jobs from _call_interaction_sex_scene_check_skill_jobs_2
 
+        $ del male_skill_for_checking, skill_for_checking, image_tags
+
     elif current_action == "foot":
         $ temp = "bc footjob" if hero.gender == "male" else "bc vaginalfootjob"
         $ get_single_sex_picture(char, act="bc footjob", location=sex_scene_location, hidden_partner=True)
         $ image_tags = gm.img.get_image_tags()
 
         $ skill_for_checking = char.get_skill("refinement") + char.get_skill("sex")
-        if ct("Lesbian") != (hero.gender == "female"):
+        if interactions_gender_mismatch(char):
             $ skill_for_checking *= .8
         $ male_skill_for_checking = 2 * hero.get_skill("sex")
         $ temp = randint(2, 10)
@@ -1113,12 +1118,14 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
 
         call interaction_sex_scene_check_skill_jobs from _call_interaction_sex_scene_check_skill_jobs_3
 
+        $ del male_skill_for_checking, skill_for_checking, image_tags
+
     elif current_action == "vag":
         $ get_single_sex_picture(char, act="2c vaginal", location=sex_scene_location, hidden_partner=True)
         $ image_tags = gm.img.get_image_tags()
 
         $ skill_for_checking = char.get_skill("vaginal") + char.get_skill("sex")
-        if ct("Lesbian"):
+        if interactions_gender_mismatch(char):
             $ skill_for_checking *= .8
         $ male_skill_for_checking = hero.get_skill("vaginal") + hero.get_skill("sex")
 
@@ -1197,12 +1204,14 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
                 extend " You enter her pussy, and you two begin to move."
         call interaction_sex_scene_check_skill_acts from _call_interaction_sex_scene_check_skill_acts
 
+        $ del male_skill_for_checking, skill_for_checking, image_tags
+
     elif current_action == "anal":
         $ get_single_sex_picture(char, act="2c anal", location=sex_scene_location, hidden_partner=True)
         $ image_tags = gm.img.get_image_tags()
 
         $ skill_for_checking = char.get_skill("anal") + char.get_skill("sex")
-        if ct("Lesbian"):
+        if interactions_gender_mismatch(char):
             $ skill_for_checking *= .8
         $ male_skill_for_checking = hero.get_skill("anal") + hero.get_skill("sex")
         if (skill_for_checking - male_skill_for_checking) > 250 and dice(50):
@@ -1279,6 +1288,8 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
             else:
                 extend " You enter [char.pp] anus, and you two begin to move."
         call interaction_sex_scene_check_skill_acts from _call_interaction_sex_scene_check_skill_acts_1
+
+        $ del male_skill_for_checking, skill_for_checking, image_tags
 
     $ sex_scene_libido -= 1
     jump interaction_scene_choice

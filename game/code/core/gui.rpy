@@ -131,7 +131,6 @@ init -1 python:
 
             renpy.music.play("content/sfx/music/reflection.mp3", fadein=1.5)
 
-            first_run = True
             loop = True
             while loop:
                 if not images:
@@ -143,10 +142,6 @@ init -1 python:
                 image = "/".join([self.girl.path_to_imgfolder, image])
                 x, y = renpy.image_size(image)
                 rndm = randint(5, 7)
-                if first_run:
-                    first_run = False
-                else:
-                    renpy.hide(tag)
                 tag = str(random.random())
 
                 if x > y:
@@ -172,9 +167,7 @@ init -1 python:
                 renpy.with_statement(ImageDissolve(transitions.pop(), 3), always=True)
 
                 loop = renpy.call_screen("gallery_trans")
-                if not loop:
-                    renpy.hide(tag)
-                    renpy.with_statement(None)
+                renpy.hide(tag)
 
             renpy.music.stop(fadeout=1.0)
             renpy.show_screen("gallery")

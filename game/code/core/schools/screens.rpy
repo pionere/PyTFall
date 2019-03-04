@@ -3,10 +3,7 @@ label school_training:
     show screen school_training
 
     # Make sure we set char to the_chosen (means we came from listing)
-    if the_chosen:
-        $ students = the_chosen
-    else:
-        $ students = [char]
+    $ students = getattr(store, "the_chosen", [char])
 
     while 1:
         $ result = ui.interact()
@@ -70,10 +67,10 @@ label return_from_school_training:
     hide screen school_training
     $ del school, students
 
-    if the_chosen is None:
+    if getattr(store, "the_chosen", None) is None:
         jump char_profile
     else:
-        $ the_chosen = None
+        $ del the_chosen
         jump chars_list
 
 init python:

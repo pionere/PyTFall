@@ -152,12 +152,12 @@ init -1 python:
             self.show_menu = False
             self.show_menu_givegift = False
 
-        # Charcters Control:
+        # Characters Control:
         def display_girls(self):
             """
             Should simply return a list of girls for display.
             """
-            return self.girlcells[self.label_cache]
+            return self.girlcells.get(self.label_cache, list())
 
         def get_all_girls(self):
             """
@@ -346,7 +346,8 @@ init -1 python:
             # Creation:
             if self.label_cache not in self.girlcells:
                 cell = GmCell(self.label_cache, **kwargs)
-                self.girlcells[self.label_cache] = cell
+                if cell.girls: # discard cell if no character found -> try to repopulate later
+                    self.girlcells[self.label_cache] = cell
 
         def end(self, safe=False):
             """
@@ -358,8 +359,7 @@ init -1 python:
                 global_flags.set_flag("keep_playing_music")
 
             # Reset scene
-            renpy.scene()
-            renpy.hide_screen("girl_interactions")
+            hs()
 
             self.see_greeting = True
             self.show_menu = False

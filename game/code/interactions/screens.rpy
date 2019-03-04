@@ -1,7 +1,6 @@
-init python:
-    # The job for the GT mode
-    gm_job = None
-
+#init python:
+#    # The job for the GT mode
+#    gm_job = None
 
 label girl_interactions:
     python:

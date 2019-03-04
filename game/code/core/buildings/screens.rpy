@@ -73,6 +73,7 @@ label building_management:
                     it_members.sort(key=attrgetter("name"))
                 hide screen building_management
                 $ items_transfer(it_members)
+                $ del it_members
                 show screen building_management
             elif result[1] == "sign" or result[1] == "celeb":
                 python hide:
@@ -102,6 +103,7 @@ label building_management:
                         # 'cleanup' the building
                         for advert in bm_building.adverts:
                             advert['active'] = False
+                        del advert, price
                         bm_building.dirt = 0
                         bm_building.threat = 0
 
@@ -111,6 +113,8 @@ label building_management:
                             bm_building = hero.buildings[bm_index]
                         else:
                             jump("building_management_end")
+                    else:
+                        del price
         # Upgrades:
         elif result[0] == 'upgrade':
             if result[1] == "build":
@@ -130,11 +134,13 @@ label building_management:
                         bm_building.dirt = 0
                     else:
                         renpy.show_screen("message_screen", "You do not have the required funds!")
+                    del price
                 elif result[1] == "clean_all":
                     if hero.take_money(result[2], reason="Pro-Cleaning"):
                         for i in hero.dirty_buildings:
                             i.fin.log_logical_expense(i.get_cleaning_price(), "Pro-Cleaning")
                             i.dirt = 0
+                        del i
                     else:
                         renpy.show_screen("message_screen", "You do not have the required funds!")
                 elif result[1] == "toggle_clean":

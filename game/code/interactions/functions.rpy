@@ -37,7 +37,21 @@ init -11 python:
 
     # Interactions (Girlsmeets Helper Functions):
     def interactions_influence(c):
-        return (hero.get_stat("charisma")*(1 + c.get_stat("disposition")/c.get_max("disposition"))) - c.get_stat("character")
+        return ((hero.get_stat("charisma")*(1 + float(c.get_stat("disposition"))/c.get_max("disposition"))) - c.get_stat("character")) / (c.tier + 1) 
+
+    def interactions_gender_mismatch(char, just_sex=True):
+         if just_sex and ct("Open Minded"):
+             return False
+         if char.gender == "female":
+             if hero.gender == "male":
+                 return ct("Lesbian") and not "Yuri Expert" in hero.traits
+             else:
+                 return not (ct("Lesbian") or ct("Bisexual"))
+         else:
+             if hero.gender == "male":
+                 return not (ct("Gay") or ct("Bisexual"))
+             else:
+                 return ct("Gay")
 
     def interactions_set_repeating_lines_limit(c): # returns the number of character "patience", ie how many repeating lines she's willing to listen in addition to default value
         global hero
@@ -53,7 +67,7 @@ init -11 python:
 
         if c.status == "slave":
             patience += 1
-        patience += interactions_influence(c) / 100
+        patience += interactions_influence(c) / 10
         return patience
 
     def interactions_drinking_outside_of_inventory(char, count): # allows to raise activation count and become drunk without using real items

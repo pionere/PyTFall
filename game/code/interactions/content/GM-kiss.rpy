@@ -1,39 +1,36 @@
 label interactions_kiss:
-    if ct("Lesbian") and not "Yuri Expert" in hero.traits and char.status == "free":
-        $ m = interactions_flag_count_checker(char, "flag_interactions_kiss_lesbian_refuses")
+    $ interactions_check_for_bad_stuff(char)
+    $ interactions_check_for_minor_bad_stuff(char)
+    $ m = interactions_flag_count_checker(char, "flag_interactions_kiss")
+    if interactions_gender_mismatch(char) and char.status == "free":
         if m > 1:
+            $ del m
             call interactions_too_many_lines from _call_interactions_too_many_lines
             $ char.gfx_mod_stat("disposition", -randint(5, 15))
             $ char.gfx_mod_stat("affection", -randint(1,3))
             $ char.gfx_mod_stat("joy", -randint(0, 1))
-            $ del m
-            jump girl_interactions
         else:
+            $ del m
             call interactions_lesbian_refuse_because_of_gender from _call_interactions_lesbian_refuse_because_of_gender
-            jump girl_interactions
+        jump girl_interactions
 
-    $ interactions_check_for_bad_stuff(char)
-    $ interactions_check_for_minor_bad_stuff(char)
-    $ m = interactions_flag_count_checker(char, "flag_interactions_kiss")
+    $ n = 2 + interactions_set_repeating_lines_limit(char)
     if ct("Nymphomaniac") or check_lovers(char, hero):
-        $ n = 1
+        $ n += 1
     elif (ct("Half-Sister") and char.get_stat("affection") < 500 and "Sister Lover" not in hero.traits) or ct("Frigid"):
-        $ n = -1
-    else:
-        $ n = 0
+        $ n -= 1
 
-    if m > (2 + n + interactions_set_repeating_lines_limit(char)):
+    if m > n:
+        $ del m, n
         call interactions_too_many_sex_lines from _call_interactions_too_many_sex_lines
         $ char.gfx_mod_stat("disposition", -randint(10, 25))
         $ char.gfx_mod_stat("affection", -randint(3,5))
         if char.get_stat("joy") > 30:
             $ char.gfx_mod_stat("joy", -randint(2, 4))
-        $ del m
-        $ del n
         jump girl_interactions
+    $ del n
 
     $ sub = check_submissivity(char)
-    
     if cgo("SIW"):
         $ m = 100
     else:
@@ -44,8 +41,6 @@ label interactions_kiss:
         $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
         $ char.gfx_mod_stat("affection", affection_reward(char, 1.5))
         $ char.gfx_mod_stat("disposition", randint(40, 55))
-        $ del m
-        $ del sub
 
         $ char.override_portrait("portrait", "shy")
         $ char.show_portrait_overlay("love", "reset")
@@ -113,7 +108,6 @@ label interactions_kiss:
         $ del char_dispo
     else:
         $ char.show_portrait_overlay("sweat", "reset")
-        $ del n
         if char.status == "free":
             $ char.gfx_mod_stat("disposition", -randint(25, 35))
             $ char.gfx_mod_stat("affection", -randint(3,5))
@@ -153,17 +147,14 @@ label interactions_kiss:
                 
             if char.get_stat("affection") < (350+50*sub) and not cgo("SIW"):
                 $ char.set_flag("cnd_interactions_blowoff", day+2)
-                $ del sub
-                $ del m
-                $ char.restore_portrait()
-                $ char.hide_portrait_overlay()
-                jump girl_interactions_end
-                
+            $ del sub, m
+            $ char.restore_portrait()
+            $ char.hide_portrait_overlay()
+            jump girl_interactions_end
         else:
             char.say "..."
             "She doesn't resist, but also doesn't respond to your kiss."
-        $ del sub
-        $ del m
+    $ del sub, m
     $ char.restore_portrait()
     $ char.hide_portrait_overlay()
     jump girl_interactions
