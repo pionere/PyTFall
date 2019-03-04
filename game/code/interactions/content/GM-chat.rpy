@@ -3,17 +3,17 @@ label interactions_smalltalk:
     "You have a small chat with [char.nickname]."
     $ interactions_check_for_bad_stuff(char)
     $ interactions_check_for_minor_bad_stuff(char)
-    $ m = interactions_flag_count_checker(char, "flag_interactions_general")
-    if m >= (2 + interactions_set_repeating_lines_limit(char)):
-        $ del m
+    $ m = 1 + interactions_flag_count_checker(char, "flag_interactions_general")
+    $ n = 2 + interactions_set_repeating_lines_limit(char)
+    if m > n:
+        $ del m, n
         call interactions_too_many_lines from _call_interactions_too_many_lines_1
         $ char.gfx_mod_stat("disposition", -randint(3,6))
         $ char.gfx_mod_stat("affection", -randint(0,3))
         if char.get_stat("joy") > 80:
             $ char.gfx_mod_stat("joy", -1)
         jump girl_interactions
-    $ m = char.get_stat("disposition")
-    if m >= 100:
+    if char.get_stat("disposition") >= 100:
         if ct("Impersonal") or ct("Dandere") or ct("Shy"):
             $ narrator(choice(["[char.pC] didn't talked much, but [char.pC] enjoyed your company nevertheless.",
                                "You had to do most of the talking, but [char.p] listened you with a smile.",
@@ -26,18 +26,20 @@ label interactions_smalltalk:
                                "[char.pC] is visibly at ease when talking to you.",
                                "You both have enjoyed the conversation."]))
 
-        if dice(50) and dice(char.get_stat("joy")):
+        if m <= n*2 and dice(50) and dice(char.get_stat("joy")):
             $ narrator(choice(["You feel especially close.", "[char.pC] was much more approachable."]))
             $ char.gfx_mod_stat("joy", randint(0, 1))
             $ char.gfx_mod_stat("disposition", randint(1, 2))
             $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
             $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
             $ char.gfx_mod_stat("affection", .1, affection_reward(char))
-    elif m >= -100:
+    elif char.get_stat("disposition") >= -100:
         if ct("Impersonal") or ct("Dandere") or ct("Shy"):
             $ narrator(choice(["But there was a lot of awkward silence.", "But you had to do most of the talking.", "There is no sign of [char.op] opening up to you yet.", "But it was kind of one-sided."]))
         else:
             $ narrator(choice(["It's all a little bit stiff.", "There's some reservation though...", "It's hard to find common ground.", "But it was somewhat forced."]))
+        if m <= n*2 and dice(50):
+            $ narrator(choice(["At least [char.p] was more attentive.", "[char.pC] did not cut you short, though..."]))
     else:
         $ narrator(choice(["It looks like there's a good amount of mistrust between you.", "But it was difficult for both of you.", "Sadly, [char.p] was not very interested in chatting with you.", "It was clearly uncomfortable for [char.op] to speak to you.", "[char.pC] was suspicious of you the entire time and never let [char.op] guard down."]))
     if m <= -250:
@@ -57,7 +59,7 @@ label interactions_smalltalk:
     $ char.gfx_mod_stat("affection", .5, affection_reward(char))
     $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
     $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
-    $ del m
+    $ del m, n
     jump girl_interactions
 
 # ask about job
@@ -264,18 +266,19 @@ label interactions_howshefeels:
 label interactions_abouther:
     $ interactions_check_for_bad_stuff(char)
     $ interactions_check_for_minor_bad_stuff(char)
-    $ m = interactions_flag_count_checker(char, "flag_interactions_abouther")
-    if m > (2 + interactions_set_repeating_lines_limit(char)):
-        $ del m
+    $ m = 1 + interactions_flag_count_checker(char, "flag_interactions_abouther")
+    $ n = 2 + interactions_set_repeating_lines_limit(char)
+    if m > n:
+        $ del m, n
         call interactions_too_many_lines from _call_interactions_too_many_lines_4
         $ char.gfx_mod_stat("disposition", -randint(1, 5))
         $ char.gfx_mod_stat("affection", -randint(0,2))
         if char.get_stat("joy") > 40:
             $ char.gfx_mod_stat("joy", -randint(0,2))
         jump girl_interactions
-    $ del m
 
     if char.get_stat("disposition") <= 50:
+        $ del m, n
         $ char.gfx_mod_stat("disposition", -randint(3, 10))
         $ char.gfx_mod_stat("affection", -randint(0,2))
         $ char.gfx_mod_stat("joy", -randint(0, 1))
@@ -539,9 +542,8 @@ label interactions_abouther:
         $ gm_abouther_list.append(choice(["Hm? A little of this, a little of that?", "...I don't really have much to say.", "Nothing much, there's nothing worth mentioning.", "What I'm doing? The usual stuff...", "I'm just normal, I guess.", "I like just about anything.", "Hmm, there's not much to talk about.", "Now that I think about it... am I just boring?", "I'm just about average, I guess."]))
 
     $ g(choice(gm_abouther_list))
-    $ del gm_abouther_list, pref_list
 
-    if dice(50) and dice(char.get_stat("joy")-20):
+    if m <= n*2 and dice(50) and dice(char.get_stat("joy")-20):
         if char.get_stat("disposition") >= 400:
             $ narrator(choice(["You feel especially close."]))
             $ char.gfx_mod_stat("joy", randint(0, 1))
@@ -558,6 +560,7 @@ label interactions_abouther:
     $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
     $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
 
+    $ del gm_abouther_list, pref_list, m, n
     jump girl_interactions
 
 # ask about occupation
@@ -615,18 +618,19 @@ label interactions_aboutoccupation:
 label interactions_interests:
     $ interactions_check_for_bad_stuff(char)
     $ interactions_check_for_minor_bad_stuff(char)
-    $ m = interactions_flag_count_checker(char, "flag_interactions_interests")
-    if m > (2 + interactions_set_repeating_lines_limit(char)):
-        $ del m
+    $ m = 1 + interactions_flag_count_checker(char, "flag_interactions_interests")
+    $ n = 2 + interactions_set_repeating_lines_limit(char)
+    if m > n:
+        $ del m, n
         call interactions_too_many_lines from _call_interactions_too_many_lines_6
         $ char.gfx_mod_stat("disposition", -randint(5, 10))
         $ char.gfx_mod_stat("affection", -randint(1,3))
         if char.get_stat("joy") > 40:
             $ char.gfx_mod_stat("joy", -randint(1, 2))
         jump girl_interactions
-    $ del m
 
     if char.get_stat("disposition") <= 100:
+        $ del m, n
         $ char.gfx_mod_stat("disposition", -randint(3, 10))
         $ char.gfx_mod_stat("affection", -randint(0,2))
         $ char.gfx_mod_stat("joy", -randint(0, 1))
@@ -681,9 +685,8 @@ label interactions_interests:
         })
 
     $ narrator(line)
-    $ del line
 
-    if dice(50) and dice(char.get_stat("joy")-20):
+    if m <= n*2 and dice(50) and dice(char.get_stat("joy")-20):
         if char.get_stat("disposition") >= 400:
             $ narrator(choice(["You feel especially close."]))
             $ char.gfx_mod_stat("joy", randint(0, 1))
@@ -717,23 +720,27 @@ label interactions_interests:
     else:
         "It was a short and not very pleasant conversation."
         $ char.gfx_mod_stat("joy", -randint(0, 2))
+
+    $ del m, n, line
     jump girl_interactions
 
 # flirt
 label interactions_flirt:
     $ interactions_check_for_bad_stuff(char)
     $ interactions_check_for_minor_bad_stuff(char)
-    $ m = interactions_flag_count_checker(char, "flag_interactions_flirt")
-    if m > (2 + interactions_set_repeating_lines_limit(char)):
+    $ m = 1 + interactions_flag_count_checker(char, "flag_interactions_flirt")
+    $ n = 1 + interactions_set_repeating_lines_limit(char)
+    if m > n:
+        $ del m, n
         call interactions_too_many_lines from _call_interactions_too_many_lines_7
         $ char.gfx_mod_stat("disposition", -randint(5,15))
         $ char.gfx_mod_stat("affection", -randint(0,2))
         if char.get_stat("joy") > 30:
             $ char.gfx_mod_stat("joy", -randint(2, 4))
-        $ del m
         jump girl_interactions
-    $ del m
+
     if char.get_stat("affection") <= 150 or char.get_stat("disposition") <= 50:
+        $ del m, n
         $ char.gfx_mod_stat("disposition", -randint(5, 10))
         $ char.gfx_mod_stat("affection", -randint(0,2))
         $ char.gfx_mod_stat("joy", -randint(0, 1))
@@ -771,12 +778,20 @@ label interactions_flirt:
         $ rc("Getting your heart broken is scary, but everything going too well is kinda scary for its own reasons too.", "One day, I want to be carried like a princess by the one I love ♪...", "Hehe! Love conquers all!", "I'm the type to stick to the one I love.", "Being next to someone who makes you feel safe, that must be happiness...", "Everyone wants to fall in love, I suppose. Don't you think?")
     $ char.restore_portrait()
 
+    if m <= n*2 and dice(50) and dice(char.get_stat("joy")-40):
+        $ narrator(choice(["You feel especially close."]))
+        $ char.gfx_mod_stat("joy", randint(0, 1))
+        $ char.gfx_mod_stat("affection", affection_reward(char))
+        $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.15))
+        $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.15))
+
     $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
     $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
 
     $ char.gfx_mod_stat("disposition", randint(5, 15))
     $ char.gfx_mod_stat("affection", affection_reward(char))
 
+    $ del m, n
     jump girl_interactions
 
 # interaction check fail

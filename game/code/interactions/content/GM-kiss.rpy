@@ -1,7 +1,7 @@
 label interactions_kiss:
     $ interactions_check_for_bad_stuff(char)
     $ interactions_check_for_minor_bad_stuff(char)
-    $ m = interactions_flag_count_checker(char, "flag_interactions_kiss")
+    $ m = 1 + interactions_flag_count_checker(char, "flag_interactions_kiss")
     if interactions_gender_mismatch(char) and char.status == "free":
         if m > 1:
             $ del m
@@ -28,15 +28,14 @@ label interactions_kiss:
         if char.get_stat("joy") > 30:
             $ char.gfx_mod_stat("joy", -randint(2, 4))
         jump girl_interactions
-    $ del n
 
     $ sub = check_submissivity(char)
     if cgo("SIW"):
-        $ m = 100
+        $ base = 100
     else:
-        $ m = 350
+        $ base = 350
 
-    if char.get_stat("affection") > (m+50*sub) or slave_siw_check(char):
+    if char.get_stat("affection") > (base+50*sub) or slave_siw_check(char):
         $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
         $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
         $ char.gfx_mod_stat("affection", affection_reward(char, 1.5))
@@ -105,6 +104,14 @@ label interactions_kiss:
         else:
             $ rc("Don't say anything.... *kiss*", "*kiss*, *lick*, I like, *kiss*, this...", "*kiss*, hmm... *sigh*, kissing feels so good...", "*kiss*...  My heart's racing ♪", "Hmm... *kiss, kiss*, ahm,.. I like... kissing... Hn, *smooch*...", "*slurp, kiss* Kissing this rough... feels so good.", "*kiss* You're sweet...", "Ahm... *kiss, lick*... nnn... Do you think touching tongues is a little... sexy?")
 
+        if m <= n*2 and dice(50) and dice(char.get_stat("joy")-40):
+            $ narrator(choice(["You feel especially close.", "It felt like it could go on forever."]))
+            $ char.gfx_mod_stat("joy", randint(0, 1))
+            $ char.gfx_mod_stat("disposition", randint(1, 2))
+            $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
+            $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
+            $ char.gfx_mod_stat("affection", .1, affection_reward(char))
+
         $ del char_dispo
     else:
         $ char.show_portrait_overlay("sweat", "reset")
@@ -147,14 +154,14 @@ label interactions_kiss:
                 
             if char.get_stat("affection") < (350+50*sub) and not cgo("SIW"):
                 $ char.set_flag("cnd_interactions_blowoff", day+2)
-            $ del sub, m
+            $ del base, sub, m, n
             $ char.restore_portrait()
             $ char.hide_portrait_overlay()
             jump girl_interactions_end
         else:
             char.say "..."
             "She doesn't resist, but also doesn't respond to your kiss."
-    $ del sub, m
+    $ del base, sub, m, n
     $ char.restore_portrait()
     $ char.hide_portrait_overlay()
     jump girl_interactions
