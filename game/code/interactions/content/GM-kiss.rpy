@@ -110,7 +110,7 @@ label interactions_kiss:
             $ char.gfx_mod_stat("disposition", randint(1, 2))
             $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
             $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
-            $ char.gfx_mod_stat("affection", .1, affection_reward(char))
+            $ char.gfx_mod_stat("affection", affection_reward(char, .1))
 
         $ del char_dispo
     else:

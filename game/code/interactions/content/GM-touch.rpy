@@ -61,7 +61,7 @@ label interactions_hug:
             $ char.gfx_mod_stat("disposition", randint(2, 4))
             $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
             $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
-            $ char.gfx_mod_stat("affection", .1, affection_reward(char))
+            $ char.gfx_mod_stat("affection", affection_reward(char, .1))
 
     else:
         $ char.override_portrait("portrait", "indifferent")
@@ -187,7 +187,7 @@ label interactions_grabbutt:
             $ char.gfx_mod_stat("disposition", randint(1, 2))
             $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
             $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
-            $ char.gfx_mod_stat("affection", .1, affection_reward(char))
+            $ char.gfx_mod_stat("affection", affection_reward(char, .1))
 
     else:
         $ char.override_portrait("portrait", "angry")
@@ -311,7 +311,7 @@ label interactions_grabbreasts:
             $ char.gfx_mod_stat("disposition", randint(1, 2))
             $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
             $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
-            $ char.gfx_mod_stat("affection", .1, affection_reward(char))
+            $ char.gfx_mod_stat("affection", affection_reward(char, .1))
 
     else:
         $ char.override_portrait("portrait", "angry")

@@ -32,7 +32,7 @@ label interactions_smalltalk:
             $ char.gfx_mod_stat("disposition", randint(1, 2))
             $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
             $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
-            $ char.gfx_mod_stat("affection", .1, affection_reward(char))
+            $ char.gfx_mod_stat("affection", affection_reward(char, .1))
     elif char.get_stat("disposition") >= -100:
         if ct("Impersonal") or ct("Dandere") or ct("Shy"):
             $ narrator(choice(["But there was a lot of awkward silence.", "But you had to do most of the talking.", "There is no sign of [char.op] opening up to you yet.", "But it was kind of one-sided."]))
@@ -56,7 +56,7 @@ label interactions_smalltalk:
         $ char.gfx_mod_stat("joy", 1)
         $ m = 0
     $ char.gfx_mod_stat("disposition", m)
-    $ char.gfx_mod_stat("affection", .5, affection_reward(char))
+    $ char.gfx_mod_stat("affection", affection_reward(char, .5))
     $ hero.gfx_mod_exp(exp_reward(hero, char, ap_used=.33))
     $ char.gfx_mod_exp(exp_reward(char, hero, ap_used=.33))
     $ del m, n
@@ -82,7 +82,7 @@ label girl_interactions_aboutjob: # TO DO: here would help additional logic base
         else:
             $ rc("I want to serve you better, [char.mc_ref].", "A new master takes a while to get used to...")
         $ char.gfx_mod_stat("disposition", 1)
-        $ char.gfx_mod_stat("affection", .5, affection_reward(char))
+        $ char.gfx_mod_stat("affection", affection_reward(char, .5))
         $ char.gfx_mod_stat("joy", 1)
         $ char.restore_portrait()
     elif char.get_stat("disposition") <= -350:
@@ -100,7 +100,7 @@ label girl_interactions_aboutjob: # TO DO: here would help additional logic base
             else:
                 $ rc("I wish that I the resolve to kill myself...", "My life in your service is awful.", "Just sell me off to someone. To anyone!")
         $ char.gfx_mod_stat("disposition", randint(0, 1))
-        $ char.gfx_mod_stat("affection", .25, affection_reward(char))
+        $ char.gfx_mod_stat("affection", affection_reward(char, .25))
         $ char.restore_portrait()
     elif char.get_stat("disposition") <= -50:
         $ char.override_portrait("portrait", "indifferent")

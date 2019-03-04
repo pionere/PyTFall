@@ -280,7 +280,7 @@ label girl_meets_greeting: # also lines for sad and angry flags are needed. but 
         if char.get_stat("disposition") <= 500:
             $ char.gfx_mod_stat("disposition", locked_random("randint", 5, 10))
         if char.get_stat("affection") <= 500:
-            $ char.gfx_mod_stat("affection", .5, affection_reward(char))
+            $ char.gfx_mod_stat("affection", affection_reward(char, .5))
         $ cat.restore_portrait()
         $ del cat
     $ del m
