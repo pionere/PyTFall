@@ -591,21 +591,39 @@ screen fg_area(area):
             text "Capture Chars" xalign .5
 
         null height 5
-        $ distance = round_int(area.travel_time)
-        button:
+        $ distance = round_int(area.travel_time / 20.0)
+        frame:
+            background Frame(Transform("content/gfx/frame/Namebox.png", alpha=.9), 10, 10)
             xalign .5
             xysize 300, 30
-            if distance > 1:
-                text "Travel time is about %d days" % distance xalign .5
-            elif distance == 1:
-                text "Travel time is about a day" xalign .5
-            else:
-                text "Travel time is less than one day" xalign .5
-        button:
+            margin 0, 0
+            padding 3, 2
+            style_group "proper_stats"
+            hbox:
+                xsize 300
+                if distance > 1:
+                    text "Travel time is about %d days" % distance xpos 5
+                    if bm_mid_frame_mode.has_extension(GuildStables):
+                        textbutton "*":
+                            background Null()
+                            align (1.0, 0.0)
+                            tooltip "Now half of that because of the Stables."
+                            action NullAction()
+                elif distance == 1:
+                    text "Travel time is about a day" xpos 5
+                else:
+                    text "Travel time is less than one day" xpos 5
+        frame:
+            background Frame(Transform("content/gfx/frame/Namebox.png", alpha=.9), 10, 10)
             xalign .5
             xysize 300, 30
-            text "Days Exploring:" xalign .0
-            text "[area.days]" xalign 1.0
+            margin 0, 0
+            padding 3, 2
+            style_group "proper_stats"
+            hbox:
+                xsize 300
+                text "Days Exploring:" xpos 5
+                text "[area.days]" xalign .9
         hbox:
             xalign .5
             spacing 10
@@ -619,7 +637,7 @@ screen fg_area(area):
                 value FieldValue(area, 'days', area.maxdays-3, max_is_zero=False, style='scrollbar', offset=3, step=1)
                 xmaximum 150
                 thumb 'content/gfx/interface/icons/move15.png'
-                tooltip "Adjust exploration length."
+                tooltip "Adjust the number of days to spend on site."
             imagebutton:
                 yalign .5
                 idle 'content/gfx/interface/buttons/next.png'
@@ -627,11 +645,17 @@ screen fg_area(area):
                 action SetField(area, "days", min(15, area.days+1))
 
         null height 5
-        button:
+        frame:
+            background Frame(Transform("content/gfx/frame/Namebox.png", alpha=.9), 10, 10)
             xalign .5
             xysize 300, 30
-            text "Risk:" xalign .0
-            text "[area.risk]" xalign 1.0
+            margin 0, 0
+            padding 3, 2
+            style_group "proper_stats"
+            hbox:
+                xsize 300
+                text "Risk:" xpos 5
+                text "[area.risk]" xalign .9
         hbox:
             xalign .5
             spacing 10

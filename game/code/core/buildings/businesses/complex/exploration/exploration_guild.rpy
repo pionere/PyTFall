@@ -119,9 +119,10 @@ init -6 python: # Guild, Tracker and Log.
                                           "Exploration" in item.locations and
                                           area.items_price_limit >= item.price])
 
-            # We assume that it's never right outside of the
-            # freaking city walls:
+            # We assume that it's never right outside of the city walls:
             self.base_distance = max(area.travel_time, 6)
+            if guild.has_extension(GuildStables):
+                self.base_distance /= 2
 
             self.traveled = None # Distance traveled in "KM"...
 
@@ -497,14 +498,6 @@ init -6 python: # Guild, Tracker and Log.
 
             # Figure out how far we can travel in steps of 5 DU:
             # Understanding here is that any team can travel 20 KM per day on average.
-            if self.has_extension(GuildStables):
-                temp = choice(["The Stables turned out to be a great investment after all. Team travels at 2x the speed!",
-                               "The team is traveling at 2x the pace! Stables Rule!"])
-                tracker.log(temp)
-                speed = 2
-            else:
-                speed = 1
-
             if tracker.traveled is None:
                 temp = "{} is on route to {}!".format(team_name, area_name)
                 tracker.log(temp)
@@ -519,7 +512,7 @@ init -6 python: # Guild, Tracker and Log.
             while 1:
                 yield self.env.timeout(5) # We travel...
 
-                tracker.traveled += speed
+                tracker.traveled += 1
 
                 # Team arrived:
                 if tracker.traveled >= tracker.distance:
@@ -552,11 +545,6 @@ init -6 python: # Guild, Tracker and Log.
 
             # Figure out how far we can travel in 5 du:
             # Understanding here is that any team can travel 20 KM per day on average.
-            if self.has_extension(GuildStables):
-                speed = 2
-            else:
-                speed = 1
-
             if tracker.traveled is None:
                 temp = "{} is traveling back home!".format(team_name)
                 tracker.log(temp)
@@ -570,7 +558,7 @@ init -6 python: # Guild, Tracker and Log.
             while 1:
                 yield self.env.timeout(5) # We travel...
 
-                tracker.traveled += speed
+                tracker.traveled += 1
 
                 # Team arrived:
                 if tracker.traveled >= tracker.distance:
