@@ -62,14 +62,21 @@ label time_temple:
                         "Pay":
                             $ hero.set_flag("dnd_time_healing_day")
                             play sound "content/sfx/sound/events/clock.ogg"
-                            with Fade(.5, .2, .5, color="goldenrod")
-                            $ hero.take_money(res, reason="Time Temple")
-                            python:
+                            python hide:
+                                hero.take_money(res, reason="Time Temple")
+
+                                img = "content/gfx/bg/locations/deep_sea.webp"
+                                img = im.MatrixColor(img, im.matrix.brightness(.3))
+                                img = Transform(img, alpha=.85)
+                                renpy.show("sea", what=img)
+                                renpy.with_statement(Dissolve(.5))
+                                renpy.hide("sea")
+                                renpy.with_statement(Dissolve(.3))
+
                                 for i in temp_charcters:
                                     i.gfx_mod_stat("health", i.get_max("health") - i.get_stat("health"))
                                     i.gfx_mod_stat("mp", i.get_max("mp") - i.get_stat("mp"))
                                     i.gfx_mod_stat("vitality", i.get_max("vitality") - i.get_stat("vitality"))
-                                del i
                             t "Done. Please come again if you need our help."
                         "Don't Pay":
                             t "Very well."
@@ -81,8 +88,8 @@ label time_temple:
                 $ global_flags.set_flag("asked_miel_about_ap")
                 t "I can return you the time you spent. But it's an expensive procedure."
                 "Miel can restore your action points, as long as you can pay for it."
-                "Only the hero can use this option, his teammates are not affected."
-            if hero.AP >= hero.baseAP:
+                "Only you can use this option, your teammates are not affected."
+            if hero.AP >= hero.setAP:
                 "Your action points are maxed out already at the moment."
                 jump time_temple_menu
             if hero.gold < 100000:
@@ -92,9 +99,17 @@ label time_temple:
                 menu:
                     "Yes":
                         play sound "content/sfx/sound/events/clock.ogg"
-                        with Fade(.5, .2, .5, color="goldenrod")
-                        $ hero.take_money(100000, reason="Time Temple")
-                        $ hero.AP = hero.baseAP
+                        python hide:
+                            hero.take_money(100000, reason="Time Temple")
+
+                            img = "content/gfx/bg/locations/forest_1.webp"
+                            img = Transform(img, alpha=.8, xpos=-(850*5), xzoom=5, yzoom=4)
+                            renpy.show("forest", what=img)
+                            renpy.with_statement(Dissolve(.6))
+                            renpy.hide("forest")
+                            renpy.with_statement(Dissolve(.4))
+
+                            hero.AP = hero.setAP
                         t "Your time has been returned to you. Come again if you need me."
                     "No":
                         $ pass

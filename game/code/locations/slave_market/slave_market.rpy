@@ -331,7 +331,7 @@ screen slave_shopping(source, buy_button, buy_tt):
                         label (u"{color=gold}{size=-5}%s"%char.fin.get_price()) align (1.0, .5) ypos 10
                     frame:
                         xysize 244, 20
-                        text "{color=#79CDCD}{size=-1}Upkeep:" pos (1, -4)
+                        text "{size=-1}Upkeep:" color "#79CDCD" pos (1, -4)
                         label (u"{size=-5}%s"%char.fin.get_upkeep()) align (1.0, .5) ypos 10
 
             # Stats: ==============================================================================>>>
@@ -351,31 +351,31 @@ screen slave_shopping(source, buy_button, buy_tt):
                 has vbox spacing 1 xmaximum 246
                 frame:
                     xysize 245, 20
-                    text "{color=#79CDCD}{size=-1}Health:" pos (1, -4)
+                    text "{size=-1}Health:" color "#79CDCD" pos (1, -4)
                     label (u"{size=-5}%s/%s"%(char.get_stat("health"), char.get_max("health"))) align (1.0, .5) ypos 10
                 frame:
                     xysize 245, 20
-                    text "{color=#79CDCD}{size=-1}Vitality:" pos (1, -4)
+                    text "{size=-1}Vitality:" color "#79CDCD" pos (1, -4)
                     label (u"{size=-5}%s/%s"%(char.get_stat("vitality"), char.get_max("vitality"))) align (1.0, .5) ypos 10
                 frame:
                     xysize 245, 20
-                    text "{color=#79CDCD}Agility{size=-1}:" pos (1, -4)
+                    text "Agility{size=-1}:" color "#79CDCD" pos (1, -4)
                     label (u"{size=-5}%s/%s"%(char.get_stat("agility"), char.get_max("agility"))) align (1.0, .5) ypos 10
                 frame:
                     xysize 245, 20
-                    text "{color=#79CDCD}{size=-1}Charisma:" pos (1, -4)
+                    text "{size=-1}Charisma:" color "#79CDCD" pos (1, -4)
                     label (u"{size=-5}%s/%s"%(char.get_stat("charisma"), char.get_max("charisma"))) align (1.0, .5) ypos 10
                 frame:
                     xysize 245, 20
-                    text "{color=#79CDCD}{size=-1}Character:" pos (1, -4)
+                    text "{size=-1}Character:" color "#79CDCD" pos (1, -4)
                     label (u"{size=-5}%s/%s"%(char.get_stat("character"), char.get_max("character"))) align (1.0, .5) ypos 10
                 frame:
                     xysize 245, 20
-                    text "{color=#79CDCD}{size=-1}Constitution:" pos (1, -4)
+                    text "{size=-1}Constitution:" color "#79CDCD" pos (1, -4)
                     label (u"{size=-5}%s/%s"%(char.get_stat("constitution"), char.get_max("constitution"))) align (1.0, .5) ypos 10
                 frame:
                     xysize 245, 20
-                    text "{color=#79CDCD}{size=-1}Intelligence:" pos (1, -4)
+                    text "{size=-1}Intelligence:" color "#79CDCD" pos (1, -4)
                     label (u"{size=-5}%s/%s"%(char.get_stat("intelligence"), char.get_max("intelligence"))) align (1.0, .5) ypos 10
 
             # Skills: =============================================================================>>>

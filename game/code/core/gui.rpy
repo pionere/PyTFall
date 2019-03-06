@@ -243,7 +243,7 @@ init -1 python:
         def paged_items(self):
             items = []
             for start in xrange(0, len(self.content), self.page_size):
-                 items.append(self.content[start:start+self.page_size])
+                items.append(self.content[start:start+self.page_size])
             return items
 
         @property
