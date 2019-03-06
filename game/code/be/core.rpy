@@ -480,8 +480,8 @@ init -1 python: # Core classes:
                 if self.win is True:
                     gfx_overlay.notify("You Win!")
                 elif self.win is False:
-                    tkwargs = {"color": blue,
-                               "outlines": [(1, cyan, 0, 0)]}
+                    tkwargs = {"color": "blue",
+                               "outlines": [(1, "cyan", 0, 0)]}
                     gfx_overlay.notify("You Lose!", tkwargs=tkwargs)
 
                 renpy.pause(1.0) # Small pause before terminating the engine.
@@ -1234,9 +1234,9 @@ init -1 python: # Core classes:
             s = list()
             if not message:
                 if total_damage >= 0:
-                    s.append("{color=[teal]}%s{/color} attacks %s with %s" % (a.nickname, t.nickname, self.name))
+                    s.append("{color=teal}%s{/color} attacks %s with %s" % (a.nickname, t.nickname, self.name))
                 else:
-                    s.append("{color=[teal]}%s{/color} attacks %s with %s, but %s absorbs it" % (a.nickname, t.nickname, self.name, t.nickname))
+                    s.append("{color=teal}%s{/color} attacks %s with %s, but %s absorbs it" % (a.nickname, t.nickname, self.name, t.nickname))
             else:
                 s.append(message)
 
@@ -1257,7 +1257,7 @@ init -1 python: # Core classes:
 
             if return_for == "log":
                 s = "%s: %s" % (self.DAMAGE.get(type, type), value)
-                return "{color=[%s]}%s{/color}" % (color, s)
+                return "{color=%s}%s{/color}" % (color, s)
             elif return_for == "bb": # battle bounce
                 return value, color
             else:
@@ -1287,15 +1287,15 @@ init -1 python: # Core classes:
             for effect in str_effects:
                 if effect == "backrow_penalty":
                     # Damage halved due to the target being in the back row!
-                    s.append("{color=[red]}1/2 DMG (Back-Row){/color}")
+                    s.append("{color=red}1/2 DMG (Back-Row){/color}")
                 elif effect == "critical_hit":
-                    s.append("{color=[lawngreen]}Critical Hit{/color}")
+                    s.append("{color=lawngreen}Critical Hit{/color}")
                 elif effect == "magic_shield":
-                    s.append("{color=[lawngreen]}☗+{/color}")
+                    s.append("{color=lawngreen}☗+{/color}")
                 elif effect == "missed_hit":
                     gfx = self.dodge_effect.get("gfx", "dodge")
                     if gfx == "dodge":
-                        s.append("{color=[lawngreen]}Attack Missed{/color}")
+                        s.append("{color=lawngreen}Attack Missed{/color}")
 
             # Next type effects:
             for effect in type_effects:
@@ -1309,7 +1309,7 @@ init -1 python: # Core classes:
                     color = battle.type_to_color_map["healing"]
                 else:
                     color = "red"
-                temp = "{color=[%s]}DGM: %d{/color}" % (color, value)
+                temp = "{color=%s}DGM: %d{/color}" % (color, value)
                 s.append(temp)
 
             return s
@@ -1787,10 +1787,9 @@ init -1 python: # Core classes:
                             gfx = self.dodge_effect.get("gfx", "dodge")
                             if gfx == "dodge":
                                 s = "Missed"
-                                color = getattr(store, target.dmg_font)
                             else:
                                 s = "▼ "+"%s" % value
-                                color = getattr(store, target.dmg_font)
+                            color = target.dmg_font
                         else:
                             effects = []
                             for effect in target.beeffects:
@@ -1800,14 +1799,13 @@ init -1 python: # Core classes:
                             if len(effects) == 1:
                                 value, color = self.color_string_by_DAMAGE_type(effect, return_for="bb")
                                 s = "%s" % value
-                                color = getattr(store, color)
                             else:
                                 if value < 0:
                                     s = "%s" % -value
-                                    color = store.lightgreen
+                                    color = "lightgreen"
                                 else:
                                     s = "%s" % value
-                                    color = getattr(store, target.dmg_font)
+                                    color = target.dmg_font
 
                         if "critical_hit" in target.beeffects:
                             s = "\n".join([s, "Critical hit!"])

@@ -13,7 +13,7 @@ screen items_inv(char=None, main_size=(553, 282), frame_size=(90, 90), return_va
                         align (.995, .995)
                         style "stats_label_text"
                         text_size 18
-                        text_outlines [(2, "#9c8975", 0, 0), (1, "#000000", 0, 0)]
+                        text_outlines [(2, "#9c8975", 0, 0), (1, "black", 0, 0)]
                 else:
                     # in groups indicate some have the item
                     background Frame("content/gfx/frame/frame_it1.png", -1, -1)
@@ -59,7 +59,7 @@ screen eqdoll(active_mode=True, char=None, frame_size=[55, 55], scr_align=(.23, 
                     bg = im.Scale("content/gfx/frame/frame_it2.png", *frame_size)
                     equipment = [equipment, slot]
                 else:
-                    bg = im.Scale(im.Twocolor("content/gfx/frame/frame_it2.png", grey, black), *frame_size)
+                    bg = im.Scale(im.Twocolor("content/gfx/frame/frame_it2.png", "grey", "black"), *frame_size)
                     key = "ring" if slot.startswith("ring") else slot
                     img = blank
             frame:
@@ -103,8 +103,8 @@ screen shopping(left_ref=None, right_ref=None):
                     padding 3, 3
                     fixed:
                         xysize 250, 25
-                        label "Retail Price:" text_color gold text_size 22 xalign .0 yalign .5
-                        label "[total_price]" text_color gold text_size 22 xalign 1.0 yalign .5
+                        label "Retail Price:" text_color "gold" text_size 22 xalign .0 yalign .5
+                        label "[total_price]" text_color "gold" text_size 22 xalign 1.0 yalign .5
 
                 fixed:
                     xsize 180
@@ -112,7 +112,7 @@ screen shopping(left_ref=None, right_ref=None):
                     use r_lightbutton(img=ProportionalScale('content/gfx/interface/buttons/blue_arrow_left.png', 25, 25), return_value=['control', -10], align=(0, .5))
                     use r_lightbutton(img=ProportionalScale('content/gfx/interface/buttons/blue_arrow_left.png', 30, 30), return_value=['control', -5], align=(.1, .5))
                     use r_lightbutton(img=ProportionalScale('content/gfx/interface/buttons/blue_arrow_left.png', 40, 40), return_value=['control', -1], align=(.25, .5))
-                    text ("{size=36}[amount]") align .5, .5 color ivory style "proper_stats_label_text"
+                    text ("{size=36}[amount]") align .5, .5 color "ivory" style "proper_stats_label_text"
                     use r_lightbutton(img=ProportionalScale('content/gfx/interface/buttons/blue_arrow_right.png', 40, 40), return_value=['control', 1], align=(.75, .5))
                     use r_lightbutton(img=ProportionalScale('content/gfx/interface/buttons/blue_arrow_right.png', 30, 30), return_value=['control', 5], align=(.9, .5))
                     use r_lightbutton(img=ProportionalScale('content/gfx/interface/buttons/blue_arrow_right.png', 25, 25), return_value=['control', 10], align=(1.0, .5))
@@ -140,7 +140,7 @@ screen itemstats(item=None, size=(635, 380), style_group="content", mc_mode=Fals
                 xalign .5
                 xysize (440, 40)
                 background Frame("content/gfx/frame/p_frame7.webp", 10, 10)
-                label '[item.id]' text_color gold xalign .5 text_size 20 text_outlines [(1, "#000000", 0, 0)] text_style "interactions_text"
+                label '[item.id]' text_color "gold" xalign .5 text_size 20 text_outlines [(1, "black", 0, 0)] text_style "interactions_text"
 
             vbox:
                 align .5, .5
@@ -163,12 +163,12 @@ screen itemstats(item=None, size=(635, 380), style_group="content", mc_mode=Fals
                         frame:
                             xysize 195, 22
                             padding 4, 1
-                            text ('Price:') color gold xalign .0 yoffset -1
-                            label ('[item.price]') xalign 1.0 text_size 18 text_color gold yoffset -2
+                            text ('Price:') color "gold" xalign .0 yoffset -1
+                            label ('[item.price]') xalign 1.0 text_size 18 text_color "gold" yoffset -2
                         frame:
                             xysize 195, 22
                             padding 4, 1
-                            text ('Slot:') color ivory xalign .0 yoffset -1
+                            text ('Slot:') color "ivory" xalign .0 yoffset -1
                             python:
                                 if item.slot in SLOTALIASES:
                                     slot = SLOTALIASES[item.slot]
@@ -178,12 +178,12 @@ screen itemstats(item=None, size=(635, 380), style_group="content", mc_mode=Fals
                         frame:
                             xysize 195, 22
                             padding 4, 1
-                            text ('Type:') color ivory yalign .5
+                            text ('Type:') color "ivory" yalign .5
                             label ('{size=-3}%s'%item.type.capitalize()) xalign 1.0 text_size 18 yoffset -2
                         frame:
                             xysize 195, 22
                             padding 4, 1
-                            text ('Sex:') color ivory xalign .0 yoffset -1
+                            text ('Sex:') color "ivory" xalign .0 yoffset -1
                             if item.slot in ["gift", "resources", "loot"]:
                                 label "N/A" xalign 1.0 text_size 18 yoffset -2
                             elif item.type == "food" and item.sex == 'unisex':
@@ -202,121 +202,121 @@ screen itemstats(item=None, size=(635, 380), style_group="content", mc_mode=Fals
                         vbox:
                             spacing 1
                             if item.mod:
-                                label ('Stats:') text_size 18 text_color gold xpos 10
+                                label ('Stats:') text_size 18 text_color "gold" xpos 10
                                 for stat, value in item.mod.items():
                                     frame:
                                         xysize 153, 20
-                                        text stat.capitalize() color ivory size 16 align (.02, .5)
+                                        text stat.capitalize() color "ivory" size 16 align (.02, .5)
                                         label (u'{size=-4}[value]') align (.98, .5)
                                 null height 2
                             if item.max:
-                                label ('Max:') text_size 18 text_color gold xpos 10
+                                label ('Max:') text_size 18 text_color "gold" xpos 10
                                 for stat, value in item.max.items():
                                     frame:
                                         xysize 153, 20
-                                        text stat.capitalize() color ivory size 16 align (.02, .5)
+                                        text stat.capitalize() color "ivory" size 16 align (.02, .5)
                                         label u'{size=-4}[value]' align (.98, .5)
                                 null height 2
                             if item.min:
-                                label ('Min:') text_size 18 text_color gold xpos 10
+                                label ('Min:') text_size 18 text_color "gold" xpos 10
                                 for stat, value in item.min.items():
                                     frame:
                                         xysize 153, 20
-                                        text stat.capitalize() color ivory size 16 align (.02, .5)
+                                        text stat.capitalize() color "ivory" size 16 align (.02, .5)
                                         label (u'{size=-4}%d'%value) align (.98, .5)
                                 null height 2
                             if item.addtraits:
-                                label ('Adds Traits:') text_size 16 text_color gold xpos 10
+                                label ('Adds Traits:') text_size 16 text_color "gold" xpos 10
                                 for trait in item.addtraits:
                                     frame:
                                         xysize 153, 20
-                                        text(u'%s'%trait.capitalize()) color ivory size 16 align (.5, .5)
+                                        text(u'%s'%trait.capitalize()) color "ivory" size 16 align (.5, .5)
                                 null height 2
                             if item.removetraits:
-                                label ('Removes Traits:') text_size 16 text_color gold xpos 10
+                                label ('Removes Traits:') text_size 16 text_color "gold" xpos 10
                                 for trait in item.removetraits:
                                     frame:
                                         xysize 153, 20
-                                        text(u'%s'%trait.capitalize()) color ivory size 16 align (.5, .5)
+                                        text(u'%s'%trait.capitalize()) color "ivory" size 16 align (.5, .5)
                                 null height 2
                             if item.add_be_spells:
-                                label ('Adds Skills:') text_size 16 text_color gold xpos 10
+                                label ('Adds Skills:') text_size 16 text_color "gold" xpos 10
                                 for skill in item.add_be_spells:
                                     frame:
                                         xysize 153, 20
-                                        text(u'%s'%skill.capitalize()) color ivory size 16 align (.5, .5)
+                                        text(u'%s'%skill.capitalize()) color "ivory" size 16 align (.5, .5)
                                 null height 2
                             if item.remove_be_spells:
-                                label ('Removes Skills:') text_size 16 text_color gold xpos 10
+                                label ('Removes Skills:') text_size 16 text_color "gold" xpos 10
                                 for skill in item.remove_be_spells:
                                     frame:
                                         xysize 153, 20
-                                        text (u'%s'%skill.capitalize()) color ivory size 16 align (.5, .5)
+                                        text (u'%s'%skill.capitalize()) color "ivory" size 16 align (.5, .5)
                                 null height 2
                             if item.addeffects:
-                                label ('Adds Effects:') text_size 16 text_color gold xpos 10
+                                label ('Adds Effects:') text_size 16 text_color "gold" xpos 10
                                 for effect in item.addeffects:
                                     frame:
                                         xysize 153, 20
-                                        text(u'%s'%effect.capitalize()) color ivory size 16 align (.5, .5)
+                                        text(u'%s'%effect.capitalize()) color "ivory" size 16 align (.5, .5)
                                 null height 2
                             if item.removeeffects:
-                                label ('Removes Effects:') text_size 16 text_color gold xpos 10
+                                label ('Removes Effects:') text_size 16 text_color "gold" xpos 10
                                 for effect in item.removeeffects:
                                     frame:
                                         xysize 153, 20
-                                        text(u'%s'%effect.capitalize()) color ivory size 16 align (.5, .5)
+                                        text(u'%s'%effect.capitalize()) color "ivory" size 16 align (.5, .5)
                             if hasattr(item, 'mtemp'):
                                 if item.mtemp:
-                                    label ('Frequency:') text_size 18 text_color gold xpos 10
+                                    label ('Frequency:') text_size 18 text_color "gold" xpos 10
                                     frame:
                                         xysize 153, 20
                                         if item.mreusable:
                                             if item.mtemp > 1:
-                                                text "Every [item.mtemp] days" color ivory size 16 align (.02, .5)
+                                                text "Every [item.mtemp] days" color "ivory" size 16 align (.02, .5)
                                             else:
-                                                text "Every day" color ivory size 16 align (.02, .5)
+                                                text "Every day" color "ivory" size 16 align (.02, .5)
                                         else:
                                             if item.mtemp > 1:
-                                                text "After [item.mtemp] days" color ivory size 16 align (.02, .5)
+                                                text "After [item.mtemp] days" color "ivory" size 16 align (.02, .5)
                                             else:
-                                                text "After one day" color ivory size 16 align (.02, .5)
+                                                text "After one day" color "ivory" size 16 align (.02, .5)
                                     if hasattr(item, 'mdestruct'):
                                         if item.mdestruct:
                                             frame:
                                                 xysize 153, 20
-                                                text "Disposable" color ivory size 16 align (.02, .5)
+                                                text "Disposable" color "ivory" size 16 align (.02, .5)
                                     if hasattr(item, 'mreusable'):
                                         if item.mreusable:
                                             frame:
                                                 xysize 153, 20
-                                                text "Reusable" color ivory size 16 align (.02, .5)
+                                                text "Reusable" color "ivory" size 16 align (.02, .5)
                                     if hasattr(item, 'statmax'):
                                         if item.statmax:
                                             frame:
                                                 xysize 153, 20
-                                                text "Stat limit" color ivory size 16 align (.02, .5)
+                                                text "Stat limit" color "ivory" size 16 align (.02, .5)
                                                 label (u'{size=-4}%d'%item.statmax) align (.98, .5)
                             if hasattr(item, 'ctemp'):
                                 if item.ctemp:
-                                    label ('Duration:') text_size 18 text_color gold xpos 10
+                                    label ('Duration:') text_size 18 text_color "gold" xpos 10
                                     frame:
                                         xysize 153, 20
-                                        text "Days" color ivory size 16 align (.02, .5)
+                                        text "Days" color "ivory" size 16 align (.02, .5)
                                         label u'{size=-4}[item.ctemp]' align (.98, .5)
                 label ('{color=#ecc88a}----------------------------------------') xalign .5
                 frame:
                     xalign .5
                     background Frame("content/gfx/frame/p_frame7.webp", 10, 10)
                     has viewport mousewheel True xysize (460, 100)
-                    text '[item.desc]' style "TisaOTM" size 16 color gold
+                    text '[item.desc]' style "TisaOTM" size 16 color "gold"
 
 # Inventory paging
-screen paging(path="content/gfx/interface/buttons/", use_filter=True,
-              ref=None, xysize=(270, 60),
-              root=None, align=(.5, .0)):
+screen paging(path="content/gfx/interface/buttons/",
+              bgr="content/gfx/frame/BG_choicebuttons_flat.png",
+              use_filter=True, ref=None, xysize=(270, 60), align=(.5, .0)):
     frame:
-        background Frame("content/gfx/frame/BG_choicebuttons_flat.png", 10, 10, yoffset=5)
+        background Frame(bgr, 10, 10, yoffset=5)
         xysize xysize
         align align
         style_group "content"
@@ -342,7 +342,7 @@ screen paging(path="content/gfx/interface/buttons/", use_filter=True,
                             slot = SLOTALIASES[ref.slot_filter]
                         else:
                             slot = ref.slot_filter.capitalize()
-                    label "[slot] " align .5, .5  text_color ivory
+                    label "[slot] " align .5, .5  text_color "ivory"
 
                     imagebutton:
                         align 1.0, .5
@@ -366,7 +366,7 @@ screen paging(path="content/gfx/interface/buttons/", use_filter=True,
                         idle (path+'prev.png')
                         hover (im.MatrixColor(path+'prev.png', im.matrix.brightness(.15)))
                         action Function(ref.prev)
-                label ("%d - %d"%(ref.page+1, max(ref.max_page,1))) align (.5, .5) text_color ivory
+                label ("%d - %d"%(ref.page+1, max(ref.max_page,1))) align (.5, .5) text_color "ivory"
                 hbox:
                     align (1.0, .5)
                     imagebutton:
@@ -402,16 +402,16 @@ screen shop_inventory(ref=None, x=.0):
             add im.Scale("content/gfx/interface/icons/gold.png", 25, 25) align (.0, .5)
             null width 10
             $ g = gold_text(ref.gold)
-            text g align (.5, 1.0) color gold size 23
+            text g align (.5, 1.0) color "gold" size 23
 
         null height 5
 
         if isinstance(ref, ItemShop):
-            label "[ref.name]" text_color ivory xalign .5
+            label "[ref.name]" text_color "ivory" xalign .5
         elif isinstance(ref, PytCharacter):
-            label "[ref.nickname]" text_color ivory xalign .5
+            label "[ref.nickname]" text_color "ivory" xalign .5
         else:
-            label "Inventory" text_color ivory xalign .5
+            label "Inventory" text_color "ivory" xalign .5
 
         null height 5
 

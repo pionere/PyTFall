@@ -167,7 +167,7 @@ label mc_action_hero_ocean_skill_checks:
             menu:
                 "You are fast enough to avoid the fight."
                 "Swim away":
-                    $ narrator ("You quickly increase the distance between you and the monsters {color=[green]}(max agility +1){/color}.")
+                    $ narrator ("You quickly increase the distance between you and the monsters {color=green}(max agility +1){/color}.")
                     $ hero.gfx_mod_skill("swimming", 0, randint(2, 4))
                     $ hero.stats.lvl_max["agility"] += 1
                     $ hero.stats.max["agility"] += 1
@@ -177,7 +177,7 @@ label mc_action_hero_ocean_skill_checks:
     $ temp = hero.get_skill("swimming")
     if temp < 50:
         if locked_dice(40):
-            $ narrator ("You try to swim, but strong tide keeps you away {color=[red]}(no bonus to swimming skill this time){/color}.")
+            $ narrator ("You try to swim, but strong tide keeps you away {color=red}(no bonus to swimming skill this time){/color}.")
             $ narrator ("You need higher swimming skill to prevent it. Consider training in the swimming pool.")
             $ swim_act = 0
         else:
@@ -215,7 +215,7 @@ label mc_action_hero_ocean_skill_checks:
         $ hero.stats.max["constitution"] += 1
         $ hero.gfx_mod_stat("constitution", 1)
         $ global_flags.up_counter("constitution_bonus_from_swimming_at_beach")
-        $ narrator ("You feel more endurant than before {color=[green]}(max constitution +1){/color}.")
+        $ narrator ("You feel more endurant than before {color=green}(max constitution +1){/color}.")
 
     $ global_flags.set_flag("keep_playing_music")
     jump city_beach
@@ -277,8 +277,8 @@ screen diving_progress_bar(o2, max_o2): # oxygen bar for diving
             thumb None
             xysize (300, 50)
             at alpha_dissolve
-        label "Find hidden items!" text_color gold text_size 18 xalign .5 yalign .5
-        label "Right click or Esc to exit" text_color gold text_size 18 xalign .5 yalign .5
+        label "Find hidden items!" text_color "gold" text_size 18 xalign .5 yalign .5
+        label "Right click or Esc to exit" text_color "gold" text_size 18 xalign .5 yalign .5
 
 label mc_action_city_beach_diving_checks:
     if not global_flags.has_flag('vitality_bonus_from_diving_at_beach'):
@@ -340,13 +340,11 @@ label mc_action_city_beach_diving_checks:
             $ item = result
             $ hero.add_item(item)
             $ our_image = ProportionalScale(item.icon, 150, 150)
-            $ tkwargs = {"color": blue,
-                               "outlines": [(1, black, 0, 0)]}
+            $ tkwargs = {"color": "blue", "outlines": [(1, "black", 0, 0)]}
             $ gfx_overlay.notify("You caught %s!" % item.id, tkwargs=tkwargs)
             $ gfx_overlay.random_find(item, 'fishy')
         else:
-            $ tkwargs = {"color": blue,
-                               "outlines": [(1, black, 0, 0)]}
+            $ tkwargs = {"color": "blue", "outlines": [(1, "black", 0, 0)]}
             $ gfx_overlay.notify("There is nothing there...", tkwargs=tkwargs)
 
         $ vitality -= randint(10, 15)
@@ -362,6 +360,6 @@ label mc_action_city_beach_diving_checks:
         $ hero.stats.max["vitality"] += 1
         $ hero.mod_stat("vitality", 1)
         $ global_flags.up_counter("vitality_bonus_from_diving_at_beach")
-        $ narrator ("You feel more endurant than before {color=[green]}(max vitality +1){/color}.")
+        $ narrator ("You feel more endurant than before {color=green}(max vitality +1){/color}.")
     
     jump city_beach

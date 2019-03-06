@@ -3,7 +3,7 @@ init:
     style positive_item_eqeffects_change:
         is text
         size 9
-        color lawngreen
+        color "lawngreen"
 
     style negative_item_eqeffects_chage:
         is positive_item_eqeffects_change
@@ -43,7 +43,7 @@ init python:
         tempmax = dummy.get_max(stat) - eqtarget.get_max(stat) if dummy else False
         if temp: # Case: Any Change to stat
             # The first is the absolute change, we want it to be colored green if it is positive, and red if it is not.
-            tempstr = "{color=[green]}%s{/color}"%dummy.get_stat(stat) if temp > 0 else "{color=[red]} %d{/color}"%dummy.get_stat(stat)
+            tempstr = "{color=green}%s{/color}"%dummy.get_stat(stat) if temp > 0 else "{color=red} %d{/color}"%dummy.get_stat(stat)
             # Next is the increase:
             tempstr = tempstr + "{=positive_item_eqeffects_change}(+%d){/=}"%temp if temp > 0 else tempstr + "{=negative_item_eqeffects_chage}(%d){/=}"%temp
         else: # No change at all...
@@ -53,7 +53,7 @@ init python:
 
         if tempmax:
             # Absolute change of the max values, same rules as the actual values apply:
-            tempstr = tempstr + "{color=[green]}%s{/color}"%dummy.get_max(stat) if tempmax > 0 else tempstr + "{color=[red]} %d{/color}"%dummy.get_max(stat)
+            tempstr = tempstr + "{color=green}%s{/color}"%dummy.get_max(stat) if tempmax > 0 else tempstr + "{color=red} %d{/color}"%dummy.get_max(stat)
             tempstr = tempstr + "{=positive_item_eqeffects_change}(+%d){/=}"%tempmax if tempmax > 0 else tempstr + "{=negative_item_eqeffects_chage}(%d){/=}"%tempmax
         else:
             tempstr = tempstr + "{color=[tempc]}%s{/color}"%eqtarget.get_max(stat)
@@ -329,7 +329,7 @@ screen equip_for(pos=()):
         pos (x, y)
         anchor (xval, yval)
         vbox:
-            text "Equip For:" xalign 0 style "della_respira" color ivory
+            text "Equip For:" xalign 0 style "della_respira" color "ivory"
             null height 5
 
             for t in specializations:
@@ -407,7 +407,7 @@ screen char_equip_left_frame(stats_display):
         style_group "content"
 
         # NAME =====================================>
-        text (u"{color=#ecc88a}[eqtarget.name]") font "fonts/TisaOTM.otf" size 28 outlines [(1, "#3a3a3a", 0, 0)] xalign .53 ypos 126
+        text (u"[eqtarget.name]") color "#ecc88a" font "fonts/TisaOTM.otf" size 28 outlines [(1, "#3a3a3a", 0, 0)] xalign .53 ypos 126
         hbox:
             button:
                 xysize (32, 32)
@@ -434,19 +434,9 @@ screen char_equip_left_frame(stats_display):
 
         # LVL ============================>
         hbox:
-            spacing 1
-            if (inv_source.level) < 10:
-                xpos 95
-            elif (inv_source.level) < 100:
-                xpos 93
-            elif (inv_source.level) < 1000:
-                xpos 89
-            elif (inv_source.level) < 10000:
-                xpos 83
-            else:
-                xpos 79
-            label "{color=#CDAD00}Lvl" text_font "fonts/Rubius.ttf" text_size 16 text_outlines [(1, "#3a3a3a", 0, 0)] ypos 173
-            label "{color=#CDAD00}[eqtarget.level]" text_font "fonts/Rubius.ttf" text_size 16 text_outlines [(1, "#3a3a3a", 0, 0)] ypos 173
+            xsize 220
+            ypos 173
+            label "Lvl [eqtarget.level]" text_color "#CDAD00" text_font "fonts/Rubius.ttf" text_size 16 text_outlines [(1, "#3a3a3a", 0, 0)] xalign .5
 
         # Left Frame Buttons: =====================================>
         hbox:
@@ -489,7 +479,7 @@ screen char_equip_left_frame(stats_display):
                             xysize 204, 25
                             text "Health:" xalign .02 color "#CD4F39"
                             $ temp, tmp = eqtarget.get_stat("health"), eqtarget.get_max("health")
-                            $ tempc = red if temp <= tmp*.3 else "#F5F5DC"
+                            $ tempc = "red" if temp <= tmp*.3 else "#F5F5DC"
                             if getattr(store, "dummy", None) is not None:
                                 $ temp = build_str_for_eq(eqtarget, dummy, "health", tempc)
                                 text temp style_suffix "value_text" xalign .98 yoffset 3
@@ -501,7 +491,7 @@ screen char_equip_left_frame(stats_display):
                             xysize 204, 25
                             text "Vitality:" xalign .02 color "#43CD80"
                             $ temp, tmp = eqtarget.get_stat("vitality"), eqtarget.get_max("vitality")
-                            $ tempc = red if temp <= tmp*.3 else "#F5F5DC"
+                            $ tempc = "red" if temp <= tmp*.3 else "#F5F5DC"
                             if getattr(store, "dummy", None) is not None:
                                 $ temp = build_str_for_eq(eqtarget, dummy, "vitality", tempc)
                                 text temp style_suffix "value_text" xalign .98 yoffset 3
@@ -513,7 +503,6 @@ screen char_equip_left_frame(stats_display):
                             frame:
                                 xysize 204, 25
                                 text "%s"%stat.capitalize() xalign .02 color "#79CDCD"
-                                $ tempc = "#F5F5DC"
                                 if getattr(store, "dummy", None) is not None:
                                     $ temp = build_str_for_eq(eqtarget, dummy, stat, "#F5F5DC")
                                     text temp style_suffix "value_text" xalign .98 yoffset 3
@@ -538,7 +527,7 @@ screen char_equip_left_frame(stats_display):
                                 xysize 204, 25
                                 text "%s"%stat.capitalize() color color
                                 if stat == "mp":
-                                    $ tempc = red if eqtarget.get_stat("mp") <= eqtarget.get_max("mp")*.3 else color
+                                    $ tempc = "red" if eqtarget.get_stat("mp") <= eqtarget.get_max("mp")*.3 else color
                                 else:
                                     $ tempc = color
                                 if getattr(store, "dummy", None) is not None:
@@ -555,24 +544,17 @@ screen char_equip_left_frame(stats_display):
                     if not focusitem:
                         vbox:
                             xsize 208
-                            text ("Select an item to check its skills") size 18 color goldenrod bold True xalign .45 text_align .5
-
-                    elif not getattr(focusitem, "mod_skills", {}):
+                            text ("Select an item to check its skills") size 18 color "goldenrod" bold True xalign .45 text_align .5
+                    elif not getattr(focusitem, "mod_skills", None):
                         vbox:
                             xsize 208
-                            text ("Current item doesn't affect skills. Try to select another one?") size 18 color goldenrod bold True xalign .45 text_align .5
+                            text ("Current item doesn't affect skills. Try to select another one?") size 18 color "goldenrod" bold True xalign .45 text_align .5
                     else:
-                        for skill, data in getattr(focusitem, "mod_skills", {}).iteritems():
-
-
+                        $ img_path = "content/gfx/interface/icons/skills_icons/"
+                        for skill, data in getattr(focusitem, "mod_skills").iteritems():
                             frame:
                                 xysize 208, 22
-                                text str(skill).title() size 16 color yellowgreen align .0, .5
-
-                                $ img_path = "content/gfx/interface/icons/skills_icons/"
-
-                                default PS = ProportionalScale
-
+                                text str(skill).title() size 16 color "yellowgreen" align .0, .5
                                 hbox:
                                     align .99, .5
                                     spacing 2
@@ -584,17 +566,17 @@ screen char_equip_left_frame(stats_display):
                                         yoffset 2
                                         tooltip "Icon represents skills modifier changes. Green means bonus, red means penalty. Left one is action counter, right one is training counter, top one is resulting value."
                                         if data[0] > 0:
-                                            add PS(img_path + "left_green.png", 20, 20)
+                                            add pscale(img_path + "left_green.png", 20, 20)
                                         elif data[0] < 0:
-                                            add PS(img_path + "left_red.png", 20, 20)
+                                            add pscale(img_path + "left_red.png", 20, 20)
                                         if data[1] > 0:
-                                            add PS(img_path + "right_green.png", 20, 20)
+                                            add pscale(img_path + "right_green.png", 20, 20)
                                         elif data[1] < 0:
-                                            add PS(img_path + "right_red.png", 20, 20)
+                                            add pscale(img_path + "right_red.png", 20, 20)
                                         if data[2] > 0:
-                                            add PS(img_path + "top_green.png", 20, 20)
+                                            add pscale(img_path + "top_green.png", 20, 20)
                                         elif data[2] < 0:
-                                            add PS(img_path + "top_red.png", 20, 20)
+                                            add pscale(img_path + "top_red.png", 20, 20)
                                     if data[3]:
                                         button:
                                             style "default"
@@ -640,7 +622,7 @@ screen char_equip_right_frame():
                 hbox:
                     add "content/gfx/interface/images/add.png" yalign .5 yoffset -3
                     add "content/gfx/interface/images/remove.png" yalign .5 yoffset -5
-                    label ('Traits|Effects:') text_size 16 text_color gold style "stats_label"
+                    label ('Traits|Effects:') text_size 16 text_color "gold" style "stats_label"
                 viewport:
                     mousewheel True
                     has vbox
@@ -674,7 +656,7 @@ screen char_equip_right_frame():
                 hbox:
                     add "content/gfx/interface/images/add.png" yalign .5 yoffset -3
                     add "content/gfx/interface/images/remove.png" yalign .5 yoffset -5
-                    label ('Battle Skills:') text_size 16 text_color gold style "stats_label"
+                    label ('Battle Skills:') text_size 16 text_color "gold" style "stats_label"
                 viewport:
                     mousewheel True
                     has vbox
@@ -703,9 +685,9 @@ screen char_equip_right_frame():
                                 text u'{color=#CD4F39}%s'%skill size 16 yalign .5
         else:
             if eqtarget.status == "slave":
-                text (u"{color=[gold]}[eqtarget.name]{/color}{color=#ecc88a}  is Slave%s" % t) size 14 align (.55, .65) font "fonts/TisaOTM.otf" line_leading -5
+                text (u"{color=gold}[eqtarget.name]{/color}{color=#ecc88a}  is Slave%s" % t) size 14 align (.55, .65) font "fonts/TisaOTM.otf" line_leading -5
             elif eqtarget.status == "free":
-                text (u"{color=[gold]}[eqtarget.name]{/color}{color=#ecc88a}  is Free%s" % t) size 14 align (.55, .65) font "fonts/TisaOTM.otf" line_leading -5
+                text (u"{color=gold}[eqtarget.name]{/color}{color=#ecc88a}  is Free%s" % t) size 14 align (.55, .65) font "fonts/TisaOTM.otf" line_leading -5
 
     # Right Frame Buttons ====================================>
     vbox:
@@ -881,7 +863,7 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                     align .5, .5
                     xysize (439, 35)
                     background Transform(Frame(im.MatrixColor("content/gfx/frame/p_frame5.png", im.matrix.brightness(-0.05)), 10, 10), alpha=.9)
-                    label ('[item.id]') text_color gold align .5, .5 text_size 19 text_outlines [(1, "#000000", 0, 0)] text_style "interactions_text"
+                    label ('[item.id]') text_color "gold" align .5, .5 text_size 19 text_outlines [(1, "black", 0, 0)] text_style "interactions_text"
                 imagebutton:
                     xalign 1.0
                     idle ("content/gfx/interface/buttons/close3.png")
@@ -912,8 +894,8 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                     null height 15
                     frame:
                         xysize (160, 25)
-                        text 'Price:' color gold xalign .02
-                        label '{size=-4}{color=[gold]}[item.price]' align .98, .5 text_outlines [(1, "#3a3a3a", 0, 0)]
+                        text 'Price:' color "gold" xalign .02
+                        label '{size=-4}{color=gold}[item.price]' align .98, .5 text_outlines [(1, "#3a3a3a", 0, 0)]
                     frame:
                         xysize (160, 25)
                         text ('{color=#F5F5DC}Slot:') xalign .02
@@ -980,7 +962,7 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                     tooltip temp_msg
                     action SensitiveIf(focusitem), Return(['item', 'equip/unequip'])
                     if item_direction == 'equip' and not can_equip(focusitem, eqtarget):
-                        text "[temp]" style "pb_button_text" align (.5, .5) color red strikethrough True
+                        text "[temp]" style "pb_button_text" align (.5, .5) color "red" strikethrough True
                     else:
                         text "[temp]" style "pb_button_text" align (.5, .5)
 
@@ -996,7 +978,7 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                     has viewport draggable True mousewheel True child_size 200, 500
                     vbox:
                         if item.mod:
-                            label ('Stats:') text_size 18 text_color gold xpos 30
+                            label ('Stats:') text_size 18 text_color "gold" xpos 30
                             vbox:
                                 spacing 1
                                 for stat, value in item.mod.items():
@@ -1007,7 +989,7 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                             null height 3
 
                         if item.max:
-                            label ('Max:') text_size 16 text_color gold xpos 30
+                            label ('Max:') text_size 16 text_color "gold" xpos 30
                             vbox:
                                 spacing 1
                                 for stat, value in item.max.items():
@@ -1018,7 +1000,7 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                             null height 3
 
                         if item.min:
-                            label ('Min:') text_size 16 text_color gold xpos 30
+                            label ('Min:') text_size 16 text_color "gold" xpos 30
                             vbox:
                                 spacing 1
                                 for stat, value in item.min.items():
@@ -1028,7 +1010,7 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                                         label (u'{color=#F5F5DC}{size=-4}%d'%value) align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
                         if hasattr(item, 'mtemp'):
                             if item.mtemp:
-                                label ('Frequency:') text_size 16 text_color gold xpos 30
+                                label ('Frequency:') text_size 16 text_color "gold" xpos 30
                                 vbox:
                                     frame:
                                         xysize (172, 18)
@@ -1061,7 +1043,7 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                                                 label (u'{color=#F5F5DC}{size=-4}%d'%item.statmax) align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
                         if hasattr(item, 'ctemp'):
                             if item.ctemp:
-                                label ('Duration:') text_size 16 text_color gold xpos 30
+                                label ('Duration:') text_size 16 text_color "gold" xpos 30
                                 frame:
                                     xysize (172, 18)
                                     if item.ctemp > 1:
@@ -1091,7 +1073,7 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                                 if item.removetraits:
                                     add "content/gfx/interface/images/remove.png"  yalign .5 yoffset -2
                                 null width 4
-                                label ('Traits:') text_size 14 text_color gold
+                                label ('Traits:') text_size 14 text_color "gold"
 
                             for trait in item.addtraits:
                                 frame:
@@ -1114,7 +1096,7 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                                 if item.removeeffects:
                                     add "content/gfx/interface/images/remove.png"  yalign .5 yoffset -2
                                 null width 4
-                                label ('Effects:') text_size 14 text_color gold xoffset 7
+                                label ('Effects:') text_size 14 text_color "gold" xoffset 7
 
                             for effect in item.addeffects:
                                 frame:
@@ -1251,7 +1233,7 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                                 if item.remove_be_spells:
                                     add "content/gfx/interface/images/remove.png" yalign .5 yoffset -2
                                 null width 4
-                                label ('Skills:') text_size 14 text_color gold xoffset 7
+                                label ('Skills:') text_size 14 text_color "gold" xoffset 7
 
                             for skill in item.add_be_spells:
                                 frame:

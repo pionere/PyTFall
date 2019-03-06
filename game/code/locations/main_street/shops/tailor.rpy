@@ -74,7 +74,7 @@ screen shopkeeper_items_upgrades(upgrades_list):
             fixed:
                 xsize 70
                 $ g = gold_text(hero.gold)
-                text g size 20 color gold yalign .5
+                text g size 20 color "gold" yalign .5
  
     frame:
         align (.5, .5)
@@ -86,7 +86,7 @@ screen shopkeeper_items_upgrades(upgrades_list):
         #button:
         #    xysize (180, 50)
         #    style_prefix "wood"
-        #    text "Cancel" size 16 color goldenrod
+        #    text "Cancel" size 16 color "goldenrod"
         #    xalign .3
         #    yoffset -40
         #    action Return(-1)
@@ -123,13 +123,13 @@ screen shopkeeper_items_upgrades(upgrades_list):
                         hbox:
                             yalign .5
                             style_prefix "proper_stats_value"
-                            text "+" color goldenrod size 25 
+                            text "+" color "goldenrod" size 25 
                             hbox:
                                 xsize 80
                                 $ price = i["price"]
-                                text "[price]" color goldenrod size 25 xalign 1.0 
+                                text "[price]" color "goldenrod" size 25 xalign 1.0 
                             add "content/gfx/animations/coin_top 0.13 1/1.webp" yalign 1.0 
-                            text "  =" color goldenrod size 25 
+                            text "  =" color "goldenrod" size 25 
                         imagebutton:
                             xsize 100
                             align (.5, .5)
@@ -139,7 +139,7 @@ screen shopkeeper_items_upgrades(upgrades_list):
                         button:
                             xysize (100, 50)
                             align (.5, .5)
-                            text "Order" size 16 color goldenrod
+                            text "Order" size 16 color "goldenrod"
                             action Show("yesno_prompt", message="Are you sure you wish to order a %s for %s Gold?" % (i["second_item"], price), yes_action=[Hide("yesno_prompt"), Return(i["first_item"])], no_action=Hide("yesno_prompt")) 
                         null height 1
         vbar value YScrollValue("tailor_orders")

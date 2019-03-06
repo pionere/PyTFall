@@ -379,10 +379,10 @@ screen girl_interactions():
 
             # vbox:
                 # null height 60
-                # text "{color=[white]}Mode: [gm.mode]"
-                # text "{color=[white]}Label: [gm.jump_cache]"
-                # text ("{color=[white]}Girl.AP: [gm.char.AP] / %s"%gm.char.setAP)
-                # text "{color=[white]}Points: [gm.gm_points]"
+                # text "{color=white}Mode: [gm.mode]"
+                # text "{color=white}Label: [gm.jump_cache]"
+                # text ("{color=white}Girl.AP: [gm.char.AP] / %s"%gm.char.setAP)
+                # text "{color=white}Points: [gm.gm_points]"
 
 
 
@@ -423,7 +423,7 @@ screen girl_interactions():
                                     yoffset 3
                                     xysize (90, 90)
                                     add im.Scale(item.icon, 90, 90)
-                                    text str(hero.inventory[item]) color ivory style "library_book_header_main" align (0, 0)
+                                    text str(hero.inventory[item]) color "ivory" style "library_book_header_main" align (0, 0)
                                     if not item.hidden:
                                         if dismod <= 0:
                                             $ img = "content/gfx/interface/icons/gifts_0.png"
@@ -436,7 +436,7 @@ screen girl_interactions():
                                             $ img = im.Sepia(img)
                                         add img align (.0, .9)
                                 null width 10
-                                text "[item.id]" yalign .5 style "library_book_header_sub" color ivory
+                                text "[item.id]" yalign .5 style "library_book_header_sub" color "ivory"
                             sensitive hero.AP > 0 or gm.gm_points > 0
                             action Return(["gift", item])
 
@@ -447,7 +447,7 @@ screen girl_interactions():
                     xalign .5
                     style "main_screen_3_button"
                     text_style "library_book_header_sub"
-                    text_color ivory
+                    text_color "ivory"
                     keysym "mousedown_3"
 
     use top_stripe(False, show_lead_away_buttons=False)

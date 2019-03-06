@@ -94,8 +94,8 @@ init -2: # Base Styles like Texts and Buttons just with the basic properties.
     style ddlist_text:
         is garamond
         yalign .5
-        idle_color ivory
-        hover_color red
+        idle_color "ivory"
+        hover_color "red"
 
     # Master Styles of the GREY and BROWNish buttons we use all over the place.
     style basic_choice_button:
@@ -156,9 +156,9 @@ init -2: # Base Styles like Texts and Buttons just with the basic properties.
     style wood_text:
         align (.5, .5)
         size 14
-        color ivory
-        hover_color red
-        insensitive_color black
+        color "ivory"
+        hover_color "red"
+        insensitive_color "black"
 
     style left_wood_button:
         is button
@@ -176,8 +176,8 @@ init -2: # Base Styles like Texts and Buttons just with the basic properties.
 
     # This is a simple white, semi transparrent button, prolly should be deleted.
     style white_cry_button:
-        background Transform(Frame(im.Twocolor("content/gfx/frame/cry_box.png", white, white), 5, 5), alpha=.8)
-        hover_background Transform(Frame(im.MatrixColor(im.Twocolor("content/gfx/frame/cry_box.png", white, aquamarine), im.matrix.brightness(.20)), 5, 5), alpha=.8)
+        background Transform(Frame(im.Twocolor("content/gfx/frame/cry_box.png", "white", "white"), 5, 5), alpha=.8)
+        hover_background Transform(Frame(im.MatrixColor(im.Twocolor("content/gfx/frame/cry_box.png", "white", "aquamarine"), im.matrix.brightness(.20)), 5, 5), alpha=.8)
         insensitive_background Transform(Frame(im.Sepia("content/gfx/frame/cry_box.png"), 5, 5), alpha=.8)
         ypadding 3
 
@@ -222,7 +222,7 @@ init -2: # Base Styles like Texts and Buttons just with the basic properties.
         font "fonts/EBGaramond-Regular.ttf"
 
     transform caret_alpha:
-        Solid(ivory, xysize=(1, 22))
+        Solid("ivory", xysize=(1, 22))
         offset (1, 2)
         block:
             linear .8 alpha .2
@@ -302,7 +302,7 @@ init 2: # Advanced style that can carry a lot of properties to be used in screen
         # xalign 0
     style dropdown_gm_button_text:
         is TisaOTMc
-        color black
+        color "black"
         size 18
 
     # Second set of DD buttons:
@@ -313,7 +313,7 @@ init 2: # Advanced style that can carry a lot of properties to be used in screen
     style dropdown_gm2_button_text:
         is TisaOTMc
         drop_shadow [(1, 1)]
-        drop_shadow_color black
+        drop_shadow_color "black"
         color "#EEE8CD"
         insensitive_color "#808069"
         size 16
@@ -343,12 +343,12 @@ init 2: # Advanced style that can carry a lot of properties to be used in screen
         ypadding 1
     style basic_button_text:
         is TisaOTMc
-        color black
+        color "black"
         size 18
     style basic_text:
         is TisaOTMc
-        color black
-        hover_color red
+        color "black"
+        hover_color "red"
         outlines [(1, "#aaa697", 0, 0)]
         hover_outlines [(1, "#3a3a3a", 0, 0)]
         size 18
@@ -357,7 +357,7 @@ init 2: # Advanced style that can carry a lot of properties to be used in screen
     style interactions_text:
         is TisaOTMc
         drop_shadow [(1, 1)]
-        drop_shadow_color black
+        drop_shadow_color "black"
         color "#c8ffff"
         # hover_color "#D2691E"
         size 20
@@ -370,11 +370,11 @@ init 2: # Advanced style that can carry a lot of properties to be used in screen
         is garamond
         line_leading -5
         size 17
-        color black
+        color "black"
     style content_label_text:
         is della_respira
         size 19
-        color black
+        color "black"
 
     # Style used for Stats.
     style base_stats_frame: # This one is presently used in the equipment screen. It overrides silly theme settings to allow for a better positioning and more convinient use.
@@ -400,19 +400,19 @@ init 2: # Advanced style that can carry a lot of properties to be used in screen
         margin (0, 0)
     style proper_stats_text:
         is garamond
-        color ivory
+        color "ivory"
         outlines [(1, "#3a3a3a", 0, 0)]
         size 18
     style proper_stats_label_text:
         is della_respira
         outlines [(2, "#424242", 0, 0)]
         size 19
-        color ivory
+        color "ivory"
     style proper_stats_value_text:
         is della_respira
         outlines [(1, "#3a3a3a", 0, 0)]
         size 14
-        color ivory
+        color "ivory"
         yoffset 4
         xalign 1.0
 
@@ -490,9 +490,9 @@ init 2: # Advanced style that can carry a lot of properties to be used in screen
         is text
         size 16
         font "fonts/TisaOTm.otf"
-        color ivory
-        hover_color red
-        selected_color green
+        color "ivory"
+        hover_color "red"
+        selected_color "green"
         insensitive_color "#808069"
 
     style sqstory_button:
@@ -516,7 +516,7 @@ init 2: # Advanced style that can carry a lot of properties to be used in screen
         is TisaOTBc
         size 20
         drop_shadow [(1, 1)]
-        color azure
+        color "azure"
 
     # Used mainly as Next Day Button
     style main_screen_4_button:
@@ -529,7 +529,7 @@ init 2: # Advanced style that can carry a lot of properties to be used in screen
         is TisaOTBc
         size 20
         drop_shadow [(1, 1)]
-        color azure
+        color "azure"
 
     # Sound button...
     style sound_button:
@@ -553,7 +553,7 @@ init 2: # Advanced style that can carry a lot of properties to be used in screen
 
     style library_book_header_main:
         is della_respira
-        color black
+        color "black"
         xalign .5
         bold True
         size 20
@@ -564,26 +564,26 @@ init 2: # Advanced style that can carry a lot of properties to be used in screen
 
     style library_book_content:
         is garamond
-        color black
+        color "black"
         size 15
 
     style black_serpent:
         is text
         size 20
         font "fonts/serpentn.ttf"
-        color black
+        color "black"
         align (.5, .5)
 
     style next_day_summary_text is text:
         size 16
         font "fonts/agrevue.ttf"
-        color black
+        color "black"
 
     style credits_text:
         font "fonts/rubius.ttf"
         antialias True
         line_spacing 6
-        color azure
+        color "azure"
 
     style badaboom:
         is text
@@ -594,10 +594,10 @@ init 2: # Advanced style that can carry a lot of properties to be used in screen
     style be_notify:
         is badaboom
         size 60
-        color red
+        color "red"
         outlines [(3, "#ffff19", 1, 1)]
         drop_shadow [(2, 3)]
-        drop_shadow_color black
+        drop_shadow_color "black"
 
     # Text that goes with the wc button.
     style white_cry_button_text:
@@ -605,20 +605,20 @@ init 2: # Advanced style that can carry a lot of properties to be used in screen
         xalign 0
         size 12
         bold True
-        color black
+        color "black"
 
     style arena_header_text:
         is garamond
-        color red
+        color "red"
         size 35
         outlines [(3, "#3a3a3a", 1, 1)]
         drop_shadow [(2, 3)]
-        drop_shadow_color black
+        drop_shadow_color "black"
 
     style arena_badaboom_text:
         align (.5, .5)
-        color red + "85"
-        hover_color red
+        color "#ff000085"
+        hover_color "red"
         font "fonts/badaboom.ttf"
         size 30
 
@@ -674,7 +674,7 @@ init: # Ren'Py Styles (Or replacements):
 
     style yesno_button_text:
         is agrevue
-        color black
+        color "black"
 
     style yesno_label_text:
         is content_text
@@ -700,8 +700,8 @@ init: # Ren'Py Styles (Or replacements):
         ysize 29
 
     style menu_choice_button_blue is menu_choice_button:
-        background Frame(im.Twocolor("content/gfx/frame/chat_text_box_idle.png", white, blue), 5, 5)
-        hover_background Transform(Frame(im.Twocolor("content/gfx/frame/chat_text_box_hover.png", white, blue), 5, 5), xzoom=1.07, yzoom=1.5, align=(.5, .5))
+        background Frame(im.Twocolor("content/gfx/frame/chat_text_box_idle.png", "white", "blue"), 5, 5)
+        hover_background Transform(Frame(im.Twocolor("content/gfx/frame/chat_text_box_hover.png", "white", "blue"), 5, 5), xzoom=1.07, yzoom=1.5, align=(.5, .5))
 
     # Main Menu and Preferences:
     # Gismo's New MM Version!

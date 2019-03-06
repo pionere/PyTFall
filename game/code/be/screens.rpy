@@ -33,7 +33,7 @@ screen target_practice(skill, source, targets):
                     text "Use on all targets!":
                         align .5, .5
                         size 15
-                        hover_color red
+                        hover_color "red"
                         style "dropdown_gm_button_text"
             else:
                 for index, t in enumerate(targets):
@@ -52,7 +52,7 @@ screen target_practice(skill, source, targets):
                             align .5, .5
                             style "dropdown_gm_button_text"
                             size 15
-                            hover_color red
+                            hover_color "red"
     else:
         for index, t in enumerate(targets):
             $ pos = battle.get_cp(t, type="tc", yo=-40)
@@ -99,7 +99,7 @@ screen pick_skill(char):
         frame:
             align (.95, .07)
             style "dropdown_gm_frame"
-            textbutton "{color=[black]}{size=-5}Back":
+            textbutton "{color=black}{size=-5}Back":
                 style "basic_choice_button"
                 xsize 100
                 action SetScreenVariable("menu_mode", "top")
@@ -151,10 +151,10 @@ screen pick_skill(char):
                 if battle.use_items and bool(be_items):
                     action SetScreenVariable("menu_mode", "items")
                 elif bool(be_items):
-                    text_color dimgrey
+                    text_color "dimgrey"
                     action Function(notify, "You can't use items in this battle!")
                 else:
-                    text_color dimgrey
+                    text_color "dimgrey"
                     action Function(notify, "You don't have items usable in battle!")
             textbutton "Skip":
                 xminimum 100
@@ -185,7 +185,7 @@ screen pick_skill(char):
                         yalign .5
                         add pscale(i.icon, 25, 25) yalign .5
                         text "[i.id]" yalign .5 style "dropdown_gm_button_text" size 12
-                    text "[amount]" align 1.0, .5 style "proper_stats_label_text" color purple
+                    text "[amount]" align 1.0, .5 style "proper_stats_label_text" color "purple"
     elif menu_mode == "attacks":
         frame:
             at fade_in_out(t1=.6, t2=.3)
@@ -263,7 +263,7 @@ screen pick_skill(char):
                                     $ img = ProportionalScale(e.icon, 70, 70)
                                     add img align .5, .1
                                 for skill in d[e]:
-                                    textbutton "{=text}{color=[black]}{size=-6}[skill.mn]":
+                                    textbutton "{=text}{color=black}{size=-6}[skill.mn]":
                                         padding 0, 1
                                         margin 0, 0
                                         xsize 138
@@ -280,7 +280,7 @@ screen pick_skill(char):
                         vbox:
                             add ProportionalScale("content/gfx/interface/images/elements/multi.png", 70, 70) align (.5, .1) # xcenter 230 ycenter 58
                             for skill in me:
-                                textbutton "{=text}{color=[black]}{size=-6}[skill.mn]":
+                                textbutton "{=text}{color=black}{size=-6}[skill.mn]":
                                     padding 0, 1
                                     margin 0, 0
                                     xsize 125
@@ -302,7 +302,7 @@ screen battle_overlay(be):
             scrollbars "vertical"
             has vbox
             for entry in reversed(battle.combat_log):
-                text entry style "stats_value_text" size 14 color ivory
+                text entry style "stats_value_text" size 14 color "ivory"
 
     # I'll need to condition this more appropriately later, for now this will do:
     hbox:
@@ -320,7 +320,7 @@ screen battle_overlay(be):
                 if scr:
                     char = scr.scope["_args"][0] # This is not the best code :(
                 if scr and member == char:
-                    portrait_frame = im.Twocolor("content/gfx/frame/MC_bg3.png", grey, grey)
+                    portrait_frame = im.Twocolor("content/gfx/frame/MC_bg3.png", "grey", "grey")
                     img = "content/gfx/frame/ink_box.png"
                 else:
                     portrait_frame = "content/gfx/frame/MC_bg3.png"
@@ -352,9 +352,9 @@ screen battle_overlay(be):
                         text_bold True
                         yalign .03
                         if isinstance(member, Char):
-                            text_color pink
+                            text_color "pink"
                         else:
-                            text_color ivory
+                            text_color "ivory"
 
                     $ health = member.delayedhp
                     fixed:
@@ -365,9 +365,9 @@ screen battle_overlay(be):
                             value AnimatedValue(value=health, range=member.maxhp, delay=.5, old_value=None)
                             thumb None
                             xysize (150, 20)
-                        text "HP" size 14 color ivory bold True xpos 8
+                        text "HP" size 14 color "ivory" bold True xpos 8
                         text "[health]":
-                            color (ivory if health > member.maxhp*.2 else red)
+                            color ("ivory" if health > member.maxhp*.2 else "red")
                             size 14 bold True style_suffix "value_text" xpos 125 yoffset -8
 
                     $ mp = member.delayedmp
@@ -379,9 +379,9 @@ screen battle_overlay(be):
                             value AnimatedValue(value=mp, range=member.maxmp, delay=.5, old_value=None)
                             thumb None
                             xysize (150, 20)
-                        text "MP" size 14 color ivory bold True xpos 8
+                        text "MP" size 14 color "ivory" bold True xpos 8
                         text "[mp]":
-                            color (ivory if mp > member.maxmp*.2 else red)
+                            color ("ivory" if mp > member.maxmp*.2 else "red")
                             size 14 bold True style_suffix "value_text" xpos 125 yoffset -8
 
                     $ vitality = member.delayedvit
@@ -393,9 +393,9 @@ screen battle_overlay(be):
                             value AnimatedValue(value=vitality, range=member.maxvit, delay=.5, old_value=None)
                             thumb None
                             xysize (150, 20)
-                        text "VP" size 14 color ivory bold True xpos 8
+                        text "VP" size 14 color "ivory" bold True xpos 8
                         text "[vitality]":
-                            color (ivory if vitality > member.maxvit*.2 else red)
+                            color ("ivory" if vitality > member.maxvit*.2 else "red")
                             size 14 bold True style_suffix "value_text" xpos 125 yoffset -8
 
     # Overlay for stats:

@@ -201,9 +201,9 @@ init -5 python:
                         worker.logws("joy", -randint(2, 4))
                         worker.logws('vitality', -randint(2, 6))
             else:
-                log.append(choice(["{color=[pink]}%s is doing %s shift as a harlot.{/color}" % (worker.name, worker.p),
-                                   "{color=[pink]}%s gets busy with clients.{/color}" % worker.fullname,
-                                   "{color=[pink]}%s serves customers as a whore.{/color}" % worker.nickname]))
+                log.append(choice(["{color=pink}%s is doing %s shift as a harlot.{/color}" % (worker.name, worker.p),
+                                   "{color=pink}%s gets busy with clients.{/color}" % worker.fullname,
+                                   "{color=pink}%s serves customers as a whore.{/color}" % worker.nickname]))
             return True
 
         def work_brothel(self, worker, client, building, log, effectiveness):
@@ -869,7 +869,7 @@ init -5 python:
             # let's just assume (for now) that dildos are too small to take virginity, otherwise it becomes too complicated in terms of girls control :)
             if traits["Virgin"] in worker.traits and not ('Chastity' in worker.effects):
                 tips = 100 + worker.get_stat("charisma") * 3
-                log.append("\n{color=[pink]}%s lost her virginity!{/color} Customer thought that was super hot and left a tip of {color=[gold]}%d Gold{/color} for the girl.\n\n" % (worker.nickname, tips))
+                log.append("\n{color=pink}%s lost her virginity!{/color} Customer thought that was super hot and left a tip of {color=gold}%d Gold{/color} for the girl.\n\n" % (worker.nickname, tips))
                 worker.remove_trait(traits["Virgin"])
                 if tips:
                     worker.up_counter("_jobs_tips", tips)

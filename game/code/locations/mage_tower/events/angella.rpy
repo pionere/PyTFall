@@ -30,7 +30,7 @@ label angelica_meet:
                 a "If you want to lose one, it is a lot trickier... elements are not shoes you can put on and off. That will cost you 50 000 per elements."
                 a "And feel free to bring your teammates, I can do it for pretty much anyone."
 
-                a "I can also teach you basics of {color=[lightyellow]}Light{/color} and {color=[darkviolet]}Darkness{/color} magic."
+                a "I can also teach you basics of {color=lightyellow}Light{/color} and {color=darkviolet}Darkness{/color} magic."
             "Not really":
                 a "Oh? Well, never mind then..."
                 a "I'll be around if you change your mind."

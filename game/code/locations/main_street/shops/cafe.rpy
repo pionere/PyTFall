@@ -127,9 +127,9 @@ label mc_action_cafe_eat_alone_cafe_invitation:
                     $ result_m = 0
                 $ hero.gfx_mod_stat("mp", result_m)
                 if result_v > 0:
-                    $ result += "{color=[green]} +%d Vitality{/color}" % result_v
+                    $ result += "{color=green} +%d Vitality{/color}" % result_v
                 if result_m > 0:
-                    $ result += "{color=[blue]} +%d MP{/color}" % result_m
+                    $ result += "{color=blue} +%d MP{/color}" % result_m
                 $ hero.say("%s" % result)
                 $ hero.gfx_mod_exp(exp_reward(hero, hero))
                 $ del result, result_v, result_m
@@ -162,11 +162,11 @@ label mc_action_cafe_eat_alone_cafe_invitation:
                     $ result_h = 0
                 $ hero.gfx_mod_stat("health", result_h)
                 if result_v > 0:
-                    $ result += "{color=[green]} +%d Vitality{/color}" % result_v
+                    $ result += "{color=green} +%d Vitality{/color}" % result_v
                 if result_m > 0:
-                    $ result += "{color=[blue]} +%d MP{/color}" % result_m
+                    $ result += "{color=blue} +%d MP{/color}" % result_m
                 if result_h > 0:
-                    $ result += "{color=[red]} +%d Health{/color}" % result_h
+                    $ result += "{color=red} +%d Health{/color}" % result_h
                 $ hero.say ("%s" % result)
                 $ hero.gfx_mod_exp(exp_reward(hero, hero))
                 $ del result, result_v, result_m, result_h
@@ -201,21 +201,21 @@ label mc_action_cafe_eat_alone_cafe_invitation:
                     $ hero.stats.lvl_max["health"] += 2
                     $ hero.stats.max["health"] += 2
                     $ hero.gfx_mod_stat("health", 2)
-                    $ result += "{color=[goldenrod]} +2 Max Health{/color}"
+                    $ result += "{color=goldenrod} +2 Max Health{/color}"
                     $ hero.set_flag("health_bonus_from_eating_in_cafe", value=hero.flag("health_bonus_from_eating_in_cafe")+1)
                 elif locked_dice(10) and hero.flag("health_bonus_from_eating_in_cafe") <= 50: # after 50 successful attempts bonus no longer applies
                     $ hero.stats.lvl_max["health"] += 1
                     $ hero.stats.max["health"] += 1
                     $ hero.gfx_mod_stat("health", 1)
-                    $ result += "{color=[goldenrod]} +1 Max Health{/color}"
+                    $ result += "{color=goldenrod} +1 Max Health{/color}"
                     $ hero.set_flag("health_bonus_from_eating_in_cafe", value=hero.flag("health_bonus_from_eating_in_cafe")+1)
 
                 if result_v > 0:
-                    $ result += "{color=[green]} +%d vitality{/color}" % result_v
+                    $ result += "{color=green} +%d vitality{/color}" % result_v
                 if result_m > 0:
-                    $ result += "{color=[blue]} +%d MP{/color}" % result_m
+                    $ result += "{color=blue} +%d MP{/color}" % result_m
                 if result_h > 0:
-                    $ result += "{color=[red]} +%d Health{/color}" % result_h
+                    $ result += "{color=red} +%d Health{/color}" % result_h
                 $ hero.say ("%s" % result)
                 $ hero.gfx_mod_exp(exp_reward(hero, hero))
                 $ del result, result_v, result_m, result_h

@@ -423,7 +423,7 @@ init -6 python: # Guild, Tracker and Log.
                 se_debug(msg, mode="info")
 
             # Log the day:
-            temp = "{color=[green]}Day: %d{/color} | {color=[green]}%s{/color} is exploring %s!" % (tracker.day, tracker.team.name, tracker.area.name)
+            temp = "{color=green}Day: %d{/color} | {color=green}%s{/color} is exploring %s!" % (tracker.day, tracker.team.name, tracker.area.name)
             tracker.log(temp)
 
             if tracker.state == "traveling to":
@@ -434,7 +434,7 @@ init -6 python: # Guild, Tracker and Log.
             elif tracker.died:
                 tracker.died -= team.members
                 if tracker.died:
-                    temp = "{color=[red]}%s{/color} did not make it through the night. RIP." % ", ".join([d.fullname for d in tracker.died])
+                    temp = "{color=red}%s{/color} did not make it through the night. RIP." % ", ".join([d.fullname for d in tracker.died])
                     tracker.log(temp)
                 if len(tracker.team) == 0:
                     # The team died out during the night FIXME handle (special)items, loot
@@ -610,7 +610,7 @@ init -6 python: # Guild, Tracker and Log.
                             for inv in invlist:
                                 l.extend(explorer.auto_equip(["mp"], inv=inv))
                         if l:
-                            temp = "%s used: {color=[lawngreen]}%s %s{/color} to recover!" % (explorer.nickname, ", ".join(l), plural("item", len(l)))
+                            temp = "%s used: {color=lawngreen}%s %s{/color} to recover!" % (explorer.nickname, ", ".join(l), plural("item", len(l)))
                             self.log(temp)
                     auto_equip_counter += 1
 
@@ -649,11 +649,11 @@ init -6 python: # Guild, Tracker and Log.
                 items = tracker.daily_items
                 cash = tracker.daily_cash
                 if items and cash:
-                    tracker.log("The team has found: %s %s and {color=[gold]}%d Gold{/color} in loot!" % (", ".join(items), plural("item", len(items)), cash))
+                    tracker.log("The team has found: %s %s and {color=gold}%d Gold{/color} in loot!" % (", ".join(items), plural("item", len(items)), cash))
                     tracker.found_items.extend(items)
                     tracker.cash.append(cash)
                 elif cash and not items:
-                    tracker.log("The team has found: {color=[gold]}%d Gold{/color} in loot." % cash)
+                    tracker.log("The team has found: {color=gold}%d Gold{/color} in loot." % cash)
                     tracker.cash.append(cash)
                 elif items and not cash:
                     tracker.log("The team has found: %s %s" % (", ".join(items), plural("item", len(items))))
@@ -833,7 +833,7 @@ init -6 python: # Guild, Tracker and Log.
 
                 # Hazzard:
                 if area.hazard:
-                    temp = "{color=[yellow]}Hazardous area!{/color} The team has been effected."
+                    temp = "{color=yellow}Hazardous area!{/color} The team has been effected."
                     tracker.log(temp)
                     for char in team:
                         for stat, value in area.hazard:
@@ -885,7 +885,7 @@ init -6 python: # Guild, Tracker and Log.
                     give = max(1, randint(1, tracker.max_cash/2))
                     tracker.daily_cash += give
 
-                    temp = "Found {color=[gold]}%d Gold{/color}!" % give
+                    temp = "Found {color=gold}%d Gold{/color}!" % give
                     tracker.log(temp)
                     if DEBUG_SE:
                         msg = "{} Found {} Gold!".format(team.name, give)
@@ -919,7 +919,7 @@ init -6 python: # Guild, Tracker and Log.
 
                                 char = store.chars[id]
                                 tracker.captured_chars.append(char)
-                                temp = "Your team has captured {color=[pink]}%s{/color}!" % char.name
+                                temp = "Your team has captured {color=pink}%s{/color}!" % char.name
                                 temp = set_font_color(temp, "lawngreen")
                                 tracker.log(temp)
                                 if DEBUG_SE:
@@ -980,7 +980,7 @@ init -6 python: # Guild, Tracker and Log.
                         self.env.exit("back2camp") # member died -> back to camp
 
                     if tracker.daily_mobs >= tracker.risk/25:
-                        temp = "Your team decided to go back to the camp to avoid further {color=[red]}risk{/color}."
+                        temp = "Your team decided to go back to the camp to avoid further {color=red}risk{/color}."
                         tracker.log(temp)
                         if DEBUG_SE:
                             msg = "{} has finished an exploration scenario. (Fought too much)".format(team.name)

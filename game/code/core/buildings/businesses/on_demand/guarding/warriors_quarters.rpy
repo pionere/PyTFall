@@ -40,7 +40,7 @@ init -5 python:
 
                 threat = building.threat
                 if DSNBR and not self.env.now % 5:
-                    temp = "{color=[red]}" + "DEBUG: {0:.2f} Threat to THE BUILDING!".format(threat)
+                    temp = "{color=red}" + "DEBUG: {0:.2f} Threat to THE BUILDING!".format(threat)
                     self.log(temp, True)
 
                 if threat >= 200:
@@ -253,7 +253,7 @@ init -5 python:
             # temp = "{}: {} Guards are intercepting attack event in {}".format(self.env.now, set_font_color(len(defenders), "red"), building.name)
             # self.log(temp)
 
-            temp = "{color=[red]}A number of clients got completely out of hand!{/color}"
+            temp = "{color=red}A number of clients got completely out of hand!{/color}"
             self.log(temp, True)
 
             if not defenders:

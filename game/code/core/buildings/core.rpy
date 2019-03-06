@@ -815,7 +815,7 @@ init -10 python:
                         price = self.get_cleaning_price()
                         if hero.take_money(price, "Hired Cleaners"):
                             self.dirt = 0
-                            txt.append("Cleaners arrived to tidy up the place. You had to pay {color=[gold]}%d Gold{/color}." % price)
+                            txt.append("Cleaners arrived to tidy up the place. You had to pay {color=gold}%d Gold{/color}." % price)
                         else:
                             txt.append("You wanted to hire cleaners, but could not afford it.")
 
@@ -908,7 +908,7 @@ init -10 python:
 
             while (1):
                 if not env.now % 20:
-                    temp = "{color=[green]} =========>>>{/color}\n"
+                    temp = "{color=green} =========>>>{/color}\n"
                     self.log(temp, True)
                 yield env.timeout(1)
                 simpy_debug("%s DU Executing =====================>>>", env.now)
@@ -930,7 +930,7 @@ init -10 python:
 
                 # check the need for police intervention
                 if self.threat >= 900:
-                    temp = "{color=[red]}Police{/color} arrived at %s!" % self.name
+                    temp = "{color=red}Police{/color} arrived at %s!" % self.name
                     price = 500*self.get_max_client_capacity()*(self.tier or 1)
                     if hero.take_money(price, "Police"):
                         temp += " You paid %d in penalty fees for allowing things to get this out of hand." % price
@@ -1178,7 +1178,7 @@ init -10 python:
                 if spentcash and not hero.take_money(spentcash, reason="Building Ads"):
                     rep_hit = max(10, spentcash/10)
                     self.modrep(-rep_hit)
-                    txt.append("{color=[red]}And yet, you did not have enough money to pay your advertisers! They took it out on you by promoting %s as a shitty dump...{/color}" % self.name)
+                    txt.append("{color=red}And yet, you did not have enough money to pay your advertisers! They took it out on you by promoting %s as a shitty dump...{/color}" % self.name)
                     self.flag_red = True
 
                 self.fin.log_logical_expense(spentcash, "Ads")

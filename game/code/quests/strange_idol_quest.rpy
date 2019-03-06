@@ -60,7 +60,7 @@ label strange_idol3(event):
     $ pytfall.world_quests.get(event.quest).finish_in_label("You completed the idol! It disappeared though.", "complete")
     "The place where you stored those pieces of the strange idol is slightly scorched, the pieces themselves nowhere to be found."
     "Worriedly you continue with your morning feeling... {i}better{/i}."
-    "{color=[red]}Your sex skills improved considerably!{/color}"
+    "{color=red}Your sex skills improved considerably!{/color}"
 
 
 

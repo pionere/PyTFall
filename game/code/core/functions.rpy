@@ -5,7 +5,7 @@ init -11 python:
         @param: color: should be supplied as a string! Not as a variable!
         Sets font color during interpolation.
         """
-        return "".join(["{color=[%s]}" % color, str(s), "{/color}"])
+        return "".join(["{color=%s}" % color, str(s), "{/color}"])
 
     def add_dicts(*dicts):
         """Does what I originally expected dict.update method to do many years ago...

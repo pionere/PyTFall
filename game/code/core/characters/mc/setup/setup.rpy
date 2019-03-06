@@ -227,7 +227,7 @@ init: # MC Setup Screens:
 
         # Rename and Start buttons + Classes are now here as well!!!:
         if getattr(store, "mc_substory", None):
-            textbutton "Start Game" text_color white text_font "fonts/TisaOTB.otf" text_size 40 at fade_in_out():
+            textbutton "Start Game" text_color "white" text_font "fonts/TisaOTB.otf" text_size 40 at fade_in_out():
                 background Transform(Frame("content/gfx/interface/images/story12.png", 5, 5), alpha=1)
                 hover_background Transform(Frame(im.MatrixColor("content/gfx/interface/images/story12.png", im.matrix.brightness(.15)), 5, 5), alpha=1)
                 align (.46, .93)
@@ -236,7 +236,7 @@ init: # MC Setup Screens:
             # align (.37, .10)
             pos (365, 48)
             hbox:
-                textbutton "Gender:" text_color goldenrod text_font "fonts/TisaOTM.otf" text_size 20:
+                textbutton "Gender:" text_color "goldenrod" text_font "fonts/TisaOTM.otf" text_size 20:
                     background Transform(Frame("content/gfx/interface/images/story12.png", 5, 5), alpha=.8)
                     xpadding 12
                     ypadding 8
@@ -260,11 +260,11 @@ init: # MC Setup Screens:
                     xpadding 12
                     ypadding 8
             hbox:
-                textbutton "Name:" text_color goldenrod text_font "fonts/TisaOTM.otf" text_size 20:
+                textbutton "Name:" text_color "goldenrod" text_font "fonts/TisaOTM.otf" text_size 20:
                     background Transform(Frame("content/gfx/interface/images/story12.png", 5, 5), alpha=.8)
                     xpadding 12
                     ypadding 8
-                textbutton str(hero.name) text_color white text_hover_color red text_font "fonts/TisaOTM.otf" text_size 20:
+                textbutton str(hero.name) text_color "white" text_hover_color "red" text_font "fonts/TisaOTM.otf" text_size 20:
                     background Transform(Frame("content/gfx/interface/images/story12.png", 5, 5), alpha=.8)
                     hover_background Transform(Frame(im.MatrixColor("content/gfx/interface/images/story12.png", im.matrix.brightness(.15)), 5, 5), alpha=1)
                     action Show("char_rename", char=hero)

@@ -62,7 +62,7 @@ label time_temple:
                         "Pay":
                             $ hero.set_flag("dnd_time_healing_day")
                             play sound "content/sfx/sound/events/clock.ogg"
-                            with Fade(.5, .2, .5, color=goldenrod)
+                            with Fade(.5, .2, .5, color="goldenrod")
                             $ hero.take_money(res, reason="Time Temple")
                             python:
                                 for i in temp_charcters:
@@ -92,7 +92,7 @@ label time_temple:
                 menu:
                     "Yes":
                         play sound "content/sfx/sound/events/clock.ogg"
-                        with Fade(.5, .2, .5, color=goldenrod)
+                        with Fade(.5, .2, .5, color="goldenrod")
                         $ hero.take_money(100000, reason="Time Temple")
                         $ hero.AP = hero.baseAP
                         t "Your time has been returned to you. Come again if you need me."

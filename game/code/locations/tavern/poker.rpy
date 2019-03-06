@@ -191,7 +191,7 @@ screen city_tavern_show_poker_status(): # additional screen, shows all info rela
                 add "content/gfx/interface/images/poker_winner.png" xalign .5
                 spacing 5
             $ result = dice_poker_calculate(dice_1)[0]
-            text result xalign .98 style "stats_value_text" color gold size 12
+            text result xalign .98 style "stats_value_text" color "gold" size 12
     frame:
         xalign .05
         yalign .95
@@ -204,7 +204,7 @@ screen city_tavern_show_poker_status(): # additional screen, shows all info rela
                 add "content/gfx/interface/images/poker_winner.png" xalign .5
                 spacing 5
             $ result = dice_poker_calculate(dice_2)[0]
-            text result xalign .98 style "stats_value_text" color gold size 12
+            text result xalign .98 style "stats_value_text" color "gold" size 12
     frame:
         xalign .5
         yalign .05
@@ -215,4 +215,4 @@ screen city_tavern_show_poker_status(): # additional screen, shows all info rela
         vbox:
             xalign .5
             add "content/gfx/interface/images/tavern_gold.png"
-            text str(city_tavern_current_dice_bet) xalign .5 style "stats_value_text" color gold
+            text str(city_tavern_current_dice_bet) xalign .5 style "stats_value_text" color "gold"

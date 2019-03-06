@@ -47,7 +47,7 @@ screen quest_log():
                                 xalign .5
                                 xysize (270, 50)
                                 background Frame("content/gfx/frame/namebox5.png", 10, 10)
-                                label (u"Active:") text_size 23 text_color ivory align .5, .6
+                                label (u"Active:") text_size 23 text_color "ivory" align .5, .6
                             null height 20
                             for i in pytfall.world_quests.active:
                                 textbutton i.name action SetScreenVariable("current_quest", i.name)
@@ -60,7 +60,7 @@ screen quest_log():
                                 xalign .5
                                 xysize (270, 50)
                                 background Frame("content/gfx/frame/namebox5.png", 10, 10)
-                                label (u"Complete:") text_size 23 text_color ivory align(.5, .6)
+                                label (u"Complete:") text_size 23 text_color "ivory" align(.5, .6)
                             null height 20
                             for i in pytfall.world_quests.complete:
                                 textbutton i.name action SetScreenVariable("current_quest", i.name)
@@ -73,7 +73,7 @@ screen quest_log():
                                 xalign .5
                                 xysize (270, 50)
                                 background Frame("content/gfx/frame/namebox5.png", 10, 10)
-                                label (u"Failed:") text_size 23 text_color ivory align(.5, .6)
+                                label (u"Failed:") text_size 23 text_color "ivory" align(.5, .6)
                             null height 20
                             for i in pytfall.world_quests.failed:
                                 textbutton i.name action SetScreenVariable("current_quest", i.name)
@@ -86,7 +86,7 @@ screen quest_log():
                                 xalign .5
                                 xysize (270, 50)
                                 background Frame("content/gfx/frame/namebox5.png", 10, 10)
-                                label (u"Unstarted:") text_size 23 text_color ivory align(.5, .6)
+                                label (u"Unstarted:") text_size 23 text_color "ivory" align(.5, .6)
                             null height 20
                             for i in pytfall.world_quests.quests:
                                 if not i.active and not i.complete and not i.failed:

@@ -1242,7 +1242,7 @@ init -9 python:
 
             # Warning the player of a scheduled arena match:
             if day+1 in hero.fighting_days:
-                txt.append("{color=[orange]}You have a scheduled Arena match today! Don't you dare chickening out :){/color}")
+                txt.append("{color=orange}You have a scheduled Arena match today! Don't you dare chickening out :){/color}")
 
             # Add the hero's matchresult from today
             if self.hero_match_result:

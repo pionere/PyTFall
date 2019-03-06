@@ -23,8 +23,6 @@ label hero_profile:
                     $ hero.name = n
                     $ hero.nickname = hero.name
                     $ hero.fullname = hero.name
-                    if hero.name.lower() == "darktl": # LoL! :D
-                        $ hero.gold += 888888888
             if result[1] == "nick":
                 $ n = renpy.call_screen("pyt_input", hero.name, "Enter Name", 20)
                 if len(n):
@@ -81,108 +79,42 @@ screen hero_profile():
         xysize (270, 270)
         pos (300, 413)
         add Transform(child=RadarChart((float(hero.get_stat("attack"))/hero.get_max("attack")), (float(hero.get_stat("defence"))/hero.get_max("defence")), (float(hero.get_stat("agility"))/hero.get_max("agility")),
-                                       (float(hero.get_stat("luck"))/hero.get_max("luck")), (float(hero.get_stat("magic"))/hero.get_max("magic")), 112, 126, 148, darkgreen), alpha=.4) align (.5, .5)
+                                       (float(hero.get_stat("luck"))/hero.get_max("luck")), (float(hero.get_stat("magic"))/hero.get_max("magic")), 112, 126, 148, "darkgreen"), alpha=.4) align (.5, .5)
         add Transform(child=RadarChart((float(hero.get_stat("attack"))/hero.get_max("attack")), (float(hero.get_stat("defence"))/hero.get_max("defence")), (float(hero.get_stat("agility"))/hero.get_max("agility")),
-                                       (float(hero.get_stat("luck"))/hero.get_max("luck")), (float(hero.get_stat("magic"))/hero.get_max("magic")), 65, 126, 148, green), alpha=.3) align (.5, .5)
+                                       (float(hero.get_stat("luck"))/hero.get_max("luck")), (float(hero.get_stat("magic"))/hero.get_max("magic")), 65, 126, 148, "green"), alpha=.3) align (.5, .5)
         add Transform(child=RadarChart((float(hero.get_stat("attack"))/hero.get_max("attack")), (float(hero.get_stat("defence"))/hero.get_max("defence")), (float(hero.get_stat("agility"))/hero.get_max("agility")),
-                                       (float(hero.get_stat("luck"))/hero.get_max("luck")), (float(hero.get_stat("magic"))/hero.get_max("magic")), 33, 126, 148, lightgreen), alpha=.2) align (.5, .5)
+                                       (float(hero.get_stat("luck"))/hero.get_max("luck")), (float(hero.get_stat("magic"))/hero.get_max("magic")), 33, 126, 148, "lightgreen"), alpha=.2) align (.5, .5)
         add ProportionalScale("content/gfx/interface/images/pentagon1.png", 250, 250) align (.01, .5)
 
     fixed:
-        frame:
-            pos (375, 402)
-            background Frame(Transform("content/gfx/frame/stat_box_proper.png", alpha=.9), 10, 10)
-            xysize 100, 30
-            hbox:
-                align .5, .5
-                add pscale("content/gfx/interface/images/atk.png", 24, 24)
-                text("{size=-5}%d|%d"%(hero.get_stat("attack"), hero.get_max("attack"))):
-                    yalign .5
-                    font "fonts/Rubius.ttf"
-                    color red
-                    outlines [(1, "#0d0d0d", 0, 0)]
-            if "attack" in base_ss:
-                button:
-                    xysize 20, 20
-                    offset -10, -16
-                    background pscale("content/gfx/interface/icons/stars/legendary.png", 20, 20)
-                    action NullAction()
-                    tooltip "This is a Class Stat!"
-        frame:
-            pos (223, 483)
-            background Frame(Transform("content/gfx/frame/stat_box_proper.png", alpha=.9), 10, 10)
-            xysize 100, 30
-            hbox:
-                align .5, .5
-                add pscale("content/gfx/interface/images/def.png", 24, 24)
-                text("{size=-5}%d|%d"%(hero.get_stat("defence"), hero.get_max("defence"))):
-                    yalign .5
-                    color "#dc762c"
-                    font "fonts/Rubius.ttf"
-                    outlines [(1, "#0d0d0d", 0, 0)]
-            if "defence" in base_ss:
-                button:
-                    xysize 20, 20
-                    offset -10, -16
-                    background pscale("content/gfx/interface/icons/stars/legendary.png", 20, 20)
-                    action NullAction()
-                    tooltip "This is a Class Stat!"
-        frame:
-            pos (255, 643)
-            background Frame(Transform("content/gfx/frame/stat_box_proper.png", alpha=.9), 10, 10)
-            xysize 100, 30
-            hbox:
-                align .5, .5
-                add pscale("content/gfx/interface/images/agi.png", 24, 24)
-                text("{size=-5}%d|%d"%(hero.get_stat("agility"), hero.get_max("agility"))):
-                    yalign .5
-                    color "#1E90FF"
-                    font "fonts/Rubius.ttf"
-                    outlines [(1, "#0d0d0d", 0, 0)]
-            if "agility" in base_ss:
-                button:
-                    xysize 20, 20
-                    offset -10, -16
-                    background pscale("content/gfx/interface/icons/stars/legendary.png", 20, 20)
-                    action NullAction()
-                    tooltip "This is a Class Stat!"
-        frame:
-            pos (495, 643)
-            background Frame(Transform("content/gfx/frame/stat_box_proper.png", alpha=.9), 10, 10)
-            xysize 100, 30
-            hbox:
-                align .5, .5
-                add pscale("content/gfx/interface/images/luck.png", 24, 24)
-                text("{size=-5}%d|%d" % (hero.get_stat("luck"), hero.get_max("luck"))):
-                    yalign .5
-                    color "#00FA9A"
-                    font "fonts/Rubius.ttf"
-                    outlines [(1, "#0d0d0d", 0, 0)]
-            if "luck" in base_ss:
-                button:
-                    xysize 20, 20
-                    offset -10, -16
-                    background pscale("content/gfx/interface/icons/stars/legendary.png", 20, 20)
-                    action NullAction()
-                    tooltip "This is a Class Stat!"
-        frame:
-            pos (526, 483)
-            background Frame(Transform("content/gfx/frame/stat_box_proper.png", alpha=.9), 10, 10)
-            xysize 100, 30
-            hbox:
-                align .5, .5
-                add pscale("content/gfx/interface/images/mag.png", 24, 24)
-                text("{size=-5}{color=#8470FF}%d|%d" % (hero.get_stat("magic"), hero.get_max("magic"))):
-                    yalign .5
-                    font "fonts/Rubius.ttf"
-                    outlines [(1, "#0d0d0d", 0, 0)]
-            if "magic" in base_ss:
-                button:
-                    xysize 20, 20
-                    offset -10, -16
-                    background pscale("content/gfx/interface/icons/stars/legendary.png", 20, 20)
-                    action NullAction()
-                    tooltip "This is a Class Stat!"
+        $ stats = [("attack", (375, 402), "content/gfx/interface/images/atk.png", "red"),
+                   ("defence", (223, 483), "content/gfx/interface/images/def.png", "darkorange"), # "chocolate" #   "#dc762c"
+                   ("agility", (255, 643), "content/gfx/interface/images/agi.png", "dodgerblue"),
+                   ("luck", (495, 643), "content/gfx/interface/images/luck.png", "lime"), #"springgreen" #"#00FA9A"
+                   ("magic", (526, 483), "content/gfx/interface/images/mag.png", "#8470FF")] #"" #""
+
+        for stat, pos, img, color in stats:
+            $ temp = hero.get_max(stat)
+            $ tmp = 80 if temp < 100 else (100 if temp < 1000 else 120)
+            frame:
+                pos pos
+                background Frame(Transform("content/gfx/frame/stat_box_proper.png", alpha=.9), 10, 10)
+                xysize tmp, 30
+                hbox:
+                    align .5, .5
+                    add im.Scale(img, 24, 24)
+                    text("{size=-5}%d|%d"%(hero.get_stat(stat), temp)):
+                        yalign .5
+                        font "fonts/Rubius.ttf"
+                        color color
+                        outlines [(1, "#0d0d0d", 0, 0)]
+                if stat in base_ss:
+                    button:
+                        xysize 20, 20
+                        offset -6, -12
+                        background pscale("content/gfx/interface/icons/stars/legendary.png", 16, 16)
+                        action NullAction()
+                        tooltip "This is a Class Stat!"
 
     # LEFT FRAME (Stats/Friends/Etc) ====================================>
     vbox:
@@ -202,21 +134,13 @@ screen hero_profile():
             tooltip "Click to rename yourself."
 
         hbox:
-            spacing 1
-            if (hero.level) < 10:
-                pos (89, 11)
-            elif (hero.level) < 100:
-                pos (86, 11)
-            elif (hero.level) < 10000:
-                pos (77, 11)
-            else:
-                pos (73, 11)
-            label "{color=#CDAD00}Lvl" text_font "fonts/Rubius.ttf" text_size 16 text_outlines [(1, "#3a3a3a", 0, 0)]
-            label "{color=#CDAD00}[hero.level]" text_font "fonts/Rubius.ttf" text_size 16 text_outlines [(1, "#3a3a3a", 0, 0)]
+            xsize 217
+            ypos 11
+            label "Lvl [hero.level]" text_color "#CDAD00" text_font "fonts/Rubius.ttf" text_size 16 text_outlines [(1, "#3a3a3a", 0, 0)] xalign .5
         hbox:
-            pos (84, 21)
-            label "{color=#CDAD00}Tier " text_font "fonts/Rubius.ttf" text_size 16 text_outlines [(1, "#3a3a3a", 0, 0)]
-            label "{color=#CDAD00}[hero.tier]" text_font "fonts/Rubius.ttf" text_size 16 text_outlines [(1, "#3a3a3a", 0, 0)]
+            xsize 217
+            ypos 21
+            label "Tier [hero.tier]" text_color "#CDAD00" text_font "fonts/Rubius.ttf" text_size 16 text_outlines [(1, "#3a3a3a", 0, 0)] xalign .5
 
 
         if lframe_display == "status":
@@ -239,7 +163,7 @@ screen hero_profile():
                             action NullAction()
                             tooltip "This is a Class Stat!"
                     $ temp, tmp = hero.get_stat("health"), hero.get_max("health")
-                    text "%s/%s"%(temp, tmp) color (red if temp <= tmp*.3 else "#F5F5DC") xalign 1.0 style_suffix "value_text" xoffset -6 yoffset 4
+                    text "%s/%s"%(temp, tmp) color ("red" if temp <= tmp*.3 else "#F5F5DC") xalign 1.0 style_suffix "value_text" xoffset -6 yoffset 4
                 frame:
                     xysize (212, 27)
                     xalign .5
@@ -252,7 +176,7 @@ screen hero_profile():
                             action NullAction()
                             tooltip "This is a Class Stat!"
                     $ temp, tmp = hero.get_stat("mp"), hero.get_max("mp")
-                    text "%s/%s"%(temp, tmp) color (red if temp <= tmp*.3 else "#F5F5DC") xalign 1.0 style_suffix "value_text" xoffset -6 yoffset 4
+                    text "%s/%s"%(temp, tmp) color ("red" if temp <= tmp*.3 else "#F5F5DC") xalign 1.0 style_suffix "value_text" xoffset -6 yoffset 4
                 frame:
                     xysize (212, 27)
                     xalign .5
@@ -265,7 +189,7 @@ screen hero_profile():
                             action NullAction()
                             tooltip "This is a Class Stat!"
                     $ temp, tmp = hero.get_stat("vitality"), hero.get_max("vitality")
-                    text "%s/%s"%(temp, tmp) color (red if temp <= tmp*.3 else "#F5F5DC") xalign 1.0 style_suffix "value_text" xoffset -6 yoffset 4
+                    text "%s/%s"%(temp, tmp) color ("red" if temp <= tmp*.3 else "#F5F5DC") xalign 1.0 style_suffix "value_text" xoffset -6 yoffset 4
                 for stat in stats:
                     frame:
                         xysize (212, 27)
@@ -290,7 +214,7 @@ screen hero_profile():
                 fixed:
                     xysize 40, 16
                     yalign .5
-                    text "Home:" color ivory yalign .5 size 16
+                    text "Home:" color "ivory" yalign .5 size 16
                 button:
                     style_group "ddlist"
                     xalign .0
@@ -306,7 +230,7 @@ screen hero_profile():
                 fixed:
                     xysize 40, 16
                     yalign .5
-                    text "Work:" color ivory yalign .5 size 16
+                    text "Work:" color "ivory" yalign .5 size 16
                 button:
                     style_group "ddlist"
                     xalign .0
@@ -322,7 +246,7 @@ screen hero_profile():
                 fixed:
                     xysize 40, 16
                     yalign .5
-                    text "Action:" color ivory yalign .5 size 16
+                    text "Action:" color "ivory" yalign .5 size 16
                 button:
                     style_group "ddlist"
                     xalign .0
@@ -349,7 +273,7 @@ screen hero_profile():
                         if skill in base_ss or skill_val/float(skill_limit) > .1:
                             hbox:
                                 xsize 200
-                                text "{}:".format(skill.capitalize()) style_suffix "value_text" color gold xalign .0 size 18
+                                text "{}:".format(skill.capitalize()) style_suffix "value_text" color "gold" xalign .0 size 18
                                 hbox:
                                     xalign 1.0
                                     yoffset 8
@@ -392,15 +316,15 @@ screen hero_profile():
             xalign .5
             yfill True
             background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.6), 10, 10)
-            xysize (153, 60)
-            text (u"{color=#CDAD00} Day [day]") font "fonts/Rubius.ttf" size 26 outlines [(1, "#3a3a3a", 0, 0)] align (.5, .6)
+            xysize (142, 60)
+            text (u"Day [day]") color "#CDAD00" font "fonts/Rubius.ttf" size 26 outlines [(1, "#3a3a3a", 0, 0)] align (.5, .6)
         null height 2
         frame:
             xalign .5
             xysize 142, 22
             style_prefix "proper_stats"
-            text "Gold:" size 16  outlines [(1, "#3a3a3a", 0, 0)] color gold xalign .1
-            text "[hero.gold]" size 14 outlines [(1, "#3a3a3a", 0, 0)] style_suffix "value_text" color gold xalign .9 yoffset 2
+            text "Gold:" size 16  outlines [(1, "#3a3a3a", 0, 0)] color "gold" xalign .1
+            text "[hero.gold]" size 14 outlines [(1, "#3a3a3a", 0, 0)] style_suffix "value_text" color "gold" xalign .9 yoffset 2
 
     # ATTACKS/MAGIC SKILLS ====================================>
     if rframe_display == "skills":
@@ -412,7 +336,7 @@ screen hero_profile():
                 background Frame("content/gfx/frame/hp_1.png", 5, 5)
                 xysize (160, 192)
                 has vbox
-                label (u"Attacks:") text_size 20 text_color ivory text_bold True xalign .45 text_outlines [(3, "#3a3a3a", 0, 0), (2, "#8B0000", 0, 0), (1, "#3a3a3a", 0, 0)]
+                label (u"Attacks:") text_size 20 text_color "ivory" text_bold True xalign .45 text_outlines [(3, "#424242", 0, 0), (2, "#8B0000", 0, 0), (1, "#424242", 0, 0)]
                 viewport:
                     xysize (160, 155)
                     scrollbars "vertical"
@@ -428,13 +352,13 @@ screen hero_profile():
                                 hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
                                 action NullAction()
                                 tooltip ["be", entry]
-                                text "[entry.name]" idle_color ivory align .5, .5 hover_color crimson size min(15, int(250 / max(1, len(entry.name))))
+                                text "[entry.name]" idle_color "ivory" align .5, .5 hover_color "crimson" size min(15, int(250 / max(1, len(entry.name))))
 
             frame:
                 background Frame("content/gfx/frame/hp_1.png", 5, 5)
                 xysize (160, 192)
                 has vbox
-                label (u"Spells:") text_size 20 text_color ivory text_bold True xalign .45 text_outlines [(3, "#3a3a3a", 0, 0), (2, "#104E8B", 0, 0), (1, "#3a3a3a", 0, 0)]
+                label (u"Spells:") text_size 20 text_color "ivory" text_bold True xalign .45 text_outlines [(3, "#424242", 0, 0), (2, "#104E8B", 0, 0), (1, "#424242", 0, 0)]
                 viewport:
                     xysize (160, 155)
                     scrollbars "vertical"
@@ -450,7 +374,7 @@ screen hero_profile():
                                 hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
                                 action NullAction()
                                 tooltip ["be", entry]
-                                text "[entry.name]" idle_color ivory align .5, .5 hover_color crimson size min(15, int(250 / max(1, len(entry.name))))
+                                text "[entry.name]" idle_color "ivory" align .5, .5 hover_color "crimson" size min(15, int(250 / max(1, len(entry.name))))
 
 
     # TRAITS ====================================>
@@ -461,7 +385,7 @@ screen hero_profile():
             xysize (160, 389)
             style_group "proper_stats"
             has vbox
-            label (u"Traits:") text_size 20 text_color ivory text_bold True xalign .45
+            label (u"Traits:") text_size 20 text_color "ivory" text_bold True xalign .45
             viewport:
                 xysize (160, 150)
                 draggable True
@@ -477,13 +401,13 @@ screen hero_profile():
                                 background Null()
                                 xsize 147
                                 action Show("show_trait_info", trait=trait.id, place="mc_trait")
-                                text trait.id idle_color ivory align .5, .5 hover_color crimson text_align .5 size min(15, int(250 / max(1, len(trait.id))))
+                                text trait.id idle_color "ivory" align .5, .5 hover_color "crimson" text_align .5 size min(15, int(250 / max(1, len(trait.id))))
                                 tooltip "%s"%trait.desc
                                 hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
 
             null height 10
 
-            label (u"Effects:") text_size 20 text_color ivory text_bold True xalign .45
+            label (u"Effects:") text_size 20 text_color "ivory" text_bold True xalign .45
             viewport:
                 xysize (160, 150)
                 draggable True
@@ -496,7 +420,7 @@ screen hero_profile():
                             background Null()
                             xysize (147, 25)
                             action NullAction()
-                            text "[effect.name]" idle_color ivory align .5, .5 hover_color crimson size min(15, int(250 / max(1, len(trait.id))))
+                            text "[effect.name]" idle_color "ivory" align .5, .5 hover_color "crimson" size min(15, int(250 / max(1, len(trait.id))))
                             tooltip "%s"%effect.desc
                             hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
 
@@ -583,7 +507,7 @@ screen hero_profile():
         label "[hero.AP]":
             pos (130, -2)
             style "content_label"
-            text_color ivory
+            text_color "ivory"
             text_size 22
 
 screen hero_team():
@@ -596,7 +520,7 @@ screen hero_team():
     frame:
         style_prefix "proper_stats"
         align .58, .4
-        background Frame(Transform(im.Twocolor("content/gfx/frame/ink_box.png", white, black), alpha=.7), 5, 5)
+        background Frame(Transform(im.Twocolor("content/gfx/frame/ink_box.png", "white", "black"), alpha=.7), 5, 5)
         padding 10, 5
         has vbox spacing 10
 
@@ -701,7 +625,7 @@ screen hero_team():
                             thumb None
                             xysize (150, 20)
                         text "HP" size 14 color "#F5F5DC" bold True xpos 8
-                        $ tmb = red if temp <= tmp*.3 else "#F5F5DC"
+                        $ tmb = "red" if temp <= tmp*.3 else "#F5F5DC"
                         text "[temp]" size 14 color tmb bold True style_suffix "value_text" xpos 125 yoffset -8
 
                     # MP:
@@ -716,7 +640,7 @@ screen hero_team():
                             thumb None
                             xysize (150, 20)
                         text "MP" size 14 color "#F5F5DC" bold True xpos 8
-                        $ tmb = red if temp <= tmp*.3 else "#F5F5DC"
+                        $ tmb = "red" if temp <= tmp*.3 else "#F5F5DC"
                         text "[temp]" size 14 color tmb bold True style_suffix "value_text" xpos 125 yoffset -8
 
                     # VP
@@ -731,7 +655,7 @@ screen hero_team():
                             thumb None
                             xysize (150, 20)
                         text "VP" size 14 color "#F5F5DC" bold True xpos 8
-                        $ tmb = red if temp <= tmp*.3 else "#F5F5DC"
+                        $ tmb = "red" if temp <= tmp*.3 else "#F5F5DC"
                         text "[temp]" size 14 color tmb bold True style_suffix "value_text" xpos 125 yoffset -8
 
         # Preset teams
@@ -837,9 +761,9 @@ screen hero_finances():
                             size 20
                             xpos 15
                             if total > 0:
-                                color lawngreen style_suffix "value_text"
+                                color "lawngreen" style_suffix "value_text"
                             else:
-                                color red style_suffix "value_text"
+                                color "red" style_suffix "value_text"
 
                     hbox:
                         style_group "basic"
@@ -906,10 +830,8 @@ screen hero_finances():
                         text ("Revenue: [game_total]"):
                             size 20
                             xpos 15
-                            if game_total > 0:
-                                color lawngreen style_suffix "value_text"
-                            else:
-                                color red style_suffix "value_text"
+                            style_suffix "value_text"
+                            color ("lawngreen" if game_total > 0 else "red") 
 
                     hbox:
                         style_group "basic"
@@ -922,20 +844,20 @@ screen hero_finances():
                         xmaximum 140
                         xfill True
                         if hero.fin.property_tax_debt:
-                            text ("Property:\n(Tax Debt") color red size 20 outlines [(2, "#424242", 0, 0)]
+                            text ("Property:\n(Tax Debt") color "red" size 20 outlines [(2, "#424242", 0, 0)]
                         if hero.fin.income_tax_debt:
-                            text ("Income:\n(Tax Debt)") color crimson size 20 outlines [(2, "#424242", 0, 0)]
+                            text ("Income:\n(Tax Debt)") color "crimson" size 20 outlines [(2, "#424242", 0, 0)]
                         if day != 1:
                             text "Taxes:\n(This week)" size 20 outlines [(2, "#424242", 0, 0)]
                     vbox:
                         if hero.fin.property_tax_debt:
                             null height 4
                             spacing 4
-                            text ("[hero.fin.property_tax_debt]\n ") color red style_suffix "value_text"
+                            text ("[hero.fin.property_tax_debt]\n ") color "red" style_suffix "value_text"
                         if hero.fin.income_tax_debt:
                             null height 4
                             spacing 4
-                            text ("[hero.fin.income_tax_debt]\n ") color crimson style_suffix "value_text"
+                            text ("[hero.fin.income_tax_debt]\n ") color "crimson" style_suffix "value_text"
                         if day != 1:
                             python:
                                 days = calendar.days.index(calendar.weekday())

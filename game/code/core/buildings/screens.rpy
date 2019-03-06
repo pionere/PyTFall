@@ -215,7 +215,7 @@ init:
         else:
             text "You don't own any buildings.":
                 size 50
-                color ivory
+                color "ivory"
                 align .5, .5
                 style "TisaOTM"
 
@@ -297,22 +297,22 @@ init:
                 if c0:
                     frame:
                         xysize (296, 27)
-                        text "Indoor Slots:" xalign .02 color ivory
+                        text "Indoor Slots:" xalign .02 color "ivory"
                         text "%d/%d" % (bm_building.in_slots, bm_building.in_slots_max) xalign .98 style_suffix "value_text"
                 if c1:
                     frame:
                         xysize (296, 27)
-                        text "Outdoor Slots:" xalign .02 color ivory
+                        text "Outdoor Slots:" xalign .02 color "ivory"
                         text "%d/%d" % (bm_building.ex_slots, bm_building.ex_slots_max) xalign .98 style_suffix "value_text"
                 if c2:
                     frame:
                         xysize (296, 27)
-                        text "Workable Capacity:" xalign .02 color ivory
+                        text "Workable Capacity:" xalign .02 color "ivory"
                         text "[bm_building.workable_capacity]" xalign .98 style_suffix "value_text"
                 if c3:
                     frame:
                         xysize (296, 27)
-                        text "Inhabitants:" xalign .02 color ivory
+                        text "Inhabitants:" xalign .02 color "ivory"
                         text "%d/%d" % (len(bm_building.inhabitants),bm_building.habitable_capacity) xalign .98 style_suffix "value_text"
 
             null height 20
@@ -324,7 +324,7 @@ init:
             vbox:
                 xalign .5
                 $ temp = ("Current manager" if len(managers) == 1 else "Managers") if managers else "No manager" 
-                text "[temp]" align (.5, .5) size 25 color goldenrod drop_shadow [(1, 2)] drop_shadow_color black antialias True style_prefix "proper_stats"                
+                text "[temp]" align (.5, .5) size 25 color "goldenrod" drop_shadow [(1, 2)] drop_shadow_color "black" antialias True style_prefix "proper_stats"                
                 if len(managers) <= 1:
                     frame:
                         xmaximum 220
@@ -379,7 +379,7 @@ init:
 
             null height 20
         if bm_building.desc:
-            text bm_building.desc xalign.5 style_prefix "proper_stats" text_align .5 color goldenrod outlines [(1, "#3a3a3a", 0, 0)]
+            text bm_building.desc xalign.5 style_prefix "proper_stats" text_align .5 color "goldenrod" outlines [(1, "#3a3a3a", 0, 0)]
 
     screen building_management_rightframe_businesses_mode:
         $ frgr = Fixed(xysize=(315, 680))
@@ -394,7 +394,7 @@ init:
                 pos 25, 20
                 xysize 260, 40
                 background Frame("content/gfx/frame/namebox5.png", 10, 10)
-                label str(bm_mid_frame_mode.name) text_size 18 text_color ivory align .5, .6
+                label str(bm_mid_frame_mode.name) text_size 18 text_color "ivory" align .5, .6
 
             if isinstance(bm_mid_frame_mode, Business) and hasattr(bm_building, "all_workers"):
                 $ workers = [w for w in bm_building.all_workers if w.job in bm_mid_frame_mode.jobs]
@@ -403,7 +403,7 @@ init:
                     hbox:
                         pos (0, 70)
                         xsize 315
-                        text "Staff:" align (.5, .5) size 25 color goldenrod drop_shadow [(1, 2)] drop_shadow_color black antialias True style_prefix "proper_stats"
+                        text "Staff:" align (.5, .5) size 25 color "goldenrod" drop_shadow [(1, 2)] drop_shadow_color "black" antialias True style_prefix "proper_stats"
                         
                     vpgrid:
                         pos (5, 120)
@@ -459,14 +459,14 @@ init:
 
             frame:
                 xysize (296, 27)
-                text "Location:" xalign .02 color ivory
+                text "Location:" xalign .02 color "ivory"
                 text "[bm_building.location]" xalign .98 style_suffix "value_text" yoffset 4
 
             # Dirt:
             if bm_building.maxdirt != 0:
                 frame:
                     xysize (296, 27)
-                    text "Dirt:" xalign .02 color brown
+                    text "Dirt:" xalign .02 color "brown"
                     $ tmp = bm_building.get_dirt_percentage()
                     $ temp = ("Immaculate", "Sterile", "Spotless", "Clean", "Tidy",
                               "Messy", "Dirty", "Grimy", "Filthy", "Disgusting")
@@ -476,7 +476,7 @@ init:
             if bm_building.maxthreat != 0:
                 frame:
                     xysize (296, 27)
-                    text "Threat:" xalign .02 color crimson
+                    text "Threat:" xalign .02 color "crimson"
                     text "%s %%" % bm_building.get_threat_percentage():
                         xalign .98
                         style_suffix "value_text"
@@ -484,19 +484,19 @@ init:
             if hasattr(bm_building, "tier"):
                 frame:
                     xysize (296, 27)
-                    text "Tier:" xalign .02 color ivory
+                    text "Tier:" xalign .02 color "ivory"
                     text "%s" % (bm_building.tier) xalign .98 style_suffix "value_text" yoffset 4
 
             # Fame/Rep:
             if bm_building.maxfame != 0:
                 frame:
                     xysize (296, 27)
-                    text "Fame:" xalign .02 color ivory
+                    text "Fame:" xalign .02 color "ivory"
                     text "%s/%s" % (bm_building.fame, bm_building.maxfame) xalign .98 style_suffix "value_text" yoffset 4
             if bm_building.maxrep != 0:
                 frame:
                     xysize (296, 27)
-                    text "Reputation:" xalign .02 color ivory
+                    text "Reputation:" xalign .02 color "ivory"
                     text "%s/%s" % (bm_building.rep, bm_building.maxrep) xalign .98 style_suffix "value_text" yoffset 4
 
         null height 5
@@ -508,7 +508,7 @@ init:
                     align .5, .02
                     background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
                     xysize (180, 40)
-                    label 'Constructed:' text_color ivory xalign .5 text_bold True
+                    label 'Constructed:' text_color "ivory" xalign .5 text_bold True
                 viewport:
                     pos 3, 55
                     xysize 310, 406
@@ -527,14 +527,14 @@ init:
                                 if hasattr(u, "img"):
                                     add im.Scale(u.img, 100, 65) align .5, .5
                                 else:
-                                    add Solid(black, xysize=(100, 65)) align .5, .5
+                                    add Solid("black", xysize=(100, 65)) align .5, .5
                             vbox:
                                 xpos 125
                                 yalign .5
                                 xysize 150, 60
                                 text "[u.name]" xalign .5 style "proper_stats_text" size 20
                                 null height 2
-                                textbutton "{size=15}{font=fonts/TisaOTM.otf}{color=[goldenrod]}Details":
+                                textbutton "{size=15}{font=fonts/TisaOTM.otf}{color=goldenrod}Details":
                                     background Transform(Frame("content/gfx/interface/images/story12.png"), alpha=.8)
                                     hover_background Transform(Frame(im.MatrixColor("content/gfx/interface/images/story12.png", im.matrix.brightness(.15))), alpha=1)
                                     tooltip "View details or expand {}.\n{}".format(u.name, u.desc)
@@ -564,18 +564,18 @@ init:
             frame:
                 xysize (290, 27)
                 xalign .5
-                text "Indoor Slots:" xalign .02 color ivory
+                text "Indoor Slots:" xalign .02 color "ivory"
                 text "[bm_mid_frame_mode.in_slots]"  xalign .98 style_suffix "value_text"
             frame:
                 xysize (290, 27)
                 xalign .5
-                text "Exterior Slots:" xalign .02 color ivory
+                text "Exterior Slots:" xalign .02 color "ivory"
                 text "[bm_mid_frame_mode.ex_slots]"  xalign .98 style_suffix "value_text"
             if bm_mid_frame_mode.capacity or getattr(bm_mid_frame_mode, "expands_capacity", False):
                 frame:
                     xysize (290, 27)
                     xalign .5
-                    text "Capacity:" xalign .02 color ivory
+                    text "Capacity:" xalign .02 color "ivory"
                     text "[bm_mid_frame_mode.capacity]"  xalign .98 style_suffix "value_text"
 
         if getattr(bm_mid_frame_mode, "expands_capacity", False):
@@ -611,7 +611,7 @@ init:
                             text "[cost]" xalign .9 style_suffix "value_text"
                         else:
                             $ can_build = False
-                            text "[cost]" xalign .9 color grey style_suffix "value_text"
+                            text "[cost]" xalign .9 color "grey" style_suffix "value_text"
 
                     for r, amount in materials.items():
                         $ r = items[r]
@@ -628,7 +628,7 @@ init:
                                 text "[amount]" xalign .9 style_suffix "value_text"
                             else:
                                 $ can_build = False
-                                text "[amount]" xalign .9 color grey style_suffix "value_text"
+                                text "[amount]" xalign .9 color "grey" style_suffix "value_text"
 
                 vpgrid:
                     cols 2
@@ -643,7 +643,7 @@ init:
                                 text "[in_slots]" xalign .8 style_suffix "value_text"
                             else:
                                 $ can_build = False
-                                text "[in_slots]" xalign .8 color grey style_suffix "value_text"
+                                text "[in_slots]" xalign .8 color "grey" style_suffix "value_text"
                     if ex_slots:
                         frame:
                             xysize (144, 27)
@@ -653,7 +653,7 @@ init:
                                 text "[ex_slots]" xalign .8 style_suffix "value_text"
                             else:
                                 $ can_build = False
-                                text "[ex_slots]" xalign .8 color grey style_suffix "value_text"
+                                text "[ex_slots]" xalign .8 color "grey" style_suffix "value_text"
                 null height 1
                 textbutton "Expand Capacity":
                     style "pb_button"
@@ -668,17 +668,17 @@ init:
                         frame:
                             xysize (290, 27)
                             xalign .5
-                            text "Indoor Slots Freed:" xalign .02 color ivory
+                            text "Indoor Slots Freed:" xalign .02 color "ivory"
                             text "[in_slots]"  xalign .98 style_suffix "value_text"
                         frame:
                             xysize (290, 27)
                             xalign .5
-                            text "Exterior Slots Freed:" xalign .02 color ivory
+                            text "Exterior Slots Freed:" xalign .02 color "ivory"
                             text "[ex_slots]"  xalign .98 style_suffix "value_text"
                         frame:
                             xysize (290, 27)
                             xalign .5
-                            text "Cost:" xalign .02 color ivory
+                            text "Cost:" xalign .02 color "ivory"
                             text "[cost]"  xalign .98 style_suffix "value_text"
                 null height 1
                 textbutton "Reduce Capacity":
@@ -698,7 +698,7 @@ init:
                 align .5, .02
                 background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
                 xysize (180, 40)
-                label 'Constructed:' text_color ivory xalign .5 text_bold True
+                label 'Constructed:' text_color "ivory" xalign .5 text_bold True
             viewport:
                 pos 3, 10
                 xysize 310, 406
@@ -711,7 +711,7 @@ init:
                         style "pb_button"
                         text "[u.name]":
                             align .5, .5
-                            color ivory
+                            color "ivory"
                         action NullAction()
                         tooltip u.desc
 
@@ -720,7 +720,7 @@ init:
             xalign .5
             xysize (380, 50)
             background Frame("content/gfx/frame/namebox5.png", 10, 10)
-            label (u"[bm_building.name]") text_size 23 text_color ivory align (.5, .6)
+            label (u"[bm_building.name]") text_size 23 text_color "ivory" align (.5, .6)
 
         frame:
             align .5, .0
@@ -784,7 +784,7 @@ init:
                                     xalign .5
                                     ypadding 2
                                     style "stats_text"
-                                    text_outlines [(1, black, 0, 0)]
+                                    text_outlines [(1, "black", 0, 0)]
                                     text_size 23
                                     action NullAction()
                                     tooltip u.desc
@@ -810,7 +810,7 @@ init:
                                         text "[cost]" align .95, .5
                                     else:
                                         $ can_build = False
-                                        text "[cost]" align .95, .5 color grey
+                                        text "[cost]" align .95, .5 color "grey"
 
                                 # We presently allow for 3 resources each upgrade. If more, this needs to be a conditioned viewport:
                                 for r, amount in materials.items():
@@ -830,7 +830,7 @@ init:
                                             text "[amount]" align .95, .5
                                         else:
                                             $ can_build = False
-                                            text "[amount]" align .95, .5 color grey
+                                            text "[amount]" align .95, .5 color "grey"
 
                             hbox:
                                 align .01, .98
@@ -842,14 +842,14 @@ init:
                                         text "[in_slots]"
                                     else:
                                         $ can_build = False
-                                        text "[in_slots]" color grey
+                                        text "[in_slots]" color "grey"
                                 if ex_slots:
                                     text "Exterior Slots:"
                                     if (bm_building.ex_slots_max - bm_building.ex_slots) >= ex_slots:
                                         text "[ex_slots]"
                                     else:
                                         $ can_build = False
-                                        text "[ex_slots]" color grey
+                                        text "[ex_slots]" color "grey"
 
                             vbox:
                                 align 1.0, .8
@@ -918,12 +918,12 @@ init:
                                 button:
                                     xysize 20, 16
                                     background None
-                                    text "+" style "proper_stats_text" hover_color red align (.5, .5)
+                                    text "+" style "proper_stats_text" hover_color "red" align (.5, .5)
                                     action SensitiveIf(bm_building.auto_guard < 9900), SetField(bm_building, "auto_guard", bm_building.auto_guard+100)
                                 button:
                                     xysize 20, 16
                                     background None
-                                    text "_" style "proper_stats_text" hover_color red align (.5, 1.1)
+                                    text "_" style "proper_stats_text" hover_color "red" align (.5, 1.1)
                                     action SetField(bm_building, "auto_guard", bm_building.auto_guard-100)
                         else:
                             button:
@@ -1043,7 +1043,7 @@ init:
             yalign .95
             xysize(343, 675)
 
-            label (u"{size=20}{color=[ivory]}{b}Advertise!") text_outlines [(2, "#424242", 0, 0)] align (.5, .16)
+            label (u"{size=20}{color=ivory}{b}Advertise!") text_outlines [(2, "#424242", 0, 0)] align (.5, .16)
 
             # Buttons themselves ---------------------------------->
             hbox:
@@ -1060,7 +1060,7 @@ init:
                                 xysize(280, 32)
                                 tooltip advert['desc']
                                 action Return(["building", 'sign', advert])
-                                text "Put Up Sign for 200 gold" color black align (.5, .5) size 15
+                                text "Put Up Sign for 200 gold" color "black" align (.5, .5) size 15
                         elif advert['name'] == "Celebrity":
                             button:
                                 xysize(280, 32)
@@ -1068,22 +1068,22 @@ init:
                                 action Return(["building", 'celeb', advert])
                                 sensitive not advert['active']
                                 if not advert['active']:
-                                    text "Hire a Celeb!" color black align (.5, .5) size 15
+                                    text "Hire a Celeb!" color "black" align (.5, .5) size 15
                                 else:
-                                    text "Celebrity hired!" color black align (.5, .5) size 15
+                                    text "Celebrity hired!" color "black" align (.5, .5) size 15
                         else:
                             button:
                                 xysize(280, 32)
                                 tooltip advert['desc']
                                 action ToggleDict(advert, "active")
                                 if advert['active']:
-                                    text ("Stop %s!" % advert['name']) color black align (.5, .5)
+                                    text ("Stop %s!" % advert['name']) color "black" align (.5, .5)
                                 elif advert['price'] == 0:
-                                    text ("Use %s for %s Gold a day!" % (advert['name'], advert['upkeep'])) color black align (.5, .5) size 15
+                                    text ("Use %s for %s Gold a day!" % (advert['name'], advert['upkeep'])) color "black" align (.5, .5) size 15
                                 elif advert['upkeep'] == 0:
-                                    text ("Use %s for %s Gold!" % (advert['name'], advert['price'])) color black align (.5, .5) size 15
+                                    text ("Use %s for %s Gold!" % (advert['name'], advert['price'])) color "black" align (.5, .5) size 15
                                 else:
-                                    text ("Use %s for %s Gold and %s a day!" % (advert['name'], advert['price'], advert['upkeep'])) color black align (.5, .5) size 15
+                                    text ("Use %s for %s Gold and %s a day!" % (advert['name'], advert['price'], advert['upkeep'])) color "black" align (.5, .5) size 15
 
             button:
                 style_group "dropdown_gm"

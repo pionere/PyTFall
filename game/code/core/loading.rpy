@@ -226,15 +226,12 @@ init -11 python:
 
                             for key in ("color", "what_color"):
                                 if key in gd:
-                                    if gd[key] in globals():
-                                        color = getattr(store, gd[key])
-                                    else:
-                                        try:
-                                            color = Color(gd[key])
-                                        except:
-                                            debug_str = "{} color supplied to {} is invalid!".format(gd[key], gd["id"])
-                                            char_debug(debug_str)
-                                            color = ivory
+                                    try:
+                                        color = Color(gd[key])
+                                    except:
+                                        debug_str = "{} color supplied to {} is invalid!".format(gd[key], gd["id"])
+                                        char_debug(debug_str)
+                                        color = "ivory"
                                     char.say_style[key] = color
 
                             # Note: Location is later normalized in init method.

@@ -22,7 +22,7 @@ screen gallery():
             background Frame("content/gfx/frame/p_frame7.webp", 10, 10)
             align (.5, .5)
             xysize (980, 40)
-            text "Tags: [gallery.tags]" align(.5, .5) color ivory
+            text "Tags: [gallery.tags]" align(.5, .5) color "ivory"
         # Img:
         frame:
             xysize (980, 680)
@@ -40,14 +40,14 @@ screen gallery():
                 if black_bg:
                     background Frame("content/gfx/frame/MC_bg3.png", 10 ,10)
                 else:
-                    background Frame(im.Twocolor("content/gfx/frame/MC_bg3.png", white, white), 10 ,10)
+                    background Frame(im.Twocolor("content/gfx/frame/MC_bg3.png", "white", "white"), 10 ,10)
                 add gallery.image align (.5, .5)
             if config.developer:
                 button:
                     if black_bg:
-                        background Solid(white, xysize=(30, 30))
+                        background Solid("white", xysize=(30, 30))
                     else:
-                        background Solid(black, xysize=(30, 30))
+                        background Solid("black", xysize=(30, 30))
                     xysize (30, 30)
                     action SetScreenVariable("black_bg", not black_bg)
                     align (1.0, 0)
@@ -97,7 +97,7 @@ screen gallery():
                                         fixed:
                                             xysize (230, 28)
                                             text "[name]" xalign 0
-                                            text "{color=[blue]}[amount]" xalign .93
+                                            text "{color=blue}[amount]" xalign .93
                     vbar value YScrollValue("g_buttons_vp")
 
         # Buttons:

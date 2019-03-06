@@ -44,13 +44,13 @@ screen new_style_tooltip_content(tooltip):
 
                 $ temp = "".join([combat_skill.DAMAGE_20[t] for t in combat_skill.damage])
                 # if "melee" in combat_skill.attributes:
-                #     $ line = "{color=[red]}Melee skill{/color}"
+                #     $ line = "{color=red}Melee skill{/color}"
                 # elif "ranged" in combat_skill.attributes:
-                #     $ line = "{color=[green]}Ranged skill{/color}"
+                #     $ line = "{color=green}Ranged skill{/color}"
                 # elif "magic" in combat_skill.attributes:
-                #     $ line = "{color=[green]}Magic skill{/color}"
+                #     $ line = "{color=green}Magic skill{/color}"
                 # else:
-                #     $ line = "{color=[orange]}Status skill{/color}"
+                #     $ line = "{color=orange}Status skill{/color}"
 
                 if "inevitable" in combat_skill.attributes:
                     $ line = "Can't be dodged!"
@@ -71,8 +71,8 @@ screen new_style_tooltip_content(tooltip):
                     $ effect = None
 
                 # Elements:
-                text "[combat_skill.name]" size 20 color ivory outlines [(2, "#3a3a3a", 0, 0)]
-                text "[combat_skill.desc]" color ivory
+                text "[combat_skill.name]" size 20 color "ivory" outlines [(2, "#3a3a3a", 0, 0)]
+                text "[combat_skill.desc]" color "ivory"
 
                 null height 5
 
@@ -101,31 +101,31 @@ screen new_style_tooltip_content(tooltip):
                     spacing 10
                     if combat_skill.health_cost > 0:
                         if isinstance(combat_skill.health_cost, int):
-                            text "HP: [combat_skill.health_cost] " color red
+                            text "HP: [combat_skill.health_cost] " color "red"
                         else:
                             $ value = int(combat_skill.health_cost * 100)
-                            text "HP: [value] % " color red
+                            text "HP: [value] % " color "red"
                     if combat_skill.mp_cost > 0:
                         if isinstance(combat_skill.mp_cost, int):
-                            text "MP: [combat_skill.mp_cost] " color blue
+                            text "MP: [combat_skill.mp_cost] " color "blue"
                         else:
                             $ value = int(combat_skill.mp_cost * 100)
-                            text "MP: [value] % " color blue
+                            text "MP: [value] % " color "blue"
 
                     if combat_skill.vitality_cost > 0:
                         if isinstance(combat_skill.vitality_cost, int):
-                            text "VP: [combat_skill.vitality_cost] " color green
+                            text "VP: [combat_skill.vitality_cost] " color "green"
                         else:
                             $ value = int(combat_skill.vitality_cost * 100)
-                            text "VP: [value] % " color green
+                            text "VP: [value] % " color "green"
                     if (combat_skill.type=="all_enemies" and combat_skill.piercing) or combat_skill.type=="all_allies":
-                        text "Target: All" color gold
+                        text "Target: All" color "gold"
                     elif combat_skill.type=="all_enemies":
-                        text "Target: First Row" color gold
+                        text "Target: First Row" color "gold"
                     elif combat_skill.piercing:
-                        text "Target: Any" color gold
+                        text "Target: Any" color "gold"
                     else:
-                        text "Target: One" color gold
+                        text "Target: One" color "gold"
 
 image water_texture__ = Movie(channel="main_gfx_bow", play="content/gfx/animations/water_texture_webm/movie.webm")
 
@@ -215,7 +215,7 @@ screen quest_notifications(q, type, align=None, autohide=2.5):
             pos 400, 140 xanchor 1.0
             xpadding 15
             background Frame(Transform("content/gfx/frame/ink_box.png", alpha=.45), 10, 10)
-            text type style "content_text" size 40 color gold
+            text type style "content_text" size 40 color "gold"
 
     if autohide:
         timer autohide action Hide("quest_notifications")
@@ -246,9 +246,9 @@ screen top_stripe(show_return_button=True, return_button_action=None,
             fixed:
                 xsize 70
                 $ g = gold_text(hero.gold)
-                text g size 20 color gold yalign .5
+                text g size 20 color "gold" yalign .5
             null width 15
-            text u'Day [day]' size 20 color ivory yalign .5
+            text u'Day [day]' size 20 color "ivory" yalign .5
             null width 15
 
         button:
@@ -296,11 +296,11 @@ screen top_stripe(show_return_button=True, return_button_action=None,
                     label "[hero.AP]":
                         style "content_label"
                         text_size 23
-                        text_color ivory
+                        text_color "ivory"
                         text_bold True
                     if gm_points:
                         text "[gm_points]":
-                            color pink
+                            color "pink"
                             style "proper_stats_text"
                             yoffset 7
 
@@ -311,7 +311,7 @@ screen top_stripe(show_return_button=True, return_button_action=None,
             if False:
                 textbutton "F":
                     style "basic_button"
-                    text_color ivory
+                    text_color "ivory"
                     text_size 20
                     yalign .5
                     action Jump("fonts")
@@ -458,7 +458,7 @@ screen message_screen(msg, size=(500, 300), use_return=False):
             align(.5, .5)
             vbox:
                 xmaximum (size[0] - 100)
-                text msg xalign .5 color lightgoldenrodyellow size 20
+                text msg xalign .5 color "lightgoldenrodyellow" size 20
             textbutton "Ok":
                 action If(use_return, true=Return(), false=Hide("message_screen"))
                 minimum(120, 30)
@@ -483,7 +483,7 @@ screen pyt_input(default="", text="", length=20, size=(350, 150)):
         vbox:
             spacing 10
             align(.5, .5)
-            text text xalign .5 style "TisaOTM" size 20 color goldenrod
+            text text xalign .5 style "TisaOTM" size 20 color "goldenrod"
             input:
                 id "text_input"
                 default default
@@ -491,12 +491,12 @@ screen pyt_input(default="", text="", length=20, size=(350, 150)):
                 xalign .5
                 style "TisaOTM"
                 size 20
-                color white
+                color "white"
                 changed dummy_interaction_restart
             button:
                 style "pb_button"
                 # xysize (100, 50)
-                text "OK"  style "TisaOTM" size 15 color goldenrod align (.5, .5)
+                text "OK"  style "TisaOTM" size 15 color "goldenrod" align (.5, .5)
                 xalign .5
                 action Return(renpy.get_widget("pyt_input", "text_input").content)
                 keysym "input_enter"
@@ -613,7 +613,7 @@ screen hidden_area(items=()):
     for item, size, align in items:
         button:
             align align
-            background Transform(Solid("#000000", xysize=size), alpha=.01)
+            background Transform(Solid("black", xysize=size), alpha=.01)
             xysize size
             focus_mask True
             action Return(item)
@@ -633,7 +633,7 @@ screen notify:
             background Frame("content/gfx/frame/rank_frame.png", 5, 5)
             padding 10, 5
             xmaximum 600
-            text message style "TisaOTMol" color goldenrod outlines [(2, "#000000", 0, 0)]
+            text message style "TisaOTMol" color "goldenrod" outlines [(2, "black", 0, 0)]
 
     timer 4.0 action Hide("notify")
 
@@ -849,7 +849,7 @@ screen s_menu(s_menu="Settings", main_menu=False):
                 xysize (333, 130)
                 xpadding 10
                 align .5, .1
-                text (u"{=stats_text}{color=[goldenrod]}{size=15}%s" % tt.value) outlines [(1, "#3a3a3a", 0, 0)]
+                text (u"{=stats_text}{color=goldenrod}{size=15}%s" % tt.value) outlines [(1, "#3a3a3a", 0, 0)]
             grid 1 1:
                 align (.5, .5)
                 spacing 7
@@ -996,7 +996,7 @@ screen s_menu(s_menu="Settings", main_menu=False):
                                     yalign .5
                                     spacing -7
                                     if "name" in json_info:
-                                        text "[json_info[name]]" style "TisaOTMol" color gold size 17
+                                        text "[json_info[name]]" style "TisaOTMol" color "gold" size 17
                                     if "level" in json_info:
                                         text "Level: [json_info[level]]" style "TisaOTMol" ypos 0
                                     if "chars" in json_info:
@@ -1187,7 +1187,7 @@ screen digital_keyboard(line=""):
             background Frame("content/gfx/frame/MC_bg3.png", 5, 5)
             align(.5, .1)
             xysize (600, 100)
-            text line color gold xalign .5 size 20 outlines [(1, "#000000", 0, 0)] align (.5, .5) text_align .5
+            text line color "gold" xalign .5 size 20 outlines [(1, "black", 0, 0)] align (.5, .5) text_align .5
 
     frame:
         xysize (250, 250)
@@ -1198,7 +1198,7 @@ screen digital_keyboard(line=""):
             align (.5, .05)
             background Frame("content/gfx/frame/rank_frame.png")
             xysize (200, 45)
-            text current_number color gold xalign .5 size 20 outlines [(1, "#000000", 0, 0)] align (1.0, .5)
+            text current_number color "gold" xalign .5 size 20 outlines [(1, "black", 0, 0)] align (1.0, .5)
 
         vpgrid:
             rows 4
@@ -1211,28 +1211,28 @@ screen digital_keyboard(line=""):
                     xysize(60, 30)
                     background "content/gfx/interface/buttons/hp_1s.png"
                     hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/hp_1s.png", im.matrix.brightness(.10)))
-                    text str(i) color gold size 22 outlines [(1, "#000000", 0, 0)] align (.5, .5) text_align .5
+                    text str(i) color "gold" size 22 outlines [(1, "black", 0, 0)] align (.5, .5) text_align .5
                     action SetScreenVariable("current_number", digital_screen_logic(current_number, str(i)))
                     keysym ("K_KP%d"%i), ("K_%d"%i)
             button:
                 xysize(60, 30)
                 background "content/gfx/interface/buttons/hp_1s.png"
                 hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/hp_1s.png", im.matrix.brightness(.10)))
-                text str("C") color gold size 22 outlines [(1, "#000000", 0, 0)] align (.5, .5) text_align .5
+                text str("C") color "gold" size 22 outlines [(1, "black", 0, 0)] align (.5, .5) text_align .5
                 action SetScreenVariable("current_number", "0")
                 keysym "K_DELETE", "K_SPACE", "K_CLEAR", "K_KP_PERIOD"
             button:
                 xysize(60, 30)
                 background "content/gfx/interface/buttons/hp_1s.png"
                 hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/hp_1s.png", im.matrix.brightness(.10)))
-                text "0" color gold size 22 outlines [(1, "#000000", 0, 0)] align (.5, .5) text_align .5
+                text "0" color "gold" size 22 outlines [(1, "black", 0, 0)] align (.5, .5) text_align .5
                 action SetScreenVariable("current_number", digital_screen_logic(current_number, "0"))
                 keysym "K_KP0", "K_0"
             button:
                 xysize(60, 30)
                 background "content/gfx/interface/buttons/hp_1s.png"
                 hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/hp_1s.png", im.matrix.brightness(.10)))
-                text str("E") color gold size 22 outlines [(1, "#000000", 0, 0)] align (.5, .5) text_align .5
+                text str("E") color "gold" size 22 outlines [(1, "black", 0, 0)] align (.5, .5) text_align .5
                 action Return(int(current_number))
                 keysym "K_KP_ENTER", "K_RETURN"
 

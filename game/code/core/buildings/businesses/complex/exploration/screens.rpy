@@ -11,7 +11,7 @@ screen building_management_leftframe_exploration_guild_mode:
                 xalign .5 ypos 3
                 xysize 200, 50
                 background Frame("content/gfx/frame/namebox5.png", 10, 10)
-                label (u"Maps") text_size 23 text_color ivory align .5, .8
+                label (u"Maps") text_size 23 text_color "ivory" align .5, .8
 
             null height 5
 
@@ -42,7 +42,7 @@ screen building_management_leftframe_exploration_guild_mode:
                             padding 20, 2
                             background Frame(Transform("content/gfx/frame/frame_bg.png", alpha=.5), 5, 5)
                             text main_area.name:
-                                color gold
+                                color "gold"
                                 style "interactions_text"
                                 size 18 outlines [(1, "#3a3a3a", 0, 0)]
                                 align .5, .5
@@ -81,8 +81,8 @@ screen building_management_leftframe_exploration_guild_mode:
                                 xalign .02
                                 yoffset 1
                             label "[tmp]":
-                                text_color limegreen
-                                text_selected_color gold
+                                text_color "limegreen"
+                                text_selected_color "gold"
                                 text_size 12
                                 align 1.0, .5
 
@@ -92,7 +92,7 @@ screen building_management_leftframe_exploration_guild_mode:
                 xalign .5
                 xysize 200, 50
                 background Frame("content/gfx/frame/namebox5.png", 10, 10)
-                label (u"Total") text_size 23 text_color ivory align .5, .8
+                label (u"Total") text_size 23 text_color "ivory" align .5, .8
 
             vbox:
                 xalign .5
@@ -103,38 +103,38 @@ screen building_management_leftframe_exploration_guild_mode:
                     xysize 270, 27
                     xpadding 7
                     text "Items Found:":
-                        color ivory
+                        color "ivory"
                     text "[total]":
                         style_suffix "value_text"
-                        color ivory
+                        color "ivory"
                 frame:
                     xoffset 4
                     xysize 270, 27
                     xpadding 7
                     text "Gold Found:":
-                        color ivory
+                        color "ivory"
                     text "[main_area.cash_earned]":
                         style_suffix "value_text"
-                        color ivory
+                        color "ivory"
                 $ total = sum(main_area.mobs_defeated.values())
                 frame:
                     xoffset 4
                     xysize 270, 27
                     xpadding 7
                     text "Mobs Crushed:":
-                        color ivory
+                        color "ivory"
                     text "[total]":
                         style_suffix "value_text"
-                        color ivory
+                        color "ivory"
                 frame:
                     xoffset 4
                     xysize 270, 27
                     xpadding 7
                     text "Chars Captured:":
-                        color ivory
+                        color "ivory"
                     text "[main_area.chars_captured]":
                         style_suffix "value_text"
-                        color ivory
+                        color "ivory"
     elif bm_exploration_view_mode == "upgrades":
         use building_management_leftframe_businesses_mode
     elif bm_exploration_view_mode == "team":
@@ -188,7 +188,7 @@ screen building_management_leftframe_exploration_guild_mode:
                 xalign .5 ypos 3
                 xysize (200, 50)
                 background Frame("content/gfx/frame/namebox5.png", 10, 10)
-                label (u"Maps") text_size 23 text_color ivory align (.5, .8)
+                label (u"Maps") text_size 23 text_color "ivory" align (.5, .8)
 
             viewport:
                 xysize 224, 600
@@ -212,18 +212,18 @@ screen building_management_leftframe_exploration_guild_mode:
                             if bm_selected_exp_area == area:
                                 action NullAction()
                                 $ name_bg = "content/gfx/frame/frame_bg.png"
-                                $ hcolor = gold
+                                $ hcolor = "gold"
                             else:
                                 hover_background Frame(im.MatrixColor(img, im.matrix.brightness(.05)))
                                 action SetVariable("bm_selected_exp_area", area)
                                 $ name_bg = "content/gfx/frame/ink_box.png"
-                                $ hcolor = red
+                                $ hcolor = "red"
                             frame:
                                 align .5, .0
                                 padding 20, 2
                                 background Frame(Transform(name_bg, alpha=.5), 5, 5)
                                 text area.name:
-                                    color gold
+                                    color "gold"
                                     hover_color hcolor
                                     style "interactions_text"
                                     size 18 outlines [(1, "#3a3a3a", 0, 0)]
@@ -241,7 +241,7 @@ screen building_management_midframe_exploration_guild_mode:
                 xalign .5
                 ymargin 1
                 ypadding 1
-                text area.name color gold style "interactions_text" size 35 outlines [(1, "#3a3a3a", 0, 0)] align (.5, .3)
+                text area.name color "gold" style "interactions_text" size 35 outlines [(1, "#3a3a3a", 0, 0)] align (.5, .3)
                 hbox:
                     align (.5, .9)
                     # Get the correct stars:
@@ -260,7 +260,7 @@ screen building_management_midframe_exploration_guild_mode:
                     xalign .5
                     padding 15, 5
                     background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.6), 10, 10)
-                    label "Events" text_size 20 text_color ivory align .5, .5
+                    label "Events" text_size 20 text_color "ivory" align .5, .5
 
                 for l in area.logs:
                     button:
@@ -286,20 +286,20 @@ screen building_management_midframe_exploration_guild_mode:
                     xalign .5
                     padding 15, 5
                     background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.6), 10, 10)
-                    label "Story" text_size 20 text_color ivory align .5, .5
+                    label "Story" text_size 20 text_color "ivory" align .5, .5
 
                 frame:
                     background Frame("content/gfx/frame/ink_box.png", 10, 10)
                     has viewport draggable 1 mousewheel 1
                     if focused_log:
                         if focused_log.battle_log:
-                            text "\n".join(focused_log.battle_log) style "stats_value_text" size 14 color ivory
+                            text "\n".join(focused_log.battle_log) style "stats_value_text" size 14 color "ivory"
                         elif focused_log.item:
                             $ item = focused_log.item
                             vbox:
                                 spacing 10 xfill 1
                                 add ProportionalScale(item.icon, 100, 100) xalign .5
-                                text item.desc xalign .5 style "stats_value_text" size 14 color ivory
+                                text item.desc xalign .5 style "stats_value_text" size 14 color "ivory"
         else:
             # bm_selected_log_area is None
             frame: # Image
@@ -335,7 +335,7 @@ screen building_management_midframe_exploration_guild_mode:
                             else:
                                 $ temp = "?????????"
                                 action NullAction()
-                            text temp color gold style "interactions_text" size 14 outlines [(1, "#3a3a3a", 0, 0)] align (.5, .3)
+                            text temp color "gold" style "interactions_text" size 14 outlines [(1, "#3a3a3a", 0, 0)] align (.5, .3)
                             hbox:
                                 align (.5, .9)
                                 use stars(area.explored, area.maxexplored)
@@ -482,7 +482,7 @@ screen building_management_midframe_exploration_guild_mode:
                             align .5, 1.2
                             action Return(["fg_team", "rename", t])
                             tooltip "Rename the team"
-                            text t.name align .5, .5 color orange hover_color red text_align .5
+                            text t.name align .5, .5 color "orange" hover_color "red" text_align .5
                         # Dissolve the team:
                         $ img = im.Scale("content/gfx/interface/buttons/close4.png", 20, 20)
                         button:
@@ -729,14 +729,14 @@ screen fg_area(area):
                 button:
                     xalign .5
                     xsize 300
-                    text "To build" color ivory align (.0, .5) size 17 outlines [(1, "#3a3a3a", 0, 0)]
+                    text "To build" color "ivory" align (.0, .5) size 17 outlines [(1, "#424242", 0, 0)]
                     background im.Scale("content/gfx/interface/buttons/tablefts.webp", 300, 30)
                     action NullAction()
                     focus_mask True
                 button:
                     xalign .5
                     xsize 300
-                    text "In queue" color ivory align (1.0, .5) size 16
+                    text "In queue" color "ivory" align (1.0, .5) size 16
                     background im.Scale("content/gfx/interface/buttons/tabright.webp", 300, 30)
                     action SetScreenVariable("objects_mode", "queue")
                     tooltip "View Objects In Queue"
@@ -753,14 +753,14 @@ screen fg_area(area):
                                 xalign .5
                                 xysize 300, 25
                                 style "pb_button"
-                                text "[u.name]" align (.5, .5) color ivory
+                                text "[u.name]" align (.5, .5) color "ivory"
                                 action Function(area.queue, u)
                                 tooltip u.desc
             else:
                 button:
                     xalign .5
                     xsize 300
-                    text "To build" color ivory align (.0, .5) size 16
+                    text "To build" color "ivory" align (.0, .5) size 16
                     background im.Scale("content/gfx/interface/buttons/tableft.webp", 300, 30)
                     action SetScreenVariable("objects_mode", "allowed")
                     tooltip "View Objects To Build"
@@ -768,7 +768,7 @@ screen fg_area(area):
                 button:
                     xalign .5
                     xsize 300
-                    text "In queue" color ivory align (1.0, .5) size 17 outlines [(1, "#3a3a3a", 0, 0)]
+                    text "In queue" color "ivory" align (1.0, .5) size 17 outlines [(1, "#424242", 0, 0)]
                     background im.Scale("content/gfx/interface/buttons/tabrights.webp", 300, 30)
                     action NullAction()
                     focus_mask True
@@ -782,7 +782,7 @@ screen fg_area(area):
                             xalign .5
                             xysize 300, 25
                             style "pb_button"
-                            text "[u.name]" align (.5, .5) color ivory
+                            text "[u.name]" align (.5, .5) color "ivory"
                             action Function(area.dequeue, u)
                             tooltip u.desc
 
@@ -799,7 +799,7 @@ screen fg_area(area):
             xysize (620, 90)
             ymargin 1
             ypadding 1
-            text "[area.name]" color gold style "interactions_text" size 35 outlines [(1, "#3a3a3a", 0, 0)] align (.5, .3)
+            text "[area.name]" color "gold" style "interactions_text" size 35 outlines [(1, "#3a3a3a", 0, 0)] align (.5, .3)
             hbox:
                 align (.5, .9)
                 # Get the correct stars:
@@ -891,7 +891,7 @@ screen fg_area(area):
                     align (.5, .015)
                     xysize (210, 40)
                     background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.6), 10, 10)
-                    label (u"Enemies") text_size 23 text_color ivory align .5, .5
+                    label (u"Enemies") text_size 23 text_color "ivory" align .5, .5
                 viewport:
                     style_prefix "proper_stats"
                     xysize (300, 290)
@@ -941,7 +941,7 @@ screen fg_area(area):
                     align (.5, .015)
                     xysize (210, 40)
                     background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.6), 10, 10)
-                    label (u"Items") text_size 23 text_color ivory align .5, .5
+                    label (u"Items") text_size 23 text_color "ivory" align .5, .5
                 viewport:
                     style_prefix "proper_stats"
                     mousewheel True

@@ -97,9 +97,9 @@ screen mainscreen():
 
         add "".join(["content/gfx/interface/images/calendar/","cal ", calendar.moonphase(), ".png"]) xalign .485 ypos 83
 
-        text "%s" % calendar.weekday() color khaki font 'fonts/TisaOTM.otf' size 18 kerning -1 xalign .5 ypos 210
+        text "%s" % calendar.weekday() color "khaki" font 'fonts/TisaOTM.otf' size 18 kerning -1 xalign .5 ypos 210
 
-        text "%s" % calendar.string() color khaki font 'fonts/TisaOTM.otf' size 18 kerning -1 xalign .5 ypos 250
+        text "%s" % calendar.string() color "khaki" font 'fonts/TisaOTM.otf' size 18 kerning -1 xalign .5 ypos 250
 
         vbox:
             style_group "main_screen_3"

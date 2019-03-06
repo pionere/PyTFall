@@ -248,9 +248,9 @@ screen char_profile():
                 align .5, .5
                 xysize 230, 45
                 add pscale("content/gfx/frame/level.png", 230, 45) align .5, .5
-                text "{font=fonts/Rubius.ttf}{color=[ivory]}{size=16}{b}[char.level]" pos 38, 7
-                text "{font=fonts/Rubius.ttf}{color=[ivory]}{size=16}{b}[char.exp]" pos 114, 7
-                text "{font=fonts/Rubius.ttf}{color=[ivory]}{size=16}{b}[char.goal]" pos 114, 27
+                text "{font=fonts/Rubius.ttf}{color=ivory}{size=16}{b}[char.level]" pos 38, 7
+                text "{font=fonts/Rubius.ttf}{color=ivory}{size=16}{b}[char.exp]" pos 114, 7
+                text "{font=fonts/Rubius.ttf}{color=ivory}{size=16}{b}[char.goal]" pos 114, 27
             button:
                 xysize 140, 40
                 yalign .5
@@ -296,36 +296,37 @@ screen char_profile():
                     xoffset -5
 
                 label "[classes]":
-                    text_color gold
+                    text_color "gold"
                     if len(classes) < 18:
                         text_size 17
                         pos 113, 100
                     else:
                         text_size 15
                         pos 113, 98
-                    text_outlines [(2, "#424242", 0, 0)]
+                    text_outlines [(2, "#3a3a3a", 0, 0)]
                     pos 113, 100
                     anchor 0, 1.0
 
                 textbutton "[char.name]":
                     background Null()
                     text_style "content_label_text"
-                    text_color gold text_hover_color green
-                    text_outlines [(2, "#424242", 0, 0)]
-                    pos 100, 47
+                    text_color "gold" text_hover_color "green"
+                    text_outlines [(2, "#3a3a3a", 0, 0)]
                     anchor 0, 1.0
                     if len(char.name) < 15:
                         text_size 21
+                        pos 100, 49
                     else:
                         text_size 18
+                        pos 100, 47
                     action Show("char_rename", char=char)
                     sensitive controlled_char(char)
                     tooltip "Click to rename {} (renaming is limited for free girls).".format(char.fullname)
 
                 label "Tier:  [char.tier]":
-                    text_color gold
-                    text_outlines [(2, "#424242", 0, 0)]
-                    pos 113, 77
+                    text_color "gold"
+                    text_outlines [(2, "#3a3a3a", 0, 0)]
+                    pos 113, 76
                     anchor 0, 1.0
 
                 if check_lovers(char, hero):
@@ -362,7 +363,7 @@ screen char_profile():
                         fixed:
                             xysize 45, 18
                             yalign .5
-                            text "Home:" color ivory yalign .5 size 18
+                            text "Home:" color "ivory" yalign .5 size 18
                         button:
                             style_group "ddlist"
                             xalign .0
@@ -379,7 +380,7 @@ screen char_profile():
                         fixed:
                             xysize 45, 18
                             yalign .5
-                            text "Work:" color ivory yalign .5 size 18
+                            text "Work:" color "ivory" yalign .5 size 18
                         button:
                             style_group "ddlist"
                             xalign .0
@@ -392,7 +393,7 @@ screen char_profile():
                         fixed:
                             xysize 45, 18
                             yalign .5
-                            text "Action:" color ivory yalign .5 size 18
+                            text "Action:" color "ivory" yalign .5 size 18
                         button:
                             style_group "ddlist"
                             xalign .0
@@ -465,7 +466,7 @@ screen char_profile():
                                 tooltip "This is a Class Stat!"
                         $ temp, tmp = char.get_stat("health"), char.get_max("health")
                         if temp <= tmp*.3:
-                            text (u"{color=[red]}%d/%d"%(temp, tmp)) xalign 1.0 style_suffix "value_text"
+                            text (u"{color=red}%d/%d"%(temp, tmp)) xalign 1.0 style_suffix "value_text"
                         else:
                             text (u"%d/%d"%(temp, tmp)) xalign 1.0 style_suffix "value_text"
                     frame:
@@ -482,7 +483,7 @@ screen char_profile():
                                 tooltip "This is a Class Stat!"
                         $ temp, tmp = char.get_stat("vitality"), char.get_max("vitality")
                         if temp < tmp*.3:
-                            text (u"{color=[red]}%d/%d"%(temp, tmp)) xalign 1.0 style_suffix "value_text"
+                            text (u"{color=red}%d/%d"%(temp, tmp)) xalign 1.0 style_suffix "value_text"
                         else:
                             text (u"%d/%d"%(temp, tmp)) xalign 1.0 style_suffix "value_text"
 
@@ -527,8 +528,8 @@ screen char_profile():
                         xoffset 4
                         xysize (270, 27)
                         xpadding 7
-                        text "Gold:" color gold
-                        text (u"{color=[gold]}[char.gold]") xalign 1.0 style_suffix "value_text"
+                        text "Gold:" color "gold"
+                        text (u"{color=gold}[char.gold]") xalign 1.0 style_suffix "value_text"
                     frame:
                         xoffset 4
                         xysize (270, 27)
@@ -604,7 +605,7 @@ screen char_profile():
                                     xsize 250
                                     text "{}:".format(skill.capitalize()):
                                         style_suffix "value_text"
-                                        color gold
+                                        color "gold"
                                         xalign .0
                                         size 18
                                     hbox:
@@ -712,7 +713,7 @@ screen char_profile():
                 label ("[char.AP]"):
                     pos (200, 0)
                     style "content_label"
-                    text_color ivory
+                    text_color "ivory"
                     text_size 28
 
             # Traits/Effects/Attacks/Magix ====================================>
@@ -727,7 +728,7 @@ screen char_profile():
                     # Traits:
                     vbox:
                         xysize (160, 210)
-                        label (u"Traits:") text_size 20 text_color ivory text_bold True xalign .5
+                        label (u"Traits:") text_size 20 text_color "ivory" text_bold True xalign .5
                         viewport:
                             xysize (160, 165)
                             scrollbars "vertical"
@@ -742,13 +743,13 @@ screen char_profile():
                                             background Null()
                                             xsize 147
                                             action Show("show_trait_info", trait=trait.id)
-                                            text trait.id idle_color ivory align .5, .5 hover_color crimson text_align .5 size min(15, int(250 / max(1, len(trait.id))))
+                                            text trait.id idle_color "ivory" align .5, .5 hover_color "crimson" text_align .5 size min(15, int(250 / max(1, len(trait.id))))
                                             tooltip "%s" % trait.desc
                                             hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
                     # Effects:
                     vbox:
                         xysize (160, 210)
-                        label (u"Effects:") text_size 20 text_color ivory text_bold True xalign .5
+                        label (u"Effects:") text_size 20 text_color "ivory" text_bold True xalign .5
                         viewport:
                             xysize (160, 165)
                             scrollbars "vertical"
@@ -762,7 +763,7 @@ screen char_profile():
                                         background Null()
                                         xysize (147, 25)
                                         action NullAction()
-                                        text "[effect.name]" idle_color ivory align .5, .5 hover_color crimson size min(15, int(250 / max(1, len(effect.name))))
+                                        text "[effect.name]" idle_color "ivory" align .5, .5 hover_color "crimson" size min(15, int(250 / max(1, len(effect.name))))
                                         tooltip "%s" % effect.desc
                                         hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
 
@@ -770,7 +771,7 @@ screen char_profile():
                 hbox:
                     vbox:
                         xysize (160, 210)
-                        label (u"Attacks:") text_size 20 text_color ivory text_bold True xalign .5 text_outlines [(3, "#3a3a3a", 0, 0), (2, "#8B0000", 0, 0), (1, "#3a3a3a", 0, 0)]
+                        label (u"Attacks:") text_size 20 text_color "ivory" text_bold True xalign .5 text_outlines [(3, "#424242", 0, 0), (2, "#8B0000", 0, 0), (1, "#424242", 0, 0)]
                         viewport:
                             xysize (160, 165)
                             scrollbars "vertical"
@@ -786,12 +787,12 @@ screen char_profile():
                                         hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
                                         action NullAction()
                                         tooltip ["be", entry]
-                                        text "[entry.name]" idle_color ivory align .5, .5 hover_color crimson size min(15, int(250 / max(1, len(entry.name))))
+                                        text "[entry.name]" idle_color "ivory" align .5, .5 hover_color "crimson" size min(15, int(250 / max(1, len(entry.name))))
 
                     vbox:
                         xysize (160, 210)
                         xanchor 5
-                        label (u"Spells:") text_size 20 text_color ivory text_bold True xalign .5 text_outlines [(3, "#3a3a3a", 0, 0), (2, "#104E8B", 0, 0), (1, "#3a3a3a", 0, 0)]
+                        label (u"Spells:") text_size 20 text_color "ivory" text_bold True xalign .5 text_outlines [(3, "#424242", 0, 0), (2, "#104E8B", 0, 0), (1, "#424242", 0, 0)]
                         viewport:
                             xysize (160, 165)
                             scrollbars "vertical"
@@ -807,7 +808,7 @@ screen char_profile():
                                         hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
                                         action NullAction()
                                         tooltip ["be", entry]
-                                        text "[entry.name]" idle_color ivory align .5, .5 hover_color crimson size min(15, int(250 / max(1, len(entry.name))))
+                                        text "[entry.name]" idle_color "ivory" align .5, .5 hover_color "crimson" size min(15, int(250 / max(1, len(entry.name))))
 
     use top_stripe(True)
 
@@ -832,7 +833,7 @@ screen char_control():
             background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
             align (.5, .0)
             padding 40, 10
-            text "Adjust your workers behavior here." align .5, .5 color ivory
+            text "Adjust your workers behavior here." align .5, .5 color "ivory"
 
         # Tips/Wagemod
         frame:
@@ -884,9 +885,9 @@ screen char_control():
                     vbox:
                         xmaximum 130
                         xfill True
-                        text (u"Wage percentage:") outlines [(1, "#424242", 0, 0)] color ivory
+                        text (u"Wage percentage:") outlines [(1, "#424242", 0, 0)] color "ivory"
                     vbox:
-                        text "[char.wagemod]%" outlines [(1, "#424242", 0, 0)] color ivory
+                        text "[char.wagemod]%" outlines [(1, "#424242", 0, 0)] color "ivory"
 
         # BE Row, Job controls + Auto-Buy/Equip
         vbox:
@@ -975,7 +976,7 @@ screen char_control():
                 # hbox:
                     # spacing 20
                     # if char.autocontrol['SlaveDriver']:
-                        # textbutton "{color=[red]}Slave Driver":
+                        # textbutton "{color=red}Slave Driver":
                             # yalign .5
                             # action Return(['girl_cntr', 'slavedriver'])
                             # minimum(150, 20)

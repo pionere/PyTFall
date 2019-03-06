@@ -3,7 +3,7 @@ init:
     image blueprint = ProportionalScale("content/events/StoryI/blueprint.webp", 660, 540)
     transform blueprint_position:
         align (0.5, 0.6)
-    $ sflash = Fade(.25, 0, .25, color=darkred)
+    $ sflash = Fade(.25, 0, .25, color="darkred")
 init -10 python:
     q_dissolve = Dissolve(.2) # fast dissolve to quickly show backgrounds
     def eyewarp(x):
@@ -13,8 +13,8 @@ init -10 python:
 
 init:
     $ point = "content/gfx/interface/icons/move15.png" # the point which shows location on the map; it's actually a part of the main gui
-    $ enemy_soldier = Character("Guard", color=white, what_color=white, show_two_window=True, show_side_image=ProportionalScale("content/npc/mobs/ct1.png", 120, 120))
-    $ enemy_soldier2 = Character("Guard", color=white, what_color=white, show_two_window=True, show_side_image=ProportionalScale("content/npc/mobs/h1.png", 120, 120))
+    $ enemy_soldier = Character("Guard", color="white", what_color="white", show_two_window=True, show_side_image=ProportionalScale("content/npc/mobs/ct1.png", 120, 120))
+    $ enemy_soldier2 = Character("Guard", color="white", what_color="white", show_two_window=True, show_side_image=ProportionalScale("content/npc/mobs/h1.png", 120, 120))
 
 screen prison_break_controls(): # control buttons screen
     use top_stripe(False, show_lead_away_buttons=False, show_team_status=True)

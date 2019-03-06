@@ -450,6 +450,13 @@ init -950 python:
     load_frame_by_frame_animations_from_dir("gfx/animations")
     load_frame_by_frame_animations_from_dir("gfx/be/auto-animations")
 
+    colorprev = Color.__new__
+    Color.__prev_new__ = classmethod(colorprev)
+    def colornew(cls, cls_, color=None, hls=None, hsv=None, rgb=None, alpha=1.0):
+        color = _COLORS_.get(color, color)
+        return Color.__prev_new__(color, hls, hsv, rgb, alpha)
+    Color.__new__ = classmethod(colornew)
+    del colornew, colorprev
 
 init -1 python: # Constants:
     # for f in renpy.list_files():

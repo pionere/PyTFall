@@ -158,7 +158,7 @@ screen battle_report():
                 scrollbars "vertical"
                 has vbox
                 for entry in reversed(battle.combat_log):
-                    label "%s"%entry style_group "stats_value_text" text_size 14 text_color ivory
+                    label "%s"%entry style_group "stats_value_text" text_size 14 text_color "ivory"
 
         textbutton "Exit":
             xalign .5

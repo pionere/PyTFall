@@ -12,7 +12,7 @@ screen fonts(fonts):
     default index = 0
     default group = None
 
-    add Solid(black)
+    add Solid("black")
 
     vbox:
         align (.5, .1)

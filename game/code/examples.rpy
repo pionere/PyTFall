@@ -107,8 +107,8 @@ label examples:
     "Note that all the good stuff is written as comments in examples.rpy file and you will not be able to see it from the game!"
     "There is also an excellent tutorial available if you download Ren'Py SDK kit (less than 30 MB and does not require installation)!"
     "You should get SDK if you want to develop content for PyTFall. It's not a 'MUST HAVE' but it's most definitely a should have :)'"
-    "There will be a great demonstration tutorial there of what the engine is capable of! This shows similar things but those that are more relevant to {color=[red]}PyTFall{/color}!"
-    # {color=[red]}Text{/color} changes something about text styling! You can use a lot here... like {b}Text{/b} will write text in bold!
+    "There will be a great demonstration tutorial there of what the engine is capable of! This shows similar things but those that are more relevant to {color=red}PyTFall{/color}!"
+    # {color=red}Text{/color} changes something about text styling! You can use a lot here... like {b}Text{/b} will write text in bold!
     # You can check all properties by googling RenPy + Text + Style + Properties
 
     $ pass # DOES NOTHING! :) It is just an example of what Python oneliner looks like!

@@ -837,10 +837,10 @@ init -10 python:
                 txt.append(temp)
             else: # Free girls:
                 expected_wage = char.expected_wage
-                temp = choice(["%s expects to be compensated for %s services ({color=[gold]}%d Gold{/color})." % (char.pC, char.pp, expected_wage),
-                               "%s expects to be paid a wage of {color=[gold]}%d Gold{/color}." % (char.pC, expected_wage)])
+                temp = choice(["%s expects to be compensated for %s services ({color=gold}%d Gold{/color})." % (char.pC, char.pp, expected_wage),
+                               "%s expects to be paid a wage of {color=gold}%d Gold{/color}." % (char.pC, expected_wage)])
                 paid_wage = round_int(expected_wage/100.0*real_wagemod)
-                temp += " You chose to pay %s %d%% of that! ({color=[gold]}%d Gold{/color})" % (char.pp, real_wagemod, paid_wage)
+                temp += " You chose to pay %s %d%% of that! ({color=gold}%d Gold{/color})" % (char.pp, real_wagemod, paid_wage)
                 txt.append(temp)
 
             if not paid_wage: # Free girl with 0% wage mod

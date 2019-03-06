@@ -105,8 +105,8 @@ init: # Main Screens:
                 text "Start Match!":
                     font "fonts/badaboom.ttf"
                     size 20
-                    color ivory
-                    hover_color crimson
+                    color "ivory"
+                    hover_color "crimson"
 
         # Kickass sign:
         frame:
@@ -114,7 +114,7 @@ init: # Main Screens:
             ypos 39
             background Frame("content/gfx/frame/Mc_bg.png", 10, 10)
             xysize (725, 120)
-            text "Get your ass kicked in our Arena!" align .5, .5 font "fonts/badaboom.ttf" color crimson size 45
+            text "Get your ass kicked in our Arena!" align .5, .5 font "fonts/badaboom.ttf" color "crimson" size 45
 
         # LEFT FRAME:
         # Buttons:
@@ -135,15 +135,15 @@ init: # Main Screens:
                     xfill True
                     align .5, .5
                     background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
-                    label "{size=28}{color=[bisque]}== Beast Fights ==" xalign .5 text_outlines [(1, "#3a3a3a", 0, 0)]
+                    label "{size=28}{color=bisque}== Beast Fights ==" xalign .5 text_outlines [(1, "#3a3a3a", 0, 0)]
                 hbox:
                     style_group "basic"
                     align .5, .5
                     spacing 5
-                    textbutton "{size=20}{color=[black]}Bestiary":
+                    textbutton "{size=20}{color=black}Bestiary":
                         action Return(["show", "bestiary"])
                         tooltip "Info about known enemies"
-                    textbutton "{size=20}{color=[black]}Survival":
+                    textbutton "{size=20}{color=black}Survival":
                         action Return(["challenge", "start_chainfight"])
                         tooltip "Unranked fights vs beasts and monsters"
 
@@ -157,18 +157,18 @@ init: # Main Screens:
                     xfill True
                     align .5, .5
                     background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
-                    label "{size=28}{color=[bisque]}== Ladders ==" xalign .5 text_outlines [(1, "#3a3a3a", 0, 0)]
+                    label "{size=28}{color=bisque}== Ladders ==" xalign .5 text_outlines [(1, "#3a3a3a", 0, 0)]
                 hbox:
                     style_group "basic"
                     align .5, .5
                     spacing 5
-                    textbutton "{size=20}{color=[black]}1v1":
+                    textbutton "{size=20}{color=black}1v1":
                         action Show("arena_lineups", transition=dissolve, container=pytfall.arena.lineup_1v1)
                         tooltip "Best 1v1 fighters"
-                    textbutton "{size=20}{color=[black]}2v2":
+                    textbutton "{size=20}{color=black}2v2":
                         action Show("arena_lineups", transition=dissolve, container=pytfall.arena.lineup_2v2)
                         tooltip "Best 2v2 teams"
-                    textbutton "{size=20}{color=[black]}3v3":
+                    textbutton "{size=20}{color=black}3v3":
                         action Show("arena_lineups", transition=dissolve, container=pytfall.arena.lineup_3v3)
                         tooltip "Best 3v3 teams"
 
@@ -182,18 +182,18 @@ init: # Main Screens:
                     xfill True
                     align .5, .5
                     background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
-                    label "{size=28}{color=[bisque]}== Matches ==" xalign .5 text_outlines [(1, "#3a3a3a", 0, 0)]
+                    label "{size=28}{color=bisque}== Matches ==" xalign .5 text_outlines [(1, "#3a3a3a", 0, 0)]
                 hbox:
                     align .5, .5
                     spacing 5
                     style_group "basic"
-                    textbutton "{size=20}{color=[black]}1v1":
+                    textbutton "{size=20}{color=black}1v1":
                         action Show("arena_matches", container=pytfall.arena.matches_1v1, transition=dissolve, vs_img=ProportionalScale("content/gfx/interface/images/vs_2.webp", 100, 100))
                         tooltip "Ranked 1v1 fights"
-                    textbutton "{size=20}{color=[black]}2v2":
+                    textbutton "{size=20}{color=black}2v2":
                         action Show("arena_matches", container=pytfall.arena.matches_2v2, transition=dissolve, vs_img=ProportionalScale("content/gfx/interface/images/vs_3.webp", 100, 100))
                         tooltip "Ranked team 2v2 fights"
-                    textbutton "{size=20}{color=[black]}3v3":
+                    textbutton "{size=20}{color=black}3v3":
                         action Show("arena_matches", container=pytfall.arena.matches_3v3, transition=dissolve, vs_img=ProportionalScale("content/gfx/interface/images/vs_4.webp", 100, 100))
                         tooltip "Ranked team fights 3v3 fights"
 
@@ -208,18 +208,18 @@ init: # Main Screens:
                     xfill True
                     align .5, .5
                     background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
-                    label ("{size=28}{color=[bisque]}== Dogfights ==") xalign .5 text_outlines [(1, "#3a3a3a", 0, 0)]
+                    label ("{size=28}{color=bisque}== Dogfights ==") xalign .5 text_outlines [(1, "#3a3a3a", 0, 0)]
                 hbox:
                     style_group "basic"
                     align .5, .5
                     spacing 5
-                    textbutton "{size=20}{color=[black]}1v1":
+                    textbutton "{size=20}{color=black}1v1":
                         action Show("arena_dogfights", transition=dissolve, container=pytfall.arena.dogfights_1v1)
                         tooltip "Unranked 1v1 fights"
-                    textbutton "{size=20}{color=[black]}2v2":
+                    textbutton "{size=20}{color=black}2v2":
                         action Show("arena_dogfights", transition=dissolve, container=pytfall.arena.dogfights_2v2)
                         tooltip "Unranked team 2v2 fights"
-                    textbutton "{size=20}{color=[black]}3v3":
+                    textbutton "{size=20}{color=black}3v3":
                         action Show("arena_dogfights", transition=dissolve, container=pytfall.arena.dogfights_3v3)
                         tooltip "Unranked team 3v3 fights"
 
@@ -260,7 +260,7 @@ init: # Main Screens:
                         text_size 16
                         text_bold True
                         yalign .03
-                        text_color ivory
+                        text_color "ivory"
 
                     fixed: # HP:
                         ysize 25
@@ -272,8 +272,8 @@ init: # Main Screens:
                             range tmp
                             thumb None
                             xysize (150, 20)
-                        text "HP" size 14 color ivory bold True xpos 8
-                        text "[temp]" size 14 color (red if temp <= tmp/5 else ivory) bold True style_suffix "value_text" xpos 125 yoffset -8
+                        text "HP" size 14 color "ivory" bold True xpos 8
+                        text "[temp]" size 14 color ("red" if temp <= tmp/5 else "ivory") bold True style_suffix "value_text" xpos 125 yoffset -8
 
                     fixed: # MP:
                         ysize 25
@@ -285,8 +285,8 @@ init: # Main Screens:
                             range tmp
                             thumb None
                             xysize (150, 20)
-                        text "MP" size 14 color ivory bold True xpos 8
-                        text "[temp]" size 14 color (red if temp <= tmp/5 else ivory) bold True style_suffix "value_text" xpos 125 yoffset -8
+                        text "MP" size 14 color "ivory" bold True xpos 8
+                        text "[temp]" size 14 color ("red" if temp <= tmp/5 else "ivory") bold True style_suffix "value_text" xpos 125 yoffset -8
 
                     fixed: # VP:
                         ysize 25
@@ -298,14 +298,14 @@ init: # Main Screens:
                             range tmp
                             thumb None
                             xysize (150, 20)
-                        text "VP" size 14 color ivory bold True xpos 8
-                        text "[temp]" size 14 color (red if temp <= tmp/5 else ivory) bold True style_suffix "value_text" xpos 125 yoffset -8
+                        text "VP" size 14 color "ivory" bold True xpos 8
+                        text "[temp]" size 14 color ("red" if temp <= tmp/5 else "ivory") bold True style_suffix "value_text" xpos 125 yoffset -8
 
             # Rep:
             frame:
                 background im.Scale("content/gfx/frame/frame_bg.png", 270, 110)
                 xysize (270, 110)
-                label "Reputation: [hero.arena_rep]" text_size 25 text_color ivory align .5, .5:
+                label "Reputation: [hero.arena_rep]" text_size 25 text_color "ivory" align .5, .5:
                     if len(str(hero.arena_rep)) > 7:
                         text_size 20
 
@@ -373,13 +373,13 @@ init: # Main Screens:
                                             xalign .5
                                             label "Day:":
                                                 align .5, .5
-                                                text_color goldenrod
+                                                text_color "goldenrod"
                                                 text_size 20
                                             null height 10
 
                                             label "[lineup[2]]":
                                                 align .5, .5
-                                                text_color goldenrod
+                                                text_color "goldenrod"
                                                 text_size 25
 
                                 # Challenge button:
@@ -404,7 +404,7 @@ init: # Main Screens:
                                             padding 5, 3
                                             background Frame("content/gfx/frame/rank_frame.png", 5, 5)
                                             $ name = lineup[0][0].nickname if len(lineup[0]) == 1 else lineup[0].name
-                                            label "[name]" align .5, .5 text_size 20 text_style "proper_stats_text" text_color gold:
+                                            label "[name]" align .5, .5 text_size 20 text_style "proper_stats_text" text_color "gold":
                                                 if len(name) > 15:
                                                     text_size 15
                                         hbox:
@@ -433,7 +433,7 @@ init: # Main Screens:
                                             align .5, .0
                                             size size
                                             style "proper_stats_text"
-                                            color gold
+                                            color "gold"
                                     hbox:
                                         spacing 3
                                         align .5, 1.0
@@ -484,7 +484,7 @@ init: # Main Screens:
                                 xysize 60, 55
                                 yalign .5
                                 label "[index]":
-                                    text_color goldenrod
+                                    text_color "goldenrod"
                                     text_size 30
                                     align .5, .5
                             if team:
@@ -493,7 +493,7 @@ init: # Main Screens:
                                     xysize (100, 45)
                                     background Frame("content/gfx/frame/rank_frame.png", 5, 5)
                                     $ lvl = team.get_level
-                                    text("Lvl [team[0].level]") align .5, .5 size 25 style "proper_stats_text" color gold
+                                    text("Lvl [team[0].level]") align .5, .5 size 25 style "proper_stats_text" color "gold"
                                 $ name = team[0].nickname if len(team) == 1 else team.name
                                 hbox:
                                     yoffset 1
@@ -511,7 +511,7 @@ init: # Main Screens:
                                     align (.5, .5)
                                     xfill True
                                     background Frame("content/gfx/frame/rank_frame.png", 5, 5)
-                                    label "[name]" align .5, .5 text_size 25 text_style "proper_stats_text" text_color gold:
+                                    label "[name]" align .5, .5 text_size 25 text_style "proper_stats_text" text_color "gold":
                                         if len(name) > 15:
                                             text_size 15
 
@@ -551,7 +551,7 @@ init: # Main Screens:
                             xysize (690, 60)
                             background Frame(Transform("content/gfx/frame/p_frame7.webp", alpha=1.0), 10, 10)
                             has hbox spacing 20
-                            textbutton "{color=[red]}[index]":
+                            textbutton "{color=red}[index]":
                                 ypadding 5
                                 background Frame("content/gfx/frame/p_frame5.png", 10, 10)
                                 xysize (50, 50)
@@ -567,7 +567,7 @@ init: # Main Screens:
                                     align (.5, .5)
                                     xsize 100
                                     background Frame("content/gfx/frame/rank_frame.png", 5, 5)
-                                    text("Lvl [fighter.level]") align .5, .5 size 25 style "proper_stats_text" color gold
+                                    text("Lvl [fighter.level]") align .5, .5 size 25 style "proper_stats_text" color "gold"
                                 frame:
                                     xfill True
                                     align (.5, .5)
@@ -575,8 +575,8 @@ init: # Main Screens:
                                     hbox:
                                         xfill True
                                         align (.5, .5)
-                                        text("[fighter.name]") align .03, .5 size 25 style "proper_stats_text" color gold
-                                        text("[fighter.arena_rep]") align .99, .5 size 20 style "proper_stats_value_text" color gold
+                                        text("[fighter.name]") align .03, .5 size 25 style "proper_stats_text" color "gold"
+                                        text("[fighter.arena_rep]") align .99, .5 size 20 style "proper_stats_value_text" color "gold"
 
                 vbar value YScrollValue("arena_rep_vp")
 
@@ -622,8 +622,8 @@ init: # Main Screens:
                                 $ level = team.get_level()
                                 vbox:
                                     align (.5, .5)
-                                    text "Challenge!" size 40 color red + "85" hover_color red align .5, .5 font "fonts/badaboom.ttf" outlines [(2, "#3a3a3a", 0, 0)]
-                                    text "Enemy level: [level]" size 30 color red + "85" hover_color red align .5, .5 font "fonts/badaboom.ttf" outlines [(1, "#3a3a3a", 0, 0)]
+                                    text "Challenge!" style "arena_badaboom_text" size 40 outlines [(2, "#3a3a3a", 0, 0)]
+                                    text "Enemy level: [level]" style "arena_badaboom_text" size 30 outlines [(1, "#3a3a3a", 0, 0)]
 
                             add ProportionalScale("content/gfx/interface/images/vs_1.webp", 130, 130) yalign .5
 
@@ -635,11 +635,11 @@ init: # Main Screens:
                                     align .5, .0
                                     padding 5, 1
                                     background Frame("content/gfx/frame/rank_frame.png", 5, 5)
-                                    text ("[name] {color=[red]}"):
+                                    text ("[name]"):
                                         align .5, .0
                                         size size
                                         style "proper_stats_text"
-                                        color gold
+                                        color "gold"
                                 hbox:
                                     spacing 3
                                     align .5, 1.0
@@ -682,10 +682,10 @@ init: # Main Screens:
                     margin 2, 2
                     has vbox spacing 2 xysize 180, 200
                     if data["id"] not in defeated_mobs: # <------------------------------ Note for faster search, change here to test the whole beasts screen without the need to kill mobs
-                        text "-Unknown-" xalign .5 ypos -1 style "TisaOTM" color indianred
-                        add im.Twocolor(img, black, black) xalign .5
+                        text "-Unknown-" xalign .5 ypos -1 style "TisaOTM" color "indianred"
+                        add im.Twocolor(img, "black", "black") xalign .5
                     else:
-                        text creature xalign .5 ypos -1 style "TisaOTM" color (ivory if in_focus_mob == data else gold)
+                        text creature xalign .5 ypos -1 style "TisaOTM" color ("ivory" if in_focus_mob == data else "gold")
                         imagebutton:
                             xalign .5
                             idle img
@@ -698,8 +698,8 @@ init: # Main Screens:
         frame:
             xalign 1.0
             background Frame("content/gfx/frame/p_frame5.png")
-            xysize 277, 720
-            has vbox
+            xysize 290, 720
+            has vbox xfill True
             if in_focus_mob:
                 python:
                     if not mob or mob.id != in_focus_mob["id"]:
@@ -709,28 +709,25 @@ init: # Main Screens:
 
                 null height 5
                 hbox:
+                    spacing 5
                     frame:
-                        xalign .5
-                        yalign .0
                         background Frame("content/gfx/frame/MC_bg.png", 10, 10)
                         add portrait
 
                     vbox:
-                        style_group "proper_stats"
-                        xalign .0
-                        spacing 1
+                        xalign .5
                         frame:
-                            xalign .5
-                            yfill True
                             background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.6), 10, 10)
                             xysize (145, 30)
-                            text (u"{color=#CDAD00} Class") font "fonts/Rubius.ttf" size 20 outlines [(1, "#3a3a3a", 0, 0)] align (.5, .7)
-                        for t in data["basetraits"]:
-                            frame:
-                                xalign .5
-                                xysize (148, 30)
-                                yfill True
-                                text t xalign .5 yalign .5 style "stats_value_text" color "#79CDCD" size 15
+                            text "Class" color "#CDAD00" font "fonts/Rubius.ttf" size 20 outlines [(1, "#3a3a3a", 0, 0)] xalign .5
+                        vbox:
+                            style_group "proper_stats"
+                            spacing 1
+                            for t in data["basetraits"]:
+                                frame:
+                                    xalign .5
+                                    xysize (145, 30)
+                                    text t align .5, .5 style "stats_value_text" color "#79CDCD" size 15
 
                 null height 5
                 use race_and_elements(align=(.5,.5), char=mob)
@@ -738,61 +735,49 @@ init: # Main Screens:
                 # Stats:
                 frame:
                     xalign .5
-                    yfill True
                     background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.6), 10, 10)
-                    xysize (260, 30)
-                    text (u"{color=#CDAD00}Level %s" % data['min_lvl']) font "fonts/Rubius.ttf" size 20 outlines [(1, "#3a3a3a", 0, 0)] xalign .5# align (.5, 1.0)
+                    xysize (155, 30)
+                    text "Level %s" % data['min_lvl'] color "#CDAD00" font "fonts/Rubius.ttf" size 20 outlines [(1, "#3a3a3a", 0, 0)] xalign .5
                 hbox:
-                    null width 2
+                    xalign .5
+                    spacing 2
                     vbox:
                         $ stats = ["health", "vitality", "attack", "defence", "agility"]
                         style_group "proper_stats"
-                        box_wrap 1
                         spacing 1
                         for stat in stats:
                             frame:
                                 xysize (130, 22)
                                 xalign .5
                                 text stat.capitalize() xalign .02 color "#43CD80" size 16
-                                # if stat in data["stats"]:
-                                text mob.get_stat(stat) xalign .98 style "stats_value_text" color "#79CDCD" size 17
-                                # else:
-                                #     text str(20) xalign .98 style "stats_value_text" color "#79CDCD" size 17
-                    null width 2
+                                text str(mob.get_stat(stat)) xalign .98 style "stats_value_text" color "#79CDCD" size 17
                     vbox:
                         $ stats = ["mp", "charisma", "magic", "intelligence", "luck"]
                         style_group "proper_stats"
-                        box_wrap 1
                         spacing 1
                         for stat in stats:
                             frame:
                                 xysize (130, 22)
                                 xalign .5
                                 text stat.capitalize() xalign .02 color "#43CD80" size 16
-                                text mob.get_stat(stat) xalign .98 style "stats_value_text" color "#79CDCD" size 17
-                                # if stat in data["stats"]:
-                                #     text str(data["stats"][stat]) xalign .98 style "stats_value_text" color "#79CDCD" size 17
-                                # else:
-                                #     text str(20) xalign .98 style "stats_value_text" color "#79CDCD" size 17
+                                text str(mob.get_stat(stat)) xalign .98 style "stats_value_text" color "#79CDCD" size 17
                 null height 5
 
                 # Bottom Viewport:
                 viewport:
                     xalign .5
-                    xoffset 3
                     edgescroll (100, 100)
                     draggable True
                     mousewheel True
                     xysize 278, 350
                     child_size 278, 1000
-                    has vbox
+                    has vbox xfill True
                     # Desc:
                     frame:
                         xalign .5
-                        yfill True
                         background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.6), 10, 10)
                         xysize (155, 30)
-                        text (u"{color=#CDAD00} Description") font "fonts/Rubius.ttf" size 20 outlines [(1, "#3a3a3a", 0, 0)] xalign .5
+                        text "Description" color "#CDAD00" font "fonts/Rubius.ttf" size 20 outlines [(1, "#3a3a3a", 0, 0)] xalign .5
                     vbox:
                         style_group "proper_stats"
                         xalign .5
@@ -800,23 +785,23 @@ init: # Main Screens:
                                 frame:
                                     xalign .5
                                     xsize 261
-                                    text (data["desc"]) size 14 xalign .5 yalign .5 style "stats_value_text" color "#79CDCD"
+                                    text (data["desc"]) size 14 align .5, .5 style "stats_value_text" color "#79CDCD"
                         else:
                             frame:
                                 xalign .5
                                 xysize (150, 30)
-                                yfill True
-                                text "-None-" size 17 xalign .5 yalign .5 style "stats_value_text" color indianred
+                                text "-None-" size 14 align .5, .5 style "stats_value_text" color "indianred"
                     null height 5
                     hbox:
+                        xalign .5
+                        spacing 2
                     # Attacks:
                         vbox:
                             frame:
                                 xalign .5
-                                yfill True
                                 background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.6), 10, 10)
                                 xysize (130, 30)
-                                text (u"{color=#CDAD00} Attacks") font "fonts/Rubius.ttf" size 20 outlines [(1, "#3a3a3a", 0, 0)] xalign .5
+                                text "Attacks" color "#CDAD00" font "fonts/Rubius.ttf" size 20 outlines [(1, "#3a3a3a", 0, 0)] xalign .5
 
                             vbox:
                                 style_group "proper_stats"
@@ -831,24 +816,22 @@ init: # Main Screens:
                                                 hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
                                                 action NullAction()
                                                 tooltip ["be", skill]
-                                                text "[skill.name]" size 15 idle_color ivory align .5, .5 hover_color crimson:
+                                                text "[skill.name]" size 15 idle_color "ivory" align .5, .5 hover_color "crimson":
                                                     if len(skill.name) > 12:
                                                         size 12
                                 else:
                                     frame:
                                         xalign .5
-                                        xysize (130, 22)
-                                        yfill True
-                                        text "-None-" size 17 xalign .5 yalign .5 style "stats_value_text" color indianred
+                                        xysize (130, 25)
+                                        text "-None-" size 15 align .5, .5 color "indianred" 
 
                     # Spells:
                         vbox:
                             frame:
                                 xalign .5
-                                yfill True
                                 background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.6), 10, 10)
                                 xysize (130, 30)
-                                text (u"{color=#CDAD00} Spells") font "fonts/Rubius.ttf" size 20 outlines [(1, "#3a3a3a", 0, 0)] xalign .5
+                                text "Spells" color "#CDAD00" font "fonts/Rubius.ttf" size 20 outlines [(1, "#3a3a3a", 0, 0)] xalign .5
 
                             vbox:
                                 style_group "proper_stats"
@@ -864,21 +847,21 @@ init: # Main Screens:
                                                 hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
                                                 action NullAction()
                                                 tooltip ["be", skill]
-                                                text "[skill.name]" size 15 idle_color ivory align .5, .5 hover_color crimson:
+                                                text "[skill.name]" size 15 idle_color "ivory" align .5, .5 hover_color "crimson":
                                                     if len(skill.name) > 12:
                                                         size 12
                                 else:
                                     frame:
                                         xalign .5
-                                        xysize (130, 22)
-                                        yfill True
-                                            text "-None-" size 17 xalign .5 yalign .5 style "stats_value_text" color indianred
+                                        xysize (130, 25)
+                                        text "-None-" size 15 align .5, .5 color "indianred"
+                    null height 5
+                    # Traits
                     frame:
                         xalign .5
-                        yfill True
                         background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.6), 10, 10)
                         xysize (130, 30)
-                        text (u"{color=#CDAD00} Traits") font "fonts/Rubius.ttf" size 20 outlines [(1, "#3a3a3a", 0, 0)] xalign .5
+                        text "Traits" color "#CDAD00" font "fonts/Rubius.ttf" size 20 outlines [(1, "#3a3a3a", 0, 0)] xalign .5
 
                     vbox:
                         style_group "proper_stats"
@@ -895,7 +878,7 @@ init: # Main Screens:
                                             background Null()
                                             xsize 147
                                             action Show("show_trait_info", trait=trait.id)
-                                            text trait.id size 15 idle_color ivory align .5, .5 hover_color crimson:
+                                            text trait.id size 15 idle_color "ivory" align .5, .5 hover_color "crimson":
                                                 if len(trait.id) > 12:
                                                     size 12
                                             tooltip "%s" % trait.desc
@@ -904,8 +887,7 @@ init: # Main Screens:
                             frame:
                                 xalign .5
                                 xysize (260, 22)
-                                yfill True
-                                text "-None-" size 17 xalign .5 yalign .5 style "stats_value_text" color indianred
+                                text "-None-" size 15 align .5, .5 color "indianred"
 
         imagebutton:
             pos (1233, 670)
@@ -1063,9 +1045,9 @@ init: # Main Screens:
                 mousewheel True
                 has vbox xsize 620
                 if not len(pytfall.arena.daily_report):
-                    text "Nothing interesting happened yesterday..." color goldenrod align .5, .5
+                    text "Nothing interesting happened yesterday..." color "goldenrod" align .5, .5
                 else:
-                    text "{size=-4}%s" % "\n".join(pytfall.arena.daily_report) color goldenrod
+                    text "{size=-4}%s" % "\n".join(pytfall.arena.daily_report) color "goldenrod"
 
             button:
                 style_group "basic"
@@ -1105,7 +1087,7 @@ init: # ChainFights vs Mobs:
                                     yalign .5
                                     xysize (350, 45)
                                     background Frame("content/gfx/frame/rank_frame.png", 5, 5)
-                                    text("[setup]") align .5, .5 size 25 style "proper_stats_text" color gold
+                                    text("[setup]") align .5, .5 size 25 style "proper_stats_text" color "gold"
                                 frame:
                                     yalign .5
                                     xysize (45, 45)
@@ -1117,14 +1099,14 @@ init: # ChainFights vs Mobs:
                                     background Frame("content/gfx/frame/rank_frame.png", 5, 5)
                                     $ lvl = pytfall.arena.chain_fights[setup]["level"]
 
-                                    text("Lvl [lvl]") align .5, .5 size 25 style "proper_stats_text" color gold
+                                    text("Lvl [lvl]") align .5, .5 size 25 style "proper_stats_text" color "gold"
                                 button:
                                     xfill True
                                     ysize 60
                                     background None
                                     action [SetField(pytfall.arena, "result", setup), Return("Bupkis")]
                                     align (.5, .5)
-                                    text "Fight!" size 40 color red + "85" hover_color red align .5, .5 font "fonts/badaboom.ttf" outlines [(2, "#3a3a3a", 0, 0)]
+                                    text "Fight!" style "arena_badaboom_text" size 40 outlines [(2, "#3a3a3a", 0, 0)]
                 null height 5
                 button:
                     style_group "basic"
@@ -1146,7 +1128,7 @@ init: # ChainFights vs Mobs:
         text "Special Bonus Time!":
             align (.5, .1)
             italic True
-            color red
+            color "red"
             style "arena_header_text"
             size 75
 
@@ -1164,20 +1146,20 @@ init: # ChainFights vs Mobs:
                 text "Bonus Roll":
                     xalign .5 ypos 10
                     style "arena_header_text"
-                    color red
+                    color "red"
                     size 35
             else:
                 timer 3.0 action Return()
                 key "mousedown_1" action Return()
 
                 if rolled == "health":
-                    text "Rolled: HP" style "arena_header_text" color red size 30 xalign .5 ypos 10
+                    text "Rolled: HP" style "arena_header_text" color "red" size 30 xalign .5 ypos 10
                 elif rolled == "mp":
-                    text "Rolled: MP" style "arena_header_text" color blue size 30 xalign .5 ypos 10
+                    text "Rolled: MP" style "arena_header_text" color "blue" size 30 xalign .5 ypos 10
                 elif rolled == "vitality":
-                    text "Rolled: Vitality" style "arena_header_text" color green size 30 xalign .5 ypos 10
+                    text "Rolled: Vitality" style "arena_header_text" color "green" size 30 xalign .5 ypos 10
                 else:
-                    text "Rolled: Bupkis" style "arena_header_text" color black size 30 xalign .5 ypos 10
+                    text "Rolled: Bupkis" style "arena_header_text" color "black" size 30 xalign .5 ypos 10
 
             textbutton "Stop!":
                 align .5, .95
@@ -1194,15 +1176,15 @@ init: # ChainFights vs Mobs:
             padding (20, 20)
             vbox:
                 spacing 10
-                for color, text in [(red, "Restore HP"),
-                                    (blue, "Restore MP"),
-                                    (green, "Restore Vitality"),
-                                    (black, "Nothing...")]:
+                for color, text in [("red", "Restore HP"),
+                                    ("blue", "Restore MP"),
+                                    ("green", "Restore Vitality"),
+                                    ("black", "Nothing...")]:
                     hbox:
                         xalign 0
                         spacing 10
                         add Solid(color, xysize=(20, 20))
-                        text text style "garamond" color goldenrod yoffset -4
+                        text text style "garamond" color "goldenrod" yoffset -4
 
     screen confirm_chainfight():
         zorder 2
@@ -1216,7 +1198,7 @@ init: # ChainFights vs Mobs:
             text "Round  [pytfall.arena.cf_count]":
                 at move_from_to_pos_with_ease(start_pos=(560, -100), end_pos=(560, 150), t=.7)
                 italic True
-                color red
+                color "red"
                 style "arena_header_text"
                 size 45
 
@@ -1235,8 +1217,8 @@ init: # ChainFights vs Mobs:
                     align .5, .75
                     at fade_in_out(t1=1.5, t2=1.5)
                     size 40
-                    outlines [(2, "#000000", 0, 0)]
-                    color crimson
+                    outlines [(2, "black", 0, 0)]
+                    color "crimson"
                     style "garamond"
             else:
                 text pytfall.arena.cf_setup["id"]:
@@ -1270,7 +1252,7 @@ init: # ChainFights vs Mobs:
                             Return(["challenge", "chainfight", False])]
             # button:
             #     text "Give Up":
-            #         size 25 color goldenrod outlines [(1, "#000000", 0, 0)]
+            #         size 25 color "goldenrod" outlines [(1, "black", 0, 0)]
             #     xysize (180, 60)
             #     action [Hide("arena_inside"), Hide("chain_fight"), Hide("confirm_chainfight"),
             #             SetField(pytfall.arena, "cf_count", 0),
@@ -1278,7 +1260,7 @@ init: # ChainFights vs Mobs:
             #             SetField(pytfall.arena, "cf_setup", None),
             #             Stop("music"), Jump("arena_inside")]
             # button:
-            #     text "Fight" size 25 color goldenrod outlines [(1, "#000000", 0, 0)]
+            #     text "Fight" size 25 color "goldenrod" outlines [(1, "black", 0, 0)]
             #     xysize (180, 60)
             #     action [Hide("arena_inside"), Hide("chain_fight"),
             #             Hide("confirm_chainfight"),
@@ -1296,7 +1278,7 @@ init: # ChainFights vs Mobs:
         text "Victory!":
             at move_from_to_align_with_linear(start_align=(.5, .3), end_align=(.5, .03), t=2.2)
             italic True
-            color red
+            color "red"
             style "arena_header_text"
             size 75
 
@@ -1339,7 +1321,7 @@ init: # ChainFights vs Mobs:
                 for stat in w_team[0].combat_stats:
                     fixed:
                         xysize (170, 18)
-                        text stat.capitalize() xalign .03 style "dropdown_gm2_button_text" color red size 25
-                        text str(w_team[0].combat_stats[stat]) xalign .97 style "dropdown_gm2_button_text" color crimson size 25
+                        text stat.capitalize() xalign .03 style "dropdown_gm2_button_text" color "red" size 25
+                        text str(w_team[0].combat_stats[stat]) xalign .97 style "dropdown_gm2_button_text" color "crimson" size 25
             else:
-                text("{size=+20}{color=[red]}K.O.")
+                text("{size=+20}{color=red}K.O.")

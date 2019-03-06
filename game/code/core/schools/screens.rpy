@@ -97,7 +97,7 @@ screen school_training():
         xysize (500, 666)
         has vbox
         null height 3
-        label ("[school.name]") xalign .5 text_color ivory text_size 25
+        label ("[school.name]") xalign .5 text_color "ivory" text_size 25
         null height 3
         frame:
             xalign .5
@@ -106,7 +106,7 @@ screen school_training():
             add ProportionalScale(school.img, 450, 300)
         null height 8
         default desc = school_desc_string()
-        text "[desc]" color ivory
+        text "[desc]" color "ivory"
         default selected_list = "courses"
         default hidden_courses = set()
         $ extra_students = [s for s in students if school.get_course(s) is None]
@@ -115,7 +115,7 @@ screen school_training():
             button:
                 background None
                 xalign .5
-                text "Students in your group who are not taking courses:" color ivory hover_color red
+                text "Students in your group who are not taking courses:" color "ivory" hover_color "red"
                 action SetScreenVariable("selected_list", "courses")
                 tooltip "View active students."
             null height 3
@@ -132,14 +132,14 @@ screen school_training():
                             button:
                                 xsize 20
                                 background None
-                                text "+" color yellow align (.5, .5)
+                                text "+" color "yellow" align (.5, .5)
                                 #tooltip "%s is currently in your group." % s.name
                                 action NullAction()
 
                             button:
                                 xalign -1.0
                                 background None
-                                text ("[s.fullname]") color lawngreen hover_color red xalign .0
+                                text ("[s.fullname]") color "lawngreen" hover_color "red" xalign .0
                                 action Return(["toggle_student", s])
                                 tooltip "Remove %s from your group." % s.name
         else:
@@ -147,9 +147,9 @@ screen school_training():
             button:
                 background None
                 xalign .5
-                text "Students currently taking courses here:" color ivory:
+                text "Students currently taking courses here:" color "ivory":
                     if extra_students:
-                        hover_color red
+                        hover_color "red"
                 if extra_students:
                     action SetScreenVariable("selected_list", "extra")
                     tooltip "View students in your group who are not taking courses."
@@ -172,11 +172,11 @@ screen school_training():
                                         xsize 20
                                         background None
                                         if c in hidden_courses:
-                                            text ">" color yellow align (.5, .5)
+                                            text ">" color "yellow" align (.5, .5)
                                             tooltip "Show course members."
                                             action Function(hidden_courses.discard, c)
                                         else:
-                                            text "v" color yellow align (.5, .5)
+                                            text "v" color "yellow" align (.5, .5)
                                             tooltip "Hide course members."
                                             action Function(hidden_courses.add, c)
     
@@ -184,7 +184,7 @@ screen school_training():
                                     button:
                                         xalign -1.02
                                         background None
-                                        text "[c.name] Course:" color goldenrod hover_color red
+                                        text "[c.name] Course:" color "goldenrod" hover_color "red"
                                         if temp:
                                             action Return(["toggle_course", c, "remove"])
                                             tooltip "Remove course members from your group."
@@ -200,7 +200,7 @@ screen school_training():
                                                 button:
                                                     xsize 20
                                                     background None
-                                                    text "+" color yellow align (.5, .5)
+                                                    text "+" color "yellow" align (.5, .5)
                                                     #tooltip "%s is currently in your group." % s.name
                                                     action NullAction()
                                             else:
@@ -209,7 +209,7 @@ screen school_training():
                                             button:
                                                 xalign -1.0
                                                 background None
-                                                text ("[s.fullname]") color lawngreen hover_color red xalign .0
+                                                text ("[s.fullname]") color "lawngreen" hover_color "red" xalign .0
                                                 action Return(["toggle_student", s])
                                                 if s in students:
                                                     tooltip "Remove %s from your group." % s.name
@@ -219,14 +219,14 @@ screen school_training():
                                                 xalign .9
                                                 background None
                                                 if s in c.completed:
-                                                    text "(Completed)" color goldenrod hover_color red
+                                                    text "(Completed)" color "goldenrod" hover_color "red"
                                                 else:
                                                     $ days_left = c.days_to_complete - c.students_progress.get(s, 0)
                                                     $ can_complete = c.days_remaining >= days_left
                                                     if can_complete:
-                                                        text "([days_left] days to complete)" color ivory hover_color red
+                                                        text "([days_left] days to complete)" color "ivory" hover_color "red"
                                                     else:
-                                                        text "(can't complete)" color ivory hover_color red
+                                                        text "(can't complete)" color "ivory" hover_color "red"
                                                 action Return(["stop_student", s])
                                                 tooltip "Stop %s from taking the course." % s.name
 
@@ -250,7 +250,7 @@ screen school_training():
                     vbox:
                         xalign .5
                         spacing 2
-                        text course.name + " Course" xalign .5 color ivory style "dropdown_gm2_button_value_text"
+                        text course.name + " Course" xalign .5 color "ivory" style "dropdown_gm2_button_value_text"
                         frame:
                             xalign .5
                             background Null()
@@ -258,7 +258,7 @@ screen school_training():
                             add ProportionalScale(course.img, 150, 150)
                     text "---------------------------------":
                         xalign .5
-                        color ivory
+                        color "ivory"
                         ypos 190
                     vbox:
                         ypos 205
@@ -270,11 +270,11 @@ screen school_training():
                             text "Days Left":
                                 xalign .02
                                 color "#79CDCD"
-                                hover_color ivory
+                                hover_color "ivory"
                                 size 15
                             text "[course.days_remaining]/[course.duration]":
                                 style_suffix "value_text"
-                                hover_color green
+                                hover_color "green"
                                 size 14
                                 xalign .99 yoffset -1
                         frame:
@@ -283,14 +283,14 @@ screen school_training():
                             text "Days to Complete":
                                 xalign .02
                                 color "#79CDCD"
-                                hover_color ivory
+                                hover_color "ivory"
                                 size 15
                             python:
                                 temp = None if students else "--" # days_left
                                 tmp = None  # enough days left to complete
                                 for s in students:
                                     t = course.days_to_complete - course.students_progress.get(s, 0)
-                                    c = green if t <= course.days_remaining else red
+                                    c = "green" if t <= course.days_remaining else "red"
                                     if temp is None:
                                         temp = t
                                         tmp = c
@@ -313,12 +313,12 @@ screen school_training():
                             text "Tier":
                                 xalign .02
                                 color "#79CDCD"
-                                hover_color ivory
+                                hover_color "ivory"
                                 size 15
                             python:
                                 temp = None  # appropriate difficulty
                                 for s in students:
-                                    t = green if s.tier <= course.difficulty else red
+                                    t = "green" if s.tier <= course.difficulty else "red"
                                     if temp is None:
                                         temp = t
                                     elif temp != t:
@@ -336,11 +336,11 @@ screen school_training():
                             text "Effectiveness":
                                 xalign .02
                                 color "#79CDCD"
-                                hover_color ivory
+                                hover_color "ivory"
                                 size 15
                             text "[course.effectiveness]":
                                 style_suffix "value_text"
-                                hover_color green
+                                hover_color "green"
                                 size 14
                                 xalign .99 yoffset -1
                         frame:
@@ -349,11 +349,11 @@ screen school_training():
                             text "Price":
                                 xalign .02
                                 color "#79CDCD"
-                                hover_color ivory
+                                hover_color "ivory"
                                 size 15
                             text "[course.price]":
                                 style_suffix "value_text"
-                                hover_color green
+                                hover_color "green"
                                 size 14
                                 xalign .99 yoffset -1
                         frame:
@@ -362,7 +362,7 @@ screen school_training():
                             text "Status":
                                 xalign .02
                                 color "#79CDCD"
-                                hover_color ivory
+                                hover_color "ivory"
                                 size 15
                             python:
                                 temp = None if students else "--"  # status
@@ -375,7 +375,7 @@ screen school_training():
                                         break
                             text "[temp]":
                                 style_suffix "value_text"
-                                hover_color green size 14
+                                hover_color "green" size 14
                                 xalign .99 yoffset -1
 
                     python:

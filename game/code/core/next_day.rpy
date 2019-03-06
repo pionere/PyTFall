@@ -398,7 +398,7 @@ screen next_day():
                     ypos 5
                     xysize (330, 50)
                     background Frame("content/gfx/frame/namebox5.png", 10, 10)
-                    label (u"Buildings") text_size 23 text_color ivory align .5, .6
+                    label (u"Buildings") text_size 23 text_color "ivory" align .5, .6
                     add ProportionalScale("content/gfx/images/birds1.webp", 548, 115) pos (-100, 5)
 
                 null height 80
@@ -453,7 +453,7 @@ screen next_day():
                                             yoffset 4
                                             padding 1, 1
                                             background Null()
-                                            text "!" style "next_day_summary_text" color red
+                                            text "!" style "next_day_summary_text" color "red"
                                             action NullAction()
 
                                     if nd_all_stats["events"]["Service"]["green_flag"]:
@@ -461,7 +461,7 @@ screen next_day():
                                             yoffset 4
                                             padding 1, 1
                                             background Null()
-                                            text "!" style "next_day_summary_text" color green
+                                            text "!" style "next_day_summary_text" color "green"
                                             action NullAction()
 
                                 text str(nd_all_stats["events"]["Combat"]["count"]) style_suffix "value_text" xpos 175
@@ -473,7 +473,7 @@ screen next_day():
                                             yoffset 4
                                             padding 1, 1
                                             background Null()
-                                            text "!" style "next_day_summary_text" color red
+                                            text "!" style "next_day_summary_text" color "red"
                                             action NullAction()
 
                                     if nd_all_stats["events"]["Combat"]["green_flag"]:
@@ -481,7 +481,7 @@ screen next_day():
                                             yoffset 4
                                             padding 1, 1
                                             background Null()
-                                            text "!" style "next_day_summary_text" color green
+                                            text "!" style "next_day_summary_text" color "green"
                                             action NullAction()
 
                                 text str(nd_all_stats["events"]["Management"]["count"]) style_suffix "value_text" xpos 215
@@ -493,7 +493,7 @@ screen next_day():
                                             yoffset 4
                                             padding 1, 1
                                             background Null()
-                                            text "!" style "next_day_summary_text" color red
+                                            text "!" style "next_day_summary_text" color "red"
                                             action NullAction()
 
                                     if nd_all_stats["events"]["Management"]["green_flag"]:
@@ -501,7 +501,7 @@ screen next_day():
                                             yoffset 4
                                             padding 1, 1
                                             background Null()
-                                            text "!" style "next_day_summary_text" color green
+                                            text "!" style "next_day_summary_text" color "green"
                                             action NullAction()
 
                                 text str(nd_all_stats["events"]["Resting"]["count"]) style_suffix "value_text" xpos 255
@@ -513,7 +513,7 @@ screen next_day():
                                             yoffset 4
                                             padding 1, 1
                                             background Null()
-                                            text "!" style "next_day_summary_text" color red
+                                            text "!" style "next_day_summary_text" color "red"
                                             action NullAction()
 
                                     if nd_all_stats["events"]["Resting"]["green_flag"]:
@@ -521,7 +521,7 @@ screen next_day():
                                             yoffset 4
                                             padding 1, 1
                                             background Null()
-                                            text "!" style "next_day_summary_text" color green
+                                            text "!" style "next_day_summary_text" color "green"
                                             action NullAction()
 
                             frame:
@@ -572,7 +572,7 @@ screen next_day():
                                         button:
                                             align .95, .95
                                             background Null()
-                                            text "!" color red size 40 italic True
+                                            text "!" color "red" size 40 italic True
                                             action NullAction()
                                             tooltip "There are building related events flagged Red!"
 
@@ -623,7 +623,7 @@ screen next_day():
                                                     yoffset 4
                                                     padding 1, 1
                                                     background Null()
-                                                    text "!" style "next_day_summary_text" color red
+                                                    text "!" style "next_day_summary_text" color "red"
                                                     action NullAction()
 
                                             if curr_stats["events"]["Service"]["green_flag"]:
@@ -631,7 +631,7 @@ screen next_day():
                                                     yoffset 4
                                                     padding 1, 1
                                                     background Null()
-                                                    text "!" style "next_day_summary_text" color green
+                                                    text "!" style "next_day_summary_text" color "green"
                                                     action NullAction()
 
                                         text str(curr_stats["events"]["Combat"]["count"]) style_suffix "value_text" xpos 175
@@ -644,7 +644,7 @@ screen next_day():
                                                     yoffset 4
                                                     padding 1, 1
                                                     background Null()
-                                                    text "{color=[red]}!" style "next_day_summary_text"
+                                                    text "{color=red}!" style "next_day_summary_text"
                                                     action NullAction()
 
                                             if curr_stats["events"]["Combat"]["green_flag"]:
@@ -652,7 +652,7 @@ screen next_day():
                                                     yoffset 4
                                                     padding 1, 1
                                                     background Null()
-                                                    text "{color=[green]}!" style "next_day_summary_text"
+                                                    text "{color=green}!" style "next_day_summary_text"
                                                     action NullAction()
 
                                         text str(curr_stats["events"]["Management"]["count"]) style_suffix "value_text" xpos 215
@@ -665,7 +665,7 @@ screen next_day():
                                                     yoffset 4
                                                     padding 1, 1
                                                     background Null()
-                                                    text "{color=[red]}!" style "next_day_summary_text"
+                                                    text "{color=red}!" style "next_day_summary_text"
                                                     action NullAction()
 
                                             if curr_stats["events"]["Management"]["green_flag"]:
@@ -673,7 +673,7 @@ screen next_day():
                                                     yoffset 4
                                                     padding 1, 1
                                                     background Null()
-                                                    text "{color=[green]}!" style "next_day_summary_text"
+                                                    text "{color=green}!" style "next_day_summary_text"
                                                     action NullAction()
 
                                         text str(curr_stats["events"]["Resting"]["count"]) style_suffix "value_text" xpos 255
@@ -686,7 +686,7 @@ screen next_day():
                                                     yoffset 4
                                                     padding 1, 1
                                                     background Null()
-                                                    text "{color=[red]}!" style "next_day_summary_text"
+                                                    text "{color=red}!" style "next_day_summary_text"
                                                     action NullAction()
 
                                             if curr_stats["events"]["Resting"]["green_flag"]:
@@ -694,7 +694,7 @@ screen next_day():
                                                     yoffset 4
                                                     padding 1, 1
                                                     background Null()
-                                                    text "{color=[green]}!" style "next_day_summary_text"
+                                                    text "{color=green}!" style "next_day_summary_text"
                                                     action NullAction()
 
                                         if "fame" in curr_stats:
@@ -747,7 +747,7 @@ screen next_day():
                     xalign .6 ypos 15
                     xysize 210, 40
                     background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.6), 10, 10)
-                    label (u"Daily Balance") text_size 23 text_color ivory xalign .5 yoffset -4
+                    label (u"Daily Balance") text_size 23 text_color "ivory" xalign .5 yoffset -4
 
                 vbox:
                     ypos 60
@@ -759,8 +759,8 @@ screen next_day():
                             frame:
                                 xysize 250, 25
                                 xoffset 10
-                                text "[k]" color green xoffset 3
-                                text "[v]" color green style_suffix "value_text" xoffset -3
+                                text "[k]" color "green" xoffset 3
+                                text "[v]" color "green" style_suffix "value_text" xoffset -3
 
                     for k, v in fin_exp.iteritems():
                         if v:
@@ -768,8 +768,8 @@ screen next_day():
                             frame:
                                 xysize 250, 25
                                 xoffset 10
-                                text "[k]" color red xoffset 3
-                                text "[v]" color red style_suffix "value_text" xoffset -3
+                                text "[k]" color "red" xoffset 3
+                                text "[v]" color "red" style_suffix "value_text" xoffset -3
 
                     # Empty field fillers:
                     for i in xrange(max(0, max_fields-counter)):
@@ -786,9 +786,9 @@ screen next_day():
                         total_expenses += fin_exp[key]
                     total = total_income - total_expenses
                     if total < 0:
-                        color = red
+                        color = "red"
                     else:
-                        color = green
+                        color = "green"
 
                 frame:
                     xysize 250, 25
@@ -811,7 +811,7 @@ screen next_day():
                 xalign .5
                 xysize (380, 50)
                 background Frame("content/gfx/frame/namebox5.png", 10, 10)
-                label (u"Game Total") text_size 23 text_color ivory align .5, .6
+                label (u"Game Total") text_size 23 text_color "ivory" align .5, .6
 
             $ income, expense, total = NextDayEvents.get_hero_fin()
             null height 1
@@ -828,16 +828,16 @@ screen next_day():
                     frame:
                         xysize 240, 30
                         xalign .5
-                        text ("Earnings") color green xoffset 2
-                        text ("[income]") color green style_suffix "value_text" xoffset -2
+                        text ("Earnings") color "green" xoffset 2
+                        text ("[income]") color "green" style_suffix "value_text" xoffset -2
                     frame:
                         xysize 240, 30
                         xalign .5
-                        text ("Expenses") color red xoffset 2
-                        text ("[expense]") color red style_suffix "value_text" xoffset -2
+                        text ("Expenses") color "red" xoffset 2
+                        text ("[expense]") color "red" style_suffix "value_text" xoffset -2
 
                 null height 2
-                $ cl = green if total > 0 else red
+                $ cl = "green" if total > 0 else "red"
                 frame:
                     align .5, .90
                     xysize 250, 30
@@ -877,7 +877,7 @@ screen next_day():
                             text_bold True
                             xpos 38
                             yalign .03
-                            text_color ivory
+                            text_color "ivory"
                         $ temp, tmp = NextDayEvents.get_hero_hp()
                         fixed: # HP
                             xysize (150, 25)
@@ -890,8 +890,8 @@ screen next_day():
                                 range tmp
                                 thumb None
                                 xysize (150, 20)
-                            text "HP" size 14 color ivory bold True yalign .1 xpos 8
-                            text "[temp]" size 14 color (red if temp <= tmp*.2 else ivory) bold True style_suffix "value_text" yoffset -3 xpos 102
+                            text "HP" size 14 color "ivory" bold True yalign .1 xpos 8
+                            text "[temp]" size 14 color ("red" if temp <= tmp*.2 else "ivory") bold True style_suffix "value_text" yoffset -3 xpos 102
 
                         $ temp, tmp = NextDayEvents.get_hero_mp()
                         fixed: # MP
@@ -905,8 +905,8 @@ screen next_day():
                                 range tmp
                                 thumb None
                                 xysize (150, 20)
-                            text "MP" size 14 color ivory bold True yalign .8 xpos 7
-                            text "[temp]" size 14 color (red if temp <= tmp*.2 else ivory) bold True style_suffix "value_text" yoffset 2 xpos 99
+                            text "MP" size 14 color "ivory" bold True yalign .8 xpos 7
+                            text "[temp]" size 14 color ("red" if temp <= tmp*.2 else "ivory") bold True style_suffix "value_text" yoffset 2 xpos 99
 
                         $ temp, tmp = NextDayEvents.get_hero_vp()
                         fixed: # VIT
@@ -920,8 +920,8 @@ screen next_day():
                                 range tmp
                                 thumb None
                                 xysize (150, 20)
-                            text "VP" size 14 color ivory bold True yalign .8 xpos 7
-                            text "[temp]" size 14 color (red if temp <= tmp*.2 else ivory) bold True style_suffix "value_text" yoffset 2 xpos 99
+                            text "VP" size 14 color "ivory" bold True yalign .8 xpos 7
+                            text "[temp]" size 14 color ("red" if temp <= tmp*.2 else "ivory") bold True style_suffix "value_text" yoffset 2 xpos 99
                             add ProportionalScale("content/gfx/images/c1.png", 123, 111) pos (-42, 55)
 
                 # MC (extra info) -------------------------------------------->>>
@@ -932,7 +932,7 @@ screen next_day():
                     button:
                         align .99, .99
                         background Frame("content/gfx/frame/p_frame5.png", 5, 5)
-                        text "!" color red size 35 hover_size 40 style "proper_stats_text"
+                        text "!" color "red" size 35 hover_size 40 style "proper_stats_text"
                         action NullAction()
                         tooltip "Red flag in MC's Report!"
 
@@ -967,7 +967,7 @@ screen next_day():
                         hover_background Frame(img, 5, 5)
                         action NullAction()
                         tooltip "There are no events flagged Red!"
-                    text "!" align (.5, .5) color (red if red_flags else grey) size 60 style "proper_stats_text"
+                    text "!" align (.5, .5) color ("red" if red_flags else "grey") size 60 style "proper_stats_text"
 
                 # School:
                 # Preparing info:
@@ -1001,7 +1001,7 @@ screen next_day():
                                 background Null()
                                 action NullAction()
                                 tooltip "New Courses available!"
-                                text "+" color yellow size 40 style "proper_stats_text" align .5, .5
+                                text "+" color "yellow" size 40 style "proper_stats_text" align .5, .5
                         if "Student(s) completed" in school_report.txt:
                             button:
                                 xysize 10, 36
@@ -1009,7 +1009,7 @@ screen next_day():
                                 background Null()
                                 action NullAction()
                                 tooltip "One of your workers has successfully completed their course (this doesn't mean that a course has ended)!"
-                                text "!" color yellow size 40 style "proper_stats_text" align .5, .5
+                                text "!" color "yellow" size 40 style "proper_stats_text" align .5, .5
                         if "Student(s) were sent" in school_report.txt:
                             button:
                                 xysize 10, 36
@@ -1017,7 +1017,7 @@ screen next_day():
                                 background Null()
                                 action NullAction()
                                 tooltip "A course one of your workers attended has ended!"
-                                text "!" color yellow size 40 style "proper_stats_text" align .5, .5
+                                text "!" color "yellow" size 40 style "proper_stats_text" align .5, .5
 
             # # Girls and Other Related data:
             hbox:
@@ -1074,7 +1074,7 @@ screen next_day():
                                 tooltip "Red flag in Girls personal Reports!"
                                 text "!":
                                     style "proper_stats_text"
-                                    color red
+                                    color "red"
                                     size 40
                                     align .5, .5
 
@@ -1089,7 +1089,7 @@ screen next_day():
             text "Unassigned: [temp]":
                 yalign .5 ypos 420
                 style "agrevue"
-                color (red if temp > 0 else green)
+                color ("red" if temp > 0 else "green")
 
         use top_stripe(True)
 
@@ -1129,7 +1129,7 @@ screen next_day():
                         ypos 5
                         xysize (136, 40)
                         background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.7), 10, 10)
-                        label (u"Stat Changes:") text_size 18 text_color ivory align (.5, .5)
+                        label (u"Stat Changes:") text_size 18 text_color "ivory" align (.5, .5)
 
                     if event.team_charmod:
                         viewport:
@@ -1166,7 +1166,7 @@ screen next_day():
                                                         xalign .5
                                                         xysize 130, 25
                                                         text ("%s:" % key.capitalize()) align .02, .5
-                                                        label "[value]" text_color (lawngreen if value > 0 else red) align .98, .5
+                                                        label "[value]" text_color ("lawngreen" if value > 0 else "red") align .98, .5
                                         $ xpos += 136
                     # Normal, one worker report case:
                     else:
@@ -1181,7 +1181,7 @@ screen next_day():
                                         xalign .5
                                         xysize 130, 25
                                         text ("%s:" % key.capitalize()) align .02, .5
-                                        label "[value]" text_color (lawngreen if value > 0 else red) align .98, .5
+                                        label "[value]" text_color ("lawngreen" if value > 0 else "red") align .98, .5
 
             # Buildings Stats Frame:
             frame background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10):
@@ -1198,7 +1198,7 @@ screen next_day():
                                 xalign .5
                                 xysize (136, 40)
                                 background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.7), 10, 10)
-                                label (u"Building Stats:") text_size 18 text_color ivory align .5, .5
+                                label (u"Building Stats:") text_size 18 text_color "ivory" align .5, .5
                             null height 10
                             vbox:
                                 style_group "proper_stats"
@@ -1212,11 +1212,11 @@ screen next_day():
                                             python: # Special considerations:
                                                 hkey = key
                                                 if key in ["dirt", "threat"]:
-                                                    neg_color = lawngreen
-                                                    pos_color = red
+                                                    neg_color = "lawngreen"
+                                                    pos_color = "red"
                                                 else:
-                                                    neg_color = red
-                                                    pos_color = lawngreen
+                                                    neg_color = "red"
+                                                    pos_color = "lawngreen"
                                                     if key == "reputation":
                                                         hkey = "Rep"
                                             text (u"%s:" % hkey.capitalize()) align .02, .5
@@ -1233,7 +1233,7 @@ screen next_day():
                 #     xalign .5
                 #     style_prefix "content"
                 #     xysize (200, 40)
-                #     label (u"Description:") text_size 18 text_color ivory align(.5, .6)
+                #     label (u"Description:") text_size 18 text_color "ivory" align(.5, .6)
         frame:
             background Frame("content/gfx/frame/mes12.jpg")
             xysize 442, 606
@@ -1314,4 +1314,4 @@ screen next_day():
 
 screen next_day_calculations():
     zorder 20
-    text "Processing next day calculations..." font "fonts/badaboom.ttf" color "#daa520" size 35 align(.5, .5) outlines [(2, "#000000", 0, 0)]
+    text "Processing next day calculations..." font "fonts/badaboom.ttf" color "#daa520" size 35 align(.5, .5) outlines [(2, "black", 0, 0)]

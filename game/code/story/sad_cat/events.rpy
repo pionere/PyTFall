@@ -27,6 +27,7 @@ label found_sad_cat_1:
             "The cat is frightened as you approach, and quickly runs away."
             $ pytfall.world_events.kill_event("found_sad_cat_1")
     $ global_flags.set_flag("keep_playing_music")
+    $ del temp
     jump main_street
 
 label found_sad_cat_2:
@@ -61,6 +62,7 @@ label found_sad_cat_2:
                 "The cat is frightened as you approach, and quickly runs away."
                 $ pytfall.world_events.kill_event("found_sad_cat_2")
     $ global_flags.set_flag("keep_playing_music")
+    $ del temp, fish
     jump main_street
 
 label found_sad_cat_3:
@@ -95,13 +97,14 @@ label found_sad_cat_3:
                 "The cat is frightened as you approach, and quickly runs away."
                 $ pytfall.world_events.kill_event("found_sad_cat_3")
     $ global_flags.set_flag("keep_playing_music")
+    $ del temp, fish
     jump main_street
 
 label found_sad_cat_4:
     hide screen main_street
     scene bg street_alley
-    $ temp = npcs["sad_cat"].show("profile", "in pain", resize = (295, 340))
     $ cat = npcs["sad_cat"]
+    $ temp = cat.show("profile", "in pain", resize = (295, 340))
     show expression temp at left
     with dissolve
     $ npcs["sad_cat"].override_portrait("portrait", "in pain")
@@ -114,20 +117,20 @@ label found_sad_cat_4:
             "Heal it":
                 $ potion.sort(key=attrgetter("price"))
                 $ hero.remove_item(potion[0])
-                $ del potion
-                $ flash = Fade(.25, 0, .75, color=red)
+                $ flash = Fade(.25, 0, .75, color="red")
                 scene bg street_alley
                 with flash
+                $ del flash
                 hide expression temp
-                $ temp = npcs["sad_cat"].show("profile", "happy", resize = (295, 340))
+                $ temp = cat.show("profile", "happy", resize = (295, 340))
                 show expression temp at left
-                $ npcs["sad_cat"].override_portrait("portrait", "happy")
+                $ cat.override_portrait("portrait", "happy")
                 cat.say "Meow!"
                 "The cat looks much better now."
                 hero.say "I should go now."
                 hide expression temp
                 with dissolve
-                $ temp = npcs["sad_cat"].show("vnsprite", "happy", resize = (295, 340))
+                $ temp = cat.show("vnsprite", "happy", resize = (295, 340))
                 show expression temp at center
                 cat.say "Meow!"
                 hero.say "The cat follows me. I suppose it's not safe for him to stay here."
@@ -135,9 +138,9 @@ label found_sad_cat_4:
                 $ n = renpy.call_screen("pyt_input", "Fluffy", "Enter name for your cat", 20)
                 if not(len(n)):
                     $ n = "Cat"
-                $ npcs["sad_cat"].name = npcs["sad_cat"].fullname = npcs["sad_cat"].nickname = n
-                $ npcs["sad_cat"].update_sayer()
-                $ cat = npcs["sad_cat"]
+                $ cat.name = cat.fullname = cat.nickname = n
+                $ cat.update_sayer()
+                $ del n
                 cat.say "Meow!"
                 hero.say "Let's go, [cat.name]."
                 $ items["Your Pet"].desc = "%s, the cat you found on city streets. Cute, funny and loyal, all girls just love him." %cat.name
@@ -148,9 +151,9 @@ label found_sad_cat_4:
                 hero.say "I need those potions for myself."
     else:
         hero.say "It still can be healed with a healing potion, but I don't have any right now."
-        
+
     $ global_flags.set_flag("keep_playing_music")
-    $ npcs["sad_cat"].restore_portrait()
+    $ cat.restore_portrait()
+    $ del cat, potion, temp
     jump main_street
 
-    # $ fish = list(i for i in items.values() if "Fishing" in i.locations and i.type == "fish" and 3 <= i.price <= hero.get_skill("fishing"))

@@ -35,7 +35,7 @@ init -5 python:
                 simpy_debug("Entering Cleaners.business_control iteration at %s", self.env.now)
 
                 if DSNBR and not self.env.now % 5:
-                    temp = "{color=[red]}" + "DEBUG: {0:.2f} DIRT IN THE BUILDING!".format(building.dirt)
+                    temp = "{color=red}" + "DEBUG: {0:.2f} DIRT IN THE BUILDING!".format(building.dirt)
                     self.log(temp, True)
 
                 dirt = building.dirt

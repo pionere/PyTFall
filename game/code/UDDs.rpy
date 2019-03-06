@@ -159,10 +159,10 @@ init -960 python:
                                align=(.5, .5)))
             if value < 0:
                 sign = "-"
-                color = red
+                color = "red"
             else:
                 sign = "+"
-                color = green
+                color = "green"
             fixed.add(Text(sign+str(value), style="proper_stats_value_text", color=color,
                            size=40, align=(.9, .5), yoffset=25))
 
@@ -200,10 +200,10 @@ init -960 python:
                                align=(.5, .5)))
             if value < 0:
                 sign = "-"
-                color = red
+                color = "red"
             else:
                 sign = "+"
-                color = green
+                color = "green"
             fixed.add(Text(sign+str(value),
                            style="proper_stats_value_text", color=color,
                            size=40, align=(.9, .5), yoffset=25))
@@ -227,7 +227,7 @@ init -960 python:
                 fixed = Fixed(xysize=(130, 130))
                 d = Transform("hearts_flow", size=(130, 130), align=(.5, .5))
                 fixed.add(d)
-                d = Text(str(value), font="fonts/rubius.ttf", color=deeppink,
+                d = Text(str(value), font="fonts/rubius.ttf", color="deeppink",
                          size=60, align=(.5, .5))
                 fixed.add(d)
                 kwargs["pos"] = randint(680, 920), randint(500, 600)
@@ -237,7 +237,7 @@ init -960 python:
                 fixed = Fixed(xysize=(130, 130))
                 d = Transform("shy_blush", size=(130, 130), align=(.5, .5))
                 fixed.add(d)
-                d = Text(str(value), font="fonts/rubius.ttf", color=blue,
+                d = Text(str(value), font="fonts/rubius.ttf", color="blue",
                          size=60, align=(.5, .5))
                 fixed.add(d)
                 kwargs["pos"] = randint(680, 920), randint(100, 200)
@@ -258,7 +258,7 @@ init -960 python:
                 fixed = Fixed(xysize=(130, 130))
                 d = Transform("hearts_rise", size=(130, 130), align=(.5, .5))
                 fixed.add(d)
-                d = Text(str(value), font="fonts/rubius.ttf", color=pink,
+                d = Text(str(value), font="fonts/rubius.ttf", color="pink",
                          size=60, align=(.5, .5))
                 fixed.add(d)
                 kwargs["pos"] = randint(680, 920), randint(500, 600)
@@ -267,7 +267,7 @@ init -960 python:
                 fixed = Fixed(xysize=(130, 130))
                 d = Transform("shy_blush", size=(130, 130), align=(.5, .5))
                 fixed.add(d)
-                d = Text(str(value), font="fonts/rubius.ttf", color=lightblue,
+                d = Text(str(value), font="fonts/rubius.ttf", color="lightblue",
                          size=60, align=(.5, .5))
                 fixed.add(d)
                 kwargs["pos"] = randint(680, 920), randint(100, 200)
@@ -288,7 +288,7 @@ init -960 python:
                 fixed = Fixed(xysize=(130, 130))
                 d = Transform("music_note", size=(60, 60), align=(.5, .5))
                 fixed.add(d)
-                d = Text(str(value), font="fonts/rubius.ttf", color=aqua,
+                d = Text(str(value), font="fonts/rubius.ttf", color="aqua",
                          size=60, align=(.5, .5))
                 fixed.add(d)
                 kwargs["pos"] = randint(680, 920), randint(500, 600)
@@ -297,7 +297,7 @@ init -960 python:
                 fixed = Fixed(xysize=(130, 130))
                 d = Transform("shy_blush", size=(130, 130), align=(.5, .5))
                 fixed.add(d)
-                d = Text(str(value), font="fonts/rubius.ttf", color=silver,
+                d = Text(str(value), font="fonts/rubius.ttf", color="silver",
                          size=60, align=(.5, .5))
                 fixed.add(d)
                 kwargs["pos"] = randint(680, 920), randint(100, 200)
@@ -317,7 +317,7 @@ init -960 python:
                 item = round_int(item)
                 main_icon = pscale("content/gfx/interface/images/money_bag3.png",
                                    80, 80, align=(.5, .5))
-                main_text = Text(str(item), font="fonts/rubius.ttf", color=gold,
+                main_text = Text(str(item), font="fonts/rubius.ttf", color="gold",
                                          size=40, align=(.5, 1.0))
                 support_icons = pscale("content/gfx/interface/icons/gold.png",
                               40, 40, align=(.5, .5))
@@ -325,14 +325,14 @@ init -960 python:
                 item = round_int(item)
                 main_icon = pscale("content/gfx/interface/images/work.webp",
                               80, 80, align=(.5, .5))
-                main_text = Text(str(item), font="fonts/rubius.ttf", color=gold,
+                main_text = Text(str(item), font="fonts/rubius.ttf", color="gold",
                                          size=40, align=(.5, 1.0))
                 support_icons = pscale("content/gfx/interface/icons/gold.png",
                               40, 40, align=(.5, .5))
             elif mode == 'fishy':
                 main_icon = pscale(item.icon,
                               80, 80, align=(.5, .5))
-                main_text = Text(item.id, font="fonts/rubius.ttf", color=gold,
+                main_text = Text(item.id, font="fonts/rubius.ttf", color="gold",
                                          size=40, align=(.5, 1.0))
                 support_icons = pscale("content/gfx/images/fishy.png",
                               60, 60, align=(.5, .5))
@@ -343,7 +343,7 @@ init -960 python:
                     t = item.id + " x " + str(count)
                 else:
                     t = item.id
-                main_text = Text(t, font="fonts/rubius.ttf", color=gold,
+                main_text = Text(t, font="fonts/rubius.ttf", color="gold",
                                          size=40, align=(.5, 1.0))
                 support_icons = pscale("content/gfx/interface/buttons/IT2.png",
                               40, 40, align=(.5, .5))
@@ -355,7 +355,7 @@ init -960 python:
                     t = item.id + " x " + str(count)
                 else:
                     t = item.id
-                main_text = Text(t, font="fonts/rubius.ttf", color=gold,
+                main_text = Text(t, font="fonts/rubius.ttf", color="gold",
                                          size=40, align=(.5, 1.0))
                 support_icons = pscale("content/gfx/interface/buttons/IT2.png",
                               40, 40, align=(.5, .5))
@@ -484,7 +484,7 @@ init -960 python:
             vbox = VBox(xysize=(40, length))
 
             for color, value in data:
-                what = Transform(Solid(getattr(store, color)), size=(40, value))
+                what = Transform(Solid(color), size=(40, value))
                 vbox.add(what)
 
             fixed = AlphaBlend(bar, bar, vbox, alpha=True)

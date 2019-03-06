@@ -124,11 +124,11 @@ label xeona_talking:
                 ax "The arena, other than our sex industry, is the biggest source of entertainment for locals and tourists alike."
                 ax "Many warriors come here to test their mettle against all challengers. Mages come to test their wisdom and training against all kinds of a foe."
                 ax "Though most come just to unwind and see some kickass battles."
-                ax "The arena consists of two sections, one for the {color=[green]}matches{/color} and one for {color=[green]}dogfights{/color}."
+                ax "The arena consists of two sections, one for the {color=green}matches{/color} and one for {color=green}dogfights{/color}."
                 ax "Both pay well, especially if you can please the crowd."
                 ax "There is also a survival challenge where you can fight against beasts and monsters from all around."
                 ax "Deaths are rare, due to regulations about pulling gladiators out before the monsters eat them."
-                ax "Most of our gladiators with {color=[green]}arena permits{/color} make a very decent living."
+                ax "Most of our gladiators with {color=green}arena permits{/color} make a very decent living."
                 ax "However, those who are not at that level usually have some extra source of income, like guard duties or treasure hunting."
                 ax "Well, that about enough for you to form a general picture?"
                 ax "Are you going in?"
@@ -138,13 +138,13 @@ label xeona_talking:
                 if hero.arena_rep >= 5000:
                     ax "It looks like you've managed to gain enough reputation. Congratulations!"
                     menu:
-                        ax "Would you like to buy an arena permit? It's priced at {color=[gold]}10 000 Gold{/color}."
+                        ax "Would you like to buy an arena permit? It's priced at {color=gold}10 000 Gold{/color}."
                         "Yes":
                             if hero.take_money(10000, reason="Arena Permit"):
                                 $ hero.arena_permit = True
                                 ax "There you go! You can now participate in official Arena Matches!"
                             else:
-                                ax "Do you really have {color=[gold]}10 000 Gold{/color} on you?"
+                                ax "Do you really have {color=gold}10 000 Gold{/color} on you?"
                                 ax "Didn't think so..."
                         "No":
                             $ pass
@@ -179,7 +179,7 @@ label xeona_talking:
             "How does team combat work?" if global_flags.flag("heard_about_arena"):
                 ax "The team 'Leader' is what's really important."
                 ax "Each team has a leader. The leader decides who fights by their side. "
-                ax "There are {color=[red]}2vs2 and 3vs3{/color} fights."
+                ax "There are {color=red}2vs2 and 3vs3{/color} fights."
                 ax "Obviously, there is dueling as well. Good one on one fights are also adored by the spectators!"
 
             "Wanna go on a date with me?" if xeona_status.disposition == 0:
@@ -247,7 +247,7 @@ label xeona_talking:
                             "You gave her the blade."
                             ax "Let's see..."
                             hide xeona
-                            with Fade(.25, 0, .25, color=darkred)
+                            with Fade(.25, 0, .25, color="darkred")
                             $ xeona_status.stage = 2
                             $ xeona_status.flirt = False
                             $ setup_xeona("confident")
@@ -326,10 +326,10 @@ label xeona_training:
                 ax "Due to my the nature of training, there is always a chance of your constitution increasing as well."
                 ax "Potions we drink to increase stamina during the training might also restore your health."
                 "The training will cost you 250 gold per tier of the trained character every day."
-            "{color=[green]}Setup sessions for [char.name]{/color}" if "Xeona Training" not in char.traits:
+            "{color=green}Setup sessions for [char.name]{/color}" if "Xeona Training" not in char.traits:
                 $ char.apply_trait(traits["Xeona Training"])
                 ax "Great, it will be [char.npc_training_price] gold per day."
-            "{color=[red]}Cancel sessions for [char.name]{/color}" if "Xeona Training" in char.traits:
+            "{color=red}Cancel sessions for [char.name]{/color}" if "Xeona Training" in char.traits:
                 $ char.remove_trait(traits["Xeona Training"])
                 ax "Until next time then."
             "Pick another character" if len(hero.team) > 1:

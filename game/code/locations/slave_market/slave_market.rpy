@@ -25,13 +25,13 @@ label slave_market:
         pause .1
         play sound "content/sfx/sound/be/whip_attack_2.mp3"
 
-        "{color=[red]} Yes, Ma'am! Yes, Ma'am! Yes, Ma'am!"
+        "{color=red} Yes, Ma'am! Yes, Ma'am! Yes, Ma'am!"
         "And bring out some decent slaves to shop!"
 
         hide slave_market_slaves with fade
         show expression npcs["Blue_slavemarket"].get_vnsprite() as blue with dissolve
 
-        $ g = Character("?????", color=aliceblue, show_two_window=True)
+        $ g = Character("?????", color="aliceblue", show_two_window=True)
 
         menu:
             g "Hah? And who might you be?!"
@@ -61,7 +61,7 @@ label slave_market:
         s "Temper, temper my dear... the quality of those slaves are your problem."
         s "Keeping the cash flowing, gold rolling, so Mr. Big is satisfied, is mine!"
         s "I am going to get some measure of today's lots and what we can get for them!"
-        s "Don't bother our prospective clients and play with your slaves while {color=[red]}I{/color} take care of real work! <Smirks>"
+        s "Don't bother our prospective clients and play with your slaves while {color=red}I{/color} take care of real work! <Smirks>"
 
         hide stan with dissolve
         show expression npcs["Blue_slavemarket"].get_vnsprite() as blue at center with move
@@ -295,7 +295,7 @@ screen slave_shopping(source, buy_button, buy_tt):
                 xalign .5
                 background Frame(Transform("content/gfx/frame/namebox5.png", alpha=.95), 250, 50)
                 label "[char.fullname]":
-                    text_color gold
+                    text_color "gold"
                     text_outlines [(2, "#424242", 0, 0)]
                     align (.5, .5)
                     if len(char.fullname) < 20:
@@ -304,7 +304,7 @@ screen slave_shopping(source, buy_button, buy_tt):
             # Info: =============================================================================>>>
             null height 5
             label "Info:":
-                text_color ivory
+                text_color "ivory"
                 text_size 20
                 text_bold True
                 xalign .5
@@ -319,16 +319,16 @@ screen slave_shopping(source, buy_button, buy_tt):
                     has vbox spacing 1 xmaximum 246
                     frame:
                         xysize 244, 20
-                        text ("{color=#79CDCD}{size=-1}Class:") pos (1, -4)
+                        text ("{size=-1}Class:") color "#79CDCD" pos (1, -4)
                         label "{size=-3}[char.traits.base_to_string]" align (1.0, .5) ypos 10
                     frame:
                         xysize 245, 20
-                        text "{color=#79CDCD}{size=-1}Level:" pos (1, -4)
+                        text "{size=-1}Level:" color "#79CDCD" pos (1, -4)
                         label (u"{size=-5}%s"%char.level) align (1.0, .5) ypos 10
                     frame:
                         xysize 244, 20
-                        text "{color=#79CDCD}{size=-1}Market Price:" pos (1, -4)
-                        label (u"{color=[gold]}{size=-5}%s"%char.fin.get_price()) align (1.0, .5) ypos 10
+                        text "{size=-1}Market Price:" color "#79CDCD" pos (1, -4)
+                        label (u"{color=gold}{size=-5}%s"%char.fin.get_price()) align (1.0, .5) ypos 10
                     frame:
                         xysize 244, 20
                         text "{color=#79CDCD}{size=-1}Upkeep:" pos (1, -4)
@@ -337,7 +337,7 @@ screen slave_shopping(source, buy_button, buy_tt):
             # Stats: ==============================================================================>>>
             null height 5
             label (u"Stats:"):
-                text_color ivory
+                text_color "ivory"
                 text_size 20
                 text_bold True
                 xalign .5
@@ -381,7 +381,7 @@ screen slave_shopping(source, buy_button, buy_tt):
             # Skills: =============================================================================>>>
             null height 5
             label (u"Skills:"):
-                text_color ivory
+                text_color "ivory"
                 text_size 20
                 text_bold True
                 xalign .5
@@ -404,7 +404,7 @@ screen slave_shopping(source, buy_button, buy_tt):
                                 xsize 224
                                 text "{}:".format(skill.capitalize()):
                                     style_suffix "value_text"
-                                    color gold
+                                    color "gold"
                                     xalign .0
                                     size 18
                                 hbox:
@@ -456,7 +456,7 @@ screen slave_shopping(source, buy_button, buy_tt):
             background Frame(Transform("content/gfx/frame/p_frame53.png", alpha=.98), 10, 10)
             has vbox xalign .5 #ypos 5
             null height 5
-            label (u"{size=20}{color=[ivory]}{b}Visible Traits") xalign .5 text_outlines [(2, "#424242", 0, 0)]
+            label (u"{size=20}{color=ivory}{b}Visible Traits") xalign .5 text_outlines [(2, "#424242", 0, 0)]
             null height 5
             $ temp = list(t for t in char.traits if t.market and not t.hidden)
             $ long = len(temp) > 10
@@ -477,7 +477,7 @@ screen slave_shopping(source, buy_button, buy_tt):
                                 background Null()
                                 xysize (195, 25)
                                 action NullAction()
-                                text trait.id idle_color bisque size 18 align .5, .5 hover_color crimson text_align .5:
+                                text trait.id idle_color "bisque" size 18 align .5, .5 hover_color "crimson" text_align .5:
                                     if len(trait.id) >= 15:
                                         size 15
                                 tooltip trait.desc

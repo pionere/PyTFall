@@ -78,7 +78,7 @@ label hidden_village_shop: # ninja shop logic
     if global_flags.flag('hidden_village_shop_first_enter'):
         r "Hey, [hero.name]. Need something?"
     else:
-        $ r = Character("???", color=red, what_color=orange, show_two_window=True)
+        $ r = Character("???", color="red", what_color="orange", show_two_window=True)
         $ global_flags.set_flag('hidden_village_shop_first_enter')
         r "Hm? Ah, I've heard about you."
         extend " Welcome to my Tools Shop."

@@ -404,7 +404,7 @@ init -9 python:
                         hero.remove_char(char)
                         char.reset_workplace_action()
                         # FIXME notify the player
-                    # pytfall.temp_text.append("Jail keepers sold off: {color=[red]}%s{/color}!" % char.name)
+                    # pytfall.temp_text.append("Jail keepers sold off: {color=red}%s{/color}!" % char.name)
                 self.slaves = prisoners
 
             # auto-sell the captured chars
@@ -420,7 +420,7 @@ init -9 python:
                     char.del_flag("release_day")
                     char.home = pytfall.sm
                     set_location(char, None)
-                    # pytfall.temp_text.append("Jail keepers sold off: {color=[red]}%s{/color}!" % char.name)
+                    # pytfall.temp_text.append("Jail keepers sold off: {color=red}%s{/color}!" % char.name)
                 self.captures = prisoners
 
             # release chars whose sentence is over
@@ -442,9 +442,9 @@ init -9 python:
                         pass # FIXME notify the player!
                     # If we know they're in jail
                     #    txt.append("    %s, in jail for %s days"%(char.fullname, days))
-                    #    if cdb: txt.append("{color=[blue]}    (%s days till escape){/color}"%(20-girl_away_days))
+                    #    if cdb: txt.append("{color=blue}    (%s days till escape){/color}"%(20-girl_away_days))
                     #    txt.append("    %s"%char.fullname)
-                    #    if cdb: txt.append("{color=[blue]}        in jail for %s days (%s days till escape){/color}"%(days, days)))
+                    #    if cdb: txt.append("{color=blue}        in jail for %s days (%s days till escape){/color}"%(days, days)))
 
                 self.cells = prisoners
 
@@ -871,7 +871,7 @@ init -9 python:
 
                 # Get status
                 status = self.status(girl)
-                if cdb: txt.append("{color=[blue]}        status: %s{/color}"%status)
+                if cdb: txt.append("{color=blue}        status: %s{/color}"%status)
 
                 # Chance to escape for good
                 if girl_away_days > 20:
@@ -882,7 +882,7 @@ init -9 python:
                         set_location(char, None)
                         char.reset_workplace_action()
                         char.status = "free"
-                        if cdb: txt.append("{color=[blue]}        escaped for good{/color}")
+                        if cdb: txt.append("{color=blue}        escaped for good{/color}")
                         continue
 
                 # Chance to go to jail
@@ -892,7 +892,7 @@ init -9 python:
                         pytfall.jail.add_slave(char)
 
 
-                        if cdb: txt.append("{color=[blue]}        sent to jail.{/color}")
+                        if cdb: txt.append("{color=blue}        sent to jail.{/color}")
                         continue
 
                 # Chance to find in look_around
@@ -902,10 +902,10 @@ init -9 python:
                     # Add event for girl (do we want high priority?)
                     register_event_in_label(ev, label=girl.runaway_look_event, trigger_type="look_around", locations=["all"], dice=status, max_runs=1, start_day=day+1, priority=999)
 
-                    if cdb: txt.append("{color=[blue]}        in look around (%s days till escape){/color}"%(20-girl_away_days))
+                    if cdb: txt.append("{color=blue}        in look around (%s days till escape){/color}"%(20-girl_away_days))
                     continue
 
-                if cdb: txt.append("{color=[blue]}        %s days till escape{/color}"%(20-girl_away_days))
+                if cdb: txt.append("{color=blue}        %s days till escape{/color}"%(20-girl_away_days))
 
 
             # If we have escaped girls, post the event

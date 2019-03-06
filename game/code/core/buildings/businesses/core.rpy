@@ -433,7 +433,7 @@ init -12 python:
             tier = self.building.tier or 1
 
             self.clients_waiting.add(client)
-            temp = "{color=[beige]}%s{/color} enters the %s." % (client.name, self.name)
+            temp = "{color=beige}%s{/color} enters the %s." % (client.name, self.name)
             self.log(temp, True)
 
             dirt = 0
@@ -485,7 +485,7 @@ init -12 python:
                     break
 
                 if client.du_without_service >= 5:
-                    temp = "{color=[beige]}%s{/color} spent too long waiting for service!" % client.name
+                    temp = "{color=beige}%s{/color} spent too long waiting for service!" % client.name
                     self.log(temp, True)
                     break
 
@@ -511,7 +511,7 @@ init -12 python:
                 self.building.available_workers.remove(w)
                 self.env.process(self.worker_control(w))
             else:
-                temp = "{color=[red]}Could not find an available %s worker" % job
+                temp = "{color=red}Could not find an available %s worker" % job
                 self.log(temp)
             simpy_debug("Exiting PublicBusiness(%s).add_worker at %s", self.name, self.env.now)
 

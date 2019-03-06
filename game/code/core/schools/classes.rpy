@@ -98,11 +98,11 @@ init python:
                 # Pay for the class:
                 if hero.take_money(self.price, reason="-PyTFall Educators-"):
                     char.fin.log_logical_expense(self.price, "-PyTFall Educators-")
-                    temp = "You've covered a fee of {color=[gold]}%s Gold{/color}!" % self.price
+                    temp = "You've covered a fee of {color=gold}%s Gold{/color}!" % self.price
                     txt.append(temp)
                 else:
                     char.set_task(None)
-                    temp = "\nYou failed to cover the fee of {color=[gold]}%d Gold{/color}!" % self.price
+                    temp = "\nYou failed to cover the fee of {color=gold}%d Gold{/color}!" % self.price
                     temp += " The student has been kicked from the class!"
                     txt.append(temp)
 
@@ -148,7 +148,7 @@ init python:
                     points = max(1, self.difficulty-char.tier)
                     if char == best_student:
                         temp = "%s has been a perfect student today and went every extra mile %s could." % (char.name, char.p)
-                        temp += " {color=[lawngreen]}+50% Stats/Skills/EXP Bonus!{/color}"
+                        temp += " {color=lawngreen}+50% Stats/Skills/EXP Bonus!{/color}"
                         flag_green = True
                         txt.append(temp)
                         points *= 1.5
@@ -158,7 +158,7 @@ init python:
                         points *= .8
                         exp_mod *= .8
                         temp = "%s has already finished this course!" % char.nickname
-                        temp += " {color=[red]}-20% Stats/Skills/EXP Bonus!{/color}"
+                        temp += " {color=red}-20% Stats/Skills/EXP Bonus!{/color}"
                         txt.append(temp)
                     elif completed:
                         school.successfully_completed += 1
@@ -166,7 +166,7 @@ init python:
                         points *= 2
                         exp_mod *= 2
                         temp = "%s has completed the course today!" % char.nickname
-                        temp += " {color=[lawngreen]}+100% Stats/Skills/EXP Bonus!{/color}"
+                        temp += " {color=lawngreen}+100% Stats/Skills/EXP Bonus!{/color}"
                         flag_green = True
                         txt.append(temp)
 

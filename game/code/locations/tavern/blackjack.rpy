@@ -11,17 +11,17 @@ screen city_tavern_show_status(d_1, d_2): # additional screen, shows all info re
             xalign .5
             yalign .5
             hbox:
-                text str(d_1) xalign .98 style "stats_value_text" color gold
+                text str(d_1) xalign .98 style "stats_value_text" color "gold"
                 xalign .5
             hbox:
                 if ai_passed and d_1 < 21:
-                    text ("Pass") xalign .98 style "stats_value_text" color gold
+                    text ("Pass") xalign .98 style "stats_value_text" color "gold"
                 elif d_1 > 21:
-                    text ("Lost") xalign .98 style "stats_value_text" color gold
+                    text ("Lost") xalign .98 style "stats_value_text" color "gold"
                 elif d_1 == 21:
-                    text ("Score!") xalign .98 style "stats_value_text" color gold
+                    text ("Score!") xalign .98 style "stats_value_text" color "gold"
                 else:
-                    text (" ") xalign .98 style "stats_value_text" color gold
+                    text (" ") xalign .98 style "stats_value_text" color "gold"
                 xalign .5
     frame:
         xalign .05
@@ -34,17 +34,17 @@ screen city_tavern_show_status(d_1, d_2): # additional screen, shows all info re
             xalign .5
             yalign .5
             hbox:
-                text str(d_2) xalign .98 style "stats_value_text" color gold
+                text str(d_2) xalign .98 style "stats_value_text" color "gold"
                 xalign .5
             hbox:
                 if player_passed and d_2 < 21:
-                    text ("Pass") xalign .98 style "stats_value_text" color gold
+                    text ("Pass") xalign .98 style "stats_value_text" color "gold"
                 elif d_2 > 21:
-                    text ("Lost") xalign .98 style "stats_value_text" color gold
+                    text ("Lost") xalign .98 style "stats_value_text" color "gold"
                 elif d_2 == 21:
-                    text ("Score!") xalign .98 style "stats_value_text" color gold
+                    text ("Score!") xalign .98 style "stats_value_text" color "gold"
                 else:
-                    text (" ") xalign .98 style "stats_value_text" color gold
+                    text (" ") xalign .98 style "stats_value_text" color "gold"
                 xalign .5
 
     frame:
@@ -57,7 +57,7 @@ screen city_tavern_show_status(d_1, d_2): # additional screen, shows all info re
         vbox:
             xalign .5
             add "content/gfx/interface/images/tavern_gold.png"
-            text str(city_tavern_current_dice_bet) xalign .5 style "stats_value_text" color gold
+            text str(city_tavern_current_dice_bet) xalign .5 style "stats_value_text" color "gold"
 
 screen city_tavern_show_dices(dice_1, dice_2): # main dice screen, shows dices themselves
     on "hide":

@@ -166,7 +166,7 @@ init -9 python:
             self.clear_img_cache()
 
             # Say style properties:
-            self.say_style = {"color": ivory}
+            self.say_style = {"color": "ivory"}
 
             # We add Neutral element here to all classes to be replaced later:
             self.apply_trait(traits["Neutral"])
@@ -2116,7 +2116,7 @@ init -9 python:
 
             # Income Taxes:
             income, tax = self.fin.get_income_tax(log_finances=True)
-            temp = "Over the past week your taxable income amounted to: {color=[gold]}%d Gold{/color}.\n" % income
+            temp = "Over the past week your taxable income amounted to: {color=gold}%d Gold{/color}.\n" % income
             txt.append(temp)
             if income < 5000:
                 s0 = "You may consider yourself lucky as any sum below 5000 Gold is not taxable."
@@ -2158,7 +2158,7 @@ init -9 python:
                 temp = "Slave Tax: %d Gold.\n" % s_tax
                 txt.append(temp)
             if tax:
-                temp = "\nThat makes it a total of {color=[gold]}%d Gold{/color}" % tax
+                temp = "\nThat makes it a total of {color=gold}%d Gold{/color}" % tax
                 txt.append(temp)
                 self.fin.property_tax_debt += tax
                 if self.fin.property_tax_debt != tax:
@@ -2181,11 +2181,11 @@ init -9 python:
 
             total_debt = self.fin.income_tax_debt + self.fin.property_tax_debt
             if total_debt:
-                temp = "\n\nYour current total debt to the government is {color=[gold]}%d Gold{/color}!" % total_debt
+                temp = "\n\nYour current total debt to the government is {color=gold}%d Gold{/color}!" % total_debt
                 txt.append(temp)
             if total_debt > 50000:
                 flag_red = True
-                temp = " {color=[red]}... And you're pretty much screwed because it is above 50000!{/color} Your property will now be confiscated!"
+                temp = " {color=red}... And you're pretty much screwed because it is above 50000!{/color} Your property will now be confiscated!"
                 txt.append(temp)
 
                 slaves = [c for c in self.chars if c.status == "slave" and c.location is None]
@@ -2256,7 +2256,7 @@ init -9 python:
                 txt.append("You've comfortably spent a night.")
             elif mod < 0:
                 flag_red = True
-                txt.append("{color=[red]}You should find some shelter for the night... it's not healthy to sleep outside.{/color}")
+                txt.append("{color=red}You should find some shelter for the night... it's not healthy to sleep outside.{/color}")
 
             for stat in ("health", "mp", "vitality"):
                 mod_by_max(self, stat, mod)
@@ -2266,7 +2266,7 @@ init -9 python:
                 flag_red = self.nd_pay_taxes(txt, flag_red)
 
             if self.arena_rep <= -500 and self.arena_permit:
-                txt.append("{color=[red]}You've lost your Arena Permit... Try not to suck at it so much!{/color}")
+                txt.append("{color=red}You've lost your Arena Permit... Try not to suck at it so much!{/color}")
                 self.arena_permit = False
                 self.arena_rep = 0
                 flag_red = True
@@ -2482,9 +2482,9 @@ init -9 python:
 
             elif mod < 0:
                 flag_red = True
-                txt.append("{color=[red]}%s presently resides in the %s.{/color}" % (pC, str(loc)))
-                txt.append("{color=[red]}It's not a comfortable or healthy place to sleep in.{/color}")
-                txt.append("{color=[red]}Try finding better accommodations for your worker!{/color}")
+                txt.append("{color=red}%s presently resides in the %s.{/color}" % (pC, str(loc)))
+                txt.append("{color=red}It's not a comfortable or healthy place to sleep in.{/color}")
+                txt.append("{color=red}Try finding better accommodations for your worker!{/color}")
 
             for stat in ("health", "mp", "vitality"):
                 mod_by_max(self, stat, mod)
@@ -2543,22 +2543,22 @@ init -9 python:
                 if self.location == pytfall.ra:
                     # If escaped:
                     self.mod_stat("health", -randint(3, 5))
-                    txt.append("{color=[red]}%s has escaped! Assign guards to search for %s or do so yourself.{/color}" % (self.fullname, self.pp))
+                    txt.append("{color=red}%s has escaped! Assign guards to search for %s or do so yourself.{/color}" % (self.fullname, self.pp))
                 else:
                     # your worker is in jail TODO might want to do this in the ND of the jail
                     mod = pytfall.jail.get_daily_modifier()
                     for stat in ("health", "mp", "vitality"):
                         mod_by_max(self, stat, mod)
 
-                    txt.append("{color=[red]}%s is spending the night in the jail!{/color}" % self.fullname)
+                    txt.append("{color=red}%s is spending the night in the jail!{/color}" % self.fullname)
                 flag_red = True
             elif self.action.__class__ == ExplorationJob:
                 if self.has_flag("dnd_back_from_track"):
-                    txt.append("{color=[green]}%s arrived back from the exploration run!{/color}" % self.fullname)
+                    txt.append("{color=green}%s arrived back from the exploration run!{/color}" % self.fullname)
                     self.set_task(None)
                     flag_red = self.nd_sleep(txt)
                 else:
-                    txt.append("{color=[green]}%s is currently on the exploration run!{/color}" % self.fullname)
+                    txt.append("{color=green}%s is currently on the exploration run!{/color}" % self.fullname)
 
                 self.up_counter("daysemployed")
 
@@ -2597,13 +2597,13 @@ init -9 python:
                     if not amount:
                         pass
                     elif amount < 0:
-                        txt.append("%s actually managed to save you some money ({color=[gold]}%d Gold{/color}) instead of requiring upkeep! Very convenient!" % (pC, -amount))
+                        txt.append("%s actually managed to save you some money ({color=gold}%d Gold{/color}) instead of requiring upkeep! Very convenient!" % (pC, -amount))
                         hero.add_money(-amount, reason="Workers Upkeep")
                     elif hero.take_money(amount, reason="Workers Upkeep"):
                         self.fin.log_logical_expense(amount, "Upkeep")
                         if hasattr(self.workplace, "fin"):
                             self.workplace.fin.log_logical_expense(amount, "Workers Upkeep")
-                        txt.append("You paid {color=[gold]}%d Gold{/color} for %s upkeep." % (amount, self.pp))
+                        txt.append("You paid {color=gold}%d Gold{/color} for %s upkeep." % (amount, self.pp))
                     else:
                         if self.status != "slave":
                             self.mod_stat("joy", -randint(3, 5))
@@ -2624,8 +2624,8 @@ init -9 python:
 
                 tips = self.flag("dnd_accumulated_tips")
                 if tips:
-                    temp = choice(["Total tips earned: {color=[gold]}%d Gold{/color}. " % tips,
-                                   "%s got {color=[gold]}%d Gold{/color} in tips. " % (self.nickname, tips)])
+                    temp = choice(["Total tips earned: {color=gold}%d Gold{/color}. " % tips,
+                                   "%s got {color=gold}%d Gold{/color} in tips. " % (self.nickname, tips)])
                     txt.append(temp)
 
                     if self.autocontrol["Tips"]:
@@ -2652,7 +2652,7 @@ init -9 python:
 
                 # Effects:
                 if 'Poisoned' in self.effects:
-                    txt.append("{color=[red]}This worker is suffering from the effects of Poison!{/color}")
+                    txt.append("{color=red}This worker is suffering from the effects of Poison!{/color}")
                     flag_red = True
                 if (not self.autobuy) and not self.allowed_to_define_autobuy:
                     self.autobuy = True
@@ -2666,7 +2666,7 @@ init -9 python:
                 # a girl is in FG as there is always something to do there:
                 if not self.action:
                     flag_red = True
-                    txt.append("  {color=[red]}Please note that %s is not really doing anything productive!-{/color}" % self.p)
+                    txt.append("  {color=red}Please note that %s is not really doing anything productive!-{/color}" % self.p)
                     NextDayEvents.unassigned_chars += 1
 
                 # Unhappiness and related:
@@ -2709,12 +2709,12 @@ init -9 python:
                 flag_green = True
                 self.mod_stat("joy", 5 * len(result))
 
-                temp = choice(("%s bought %sself {color=[blue]}%s %s{/color}.", 
-                               "%s got %s hands on {color=[blue]}%s %s{/color}!"))
+                temp = choice(("%s bought %sself {color=blue}%s %s{/color}.", 
+                               "%s got %s hands on {color=blue}%s %s{/color}!"))
                 temp = temp % (self.pC, self.op, ", ".join(result), plural("item", len(result)))
                 temp += choice(("This brightened %s mood a bit!" % self.pp, "%s's definitely in better mood because of that!" % self.pC))
 
-                temp = "{color=[green]}" + temp + "{/color}"
+                temp = "{color=green}" + temp + "{/color}"
             else:
                 temp = choice(["But %s ended up not doing much else than window-shopping..." % self.p,
                                "But %s could not find what %s was looking for..." % (self.p, self.p)])
@@ -2732,7 +2732,7 @@ init -9 python:
                     self.days_unhappy -= 1
 
             if self.days_unhappy > 7 and self.status != "slave":
-                self.txt.append("{color=[red]}%s has left your employment because you do not give a rats ass about how %s feels!{/color}" % (self.pC, self.p))
+                self.txt.append("{color=red}%s has left your employment because you do not give a rats ass about how %s feels!{/color}" % (self.pC, self.p))
                 flag_red = True
                 hero.remove_char(self)
                 self.home = pytfall.city
@@ -2740,7 +2740,7 @@ init -9 python:
                 set_location(self, None)
             elif self.get_stat("disposition") < -500:
                 if self.status != "slave":
-                    self.txt.append("{color=[red]}%s has left your employment because %s no longer trusts or respects you!{/color}" % (self.pC, self.pp))
+                    self.txt.append("{color=red}%s has left your employment because %s no longer trusts or respects you!{/color}" % (self.pC, self.pp))
                     flag_red = True
                     mood = "sad"
                     hero.remove_char(self)
@@ -2751,10 +2751,10 @@ init -9 python:
                     mood = "sad"
                     flag_red = True
                     if dice(50):
-                        self.txt.append("{color=[red]}Took %s own life because %s could no longer live as your slave!{/color}" % (self.pp, self.p))
+                        self.txt.append("{color=red}Took %s own life because %s could no longer live as your slave!{/color}" % (self.pp, self.p))
                         kill_char(self)
                     else:
-                        self.txt.append("{color=[red]}Tried to take %s own life because %s could no longer live as your slave!{/color}" % (self.pp, self.p))
+                        self.txt.append("{color=red}Tried to take %s own life because %s could no longer live as your slave!{/color}" % (self.pp, self.p))
                         self.set_stat("health", 1)
 
             return mood, flag_red

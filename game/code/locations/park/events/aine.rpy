@@ -28,7 +28,7 @@ label aine_menu:
             "I've met someone called Peevish...":
                 a "That rude, good for nothing, useless excuse for a brother... well, you don't get to choose family..."
 
-        a "I can teach you {color=[lightblue]}Ice{/color} and {color=[yellow]}Electricity{/color} spells if you're interested,"
+        a "I can teach you {color=lightblue}Ice{/color} and {color=yellow}Electricity{/color} spells if you're interested,"
         extend " it will cost you, but you'll never have to hear a word about no pile of gold from me."
     else:
         a "Hello again. How are you today?"
@@ -84,10 +84,10 @@ label aine_training:
                 call about_personal_training(a) from _call_about_personal_training_2
             "About Aine training":
                 call about_aine_personal_training from _call_about_aine_personal_training_1
-            "{color=[green]}Setup sessions for [char.name]{/color}" if "Aine Training" not in char.traits:
+            "{color=green}Setup sessions for [char.name]{/color}" if "Aine Training" not in char.traits:
                 $ char.apply_trait(traits["Aine Training"])
                 a "It will require [char.npc_training_price] gold per day. Don't you dare misuse skills you've learned here!"
-            "{color=[red]}Cancel sessions for [char.name]{/color}" if "Aine Training" in char.traits:
+            "{color=red}Cancel sessions for [char.name]{/color}" if "Aine Training" in char.traits:
                 $ char.remove_trait(traits["Aine Training"])
                 a "Fair enough."
             "Pick another character" if len(hero.team) > 1:
@@ -100,7 +100,7 @@ label aine_training:
 
 label about_personal_training(speaker):
     speaker "You can arrange for daily training sessions!"
-    speaker "It will cost you One AP and {color=[gold]}[char.npc_training_price] Gold{/color}."
+    speaker "It will cost you One AP and {color=gold}[char.npc_training_price] Gold{/color}."
     speaker "Price will increase as you level up. Feel free to ask me about this any time!"
     speaker "Training will be automatically terminated if you lack the gold to continue."
     speaker "Sessions can be arranged with multiple trainers on the same day. But you'll be running a risk of not leaving Action Points to do anything else."

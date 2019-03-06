@@ -93,8 +93,6 @@ init -11 python:
         return fixed
 
     def elements_calculator(char):
-        global red
-        global lime
         elements = {}
 
         for trait in char.traits:
@@ -402,14 +400,11 @@ init -11 python:
         for key in ("color", "what_color"):
             if key in data:
                 color = data[key]
-                if color in globals():
-                    color = getattr(store, color)
-                else:
-                    try:
-                        color = Color(color)
-                    except:
-                        char_debug("Invalid %s: %s for random girl: %s!" % (key, data[key], id))
-                        color = ivory
+                try:
+                    color = Color(color)
+                except:
+                    char_debug("Invalid %s: %s for random girl: %s!" % (key, data[key], id))
+                    color = "ivory"
                 rg.say_style[key] = color
 
         # add a random character trait if none exists yet

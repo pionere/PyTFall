@@ -184,7 +184,7 @@ screen tailor_store_shopping_girl():
             null width 30
             add(im.Scale("content/gfx/interface/icons/gold.png", 40, 40)) align(.5,0.5)
             null width 20
-            text(u'{size=+1}{color=[gold]}{b}= %s{/b}'%hero.gold) align(.5,0.5)
+            text(u'{size=+1}{color=gold}{b}= %s{/b}'%hero.gold) align(.5,0.5)
             null width 60
             text(u'{size=+1}Day  =  %d'%day) align(.5,0.5)
             null width 50

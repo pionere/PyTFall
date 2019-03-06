@@ -229,7 +229,7 @@ screen control_scr(preview):
         ypadding 20
         style_group "content"
         background Frame("content/gfx/frame/blue_wood.webp", 5, 5)
-        label "[number_of_pieces] pieces!" text_size 35 text_color ivory align (.5, .5)
+        label "[number_of_pieces] pieces!" text_size 35 text_color "ivory" align (.5, .5)
 
     button:
         xysize (100, 40)

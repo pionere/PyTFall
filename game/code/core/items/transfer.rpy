@@ -60,9 +60,25 @@ init python:
                 else:
                     selected_items.add(item)
         else:
-            if source is not None:
-                selection[0] = source
-            selection[1] = set([item])
+            if item in selected_items and len(selected_items) == 1 and source == selection[0]:
+                selected_items.remove(item)
+            else:
+                if source is not None:
+                    selection[0] = source
+                selection[1] = set([item])
+
+screen t_lightbutton(img, size, action, align, sensitive=True, tooltip=None):
+    $ img = ProportionalScale(img, *size, align=(.5, .5))
+    button:
+        xysize 40, 30
+        align align
+        idle_background img
+        hover_background im.MatrixColor(img, im.matrix.brightness(.15), align=(.5, .5))
+        insensitive_background im.Sepia(img, align=(.5, .5))
+        sensitive sensitive
+        action action
+        tooltip tooltip
+        focus_mask True
 
 screen items_transfer(it_members):
     on "show":
@@ -77,11 +93,12 @@ screen items_transfer(it_members):
     add "bg gallery"
 
     frame:
-        style_group "dropdown_gm"
+        background Frame(Transform("content/gfx/frame/Namebox.png", alpha=.9), 10, 10)
+        style_group "proper_stats"
         xalign .5
-        ypos 41
-        xysize 250, 157
-        text "Transfer Items between Characters!" align .5, .5 style "content_text" color ivory
+        ypos 42
+        xysize 320, 30
+        text "Transfer Items between Characters!" size 20 align .5, .5 style "content_text" color "ivory" yoffset 3
 
     # Left/Right employment info:
     frame:
@@ -89,11 +106,21 @@ screen items_transfer(it_members):
         style_group "dropdown_gm"
         xysize (1280, 45)
         if isinstance(lc, Char):
-            text "[lc.traits.base_to_string] ---- [lc.action]" align (.09, .5) style "content_text" color ivory size 20
+            text "[lc.traits.base_to_string] ---- [lc.action]" align (.09, .5) style "content_text" color "ivory" size 20
         if isinstance(rc, Char):
-            text "[rc.traits.base_to_string] ---- [rc.action]" align (.92, .5) style "content_text" color ivory size 20
+            text "[rc.traits.base_to_string] ---- [rc.action]" align (.92, .5) style "content_text" color "ivory" size 20
 
         use exit_button(size=(35, 35), align=(1.0, .6))
+
+    # inventory pagers
+    fixed:
+        ypos 673
+        xalign .5
+        xysize (610, 50)
+        hbox:
+            xfill True
+            use paging(bgr="content/gfx/frame/p_frame5.png", xysize=(190, 50), ref=lc.inventory, use_filter=False, align=(.0, .5))
+            use paging(bgr="content/gfx/frame/p_frame5.png", xysize=(190, 50), ref=rc.inventory, use_filter=False, align=(1.0, .5))
 
     # Members + Items
     for scr_var, fc, xalign in [("lc", lc, .0), ("rc", rc, 1.0)]: # Focused characters...
@@ -128,116 +155,27 @@ screen items_transfer(it_members):
                                     background Frame("content/gfx/frame/Mc_bg3.png", 5, 5)
                                     xysize(150, 22)
                                     ypadding 0
-                                    text "{color=[gold]}[c.name]" style "interactions_text" selected_color red size (14 if len(c.name) > 10 else 20) outlines [(1, "#3a3a3a", 0, 0)] align .5, .5
+                                    text "[c.name]" style "interactions_text" color "gold" selected_color "red" size (14 if len(c.name) > 10 else 20) outlines [(1, "#3a3a3a", 0, 0)] align .5, .5
 
             frame:
                 background Frame("content/gfx/frame/p_frame5.png", 10, 10)
                 style_group "dropdown_gm2"
-                xysize 341, 375
+                xysize 341, 380
                 has vbox
                 for item, amount in [(item, fc.inventory[item]) for item in fc.inventory.page_content]:
                     button:
-                        xysize (330, 26)
+                        xalign .5
+                        xysize (328, 26)
                         action SensitiveIf(amount), Function(it_item_click, selection, fc, item)
                         selected fc == selection[0] and item in selection[1]
                         text "[item.id]" align .0, .5 style "dropdown_gm2_button_text"
                         text "[amount]" align 1.0, .7 style "dropdown_gm2_button_value_text"
 
-        # RC and LC Portraits:
-    for fc, pos, xanchor in [(lc, (360, 43), 0), (rc, (920, 43), 1.0)]:
-        frame:
-            pos pos
-            xanchor xanchor
-            background Frame("content/gfx/frame/Mc_bg3.png", 10, 10)
-            padding 1, 1
-            add fc.show("portrait", resize=(150, 150), cache=True) align .5, .5
-
-    frame:
-        ypos 643
-        xalign .5
-        xysize (600, 80)
-        background Frame("content/gfx/frame/p_frame5.png", 10, 10)
-        hbox:
-            yalign  .5
-            spacing 210
-            use paging(xysize=(190, 50), ref=lc.inventory, use_filter=False)
-            use paging(xysize=(190, 50), ref=rc.inventory, use_filter=False)
-
-    # Transfer Buttons:
-    vbox:
-        xalign .5
-        ypos 653
-        style_group "dropdown_gm"
-        frame:
-            xalign .5
-            xysize 200, 30
-            $ img = ProportionalScale('content/gfx/interface/buttons/left.png', 25, 25, align=(.5, .5))
-            button:
-                xysize (40, 30)
-                style "default"
-                align (0, .5)
-                idle_background img
-                hover_background im.MatrixColor(img, im.matrix.brightness(.15), align=(.5, .5))
-                insensitive_background im.Sepia(img, align=(.5, .5))
-                action Return(["transfer", rc, lc, selection[1], transfer_amount])
-                sensitive selection[1] and lc and rc
-                if len(selection[1]) == 1:
-                    tooltip "Transfer %s from %s to %s!" % (iter(selection[1]).next().id, rc.name, lc.name)
-                else:
-                    tooltip "Transfer the selected items from %s to %s!" % (rc.name, lc.name)
-
-            $ img = ProportionalScale('content/gfx/interface/buttons/right.png', 25, 25, align=(.5, .5))
-            button:
-                xysize 40, 30
-                style "default"
-                align 1.0, .5
-                idle_background img
-                hover_background im.MatrixColor(img, im.matrix.brightness(.15), align=(.5, .5))
-                insensitive_background im.Sepia(img, align=(.5, .5))
-                action Return(["transfer", lc, rc, selection[1], transfer_amount])
-                sensitive selection[1] and lc and rc
-                if len(selection[1]) == 1:
-                    tooltip "Transfer %s from %s to %s!" % (iter(selection[1]).next().id, lc.name, rc.name)
-                else:
-                    tooltip "Transfer the selected items from %s to %s!" % (lc.name, rc.name)
-
-        null height 1
-        frame:
-            xalign .5
-            xysize 200, 30
-            $ img = ProportionalScale('content/gfx/interface/buttons/blue_arrow_left.png', 25, 25, align=(.5, .5))
-            button:
-                xysize (40, 30)
-                style "default"
-                align 0, .5
-                idle_background img
-                hover_background im.MatrixColor(img, im.matrix.brightness(.15), align=(.5, .5))
-                insensitive_background im.Sepia(img, align=(.5, .5))
-                action SetScreenVariable("transfer_amount", 1 if transfer_amount - 5 < 1 else transfer_amount - 5)
-                tooltip 'Decrease transfer amount by 5!'
-
-            hbox:
-                yalign .5
-                spacing 5
-                text 'Amount:' yalign .5 xpos 46 size 20 color ivory style "garamond"
-                text '[transfer_amount]' yalign .5 xpos 60 size 18 color ivory style "proper_stats_value_text" yoffset -1
-
-            $ img = ProportionalScale('content/gfx/interface/buttons/blue_arrow_right.png', 25, 25, align=(.5, .5))
-            button:
-                xysize 40, 30
-                style "default"
-                align 1.0, .5
-                idle_background img
-                hover_background im.MatrixColor(img, im.matrix.brightness(.15), align=(.5, .5))
-                insensitive_background im.Sepia(img, align=(.5, .5))
-                action SetScreenVariable("transfer_amount", transfer_amount + 5)
-                tooltip 'Increase transfer amount by 5!'
-
     # Filters Buttons:
     frame:
         style_group "dropdown_gm"
         background Frame("content/gfx/frame/Mc_bg3.png", 10, 10)
-        ypos 200
+        ypos 80
         padding 3, 3
         xalign .5
         has hbox spacing 1
@@ -255,21 +193,82 @@ screen items_transfer(it_members):
                 selected filter == slot_filter
                 focus_mask True
 
-    # Selected Item(s):
-    if selection[1]:
+    # RC and LC Portraits:
+    for fc, pos, xanchor in [(lc, (350, 130), 0), (rc, (930, 130), 1.0)]:
         frame:
-            ypos 247
+            pos pos
+            xanchor xanchor
+            background Frame("content/gfx/frame/Mc_bg3.png", 10, 10)
+            padding 1, 1
+            add fc.show("portrait", resize=(150, 150), cache=True) align .5, .5
+
+    if selection[1]:
+        # Transfer Buttons:
+        vbox:
+            xalign .5
+            ypos 160
+            #style_group "dropdown_gm"
+            frame:
+                xalign .5
+                xysize 200, 90
+                background Frame("content/gfx/frame/BG_choicebuttons.png", 10, 10)
+                has vbox
+                hbox:
+                    xfill True
+                    if len(selection[1]) == 1:
+                        $ temp = "Transfer %d %s from %s to %s!" % (transfer_amount, iter(selection[1]).next().id, rc.name, lc.name)
+                        $ tmp = "Transfer %d %s from %s to %s!" % (transfer_amount, iter(selection[1]).next().id, lc.name, rc.name)
+                    elif transfer_amount == 1:
+                        $ temp = "Transfer the selected items from %s to %s!" % (rc.name, lc.name)
+                        $ tmp = "Transfer the selected items from %s to %s!" % (lc.name, rc.name)
+                    else:
+                        $ temp = "Transfer the selected items (%d each) from %s to %s!" % (transfer_amount, rc.name, lc.name)
+                        $ tmp = "Transfer the selected items (%d each) from %s to %s!" % (transfer_amount, lc.name, rc.name)
+
+                    use t_lightbutton(img='content/gfx/interface/buttons/left.png', size=(25,25), action=Return(["transfer", rc, lc, selection[1], transfer_amount]), align=(0.15, .5),
+                                      sensitive=(selection[1] and lc and rc), tooltip=temp)
+
+                    use t_lightbutton(img='content/gfx/interface/buttons/right.png', size=(25,25), action=Return(["transfer", lc, rc, selection[1], transfer_amount]), align=(0.85, .5),
+                                      sensitive=(selection[1] and lc and rc), tooltip=tmp)
+
+                hbox:
+                    xfill True
+                    xoffset -8
+                    spacing -10
+                    hbox:
+                        align .0, .8
+                        spacing -22
+                        use t_lightbutton(img='content/gfx/interface/buttons/blue_arrow_left.png', size=(30,30), action=SetScreenVariable("transfer_amount", max(1, transfer_amount - 10)), align=(.0, .5))
+                        use t_lightbutton(img='content/gfx/interface/buttons/blue_arrow_left.png', size=(25,25), action=SetScreenVariable("transfer_amount", max(1, transfer_amount - 5)), align=(.5, .5))
+                        use t_lightbutton(img='content/gfx/interface/buttons/blue_arrow_left.png', size=(20,20), action=SetScreenVariable("transfer_amount", max(1, transfer_amount - 1)), align=(1, .5))
+        
+                    vbox:
+                        xalign .5
+                        spacing -4
+                        text 'Amount:' style "proper_stats_label_text" align .5, .5 size 18
+                        text '[transfer_amount]' style "proper_stats_text" align .5, .5 size 18
+
+                    hbox:
+                        align 1.0, .8
+                        spacing -22
+                        use t_lightbutton(img='content/gfx/interface/buttons/blue_arrow_right.png', size=(20,20), action=SetScreenVariable("transfer_amount", transfer_amount + 1), align=(.0, .5))
+                        use t_lightbutton(img='content/gfx/interface/buttons/blue_arrow_right.png', size=(25,25), action=SetScreenVariable("transfer_amount", transfer_amount + 5), align=(.5, .5))
+                        use t_lightbutton(img='content/gfx/interface/buttons/blue_arrow_right.png', size=(30,30), action=SetScreenVariable("transfer_amount", transfer_amount + 10), align=(1.0, .5))
+
+        # Selected Item(s):
+        frame:
+            ypos 280
             xalign .5
             background Frame("content/gfx/frame/frame_dec_1.png", 10, 10)
             padding 30, 34
             if len(selection[1]) == 1:
-                use itemstats(item=iter(selection[1]).next(), size=(540, 330))
+                use itemstats(item=iter(selection[1]).next(), size=(540, 300))
             else:
                 vpgrid:
                     cols 6
                     draggable True
                     mousewheel True
-                    xysize(540, 330)
+                    xysize(540, 300)
                     #yminimum 330
                     spacing 12
                     #scrollbars 'vertical' 

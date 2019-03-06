@@ -110,7 +110,7 @@ screen realtor_agency():
                                         xalign .5
                                         xysize (340, 50)
                                         background Frame("content/gfx/frame/p_frame5.png", 10, 10)
-                                        label (u"[building.name]") text_size 23 text_color ivory align(.5, .5)
+                                        label (u"[building.name]") text_size 23 text_color "ivory" align(.5, .5)
                                     null height 5
                                     frame:
                                         background Frame("content/gfx/frame/mes11.webp", 5, 5)
@@ -145,7 +145,7 @@ screen realtor_agency():
                             xalign .5
                             xysize (350, 60)
                             background Frame("content/gfx/frame/namebox5.png", 10, 10)
-                            label (u"[focus.name]") text_size 23 text_color ivory align (.5, .8)
+                            label (u"[focus.name]") text_size 23 text_color "ivory" align (.5, .8)
                         null height 50
                         hbox:
                             style_group "proper_stats"
@@ -157,22 +157,22 @@ screen realtor_agency():
                                     spacing -1
                                     frame:
                                         xysize 380, 24
-                                        text "Price:" color gold yalign .5
-                                        label "[focus.price]" text_color gold align 1.0, .5
+                                        text "Price:" color "gold" yalign .5
+                                        label "[focus.price]" text_color "gold" align 1.0, .5
                                     frame:
                                         xysize 380, 24
-                                        text "Quarter:" color ivory yalign .5
-                                        label "[focus.location]" text_color ivory align 1.0, .5
+                                        text "Quarter:" color "ivory" yalign .5
+                                        label "[focus.location]" text_color "ivory" align 1.0, .5
                                     if focus.in_slots_max != 0:
                                         frame:
                                             xysize 380, 24
                                             text "Interior Space:" yalign .5
-                                            label ("%s/%s" % (focus.in_slots, focus.in_slots_max)) text_color ivory align 1.0, .5
+                                            label ("%s/%s" % (focus.in_slots, focus.in_slots_max)) text_color "ivory" align 1.0, .5
                                     if focus.ex_slots_max != 0:
                                         frame:
                                             xysize 380, 24
                                             text "Exterior Space:" yalign .5
-                                            label ("%s/%s" % (focus.ex_slots, focus.ex_slots_max)) text_color ivory align 1.0, .5
+                                            label ("%s/%s" % (focus.ex_slots, focus.ex_slots_max)) text_color "ivory" align 1.0, .5
                                     if focus.maxfame != 0:
                                         frame:
                                             xysize 380, 24
@@ -220,7 +220,7 @@ screen realtor_agency():
                                 xsize 400
                                 xpadding 10
                                 ypadding 10
-                                text "[focus.desc]" color ivory
+                                text "[focus.desc]" color "ivory"
 
                         null height 50
 
@@ -229,6 +229,6 @@ screen realtor_agency():
                             style "blue1"
                             xpadding 15
                             ypadding 10
-                            text "Buy" align .5, .5 style "black_serpent" color ivory hover_color red
+                            text "Buy" align .5, .5 style "black_serpent" color "ivory" hover_color "red"
                             action Return(['buy', focus])
     use top_stripe(True)

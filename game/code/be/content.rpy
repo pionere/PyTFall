@@ -174,7 +174,7 @@ init python:
                 # Restoring Vitality:
                 temp = int(source.maxvit * uniform(.03, .06))
                 source.vitality += temp
-                msg = msg + "Restored: {color=[green]}%d vitality{/color} points!"%(temp)
+                msg = msg + "Restored: {color=green}%d vitality{/color} points!"%(temp)
                 battle.log(msg)
             else: # Slaves case...
                 msg = "{} stands still.".format(source.nickname)
@@ -194,7 +194,7 @@ init python:
                     renpy.show("escape_gates", what="portal_webm",  at_list=[Transform(align=(.5, .5))], zorder=100)
                     renpy.sound.play("content/sfx/sound/be/escape_portal.ogg")
                     tkwargs = {"color": gray,
-                               "outlines": [(1, black, 0, 0)]}
+                               "outlines": [(1, "black", 0, 0)]}
                     gfx_overlay.notify("Escaped...", tkwargs=tkwargs)
                     renpy.pause(1.0)
                 battle.combat_status = "escape"
@@ -211,7 +211,7 @@ init python:
                 battle.combat_status = "surrender"
                 if not battle.logical:
                     tkwargs = {"color": gray,
-                               "outlines": [(1, black, 0, 0)]}
+                               "outlines": [(1, "black", 0, 0)]}
                     gfx_overlay.notify("Surrendered...", tkwargs=tkwargs)
                     renpy.pause(1.0)
                 return "break"
@@ -225,7 +225,7 @@ init python:
             self.target = target
             self.death_effect = death_effect
             if not msg:
-                self.msg = "{color=[red]}%s was (heroically?!?) knocked out!{/color}" % self.target.name
+                self.msg = "{color=red}%s was (heroically?!?) knocked out!{/color}" % self.target.name
             else:
                 self.msg = msg
 
@@ -287,7 +287,7 @@ init python:
                 gfx = Transform("poison_2", zoom=1.5)
                 renpy.show("poison", what=gfx, at_list=[Transform(pos=battle.get_cp(t, type="center"), anchor=(.5, .5))], zorder=t.besk["zorder"]+1)
                 renpy.play("content/sfx/sound/be/poisoned.mp3", channel="audio")
-                txt = Text("%d"%damage, style="content_label", color=red, size=15)
+                txt = Text("%d"%damage, style="content_label", color="red", size=15)
                 renpy.show("bb", what=txt, at_list=[battle_bounce(store.battle.get_cp(t, type="tc", yo=-10))], zorder=t.besk["zorder"]+2)
                 renpy.pause(1.5)
                 renpy.hide("poison")
@@ -296,12 +296,12 @@ init python:
 
             if t.health - damage > 0:
                 t.health -= damage
-                msg = "%s is poisoned! {color=[green]}☠: %d{/color}" % (t.name, damage)
+                msg = "%s is poisoned! {color=green}☠: %d{/color}" % (t.name, damage)
                 battle.log(msg)
             else:
                 t.health = 1
                 death = RPG_Death(t,
-                                  msg="{color=[red]}Poison took out %s!\n{/color}" % t.name,
+                                  msg="{color=red}Poison took out %s!\n{/color}" % t.name,
                                   death_effect="dissolve")
                 death.apply_effects()
 
@@ -311,7 +311,7 @@ init python:
             self.counter -= 1
 
             if self.counter <= 0:
-                msg = "{color=[teal]}Poison effect on %s has ran it's course...{/color}" % (t.name)
+                msg = "{color=teal}Poison effect on %s has ran it's course...{/color}" % (t.name)
                 battle.log(msg)
 
 
@@ -351,7 +351,7 @@ init python:
             self.counter -= 1
 
             if self.counter <= 0:
-                msg = "{color=[teal]}Defence Buff on %s has warn out!{/color}" % (self.target.name)
+                msg = "{color=teal}Defence Buff on %s has warn out!{/color}" % (self.target.name)
                 battle.log(msg)
 
 
@@ -791,7 +791,7 @@ init python:
                 t.beeffects = effects
 
                 # String for the log:
-                s = ("{color=[green]}%s brings %s back!{/color}" % (char.nickname, t.name))
+                s = ("{color=green}%s brings %s back!{/color}" % (char.nickname, t.name))
                 t.dmg_font = "lawngreen" # Color the battle bounce green!
 
                 battle.log(s)

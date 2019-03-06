@@ -230,9 +230,9 @@ screen main_menu():
                 at patreon_hover(init_alpha=.4)
                 xalign .5
                 size 22
-                color goldenrod
+                color "goldenrod"
                 drop_shadow [(1, 2)]
-                drop_shadow_color black
+                drop_shadow_color "black"
                 antialias True
             hbox:
                 spacing 60
@@ -266,7 +266,7 @@ screen main_menu():
         # yalign 1.0
         # xysize (60, 25)
         # style "blue1"
-        # text "<->" color black align (0.5, 0.5) size 15
+        # text "<->" color "black" align (0.5, 0.5) size 15
         # action [SetField(persistent, "town_path", map_options[(index + 1) % len(map_options)]), Jump("_save_reload_game")]
 
     # $ img = ProportionalScale("content/gfx/interface/icons/arena.png", 60, 60)
@@ -344,10 +344,10 @@ screen discord():
         vbox:
             xalign .5
             yalign .2
-            text "The game is still in development. Support us if you enjoyed it!" align (.45, .1) size 25 color goldenrod drop_shadow [(1, 2)] drop_shadow_color black antialias True style_prefix "proper_stats"
+            text "The game is still in development. Support us if you enjoyed it!" align (.45, .1) size 25 color "goldenrod" drop_shadow [(1, 2)] drop_shadow_color "black" antialias True style_prefix "proper_stats"
             null height 10
-            text "ANY QUESTIONS OR BUGS TO REPORT?" size 35 color goldenrod drop_shadow [(1, 2)] drop_shadow_color black antialias True style_prefix "proper_stats" xalign .5
-            text "JOIN OUR COMMUNITY ON:" size 35 color goldenrod drop_shadow [(1, 2)] drop_shadow_color black antialias True style_prefix "proper_stats" xalign .5
+            text "ANY QUESTIONS OR BUGS TO REPORT?" size 35 color "goldenrod" drop_shadow [(1, 2)] drop_shadow_color "black" antialias True style_prefix "proper_stats" xalign .5
+            text "JOIN OUR COMMUNITY ON:" size 35 color "goldenrod" drop_shadow [(1, 2)] drop_shadow_color "black" antialias True style_prefix "proper_stats" xalign .5
         null height 5
         button:
             yalign .6
@@ -370,9 +370,9 @@ screen credits():
         text "About Us":
             xalign .5 ypos 50
             size 35
-            color goldenrod
+            color "goldenrod"
             drop_shadow [(1, 2)]
-            drop_shadow_color black
+            drop_shadow_color "black"
             antialias True
             style_prefix "proper_stats"
 
@@ -386,7 +386,7 @@ screen credits():
                         xalign .52
                         vbox:
                             style_prefix "proper_stats"
-                            text "Core Coding" xalign .5 size 22 color goldenrod drop_shadow [(1, 2)] drop_shadow_color black antialias True
+                            text "Core Coding" xalign .5 size 22 color "goldenrod" drop_shadow [(1, 2)] drop_shadow_color "black" antialias True
                             button:
                                 xalign .5
                                 xysize (100, 100)
@@ -395,7 +395,7 @@ screen credits():
                                 action OpenURL('https://www.patreon.com/xelapy')
                                 add At(ProportionalScale("content/gfx/interface/icons/credits/patreonlogoorange.png", 100, 25, yalign=1.0), patreon_bounce)
                             null height 3
-                            text " XelaPy " xalign .5 size 30 color goldenrod drop_shadow [(1, 2)] drop_shadow_color black antialias True
+                            text " XelaPy " xalign .5 size 30 color "goldenrod" drop_shadow [(1, 2)] drop_shadow_color "black" antialias True
                             hbox:
                                 spacing 10
                                 xalign .5
@@ -415,9 +415,9 @@ screen credits():
                             text "Content and Coding":
                                 size 22
                                 xalign .5
-                                color goldenrod
+                                color "goldenrod"
                                 drop_shadow [(1, 2)]
-                                drop_shadow_color black
+                                drop_shadow_color "black"
                                 antialias True
                             button:
                                 xalign .5
@@ -430,9 +430,9 @@ screen credits():
                             text " DarkTl ":
                                 align .5, 1.0
                                 size 30
-                                color goldenrod
+                                color "goldenrod"
                                 drop_shadow [(1, 2)]
-                                drop_shadow_color black
+                                drop_shadow_color "black"
                                 antialias True
                             null height 30
 
@@ -440,9 +440,9 @@ screen credits():
 
                     text "The game is still in development. Support us if you enjoyed it!":
                         size 25
-                        color goldenrod
+                        color "goldenrod"
                         drop_shadow [(1, 2)]
-                        drop_shadow_color black
+                        drop_shadow_color "black"
                         antialias True
                         style_prefix "proper_stats"
 
@@ -452,9 +452,9 @@ screen credits():
                         style_prefix "proper_stats"
                         text "Special thanks to:":
                             size 22
-                            color goldenrod
+                            color "goldenrod"
                             drop_shadow [(1, 2)]
-                            drop_shadow_color black
+                            drop_shadow_color "black"
                             antialias True
                         text "All artists and composers for amazing content featured in PyTFall."
                         text "Tom Rothamel for Ren'Py."
@@ -462,9 +462,9 @@ screen credits():
                         null height 10
                         text "Many thanks to:":
                             size 22
-                            color goldenrod
+                            color "goldenrod"
                             drop_shadow [(1, 2)]
-                            drop_shadow_color black
+                            drop_shadow_color "black"
                             antialias True
                         text "TheWorst, Gismo, Picobyte, CherryWood, Xipomus, Lamoli, Thewlis, Rudistoned,"
                         text "Eliont, Matt, Longint, Armegetton, MrKlaus, Krakr, Sysreq, GonDra, Jaeke, Janmaba."

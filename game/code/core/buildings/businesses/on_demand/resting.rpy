@@ -188,7 +188,7 @@ init -5 python:
         def after_rest(self, worker, log):
             # Must check for is_rested first always.
             if self.is_rested(worker) and log is not None:
-                log.append("%s is both well rested and healthy so at this point this is simply called: {color=[red]}slacking off :){/color}" % worker.pC)
+                log.append("%s is both well rested and healthy so at this point this is simply called: {color=red}slacking off :){/color}" % worker.pC)
 
 
     class AutoRest(Rest):

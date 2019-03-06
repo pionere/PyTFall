@@ -86,14 +86,14 @@ screen cemetry_list_of_dead_chars(dead_list, number): # the list should not be e
                 background Frame("content/gfx/frame/namebox3.png")
                 xsize 160
                 if len(character.name) <= 10:
-                    text ([character.name]) xalign .5 style "stats_value_text" color silver
+                    text ([character.name]) xalign .5 style "stats_value_text" color "silver"
                 else:
-                    text ([character.name]) xalign .5 style "stats_value_text" color silver size 12
+                    text ([character.name]) xalign .5 style "stats_value_text" color "silver" size 12
 
             frame:
                 background Frame("content/gfx/frame/namebox3.png")
                 xsize 160
-                text ("[character.level] lvl") xalign .5 style "stats_value_text" color silver
+                text ("[character.level] lvl") xalign .5 style "stats_value_text" color "silver"
 
     $ img = "content/gfx/interface/buttons/next.png"
     $ img1 = im.Flip("content/gfx/interface/buttons/next.png", horizontal=True)

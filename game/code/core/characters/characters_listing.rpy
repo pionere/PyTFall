@@ -147,7 +147,7 @@ screen chars_list():
                 msg = "You don't have any workers." 
         text "[msg]":
             size 40
-            color ivory
+            color "ivory"
             align .5, .2
             style "TisaOTM"
     else:
@@ -193,9 +193,9 @@ screen chars_list():
                             label "[c.name]":
                                 text_size 18
                                 if c.__class__ == Char:
-                                    text_color pink
+                                    text_color "pink"
                                 else:
-                                    text_color goldenrod
+                                    text_color "goldenrod"
 
                             # Prof-Classes
                             python:
@@ -206,7 +206,7 @@ screen chars_list():
                                     classes.sort(key=attrgetter("id"))
                                     classes = ", ".join(t.id for t in classes)
                             null height 4
-                            text "Classes: [classes]" color goldenrod size 18
+                            text "Classes: [classes]" color "goldenrod" size 18
 
                         if available:
                             vbox:
@@ -219,7 +219,7 @@ screen chars_list():
                                     fixed:
                                         xysize 30, 14
                                         yalign .5
-                                        text "Home:" color ivory yalign .5 size 14
+                                        text "Home:" color "ivory" yalign .5 size 14
                                     button:
                                         style_group "ddlist"
                                         xalign .0
@@ -235,7 +235,7 @@ screen chars_list():
                                     fixed:
                                         xysize 30, 14
                                         yalign .5
-                                        text "Work:" color ivory yalign .5 size 14
+                                        text "Work:" color "ivory" yalign .5 size 14
                                     button:
                                         style_group "ddlist"
                                         xalign .0
@@ -247,7 +247,7 @@ screen chars_list():
                                     fixed:
                                         xysize 30, 14
                                         yalign .5
-                                        text "Action:" color ivory yalign .5 size 14
+                                        text "Action:" color "ivory" yalign .5 size 14
                                     button:
                                         style_group "ddlist"
                                         xalign .0
@@ -279,12 +279,12 @@ screen chars_list():
                             align 1.0, .6 xoffset 5
                             hbox:
                                 xsize 60
-                                text "AP:" xalign .0 color ivory
-                                text "[c.AP]" xalign .1 color ivory
+                                text "AP:" xalign .0 color "ivory"
+                                text "[c.AP]" xalign .1 color "ivory"
                             hbox:
                                 xsize 60
-                                text "Tier:" xalign .0 color ivory
-                                text "[c.tier]" xalign .1 color ivory
+                                text "Tier:" xalign .0 color "ivory"
+                                text "[c.tier]" xalign .1 color "ivory"
 
                     # Add to Group Button:
                     if available:
@@ -317,7 +317,7 @@ screen chars_list():
                         sensitive curr_page != 1
                         keysym "mousedown_4"
 
-                    text "[curr_page]." color ivory yalign .5
+                    text "[curr_page]." color "ivory" yalign .5
 
                     button:
                         style_suffix "button_right"
@@ -340,17 +340,17 @@ screen chars_list():
             label "Filters:":
                 xalign .5
                 text_size 35
-                text_color goldenrod
-                text_outlines [(1, "#000000", 0, 0)]
+                text_color "goldenrod"
+                text_outlines [(1, "black", 0, 0)]
 
             hbox:
                 xalign .5
                 box_wrap True
-                for f, c, t in [('Home', saddlebrown, 'Toggle home filters'),
-                                ('Work', brown, 'Toggle workplace filters'),
-                                ("Status", green, 'Toggle status filters'),
-                                ("Action", darkblue, 'Toggle action filters'),
-                                ('Class', purple, 'Toggle class filters')]:
+                for f, c, t in [('Home', "saddlebrown", 'Toggle home filters'),
+                                ('Work', "brown", 'Toggle workplace filters'),
+                                ("Status", "green", 'Toggle status filters'),
+                                ("Action", "darkblue", 'Toggle action filters'),
+                                ('Class', "purple", 'Toggle class filters')]:
                     button:
                         style_prefix "basic"
                         xpadding 6
@@ -379,14 +379,14 @@ screen chars_list():
                         button:
                             xysize 125, 32
                             action ModFilterSet(chars_list_state.source, "status_filters", f)
-                            text f.capitalize() color green
+                            text f.capitalize() color "green"
                             tooltip 'Toggle the filter'
                 if "Home" in chars_list_state.selected_filters:
                     for f in chars_list_state.home_filters:
                         button:
                             xysize 125, 32
                             action ModFilterSet(chars_list_state.source, "home_filters", f)
-                            text "[f]" color saddlebrown:
+                            text "[f]" color "saddlebrown":
                                 if len(str(f)) > 12:
                                     size 10
                                     line_spacing -6
@@ -398,7 +398,7 @@ screen chars_list():
                         button:
                             xysize 125, 32
                             action ModFilterSet(chars_list_state.source, "work_filters", f)
-                            text "[f]" color brown:
+                            text "[f]" color "brown":
                                 if len(str(f)) > 12:
                                     size 10
                                     line_spacing -6
@@ -413,7 +413,7 @@ screen chars_list():
                             $ t = str(f)
                             if t.lower().endswith(" job"):
                                 $ t = t[:-4]
-                            text "[t]" color darkblue:
+                            text "[t]" color "darkblue":
                                 if len(str(t)) > 12:
                                     size 10
                                     line_spacing -6
@@ -425,7 +425,7 @@ screen chars_list():
                         button:
                             xysize 125, 32
                             action ModFilterSet(chars_list_state.source, "class_filters", f)
-                            text "[f]" color purple
+                            text "[f]" color "purple"
                             tooltip 'Toggle the filter'
 
     # Mass (de)selection Buttons ====================================>

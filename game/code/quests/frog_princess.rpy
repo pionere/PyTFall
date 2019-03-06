@@ -81,7 +81,7 @@ label start_frog_event:
     jump forest_entrance
 
 label frog1_event_poke:
-    $ f1 = Character("Frog", color=green, what_color=lawngreen, show_two_window=True)
+    $ f1 = Character("Frog", color="green", what_color="lawngreen", show_two_window=True)
     hero.say "How do you like that?."
     "It easily dodges your stick and..."
     f1 "Another one came to laugh at my misfortune. Come on. Let's be done with it."
@@ -136,7 +136,7 @@ label frog1_event_abby:
     if not global_flags.flag("frog_spoke_abby"):
         w "Frog transmutation, heh? I could look into it, but it will cost ya!"
         extend " Let me see..."
-        w "{color=[gold]}1000 Gold{/color} for my research!"
+        w "{color=gold}1000 Gold{/color} for my research!"
 
     menu:
         w "How about it?"
@@ -157,7 +157,7 @@ label frog1_event_abby:
             jump forest_entrance
         "1000??? I'm not paying!":
             "Being the last ray of hope for a princess turned into a talking frog  to regain her humanity, you decided that spending 1000 gold was too much."
-            extend "{color=[red]} Way to go cheapskate!"
+            extend "{color=red} Way to go cheapskate!"
             $ pytfall.world_quests.get("Frog Princess!").finish_in_label("You've rejected the Frog Princess Quest! It's further fate is unknown.")
             $ menu_extensions.remove_extension("Abby The Witch Main", "Ask about the Frog")
             jump forest_entrance
@@ -207,7 +207,7 @@ label frog_event_arena:
     ax "A real G-Champ will be bloody hard to kill, and in deathmatch, you'll die as well if your party is wiped out."
     ax "Also, don't expect him to be along even if you are, people will expect a vicious fight, deathmatches are rare enough, so it's best to make it look good!"
     $ hero.take_ap(1)
-    $ pytfall.world_quests.get("Frog Princess!").next_in_label("Xeona agreed to set up a match per your request but you've been warned that it is a {color=[red]}very{/color} dangerous endeavour and it would be a good idea to bring some backup!")
+    $ pytfall.world_quests.get("Frog Princess!").next_in_label("Xeona agreed to set up a match per your request but you've been warned that it is a {color=red}very{/color} dangerous endeavour and it would be a good idea to bring some backup!")
     $ menu_extensions.remove_extension("Xeona Main", "Enquire about an eye of a Goblin Champion!")
     $ menu_extensions.add_extension("Xeona Main", ("Deathfight vs Goblin Champ!", Jump("frog_deathfight"), "day == {}".format(day+3)))
     $ menu_extensions.add_extension("Xeona Main", ("Missed Deathfight...", Jump("missed_frog_deathfight"), "day > {}".format(day+3)))
@@ -225,7 +225,7 @@ label missed_frog_deathfight:
  
     ax "Well, well, well..."
     ax "It seems that someone forgot something."
-    ax "The Goblin Champ was really pissed by the events. If you want to have a fight, you need to pay a compensation of {color=[gold]}2000 Gold{/color}."
+    ax "The Goblin Champ was really pissed by the events. If you want to have a fight, you need to pay a compensation of {color=gold}2000 Gold{/color}."
     ax "Are you willing to pay the price?"
     menu:
         "Yes, of course." if hero.gold >= 2000:
@@ -315,7 +315,7 @@ label final_frog_event:
     "Having a solution to the frog princes' problem you enter the forest with confidence."
     "Finding her wasn't really a problem, she was sitting on the same rock when you met for the first time."
 
-    $ f1 = Character("Frog", color=green, what_color=lawngreen, show_two_window=True)
+    $ f1 = Character("Frog", color="green", what_color="lawngreen", show_two_window=True)
 
     show frog
     f1 "So why did you come today?"
@@ -341,10 +341,10 @@ label final_frog_event:
             "It worked. A bright flash and the frog was gone. In her place was…"
 
             show stranger
-            $ b = Character("Stranger", color=red, what_color=green, show_two_window=True)
+            $ b = Character("Stranger", color="red", what_color="green", show_two_window=True)
             b "Thanks, dude. You really saved me. About that princess and gold..."
-            $ pytfall.world_quests.get("Frog Princess!").finish_in_label("{color=[blue]}You've completed the Quest... but the whole thing was a scam...{/color}")
-            extend " {color=[red]} It was all crap! Sorry, gotta go!"
+            $ pytfall.world_quests.get("Frog Princess!").finish_in_label("{color=blue}You've completed the Quest... but the whole thing was a scam...{/color}")
+            extend " {color=red} It was all crap! Sorry, gotta go!"
             hide stranger
             with fade
             "You had lost a lot of time, money, and had an intimate moment with a huge man-frog. But look at the bright side. Now you know that you shouldn't trust a talking frog."

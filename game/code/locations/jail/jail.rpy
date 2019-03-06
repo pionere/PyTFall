@@ -93,7 +93,7 @@ screen city_jail_cells():
                 xalign .5
                 background Frame(Transform("content/gfx/frame/namebox5.png", alpha=.95), 250, 50)
                 label "[char.fullname]":
-                    text_color gold
+                    text_color "gold"
                     text_outlines [(2, "#424242", 0, 0)]
                     align (.5, .5)
                     if len(char.fullname) < 20:
@@ -102,7 +102,7 @@ screen city_jail_cells():
             # Info: =============================================================================>>>
             null height 5
             label "Info:":
-                text_color ivory
+                text_color "ivory"
                 text_size 20
                 text_bold True
                 xalign .5
@@ -144,7 +144,7 @@ screen city_jail_cells():
             background Frame(Transform("content/gfx/frame/p_frame53.png", alpha=.98), 10, 10)
             has vbox xalign .5 #ypos 5
             null height 5
-            label "Details:" xalign .5 text_color ivory text_size 20 text_bold True text_outlines [(2, "#424242", 0, 0)]
+            label "Details:" xalign .5 text_color "ivory" text_size 20 text_bold True text_outlines [(2, "#424242", 0, 0)]
             null height 5
             frame:
                 left_padding 15

@@ -151,33 +151,33 @@ screen char_rename(char=None):
             align (.5, .5)
             spacing 10
             if isinstance(char, Player) or char.status == "slave":
-                text "Name:" size 21 color goldenrod outlines [(2, "#3a3a3a", 0, 0)]
+                text "Name:" size 21 color "goldenrod" outlines [(2, "#3a3a3a", 0, 0)]
                 button:
                     xysize (340, 60)
                     xalign 1.0
                     yalign .5
-                    text "[char.name]" size 16 color goldenrod
+                    text "[char.name]" size 16 color "goldenrod"
                     action Return(["rename", "name"])
                     padding (10, 10)
             if not(isinstance(char, Player)): # it's weird to give a nickname to yourself. should be handled by ingame events
-                text "Nickname:" size 21 color goldenrod outlines [(2, "#3a3a3a", 0, 0)]
+                text "Nickname:" size 21 color "goldenrod" outlines [(2, "#3a3a3a", 0, 0)]
                 button:
                     xysize (340, 60)
                     xalign 1.0
                     yalign .5
                     if char.nickname != char.name:
-                        text "[char.nickname]" size 16 color goldenrod
+                        text "[char.nickname]" size 16 color "goldenrod"
                     else:
-                        text "None" size 16 color goldenrod
+                        text "None" size 16 color "goldenrod"
                     action Return(["rename", "nick"])
                     padding (10, 10)
             if isinstance(char, Player) or char.status == "slave":
-                text "Full Name:" size 21 color goldenrod outlines [(2, "#3a3a3a", 0, 0)]
+                text "Full Name:" size 21 color "goldenrod" outlines [(2, "#3a3a3a", 0, 0)]
                 button:
                     xysize (340, 60)
                     xalign 1.0
                     yalign .5
-                    text "[char.fullname]" size 16 color goldenrod
+                    text "[char.fullname]" size 16 color "goldenrod"
                     action Return(["rename", "full"])
                     padding (10, 10)
 
@@ -186,7 +186,7 @@ screen char_rename(char=None):
                 xysize (100, 50)
                 xalign .5
                 yalign .5
-                text "Back" size 16 color goldenrod
+                text "Back" size 16 color "goldenrod"
                 action Hide("char_rename"), With(dissolve)
                 keysym "mousedown_3", "K_ESCAPE"
                 padding (10, 10)
@@ -261,7 +261,7 @@ screen character_pick_screen(): # screen to select someone from the MC team
                 xysize (102, 40)
                 yalign .5
                 action Return(False)
-                text "Cancel" size 15 color goldenrod
+                text "Cancel" size 15 color "goldenrod"
                 keysym "mousedown_3", "K_ESCAPE"
 
 screen finances(obj, mode="logical"):
@@ -310,13 +310,13 @@ screen finances(obj, mode="logical"):
 
             vbox:
                 ypos 40
-                text "Income:" size 40 color goldenrod
+                text "Income:" size 40 color "goldenrod"
                 viewport:
                     xysize (398, 350)
                     draggable True
                     mousewheel True
                     child_size 398, 1000
-                    add Transform(Solid(grey), alpha=.3)
+                    add Transform(Solid("grey"), alpha=.3)
                     vbox:
                         ypos 2
                         for reason, value in sorted(all_income_data[fin_day].items(), key=itemgetter(1), reverse=True):
@@ -325,7 +325,7 @@ screen finances(obj, mode="logical"):
                                 xysize (390, 27)
                                 xpadding 7
                                 text reason color "#79CDCD"
-                                text str(value) xalign 1.0 style_suffix "value_text" color goldenrod
+                                text str(value) xalign 1.0 style_suffix "value_text" color "goldenrod"
 
                         null height 10
                         frame:
@@ -334,17 +334,17 @@ screen finances(obj, mode="logical"):
                             xpadding 7
                             text "Total" color "#79CDCD"
                             $ total_income = sum(all_income_data[fin_day].values())
-                            text str(total_income) xalign 1.0 style_suffix "value_text" color lawngreen
+                            text str(total_income) xalign 1.0 style_suffix "value_text" color "lawngreen"
 
             vbox:
                 ypos 40 xalign 1.0
-                text "Expenses:" size 40 color goldenrod
+                text "Expenses:" size 40 color "goldenrod"
                 viewport:
                     xysize (398, 350)
                     child_size 398, 1000
                     draggable True
                     mousewheel True
-                    add Transform(Solid(grey), alpha=.3)
+                    add Transform(Solid("grey"), alpha=.3)
                     vbox:
                         ypos 2
                         for reason, value in sorted(all_expense_data[fin_day].items(), key=itemgetter(1), reverse=True):
@@ -353,7 +353,7 @@ screen finances(obj, mode="logical"):
                                 xysize (390, 27)
                                 xpadding 7
                                 text reason color "#79CDCD"
-                                text str(value) xalign 1.0 style_suffix "value_text" color goldenrod
+                                text str(value) xalign 1.0 style_suffix "value_text" color "goldenrod"
 
                         null height 10
                         frame:
@@ -362,16 +362,16 @@ screen finances(obj, mode="logical"):
                             xpadding 7
                             text "Total" color "#79CDCD"
                             $ total_expenses = sum(all_expense_data[fin_day].values())
-                            text str(total_expenses) xalign 1.0 style_suffix "value_text" color red
+                            text str(total_expenses) xalign 1.0 style_suffix "value_text" color "red"
 
             frame:
                 align .5, .9
                 xysize 400, 50
                 xpadding 7
                 background Frame("content/gfx/frame/rank_frame.png", 3, 3)
-                text "Total" size 35 color goldenrod
+                text "Total" size 35 color "goldenrod"
                 $ total = total_income - total_expenses
-                $ temp = red if total < 0 else lawngreen
+                $ temp = "red" if total < 0 else "lawngreen"
                 text str(total) xalign 1.0 style_suffix "value_text" color temp size 35
 
         # Debt
@@ -387,18 +387,18 @@ screen finances(obj, mode="logical"):
                     xysize (200, 20)
                     xpadding 7
                     text "Income Tax Debt:" size 15
-                    text "[focused.fin.income_tax_debt]" style_suffix "value_text" xalign 1.0 color red yoffset -1
+                    text "[focused.fin.income_tax_debt]" style_suffix "value_text" xalign 1.0 color "red" yoffset -1
                 frame:
                     xysize (200, 20)
                     xpadding 7
                     text "Property Tax Debt:" size 15
-                    text "[focused.fin.property_tax_debt]" style_suffix "value_text" xalign 1.0 color red yoffset -1
+                    text "[focused.fin.property_tax_debt]" style_suffix "value_text" xalign 1.0 color "red" yoffset -1
                 null height 3
                 frame:
                     xysize (200, 20)
                     xpadding 7
                     text "Total:" size 15
-                    text "[total_debt]" style_suffix "value_text" xalign 1.0 color red yoffset -1
+                    text "[total_debt]" style_suffix "value_text" xalign 1.0 color "red" yoffset -1
 
         hbox:
             style_prefix "basic"
@@ -510,61 +510,61 @@ screen show_trait_info_content(trait=None, place="girl_trait", elemental_mode=Fa
                 if any([trait_info.min, trait_info.max, trait_info.mod_stats, trait_info.effects,
                         trait_info.mod_skills, trait_info.mod_ap, hasattr(trait_info, "evasion_bonus")]):
                     if trait_info.max:
-                        label (u"Max:") text_size 20 text_color goldenrod text_bold True xalign .45
+                        label (u"Max:") text_size 20 text_color "goldenrod" text_bold True xalign .45
                         for stat, value in trait_info.max.iteritems():
                             frame:
                                 xysize 170, 20
                                 if value < 0:
-                                    text stat.title() size 15 color red align .0, .5 outlines [(1, "#000000", 0, 0)]
-                                    label str(value) text_size 15 text_color red align 1.0, .5 text_outlines [(1, "#000000", 0, 0)]
+                                    text stat.title() size 15 color "red" align .0, .5 outlines [(1, "black", 0, 0)]
+                                    label str(value) text_size 15 text_color "red" align 1.0, .5 text_outlines [(1, "black", 0, 0)]
                                 else:
-                                    text stat.title() size 15 color lime align .0, .5 outlines [(1, "#000000", 0, 0)]
-                                    label "+" + str(value) text_size 15 text_color lime align 1.0, .5 text_outlines [(1, "#000000", 0, 0)]
+                                    text stat.title() size 15 color "lime" align .0, .5 outlines [(1, "black", 0, 0)]
+                                    label "+" + str(value) text_size 15 text_color "lime" align 1.0, .5 text_outlines [(1, "black", 0, 0)]
                     if trait_info.min:
-                        label (u"Min:") text_size 20 text_color goldenrod text_bold True xalign .45
+                        label (u"Min:") text_size 20 text_color "goldenrod" text_bold True xalign .45
                         for stat, value in trait_info.min.iteritems():
                             frame:
                                 xysize 170, 20
                                 if value < 0:
-                                    text stat.title() size 15 color red align .0, .5 outlines [(1, "#000000", 0, 0)]
-                                    label str(value) text_size 15 text_color red align 1.0, .5 text_outlines [(1, "#000000", 0, 0)]
+                                    text stat.title() size 15 color "red" align .0, .5 outlines [(1, "black", 0, 0)]
+                                    label str(value) text_size 15 text_color "red" align 1.0, .5 text_outlines [(1, "black", 0, 0)]
                                 else:
-                                    text stat.title() size 15 color lime align .0, .5 outlines [(1, "#000000", 0, 0)]
-                                    label "+" + str(value) text_size 15 text_color lime align 1.0, .5 text_outlines [(1, "#000000", 0, 0)]
+                                    text stat.title() size 15 color "lime" align .0, .5 outlines [(1, "black", 0, 0)]
+                                    label "+" + str(value) text_size 15 text_color "lime" align 1.0, .5 text_outlines [(1, "black", 0, 0)]
                     if trait_info.mod_stats:
-                        label (u"Bonus:") text_size 20 text_color goldenrod text_bold True xalign .45
+                        label (u"Bonus:") text_size 20 text_color "goldenrod" text_bold True xalign .45
                         for i in trait_info.mod_stats:
                             frame:
                                 xysize 170, 20
                                 if str(i) not in ["disposition", "upkeep"]:
                                     if (trait_info.mod_stats[i])[0] < 0:
-                                        text (str(i).title() + ": " + str((trait_info.mod_stats[i])[0]) + " every " + str((trait_info.mod_stats[i])[1]) + " lvl") align .5, .5 size 15 color red text_align .5 outlines [(1, "#000000", 0, 0)]
+                                        text (str(i).title() + ": " + str((trait_info.mod_stats[i])[0]) + " every " + str((trait_info.mod_stats[i])[1]) + " lvl") align .5, .5 size 15 color "red" text_align .5 outlines [(1, "black", 0, 0)]
                                     else:
-                                        text (str(i).title() + ": +" + str((trait_info.mod_stats[i])[0]) + " every " + str((trait_info.mod_stats[i])[1]) + " lvl") align .5, .5 size 15 color lime text_align .5 outlines [(1, "#000000", 0, 0)]
+                                        text (str(i).title() + ": +" + str((trait_info.mod_stats[i])[0]) + " every " + str((trait_info.mod_stats[i])[1]) + " lvl") align .5, .5 size 15 color "lime" text_align .5 outlines [(1, "black", 0, 0)]
                                 else:
                                     if str(i) == "disposition":
                                         if (trait_info.mod_stats[i])[0] < 0:
-                                            text (str(i).title() + ": " + str((trait_info.mod_stats[i])[0])) align .5, .5 size 15 color red text_align .5 outlines [(1, "#000000", 0, 0)]
+                                            text (str(i).title() + ": " + str((trait_info.mod_stats[i])[0])) align .5, .5 size 15 color "red" text_align .5 outlines [(1, "black", 0, 0)]
                                         else:
-                                            text (str(i).title() + ": +" + str((trait_info.mod_stats[i])[0])) align .5, .5 size 15 color lime text_align .5 outlines [(1, "#000000", 0, 0)]
+                                            text (str(i).title() + ": +" + str((trait_info.mod_stats[i])[0])) align .5, .5 size 15 color "lime" text_align .5 outlines [(1, "black", 0, 0)]
                                     else:
                                         if (trait_info.mod_stats[i])[0] < 0:
-                                            text (str(i).title() + ": " + str((trait_info.mod_stats[i])[0])) align .5, .5 size 15 color lime text_align .5 outlines [(1, "#000000", 0, 0)]
+                                            text (str(i).title() + ": " + str((trait_info.mod_stats[i])[0])) align .5, .5 size 15 color "lime" text_align .5 outlines [(1, "black", 0, 0)]
                                         else:
-                                            text (str(i).title() + ": +" + str((trait_info.mod_stats[i])[0])) align .5, .5 size 15 color red text_align .5 outlines [(1, "#000000", 0, 0)]
+                                            text (str(i).title() + ": +" + str((trait_info.mod_stats[i])[0])) align .5, .5 size 15 color "red" text_align .5 outlines [(1, "black", 0, 0)]
                     if trait_info.effects:
-                        label (u"Effects:") text_size 20 text_color goldenrod text_bold True xalign .45
+                        label (u"Effects:") text_size 20 text_color "goldenrod" text_bold True xalign .45
                         for i in trait_info.effects:
                             frame:
                                 xysize 170, 20
-                                text (str(i).title()) size 15 color yellow align .5, .5 text_align .5 outlines [(1, "#000000", 0, 0)]
+                                text (str(i).title()) size 15 color "yellow" align .5, .5 text_align .5 outlines [(1, "black", 0, 0)]
 
                     if trait_info.mod_skills:
-                        label (u"Skills:") text_size 20 text_color goldenrod text_bold True xalign .45
+                        label (u"Skills:") text_size 20 text_color "goldenrod" text_bold True xalign .45
                         for skill, data in trait_info.mod_skills.iteritems():
                             frame:
                                 xysize 170, 20
-                                text str(skill).title() size 15 color yellowgreen align .0, .5 outlines [(1, "#000000", 0, 0)]
+                                text str(skill).title() size 15 color "yellowgreen" align .0, .5 outlines [(1, "black", 0, 0)]
 
                                 $ img_path = "content/gfx/interface/icons/skills_icons/"
                                 default PS = ProportionalScale
@@ -586,7 +586,7 @@ screen show_trait_info_content(trait=None, place="girl_trait", elemental_mode=Fa
                                     elif data[2] < 0:
                                         add PS(img_path + "top_red.png", 20, 20)
                     if trait_info.mod_ap or hasattr(trait_info, "evasion_bonus") or hasattr(trait_info, "delivery_multiplier"):
-                        label (u"Other:") text_size 20 text_color goldenrod text_bold True xalign .45
+                        label (u"Other:") text_size 20 text_color "goldenrod" text_bold True xalign .45
                         if trait_info.mod_ap:
                             frame:
                                 xysize 170, 20
@@ -595,15 +595,15 @@ screen show_trait_info_content(trait=None, place="girl_trait", elemental_mode=Fa
                                     $ output += " +" + str(trait_info.mod_ap)
                                 else:
                                     $ output += str(trait_info.mod_ap)
-                                text (output) align .5, .5 size 15 color yellowgreen text_align .5 outlines [(1, "#000000", 0, 0)]
+                                text (output) align .5, .5 size 15 color "yellowgreen" text_align .5 outlines [(1, "black", 0, 0)]
 
                         if hasattr(trait_info, "evasion_bonus"):
                             frame:
                                 xysize 170, 20
                                 if trait_info.evasion_bonus[1] < 0:
-                                    text ("Evasion -") size 15 color yellowgreen align .5, .5 text_align .5 outlines [(1, "#000000", 0, 0)]
+                                    text ("Evasion -") size 15 color "yellowgreen" align .5, .5 text_align .5 outlines [(1, "black", 0, 0)]
                                 elif trait_info.evasion_bonus[1] > 0:
-                                    text ("Evasion +") size 15 color yellowgreen align .5, .5 text_align .5 outlines [(1, "#000000", 0, 0)]
+                                    text ("Evasion +") size 15 color "yellowgreen" align .5, .5 text_align .5 outlines [(1, "black", 0, 0)]
                         if hasattr(trait_info, "delivery_multiplier"):
                             for i in trait_info.delivery_multiplier:
                                 frame:
@@ -613,9 +613,9 @@ screen show_trait_info_content(trait=None, place="girl_trait", elemental_mode=Fa
                                         $ output += "+"
                                     else:
                                         $ output += "-"
-                                    text (output) align .5, .5 size 15 color yellowgreen text_align .5 outlines [(1, "#000000", 0, 0)]
+                                    text (output) align .5, .5 size 15 color "yellowgreen" text_align .5 outlines [(1, "black", 0, 0)]
                 else:
-                    label ("-no direct effects-") text_size 15 text_color goldenrod text_bold True xalign .45 text_outlines [(1, "#000000", 0, 0)]
+                    label ("-no direct effects-") text_size 15 text_color "goldenrod" text_bold True xalign .45 text_outlines [(1, "black", 0, 0)]
 
     else:
         $ elems = elements_calculator(trait)
@@ -628,7 +628,7 @@ screen show_trait_info_content(trait=None, place="girl_trait", elemental_mode=Fa
                 padding 10, 5
                 has vbox style_prefix "proper_stats" spacing 1
                 if not elems:
-                    label ("-elements neutralized each other-") text_size 14 text_color goldenrod text_bold True xalign .45
+                    label ("-elements neutralized each other-") text_size 14 text_color "goldenrod" text_bold True xalign .45
                 else:
                     hbox:
                         frame:
@@ -636,31 +636,31 @@ screen show_trait_info_content(trait=None, place="girl_trait", elemental_mode=Fa
                             # "element"
                         frame:
                             xysize 60, 20
-                            text "damage" size 15 color grey bold True align .5, .5 outlines [(1, "#000000", 0, 0)]
+                            text "damage" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
                         frame:
                             xysize 60, 20
-                            text "defence" size 15 color grey bold True align .5, .5 outlines [(1, "#000000", 0, 0)]
+                            text "defence" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
                     for elem, values in elems.items():
                         hbox:
                             frame:
                                 xysize 80, 20
-                                text elem size 15 color goldenrod align .5, .5 outlines [(1, "#000000", 0, 0)]
+                                text elem size 15 color "goldenrod" align .5, .5 outlines [(1, "black", 0, 0)]
                             frame:
                                 xysize 60, 20
                                 $ val = values["attack"]
-                                text "[val] %" size 15 color (lime if val >= 0 else red) align 1.0, .5 outlines [(1, "#000000", 0, 0)]
+                                text "[val] %" size 15 color ("lime" if val >= 0 else "red") align 1.0, .5 outlines [(1, "black", 0, 0)]
                             if "abs" in values.keys():
                                 frame:
                                     xysize 60, 20
                                     $ val = values["abs"]
-                                    text "+[val] %" size 15 color white align 1.0, .5 outlines [(1, "#000000", 0, 0)]
+                                    text "+[val] %" size 15 color "white" align 1.0, .5 outlines [(1, "black", 0, 0)]
                             elif "resist" in values.keys():
                                 frame:
                                     xysize 60, 20
-                                    text "res." size 15 color lime align 1.0, .5 outlines [(1, "#000000", 0, 0)]
+                                    text "res." size 15 color "lime" align 1.0, .5 outlines [(1, "black", 0, 0)]
                             else:
                                 frame:
                                     xysize 60, 20
                                     $ val = values["defence"]
-                                    text "[val] %" size 15 color (lime if val >= 0 else red) align 1.0, .5 outlines [(1, "#000000", 0, 0)]
+                                    text "[val] %" size 15 color ("lime" if val >= 0 else "red") align 1.0, .5 outlines [(1, "black", 0, 0)]
 
