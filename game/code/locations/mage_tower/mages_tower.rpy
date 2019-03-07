@@ -4,10 +4,8 @@ label mages_tower:
     $ gm.enter_location(goodtraits=["Psychic"], badtraits=["Indifferent"], goodoccupations=["Caster"], badoccupations=["SIW"], curious_priority=True)
     $ coords = [[.07, .8], [.57, .64], [.93, .61]]
     # Music related:
-    if not "mages_tower" in ilists.world_music:
-        $ ilists.world_music["mages_tower"] = [track for track in os.listdir(content_path("sfx/music/world")) if track.startswith("mages_tower")]
     if not global_flags.has_flag("keep_playing_music"):
-        play world choice(ilists.world_music["mages_tower"])
+        $ PyTFallStatic.play_music("mages_tower")
     $ global_flags.del_flag("keep_playing_music")
     
     python:

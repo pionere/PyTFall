@@ -1,10 +1,9 @@
 label swimming_pool:
     $ gm.enter_location(has_tags=["girlmeets", "swimsuit"], has_no_tags=["beach", "sleeping"], curious_priority=False)
     $ coords = [[.2, .45], [.42, .6], [.7, .5]]
-    if not "swimming_pool" in ilists.world_music:
-        $ ilists.world_music["swimming_pool"] = [track for track in os.listdir(content_path("sfx/music/world")) if track.startswith("swimming_pool")]
+    # Music
     if not global_flags.has_flag("keep_playing_music"):
-        play world choice(ilists.world_music["swimming_pool"])
+        $ PyTFallStatic.play_music("swimming_pool")
     $ global_flags.del_flag("keep_playing_music")
 
     python:
@@ -25,6 +24,8 @@ label swimming_pool:
         h "We also provide swimming lessons at a reasonable price. Feel free to ask anytime!"
         $ block_say = False
         hide henry
+        $ del h
+
     show screen swimming_pool
     $ pytfall.world_quests.run_quests("auto")
     $ pytfall.world_events.run_events("auto")

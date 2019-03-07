@@ -541,7 +541,7 @@ label interactions_abouther:
     if len(gm_abouther_list) < 3:
         $ gm_abouther_list.append(choice(["Hm? A little of this, a little of that?", "...I don't really have much to say.", "Nothing much, there's nothing worth mentioning.", "What I'm doing? The usual stuff...", "I'm just normal, I guess.", "I like just about anything.", "Hmm, there's not much to talk about.", "Now that I think about it... am I just boring?", "I'm just about average, I guess."]))
 
-    $ g(choice(gm_abouther_list))
+    $ rc(*gm_abouther_list)
 
     if 2*m <= n and dice(50) and dice(char.get_stat("joy")-20):
         if char.get_stat("disposition") >= 400:

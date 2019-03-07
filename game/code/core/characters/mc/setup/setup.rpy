@@ -27,20 +27,22 @@ label mc_setup:
                 jump mc_setup_end
 
         elif result[0] == "rename":
+            $ n = None
             if result[1] == "name":
                 $ n = renpy.call_screen("pyt_input", hero.name, "Enter Name", 20)
                 if len(n):
                     $ hero.name = n
                     $ hero.nickname = hero.name
                     $ hero.fullname = hero.name
-            if result[1] == "nick":
+            elif result[1] == "nick":
                 $ n = renpy.call_screen("pyt_input", hero.name, "Enter Name", 20)
                 if len(n):
                     $ hero.nickname = renpy.call_screen("pyt_input", hero.name, "Enter Nick Name", 20)
-            if result[1] == "full":
+            elif result[1] == "full":
                 $ n = renpy.call_screen("pyt_input", hero.name, "Enter Full Name", 20)
                 if len(n):
                     $ hero.fullname = n
+            $ del n
 
 label mc_setup_end:
     $ renpy.scene(layer='screens')

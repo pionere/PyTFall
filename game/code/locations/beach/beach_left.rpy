@@ -2,10 +2,8 @@ label city_beach_left:
     $ gm.enter_location(goodtraits=["Athletic", "Dawdler"], badtraits=["Scars", "Undead", "Furry", "Monster"], curious_priority=False)
     $ coords = [[.15, .5], [.5, .45], [.7, .8]]
     # Music related:
-    if not "beach_main" in ilists.world_music:
-        $ ilists.world_music["beach_main"] = [track for track in os.listdir(content_path("sfx/music/world")) if track.startswith("beach_main")]
     if not global_flags.has_flag("keep_playing_music"):
-        play world choice(ilists.world_music["beach_main"])
+        $ PyTFallStatic.play_music("beach_main")
     $ global_flags.del_flag("keep_playing_music")
 
     python:
@@ -201,8 +199,6 @@ label mc_action_city_beach_rest:
     jump city_beach_left
 
 label fishing_logic_mor_quest_part:
-    $ m = npcs["Mor"].say
-
     if hero.has_flag("dnd_mor_fish_quest"):
         $ fish, num = hero.flag("dnd_mor_fish_quest")
         if fish is None:
@@ -290,11 +286,11 @@ label fishing_logic_mor_dialogue:
             jump Mor_dialogue_usual
         "That's all for now":
             m "Okay. Bye!"
+            $ del m
             hide npc with dissolve
 
 label fishing_logic:
     # during fishing itself only practical part of skill could be improved; theoretical part will be available via items and asking fishermen in tavern
-    $ m = npcs["Mor"].say
     scene bg fishing_bg with dissolve
 
     if not global_flags.flag('visited_fish_city_beach'):
@@ -316,6 +312,7 @@ label fishing_logic:
             "Don't buy the Pole":
                 m "Fine by me. But you won't find it cheaper! I'm usually here if you change your mind."
         $ global_flags.set_flag('visited_fish_city_beach')
+        $ del m
         hide npc with dissolve
     menu beach_fighing_menu:
         "What do you want to do?"
@@ -323,16 +320,20 @@ label fishing_logic:
         "Find Mor":
             jump fishing_logic_mor_dialogue
         "Check Mor requests" if pytfall.world_quests.check_stage("Fishery") != 1:
+            $ m = npcs["Mor"].say
             show expression npcs["Mor"].get_vnsprite() as npc
             with dissolve
             call fishing_logic_mor_quest_part from _call_fishing_logic_mor_quest_part_1
             hide npc with dissolve
+            $ del m
             jump beach_fighing_menu
         "Bring the Fish" if pytfall.world_quests.check_stage("Fishery") == 1 and has_items(hero.flag("mor_fish_quest")[0], hero, equipped=False) >= hero.flag("mor_fish_quest")[1]:
+            $ m = npcs["Mor"].say
             show expression npcs["Mor"].get_vnsprite() as npc
             with dissolve
             call fishing_logic_mor_quest_bring from _fishing_logic_mor_quest_bring_1
             hide npc with dissolve
+            $ del m
             jump beach_fighing_menu
         "Try Fishing (-1 AP)":
             jump mc_action_beach_start_fishing

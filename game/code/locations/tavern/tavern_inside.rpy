@@ -1,8 +1,6 @@
 label tavern_town:
-    if not "tavern_inside" in ilists.world_music:
-        $ ilists.world_music["tavern_inside"] = [track for track in os.listdir(content_path("sfx/music/world")) if track.startswith("tavern")]
     if not global_flags.has_flag("keep_playing_music"):
-        play world choice(ilists.world_music["tavern_inside"])
+        $ PyTFallStatic.play_music("tavern")
     $ global_flags.del_flag("keep_playing_music")
 
     scene bg tavern_inside

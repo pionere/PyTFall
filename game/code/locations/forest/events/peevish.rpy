@@ -106,4 +106,5 @@ label peevish_menu:
         $ global_flags.set_flag("revealed_aine_location")
     hide peevish with dissolve
     $ global_flags.set_flag("keep_playing_music")
+    $ del p
     jump forest_entrance

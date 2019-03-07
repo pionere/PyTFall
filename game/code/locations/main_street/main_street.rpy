@@ -2,10 +2,8 @@ label main_street:
     $ gm.enter_location(goodtraits=["Human", "Kleptomaniac"], badtraits=["Not Human", "Alien", "Strange Eyes"], curious_priority=False)
     $ coords = [[.1, .7], [.57, .54], [.93, .61]]
     # Music related:
-    if not "main_street" in ilists.world_music:
-        $ ilists.world_music["main_street"] = [track for track in os.listdir(content_path("sfx/music/world")) if track.startswith("main_street")]
     if not global_flags.has_flag("keep_playing_music"):
-        play world choice(ilists.world_music["main_street"])
+        $ PyTFallStatic.play_music("main_street")
     $ global_flags.del_flag("keep_playing_music")
 
     python:

@@ -2,10 +2,8 @@ label city_parkgates:
     $ gm.enter_location(goodtraits=["Elf", "Furry", "Human"], badtraits=["Aggressive", "Adventurous"], curious_priority=False)
     $ coords = [[.1, .75], [.4, .67], [.9, .7]]
     # Music related:
-    if not "park" in ilists.world_music:
-        $ ilists.world_music["park"] = [track for track in os.listdir(content_path("sfx/music/world")) if track.startswith("park")]
     if not global_flags.has_flag("keep_playing_music"):
-        play world choice(ilists.world_music["park"]) fadein .5
+        $ PyTFallStatic.play_music("park", fadein=.5)
     $ global_flags.del_flag("keep_playing_music")
 
     python:

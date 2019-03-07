@@ -28,7 +28,6 @@ label start:
         calendar = Calendar(day=28, month=2, year=125)
         global_flags = Flags()
 
-        ilists = ListHandler()
         # difficulty = Difficulties()
 
         # Load random names selections for rGirls:
@@ -1305,6 +1304,16 @@ label after_load:
                 if not hasattr(d, "keysym"):
                     d.keysym = None
 
+        if hasattr(pytfall.hp, "show_item_info"):
+            del pytfall.hp.show_item_info
+        if hasattr(pytfall.hp, "item"):
+            del pytfall.hp.item
+        if hasattr(pytfall, "desc"):
+            del pytfall.desc
+        if hasattr(pytfall, "map_pattern"):
+            del pytfall.map_pattern
+        if hasattr(store, "ilists"):
+            del store.ilists
         if hasattr(store, "gfxpath"):
             del store.gfxpath
         if hasattr(store, "gfxframes"):

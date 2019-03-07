@@ -331,11 +331,11 @@ label enter_dungeon:
             pc = dungeon.enter(at={ "x": 1, "y": 1, "dx": 1, "dy": 0 })
             dungeon.say(arguments=["", "You enter the mausoleum. The door shuts behind you; you cannot get out this way!"])
         mpos = None
-        if not "dungeon" in ilists.world_music:
-            ilists.world_music["dungeon"] = [track for track in os.listdir(content_path("sfx/music/world")) if track.startswith("dungeon")]
+    # Music
     if not global_flags.has_flag("keep_playing_music"):
-        play world choice(ilists.world_music["dungeon"]) fadein .5
+        $ PyTFallStatic.play_music("dungeon", fadein=.5)
     $ global_flags.del_flag("keep_playing_music")
+
     # Place a player position on a dungeon stage.
     # dx,dy means direction. If dy=1, it's down. If dx=-1, it's left.
 

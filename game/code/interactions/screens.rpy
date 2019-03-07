@@ -9,11 +9,6 @@ label girl_interactions:
         pytfall.world_actions.clear()
 
     python:
-        # Set default characters
-        g = char.say
-        h = hero.say
-        nvl_gm = Character(None, kind=nvl)
-
         # Run quests and events
         pytfall.world_quests.run_quests("auto")
         pytfall.world_events.run_events("auto")
@@ -54,7 +49,7 @@ label girl_interactions:
             call expression ("%s_greeting"%gm.mode) from _call_expression
 
 label girl_interactions_after_greetings: # when character wants to say something in the start of interactions, we need to skip greetings and go here
-    python:
+    python hide:
         # Show menu
         gm.show_menu = True
 

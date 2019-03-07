@@ -2,10 +2,8 @@ label city_beach_cafe_main:
     $ gm.enter_location(goodtraits=["Athletic", "Dawdler", "Always Hungry"], badtraits=["Scars", "Undead", "Furry", "Monster"], curious_priority=False)
     $ coords = [[.15, .75], [.5, .6], [.9, .8]]
     # Music related:
-    if not "beach_cafe" in ilists.world_music:
-        $ ilists.world_music["beach_cafe"] = [track for track in os.listdir(content_path("sfx/music/world")) if track.startswith("beach_cafe")]
     if not global_flags.has_flag("keep_playing_music"):
-        play world choice(ilists.world_music["beach_cafe"])
+        $ PyTFallStatic.play_music("beach_cafe")
     $ global_flags.del_flag("keep_playing_music")
 
     python:

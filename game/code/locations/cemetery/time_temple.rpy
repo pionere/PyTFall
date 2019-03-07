@@ -1,9 +1,7 @@
 label time_temple:
-    if not "cemetery" in ilists.world_music:
-        $ ilists.world_music["cemetery"] = [track for track in os.listdir(content_path("sfx/music/world")) if track.startswith("cemetery")]
+    # Music
     if not global_flags.has_flag("keep_playing_music"):
-        play world choice(ilists.world_music["cemetery"]) fadein .5
-
+        $ PyTFallStatic.play_music("cemetery", fadein=.5)
     $ global_flags.del_flag("keep_playing_music")
 
     scene bg time_temple

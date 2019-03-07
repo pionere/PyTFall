@@ -132,12 +132,9 @@ label academy_town:
     $ coords = [[.1, .55], [.45, .64], [.86, .65]]
     $ e = npcs["Eleven"].say
     $ npcs["Eleven"].override_portrait("portrait", "indifferent")
-    if not "library" in ilists.world_music:
-        $ ilists.world_music["library"] = [track for track in os.listdir(content_path("sfx/music/world")) if track.startswith("library")]
-
+    # Music
     if not global_flags.has_flag("keep_playing_music"):
-        play world choice(ilists.world_music["library"]) fadein .5
-
+        $ PyTFallStatic.play_music("library", fadein=.5)
     $ global_flags.del_flag("keep_playing_music")
 
     python:

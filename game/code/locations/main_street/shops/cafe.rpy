@@ -1,9 +1,7 @@
 label cafe:
     # Music related:
-    if not "shops" in ilists.world_music:
-        $ ilists.world_music["shops"] = [track for track in os.listdir(content_path("sfx/music/world")) if track.startswith("shops")]
     if not global_flags.has_flag("keep_playing_music"):
-        play world choice(ilists.world_music["shops"]) fadein 1.5
+        $ PyTFallStatic.play_music("shops", fadein=1.5)
 
     hide screen main_street
 

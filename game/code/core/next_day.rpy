@@ -167,10 +167,7 @@ label next_day:
 label next_day_calculations:
     if global_flags.flag("nd_music_play"):
         $ global_flags.del_flag("nd_music_play")
-        if not "pytfall" in ilists.world_music:
-            $ ilists.world_music["pytfall"] = [track for track in os.listdir(content_path("sfx/music/world")) if track.startswith("pytfall")]
-        play world choice(ilists.world_music["pytfall"])
-
+        $ PyTFallStatic.play_music("pytfall")
     $ global_flags.set_flag("keep_playing_music")
 
     $ tl.start("Next Day")
@@ -254,6 +251,7 @@ label next_day_controls:
             result = ui.interact()
 
             if result[0] == 'filter':
+                e = None
                 FilteredList = NextDayEvents.event_list
                 if result[1] == 'all':
                     pass
@@ -263,11 +261,8 @@ label next_day_controls:
                     FilteredList = [e for e in FilteredList if e.type == 'mcndreport']
                 elif result[1] == 'school':
                     order = {"school_nd_report": 1, "course_nd_report": 2}
-                    temp = [e for e in FilteredList if e.type in order]
-                    # temp.sort(key=itemgetter(1))
-                    # FilteredList = temp
-                    temp.sort(key=lambda e: order[e.type])
-                    FilteredList = temp
+                    FilteredList = sorted([e for e in FilteredList if e.type in order], key=lambda e: order[e.type])
+                    del order
                 elif result[1] == 'gndreports': # Girl Next Day Reports
                     FilteredList = [e for e in FilteredList if e.type == 'girlndreport']
                 elif result[1] == 'xndreports': # Exploration Next Day Reports
@@ -276,11 +271,14 @@ label next_day_controls:
                     building = result[2]
                     order = {"buildingreport": 1, "manager_report": 2, "explorationndreport": 3, "jobreport": 4, "taskreport": 5}
                     FilteredList = sorted([e for e in FilteredList if e.loc == building and e.type in order], key=lambda e: order[e.type])
+                    del order, building
                 elif result[1] == "fighters_guild":
                     order = {"fg_report": 1, "exploration_report": 2, "fg_job": 3}
                     FilteredList = sorted([e for e in FilteredList if e.type in order], key=lambda e: order[e.type])
+                    del order
                 else:
                     nd_debug("unhandled event:"+result[1], "warn")
+                del e
 
                 if FilteredList:
                     event = FilteredList[0]

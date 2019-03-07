@@ -15,9 +15,7 @@ label special_items_slime_bottle:
                 $ status_ = "slave"
                 $ patterns_ = ["Server"]
             $ new_slime = build_rc(id="Slime", tier=tier, bt_go_patterns=patterns_, set_status=status_)
-            $ del status_
-            $ del patterns_
-            $ del tier
+            $ del status_, patterns_, tier
 
             $ new_slime.gfx_mod_stat("disposition", 300)
             $ new_slime.gfx_mod_stat("affection", affection_reward(new_slime))
@@ -81,15 +79,15 @@ label special_items_slime_bottle:
                     scene bg h_profile
                     "You managed to beat her. Her liquid body quickly decays. It looks like she spent way too long in captivity and lost her mind..."
                     $ kill_char(new_slime)
-                    python:
+                    python hide:
                         for member in hero.team:
                             member.gfx_mod_exp(exp_reward(member, enemy_team))
+                $ del result, enemy_team
+            $ new_slime.restore_portrait()
+            $ del new_slime, spr
         "No":
             "Maybe another time."
             $ inv_source.add_item("Unusual Bottle")
-            jump char_equip
-
-    $ new_slime.restore_portrait()
     jump char_equip
 
 label special_items_empty_extractor:
@@ -99,10 +97,10 @@ label special_items_empty_extractor:
         if eqtarget <> hero:
             $ spr = eqtarget.get_vnsprite()
             show expression spr at center with dissolve
+            $ del spr
             $ renpy.show_screen('message_screen', "Unfortunately, [eqtarget.name] is not experienced enough yet to share her knowledge with anybody.")
         else:
             $ renpy.show_screen('message_screen', "Unfortunately, you are not experienced enough yet to share your knowledge with anybody.")
-        jump char_equip
     else:
         scene bg h_profile
         if eqtarget <> hero:
@@ -113,6 +111,7 @@ label special_items_empty_extractor:
             $ eqtarget.gfx_mod_stat("affection", -randint(2, 5))
             if eqtarget.get_stat("joy") >= 55:
                 $ eqtarget.gfx_mod_stat("joy", -10)
+            $ del spr
         else:
             "This device will extract some of your experience."
 
@@ -130,7 +129,6 @@ label special_items_empty_extractor:
                 "The device seems to be full of energy."
             "No":
                 $ inv_source.add_item("Empty Extractor")
-                $ pass
     jump char_equip
 
 label special_items_full_extractor:
@@ -144,6 +142,7 @@ label special_items_full_extractor:
     if eqtarget <> hero:
         $ spr = eqtarget.get_vnsprite()
         show expression spr at center with dissolve
+        $ del spr
         $ renpy.show_screen('message_screen', "The energy of knowledge slowly flows inside [eqtarget.name]. She became more experienced.")
         if eqtarget.get_stat("disposition") < 750:
             $ eqtarget.gfx_mod_stat("disposition", randint(25, 50))
@@ -185,6 +184,7 @@ label special_items_one_for_all:
             $ pass
         "No":
             $ inv_source.add_item("One For All")
+            $ del spr
             jump char_equip
     $ health = eqtarget.get_stat("health")
     $ n = health/100
@@ -243,34 +243,34 @@ label special_items_one_for_all:
     $ eqtarget.mod_stat("disposition", -1000) # in case if we'll have reviving one day
     $ eqtarget.mod_stat("affection", -1000)   # in case if we'll have reviving one day
     $ kill_char(eqtarget)
+    $ del spr, n, health, mp, vitality 
     jump mainscreen
 
 label special_items_herbal_extract:
     $ h = eqtarget.get_max("health") - eqtarget.get_stat("health")
-    if h <= 0:
-        $ inv_source.add_item("Herbal Extract")
-        $ renpy.show_screen('message_screen', "There is no need to use it at the moment, health is full.")
-        jump char_equip
     $ v = eqtarget.get_stat("vitality")
-    if v <= 10:
+    if h <= 0 or v <= 10:
         $ inv_source.add_item("Herbal Extract")
-        $ renpy.show_screen('message_screen', "Not enough vitality to use it.")
-        jump char_equip
-    if h <= v:
-        $ eqtarget.mod_stat("health", h)
-        $ eqtarget.mod_stat("vitality", -h)
+        if h <= 0:
+            $ renpy.show_screen('message_screen', "There is no need to use it at the moment, health is full.")
+        else:
+            $ renpy.show_screen('message_screen', "Not enough vitality to use it.")
     else:
+        if h <= v:
+            $ v = h
         $ eqtarget.mod_stat("health", v)
         $ eqtarget.mod_stat("vitality", -v)
-    play events "events/item_2.wav"
+        play events "events/item_2.wav"
+    $ del h, v
     jump char_equip
 
 label special_items_emerald_tincture:
-    $ h = eqtarget.get_max("health") - eqtarget.get_stat("health")
-    $ eqtarget.mod_stat("health", h/2)
-    $ h = eqtarget.get_max("vitality") - eqtarget.get_stat("vitality")
-    $ eqtarget.mod_stat("vitality", h/2)
-    $ eqtarget.mod_stat("mp", -eqtarget.get_max("mp")/4)
+    python hide:
+        h = eqtarget.get_max("health") - eqtarget.get_stat("health")
+        eqtarget.mod_stat("health", h/2)
+        h = eqtarget.get_max("vitality") - eqtarget.get_stat("vitality")
+        eqtarget.mod_stat("vitality", h/2)
+        eqtarget.mod_stat("mp", -eqtarget.get_max("mp")/4)
     play events "events/item_2.wav"
     jump char_equip
 
@@ -299,6 +299,7 @@ label special_items_puke_cola:
     jump char_equip
 
 label special_items_cleaning_cloud:
+    $ i = None
     $ clean_list = list(i for i in hero.buildings if i.dirt > 0)
     if clean_list:
         python:
@@ -306,8 +307,9 @@ label special_items_cleaning_cloud:
                 i.moddirt(-200)
             renpy.show_screen('message_screen', "You release the cloud, making all your buildings cleaner.")
         play events "events/item_1.wav"
-        with Fade(.5, .2, .0, color=yellow)
+        with Fade(.5, .2, .0, color="yellow")
     else:
         $ inv_source.add_item("Cleaning Cloud")
         $ renpy.show_screen('message_screen', "You don't own any buildings which require cleaning, using this item is meaningless.")
+    $ del i, clean_list
     jump char_equip

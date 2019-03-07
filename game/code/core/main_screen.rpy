@@ -1,16 +1,8 @@
 label mainscreen:
     # Music related:
     # First Run (Fadeout added)
-    if global_flags.flag("game_start"):
-        $ global_flags.del_flag("game_start")
-        $ fadein = 15
-    else:
-        $ fadein = 0
-
-    if not "pytfall" in ilists.world_music:
-        $ ilists.world_music["pytfall"] = [track for track in os.listdir(content_path("sfx/music/world")) if track.startswith("pytfall")]
     if not global_flags.has_flag("keep_playing_music"):
-        play world choice(ilists.world_music["pytfall"]) fadein fadein
+        $ PyTFallStatic.play_music("pytfall", fadein=(15 if global_flags.has_flag("game_start") else 0))
     $ global_flags.del_flag("keep_playing_music")
 
     scene black
@@ -23,8 +15,8 @@ label mainscreen:
     # Prediction Helpers:
     # TODO lt: Stop predictions when we've moved to far away from the images!
     python hide:
-        main_img_predict = [item for sl in (("".join([pytfall.map_pattern, key, ".webp"]),
-                            "".join([pytfall.map_pattern, key, "_hover.webp"]),
+        main_img_predict = [item for sl in (("".join(["content/gfx/bg/locations/map_buttons/gismo/", key, ".webp"]),
+                            "".join(["content/gfx/bg/locations/map_buttons/gismo/", key, "_hover.webp"]),
                             "".join(["content/gfx/interface/buttons/locations/", key, ".png"]))
                               for key in (i["id"] for i in pytfall.maps("pytfall")))
                             for item in sl]
@@ -85,8 +77,11 @@ label mainscreen:
 screen mainscreen():
     key "mousedown_3" action Show("s_menu", transition=dissolve)
 
+    default fadein = (2.0 if global_flags.has_flag("game_start") else 0.5)
+    $ global_flags.del_flag("game_start")
+
     # Main pic:
-    add im.Scale("content/gfx/bg/main_brothel.webp", config.screen_width, config.screen_height-40) at fade_from_to(.0, 1.0, (2.0 if fadein else 0.5)) ypos 40
+    add im.Scale("content/gfx/bg/main_brothel.webp", config.screen_width, config.screen_height-40) at fade_from_to(.0, 1.0, fadein) ypos 40
 
     frame:
         align (.995, .88)

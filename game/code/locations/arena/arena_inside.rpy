@@ -1,9 +1,6 @@
 label arena_inside:
-
     # Music related:
-    if not "arena_inside" in ilists.world_music:
-        $ ilists.world_music["arena_inside"] = [track for track in os.listdir(content_path("sfx/music/world")) if track.startswith("arena_inside")]
-    play world choice(ilists.world_music["arena_inside"]) fadein 1.5
+    $ PyTFallStatic.play_music("arena_inside", fadein=1.5)
 
     scene expression "content/gfx/bg/be/battle_arena_1.webp"
     show screen arena_inside

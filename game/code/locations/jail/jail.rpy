@@ -1,8 +1,9 @@
 label city_jail:
 
     # Music related:
-    if not "cityjail" in ilists.world_music:
-        $ ilists.world_music["cityjail"] = [track for track in os.listdir(content_path("sfx/music/world")) if track.startswith("cityjail")]
+    #if not global_flags.has_flag("keep_playing_music"):
+    #    $ PyTFallStatic.play_music("cityjail", fadein=.5)
+    #$ global_flags.del_flag("keep_playing_music")
 
     python:
         # Build the actions

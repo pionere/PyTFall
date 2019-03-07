@@ -1,10 +1,9 @@
 label hiddenvillage_entrance:
     $ gm.enter_location(limited_location=True)
     $ coords = [[.2, .25], [.55, .2], [.8, .18]]
-    if not "village" in ilists.world_music:
-        $ ilists.world_music["village"] = [track for track in os.listdir(content_path("sfx/music/world")) if track.startswith("village")]
+    # Music
     if not global_flags.has_flag("keep_playing_music"):
-        play world choice(ilists.world_music["village"]) fadein .5
+        $ PyTFallStatic.play_music("village", fadein=.5)
     $ global_flags.del_flag("keep_playing_music")
 
     python:
@@ -62,10 +61,8 @@ screen hiddenvillage_entrance:
                 use rg_lightbutton(return_value=['jump', entry])
 
 label hidden_village_shop: # ninja shop logic
-    if not "shops" in ilists.world_music:
-        $ ilists.world_music["shops"] = [track for track in os.listdir(content_path("sfx/music/world")) if track.startswith("shops")]
     if not global_flags.has_flag("keep_playing_music"):
-        play world choice(ilists.world_music["shops"]) fadein 1.5
+        $ PyTFallStatic.play_music("shops", fadein=1.5)
 
     hide bg hiddenvillage_entrance
 

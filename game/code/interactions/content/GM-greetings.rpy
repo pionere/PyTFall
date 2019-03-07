@@ -1111,4 +1111,5 @@ label klepto_stealing:
         $ temp = randint(1, 5)
         $ hero.take_money(temp, reason="Stolen!")
         $ char.add_money(temp, reason="Stealing")
+        $ del temp
     return

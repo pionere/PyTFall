@@ -1,8 +1,6 @@
 label slave_market:
     # Music related:
-    if not "slavemarket" in ilists.world_music:
-        $ ilists.world_music["slavemarket"] = [track for track in os.listdir(content_path("sfx/music/world")) if track.startswith("slavemarket")]
-    play world choice(ilists.world_music["slavemarket"]) fadein 1.5
+    $ PyTFallStatic.play_music("slavemarket", fadein=1.5)
 
     if not global_flags.has_flag("visited_sm"):
         $ global_flags.set_flag("visited_sm")

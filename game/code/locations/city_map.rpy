@@ -2,7 +2,7 @@ init python:
     def appearing_for_city_map(mode="hide"):
         for key in pytfall.maps("pytfall"):
             if not key.get("hidden", False) and key.get("appearing", False):
-                idle_img = "".join([pytfall.map_pattern, key["id"], ".webp"])
+                idle_img = "".join(["content/gfx/bg/locations/map_buttons/gismo/", key["id"], ".webp"])
                 if mode == "show":
                     appearing_img = Appearing(idle_img, 50, 200, start_alpha=.1)
                     pos = key["pos"]
@@ -12,10 +12,8 @@ init python:
 
 label city:
     # Music related:
-    if not "pytfall" in ilists.world_music:
-        $ ilists.world_music["pytfall"] = [track for track in os.listdir(content_path("sfx/music/world")) if track.startswith("pytfall")]
     if not global_flags.has_flag("keep_playing_music"):
-        play world choice(ilists.world_music["pytfall"])
+        $ PyTFallStatic.play_music("pytfall")
     $ global_flags.del_flag("keep_playing_music")
 
     scene bg pytfall
@@ -55,12 +53,12 @@ screen city_screen():
     for key in pytfall.maps("pytfall"):
         if not key.get("hidden", False):
             # Resolve images + Add Appearing where appropriate:
-            $ idle_img = "".join([pytfall.map_pattern, key["id"], ".webp"])
+            $ idle_img = "".join(["content/gfx/bg/locations/map_buttons/gismo/", key["id"], ".webp"])
             if key.get("appearing", False):
                 $ hover_img = im.MatrixColor(idle_img, im.matrix.brightness(.08))
                 $ idle_img = Transform(idle_img, alpha=.01)
             else:
-                $ hover_img = "".join([pytfall.map_pattern, key["id"], "_hover.webp"])
+                $ hover_img = "".join(["content/gfx/bg/locations/map_buttons/gismo/", key["id"], "_hover.webp"])
             if "pos" in key:
                 $ pos = key["pos"]
             else:

@@ -2,10 +2,8 @@ label forest_entrance:
     $ gm.enter_location(goodtraits=["Furry", "Monster", "Scars", "Adventurous"], badtraits=["Homebody", "Coward", "Exhibitionist", "Human"], curious_priority=True)
     $ coords = [[.1, .7], [.39, .84], [.88, .71]]
     # Music related:
-    if not "forest_entrance" in ilists.world_music:
-        $ ilists.world_music["forest_entrance"] = [track for track in os.listdir(content_path("sfx/music/world")) if track.startswith("forest_entrance")]
     if not global_flags.has_flag("keep_playing_music"):
-        play world choice(ilists.world_music["forest_entrance"])
+        $ PyTFallStatic.play_music("forest_entrance")
     $ global_flags.del_flag("keep_playing_music")
 
     python:

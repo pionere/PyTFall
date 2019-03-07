@@ -17,20 +17,22 @@ label hero_profile:
         if not result:
             pass
         elif result[0] == "rename":
+            $ n = None
             if result[1] == "name":
                 $ n = renpy.call_screen("pyt_input", hero.name, "Enter Name", 20)
                 if len(n):
                     $ hero.name = n
                     $ hero.nickname = hero.name
                     $ hero.fullname = hero.name
-            if result[1] == "nick":
+            elif result[1] == "nick":
                 $ n = renpy.call_screen("pyt_input", hero.name, "Enter Name", 20)
                 if len(n):
                     $ hero.nickname = renpy.call_screen("pyt_input", hero.name, "Enter Nick Name", 20)
-            if result[1] == "full":
+            elif result[1] == "full":
                 $ n = renpy.call_screen("pyt_input", hero.name, "Enter Full Name", 20)
                 if len(n):
                     $ hero.fullname = n
+            $ del n
         elif result[0] == "item":
             if result[1] == "transfer":
                 hide screen hero_profile
@@ -38,8 +40,6 @@ label hero_profile:
                 show screen hero_profile
         elif result[0] == 'control':
             if result[1] == 'return':
-                $ pytfall.hp.show_item_info = False
-                $ pytfall.hp.item = False
                 hide screen hero_profile
 
                 jump expression pytfall.hp.came_from

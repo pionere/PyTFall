@@ -26,20 +26,8 @@ init -1 python:
         This is basically practicing :)
         '''
         def __init__(self):
-            self.show_item_info = False
-            self.item = False
-
             self.finance_filter = "day"
             self.came_from = None # To enable jumping back to where we originally came from.
-
-        def show_unequip_button(self):
-            if self.item and self.item in hero.eqslots.values():
-                return True
-
-        def show_equip_button(self):
-            if self.item and self.item.sex != "female" and self.item in hero.inventory:
-                return True
-
 
     class PytGallery(_object):
         """

@@ -12,34 +12,35 @@ label interactions_harrasment_after_battle: # after MC provoked a free character
                     $ char.gfx_mod_stat("disposition", -randint(10, 25))
                     $ char.gfx_mod_stat("affection", -randint(1,3))
                     $ g = char.gold
-                    while g >= randint(500, 1000):
-                        $ g = round(g*.1)
+                    $ g = randint(min(500, 3*g/5), min(1000, 4*g/5))
+                    $ g = max(1, g)
+                    "In [char.pp] pockets, you found [g] Gold. Lucky!"
                     $ char.take_money(g, reason="Robbery")
                     $ hero.add_money(g, reason="Robbery")
-                    "In [char.pp] pockets, you found [g] Gold Lucky!"
+                    $ del g
             "Search [char.op] for items.":
                 # We unequip all of the inventory first:
-                python:
+                $ pool = []
+                python hide:
                     for item in [i for i in char.eqslots.values() if i]:
                         char.unequip(item)
-                    pool = [i for i in char.inventory.items.keys() if i.price <= 1000 and can_transfer(char, hero, i, amount=1, silent=True, force=True)]
-                    if hasattr(store, "temp"):
-                        del temp
-                    if pool:
-                        temp = choice(pool)
+                    pool.extend(i for i in char.inventory.items.keys() if i.price <= 1000 and can_transfer(char, hero, i, amount=1, silent=True, force=True))
 
-                if hasattr(store, "temp"):
+                if pool:
+                    $ temp = choice(pool)
                     "On [char.op] you found [temp.id]!"
                     $ transfer_items(char, hero, temp, amount=1, silent=True, force=True)
+                    $ del temp
                     $ char.gfx_mod_stat("disposition", -randint(20, 45))
                     $ char.gfx_mod_stat("affection", -randint(3,5))
                 else:
                     "You didn't find anything..."
+                $ del pool
             "Kill [char.op]" if (char not in hero.chars): # direct killing of hired free chars is unavailable, only in dungeon on via other special means
                 "[char.pC] stopped moving. Serves [char.op] right."
                 $ hero.gfx_mod_exp(exp_reward(hero, char))
                 $ kill_char(char)
-                python:
+                python hide:
                     for member in hero.team:
                         if all([member.status <> "slave", not("Vicious" in member.traits), not("Yandere" in member.traits), member<>hero]):
                             if "Virtuous" in member.traits:
@@ -57,26 +58,28 @@ label interactions_harrasment_after_battle: # after MC provoked a free character
     if char not in hero.chars:
         $ gm.remove_girl(char)
     $ char.set_flag("cnd_interactions_blowoff", day+5)
+    $ del m
     jump girl_interactions_end
 
 label interactions_escalation: # character was provoked to attack MC
     $ gm.set_img("battle", "confident", "angry", exclude=["happy", "suggestive"], type="first_default")
     call interactions_provoked_character_line from _call_interactions_provoked_character_line
     hide screen girl_interactions
-    $ back = interactions_pick_background_for_fight(gm.label_cache)
 
     python:
         enemy_team = Team(name="Enemy Team")
         enemy_team.add(char)
+        back = interactions_pick_background_for_fight(gm.label_cache)
         result = run_default_be(enemy_team, background=back, give_up="surrender", use_items=True)
+        del back
 
     if result is True:
-        python:
+        python hide:
             for member in hero.team:
                 member.gfx_mod_exp(exp_reward(member, enemy_team, exp_mod=.33))
             char.set_stat("health", 1)
         show expression gm.bg_cache
-        python:
+        python hide:
             for member in hero.team:
                 if all([member.status != "slave", not("Vicious" in member.traits), not("Yandere" in member.traits), member != hero]): # they don't like when MC harasses and then beats other chars, unless they are evil
                     if "Virtuous" in member.traits:
@@ -87,6 +90,7 @@ label interactions_escalation: # character was provoked to attack MC
                         member.gfx_mod_stat("affection", -randint(1,3))
         $ char.gfx_mod_stat("disposition", -randint(100, 200)) # that's the beaten character, big penalty to disposition
         $ char.gfx_mod_stat("affection", -randint(20,30))
+        $ del result, enemy_team
         call interactions_fight_lost from _call_interactions_fight_lost
         jump interactions_harrasment_after_battle
     else:
@@ -94,6 +98,7 @@ label interactions_escalation: # character was provoked to attack MC
         show expression gm.bg_cache
         show screen girl_interactions
         $ gm.restore_img()
+        $ del result, enemy_team
         call interactions_fight_won from _call_interactions_fight_won
         $ char.set_flag("cnd_interactions_blowoff", day+1)
         jump girl_interactions_end
@@ -126,13 +131,16 @@ label interactions_insult:
         $ char.gfx_mod_stat("disposition", -randint(15,25))
         $ char.gfx_mod_stat("affection", -randint(1,2))
         if ct("Aggressive") and m>1 and char.status != "slave" and dice(50):
+            $ del m, sub
             jump interactions_escalation
         elif m < randint(2,3):
             call interactions_got_insulted from _call_interactions_got_insulted
         else:
             call interactions_got_insulted from _call_interactions_got_insulted_1
             $ char.set_flag("cnd_interactions_blowoff", day+2+sub)
+            $ del m, sub
             jump girl_interactions_end
+    $ del m, sub
     jump girl_interactions
 
 

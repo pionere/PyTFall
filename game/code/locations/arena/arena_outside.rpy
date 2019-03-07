@@ -29,10 +29,8 @@ label arena_outside:
         $ gm.enter_location(goodtraits=["Manly", "Courageous", "Aggressive"], badtraits=["Coward", "Nerd", "Homebody"], goodoccupations=["Combatant"], curious_priority=False)
         $ coords = [[.1, .6], [.59, .64], [.98, .61]]
         # Music related:
-        if not "arena_outside" in ilists.world_music:
-            $ ilists.world_music["arena_outside"] = [track for track in os.listdir(content_path("sfx/music/world")) if track.startswith("arena_outside")]
         if not global_flags.has_flag("keep_playing_music"):
-            play world choice(ilists.world_music["arena_outside"])
+            $ PyTFallStatic.play_music("arena_outside")
         $ global_flags.del_flag("keep_playing_music")
 
         scene bg arena_outside
