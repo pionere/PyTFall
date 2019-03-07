@@ -445,7 +445,7 @@
     "icon": "content/items/misc/dd.png",
     "price": 350,
     "sex": "female",
-    "chance": 70,
+    "chance": 45,
     "badness": 85,
     "eqchance": 65,
     "hidden": false,

@@ -37,14 +37,13 @@ label time_temple:
                 t "Or rather, reverse the time and restore them to former condition."
                 t "But we do it only once per day. Such is the natural limitation of time flow."
 
-            python:
-                temp_charcters = {}
+            $ temp_charcters = {}
+            python hide:
                 for i in hero.team:
                     temp = i.get_max("health") + i.get_max("mp") + i.get_max("vitality") - \
                            (i.get_stat("health") + i.get_stat("mp") + i.get_stat("vitality"))
                     if temp > 0:
                         temp_charcters[i] = temp
-                del i
 
             if not temp_charcters:
                 t "I don't see the need in healing right now."
@@ -52,7 +51,7 @@ label time_temple:
                 $ del temp_charcters
                 jump time_temple_menu
             else:
-                $ res = sum(temp_charcters.values())
+                $ res = sum(temp_charcters.values()) * 8
 
                 t "I see your team could use our services. It will be [res] gold."
                 if hero.gold < res:

@@ -338,8 +338,7 @@ init -11 python:
         if locations is not None:
             locations = set(locations)
 
-        picked = set()
-
+        picked = []
         for item in items.values():
             if price is not None:
                 if item.price > price:
@@ -357,35 +356,46 @@ init -11 python:
                 continue
 
             if types == "all" or item.type in types:
-                picked.add(item)
+                picked.append(item)
                 continue
 
             if "consumable" in types:
                 if item.slot == "consumable" and item.type != "food":
-                    picked.add(item)
+                    picked.append(item)
                     continue
 
             if "armor" in types:
                 if item.slot in ("body", "head", "feet", "wrist") and item.type not in ("dress", "tool"):
-                    picked.add(item)
+                    picked.append(item)
                     continue
 
             if "weapon" in types:
                 if item.slot in ("weapon", "smallweapon") and item.type != "tool":
-                    picked.add(item)
+                    picked.append(item)
                     continue
 
             if "loot" in types:
                 if item.slot == "loot":
-                    picked.add(item)
+                    picked.append(item)
                     continue
 
-        if not picked:
+        num = 0
+        for i in picked:
+            num += i.chance
+
+        if num == 0:
             return
 
-        picked = random.sample(picked, min(amount, len(picked)))
+        result = []
+        for n in range(amount):
+            idx = randint(1, num)
+            for i in picked:
+                idx -= i.chance
+                if idx <= 0:
+                    result.append(i)
+                    break 
 
         if amount == 1:
-            return picked[0]
+            return result[0]
         else:
-            return picked
+            return result
