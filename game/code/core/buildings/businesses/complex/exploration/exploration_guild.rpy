@@ -827,13 +827,13 @@ init -6 python: # Guild, Tracker and Log.
                             if value <= ep and not fg_areas[key].unlocked:
                                 fg_areas[key].unlocked = True
                                 temp = "Found a new path in the wilderness. It might worth to explore %s!" % key
-                                temp = set_font_color(temp, "green")
+                                temp = set_font_color(temp, "lime")
                                 tracker.log(temp)
                     tracker.logws("exploration")
 
                 # Hazzard:
                 if area.hazard:
-                    temp = "{color=yellow}Hazardous area!{/color} The team has been effected."
+                    temp = "{color=yellow}Hazardous area!{/color} The team was effected."
                     tracker.log(temp)
                     for char in team:
                         for stat, value in area.hazard:
@@ -872,7 +872,7 @@ init -6 python: # Guild, Tracker and Log.
                                 se_debug(msg, mode="info")
                         else:
                             item = tracker.chosen_items.pop()
-                            temp = "Found an item %s!" % item
+                            temp = "Found %s!" % aoran(item)
                             temp = set_font_color(temp, "lawngreen")
                             tracker.log(temp, "Item", ui_log=True, item=store.items[item])
                             if DEBUG_SE:
@@ -963,8 +963,8 @@ init -6 python: # Guild, Tracker and Log.
 
                         enemy_team_size = randint(2, 4)
 
-                        temp = "{} were attacked by ".format(team.name)
-                        temp = temp + "%d %s!" % (enemy_team_size, plural("mob", enemy_team_size))
+                        temp = "Your team was attacked by %d %s!" % (enemy_team_size, plural(mob, enemy_team_size))
+                        temp = set_font_color(temp, "crimson")
                         log = tracker.log(temp, "Combat!", ui_log=True)
                         self.combat_mobs(tracker, mob, enemy_team_size, log)
 

@@ -43,20 +43,20 @@ init python:
         tempmax = dummy.get_max(stat) - eqtarget.get_max(stat) if dummy else False
         if temp: # Case: Any Change to stat
             # The first is the absolute change, we want it to be colored green if it is positive, and red if it is not.
-            tempstr = "{color=green}%s{/color}"%dummy.get_stat(stat) if temp > 0 else "{color=red} %d{/color}"%dummy.get_stat(stat)
+            tempstr = set_font_color("%d" % dummy.get_stat(stat), "green" if temp > 0 else "red")
             # Next is the increase:
-            tempstr = tempstr + "{=positive_item_eqeffects_change}(+%d){/=}"%temp if temp > 0 else tempstr + "{=negative_item_eqeffects_chage}(%d){/=}"%temp
+            tempstr += ("{=positive_item_eqeffects_change}(+%d){/=}" if temp > 0 else "{=negative_item_eqeffects_chage}(%d){/=}") % temp
         else: # No change at all...
-            tempstr = "{color=[tempc]}%s{/color}"%eqtarget.get_stat(stat)
+            tempstr = set_font_color("%d" % eqtarget.get_stat(stat), tempc)
 
-        tempstr = tempstr + "{color=[tempc]}/{/color}"
+        tempstr += set_font_color("/", tempc)
 
         if tempmax:
             # Absolute change of the max values, same rules as the actual values apply:
-            tempstr = tempstr + "{color=green}%s{/color}"%dummy.get_max(stat) if tempmax > 0 else tempstr + "{color=red} %d{/color}"%dummy.get_max(stat)
-            tempstr = tempstr + "{=positive_item_eqeffects_change}(+%d){/=}"%tempmax if tempmax > 0 else tempstr + "{=negative_item_eqeffects_chage}(%d){/=}"%tempmax
-        else:
-            tempstr = tempstr + "{color=[tempc]}%s{/color}"%eqtarget.get_max(stat)
+            tempstr += set_font_color("%d" % dummy.get_max(stat), "green" if tempmax > 0 else "red")
+            tempstr += ("{=positive_item_eqeffects_change}(+%d){/=}" if tempmax > 0 else "{=negative_item_eqeffects_chage}(%d){/=}") % tempmax
+        else: # No change at all...
+            tempstr += set_font_color("%d" % eqtarget.get_max(stat), tempc)
         return tempstr
 
 label char_equip:
@@ -477,37 +477,28 @@ screen char_equip_left_frame(stats_display):
                         # Health:
                         frame:
                             xysize 204, 25
-                            text "Health:" xalign .02 color "#CD4F39"
+                            text "Health" xalign .02 color "#CD4F39"
                             $ temp, tmp = eqtarget.get_stat("health"), eqtarget.get_max("health")
                             $ tempc = "red" if temp <= tmp*.3 else "#F5F5DC"
-                            if getattr(store, "dummy", None) is not None:
-                                $ temp = build_str_for_eq(eqtarget, dummy, "health", tempc)
-                                text temp style_suffix "value_text" xalign .98 yoffset 3
-                            else:
-                                text "[temp]/[tmp]" xalign .98 yoffset 3 style_suffix "value_text" color tempc
+                            $ temp = build_str_for_eq(eqtarget, dummy, "health", tempc)
+                            text temp style_suffix "value_text" xalign .98 yoffset 3
 
                         # Vitality:
                         frame:
                             xysize 204, 25
-                            text "Vitality:" xalign .02 color "#43CD80"
+                            text "Vitality" xalign .02 color "#43CD80"
                             $ temp, tmp = eqtarget.get_stat("vitality"), eqtarget.get_max("vitality")
                             $ tempc = "red" if temp <= tmp*.3 else "#F5F5DC"
-                            if getattr(store, "dummy", None) is not None:
-                                $ temp = build_str_for_eq(eqtarget, dummy, "vitality", tempc)
-                                text temp style_suffix "value_text" xalign .98 yoffset 3
-                            else:
-                                text "[temp]/[tmp]" xalign .98 yoffset 3 style_suffix "value_text" color tempc
+                            $ temp = build_str_for_eq(eqtarget, dummy, "vitality", tempc)
+                            text temp style_suffix "value_text" xalign .98 yoffset 3
 
                         # Rest of stats:
                         for stat in stats:
                             frame:
                                 xysize 204, 25
-                                text "%s"%stat.capitalize() xalign .02 color "#79CDCD"
-                                if getattr(store, "dummy", None) is not None:
-                                    $ temp = build_str_for_eq(eqtarget, dummy, stat, "#F5F5DC")
-                                    text temp style_suffix "value_text" xalign .98 yoffset 3
-                                else:
-                                    text "%d/%d"%(eqtarget.get_stat(stat), eqtarget.get_max(stat)) xalign .98 yoffset 3 style_suffix "value_text" color "#F5F5DC"
+                                text stat.capitalize() xalign .02 color "#79CDCD"
+                                $ temp = build_str_for_eq(eqtarget, dummy, stat, "#F5F5DC")
+                                text temp style_suffix "value_text" xalign .98 yoffset 3
 
                     # BATTLE STATS ============================>
                     frame:
@@ -525,16 +516,14 @@ screen char_equip_left_frame(stats_display):
                         for stat, color in stats:
                             frame:
                                 xysize 204, 25
-                                text "%s"%stat.capitalize() color color
+                                text stat.capitalize() color color
                                 if stat == "mp":
                                     $ tempc = "red" if eqtarget.get_stat("mp") <= eqtarget.get_max("mp")*.3 else color
                                 else:
                                     $ tempc = color
-                                if getattr(store, "dummy", None) is not None:
-                                    $ temp = build_str_for_eq(eqtarget, dummy, stat, tempc)
-                                    text temp style_suffix "value_text" xalign .98 yoffset 3
-                                else:
-                                    text "%d/%d"%(eqtarget.get_stat(stat), eqtarget.get_max(stat)) xalign .98 yoffset 3 style_suffix "value_text" color tempc
+                                $ temp = build_str_for_eq(eqtarget, dummy, stat, tempc)
+                                text temp style_suffix "value_text" xalign .98 yoffset 3
+
             elif stats_display == "pro":
                 frame:
                     background Transform(Frame(im.MatrixColor("content/gfx/frame/p_frame5.png", im.matrix.brightness(-.1)), 5, 5), alpha=.7)
@@ -894,11 +883,11 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                     null height 15
                     frame:
                         xysize (160, 25)
-                        text 'Price:' color "gold" xalign .02
+                        text "Price:" color "gold" xalign .02
                         label '{size=-4}{color=gold}[item.price]' align .98, .5 text_outlines [(1, "#3a3a3a", 0, 0)]
                     frame:
                         xysize (160, 25)
-                        text ('{color=#F5F5DC}Slot:') xalign .02
+                        text "Slot:" color "#F5F5DC" xalign .02
                         python:
                             if item.slot in SLOTALIASES:
                                 slot = SLOTALIASES[item.slot]
@@ -907,11 +896,11 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                         label ('{color=#F5F5DC}{size=-4}%s'%slot) align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
                     frame:
                         xysize (160, 25)
-                        text ('{color=#F5F5DC}Type:') xalign .02
+                        text "Type:" color "#F5F5DC" xalign .02
                         label ('{color=#F5F5DC}{size=-4}%s'%item.type.capitalize()) align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
                     frame:
                         xysize (160, 25)
-                        text ('{color=#F5F5DC}Sex:') xalign .02
+                        text "Sex:" color "#F5F5DC" xalign .02
                         if item.slot in ["gift", "resources", "loot"]:
                             label "{size=-4}N/A" align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
                         elif item.type == "food" and item.sex == "unisex":
@@ -984,7 +973,7 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                                 for stat, value in item.mod.items():
                                     frame:
                                         xysize (172, 18)
-                                        text (u'{color=#F5F5DC}%s' % stat.capitalize()) size 15 xalign .02 yoffset -2
+                                        text stat.capitalize() color "#F5F5DC" size 15 xalign .02 yoffset -2
                                         label (u'{color=#F5F5DC}{size=-4}[value]') align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
                             null height 3
 
@@ -995,7 +984,7 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                                 for stat, value in item.max.items():
                                     frame:
                                         xysize (172, 18)
-                                        text (u'{color=#F5F5DC}%s'%stat.capitalize()) size 15 xalign .02 yoffset -2
+                                        text stat.capitalize() color "#F5F5DC" size 15 xalign .02 yoffset -2
                                         label (u'{color=#F5F5DC}{size=-4}[value]') align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
                             null height 3
 
@@ -1006,7 +995,7 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                                 for stat, value in item.min.items():
                                     frame:
                                         xysize (172, 18)
-                                        text (u'{color=#F5F5DC}%s'%stat.capitalize()) size 15 xalign .02 yoffset -2
+                                        text stat.capitalize() color "#F5F5DC" size 15 xalign .02 yoffset -2
                                         label (u'{color=#F5F5DC}{size=-4}%d'%value) align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
                         if hasattr(item, 'mtemp'):
                             if item.mtemp:
@@ -1017,29 +1006,29 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                                         if hasattr(item, 'mreusable'):
                                             if item.mreusable:
                                                 if item.mtemp > 1:
-                                                    text (u'{color=#F5F5DC}Every %d days'%item.mtemp) size 15 xalign .02 yoffset -2
+                                                    text (u'Every %d days'%item.mtemp) color "#F5F5DC" size 15 xalign .02 yoffset -2
                                                 else:
-                                                    text (u'{color=#F5F5DC}Every day') size 15 xalign .02 yoffset -2
+                                                    text (u'Every day') color "#F5F5DC" size 15 xalign .02 yoffset -2
                                             else:
                                                 if item.mtemp > 1:
-                                                    text (u'{color=#F5F5DC}After %d days'%item.mtemp) size 15 xalign .02 yoffset -2
+                                                    text (u'After %d days'%item.mtemp) color "#F5F5DC" size 15 xalign .02 yoffset -2
                                                 else:
-                                                    text (u'{color=#F5F5DC}After one day') size 15 xalign .02 yoffset -2
+                                                    text (u'After one day') color "#F5F5DC" size 15 xalign .02 yoffset -2
                                     if hasattr(item, 'mdestruct'):
                                         if item.mdestruct:
                                             frame:
                                                 xysize (172, 18)
-                                                text (u'{color=#F5F5DC}Disposable') size 15 xalign .02 yoffset -2
+                                                text (u'Disposable') color "#F5F5DC" size 15 xalign .02 yoffset -2
                                     if hasattr(item, 'mreusable'):
                                         if item.mreusable:
                                             frame:
                                                 xysize (172, 18)
-                                                text (u'{color=#F5F5DC}Reusable') size 15 xalign .02 yoffset -2
+                                                text (u'Reusable') color "#F5F5DC" size 15 xalign .02 yoffset -2
                                     if hasattr(item, 'statmax'):
                                         if item.statmax:
                                             frame:
                                                 xysize (172, 18)
-                                                text (u'{color=#F5F5DC}Stat limit') size 15 xalign .02 yoffset -2
+                                                text (u'Stat limit') color "#F5F5DC" size 15 xalign .02 yoffset -2
                                                 label (u'{color=#F5F5DC}{size=-4}%d'%item.statmax) align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
                         if hasattr(item, 'ctemp'):
                             if item.ctemp:
@@ -1047,9 +1036,9 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                                 frame:
                                     xysize (172, 18)
                                     if item.ctemp > 1:
-                                        text (u'{color=#F5F5DC}%d days'%item.ctemp) size 15 xalign .02 yoffset -2
+                                        text (u'%d days'%item.ctemp) color "#F5F5DC" size 15 xalign .02 yoffset -2
                                     else:
-                                        text (u'{color=#F5F5DC}One day') size 15 xalign .02 yoffset -2
+                                        text (u'One day') color "#F5F5DC" size 15 xalign .02 yoffset -2
 
             # Bottom HBox: Desc/Traits/Effects/Skills:
             hbox:
@@ -1079,12 +1068,12 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                                 frame:
                                     xalign .1
                                     xpadding 2
-                                    text (u'{color=#43CD80}%s'%trait) size 15 align .5, .5
+                                    text str(trait) color "#43CD80" size 15 align .5, .5
                             for trait in item.removetraits:
                                 frame:
                                     xalign .9
                                     xpadding 2
-                                    text (u'{color=#CD4F39}%s'%trait) size 15 align .5, .5
+                                    text str(trait) color "#CD4F39" size 15 align .5, .5
 
                         # Effects:
                         if item.addeffects or item.removeeffects:
@@ -1102,12 +1091,12 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                                 frame:
                                     xalign .1
                                     xpadding 2
-                                    text (u'{color=#43CD80}%s'%effect) size 15 align .5, .5
+                                    text str(effect) color "#43CD80" size 15 align .5, .5
                             for effect in item.removeeffects:
                                 frame:
                                     xalign .9
                                     xpadding 2
-                                    text (u'{color=#CD4F39}%s'%effect) size 15 align .5, .5
+                                    text str(effect) color "#CD4F39" size 15 align .5, .5
 
                 frame:
                     xysize 382, 104

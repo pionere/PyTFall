@@ -341,7 +341,7 @@ label fishing_logic:
 
 label mc_action_beach_start_fishing:
     if not has_items("Fishing Pole", hero, equipped=True):
-        "You don't have a fishing rode at the moment. Try to get one from local shops."
+        "You don't have an equipped fishing rod at the moment. Try to get one from local shops."
         jump city_beach_left
     elif hero.AP <= 0:
         "You don't have Action Points left. Try again tomorrow."

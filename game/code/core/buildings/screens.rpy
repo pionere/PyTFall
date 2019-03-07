@@ -101,9 +101,9 @@ label building_management:
                         hero.add_money(price, reason="Property")
                         hero.remove_building(bm_building)
                         # 'cleanup' the building
-                        for advert in bm_building.adverts:
-                            advert['active'] = False
-                        del advert, price
+                        for price in bm_building.adverts:
+                            price['active'] = False
+                        del price
                         bm_building.dirt = 0
                         bm_building.threat = 0
 

@@ -146,55 +146,32 @@ screen hero_profile():
         if lframe_display == "status":
             # STATS ====================================>
             null height 20
-            $ stats = ["constitution", "charisma", "intelligence"]
             vbox:
                 style_group "proper_stats"
                 spacing 1
                 xsize 212
-                frame:
-                    xysize (212, 27)
-                    xalign .5
-                    text "Health:" xalign .02 color "#CD4F39"
-                    if "health" in base_ss:
-                        button:
-                            xysize 20, 20
-                            offset -5, -5
-                            background pscale("content/gfx/interface/icons/stars/legendary.png", 20, 20)
-                            action NullAction()
-                            tooltip "This is a Class Stat!"
-                    $ temp, tmp = hero.get_stat("health"), hero.get_max("health")
-                    text "%s/%s"%(temp, tmp) color ("red" if temp <= tmp*.3 else "#F5F5DC") xalign 1.0 style_suffix "value_text" xoffset -6 yoffset 4
-                frame:
-                    xysize (212, 27)
-                    xalign .5
-                    text "Mp:" xalign .02 color "#009ACD"
-                    if "mp" in base_ss:
-                        button:
-                            xysize 20, 20
-                            offset -5, -5
-                            background pscale("content/gfx/interface/icons/stars/legendary.png", 20, 20)
-                            action NullAction()
-                            tooltip "This is a Class Stat!"
-                    $ temp, tmp = hero.get_stat("mp"), hero.get_max("mp")
-                    text "%s/%s"%(temp, tmp) color ("red" if temp <= tmp*.3 else "#F5F5DC") xalign 1.0 style_suffix "value_text" xoffset -6 yoffset 4
-                frame:
-                    xysize (212, 27)
-                    xalign .5
-                    text "{color=#43CD80}Vitality:" xalign (.02)
-                    if "vitality" in base_ss:
-                        button:
-                            xysize 20, 20
-                            offset -5, -5
-                            background pscale("content/gfx/interface/icons/stars/legendary.png", 20, 20)
-                            action NullAction()
-                            tooltip "This is a Class Stat!"
-                    $ temp, tmp = hero.get_stat("vitality"), hero.get_max("vitality")
-                    text "%s/%s"%(temp, tmp) color ("red" if temp <= tmp*.3 else "#F5F5DC") xalign 1.0 style_suffix "value_text" xoffset -6 yoffset 4
+                $ stats = [("health", "#CD4F39"), ("mp", "#009ACD"), ("vitality", "#43CD80")]
+                for stat, color in stats:
+                    frame:
+                        xysize (212, 27)
+                        xalign .5
+                        text stat.capitalize() xalign .02 color color
+                        if stat in base_ss:
+                            button:
+                                xysize 20, 20
+                                offset -5, -5
+                                background pscale("content/gfx/interface/icons/stars/legendary.png", 20, 20)
+                                action NullAction()
+                                tooltip "This is a Class Stat!"
+                        $ temp, tmp = hero.get_stat(stat), hero.get_max(stat)
+                        text "%s/%s"%(temp, tmp) color ("red" if temp <= tmp*.3 else "#F5F5DC") xalign 1.0 style_suffix "value_text" xoffset -6 yoffset 4
+
+                $ stats = ["constitution", "charisma", "intelligence"]
                 for stat in stats:
                     frame:
                         xysize (212, 27)
                         xalign .5
-                        text "%s"%stat.capitalize() xalign .02 color "#79CDCD"
+                        text stat.capitalize() xalign .02 color "#79CDCD"
                         if stat in base_ss:
                             button:
                                 xysize 20, 20
