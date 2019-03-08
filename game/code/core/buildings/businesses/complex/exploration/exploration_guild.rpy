@@ -423,7 +423,7 @@ init -6 python: # Guild, Tracker and Log.
                 se_debug(msg, mode="info")
 
             # Log the day:
-            temp = "{color=green}Day: %d{/color} | {color=green}%s{/color} is exploring %s!" % (tracker.day, tracker.team.name, tracker.area.name)
+            temp = "{color=green}Day: %d{/color} | {color=lightgreen}%s{/color}" % (tracker.day, tracker.area.name)
             tracker.log(temp)
 
             if tracker.state == "traveling to":
@@ -499,7 +499,7 @@ init -6 python: # Guild, Tracker and Log.
             # Figure out how far we can travel in steps of 5 DU:
             # Understanding here is that any team can travel 20 KM per day on average.
             if tracker.traveled is None:
-                temp = "{} is on route to {}!".format(team_name, area_name)
+                temp = "{color=green}%s{/color} is en route to {color=lightgreen}%s{/color}." % (team_name, area_name)
                 tracker.log(temp)
 
                 # setup the distance. This can be offset by traits and stats in the future.
@@ -520,16 +520,16 @@ init -6 python: # Guild, Tracker and Log.
                         msg = "{} arrived at {} ({}).".format(team_name, area_name, tracker.area.id)
                         se_debug(msg, mode="info")
 
-                    temp = "{} arrived at {}!".format(team_name, area_name)
+                    temp = "{color=green}%s{/color} arrived at its destination!" % team_name
                     if tracker.day > 1:
-                        temp += " It took {} {} to get there.".format(tracker.day, plural("day", tracker.day))
+                        temp += " It took %d %s to get there." % (tracker.day, plural("day", tracker.day))
                     else:
-                        temp += " The trip took less then one day!"
+                        temp += " The trip took less then one day."
                     tracker.log(temp, name="Arrival")
                     self.env.exit("arrived")
 
                 if self.env.now >= 99: # FIXME MAX_DU We couldn't make it there before the days end...
-                    temp = "{} spent the entire day traveling to {}! ".format(team_name, area_name)
+                    temp = "Your team spent the entire day traveling."
                     tracker.log(temp)
                     if DEBUG_SE:
                         se_debug(temp, mode="info")
@@ -546,7 +546,7 @@ init -6 python: # Guild, Tracker and Log.
             # Figure out how far we can travel in 5 du:
             # Understanding here is that any team can travel 20 KM per day on average.
             if tracker.traveled is None:
-                temp = "{} is traveling back home!".format(team_name)
+                temp = "{color=green}%s{/color} is traveling back home." % team_name
                 tracker.log(temp)
 
                 # setup the distance. This can be offset by traits and stats in the future.
@@ -562,12 +562,12 @@ init -6 python: # Guild, Tracker and Log.
 
                 # Team arrived:
                 if tracker.traveled >= tracker.distance:
-                    temp = "{} returned to the guild!".format(team_name)
+                    temp = "{color=green}%s{/color} returned to the guild!" % team_name
                     tracker.log(temp, name="Return")
                     self.env.exit("back2guild")
 
                 if self.env.now >= 99: # FIXME MAX_DU We couldn't make it there before the days end...
-                    temp = "{} spent the entire day traveling back to the guild from {}! ".format(team_name, tracker.area.name)
+                    temp = "The team spent the entire day traveling back to the guild."
                     tracker.log(temp)
                     self.env.exit("on the way back")
 
@@ -582,7 +582,7 @@ init -6 python: # Guild, Tracker and Log.
                 se_debug(msg, mode="info")
 
             if not tracker.days_in_camp:
-                temp = "{} setup a camp to get some rest and recover!".format(team.name)
+                temp = "{color=green}%s{/color} set up a camp to get some rest and recover!" % team.name
                 tracker.log(temp)
 
             while 1:
@@ -623,7 +623,7 @@ init -6 python: # Guild, Tracker and Log.
                         break
                 else:
                     tracker.days_in_camp = 0
-                    temp = "{} are now ready for more action in {}! ".format(team.name, tracker.area.name)
+                    temp = "Your team is now rested and ready for more action!"
                     tracker.log(temp)
                     self.env.exit("restored")
 
@@ -646,19 +646,22 @@ init -6 python: # Guild, Tracker and Log.
 
             if tracker.daily_items is not None and len(tracker.died) < len(team):
                 # This basically means that team spent some time on exploring -> create a summary
-                items = tracker.daily_items
+                found_items = tracker.daily_items
                 cash = tracker.daily_cash
-                if items and cash:
-                    tracker.log("The team has found: %s %s and {color=gold}%d Gold{/color} in loot!" % (", ".join(items), plural("item", len(items)), cash))
-                    tracker.found_items.extend(items)
+                if found_items:
+                    temp = collections.Counter(found_items)
+                    temp = ", ".join([alpha(i, a) for i, a in temp.items()])
+                    temp += " (%s)" % plural("item", found_items) 
+                    if cash:
+                        tracker.log("During the day the team has found: %s and {color=gold}%d Gold{/color}!" % (temp, cash))
+                        tracker.cash.append(cash)
+                    else:
+                        tracker.log("During the day the team has found: %s!" % temp)
+                    tracker.found_items.extend(found_items)
+                elif cash:
+                    tracker.log("During the day the team has found: {color=gold}%d Gold{/color}!" % cash)
                     tracker.cash.append(cash)
-                elif cash and not items:
-                    tracker.log("The team has found: {color=gold}%d Gold{/color} in loot." % cash)
-                    tracker.cash.append(cash)
-                elif items and not cash:
-                    tracker.log("The team has found: %s %s" % (", ".join(items), plural("item", len(items))))
-                    tracker.found_items.extend(items)
-                elif not items and not cash:
+                else:
                     tracker.log("Your team has not found anything of interest...")
 
                 tracker.daily_items = None
@@ -667,32 +670,31 @@ init -6 python: # Guild, Tracker and Log.
                     msg = "{} has finished an exploration scenario. (Day Ended)".format(team.name)
                     se_debug(msg, mode="info")
 
+            team_name = set_font_color(team.name, "green")
             if tracker.died:
                 # some member(s) of the team died -> no rest for the remaining team, if any
                 if len(tracker.died) == len(team):
                     # all members died -> just wait for the dawn to see if their make it
-                    tracker.log("The members of % suffered fatal wounds. It is going to be a miracle if they make it through the night." % team.name)
+                    tracker.log("The members of %s suffered fatal wounds. It is going to be a miracle if they make it through the night." % team_name)
                 else:
                     # some members are alive -> send them back to the guild
-                    tracker.log("The remaining of % has a sleepless night at the base camp." % team.name)
+                    tracker.log("The remaining of %s has a sleepless night at the base camp." % team_name)
                 return "go2guild"
-
-            multiplier = tracker.area.daily_modifier * (200 - self.env.now) / 100
 
             in_camp = True
             if tracker.state is None:
-                temp = "After their journey {} spends the night in the camp!".format(team.name)
+                temp = "After their journey %s spends the night in the camp!" % team_name
             elif tracker.state == "traveling to":
-                temp = "The members of {} are sleeping in their tents en route to the destination! ".format(team.name)
+                temp = "The members of %s are sleeping in their tents en route to the destination!" % team_name
                 in_camp = False
             elif tracker.state == "exploring":
-                temp = "{} are done with exploring for the day and will now rest and recover! ".format(team.name)
+                temp = "%s are done with exploring for the day and will now rest and recover!" % team_name
             elif tracker.state == "camping":
-                temp = "{} cozied up in their camp for the night! ".format(team.name)
+                temp = "%s cozied up in their camp for the night!" % team_name
             elif tracker.state == "build camp":
-                temp = "The members of {} are taking their well deserved rest from building the camp! ".format(team.name)
+                temp = "The members of %s are taking their well deserved rest from building the camp!" % team_name
             elif tracker.state == "traveling back":
-                temp = "{} set up their tents for the overnight en route to the guild! ".format(team.name)
+                temp = "%s set up their tents for the overnight en route to the guild!" % team_name
                 in_camp = False
             else:
                 if DEBUG_SE:
@@ -701,6 +703,7 @@ init -6 python: # Guild, Tracker and Log.
                 temp = ""
             tracker.log(temp)
 
+            multiplier = tracker.area.daily_modifier * (200 - self.env.now) / 100
             rv = "ok"
             if in_camp:
                 for o in tracker.area.camp_objects:
@@ -757,6 +760,9 @@ init -6 python: # Guild, Tracker and Log.
                 if DEBUG_SE:
                     msg = "{} is starting an exploration scenario.".format(team.name)
                     se_debug(msg, mode="info")
+
+                temp = "{color=green}%s{/color} is exploring {color=lightgreen}%s{/color}!" % (team.name, area.name)
+                tracker.log(temp)
 
                 tracker.daily_items = list()
                 tracker.daily_cash = 0
@@ -872,7 +878,7 @@ init -6 python: # Guild, Tracker and Log.
                                 se_debug(msg, mode="info")
                         else:
                             item = tracker.chosen_items.pop()
-                            temp = "Found %s!" % aoran(item)
+                            temp = "Found %s (item)!" % aoran(item)
                             temp = set_font_color(temp, "lawngreen")
                             tracker.log(temp, "Item", ui_log=True, item=store.items[item])
                             if DEBUG_SE:
@@ -992,7 +998,7 @@ init -6 python: # Guild, Tracker and Log.
                         if c.get_stat("health") > c.get_max("health")*temp and c.get_stat("mp") > c.get_max("mp")*temp and c.get_stat("vitality") > c.get_max("vitality")*temp:
                             continue
 
-                        temp = "Your team needs some rest before they can continue with the exploration."
+                        temp = "The team needs some rest before they can continue with the exploration."
                         tracker.log(temp)
                         if DEBUG_SE:
                             msg = "{} has finished an exploration scenario. (Needs rest)".format(team.name)

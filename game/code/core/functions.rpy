@@ -73,21 +73,30 @@ init -11 python:
             elif string[-1:] == "x" or string[-2:] in ("ch", "sh", "ss"): return string + "es"
             else: return string + "s"
 
+    def alpha(string, amount, limit=10):
+        result = plural(string, amount)
+        if amount <= limit and amount <= 10:
+            nums = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"]
+            amount = nums[amount]
+        else:
+            amount = str(amount)
+        return " ".join((amount, result))
+
     def aoran(string, *overrides):
         """
         Returns "a" or "an" depending on if string begins with a vowel.
         string = The word to base the "a" or "an" on.
         overrides = A list of words to return "an" for, overriding the default logic.
         """
-        string = string.lower()
-        if string[:1] in ("a", "e", "i", "o", "u"):
-            return "an"
+        s = string.lower()
+        if s[:1] in ("a", "e", "i", "o", "u"):
+            return "an " + string
 
         if overrides is not None:
             for i in overrides:
-                if string.startswith(i): return "an"
+                if s.startswith(i): return "an " + string
 
-        return "a"
+        return "a " + string
 
     def hs():
         # Hides the current renpy screen.

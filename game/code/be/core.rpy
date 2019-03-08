@@ -1077,7 +1077,7 @@ init -1 python: # Core classes:
                         absorbed = False
 
                     # Get the damage:
-                    result = self.damage_calculator(t, result, temp_def, multiplier, a, absorbed)
+                    result = self.damage_calculator(result, temp_def, multiplier, a, absorbed)
 
                     effects.append((type, result))
                     total_damage += result
@@ -1194,31 +1194,22 @@ init -1 python: # Core classes:
 
             return defense if defense > 0 else 1
 
-        def damage_calculator(self, t, attack, defense, multiplier, attacker_items=[], absorbed=False):
+        def damage_calculator(self, attack, defense, multiplier, attacker, absorbed=False):
             """Used to calc damage of the attack.
-            Before multipliers and effects are apllied.
+            Before multipliers and effects are applied.
             """
-            a = self.source
-
-            if defense == 0:
-                defense = 1
-
             if not absorbed:
-                # damage = (self.effect + attack)*multiplier/defense + 1
-                # damage = (self.effect + attack)*multiplier * math.log10(damage)
-                damage = (self.effect+attack)*1.0*(75/(75 + defense * 1.0))
+                damage = self.effect+attack
             else:
-                damage = -attack*1.0*(75/(75 + defense * 1.0))
+                damage = -attack
 
-            damage *= uniform(.90, 1.10)
+            damage *= multiplier * (75.0/(75 + defense)) * uniform(.90, 1.10)
 
             # Items Bonus:
-            m = 1.0 + attacker_items.item_damage_multiplier
-            damage *= m
+            damage *= 1.0 + attacker.item_damage_multiplier
 
             # Traits Bonus:
-            m = 1.0 + a.damage_multiplier
-            damage *= m
+            damage *= 1.0 + attacker.damage_multiplier
 
             return round_int(damage)
 

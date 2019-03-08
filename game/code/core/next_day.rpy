@@ -1017,20 +1017,26 @@ screen next_day():
                                 tooltip "A course one of your workers attended has ended!"
                                 text "!" color "yellow" size 40 style "proper_stats_text" align .5, .5
 
+            $ explorers = any(i.type == "explorationndreport" for i in NextDayEvents.event_list)
+            if explorers:
+                $ img = "content/gfx/interface/buttons/exploration.webp"
+                imagebutton:
+                    background Frame("content/gfx/frame/MC_bg3.png", 10, 10)
+                    xalign .5 ypos 250
+                    padding 3, 3
+                    margin 0, 0
+                    hover pscale(img, 60, 60) 
+                    idle pscale(im.Sepia(img), 60, 60)
+                    action [Return(['filter', 'xndreports']), SetScreenVariable("show_summary", None)]
+                    tooltip "View the Exploration Guild reports!"
+
             # # Girls and Other Related data:
             hbox:
                 xalign .5 ypos 300
                 spacing 80
                 # Getting .status field data:
                 $ free, slaves = NextDayEvents.get_chars_dist()
-                python:
-                    red_flags = False
-                    explorers = False
-                    for i in NextDayEvents.event_list:
-                        if i.type == "explorationndreport":
-                            explorers = True
-                        elif i.type == "girlndreport" and i.red_flag:
-                            red_flags = True
+                $ red_flags = any(i.type == "girlndreport" and i.red_flag for i in NextDayEvents.event_list)
 
                 vbox:
                     spacing 5
@@ -1050,20 +1056,9 @@ screen next_day():
                         hover_background Frame(im.MatrixColor(img ,im.matrix.brightness(.15)), 10, 10)
                         action [Return(['filter', 'gndreports']), SetScreenVariable("show_summary", None)]
                         tooltip "Show personal girl reports!"
-                    hbox:
-                        align 1.0, 1.0
-                        if explorers:
-                            $ img = ProportionalScale("content/gfx/interface/icons/explorer.png", 30, 40)
-                            imagebutton:
-                                xysize 30, 40
-                                yalign .5
-                                padding 0, 0
-                                margin 0, 0
-                                idle img
-                                hover im.MatrixColor(img ,im.matrix.brightness(.15))
-                                action [Return(['filter', 'xndreports']), SetScreenVariable("show_summary", None)]
-                                tooltip "View the reports of the explorers!"
-                        if red_flags:
+                    if red_flags:
+                        hbox:
+                            align 1.0, 1.0
                             button:
                                 xysize 10, 36
                                 yalign .5
