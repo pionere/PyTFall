@@ -766,7 +766,7 @@ init: # Main Screens:
                     edgescroll (100, 100)
                     draggable True
                     mousewheel True
-                    xysize 278, 350
+                    xysize 278, 328
                     child_size 278, 1000
                     has vbox xfill True
                     # Desc:
@@ -805,21 +805,11 @@ init: # Main Screens:
                                 xalign .5
                                 if data["attack_skills"]:
                                     for skill in sorted((battle_skills[s] for s in data["attack_skills"]), key=attrgetter("menu_pos")):
-                                        frame:
-                                            xysize (130, 25)
-                                            button:
-                                                xysize (130, 25)
-                                                background Null()
-                                                hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
-                                                action NullAction()
-                                                tooltip ["be", skill]
-                                                text "[skill.name]" size 15 idle_color "ivory" align .5, .5 hover_color "crimson":
-                                                    if len(skill.name) > 12:
-                                                        size 12
+                                        use skill_info(skill, 130, 20)
                                 else:
                                     frame:
                                         xalign .5
-                                        xysize (130, 25)
+                                        xysize (130, 20)
                                         text "-None-" size 15 align .5, .5 color "indianred" 
 
                     # Spells:
@@ -836,21 +826,11 @@ init: # Main Screens:
                                 spacing 1
                                 if data["magic_skills"]:
                                     for skill in sorted((battle_skills[s] for s in data["magic_skills"]), key=attrgetter("menu_pos")):
-                                        frame:
-                                            xysize (130, 25)
-                                            button:
-                                                xysize (130, 25)
-                                                background Null()
-                                                hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
-                                                action NullAction()
-                                                tooltip ["be", skill]
-                                                text "[skill.name]" size 15 idle_color "ivory" align .5, .5 hover_color "crimson":
-                                                    if len(skill.name) > 12:
-                                                        size 12
+                                        use skill_info(skill, 130, 20)
                                 else:
                                     frame:
                                         xalign .5
-                                        xysize (130, 25)
+                                        xysize (130, 20)
                                         text "-None-" size 15 align .5, .5 color "indianred"
                     null height 5
                     # Traits
@@ -869,21 +849,11 @@ init: # Main Screens:
                             for trait in sorted(data["traits"]):
                                 $ trait = traits[trait]
                                 if not trait.hidden:
-                                    frame:
-                                        xsize 147
-                                        button:
-                                            background Null()
-                                            xsize 147
-                                            action Show("show_trait_info", trait=trait.id)
-                                            text trait.id size 15 idle_color "ivory" align .5, .5 hover_color "crimson":
-                                                if len(trait.id) > 12:
-                                                    size 12
-                                            tooltip "%s" % trait.desc
-                                            hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
+                                    use trait_info(trait, 147, 20)
                         else:
                             frame:
                                 xalign .5
-                                xysize (260, 22)
+                                xysize (260, 20)
                                 text "-None-" size 15 align .5, .5 color "indianred"
 
         imagebutton:

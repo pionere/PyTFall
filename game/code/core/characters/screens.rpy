@@ -468,6 +468,42 @@ screen race_and_elements(align=(.5, .99), char=None):
                 hover_background f_a
                 tooltip "Elements:\n   {}".format(ele)
 
+screen effect_info(effect, xsize, ysize):
+    frame:
+        align (.5, .5)
+        xysize (xsize, ysize)
+        button:
+            background Null()
+            xysize (xsize, ysize)
+            action NullAction()
+            text "[effect.name]" idle_color "ivory" align .5, .5 hover_color "crimson" size min(ysize-5, int(3*xsize/max(1, 2*len(effect.name))))
+            tooltip "%s" % effect.desc
+            hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
+
+screen skill_info(skill, xsize, ysize):
+    frame:
+        align (.5, .5)
+        xysize (xsize, ysize)
+        button:
+            background Null()
+            xysize (xsize, ysize)
+            action NullAction()
+            text "[skill.name]" idle_color "ivory" align .5, .5 hover_color "crimson" size min(ysize-5, int(3*xsize/max(1, 2*len(skill.name))))
+            tooltip ["be", skill]
+            hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
+
+screen trait_info(trait, xsize, ysize):
+    frame:
+        align (.5, .5)
+        xysize (xsize, ysize)
+        button:
+            background Null()
+            xysize (xsize, ysize)
+            action Show("show_trait_info", trait=trait.id)
+            text trait.id idle_color "ivory" align .5, .5 hover_color "crimson" text_align .5 size min(ysize-5, int(3*xsize/max(1, 2*len(trait.id))))
+            tooltip "%s" % trait.desc
+            hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
+
 screen show_trait_info(trait=None, place="girl_trait", elemental_mode=False):
     modal True
     $ pos = renpy.get_mouse_pos()

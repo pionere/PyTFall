@@ -228,44 +228,38 @@ screen itemstats(item=None, size=(635, 380), style_group="content", mc_mode=Fals
                             if item.addtraits:
                                 label ('Adds Traits:') text_size 16 text_color "gold" xpos 10
                                 for trait in item.addtraits:
-                                    frame:
-                                        xysize 153, 20
-                                        text(u'%s'%trait.capitalize()) color "ivory" size 16 align (.5, .5)
+                                    $ trait = traits[trait]
+                                    use trait_info(trait, 153, 20)
                                 null height 2
                             if item.removetraits:
                                 label ('Removes Traits:') text_size 16 text_color "gold" xpos 10
                                 for trait in item.removetraits:
-                                    frame:
-                                        xysize 153, 20
-                                        text(u'%s'%trait.capitalize()) color "ivory" size 16 align (.5, .5)
+                                    $ trait = traits[trait]
+                                    use trait_info(trait, 153, 20)
                                 null height 2
                             if item.add_be_spells:
                                 label ('Adds Skills:') text_size 16 text_color "gold" xpos 10
                                 for skill in item.add_be_spells:
-                                    frame:
-                                        xysize 153, 20
-                                        text(u'%s'%skill.capitalize()) color "ivory" size 16 align (.5, .5)
+                                    $ skill = battle_skills[skill]
+                                    use skill_info(skill, 153, 20)
                                 null height 2
                             if item.remove_be_spells:
                                 label ('Removes Skills:') text_size 16 text_color "gold" xpos 10
                                 for skill in item.remove_be_spells:
-                                    frame:
-                                        xysize 153, 20
-                                        text (u'%s'%skill.capitalize()) color "ivory" size 16 align (.5, .5)
+                                    $ skill = battle_skills[skill]
+                                    use skill_info(skill, 153, 20)
                                 null height 2
                             if item.addeffects:
                                 label ('Adds Effects:') text_size 16 text_color "gold" xpos 10
                                 for effect in item.addeffects:
-                                    frame:
-                                        xysize 153, 20
-                                        text(u'%s'%effect.capitalize()) color "ivory" size 16 align (.5, .5)
+                                    $ effect = CharEffect(effect)
+                                    use effect_info(effect, 153, 20)
                                 null height 2
                             if item.removeeffects:
                                 label ('Removes Effects:') text_size 16 text_color "gold" xpos 10
                                 for effect in item.removeeffects:
-                                    frame:
-                                        xysize 153, 20
-                                        text(u'%s'%effect.capitalize()) color "ivory" size 16 align (.5, .5)
+                                    $ effect = CharEffect(effect)
+                                    use effect_info(effect, 153, 20)
                             if hasattr(item, 'mtemp'):
                                 if item.mtemp:
                                     label ('Frequency:') text_size 18 text_color "gold" xpos 10

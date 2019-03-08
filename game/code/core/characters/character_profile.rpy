@@ -722,50 +722,35 @@ screen char_profile():
                 xsize 335 ypos 230 xalign .5
                 style_group "proper_stats"
                 padding 7, 8
-                has vbox spacing 2 xoffset 4
+                has vbox spacing 2 xoffset 10
                 # Traits/Effects ====================================>
                 hbox:
+                    spacing -4
                     # Traits:
                     vbox:
                         xysize (160, 210)
-                        label (u"Traits:") text_size 20 text_color "ivory" text_bold True xalign .5
+                        label (u"Traits:") text_size 20 text_color "ivory" text_bold True xalign .45
                         viewport:
-                            xysize (160, 165)
-                            scrollbars "vertical"
+                            xysize (160, 181)
+                            edgescroll (40, 40)
                             draggable True
                             mousewheel True
-                            has vbox spacing 1
+                            has vbox spacing 2
                             for trait in list(t for t in char.traits if not any([t.basetrait, t.personality, t.race, t.elemental])):
                                 if not trait.hidden:
-                                    frame:
-                                        xsize 147
-                                        button:
-                                            background Null()
-                                            xsize 147
-                                            action Show("show_trait_info", trait=trait.id)
-                                            text trait.id idle_color "ivory" align .5, .5 hover_color "crimson" text_align .5 size min(15, int(250 / max(1, len(trait.id))))
-                                            tooltip "%s" % trait.desc
-                                            hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
+                                    use trait_info(trait, 147, 22)
                     # Effects:
                     vbox:
                         xysize (160, 210)
-                        label (u"Effects:") text_size 20 text_color "ivory" text_bold True xalign .5
+                        label (u"Effects:") text_size 20 text_color "ivory" text_bold True xalign .45
                         viewport:
-                            xysize (160, 165)
-                            scrollbars "vertical"
+                            xysize (160, 181)
+                            edgescroll (40, 40)
                             draggable True
                             mousewheel True
-                            has vbox spacing 1
+                            has vbox spacing 2
                             for effect in char.effects.itervalues():
-                                frame:
-                                    xysize (147, 25)
-                                    button:
-                                        background Null()
-                                        xysize (147, 25)
-                                        action NullAction()
-                                        text "[effect.name]" idle_color "ivory" align .5, .5 hover_color "crimson" size min(15, int(250 / max(1, len(effect.name))))
-                                        tooltip "%s" % effect.desc
-                                        hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
+                                use effect_info(effect, 147, 22)
 
                 # Attacks/Magic ====================================>
                 hbox:
@@ -773,42 +758,26 @@ screen char_profile():
                         xysize (160, 210)
                         label (u"Attacks:") text_size 20 text_color "ivory" text_bold True xalign .5 text_outlines [(3, "#424242", 0, 0), (2, "#8B0000", 0, 0), (1, "#424242", 0, 0)]
                         viewport:
-                            xysize (160, 165)
-                            scrollbars "vertical"
+                            xysize (160, 163)
+                            edgescroll (40, 40)
                             draggable True
                             mousewheel True
-                            has vbox spacing 1
-                            for entry in list(sorted(char.attack_skills, key=attrgetter("menu_pos"))):
-                                frame:
-                                    xysize (147, 25)
-                                    button:
-                                        xysize (147, 25)
-                                        background Null()
-                                        hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
-                                        action NullAction()
-                                        tooltip ["be", entry]
-                                        text "[entry.name]" idle_color "ivory" align .5, .5 hover_color "crimson" size min(15, int(250 / max(1, len(entry.name))))
+                            has vbox spacing 2
+                            for skill in list(sorted(char.attack_skills, key=attrgetter("menu_pos"))):
+                                use skill_info(skill, 147, 22)
 
                     vbox:
                         xysize (160, 210)
                         xanchor 5
                         label (u"Spells:") text_size 20 text_color "ivory" text_bold True xalign .5 text_outlines [(3, "#424242", 0, 0), (2, "#104E8B", 0, 0), (1, "#424242", 0, 0)]
                         viewport:
-                            xysize (160, 165)
-                            scrollbars "vertical"
+                            xysize (160, 163)
+                            edgescroll (40, 40)
                             draggable True
                             mousewheel True
-                            has vbox spacing 1
-                            for entry in list(sorted(char.magic_skills, key=attrgetter("menu_pos"))):
-                                frame:
-                                    xysize (147, 25)
-                                    button:
-                                        xysize (147, 25)
-                                        background Null()
-                                        hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
-                                        action NullAction()
-                                        tooltip ["be", entry]
-                                        text "[entry.name]" idle_color "ivory" align .5, .5 hover_color "crimson" size min(15, int(250 / max(1, len(entry.name))))
+                            has vbox spacing 2
+                            for skill in list(sorted(char.magic_skills, key=attrgetter("menu_pos"))):
+                                use skill_info(skill, 147, 22)
 
     use top_stripe(True)
 

@@ -311,47 +311,31 @@ screen hero_profile():
 
             frame:
                 background Frame("content/gfx/frame/hp_1.png", 5, 5)
-                xysize (160, 192)
+                xysize (150, 192)
                 has vbox
                 label (u"Attacks:") text_size 20 text_color "ivory" text_bold True xalign .45 text_outlines [(3, "#424242", 0, 0), (2, "#8B0000", 0, 0), (1, "#424242", 0, 0)]
                 viewport:
-                    xysize (160, 155)
-                    scrollbars "vertical"
+                    xysize (150, 155)
+                    edgescroll (40, 40)
                     draggable True
                     mousewheel True
-                    has vbox spacing 1
-                    for entry in list(sorted(hero.attack_skills, key=attrgetter("menu_pos"))):
-                        frame:
-                            xysize (147, 25)
-                            button:
-                                xysize (147, 25)
-                                background Null()
-                                hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
-                                action NullAction()
-                                tooltip ["be", entry]
-                                text "[entry.name]" idle_color "ivory" align .5, .5 hover_color "crimson" size min(15, int(250 / max(1, len(entry.name))))
+                    has vbox spacing 2 xfill True 
+                    for skill in list(sorted(hero.attack_skills, key=attrgetter("menu_pos"))):
+                        use skill_info(skill, 142, 22)
 
             frame:
                 background Frame("content/gfx/frame/hp_1.png", 5, 5)
-                xysize (160, 192)
+                xysize (150, 192)
                 has vbox
                 label (u"Spells:") text_size 20 text_color "ivory" text_bold True xalign .45 text_outlines [(3, "#424242", 0, 0), (2, "#104E8B", 0, 0), (1, "#424242", 0, 0)]
                 viewport:
-                    xysize (160, 155)
-                    scrollbars "vertical"
+                    xysize (150, 155)
+                    edgescroll (40, 40)
                     draggable True
                     mousewheel True
-                    has vbox spacing 1
-                    for entry in list(sorted(hero.magic_skills, key=attrgetter("menu_pos"))):
-                        frame:
-                            xysize (147, 25)
-                            button:
-                                xysize (147, 25)
-                                background Null()
-                                hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
-                                action NullAction()
-                                tooltip ["be", entry]
-                                text "[entry.name]" idle_color "ivory" align .5, .5 hover_color "crimson" size min(15, int(250 / max(1, len(entry.name))))
+                    has vbox spacing 2 xfill True
+                    for skill in list(sorted(hero.magic_skills, key=attrgetter("menu_pos"))):
+                        use skill_info(skill, 142, 22)
 
 
     # TRAITS ====================================>
@@ -359,47 +343,31 @@ screen hero_profile():
         frame:
             pos (1125, 205)
             background Frame("content/gfx/frame/hp_1long.png", 5, 5)
-            xysize (160, 389)
+            xysize (150, 389)
             style_group "proper_stats"
             has vbox
             label (u"Traits:") text_size 20 text_color "ivory" text_bold True xalign .45
             viewport:
-                xysize (160, 150)
+                xysize (150, 150)
+                edgescroll (40, 40)
                 draggable True
                 mousewheel True
-                has vbox spacing 1
-                # for i in range(200):
-                    # add Solid("#F00", xysize=(100, 20))
+                has vbox spacing 2 xfill True
                 for trait in list(t for t in hero.traits if not any([t.personality, t.race, t.elemental])):
                     if not trait.hidden:
-                        frame:
-                            xsize 147
-                            button:
-                                background Null()
-                                xsize 147
-                                action Show("show_trait_info", trait=trait.id, place="mc_trait")
-                                text trait.id idle_color "ivory" align .5, .5 hover_color "crimson" text_align .5 size min(15, int(250 / max(1, len(trait.id))))
-                                tooltip "%s"%trait.desc
-                                hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
+                        use trait_info(trait, 142, 22)
 
             null height 10
 
             label (u"Effects:") text_size 20 text_color "ivory" text_bold True xalign .45
             viewport:
-                xysize (160, 150)
+                xysize (150, 150)
+                edgescroll (40, 40)
                 draggable True
                 mousewheel True
-                has vbox spacing 1
+                has vbox spacing 2 xfill True
                 for effect in hero.effects.itervalues():
-                    frame:
-                        xysize (147, 25)
-                        button:
-                            background Null()
-                            xysize (147, 25)
-                            action NullAction()
-                            text "[effect.name]" idle_color "ivory" align .5, .5 hover_color "crimson" size min(15, int(250 / max(1, len(trait.id))))
-                            tooltip "%s"%effect.desc
-                            hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
+                    use effect_info(effect, 142, 22)
 
     # BASE FRAME 1 "top layer" ====================================>
     add "content/gfx/frame/h_profile2.webp"
