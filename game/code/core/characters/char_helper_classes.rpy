@@ -11,6 +11,7 @@ init -10 python:
             # self.instance = instance
             self.tier = 0
             self.expected_wage = 10
+            self.stored_upkeep = 0
 
         def get_max_skill(self, skill, tier=None):
             if tier is None:
@@ -148,10 +149,34 @@ init -10 python:
             self.expected_wage = wage
             return wage
 
-        def update_tier_info(self, kind=None):
+        def get_upkeep(self):
+            return self.stored_upkeep
+
+        def calc_upkeep(self):
+            upkeep = self.upkeep
+
+            if self.status == 'slave':
+                upkeep += STATIC_CHAR.BASE_UPKEEP * self.tier or 1
+                upkeep *= uniform(.9, 1.1)
+                if "Dedicated" in self.traits:
+                    upkeep *= .5
+
+                upkeep = max(upkeep, 1)
+            self.stored_upkeep = round_int(upkeep)
+
+        def get_price(self):
+            price = 1000 + self.tier*1000 + self.level*100
+
+            if self.status == 'free':
+                price *= 2 # in case if we'll even need that for free ones, 2 times more
+
+            return price
+
+        def update_tier_info(self):
             while self.recalculate_tier():
                 continue 
-            self.calc_expected_wage(kind=kind)
+            self.calc_expected_wage()
+            self.calc_upkeep()
 
     class Team(_object):
         def __init__(self, name="", implicit=None, free=False, max_size=3):
@@ -798,7 +823,7 @@ init -10 python:
 
             slaves = [c for c in char.chars if c.status == "slave"]
             b_tax = round_int(sum([p.price for p in properties])*ec.property_tax["real_estate"])
-            s_tax = round_int(sum([s.fin.get_price() for s in slaves])*ec.property_tax["slaves"])
+            s_tax = round_int(sum([s.get_price() for s in slaves])*ec.property_tax["slaves"])
 
             if log_finances:
                 for p in properties:
@@ -806,7 +831,7 @@ init -10 python:
                     if hasattr(p, "fin"): # Simpler location do not have fin module
                         p.fin.log_logical_expense(_tax, "Property Tax")
                 for s in slaves:
-                    _tax = round_int(s.fin.get_price()*ec.property_tax["slaves"])
+                    _tax = round_int(s.get_price()*ec.property_tax["slaves"])
                     s.fin.log_logical_expense(_tax, "Property Tax")
 
             tax = b_tax + s_tax
@@ -903,32 +928,6 @@ init -10 python:
                 char.mod_stat("joy", joymod)
 
             return mood
-
-        def get_price(self):
-            char = self.instance
-
-            price = 1000 + char.tier*1000 + char.level*100
-
-            if char.status == 'free':
-                price *= 2 # in case if we'll even need that for free ones, 2 times more
-
-            return price
-
-        def get_upkeep(self):
-            return self.stored_upkeep
-
-        def calc_upkeep(self):
-            char = self.instance
-            upkeep = char.upkeep
-
-            if char.status == 'slave':
-                upkeep += STATIC_CHAR.BASE_UPKEEP * char.tier or 1
-                upkeep *= uniform(.9, 1.1)
-                if "Dedicated" in char.traits:
-                    upkeep *= .5
-
-                upkeep = max(upkeep, 1)
-            self.stored_upkeep = round_int(upkeep)
 
         def next_day(self):
             # We log total to -1 key...

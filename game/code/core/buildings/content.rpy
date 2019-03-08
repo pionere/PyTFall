@@ -60,7 +60,7 @@ init -9 python:
                 self.blue_slaves.remove(char)
 
         def get_price(self, char):
-            return char.fin.get_price()
+            return char.get_price()
 
         def buy_slave(self, char):
             if not hero.take_ap(1):
@@ -263,12 +263,12 @@ init -9 python:
             Returns the price to retrieve the slave.
             """
             if self.chars_list == self.slaves:
-                return int(slave.fin.get_price() * .8)
+                return int(slave.get_price() * .8)
             else: # self.chars_list == self.captures
                 return self.get_fees4captured(slave) + 2000
 
         def sell_price(self, slave):
-            return max(50, slave.fin.get_price()/4 - self.get_fees4captured(slave))
+            return max(50, slave.get_price()/4 - self.get_fees4captured(slave))
 
         def get_bail(self, char):
             """

@@ -140,7 +140,7 @@ label char_profile:
                         jump gallery
                     elif result[1] == "get_rid":
                         if char.status == "slave":
-                            $ message = "Are you sure you wish to sell {} for {}?".format(char.name, int(char.fin.get_price()*.8))
+                            $ message = "Are you sure you wish to sell {} for {}?".format(char.name, int(char.get_price()*.8))
                         else:
                             $ message = "Are you sure that you wish to fire {}?".format(char.name)
                         if renpy.call_screen("yesno_prompt",
@@ -151,7 +151,7 @@ label char_profile:
                             $ del message
                             if char.status == 'slave':
                                 python:
-                                    hero.add_money(int(char.fin.get_price()*.8), reason="SlaveTrade")
+                                    hero.add_money(int(char.get_price()*.8), reason="SlaveTrade")
                                     char.home = pytfall.sm
                             else:
                                 if char.get_stat("disposition") >= 500:
@@ -466,7 +466,7 @@ screen char_profile():
                                 tooltip "This is a Class Stat!"
                         $ temp, tmp = char.get_stat("health"), char.get_max("health")
                         if temp <= tmp*.3:
-                            text (u"{color=red}%d/%d"%(temp, tmp)) xalign 1.0 style_suffix "value_text"
+                            text (u"%d/%d"%(temp, tmp)) color "red" xalign 1.0 style_suffix "value_text"
                         else:
                             text (u"%d/%d"%(temp, tmp)) xalign 1.0 style_suffix "value_text"
                     frame:
@@ -483,7 +483,7 @@ screen char_profile():
                                 tooltip "This is a Class Stat!"
                         $ temp, tmp = char.get_stat("vitality"), char.get_max("vitality")
                         if temp < tmp*.3:
-                            text (u"{color=red}%d/%d"%(temp, tmp)) xalign 1.0 style_suffix "value_text"
+                            text (u"%d/%d"%(temp, tmp)) color "red" xalign 1.0 style_suffix "value_text"
                         else:
                             text (u"%d/%d"%(temp, tmp)) xalign 1.0 style_suffix "value_text"
 
@@ -529,20 +529,20 @@ screen char_profile():
                         xysize (270, 27)
                         xpadding 7
                         text "Gold:" color "gold"
-                        text (u"{color=gold}[char.gold]") xalign 1.0 style_suffix "value_text"
+                        text str(char.gold) color "gold" xalign 1.0 style_suffix "value_text"
                     frame:
                         xoffset 4
                         xysize (270, 27)
                         xpadding 7
-                        text "{color=#79CDCD}Upkeep:"
-                        text u"%s"%(char.fin.get_upkeep()) xalign 1.0 style_suffix "value_text"
+                        text "Upkeep:" color "#79CDCD"
+                        text str(char.get_upkeep()) xalign 1.0 style_suffix "value_text"
                     if char.status == "slave":
                         frame:
                             xoffset 4
                             xysize (270, 27)
                             xpadding 7
-                            text "{color=#79CDCD}Market Price:"
-                            text (u"%s"%(char.fin.get_price())) xalign 1.0 style_suffix "value_text"
+                            text "Market Price:" color "#79CDCD"
+                            text str(char.get_price()) xalign 1.0 style_suffix "value_text"
 
                 use race_and_elements(char=char)
             elif stats_display == "stats":

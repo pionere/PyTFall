@@ -326,11 +326,11 @@ screen slave_shopping(source, buy_button, buy_tt):
                     frame:
                         xysize 244, 20
                         text "{size=-1}Market Price:" color "#79CDCD" pos (1, -4)
-                        label (u"{color=gold}{size=-5}%s"%char.fin.get_price()) align (1.0, .5) ypos 10
+                        label (u"{color=gold}{size=-5}%s"%char.get_price()) align (1.0, .5) ypos 10
                     frame:
                         xysize 244, 20
                         text "{size=-1}Upkeep:" color "#79CDCD" pos (1, -4)
-                        label (u"{size=-5}%s"%char.fin.get_upkeep()) align (1.0, .5) ypos 10
+                        label (u"{size=-5}%s"%char.get_upkeep()) align (1.0, .5) ypos 10
 
             # Stats: ==============================================================================>>>
             null height 5

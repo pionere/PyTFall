@@ -845,7 +845,7 @@ screen fg_area(area):
                     mousewheel True
                     xspacing 10
                     yspacing 3
-                    for tracker in area.trackers * 20:
+                    for tracker in area.trackers:
                         frame:
                             background Frame(Transform("content/gfx/frame/Namebox.png", alpha=.9), 10, 10)
                             xsize 290

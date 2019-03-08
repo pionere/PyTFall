@@ -211,7 +211,7 @@ label dev_testing_menu_and_load_mc:
 
             hero._path_to_imgfolder = af._path_to_imgfolder
             hero.id = af.id
-            hero.say = Character(hero.nickname, color=ivory, show_two_window=True, show_side_image=hero.show("portrait", resize=(120, 120)))
+            hero.say = Character(hero.nickname, color="ivory", show_two_window=True, show_side_image=hero.show("portrait", resize=(120, 120)))
             hero.restore_ap()
             hero.log_stats()
 
@@ -611,6 +611,8 @@ label after_load:
         if hasattr(hero.stats, "delayed_stats"):
             clearCharacters = True
         if hero.eqsave and not hasattr(hero.eqsave[0], "name"):
+            clearCharacters = True
+        if hasattr(hero.fin, "stored_upkeep"):
             clearCharacters = True
         if isinstance(simple_jobs["Manager"], Manager):
             pmj = simple_jobs["Manager"]
@@ -1053,6 +1055,9 @@ label after_load:
                     del char._available
                 if hasattr(char, "alive"):
                     del char.alive
+                if hasattr(char.fin, "stored_upkeep"):
+                    char.calc_upkeep()
+                    del char.fin.stored_upkeep
 
             #for girl in itertools.chain(jail.chars_list, pytfall.ra.girls.keys()):
             #    if girl.controller == "player":

@@ -189,9 +189,6 @@ init -9 python:
             # AP restore:
             self.restore_ap()
 
-            # Always init the tiers:
-            self.recalculate_tier()
-
             # add Character:
             if not self.say:
                 self.update_sayer()
@@ -2203,7 +2200,7 @@ init -9 python:
                         self.remove_building(confiscate)
                         retire_chars_from_building(self.chars, confiscate)
                     elif isinstance(confiscate, Char):
-                        price = confiscate.fin.get_price()
+                        price = confiscate.get_price()
                         hero.remove_char(confiscate)
                         confiscate.home = pytfall.sm
                         confiscate.reset_workplace_action()
@@ -2408,8 +2405,9 @@ init -9 python:
             self.say_screen_portrait = DynamicDisplayable(self._portrait)
             self.say_screen_portrait_overlay_mode = None
 
-            # Calculate upkeep.
-            self.fin.calc_upkeep()
+            # Calculate wage and upkeep. (TODO call update_tier_info?)
+            self.calc_expected_wage()
+            self.calc_upkeep()
 
             super(Char, self).init()
 
@@ -2536,9 +2534,6 @@ init -9 python:
             txt = self.txt
             flag_red = False
 
-            # Update upkeep, should always be a safe thing to do.
-            self.fin.calc_upkeep()
-
             if self.location is not None:
                 if self.location == pytfall.ra:
                     # If escaped:
@@ -2592,7 +2587,7 @@ init -9 python:
                     txt.append("Upkeep is included in price of the class your worker's taking.")
                 else:
                     # The whole upkeep thing feels weird, penalties to slaves are severe...
-                    amount = self.fin.get_upkeep()
+                    amount = self.get_upkeep()
 
                     if not amount:
                         pass
