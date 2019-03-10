@@ -278,7 +278,7 @@ init:
                     xysize (135, 40)
                     action Return(["building", "sell"])
                     tooltip 'Get rid of this building'
-                    sensitive all(u.can_close() for u in bm_building.all_extensions())
+                    sensitive all(u.can_close() for u in bm_building._businesses)
                     text "Sell"
 
         # Slots for New Style Buildings:
@@ -503,7 +503,7 @@ init:
         frame:
             background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
             xysize (317, 480)
-            if len(bm_building.all_extensions()) != 0:
+            if bm_building._businesses or bm_building._upgrades:
                 frame:
                     align .5, .02
                     background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
@@ -516,7 +516,8 @@ init:
                     scrollbars "vertical"
                     draggable True
                     has vbox
-                    for u in bm_building.all_extensions():
+                    # Businesses
+                    for u in bm_building._businesses:
                         frame:
                             xalign .6
                             background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 5, 5)
@@ -551,6 +552,19 @@ init:
                                                 message="Are you sure you wish to close this %s for %d Gold?" % (u.name, u.get_cost()[0]),
                                                 yes_action=[Function(bm_building.close_business, u), Hide("yesno_prompt")], no_action=Hide("yesno_prompt"))
                                     tooltip "Close the business"
+                    # Upgrades
+                    for u in bm_building._upgrades:
+                        frame:
+                            xalign .6
+                            background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 5, 5)
+                            has fixed xysize 280, 80
+                            frame:
+                                align .05, .1
+                                background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.95), 10, 10)
+                                if hasattr(u, "img"):
+                                    add im.Scale(u.img, 100, 65) align .5, .5
+                                else:
+                                    add Solid("black", xysize=(100, 65)) align .5, .5
 
     screen building_management_leftframe_businesses_mode:
         frame:
@@ -739,7 +753,6 @@ init:
                     xysize (140, 40)
                     style "left_wood_button"
                     action Return(['control', 'left'])
-                    tooltip "<== Previous"
                     text "Previous" style "wood_text" xalign .69
                 frame:
                     background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
@@ -758,7 +771,6 @@ init:
                     xysize (140, 40)
                     style "right_wood_button"
                     action Return(['control', 'right'])
-                    tooltip "Next ==>"
                     text "Next" style "wood_text" xalign .39
 
     screen building_management_midframe_businesses_mode:
@@ -769,7 +781,7 @@ init:
             has vbox xsize 618
             if hasattr(bm_mid_frame_mode, "all_possible_extensions"):
                 for u in bm_mid_frame_mode.all_possible_extensions():
-                    if not bm_mid_frame_mode.has_extension(u):
+                    if not bm_mid_frame_mode.has_extension(u.__class__):
                         frame:
                             xalign .5
                             background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)

@@ -1044,23 +1044,23 @@ init -11 python:
         mod /= len(temp)
         mod *= len(STATIC_CHAR.PREFS)
 
-        if ct("Frigid"):
+        if ctchar(char, "Frigid"):
             mod *= .8
-        elif ct("Nymphomaniac"):
+        elif ctchar(char, "Nymphomaniac"):
             mod *= 1.2
         if 'Horny' in char.effects:
             mod *= 1.1
 
         value *= mod
 
-        temp = ct("Lesbian" if char.gender == "female" else "Gay")
+        temp = ctchar(char, "Lesbian" if char.gender == "female" else "Gay")
         if char.gender != hero.gender:
             if temp and "Yuri Expert" not in hero.traits:
                 return limited_affection(char, value)
         else:
             if not temp:
                 return limited_affection(char, value)
-        if ct("Half-Sister") and "Sister Lover" not in hero.traits:
+        if ctchar(char, "Half-Sister") and "Sister Lover" not in hero.traits:
             return limited_affection(char, value)
 
         return dice_int(value)

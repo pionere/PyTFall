@@ -1,6 +1,5 @@
 init -5 python:
     class BrothelBlock(PrivateBusiness):
-
         def __init__(self):
             super(BrothelBlock, self).__init__()
 

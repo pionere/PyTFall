@@ -194,7 +194,7 @@ label mc_action_city_beach_rest:
             member.gfx_mod_stat("vitality", randint(10, 15))
             if member != hero:
                 member.gfx_mod_stat("disposition", 1)
-                char.gfx_mod_stat("affection", affection_reward(char, .1))
+                member.gfx_mod_stat("affection", affection_reward(member, .1))
 
     jump city_beach_left
 

@@ -256,6 +256,14 @@ init -11 python:
         l = list(args)
         return any(i.id in l for i in char.traits)
 
+    def ctchar(char, *args):
+        """
+        Check traits function.
+        Checks is character in girl_meets has any trait in entered as an argument. Goes with char argument, thus can be used where the game doesn't recognize default "char"
+        """
+        l = list(args)
+        return any(i.id in l for i in char.traits)
+
     def co(*args):
         """
         Check occupation

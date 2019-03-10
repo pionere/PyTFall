@@ -455,11 +455,8 @@ init -10 python:
             # Returns a list of all possible extensions (businesses and upgrades)
             return self.allowed_businesses + self.allowed_upgrades
 
-        def all_extensions(self):
-            return self._businesses + self._upgrades
-
         def has_extension(self, extension):
-            return extension in self.all_extensions()
+            return any(u.__class__ == extension for u in self._upgrades) or any(b.__class__ == extension for b in self._businesses)
 
         # Describing building purposes:
         def is_business(self):
@@ -893,7 +890,7 @@ init -10 python:
             if self.clients:
                 env.process(self.clients_dispatcher(end=end-10))
 
-            has_garden = any(isinstance(u, Garden) for u in self._upgrades)
+            has_garden = self.has_extension(Garden)
             auto_guard = self.auto_guard
             if auto_guard != 0:
                 if hero.take_money(auto_guard, "Hired Guards"):
@@ -965,12 +962,7 @@ init -10 python:
             expected = len(self.clients)
             running = 0
 
-            for u in self._upgrades:
-                if isinstance(u, Garden):
-                    has_garden = True
-                    break
-            else:
-                has_garden = False
+            has_garden = self.has_extension(Garden)
 
             # We do not want to add clients at the last 5 - 10 turns...
             # So we use 90 as base.

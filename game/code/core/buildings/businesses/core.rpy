@@ -1,7 +1,7 @@
 init -12 python:
     #################################################################
     # BUILDING UPGRADE CLASSES:
-    class CoreExtension(_object) :
+    class CoreExtension(_object):
         """BaseClass for any building expansion! (aka Business)
         """
         # Class attributes serve as default, they are fed to a method of Building,

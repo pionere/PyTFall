@@ -1286,6 +1286,13 @@ label after_load:
                 if hasattr(store, i):
                     delattr(store, i)
 
+        for b in chain(hero.buildings, buildings.itervalues()):
+            for u in b._businesses:
+                if hasattr(u, "intro_string"):
+                    u.intro_string = u.__class__.intro_string
+                if hasattr(u, "log_intro_string"):
+                    u.log_intro_string = u.__class__.log_intro_string
+
         for e in pytfall.world_events.events:
             for i, c in enumerate(e.simple_conditions):
                 if ".magic" in c:
