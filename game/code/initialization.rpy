@@ -463,25 +463,17 @@ init -1 python: # Constants:
         # if check_image_extension(f):
             # renpy.image(f, At(f, slide(so1=(600, 0), t1=.7, eo2=(1300, 0), t2=.7)))
     CLIENT_CASTES = ['None', 'Peasant', 'Merchant', 'Nomad', 'Wealthy Merchant', 'Clerk', 'Noble', 'Royal']
-    EQUIP_SLOTS = ['body', 'head', 'feet', 'wrist', 'amulet',
-                   'cape', 'weapon', 'misc', 'ring', 'smallweapon']
-    SLOTALIASES = {"smallweapon": "Left Hand", "weapon": "Right Hand",
-                   "amulet": "Neck", "feet": "Legs", "quest": "Special"}
+    EQUIP_SLOTS = OrderedDict([("body", "Body"),
+                               ("head", "Head"),
+                               ("feet", "Legs"),
+                               ("wrist", "Wrist"),
+                               ("amulet", "Neck"),
+                               ("cape", "Cape"),
+                               ("weapon", "Right Hand"),
+                               ("misc", "Misc"),
+                               ("ring", "Ring"),
+                               ("smallweapon", "Left Hand")])
     ND_IMAGE_SIZE = (820, 705)
-
-    equipSlotsPositions = dict()
-    equipSlotsPositions['head'] = [u'Head', .2, .1]
-    equipSlotsPositions['body'] = [u'Body', .2, .3]
-    equipSlotsPositions['amulet'] = [u'Amulet', 1.0, .3]
-    equipSlotsPositions['cape'] = [u'Cape', 1.0, .1]
-    equipSlotsPositions['weapon'] = [u'Weapon', .2, .5]
-    equipSlotsPositions['smallweapon'] = [u'Small Weapon', 1.0, .5]
-    equipSlotsPositions['feet'] = [u'Feet', 1.0, .7]
-    equipSlotsPositions['misc'] = [u'Misc', .025, .41]
-    equipSlotsPositions['wrist'] = [u'Wrist', .2, .7]
-    equipSlotsPositions['ring'] = [u'Ring', 1.18, .2]
-    equipSlotsPositions['ring1'] = [u'Ring', 1.18, .4]
-    equipSlotsPositions['ring2'] = [u'Ring', 1.18, .6]
 
 init python: # Locking random seed of internal renpys random
     def locked_random(type, *args, **kwargs):

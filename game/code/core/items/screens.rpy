@@ -38,7 +38,19 @@ screen eqdoll(active_mode=True, char=None, frame_size=[55, 55], scr_align=(.23, 
         align scr_align
         xysize fx_size
 
-        for slot in equipSlotsPositions:
+        default equipSlotsPositions = {'head': (.2, .1),
+                                       'body': (.2, .3),
+                                       'amulet': (1.0, .3),
+                                       'cape': (1.0, .1),
+                                       'weapon': (.2, .5),
+                                       'smallweapon': (1.0, .5),
+                                       'feet': (1.0, .7),
+                                       'misc': (.025, .41),
+                                       'wrist': (.2, .7),
+                                       'ring': (1.18, .2),
+                                       'ring1': (1.18, .4),
+                                       'ring2': (1.18, .6)}
+        for slot, pos in equipSlotsPositions.items():
             python:
                 is_multiple_pytgroup = False
 
@@ -64,7 +76,7 @@ screen eqdoll(active_mode=True, char=None, frame_size=[55, 55], scr_align=(.23, 
                     img = blank
             frame:
                 background bg
-                pos (equipSlotsPositions[slot][1]+ (0 if not isinstance(char, dict) or equipSlotsPositions[slot][1] < .5 else -0.619), equipSlotsPositions[slot][2])
+                pos (pos[0]+ (0 if not isinstance(char, dict) or pos[0] < .5 else -0.619), pos[1])
                 xysize (frame_size[0], frame_size[1])
                 if active_mode and equipment:
                     if not isinstance(char, dict):
@@ -169,11 +181,7 @@ screen itemstats(item=None, size=(635, 380), style_group="content", mc_mode=Fals
                             xysize 195, 22
                             padding 4, 1
                             text ('Slot:') color "ivory" xalign .0 yoffset -1
-                            python:
-                                if item.slot in SLOTALIASES:
-                                    slot = SLOTALIASES[item.slot]
-                                else:
-                                    slot = item.slot.capitalize()
+                            $ slot = EQUIP_SLOTS.get(item.slot, item.slot.capitalize())
                             label ('{size=-3}[slot]') align 1.0, .5
                         frame:
                             xysize 195, 22
@@ -332,11 +340,7 @@ screen paging(path="content/gfx/interface/buttons/",
                         hover im.MatrixColor(img, im.matrix.brightness(.15))
                         action Function(ref.apply_filter, "prev")
 
-                    python:
-                        if ref.slot_filter in SLOTALIASES:
-                            slot = SLOTALIASES[ref.slot_filter]
-                        else:
-                            slot = ref.slot_filter.capitalize()
+                    $ slot = EQUIP_SLOTS.get(ref.slot_filter, ref.slot_filter.capitalize())
                     label "[slot] " align .5, .5  text_color "ivory"
 
                     imagebutton:

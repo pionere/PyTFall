@@ -557,13 +557,11 @@ screen char_equip_left_frame(stats_display):
                                         hbox:
                                             align .99, .5
                                             spacing 2
-                                            #yoffset 1
                                             if any((data[0], data[1], data[2])):
                                                 button:
                                                     style "default"
                                                     xysize 20, 18
                                                     action NullAction()
-                                                    #yoffset 2
                                                     tooltip "Icon represents skills modifier changes. Green means bonus, red means penalty. Left one is action counter, right one is training counter, top one is resulting value."
                                                     if data[0] > 0:
                                                         add pscale(img_path + "left_green.png", 20, 20)
@@ -642,7 +640,7 @@ screen char_equip_left_frame(stats_display):
                                         background Null()
                                         xysize (xsize, ysize)
                                         action NullAction()
-                                        text "[skill.name]" idle_color "#CD4F39" align .5, .5 hover_color "crimson" size min(ysize-5, int(3*xsize/max(1, 2*len(skill.name))))
+                                        text "[skill.name]" idle_color "#CD4F39" align .5, .5 hover_color "crimson" size min(ysize-5, int(3*xsize/max(1, 2*len(skill.name)))) strikethrough True
                                         tooltip ["be", skill]
                                         hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
 
@@ -704,7 +702,7 @@ screen char_equip_left_frame(stats_display):
                                         background Null()
                                         xysize (xsize, ysize)
                                         action NullAction()
-                                        text "[skill.name]" idle_color "#CD4F39" align .5, .5 hover_color "crimson" size min(ysize-5, int(3*xsize/max(1, 2*len(skill.name))))
+                                        text "[skill.name]" idle_color "#CD4F39" align .5, .5 hover_color "crimson" size min(ysize-5, int(3*xsize/max(1, 2*len(skill.name)))) strikethrough True
                                         tooltip ["be", skill]
                                         hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
 
@@ -837,7 +835,7 @@ screen char_equip_left_frame(stats_display):
                                         background Null()
                                         xysize (xsize, ysize)
                                         action NullAction()
-                                        text "[effect.name]" idle_color "#CD4F39" align .5, .5 hover_color "crimson" size min(ysize-5, int(3*xsize/max(1, 2*len(effect.name))))
+                                        text "[effect.name]" idle_color "#CD4F39" align .5, .5 hover_color "crimson" size min(ysize-5, int(3*xsize/max(1, 2*len(effect.name)))) strikethrough True
                                         tooltip "%s" % effect.desc
                                         hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
 
@@ -1077,11 +1075,7 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                     frame:
                         xysize (160, 25)
                         text "Slot:" color "#F5F5DC" xalign .02
-                        python:
-                            if item.slot in SLOTALIASES:
-                                slot = SLOTALIASES[item.slot]
-                            else:
-                                slot = item.slot.capitalize()
+                        $ slot = EQUIP_SLOTS.get(item.slot, item.slot.capitalize())
                         label ('{color=#F5F5DC}{size=-4}%s'%slot) align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
                     frame:
                         xysize (160, 25)
