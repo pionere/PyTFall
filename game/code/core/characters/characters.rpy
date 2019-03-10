@@ -769,7 +769,7 @@ init -9 python:
         # AP + Training ------------------------------------------------------------->
         def restore_ap(self):
             ap = self.baseAP
-            base = 40
+            base = 60
             c = self.get_stat("constitution")
             while c >= base:
                 ap += 1

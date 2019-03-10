@@ -667,7 +667,7 @@
     "icon": "content/items/misc/mem.png",
     "price": 1000,
     "sex": "unisex",
-    "chance": 20,
+    "chance": 10,
     "badness": 100,
     "eqchance": 50,
     "hidden": false,
