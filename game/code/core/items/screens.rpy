@@ -202,7 +202,7 @@ screen itemstats(item=None, size=(635, 380), style_group="content", mc_mode=Fals
                         vbox:
                             spacing 1
                             if item.mod:
-                                label ('Stats:') text_size 18 text_color "gold" xpos 10
+                                label ('Stats:') text_size 16 text_color "gold" xpos 10
                                 for stat, value in item.mod.items():
                                     frame:
                                         xysize 153, 20
@@ -210,7 +210,7 @@ screen itemstats(item=None, size=(635, 380), style_group="content", mc_mode=Fals
                                         label (u'{size=-4}[value]') align (.98, .5)
                                 null height 2
                             if item.max:
-                                label ('Max:') text_size 18 text_color "gold" xpos 10
+                                label ('Max:') text_size 16 text_color "gold" xpos 10
                                 for stat, value in item.max.items():
                                     frame:
                                         xysize 153, 20
@@ -218,23 +218,23 @@ screen itemstats(item=None, size=(635, 380), style_group="content", mc_mode=Fals
                                         label u'{size=-4}[value]' align (.98, .5)
                                 null height 2
                             if item.min:
-                                label ('Min:') text_size 18 text_color "gold" xpos 10
+                                label ('Min:') text_size 16 text_color "gold" xpos 10
                                 for stat, value in item.min.items():
                                     frame:
                                         xysize 153, 20
                                         text stat.capitalize() color "ivory" size 16 align (.02, .5)
                                         label (u'{size=-4}%d'%value) align (.98, .5)
                                 null height 2
-                            if item.addtraits:
+                            $ temp = [t for t in [traits[trait] for trait in item.addtraits] if not t.hidden]
+                            if temp:
                                 label ('Adds Traits:') text_size 16 text_color "gold" xpos 10
-                                for trait in item.addtraits:
-                                    $ trait = traits[trait]
+                                for trait in temp:
                                     use trait_info(trait, 153, 20)
                                 null height 2
-                            if item.removetraits:
+                            $ temp = [t for t in [traits[trait] for trait in item.removetraits] if not t.hidden]
+                            if temp:
                                 label ('Removes Traits:') text_size 16 text_color "gold" xpos 10
-                                for trait in item.removetraits:
-                                    $ trait = traits[trait]
+                                for trait in temp:
                                     use trait_info(trait, 153, 20)
                                 null height 2
                             if item.add_be_spells:
@@ -260,9 +260,10 @@ screen itemstats(item=None, size=(635, 380), style_group="content", mc_mode=Fals
                                 for effect in item.removeeffects:
                                     $ effect = CharEffect(effect)
                                     use effect_info(effect, 153, 20)
+                                null height 2
                             if hasattr(item, 'mtemp'):
                                 if item.mtemp:
-                                    label ('Frequency:') text_size 18 text_color "gold" xpos 10
+                                    label ('Frequency:') text_size 16 text_color "gold" xpos 10
                                     frame:
                                         xysize 153, 20
                                         if item.mreusable:
@@ -293,7 +294,7 @@ screen itemstats(item=None, size=(635, 380), style_group="content", mc_mode=Fals
                                                 label (u'{size=-4}%d'%item.statmax) align (.98, .5)
                             if hasattr(item, 'ctemp'):
                                 if item.ctemp:
-                                    label ('Duration:') text_size 18 text_color "gold" xpos 10
+                                    label ('Duration:') text_size 16 text_color "gold" xpos 10
                                     frame:
                                         xysize 153, 20
                                         text "Days" color "ivory" size 16 align (.02, .5)

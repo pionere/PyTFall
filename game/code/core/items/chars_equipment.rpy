@@ -436,22 +436,27 @@ screen char_equip_left_frame(stats_display):
         hbox:
             xsize 220
             ypos 173
-            label "Lvl [eqtarget.level]" text_color "#CDAD00" text_font "fonts/Rubius.ttf" text_size 16 text_outlines [(1, "#3a3a3a", 0, 0)] xalign .5
+            label "Lvl [eqtarget.level]" text_color "#CDAD00" text_font "fonts/Rubius.ttf" text_size 16 text_outlines [(1, "#3a3a3a", 0, 0)] xalign .53
 
         # Left Frame Buttons: =====================================>
         hbox:
+            xsize 220
             style_group "pb"
-            xalign .55
+            xpos 5
             ypos 198
             spacing 1
             button:
-                xsize 100
+                xsize 70
                 action SetScreenVariable("stats_display", "stats"), With(dissolve)
                 text "Stats" style "pb_button_text" yoffset 2
             button:
-                xsize 100
-                action SetScreenVariable("stats_display", "pro"), With(dissolve)
-                text "Item Skills" style "pb_button_text" yoffset 2
+                xsize 70
+                action SetScreenVariable("stats_display", "skills"), With(dissolve)
+                text "Skills" style "pb_button_text" yoffset 2
+            button:
+                xsize 70
+                action SetScreenVariable("stats_display", "traits"), With(dissolve)
+                text "Traits" style "pb_button_text" yoffset 2
 
         # Stats/Skills:
         vbox:
@@ -508,8 +513,8 @@ screen char_equip_left_frame(stats_display):
                         style_group "proper_stats"
                         has vbox spacing 1
 
-                        null height 1
-                        label (u"{size=18}{color=#CDCDC1}{b}Battle Stats:") xalign .49
+                        label (u"Battle Stats:") text_size 18 text_color "#CDCDC1" text_bold True xalign .49
+
                         $ stats = [("attack", "#CD4F39"), ("defence", "#dc762c"), ("magic", "#8470FF"), ("mp", "#009ACD"), ("agility", "#1E90FF"), ("luck", "#00FA9A")]
                         null height 1
 
@@ -524,66 +529,329 @@ screen char_equip_left_frame(stats_display):
                                 $ temp = build_str_for_eq(eqtarget, dummy, stat, tempc)
                                 text temp style_suffix "value_text" xalign .98 yoffset 3
 
-            elif stats_display == "pro":
-                frame:
-                    background Transform(Frame(im.MatrixColor("content/gfx/frame/p_frame5.png", im.matrix.brightness(-.1)), 5, 5), alpha=.7)
+            elif stats_display == "skills":
+                vbox:
+                    spacing 5
                     pos (4, 40)
-                    ymaximum 460
-                    has vbox style_prefix "proper_stats" spacing 1
-                    if not focusitem:
-                        vbox:
-                            xsize 208
-                            text ("Select an item to check its skills") size 18 color "goldenrod" bold True xalign .45 text_align .5
-                    elif not getattr(focusitem, "mod_skills", None):
-                        vbox:
-                            xsize 208
-                            text ("Current item doesn't affect skills. Try to select another one?") size 18 color "goldenrod" bold True xalign .45 text_align .5
-                    else:
-                        $ img_path = "content/gfx/interface/icons/skills_icons/"
-                        for skill, data in getattr(focusitem, "mod_skills").iteritems():
-                            frame:
-                                xysize 208, 22
-                                text str(skill).title() size 16 color "yellowgreen" align .0, .5
-                                hbox:
-                                    align .99, .5
-                                    spacing 2
-                                    yoffset 1
+                    $ c0 = focusitem and getattr(focusitem, "mod_skills", None)
+                    if c0:
+                        frame:
+                            background Transform(Frame(im.MatrixColor("content/gfx/frame/p_frame5.png", im.matrix.brightness(-0.1)), 5, 5), alpha=.7)
+                            xsize 218
+                            padding 6, 6
+                            margin 0, 0
+                            style_group "proper_stats"
+
+                            $ img_path = "content/gfx/interface/icons/skills_icons/"
+                            viewport:
+                                xysize (218, 90)
+                                edgescroll (40, 40)
+                                draggable True
+                                mousewheel True
+                                child_size (218, 1000) # should not be necessary...
+                                has vbox spacing 1 xfill True
+                                for skill, data in getattr(focusitem, "mod_skills").iteritems():
+                                    frame:
+                                        xysize 208, 22
+                                        text str(skill).title() size 16 color "yellowgreen" align .0, .5
+                                        hbox:
+                                            align .99, .5
+                                            spacing 2
+                                            #yoffset 1
+                                            if any((data[0], data[1], data[2])):
+                                                button:
+                                                    style "default"
+                                                    xysize 20, 18
+                                                    action NullAction()
+                                                    #yoffset 2
+                                                    tooltip "Icon represents skills modifier changes. Green means bonus, red means penalty. Left one is action counter, right one is training counter, top one is resulting value."
+                                                    if data[0] > 0:
+                                                        add pscale(img_path + "left_green.png", 20, 20)
+                                                    elif data[0] < 0:
+                                                        add pscale(img_path + "left_red.png", 20, 20)
+                                                    if data[1] > 0:
+                                                        add pscale(img_path + "right_green.png", 20, 20)
+                                                    elif data[1] < 0:
+                                                        add pscale(img_path + "right_red.png", 20, 20)
+                                                    if data[2] > 0:
+                                                        add pscale(img_path + "top_green.png", 20, 20)
+                                                    elif data[2] < 0:
+                                                        add pscale(img_path + "top_red.png", 20, 20)
+                                            if data[3]:
+                                                button:
+                                                    style "default"
+                                                    action NullAction()
+                                                    tooltip "Direct bonus to action skill values."
+                                                    label "A: " + str(data[3]) text_size 15
+                                            if data[4]:
+                                                button:
+                                                    style "default"
+                                                    action NullAction()
+                                                    tooltip "Direct bonus to knowledge skill values."
+                                                    label "K: " + str(data[4]) text_size 15
+
+                    frame:
+                        background Transform(Frame(im.MatrixColor("content/gfx/frame/p_frame5.png", im.matrix.brightness(-0.1)), 5, 5), alpha=.7)
+                        xsize 218
+                        padding 6, 6
+                        margin 0, 0
+                        style_group "proper_stats"
+                        has vbox spacing 1 xfill True
+
+                        label (u"Attacks:") text_size 18 text_color "#CDCDC1" text_bold True xalign .49 text_outlines [(3, "#424242", 0, 0), (2, "#8B0000", 0, 0), (1, "#424242", 0, 0)]
+
+                        if getattr(store, "dummy", None) is not None:
+                            $ t_old = set(eqtarget.attack_skills)
+                            $ t_new = set(dummy.attack_skills)
+
+                            $ temp = t_new.difference(t_old)
+                            $ t_old = t_old.difference(t_new)
+
+                            $ t_new = sorted(list(temp), key=attrgetter("name"))
+                            $ t_old = sorted(list(t_old), key=attrgetter("name"))
+                        else:
+                            $ t_old = t_new = []
+
+                        viewport:
+                            xysize (218, 100 if c0 else 200)
+                            edgescroll (40, 40)
+                            draggable True
+                            mousewheel True
+                            has vbox spacing 1
+
+                            $ xsize, ysize = 208, 22
+                            # Added attack skills
+                            for skill in t_new:
+                                frame:
+                                    align (.5, .5)
+                                    xysize (xsize, ysize)
                                     button:
-                                        style "default"
-                                        xysize 20, 18
+                                        background Null()
+                                        xysize (xsize, ysize)
                                         action NullAction()
-                                        yoffset 2
-                                        tooltip "Icon represents skills modifier changes. Green means bonus, red means penalty. Left one is action counter, right one is training counter, top one is resulting value."
-                                        if data[0] > 0:
-                                            add pscale(img_path + "left_green.png", 20, 20)
-                                        elif data[0] < 0:
-                                            add pscale(img_path + "left_red.png", 20, 20)
-                                        if data[1] > 0:
-                                            add pscale(img_path + "right_green.png", 20, 20)
-                                        elif data[1] < 0:
-                                            add pscale(img_path + "right_red.png", 20, 20)
-                                        if data[2] > 0:
-                                            add pscale(img_path + "top_green.png", 20, 20)
-                                        elif data[2] < 0:
-                                            add pscale(img_path + "top_red.png", 20, 20)
-                                    if data[3]:
+                                        text "[skill.name]" idle_color "#43CD80" align .5, .5 hover_color "crimson" size min(ysize-5, int(3*xsize/max(1, 2*len(skill.name))))
+                                        tooltip ["be", skill]
+                                        hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
+
+                            # Removed attack skills
+                            for skill in t_old:
+                                frame:
+                                    align (.5, .5)
+                                    xysize (xsize, ysize)
+                                    button:
+                                        background Null()
+                                        xysize (xsize, ysize)
+                                        action NullAction()
+                                        text "[skill.name]" idle_color "#CD4F39" align .5, .5 hover_color "crimson" size min(ysize-5, int(3*xsize/max(1, 2*len(skill.name))))
+                                        tooltip ["be", skill]
+                                        hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
+
+                            # Remaining attack skills
+                            $ temp = set(t_new + t_old)
+                            for skill in eqtarget.attack_skills:
+                                if skill not in temp:
+                                    use skill_info(skill, 208, 22)
+
+                    frame:
+                        background Transform(Frame(im.MatrixColor("content/gfx/frame/p_frame5.png", im.matrix.brightness(-0.1)), 5, 5), alpha=.7)
+                        xsize 218
+                        padding 6, 6
+                        margin 0, 0
+                        style_group "proper_stats"
+
+                        has vbox spacing 1 xfill True
+                        label (u"Spells:") text_size 18 text_color "#CDCDC1" text_bold True xalign .49 text_outlines [(3, "#424242", 0, 0), (2, "#104E8B", 0, 0), (1, "#424242", 0, 0)]
+
+                        if getattr(store, "dummy", None) is not None:
+                            $ t_old = set(eqtarget.magic_skills)
+                            $ t_new = set(dummy.magic_skills)
+
+                            $ temp = t_new.difference(t_old)
+                            $ t_old = t_old.difference(t_new)
+
+                            $ t_new = sorted(list(temp), key=attrgetter("name"))
+                            $ t_old = sorted(list(t_old), key=attrgetter("name"))
+                        else:
+                            $ t_old = t_new = []
+
+                        viewport:
+                            xysize (218, 175)
+                            edgescroll (40, 40)
+                            draggable True
+                            mousewheel True
+                            has vbox spacing 1
+
+                            $ xsize, ysize = 208, 22
+                            # Added magic skills
+                            for skill in t_new:
+                                frame:
+                                    align (.5, .5)
+                                    xysize (xsize, ysize)
+                                    button:
+                                        background Null()
+                                        xysize (xsize, ysize)
+                                        action NullAction()
+                                        text "[skill.name]" idle_color "#43CD80" align .5, .5 hover_color "crimson" size min(ysize-5, int(3*xsize/max(1, 2*len(skill.name))))
+                                        tooltip ["be", skill]
+                                        hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
+
+                            # Removed magic skills
+                            for skill in t_old:
+                                frame:
+                                    align (.5, .5)
+                                    xysize (xsize, ysize)
+                                    button:
+                                        background Null()
+                                        xysize (xsize, ysize)
+                                        action NullAction()
+                                        text "[skill.name]" idle_color "#CD4F39" align .5, .5 hover_color "crimson" size min(ysize-5, int(3*xsize/max(1, 2*len(skill.name))))
+                                        tooltip ["be", skill]
+                                        hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
+
+                            # Remaining magic skills
+                            $ temp = set(t_new + t_old)
+                            for skill in eqtarget.magic_skills:
+                                if skill not in temp:
+                                    use skill_info(skill, 208, 22)
+
+            elif stats_display == "traits":
+                vbox:
+                    spacing 5
+                    pos (4, 40)
+                    frame:
+                        background Transform(Frame(im.MatrixColor("content/gfx/frame/p_frame5.png", im.matrix.brightness(-0.1)), 5, 5), alpha=.7)
+                        xsize 218
+                        padding 6, 6
+                        margin 0, 0
+                        style_group "proper_stats"
+                        has vbox spacing 1 xfill True
+
+                        label (u"Traits:") text_size 18 text_color "#CDCDC1" text_bold True xalign .49
+
+                        $ t_cur = [t for t in eqtarget.traits if not any([t.basetrait, t.personality, t.race, t.elemental])]
+                        if getattr(store, "dummy", None) is not None:
+                            $ t_old = set(t_cur)
+                            $ t_new = set(t for t in dummy.traits if not any([t.basetrait, t.personality, t.race, t.elemental]))
+
+                            $ temp = t_new.difference(t_old)
+                            $ t_old = t_old.difference(t_new)
+
+                            $ t_new = sorted(list(temp), key=attrgetter("id"))
+                            $ t_old = sorted(list(t_old), key=attrgetter("id"))
+                        else:
+                            $ t_old = t_new = []
+
+                        viewport:
+                            xysize (218, 200)
+                            edgescroll (40, 40)
+                            draggable True
+                            mousewheel True
+                            has vbox spacing 1
+
+                            $ xsize, ysize = 208, 22
+                            # New traits
+                            for trait in t_new:
+                                if not trait.hidden:
+                                    frame:
+                                        align (.5, .5)
+                                        xysize (xsize, ysize)
                                         button:
-                                            style "default"
-                                            action NullAction()
-                                            tooltip "Direct bonus to action skill values."
-                                            label "A: " + str(data[3]) text_size 15
-                                    if data[4]:
+                                            background Null()
+                                            xysize (xsize, ysize)
+                                            action Show("show_trait_info", trait=trait.id)
+                                            text trait.id idle_color "#43CD80" align .5, .5 hover_color "crimson" text_align .5 size min(ysize-5, int(3*xsize/max(1, 2*len(trait.id))))
+                                            tooltip "%s" % trait.desc
+                                            hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
+
+                            # Removed traits
+                            for trait in t_old:
+                                if not trait.hidden:
+                                    frame:
+                                        align (.5, .5)
+                                        xysize (xsize, ysize)
                                         button:
-                                            style "default"
-                                            action NullAction()
-                                            tooltip "Direct bonus to knowledge skill values."
-                                            label "K: " + str(data[4]) text_size 15
+                                            background Null()
+                                            xysize (xsize, ysize)
+                                            action Show("show_trait_info", trait=trait.id)
+                                            text trait.id idle_color "#CD4F39" align .5, .5 hover_color "crimson" text_align .5 size min(ysize-5, int(3*xsize/max(1, 2*len(trait.id)))) strikethrough True
+                                            tooltip "%s" % trait.desc
+                                            hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
+
+                            # Remaining traits
+                            $ temp = set(t_new + t_old)
+                            for trait in t_cur:
+                                if not trait.hidden and trait not in temp:
+                                    use trait_info(trait, xsize, ysize)
+
+                    frame:
+                        background Transform(Frame(im.MatrixColor("content/gfx/frame/p_frame5.png", im.matrix.brightness(-0.1)), 5, 5), alpha=.7)
+                        xsize 218
+                        padding 6, 6
+                        margin 0, 0
+                        style_group "proper_stats"
+                        has vbox spacing 1 xfill True
+
+                        label (u"Effects:") text_size 18 text_color "#CDCDC1" text_bold True xalign .49
+
+                        if getattr(store, "dummy", None) is not None:
+                            $ t_old = set(t.name for t in eqtarget.effects.itervalues())
+                            $ t_new = set(t.name for t in dummy.effects.itervalues())
+
+                            $ temp = t_new.difference(t_old)
+                            $ t_old = t_old.difference(t_new)
+
+                            $ t_new = sorted(list(temp))
+                            $ t_old = sorted(list(t_old))
+                        else:
+                            $ t_old = t_new = []
+
+                        viewport:
+                            xysize (218, 175)
+                            edgescroll (40, 40)
+                            draggable True
+                            mousewheel True
+                            has vbox spacing 1
+
+                            $ xsize, ysize = 208, 22
+                            # Added effects
+                            for effect in t_new:
+                                $ effect = CharEffect(effect)
+                                frame:
+                                    align (.5, .5)
+                                    xysize (xsize, ysize)
+                                    button:
+                                        background Null()
+                                        xysize (xsize, ysize)
+                                        action NullAction()
+                                        text "[effect.name]" idle_color "#43CD80" align .5, .5 hover_color "crimson" size min(ysize-5, int(3*xsize/max(1, 2*len(effect.name))))
+                                        tooltip "%s" % effect.desc
+                                        hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
+
+                            # Removed effects
+                            for effect in t_old:
+                                $ effect = CharEffect(effect)
+                                frame:
+                                    align (.5, .5)
+                                    xysize (xsize, ysize)
+                                    button:
+                                        background Null()
+                                        xysize (xsize, ysize)
+                                        action NullAction()
+                                        text "[effect.name]" idle_color "#CD4F39" align .5, .5 hover_color "crimson" size min(ysize-5, int(3*xsize/max(1, 2*len(effect.name))))
+                                        tooltip "%s" % effect.desc
+                                        hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
+
+                            # Remaining effects
+                            $ temp = set(t_new + t_old)
+                            for effect in eqtarget.effects.itervalues():
+                                if effect.name not in temp:
+                                    use effect_info(effect, xsize, ysize)
 
     use char_equip_right_frame()
 
 screen char_equip_right_frame():
     # Right Frame: =====================================>
-    # TOOLTIP TEXT or Applied Traits and Skills ====================================>
+    # TOOLTIP TEXT  ====================================>
     frame:
         pos (930, 4)
         background Frame(Transform("content/gfx/frame/ink_box.png", alpha=.4), 10, 10)
@@ -591,92 +859,13 @@ screen char_equip_right_frame():
         xysize (345, 110)
 
         python:
-            if len(eqtarget.traits.basetraits) == 1:
-                classes = list(eqtarget.traits.basetraits)[0].id
-            elif len(eqtarget.traits.basetraits) == 2:
-                classes = list(eqtarget.traits.basetraits)
-                classes.sort()
-                classes = ", ".join([str(c) for c in classes])
-            else:
-                if eqtarget != hero:
-                    raise Exception("Character without prof basetraits detected! line: 267, girlsprofile screen")
-                else:
-                    classes = "MC baseclasses are still AFK :("
+            classes = list(eqtarget.traits.basetraits)
+            classes.sort()
+            classes = ", ".join([str(c) for c in classes])
 
-            t = "{vspace=17}Classes: [classes]\nWork: [eqtarget.workplace]\nAction: [eqtarget.action]{/color}"
+            t = "is %s{vspace=17}Classes: %s\nWork: %s\nAction: %s{/color}" % (eqtarget.status.capitalize(), classes, eqtarget.workplace, eqtarget.action)
 
-        if getattr(store, "dummy", None) is not None:
-            # Traits and skills:
-            vbox:
-                hbox:
-                    add "content/gfx/interface/images/add.png" yalign .5 yoffset -3
-                    add "content/gfx/interface/images/remove.png" yalign .5 yoffset -5
-                    label ('Traits|Effects:') text_size 16 text_color "gold" style "stats_label"
-                viewport:
-                    mousewheel True
-                    has vbox
-                    style_group "proper_stats"
-                    python:
-                        eqt = eqtarget
-                        t_old = set(t.id for t in eqt.traits)
-                        for effect in eqt.effects.iterkeys():
-                            t_old.add(effect)
-                        t_new = set(t.id for t in dummy.traits)
-                        for effect in dummy.effects.iterkeys():
-                            t_new.add(effect)
-                        temp = t_new.difference(t_old)
-                        temp = sorted(list(temp))
-
-                        t_old = t_old.difference(t_new)
-                        t_old = sorted(list(t_old))
-                        t_new = temp
-                    for i in t_new:
-                        frame:
-                            xpadding 3
-                            text u'{color=#43CD80}%s'%i size 16 yalign .5
-
-                    for i in t_old:
-                        frame:
-                            xpadding 3
-                            text u'{color=#CD4F39}%s'%i size 16 yalign .5
-
-            vbox:
-                xoffset 165
-                hbox:
-                    add "content/gfx/interface/images/add.png" yalign .5 yoffset -3
-                    add "content/gfx/interface/images/remove.png" yalign .5 yoffset -5
-                    label ('Battle Skills:') text_size 16 text_color "gold" style "stats_label"
-                viewport:
-                    mousewheel True
-                    has vbox
-                    style_group "proper_stats"
-                    python:
-                        s_old = set(s.name for s in list(eqt.attack_skills) + list(eqt.magic_skills))
-                        s_new = set(s.name for s in list(dummy.attack_skills) + list(dummy.magic_skills))
-                        temp = s_new.difference(s_old)
-                        temp = sorted(list(temp))
-                    if temp:
-                        for skill in temp:
-                            frame:
-                                xpadding 3
-                                text u'{color=#43CD80}%s'%skill size 16
-
-                    python:
-                        s_old = set(s.name for s in list(dummy.attack_skills) + list(dummy.magic_skills))
-                        s_new = set(s.name for s in list(eqt.attack_skills) + list(eqt.magic_skills))
-                        temp = s_new.difference(s_old)
-                        temp = sorted(list(temp))
-                    if temp:
-                        for skill in temp:
-                            frame:
-                                xalign .98
-                                xpadding 3
-                                text u'{color=#CD4F39}%s'%skill size 16 yalign .5
-        else:
-            if eqtarget.status == "slave":
-                text (u"{color=gold}[eqtarget.name]{/color}{color=#ecc88a}  is Slave%s" % t) size 14 align (.55, .65) font "fonts/TisaOTM.otf" line_leading -5
-            elif eqtarget.status == "free":
-                text (u"{color=gold}[eqtarget.name]{/color}{color=#ecc88a}  is Free%s" % t) size 14 align (.55, .65) font "fonts/TisaOTM.otf" line_leading -5
+        text (u"{color=gold}[eqtarget.name]{/color}  {color=#ecc88a}%s" % t) size 14 align (.55, .65) font "fonts/TisaOTM.otf" line_leading -5
 
     # Right Frame Buttons ====================================>
     vbox:
@@ -919,8 +1108,7 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                     xysize (80, 45)
                     action SensitiveIf(eqtarget != hero and ((eqtarget.inventory[item] > 0 and inv_source == eqtarget) or (hero.inventory[item] > 0 and inv_source == hero))), Return(['item', 'transfer'])
                     if eqtarget == hero:
-                        tooltip "Disabled"
-                        text "Disabled" style "pb_button_text" align (.5, .5)
+                        text "Transfer" style "pb_button_text" align (.5, .5)
                     elif inv_source == hero:
                         tooltip "Transfer {} from {} to {}".format(item.id, hero.nickname, eqtarget.nickname)
                         text "Give to\n {color=#FFAEB9}[eqtarget.nickname]{/color}" style "pb_button_text" align (.5, .5) line_leading 3
@@ -967,7 +1155,7 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                     has viewport draggable True mousewheel True child_size 200, 500
                     vbox:
                         if item.mod:
-                            label ('Stats:') text_size 18 text_color "gold" xpos 30
+                            label ('Stats:') text_size 14 text_color "gold" xpos 30
                             vbox:
                                 spacing 1
                                 for stat, value in item.mod.items():
@@ -978,7 +1166,7 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                             null height 3
 
                         if item.max:
-                            label ('Max:') text_size 16 text_color "gold" xpos 30
+                            label ('Max:') text_size 14 text_color "gold" xpos 30
                             vbox:
                                 spacing 1
                                 for stat, value in item.max.items():
@@ -989,7 +1177,7 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                             null height 3
 
                         if item.min:
-                            label ('Min:') text_size 16 text_color "gold" xpos 30
+                            label ('Min:') text_size 14 text_color "gold" xpos 30
                             vbox:
                                 spacing 1
                                 for stat, value in item.min.items():
@@ -999,7 +1187,7 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                                         label (u'{color=#F5F5DC}{size=-4}%d'%value) align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
                         if hasattr(item, 'mtemp'):
                             if item.mtemp:
-                                label ('Frequency:') text_size 16 text_color "gold" xpos 30
+                                label ('Frequency:') text_size 14 text_color "gold" xpos 30
                                 vbox:
                                     frame:
                                         xysize (172, 18)
@@ -1032,7 +1220,7 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                                                 label (u'{color=#F5F5DC}{size=-4}%d'%item.statmax) align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
                         if hasattr(item, 'ctemp'):
                             if item.ctemp:
-                                label ('Duration:') text_size 16 text_color "gold" xpos 30
+                                label ('Duration:') text_size 14 text_color "gold" xpos 30
                                 frame:
                                     xysize (172, 18)
                                     if item.ctemp > 1:
@@ -1053,50 +1241,31 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                     # Traits:
                     vbox:
                         style_group "proper_stats"
-                        xsize 150
-                        if item.addtraits or item.removetraits:
-                            hbox:
-                                xalign .5
-                                if item.addtraits:
-                                    add "content/gfx/interface/images/add.png" yalign .5
-                                if item.removetraits:
-                                    add "content/gfx/interface/images/remove.png"  yalign .5 yoffset -2
-                                null width 4
-                                label ('Traits:') text_size 14 text_color "gold"
-
-                            for trait in item.addtraits:
-                                frame:
-                                    xalign .1
-                                    xpadding 2
-                                    text str(trait) color "#43CD80" size 15 align .5, .5
-                            for trait in item.removetraits:
-                                frame:
-                                    xalign .9
-                                    xpadding 2
-                                    text str(trait) color "#CD4F39" size 15 align .5, .5
-
-                        # Effects:
-                        if item.addeffects or item.removeeffects:
-                            null height 5
-                            hbox:
-                                xalign .5
-                                if item.addeffects:
-                                    add "content/gfx/interface/images/add.png" yalign .5
-                                if item.removeeffects:
-                                    add "content/gfx/interface/images/remove.png"  yalign .5 yoffset -2
-                                null width 4
-                                label ('Effects:') text_size 14 text_color "gold" xoffset 7
-
+                        xsize 154
+                        $ temp = [t for t in [traits[trait] for trait in item.addtraits] if not t.hidden]
+                        if temp:
+                            label ('Adds Traits:') text_size 14 text_color "gold" xpos 10
+                            for trait in temp:
+                                use trait_info(trait, 146, 20)
+                            null height 2
+                        $ temp = [t for t in [traits[trait] for trait in item.removetraits] if not t.hidden]
+                        if temp:
+                            label ('Removes Traits:') text_size 14 text_color "gold" xpos 10
+                            for trait in temp:
+                                use trait_info(trait, 146, 20)
+                            null height 2
+                        if item.addeffects:
+                            label ('Adds Effects:') text_size 14 text_color "gold" xpos 10
                             for effect in item.addeffects:
-                                frame:
-                                    xalign .1
-                                    xpadding 2
-                                    text str(effect) color "#43CD80" size 15 align .5, .5
+                                $ effect = CharEffect(effect)
+                                use effect_info(effect, 146, 20)
+                            null height 2
+                        if item.removeeffects:
+                            label ('Removes Effects:') text_size 14 text_color "gold" xpos 10
                             for effect in item.removeeffects:
-                                frame:
-                                    xalign .9
-                                    xpadding 2
-                                    text str(effect) color "#CD4F39" size 15 align .5, .5
+                                $ effect = CharEffect(effect)
+                                use effect_info(effect, 146, 20)
+                            #null height 2
 
                 frame:
                     xysize 382, 104
@@ -1212,28 +1381,20 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                     padding 2, 3
                     has viewport draggable True mousewheel True
                     vbox:
-                        xsize 150
+                        xsize 154
                         style_group "proper_stats"
-                        if item.add_be_spells or item.remove_be_spells:
-                            hbox:
-                                xalign .5
-                                if item.add_be_spells:
-                                    add "content/gfx/interface/images/add.png" yalign .5
-                                if item.remove_be_spells:
-                                    add "content/gfx/interface/images/remove.png" yalign .5 yoffset -2
-                                null width 4
-                                label ('Skills:') text_size 14 text_color "gold" xoffset 7
-
+                        if item.add_be_spells:
+                            label ('Adds Skills:') text_size 14 text_color "gold" xpos 10
                             for skill in item.add_be_spells:
-                                frame:
-                                    xalign .1
-                                    xpadding 2
-                                    text (u'{color=#43CD80}%s'%skill) size 15 align .5, .5
+                                $ skill = battle_skills[skill]
+                                use skill_info(skill, 146, 20)
+                            null height 2
+                        if item.remove_be_spells:
+                            label ('Removes Skills:') text_size 14 text_color "gold" xpos 10
                             for skill in item.remove_be_spells:
-                                frame:
-                                    xalign .9
-                                    xpadding 2
-                                    text (u'{color=#CD4F39}%s'%skill) size 15 align .5, .5
+                                $ skill = battle_skills[skill]
+                                use skill_info(skill, 146, 20)
+                            #null height 2
 
     else: # equipment saves
         frame:
