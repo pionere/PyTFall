@@ -101,68 +101,69 @@ init -11 python:
     def interactions_check_for_bad_stuff(char): # we check major issues when the character will refuse almost anything
         if "Food Poisoning" in char.effects:
             char.override_portrait("portrait", "indifferent")
-            char.say(choice(["But [char.name] was too ill to pay any serious attention to you.", "But [char.pp] aching stomach completely occupies [char.pp] thoughts."]))
+            char.say(choice(["But %s was too ill to pay any serious attention to you." % char.name, "But %s aching stomach completely occupies %s thoughts." % (char.pp, char.pp)]))
             char.restore_portrait()
             char.gfx_mod_stat("disposition", -randint(2, 5))
             renpy.jump("girl_interactions_end")
         elif char.get_stat("vitality") <= char.get_max("vitality")/10:
             char.override_portrait("portrait", "indifferent")
-            char.say(choice(["But [char.name] was too tired to even talk.", "Sadly, [char.name] was not very happy that you interrupted [char.pp] rest.", "But [char.p] is simply too tired to pay any serious attention to you.", "Unfortunately [char.p] so tired [char.p] almost falls asleep on the move."]))
+            char.say(choice(["But %s was too tired to even talk." % char.name, "Sadly, %s was not very happy that you interrupted %s rest." % (char.name, char.pp), "But %s is simply too tired to pay any serious attention to you." % char.p, "Unfortunately %s so tired %s almost falls asleep on the move." % (char.p, char.p)]))
             char.restore_portrait()
             char.gfx_mod_stat("disposition", -randint(5, 10))
             char.mod_stat("vitality", -2)
             renpy.jump("girl_interactions_end")
         elif char.get_stat("health") < char.get_max("health")/5:
             char.override_portrait("portrait", "indifferent")
-            char.say(choice(["But [char.name] is too wounded for that.", "But [char.pp] wounds completely occupy [char.pp] thoughts."]))
+            char.say(choice(["But %s is too wounded for that." % char.name, "But %s wounds completely occupy %s thoughts." % (char.pp, char.pp)]))
             char.restore_portrait()
             char.gfx_mod_stat("disposition", -randint(5, 15))
             char.mod_stat("vitality", -2)
             renpy.jump("girl_interactions_end")
 
     def interactions_check_for_minor_bad_stuff(char): # we check minor issues when character might refuse to do something based on dice
-        if (not("Pessimist" in char.traits) and char.get_stat("joy") <= 25) or (("Pessimist" in char.traits) and char.get_stat("joy") < 10):
+        if char.get_stat("joy") < 10 or (char.get_stat("joy") <= 25 and "Pessimist" not in char.traits):
             if dice(interactions_influence(c)) and dice(80):
-                narrator(choice(["It looks like [char.p] is in a bad mood, however you managed to cheer [char.op] up."]))
+                narrator("It looks like %s is in a bad mood, however you managed to cheer %s up." % (char.p, char.op))
                 char.gfx_mod_stat("disposition", 1)
                 char.gfx_mod_stat("affection", affection_reward(char, .1))
                 char.gfx_mod_stat("joy", randint(3, 6))
             else:
-                narrator(choice(["It looks like [char.p] is in a bad mood today and not does not want to do anything."]))
+                narrator("It looks like %s is in a bad mood today and not does not want to do anything." % char.p)
                 renpy.jump ("girl_interactions")
         elif "Down with Cold" in char.effects: #if she's ill, there is a chance that she will disagree to chat
             if dice(interactions_influence(c)) and dice(80):
-                narrator(choice(["It looks like [char.p] is not feeling well today, however you managed to cheer [char.op] up a bit."]))
+                narrator("It looks like %s is not feeling well today, however you managed to cheer %s up a bit." % (char.p, char.op))
                 char.gfx_mod_stat("disposition", 2)
                 char.gfx_mod_stat("affection", affection_reward(char, .2))
                 char.gfx_mod_stat("joy", randint(1, 5))
             else:
-                narrator(choice(["[char.pC] is not feeling well today and not in the mood to do anything."]))
+                narrator("%s is not feeling well today and not in the mood to do anything." % char.pC)
                 renpy.jump ("girl_interactions")
         elif char.get_stat("vitality") <= char.get_max("vitality")/5 and dice (35):
             char.override_portrait("portrait", "tired")
             if "Impersonal" in char.traits:
-                rc("I don't have required endurance at the moment. Let's postpone it.", "No. Not enough energy.")
+                lines = ["I don't have required endurance at the moment. Let's postpone it.", "No. Not enough energy."]
             elif "Shy" in char.traits and dice(50):
-                rc("W-well, I'm a bit tired right now... Maybe some other time...", "Um, I-I don't think I can do it, I'm exhausted. Sorry...")
+                lines = ["W-well, I'm a bit tired right now... Maybe some other time...", "Um, I-I don't think I can do it, I'm exhausted. Sorry..."]
             elif "Imouto" in char.traits:
-                rc("Noooo, I'm tired. I want to sleep.", "Z-z-z *she falls asleep on the feet*")
+                lines = ["Noooo, I'm tired. I want to sleep.", "Z-z-z *she falls asleep on the feet*"]
             elif "Dandere" in char.traits:
-                rc("No. Too tired.", "Not enough strength. I need to rest.")
+                lines = ["No. Too tired.", "Not enough strength. I need to rest."]
             elif "Tsundere" in char.traits:
-                rc("I must rest at first. Can't you tell?", "I'm too tired, don't you see?! Honestly, some people...")
+                lines = ["I must rest at first. Can't you tell?", "I'm too tired, don't you see?! Honestly, some people..."]
             elif "Kuudere" in char.traits:
-                rc("I'm quite exhausted. Maybe some other time.", "I really could use some rest right now, my body is tired.")
+                lines = ["I'm quite exhausted. Maybe some other time.", "I really could use some rest right now, my body is tired."]
             elif "Kamidere" in char.traits:
-                rc("I'm tired, and have to intentions to do anything but rest.", "I need some rest. Please don't bother me.")
+                lines = ["I'm tired, and have to intentions to do anything but rest.", "I need some rest. Please don't bother me."]
             elif "Bokukko" in char.traits:
-                rc("Naah, don't wanna. Too tired.", "*yawns* I could use a nap first...")
+                lines = ["Naah, don't wanna. Too tired.", "*yawns* I could use a nap first..."]
             elif "Ane" in char.traits:
-                rc("Unfortunately I'm quite tired at the moment. I'd like to rest a bit.", "Sorry, I'm quite sleepy. Let's do it another time.")
+                lines = ["Unfortunately I'm quite tired at the moment. I'd like to rest a bit.", "Sorry, I'm quite sleepy. Let's do it another time."]
             elif "Yandere" in char.traits:
-                rc("Ahh, my whole body aches... I'm way too tired.", "The only thing I can do properly now is to take a good nap...")
+                lines = ["Ahh, my whole body aches... I'm way too tired.", "The only thing I can do properly now is to take a good nap..."]
             else:
-                rc("*sign* I'm soo tired lately, all I can think about is a cozy warm bed...", "I am ready to drop. Some other time perhaps.")
+                lines = ["*sign* I'm soo tired lately, all I can think about is a cozy warm bed...", "I am ready to drop. Some other time perhaps."]
+            rcchar(char, lines)
             char.restore_portrait()
             char.gfx_mod_stat("disposition", -randint(0, 1))
             char.mod_stat("vitality", -randint(1, 2))
@@ -202,7 +203,14 @@ init -11 python:
         random choice function
         Wrapper to enable simpler girl_meets choices, returns whatever char_gm is set to along with a random line.
         """
-        # https://github.com/Xela00/PyTFall/issues/37
+        return char.say(choice(list(args)))
+
+    def rcchar(char, *args):
+        """
+        random choice function
+        Wrapper to enable simpler girl_meets choices, returns whatever char_gm is set to along with a random line.
+        Goes with char argument, thus can be used where the game doesn't recognize default "char"
+        """
         return char.say(choice(list(args)))
 
     def rts(girl, options):
@@ -387,33 +395,33 @@ init -11 python:
         characters = [c for c in characters if c != hero]
         if characters:
             said_lines = set()
-            for character in characters:
-                if "Impersonal" in character.traits:
+            for char in characters:
+                if "Impersonal" in char.traits:
                     lines = ["Target acquired, initialising battle mode.", "Enemy spotted. Engaging combat.", "Battle phase, initiation. Weapons online.", "Better start running. I'm afraid I can't guarantee your safety.", "Enemy analysis completed. Switching to the combat routine.", "Target locked on. Commencing combat mode."]
-                elif "Imouto" in character.traits:
+                elif "Imouto" in char.traits:
                     lines = ["Ahaha, we'll totally beat you up!", "Behold of my amazing combat techniques, [mc_ref]! ♪", "All our enemies will be punished! ♫", "Activate super duper mega ultra assault mode! ♪", "Huh? Don't they know we're too strong for them?"]
-                elif "Dandere" in character.traits:
+                elif "Dandere" in char.traits:
                     lines = ["Want to fight? We'll make you regret it.", "Let's end this quickly, [mc_ref]. We have many other things to do.", "Of course we'll win.", "This will be over before you know it.", "If something bad happens to the enemy, don't blame me."]
-                elif "Tsundere" in character.traits:
+                elif "Tsundere" in char.traits:
                     lines = ["Well-well. It looks like we have some new targets, [mc_ref] ♪", "Hmph! You're about 100 years too early to defeat us!", "We won't go easy on you!", "There's no way you could win!", "[mc_ref], you can stay back if you wish. I'll show you how it's done.", "I won't just defeat you, I'm gonna shatter you!"]
-                elif "Kuudere" in character.traits:
+                elif "Kuudere" in char.traits:
                     lines = ["Oh, you dare to stand against us?", "Fine, we accept your challenge. Let's go, [mc_ref].", "Don't worry, [mc_ref]. This battle will be over soon enough.", "Are you prepared to know our power?", "You picked a fight with the wrong girl."]
-                elif "Kamidere" in character.traits:
+                elif "Kamidere" in char.traits:
                     lines = ["Get ready, [mc_ref]. We have some lowlife to crash.", "So you want us to teach you some manners, huh?", "You have made a grave error challenging us. Retreat while you can.", "Time to take out the trash.", "You should leave this place and cower in your home. That is the proper course for one so weak.", "You need to be put back in your place."]
-                elif "Bokukko" in character.traits:
+                elif "Bokukko" in char.traits:
                     lines = ["Wanna throw hands, huh? Better be ready to catch them!", "I'm gonna beat you silly! Cover me, [mc_ref]!", "You wanna go? Alrighty, eat some of this!", "Time to kick some ass.", "I'm gonna whack you good!", "All right, let's clean this up fast!"]
-                elif "Ane" in character.traits:
+                elif "Ane" in char.traits:
                     lines = ["Don't worry, [mc_ref]. I'll protect you.", "Can't say I approve of this sort of thing, but we are out of options, [mc_ref].", "Don't feel sorry for them, [mc_ref]. They asked for it.", "We mustn't let our guard down, [mc_ref]."]
-                elif "Yandere" in character.traits:
+                elif "Yandere" in char.traits:
                     lines = ["Please stand aside, [mc_ref]. Or you'll get blood on you...", "Do not worry. The nothingness is gentle ♪", "Here comes the hurt!", "This could get a little rough... Because I like it rough ♫", "Mind if I go a little nuts, [mc_ref]?"]
                 else:
                     lines = ["I suppose we have to use force, [mc_ref]. I'll cover you.", "Alright then. If you want a fight, we'll give it to you!", "Ok, let's settle this.", "I'll fight to my last breath!"]
                 result = random.sample(set(lines).difference(said_lines), 1)[0]
                 said_lines.add(result)
-                result = result.replace("[mc_ref]", character.mc_ref)
-                character.override_portrait("portrait", "confident")
-                character.say(result)
-                character.restore_portrait()
+                result = result.replace("[mc_ref]", char.mc_ref)
+                char.override_portrait("portrait", "confident")
+                char.say(result)
+                char.restore_portrait()
 
     def interactions_eating_line(characters):
         """
