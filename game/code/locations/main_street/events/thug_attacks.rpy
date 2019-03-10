@@ -35,7 +35,7 @@ label city_events_thugs_robbery:
                 jump main_street
             "Attack him":
                 t "Oho, you have guts, I like it. Let's see what you can do against my boys!"
-                python:
+                python hide:
                     back = interactions_pick_background_for_fight("city")
                     enemy_team = Team(name="Enemy Team", max_size=3)
                     min_lvl = max(mobs["Thug"]["min_lvl"], 45)
@@ -71,6 +71,7 @@ label city_events_thugs_robbery_lost:
     else:
         $ hero.take_money(g, reason="Robbery")
     "He walks away."
+    $ del g
     jump main_street
 
 label city_events_thugs_robbery_attack:
@@ -78,7 +79,7 @@ label city_events_thugs_robbery_attack:
     "A group of men suddenly surrounds you!"
     scene
     $ renpy.scene(layer="screens")
-    python:
+    python hide:
         back = interactions_pick_background_for_fight(scr)
         enemy_team = Team(name="Enemy Team", max_size=3)
         min_lvl = max(mobs["Thug"]["min_lvl"], 25)
@@ -100,10 +101,14 @@ label city_events_thugs_robbery_attack_lost:
     scene expression "bg " + scr
     $ renpy.scene(layer="screens")
     "After beating you, they took some gold and disappeared before City Guards arrived."
-    jump expression scr
+    $ last_label = scr
+    $ del scr
+    jump expression last_label
 
 label city_events_thugs_robbery_attack_win:
     scene expression "bg " + scr
     "You found some gold in their pockets before handing them over to the City Guards."
     $ hero.add_money(randint(10,40), reason="Events")
-    jump expression scr
+    $ last_label = scr
+    $ del scr
+    jump expression last_label

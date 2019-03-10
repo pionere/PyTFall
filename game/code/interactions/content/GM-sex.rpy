@@ -650,7 +650,7 @@ label interactions_lesbian_choice:
     $ sex_scene_libido -= 1
     # The interactions itself.
     # Since we called a function, we need to do so again (Consider making this func a method so it can be called just once)...
-    if ct("Lesbian") or ct("Bisexual") or ct("Open Minded"):
+    if ct("Lesbian", "Bisexual", "Open Minded"):
         if char.get_stat("affection") <= 500 or not(check_friends(hero, char) or check_lovers(hero, char)):
             "Unfortunately, she does not want to do it."
             jump interaction_scene_choice

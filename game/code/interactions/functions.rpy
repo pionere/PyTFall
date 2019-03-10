@@ -40,18 +40,18 @@ init -11 python:
         return ((hero.get_stat("charisma")*(1 + c.get_stat("disposition")/(3.0*c.get_max("disposition")))) - c.get_stat("character")) / (c.tier + 1) 
 
     def interactions_gender_mismatch(char, just_sex=True):
-        if just_sex and ct("Open Minded"):
+        if just_sex and "Open Minded" in char.traits:
             return False
         if char.gender == "female":
             if hero.gender == "male":
-                return ct("Lesbian") and not "Yuri Expert" in hero.traits
+                return "Lesbian" in char.traits and not "Yuri Expert" in hero.traits
             else:
-                return not (ct("Lesbian") or ct("Bisexual"))
+                return not ("Lesbian" in char.traits or "Bisexual" in  in char.traits)
         else:
             if hero.gender == "male":
-                return not (ct("Gay") or ct("Bisexual"))
+                return not ("Gay" in char.traits or "Bisexual" in char.traits)
             else:
-                return ct("Gay")
+                return "Gay" in char.traits
 
     def interactions_set_repeating_lines_limit(c): # returns the number of character "patience", ie how many repeating lines she's willing to listen in addition to default value
         global hero
@@ -141,25 +141,25 @@ init -11 python:
                 renpy.jump ("girl_interactions")
         elif char.get_stat("vitality") <= char.get_max("vitality")/5 and dice (35):
             char.override_portrait("portrait", "tired")
-            if ct("Impersonal"):
+            if "Impersonal" in char.traits:
                 rc("I don't have required endurance at the moment. Let's postpone it.", "No. Not enough energy.")
-            elif ct("Shy") and dice(50):
+            elif "Shy" in char.traits and dice(50):
                 rc("W-well, I'm a bit tired right now... Maybe some other time...", "Um, I-I don't think I can do it, I'm exhausted. Sorry...")
-            elif ct("Imouto"):
+            elif "Imouto" in char.traits:
                 rc("Noooo, I'm tired. I want to sleep.", "Z-z-z *she falls asleep on the feet*")
-            elif ct("Dandere"):
+            elif "Dandere" in char.traits:
                 rc("No. Too tired.", "Not enough strength. I need to rest.")
-            elif ct("Tsundere"):
+            elif "Tsundere" in char.traits:
                 rc("I must rest at first. Can't you tell?", "I'm too tired, don't you see?! Honestly, some people...")
-            elif ct("Kuudere"):
+            elif "Kuudere" in char.traits:
                 rc("I'm quite exhausted. Maybe some other time.", "I really could use some rest right now, my body is tired.")
-            elif ct("Kamidere"):
+            elif "Kamidere" in char.traits:
                 rc("I'm tired, and have to intentions to do anything but rest.", "I need some rest. Please don't bother me.")
-            elif ct("Bokukko"):
+            elif "Bokukko" in char.traits:
                 rc("Naah, don't wanna. Too tired.", "*yawns* I could use a nap first...")
-            elif ct("Ane"):
+            elif "Ane" in char.traits:
                 rc("Unfortunately I'm quite tired at the moment. I'd like to rest a bit.", "Sorry, I'm quite sleepy. Let's do it another time.")
-            elif ct("Yandere"):
+            elif "Yandere" in char.traits:
                 rc("Ahh, my whole body aches... I'm way too tired.", "The only thing I can do properly now is to take a good nap...")
             else:
                 rc("*sign* I'm soo tired lately, all I can think about is a cozy warm bed...", "I am ready to drop. Some other time perhaps.")

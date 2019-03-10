@@ -14,7 +14,7 @@ label interactions_smalltalk:
             $ char.gfx_mod_stat("joy", -1)
         jump girl_interactions
     if char.get_stat("disposition") >= 100:
-        if ct("Impersonal") or ct("Dandere") or ct("Shy"):
+        if ct("Impersonal", "Dandere", "Shy"):
             $ narrator(choice(["[char.pC] didn't talked much, but [char.pC] enjoyed your company nevertheless.",
                                "You had to do most of the talking, but [char.p] listened you with a smile.",
                                "[char.pC] welcomed the chance to spend some time with you.",
@@ -34,7 +34,7 @@ label interactions_smalltalk:
             $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.33))
             $ char.gfx_mod_stat("affection", affection_reward(char, .1))
     elif char.get_stat("disposition") >= -100:
-        if ct("Impersonal") or ct("Dandere") or ct("Shy"):
+        if ct("Impersonal", "Dandere", "Shy"):
             $ narrator(choice(["But there was a lot of awkward silence.", "But you had to do most of the talking.", "There is no sign of [char.op] opening up to you yet.", "But it was kind of one-sided."]))
         else:
             $ narrator(choice(["It's all a little bit stiff.", "There's some reservation though...", "It's hard to find common ground.", "But it was somewhat forced."]))
@@ -88,14 +88,14 @@ label girl_interactions_aboutjob: # TO DO: here would help additional logic base
     elif char.get_stat("disposition") <= -350:
         $ char.override_portrait("portrait", "sad")
         if char.status != "slave":
-            if ct("Impersonal") or ct("Dandere") or ct("Kuudere"):
+            if ct("Impersonal", "Dandere", "Kuudere"):
                 $ rc("... *[char.pC] doesn't want to talk*", "I don't think I'll linger here for a long time.", "I do not wish to about it. Leave me alone.")
             elif ct("Shy"):
                 $ rc("Um... I-I don't think this job is for me...", "I... I'm looking for another job... Sorry.")
             else:
                 $ rc("You're a terrible employer; I have no idea why I'm still working here...", "Maybe I should try to beg in the streets instead of this 'job'...")
         else:
-            if ct("Impersonal") or ct("Dandere") or ct("Kuudere") or ct("Shy"):
+            if ct("Impersonal", "Dandere", "Kuudere", "Shy"):
                 $ rc("...I don't want to live.", "My life is awful. I want to end this...", "... <She looks extremely depressed>")
             else:
                 $ rc("I wish that I the resolve to kill myself...", "My life in your service is awful.", "Just sell me off to someone. To anyone!")
@@ -106,14 +106,14 @@ label girl_interactions_aboutjob: # TO DO: here would help additional logic base
         $ char.override_portrait("portrait", "indifferent")
         if char.status != "slave":
             if char.get_stat("joy") >= 50:
-                if ct("Impersonal") or ct("Dandere") or ct("Kuudere"):
+                if ct("Impersonal", "Dandere", "Kuudere"):
                     $ rc("I don't like my job.", "You are a bad employer.")
                 elif ct("Shy"):
                     $ rc("I-I'm fine. J-just wish I had a better job... No, nevermind.", "I'm fine, I think... I-I mean it's not such a bad job, there are much worse ones!")
                 else:
                     $ rc("I'm fine, but I just wish you weren't such a terrible employer.", "As good as can be expected under the circumstances, 'boss'...")
             else:
-                if ct("Impersonal") or ct("Dandere") or ct("Kuudere"):
+                if ct("Impersonal", "Dandere", "Kuudere"):
                     $ rc("I hate my job.", "I'm not in the mood. Why? Because of my job, obviously.")
                 elif ct("Shy"):
                     $ rc("I wish I had a better job... S-sorry.", "I-I don't particularly like my job. M-maybe I should try something else...")
@@ -121,14 +121,14 @@ label girl_interactions_aboutjob: # TO DO: here would help additional logic base
                     $ rc("I'm sad and you are the worst... what else do you want me to say?", "I'm looking for new employment opportunities; that's how I'm feeling...")
         else:
             if char.get_stat("joy") >= 50:
-                if ct("Impersonal") or ct("Dandere") or ct("Kuudere"):
+                if ct("Impersonal", "Dandere", "Kuudere"):
                     $ rc("I suppose a slave like me doesn't have much of a choice.", "I follow your orders. That's all.")
                 elif ct("Shy"):
                     $ rc("Um, I do my best. Even though my master is... Nevermind, sorry.", "[char.mc_ref], please be nice to me... I'll work harder, I promise.")
                 else:
                     $ rc("I am 'ok'. Just wish I had a better owner...", "I guess it is better than the slave market. A bit.")
             else:
-                if ct("Impersonal") or ct("Dandere") or ct("Kuudere"):
+                if ct("Impersonal", "Dandere", "Kuudere"):
                     $ rc("...I want another owner.", "I wish I had a better life as a slave.")
                 elif ct("Shy"):
                     $ rc("...Yes, [char.mc_ref]. I'm fine. <you notice tears in [char.pp] eyes>")
@@ -142,14 +142,14 @@ label girl_interactions_aboutjob: # TO DO: here would help additional logic base
         $ char.override_portrait("portrait", "happy")
         if char.status != "slave":
             if char.get_stat("joy") >= 50:
-                if ct("Impersonal") or ct("Dandere") or ct("Kuudere"):
+                if ct("Impersonal", "Dandere", "Kuudere"):
                     $ rc("I like my job. Nothing more to say.", "No complaints.")
                 elif ct("Shy"):
                     $ rc("I-I like my job. T-thank you.", "I-I'm perfectly fine! <shyly smiling>")
                 else:
                     $ rc("I'm happy and this job is not so bad.", "I'm comfortable and content with this arrangement.")
             else:
-                if ct("Impersonal") or ct("Dandere") or ct("Kuudere"):
+                if ct("Impersonal", "Dandere", "Kuudere"):
                     $ rc("I like my job. I think.", "Not bad. It's not perfect, but...")
                 elif ct("Shy"):
                     $ rc("I'm just a bit sad today, b-but my job is nice.", "Um, I'm ok, I think. You can't be happy all the time, r-right?")
@@ -157,14 +157,14 @@ label girl_interactions_aboutjob: # TO DO: here would help additional logic base
                     $ rc("Not very chipper but I hope things become better soon.", "Bit sad, if truth be told. Don't want to complain though.")
         else:
             if char.get_stat("joy") >= 50:
-                if ct("Impersonal") or ct("Dandere") or ct("Kuudere"):
+                if ct("Impersonal", "Dandere", "Kuudere"):
                     $ rc("I'm satisfied with everything, [char.mc_ref].", "I am at your service, [char.mc_ref]. My life is my job.")
                 elif ct("Shy"):
                      $ rc("E-everything is well, [char.mc_ref]! <shyly smiling>", "It's fine. Thanks for asking, [char.mc_ref]. <blushes>")
                 else:
                       $ rc("I'm very well, thank you [char.mc_ref]!", "I am satisfied with my life and job as a slave.")
             else:
-                if ct("Impersonal") or ct("Dandere") or ct("Kuudere"):
+                if ct("Impersonal", "Dandere", "Kuudere"):
                     $ rc("Nothing to worry about, [char.mc_ref].", "Good enough.")
                 elif ct("Shy"):
                     $ rc("Y-yes, [char.mc_ref]. I can do it, I know I can!", "It's normal, I suppose...")
@@ -231,21 +231,21 @@ label interactions_howshefeels:
             $ rc("I feel like magic overflows me.", "I'm filled with magic energy.")
 
     if char.get_stat("joy") <= 30: #begin joy checks
-        if ct("Impersonal") or ct("Dandere"):
+        if ct("Impersonal", "Dandere"):
             $ rc("I'm not in the mood today.", "I'm just a bit sad. That's all.")
         elif ct("Shy"):
             $ rc("I'm kinda sad...", "I-I cried a bit some time ago. Why? Because I felt like it...")
         else:
             $ rc("I'm depressed. Don't wanna talk about it.", "I'm sad. Isn't it obvious to you?")
     elif char.get_stat("joy") >= 65:
-        if ct("Impersonal") or ct("Dandere") or ct("Kuudere"):
+        if ct("Impersonal", "Dandere", "Kuudere"):
             $ rc("I'm pretty happy. I think.", "I'm fine. <barely smiling>")
         elif ct("Shy"):
             $ rc("I think I'm... happy.", "<shyly smiling> I'm in a good mood today...")
         else:
             $ rc("I'm quite happy.", "You could say I enjoy my life.")
     else:
-        if ct("Impersonal") or ct("Dandere") or ct("Kuudere"):
+        if ct("Impersonal", "Dandere", "Kuudere"):
             $ rc("I'm perfectly calm.", "Don't concern yourself about me, I'm fine.")
         elif ct("Shy"):
             $ rc("Um, I suppose I'm ok.", "N-nothing to worry about, I'm f-fine.")
@@ -389,7 +389,7 @@ label interactions_abouther:
         $ gm_abouther_list.append(choice(["Some humans don't like my appearance. But I don't care.", "The other day they refused to serve me in that fancy cafe because I'm not human enough. Can you imagine that?!"]))
 
     if cgo("Combatant"):
-        if ct("Shy") or ct("Coward"):
+        if ct("Shy", "Coward"):
             $ gm_abouther_list.append(choice(["I have been trained in combat, but I really dislike violence.", "I know a lot about self-defense... but I really hope that I wouldn’t ever need to use it.", "I know how to use a weapon... but it still scares me a bit.", "I can do well in combat training, but in practice...", "They say that I may have the skill, but not the spirit of a warrior...", "I carry a weapon, but I don’t think I would have the heart to hurt someone."]))
         elif ct("Virtuous"):
             $ gm_abouther_list.append(choice(["I know how to pacify someone without hurting them. That’s the right way to do it.", "I learned how to fight so I can protect others."]))

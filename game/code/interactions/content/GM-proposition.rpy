@@ -106,7 +106,7 @@ label interactions_sparring: # sparring with MC, for Combatant occupations only
     jump girl_interactions
 
 label interactions_presparring_lines: # lines before sparring
-    if ct("Impersonal") in  char.traits:
+    if ct("Impersonal"):
         $ rc("Understood. Initialising battle mode.", "Very well. Switching to training mode.")
     elif ct("Imouto"):
         $ rc("Behold of my amazing combat techniques, [char.mc_ref]! ♪", "Activate super duper mega ultra assault mode! ♪")
@@ -129,7 +129,7 @@ label interactions_presparring_lines: # lines before sparring
     return
 
 label interactions_postsparring_lines: # lines after sparring
-    if ct("Impersonal") in  char.traits:
+    if ct("Impersonal"):
         $ rc("Practice is over. Switching to standby mode.", "An unsurprising victory.")
     elif ct("Imouto"):
         $ rc("Woohoo! Getting stronger every day!", "Haha, it was fun! We should do it again!")
@@ -211,7 +211,7 @@ label interactions_girlfriend:
         $ char.gfx_mod_stat("affection", affection_reward(char))
         $ char.gfx_mod_stat("joy", 25)
         $ char.override_portrait("portrait", "shy")
-        if ct("Impersonal") in  char.traits:
+        if ct("Impersonal"):
             $ rc("You want me to have an affair with you. Understood.", "As you wish. I'm yours.", "I understand. I suppose we're now lovers.")
         elif ct("Shy") and dice(20):
             $ rc("I-If you're okay with me...", "V-very well...  I-I'll work hard to be a woman fit to be with you.", "F-fine then...")
@@ -311,7 +311,7 @@ label interactions_movein:
 
     $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.33))
     $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.33))
-    if True: # FIXME imlement the responses if ct("Impersonal") in  char.traits:
+    if True: # FIXME imlement the responses if ct("Impersonal"):
         $ char.gfx_mod_stat("joy", 15)
         $ char.override_portrait("portrait", "indifferent")
         $ rc("Sure thing.", "As you wish.", "Of course, but I need my own room.")
@@ -328,7 +328,7 @@ label interactions_moveout:
     $ char.home = pytfall.city
     $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.33))
     $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.33))
-    if True: # FIXME imlement the responses if ct("Impersonal") in  char.traits:
+    if True: # FIXME imlement the responses if ct("Impersonal"):
         $ char.gfx_mod_stat("joy", -15)
         $ char.gfx_mod_stat("disposition", -150)
         $ char.gfx_mod_stat("affection", -15)
@@ -347,7 +347,7 @@ label interactions_breakup:
     $ end_lovers(hero, char)
     $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.33))
     $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.33))
-    if True: # FIXME imlement the responses if ct("Impersonal") in  char.traits:
+    if True: # FIXME imlement the responses if ct("Impersonal"):
         $ char.gfx_mod_stat("joy", -25)
         $ char.override_portrait("portrait", "indifferent")
         $ rc("If that's what you want.", "As you wish. Bye.", "I understand. I suppose that was it.")

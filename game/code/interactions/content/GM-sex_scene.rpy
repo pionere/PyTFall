@@ -158,13 +158,13 @@ init python:
     # it's more or less permanent pseudostat compared to many other games where it changes regularly like health, if not more often
 
         l = locked_random("randint", 3, 5)
-        if ct("Nymphomaniac"):
+        if "Nymphomaniac" in char.traits:
             l += 2
-        elif ct("Frigid"):
+        elif "Frigid" in char.traits:
             l -= 1
         
         if mc:
-            if ct("Half-Sister") and not "Sister Lover" in hero.traits:
+            if "Half-Sister" in char.traits and not "Sister Lover" in hero.traits:
                 if char.get_stat("affection") >= 700:
                     l += locked_random("randint", 1, 2)
                 else:
@@ -172,10 +172,10 @@ init python:
             if check_lovers(hero, char):
                 l += 1
             
-        if cgo("SIW") and l < 3: # sex workers can't have it less than 3 though
+        if cgochar(char, "SIW") and l < 3: # sex workers can't have it less than 3 though
             l = 3
             
-        if ct("Virgin"): # or 2 if virgins...
+        if "Virgin" in char.traits: # or 2 if virgins...
             l -= 1
 
         if l < 1:
@@ -184,7 +184,7 @@ init python:
         
     def get_character_wishes(char): # for taking action during sex scenes, returns action that character is willing to commit on her own
         skills = ["sex", "oral", "anal"]
-        if (char.status != "slave" and check_lovers(hero, char)) or not(ct("Virgin")):
+        if (char.status != "slave" and check_lovers(hero, char)) or "Virgin" not in char.traits:
             skills.extend(["vaginal"])
         skills_values=[]
         for t in skills:
