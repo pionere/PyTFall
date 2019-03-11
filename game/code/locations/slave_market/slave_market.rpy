@@ -105,6 +105,7 @@ label slave_market_controls:
             $ msg = pytfall.sm.buy_slave(char)
             if msg:
                 call screen message_screen(msg)
+            $ del msg
 
             if not pytfall.sm.chars_list:
                 hide screen slave_shopping

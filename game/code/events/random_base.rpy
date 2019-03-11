@@ -4,25 +4,26 @@ init -1 python:
     register_event("found_item_event", locations=["all"], run_conditions=["dice(max(35, hero.get_stat('luck')+20))"], priority=50, dice=0, restore_priority=0)
 
 label found_money_event(event):
-    $ amount = locked_random("randint", 5, 10) + max(0, hero.get_stat("luck")) + hero.level
-    $ hero.add_money(amount, "Luck")
-    $ gfx_overlay.random_find(amount, 'gold')
-    $ hero.say(choice(["Some money... Excellent.", "Free gold, nice!",
+    python hide:
+        amount = 10 + max(0, hero.get_stat("luck")) + hero.level
+        amount = locked_random("randint", amount/2, amount)
+        hero.add_money(amount, "Luck")
+        gfx_overlay.random_find(amount, 'gold')
+        hero.say(choice(["Some money... Excellent.", "Free gold, nice!",
                        "A few coins! I'm lucky today.", "Did someone drop a wallet?"]))
     return
 
 label found_item_event(event):
-    python:
+    python hide:
         if locked_dice(60):
             items_pool = list(item for item in items.values() if "Look around" in item.locations and dice(item.chance))
             found_item = choice(items_pool)
         else:
             found_item = items["Rebels Leaflet"]
 
-    $ gfx_overlay.random_find(found_item, 'item')
-    $ hero.inventory.append(found_item)
+        gfx_overlay.random_find(found_item, 'item')
+        hero.inventory.append(found_item)
 
-    python:
         if found_item != items["Rebels Leaflet"]:
             hero.say(choice(["Hmm. I found something. ([found_item.id])",
                              "[found_item.id] might be useful...",

@@ -47,7 +47,7 @@ init -10 python:
 
                 if me >= 150 and dice(85):
                     if is_plural:
-                        temp += " Client were so pleased for the attention and ended up paying full price."
+                        temp += " Clients were so pleased for the attention and ended up paying full price."
                     else:
                         temp += " Client was so pleased for the attention and ended up paying full price."
                 elif dice(75):

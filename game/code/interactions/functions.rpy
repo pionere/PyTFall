@@ -46,7 +46,7 @@ init -11 python:
             if hero.gender == "male":
                 return "Lesbian" in char.traits and not "Yuri Expert" in hero.traits
             else:
-                return not ("Lesbian" in char.traits or "Bisexual" in  in char.traits)
+                return not ("Lesbian" in char.traits or "Bisexual" in char.traits)
         else:
             if hero.gender == "male":
                 return not ("Gay" in char.traits or "Bisexual" in char.traits)

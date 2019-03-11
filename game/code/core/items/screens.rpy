@@ -434,7 +434,7 @@ label shop_control:
             if purchasing_dir == 'buy':
                 if char.take_money(item_price*amount, "Items"):
                     play sound "content/sfx/sound/world/purchase_1.ogg"
-                    python:
+                    python hide:
                         for i in xrange(amount):
                             shop.inventory.remove(focus)
                             char.inventory.append(focus)
@@ -453,7 +453,7 @@ label shop_control:
                 else:
                     if shop.gold >= (item_price*amount):
                         play sound "content/sfx/sound/world/purchase_1.ogg"
-                        python:
+                        python hide:
                             for i in xrange(amount):
                                 shop.gold -= item_price
                                 char.add_money(item_price, reason="Items")

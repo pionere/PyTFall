@@ -140,7 +140,7 @@ init -1 python:
 
             # Current interaction
             self.char = None
-            self.img = ""
+            self.img = None
             self.gm_points = 0
 
             # Cells
@@ -216,7 +216,7 @@ init -1 python:
             # If we are allowed unique labels
             if allow_unique:
                 # Add the girl unique label
-                ls.append("{}_{}".format(label, gm.char.id))
+                ls.append("{}_{}".format(label, self.char.id))
 
             # Add the generic label
             ls.append("interactions_{}".format(label))
@@ -257,16 +257,16 @@ init -1 python:
             self.show_menu = False
             renpy.jump(l)
 
-        def start(self, mode, girl, img=None, exit=None, bg=None):
+        def start(self, mode, char, img=None, exit=None, bg=None):
             """Starts a girl meet scenario.
 
             mode = The mode to use.
-            girl = The girl to use.
+            char = The character to use.
             img = The image to use.
             exit = The exit label to use. Overrides enter_location.
             """
             self.mode = mode
-            self.char = girl
+            self.char = char
 
             hs() # Kill the current screen...
 
@@ -279,14 +279,17 @@ init -1 python:
 
             # Routine to get the correct image for this interaction:
             if img is None:
-                self.img = self.char.get_img_from_cache(str(last_label))
-                if not self.img:
-                    self.img = self.char.show("profile", resize=self.img_size, exclude=["nude", "bikini", "swimsuit", "beach", "angry", "scared", "ecstatic"])
-            else:
-                self.img = img
-            self.img_cache = self.img
+                img = char.get_img_from_cache(str(last_label))
+                if not img:
+                    img = char.show("profile", resize=self.img_size, exclude=["nude", "bikini", "swimsuit", "beach", "angry", "scared", "ecstatic"])
+            self.img = img
+            self.img_cache = img
 
-            store.char = girl
+            if hasattr(store, "char"):
+                self.prev_char = store.char
+            elif hasattr(self, "prev_char"): # FIXME should not be necessary if the end is always called, but this is safer for now
+                del self.prev_char
+            store.char = char
 
             if mode == "custom":
                 pass
@@ -295,45 +298,45 @@ init -1 python:
             else:
                 jump(mode)
 
-        def start_gm(self, girl, img=None, exit=None, bg=None):
+        def start_gm(self, char, img=None, exit=None, bg=None):
             """
             Starts the girlsmeet scenario.
-            girl = The girl to use.
-            img = The image for the girl.
+            char = The character to use.
+            img = The image for the character.
             exit = The exit label to use. Use to override enter_location function.
             bg = The background to use. Use to override enter_location function.
             """
-            friends_disp_check(girl)
-            if girl.has_flag("cnd_interactions_blowoff"):
-                renpy.call("interactions_blowoff", char=girl, exit=last_label)
+            friends_disp_check(char)
+            if char.has_flag("cnd_interactions_blowoff"):
+                renpy.call("interactions_blowoff", char=char, exit=last_label)
 
-            if girl.location == "girl_meets_quest":
-                self.start(girl.id, girl, img, exit, bg)
+            if char.location == "girl_meets_quest":
+                self.start(char.id, char, img, exit, bg)
             else:
-                self.start("girl_meets", girl, img, exit, bg)
+                self.start("girl_meets", char, img, exit, bg)
 
-        def start_int(self, girl, img=None, exit="char_profile", bg="gallery"):
+        def start_int(self, char, img=None, exit="char_profile", bg="gallery"):
             """
             Starts the interaction scenario.
-            girl = The girl to use.
-            img = The image for the girl.
+            char = The character to use.
+            img = The image for the character.
             exit = The exit label to use. Defaults to "char_profile".
             bg = The background to use. Defaults to "gallery".
             """
-            if girl.has_flag("cnd_interactions_blowoff"):
-                renpy.call("interactions_blowoff", char=girl, exit=last_label)
+            if char.has_flag("cnd_interactions_blowoff"):
+                renpy.call("interactions_blowoff", char=char, exit=last_label)
 
-            self.start("girl_interactions", girl, img, exit, bg)
+            self.start("girl_interactions", char, img, exit, bg)
 
-        def start_tr(self, girl, img=None, exit="char_profile", bg="sex_dungeon_1"):
+        def start_tr(self, char, img=None, exit="char_profile", bg="sex_dungeon_1"):
             """
             Starts the training scenario.
-            girl = The girl to use.
-            img = The image for the girl.
+            char = The character to use.
+            img = The image for the character.
             exit = The exit label to use. Defaults to "char_profile".
             bg = The background to use. Defaults to "dungeon".
             """
-            self.start("girl_trainings", girl, img, exit, bg)
+            self.start("girl_trainings", char, img, exit, bg)
 
         def enter_location(self, **kwargs):
             """
@@ -361,12 +364,27 @@ init -1 python:
             # Reset scene
             hs()
 
+            # restore char
+            if hasattr(self, "prev_char"):
+                store.char = self.prev_char
+                del self.prev_char
+            else:
+                del store.char
+
+            # reset self
+            self.mode = None
+            #self.label_cache = ""
+            self.bg_cache = ""
+            self.jump_cache = ""
+            self.img_cache = Null()
+            self.char = None
+            self.img = None
             self.see_greeting = True
             self.show_menu = False
             self.show_menu_givegift = False
+
             if not safe:
                 renpy.jump(self.label_cache)
-
 
     class GMJump(Action):
         """

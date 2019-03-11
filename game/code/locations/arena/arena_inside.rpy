@@ -38,24 +38,20 @@ label arena_inside:
                 show screen arena_bestiary
 
         elif result[0] == "challenge":
+            $ msg = None
             if result[1] == "dogfights":
                 $ msg = pytfall.arena.dogfight_challenge(result[2])
-                if msg:
-                    call screen message_screen(msg)
             elif result[1] == "match":
                 $ msg = pytfall.arena.match_challenge(result[2])
-                if msg:
-                    call screen message_screen(msg)
             elif result[1] == "start_match":
                 $ msg = pytfall.arena.check_before_matchfight()
-                if msg:
-                    call screen message_screen(msg)
             elif result[1] == "start_chainfight":
                 $ msg = pytfall.arena.check_before_chainfight()
-                if msg:
-                    call screen message_screen(msg)
             elif result[1] == "chainfight":
                 $ pytfall.arena.execute_chainfight(result[2])
+            if msg:
+                call screen message_screen(msg)
+            $ del msg
 
 label arena_inside_end:
     $ renpy.stop_predict(*arena_img_predict)

@@ -311,11 +311,11 @@ screen girl_interactions():
     vbox:
         align (.95, .31)
 
-        $ temp = gm.char.get_stat("disposition")
+        $ temp = char.get_stat("disposition")
         vbar:
             top_gutter 13
             bottom_gutter 0
-            value AnimatedValue(value=max(temp, 0), range=gm.char.get_max("disposition"), delay=4.0)
+            value AnimatedValue(value=max(temp, 0), range=char.get_max("disposition"), delay=4.0)
             bottom_bar "content/gfx/interface/bars/progress_bar_full1.png"
             top_bar "content/gfx/interface/bars/progress_bar_1.png"
             thumb None
@@ -325,7 +325,7 @@ screen girl_interactions():
             bar_invert True
             top_gutter 12
             bottom_gutter 0
-            value AnimatedValue(value=max(-temp, 0), range=-gm.char.stats.min["disposition"], delay=4.0)
+            value AnimatedValue(value=max(-temp, 0), range=-char.stats.min["disposition"], delay=4.0)
             bottom_bar im.Flip("content/gfx/interface/bars/progress_bar_1.png", vertical=True)
             top_bar "content/gfx/interface/bars/bar_mine.png"
             thumb None
@@ -335,11 +335,11 @@ screen girl_interactions():
     vbox:
         align (.97, .31)
 
-        $ temp = gm.char.get_stat("affection")
+        $ temp = char.get_stat("affection")
         vbar:
             top_gutter 13
             bottom_gutter 0
-            value AnimatedValue(value=max(temp, 0), range=gm.char.get_max("affection"), delay=4.0)
+            value AnimatedValue(value=max(temp, 0), range=char.get_max("affection"), delay=4.0)
             bottom_bar im.Flip("content/gfx/interface/bars/bar_mine.png", vertical=True)
             top_bar "content/gfx/interface/bars/progress_bar_1.png"
             thumb None
@@ -349,7 +349,7 @@ screen girl_interactions():
             bar_invert True
             top_gutter 12
             bottom_gutter 0
-            value AnimatedValue(value=max(-temp, 0), range=-gm.char.stats.min["affection"], delay=4.0)
+            value AnimatedValue(value=max(-temp, 0), range=-char.stats.min["affection"], delay=4.0)
             bottom_bar im.Flip("content/gfx/interface/bars/progress_bar_1.png", vertical=True)
             top_bar im.Flip("content/gfx/interface/bars/progress_bar_full1.png", vertical=True)
             thumb None
@@ -383,7 +383,7 @@ screen girl_interactions():
 
     # Actions
     if gm.show_menu:
-        use location_actions("girl_meets", gm.char, pos=(1180, 315), anchor=(1.0, .5), style="main_screen_3")
+        use location_actions("girl_meets", char, pos=(1180, 315), anchor=(1.0, .5), style="main_screen_3")
 
     # Give gift interface
     if gm.show_menu_givegift:
