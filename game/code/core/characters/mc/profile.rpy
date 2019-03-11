@@ -534,6 +534,7 @@ screen hero_team():
                             insensitive im.Sepia("content/gfx/interface/buttons/Profile.png")
                             action If(member.is_available, true=[Hide("hero_profile"),
                                                                       Hide("hero_team"),
+                                                                      SetVariable("girls", [member]),
                                                                       SetVariable("char", member),
                                                                       SetVariable("char_profile_entry", "hero_profile"),
                                                                       Jump("char_profile")],

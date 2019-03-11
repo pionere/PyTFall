@@ -670,7 +670,7 @@ init -11 python:
         if max_out_stats:
             for stat in char.stats.stats:
                 if stat not in STATIC_CHAR.FIXED_MAX:
-                    setattr(char, stat, char.get_max(stat))
+                    char.mod_stat(stat, char.get_max(stat))
         # --------
 
     def build_client(id=None, gender="male", caste="Peasant",
