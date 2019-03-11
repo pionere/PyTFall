@@ -521,7 +521,7 @@ init -12 python:
             #counter = 0
             building = self.building
             #tier = building.tier
-            job = self.jobs[0] # there is a single job per business at the moment -> the client should now what kind of worker is expected anyway
+            job = self.jobs[0] # FIXME one job per business, is should be client specific anyway
 
             while 1:
                 simpy_debug("Entering PublicBusiness(%s).business_control iteration at %s", self.name, self.env.now)

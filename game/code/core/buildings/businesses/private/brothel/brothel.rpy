@@ -49,7 +49,8 @@ init -5 python:
             simpy_debug("Entering BrothelBlock.run_job after-yield at %s (W:%s/C:%s)", self.env.now, worker.name, client.name)
 
             # Execute the job/log results/handle finances and etc.:
-            job, building = self.job, self.building
+            job = simple_jobs["Whore Job"]
+            building = self.building
             log = NDEvent(job=job, char=worker, loc=building, business=self)
 
             job.settle_workers_disposition(worker, log)

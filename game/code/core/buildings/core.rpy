@@ -1082,7 +1082,7 @@ init -10 python:
 
                 if business.type == "personal_service":
                     # Personal Service (Brothel-like):
-                    job = business.job
+                    job = business.jobs[0] # FIXME one job per business, is should be client specific anyway
                     workers = business.get_workers(job, amount=1, match_to_client=client)
 
                     if not workers:
@@ -1095,7 +1095,7 @@ init -10 python:
 
                         # We bind the process to a flag and wait until it is interrupted:
                         visited += 1
-                        with self.res.request() as request:
+                        with business.res.request() as request:
                             yield request
                             yield self.env.process(business.request_resource(client, worker))
                 elif business.type == "public_service":
