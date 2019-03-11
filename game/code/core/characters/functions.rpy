@@ -1040,7 +1040,7 @@ init -11 python:
                 val = hero.get_skill(k)
             else:
                 raise Exception("Unknown stat %s in preferences of %s" % (k, char.name))
-            mod += v * min(5, float(val) / (max(max_val, 1)))
+            mod += v * min(2, float(val) / (max(max_val, 1)))
         mod /= len(temp)
         mod *= len(STATIC_CHAR.PREFS)
 

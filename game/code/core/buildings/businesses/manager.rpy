@@ -177,7 +177,7 @@ init -5 python:
             points_used = m._dnd_jobpoints - m.jobpoints
             log = m._dnd_mlog
             if points_used != 0:
-                if points_used > 100:
+                if dice(points_used):
                     log.logws("management", randint(1, 2))
                     log.logws("intelligence", randrange(2))
                     log.logws("refinement", 1)
