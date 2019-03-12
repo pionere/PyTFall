@@ -73,15 +73,16 @@ label special_items_slime_bottle:
                                           track="random", prebattle=True, death=False,
                                           use_items=True)
 
-                if not (result):
-                    jump game_over
-                else:
+                if result is True:
                     scene bg h_profile
                     "You managed to beat her. Her liquid body quickly decays. It looks like she spent way too long in captivity and lost her mind..."
                     $ kill_char(new_slime)
+
                     python hide:
                         for member in hero.team:
                             member.gfx_mod_exp(exp_reward(member, enemy_team))
+                else:
+                    jump game_over
                 $ del result, enemy_team
             $ new_slime.restore_portrait()
             $ del new_slime, spr

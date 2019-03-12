@@ -222,29 +222,33 @@ label city_beach_monsters_fight:
     hide screen city_beach
     hide screen city_beach_swim
 
-    python:
-        enemy_team = Team(name="Enemy Team", max_size=3)
+    $ enemy_team = Team(name="Enemy Team", max_size=3)
+    python hide:
         min_lvl = mobs["Skyfish"]["min_lvl"]
         for i in range(randint(2, 3)):
             mob = build_mob(id="Skyfish", level=randint(min_lvl, min_lvl+10))
             mob.front_row = True
             enemy_team.add(mob)
-        back = interactions_pick_background_for_fight("beach")
-        result = run_default_be(enemy_team, background=back, give_up="escape",
-                                use_items=True)
+
+    $ result = interactions_pick_background_for_fight("beach")
+    $ result = run_default_be(enemy_team, background=result, give_up="escape", use_items=True)
 
     scene bg city_beach
 
     if result is True:
-        python:
-            for member in hero.team:
-                member.gfx_mod_exp(exp_reward(member, enemy_team))
+        if persistent.battle_results:
+            call screen give_exp_after_battle(hero.team, enemy_team)
+        else:
+            python hide:
+                for member in hero.team:
+                    member.gfx_mod_exp(exp_reward(member, enemy_team))
     elif result is False:
         "The guards managed to drive away monsters, but your wounds are deep..."
     else:
         $ be_hero_escaped(hero.team)
         scene black
         pause 1.0
+    $ del result, enemy_team
     jump city_beach
 
 transform alpha_dissolve:

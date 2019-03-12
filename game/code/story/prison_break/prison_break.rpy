@@ -203,6 +203,11 @@ label storyi_randomfight:  # initiates fight with random enemy team
 
         if persistent.battle_results:
             call screen give_exp_after_battle(hero.team, enemy_team, money=money)
+        else:
+            python hide:
+                for member in hero.team:
+                    member.gfx_mod_exp(exp_reward(member, enemy_team))
+
         $ del result, enemy_team, money
         show screen prison_break_controls
         jump storyi_gui_loop

@@ -191,12 +191,12 @@ label city_dark_forest_hideout:
     jump forest_dark_continue
 
 label city_dark_forest_hideout_fight:
-    python:
-        enemy_team = Team(name="Enemy Team", max_size=3)
+    $ enemy_team = Team(name="Enemy Team", max_size=3)
+    python hide:
         for i in range(3):
-            mob_id = choice(["Samurai", "Warrior", "Archer", "Soldier", "Barbarian", "Orc", "Infantryman", "Thug", "Mercenary", "Dark Elf Archer"])
-            min_lvl = mobs[mob_id]["min_lvl"]
-            mob = build_mob(id=mob_id, level=randint(min_lvl, min_lvl+20))
+            mob = choice(["Samurai", "Warrior", "Archer", "Soldier", "Barbarian", "Orc", "Infantryman", "Thug", "Mercenary", "Dark Elf Archer"])
+            min_lvl = mobs[mob]["min_lvl"]
+            mob = build_mob(id=mob, level=randint(min_lvl, min_lvl+20))
             enemy_team.add(mob)
 
     $ result = interactions_pick_background_for_fight("forest")
@@ -208,6 +208,10 @@ label city_dark_forest_hideout_fight:
         scene expression forest_location
         if persistent.battle_results:
             call screen give_exp_after_battle(hero.team, enemy_team)
+        else:
+            python hide:
+                for member in hero.team:
+                    member.gfx_mod_exp(exp_reward(member, enemy_team))
         $ del result, enemy_team
 
     elif result == "escaoe":
@@ -283,6 +287,11 @@ label city_dark_forest_fight:
 
         if persistent.battle_results:
             call screen give_exp_after_battle(hero.team, enemy_team)
+        else:
+            python hide:
+                for member in hero.team:
+                    member.gfx_mod_exp(exp_reward(member, enemy_team))
+
         $ give_to_mc_item_reward(["treasure", "scrolls", "consumables",
                                  "potions", "restore"])
         $ del result, enemy_team

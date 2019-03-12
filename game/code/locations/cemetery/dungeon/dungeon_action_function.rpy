@@ -16,8 +16,9 @@ init python:
         if result is True:
             if persistent.battle_results:
                 renpy.call_screen("give_exp_after_battle", hero.team, enemy_team)
-            return
-            # hero.say("Serves you right!")
+            else:
+                for member in hero.team:
+                    member.gfx_mod_exp(exp_reward(member, enemy_team))
         else:
             jump("game_over")
 
@@ -28,6 +29,3 @@ init python:
         item = store.items[item]
         hero.inventory.append(item)
         dungeon.say([hero.name, "{}! This will come useful!".format(item.id)])
-        # hero.say("{}!".format(item.id))
-        # hero.say("This can proof useful!")
-        return
