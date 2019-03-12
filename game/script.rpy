@@ -632,6 +632,9 @@ label after_load:
             clearCharacters = True
         if "Study" not in simple_jobs:
             simple_jobs["Study"] = StudyingJob()
+        for j in simple_jobs.values():
+            if hasattr(j, "jp_cost"):
+                del j.jp_cost
 
         store.bm_mid_frame_mode = None
 

@@ -201,9 +201,6 @@ init -10 python:
             # Payout per single client, this is passed to Economy class and modified if needs be.
             self.per_client_payout = 5
 
-            # How many 'job points' is required, this is used in calc_jp_method.
-            self.jp_cost = 100
-
             # Traits/Job-types associated with this job:
             self.occupations = list() # General Strings likes SIW, Combatant, Server...
             self.occupation_traits = list() # Corresponding traits...
@@ -410,13 +407,14 @@ init -10 python:
             """
             return 0
 
-        def calc_jp_cost(self, worker, log, manager_effectiveness=0, cost=None):
-            if cost is None:
-                cost = self.jp_cost
-
-            # Good manager, we only use 50% of the original cost. (passive effect)
-            if manager_effectiveness > 130 and dice(manager_effectiveness-100):
-                log.append("%s is very motivated by your manager! %s feels less tired after doing %s work-shift!" % (worker.name, worker.pC, worker.pp))
-                cost = round_int(cost*.5)
+        def calc_jp_cost(self, manager_effectiveness, cost):
+            # a good manager can reduce the original cost by 50%. (passive effect)
+            if manager_effectiveness > 80:        # original effectiveness is between 0 and 200
+                manager_effectiveness *= randint(75, 125)   # a bit of random -> 60(00) <= me <= 250(00)
+                manager_effectiveness -= 6000     # 60 * 100                  ->   (00) <= me <= 190(00)
+                if manager_effectiveness > 16000: # 160 * 100   me over 160 does not help further
+                    manager_effectiveness = 16000           #                 ->   (00) <= me <= 160(00)
+                manager_effectiveness /= 32000.0            #                 ->    0.0 <= me <= 0.5
+                cost *= 1.0 - manager_effectiveness
 
             return cost
