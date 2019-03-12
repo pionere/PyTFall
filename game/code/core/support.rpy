@@ -489,6 +489,7 @@ init -9 python:
             self.work_filters = set()
 
             self.sorting_order = None
+            self.sorting_desc = False
 
         def clear(self):
             self.update(self.reset_callable())
@@ -525,10 +526,14 @@ init -9 python:
                 filtered = [c for c in filtered if c.workplace in self.work_filters]
 
             # Sorting:
-            if self.sorting_order == "alphabetical":
-                filtered.sort(key=attrgetter("name"))
-            elif self.sorting_order == "level":
-                filtered.sort(key=attrgetter("level"), reverse=True)
+            order = self.sorting_order
+            if order is not None:
+                if is_skill(order):
+                    filtered.sort(key=lambda x: x.get_skill(order), reverse=self.sorting_desc)
+                elif is_stat(order):
+                    filtered.sort(key=lambda x: x.get_stat(order), reverse=self.sorting_desc)
+                else:
+                    filtered.sort(key=attrgetter(order), reverse=self.sorting_desc)
 
             self.update(filtered)
 

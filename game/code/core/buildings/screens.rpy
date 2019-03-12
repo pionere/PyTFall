@@ -31,7 +31,10 @@ label building_management:
                 # Looks pretty ugly... this might be worth improving upon just for the sake of esthetics.
                 $ workers = CoordsForPaging(all_chars_for_se(), columns=6, rows=3,
                         size=(80, 80), xspacing=10, yspacing=10, init_pos=(46, 9))
+
                 $ fg_filters = CharsSortingForGui(all_chars_for_se)
+                $ fg_filters.sorting_order = "level"
+                $ fg_filters.sorting_desc = True
                 $ fg_filters.occ_filters.add("Combatant")
                 $ fg_filters.target_container = [workers, "content"]
                 $ fg_filters.filter()
@@ -193,7 +196,7 @@ init:
                 # xanchor .01
                 ypos 40
                 style_group "content"
-                has vbox
+                has vbox xfill True
                 if bm_mid_frame_mode is None:
                     use building_management_leftframe_building_mode
                 elif isinstance(bm_mid_frame_mode, ExplorationGuild):
@@ -207,7 +210,7 @@ init:
                 ypos 40
                 xalign 1.0
                 background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
-                has vbox spacing 1
+                has vbox xfill True spacing 1
                 if bm_mid_frame_mode is None:
                     use building_management_rightframe_building_mode
                 else: # Upgrade mode:

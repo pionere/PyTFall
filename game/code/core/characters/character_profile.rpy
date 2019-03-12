@@ -592,7 +592,7 @@ screen char_profile():
                     style_suffix "main_frame"
                     xsize 300
                     ypos 230 xalign .5
-                    has viewport scrollbars "vertical" xysize (310, 392) mousewheel True child_size (300, 1000)
+                    has viewport xysize (310, 392) draggable True mousewheel True child_size (300, 1000)
                     vbox:
                         spacing 1
                         xpos 10

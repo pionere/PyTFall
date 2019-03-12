@@ -355,15 +355,18 @@ label after_load:
                 if hasattr(obj_src, attr):
                     v2 = getattr(obj_src, attr)
                     if v2 != v:
-                        devlog.info("{} - Modified Attr {}: {} -> {} in {}".format(prefix, attr, str(v), str(v2), str(obj_dest)))
+                        if DEBUG_LOG:
+                            devlog.info("{} - Modified Attr {}: {} -> {} in {}".format(prefix, attr, str(v), str(v2), str(obj_dest)))
                         setattr(obj_dest, attr, v2)
                 else:
-                    devlog.info("{} - Attr Removed: {} from {}".format(prefix, attr, str(obj_dest)))
+                    if DEBUG_LOG:
+                        devlog.info("{} - Attr Removed: {} from {}".format(prefix, attr, str(obj_dest)))
                     delattr(obj_dest, attr)
 
             for attr, v2 in vars(obj_src).items():
                 if not hasattr(obj_dest, attr):
-                    devlog.info("{} - New Attr {} for {} with value {}".format(prefix, attr, str(obj_dest), str(v2)))
+                    if DEBUG_LOG:
+                        devlog.info("{} - New Attr {} for {} with value {}".format(prefix, attr, str(obj_dest), str(v2)))
                     setattr(obj_dest, attr, v2)
 
     # Updating Databases:
@@ -380,7 +383,8 @@ label after_load:
                 if curr_item is None:
                     # Add new item
                     store.items[id] = item
-                    devlog.info("New Item: {}".format(id))
+                    if DEBUG_LOG:
+                        devlog.info("New Item: {}".format(id))
                 else:
                     # Update the existing item
                     update_object(curr_item, item, "Item")
@@ -402,7 +406,8 @@ label after_load:
                 if curr_trait is None:
                     # Add new trait
                     store.traits[id] = trait
-                    devlog.info("New Trait: {}".format(id))
+                    if DEBUG_LOG:
+                        devlog.info("New Trait: {}".format(id))
                 else:
                     # Update the existing trait
                     update_object(curr_trait, trait, "Trait")
@@ -1248,6 +1253,11 @@ label after_load:
             del store.locations
 
     python hide:
+        if getattr(store, "chars_list_state", None):
+            cls = store.chars_list_state
+            if not hasattr(cls.source, "sorting_desc"):
+                cls.source.sorting_desc = True
+
         if hasattr(store, "NextDayEvents") and not isinstance(store.NextDayEvents, NextDayStats):
             nds = NextDayStats()
             nds.event_list = store.NextDayEvents

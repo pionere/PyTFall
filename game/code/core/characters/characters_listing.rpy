@@ -11,6 +11,7 @@ init:
 
                 self.source = CharsSortingForGui(sorting_for_chars_list)
                 self.source.sorting_order = "level"
+                self.source.sorting_desc = True
 
                 self.status_filters = None
                 #self.location_filters = None
@@ -199,12 +200,9 @@ screen chars_list():
 
                             # Prof-Classes
                             python:
-                                classes = list(c.traits.basetraits)
-                                if len(classes) == 1:
-                                    classes = classes[0].id
-                                else:
-                                    classes.sort(key=attrgetter("id"))
-                                    classes = ", ".join(t.id for t in classes)
+                                classes = list(t.id for t in c.traits.basetraits)
+                                classes.sort()
+                                classes = ", ".join(classes)
                             null height 4
                             text "Classes: [classes]" color "goldenrod" size 18
 
@@ -428,26 +426,57 @@ screen chars_list():
                             text "[f]" color "purple"
                             tooltip 'Toggle the filter'
 
+    # Sorting
+    frame:
+        background Frame(Transform("content/gfx/frame/MC_bg.png", alpha=.55), 10 ,10)
+        xmargin 0
+        padding 5, 5
+        pos (1005, 518)
+        xysize (270, 50)
+        style_group "proper_stats"
+        has hbox spacing 10 align .5, .5
+        label "Sort:":
+            yalign .5 
+            text_size 20
+            text_color "goldenrod"
+            text_outlines [(1, "black", 0, 0)]
+
+        $ options = OrderedDict([("level", "Level"), ("name", "Name"), ("disposition", "Disposition"), ("affection", "Affection")])
+        $ temp = chars_list_state.source.sorting_order
+        use dropdown_box(options, max_rows=6, row_size=(160, 30), pos=(1064, 530), value=temp, field=(chars_list_state.source, "sorting_order"), action=Function(chars_list_state.source.filter))
+
+        button:
+            xysize (25, 25)
+            align 1.0, 0.5 #offset 9, -2
+            background Frame(Transform("content/gfx/frame/MC_bg2.png", alpha=.55), 5, 5)
+            action ToggleField(chars_list_state.source, "sorting_desc"), Function(chars_list_state.source.filter)
+            if chars_list_state.source.sorting_desc:
+                add(im.Scale('content/gfx/interface/icons/checkbox_checked.png', 20, 20)) align .5, .5
+            else:
+                add(im.Scale('content/gfx/interface/icons/checkbox_unchecked.png', 20, 20)) align .5, .5
+            tooltip 'Descending order'
+
     # Mass (de)selection Buttons ====================================>
-    vbox:
-        pos 1015, 518
+    hbox:
+        pos 1005, 568
+        xsize 270
         frame:
             background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.9), 10, 10)
-            xysize (250, 50)
+            xysize (90, 150)
             style_prefix "basic"
-            has hbox spacing 5 align .5, .5
+            has vbox spacing 3 align .5, .5
             button: # select all on current listing, deselects them if all are selected
                 xysize (66, 40)
                 action Function(chars_list_state.toggleChosenMembership, set(charz_list))
                 sensitive num_chars != 0
                 text "These"
-                tooltip 'Select all currently visible characters'
+                tooltip "Select all currently visible characters"
             button: # every of currently filtered, also in next tabs
                 xysize (66, 40)
                 action Function(chars_list_state.toggleChosenMembership, set(chars_list_state.source.sorted))
                 sensitive num_chars != 0
                 text "All"
-                tooltip 'Select all characters'
+                tooltip "Select all characters"
             button: # deselect all
                 xysize (66, 40)
                 action Function(chars_list_state.the_chosen.clear)
@@ -460,28 +489,95 @@ screen chars_list():
             background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.9), 10, 10)
             align .5, .5
             style_prefix "basic"
-            xysize (250, 145)
-            has vbox align .5, .5 spacing 3
+            xysize (170, 150)
+            has vbox spacing 3 align .5, .5
             button:
                 xysize (150, 40)
                 action Return(["group", "control"])
                 sensitive chars_list_state.the_chosen
                 text "Controls"
                 selected False
-                tooltip 'Set desired behavior for group'
+                tooltip "Set desired behavior for the selected characters"
             button:
                 xysize (150, 40)
                 action Return(["group", "equip"])
                 sensitive chars_list_state.the_chosen
                 text "Equipment"
                 selected False
-                tooltip "Manage Group's Equipment"
+                tooltip "Manage the equipment of the selected characters"
             button:
                 xysize (150, 40)
                 action Return(["group", "training"])
                 sensitive chars_list_state.the_chosen
                 text "Training"
                 selected False
-                tooltip "Send the entire group to School!"
+                tooltip "Send the selected characters to School"
 
     use top_stripe()
+
+screen dropdown_box(options, max_rows, row_size, pos, value=None, field=None, action=None):
+    frame:
+        align (.5, .5)
+        xysize row_size
+        $ tmp = options.get(value, "None")
+        $ xsize, ysize = row_size
+        button:
+            background Null()
+            xysize row_size
+            action Show("dropdown_content", options=options, max_rows=max_rows, row_size=row_size, pos=pos, value=value, field=field, action=action)
+            text tmp idle_color "beige" align .5, .5 hover_color "crimson" size min(ysize-5, int(3*xsize/max(1, 2*len(tmp))))
+            hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
+
+screen dropdown_content(options, max_rows, row_size, pos, value=None, field=None, action=None):
+    # Trying to create a drop down screen with choices of actions:
+    zorder 3
+    modal True
+
+    key "mousedown_4" action NullAction()
+    key "mousedown_5" action NullAction()
+
+    # Get mouse coords:
+    python:
+        x, y = pos
+        if y > config.screen_height/2:
+            yval = 1.0
+        else:
+            y += row_size[1]
+            yval = .0
+        xsize, ysize = row_size
+
+    frame:
+        background Frame(Transform("content/gfx/frame/MC_bg.png", alpha=.55), 10 ,10)
+        #style_prefix "content"
+        xmargin 0
+        padding 5, 5
+        pos (x, y)
+        xsize xsize+10
+        ymaximum ysize * max_rows
+        style_group "proper_stats"
+        yanchor yval
+        has vbox
+        for key, option in options.items():
+            python:
+                btn_action = []
+                if field is not None:
+                    btn_action.append(SetField(field[0], field[1], key))
+                if action is not None:
+                    if not isinstance(action, list):
+                        action = [action] 
+                    btn_action.extend(action)
+                btn_action.extend([Hide("dropdown_content"), With(Dissolve(0.1))])
+            button:
+                background Null()
+                xysize (xsize, ysize)
+                selected key == value
+                action btn_action
+                text option idle_color "beige" hover_color "crimson" selected_color "aqua" align .5, .5 size min(ysize-5, int(3*xsize/max(1, 2*len(option))))
+                hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
+        button:
+            background Null()
+            xysize (xsize, ysize)
+            action Hide("dropdown_content"), With(Dissolve(0.1))
+            text "Close" idle_color "brown" align .5, .5 hover_color "crimson" 
+            hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
+            keysym "mousedown_3", "K_ESCAPE"

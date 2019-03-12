@@ -142,44 +142,52 @@ screen building_management_leftframe_exploration_guild_mode:
         frame:
             background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
             style_group "proper_stats"
-            xsize 310
+            xsize 316
             xalign .5
             padding 10, 10
-            margin 0, 0
             has vbox spacing 1
             label "Filters:" xalign .5
             vbox:
                 style_prefix "basic"
                 xalign .5
                 textbutton "Reset":
-                    xsize 292
+                    xsize 296
                     action Function(fg_filters.clear)
                 textbutton "Warriors":
-                    xsize 292
+                    xsize 296
                     action ModFilterSet(fg_filters, "occ_filters", "Combatant")
                 textbutton "Idle":
-                    xsize 292
+                    xsize 296
                     action ModFilterSet(fg_filters, "action_filters", None)
 
         # Sorting:
         frame:
-            background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
+            background Frame(Transform("content/gfx/frame/MC_bg.png", alpha=.55), 10 ,10)
             style_group "proper_stats"
-            xsize 310
+            xysize (316, 50)
             xalign .5
             padding 10, 10
-            margin 0, 0
-            has vbox spacing 1
-            label "Sort:" xalign .5
-            vbox:
-                style_prefix "basic"
-                xalign .5
-                textbutton "Name":
-                    xsize 292
-                    action SetFilter(fg_filters, "alphabetical")
-                textbutton "Level":
-                    xsize 292
-                    action SetFilter(fg_filters, "level")
+            has hbox spacing 10 align .5, .5
+            label "Sort:":
+                yalign .5 
+                text_size 20
+                text_color "goldenrod"
+                text_outlines [(1, "black", 0, 0)]
+
+            $ options = OrderedDict([("level", "Level"), ("name", "Name")])
+            $ temp = fg_filters.sorting_order
+            use dropdown_box(options, max_rows=6, row_size=(160, 30), pos=(89, 200), value=temp, field=(fg_filters, "sorting_order"), action=Function(fg_filters.filter))
+
+            button:
+                xysize (25, 25)
+                align 1.0, 0.5 #offset 9, -2
+                background Frame(Transform("content/gfx/frame/MC_bg2.png", alpha=.55), 5, 5)
+                action ToggleField(fg_filters, "sorting_desc"), Function(fg_filters.filter)
+                if fg_filters.sorting_desc:
+                    add(im.Scale('content/gfx/interface/icons/checkbox_checked.png', 20, 20)) align .5, .5
+                else:
+                    add(im.Scale('content/gfx/interface/icons/checkbox_unchecked.png', 20, 20)) align .5, .5
+                tooltip 'Descending order'
     elif bm_exploration_view_mode == "explore":
         fixed: # making sure we can align stuff...
             xysize 320, 665

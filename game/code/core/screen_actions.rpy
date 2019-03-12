@@ -933,18 +933,23 @@ init -10 python:
             self.filters.filter()
             renpy.restart_interaction()
 
+    class SetFilter(_object):
+        pass # FIXME obsolete
 
-    class SetFilter(SetField):
-        """Set the filter for char filters and updates them.
+    class SetOrder(_object):
+        """Set the order for lists and updates them.
          """
-        def __init__(self, object, value):
-            super(SetFilter, self).__init__(object, "sorting_order", value)
+        def __init__(self, object, order, desc=False):
+            super(SetOrder, self).__init__()
+            self.object = object
+            self.order = order
+            self.desc = desc
 
         def __call__(self):
-            setattr(self.object, self.field, self.value)
+            setattr(self.object, "sorting_order", self.order)
+            setattr(self.object, "sorting_desc", self.desc)
             self.object.filter()
             renpy.restart_interaction()
-
 
     class NullAction(Action):
         """
