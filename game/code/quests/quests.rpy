@@ -1,35 +1,25 @@
 # Quests:
 init -9 python:
-    # Unility funcs to alias otherwise long command lines:
-    # TO BE USED IN LABELS (during gameplay aka not in init)!
-    def create_quest(*args, **kwargs):
-        return register_quest(*args, **kwargs)
+    # Utility funcs to alias otherwise long command lines:
+    def advance_quest(quest, *args, **kwargs):
+        quest = pytfall.world_quests.quest_instance(quest)
+        quest.next_stage(*args, **kwargs)
 
-    def advance_quest(name, *args, **kwargs):
-        quest = pytfall.world_quests.get(name)
-        quest.next_in_label(*args, **kwargs)
-
-    def finish_quest(name, *args, **kwargs):
-        quest = pytfall.world_quests.get(name)
-        quest.finish_in_label(*args, **kwargs)
+    def finish_quest(quest, *args, **kwargs):
+        quest = pytfall.world_quests.quest_instance(quest)
+        quest.finish(*args, **kwargs)
 
     def register_quest(*args, **kwargs):
         """
         Registers a new quest in an init block (and now in labels as well!).
         """
+        q = WorldQuest(*args, **kwargs)
         if hasattr(store, "pytfall"):
-            return register_quest_in_label(*args, **kwargs)
-
-        q = WorldQuest(*args, **kwargs)
-        world_quests.append(q)
-        return q
-
-    def register_quest_in_label(*args, **kwargs):
-        """
-        Registers a new quest in a label.
-        """
-        q = WorldQuest(*args, **kwargs)
-        pytfall.world_quests.quests.append(q)
+            wq = pytfall.world_quests.quests
+            # FIXME auto start?
+        else:
+            wq = world_quests
+        wq.append(q)
         return q
 
     class WorldQuestManager(_object):
@@ -51,24 +41,16 @@ init -9 python:
             """
             Activates (starts) a quest.
             """
-            if isinstance(quest, basestring): quest = self.get(quest)
+            quest = self.quest_instance(quest)
             if quest in self.quests: self.active.append(quest)
             if quest in self.complete: self.complete.remove(quest)
             if quest in self.failed: self.failed.remove(quest)
-
-        def add_quest(self, quest, *args, **kwargs):
-            """
-            Adds a new quest.
-            """
-            if isinstance(quest, basestring): quest = WorldQuest(quest, *args, **kwargs)
-            self.quest.append(quest)
-            if quest.auto is not None: quest.start()
 
         def complete_quest(self, quest):
             """
             Completes a quest.
             """
-            if isinstance(quest, basestring): quest = self.get(quest)
+            quest = self.quest_instance(quest)
             if quest in self.quests: self.complete.append(quest)
             if quest in self.active: self.active.remove(quest)
             if quest in self.failed: self.failed.remove(quest)
@@ -77,11 +59,10 @@ init -9 python:
             """
             Fails a quest.
             """
-            if isinstance(quest, basestring): quest = self.get(quest)
+            quest = self.quest_instance(quest)
             if quest in self.quests: self.failed.append(quest)
             if quest in self.active: self.active.remove(quest)
             if quest in self.complete: self.complete.remove(quest)
-
 
         def first_day(self):
             """
@@ -90,71 +71,52 @@ init -9 python:
             for i in self.quests:
                 if i.auto is not None: i.start()
 
-        def get(self, name):
+        def quest_instance(self, quest):
             """
-            Returns the named quest.
+            Returns the named quest if it is not already a quest.
             """
+            if not isinstance(quest, basestring): return quest
             for i in self.quests:
-                if i.name == name: return i
-            else: return None
+                if i.name == quest: return i
+            return None
 
         def check_stage(self, quest):
             """Safe way of checking a stage of a quest.
 
             Will return the number of quest stage if quest is active, -1 otherwise.
             """
-            return self.get(quest).stage
-
-        def check_quest_not_finished(self, *quests):
-            """Will return False if at least one quest is completed or failed, True otherwise.
-            """
-            for quest in quests:
-                if self.is_complete(quest) or self.has_failed(quest):
-                    return False
-            return True
-
-        def all_finished(self, *quests):
-            """Will return True if all quests provided as arguments are completed or finished.
-            False otherwise.
-            """
-            bools = []
-            for quest in quests:
-                bools.append(self.is_complete(quest) or self.has_failed(quest))
-            if all(bools):
-                return True
-            else:
-                return False
+            return self.quest_instance(quest).stage
 
         def has_failed(self, quest):
             """Whether a quest has been failed.
             """
-            if isinstance(quest, basestring): quest = self.get(quest)
+            quest = self.quest_instance(quest)
             return quest in self.failed
 
         def is_active(self, quest):
             """Whether a quest is active.
             """
-            if isinstance(quest, basestring): quest = self.get(quest)
+            quest = self.quest_instance(quest)
             return quest in self.active
 
         def is_complete(self, quest):
             """Whether a quest is complete.
             """
-            if isinstance(quest, basestring): quest = self.get(quest)
+            quest = self.quest_instance(quest)
             return quest in self.complete
 
         def is_squelched(self, quest):
             """Whether a quest has been squelched.
             """
-            if isinstance(quest, basestring): quest = self.get(quest)
+            quest = self.quest_instance(quest)
             return quest in self.squelch
 
         def kill_quest(self, quest):
             """Removes a quest.
             """
-            if isinstance(quest, basestring): quest = self.get(quest)
-            if self.is_active(quest): self.active.remove(quest)
-            if self.is_complete(quest): self.complete.remove(quest)
+            quest = self.quest_instance(quest)
+            if quest in self.active: self.active.remove(quest)
+            if quest in self.complete: self.complete.remove(quest)
             self.quests.remove(quest)
 
         def next_day(self):
@@ -185,14 +147,14 @@ init -9 python:
         def squelch_quest(self, quest):
             """Squelches a quest so it doesn't provide any more updates.
             """
-            if isinstance(quest, basestring): quest = self.get(quest)
-            if self.is_active(quest): self.squelch.append(quest)
+            quest = self.quest_instance(quest)
+            if quest in self.active: self.squelch.append(quest)
 
         def unsquelch_quest(self, quest):
             """Unsquelches a quest so it can provide updates.
             """
-            if isinstance(quest, basestring): quest = self.get(quest)
-            if self.is_squelched(quest): self.squelch.remove(quest)
+            quest = self.quest_instance(quest)
+            if quest in self.squelch: self.squelch.remove(quest)
 
 
     class WorldQuest(_object):
@@ -224,12 +186,6 @@ init -9 python:
             self.auto = auto
             self.manual = manual
 
-        def __contains__(self, obj):
-            """
-            Checks for the existance of flags.
-            """
-            return obj in self.flags
-
         def __str__(self):
             return "Quest(%s)" % self.name
 
@@ -245,10 +201,10 @@ init -9 python:
             Checks whether the quest is at a certain state.
             Used for easy checking through WorldEvent.run_conditions.
             """
+            if self.stage < stage: return False
             if strict and self.stage != stage: return False
-            if not strict and self.stage < stage: return False
             for i in flags:
-                if i not in self: return False
+                if i not in self.flags: return False
 
             return True
 
@@ -264,9 +220,10 @@ init -9 python:
             Builds a condition check string for WorldEvent.run_conditions.
             """
             if flags is not None and len(flags) > 0:
-                return "pytfall.world_quests.get(\"%s\").check(%s, %s, %s)"%(self.name, str(stage), True if strict else False, "\"" + "\", \"".join(flags) + "\"")
+                flags = ", \"" + "\", \"".join(flags) + "\""
             else:
-                return "pytfall.world_quests.get(\"%s\").check(%s, %s)"%(self.name, str(stage), True if strict else False)
+                flags = ""
+            return "pytfall.world_quests.quest_instance(\"%s\").check(%s, %s%s)" % (self.name, str(stage), bool(strict), flags)
 
         @property
         def failed(self):
@@ -277,7 +234,7 @@ init -9 python:
 
         def finish(self, prompt, *flags, **kwargs):
             """
-            Finishes the quest in menus, etc.
+            Finishes the quest in menus, labels, etc.
             prompt = Prompt to add to the Quest log.
             flags = List of strings to add to the Quest as flags.
             to = Stage to jump to instead of current+1.
@@ -290,10 +247,10 @@ init -9 python:
 
             qe_debug("Quest Complete: %s"%self.name)
 
-            if renpy.get_screen("quest_notifications"):
-                renpy.hide_screen("quest_notifications")
-
             if persistent.use_quest_popups:
+                if renpy.get_screen("quest_notifications"):
+                    renpy.hide_screen("quest_notifications")
+
                 renpy.show_screen("quest_notifications", self.name, "Complete")
                 # if "in_label" not in kwargs: renpy.show_screen("message_screen", "Quest Complete:\n%s"%self.name)
                 # else: renpy.call_screen("message_screen", "Quest Complete:\n%s"%self.name, use_return=True)
@@ -309,29 +266,21 @@ init -9 python:
             self.prompts.append(prompt)
             qe_debug("Quest Failed: %s"%self.name)
 
-            if renpy.get_screen("quest_notifications"):
-                renpy.hide_screen("quest_notifications")
-
             if persistent.use_quest_popups:
-                renpy.show_screen("quest_notifications", self.name, "Failed")
+                if renpy.get_screen("quest_notifications"):
+                    renpy.hide_screen("quest_notifications")
 
-        def finish_in_label(self, *args, **kwargs):
-            """
-            Finishes the quest in labels.
-            prompt = Prompt to add to the Quest log.
-            flags = List of strings to add to the Quest as flags.
-            """
-            self.finish(*args, in_label=True, **kwargs)
+                renpy.show_screen("quest_notifications", self.name, "Failed")
 
         def flag(self, tag):
             """
             Adds a flag to the quest.
             """
-            if tag not in self: self.flags.append(tag)
+            if tag not in self.flags: self.flags.append(tag)
 
-        def next(self, prompt, *flags, **kwargs):
+        def next_stage(self, prompt, *flags, **kwargs):
             """
-            Adds a stage to the quest in menus, etc.
+            Adds a stage to the quest in menus, labels, etc.
             prompt = Prompt to add to the Quest log.
             flags = List of strings to add to the Quest as flags.
             to = Stage to jump to instead of current+1.
@@ -347,37 +296,21 @@ init -9 python:
 
             qe_debug("Update Quest: %s to %s"%(self.name, str(self.stage)))
 
-            if renpy.get_screen("quest_notifications"):
-                renpy.hide_screen("quest_notifications")
-
             if persistent.use_quest_popups:
+                if renpy.get_screen("quest_notifications"):
+                    renpy.hide_screen("quest_notifications")
+
                 if len(self.prompts) == 1:
                     renpy.show_screen("quest_notifications", self.name, "New")
                     # if "in_label" not in kwargs: renpy.show_screen("message_screen", "New Quest:\n%s"%self.name)
                     # else: renpy.call_screen("message_screen", "New Quest:\n%s"%self.name, use_return=True)
 
-                elif not self.squelched:
+                elif not pytfall.world_quests.is_squelched(self): # TODO squelched?
                     renpy.show_screen("quest_notifications", self.name, "Updated")
                     # if "in_label" not in kwargs: renpy.show_screen("message_screen", "Quest Updated:\n%s"%self.name)
                     # else: renpy.call_screen("message_screen", "Quest Updated:\n%s"%self.name, use_return=True)
 
                 # pytfall.world_quests.squelch_quest(self)
-
-        def next_in_label(self, *args, **kwargs):
-            """
-            Adds a stage to the quest in labels.
-            prompt = Prompt to add to the Quest log.
-            flags = List of strings to add to the Quest as flags.
-            to = Stage to jump to instead of current+1.
-            """
-            self.next(*args, in_label=True, **kwargs)
-
-        @property
-        def squelched(self):
-            """
-            Whether this quest has been squelched.
-            """
-            return pytfall.world_quests.is_squelched(self)
 
         def start(self):
             """
@@ -386,26 +319,26 @@ init -9 python:
             if not self.active: pytfall.world_quests.activate_quest(self)
 
             if isinstance(self.auto, (tuple,list)):
-                if len(self.auto) == 1: self.next(self.auto)
+                if len(self.auto) == 1: self.next_stage(self.auto)
                 elif len(self.auto) == 2:
-                    if isinstance(self.auto[1], (tuple,list)): self.next(self.auto[0], *self.auto[1])
-                    elif isinstance(self.auto[1], int): self.next(self.auto[0], to=self.auto[1])
-                    else: self.next(*self.auto)
+                    if isinstance(self.auto[1], (tuple,list)): self.next_stage(self.auto[0], *self.auto[1])
+                    elif isinstance(self.auto[1], int): self.next_stage(self.auto[0], to=self.auto[1])
+                    else: self.next_stage(*self.auto)
 
                 else:
-                    if isinstance(self.auto[1], (tuple,list)): self.next(self.auto[0], *self.auto[1], to=self.auto[2])
-                    elif isinstance(self.auto[-1], int): self.next(self.auto[0], *self.auto[1:-1], to=self.auto[-1])
-                    else: self.next(*self.auto)
+                    if isinstance(self.auto[1], (tuple,list)): self.next_stage(self.auto[0], *self.auto[1], to=self.auto[2])
+                    elif isinstance(self.auto[-1], int): self.next_stage(self.auto[0], *self.auto[1:-1], to=self.auto[-1])
+                    else: self.next_stage(*self.auto)
 
             else:
-                self.next(self.auto)
+                self.next_stage(self.auto)
 
             qe_debug("Auto-Start Quest: %s"%self.name)
 
-            if renpy.get_screen("quest_notifications"):
-                renpy.hide_screen("quest_notifications")
-
             if persistent.use_quest_popups:
+                if renpy.get_screen("quest_notifications"):
+                    renpy.hide_screen("quest_notifications")
+
                 # Called in mainscreen, show works
                 renpy.show_screen("quest_notifications", self.name, "New")
                 # renpy.show_screen("message_screen", "New Quest:\n%s"%self.name, use_return=True)

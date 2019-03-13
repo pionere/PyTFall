@@ -7,24 +7,21 @@ init -9 python:
                     templist.append('content/events/%s/%s' % (eventfolder, file))
             return ProportionalScale(choice(templist), config.screen_width, config.screen_height)
 
+    # Utility funcs to alias otherwise long command lines:
     def register_event(*args, **kwargs):
         """
         Registers a new event in an init block (and now in labels as well!).
         """
+        event = WorldEvent(*args, **kwargs)
         if hasattr(store, "pytfall"):
-            return register_event_in_label(*args, **kwargs)
-
-        event = WorldEvent(*args, **kwargs)
-        world_events.append(event)
+            we = pytfall.world_events.events
+        else:
+            we = world_events
+        we.append(event)
         return event
 
-    def register_event_in_label(*args, **kwargs):
-        """
-        Registers a new event in a label.
-        """
-        event = WorldEvent(*args, **kwargs)
-        pytfall.world_events.events.append(event)
-        return event
+    def kill_event(event):
+        pytfall.world_events.kill_event(event)
 
     class WorldEventsManager(_object):
         """Manager of all events in PyTFall.
@@ -36,36 +33,26 @@ init -9 python:
             """
             self.events = deepcopy(data) # all events
             self.events_cache = list() # events that should be actually checked
-            self.garbage = list()
             self.label_cache = None
 
-        def get(self, name):
-            # Returns the event object with given name.
-            for e in self.events:
-                if e.name == name:
-                    return e
-
-        def kill_event(self, event_name, cached=False):
+        def event_instance(self, event):
+            """
+            Returns the named event if it is not already an event.
+            """
+            if not isinstance(event, basestring): return event
+            for i in self.events:
+                if i.name == event: return i
+            return None
+            
+        def kill_event(self, event):
             """
             Stop an event from triggering.
             event_name = The name of the event.
             cached = Whether to also remove cached events.
             """
-            self.events[:] = (i for i in self.events if i.name != event_name)
-
-            if cached:
-                self.events_cache[:] = (i for i in self.events_cache if i.name != event_name)
-
-        def force_event(self, name):
-            """
-            Forces an event to the daily stack, this should be used with caution as it can mess up the conditioning.
-            The best use for this method is adding newly created (during game runtime) event to the stack so they can be accessed on the same day.
-            name = The name of the event.
-            """
-            for event in self.events:
-                if event.name == name:
-                    if event not in self.events_cache:
-                        self.events_cache.append(event)
+            event = self.event_instance(event)
+            if event in self.events: self.events.remove(event)
+            if event in self.events_cache: self.events_cache.remove(event)
 
         def run_events(self, trigger_type, default=None, cost=0):
             """
@@ -74,24 +61,22 @@ init -9 python:
             default = The label to go to if there are no available events.
             cost = The cost of triggering the event.
             """
+            if hero.AP < cost:
+                renpy.show_screen("message_screen", "Not enough AP left")
+                return
+            hero.AP -= cost
+
             self.label_cache = last_label
             l = list()
 
             for i in self.events_cache:
                 if i.trigger_type == trigger_type and ("all" in i.locations or last_label in i.locations): l.append(i)
 
-            if hero.AP < cost:
-                renpy.show_screen("message_screen", "Not enough AP left")
-                return
-            else:
-                hero.AP -= cost
-                for event in l:
-                    if event.check_conditions():
-                        event.run_event()
-                        return
-                else:
-                    if default: renpy.call_in_new_context(default)
+            for event in l:
+                if event.check_conditions():
+                    event.run_event()
                     return
+            if default: renpy.call_in_new_context(default)
 
         def finish_event(self):
             """
@@ -106,17 +91,13 @@ init -9 python:
             """
             self.events_cache = list()
 
-            # Clean-up
-            for event in self.garbage:
-                if event in self.events: self.events.remove(event)
-
-            self.garbage = list()
+            garbage = list()
 
             # Prepare the event list:
             for event in self.events:
                 # Max runs
                 if event.max_runs and event.max_runs <= event.runs:
-                    self.garbage.append(event)
+                    garbage.append(event)
                     continue
 
                 # Priority skip:
@@ -130,7 +111,7 @@ init -9 python:
 
                 # Day range
                 if event.end_day <= day:
-                    self.garbage.append(event)
+                    garbage.append(event)
                     continue
 
                 elif event.start_day > day:
@@ -151,6 +132,9 @@ init -9 python:
 
                 # We got to the final part:
                 self.events_cache.append(event)
+
+            # Clean-up
+            self.events[:] = [e for e in self.events if e not in garbage]
 
             # And finally, sorting by priority:
             self.events_cache.sort(key=attrgetter("priority"), reverse=True)
@@ -289,6 +273,6 @@ init -9 python:
 
         def finish_event(self):
             """
-            Finishes the cevent.
+            Finishes the event.
             """
             jump(self.label_cache)

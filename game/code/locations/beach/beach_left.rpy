@@ -294,7 +294,7 @@ label fishing_logic:
     scene bg fishing_bg with dissolve
 
     if not global_flags.flag('visited_fish_city_beach'):
-        $ create_quest("Fishery")
+        $ register_quest("Fishery")
         show expression npcs["Mor"].get_vnsprite() as npc
         with dissolve
         "A small boy fishes on the pier. Noticing you, he puts his fishing rod on the ground and approaches."

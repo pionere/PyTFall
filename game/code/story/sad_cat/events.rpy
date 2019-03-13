@@ -16,8 +16,8 @@ label found_sad_cat_1:
             "The cat is frightened as you approach, and quickly runs away."
             hide expression temp with dissolve
             hero.say "Maybe a treat of some kind will help? I suppose cats like fish..."
-            $ pytfall.world_events.kill_event("found_sad_cat_1", cached=True)
-            $ register_event_in_label("found_sad_cat_2", locations=["main_street"], run_conditions=["dice(100)"], priority=5000, dice=0, start_day=day+1, restore_priority=0, jump=True, times_per_days=(1,0))
+            $ kill_event("found_sad_cat_1")
+            $ register_event("found_sad_cat_2", locations=["main_street"], run_conditions=["dice(100)"], priority=5000, dice=0, start_day=day+1, restore_priority=0, jump=True, times_per_days=(1,0))
         "Ignore it":
             "There are plenty of cats in the city. No need to pay any attention."
         "Drive it away":
@@ -25,7 +25,7 @@ label found_sad_cat_1:
             $ temp = npcs["sad_cat"].show("profile", "scared", resize = (295, 340))
             show expression temp at left
             "The cat is frightened as you approach, and quickly runs away."
-            $ pytfall.world_events.kill_event("found_sad_cat_1")
+            $ kill_event("found_sad_cat_1")
     $ global_flags.set_flag("keep_playing_music")
     $ del temp
     jump main_street
@@ -50,8 +50,8 @@ label found_sad_cat_2:
                 hide temp with dissolve
                 hero.say "What an ungrateful animal..."
                 $ hero.remove_item(random.choice(fish).id)
-                $ pytfall.world_events.kill_event("found_sad_cat_2", cached=True)
-                $ register_event_in_label("found_sad_cat_3", locations=["main_street"], run_conditions=["dice(100)"], priority=5000, dice=0, start_day=day+1, restore_priority=0, jump=True, times_per_days=(1,0))
+                $ kill_event("found_sad_cat_2")
+                $ register_event("found_sad_cat_3", locations=["main_street"], run_conditions=["dice(100)"], priority=5000, dice=0, start_day=day+1, restore_priority=0, jump=True, times_per_days=(1,0))
             "Maybe later":
                 hero.say "I have a more important business to attend right now."
                 hide temp with dissolve
@@ -60,7 +60,7 @@ label found_sad_cat_2:
                 $ temp = npcs["sad_cat"].show("profile", "scared", resize = (295, 340))
                 show expression temp at left
                 "The cat is frightened as you approach, and quickly runs away."
-                $ pytfall.world_events.kill_event("found_sad_cat_2")
+                $ kill_event("found_sad_cat_2")
     $ global_flags.set_flag("keep_playing_music")
     $ del temp, fish
     jump main_street
@@ -85,8 +85,8 @@ label found_sad_cat_3:
                 hide temp with dissolve
                 hero.say "It wasn't as frightened today... I guess."
                 $ hero.remove_item(random.choice(fish).id)
-                $ pytfall.world_events.kill_event("found_sad_cat_3", cached=True)
-                $ register_event_in_label("found_sad_cat_4", locations=["main_street"], run_conditions=["dice(100)"], priority=5000, dice=0, start_day=day+1, restore_priority=0, jump=True)
+                $ kill_event("found_sad_cat_3")
+                $ register_event("found_sad_cat_4", locations=["main_street"], run_conditions=["dice(100)"], priority=5000, dice=0, start_day=day+1, restore_priority=0, jump=True)
             "Maybe later":
                 hero.say "I have a more important business to attend right now."
                 hide temp with dissolve
@@ -95,7 +95,7 @@ label found_sad_cat_3:
                 $ temp = npcs["sad_cat"].show("profile", "scared", resize = (295, 340))
                 show expression temp at left
                 "The cat is frightened as you approach, and quickly runs away."
-                $ pytfall.world_events.kill_event("found_sad_cat_3")
+                $ kill_event("found_sad_cat_3")
     $ global_flags.set_flag("keep_playing_music")
     $ del temp, fish
     jump main_street
@@ -146,7 +146,7 @@ label found_sad_cat_4:
                 $ items["Your Pet"].desc = "%s, the cat you found on city streets. Cute, funny and loyal, all girls just love him." %cat.name
                 $ hero.add_item("Your Pet")
                 "You got yourself a pet cat."
-                $ pytfall.world_events.kill_event("found_sad_cat_4", cached=True)
+                $ kill_event("found_sad_cat_4")
             "Don't heal":
                 hero.say "I need those potions for myself."
     else:

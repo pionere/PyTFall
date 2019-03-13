@@ -855,7 +855,7 @@ init -9 python:
             # Replace with better code to prevent mass-creation/destruction of events?
             # Clean look_cache
             for i in self.look_cache.keys():
-                pytfall.world_events.kill_event(i, cached=True)
+                kill_event(i)
                 del self.look_cache[i]
 
             # Loop through girls in a random order
@@ -900,7 +900,7 @@ init -9 python:
                     ev = "runaway_look_around_%s"%str(girl)
                     self.look_cache[ev] = girl
                     # Add event for girl (do we want high priority?)
-                    register_event_in_label(ev, label=girl.runaway_look_event, trigger_type="look_around", locations=["all"], dice=status, max_runs=1, start_day=day+1, priority=999)
+                    register_event(ev, label=girl.runaway_look_event, trigger_type="look_around", locations=["all"], dice=status, max_runs=1, start_day=day+1, priority=999)
 
                     if cdb: txt.append("{color=blue}        in look around (%s days till escape){/color}"%(20-girl_away_days))
                     continue
@@ -929,7 +929,7 @@ init -9 python:
                 ev = "runaway_look_around_%s"%str(girl)
                 if ev in self.look_cache:
                     del self.look_cache[ev]
-                    pytfall.world_events.kill_event(ev)
+                    kill_event(ev)
 
 
                 girl.home = pytfall.streets 

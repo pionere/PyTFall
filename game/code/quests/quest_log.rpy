@@ -105,7 +105,7 @@ screen quest_log():
                     xysize (930, 617)
                     has vbox xsize 850
                     if current_quest is not None:
-                        $ temp = list(reversed(pytfall.world_quests.get(current_quest).prompts))
+                        $ temp = list(reversed(pytfall.world_quests.quest_instance(current_quest).prompts))
                         if temp:
                             text temp[0] style "TisaOTMolxm" size 20 xpos 20 xanchor .0
                             $ temp = temp[1:]

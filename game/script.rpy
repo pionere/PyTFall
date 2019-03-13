@@ -818,7 +818,7 @@ label after_load:
                 if pytfall.world_quests.check_stage("Fishery") != 0:
                     if pytfall.world_quests.check_stage("Fishery") == 1:
                         hero.set_flag("mor_fish_quest", (store.mor_fish, store.mor_quantity))
-                    q = pytfall.world_quests.get("Fishery")
+                    q = pytfall.world_quests.quest_instance("Fishery")
                     q.prompts[0] = q.prompts[0].replace("[mor_fish.id]", "%s" % store.mor_fish.id).replace("[mor_quantity]", "%d" % store.mor_quantity)
                 if hero.flag("mor_fish_dice") == day:
                     hero.set_flag("dnd_mor_fish_quest", (store.mor_fish, store.mor_quantity))
@@ -1310,6 +1310,9 @@ label after_load:
             for i, c in enumerate(e.simple_conditions):
                 if ".magic" in c:
                     e.simple_conditions[i] = c.replace(".magic", ".get_stat('magic')")
+            for i, c in enumerate(e.run_conditions):
+                if "world_quests.get" in c:
+                    e.run_conditions[i] = c.replace("world_quests.get", "world_quests.quest_instance")
 
         for d in pytfall.world_actions.nest:
             if hasattr(d, "values"):
@@ -1329,6 +1332,10 @@ label after_load:
                 if not hasattr(d, "keysym"):
                     d.keysym = None
 
+        if hasattr(pytfall.world_events, "garbage"):
+            temp = pytfall.world_events.garbage
+            pytfall.world_events.events[:] = [e for e in pytfall.world_events.events if e not in temp]
+            del pytfall.world_events.garbage
         if hasattr(pytfall.hp, "show_item_info"):
             del pytfall.hp.show_item_info
         if hasattr(pytfall.hp, "item"):

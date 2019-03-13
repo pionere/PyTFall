@@ -25,7 +25,7 @@ label city_events_thugs_robbery:
             "Give him 200 Gold?"
             "Yes":
                 t "Thank you kindly. Worry not, no one will bother you. For now."
-                $ pytfall.world_events.kill_event("city_events_thugs_robbery_attack")
+                $ kill_event("city_events_thugs_robbery_attack")
                 $ register_event("city_events_thugs_robbery", locations=["main_street"], dice=100, trigger_type = "look_around", priority = 50, start_day=day+7, jump=True, times_per_days=(1,3))
                 $ hero.take_money(200, reason="Robbery")
                 jump main_street
@@ -54,8 +54,8 @@ label city_events_thugs_robbery_win:
     show bg street_alley
     show expression npcs["street_thug"].get_vnsprite() as npc with dissolve
     t "Nice moves! Fair enough, [hero.name]. My guys won't bother you any longer. See ya."
-    $ pytfall.world_events.kill_event("city_events_thugs_robbery_attack")
-    $ pytfall.world_events.kill_event("city_events_thugs_robbery")
+    $ kill_event("city_events_thugs_robbery_attack")
+    $ kill_event("city_events_thugs_robbery")
     "He walks away."
     jump main_street
 
@@ -75,7 +75,7 @@ label city_events_thugs_robbery_lost:
     jump main_street
 
 label city_events_thugs_robbery_attack:
-    $ scr = pytfall.world_events.get("city_events_thugs_robbery_attack").label_cache
+    $ scr = pytfall.world_events.event_instance("city_events_thugs_robbery_attack").label_cache
     "A group of men suddenly surrounds you!"
     scene
     $ renpy.scene(layer="screens")
