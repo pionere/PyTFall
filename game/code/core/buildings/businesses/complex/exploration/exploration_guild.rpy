@@ -196,46 +196,59 @@ init -6 python: # Guild, Tracker and Log.
             area.trackers.remove(self)
 
             # Settle rewards and update data:
-            found_items = collections.Counter(self.found_items)
-            cash_earned = sum(self.cash)
-            if cash_earned:
-                hero.add_money(cash_earned, reason="Exploration Guild")
-                building.fin.log_logical_income(cash_earned, "Exploration Guild")
-            inv = building.inventory if hasattr(building, "inventory") else hero.inventory
-            for i, a in found_items.items():
-                item = items[i]
-                inv.append(item, a)
-            for char in self.captured_chars:
-                pytfall.jail.add_capture(char)
+            if len(self.team) != 0:
+                team = self.team
+                found_items = collections.Counter(self.found_items)
+                cash_earned = sum(self.cash)
+                if cash_earned:
+                    hero.add_money(cash_earned, reason="Exploration Guild")
+                    building.fin.log_logical_income(cash_earned, "Exploration Guild")
+                inv = building.inventory if hasattr(building, "inventory") else hero.inventory
+                for i, a in found_items.items():
+                    item = items[i]
+                    inv.append(item, a)
+                for char in self.captured_chars:
+                    pytfall.jail.add_capture(char)
 
-            chars_captured = len(self.captured_chars)
+                chars_captured = len(self.captured_chars)
 
-            area.mobs_defeated = add_dicts(area.mobs_defeated, self.mobs_defeated)
-            area.found_items = add_dicts(area.found_items, found_items)
-            area.cash_earned += cash_earned
-            area.chars_captured += chars_captured
+                area.mobs_defeated = add_dicts(area.mobs_defeated, self.mobs_defeated)
+                area.found_items = add_dicts(area.found_items, found_items)
+                area.cash_earned += cash_earned
+                area.chars_captured += chars_captured
 
-            main_area = fg_areas[area.area]
-            main_area.mobs_defeated = add_dicts(main_area.mobs_defeated, self.mobs_defeated)
-            main_area.found_items = add_dicts(main_area.found_items, found_items)
-            main_area.cash_earned += cash_earned
-            main_area.chars_captured += chars_captured
+                main_area = fg_areas[area.area]
+                main_area.mobs_defeated = add_dicts(main_area.mobs_defeated, self.mobs_defeated)
+                main_area.found_items = add_dicts(main_area.found_items, found_items)
+                main_area.cash_earned += cash_earned
+                main_area.chars_captured += chars_captured
 
-            defeated_mobs.update(self.mobs_defeated)
+                defeated_mobs.update(self.mobs_defeated)
 
-            if self.guild.has_extension(HealingSprings):
-                temp = choice(["The team visited the Healing Springs on their way back to the Guild.",
-                               "The team took some time off to visit the Onsen on their way back"])
-                self.log(temp)
-                for char in self.team:
-                    mod_by_max("health", .25)
-                    mod_by_max("mp", .25)
-                    mod_by_max("vitality", .25)
+                if self.guild.has_extension(HealingSprings):
+                    temp = choice(["The team visited the Healing Springs on their way back to the Guild.",
+                                   "The team took some time off to visit the Onsen on their way back"])
+                    self.log(temp)
+                    for char in team:
+                        mod_by_max("health", .25)
+                        mod_by_max("mp", .25)
+                        mod_by_max("vitality", .25)
+
+                #ratio = _self_.env.now/100.0 
+                for char in team:
+                    #char.AP -= round_int(char.setAP*ratio)
+                    #if char.AP < 0:
+                    #    char.AP = 0
+                    char.set_flag("dnd_back_from_track")
+                charmod = self.team_charmod
+            else:
+                # all dead -> just report
+                team = None
+                # FIXME lost special items? 
+                charmod = None
 
             # Restore Chars and Remove from guild:
             self.guild.explorers.remove(self)
-            for char in self.team:
-                char.set_flag("dnd_back_from_track")
 
             # Next Day Stuff:
             # Not sure if this is required... we can add log objects and build
@@ -245,30 +258,25 @@ init -6 python: # Guild, Tracker and Log.
             # Build an image combo for the report:
             img = Fixed(xysize=(820, 705))
             img.add(Transform(area.img, size=(820, 705)))
-            vp = vp_or_fixed(self.team, ["fighting"],
-                             {"exclude": ["sex"],
-                             "resize": (150, 150)}, xmax=820)
-            img.add(Transform(vp, align=(.5, .9)))
+            if team is not None:
+                vp = vp_or_fixed(team, ["fighting"],
+                                 {"exclude": ["sex"],
+                                 "resize": (150, 150)}, xmax=820)
+                img.add(Transform(vp, align=(.5, .9)))
 
             # We need to create major report for nd to keep track of progress:
             for log in [l for l in self.logs if l.nd_log]:
                 txt.append("\n".join(log.txt))
 
-            if len(self.team) != 0:
-                team = self.team
-            else:
-                # all dead -> just report
-                team = None
             evt = NDEvent(type='explorationndreport',
                           img=img,
                           txt=txt,
                           team=team,
-                          charmod=self.team_charmod,
+                          charmod=charmod,
                           loc=building,
                           green_flag=self.flag_green,
                           red_flag=self.flag_red)
             NextDayEvents.append(evt)
-
 
     class ExplorationLog(Action):
         """Stores resulting text and data for SE.
@@ -432,16 +440,23 @@ init -6 python: # Guild, Tracker and Log.
                 if result == "arrived":
                     tracker.state = None
             elif tracker.died:
-                tracker.died -= team.members
-                if tracker.died:
-                    temp = "{color=red}%s{/color} did not make it through the night. RIP." % ", ".join([d.fullname for d in tracker.died])
+                died = []
+                for d in tracker.died:
+                    if dice(tracker.risk) and not dice(d.get_stat("luck")):
+                        kill_char(d)
+                        died.append(d)
+                    else:
+                        d.enable_effect("Injured", duration=3)
+
+                if died:
+                    temp = "{color=red}%s{/color} did not make it through the night. RIP." % ", ".join([d.fullname for d in died])
                     tracker.log(temp)
                 if len(tracker.team) == 0:
-                    # The team died out during the night FIXME handle (special)items, loot
                     tracker.finish_exploring() # Build the ND report!
                     self.env.exit() # They're done...
                 # The remaining team is heading home -> reset the died list so they can sleep during the nights
                 tracker.died = list()
+                tracker.daily_items = None # lose the daily items # FIXME lost special items?
             # Set the state to traveling back if we're done:
             elif tracker.day - tracker.traveled >= tracker.days:
                 tracker.state = "traveling back"
@@ -1050,6 +1065,10 @@ init -6 python: # Guild, Tracker and Log.
                     if member in battle.corpses:
                         tracker.flag_red = True
                         tracker.died.append(member)
+
+                        if DEBUG_SE:
+                            msg = "{} died during a battle scenario.".format(member.name)
+                            se_debug(msg, mode="info")
 
             for mob in enemy_team:
                 if mob in battle.corpses:

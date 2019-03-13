@@ -81,10 +81,9 @@ screen cemetry_list_of_dead_chars(dead_list, number): # the list should not be e
             frame:
                 background Frame("content/gfx/frame/namebox3.png")
                 xsize 160
-                if len(character.name) <= 10:
-                    text ([character.name]) xalign .5 style "stats_value_text" color "silver"
-                else:
-                    text ([character.name]) xalign .5 style "stats_value_text" color "silver" size 12
+                text ([character.name]) xalign .5 style "stats_value_text" color "silver":
+                    if len(character.name) > 10:
+                        size 12
 
             frame:
                 background Frame("content/gfx/frame/namebox3.png")
@@ -114,6 +113,7 @@ screen cemetry_list_of_dead_chars(dead_list, number): # the list should not be e
             yalign .5
             action [Hide("cemetry_list_of_dead_chars"), Jump("graveyard_town")]
             text "Exit" size 15
+            keysym "mousedown_3"
 
 label cemetery_prev_char:
     if number > 0:
