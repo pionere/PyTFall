@@ -141,8 +141,6 @@ init -5 python:
                     {"exclude": ["sex"], "resize": (150, 150)}, xmax=ND_IMAGE_SIZE[0])
             log.img.add(Transform(vp, align=(.5, .9)))
 
-            log.team = all_workers
-
             simpy_debug("Guards.write_nd_report marker 2")
 
             workers = all_workers

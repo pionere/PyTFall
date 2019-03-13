@@ -174,7 +174,7 @@ screen building_management_leftframe_exploration_guild_mode:
                 text_color "goldenrod"
                 text_outlines [(1, "black", 0, 0)]
 
-            $ options = OrderedDict([("level", "Level"), ("name", "Name")])
+            $ options = OrderedDict([("level", "Level"), ("name", "Name"), (None, "-")])
             $ temp = fg_filters.sorting_order
             use dropdown_box(options, max_rows=6, row_size=(160, 30), pos=(89, 200), value=temp, field=(fg_filters, "sorting_order"), action=Function(fg_filters.filter))
 

@@ -10,8 +10,6 @@ init:
                 self.page_size = 10
 
                 self.source = CharsSortingForGui(sorting_for_chars_list)
-                self.source.sorting_order = "level"
-                self.source.sorting_desc = True
 
                 self.status_filters = None
                 #self.location_filters = None
@@ -441,7 +439,7 @@ screen chars_list():
             text_color "goldenrod"
             text_outlines [(1, "black", 0, 0)]
 
-        $ options = OrderedDict([("level", "Level"), ("name", "Name"), ("disposition", "Disposition"), ("affection", "Affection")])
+        $ options = OrderedDict([("level", "Level"), ("name", "Name"), ("disposition", "Disposition"), ("affection", "Affection"), (None, "-")])
         $ temp = chars_list_state.source.sorting_order
         use dropdown_box(options, max_rows=6, row_size=(160, 30), pos=(1064, 530), value=temp, field=(chars_list_state.source, "sorting_order"), action=Function(chars_list_state.source.filter))
 

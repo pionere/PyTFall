@@ -51,7 +51,7 @@ init -998 python:
 
     # Simulated exploration:
     DEBUG_SE = True
-    def se_debug(msg, mode="warning"):
+    def se_debug(msg, mode="info"):
         if DEBUG_SE:
             func = getattr(devlog, mode)
             func("|SE DEBUG| {}".format(msg))

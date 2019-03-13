@@ -155,7 +155,7 @@ init -6 python: # Guild, Tracker and Log.
             if DEBUG_SE:
                 msg = "{}: {} at {}\n    {}".format(self.area.name,
                                     self.team.name, self.guild.env.now, txt)
-                se_debug(msg, mode="info")
+                se_debug(msg)
 
             obj = ExplorationLog(name, txt, nd_log, ui_log, **kwargs)
             self.logs.append(obj)
@@ -428,7 +428,7 @@ init -6 python: # Guild, Tracker and Log.
 
             if DEBUG_SE:
                 msg = "Entered exploration controller for {}.".format(tracker.team.name)
-                se_debug(msg, mode="info")
+                se_debug(msg)
 
             # Log the day:
             temp = "{color=green}Day: %d{/color} | {color=lightgreen}%s{/color}" % (tracker.day, tracker.area.name)
@@ -509,7 +509,7 @@ init -6 python: # Guild, Tracker and Log.
 
             if DEBUG_SE:
                 msg = "{} is traveling to {}.".format(team_name, area_name)
-                se_debug(msg, mode="info")
+                se_debug(msg)
 
             # Figure out how far we can travel in steps of 5 DU:
             # Understanding here is that any team can travel 20 KM per day on average.
@@ -533,7 +533,7 @@ init -6 python: # Guild, Tracker and Log.
                 if tracker.traveled >= tracker.distance:
                     if DEBUG_SE:
                         msg = "{} arrived at {} ({}).".format(team_name, area_name, tracker.area.id)
-                        se_debug(msg, mode="info")
+                        se_debug(msg)
 
                     temp = "{color=green}%s{/color} arrived at its destination!" % team_name
                     if tracker.day > 1:
@@ -547,7 +547,7 @@ init -6 python: # Guild, Tracker and Log.
                     temp = "Your team spent the entire day traveling."
                     tracker.log(temp)
                     if DEBUG_SE:
-                        se_debug(temp, mode="info")
+                        se_debug(temp)
                     self.env.exit("not_arrived")
 
         def travel_back(self, tracker):
@@ -556,7 +556,7 @@ init -6 python: # Guild, Tracker and Log.
 
             if DEBUG_SE:
                 msg = "{} is traveling back.".format(team_name)
-                se_debug(msg, mode="info")
+                se_debug(msg)
 
             # Figure out how far we can travel in 5 du:
             # Understanding here is that any team can travel 20 KM per day on average.
@@ -594,7 +594,7 @@ init -6 python: # Guild, Tracker and Log.
 
             if DEBUG_SE:
                 msg = "{} is Camping. State: {}".format(team.name, tracker.state)
-                se_debug(msg, mode="info")
+                se_debug(msg)
 
             if not tracker.days_in_camp:
                 temp = "{color=green}%s{/color} set up a camp to get some rest and recover!" % team.name
@@ -647,7 +647,7 @@ init -6 python: # Guild, Tracker and Log.
 
                     if DEBUG_SE:
                         msg = "{} finished Camping. (Day Ended)".format(team.name)
-                        se_debug(msg, mode="info")
+                        se_debug(msg)
 
                     self.env.exit("still camping")
 
@@ -657,7 +657,7 @@ init -6 python: # Guild, Tracker and Log.
 
             if DEBUG_SE:
                 msg = "{} is overnighting. State: {}".format(team.name, tracker.state)
-                se_debug(msg, mode="info")
+                se_debug(msg)
 
             if tracker.daily_items is not None and len(tracker.died) < len(team):
                 # This basically means that team spent some time on exploring -> create a summary
@@ -683,7 +683,7 @@ init -6 python: # Guild, Tracker and Log.
 
                 if DEBUG_SE:
                     msg = "{} has finished an exploration scenario. (Day Ended)".format(team.name)
-                    se_debug(msg, mode="info")
+                    se_debug(msg)
 
             team_name = set_font_color(team.name, "green")
             if tracker.died:
@@ -715,7 +715,7 @@ init -6 python: # Guild, Tracker and Log.
                 if DEBUG_SE:
                     msg = "State '{}' unrecognized while team {} is overnighting in camp".format(tracker.state, team.name)
                     se_debug(msg, mode="warn")
-                temp = ""
+                temp = "Tracker of team '%s' is in unrecognized state '%s'" % (tracker.state, team.name)
             tracker.log(temp)
 
             multiplier = tracker.area.daily_modifier * (200 - self.env.now) / 100
@@ -774,7 +774,7 @@ init -6 python: # Guild, Tracker and Log.
                 # first run during the day
                 if DEBUG_SE:
                     msg = "{} is starting an exploration scenario.".format(team.name)
-                    se_debug(msg, mode="info")
+                    se_debug(msg)
 
                 temp = "{color=green}%s{/color} is exploring {color=lightgreen}%s{/color}!" % (team.name, area.name)
                 tracker.log(temp)
@@ -793,7 +793,7 @@ init -6 python: # Guild, Tracker and Log.
                 max_items = round_int(ability+(tracker.day*.2))
                 if DEBUG_SE:
                     msg = "Max Items ({}) to be found on Day: {}!".format(max_items, tracker.day)
-                    se_debug(msg, mode="info")
+                    se_debug(msg)
                 # Let's run the expensive item calculations once and just give
                 # Items as we explore. This just figures what items to give.
 
@@ -811,7 +811,7 @@ init -6 python: # Guild, Tracker and Log.
 
                 if DEBUG_SE:
                     msg = "Local Items: {}|Area Items: {}".format(len(local_items), len(area_items))
-                    se_debug(msg, mode="info")
+                    se_debug(msg)
 
                 while len(chosen_items) < max_items and (area_items or local_items):
                     # always pick from local item list first!
@@ -823,13 +823,13 @@ init -6 python: # Guild, Tracker and Log.
 
                 if DEBUG_SE:
                     msg = "({}) Items were picked for choice!".format(len(chosen_items))
-                    se_debug(msg, mode="info")
+                    se_debug(msg)
 
                 tracker.chosen_items = chosen_items
             else:
                 if DEBUG_SE:
                     msg = "{} is continuing the exploration.".format(team.name)
-                    se_debug(msg, mode="info")
+                    se_debug(msg)
 
             items = tracker.daily_items
 
@@ -890,7 +890,7 @@ init -6 python: # Guild, Tracker and Log.
                             tracker.log(temp, "Item", ui_log=True, item=store.items[item])
                             if DEBUG_SE:
                                 msg = "{} Found a special item {}!".format(team.name, item)
-                                se_debug(msg, mode="info")
+                                se_debug(msg)
                         else:
                             item = tracker.chosen_items.pop()
                             temp = "Found %s (item)!" % aoran(item)
@@ -898,7 +898,7 @@ init -6 python: # Guild, Tracker and Log.
                             tracker.log(temp, "Item", ui_log=True, item=store.items[item])
                             if DEBUG_SE:
                                 msg = "{} Found an item {}!".format(team.name, item)
-                                se_debug(msg, mode="info")
+                                se_debug(msg)
                         items.append(item)
 
                 # Cash:
@@ -910,7 +910,7 @@ init -6 python: # Guild, Tracker and Log.
                     tracker.log(temp)
                     if DEBUG_SE:
                         msg = "{} Found {} Gold!".format(team.name, give)
-                        se_debug(msg, mode="info")
+                        se_debug(msg)
 
                 #  =================================================>>>
                 if tracker.capture_chars and not self.env.now % 10:
@@ -927,7 +927,7 @@ init -6 python: # Guild, Tracker and Log.
                                 tracker.log(temp)
                                 if DEBUG_SE:
                                     msg = "{} has finished an exploration scenario. (Captured a special char {})".format(team.name, char.id)
-                                    se_debug(msg, mode="info")
+                                    se_debug(msg)
 
                                 self.env.exit("back2camp")
 
@@ -945,7 +945,7 @@ init -6 python: # Guild, Tracker and Log.
                                 tracker.log(temp)
                                 if DEBUG_SE:
                                     msg = "{} has finished an exploration scenario. (Captured a uChar {})".format(team.name, char.id)
-                                    se_debug(msg, mode="info")
+                                    se_debug(msg)
 
                                 self.env.exit("back2camp")
 
@@ -969,7 +969,7 @@ init -6 python: # Guild, Tracker and Log.
                                 tracker.log(temp)
                                 if DEBUG_SE:
                                     msg = "{} has finished an exploration scenario. (Captured an rChar {})".format(team.name, char.id)
-                                    se_debug(msg, mode="info")
+                                    se_debug(msg)
 
                                 self.env.exit("back2camp")
 
@@ -997,7 +997,7 @@ init -6 python: # Guild, Tracker and Log.
                         tracker.log(temp)
                         if DEBUG_SE:
                             msg = "{} has finished an exploration scenario. (Lost a member)".format(team.name)
-                            se_debug(msg, mode="info")
+                            se_debug(msg)
                         self.env.exit("back2camp") # member died -> back to camp
 
                     if tracker.daily_mobs >= tracker.risk/25:
@@ -1005,7 +1005,7 @@ init -6 python: # Guild, Tracker and Log.
                         tracker.log(temp)
                         if DEBUG_SE:
                             msg = "{} has finished an exploration scenario. (Fought too much)".format(team.name)
-                            se_debug(msg, mode="info")
+                            se_debug(msg)
                         self.env.exit("back2camp") # too much risk -> back to camp
 
                     temp = .8 - (tracker.risk/200.0)
@@ -1017,7 +1017,7 @@ init -6 python: # Guild, Tracker and Log.
                         tracker.log(temp)
                         if DEBUG_SE:
                             msg = "{} has finished an exploration scenario. (Needs rest)".format(team.name)
-                            se_debug(msg, mode="info")
+                            se_debug(msg)
                         self.env.exit("rest") # need to rest -> got to camping mode
 
                     del check_team
@@ -1033,7 +1033,7 @@ init -6 python: # Guild, Tracker and Log.
 
             if DEBUG_SE:
                 msg = "{} is stating a battle scenario.".format(team.name)
-                se_debug(msg, mode="info")
+                se_debug(msg)
 
             # Get a level we'll set the mobs to:
             min_lvl = max(mobs[mob]["min_lvl"], tracker.area.tier*20)
@@ -1068,7 +1068,7 @@ init -6 python: # Guild, Tracker and Log.
 
                         if DEBUG_SE:
                             msg = "{} died during a battle scenario.".format(member.name)
-                            se_debug(msg, mode="info")
+                            se_debug(msg)
 
             for mob in enemy_team:
                 if mob in battle.corpses:
@@ -1095,7 +1095,7 @@ init -6 python: # Guild, Tracker and Log.
 
                 if DEBUG_SE:
                     msg = "{} finished a battle scenario. Result: victory".format(team.name)
-                    se_debug(msg, mode="info")
+                    se_debug(msg)
 
             else: # Defeat here...
                 log.suffix = set_font_color("Defeat", "red")
@@ -1103,7 +1103,7 @@ init -6 python: # Guild, Tracker and Log.
 
                 if DEBUG_SE:
                     msg = "{} finished a battle scenario. Result: defeat".format(team.name)
-                    se_debug(msg, mode="info")
+                    se_debug(msg)
 
         def build_camp(self, tracker):
             # New type of shit, trying to get teams to coop here...
@@ -1113,7 +1113,7 @@ init -6 python: # Guild, Tracker and Log.
 
             if DEBUG_SE:
                 msg = "Team %s is building the basecamp." % team.name
-                se_debug(msg, mode="info")
+                se_debug(msg)
 
             # TODO: Make sure this is adapted to building skill(s) once we have it!
             # Effectiveness (Ability):

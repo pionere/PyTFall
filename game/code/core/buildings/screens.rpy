@@ -33,8 +33,6 @@ label building_management:
                         size=(80, 80), xspacing=10, yspacing=10, init_pos=(46, 9))
 
                 $ fg_filters = CharsSortingForGui(all_chars_for_se)
-                $ fg_filters.sorting_order = "level"
-                $ fg_filters.sorting_desc = True
                 $ fg_filters.occ_filters.add("Combatant")
                 $ fg_filters.target_container = [workers, "content"]
                 $ fg_filters.filter()

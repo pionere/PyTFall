@@ -161,6 +161,40 @@ label time_temple:
             $ del p, temp_charcters
             jump time_temple_menu
 
+        "Remove injuries":
+            if not global_flags.has_flag("asked_miel_about_wounds"):
+                $ global_flags.set_flag("asked_miel_about_wounds")
+                t "I can heal your workers injuries. It's a common problem among adventurers these days."
+            $ temp_charcters = list(c for c in hero.chars if (c.is_available and "Injured" in c.effects))
+            $ p = len(temp_charcters)*150
+            if p == 0:
+                t "I don't think you need this service at the moment."
+            elif hero.gold < p:
+                "Unfortunately, you don't have [p] gold coins to pay."
+            else:
+                menu:
+                    "Do you wish to pay [p] gold to heal all injuries of your workers?"
+                    "Yes":
+                        play sound "content/sfx/sound/events/clock.ogg"
+                        python hide:
+                            hero.take_money(p, reason="Time Temple")
+
+                            img = "content/gfx/bg/locations/ocean_underwater.webp"
+                            img = im.MatrixColor(img, im.matrix.brightness(.3))
+                            img = Transform(img, alpha=.85)
+                            renpy.show("sea", what=img)
+                            renpy.with_statement(Dissolve(.5))
+                            renpy.hide("sea")
+                            renpy.with_statement(Dissolve(.3))
+
+                            for i in temp_charcters:
+                                i.disable_effect("Injured")
+                        t "Done. Come again if you need me."
+                    "No":
+                        $ pass
+            $ del p, temp_charcters
+            jump time_temple_menu
+
         "Ask about this place":
             t "This is the Temple of Time. Locals come here to to pray to almighty gods of time and space."
             t "We also provide additional services, for a fee."

@@ -1115,7 +1115,15 @@ screen next_day():
                 background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
                 pos (690, -2)
                 has fixed xysize 136, 400
-                if event.charmod or event.team_charmod:
+                python:
+                    if event.team_charmod:
+                        charmod = event.team_charmod
+                        if len(charmod) == 1:
+                            char, charmod = next(charmod.iteritems())
+                    else:
+                        char = None
+                        charmod = event.charmod
+                if charmod:
                     frame:
                         style_group "content"
                         xalign .5
@@ -1124,14 +1132,15 @@ screen next_day():
                         background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.7), 10, 10)
                         label (u"Stat Changes:") text_size 18 text_color "ivory" align (.5, .5)
 
-                    if event.team_charmod:
+                    # team report with multiple members
+                    if charmod == event.team_charmod:
                         viewport:
                             xalign .5
                             ypos 45
                             xysize (136, 355)
                             child_size 5000, 355
                             # We'll use a single vbox for stats in case of one char and the usual slideshow thing for teams:
-                            $ xsize = len(event.team_charmod)*136
+                            $ xsize = len(charmod)*136
                             for i in range(2):
                                 fixed:
                                     xysize xsize, 355
@@ -1140,7 +1149,7 @@ screen next_day():
                                     else:
                                         at mm_clouds(0, -xsize, 10)
                                     $ xpos = 0
-                                    for w, charmod in event.team_charmod.iteritems():
+                                    for w, mod in charmod.iteritems():
                                         vbox:
                                             style_group "proper_stats"
                                             xsize 136
@@ -1153,7 +1162,7 @@ screen next_day():
                                                     if len(w.nickname) > 20:
                                                         size 16
                                             null height 4
-                                            for key, value in charmod.items():
+                                            for key, value in mod.items():
                                                 if value != 0:
                                                     frame:
                                                         xalign .5
@@ -1161,14 +1170,21 @@ screen next_day():
                                                         text ("%s:" % key.capitalize()) align .02, .5
                                                         label "[value]" text_color ("lawngreen" if value > 0 else "red") align .98, .5
                                         $ xpos += 136
-                    # Normal, one worker report case:
+                    # one worker report(team or not):
                     else:
                         vbox:
                             style_group "proper_stats"
                             xsize 136
                             xalign .5 ypos 45
                             spacing 1
-                            for key, value in event.charmod.items():
+                            if char is not None:
+                                frame:
+                                    xysize 132, 25
+                                    xalign .5
+                                    text char.nickname align .5, .5 style "TisaOTM" size 20:
+                                        if len(char.nickname) > 20:
+                                            size 16
+                            for key, value in charmod.items():
                                 if value != 0:
                                     frame:
                                         xalign .5
