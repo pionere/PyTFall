@@ -122,7 +122,7 @@ init -11 python:
 
     def interactions_check_for_minor_bad_stuff(char): # we check minor issues when character might refuse to do something based on dice
         if char.get_stat("joy") < 10 or (char.get_stat("joy") <= 25 and "Pessimist" not in char.traits):
-            if dice(interactions_influence(c)) and dice(80):
+            if dice(interactions_influence(char)) and dice(80):
                 narrator("It looks like %s is in a bad mood, however you managed to cheer %s up." % (char.p, char.op))
                 char.gfx_mod_stat("disposition", 1)
                 char.gfx_mod_stat("affection", affection_reward(char, .1))
@@ -131,7 +131,7 @@ init -11 python:
                 narrator("It looks like %s is in a bad mood today and not does not want to do anything." % char.p)
                 renpy.jump ("girl_interactions")
         elif "Down with Cold" in char.effects: #if she's ill, there is a chance that she will disagree to chat
-            if dice(interactions_influence(c)) and dice(80):
+            if dice(interactions_influence(char)) and dice(80):
                 narrator("It looks like %s is not feeling well today, however you managed to cheer %s up a bit." % (char.p, char.op))
                 char.gfx_mod_stat("disposition", 2)
                 char.gfx_mod_stat("affection", affection_reward(char, .2))

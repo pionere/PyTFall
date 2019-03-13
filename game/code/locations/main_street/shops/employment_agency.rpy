@@ -86,7 +86,7 @@ label employment_agency:
             else:
                 ea "You look a bit light on the Gold [hero.name]..."
             $ block_say = False
-            $ del cost, container
+            $ del char, cost, container
 
         if result[0] == 'control':
             if result[1] == 'return':
@@ -97,6 +97,7 @@ label employment_agency_exit:
     hide screen employment_agency
     with dissolve
     hide charla
+    $ del ea
     jump main_street
 
 screen employment_agency():
@@ -136,7 +137,10 @@ screen employment_agency():
                                 background Frame("content/gfx/frame/gm_frame.png")
                                 hover_background Frame("content/gfx/frame/gm_frame.png")
                                 label "Tier [entry.tier]" xalign .5 text_color "#DAA520"
-                                action Return(['hire', entry, v])
-                                tooltip "Hire {}.\nFee: {}G".format(entry.fullname, calc_hire_price_for_ea(entry))
-
+                                if entry.location != pytfall.jail:
+                                    action Return(['hire', entry, v])
+                                    tooltip "Hire {}.\nFee: {}G".format(entry.fullname, calc_hire_price_for_ea(entry))
+                                else:
+                                    action NullAction()
+                                    tooltip "Currently in jail"
     use exit_button()

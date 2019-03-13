@@ -121,8 +121,6 @@ init -5 python:
                              "type": "any"})
             log.img.add(Transform(vp, align=(.5, .9)))
 
-            log.team = all_workers
-
             simpy_debug("Cleaners.write_nd_report marker 2")
 
             workers = all_workers

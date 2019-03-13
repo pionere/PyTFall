@@ -104,8 +104,8 @@ label chars_list:
                     renpy.show_screen("set_action_dropdown", result[2], pos=renpy.get_mouse_pos())
             elif result[0] == "choice":
                 renpy.hide_screen("chars_list")
+                girls = [char for char in chars_list_state.source.sorted if char.is_available and char in hero.chars]
                 char = result[1]
-                girls = None
                 char_profile_entry = "chars_list"
                 jump('char_profile')
             elif result[0] == "group":
