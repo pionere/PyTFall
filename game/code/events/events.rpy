@@ -43,7 +43,7 @@ init -9 python:
             for i in self.events:
                 if i.name == event: return i
             return None
-            
+
         def kill_event(self, event):
             """
             Stop an event from triggering.

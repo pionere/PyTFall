@@ -68,8 +68,11 @@ init -9 python:
             """
             Auto-starts the needed quests on the first day.
             """
+            uqp = persistent.use_quest_popups
+            persistent.use_quest_popups = False # disable popups
             for i in self.quests:
                 if i.auto is not None: i.start()
+            persistent.use_quest_popups = uqp
 
         def quest_instance(self, quest):
             """
@@ -111,14 +114,6 @@ init -9 python:
             quest = self.quest_instance(quest)
             return quest in self.squelch
 
-        def kill_quest(self, quest):
-            """Removes a quest.
-            """
-            quest = self.quest_instance(quest)
-            if quest in self.active: self.active.remove(quest)
-            if quest in self.complete: self.complete.remove(quest)
-            self.quests.remove(quest)
-
         def next_day(self):
             """Fails quests that have no valid events.
             """
@@ -157,7 +152,7 @@ init -9 python:
             if quest in self.squelch: self.squelch.remove(quest)
 
 
-    class WorldQuest(_object):
+    class WorldQuest(Flags):
         """
         Class to hold the current status of a quest.
         """
@@ -179,10 +174,11 @@ init -9 python:
 
             manual = Whether the quest will be manually updated, instead of by event. Prevents garbage failing.
             """
+            super(WorldQuest, self).__init__()
+
             self.name = name
             self.prompts = list()
             self.stage = 0
-            self.flags = list()
             self.auto = auto
             self.manual = manual
 
@@ -232,7 +228,7 @@ init -9 python:
             """
             return pytfall.world_quests.has_failed(self)
 
-        def finish(self, prompt, *flags, **kwargs):
+        def finish(self, prompt, to=None, **kwargs):
             """
             Finishes the quest in menus, labels, etc.
             prompt = Prompt to add to the Quest log.
@@ -242,8 +238,11 @@ init -9 python:
             if not self.complete: pytfall.world_quests.complete_quest(self)
 
             self.prompts.append(prompt)
-            for i in flags: self.flag(i)
-            self.stage = kwargs.get("to", self.stage+1)
+            self.flags.update(kwargs)
+            if to is None:
+                self.stage += 1
+            else:
+                self.stage = to
 
             qe_debug("Quest Complete: %s"%self.name)
 
@@ -252,18 +251,19 @@ init -9 python:
                     renpy.hide_screen("quest_notifications")
 
                 renpy.show_screen("quest_notifications", self.name, "Complete")
-                # if "in_label" not in kwargs: renpy.show_screen("message_screen", "Quest Complete:\n%s"%self.name)
-                # else: renpy.call_screen("message_screen", "Quest Complete:\n%s"%self.name, use_return=True)
 
                 # No squelch, as only works on active quests
 
-        def fail(self, prompt, *flags, **kwargs):
+        def fail(self, prompt, **kwargs):
             """
             Fails the quest while making a note about it in the quest log.
             prompt = Prompt to add to the Quest log.
             """
             if not self.failed: pytfall.world_quests.fail_quest(self)
+
             self.prompts.append(prompt)
+            self.flags.update(kwargs)
+
             qe_debug("Quest Failed: %s"%self.name)
 
             if persistent.use_quest_popups:
@@ -272,13 +272,7 @@ init -9 python:
 
                 renpy.show_screen("quest_notifications", self.name, "Failed")
 
-        def flag(self, tag):
-            """
-            Adds a flag to the quest.
-            """
-            if tag not in self.flags: self.flags.append(tag)
-
-        def next_stage(self, prompt, *flags, **kwargs):
+        def next_stage(self, prompt, clear_logs=False, to=None, manual=None, **kwargs):
             """
             Adds a stage to the quest in menus, labels, etc.
             prompt = Prompt to add to the Quest log.
@@ -289,10 +283,16 @@ init -9 python:
             if not self.active: pytfall.world_quests.activate_quest(self)
             if kwargs.get("clear_logs"):
                 self.prompts = list()
+
             self.prompts.append(prompt)
-            for i in flags: self.flag(i)
-            self.stage = kwargs.get("to", self.stage+1)
-            self.manual = kwargs.get("manual", self.manual)
+            self.flags.update(kwargs)
+
+            if to is None:
+                self.stage += 1
+            else:
+                self.stage = to
+            if manual is not None:
+                self.manual = manual
 
             qe_debug("Update Quest: %s to %s"%(self.name, str(self.stage)))
 
@@ -302,13 +302,9 @@ init -9 python:
 
                 if len(self.prompts) == 1:
                     renpy.show_screen("quest_notifications", self.name, "New")
-                    # if "in_label" not in kwargs: renpy.show_screen("message_screen", "New Quest:\n%s"%self.name)
-                    # else: renpy.call_screen("message_screen", "New Quest:\n%s"%self.name, use_return=True)
 
                 elif not pytfall.world_quests.is_squelched(self): # TODO squelched?
                     renpy.show_screen("quest_notifications", self.name, "Updated")
-                    # if "in_label" not in kwargs: renpy.show_screen("message_screen", "Quest Updated:\n%s"%self.name)
-                    # else: renpy.call_screen("message_screen", "Quest Updated:\n%s"%self.name, use_return=True)
 
                 # pytfall.world_quests.squelch_quest(self)
 
@@ -318,28 +314,48 @@ init -9 python:
             """
             if not self.active: pytfall.world_quests.activate_quest(self)
 
-            if isinstance(self.auto, (tuple,list)):
-                if len(self.auto) == 1: self.next_stage(self.auto)
-                elif len(self.auto) == 2:
-                    if isinstance(self.auto[1], (tuple,list)): self.next_stage(self.auto[0], *self.auto[1])
-                    elif isinstance(self.auto[1], int): self.next_stage(self.auto[0], to=self.auto[1])
-                    else: self.next_stage(*self.auto)
+            params = self.auto
+            if isinstance(params, (tuple,list)):
+                if params:
+                    # check for auto parameter with int at the end -> the 'to' parameter
+                    if isinstance(params[-1], int):
+                        to = params[-1]
+                        params = params[:-1]
+                        # auto parameter with a single int -> prompt is empty
+                        if not params:
+                            params = [""]
+                    else:
+                        to = None
+                    prompt = params[0]
+                    params = params[1:]
+                    if params:
+                        if len(params) == 1 and isinstance(params[0], (tuple, list)):
+                            # auto=("prompt", ["flags"], 17)
+                            # auto=("prompt", ["flags"])
+                            params = params[0]
 
+                        params = dict([(p, True) for p in params])
+                        if to is not None:
+                            # auto=("prompt", ["flags"], 17)
+                            # auto=("prompt", "flag1", "flag2", "flagN", 17)
+                            self.next_stage(prompt, to=to, *params)
+                        else:
+                            # auto=("prompt", ["flags"])
+                            # auto=("prompt", "flag")
+                            # auto=("prompt", "flag1", "flag2", "flagN")
+                            self.next_stage(prompt, *params)
+                    else:
+                        if to is not None:
+                            # auto=("prompt", 17)
+                            self.next_stage(prompt, to=to)
+                        else:
+                            # auto=("prompt",)
+                            self.next_stage(prompt)
                 else:
-                    if isinstance(self.auto[1], (tuple,list)): self.next_stage(self.auto[0], *self.auto[1], to=self.auto[2])
-                    elif isinstance(self.auto[-1], int): self.next_stage(self.auto[0], *self.auto[1:-1], to=self.auto[-1])
-                    else: self.next_stage(*self.auto)
-
+                    # auto=[]
+                    self.next_stage("")
             else:
-                self.next_stage(self.auto)
+                # auto="prompt"
+                self.next_stage(params)
 
             qe_debug("Auto-Start Quest: %s"%self.name)
-
-            if persistent.use_quest_popups:
-                if renpy.get_screen("quest_notifications"):
-                    renpy.hide_screen("quest_notifications")
-
-                # Called in mainscreen, show works
-                renpy.show_screen("quest_notifications", self.name, "New")
-                # renpy.show_screen("message_screen", "New Quest:\n%s"%self.name, use_return=True)
-                # pytfall.world_quests.squelch_quest(self)

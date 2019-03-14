@@ -248,7 +248,7 @@ label fishing_logic_mor_quest_bring:
     else:
         $ hero.add_item("Simple Bait", 9)
         "You've obtained 9 Simple Baits!"
-    $ finish_quest("Fishery", "You brought required fish to Mor and got your reward.", "complete")
+    $ finish_quest("Fishery", "You brought required fish to Mor and got your reward.")
     $ del fish, num, price
     return
 

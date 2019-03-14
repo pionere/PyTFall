@@ -16,7 +16,7 @@ label strange_idol1(event):
     hero.say "Huh?"
     "You bend down to pick something up off the floor."
     # Advance quest
-    $ advance_quest(event.quest, "You found a piece of an idol! How strange.", "piece1") # Can access the quest straight in the event.
+    $ advance_quest(event.quest, "You found a piece of an idol! How strange.", piece1=True) # Can access the quest straight in the event.
     hero.say "Its... part of a statue?"
     "You try to place the piece aside, but after fighting against your impulses, you decide to take it with you."
     # Remove event
@@ -34,7 +34,7 @@ label strange_idol2(event):
     python:
         # Use in syntax for easy flag checking
         if pytfall.world_quests.check_stage(event.quest) == 2:
-            advance_quest(event.quest, "You found another piece of the idol! I think its complete.", "piece3")
+            advance_quest(event.quest, "You found another piece of the idol! I think its complete.", piece3=True)
 
             # Remove event
             kill_event("strange_idol2")
@@ -43,7 +43,7 @@ label strange_idol2(event):
             register_event("strange_idol3", quest=event.quest, locations=["mainscreen"], trigger_type="auto", dice=100, max_runs=1, start_day=day+1)
 
         else:
-            advance_quest(event.quest, "You found another piece of the idol! I wonder how many there are?", "piece2")
+            advance_quest(event.quest, "You found another piece of the idol! I wonder how many there are?", piece2=True)
     hero.say "Its... another part of that statue!"
     "You take the piece with you, wondering how many there are."
     return
@@ -52,7 +52,7 @@ label strange_idol3(event):
     "As you wake you feel a strange sensation move through you, almost as if your very soul was being caressed."
     "Suddenly a bright flash makes you bolt out of bed, staring towards its source."
     # Use the finish command to end the quest. Works the same as next() (but no 'to' param)
-    $ finish_quest(event.quest, "You completed the idol! It disappeared though.", "complete")
+    $ finish_quest(event.quest, "You completed the idol! It disappeared though.", complete=True)
     "The place where you stored those pieces of the strange idol is slightly scorched, the pieces themselves nowhere to be found."
     "Worriedly you continue with your morning feeling... {i}better{/i}."
     "{color=red}Your sex skills improved considerably!{/color}"

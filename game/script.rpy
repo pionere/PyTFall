@@ -1314,6 +1314,10 @@ label after_load:
                 if "world_quests.get" in c:
                     e.run_conditions[i] = c.replace("world_quests.get", "world_quests.quest_instance")
 
+        for q in pytfall.world_quests.quests:
+            if isinstance(q.flags, list):
+                q.flags = dict([(p, True) for p in q.flags])
+
         for d in pytfall.world_actions.nest:
             if hasattr(d, "values"):
                 for obj in d.values():
