@@ -620,35 +620,17 @@ screen char_equip_left_frame(stats_display):
                             $ xsize, ysize = 208, 22
                             # Added attack skills
                             for skill in t_new:
-                                frame:
-                                    align (.5, .5)
-                                    xysize (xsize, ysize)
-                                    button:
-                                        background Null()
-                                        xysize (xsize, ysize)
-                                        action NullAction()
-                                        text "[skill.name]" idle_color "#43CD80" align .5, .5 hover_color "crimson" size min(ysize-5, int(3*xsize/max(1, 2*len(skill.name))))
-                                        tooltip ["be", skill]
-                                        hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
+                                use skill_info(skill, xsize, ysize, idle_color="#43CD80")
 
                             # Removed attack skills
                             for skill in t_old:
-                                frame:
-                                    align (.5, .5)
-                                    xysize (xsize, ysize)
-                                    button:
-                                        background Null()
-                                        xysize (xsize, ysize)
-                                        action NullAction()
-                                        text "[skill.name]" idle_color "#CD4F39" align .5, .5 hover_color "crimson" size min(ysize-5, int(3*xsize/max(1, 2*len(skill.name)))) strikethrough True
-                                        tooltip ["be", skill]
-                                        hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
+                                use skill_info(skill, xsize, ysize, idle_color="#CD4F39", strikethrough=True)
 
                             # Remaining attack skills
                             $ temp = set(t_new + t_old)
                             for skill in eqtarget.attack_skills:
                                 if skill not in temp:
-                                    use skill_info(skill, 208, 22)
+                                    use skill_info(skill, xsize, ysize, idle_color="#F5F5DC")
 
                     frame:
                         background Transform(Frame(im.MatrixColor("content/gfx/frame/p_frame5.png", im.matrix.brightness(-0.1)), 5, 5), alpha=.7)
@@ -682,35 +664,17 @@ screen char_equip_left_frame(stats_display):
                             $ xsize, ysize = 208, 22
                             # Added magic skills
                             for skill in t_new:
-                                frame:
-                                    align (.5, .5)
-                                    xysize (xsize, ysize)
-                                    button:
-                                        background Null()
-                                        xysize (xsize, ysize)
-                                        action NullAction()
-                                        text "[skill.name]" idle_color "#43CD80" align .5, .5 hover_color "crimson" size min(ysize-5, int(3*xsize/max(1, 2*len(skill.name))))
-                                        tooltip ["be", skill]
-                                        hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
+                                use skill_info(skill, xsize, ysize, idle_color="#43CD80")
 
                             # Removed magic skills
                             for skill in t_old:
-                                frame:
-                                    align (.5, .5)
-                                    xysize (xsize, ysize)
-                                    button:
-                                        background Null()
-                                        xysize (xsize, ysize)
-                                        action NullAction()
-                                        text "[skill.name]" idle_color "#CD4F39" align .5, .5 hover_color "crimson" size min(ysize-5, int(3*xsize/max(1, 2*len(skill.name)))) strikethrough True
-                                        tooltip ["be", skill]
-                                        hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
+                                use skill_info(skill, xsize, ysize, idle_color="#CD4F39", strikethrough=True)
 
                             # Remaining magic skills
                             $ temp = set(t_new + t_old)
                             for skill in eqtarget.magic_skills:
                                 if skill not in temp:
-                                    use skill_info(skill, 208, 22)
+                                    use skill_info(skill, xsize, ysize, idle_color="#F5F5DC")
 
             elif stats_display == "traits":
                 vbox:
@@ -750,36 +714,18 @@ screen char_equip_left_frame(stats_display):
                             # New traits
                             for trait in t_new:
                                 if not trait.hidden:
-                                    frame:
-                                        align (.5, .5)
-                                        xysize (xsize, ysize)
-                                        button:
-                                            background Null()
-                                            xysize (xsize, ysize)
-                                            action Show("show_trait_info", trait=trait.id)
-                                            text trait.id idle_color "#43CD80" align .5, .5 hover_color "crimson" text_align .5 size min(ysize-5, int(3*xsize/max(1, 2*len(trait.id))))
-                                            tooltip "%s" % trait.desc
-                                            hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
+                                    use trait_info(trait, xsize, ysize, idle_color="#43CD80")
 
                             # Removed traits
                             for trait in t_old:
                                 if not trait.hidden:
-                                    frame:
-                                        align (.5, .5)
-                                        xysize (xsize, ysize)
-                                        button:
-                                            background Null()
-                                            xysize (xsize, ysize)
-                                            action Show("show_trait_info", trait=trait.id)
-                                            text trait.id idle_color "#CD4F39" align .5, .5 hover_color "crimson" text_align .5 size min(ysize-5, int(3*xsize/max(1, 2*len(trait.id)))) strikethrough True
-                                            tooltip "%s" % trait.desc
-                                            hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
+                                    use trait_info(trait, xsize, ysize, idle_color="#CD4F39", strikethrough=True)
 
                             # Remaining traits
                             $ temp = set(t_new + t_old)
                             for trait in t_cur:
                                 if not trait.hidden and trait not in temp:
-                                    use trait_info(trait, xsize, ysize)
+                                    use trait_info(trait, xsize, ysize, idle_color="#F5F5DC")
 
                     frame:
                         background Transform(Frame(im.MatrixColor("content/gfx/frame/p_frame5.png", im.matrix.brightness(-0.1)), 5, 5), alpha=.7)
@@ -814,36 +760,18 @@ screen char_equip_left_frame(stats_display):
                             # Added effects
                             for effect in t_new:
                                 $ effect = CharEffect(effect)
-                                frame:
-                                    align (.5, .5)
-                                    xysize (xsize, ysize)
-                                    button:
-                                        background Null()
-                                        xysize (xsize, ysize)
-                                        action NullAction()
-                                        text "[effect.name]" idle_color "#43CD80" align .5, .5 hover_color "crimson" size min(ysize-5, int(3*xsize/max(1, 2*len(effect.name))))
-                                        tooltip "%s" % effect.desc
-                                        hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
+                                use effect_info(effect, xsize, ysize, idle_color="#43CD80")
 
                             # Removed effects
                             for effect in t_old:
                                 $ effect = CharEffect(effect)
-                                frame:
-                                    align (.5, .5)
-                                    xysize (xsize, ysize)
-                                    button:
-                                        background Null()
-                                        xysize (xsize, ysize)
-                                        action NullAction()
-                                        text "[effect.name]" idle_color "#CD4F39" align .5, .5 hover_color "crimson" size min(ysize-5, int(3*xsize/max(1, 2*len(effect.name)))) strikethrough True
-                                        tooltip "%s" % effect.desc
-                                        hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
+                                use effect_info(effect, xsize, ysize, idle_color="#CD4F39", strikethrough=True)
 
                             # Remaining effects
                             $ temp = set(t_new + t_old)
                             for effect in eqtarget.effects.itervalues():
                                 if effect.name not in temp:
-                                    use effect_info(effect, xsize, ysize)
+                                    use effect_info(effect, xsize, ysize, idle_color="#F5F5DC")
 
     use char_equip_right_frame()
 

@@ -468,7 +468,11 @@ screen race_and_elements(align=(.5, .99), char=None):
                 hover_background f_a
                 tooltip "Elements:\n   {}".format(ele)
 
-screen effect_info(effect, xsize, ysize):
+screen effect_info(effect, xsize, ysize, idle_color="ivory", strikethrough=False):
+    python:
+        font_size = ysize-5
+        while font_size > 10 and Text(effect.name, size=font_size).size()[0] >= xsize:
+            font_size -= 1
     frame:
         align (.5, .5)
         xysize (xsize, ysize)
@@ -476,11 +480,15 @@ screen effect_info(effect, xsize, ysize):
             background Null()
             xysize (xsize, ysize)
             action NullAction()
-            text "[effect.name]" idle_color "ivory" align .5, .5 hover_color "crimson" size min(ysize-5, int(3*xsize/max(1, 2*len(effect.name))))
+            text "[effect.name]" idle_color idle_color align .5, .5 hover_color "crimson" size font_size strikethrough strikethrough
             tooltip "%s" % effect.desc
             hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
 
-screen skill_info(skill, xsize, ysize):
+screen skill_info(skill, xsize, ysize, idle_color="ivory", strikethrough=False):
+    python:
+        font_size = ysize-5
+        while font_size > 10 and Text(skill.name, size=font_size).size()[0] >= xsize:
+            font_size -= 1
     frame:
         align (.5, .5)
         xysize (xsize, ysize)
@@ -488,11 +496,15 @@ screen skill_info(skill, xsize, ysize):
             background Null()
             xysize (xsize, ysize)
             action NullAction()
-            text "[skill.name]" idle_color "ivory" align .5, .5 hover_color "crimson" size min(ysize-5, int(3*xsize/max(1, 2*len(skill.name))))
+            text "[skill.name]" idle_color idle_color align .5, .5 hover_color "crimson" size font_size strikethrough strikethrough
             tooltip ["be", skill]
             hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
 
-screen trait_info(trait, xsize, ysize):
+screen trait_info(trait, xsize, ysize, idle_color="ivory", strikethrough=False):
+    python:
+        font_size = ysize-5
+        while font_size > 10 and Text(trait.id, size=font_size).size()[0] >= xsize:
+            font_size -= 1
     frame:
         align (.5, .5)
         xysize (xsize, ysize)
@@ -500,7 +512,7 @@ screen trait_info(trait, xsize, ysize):
             background Null()
             xysize (xsize, ysize)
             action Show("show_trait_info", trait=trait.id)
-            text trait.id idle_color "ivory" align .5, .5 hover_color "crimson" text_align .5 size min(ysize-5, int(3*xsize/max(1, 2*len(trait.id))))
+            text trait.id idle_color idle_color align .5, .5 hover_color "crimson" text_align .5 size font_size strikethrough strikethrough
             tooltip "%s" % trait.desc
             hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
 

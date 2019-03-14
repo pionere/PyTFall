@@ -719,10 +719,9 @@ screen char_profile():
                 xsize 335 ypos 230 xalign .5
                 style_group "proper_stats"
                 padding 7, 8
-                has vbox spacing 2 xoffset 10
+                has vbox spacing 2 xoffset 4
                 # Traits/Effects ====================================>
                 hbox:
-                    spacing -4
                     # Traits:
                     vbox:
                         xysize (160, 210)
@@ -732,10 +731,10 @@ screen char_profile():
                             edgescroll (40, 40)
                             draggable True
                             mousewheel True
-                            has vbox spacing 2
+                            has vbox xfill True spacing 2
                             for trait in list(t for t in char.traits if not any([t.basetrait, t.personality, t.race, t.elemental])):
                                 if not trait.hidden:
-                                    use trait_info(trait, 147, 22)
+                                    use trait_info(trait, 152, 22)
                     # Effects:
                     vbox:
                         xysize (160, 210)
@@ -745,36 +744,35 @@ screen char_profile():
                             edgescroll (40, 40)
                             draggable True
                             mousewheel True
-                            has vbox spacing 2
+                            has vbox xfill True spacing 2
                             for effect in char.effects.itervalues():
-                                use effect_info(effect, 147, 22)
+                                use effect_info(effect, 152, 22)
 
                 # Attacks/Magic ====================================>
                 hbox:
                     vbox:
                         xysize (160, 210)
-                        label (u"Attacks:") text_size 20 text_color "ivory" text_bold True xalign .5 text_outlines [(3, "#424242", 0, 0), (2, "#8B0000", 0, 0), (1, "#424242", 0, 0)]
+                        label (u"Attacks:") text_size 20 text_color "ivory" text_bold True xalign .45 text_outlines [(3, "#424242", 0, 0), (2, "#8B0000", 0, 0), (1, "#424242", 0, 0)]
                         viewport:
                             xysize (160, 163)
                             edgescroll (40, 40)
                             draggable True
                             mousewheel True
-                            has vbox spacing 2
+                            has vbox xfill True spacing 2
                             for skill in list(sorted(char.attack_skills, key=attrgetter("menu_pos"))):
-                                use skill_info(skill, 147, 22)
+                                use skill_info(skill, 152, 22)
 
                     vbox:
                         xysize (160, 210)
-                        xanchor 5
-                        label (u"Spells:") text_size 20 text_color "ivory" text_bold True xalign .5 text_outlines [(3, "#424242", 0, 0), (2, "#104E8B", 0, 0), (1, "#424242", 0, 0)]
+                        label (u"Spells:") text_size 20 text_color "ivory" text_bold True xalign .45 text_outlines [(3, "#424242", 0, 0), (2, "#104E8B", 0, 0), (1, "#424242", 0, 0)]
                         viewport:
                             xysize (160, 163)
                             edgescroll (40, 40)
                             draggable True
                             mousewheel True
-                            has vbox spacing 2
+                            has vbox xfill True spacing 2
                             for skill in list(sorted(char.magic_skills, key=attrgetter("menu_pos"))):
-                                use skill_info(skill, 147, 22)
+                                use skill_info(skill, 152, 22)
 
     use top_stripe(True)
 
