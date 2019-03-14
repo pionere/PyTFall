@@ -42,10 +42,10 @@ init -11 python:
     def retire_chars_from_building(chars, b):
         for c in chars:
             if c.home == b:
-                if c.status == "slave":
-                    c.home = pytfall.streets
-                else: # Weird case for free chars...
+                if c.status == "free" and c != hero:
                     c.home = pytfall.city
+                else:
+                    c.home = pytfall.streets
             if c.workplace == b:
                 c.mod_workplace(None)
 

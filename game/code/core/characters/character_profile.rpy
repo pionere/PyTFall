@@ -268,12 +268,9 @@ screen char_profile():
             # # Base frame ====================================>
             # # Prof-Classes ==================================>
             python:
-                classes = list(char.traits.basetraits)
-                if len(classes) == 1:
-                    classes = classes[0].id
-                else:
-                    classes.sort(key=attrgetter("id"))
-                    classes = ", ".join(t.id for t in classes)
+                classes = list(t.id for t in char.traits.basetraits)
+                classes.sort()
+                classes = ", ".join(classes)
 
                 trait = char.personality
                 img = ProportionalScale("".join(["content/gfx/interface/images/personality/", trait.id.lower(), ".png"]), 120, 120)

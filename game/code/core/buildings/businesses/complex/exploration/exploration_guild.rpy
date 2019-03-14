@@ -324,7 +324,6 @@ init -6 python: # Guild, Tracker and Log.
 
             self.teams.append(Team("Avengers", free=True))
 
-            self.focus_team = None
             self.team_to_launch_index = 0
 
         def can_close(self):
@@ -345,22 +344,18 @@ init -6 python: # Guild, Tracker and Log.
             return [t for t in self.idle_teams() if t]
 
         def prev_team_to_launch(self):
-            teams = self.teams_to_launch()
             index = self.team_to_launch_index
-
-            index = (index-1) % len(teams)
-
+            index -= 1
+            if index < 0:
+                index = len(self.teams_to_launch())-1 
             self.team_to_launch_index = index
-            self.focus_team = teams[index]
 
         def next_team_to_launch(self):
-            teams = self.teams_to_launch()
             index = self.team_to_launch_index
-
-            index = (index+1) % len(teams)
-
+            index += 1
+            if index >= len(self.teams_to_launch()):
+                index = 0
             self.team_to_launch_index = index
-            self.focus_team = teams[index]
 
         def exploring_teams(self):
             # Teams that are busy with exploration runs.
@@ -374,9 +369,7 @@ init -6 python: # Guild, Tracker and Log.
             # Returns a list of idle explorers:
             return list(chain.from_iterable(t.members for t in self.idle_teams()))
 
-        def launch_team(self, area, _team=None):
-            # Moves the team to appropriate list, removes from main one and makes sure everything is setup right from there on out:
-            team = self.focus_team if not _team else _team
+        def launch_team(self, team, area):
             # self.teams.remove(team) # We prolly do not do this?
 
             # Setup Explorers:
@@ -391,11 +384,9 @@ init -6 python: # Guild, Tracker and Log.
             area.trackers.append(tracker)
             self.explorers.append(tracker)
 
-            if not _team:
-                self.focus_team = None
-                self.team_to_launch_index = 0
+            guild_teams.remove(team)
 
-            renpy.show_screen("message_screen", "Team %s was sent out on %d days exploration run!" % (team.name, area.days))
+            renpy.show_screen("message_screen", "The team is going to explore this area for %d days!" % area.days)
 
         # SimPy methods:
         def business_control(self):

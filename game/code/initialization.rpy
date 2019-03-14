@@ -274,28 +274,28 @@ init -950 python:
         #    else:
         #        self.set_flag(flag, result)
 
-        def set_union(self, flag, value):
-            """Can be used to create sets.
+        #def set_union(self, flag, value):
+        #    """Can be used to create sets.
 
-            If a flag exists, expects it to be a set() and creates a union with it.
-            """
-            if DEBUG_LOG:
-                if not self.has_flag(flag) and "next" not in last_label:
-                    devlog.warning("{} flag modded before setting it's value!".format(flag))
+        #    If a flag exists, expects it to be a set() and creates a union with it.
+        #    """
+        #    if DEBUG_LOG:
+        #        if not self.has_flag(flag) and "next" not in last_label:
+        #            devlog.warning("{} flag modded before setting it's value!".format(flag))
 
-            if not isinstance(value, (set, list, tuple)):
-                value = set([value])
+        #    if not isinstance(value, (set, list, tuple)):
+        #        value = set([value])
 
-            self.flags.setdefault(flag, set()).union(value)
+        #    self.flags.setdefault(flag, set()).union(value)
 
-        def add_to_set(self, flag, value):
-            """Creates a set with flags"""
-            self.flags.setdefault(flag, set()).add(value)
+        #def add_to_set(self, flag, value):
+        #    """Creates a set with flags"""
+        #    self.flags.setdefault(flag, set()).add(value)
 
-        def remove_from_set(self, flag, value):
-            """Removes from flag which is a set"""
-            if value in self.flags[flag]:
-                self.flags[flag].remove(value)
+        #def remove_from_set(self, flag, value):
+        #    """Removes from flag which is a set"""
+        #    if value in self.flags[flag]:
+        #        self.flags[flag].remove(value)
 
 
     def dice(percent_chance):

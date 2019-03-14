@@ -279,7 +279,7 @@ init:
                     xysize (135, 40)
                     action Return(["building", "sell"])
                     tooltip 'Get rid of this building'
-                    sensitive all(u.can_close() for u in bm_building._businesses)
+                    sensitive bm_building.can_sell()
                     text "Sell"
 
         # Slots for New Style Buildings:

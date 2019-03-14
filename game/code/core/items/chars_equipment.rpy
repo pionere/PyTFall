@@ -857,9 +857,9 @@ screen char_equip_right_frame():
         xysize (345, 110)
 
         python:
-            classes = list(eqtarget.traits.basetraits)
+            classes = list(t.id for t in eqtarget.traits.basetraits)
             classes.sort()
-            classes = ", ".join([str(c) for c in classes])
+            classes = ", ".join(classes)
 
             t = "is %s{vspace=17}Classes: %s\nWork: %s\nAction: %s{/color}" % (eqtarget.status.capitalize(), classes, eqtarget.workplace, eqtarget.action)
 

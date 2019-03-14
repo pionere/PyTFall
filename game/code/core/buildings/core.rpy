@@ -336,6 +336,9 @@ init -10 python:
         def needs_manager(self):
             return any(b.workable for b in self.allowed_businesses)
 
+        def can_sell(self):
+            return all(u.can_close() for u in self._businesses)
+
         def get_daily_modifier(self):
             daily_modifier = self.daily_modifier
             for b in self._businesses:

@@ -2187,21 +2187,19 @@ init -9 python:
                 temp = " {color=red}... And you're pretty much screwed because it is above 50000!{/color} Your property will now be confiscated!"
                 txt.append(temp)
 
-                slaves = [c for c in self.chars if c.status == "slave" and c.is_available]
-                all_properties = slaves + self.upgradable_buildings
+                all_properties = [b for b in self.buildings if b.can_sell()] + \
+                        [c for c in self.chars if c.status == "slave" and c.is_available]
                 shuffle(all_properties)
                 cr = store.pytfall.economy.confiscation_range
                 while all_properties:
                     confiscate = all_properties.pop()
                     if isinstance(confiscate, Building):
                         price = confiscate.get_price()
-                        if self.home == confiscate:
-                            self.home = pytfall.streets
                         self.remove_building(confiscate)
-                        retire_chars_from_building(self.chars, confiscate)
+                        retire_chars_from_building(self.chars + [self], confiscate)
                     else: # instance(confiscate, Char):
                         price = confiscate.get_price()
-                        hero.remove_char(confiscate)
+                        self.remove_char(confiscate)
                         confiscate.home = pytfall.sm
                         confiscate.reset_workplace_action()
 

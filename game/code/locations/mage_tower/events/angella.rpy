@@ -13,6 +13,7 @@ label angelica_meet:
 
     if not global_flags.flag("met_angelica"):
         $ global_flags.set_flag("met_angelica")
+        $ global_flags.del_flag("mt_counter")
 
         a "Hi! I am Angelica!"
         a "I noticed you've been hanging around the Tower."

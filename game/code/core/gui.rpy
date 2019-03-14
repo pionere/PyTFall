@@ -238,13 +238,13 @@ init -1 python:
         def page_content(self):
             """Get content for current page"""
             items = self.paged_items
-
             try:
                 return items[self.page]
             except IndexError:
-                if self.page - 1 >= 0:
-                    self.page -= 1
-                    return items[self.page]
+                idx = len(items)-1
+                if idx >= 0:
+                    self.page = idx
+                    return items[idx]
                 else:
                     self.page = 0
                     return []
