@@ -83,13 +83,6 @@ init -9 python:
                 if i.name == quest: return i
             return None
 
-        def check_stage(self, quest):
-            """Safe way of checking a stage of a quest.
-
-            Will return the number of quest stage if quest is active, -1 otherwise.
-            """
-            return self.quest_instance(quest).stage
-
         def has_failed(self, quest):
             """Whether a quest has been failed.
             """

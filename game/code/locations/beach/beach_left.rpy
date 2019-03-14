@@ -223,16 +223,15 @@ label fishing_logic_mor_quest_part:
     menu:
         "Yes":
             m "Awesome!"
-            $ advance_quest("Fishery", "Mor asked you to catch some %s, about %s should be sufficient." % (fish.id, num), to=1, clear_logs=True)
-            $ hero.set_flag("mor_fish_quest", (fish, num))
+            $ advance_quest("Fishery", "Mor asked you to catch some %s, about %s should be sufficient." % (fish.id, num), to=1, clear_logs=True, fish=fish, num_fish=num)
         "No":
             m "Your choice. You know where to find me."
     $ del fish, num
     return
 
 label fishing_logic_mor_quest_bring:
-    $ fish, num = hero.flag("mor_fish_quest")
-    $ hero.del_flag("mor_fish_quest")
+    $ fish = pytfall.world_quests.quest_instance("Fishery")
+    $ fish, num = fish.flag("fish"), fish.flag("num_fish")
     if hero.has_flag("dnd_mor_fish_quest"): # only one quest per day
         $ hero.set_flag("dnd_mor_fish_quest", (None, None))
     $ hero.remove_item(fish, num)
@@ -258,10 +257,10 @@ label fishing_logic_mor_dialogue:
     with dissolve
     m "Hey, what's up?"
     menu Mor_dialogue_usual:
-        "Fishing Requests" if pytfall.world_quests.check_stage("Fishery") != 1:
+        "Fishing Requests" if pytfall.world_quests.quest_instance("Fishery").stage != 1:
             call fishing_logic_mor_quest_part from _call_fishing_logic_mor_quest_part
             jump Mor_dialogue_usual
-        "Bring the Fish" if pytfall.world_quests.check_stage("Fishery") == 1 and has_items(hero.flag("mor_fish_quest")[0], hero, equipped=False) >= hero.flag("mor_fish_quest")[1]:
+        "Bring the Fish" if all([(q.stage == 1 and has_items(q.flag("fish"), hero, equipped=False) >= q.flag("num_fish")) for q in [pytfall.world_quests.quest_instance("Fishery")]]):
             call fishing_logic_mor_quest_bring from _fishing_logic_mor_quest_bring
             jump Mor_dialogue_usual
         "Buy a Fishing Pole (250G)" if hero.gold >= 250:
@@ -319,7 +318,7 @@ label fishing_logic:
 
         "Find Mor":
             jump fishing_logic_mor_dialogue
-        "Check Mor requests" if pytfall.world_quests.check_stage("Fishery") != 1:
+        "Check Mor requests" if pytfall.world_quests.quest_instance("Fishery").stage != 1:
             $ m = npcs["Mor"].say
             show expression npcs["Mor"].get_vnsprite() as npc
             with dissolve
@@ -327,7 +326,7 @@ label fishing_logic:
             hide npc with dissolve
             $ del m
             jump beach_fighing_menu
-        "Bring the Fish" if pytfall.world_quests.check_stage("Fishery") == 1 and has_items(hero.flag("mor_fish_quest")[0], hero, equipped=False) >= hero.flag("mor_fish_quest")[1]:
+        "Bring the Fish" if all([(q.stage == 1 and has_items(q.flag("fish"), hero, equipped=False) >= q.flag("num_fish")) for q in [pytfall.world_quests.quest_instance("Fishery")]]):
             $ m = npcs["Mor"].say
             show expression npcs["Mor"].get_vnsprite() as npc
             with dissolve

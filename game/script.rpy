@@ -815,10 +815,11 @@ label after_load:
 
         if "clearCharacters" in locals():
             if hero.has_flag("mor_fish_dice"):
-                if pytfall.world_quests.check_stage("Fishery") != 0:
-                    if pytfall.world_quests.check_stage("Fishery") == 1:
-                        hero.set_flag("mor_fish_quest", (store.mor_fish, store.mor_quantity))
-                    q = pytfall.world_quests.quest_instance("Fishery")
+                q = pytfall.world_quests.quest_instance("Fishery")
+                if q.stage != 0:
+                    if q.stage == 1:
+                        q.set_flag("fish", store.mor_fish)
+                        q.set_flag("num_fish", store.mor_quantity)
                     q.prompts[0] = q.prompts[0].replace("[mor_fish.id]", "%s" % store.mor_fish.id).replace("[mor_quantity]", "%d" % store.mor_quantity)
                 if hero.flag("mor_fish_dice") == day:
                     hero.set_flag("dnd_mor_fish_quest", (store.mor_fish, store.mor_quantity))

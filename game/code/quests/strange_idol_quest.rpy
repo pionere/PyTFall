@@ -33,7 +33,7 @@ label strange_idol2(event):
 
     python:
         # Use in syntax for easy flag checking
-        if pytfall.world_quests.check_stage(event.quest) == 2:
+        if pytfall.world_quests.quest_instance(event.quest).stage == 2:
             advance_quest(event.quest, "You found another piece of the idol! I think its complete.", piece3=True)
 
             # Remove event
