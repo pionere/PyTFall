@@ -69,6 +69,12 @@ init python:
             self.add_menu("Jobs", "pyp_jobs", curr_menu)
             self.add_menu("Simulation", "pyp_simulation", curr_menu)
 
+            curr_menu = self.add_menu("Exploration Guild", "pyp_se_guild", root)
+            self.add_menu("Teams Management", "pyp_se_teams", curr_menu)
+            self.add_menu("Exploration Report", "pyp_se_log", curr_menu)
+            self.add_menu("Exploration GUI", "pyp_se_exploration_1", curr_menu)
+            self.add_menu("Exploration Log", "pyp_se_exploration_2", curr_menu)
+
             self.add_menu("School", "pyp_school", root)
 
             curr_menu = self.add_menu("Quest&Events", "pyp_quests_and_events", root)

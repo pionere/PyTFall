@@ -260,9 +260,9 @@ screen building_management_midframe_exploration_guild_mode:
                 background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
                 style_prefix "dropdown_gm2"
                 ypos 100 xalign .0
-                ysize 346
+                ysize 550
                 padding 10, 10
-                has vbox xsize 220 spacing 1
+                has vbox xsize 230 spacing 1
                 frame:
                     style_group "content"
                     xalign .5
@@ -285,7 +285,7 @@ screen building_management_midframe_exploration_guild_mode:
             # Information (Story)
             frame:
                 background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6, yzoom=-1), 10, 10)
-                ysize 346
+                ysize 550
                 padding 10, 10
                 ypos 100 xalign 1.0
                 has vbox xsize 350 spacing 1
@@ -880,7 +880,7 @@ screen fg_area(area):
 
     ## Right frame:
     frame:
-        xysize (330, 720)
+        xysize (330, 680)
         ypos 40
         xalign 1.0
         background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
@@ -889,7 +889,7 @@ screen fg_area(area):
             align .5, .5
             frame:
                 background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
-                xysize (310, 340)
+                xysize (310, 335)
                 xpadding 5
                 frame:
                     style_group "content"
@@ -939,7 +939,7 @@ screen fg_area(area):
 
             frame:
                 background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
-                xysize (310, 340)
+                xysize (310, 335)
                 xpadding 5
                 frame:
                     style_group "content"

@@ -452,7 +452,7 @@ init python:
         def __init__(self):
             super(P2P_Skill, self).__init__()
 
-            self.projectile_effects = None
+            self.projectile_effects = { "gfx" : None, "sfx" : None, "duration": 1.0 }
 
         def show_main_gfx(self, battle, attacker, targets):
             # We simply want to add projectile effect here:
@@ -576,13 +576,13 @@ init python:
         def __init__(self):
             super(ArrowsSkill, self).__init__()
 
-            self.firing_effects = None
+            self.firing_effects = { "gfx" : None, "sfx" : None, "duration": .1 }
 
         def show_main_gfx(self, battle, attacker, targets):
             firing_gfx = self.firing_effects["gfx"]
             firing_sfx = self.firing_effects["sfx"]
             firing_sfx = choice(firing_sfx) if isinstance(firing_sfx, (list, tuple)) else firing_sfx
-            pause = self.firing_effects.get("duration", .1)
+            pause = self.firing_effects["duration"]
 
             bow = Transform(firing_gfx, zoom=-1, xanchor=1.0) if battle.get_cp(attacker)[0] > battle.get_cp(targets[0])[0] else firing_gfx
 
