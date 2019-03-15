@@ -558,7 +558,7 @@ init -9 python:
             renpy.hide_screen("arena_2v2_fights")
             renpy.hide_screen("arena_3v3_fights")
 
-            self.start_matchfight(battle_setup)
+            self.execute_matchfight(battle_setup)
 
         # -------------------------- Setup Methods -------------------------------->
         def update_ladder(self):
@@ -910,8 +910,9 @@ init -9 python:
                     else:
                         member.combat_stats = "K.O."
 
-                for mob in team:
-                    defeated_mobs.add(mob.id)
+                for member in team:
+                    defeated_mobs.add(member.id)
+                    member.combat_stats = "K.O."
 
                 # Ladder
                 self.update_ladder()
@@ -924,9 +925,7 @@ init -9 python:
                     tier = self.mob_power/40.0
                     #types = ['scroll', 'restore', 'armor', 'weapon'] 
                     types = "all" 
-                    rewards = get_item_drops(types=types,
-                                                      tier=tier, locations=["Arena"],
-                                                      amount=amount)
+                    rewards = get_item_drops(types=types, tier=tier, locations=["Arena"], amount=amount)
                     for i in rewards:
                         hero.inventory.append(i)
 
@@ -934,18 +933,13 @@ init -9 python:
                     self.cf_setup = None
                     self.cf_count = 0
                     renpy.play("win_screen.mp3", channel="world")
-                    renpy.show_screen("arena_finished_chainfight", hero.team, rewards)
-                    return
+                    renpy.show_screen("arena_finished_chainfight", hero.team, team, rewards)
                 else:
-                    renpy.call_screen("arena_aftermatch", hero.team, team, "Victory")
-                    self.setup_chainfight()
-                    return
+                    renpy.show_screen("arena_aftermatch", hero.team, team, False)
             else: # Player lost -->
                 self.cf_mob = None
                 self.cf_setup = None
                 self.cf_count = 0
-                for member in hero.team:
-                    member.combat_stats = "K.O."
                 jump("arena_inside")
 
         def setup_minigame(self, luck):
@@ -1102,22 +1096,18 @@ init -9 python:
                 member.arena_rep -= int(rep)
                 member.mod_exp(exp_reward(member, winner, exp_mod=2*.15))
                 self.remove_team_from_dogfights(member)
+                member.combat_stats = "K.O."
 
             for member in enemy_team:
                 restore_battle_stats(member)
 
-            if winner == hero.team:
-                renpy.call_screen("arena_aftermatch", hero.team, enemy_team, "Victory")
-            else:
-                renpy.call_screen("arena_aftermatch", enemy_team, hero.team, "Loss")
+            renpy.show_screen("arena_aftermatch", winner, loser)
 
             # Ladder
             self.update_ladder()
 
             # record the event
             self.df_count += 1
-
-            jump("arena_inside")
 
         @staticmethod
         def shallow_copy_team(team):
@@ -1128,7 +1118,7 @@ init -9 python:
             tmp.set_leader(team.leader)
             return tmp
  
-        def start_matchfight(self, setup):
+        def execute_matchfight(self, setup):
             """
             Bridge to battle engine + rewards/penalties.
             """
@@ -1188,14 +1178,12 @@ init -9 python:
                 member.arena_rep -= int(rew_rep)
                 member.mod_exp(exp_reward(member, winner, exp_mod=2*.15))
                 # self.remove_team_from_dogfights(member)
+                member.combat_stats = "K.O."
 
             for member in enemy_team:
                 restore_battle_stats(member)
 
-            if winner == hero.team:
-                renpy.call_screen("arena_aftermatch", hero.team, enemy_team, "Victory")
-            else:
-                renpy.call_screen("arena_aftermatch", enemy_team, hero.team, "Loss")
+            renpy.show_screen("arena_aftermatch", winner, loser)
 
             setup[0] = Team(max_size=len(setup[0]))
             setup[1] = Team(max_size=len(setup[1]))
@@ -1213,8 +1201,6 @@ init -9 python:
             for d in hero.fighting_days[:]:
                 if d == fday:
                     hero.fighting_days.remove(d)
-
-            jump("arena_inside")
 
         @staticmethod
         def append_match_result(txt, f2f, match_result):

@@ -27,9 +27,30 @@ label arena_inside:
         $ result = ui.interact()
 
         if result[0] == 'control':
-            if result[1] == "hide_vic":
+            if result[1] == "done_aftermatch":
+                $ renpy.music.stop(channel="music", fadeout=1.0)
                 hide screen arena_aftermatch
-            if result[1] == 'return':
+                # cleanup
+                python:
+                    for member in chain(result[2], result[3]):
+                        del member.combat_stats
+                    del member
+                if result[4]:
+                    jump arena_inside
+                else:
+                    $ pytfall.arena.setup_chainfight()
+            elif result[1] == "done_chainfight":
+                hide screen arena_finished_chainfight
+                hide screen chain_fight
+                hide screen confirm_chainfight
+                # cleanup
+                python:
+                    pytfall.arena.cf_count = 0
+                    for member in chain(result[2], result[3]):
+                        del member.combat_stats
+                    del member
+                jump arena_inside
+            elif result[1] == 'return':
                 jump arena_inside_end
 
         elif result[0] == "show":
@@ -41,9 +62,9 @@ label arena_inside:
             $ msg = None
             if result[1] == "dogfights":
                 $ msg = pytfall.arena.dogfight_challenge(result[2])
-            elif result[1] == "match":
+            elif result[1] == "matches":
                 $ msg = pytfall.arena.match_challenge(result[2])
-            elif result[1] == "start_match":
+            elif result[1] == "start_matchfight":
                 $ msg = pytfall.arena.check_before_matchfight()
             elif result[1] == "start_chainfight":
                 $ msg = pytfall.arena.check_before_chainfight()
@@ -94,7 +115,7 @@ init: # Main Screens:
                 left_padding 15
                 right_padding 40
                 style "right_wood_button"
-                action Return(["challenge", "start_match"])
+                action Return(["challenge", "start_matchfight"])
                 text "Start Match!":
                     font "fonts/badaboom.ttf"
                     size 20
@@ -379,7 +400,7 @@ init: # Main Screens:
                                 if not lineup[0]:
                                     button:
                                         style "arena_channenge_button"
-                                        action Return(["challenge", "match", lineup])
+                                        action Return(["challenge", "matches", lineup])
                                         vbox:
                                             align (.5, .5)
                                             $ team = lineup[1]
@@ -859,16 +880,16 @@ init: # Main Screens:
             action Hide("arena_bestiary"), return_button_action
             keysym "mousedown_3"
 
-    screen arena_aftermatch(w_team, l_team, condition):
+    screen arena_aftermatch(w_team, l_team, done=True):
         modal True
         zorder 2
-
-        on "show" action If(condition=="Victory", true=Play("music", "content/sfx/music/world/win_screen.mp3"))
 
         default winner = w_team[0]
         default loser = l_team[0]
 
         if hero.team == w_team:
+            on "show" action Play("music", "content/sfx/music/world/win_screen.mp3")
+
             add "content/gfx/images/battle/victory_l.webp" at move_from_to_pos_with_ease(start_pos=(-config.screen_width/2, 0), end_pos=(0, 0), t=.7, wait=0)
             add "content/gfx/images/battle/victory_r.webp" at move_from_to_pos_with_ease(start_pos=(config.screen_width/2, 0), end_pos=(0, 0), t=.7)
             add "content/gfx/images/battle/battle_c.webp" at fade_from_to(start_val=.5, end_val=1.0, t=2.0, wait=0)
@@ -946,7 +967,7 @@ init: # Main Screens:
             xysize (100, 30)
             align (.5, .63)
             style_group "pb"
-            action [Function(renpy.music.stop, channel="music", fadeout=1.0), Return(["control", "hide_vic"])]
+            action Return(["control", "done_aftermatch", w_team, l_team, done])
             text "Continue" style "pb_button_text" yalign 1.0 
 
         # Winner Details Display on the left:
@@ -1229,12 +1250,12 @@ init: # ChainFights vs Mobs:
             #             Hide("confirm_chainfight"),
             #             Return(["challenge", "chainfight"])]
 
-    screen arena_finished_chainfight(w_team, rewards):
+    screen arena_finished_chainfight(w_team, l_team, rewards):
         zorder  3
         modal True
 
-        key "mousedown_3" action [Hide("arena_finished_chainfight"), Hide("arena_inside"), Hide("chain_fight"), Hide("confirm_chainfight"), SetField(pytfall.arena, "cf_count", 0), Jump("arena_inside")]
-        timer 9.0 action [Hide("arena_finished_chainfight"), Hide("arena_inside"), Hide("chain_fight"), Hide("confirm_chainfight"), SetField(pytfall.arena, "cf_count", 0), Jump("arena_inside")]
+        key "mousedown_3" action Return(["control", "done_chainfight", w_team, l_team])
+        timer 9.0 action Return(["control", "done_chainfight", w_team, l_team])
 
         add "content/gfx/bg/be/battle_arena_1.webp"
 

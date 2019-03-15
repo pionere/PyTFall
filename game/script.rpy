@@ -1064,6 +1064,10 @@ label after_load:
                     del char._available
                 if hasattr(char, "alive"):
                     del char.alive
+                if hasattr(char, "combat_stats"):
+                    del char.combat_stats
+                if hasattr(char, "arena_stats"):
+                    del char.arena_stats
                 if hasattr(char.fin, "stored_upkeep"):
                     char.calc_upkeep()
                     del char.fin.stored_upkeep

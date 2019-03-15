@@ -139,7 +139,8 @@ label guard_talking_menu:
                         "Yes":
                             $ p = pytfall.jail.bail_char(hero)
                             if p:
-                                g "Huhh...!?"
+                                "[p]"
+                                g "Maybe later..."
                                 $ del p
                                 jump guard_talking_menu
                             else:

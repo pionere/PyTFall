@@ -90,8 +90,6 @@ init -9 python:
                 self.arena_permit = False # Has a permit to fight in main events of the arena.
                 self.arena_active = False # Indicates that girl fights at Arena at the time.
                 self.arena_rep = 0 # Arena reputation
-                self.arena_stats = dict()
-                self.combat_stats = dict()
 
             # Items
             if inventory:
@@ -2244,18 +2242,22 @@ init -9 python:
             # -------------------->
             txt.append("Hero Report:\n\n")
 
-            # Home location nd mods:
-            loc = self.home
+            if self.location == pytfall.jail:
+                # Currently in jail
+                txt.append("You've spent the night in the jail.")
+            else:
+                # Home location nd mods:
+                loc = self.home
 
-            mod = loc.get_daily_modifier()
-            if mod > 0:
-                txt.append("You've comfortably spent a night.")
-            elif mod < 0:
-                flag_red = True
-                txt.append("{color=red}You should find some shelter for the night... it's not healthy to sleep outside.{/color}")
+                mod = loc.get_daily_modifier()
+                if mod > 0:
+                    txt.append("You've comfortably spent a night.")
+                elif mod < 0:
+                    flag_red = True
+                    txt.append("{color=red}You should find some shelter for the night... it's not healthy to sleep outside.{/color}")
 
-            for stat in ("health", "mp", "vitality"):
-                mod_by_max(self, stat, mod)
+                for stat in ("health", "mp", "vitality"):
+                    mod_by_max(self, stat, mod)
 
             # Taxes:
             if calendar.weekday() == "Monday" and day != 1:
@@ -2278,12 +2280,11 @@ init -9 python:
             self.nd_log_report(txt, 'profile', flag_red, type='mcndreport')
             self.txt = list()
 
-            self.arena_stats = dict()
-
             super(Player, self).next_day()
 
             # Training with NPCs is on the next day --------------------------------------->
-            self.nd_auto_train()
+            if self.location != pytfall.jail:
+                self.nd_auto_train()
 
 
     class Char(PytCharacter):
