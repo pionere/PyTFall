@@ -352,9 +352,11 @@ label next_day_effects_check:  # all traits and effects which require some unusu
 
         # hero-only trait which heals everybody
         if "Life Beacon" in hero.traits:
-            for i in hero.chars:
-                mod_by_max(i, "health", .1)
-                i.mod_stat("joy", 1)
+            if hero.location != pytfall.jail:
+                for i in hero.chars:
+                    if i.is_available:
+                        mod_by_max(i, "health", .1)
+                        i.mod_stat("joy", 1)
 
             mod_by_max(hero, "health", .1)
 
@@ -368,8 +370,6 @@ label special_auto_save: # since built-in autosave works like shit, I use normal
         temp = "auto-" + str(special_save_number)
         renpy.save(temp)
     $ special_save_number += 1
-    if special_save_number > 6:
-        $ special_save_number = 1
     return
 
 

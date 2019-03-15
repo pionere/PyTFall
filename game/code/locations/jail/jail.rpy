@@ -17,7 +17,7 @@ label city_jail:
             pytfall.world_actions.slave_market(pytfall.jail, button="Captured Slaves",
                                                button_tooltip="Sell or acquire the slaves captured by your explorers.",
                                                null_condition="not pytfall.jail.captures",
-                                               buy_button="Train with Blue!", buy_tooltip="Train then acquire this girl by paying %s Gold.",
+                                               buy_button="Train with Blue!", buy_tooltip="Train then acquire this slave by paying %s Gold.",
                                                prep_actions=[Function(pytfall.jail.switch_mode, "captures")],
                                                index=1)
             pytfall.world_actions.add(2, "Browse Cells",
@@ -67,6 +67,107 @@ label city_jail:
             if result[1] == "return":
                 hide screen city_jail
                 jump city
+
+label hero_in_jail:
+    # Music related
+    $ renpy.music.stop(channel="world")
+    $ global_flags.del_flag("keep_playing_music")
+
+    scene bg jail_cell
+    with dissolve
+
+    if not global_flags.flag('visited_city_jail_hero_cell'):
+        $ global_flags.set_flag('visited_city_jail_hero_cell')
+        "This place is awful..."
+        extend " How could you end up here?"
+        "Of course you know, how..."
+
+    show screen hero_cell
+
+    while True:
+        $ result = ui.interact()
+        if result == "guards":
+            hide screen hero_cell
+            jump guard_talking_menu
+            with Fade
+        if result.startswith("wait"):
+            hide screen hero_cell
+            with Fade(.5, .2, .5, color="black")
+            $ nd_turns = 1 if result == "wait" else pytfall.jail.prison_time(hero)
+            while nd_turns:
+                call next_day_calculations from _call_next_day_calculations_2
+                call next_day_effects_check from _call_next_day_effects_check_2
+                $ nd_turns -= 1
+            $ del nd_turns
+            # prepare the data to show to the player
+            $ NextDayEvents.prepare_summary()
+            if hero.location != pytfall.jail:
+                jump hero_in_jail_end
+            jump hero_in_jail
+            with Fade
+
+label hero_in_jail_end:
+    show expression npcs["Domino_jail"].get_vnsprite() as npc
+    with dissolve
+    $ g = npcs["Domino_jail"].say
+    g "Your sentence is over. You are free to go."
+    extend "I hope you enjoyed your 'vacation'."
+    hide npc
+    hide screen hero_cell
+    $ del g 
+    jump city
+    with Fade
+
+label guard_talking_menu:
+    show expression npcs["Domino_jail"].get_vnsprite() as npc
+    with dissolve
+    $ g = npcs["Domino_jail"].say
+    while 1:
+        menu:
+            g "What do you want?"
+            "Let Me Out":
+                $ p = pytfall.jail.get_bail(hero)
+                g "All you have to do is to pay the fine of [p]."
+                if hero.gold < p:
+                    extend "... But you are a poor sod, so be silent and leave me alone."
+                    $ p = pytfall.jail.prison_time(hero)
+                    $ p = "Just %d more %s ..." % (p, plural("day", p))
+                    g "[p]"
+                else:
+                    menu:
+                        g "Are you willing to pay the bail?"
+                        "Yes":
+                            $ p = pytfall.jail.bail_char(hero)
+                            if p:
+                                g "Huhh...!?"
+                                $ del p
+                                jump guard_talking_menu
+                            else:
+                                g "There you go. It is that easy. Now go!"
+                                $ del p, g
+                                hide npc
+                                hide screen hero_cell
+                                jump city
+                                with Fade
+                        "No":
+                            $ p = pytfall.jail.prison_time(hero)
+                            $ p = " Just %d more %s ..." % (p, plural("day", p))
+                            g "Then be silent!"
+                            extend "[p]"
+                $ del p
+            "What day is it?":
+                $ temp = calendar.weekday()
+                g "Hahh... Maybe you should start counting."
+                extend " It is [temp]."
+                $ temp = calendar.string()
+                g "Or if you want to be more exact: [temp]."
+                $ del temp
+                jump guard_talking_menu
+            "Nevermind":
+                g "Don't bother me then!"
+        hide npc
+        $ del g
+        jump hero_in_jail
 
 screen city_jail():
 
@@ -159,7 +260,7 @@ screen city_jail_cells():
                     spacing 1
                     hbox:
                         xsize 220
-                        $ days = char.flag("release_day") - day + 1
+                        $ days = pytfall.jail.prison_time(char)
                         text "Remaining time:" xpos 2
                         text "%s %s" % (days, plural("day", days)) xalign .85
                     hbox:
@@ -229,3 +330,15 @@ screen city_jail_cells():
 
     use top_stripe(show_return_button=True, return_button_action=[Hide("city_jail_cells"), With(dissolve)], show_lead_away_buttons=False)
 
+screen hero_cell():
+    #use top_stripe(False)
+    style_prefix "dropdown_gm"
+    frame:
+        pos (.98, .98) anchor (1.0, 1.0)
+        has vbox
+        textbutton "Call The Guards":
+            action Return("guards")
+        textbutton "Wait One Day":
+            action Return("wait")
+        textbutton "Wait Till Sentence is Over":
+            action Return("wait_over")

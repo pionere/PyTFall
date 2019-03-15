@@ -236,7 +236,7 @@ init -9 python:
             days: the length of the sentence
             """
             char.set_flag("release_day", day + days)
-            if char.take_money(self.get_bail(char), "Bail:%s" % sentence):
+            if char != hero and char.take_money(self.get_bail(char), "Bail:%s" % sentence):
                 char.del_flag("release_day")
                 return False
 
@@ -270,11 +270,17 @@ init -9 python:
         def sell_price(self, slave):
             return max(50, slave.get_price()/4 - self.get_fees4captured(slave))
 
+        def prison_time(self, char):
+            """
+            Returns the remaining time the prisoner must spend in the jail.
+            """
+            return char.flag("release_day") - day + 1
+
         def get_bail(self, char):
             """
             Returns the price to bail the prisoner.
             """
-            return (char.flag("release_day") - day) * 500
+            return self.prison_time(char) * 500
 
         def buy_slave(self, char):
             """Buys an escaped slave from the jail.
@@ -286,7 +292,7 @@ init -9 python:
 
             renpy.play("content/sfx/sound/world/purchase_1.ogg")
             self.slaves.remove(char)
-            self.index[0] = 0
+            self.slave_index[0] = 0
             if char not in hero.chars:
                 hero.add_char(char)
                 char.home = pytfall.streets
@@ -304,7 +310,7 @@ init -9 python:
             hero.add_money(self.sell_price(char), "SlaveTrade")
 
             self.captures.remove(char)
-            self.index[0] = 0
+            self.capt_index[0] = 0
 
             char.del_flag("release_day")
             char.home = pytfall.sm
@@ -337,7 +343,7 @@ init -9 python:
                 set_location(char, None)
 
             self.captures.remove(char)
-            self.index[0] = 0
+            self.capt_index[0] = 0
 
         def bail_char(self, char):
             """Bails a prisoner from the jail.
@@ -351,18 +357,19 @@ init -9 python:
             renpy.play("content/sfx/sound/world/purchase_1.ogg")
 
             self.cells.remove(char)
-            self.index[0] = 0
+            self.cell_index[0] = 0
 
             char.del_flag("sentence_type")
             char.del_flag("release_day")
             set_location(char, char.get_flag("last_location"))
             char.del_flag("last_location")
 
-            if char in hero.chars:
-                char.gfx_mod_stat("disposition", randint(10, 40))
-            else:
-                char.gfx_mod_stat("disposition", 50 + randint(price/10))
-            char.gfx_mod_stat("affection", affection_reward(char, stat="gold"))
+            if char != hero:
+                if char in hero.chars:
+                    char.gfx_mod_stat("disposition", randint(10, 40))
+                else:
+                    char.gfx_mod_stat("disposition", 50 + randint(price/10))
+                char.gfx_mod_stat("affection", affection_reward(char, stat="gold"))
 
         def next_index(self):
             """
