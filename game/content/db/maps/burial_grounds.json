@@ -20,7 +20,7 @@
         "unlocks": {"Inner Burial Grounds": 75},
         "cash_limit": 100,
         "items_limit": 400,
-        "items": {"Darksome Trophy": 25}
+        "items": {"Darksome Trophy": 25, "Necklace of Pain Reversal": 50}
     },
     {
         "name": "Inner Burial Grounds",

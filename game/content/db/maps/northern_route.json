@@ -68,9 +68,7 @@
         },
         "cash_limit": 50,
         "items_limit": 200,
-        "items": {
-            "Stone": 50
-        }
+        "items": {"Stone": 50}
     },
     {
         "name": "Hearth of the Forest",
@@ -107,8 +105,6 @@
         "unlocks": {"Frozen Caverns": 60},
         "cash_limit": 20,
         "items_limit": 250,
-        "items": {
-            "Stone": 100
-        }
+        "items": {"Stone": 100, "Victory Charm": 15}
     }
 ]
