@@ -294,6 +294,7 @@ label fishing_logic:
 
     if not global_flags.flag('visited_fish_city_beach'):
         $ register_quest("Fishery")
+        $ m = npcs["Mor"].say
         show expression npcs["Mor"].get_vnsprite() as npc
         with dissolve
         "A small boy fishes on the pier. Noticing you, he puts his fishing rod on the ground and approaches."
@@ -408,12 +409,18 @@ label mc_action_beach_start_fishing:
                 for i in items.values():
                     if "Fishing" in i.locations and min_fish_price <= i.price <= fishing_skill:
                         num += i.chance
+                        # count real fishes twice
+                        if i.type == "fish":
+                            num += i.chance
                         all_fish.append(i)  
 
                 if num:
                     num = randint(1, num)
                     for i in all_fish:
                         num -= i.chance
+                        # count real fishes twice
+                        if i.type == "fish":
+                            num -= i.chance
                         if num <= 0:
                             item = i
                             break 

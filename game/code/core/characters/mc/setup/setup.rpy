@@ -90,7 +90,7 @@ label mc_setup_end:
             temp = story.pop("desc", None)
             temp = story.pop("img", None)
             temp = story.pop("choices", None)
-
+            temp = story.pop("gender", None)
             temp = story.pop("traits", None)
             if temp:
                 if isinstance(temp, basestring):
