@@ -435,9 +435,9 @@ init python:
 
                 gfxtag = "areal"
                 if teampos == "l":
-                    teampos = BDP["perfect_middle_right"]
+                    teampos = battle.BDP["perfect_middle_right"]
                 else:
-                    teampos = BDP["perfect_middle_left"]
+                    teampos = battle.BDP["perfect_middle_left"]
                 renpy.show(gfxtag, what=what, at_list=[Transform(pos=battle.get_cp(target, type=point, xo=xo, yo=yo, override=teampos), anchor=anchor)], zorder=1000)
 
         def hide_main_gfx(self, targets):
@@ -538,7 +538,7 @@ init python:
             if pro_sfx:
                 renpy.sound.play(pro_sfx)
 
-            aimpos = BDP["perfect_middle_right"] if target.beteampos == "l" else BDP["perfect_middle_left"]
+            aimpos = battle.BDP["perfect_middle_right"] if target.beteampos == "l" else battle.BDP["perfect_middle_left"]
 
             renpy.show("launch", what=missle, at_list=[move_from_to_pos_with_easeout(start_pos=initpos, end_pos=aimpos, t=pause), Transform(anchor=(.5, .5))], zorder=target.besk["zorder"]+1000)
             renpy.pause(pause)

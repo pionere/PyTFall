@@ -343,6 +343,9 @@ label sort_traits_for_gameplay:
                 gen_occ_basetraits[occ].add(t)
         del i, t, occ
         gen_occ_basetraits = dict(gen_occ_basetraits)
+        
+        # initialize static data of BE_Core (might not be the best place, but requires tgs...)
+        BE_Core.init()
     return
 
 label after_load:
@@ -494,6 +497,8 @@ label after_load:
         if isinstance(store.defeated_mobs, dict):
             store.defeated_mobs = set(store.defeated_mobs.keys())
 
+        if not BE_Core.BDP:
+            BE_Core.init()
         if hasattr(store, "storyi_treasures") and isinstance(store.storyi_treasures, list):
             hero.del_flag("been_in_old_ruins")
         if global_flags.has_flag("time_healing_day"):

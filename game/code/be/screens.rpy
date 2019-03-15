@@ -419,7 +419,7 @@ screen battle_overlay(be):
 
     # Pos visualization:
     # if True:
-    #     for placement, coords in BDP.items():
+    #     for placement, coords in battle.BDP.items():
     #         if len(placement) == 2:
     #             for pos in coords:
     #                 add Solid("F00", xysize=(5, 5)):

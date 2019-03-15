@@ -3,25 +3,6 @@ init -1 python: # Core classes:
     This is our version of turn based BattleEngine.
     I think that we can use zorders on master layer instead of messing with multiple layers.
     """
-
-    BDP = {} # BE DEFAULT POSITIONS *positions are tuples in lists that go from top to bottom.
-    BDP["l0"] = [(230, 540), (190, 590), (150, 640)] # Left (Usually player) teams backrow default positions.
-    BDP["l1"] = [(360, 540), (320, 590), (280, 640)] # Left (Usually player) teams frontrow default positions.
-    BDP["r0"] = list((config.screen_width-t[0], t[1]) for t in BDP["l0"]) # BackRow, Right (Usually enemy).
-    BDP["r1"] = list((config.screen_width-t[0], t[1]) for t in BDP["l1"]) # FrontRow, Right (Usually enemy).
-
-    # We need to get perfect middle positioning:
-    # Get the perfect middle x:
-    perfect_middle_xl = BDP["l0"][1][0] + round_int((BDP["l1"][1][0] - BDP["l0"][1][0])*.5)
-    perfect_middle_yl = perfect_middle_yr = BDP["l1"][1][1] - 100
-    perfect_middle_xr = BDP["r0"][1][0] + round_int((BDP["r1"][1][0] - BDP["r0"][1][0])*.5)
-    BDP["perfect_middle_right"] = (perfect_middle_xl, perfect_middle_yl)
-    BDP["perfect_middle_left"] = (perfect_middle_xr, perfect_middle_yr)
-    del perfect_middle_xl
-    del perfect_middle_yl
-    del perfect_middle_xr
-    del perfect_middle_yr
-
     class BE_Combatant(_object):
         def __init__(self, char):
             self.char = char
@@ -210,6 +191,8 @@ init -1 python: # Core classes:
 
         def get_be_items(self):
             # be_items only for non-logical battles (for the moment? Mobs do not have inventory anyway)
+            if not hasattr(self.char, "inventory"):
+                return None
             be_items = OrderedDict()
             for item, amount in self.char.inventory.items.iteritems():
                 if item.be:
@@ -222,6 +205,8 @@ init -1 python: # Core classes:
             self.char.set_stat("vitality", self.vitality)
 
     class BE_Core(_object):
+        BDP = dict()               # BE DEFAULT POSITIONS
+        TYPE_TO_COLOR_MAP = dict() # DAMAGE TYPE TO COLOR MAP
         """Main BE attrs, data and the loop!
         """
         def __init__(self, bg=Null(), music=None, row_pos=None, start_sfx=None,
@@ -247,21 +232,14 @@ init -1 python: # Core classes:
                                                         "mirage": Mirage(bg, resize=get_size(bg),
                                                         amplitude=.04, wavelength=10, ycrop=10)})
 
-                if music == "random":
-                    self.music = get_random_battle_track()
-                else:
-                    self.music = music
+                self.music = get_random_battle_track() if music == "random" else music
 
             self.corpses = set() # Anyone died in the BE.
 
-            if not row_pos:
-                self.row_pos = BDP
-            else:
-                self.row_pos = row_pos
+            self.row_pos = row_pos if row_pos else self.BDP
 
             # Whatever controls the current queue of the loop is the controller.
-            # Usually it's player or AI combatants.
-            self.controller = None
+            self.controller = None # The current character (player or AI combatant)
             self.winner = None
             self.win = None # We set this to True if left team wins and to False if right.
             self.combat_log = list()
@@ -283,14 +261,31 @@ init -1 python: # Core classes:
 
             self.max_skill_lvl = max_skill_lvl
 
-            self.generate_type_to_color_map()
+        @staticmethod
+        def init():
+            # BE DEFAULT POSITIONS *positions are tuples in lists that go from top to bottom.
+            BDP = {"l0": [(230, 540), (190, 590), (150, 640)], # Left (Usually player) teams backrow default positions.
+                   "l1": [(360, 540), (320, 590), (280, 640)]} # Left (Usually player) teams frontrow default positions.
+            BDP["r0"] = list((config.screen_width-t[0], t[1]) for t in BDP["l0"]) # BackRow, Right (Usually enemy).
+            BDP["r1"] = list((config.screen_width-t[0], t[1]) for t in BDP["l1"]) # FrontRow, Right (Usually enemy).
 
-        def generate_type_to_color_map(self):
+            # We need to get perfect middle positioning:
+            # Get the perfect middle x:
+            perfect_middle_xl = BDP["l0"][1][0] + round_int((BDP["l1"][1][0] - BDP["l0"][1][0])*.5)
+            perfect_middle_yl = perfect_middle_yr = BDP["l1"][1][1] - 100
+            perfect_middle_xr = BDP["r0"][1][0] + round_int((BDP["r1"][1][0] - BDP["r0"][1][0])*.5)
+            BDP["perfect_middle_right"] = (perfect_middle_xl, perfect_middle_yl)
+            BDP["perfect_middle_left"] = (perfect_middle_xr, perfect_middle_yr)
+            BE_Core.BDP.clear()
+            BE_Core.BDP.update(BDP)
+
+            # DAMAGE TYPE TO COLOR MAP
             type_to_color_map = {e.id.lower(): e.font_color for e in tgs.elemental}
             type_to_color_map["poison"] = "green"
             type_to_color_map["healing"] = "lightgreen"
 
-            self.type_to_color_map = type_to_color_map
+            BE_Core.TYPE_TO_COLOR_MAP.clear()
+            BE_Core.TYPE_TO_COLOR_MAP.update(type_to_color_map)
 
         def log(self, report, delayed=False):
             be_debug(report)
@@ -1242,9 +1237,9 @@ init -1 python: # Core classes:
 
             if value < 0:
                 value = -value
-                color = battle.type_to_color_map["healing"]
+                color = battle.TYPE_TO_COLOR_MAP["healing"]
             else:
-                color = battle.type_to_color_map.get(type, "red")
+                color = battle.TYPE_TO_COLOR_MAP.get(type, "red")
 
             if return_for == "log":
                 s = "%s: %s" % (self.DAMAGE.get(type, type), value)
@@ -1297,7 +1292,7 @@ init -1 python: # Core classes:
             if len(type_effects) > 1:
                 if value < 0:
                     value = -value
-                    color = battle.type_to_color_map["healing"]
+                    color = battle.TYPE_TO_COLOR_MAP["healing"]
                 else:
                     color = "red"
                 temp = "{color=%s}DGM: %d{/color}" % (color, value)
