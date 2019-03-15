@@ -899,22 +899,23 @@ init -11 python:
         # devlog.info("")
 
         # Now that we're done with baseskills, we can play with other stats/skills a little bit
+        base_stats.update(STATIC_CHAR.FIXED_MAX)
         for stat in char.stats.stats:
-            if stat not in STATIC_CHAR.FIXED_MAX and stat not in base_stats:
+            if stat not in base_stats:
+                value = char.get_max(stat)
                 if dice(char.get_stat("luck")*.5):
-                    value = char.get_max(stat)*.3
-                    value = round_int(value*stat_bios())
-                    char.mod_stat(stat, value)
+                    value *= .3
                 else:
-                    value = char.get_max(stat)*uniform(.05, .15)
-                    value = round_int(value*stat_bios())
-                    char.mod_stat(stat, value)
+                    value *= uniform(.05, .15)
+                value = round_int(value*stat_bios())
+                char.mod_stat(stat, value)
         for skill in char.stats.skills:
             if skill not in base_skills:
+                value = char.get_max_skill(skill, tier)
                 if dice(char.get_stat("luck")*.5):
-                    value = (SKILLS_MAX[skill]*(tier*.1))*.3
+                    value *= .3
                 else:
-                    value = (SKILLS_MAX[skill]*(tier*.1))*uniform(.05, .15)
+                    value *= uniform(.05, .15)
                 value = round_int(value*skill_bios())
                 char.mod_skill(skill, 0, value)
 

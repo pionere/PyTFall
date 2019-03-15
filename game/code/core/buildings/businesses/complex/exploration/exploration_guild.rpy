@@ -66,7 +66,7 @@ init -9 python:
                 self.trackers = []
 
                 # Generated Content:
-                self.logs = collections.deque(maxlen=30)
+                self.logs = collections.deque(maxlen=26)
 
         def get_explored_percentage(self):
             return self.explored * 100 / self.maxexplored

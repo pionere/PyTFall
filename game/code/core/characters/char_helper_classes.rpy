@@ -51,7 +51,7 @@ init -10 python:
             target_tier = self.tier+1.0 # To get a float for Py2.7
             target_level = (target_tier)*20
             if target_level > self.level:
-                tier_points = 0 # We need 100 to tier up!
+                # We need 100 points to tier up!
 
                 level_points = self.level*50.0/target_level
 

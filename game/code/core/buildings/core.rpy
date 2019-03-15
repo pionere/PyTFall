@@ -106,7 +106,7 @@ init -10 python:
         This simply holds references to actors that are present @ the location.
         If a location is not a member of this class, it is desirable for it to have a similar setup or to be added to change_location() function manually.
         """
-        pass # obsolete
+        pass # FIXME obsolete
 
     class HabitableLocation(_object):
         """Location where actors can live and modifier for health and items recovery.
@@ -132,7 +132,7 @@ init -10 python:
         Basically, a habitable location where one can store 'stuff'
         Also has a number of extra properties.
         """
-        pass # obsolete
+        pass # FIXME obsolete
 
     class BaseBuilding(HabitableLocation, Flags):
         """The super class for all Building logic.
@@ -745,7 +745,8 @@ init -10 python:
                 workers = [w for w in self.all_workers if w.is_available and w.task is None]
                 for w in workers:
                     convert_ap_to_jp(w)
-                    w.action.auto_equip(w)
+                    if w != hero:
+                        w.action.auto_equip(w)
                 self.available_workers = workers
 
                 # Do the expensive manager preparation out of the loop once
