@@ -19,13 +19,17 @@ init -1 python:
                 renpy.play(*sound)
 
             if not timer:
-                timer = max(float(len(arguments[1])) / 20.0, .5)
+                timer = max(len(arguments[1]) / 20.0, .5)
 
             self.said = arguments
             while len(self.said) != 4:
                 self.said.append(None)
 
-            self.add_timer(timer, [{"function": "__setattr__", "arguments": ["said", None] }])
+            self.add_timer(timer, [{"function": "delsay", "arguments": [self.said] }])
+
+        def delsay(self, msg):
+            if self.said is msg:
+                self.said = None
 
         def delitem(self, name, arguments):
             item = getattr(self, name)
@@ -77,7 +81,7 @@ init -1 python:
                     "k", "d_items", "d_hotspots", "actions", "ri", "n", "e",
                     "situ", "pt", "it", "img_name", "brightness", "spawn", "ori",
                     "transparent_area", "bx", "by", "at", "to", "pos", "access_denied",
-                    "dungeon_location", "dungeons", "_return", "event", "current_time", "t"]
+                    "dungeon_location", "dungeons", "event", "current_time", "t"]
             for i in vars:
                 if hasattr(store, i):
                     delattr(store, i)
@@ -93,6 +97,7 @@ init -1 python:
             at = eval(at_str)
 
             to = at # per default stay in position
+            attack = False
             dx = adx = self.hero['x'] - at[0]
             dy = ady = self.hero['y'] - at[1]
             if adx < 0:
@@ -108,18 +113,30 @@ init -1 python:
                     else:
                         pos = (at[0] - 1, at[1])
                         ori = 3
-                    if not self.no_access(at, pos, ori, is_spawn=True):
+                    access_denied = self.no_access(at, pos, ori, is_spawn=True)
+                    if not access_denied:
                         to = pos
-                if ady != 0:
+                    elif access_denied == "hero collision":
+                        attack = True
+                if ady != 0 and not attack:
                     if ady == dy:
                         pos = (at[0], at[1] + 1)
                         ori = 0
                     else:
                         pos = (at[0], at[1] - 1)
                         ori = 2
-                    if not self.no_access(at, pos, ori, is_spawn=True):
+                    access_denied = self.no_access(at, pos, ori, is_spawn=True)
+                    if not access_denied:
                         to = pos
-
+                    elif access_denied == "hero collision":
+                        attack = True
+            if attack:
+                # auto attack by monsters
+                hs = dungeon.spawn_hotspots[m["name"]]
+                # remove the mob(s)
+                del self.spawn[at_str]
+                self.next_events.extend(hs["actions"])
+                return
             to_str = str(to)
             if to != at:
                 del(self.spawn[at_str])
@@ -286,8 +303,9 @@ screen dungeon_move(hotspots):
 
     if dungeon.said:
         use say(dungeon.said[0], dungeon.said[1], dungeon.said[2], dungeon.said[3])
-        key "K_RETURN" action Return(value="event_list")
-        key "mousedown_1" action Return(value="event_list")
+        $ actions = [Function(dungeon.delsay, dungeon.said), Return(value="event_list")]
+        key "K_RETURN" action actions
+        key "mousedown_1" action actions
 
     elif dungeon.can_move:
         key "focus_left" action NullAction()
@@ -341,7 +359,9 @@ screen dungeon_move(hotspots):
         key "K_m" action ToggleField(dungeon, "show_map")
         key "K_l" action ToggleField(dungeon, "light", "_torch", "")
 
-    if dungeon.timer:
+    if dungeon.next_events and not dungeon.said:
+        timer .1 action Return(value="event_list")
+    elif dungeon.timer:
         timer dungeon.timer action Return(value="event_list")
 
 style move_button_text:
@@ -510,7 +530,6 @@ label enter_dungeon_r:
 
             if isinstance(_return, list):
                 dungeon.next_events.extend(_return)
-                _return = "event_list"
             elif _return == 2:
                 to = (pc['x']-pc['dx'], pc['y']-pc['dy'])
             elif _return == 4:
@@ -555,7 +574,6 @@ label enter_dungeon_r:
                     if str(to) in dungeon.event:
                         # trigger events at the new position
                         dungeon.next_events.extend(dungeon.event[str(to)])
-                        _return = "event_list"
                 elif access_denied == "spawn collision":
                     # auto attack monsters
                     to = str(to)
@@ -564,20 +582,18 @@ label enter_dungeon_r:
                     # prepare actions with the removal of the mobs at the front
                     actions = [{ "function": "delitem", "arguments": ["spawn", to]}] + hs["actions"]
                     dungeon.next_events.extend(actions)
-                    _return = "event_list"
 
-            if _return == "event_list":
-                while dungeon.next_events:
-                    event = dungeon.next_events.popleft()
-                    if "load" in event:
-                        dungeon = dungeons[event["load"]]
-                        pc = dungeon.enter(**event)
-                    elif event["function"] == "say":
-                        dungeon.say(**event)
-                        # rest of next_events is postponed until after say is done.
-                        break
-                    else:
-                        dungeon.function(**event)
+            while dungeon.next_events:
+                event = dungeon.next_events.popleft()
+                if "load" in event:
+                    dungeon = dungeons[event["load"]]
+                    pc = dungeon.enter(**event)
+                elif event["function"] == "say":
+                    dungeon.say(**event)
+                    # rest of next_events is postponed until after say is done.
+                    break
+                else:
+                    dungeon.function(**event)
 
             # do any expired timer events
             if dungeon.timer is not None:

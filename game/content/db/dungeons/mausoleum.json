@@ -85,7 +85,7 @@
 	"event": {
 		"(51, 2)": [{
 			"function": "say",
-			"arguments": ["", "You find your way out!."]
+			"arguments": ["", "You find your way out!"]
 		}, {
 			"function": "exit",
 			"arguments": ["graveyard_town"]
