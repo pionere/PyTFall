@@ -471,8 +471,7 @@ init: # MC Setup Screens:
         if temp:
             $ result.append(set_font_color("+ %s Class" % temp, color="green"))
         $ temp = branch.get("traits", None)
-        $ el2color = {"fire": "orangered", "water": "dodgerblue", "air": "lightcyan", "earth": "sienna",
-                      "electricity": "yellow", "ice": "lightblue", "darkness": "purple", "light": "lemonchiffon"}
+        $ el2color = BE_Core.TYPE_TO_COLOR_MAP
         $ elMastery = {"Master of %s" % el.capitalize() : el for el in el2color}
         $ elem = None
         if temp:
