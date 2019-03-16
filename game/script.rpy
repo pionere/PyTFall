@@ -9,7 +9,7 @@ init 100 python:
     mobs = load_mobs()
     tl.end("Loading: Mobs")
 
-default defeated_mobs = {}
+default defeated_mobs = set()
 default gazette = Gazette()
 
 label start:

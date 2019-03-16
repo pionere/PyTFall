@@ -889,7 +889,7 @@ init -9 python:
                 for mob in team:
                     mob.controller = Complex_BE_AI(mob)
 
-                battle = BE_Core(ImageReference("chainfights"), start_sfx=get_random_image_dissolve(1.5), end_sfx=dissolve, give_up = "surrender")
+                battle = BE_Core(ImageReference("chainfights"), start_sfx=get_random_image_dissolve(1.5), give_up="surrender")
                 battle.teams.append(hero.team)
                 battle.teams.append(team)
                 battle.start_battle()
@@ -918,6 +918,9 @@ init -9 python:
                 self.update_ladder()
 
                 self.cf_count += 1
+
+                # restore bg
+                renpy.show("bg battle_arena_1")
 
                 if self.cf_count > 5:
                     amount = 2
@@ -1101,6 +1104,8 @@ init -9 python:
             for member in enemy_team:
                 restore_battle_stats(member)
 
+            # restore bg
+            renpy.show("bg battle_arena_1")
             renpy.show_screen("arena_aftermatch", winner, loser)
 
             # Ladder
@@ -1183,6 +1188,8 @@ init -9 python:
             for member in enemy_team:
                 restore_battle_stats(member)
 
+            # restore bg
+            renpy.show("bg battle_arena_1")
             renpy.show_screen("arena_aftermatch", winner, loser)
 
             setup[0] = Team(max_size=len(setup[0]))

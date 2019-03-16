@@ -2,7 +2,7 @@ label arena_inside:
     # Music related:
     $ PyTFallStatic.play_music("arena_inside", fadein=1.5)
 
-    scene expression "content/gfx/bg/be/battle_arena_1.webp"
+    scene bg battle_arena_1
     show screen arena_inside
     with fade
 
@@ -104,8 +104,6 @@ init: # Main Screens:
         hover_background Frame("content/gfx/frame/p_frame4.png", 10, 10)
 
     screen arena_inside():
-        add "content/gfx/bg/be/battle_arena_1.webp"  xpos 100 ypos 35
-
         # Start match button:
         if day in hero.fighting_days:
             button:
@@ -1088,7 +1086,7 @@ init: # ChainFights vs Mobs:
                                     xfill True
                                     ysize 60
                                     background None
-                                    action [SetField(pytfall.arena, "result", setup), Return("Bupkis")]
+                                    action [SetField(pytfall.arena, "result", setup), Hide("arena_inside"), Hide("chain_fight"), Return("Bupkis")]
                                     align (.5, .5)
                                     text "Fight!" style "arena_badaboom_text" size 40 outlines [(2, "#3a3a3a", 0, 0)]
                 null height 5
@@ -1108,7 +1106,6 @@ init: # ChainFights vs Mobs:
 
         default rolled = None
 
-        add "content/gfx/bg/be/battle_arena_1.webp"
         text "Special Bonus Time!":
             align (.5, .1)
             italic True
@@ -1171,10 +1168,7 @@ init: # ChainFights vs Mobs:
                         text text style "garamond" color "goldenrod" yoffset -4
 
     screen confirm_chainfight():
-        zorder 2
         modal True
-
-        add "content/gfx/bg/be/battle_arena_1.webp"
 
         if pytfall.arena.cf_count and pytfall.arena.cf_mob:
 
@@ -1219,8 +1213,7 @@ init: # ChainFights vs Mobs:
             hbox:
                 xalign .5
                 textbutton "Auto":
-                    action [Hide("arena_inside"), Hide("chain_fight"),
-                            Hide("confirm_chainfight"),
+                    action [Hide("confirm_chainfight"),
                             Return(["challenge", "chainfight", True])]
             hbox:
                 spacing 100
@@ -1231,24 +1224,8 @@ init: # ChainFights vs Mobs:
                             SetField(pytfall.arena, "cf_setup", None),
                             Stop("music"), Jump("arena_inside")]
                 textbutton "Fight":
-                    action [Hide("arena_inside"), Hide("chain_fight"),
-                            Hide("confirm_chainfight"),
+                    action [Hide("confirm_chainfight"),
                             Return(["challenge", "chainfight", False])]
-            # button:
-            #     text "Give Up":
-            #         size 25 color "goldenrod" outlines [(1, "black", 0, 0)]
-            #     xysize (180, 60)
-            #     action [Hide("arena_inside"), Hide("chain_fight"), Hide("confirm_chainfight"),
-            #             SetField(pytfall.arena, "cf_count", 0),
-            #             SetField(pytfall.arena, "cf_mob", None),
-            #             SetField(pytfall.arena, "cf_setup", None),
-            #             Stop("music"), Jump("arena_inside")]
-            # button:
-            #     text "Fight" size 25 color "goldenrod" outlines [(1, "black", 0, 0)]
-            #     xysize (180, 60)
-            #     action [Hide("arena_inside"), Hide("chain_fight"),
-            #             Hide("confirm_chainfight"),
-            #             Return(["challenge", "chainfight"])]
 
     screen arena_finished_chainfight(w_team, l_team, rewards):
         zorder  3
@@ -1256,8 +1233,6 @@ init: # ChainFights vs Mobs:
 
         key "mousedown_3" action Return(["control", "done_chainfight", w_team, l_team])
         timer 9.0 action Return(["control", "done_chainfight", w_team, l_team])
-
-        add "content/gfx/bg/be/battle_arena_1.webp"
 
         text "Victory!":
             at move_from_to_align_with_linear(start_align=(.5, .3), end_align=(.5, .03), t=2.2)
