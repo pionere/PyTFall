@@ -477,10 +477,14 @@ label after_load:
         # Arena Chars (We need this for databases it would seem...):
         load_special_arena_fighters()
 
+        # lazy init BE_Core (might not be the best solution...)
+        if not BE_Core.BDP:
+            BE_Core.init()
+
+        # Do we need/want these?
         if hasattr(store, "dummy"):
             del store.dummy
 
-        # Do we need/want this?
         for skill in store.battle_skills.values():
             skill.source = None
 
@@ -497,8 +501,35 @@ label after_load:
         if isinstance(store.defeated_mobs, dict):
             store.defeated_mobs = set(store.defeated_mobs.keys())
 
-        if not BE_Core.BDP:
-            BE_Core.init()
+        for d in store.dungeons.values():
+            event = getattr(d, "event", {})
+            for e in event.values():
+                temp = None
+                for a in e:
+                    func = a.get("function", "")
+                    if func == "dungeon.__delattr__":
+                        temp = a
+                    elif func == "renpy.jump":
+                        a["function"] = "exit" 
+                    elif "dungeon." in func:
+                        a["function"] = func.replace("dungeon.", "")
+                if temp is not None:
+                    e.remove(temp)
+            hs = getattr(d, "spawn_hotspots", {})
+            for s in hs.values():
+                actions = s.get("actions", {})
+                for a in actions:
+                    func = a.get("function", "")
+                    if func == "dungeon_combat":
+                        a["function"] = "combat"
+            hs = getattr(d, "item_hotspots", {})
+            for s in hs.values():
+                actions = s.get("actions", {})
+                for a in actions:
+                    func = a.get("function", "")
+                    if func == "dungeon_grab_item":
+                        a["function"] = "grab_item"
+
         if hasattr(store, "storyi_treasures") and isinstance(store.storyi_treasures, list):
             hero.del_flag("been_in_old_ruins")
         if global_flags.has_flag("time_healing_day"):

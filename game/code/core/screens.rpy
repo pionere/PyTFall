@@ -255,11 +255,14 @@ screen top_stripe(show_return_button=True, return_button_action=None,
             style "sound_button"
             pos 240, 3
             xysize (37, 37)
-            action [SelectedIf(not (_preferences.mute["music"] or _preferences.mute["sfx"])),
-                    If(_preferences.mute["music"] or _preferences.mute["sfx"],
-                    true=[Preference("sound mute", "disable"), Preference("music mute", "disable")],
-                    false=[Preference("sound mute", "enable"), Preference("music mute", "enable")])]
-            tooltip "Mute All"
+            if _preferences.mute["music"] or _preferences.mute["sfx"]:
+                selected False
+                action [Preference("sound mute", "disable"), Preference("music mute", "disable")]
+                tooltip "UnMute All"
+            else:
+                selected True
+                action [Preference("sound mute", "enable"), Preference("music mute", "enable")]
+                tooltip "Mute All"
 
         # Left HBox: ======================================================>>>>>>
         # AP Frame/Next Day button:

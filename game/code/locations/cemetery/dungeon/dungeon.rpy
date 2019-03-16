@@ -25,13 +25,17 @@ init -1 python:
             while len(self.said) != 4:
                 self.said.append(None)
 
-            self.add_timer(timer, [{"function": "dungeon.__setattr__", "arguments": ["said", None] }])
+            self.add_timer(timer, [{"function": "__setattr__", "arguments": ["said", None] }])
+
+        def delitem(self, name, arguments):
+            item = getattr(self, name)
+            item.__delitem__(arguments)
 
         def add_timer(self, timer, functions):
             self.timer = min(self.timer, timer) if self.timer is not None else timer
             timestr = timer + time.time()
             funclist = list(functions)
-            funclist.append({"function": "dungeon.timed.__delitem__", "arguments": [timestr]})
+            funclist.append({"function": "delitem", "arguments": ["timed", timestr]})
             self.timed[timestr] = funclist
 
         def enter(self, at=None, function=None, load=None):
@@ -59,9 +63,26 @@ init -1 python:
                 for p, m in self.spawn.iteritems():
                     m['mob'] = build_mob(id=m['name'], level=m['level'])
 
-                    self.add_timer(m['timer'], [{"function": "dungeon._move_npc", "arguments": [p, m] }])
+                    self.add_timer(m['timer'], [{"function": "_move_npc", "arguments": [p, m] }])
 
             return self.hero
+
+        def exit(self, label="graveyard_town"):
+            # reset hero position
+            del self.hero
+
+            # cleanup globals
+            vars = ["dungeon", "pc", "mpos", "mpos2", "sided", "blend", "areas", "shown",
+                    "hs", "hotspots", "distance", "lateral", "x", "y", "front_str",
+                    "k", "d_items", "d_hotspots", "actions", "ri", "n", "e",
+                    "situ", "pt", "it", "img_name", "brightness", "spawn", "ori",
+                    "transparent_area", "bx", "by", "at", "to", "pos", "access_denied",
+                    "dungeon_location", "dungeons", "_return", "event", "current_time", "t"]
+            for i in vars:
+                if hasattr(store, i):
+                    delattr(store, i)
+
+            jump(label)
 
         def _move_npc(self, at_str, m):
             if not at_str in self.spawn:
@@ -69,38 +90,42 @@ init -1 python:
                     devlog.warn("spawn at %s already died?" % at_str)
                 return
 
-            hero_loc = (self.hero['x'], self.hero['y'])
             at = eval(at_str)
 
-            # if within 5 of hero move about.
-            for i in [0, 1]:
-                if hero_loc[i] > at[i]:
-                    if hero_loc[i] - at[i] > 5:
-                        to = at
-                        break
-                    to = (at[0], at[1] + 1) if i else (at[0] + 1, at[1])
-                    access_denied = self.no_access(at, to, 0 if i else 1, is_spawn=True)
-                    if not access_denied:
-                        break
-                elif hero_loc[i] < at[i]:
-                    if at[i] - hero_loc[i] > 5:
-                        to = at
-                        break
-                    to = (at[0], at[1] - 1) if i else (at[0] - 1, at[1])
-                    access_denied = self.no_access(at, to, 2 if i else 3, is_spawn=True)
-                    if not access_denied:
-                        break
-                else:
-                    continue
-            else:
-                to = at
+            to = at # per default stay in position
+            dx = adx = self.hero['x'] - at[0]
+            dy = ady = self.hero['y'] - at[1]
+            if adx < 0:
+                adx = -adx
+            if ady < 0:
+                ady = -ady
+            if adx <= 5 and ady <= 5:
+                # if within 5 of hero move about.
+                if adx != 0:
+                    if adx == dx:
+                        pos = (at[0] + 1, at[1])
+                        ori = 1
+                    else:
+                        pos = (at[0] - 1, at[1])
+                        ori = 3
+                    if not self.no_access(at, pos, ori, is_spawn=True):
+                        to = pos
+                if ady != 0:
+                    if ady == dy:
+                        pos = (at[0], at[1] + 1)
+                        ori = 0
+                    else:
+                        pos = (at[0], at[1] - 1)
+                        ori = 2
+                    if not self.no_access(at, pos, ori, is_spawn=True):
+                        to = pos
 
             to_str = str(to)
             if to != at:
                 del(self.spawn[at_str])
                 self.spawn[to_str] = m
 
-            self.add_timer(m['timer'], [{"function": "dungeon._move_npc", "arguments": [to_str, m] }])
+            self.add_timer(m['timer'], [{"function": "_move_npc", "arguments": [to_str, m] }])
 
         def map(self, x, y, color=None):
             if y < 0 or y >= len(self._map) or x < 0 or x >= len(self._map[y]):
@@ -158,20 +183,43 @@ init -1 python:
             self.play(self.sound['bump'], condition=not is_spawn, channel="sound")
             return "wall collision"
 
-        def function(self, function, arguments, set_var=None, **kwargs):
-            if function in ["dungeon_combat"]:
-                func = getattr(store, function)
-                func(*arguments, **kwargs)
-                return
+        def function(self, function, arguments, **kwargs):
+            # only allow functions of this class
+            func = getattr(self, function)
+            func(*arguments, **kwargs)
 
-            # only allow particular functions # WHY...???
-            elif all(function[:len(f)] != f for f in ('renpy.', 'dungeon.', 'devlog.', 'dungeon')):
-                # may want to add more exceptions if necessary and safe
-                raise Exception("calling function %s not allowed" % function)
+        @staticmethod
+        def combat(mob_id, sound=None):
+            len_ht = len(hero.team)
 
-            ret = eval(function)(*arguments, **kwargs)
-            if set_var:
-                self.__setattr__(set_var, ret)
+            enemy_team = Team(name="Enemy Team", max_size=3)
+            min_lvl = max(hero.team.get_level()-5, mobs[mob_id]["min_lvl"])
+            for i in range(min(3, len_ht+randint(0, 1))):
+                mob = build_mob(id=mob_id, level=randint(min_lvl, min_lvl+10))
+                enemy_team.add(mob)
+
+            result = run_default_be(enemy_team,
+                                    background="content/gfx/bg/be/b_dungeon_1.webp",
+                                    slaves=False, prebattle=False,
+                                    death=True, use_items=True) # TODO: maybe make escape working here too?
+
+            if result is True:
+                if persistent.battle_results:
+                    renpy.call_screen("give_exp_after_battle", hero.team, enemy_team)
+                else:
+                    for member in hero.team:
+                        member.gfx_mod_exp(exp_reward(member, enemy_team))
+            else:
+                jump("game_over")
+
+        @staticmethod
+        def grab_item(item, sound=None):
+            if sound is not None:
+                filename, channel = sound
+                renpy.play(filename, channel=channel)
+            item = store.items[item]
+            hero.inventory.append(item)
+            dungeon.say([hero.name, "{}! This will come useful!".format(item.id)])
 
 transform sprite_default(xx, yy, xz, yz, rot=None):
     xpos xx
@@ -184,34 +232,8 @@ transform sprite_default(xx, yy, xz, yz, rot=None):
 screen dungeon_move(hotspots):
     tag dungeon
 
-    if dungeon.can_move:
-        key "focus_left" action NullAction()
-        key "focus_right" action NullAction()
-        key "focus_up" action NullAction()
-        key "focus_down" action NullAction()
-
-        key "K_KP2" action Return(value=2)
-        key "K_KP4" action Return(value=4)
-        key "K_KP6" action Return(value=6)
-        key "K_KP7" action Return(value=7)
-        key "K_KP8" action Return(value=8)
-        key "K_KP9" action Return(value=9)
-        key "K_l" action ToggleField(dungeon, "light", "_torch", "")
-        key "K_LEFT" action Return(value=4)
-        key "K_UP" action Return(value=8)
-        key "K_RIGHT" action Return(value=6)
-        key "K_DOWN" action Return(value=2)
-
-        if not renpy.music.is_playing(channel="sound"):
-            key "repeat_K_KP2" action Return(value=2)
-            key "repeat_K_KP7" action Return(value=7)
-            key "repeat_K_KP8" action Return(value=8)
-            key "repeat_K_KP9" action Return(value=9)
-            key "repeat_K_UP" action Return(value=8)
-            key "repeat_K_DOWN" action Return(value=2)
-
     # Screen which shows move buttons and a minimap
-    for sw in reversed(show):
+    for sw in reversed(shown):
         if isinstance(sw, list):
             if sw[2]:
                 python:
@@ -268,36 +290,47 @@ screen dungeon_move(hotspots):
         key "mousedown_1" action Return(value="event_list")
 
     elif dungeon.can_move:
+        key "focus_left" action NullAction()
+        key "focus_right" action NullAction()
+        key "focus_up" action NullAction()
+        key "focus_down" action NullAction()
+
         button:
             pos (190, 600)
             xysize (50, 36)
             background "content/gfx/interface/buttons/blue_arrow_up.png"
             action Return(value=8)
+            keysym "K_KP8", "K_UP", "repeat_K_KP8", "repeat_K_UP"
         button:
             pos (190, 650)
             xysize (50, 36)
             background "content/gfx/interface/buttons/blue_arrow_down.png"
             action Return(value=2)
+            keysym "K_KP2", "K_DOWN", "repeat_K_KP2", "repeat_K_DOWN"
         button:
             pos (135, 605)
             xysize (36, 50)
             background "content/gfx/interface/buttons/blue_arrow_l.png"
             action Return(value=4)
+            keysym "K_KP4", "K_LEFT"
         button:
             xysize (36, 50)
             pos (245, 605)
             background "content/gfx/interface/buttons/blue_arrow_r.png"
             action Return(value=6)
+            keysym "K_KP6", "K_RIGHT"
         button:
             pos (145, 660)
             xysize (36, 50)
             background "content/gfx/interface/buttons/blue_arrow_left.png"
             action Return(value=7)
+            keysym "K_KP7", "repeat_K_KP7"
         button:
             xysize (36, 50)
             pos (248, 660)
             background "content/gfx/interface/buttons/blue_arrow_right.png"
             action Return(value=9)
+            keysym "K_KP9", "repeat_K_KP9"
 
             # if config.developer:
                 # textbutton "U" action Return(value="update map") xcenter .2 ycenter .8
@@ -306,6 +339,7 @@ screen dungeon_move(hotspots):
                 # key "K_o" action Return(value="mpos")
                 # key "K_g" action SetField(dungeon, "show_map", "teleport")
         key "K_m" action ToggleField(dungeon, "show_map")
+        key "K_l" action ToggleField(dungeon, "light", "_torch", "")
 
     if dungeon.timer:
         timer dungeon.timer action Return(value="event_list")
@@ -348,12 +382,12 @@ label enter_dungeon_r:
             sided = ["%s%s_left%dc", "%s%s_left%db", "%s%s_left%d", "%s%s_front%d", "%s%s_right%d", "%s%s_right%db", "%s%s_right%dc"]
             blend = dungeon.area
             areas = deque([[0, 0]])
-            show = []
+            shown = []
             hotspots = []
 
             if config.developer and dungeon.show_map == "teleport":
                 hs = [3, 43, len(dungeon._map[0])*6, len(dungeon._map)*6]
-                hotspots.append({ 'spot': hs, 'actions': [{ "function": "dungeon.teleport", "arguments": [] }] })
+                hotspots.append({ 'spot': hs, 'actions': [{ "function": "teleport", "arguments": [] }] })
 
             renpy.show(dungeon.background % dungeon.light)
 
@@ -383,7 +417,8 @@ label enter_dungeon_r:
                                     e['actions'] = actions
                                     hotspots.append(e)
                             if actions:
-                                actions.insert(0, { "function": "dungeon.%s.__delitem__" % k, "arguments": [front_str]})
+                                # remove the item/spawn when clicked
+                                actions.insert(0, { "function": "delitem", "arguments": [k, front_str]})
 
                 situ = dungeon.map(x, y)
 
@@ -400,17 +435,17 @@ label enter_dungeon_r:
                                 if os.path.isfile(gamedir + '/'+img_name):
                                     # distance darkening
                                     brightness = im.matrix.brightness(-math.sqrt(lateral**2 + distance**2)/(5.8 if dungeon.light else 4.5))
-                                    show.append(im.MatrixColor(img_name, eval(ri["function"])(*ri["arguments"]) * brightness))
+                                    shown.append(im.MatrixColor(img_name, eval(ri["function"])(*ri["arguments"]) * brightness))
                             else:
-                                show.append(img_name)
+                                shown.append(img_name)
 
                     if pt in dungeon.item:
                         for it in dungeon.item[pt]:
-                            show.append([items[it['name']], it, distance, lateral])
+                            shown.append([items[it['name']], it, distance, lateral])
 
                     if pt in dungeon.spawn:
                         spawn = dungeon.spawn[pt]
-                        show.append([spawn['mob'], spawn, distance, lateral])
+                        shown.append([spawn['mob'], spawn, distance, lateral])
 
                 # also record for minimap
                 for k in dungeon.minimap:
@@ -438,16 +473,16 @@ label enter_dungeon_r:
                 if situ in dungeon.visible: # a wall or so, need to draw.
                     if isinstance(blend[situ], list):
                         if len(blend[situ]) == 2: # left-right symmetry
-                            show.append(sided[lateral+3] % ('dungeon_'+blend[situ][abs(pc['dx'])], dungeon.light, distance))
+                            shown.append(sided[lateral+3] % ('dungeon_'+blend[situ][abs(pc['dx'])], dungeon.light, distance))
                         else: # no symmetry, 4 images.
                             ori = 1 - pc['dx'] - pc['dy'] + (1 if pc['dx'] > pc['dy'] else 0)
-                            show.append(sided[lateral+3] % ('dungeon_'+blend[situ][ori], dungeon.light, distance))
+                            shown.append(sided[lateral+3] % ('dungeon_'+blend[situ][ori], dungeon.light, distance))
                     else: # symmetric, or simply rendered in only one symmetry
-                        show.append(sided[lateral+3] % ('dungeon_'+blend[situ], dungeon.light, distance))
+                        shown.append(sided[lateral+3] % ('dungeon_'+blend[situ], dungeon.light, distance))
 
                 transparent_area = dungeon.transparent[abs(pc['dx'])]
 
-                if situ in transparent_area or (situ in dungeon.visible and not renpy.has_image(show[-1])): # need to draw what's behind it.
+                if situ in transparent_area or (situ in dungeon.visible and not renpy.has_image(shown[-1])): # need to draw what's behind it.
                     # after `or' prevents adding areas twice. If the area diagonally nearer to hero is
                     # a wall, the area is not yet drawn, draw it, unless we cannot see it.
                     (bx, by) = (x-pc['dx'], y-pc['dy'])
@@ -478,32 +513,20 @@ label enter_dungeon_r:
                 _return = "event_list"
             elif _return == 2:
                 to = (pc['x']-pc['dx'], pc['y']-pc['dy'])
-
-                access_denied = dungeon.no_access(at, to, ori)
-                if not access_denied:
-                    (pc['x'], pc['y']) = to
             elif _return == 4:
                 (pc['dx'], pc['dy']) = (pc['dy'], -pc['dx'])
             elif _return == 6:
                 (pc['dx'], pc['dy']) = (-pc['dy'], pc['dx'])
             elif _return == 7:
                 to = (pc['x']+pc['dy'], pc['y']-pc['dx'])
-
-                access_denied = dungeon.no_access(at, to, ori ^ 2)
-                if not access_denied:
-                    (pc['x'], pc['y']) = to
+                ori = ori ^ 2
             elif _return == 8:
                 to = (pc['x']+pc['dx'], pc['y']+pc['dy'])
 
-                access_denied = dungeon.no_access(at, to, ori)
-                if not access_denied:
-                    (pc['x'], pc['y']) = to
             elif _return == 9:
                 to = (pc['x']-pc['dy'], pc['y']+pc['dx'])
 
-                access_denied = dungeon.no_access(at, to, ori ^ 2)
-                if not access_denied:
-                    (pc['x'], pc['y']) = to
+                ori = ori ^ 2
             elif _return == "update map":
                 dungeon_location = dungeon.hero
                 dungeons = load_dungeons()
@@ -525,8 +548,22 @@ label enter_dungeon_r:
                 renpy.jump("char_equip")
 
             if to:
-                if str(to) in dungeon.event:
-                    dungeon.next_events.extend(dungeon.event[str(to)])
+                access_denied = dungeon.no_access(at, to, ori)
+                if not access_denied:
+                    # move to the new position
+                    (pc['x'], pc['y']) = to
+                    if str(to) in dungeon.event:
+                        # trigger events at the new position
+                        dungeon.next_events.extend(dungeon.event[str(to)])
+                        _return = "event_list"
+                elif access_denied == "spawn collision":
+                    # auto attack monsters
+                    to = str(to)
+                    spawn = dungeon.spawn[to]
+                    hs = dungeon.spawn_hotspots[spawn["name"]]
+                    # prepare actions with the removal of the mobs at the front
+                    actions = [{ "function": "delitem", "arguments": ["spawn", to]}] + hs["actions"]
+                    dungeon.next_events.extend(actions)
                     _return = "event_list"
 
             if _return == "event_list":
@@ -535,7 +572,7 @@ label enter_dungeon_r:
                     if "load" in event:
                         dungeon = dungeons[event["load"]]
                         pc = dungeon.enter(**event)
-                    elif event["function"] == "dungeon.say":
+                    elif event["function"] == "say":
                         dungeon.say(**event)
                         # rest of next_events is postponed until after say is done.
                         break
