@@ -4,12 +4,12 @@ init python:
     renpy.image("stranger", "content/quests/frog_princess/img/stranger.webp")
     register_quest("Frog Princess!")
     if DEBUG_QE:
-        register_event("show_frog", screen=True, quest="Frog Princess!",
+        register_event("show_frog", screen=True,
                        locations=["forest_entrance"], trigger_type="auto",
                        restore_priority=1, priority=300, start_day=1,
                        jump=True, dice=100, max_runs=20)
     else:
-        register_event("show_frog", screen=True, quest="Frog Princess!",
+        register_event("show_frog", screen=True,
                        locations=["forest_entrance"], trigger_type="auto",
                        restore_priority=1, priority=300,
                        start_day=choice([15, 25, 35]), jump=True,

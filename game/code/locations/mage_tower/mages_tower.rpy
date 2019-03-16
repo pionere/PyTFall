@@ -24,8 +24,6 @@ label mages_tower:
         $ global_flags.set_flag('visited_mages_tower')
         "Real mages, other practitioners of Arcane Arts and some plain weirdos hang around here."
         "Try not to get yourself blown up :)"
-    if not global_flags.flag("met_angelica"):
-        $ global_flags.up_counter("mt_counter")
 
     $ pytfall.world_quests.run_quests("auto")
     $ pytfall.world_events.run_events("auto")

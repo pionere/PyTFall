@@ -10,7 +10,7 @@ init python hide:
     # flags=Flags to check for as well
     #
     # (Yes, setting dice to 100 would have worked as well, but I wanted to show off the condition function)
-    register_event("strange_idol1", quest="Strange Idol", locations=["main_street"], dice=None, run_conditions=[q.condition(0, True)], max_runs=1)
+    register_event("strange_idol1", locations=["main_street"], dice=None, run_conditions=[q.condition(0, True)], max_runs=1)
 
 label strange_idol1(event):
     hero.say "Huh?"
@@ -23,7 +23,7 @@ label strange_idol1(event):
     $ kill_event("strange_idol1")
 
     # Create second part of quest
-    $ register_event("strange_idol2", quest=event.quest, locations=["main_street"], dice=100, max_runs=2, restore_priority=1)
+    $ register_event("strange_idol2", locations=["main_street"], dice=100, max_runs=2, restore_priority=1)
 
     return
 
@@ -40,7 +40,7 @@ label strange_idol2(event):
             kill_event("strange_idol2")
 
             # Create third part of quest
-            register_event("strange_idol3", quest=event.quest, locations=["mainscreen"], trigger_type="auto", dice=100, max_runs=1, start_day=day+1)
+            register_event("strange_idol3", locations=["mainscreen"], trigger_type="auto", dice=100, max_runs=1, start_day=day+1)
 
         else:
             advance_quest(event.quest, "You found another piece of the idol! I wonder how many there are?", piece2=True)

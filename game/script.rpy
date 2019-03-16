@@ -1323,6 +1323,16 @@ label after_load:
             for i, c in enumerate(e.run_conditions):
                 if "world_quests.get" in c:
                     e.run_conditions[i] = c.replace("world_quests.get", "world_quests.quest_instance")
+            if hasattr(e, "enable_on"):
+                del e.enable_on
+            if hasattr(e, "disabled"):
+                del e.disabled
+            if hasattr(e, "quest"):
+                del e.quest
+            if hasattr(e, "label_cache"):
+                del e.label_cache
+            if hasattr(e, "last_executed"):
+                del e.last_executed
 
         for q in pytfall.world_quests.quests:
             if isinstance(q.flags, list):

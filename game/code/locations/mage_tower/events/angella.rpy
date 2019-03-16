@@ -2,7 +2,8 @@ init python:
     if DEBUG_QE:
         register_event("angelica_meet", locations=["mages_tower"], priority=1000, start_day=1, jump=True, dice=100, max_runs=1)
     else:
-        register_event("angelica_meet", locations=["mages_tower"], simple_conditions=["global_flags.flag('mt_counter') > 2"], priority=100, start_day=1, jump=True, dice=80, max_runs=1)
+        register_event("angelica_meet", locations=["mages_tower"], run_conditions=["dice(global_flags.flag('mt_counter')*30)"], priority=100, start_day=1, jump=True, max_runs=1)
+        register_event("pre_angelica_meet", label=None, locations=["mages_tower"], run_conditions=["global_flags.up_counter('mt_counter') or True"], priority=200, start_day=1, max_runs=3)
 
 label angelica_meet:
     $ a = npcs["Angelica_mage_tower"].say
@@ -13,7 +14,9 @@ label angelica_meet:
 
     if not global_flags.flag("met_angelica"):
         $ global_flags.set_flag("met_angelica")
+        # cleanup
         $ global_flags.del_flag("mt_counter")
+        $ kill_event("pre_angelica_meet")
 
         a "Hi! I am Angelica!"
         a "I noticed you've been hanging around the Tower."

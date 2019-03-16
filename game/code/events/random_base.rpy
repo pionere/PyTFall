@@ -2,6 +2,7 @@
 init -1 python:
     register_event("found_money_event", locations=["all"], run_conditions=["dice(max(15, hero.get_stat('luck')+10))"], priority=50, dice=0, restore_priority=0)
     register_event("found_item_event", locations=["all"], run_conditions=["dice(max(35, hero.get_stat('luck')+20))"], priority=50, dice=0, restore_priority=0)
+    register_event("nothing_of_interest", locations=["all"], priority=1, dice=100, restore_priority=0)
 
 label found_money_event(event):
     python hide:
@@ -25,10 +26,15 @@ label found_item_event(event):
         hero.inventory.append(found_item)
 
         if found_item != items["Rebels Leaflet"]:
-            hero.say(choice(["Hmm. I found something. ([found_item.id])",
-                             "[found_item.id] might be useful...",
-                             "[found_item.id]? Nice, might be useful.",
-                             "Oh, [found_item.id]! Never look a gift horse in the mouth..."]))
+            hero.say(choice(["Hmm. I found something. (%s)",
+                             "%s, might be useful...",
+                             "%s? Nice, might be useful.",
+                             "Oh, %s! Never look a gift horse in the mouth..."]) % found_item.id)
         else:
             hero.say("An old prewar leaflet... I probably shouldn't keep it in my pockets for long.")
+    return
+
+label nothing_of_interest(event):
+    $ hero.say(choice(["Another time well spent...", "Maybe I should find some work!",
+                    "Nothing... Time do something useful.", "This is a nice place, I could spent more time here!"]))
     return
