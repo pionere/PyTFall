@@ -170,9 +170,6 @@ screen building_management_leftframe_exploration_guild_mode:
             has hbox spacing 10 align .5, .5
             label "Sort:":
                 yalign .5 
-                text_size 20
-                text_color "goldenrod"
-                text_outlines [(1, "black", 0, 0)]
 
             $ options = OrderedDict([("level", "Level"), ("name", "Name"), (None, "-")])
             $ temp = fg_filters.sorting_order

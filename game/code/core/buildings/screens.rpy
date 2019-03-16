@@ -167,6 +167,7 @@ label building_management_end:
     hide screen building_management
 
     jump mainscreen
+    with dissolve
 
 init:
     # Screens:

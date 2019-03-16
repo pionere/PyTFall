@@ -88,7 +88,7 @@ screen target_practice(skill, source, targets):
             textbutton "Cancel":
                 style "basic_button"
                 action Return(False)
-                keysym "mouseup_3"
+                keysym "mousedown_3"
 
 screen pick_skill(char):
     zorder 2
@@ -114,24 +114,11 @@ screen pick_skill(char):
         attacks =  list(set(attacks)) # This will make sure that we'll never get two of the same attack skills.
         attacks.sort(key=attrgetter("name"))
         magic = list(char.magic_skills)
-        try:
-            magic.sort(key=attrgetter("name"))
-        except AttributeError:
-            raise Exception, char.name
+        magic.sort(key=attrgetter("name"))
 
-        # We'll also try to figure out if there is at least one usable attack for them:
-        # list(a for a in attacks if battle_skills[a].check_conditions(char)) # BUG IN REN'PY!
-        active_attacks = list()
-        for i in attacks:
-            if i.check_conditions(char):
-                active_attacks.append(i)
-                break
-        # active_magic = list(s for s in magic if battle_skills[s].check_conditions(char)) # BUG IN REN'PY!
-        active_magic = list()
-        for i in magic:
-            if i.check_conditions(char):
-                active_magic.append(i)
-                break
+        # Collect the currently usable attacks/spells:
+        active_attacks = [i for i in attacks if i.check_conditions(char)]
+        active_magic = [i for i in magic if i.check_conditions(char)]
 
     if menu_mode == "top":
         frame:
@@ -200,7 +187,7 @@ screen pick_skill(char):
                 vbox:
                     for skill in attacks:
                         textbutton "[skill.mn]":
-                            action SensitiveIf(skill.check_conditions(char)), Return(skill)
+                            action SensitiveIf(skill in active_attacks), Return(skill)
                             tooltip ["be", skill]
             else:
                 vpgrid:
@@ -213,7 +200,7 @@ screen pick_skill(char):
                     for skill in attacks:
                         textbutton "%s"%skill.mn:
                             xysize 200, 25
-                            action SensitiveIf(skill.check_conditions(char)), Return(skill)
+                            action SensitiveIf(skill in active_attacks), Return(skill)
                             tooltip ["be", skill]
     elif menu_mode == "magic":
         python:
@@ -268,7 +255,7 @@ screen pick_skill(char):
                                         margin 0, 0
                                         xsize 138
                                         xalign .5
-                                        action SensitiveIf(skill.check_conditions(char)), Return(skill)
+                                        action SensitiveIf(skill in active_magic), Return(skill)
                                         tooltip ["be", skill]
                 if me:
                     frame:
@@ -285,7 +272,7 @@ screen pick_skill(char):
                                     margin 0, 0
                                     xsize 125
                                     xalign .5
-                                    action SensitiveIf(skill.check_conditions(char)), Return(skill)
+                                    action SensitiveIf(skill in active_magic), Return(skill)
                                     tooltip ["be", skill]
 
 screen battle_overlay(be):

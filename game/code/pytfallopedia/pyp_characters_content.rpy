@@ -67,7 +67,7 @@ screen pyp_tiers():
                  " provided greater bonuses after a level up or if an amount of skill stars drops"+
                  " after a tier up, your skill didn't decrease, it's the level of"+
                  " expected skill from the next tier that is more demanding!"):
-                     ypos 80
+                ypos 80
 
         fixed:
             xpos 601
@@ -106,9 +106,9 @@ screen pyp_ctrl():
                     add "content/gfx/interface/pyp/ctrl_2.webp"
 
         text "There are two ways to control characters locations and jobs: from their profiles and from the characters list. Just click on {b}Home{/b}, {b}Work{/b} or {b}Job{/b}. Only in case of slaves you can set up their home locations, free characters have their own homes. In order to set up home locations for slaves from the characters list click right mouse button on the {b}Work{/b}":
-              ypos 380
+            ypos 380
 
-     # ForeGround frame (should be a part of every screen with Info):
+    # ForeGround frame (should be a part of every screen with Info):
     add "content/gfx/frame/h3.webp"
 
 screen pyp_stats():
@@ -122,7 +122,7 @@ screen pyp_stats():
         text ("Stats are used in Jobs, Actions and Events. They have a maximum value that is usually recalculated on each level-up."+
               " Low-level character use a different manner to calculate maximum than the high(er) level ones, which means that powerful items that modify stat maximums will provide "+
               "more power effects. Minimums for all stats are fixed, there are however some stats that also have a fixed maximum value (such as 'disposition') that never changes."):
-              ypos 80
+            ypos 80
 
         fixed:
             xysize 600, 664
@@ -211,7 +211,7 @@ screen pyp_skills():
               " Skills are also governed by a completely different mechanics than stats, they are made of two parts: Action and Knowledge. The best ratio between"+
               " action and knowledge is 3:1, exact information of this ratio however is obfuscated from player. If one of the parts lags, skill will rise slower but it will be compensated if "+
               "the character works on increasing the other at later time."):
-                  ypos 80
+            ypos 80
         fixed:
             xysize 600, 664
             # Title and text bits:
@@ -233,16 +233,16 @@ screen pyp_skills():
                         xysize 682, 396
                         has vbox spacing 8
                         vbox:
-                            label "MC Skills"
-                            text ("Some skills such as 'fishing' or 'swimming' are only"+
-                                  " useful to the Player as they are used for actions in"+
-                                  " the City. They are governed by the same rules as any other skill.")
-                        vbox:
-                            label "Girls Skills"
-                            text ("The girls skills serve as a measure of their capabilities to do the job,"+
+                            label "Skills"
+                            text ("Skills serve as a measure of capability to do the job,"+
                                  " for example cleaning skill for cleaners. You can usually"+
                                  " tell what they are used for and will know if the skill"+
                                  " level fits the tier by the number of Stars.")
+                        vbox:
+                            label "MC Only Skills"
+                            text ("Some skills such as 'fishing' or 'swimming' are only"+
+                                  " useful to the Player as they are used for actions in"+
+                                  " the City. They are governed by the same rules as any other skill.")
 
         fixed:
             xpos 601
@@ -274,7 +274,7 @@ screen pyp_char_controls():
                   " tips, battle row and etc. Some options will be blocked depending on"+
                   " status and/or disposition.\n\nPaying more or allowing a character to"+
                   " keep tips will have a very positive effect on Joy and Disposition."):
-                      ypos 80
+                ypos 80
 
         fixed:
             xpos 601
