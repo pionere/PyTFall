@@ -368,7 +368,7 @@ init -9 python:
                 if char in hero.chars:
                     char.gfx_mod_stat("disposition", randint(10, 40))
                 else:
-                    char.gfx_mod_stat("disposition", 50 + randint(price/10))
+                    char.gfx_mod_stat("disposition", 50 + randint(0, price/100))
                 char.gfx_mod_stat("affection", affection_reward(char, stat="gold"))
 
         def next_index(self):

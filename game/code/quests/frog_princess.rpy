@@ -1,9 +1,6 @@
 init python:
-    renpy.image("jumping_frog", animate("/content/quests/frog_princess/img/frog_jump", loop=True))
-    renpy.image("frog", "content/quests/frog_princess/img/frog.webp")
-    renpy.image("stranger", "content/quests/frog_princess/img/stranger.webp")
     register_quest("Frog Princess!")
-    if DEBUG_QE:
+    if True: #DEBUG_QE:
         register_event("show_frog", screen=True,
                        locations=["forest_entrance"], trigger_type="auto",
                        restore_priority=1, priority=300, start_day=1,
@@ -22,11 +19,11 @@ label show_frog_final:
 screen show_frog:
     zorder 10
     if renpy.get_screen("forest_entrance"):
-        $ img = Transform("jumping_frog", zoom=.2)
+        $ img = Transform(animate("/content/quests/frog_princess/img/frog_jump", loop=True), zoom=.2)
         imagebutton:
             pos (237, 586)
-            idle Transform("jumping_frog", zoom=.2)
-            hover Transform("jumping_frog", zoom=.2)
+            idle img
+            hover img
             action Jump("start_frog_event")
     else:
         timer 0.01 action Hide("show_frog")
@@ -46,26 +43,35 @@ screen show_frog_final:
 label start_frog_event:
     hide screen forest_entrance
     with dissolve
+    $ frog = Transform(animate("/content/quests/frog_princess/img/frog_jump", loop=True), zoom=.4)
+    show expression frog:
+        pos (257, 536)
     "How odd. There is a rather large frog jumping around, even though there are no water bodies nearby."
 
     menu:
         "Approach with curiosity to have a closer look.":
-            show frog
+            hide expression frog
+            $ frog = "content/quests/frog_princess/img/frog.webp"
+            show expression frog
             with dissolve
             menu:
                 "You approach the frog. Upon further inspection, it appears to be wearing a crown."
 
                 "Poke the frog with a stick.":
+                    $ del frog
                     jump frog1_event_poke
                 "Try to snatch the crown":
                     "You quickly grab the crown before the frog realizes your intentions!"
-                    $ hero.add_item("Gilded Crown")
-                    hide frog
+                    hide expression frog
                     play events "events/clap.mp3"
-                    show expression HitlerKaputt("frog", 50) as death
+                    show expression HitlerKaputt(frog, 50) as death
                     pause 1.5
-                    "As soon as the crown is of the frogs head, its body disappears with a soft clap..."
-                    "But on the bright side, the crown is yours now, and local merchants will give you some gold for it."
+                    "As soon as the crown is off of the frogs head, its body disappears with a soft clap..."
+                    $ item = items["Gilded Crown"]
+                    $ hero.add_item(item)
+                    $ gfx_overlay.random_find(item, 'items')
+                    $ del item
+                    "But on the bright side the crown is yours now. Local merchants will give you some gold for it."
                     $ finish_quest("Frog Princess!", "You've retrieved the frog's crown. Possibly killing the frog.")
                     hide death
                 "Leave the frog alone":
@@ -74,6 +80,7 @@ label start_frog_event:
         "Leave the frog alone.":
             "Not interested in green slime bags, you continue your quest looking for some fun bags."
             $ finish_quest("Frog Princess!", "You've rejected the Frog Princess Quest! It's further fate is unknown.")
+    $ del frog
     $ kill_event("show_frog")
     $ global_flags.set_flag("keep_playing_music")
     jump forest_entrance
@@ -248,12 +255,10 @@ label frog_deathfight:
     $ enemy_team = Team(name="Enemy Team", max_size=3)
     python hide:
         mob = build_mob("Goblin Warrior", level=50)
-        mob.controller = Complex_BE_AI(mob)
         enemy_team.add(mob)
 
         for i in xrange(2):
             mob = build_mob("Goblin Archer", level=20)
-            mob.controller = Complex_BE_AI(mob)
             enemy_team.add(mob)
 
     $ result = run_default_be(enemy_team,
@@ -315,8 +320,8 @@ label final_frog_event:
     "Finding her wasn't really a problem, she was sitting on the same rock when you met for the first time."
 
     $ f1 = Character("Frog", color="green", what_color="lawngreen", show_two_window=True)
-
-    show frog
+    $ frog = "content/quests/frog_princess/img/frog.webp"
+    show expression frog
     f1 "So why did you come today?"
 
     menu:
@@ -339,18 +344,19 @@ label final_frog_event:
             play sound "content/sfx/sound/events/good_night.mp3"
             "It worked. A bright flash and the frog was gone. In her place was…"
 
-            show stranger
+            $ stranger = "content/quests/frog_princess/img/stranger.webp"
+            show expression stranger
             $ b = Character("Stranger", color="red", what_color="green", show_two_window=True)
             b "Thanks, dude. You really saved me. About that princess and gold..."
             $ finish_quest("Frog Princess!", "{color=blue}You've completed the Quest... but the whole thing was a scam...{/color}")
             extend " {color=red} It was all crap! Sorry, gotta go!"
-            hide stranger
+            hide expression stranger
             with fade
-            $ del flash, b
+            $ del flash, b, stranger
             "You had lost a lot of time, money, and had an intimate moment with a huge man-frog. But look at the bright side. Now you know that you shouldn't trust a talking frog."
         "It's too disgusting":
             "The first kiss was disgusting enough. This is just too much for you. After dropping the frog you head back home thinking about what a crappy ordeal this was."
             $ finish_quest("Frog Princess!", "You could not bring yourself to kiss the frog properly...")
     $ kill_event("show_frog_final")
-    $ del f1
+    $ del f1, frog
     jump forest_entrance

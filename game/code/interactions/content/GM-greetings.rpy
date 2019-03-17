@@ -1107,9 +1107,78 @@ label interactions_character_recovers: # char recovers from wound
     return
 
 label klepto_stealing:
-    if ct("Kleptomaniac") and not dice(char.get_stat("luck")):
-        $ temp = randint(1, 5)
-        $ hero.take_money(temp, reason="Stolen!")
-        $ char.add_money(temp, reason="Stealing")
-        $ del temp
+    if ct("Kleptomaniac"):
+        if dice((hero.get_skill("security")/4.0 - char.get_stat("agility"))/10.0) and dice(hero.get_stat("luck")):
+            "Just as you begin to talk to [char.name], you notice that [char.p] tried to steal from you."
+            menu:
+                "How do you react?"
+                "Call the guards!":
+                    $ rc("Ohh, please nooo, do not call the police...", "I'm really sorry. Can't we just forget about it?", "Please no. I would do anything to make it up to you.")
+                    menu:
+                        "Ask [char.op], how [char.p] wants to resolve the issue":
+                            if cgo("SIW") and interactions_silent_check_for_bad_stuff(char) and not char.flag("quest_cannot_be_fucked") and (not ct("Half-Sister") or "Sister Lover" in hero.traits):
+                                $ rc("I know how to make people happy. Why don't we solve this between us?", "I know many ways to satisfy unhappy customers. I'll tell you more in private.", "Just act like real grown-ups. I'm very good handling private stuff...")
+                                menu:
+                                    "Agree":
+                                        jump interactions_sex_scene_select_place
+                                    "Forget about the theft-attempt":
+                                        $ char.gfx_mod_stat("disposition", randint(2,5))
+                                    "No":
+                                        "You decided to call the guards instead."
+                                        jump klepto_police
+                            else:
+                                $ money = min(100, char.gold/2)
+                                if money != 0:
+                                    $ rc("I can pay you [money].", "Would [money] suffice?", "I have only [money] Gold with me. Is that enough compensation?")
+                                else:
+                                    $ rc("I have nothing! Please let it go.", "I'm poor, could we just go on?")
+                                menu:
+                                    "Accept" if money != 0:
+                                        $ hero.add_money(money, reason="Extortion")
+                                        $ char.take_money(money, reason="Extortion")
+                                    "Forget about the theft-attempt":
+                                        $ char.gfx_mod_stat("disposition", randint(2,5))
+                                    "No":
+                                        "You decided to call the guards instead."
+                                        $ del money
+                                        jump klepto_police
+                                $ del money
+                        "Ask for money":
+                            $ money = min(50, char.gold/3)
+                            if money != 0:
+                                $ rc("I can pay you [money].", "Would [money] suffice?", "I have only [money] Gold with me. Is that enough compensation?")
+                            else:
+                                $ rc("I have nothing! Please let it go.", "I'm poor, could we just go on?")
+                            menu:
+                                "Accept" if money != 0:
+                                    $ hero.add_money(money, reason="Extortion")
+                                    $ char.take_money(money, reason="Extortion")
+                                "Forget about the theft-attempt":
+                                    $ char.gfx_mod_stat("disposition", randint(1,3))
+                                "No":
+                                    "You decided to call the guards instead."
+                                    $ del money
+                                    jump klepto_police
+                            $ del money
+                        "Ignore the plea":
+                            jump klepto_police
+                    char.say "Thank you. It won't happen again, I promise."
+                    extend " Please act like nothing happened..."
+                "Ignore":
+                    $ pass
+        elif not dice(hero.get_stat("luck")):
+            $ temp = randint(min(10, hero.gold/3), min(50, hero.gold/2))
+            $ hero.take_money(temp, reason="Stolen!")
+            $ char.add_money(temp, reason="Stealing")
+            $ del temp
     return
+
+label klepto_police:
+    "A nearby police quickly arrived to the scene."
+    extend " After you explained the situation, [char.name] is taken away."
+    extend " Most probably [char.p] will spend a few days in jail now."
+    $ char.gfx_mod_stat("disposition", -50)
+    $ char.gfx_mod_stat("affection", -20)
+    $ pytfall.jail.add_prisoner(char, "Theft", randint(1, 4))
+    $ gm.remove_girl(char)
+    jump girl_interactions_end
