@@ -1,10 +1,3 @@
-init:
-    image logo = ProportionalScale("content/events/Intro/logo-transperent.webp", 600, 300)
-    image he = ProportionalScale("content/events/Intro/h1.webp", 1750, 550)
-    image hes = ProportionalScale("content/events/Intro/he1.webp", 1750, 550)
-    $ flash = Fade(.75, 0.25, .75, color="darkred")
-    $ sflash = Fade(.25, 0, .25, color="darkred")
-
 label intro:
     stop world
     stop music
@@ -18,6 +11,9 @@ label intro:
             "No":
                 $ pass
 
+    $ he = ProportionalScale("content/events/Intro/h1.webp", 1750, 550)
+    $ hes = ProportionalScale("content/events/Intro/he1.webp", 1750, 550)
+    $ logo = ProportionalScale("content/events/Intro/logo-transperent.webp", 600, 300)
 
     show expression Text("Mundiga continent", style="TisaOTM", align=(0.5, 0.33), size=40) as txt1:
         alpha 0
@@ -60,7 +56,7 @@ label intro:
         size (config.screen_width, config.screen_height)
         crop (0, 0, config.screen_width, config.screen_height)
         linear 30 crop (config.screen_width/2, config.screen_height/2, config.screen_width/8, 100)
-    show he with dissolve:
+    show expression he with dissolve:
         yalign 1.0 xpos 400
     "Amid the chaos that took hold of the city, a stranger appeared, claiming to be a historian."
     "He told the Masters of an underground sanctuary not too far from the city, where an ancient Star slept."
@@ -69,7 +65,7 @@ label intro:
         size (config.screen_width, config.screen_height)
         crop (0, 0, config.screen_width, config.screen_height)
         linear 30 crop (config.screen_width/2, config.screen_height/2, config.screen_width/8, 100)
-    show hes with dissolve:
+    show expression hes with dissolve:
         xpos 400 yalign 1.0
     "A dreadful weapon, capable of unimaginable destruction"
     show bg story ruin2 with dissolve:
@@ -82,7 +78,7 @@ label intro:
 
     show bg story ruin2:
         linear 3 alpha 0
-    show hes:
+    show expression hes:
         linear 3 alpha 0
     $ renpy.pause (3.0, hard=True)
     play world "tremor.mp3" fadein 2.0 fadeout 2.0
@@ -98,6 +94,8 @@ label intro:
         linear 2.0 alpha 1.0
     $ renpy.pause (1.0, hard=True)
     play music "content/sfx/music/intro-2.mp3" fadeout 2.0
+    $ flash = Fade(.75, 0.25, .75, color="darkred")
+    $ sflash = Fade(.25, 0, .25, color="darkred")
     show bg story sky2 with flash
     show layer master at damage_shake(0.05, (-10, 10))
     pause 2.0
@@ -126,11 +124,12 @@ label intro:
         crop (0, 0, config.screen_width, config.screen_height)
         linear 10 crop (config.screen_width/2, config.screen_height/2, config.screen_width/16, config.screen_height/16)
     pause 0.5
-    $ renpy.show("logo", at_list=[simple_zoom_from_to_with_linear(0.5, 2, 8), Transform(pos=(0.5, 0.75), subpixel=True)])
+    $ renpy.show("logo", what=logo, at_list=[simple_zoom_from_to_with_linear(0.5, 2, 8), Transform(pos=(0.5, 0.75), subpixel=True)])
     $ renpy.with_statement(dissolve)
     pause 4.5
     stop music fadeout 1.0
     scene black
     with dissolve
     pause 1.0
+    $ del he, hes, logo, flash, sflash
     return

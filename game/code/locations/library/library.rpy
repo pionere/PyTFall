@@ -1,6 +1,4 @@
 init python:
-    golem_change = ImageDissolve("content/gfx/masks/m12.webp", .5, ramplen=128, reverse=True, time_warp=eyewarp) # masks for changing between eleven sprites
-    golem_change_back = ImageDissolve("content/gfx/masks/m12.webp", .5, ramplen=128, reverse=False, time_warp=eyewarp)
     class LibraryBooks(_object):
         """Simple class to hold library texts and format them appropriately.
         """
@@ -130,8 +128,6 @@ init python:
 label academy_town:
     $ gm.enter_location(badtraits=["Adventurous", "Slime", "Monster"], curious_priority=True, has_tags=["girlmeets", "schoolgirl"])
     $ coords = [[.1, .55], [.45, .64], [.86, .65]]
-    $ e = npcs["Eleven"].say
-    $ npcs["Eleven"].override_portrait("portrait", "indifferent")
     # Music
     if not global_flags.has_flag("keep_playing_music"):
         $ PyTFallStatic.play_music("library", fadein=.5)
@@ -149,6 +145,8 @@ label academy_town:
     with dissolve
     if not global_flags.flag('visited_library'):
         $ global_flags.set_flag('visited_library')
+        $ e = npcs["Eleven"].say
+        $ npcs["Eleven"].override_portrait("portrait", "indifferent")
         show expression npcs["Eleven"].get_vnsprite() as npc
         with dissolve
         "A tall humanoid with glowing eyes and booming voice greets you at the entrance."
@@ -159,6 +157,7 @@ label academy_town:
         "Many years ago academy archives were entrusted to him, and since then not a single document was lost. During the last war, he single-handedly destroyed all threats, preserving the whole building intact."
         "He also always knows the name of his interlocutor, even if they never met before. This particular trait made him infamous in the city."
         hide npc with dissolve
+        $ del e
 
     show screen academy_town
     while 1:
@@ -185,6 +184,8 @@ label library_eleven_dialogue:
     e "{b}...{/b}"
     menu eleven_menu:
         "Show leaflets" if has_items("Rebels Leaflet", hero, equipped=False) and global_flags.flag('player_knows_about_eleven_jobs'):
+            $ golem_change = ImageDissolve("content/gfx/masks/m12.webp", .5, ramplen=128, reverse=True, time_warp=eyewarp) # masks for changing between eleven sprites
+            $ golem_change_back = ImageDissolve("content/gfx/masks/m12.webp", .5, ramplen=128, reverse=False, time_warp=eyewarp)
             hide npc
             show expression npcs["Eleven"].show("battle", resize=(800, 600)) as npc
             with golem_change
@@ -197,7 +198,7 @@ label library_eleven_dialogue:
             e "{b}This unit and the city appreciate your services. Keep it up, [hero.name]. Here is your reward, [money] coins.{/b}"
             $ hero.remove_item("Rebels Leaflet", has_items("Rebels Leaflet", hero, equipped=False))
             $ hero.add_money(money, reason="Items")
-            $ del money
+            $ del money, golem_change, golem_change_back
             jump eleven_menu
         "Sell old books" if has_items("Old Books", hero, equipped=False) and global_flags.flag('player_knows_about_eleven_jobs'):
             $ money = has_items("Old Books", hero, equipped=False)*15
@@ -235,6 +236,7 @@ label library_eleven_dialogue:
             "You step away, and the light in his eyes dims."
             hide npc with dissolve
             $ global_flags.set_flag("keep_playing_music")
+            $ del e
             jump academy_town
 
 screen academy_town():

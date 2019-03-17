@@ -1,20 +1,71 @@
 init:
-    image map_scroll = ProportionalScale("content/events/StoryI/scroll.webp", 900, 900)
-    image blueprint = ProportionalScale("content/events/StoryI/blueprint.webp", 660, 540)
     transform blueprint_position:
         align (0.5, 0.6)
-    $ sflash = Fade(.25, 0, .25, color="darkred")
-init -10 python:
-    q_dissolve = Dissolve(.2) # fast dissolve to quickly show backgrounds
+init python:
     def eyewarp(x):
         return x**1.33
-    eye_open = ImageDissolve("content/gfx/masks/eye_blink.webp", 0.5, ramplen=128, reverse=False, time_warp=eyewarp) # transitions for backgrounds, try to emulate effect of opening or closing eyes
-    eye_shut = ImageDissolve("content/gfx/masks/eye_blink.webp", 0.5, ramplen=128, reverse=True, time_warp=eyewarp)
 
-init:
-    $ point = "content/gfx/interface/icons/move15.png" # the point which shows location on the map; it's actually a part of the main gui
-    $ enemy_soldier = Character("Guard", color="white", what_color="white", show_two_window=True, show_side_image=ProportionalScale("content/npc/mobs/ct1.png", 120, 120))
-    $ enemy_soldier2 = Character("Guard", color="white", what_color="white", show_two_window=True, show_side_image=ProportionalScale("content/npc/mobs/h1.png", 120, 120))
+label storyi_start: # beginning point of the dungeon;
+    python:
+        sflash = Fade(.25, 0, .25, color="darkred")
+        q_dissolve = Dissolve(.2) # fast dissolve to quickly show backgrounds
+
+        eye_open = ImageDissolve("content/gfx/masks/eye_blink.webp", 0.5, ramplen=128, reverse=False, time_warp=eyewarp) # transitions for backgrounds, try to emulate effect of opening or closing eyes
+        eye_shut = ImageDissolve("content/gfx/masks/eye_blink.webp", 0.5, ramplen=128, reverse=True, time_warp=eyewarp)
+
+        map_scroll = ProportionalScale("content/events/StoryI/scroll.webp", 900, 900)
+        blueprint = ProportionalScale("content/events/StoryI/blueprint.webp", 660, 540)
+        point = "content/gfx/interface/icons/move15.png" # the point which shows location on the map; it's actually a part of the main gui
+
+        enemy_soldier = Character("Guard", color="white", what_color="white", show_two_window=True, show_side_image=ProportionalScale("content/npc/mobs/ct1.png", 120, 120))
+        enemy_soldier2 = Character("Guard", color="white", what_color="white", show_two_window=True, show_side_image=ProportionalScale("content/npc/mobs/h1.png", 120, 120))
+
+        enemies = ["Skeleton", "Skeleton Warrior", "Will-o-wisp"]
+        fight_chance = 100
+        storyi_prison_stage = 1
+        storyi_prison_location = 6
+        controlled_exit = False
+
+    stop music
+    stop world fadeout 2.0
+    scene black with dissolve
+    # show expression Text("Some time later", style="TisaOTM", align=(0.5, 0.33), size=40) as txt1:
+        # alpha 0
+        # linear 3.5 alpha 1.0
+    # pause 2.5
+    # hide txt1
+    play world "Theme2.ogg" fadein 2.0 loop
+    show bg story d_entrance with eye_open
+    if not global_flags.has_flag("been_in_old_ruins"):
+        $ global_flags.set_flag("been_in_old_ruins")
+        $ storyi_treasures = {1: -1, 3: -1, 7: -1, 10: -1, 11: -1, 13: -1}
+        hero.say "I've found the ruins of a tower near the city."
+        hero.say "It may be not safe here, but I bet there is something valuable deep inside!"
+        "You can enter and exit the ruins at any point, but it will consume your AP."
+    show screen prison_break_controls
+
+label storyi_gui_loop: # the gui loop; we jump here every time we need to show controlling gui
+    while 1:
+        $ result = ui.interact()
+        if result in hero.team:
+            $ came_to_equip_from = "storyi_continue"
+            $ eqtarget = result
+            $ equip_girls = [eqtarget]
+            $ equipment_safe_mode = True
+            hide screen prison_break_controls
+            jump char_equip
+
+label storyi_continue: # the label where we return after visiting characters equipment screens
+    call storyi_show_bg from _call_storyi_show_bg_4
+    $ equipment_safe_mode = False
+    show screen prison_break_controls
+    jump storyi_gui_loop
+
+label storyi_exit:
+    $ last_label = "forest_dark" if controlled_exit else "forest_entrance"
+    $ del sflash, q_dissolve, eye_open, eye_shut, map_scroll, blueprint, point, enemy_soldier, enemy_soldier2, enemies, fight_chance
+    $ del storyi_prison_stage, storyi_prison_location, controlled_exit
+    jump expression last_label
 
 screen prison_break_controls(): # control buttons screen
     use top_stripe(False, show_lead_away_buttons=False, show_team_status=True)
@@ -61,7 +112,7 @@ screen prison_break_controls(): # control buttons screen
             button:
                 xysize (120, 40)
                 yalign 0.5
-                action [Hide("prison_break_controls"), Jump("forest_dark")]
+                action [Hide("prison_break_controls"), SetVariable("controlled_exit", True), Jump("storyi_exit")]
                 text "Exit" size 15
                 keysym "mousedown_3"
 
@@ -119,7 +170,6 @@ label storyi_bossroom:
     extend " You prepare for a fight!"
     python:
         enemy_team = Team(name="Enemy Team", max_size=3)
-        your_team = Team(name="Your Team", max_size=3)
         mob = build_mob(id="Blazing Star", level=25)
         mob.stats.lvl_max["health"] += 500
         mob.stats.max["health"] += 500
@@ -127,8 +177,8 @@ label storyi_bossroom:
         mob.stats.lvl_max["mp"] += 100
         mob.stats.max["mp"] += 100
         mob.mod_stat("mp", 100)
-        mob.controller = Complex_BE_AI(mob)
         enemy_team.add(mob)
+        del mob
         result = run_default_be(enemy_team,
                                 background="content/gfx/bg/story/p_b.webp",
                                 slaves=True, track="content/sfx/music/be/battle (5)b.ogg",
@@ -150,6 +200,7 @@ label storyi_bossroom:
         play world "Theme2.ogg" fadein 2.0 loop
         "You return to the ground floor."
         show screen prison_break_controls
+        $ del result, enemy_team
         jump storyi_gui_loop
     else:
         jump game_over
@@ -181,7 +232,7 @@ label storyi_randomfight:  # initiates fight with random enemy team
             mob = build_mob(id=random.choice(enemies), level=15)
             mob.controller = Complex_BE_AI(mob)
             enemy_team.add(mob)
-
+        del mob, j
         result = run_default_be(enemy_team,
                                 background="content/gfx/bg/be/b_dungeon_1.webp",
                                 slaves=True, prebattle=False,
@@ -216,7 +267,7 @@ label storyi_randomfight:  # initiates fight with random enemy team
         $ del result, enemy_team
         scene black
         pause 1.0
-        jump forest_entrance
+        jump storyi_exit
     else:
         jump game_over
 
@@ -236,47 +287,7 @@ label storyi_treat_wounds:
     else:
         "Everyone is healthy already."
     show screen prison_break_controls
-    $ del j
-    jump storyi_gui_loop
-
-label storyi_start: # beginning point of the dungeon;
-    $ enemies = ["Skeleton", "Skeleton Warrior", "Will-o-wisp"]
-    $ fight_chance = 100
-    stop music
-    stop world fadeout 2.0
-    scene black with dissolve
-    # show expression Text("Some time later", style="TisaOTM", align=(0.5, 0.33), size=40) as txt1:
-        # alpha 0
-        # linear 3.5 alpha 1.0
-    # pause 2.5
-    # hide txt1
-    play world "Theme2.ogg" fadein 2.0 loop
-    show bg story d_entrance with eye_open
-    $ storyi_prison_stage = 1
-    $ storyi_prison_location = 6
-    if not global_flags.has_flag("been_in_old_ruins"):
-        $ global_flags.set_flag("been_in_old_ruins")
-        $ storyi_treasures = {1: -1, 3: -1, 7: -1, 10: -1, 11: -1, 13: -1}
-        hero.say "I've found the ruins of a tower near the city."
-        hero.say "It may be not safe here, but I bet there is something valuable deep inside!"
-        "You can enter and exit the ruins at any point, but it will consume your AP."
-    show screen prison_break_controls
-
-label storyi_gui_loop: # the gui loop; we jump here every time we need to show controlling gui
-    while 1:
-        $ result = ui.interact()
-        if result in hero.team:
-            $ came_to_equip_from = "storyi_continue"
-            $ eqtarget = result
-            $ equip_girls = [eqtarget]
-            $ equipment_safe_mode = True
-            hide screen prison_break_controls
-            jump char_equip
-
-label storyi_continue: # the label where we return after visiting characters equipment screens
-    call storyi_show_bg from _call_storyi_show_bg_4
-    $ equipment_safe_mode = False
-    show screen prison_break_controls
+    $ del j, i
     jump storyi_gui_loop
 
 label storyi_show_bg: # shows bg depending on matrix location; due to use of BE it must be a call, and not a part of matrix logic itself
@@ -333,11 +344,13 @@ label storyi_search_items:
     $ search_day = storyi_treasures[storyi_prison_location]
     if search_day == day:
         "... This is pointless."
+        $ del search_day
         show screen prison_break_controls
         jump storyi_gui_loop
     if not dice((day - search_day) * 8 * (100 + hero.get_stat("luck")) / 100):
         "There is only trash on the floor."
         $ storyi_treasures[storyi_prison_location] += 1 
+        $ del search_day
         show screen prison_break_controls
         jump storyi_gui_loop
 
@@ -380,6 +393,7 @@ label storyi_search_items:
             $ give_to_mc_item_reward("dress", price=500)
 
     $ storyi_treasures[storyi_prison_location] = day
+    $ del search_day
     show screen prison_break_controls
     jump storyi_gui_loop
 
@@ -423,10 +437,10 @@ label storyi_move_map_point: # moves green point to show team location on the ma
     return
 
 label storyi_map: # shows dungeon map and calls matrix to control it
-    show map_scroll at truecenter
-    show blueprint at blueprint_position
+    show expression map_scroll at truecenter
+    show expression blueprint at blueprint_position
     call storyi_move_map_point from _call_storyi_move_map_point
-    call screen poly_matrix("script/story/prison_break/coordinates_1.json", cursor="content/gfx/interface/icons/zoom_pen.png", xoff=0, yoff=0, show_exit_button=(1.0, 1.0))
+    call screen poly_matrix("code/story/prison_break/coordinates_1.json", cursor="content/gfx/interface/icons/zoom_pen.png", xoff=0, yoff=0, show_exit_button=(1.0, 1.0))
     $ setattr(config, "mouse", None)
     $ fight_chance += randint(10, 20)
     if _return == "Cell":
@@ -593,8 +607,8 @@ label storyi_map: # shows dungeon map and calls matrix to control it
             jump prison_storyi_passage_4
     else:
         play events2 "events/letter.mp3"
-        hide map_scroll
-        hide blueprint
+        hide expression map_scroll
+        hide expression blueprint
         hide expression point
         with dissolve
         show screen prison_break_controls
