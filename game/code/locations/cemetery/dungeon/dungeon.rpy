@@ -13,17 +13,17 @@ init -1 python:
             self.light = ""
             self.timed = {}
 
-        def say(self, arguments, timer=None, function=None, sound=None):
+        def say(self, who, what, **kwargs):
             # a message will be displayed for a time, dependent on its length
+            sound = kwargs.get("sound", None)
             if sound:
                 renpy.play(*sound)
 
+            timer = kwargs.get("timer", None)
             if not timer:
-                timer = max(len(arguments[1]) / 20.0, .5)
+                timer = max(len(what) / 20.0, .5)
 
-            self.said = arguments
-            while len(self.said) != 4:
-                self.said.append(None)
+            self.said = [who, what, None, None]
 
             self.add_timer(timer, [{"function": "delsay", "arguments": [self.said] }])
 
@@ -71,22 +71,29 @@ init -1 python:
 
             return self.hero
 
-        def exit(self, label="graveyard_town"):
-            # reset hero position
-            del self.hero
+        def load(self, name, **arguments):
+            store.dungeon = store.dungeons[name]
+            store.pc = store.dungeon.enter(**arguments)
 
-            # cleanup globals
-            vars = ["dungeon", "pc", "mpos", "mpos2", "sided", "blend", "areas", "shown",
-                    "hs", "hotspots", "distance", "lateral", "x", "y", "front_str",
-                    "k", "d_items", "d_hotspots", "actions", "ri", "n", "e",
-                    "situ", "pt", "it", "img_name", "brightness", "spawn", "ori",
-                    "transparent_area", "bx", "by", "at", "to", "pos", "access_denied",
-                    "dungeon_location", "dungeons", "event", "current_time", "t"]
-            for i in vars:
-                if hasattr(store, i):
-                    delattr(store, i)
+        def exit(self, label="graveyard_town", **kwargs):
+            if renpy.call_screen("yesno_prompt",
+                                 message="Do you want to leave?",
+                                 yes_action=Return(True), no_action=Return(False)):
+                # reset hero position
+                del self.hero
 
-            jump(label)
+                # cleanup globals
+                vars = ["dungeon", "pc", "mpos", "mpos2", "sided", "blend", "areas", "shown",
+                        "hs", "hotspots", "distance", "lateral", "x", "y", "front_str",
+                        "k", "d_items", "d_hotspots", "actions", "ri", "n", "e",
+                        "situ", "pt", "it", "img_name", "brightness", "spawn", "ori",
+                        "transparent_area", "bx", "by", "at", "to", "pos", "access_denied",
+                        "dungeon_location", "dungeons", "event", "current_time", "t"]
+                for i in vars:
+                    if hasattr(store, i):
+                        delattr(store, i)
+
+                jump(label)
 
         def _move_npc(self, at_str, m):
             if not at_str in self.spawn:
@@ -229,14 +236,13 @@ init -1 python:
             else:
                 jump("game_over")
 
-        @staticmethod
-        def grab_item(item, sound=None):
+        def grab_item(self, item, sound=None):
             if sound is not None:
                 filename, channel = sound
                 renpy.play(filename, channel=channel)
             item = store.items[item]
             hero.inventory.append(item)
-            dungeon.say([hero.name, "{}! This will come useful!".format(item.id)])
+            self.say(hero.name, "%s! This will come useful!" % item.id)
 
 transform sprite_default(xx, yy, xz, yz, rot=None):
     xpos xx
@@ -359,7 +365,7 @@ screen dungeon_move(hotspots):
         key "K_m" action ToggleField(dungeon, "show_map")
         key "K_l" action ToggleField(dungeon, "light", "_torch", "")
 
-    if dungeon.next_events and not dungeon.said:
+    if dungeon.next_events:
         timer .1 action Return(value="event_list")
     elif dungeon.timer:
         timer dungeon.timer action Return(value="event_list")
@@ -383,7 +389,7 @@ label enter_dungeon:
             pc = dungeon.enter()
         else:
             pc = dungeon.enter(at={ "x": 1, "y": 1, "dx": 1, "dy": 0 })
-            dungeon.say(arguments=["", "You enter the mausoleum. The door shuts behind you; you cannot get out this way!"])
+            dungeon.say("", "You enter the mausoleum. The door shuts behind you; you cannot get out this way!")
         mpos = None
     # Music
     if not global_flags.has_flag("keep_playing_music"):
@@ -585,15 +591,11 @@ label enter_dungeon_r:
 
             while dungeon.next_events:
                 event = dungeon.next_events.popleft()
-                if "load" in event:
-                    dungeon = dungeons[event["load"]]
-                    pc = dungeon.enter(**event)
-                elif event["function"] == "say":
-                    dungeon.say(**event)
-                    # rest of next_events is postponed until after say is done.
-                    break
-                else:
+                at = event.get("at", 0)
+                if at == 0:
                     dungeon.function(**event)
+                else:
+                    dungeon.add_timer(at, [event])
 
             # do any expired timer events
             if dungeon.timer is not None:
