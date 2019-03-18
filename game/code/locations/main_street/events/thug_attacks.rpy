@@ -17,7 +17,6 @@ label city_events_thugs_robbery:
         t "My mother always told me to help those in need, heh. See ya."
         $ hero.add_money(randint(2, 5), reason="Charity")
         hide npc with dissolve
-        jump main_street
     else:
         menu:
             "Give him 200 Gold?"
@@ -26,11 +25,9 @@ label city_events_thugs_robbery:
                 $ kill_event("city_events_thugs_robbery_attack")
                 $ register_event("city_events_thugs_robbery", locations=["main_street"], dice=100, trigger_type = "look_around", priority = 50, start_day=day+7, jump=True, times_per_days=(1,3))
                 $ hero.take_money(200, reason="Robbery")
-                jump main_street
             "No":
                 t "It's your choice. Don't blame me if something will happen."
                 $ register_event("city_events_thugs_robbery_attack", locations=["main_street", "city_parkgates", "graveyard_town"], dice=100, trigger_type = "look_around", priority = 1000, start_day=day+1, times_per_days=(1,2), jump=True)
-                jump main_street
             "Attack him":
                 t "Oho, you have guts, I like it. Let's see what you can do against my boys!"
                 python hide:
@@ -40,25 +37,26 @@ label city_events_thugs_robbery:
                     for i in xrange(3):
                         mob = build_mob("Thug", level=randint(min_lvl, min_lvl+20))
                         enemy_team.add(mob)
-                    result = run_default_be(enemy_team, slaves=True, background=back)
+                    result = run_default_be(enemy_team, slaves=True, background=back, end_background="street_alley")
                     if result is True:
                         for member in hero.team:
                             member.gfx_mod_exp(exp_reward(member, enemy_team))
                         renpy.jump("city_events_thugs_robbery_win")
                     else:
                         renpy.jump("city_events_thugs_robbery_lost")
+    $ del t
+    jump main_street
 
 label city_events_thugs_robbery_win:
-    show bg street_alley
     show expression npcs["street_thug"].get_vnsprite() as npc with dissolve
     t "Nice moves! Fair enough, [hero.name]. My guys won't bother you any longer. See ya."
     $ kill_event("city_events_thugs_robbery_attack")
     $ kill_event("city_events_thugs_robbery")
     "He walks away."
+    $ del t
     jump main_street
 
 label city_events_thugs_robbery_lost:
-    show bg street_alley
     show expression npcs["street_thug"].get_vnsprite() as npc with dissolve
     t "Huuh? That's it?!"
     if hero.gold > 0:
@@ -69,44 +67,36 @@ label city_events_thugs_robbery_lost:
     else:
         $ hero.take_money(g, reason="Robbery")
     "He walks away."
-    $ del g
+    $ del t, g
     jump main_street
 
 label city_events_thugs_robbery_attack:
-    $ scr = pytfall.world_events.event_instance("city_events_thugs_robbery_attack").label_cache
     "A group of men suddenly surrounds you!"
-    scene
-    $ renpy.scene(layer="screens")
     python hide:
+        hs() # hide everything
+
+        scr = pytfall.world_events.event_instance("city_events_thugs_robbery_attack").label_cache
         back = interactions_pick_background_for_fight(scr)
         enemy_team = Team(name="Enemy Team", max_size=3)
         min_lvl = max(mobs["Thug"]["min_lvl"], 25)
         for i in xrange(3):
             mob = build_mob("Thug", level=randint(min_lvl, min_lvl+10))
             enemy_team.add(mob)
-        result = run_default_be(enemy_team, slaves=True, background=back)
+        result = run_default_be(enemy_team, slaves=True, background=back, end_background=scr)
 
         if result is True:
+            # win
             for member in hero.team:
                 member.gfx_mod_exp(exp_reward(member, enemy_team))
-            renpy.jump("city_events_thugs_robbery_attack_win")
+
+            g = randint(10, 40)
+            hero.add_money(g, reason="Events")
+            gfx_overlay.random_find(g, 'gold')
+            narrator("You found some gold in their pockets before handing them over to the City Guards.")
         else:
-            g = min(hero.gold, randint (200, 400))
+            # lost
+            g = min(hero.gold, randint(200, 400))
             hero.take_money(g, reason="Robbery")
-            renpy.jump("city_events_thugs_robbery_attack_lost")
+            narrator("After beating you, they took some gold and disappeared before City Guards arrived.")
 
-label city_events_thugs_robbery_attack_lost:
-    scene expression "bg " + scr
-    $ renpy.scene(layer="screens")
-    "After beating you, they took some gold and disappeared before City Guards arrived."
-    $ last_label = scr
-    $ del scr
-    jump expression last_label
-
-label city_events_thugs_robbery_attack_win:
-    scene expression "bg " + scr
-    "You found some gold in their pockets before handing them over to the City Guards."
-    $ hero.add_money(randint(10,40), reason="Events")
-    $ last_label = scr
-    $ del scr
-    jump expression last_label
+        renpy.jump(scr)

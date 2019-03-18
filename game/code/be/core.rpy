@@ -209,8 +209,8 @@ init -1 python: # Core classes:
         TYPE_TO_COLOR_MAP = dict() # DAMAGE TYPE TO COLOR MAP
         """Main BE attrs, data and the loop!
         """
-        def __init__(self, bg=Null(), music=None, row_pos=None, start_sfx=None,
-                     end_sfx=None, logical=False, quotes=False,
+        def __init__(self, bg=None, music=None, row_pos=None, start_sfx=None,
+                     end_bg=None, end_sfx=None, logical=False, quotes=False,
                      max_skill_lvl=float("inf"), max_turns=1000, give_up=None,
                      use_items=False):
             """Creates an instance of BE scenario.
@@ -227,12 +227,25 @@ init -1 python: # Core classes:
 
             if not logical:
                 # Background we'll use.
+                if bg:
+                    if isinstance(bg, basestring):
+                        if check_image_extension(bg):
+                            bg = Image(bg)
+                        else:
+                            bg = ImageReference("bg " + bg)
+                else:
+                    bg = Null()
                 self.bg = ConsitionSwitcher("default", {"default": bg,
                                                         "black": Solid("#000000"),
                                                         "mirage": Mirage(bg, resize=get_size(bg),
                                                         amplitude=.04, wavelength=10, ycrop=10)})
 
+                self.start_sfx = start_sfx
+                self.end_bg = end_bg
+                self.end_sfx = end_sfx
                 self.music = get_random_battle_track() if music == "random" else music
+
+                self.quotes = quotes # Decide if we run quotes at the start of the battle.
 
             self.corpses = set() # Anyone died in the BE.
 
@@ -254,10 +267,6 @@ init -1 python: # Core classes:
 
             self.logical = logical
             self.logical_counter = 0
-            self.quotes = quotes # Decide if we run quotes at the start of the battle.
-
-            self.start_sfx = start_sfx
-            self.end_sfx = end_sfx
 
             self.max_skill_lvl = max_skill_lvl
 
@@ -483,6 +492,14 @@ init -1 python: # Core classes:
 
                 renpy.scene(layer='screens')
                 renpy.scene()
+                bg = self.end_bg
+                if bg:
+                    if isinstance(bg, basestring):
+                        if check_image_extension(bg):
+                            bg = Image(bg)
+                        else:
+                            bg = ImageReference("bg " + bg)
+                    renpy.show("bg", what=bg)
 
                 if self.end_sfx:
                     renpy.with_statement(self.end_sfx)

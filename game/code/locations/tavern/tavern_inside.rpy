@@ -255,7 +255,7 @@ label mc_action_tavern_look_around: # various bonuses to theoretical skills for 
     jump city_tavern_menu
 
 label city_tavern_thugs_fight: # fight with random thugs in the brawl mode
-    python:
+    python hide:
         enemies = ["Thug", "Assassin", "Barbarian"]
         enemy_team = Team(name="Enemy Team", max_size=3)
         for j in range(randint(2, 3)):
@@ -265,21 +265,15 @@ label city_tavern_thugs_fight: # fight with random thugs in the brawl mode
             mob.front_row = True
             enemy_team.add(mob)
         back = interactions_pick_background_for_fight("tavern")
-        result = run_default_be(enemy_team, background=back,
-                                skill_lvl=3, use_items=True)
+        result = run_default_be(enemy_team, skill_lvl=3, use_items=True,
+                                background=back, end_background="tavern_inside")
 
-    scene bg tavern_inside
-    with dissolve
-
-    if result is True:
-        python:
+        if result is True:
             for member in hero.team:
                 member.gfx_mod_exp(exp_reward(member, enemy_team))
-
-    else:
-        $ hero.set_flag("dnd_fought_in_tavern")
+        else:
+            hero.set_flag("dnd_fought_in_tavern")
     return
-
 
 label city_tavern_shopping: # tavern shop with alcohol, available in all modes except brawl
     hide drunkards with dissolve

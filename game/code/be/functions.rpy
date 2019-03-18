@@ -123,7 +123,8 @@ init -11 python:
             mod_by_max(i, "mp", -.3)
 
     def run_default_be(enemy_team, slaves=False, your_team=None,
-                       background="content/gfx/bg/be/battle_arena_1.webp",
+                       background="battle_arena_1",
+                       end_background=None,
                        track="random", prebattle=True, death=False,
                        skill_lvl=float("inf"), give_up=None, use_items=False):
         """
@@ -151,8 +152,9 @@ init -11 python:
             member.controller = Complex_BE_AI(member)
 
         global battle
-        battle = BE_Core(Image(background), start_sfx=get_random_image_dissolve(1.5),
-                    music=track, end_sfx=dissolve, quotes=prebattle,
+        battle = BE_Core(background, start_sfx=get_random_image_dissolve(1.5),
+                    end_bg=end_background, end_sfx=dissolve,
+                    music=track, quotes=prebattle,
                     max_skill_lvl=skill_lvl, give_up=give_up,
                     use_items=use_items)
         battle.teams.append(your_team)

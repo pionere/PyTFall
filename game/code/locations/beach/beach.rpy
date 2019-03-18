@@ -231,7 +231,7 @@ label city_beach_monsters_fight:
             enemy_team.add(mob)
 
     $ result = interactions_pick_background_for_fight("beach")
-    $ result = run_default_be(enemy_team, background=result, give_up="escape", use_items=True)
+    $ result = run_default_be(enemy_team, background=result, end_background="city_beach", give_up="escape", use_items=True)
 
     scene bg city_beach
 

@@ -200,12 +200,10 @@ label city_dark_forest_hideout_fight:
             enemy_team.add(mob)
 
     $ result = interactions_pick_background_for_fight("forest")
-    $ result = run_default_be(enemy_team, background=result,
-                              slaves=True, prebattle=False,
-                              death=False, give_up="escape",
-                              use_items=True)
+    $ result = run_default_be(enemy_team, slaves=True, prebattle=False,
+                              background=result, end_background=forest_location,
+                              death=False, give_up="escape", use_items=True)
     if result is True:
-        scene expression forest_location
         if persistent.battle_results:
             call screen give_exp_after_battle(hero.team, enemy_team)
         else:
@@ -277,14 +275,11 @@ label city_dark_forest_fight:
         narrator(msg)
 
     $ result = interactions_pick_background_for_fight("forest")
-    $ result = run_default_be(enemy_team, background=result,
-                              slaves=True, prebattle=False,
-                              death=False, give_up="escape",
-                              use_items=True)
+    $ result = run_default_be(enemy_team, slaves=True, prebattle=False,
+                              background=result, end_background=forest_location,
+                              death=False, give_up="escape", use_items=True)
 
     if result is True:
-        scene expression forest_location
-
         if persistent.battle_results:
             call screen give_exp_after_battle(hero.team, enemy_team)
         else:

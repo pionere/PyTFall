@@ -252,8 +252,8 @@ label frog_deathfight:
     stop world
 
     ax "Well, I hope that you're ready! Best of luck!"
-    $ enemy_team = Team(name="Enemy Team", max_size=3)
     python hide:
+        enemy_team = Team(name="Enemy Team", max_size=3)
         mob = build_mob("Goblin Warrior", level=50)
         enemy_team.add(mob)
 
@@ -261,19 +261,16 @@ label frog_deathfight:
             mob = build_mob("Goblin Archer", level=20)
             enemy_team.add(mob)
 
-    $ result = run_default_be(enemy_team,
-                              background="content/gfx/bg/be/battle_arena_1.webp",
-                              slaves=True, prebattle=False, death=False,
-                              use_items=True)
+        result = run_default_be(enemy_team, slaves=True, prebattle=False,
+                              background="battle_arena_1", end_background="arena_outside",
+                              death=False, use_items=True)
 
-    if result is True:
-        python hide:
+        if result is True:
             for member in hero.team:
                 member.gfx_mod_exp(exp_reward(member, enemy_team, exp_mod=2))
-    else:
-        jump game_over
+        else:
+            jump("game_over")
 
-    scene bg arena_outside
     show expression npcs["Xeona_arena"].get_vnsprite() as xeona
     with dissolve
 
@@ -284,7 +281,7 @@ label frog_deathfight:
     $ menu_extensions.remove_extension("Xeona Main", "Deathfight vs Goblin Champ!")
     $ menu_extensions.remove_extension("Xeona Main", "Missed Deathfight...")
 
-    $ del ax, enemy_team, result
+    $ del ax
     jump arena_outside
 
 label frog1_event_abby_3:
