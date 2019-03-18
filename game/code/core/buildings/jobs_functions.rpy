@@ -191,43 +191,53 @@ init -10 python:
     def check_submissivity(c):
         """Here we determine how submissive the character is, thus if she's willing to do something she doesn't want to, or for example take the initiative in certain cases.
         """
-        if not c.get_max("character"):
-            return -1
+        mult = c.get_max("character")
+        if mult == 0:
+            return -1 # should never happen, but better than a div-zero in a simpy process...
 
-        mult = 1.0*c.get_stat("character")/c.get_max("character") # the idea is based on the character stat, we check how close is she to max possible character at her level
-        if "Impersonal" in c.traits: # and traits, they can make mult more or less, so for example even low character tsundere might be more stubborn than high character dandere
-            mult -= .1
-        elif "Imouto" in c.traits:
-            mult -= .05
-        elif "Dandere" in c.traits:
-            mult -= .15
-        elif "Tsundere" in c.traits:
-            mult += .2
-        elif "Kuudere" in c.traits:
-            mult += .15
-        elif "Kamidere" in c.traits:
-            mult += .23
-        elif "Bokukko" in c.traits:
-            mult += .2
-        elif "Ane" in c.traits:
-            mult += .05
-        elif "Yandere" in c.traits: # in case of yandere disposition is everything
-            if c.get_stat("disposition") <= 500:
-                mult += .25
-            else:
-                mult -= .25
-        if "Courageous" in c.traits:
-            mult += .05
-        elif "Coward" in c.traits:
-            mult -= .05
-        if "Shy" in c.traits:
-            mult -= .05
-        if "Aggressive" in c.traits:
-            mult += .05
-        if "Natural Leader" in c.traits:
-            mult += .05
-        elif "Natural Follower" in c.traits:
-            mult -= .05
+        # the idea is based on the character stat, we check how close is she to max possible character at her level
+        mult = c.get_stat("character")/float(mult)
+        # and traits, they can make mult more or less
+        # for example even low character tsundere might be more stubborn than high character dandere
+        traits = ["Impersonal", "Imouto", "Dandere", "Tsundere", "Kamidere", "Bokukko", "Ane",
+                  "Yandere", "Courageous", "Coward", "Shy", "Aggressive", "Natural Leader", "Natural Follower"]
+        traits = list(i.id for i in c.traits if i.id in traits)
+
+        for i in traits:
+            if i == "Impersonal":
+                mult -= .1
+            elif i == "Imouto":
+                mult -= .05
+            elif i == "Dandere":
+                mult -= .15
+            elif i == "Tsundere":
+                mult += .2
+            elif i == "Kuudere":
+                mult += .15
+            elif i == "Kamidere":
+                mult += .23
+            elif i == "Bokukko":
+                mult += .2
+            elif i == "Ane":
+                mult += .05
+            elif i == "Yandere":
+                # in case of yandere disposition is everything
+                if c.get_stat("disposition") <= 500:
+                    mult += .25
+                else:
+                    mult -= .25
+            elif i == "Courageous":
+                mult += .05
+            elif i == "Coward":
+                mult -= .05
+            elif i == "Shy":
+                mult -= .05
+            elif i == "Aggressive":
+                mult += .05
+            elif i == "Natural Leader":
+                mult += .05
+            elif i == "Natural Follower":
+                mult -= .05
 
         if c.status == "slave":
             mult -= .1

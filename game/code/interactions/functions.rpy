@@ -53,7 +53,8 @@ init -11 python:
             else:
                 return "Gay" in char.traits
 
-    def interactions_set_repeating_lines_limit(c): # returns the number of character "patience", ie how many repeating lines she's willing to listen in addition to default value
+    # returns the number of character "patience", ie how many repeating lines she's willing to listen in addition to default value
+    def interactions_set_repeating_lines_limit(c):
         global hero
         if check_lovers(c, hero):
             patience = 1
@@ -70,7 +71,8 @@ init -11 python:
         patience += interactions_influence(c) / 20
         return patience
 
-    def interactions_drinking_outside_of_inventory(char, count): # allows to raise activation count and become drunk without using real items
+    # allows to raise activation count and become drunk without using real items
+    def interactions_drinking_outside_of_inventory(char, count):
         char.up_counter("dnd_drunk_counter", count)
         if char.get_flag("dnd_drunk_counter", 0) >= 35 and not 'Drunk' in char.effects:
             char.enable_effect('Drunk')
@@ -78,25 +80,38 @@ init -11 python:
             char.AP -= 1
         return
 
-    def interactions_flag_count_checker(char, char_flag): # this function is used to check how many times a certain interaction was used during the current turn; every interaction should have a unique flag name and call this function after every use
+    # this function is used to check how many times a certain interaction was used during the current turn;
+    #  every interaction should have a unique flag name and call this function after every use
+    def interactions_flag_count_checker(char, char_flag):
         char_flag = "dnd_" + char_flag
         result = char.get_flag(char_flag, 0)
         char.set_flag(char_flag, result+1)
         return result
 
-    def interactions_silent_check_for_bad_stuff(char): # we check issues without outputting any lines or doing something else, and just return True/False
+    # we check issues without outputting any lines or doing something else, and just return True/False
+    def interactions_silent_check_for_bad_stuff(char):
         if "Food Poisoning" in char.effects:
             return False
-        elif char.get_stat("vitality") <= char.get_max("vitality")/10:
+        if char.get_stat("vitality") <= char.get_max("vitality")/10:
             return False
-        elif char.get_stat("health") < char.get_max("health")/5:
+        if char.get_stat("health") < char.get_max("health")/5:
             return False
-        elif (not("Pessimist" in char.traits) and char.get_stat("joy") <= 25) or (("Pessimist" in char.traits) and char.get_stat("joy") < 10):
+        joy = char.get_stat("joy")
+        if joy < 10 or ("Pessimist" not in char.traits and joy <= 25):
             return False
-        elif char.AP <= 0:
+        if char.AP <= 0:
             return False
-        else:
-            return True
+        return True
+
+    # check if the character is willing to fight the player
+    def interactions_silent_check_for_escalation(char, base):
+        if not cgochar(char, "Combatant"):
+            return False
+        if not interactions_silent_check_for_bad_stuff(char):
+            return False
+        if "Aggressive" in char.traits:
+            base *= 2
+        return dice(base)
 
     def interactions_check_for_bad_stuff(char): # we check major issues when the character will refuse almost anything
         if "Food Poisoning" in char.effects:

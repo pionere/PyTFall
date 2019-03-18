@@ -103,10 +103,10 @@ label girl_interactions_after_greetings: # when character wants to say something
 
             # TRAINING
             m = 1
-            n = 0
             pytfall.world_actions.menu(m, "Training", condition=_gt_mode)
 
             # Loop through all courses that don't belong to a school, and return the real dict
+            #n = 0
             #for k,c in get_all_courses(no_school=True, real=True).iteritems():
 
             # Loop through all courses in the training dungeon:
@@ -133,34 +133,40 @@ label girl_interactions_after_greetings: # when character wants to say something
             pytfall.world_actions.gm_choice("Strong", mode="girl_meets", index=(m, 1))
             pytfall.world_actions.gm_choice("Cute", mode="girl_meets", index=(m, 2))
 
+            # INSULT
+            m = 3
+            pytfall.world_actions.menu(m, "Insult", condition="not(char in hero.chars)")
+            pytfall.world_actions.gm_choice("Stupid", mode="girl_meets", index=(m, 0))
+            pytfall.world_actions.gm_choice("Weak", mode="girl_meets", index=(m, 1))
+            pytfall.world_actions.gm_choice("Ugly", mode="girl_meets", index=(m, 2))
 
             # GIVE MONEY
-            m = 3
+            m = 4
             pytfall.world_actions.menu(m, "Money", condition="char.status != 'slave'")
             pytfall.world_actions.gm_choice("Propose to give money", label="giftmoney", index=(m, 0))
             pytfall.world_actions.gm_choice("Ask for money", label="askmoney", index=(m, 1))
 
-            m = 4
+            m = 5
             pytfall.world_actions.menu(m, "Money", condition="char.status == 'slave'")
             pytfall.world_actions.gm_choice("Give", label="give_money", index=(m, 0))
             pytfall.world_actions.gm_choice("Take", label="take_money", index=(m, 1))
 
             # GIVE GIFT
-            m = 5
+            m = 6
             pytfall.world_actions.add(m, "Give Gift", Return(["gift", True]), condition="char.get_flag('cnd_interactions_gift', day)-day < 3")
 
             # PROPOSITION
-            m = 6
+            m = 7
             pytfall.world_actions.menu(m, "Propose")
             pytfall.world_actions.gm_choice("Girlfriend", condition="not check_lovers(char, hero)", index=(m, 0))
             pytfall.world_actions.gm_choice("Break Up", condition="check_lovers(char, hero)", index=(m, 1))
             pytfall.world_actions.gm_choice("Move in", condition="char.home != hero.home and char.status == 'free'", index=(m, 2))
             pytfall.world_actions.gm_choice("Move out", condition="char.home == hero.home and char.status == 'free'", index=(m, 3))
             pytfall.world_actions.gm_choice("Hire", condition="not(char in hero.chars) and not char.flag('quest_cannot_be_hired')", index=(m, 4))
-            pytfall.world_actions.gm_choice("Sparring", condition="'Combatant' in char.occupations", index=(m, 5))
+            pytfall.world_actions.gm_choice("Sparring", condition="cgo('Combatant')", index=(m, 5))
 
             # INTIMACY
-            m = 7
+            m = 8
             pytfall.world_actions.menu(m, "Intimacy")
             pytfall.world_actions.gm_choice("Hug", index=(m, 0))
             pytfall.world_actions.gm_choice("Grab Butt", index=(m, 1))
@@ -171,24 +177,22 @@ label girl_interactions_after_greetings: # when character wants to say something
             pytfall.world_actions.gm_choice("Become Fr", index=(m, 6), condition="DEBUG_INTERACTIONS")
             pytfall.world_actions.gm_choice("Become Lv", index=(m, 7), condition="DEBUG_INTERACTIONS")
             pytfall.world_actions.gm_choice("Disp", index=(m, 8), condition="DEBUG_INTERACTIONS")
+
             # Quests/Events to Interactions Menu:
             """
             Expects a dictionary with the following k/v pairs to be set as a flag that starts with :
             event_to_interactions_  as a flag and {"label": "some_label", "button_name='Some Name'", "condition": "True"}
             """
-            m = 8
-            # First add the Menu:
-            for f in char.flags:
-                if f.startswith("event_to_interactions_") and renpy.has_label(char.flag(f)["label"]):
-                    if "condition" in char.flag(f) and eval(char.flag(f)["condition"]):
-                        pytfall.world_actions.menu(m, "U-Actions")
-                        break
-            i = 0
-            for f in char.flags:
-                if f.startswith("event_to_interactions_") and renpy.has_label(char.flag(f)["label"]):
-                    if "condition" in char.flag(f) and eval(char.flag(f)["condition"]):
-                        pytfall.world_actions.gm_choice(char.flag(f)["button_name"], label=char.flag(f)["label"], index=(m, i))
-                        i = i + 1
+            m = 9
+            n = 0
+            for k, v in char.flags.items():
+                if k.startswith("event_to_interactions_") and renpy.has_label(v["label"]):
+                    if eval(v.get("condition", True)):
+                        if n == 0:
+                            # add the Menu
+                            pytfall.world_actions.menu(m, "U-Actions")
+                        pytfall.world_actions.gm_choice(v["button_name"], label=v["label"], index=(m, n))
+                        n += 1
 
             # m = 9  --- for the time being we disable negative actions, since they require ST
             # pytfall.world_actions.menu(m, "Harassment", condition="not(char in hero.team) and char in hero.chars") # no fights between team members

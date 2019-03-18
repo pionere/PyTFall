@@ -1,59 +1,82 @@
 label interactions_harrasment_after_battle: # after MC provoked a free character and won the battle; -->NOT FOR SLAVES<-- since options here are not suitable for them
     # slaves will not attack MC as long as we don't have dungeon, since after that they pretty much have to be there
-    $ m = interactions_flag_count_checker(hero, "harrasment_after_battle") # we don't allow to do it infinitely, chance of success reduces after every attempt
-    if dice(100-30*m): # base chance is 70%, -30 per attempt
-        menu:
-            "[char.pC]'s unconscious. You have some time before City Guards will arrive." # after adding dungeon here will be options to get her there; after adding drugs here will be option to force her consume some;
-            # no rape since it takes a lot of time, and time here is kinda limited
-            "Rob [char.op]":
-                if char.gold <= 0:
-                    "Sadly, [char.p] has no money. What a waste."
-                else:
-                    $ char.gfx_mod_stat("disposition", -randint(10, 25))
-                    $ char.gfx_mod_stat("affection", -randint(1,3))
-                    $ g = char.gold
-                    $ g = randint(min(500, 3*g/5), min(1000, 4*g/5))
-                    $ g = max(1, g)
-                    "In [char.pp] pockets, you found [g] Gold. Lucky!"
-                    $ char.take_money(g, reason="Robbery")
-                    $ hero.add_money(g, reason="Robbery")
-                    $ del g
-            "Search [char.op] for items.":
-                # We unequip all of the inventory first:
-                $ pool = []
-                python hide:
-                    for item in [i for i in char.eqslots.values() if i]:
-                        char.unequip(item)
-                    pool.extend(i for i in char.inventory.items.keys() if i.price <= 1000 and can_transfer(char, hero, i, amount=1, silent=True, force=True))
-
-                if pool:
-                    $ temp = choice(pool)
-                    "On [char.op] you found [temp.id]!"
-                    $ transfer_items(char, hero, temp, amount=1, silent=True, force=True)
-                    $ del temp
-                    $ char.gfx_mod_stat("disposition", -randint(20, 45))
-                    $ char.gfx_mod_stat("affection", -randint(3,5))
-                else:
-                    "You didn't find anything..."
-                $ del pool
-            "Kill [char.op]" if (char not in hero.chars): # direct killing of hired free chars is unavailable, only in dungeon on via other special means
-                "[char.pC] stopped moving. Serves [char.op] right."
-                $ hero.gfx_mod_exp(exp_reward(hero, char))
-                $ kill_char(char)
-                python hide:
-                    for member in hero.team:
-                        if all([member.status <> "slave", not("Vicious" in member.traits), not("Yandere" in member.traits), member<>hero]):
-                            if "Virtuous" in member.traits:
-                                member.gfx_mod_stat("disposition", -randint(200, 300)) # you really don't want to do it with non evil chars in team
-                                member.gfx_mod_stat("affection", -randint(30,50))
-                            else:
-                                member.gfx_mod_stat("disposition", -randint(100, 200))
-                                member.gfx_mod_stat("affection", -randint(20,30))
-            "Nothing":
-                $ pass
-        "You quickly leave before someone sees you."
+    $ m = 1 + interactions_flag_count_checker(hero, "harrasment_after_battle") # we don't allow to do it infinitely, chance of success reduces after every attempt
+    if dice(30*m): # 30%, +30 per attempt
+        "Your fight drew the attention of the City Guards. You better leave before they see you."
+        $ m = 80
+    elif dice(30*m):
+        "The fight drew some attention. The safest would be to leave the scene now."
+        $ m = 50
     else:
-        "Your fight drew the attention of the City Guards. You quickly leave before they see you."
+        "There is no one around at the moment..."
+        $ m = 10
+    menu:
+        "[char.name] is unconscious. What do you do?" # after adding dungeon here will be options to get her there; after adding drugs here will be option to force her consume some;
+        # no rape since it takes a lot of time, and time here is kinda limited
+        "Rob [char.op]":
+            if dice(m):
+                "Just as you are searching the body for money a city guard towers above you."
+                $ del m
+                $ gm.end(safe=True)
+                $ pytfall.jail.add_prisoner(hero, "Theft", randint(1,4))
+                jump hero_in_jail
+                with Fade
+            if char.gold <= 0:
+                "Sadly, [char.p] has no money. What a waste."
+            else:
+                python hide:
+                    char.gfx_mod_stat("disposition", -randint(10, 25))
+                    char.gfx_mod_stat("affection", -randint(1,3))
+                    g = char.gold
+                    g = randint(min(500, 3*g/5), min(1000, 4*g/5))
+                    g = max(1, g)
+                    narrator("In %s pockets, you found %s Gold. Lucky!" % (char.pp, g))
+                    char.take_money(g, reason="Robbery")
+                    hero.add_money(g, reason="Robbery")
+        "Search [char.op] for items.":
+            if dice(m):
+                "Just as you are searching the body, a city guard towers above you."
+                $ del m
+                $ gm.end(safe=True)
+                $ pytfall.jail.add_prisoner(hero, "Theft", randint(1,4))
+                jump hero_in_jail
+                with Fade
+            python hide:
+                # We unequip all of the inventory first:
+                pool = []
+                for item in [i for i in char.eqslots.values() if i]:
+                    char.unequip(item)
+                pool.extend(i for i in char.inventory.items.keys() if i.price <= 1000 and can_transfer(char, hero, i, amount=1, silent=True, force=True))
+                if pool:
+                    temp = choice(pool)
+                    narrator("On %s you found %s!" % (char.op, temp.id))
+                    transfer_items(char, hero, temp, amount=1, silent=True, force=True)
+                    char.gfx_mod_stat("disposition", -randint(20, 45))
+                    char.gfx_mod_stat("affection", -randint(3,5))
+                else:
+                    narrator("You didn't find anything...")
+        "Kill [char.op]" if (char not in hero.chars): # direct killing of hired free chars is unavailable, only in dungeon on via other special means
+            "[char.pC] stopped moving. Serves [char.op] right."
+            python hide:
+                hero.gfx_mod_exp(exp_reward(hero, char))
+                kill_char(char)
+                for member in hero.team:
+                    if all([member != hero, member.status != "slave", not("Vicious" in member.traits), not("Yandere" in member.traits)]):
+                        if "Virtuous" in member.traits:
+                            member.gfx_mod_stat("disposition", -randint(200, 300)) # you really don't want to do it with non evil chars in team
+                            member.gfx_mod_stat("affection", -randint(30,50))
+                        else:
+                            member.gfx_mod_stat("disposition", -randint(100, 200))
+                            member.gfx_mod_stat("affection", -randint(20,30))
+            if dice(m+10):
+                "Just as you are standing above the body, a city guard arrives to the scene. He quickly arrests you."
+                $ del m
+                $ gm.end(safe=True)
+                $ pytfall.jail.add_prisoner(hero, "Murder", randint(10,15))
+                jump hero_in_jail
+                with Fade
+        "Quickly leave before someone sees you.":
+            $ pass
 
     if char not in hero.chars:
         $ gm.remove_girl(char)
@@ -69,19 +92,16 @@ label interactions_escalation: # character was provoked to attack MC
     python:
         enemy_team = Team(name="Enemy Team")
         enemy_team.add(char)
-        back = interactions_pick_background_for_fight(gm.label_cache)
-        result = run_default_be(enemy_team, background=back, give_up="surrender", use_items=True)
-        del back
+        result = interactions_pick_background_for_fight(gm.label_cache)
+        result = run_default_be(enemy_team, background=result, end_background=gm.bg_cache, give_up="surrender", use_items=True)
 
     if result is True:
         python hide:
             for member in hero.team:
                 member.gfx_mod_exp(exp_reward(member, enemy_team, exp_mod=.33))
             char.set_stat("health", 1)
-        show expression gm.bg_cache
-        python hide:
             for member in hero.team:
-                if all([member.status != "slave", not("Vicious" in member.traits), not("Yandere" in member.traits), member != hero]): # they don't like when MC harasses and then beats other chars, unless they are evil
+                if all([member != hero, member.status != "slave", not("Vicious" in member.traits), not("Yandere" in member.traits)]): # they don't like when MC harasses and then beats other chars, unless they are evil
                     if "Virtuous" in member.traits:
                         member.gfx_mod_stat("disposition", -randint(20, 40)) # double for kind characters
                         member.gfx_mod_stat("affection", -randint(3,5))
@@ -95,7 +115,6 @@ label interactions_escalation: # character was provoked to attack MC
         jump interactions_harrasment_after_battle
     else:
         $ char.gfx_mod_exp(exp_reward(char, hero.team, exp_mod=.33))
-        show expression gm.bg_cache
         show screen girl_interactions
         $ gm.restore_img()
         $ del result, enemy_team
@@ -103,46 +122,64 @@ label interactions_escalation: # character was provoked to attack MC
         $ char.set_flag("cnd_interactions_blowoff", day+1)
         jump girl_interactions_end
 
-label interactions_insult:
+label interactions_stupid:
+    $ mode = "intelligence"
+    jump interactions_insult
+label interactions_weak:
+    $ mode = "attack"
+    jump interactions_insult
+label interactions_ugly:
+    $ mode = "charisma"
+    jump interactions_insult
+label interactions_insult: # (mode)
     $ m = interactions_flag_count_checker(char, "flag_interactions_insult")
-    $ char.gfx_mod_stat("joy", -randint(2, 4))
+    if m >= 3:
+        $ del m, mode
+        call interactions_too_many_lines from _call_interactions_too_many_lines_9
+        $ char.gfx_mod_stat("disposition", -randint(1, 5))
+        $ char.gfx_mod_stat("affection", -randint(1,2))
+        if char.get_stat("joy") > 50:
+            $ char.gfx_mod_stat("joy", -randint(0, 1))
+        jump girl_interactions_end
+
     $ sub = check_submissivity(char)
+
+    $ char_vals = char.get_stat("character") + char.get_stat(mode)
+    if sub == 1:
+        $ char_vals *= 1.2
+    elif sub == -1:
+        $ char_vals *= .8
+    $ hero_vals = hero.get_stat("character") + hero.get_stat(mode)
+
+    $ mpl = max(min(hero_vals / float(char_vals+1), 2.0), .5)
+    $ del char_vals, hero_vals, mode
+
     if dice(50-25*sub):
         $ char.gfx_mod_stat("character", -randint(0,1))
+    $ char.gfx_mod_stat("joy", -randint(2, 4))
     if char.get_stat("disposition") >= 700 or (char.get_stat("disposition") >= 250 and char.status != "slave") or check_lovers(char, hero):
-        $ char.gfx_mod_stat("disposition", -randint(1, 5))
-        $ char.gfx_mod_stat("affection", -randint(0,1))
-        if m < 3:
-            call interactions_got_insulted_hdisp from _call_interactions_got_insulted_hdisp
-        else:
-            call interactions_too_many_lines from _call_interactions_too_many_lines_9
-            $ char.gfx_mod_stat("disposition", -randint(1, m))
-            $ char.gfx_mod_stat("affection", -randint(8,12))
+        $ char.gfx_mod_stat("disposition", -round_int(mpl*randint(1, 5)))
+        $ char.gfx_mod_stat("affection", -round_int(mpl*randint(0,1)))
+        call interactions_got_insulted_hdisp from _call_interactions_got_insulted_hdisp
     elif char.get_stat("disposition") > -100 and char.status=="slave":
-        $ char.gfx_mod_stat("disposition", -randint(1, 5))
-        $ char.gfx_mod_stat("affection", -randint(0,1))
-        if m < 3:
-            call interactions_got_insulted_slave from _call_interactions_got_insulted_slave
-        else:
-            call interactions_too_many_lines from _call_interactions_too_many_lines_10
-            $ char.gfx_mod_stat("disposition", -randint(1, m))
-            $ char.gfx_mod_stat("affection", -randint(8,12))
+        $ char.gfx_mod_stat("disposition", -round_int(mpl*randint(1, 5)))
+        $ char.gfx_mod_stat("affection", -round_int(mpl*randint(0,1)))
+        call interactions_got_insulted_slave from _call_interactions_got_insulted_slave
     else:
-        $ char.gfx_mod_stat("disposition", -randint(15,25))
-        $ char.gfx_mod_stat("affection", -randint(1,2))
-        if ct("Aggressive") and m>1 and char.status != "slave" and dice(50):
-            $ del m, sub
+        $ char.gfx_mod_stat("disposition", -round_int(mpl*randint(15,25)))
+        $ char.gfx_mod_stat("affection", -round_int(mpl*randint(1,2)))
+        if m>=1 and interactions_silent_check_for_escalation(char, 30):
+            $ del m, mpl, sub
             jump interactions_escalation
-        elif m < randint(2,3):
-            call interactions_got_insulted from _call_interactions_got_insulted
-        else:
-            call interactions_got_insulted from _call_interactions_got_insulted_1
-            $ char.set_flag("cnd_interactions_blowoff", day+2+sub)
-            $ del m, sub
-            jump girl_interactions_end
-    $ del m, sub
-    jump girl_interactions
 
+        call interactions_got_insulted from _call_interactions_got_insulted
+
+        if dice(50):
+            $ char.set_flag("cnd_interactions_blowoff", day+2+sub)
+            $ del m, mpl, sub
+            jump girl_interactions_end
+    $ del m, mpl, sub
+    jump girl_interactions
 
 label interactions_provoked_character_line:
     $ char.override_portrait("portrait", "angry")

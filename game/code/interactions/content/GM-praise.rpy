@@ -20,9 +20,7 @@ label interactions_clever:
     if all(char.get_stat(s) >= char_int for s in stats):
         $ inter_praise += 1
 
-    $ del stats
-    $ del mean
-    $ del char_int
+    $ del stats, mean, char_int
     if inter_praise == 3:
         "[char.pC] looks excited."
         $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.33))
@@ -66,9 +64,7 @@ label interactions_strong:
     if all(char.get_stat(s) >= char_const for s in stats):
         $ inter_praise += 1
 
-    $ del stats
-    $ del mean
-    $ del char_const
+    $ del stats, mean, char_const
     if inter_praise == 3:
         "[char.pC] looks pleased.."
         $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.33))
@@ -112,9 +108,7 @@ label interactions_cute:
     if all(char.get_stat(s) >= char_charisma for s in stats):
         $ inter_praise += 1
 
-    $ del stats
-    $ del mean
-    $ del char_charisma
+    $ del stats, mean, char_charisma
     if inter_praise == 3:
         "[char.pC] looks very happy."
         $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.33))

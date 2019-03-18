@@ -1124,7 +1124,6 @@ label klepto_stealing:
                                     "Forget about the theft-attempt":
                                         $ char.gfx_mod_stat("disposition", randint(2,5))
                                     "No":
-                                        "You decided to call the guards instead."
                                         jump klepto_police
                             else:
                                 $ money = min(100, char.gold/2)
@@ -1139,7 +1138,6 @@ label klepto_stealing:
                                     "Forget about the theft-attempt":
                                         $ char.gfx_mod_stat("disposition", randint(2,5))
                                     "No":
-                                        "You decided to call the guards instead."
                                         $ del money
                                         jump klepto_police
                                 $ del money
@@ -1156,7 +1154,6 @@ label klepto_stealing:
                                 "Forget about the theft-attempt":
                                     $ char.gfx_mod_stat("disposition", randint(1,3))
                                 "No":
-                                    "You decided to call the guards instead."
                                     $ del money
                                     jump klepto_police
                             $ del money
@@ -1174,11 +1171,19 @@ label klepto_stealing:
     return
 
 label klepto_police:
-    "A nearby police quickly arrived to the scene."
-    extend " After you explained the situation, [char.name] is taken away."
-    extend " Most probably [char.p] will spend a few days in jail now."
-    $ char.gfx_mod_stat("disposition", -50)
-    $ char.gfx_mod_stat("affection", -20)
-    $ pytfall.jail.add_prisoner(char, "Theft", randint(1, 4))
-    $ gm.remove_girl(char)
+    "You decided to call the guards."
+    if dice(50):
+        "A nearby city guard quickly arrived to the scene."
+        extend " After you explained the situation, [char.name] is taken away."
+        extend " Most probably [char.p] will spend a few days in jail now."
+        $ char.gfx_mod_stat("disposition", -50)
+        $ char.gfx_mod_stat("affection", -20)
+        $ pytfall.jail.add_prisoner(char, "Theft", randint(1, 4))
+        $ gm.remove_girl(char)
+    else:
+        "But there is none around to help."
+        extend " You just made a fool of yourself. [char.name] scoffs at you."
+        char.say "Hahh, call mommy and cry on her shoulder."
+        extend " And leave me alone..."
+        $ char.set_flag("cnd_interactions_blowoff", day+1)
     jump girl_interactions_end

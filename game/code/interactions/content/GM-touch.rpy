@@ -219,8 +219,13 @@ label interactions_grabbutt:
                 $ rc("Geez! If you don't stop, I'm gonna get mad!", "Nooo, what are you doing!?", "Hya! Don't touch me there!", "*sob* that hurts...", "O-owowowowow! Sto-, Wai-, AGYAAA!!", "Hey! Where are you aiming?!")
             else:
                 $ rc("Geez! If you don't stop, I'll get angry.", "Whoa! Hey, don't just touch me out of the blue!", "[char.mc_ref]...! I'd rather you do this sort of thing with someone else...!", "Hey! Quit it, already!", "Aah! C...cut it out! ", "What are you doing over there, you sneak?", "Hmph, how unromantic! Know some shame!")
-            if char.get_stat("affection") <= (200+50*sub) and not cgo("SIW"):
+
+            if (m > 1 or char.get_stat("affection") < (base-50+50*sub)):
+                if interactions_silent_check_for_escalation(char, 10*m):
+                    $ del base, sub, m, n
+                    jump interactions_escalation
                 $ char.set_flag("cnd_interactions_blowoff", day+2)
+
             $ del base, sub, m, n
             $ char.restore_portrait()
             $ char.hide_portrait_overlay()
@@ -269,9 +274,9 @@ label interactions_grabbreasts:
 
     $ sub = check_submissivity(char)
     if cgo("SIW"):
-        $ base = 50
+        $ base = 100
     else:
-        $ base = 250
+        $ base = 300
 
     if char.get_stat("affection") > (base+50*sub) or slave_siw_check(char):
         $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.33))
@@ -342,8 +347,13 @@ label interactions_grabbreasts:
                 $ rc("How filthy. Get away from me!", "What an idiot. What do you mean by 'Oops'?", "How dare you?! Know your place your filthy piece of trash!", "Piss off you fucktard!", "<jumps away> Ha! Like I'll ever let a loser like you touch me.")
             else:
                 $ rc("You certainly have courage, asshole!", "What are you doing!!! They are not an invitation, asshole!", "Hey! Where are those hands of yours going?", "Don't touch me, asshole!", "You're... terrible! Must you do such a thing!", "What are you trying to...?! To hell with you!", "You filthy pig! Who gave you permission to touch me?!")
-            if char.get_stat("affection") <= (200+50*sub) and not cgo("SIW"):
+
+            if (m > 1 or char.get_stat("affection") < (base-50+50*sub)):
+                if interactions_silent_check_for_escalation(char, 20*m):
+                    $ del base, sub, m, n
+                    jump interactions_escalation
                 $ char.set_flag("cnd_interactions_blowoff", day+2)
+
             $ del base, sub, m, n
             $ char.restore_portrait()
             $ char.hide_portrait_overlay()
