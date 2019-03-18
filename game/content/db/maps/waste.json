@@ -1,0 +1,79 @@
+[
+    {
+        "name": "Wastelands",
+        "unlocked": false,
+        "stage": 5,
+        "img": "content/maps/waste_1.webp",
+        "allowed_objects": []
+    },
+    {
+        "name": "Vast Wasteland",
+        "area": "Wastelands",
+        "img": "content/maps/waste_1.webp",
+        "stage": 1,
+        "tier": 0.5,
+        "desc": "A large barren area. Most animals and monsters avoid it, only slimes and occasional bandits can be encountered here.",
+        "unlocked": true,
+        "travel_time": 0.2,
+        "maxexplored": 500,
+        "mobs": ["Slime", "Alkaline Slime", "Acid Slime", "Thug"],
+        "unlocks": {"Abnormal Sands": 90},
+        "cash_limit": 50,
+        "items_limit": 200
+    },
+    {
+        "name": "Abnormal Sands",
+        "area": "Wastelands",
+        "img": "content/maps/waste_1.webp",
+        "stage": 2,
+        "tier": 1.0,
+        "desc": "Heavily damaged by abnormal weapons during the last war, over time fertile meadows became a small desert.",
+        "unlocked": false,
+        "travel_time": 1.0,
+        "mobs": ["Amazon Thief", "Amazon Warrior", "Amazon Archer", "Boros"],
+        "unlocks": {"Melted Sands": 50, "Big Crater": 90},
+        "cash_limit": 100,
+        "items_limit": 500,
+        "hazard": {
+            "health": 5,
+            "mp": 0,
+            "vitality": 10
+        }
+    },
+    {
+        "name": "Melting Sands",
+        "area": "Wastelands",
+        "img": "content/maps/waste_1.webp",
+        "stage": 3,
+        "tier": 1.5,
+        "desc": "Something in this area keeps temperature unbearably high, attracting creatures from the dimension of Fire.",
+        "unlocked": false,
+        "travel_time": 1.0,
+        "mobs": ["Lava Elemental", "Fire Spirit"],
+        "cash_limit": 200,
+        "items_limit": 700,
+        "hazard": {
+            "health": 10,
+            "mp": 0,
+            "vitality": 20
+        }
+    },
+    {
+        "name": "Big Crater",
+        "area": "Wastelands",
+        "img": "content/maps/waste_1.webp",
+        "stage": 4,
+        "tier": 2.5,
+        "desc": "The center of heat zone, where one of ancient weapons was used. This black pitched area lost the ability to support life of any kind.",
+        "unlocked": false,
+        "travel_time": 2.0,
+        "mobs": ["Shadowman", "Horny Mummy", "Undead Unicorn", "Skeleton Warrior"],
+        "cash_limit": 300,
+        "items_limit": 1000,
+        "hazard": {
+            "health": 25,
+            "mp": 0,
+            "vitality": 5
+        }
+    }
+]
