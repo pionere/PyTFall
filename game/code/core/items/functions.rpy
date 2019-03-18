@@ -313,11 +313,12 @@ init -11 python:
 
     def give_to_mc_item_reward(types, price=None, locations=["Exploration"]):
         item = get_item_drops(types=types, price=price, tier=hero.tier, locations=locations)
-        if item:
-            hero.add_item(item)
-            gfx_overlay.random_find(item, 'items')
-            hero.say("I found %s..." % item.id)
-        return
+        if not item:
+            return False
+        hero.add_item(item)
+        gfx_overlay.random_find(item, 'items')
+        hero.say("I found %s..." % item.id)
+        return True
 
     def get_item_drops(types, price=None, tier=None, locations=None, amount=1): # va calls gives to mc a random item based on type and max price
         """Sort out items for drops/rewards in places such as Arena/Forest/Quests and etc.

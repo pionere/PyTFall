@@ -515,17 +515,13 @@ screen exit_button(size=(35, 35), align=(1.0, .0), action=Return(['control', 're
         action action
         keysym "mousedown_3"
 
-screen poly_matrix(in_file, show_exit_button=False, cursor="content/gfx/interface/icons/zoom_glass.png", xoff=20, yoff=20, hidden=[]):
+screen poly_matrix(matrix, show_exit_button=False, cursor="content/gfx/interface/icons/zoom_glass.png", xoff=20, yoff=20, hidden=[]):
     # If a tuple with coordinates is provided instead of False for show_exit_button, exit button will be placed there.
 
     default tooltip = False
 
     on "hide":
         action SetField(config, "mouse", None), Hide("show_poly_matrix_tt")
-
-    python:
-        with open(renpy.loader.transfn(in_file)) as f:
-            matrix = json.load(f)
 
     $ func = renpy.curry(point_in_poly)
     for i in matrix:

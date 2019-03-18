@@ -259,13 +259,18 @@ label library_read_matrix:
     hide screen academy_town
     scene bg academy_town
 
-    if not hasattr(store, "lib_books"):
-        $ lib_books = create_lib_books()
+    python:
+        if not hasattr(store, "lib_data"):
+            lib_books = create_lib_books()
+            lib_data = "code/locations/library/coordinates.json"
+            with open(renpy.loader.transfn(lib_data)) as f:
+                lib_data = json.load(f)
+            del f
 
-    call screen poly_matrix("code/locations/library/coordinates.json", show_exit_button=(1.0, 1.0))
+    call screen poly_matrix(lib_data, show_exit_button=(1.0, 1.0))
     $ setattr(config, "mouse", None)
     if not _return:
-        $ del lib_books
+        $ del lib_data, lib_books 
         jump academy_town
     else:
         call screen library_show_text(lib_books[_return])

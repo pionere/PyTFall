@@ -20,10 +20,26 @@ label storyi_start: # beginning point of the dungeon;
         enemy_soldier = Character("Guard", color="white", what_color="white", show_two_window=True, show_side_image=ProportionalScale("content/npc/mobs/ct1.png", 120, 120))
         enemy_soldier2 = Character("Guard", color="white", what_color="white", show_two_window=True, show_side_image=ProportionalScale("content/npc/mobs/h1.png", 120, 120))
 
-        enemies = ["Skeleton", "Skeleton Warrior", "Will-o-wisp"]
         fight_chance = 100
-        storyi_prison_stage = 1
-        storyi_prison_location = 6
+
+        storyi_data = "code/story/prison_break/coordinates_1.json"
+        with open(renpy.loader.transfn(storyi_data)) as f:
+            storyi_data = json.load(f)
+        storyi_loc_map = dict([(i["id"], i) for i in storyi_data])
+
+        # create/update a map of id-day pairs to store the last search day at the given location
+        storyi_treasures = global_flags.get_flag("storyi_treasures", {})
+        for i in storyi_data:
+            if i.get("items", False):
+                i = i["id"]
+                if i not in storyi_treasures:
+                    storyi_treasures[i] = -1
+            else:
+                storyi_treasures.pop(i["id"], None)
+        global_flags.set_flag("storyi_treasures", storyi_treasures)
+        del i, f
+
+        storyi_prison_location = "Dung"
         controlled_exit = False
 
     stop music
@@ -38,13 +54,12 @@ label storyi_start: # beginning point of the dungeon;
     show bg story d_entrance with eye_open
     if not global_flags.has_flag("been_in_old_ruins"):
         $ global_flags.set_flag("been_in_old_ruins")
-        $ storyi_treasures = {1: -1, 3: -1, 7: -1, 10: -1, 11: -1, 13: -1}
         hero.say "I've found the ruins of a tower near the city."
         hero.say "It may be not safe here, but I bet there is something valuable deep inside!"
         "You can enter and exit the ruins at any point, but it will consume your AP."
-    show screen prison_break_controls
 
 label storyi_gui_loop: # the gui loop; we jump here every time we need to show controlling gui
+    show screen prison_break_controls
     while 1:
         $ result = ui.interact()
         if result in hero.team:
@@ -58,13 +73,12 @@ label storyi_gui_loop: # the gui loop; we jump here every time we need to show c
 label storyi_continue: # the label where we return after visiting characters equipment screens
     call storyi_show_bg from _call_storyi_show_bg_4
     $ equipment_safe_mode = False
-    show screen prison_break_controls
     jump storyi_gui_loop
 
 label storyi_exit:
     $ last_label = "forest_dark" if controlled_exit else "forest_entrance"
-    $ del sflash, q_dissolve, eye_open, eye_shut, map_scroll, blueprint, point, enemy_soldier, enemy_soldier2, enemies, fight_chance
-    $ del storyi_prison_stage, storyi_prison_location, controlled_exit
+    $ del sflash, q_dissolve, eye_open, eye_shut, map_scroll, blueprint, point, enemy_soldier, enemy_soldier2, fight_chance
+    $ del storyi_data, storyi_loc_map, storyi_prison_location, storyi_treasures, controlled_exit
     jump expression last_label
 
 screen prison_break_controls(): # control buttons screen
@@ -91,13 +105,13 @@ screen prison_break_controls(): # control buttons screen
                     action [Hide("prison_break_controls"), Jump("mc_action_storyi_rest")]
                     text "Rest" size 15
             if not hero.has_flag("dnd_storyi_heal"):
-                if storyi_prison_location == 3:
+                if storyi_prison_location == "Infirmary":
                     button:
                         xysize (120, 40)
                         yalign 0.5
                         action [Hide("prison_break_controls"), Jump("storyi_treat_wounds")]
                         text "Heal" size 15
-            if storyi_prison_location == 5 and not global_flags.has_flag("defeated_boss_1"):
+            if storyi_prison_location == "MHall" and not global_flags.has_flag("defeated_boss_1"):
                 button:
                     xysize (120, 40)
                     yalign 0.5
@@ -146,7 +160,6 @@ label storyi_bossroom:
             play world "Theme2.ogg" fadein 2.0 loop
             stop events2
             hide sinister_star
-            show screen prison_break_controls
             jump storyi_gui_loop
     show sinister_star:
         linear 2.5 zoom 0.2
@@ -181,6 +194,7 @@ label storyi_bossroom:
         del mob
         result = run_default_be(enemy_team,
                                 background="content/gfx/bg/story/p_b.webp",
+                                end_background="content/gfx/bg/story/p_b.webp",
                                 slaves=True, track="content/sfx/music/be/battle (5)b.ogg",
                                 prebattle=False, death=True, use_items=True)
 
@@ -199,7 +213,6 @@ label storyi_bossroom:
         call storyi_show_bg from _call_storyi_show_bg_1
         play world "Theme2.ogg" fadein 2.0 loop
         "You return to the ground floor."
-        show screen prison_break_controls
         $ del result, enemy_team
         jump storyi_gui_loop
     else:
@@ -208,7 +221,7 @@ label storyi_bossroom:
 label mc_action_storyi_rest: # resting inside the dungeon; team may be attacked during the rest
     $ hero.set_flag("dnd_storyi_rest")
     show bg tent with q_dissolve
-    python:
+    python hide:
         for i in hero.team:
             i.gfx_mod_stat("vitality", i.get_max("vitality")/3)
             i.gfx_mod_stat("mp", i.get_max("mp")/10)
@@ -219,7 +232,6 @@ label mc_action_storyi_rest: # resting inside the dungeon; team may be attacked 
         hide screen prison_break_controls
         "You have been ambushed by enemies!"
         jump storyi_randomfight
-    show screen prison_break_controls
     jump storyi_gui_loop
 
 label storyi_randomfight:  # initiates fight with random enemy team
@@ -227,30 +239,27 @@ label storyi_randomfight:  # initiates fight with random enemy team
 
     python:
         enemy_team = Team(name="Enemy Team", max_size=3)
-
+        mobs = storyi_loc_map[storyi_prison_location]["mobs"]
         for j in range(randint(1, 3)):
-            mob = build_mob(id=random.choice(enemies), level=15)
+            mob = build_mob(id=random.choice(mobs), level=15)
             mob.controller = Complex_BE_AI(mob)
             enemy_team.add(mob)
-        del mob, j
+        del mobs, mob, j
         result = run_default_be(enemy_team,
                                 background="content/gfx/bg/be/b_dungeon_1.webp",
+                                end_background=storyi_loc_map[storyi_prison_location]["img"],
                                 slaves=True, prebattle=False,
                                 death=False, skill_lvl=4, give_up="escape",
                                 use_items=True)
 
     if result is True:
-        call storyi_show_bg from _call_storyi_show_bg_3
         play world "Theme2.ogg" fadein 2.0 loop
 
-        if storyi_prison_location in [6, 14, 2, 8, 15, 16, 11, 18] and dice(80):
-            $ money = randint(5, 15)
-        elif storyi_prison_location in [9, 10] and dice(90):
-            $ money = randint(15, 30)
+        if storyi_prison_location not in storyi_treasures and dice(hero.get_stat("luck")+30):
+            $ money = randint(10, 30)
+            $ hero.add_money(money, reason="Loot")
         else:
             $ money = 0
-
-        $ hero.add_money(money, reason="Loot")
 
         if persistent.battle_results:
             call screen give_exp_after_battle(hero.team, enemy_team, money=money)
@@ -260,7 +269,7 @@ label storyi_randomfight:  # initiates fight with random enemy team
                     member.gfx_mod_exp(exp_reward(member, enemy_team))
 
         $ del result, enemy_team, money
-        show screen prison_break_controls
+        call storyi_show_bg from _call_storyi_show_bg_3
         jump storyi_gui_loop
     elif result == "escape":
         $ be_hero_escaped(hero.team)
@@ -286,57 +295,16 @@ label storyi_treat_wounds:
         "Health is restored!"
     else:
         "Everyone is healthy already."
-    show screen prison_break_controls
     $ del j, i
     jump storyi_gui_loop
 
 label storyi_show_bg: # shows bg depending on matrix location; due to use of BE it must be a call, and not a part of matrix logic itself
-    if storyi_prison_location == 1:
-        show bg dungeoncell with q_dissolve
-    elif storyi_prison_location == 2:
-        show bg story prison with q_dissolve
-    elif storyi_prison_location == 3:
-        show bg infirmary with q_dissolve
-    elif storyi_prison_location == 4:
-        show bg story barracks with q_dissolve
-    elif storyi_prison_location == 6:
-        show bg story d_entrance with q_dissolve
-    elif storyi_prison_location == 7:
-        show bg story storage with q_dissolve
-    elif storyi_prison_location == 5:
-        show bg story main_hall with q_dissolve
-    elif storyi_prison_location == 8:
-        show bg story barracks with q_dissolve
-    elif storyi_prison_location == 9:
-        show bg dungeoncell with q_dissolve
-    elif storyi_prison_location == 10:
-        show bg dung_2 with q_dissolve
-    elif storyi_prison_location == 11:
-        show bg story weaponry with q_dissolve
-    elif storyi_prison_location == 12:
-        show bg story dinning_hall with q_dissolve
-    elif storyi_prison_location == 13:
-        show bg story storage with q_dissolve
-    elif storyi_prison_location == 14:
-        show bg story prison_1 with q_dissolve
-    elif storyi_prison_location == 15:
-        show bg story prison_1 with q_dissolve
-    elif storyi_prison_location == 16:
-        show bg story prison_1 with q_dissolve
-    elif storyi_prison_location == 17:
-        show bg story barracks with q_dissolve
-    elif storyi_prison_location == 18:
-        show bg story prison_1 with q_dissolve
-    if storyi_prison_location in [6, 14, 2, 8, 15, 16, 11, 18]:
-        $ enemies = ["Skeleton", "Skeleton Warrior", "Will-o-wisp"]
-    elif storyi_prison_location in [9, 10]:
-        $ enemies = ["Seductive Slime", "Devil Rat"]
-    elif storyi_prison_location == 5:
-        $ enemies = ["Fire Spirit", "Flame Spirit", "Fiery Shadow"]
-    else:
-        $ enemies = ["Slime", "Alkaline Slime", "Acid Slime"]
-    if storyi_prison_location in storyi_treasures:
+    $ bg = storyi_loc_map[storyi_prison_location]["img"]
+    show expression bg with q_dissolve
+    $ del bg
+    if storyi_treasures.get(storyi_prison_location, 0) == -1:
         $ renpy.notify("It might be worth to search this room...")
+        $ storyi_treasures[storyi_prison_location] = max(0, day-10)
     return
 
 label storyi_search_items:
@@ -345,428 +313,99 @@ label storyi_search_items:
     if search_day == day:
         "... This is pointless."
         $ del search_day
-        show screen prison_break_controls
         jump storyi_gui_loop
     if not dice((day - search_day) * 8 * (100 + hero.get_stat("luck")) / 100):
         "There is only trash on the floor."
         $ storyi_treasures[storyi_prison_location] += 1 
         $ del search_day
-        show screen prison_break_controls
         jump storyi_gui_loop
-
-    if dice(hero.get_stat("luck") / 3):
-        "There is something shiny in the corner of the room..."
-        $ give_to_mc_item_reward("loot", price=100)
-        $ give_to_mc_item_reward("loot", price=200)
-        if dice(hero.get_stat("luck")):
-            $ give_to_mc_item_reward("loot", price=300)
-
-    if storyi_prison_location == 3:
-        "Surveying the room, you found a few portable restoration items. Sadly, others are too heavy and big to carry around."
-        $ give_to_mc_item_reward("restore", price=100)
-        $ give_to_mc_item_reward("restore", price=200)
-        if dice(hero.get_stat("luck")):
-            $ give_to_mc_item_reward("restore", price=400)
-    elif storyi_prison_location == 7:
-        "You see some old armor on the shelves."
-        $ give_to_mc_item_reward("armor", price=500)
-        $ give_to_mc_item_reward("armor", price=700)
-        if dice(hero.get_stat("luck")):
-            $ give_to_mc_item_reward("armor", price=1000)
-    elif storyi_prison_location == 11:
-        "Among a heap of rusty blades, you see some good weapons."
-        $ give_to_mc_item_reward("weapon", price=500)
-        $ give_to_mc_item_reward("weapon", price=700)
-        if dice(hero.get_stat("luck")):
-            $ give_to_mc_item_reward("weapon", price=1000)
-    elif storyi_prison_location == 13:
-        "Most of the food is spoiled, but some of it is still edible."
-        $ give_to_mc_item_reward("food", price=500)
-        $ give_to_mc_item_reward("food", price=500)
-        if dice(hero.get_stat("luck")):
-            $ give_to_mc_item_reward("food", price=500)
-    elif storyi_prison_location == 10:
-        "There is a pile of clothes in the corner, probably remained from the former prisoners."
-        $ give_to_mc_item_reward("dress", price=500)
-        $ give_to_mc_item_reward("dress", price=500)
-        if dice(hero.get_stat("luck")):
-            $ give_to_mc_item_reward("dress", price=500)
 
     $ storyi_treasures[storyi_prison_location] = day
     $ del search_day
-    show screen prison_break_controls
+
+    python hide:
+        items = storyi_loc_map[storyi_prison_location]["items"]
+        luck = hero.get_stat("luck")
+        found = False
+        for i in items:
+            if i == "loot":
+                if not dice(luck / 3):
+                    continue
+                msg = "There is something shiny in the corner of the room..."
+                prices = [100, 200, 300]
+            elif i == "restore":
+                msg = "Surveying the room, you found a few portable restoration items. Sadly, others are too heavy and big to carry around."
+                prices = [100, 200, 400]
+            elif i == "armor":
+                msg = "You see some old armor on the shelves."
+                prices = [500, 700, 1000]
+            elif i == "weapon":
+                msg = "Among a heap of rusty blades, you see some good weapons."
+                prices = [500, 700, 1000]
+            elif i == "food":
+                msg = "Most of the food is spoiled, but some of it is still edible."
+                prices = [500, 500, 500]
+            elif i == "dress":
+                msg = "There is a pile of clothes in the corner, probably remained from the former prisoners."
+                prices = [500, 500, 500]
+            else:
+                continue
+            narrator(msg)
+            found |= give_to_mc_item_reward(i, price=prices[0])
+            found |= give_to_mc_item_reward(i, price=prices[1])
+            if dice(luck):
+                found |= give_to_mc_item_reward(i, price=prices[2])
+
+        if not found:
+            narrator("There is only trash on the floor.")
+
     jump storyi_gui_loop
 
 label storyi_move_map_point: # moves green point to show team location on the map
-    if storyi_prison_location == 1:
-        show expression point at Transform(pos=(709, 203)) with move
-    elif storyi_prison_location == 2:
-        show expression point at Transform(pos=(784, 255)) with move
-    elif storyi_prison_location == 3:
-        show expression point at Transform(pos=(841, 202)) with move
-    elif storyi_prison_location == 4:
-        show expression point at Transform(pos=(798, 333)) with move
-    elif storyi_prison_location == 6:
-        show expression point at Transform(pos=(777, 471)) with move
-    elif storyi_prison_location == 7:
-        show expression point at Transform(pos=(779, 527)) with move
-    elif storyi_prison_location == 5:
-        show expression point at Transform(pos=(659, 356)) with move
-    elif storyi_prison_location == 8:
-        show expression point at Transform(pos=(656, 517)) with move
-    elif storyi_prison_location == 9:
-        show expression point at Transform(pos=(622, 165)) with move
-    elif storyi_prison_location == 10:
-        show expression point at Transform(pos=(564, 139)) with move
-    elif storyi_prison_location == 11:
-        show expression point at Transform(pos=(530, 456)) with move
-    elif storyi_prison_location == 12:
-        show expression point at Transform(pos=(442, 358)) with move
-    elif storyi_prison_location == 13:
-        show expression point at Transform(pos=(427, 277)) with move
-    elif storyi_prison_location == 14:
-        show expression point at Transform(pos=(794, 421)) with move
-    elif storyi_prison_location == 15:
-        show expression point at Transform(pos=(593, 238)) with move
-    elif storyi_prison_location == 16:
-        show expression point at Transform(pos=(547, 194)) with move
-    elif storyi_prison_location == 17:
-        show expression point at Transform(pos=(444, 417)) with move
-    elif storyi_prison_location == 18:
-        show expression point at Transform(pos=(523, 296)) with move
+    show expression point at Transform(pos=storyi_loc_map[storyi_prison_location]["pos"]) with move
     return
 
 label storyi_map: # shows dungeon map and calls matrix to control it
     show expression map_scroll at truecenter
     show expression blueprint at blueprint_position
     call storyi_move_map_point from _call_storyi_move_map_point
-    call screen poly_matrix("code/story/prison_break/coordinates_1.json", cursor="content/gfx/interface/icons/zoom_pen.png", xoff=0, yoff=0, show_exit_button=(1.0, 1.0))
+    call screen poly_matrix(storyi_data, cursor="content/gfx/interface/icons/zoom_pen.png", xoff=0, yoff=0, show_exit_button=(1.0, 1.0))
     $ setattr(config, "mouse", None)
     $ fight_chance += randint(10, 20)
-    if _return == "Cell":
-        if storyi_prison_location == 1:
-            "A highly guarded prison cell."
+
+    if _return in storyi_loc_map:
+        if storyi_prison_location == _return:
+            # already at the selected location
+            $ msg = storyi_loc_map[_return]["desc"]
+            "[msg]"
+            $ del msg
             jump storyi_map
-        elif storyi_prison_location != 2:
+        if storyi_prison_location not in storyi_loc_map[_return]["entries"]:
             "You are too far to go there."
             jump storyi_map
-        else:
-            jump prison_storyi_event_cell
-    elif _return == "Prison":
-        if storyi_prison_location == 2:
-            "A prison block with many empty cells."
-            jump storyi_map
-        elif not(storyi_prison_location in [1, 3, 4]):
-            "You are too far to go there."
-            jump storyi_map
-        else:
-            jump prison_storyi_event_prisonblock
-    elif _return == "Infirmary":
-        if storyi_prison_location == 3:
-            "The prison infirmary. They store there a considerable amount of medical supplies."
-            jump storyi_map
-        elif storyi_prison_location <> 2:
-            "You are too far to go there."
-            jump storyi_map
-        else:
-            jump prison_storyi_event_infirmary
-    elif _return == "GRoom_2":
-        if storyi_prison_location == 4:
-            "A small guard post."
-            jump storyi_map
-        elif not(storyi_prison_location in [2, 14]):
-            "You are too far to go there."
-            jump storyi_map
-        else:
-            jump prison_storyi_event_groom2
-    elif _return == "GRoom_3":
-        if storyi_prison_location == 17:
-            "A small guard post."
-            jump storyi_map
-        elif not(storyi_prison_location in [11, 16, 12]):
-            "You are too far to go there."
-            jump storyi_map
-        else:
-            jump prison_storyi_event_groom3
-    elif _return == "MHall":
-        if storyi_prison_location == 5:
-            "A huge half-light central hall."
-            jump storyi_map
-        elif not(storyi_prison_location in [7, 8, 14, 15, 18]):
-            "You are too far to go there."
-            jump storyi_map
-        else:
-            jump prison_storyi_event_barracks
-    elif _return == "Dung":
-        if storyi_prison_location == 6:
-            "The entrance to the dungeon. Tightly shut."
-            jump storyi_map
-        elif not(storyi_prison_location in [14, 7]):
-            "You are too far to go there."
-            jump storyi_map
-        else:
-            jump prison_storyi_event_dungentr
-    elif _return == "Storage":
-        if storyi_prison_location == 7:
-            "A small storage filled with old armor and household accessories."
-            jump storyi_map
-        elif not(storyi_prison_location in [6, 5]):
-            "You are too far to go there."
-            jump storyi_map
-        else:
-            jump prison_storyi_event_storage
-    elif _return == "MEntrance":
-        if storyi_prison_location == 8:
-            "The main entrance. It's usually well guarded."
-            jump storyi_map
-        elif storyi_prison_location <> 5:
-            "You are too far to go there."
-            jump storyi_map
-        else:
-            jump prison_storyi_event_mentrance
-    elif _return == "IRoom":
-        if storyi_prison_location == 9:
-            "The interrogation room for preliminary inquests."
-            jump storyi_map
-        elif not(storyi_prison_location in [10, 15, 16]):
-            "You are too far to go there."
-            jump storyi_map
-        else:
-            jump prison_storyi_event_iroom
-    elif _return == "TRoom":
-        if storyi_prison_location == 10:
-            "The torturing room. It has all kinds of devices, from vibrators and clamps to whips and scissors."
-            jump storyi_map
-        elif storyi_prison_location <> 9:
-            "You are too far to go there."
-            jump storyi_map
-        else:
-            jump prison_storyi_event_troom
-    elif _return == "WRoom":
-        if storyi_prison_location == 11:
-            "The weaponry. It has a good selection of weapons, including the weapons confiscated from the prisoners."
-            jump storyi_map
-        elif not(storyi_prison_location in [16, 17]):
-            "You are too far to go there."
-            jump storyi_map
-        else:
-            jump prison_storyi_event_wroom
-    elif _return == "CRoom":
-        if storyi_prison_location == 12:
-            "The dining hall. Here slaves prepare food for guards and prisoners."
-            jump storyi_map
-        elif not(storyi_prison_location in [17, 13]):
-            "You are too far to go there."
-            jump storyi_map
-        else:
-            jump prison_storyi_event_croom
-    elif _return == "GRoom_1":
-        if storyi_prison_location == 13:
-            "Another small storage filled with food supplies."
-            jump storyi_map
-        elif not(storyi_prison_location in [12, 18]):
-            "You are too far to go there."
-            jump storyi_map
-        else:
-            jump prison_storyi_event_groom_1
-    elif _return == "Passage_1":
-        if storyi_prison_location == 14:
-            "A narrow corridor between the two rooms"
-            jump storyi_map
-        elif not(storyi_prison_location in [4, 6, 5]):
-            "You are too far to go there."
-            jump storyi_map
-        else:
-            jump prison_storyi_passage_1
-    elif _return == "Passage_2":
-        if storyi_prison_location == 15:
-            "A narrow corridor between the two rooms"
-            jump storyi_map
-        elif not(storyi_prison_location in [5, 9, 16]):
-            "You are too far to go there."
-            jump storyi_map
-        else:
-            jump prison_storyi_passage_2
-    elif _return == "Passage_3":
-        if storyi_prison_location == 16:
-            "A narrow corridor between the two rooms"
-            jump storyi_map
-        elif not(storyi_prison_location in [15, 9, 11, 17]):
-            "You are too far to go there."
-            jump storyi_map
-        else:
-            jump prison_storyi_passage_3
-    elif _return == "Passage_4":
-        if storyi_prison_location == 18:
-            "A narrow corridor between the two rooms"
-            jump storyi_map
-        elif not(storyi_prison_location in [5, 13]):
-            "You are too far to go there."
-            jump storyi_map
-        else:
-            jump prison_storyi_passage_4
+        # enter the new location
+        $ storyi_prison_location = _return
+        $ sfx = storyi_loc_map[storyi_prison_location].get("sfx", None)
+        if sfx:
+            play events2 sfx
+        $ del sfx
+        
+        call storyi_move_map_point from _call_storyi_move_map_point_1
+        call storyi_show_bg from _call_storyi_show_bg_5
+
+        # special comment before boss
+        if storyi_prison_location == "MHall" and not global_flags.has_flag("defeated_boss_1"):
+            hero.say "I see old stairs. I wonder where they lead."
+
+        # chance encounter
+        if storyi_loc_map[storyi_prison_location].get("mobs", None) and dice(fight_chance):
+            jump storyi_randomfight
+
+        jump storyi_map
     else:
         play events2 "events/letter.mp3"
         hide expression map_scroll
         hide expression blueprint
         hide expression point
         with dissolve
-        show screen prison_break_controls
         jump storyi_gui_loop
-
-# further go personal labels for each location to ensure full control over events
-
-label prison_storyi_passage_1:
-    $ storyi_prison_location = 14
-    call storyi_move_map_point from _call_storyi_move_map_point_1
-    call storyi_show_bg from _call_storyi_show_bg_5
-    if dice(fight_chance):
-        jump storyi_randomfight
-    jump storyi_map
-
-label prison_storyi_passage_2:
-    $ storyi_prison_location = 15
-    call storyi_move_map_point from _call_storyi_move_map_point_2
-    call storyi_show_bg from _call_storyi_show_bg_6
-    if dice(fight_chance):
-        jump storyi_randomfight
-    jump storyi_map
-
-label prison_storyi_passage_3:
-    $ storyi_prison_location = 16
-    call storyi_move_map_point from _call_storyi_move_map_point_3
-    call storyi_show_bg from _call_storyi_show_bg_7
-    if dice(fight_chance):
-        jump storyi_randomfight
-    jump storyi_map
-
-label prison_storyi_passage_4:
-    $ storyi_prison_location = 18
-    call storyi_move_map_point from _call_storyi_move_map_point_4
-    call storyi_show_bg from _call_storyi_show_bg_8
-    if dice(fight_chance):
-        jump storyi_randomfight
-    jump storyi_map
-
-label prison_storyi_event_cell:
-    $ storyi_prison_location = 1
-    play events2 "events/prison_cell_door.mp3"
-    call storyi_move_map_point from _call_storyi_move_map_point_5
-    call storyi_show_bg from _call_storyi_show_bg_9
-    if dice(fight_chance):
-        jump storyi_randomfight
-    jump storyi_map
-
-label prison_storyi_event_prisonblock:
-    $ storyi_prison_location = 2
-    play events2 "events/prison_cell_door.mp3"
-    call storyi_move_map_point from _call_storyi_move_map_point_6
-    call storyi_show_bg from _call_storyi_show_bg_10
-    if dice(fight_chance):
-        jump storyi_randomfight
-    jump storyi_map
-
-label prison_storyi_event_infirmary:
-    $ storyi_prison_location = 3
-    play events2 "events/door_open.mp3"
-    call storyi_move_map_point from _call_storyi_move_map_point_7
-    call storyi_show_bg from _call_storyi_show_bg_11
-    jump storyi_map
-
-label prison_storyi_event_groom2:
-    $ storyi_prison_location = 4
-    play events2 "events/door_open.mp3"
-    call storyi_move_map_point from _call_storyi_move_map_point_8
-    call storyi_show_bg from _call_storyi_show_bg_12
-    if dice(fight_chance):
-        jump storyi_randomfight
-    jump storyi_map
-
-label prison_storyi_event_groom3:
-    $ storyi_prison_location = 17
-    play events2 "events/door_open.mp3"
-    call storyi_move_map_point from _call_storyi_move_map_point_9
-    call storyi_show_bg from _call_storyi_show_bg_13
-    if dice(fight_chance):
-        jump storyi_randomfight
-    jump storyi_map
-
-label prison_storyi_event_dungentr:
-    $ storyi_prison_location = 6
-    call storyi_move_map_point from _call_storyi_move_map_point_10
-    call storyi_show_bg from _call_storyi_show_bg_14
-    if dice(fight_chance):
-        jump storyi_randomfight
-    jump storyi_map
-
-label prison_storyi_event_storage:
-    $ storyi_prison_location = 7
-    play events2 "events/door_open.mp3"
-    call storyi_move_map_point from _call_storyi_move_map_point_11
-    call storyi_show_bg from _call_storyi_show_bg_15
-    jump storyi_map
-
-label prison_storyi_event_barracks:
-    $ storyi_prison_location = 5
-    play events2 "events/prison_cell_door.mp3"
-    call storyi_move_map_point from _call_storyi_move_map_point_12
-    call storyi_show_bg from _call_storyi_show_bg_16
-    if not global_flags.has_flag("defeated_boss_1"):
-        hero.say "I see old stairs. I wonder where they lead."
-    if dice(fight_chance):
-        jump storyi_randomfight
-    jump storyi_map
-
-label prison_storyi_event_iroom:
-    $ storyi_prison_location = 9
-    play events2 "events/prison_cell_door.mp3"
-    call storyi_move_map_point from _call_storyi_move_map_point_13
-    call storyi_show_bg from _call_storyi_show_bg_17
-    if dice(fight_chance):
-        jump storyi_randomfight
-    jump storyi_map
-
-label prison_storyi_event_mentrance:
-    $ storyi_prison_location = 8
-    play events2 "events/prison_cell_door.mp3"
-    call storyi_move_map_point from _call_storyi_move_map_point_14
-    call storyi_show_bg from _call_storyi_show_bg_18
-    if dice(fight_chance):
-        jump storyi_randomfight
-    jump storyi_map
-
-label prison_storyi_event_troom:
-    $ storyi_prison_location = 10
-    play events2 "events/prison_cell_door.mp3"
-    call storyi_move_map_point from _call_storyi_move_map_point_15
-    call storyi_show_bg from _call_storyi_show_bg_19
-    if dice(fight_chance):
-        jump storyi_randomfight
-    jump storyi_map
-
-label prison_storyi_event_wroom:
-    $ storyi_prison_location = 11
-    play events2 "events/prison_cell_door.mp3"
-    call storyi_move_map_point from _call_storyi_move_map_point_16
-    call storyi_show_bg from _call_storyi_show_bg_20
-    if dice(fight_chance):
-        jump storyi_randomfight
-    jump storyi_map
-
-label prison_storyi_event_groom_1:
-    $ storyi_prison_location = 13
-    play events2 "events/prison_cell_door.mp3"
-    call storyi_move_map_point from _call_storyi_move_map_point_17
-    call storyi_show_bg from _call_storyi_show_bg_21
-    if dice(fight_chance):
-        jump storyi_randomfight
-    jump storyi_map
-
-label prison_storyi_event_croom:
-    $ storyi_prison_location = 12
-    play events2 "events/prison_cell_door.mp3"
-    call storyi_move_map_point from _call_storyi_move_map_point_18
-    call storyi_show_bg from _call_storyi_show_bg_22
-    if dice(fight_chance):
-        jump storyi_randomfight
-    jump storyi_map
