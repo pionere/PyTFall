@@ -42,13 +42,12 @@ label interactions_harrasment_after_battle: # after MC provoked a free character
                 jump hero_in_jail
                 with Fade
             python hide:
-                # We unequip all of the inventory first:
-                pool = []
-                for item in [i for i in char.eqslots.values() if i]:
-                    char.unequip(item)
-                pool.extend(i for i in char.inventory.items.keys() if i.price <= 1000 and can_transfer(char, hero, i, amount=1, silent=True, force=True))
-                if pool:
-                    temp = choice(pool)
+                equips = [i for i in char.eqslots.values() if i and i.price <= 1000 and can_transfer(char, hero, i, silent=True, force=True)]
+                invs = [i for i in char.inventory.items.keys() if i.price <= 1000 and can_transfer(char, hero, i, silent=True, force=True)]
+                if equips or invs:
+                    temp = choice(equips + invs)
+                    if temp not in invs:
+                        char.unequip(temp)
                     narrator("On %s you found %s!" % (char.op, temp.id))
                     transfer_items(char, hero, temp, amount=1, silent=True, force=True)
                     char.gfx_mod_stat("disposition", -randint(20, 45))

@@ -150,13 +150,6 @@ init -11 python:
         @param: silent: If False, game will notify the player with a reason why an item cannot be equipped.
         @param: force: Option to forcibly take an item from a character.
         """
-        # Special check for locations that allow inventories.
-        # Apartment is one such example.
-        if isinstance(source, Building):
-            return True
-        if isinstance(target, Building):
-            return True
-
         if isinstance(source, PytGroup):
             if item.jump_to_label:
                 return
@@ -174,7 +167,7 @@ init -11 python:
                     return
             return True
 
-        if all([item.unique, isinstance(target, Player), item.unique != "mc"]) or all([item.unique, item.unique != target.id]):
+        if item.unique and (not isinstance(target, Building)) and item.unique != ("mc" if target == hero else target.id):
             if not silent:
                 renpy.show_screen("message_screen", "This unique item cannot be given to {}!".format(target.name))
             return
@@ -187,7 +180,7 @@ init -11 python:
         # (Unless action is forced):
         if not force:
             if all([isinstance(source, Char), source.status != "slave", not(item.price <= interactions_influence(source)*10*(source.tier + 1) and check_lovers(source, hero))]):
-                if any([item.slot == "consumable", (item.slot == "misc" and item.mdestruct), source.given_items.get(item.id, 0) - amount < 0]):
+                if any([item.slot == "consumable", (item.slot == "misc" and item.mdestruct), source.given_items.get(item.id, 0) < amount]):
                     if not silent:
                         source.override_portrait("portrait", "indifferent")
                         if "Impersonal" in source.traits:
