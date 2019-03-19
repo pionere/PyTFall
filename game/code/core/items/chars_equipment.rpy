@@ -1107,8 +1107,7 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                                         xysize (172, 18)
                                         text stat.capitalize() color "#F5F5DC" size 15 xalign .02 yoffset -2
                                         label (u'{color=#F5F5DC}{size=-4}%d'%value) align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
-                        if hasattr(item, 'mtemp'):
-                            if item.mtemp:
+                        if getattr(item, 'mtemp', False):
                                 label ('Frequency:') text_size 14 text_color "gold" xpos 30
                                 vbox:
                                     frame:
@@ -1124,24 +1123,20 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                                                     text (u'After %d days'%item.mtemp) color "#F5F5DC" size 15 xalign .02 yoffset -2
                                                 else:
                                                     text (u'After one day') color "#F5F5DC" size 15 xalign .02 yoffset -2
-                                    if hasattr(item, 'mdestruct'):
-                                        if item.mdestruct:
+                                    if getattr(item, 'mdestruct', False):
                                             frame:
                                                 xysize (172, 18)
                                                 text (u'Disposable') color "#F5F5DC" size 15 xalign .02 yoffset -2
-                                    if hasattr(item, 'mreusable'):
-                                        if item.mreusable:
+                                    if getattr(item, 'mreusable', False):
                                             frame:
                                                 xysize (172, 18)
                                                 text (u'Reusable') color "#F5F5DC" size 15 xalign .02 yoffset -2
-                                    if hasattr(item, 'statmax'):
-                                        if item.statmax:
+                                    if getattr(item, 'statmax', False):
                                             frame:
                                                 xysize (172, 18)
                                                 text (u'Stat limit') color "#F5F5DC" size 15 xalign .02 yoffset -2
                                                 label (u'{color=#F5F5DC}{size=-4}%d'%item.statmax) align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
-                        if hasattr(item, 'ctemp'):
-                            if item.ctemp:
+                        if getattr(item, 'ctemp', False):
                                 label ('Duration:') text_size 14 text_color "gold" xpos 30
                                 frame:
                                     xysize (172, 18)

@@ -1012,14 +1012,11 @@ init -9 python:
 
             self.last_known_aeq_purpose = purpose
 
-            # if self.eqslots["weapon"]:
-            #     self.unequip(self.eqslots["weapon"])
-
-            aeq_debug("Auto Equipping for -- {} --".format(purpose))
-            slots = store.EQUIP_SLOTS
             kwargs = AEQ_PURPOSES[purpose]
-            aeq_debug("Auto Equipping Real Weapons: {} --!!".format(kwargs["real_weapons"]))
-            return self.auto_equip(slots=slots, **kwargs)
+            if DEBUG_AUTO_ITEM:
+                aeq_debug("Auto Equipping for -- {} --".format(purpose))
+                aeq_debug("Auto Equipping Real Weapons: {} --!!".format(kwargs["real_weapons"]))
+            return self.auto_equip(slots=EQUIP_SLOTS, **kwargs)
 
         def auto_equip(self, target_stats, target_skills=None,
                        exclude_on_skills=None, exclude_on_stats=None,
@@ -1051,8 +1048,6 @@ init -9 python:
             """
 
             # Prepare data:
-            if not slots:
-                slots = ["consumable"]
             if not inv:
                 inv = self.inventory
             if not target_skills:
@@ -1062,21 +1057,28 @@ init -9 python:
             base_purpose = set(base_purpose) if base_purpose else set()
             sub_purpose = set(sub_purpose) if sub_purpose else set()
 
-            # Go over all slots and unequip items:
-            weighted = {}
-            for s in slots:
-                if s == "ring":
-                    for r in ["ring", "ring1", "ring2"]:
-                        item = self.eqslots[r]
+            if not slots:
+                weighted = {"consumable": []}
+            else:
+                # preserve current stat in case we need to restore battle_stats
+                last_battle_stats = [char.get_stat(s) for s in ("health", "mp", "vitality")]
+                last_equipment = sorted(self.eqslots.items())
+
+                weighted = {}
+                # Go over all slots and unequip items:
+                for s in slots:
+                    if s == "ring":
+                        for r in ["ring", "ring1", "ring2"]:
+                            item = self.eqslots[r]
+                            if item:
+                                self.unequip(item, slot=r, aeq_mode=True)
+                    elif s == "consumable":
+                        pass
+                    else:
+                        item = self.eqslots[s]
                         if item:
-                            self.unequip(item, aeq_mode=True)
-                elif s == "consumable":
-                    pass
-                else:
-                    item = self.eqslots[s]
-                    if item:
-                        self.unequip(item, aeq_mode=True)
-                weighted[s] = []
+                            self.unequip(item, slot=s, aeq_mode=True)
+                    weighted[s] = []
 
             # allow a little stat/skill penalty, just make sure the net weight is positive.
             min_value = -5
@@ -1210,6 +1212,17 @@ init -9 python:
                         self.equip(item, remove=False, aeq_mode=True)
                         aeq_debug("     --> %s equipped %s to %s.", item.id, self.name, item.slot)
                         returns.append(item.id)
+
+            # restore battle_stats in case the equipment is not changed and nothing was consumed
+            if not weighted.get("consumable", False):
+                current_equipment = sorted(self.eqslots.items())
+                for prev_item, new_item in zip(last_equipment, current_equipment):
+                    if prev_item != new_item:
+                        break
+                else:
+                    # all the same -> restore battle_stats
+                    for stat, value in zip(("health", "mp", "vitality"), last_battle_stats):
+                        char.set_stat(stat, value)
 
             return returns
 
