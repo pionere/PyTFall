@@ -915,31 +915,27 @@ init -9 python:
             # AEQ considerations:
             # Basically we manually mess with inventory and have
             # no way of knowing what was done to it.
-            if not aeq_mode and item.slot != 'consumable':
+            _slot = item.slot
+            if not aeq_mode and _slot != 'consumable':
                 self.last_known_aeq_purpose = ''
 
-            if item.slot == 'misc':
-                self.eqslots['misc'] = None
-                del(self.miscitems[item])
-                self.inventory.append(item)
-            elif item.slot == 'ring':
-                if slot:
-                    self.eqslots[slot] = None
-                elif self.eqslots['ring'] == item:
-                    self.eqslots['ring'] = None
-                elif self.eqslots['ring1'] == item:
-                    self.eqslots['ring1'] = None
-                elif self.eqslots['ring2'] == item:
-                    self.eqslots['ring2'] = None
-                else:
-                    raise Exception("Error while unequiping a ring! (Girl)")
-                self.inventory.append(item)
-                self.apply_item_effects(item, direction=False)
+            if _slot == 'misc':
+                del self.miscitems[item]
             else:
-                # Other slots:
-                self.inventory.append(item)
                 self.apply_item_effects(item, direction=False)
-                self.eqslots[item.slot] = None
+                if _slot == 'ring':
+                    if slot:
+                        _slot = slot
+                    elif self.eqslots['ring'] == item:
+                        _slot = "ring"
+                    elif self.eqslots['ring1'] == item:
+                        _slot = "ring1"
+                    elif self.eqslots['ring2'] == item:
+                        _slot = "ring2"
+                    else:
+                        raise Exception("Error while unequiping a ring!")
+            self.eqslots[_slot] = None
+            self.inventory.append(item)
 
         def equip_chance(self, item):
             """
@@ -1217,19 +1213,6 @@ init -9 python:
 
             return returns
 
-        def auto_buy_item(self, item, amount=1, equip=False):
-            if isinstance(item, basestring):
-                item = store.items[item]
-            if item in store.all_auto_buy_items:
-                amount = min(amount, round_int(self.gold/item.price))
-                if amount != 0:
-                    self.take_money(item.price*amount, reason="Items")
-                    self.inventory.append(item, amount)
-                    if equip:
-                        self.equip(item)
-                    return [item.id] * amount
-            return []
-
         def guess_aeq_purpose(self, hint=None):
             """
             "Fighting": Generic purpose for combat.
@@ -1295,7 +1278,7 @@ init -9 python:
 
             return purpose
 
-        def auto_buy(self, item=None, amount=1, slots=None, casual=False,
+        def auto_buy(self, amount=1, slots=None, casual=False,
                      equip=False, container=None, purpose=None,
                      check_money=True, inv=None,
                      limit_tier=False, direct_equip=False,
@@ -1304,7 +1287,6 @@ init -9 python:
             from the container that host all items that can be
             sold in PyTFall.
 
-            item: auto_buy specific item.
             amount: how many items to buy (used as a total instead of slots).
             slots: what slots to shop for, if None equipment slots and
                 consumable will be used together with amount argument.
@@ -1330,9 +1312,6 @@ init -9 python:
             - Add casual as attr.
             - Maybe merge with give_tiered_items somehow!
             """
-            if item:
-                return self.auto_buy_item(item, amount, equip)
-
             if not container: # Pick the container we usually shop from:
                 container = store.all_auto_buy_items
             if slots is None:
@@ -1368,7 +1347,7 @@ init -9 python:
                                       smart_ownership_limit=smart_ownership_limit,
                                       **kwargs)
 
-            rv = [] # List of item name strings we return in case we need to report
+            rv = [] # List of items we return in case we need to report
             # what happened in this method to player.
             selected = []
             for slot, picks in weighted.iteritems():
@@ -1383,7 +1362,7 @@ init -9 python:
                 c0 = not check_money
                 c1 = check_money and self.take_money(item.price, reason="Items")
                 if c0 or c1:
-                    rv.append(item.id)
+                    rv.append(item)
 
                     if direct_equip and slot != "consumable":
                         self.equip(item)
@@ -1727,25 +1706,36 @@ init -9 python:
 
         def item_counter(self):
             # Timer to clear consumable blocks
-            for item in self.consblock.keys():
-                self.consblock[item] -= 1
-                if self.consblock[item] <= 0:
-                    del(self.consblock[item])
+            drops = []
+            for item, value in self.consblock.iteritems():
+                value -= 1
+                if value <= 0:
+                    drops.append(item)
+                    continue
+                self.consblock[item] = value
+            for item in drops:
+                del self.consblock[item]
 
             # Timer to remove effects of a temp consumer items
-            for item in self.constemp.keys():
-                self.constemp[item] -= 1
-                if self.constemp[item] <= 0:
+            drops = []
+            for item, value in self.constemp.iteritems():
+                value -= 1
+                if value <= 0:
                     self.apply_item_effects(item, direction=False)
-                    del(self.constemp[item])
+                    drops.append(item)
+                    continue
+                self.constemp[item] = value
+            for item in drops:
+                del self.constemp[item]
 
             # Counter to apply misc item effects and settle misc items conditions:
-            for item in self.miscitems.keys():
-                self.miscitems[item] -= 1
-                if self.miscitems[item] <= 0:
+            drops = []
+            for item, value in self.miscitems.iteritems():
+                value -= 1
+                if value <= 0:
                     # Figure out if we can pay the piper:
-                    for stat, value in item.mod.items():
-                        if value < 0:
+                    for stat, val in item.mod.items():
+                        if val < 0:
                             if stat == "exp":
                                 pass
                             elif stat == "gold":
@@ -1753,28 +1743,26 @@ init -9 python:
                                     temp = hero
                                 else:
                                     temp = self
-                                if temp.gold + value < 0:
+                                if temp.gold + val < 0:
                                     break
                             else:
-                                if self.get_stat(stat) + value < self.stats.min[stat]:
+                                if self.get_stat(stat) + val < self.stats.min[stat]:
                                     break
                     else:
                         self.apply_item_effects(item, misc_mode=True)
 
-                        # For Misc item that self-destruct:
-                        if item.mdestruct:
-                            del(self.miscitems[item])
-                            self.eqslots['misc'] = False
-                            if not item.mreusable:
-                                self.miscblock.append(item)
-                            return
-
-                        if not item.mreusable:
-                            self.miscblock.append(item)
-                            self.unequip(item)
-                            return
-
-                    self.miscitems[item] = item.mtemp
+                        # collect self-destruct or not reusable items
+                        if (not item.mreusable) or item.mdestruct:
+                            drops.append(item)
+                            continue
+                    value = item.mtemp
+                self.miscitems[item] = value
+            for item in drops:
+                if not item.mreusable:
+                    self.miscblock.append(item)
+                self.unequip(item)
+                if item.mdestruct:
+                    self.inventory.remove(item)
 
         # Trait methods *now for all characters:
         # Traits methods
@@ -2517,6 +2505,15 @@ init -9 python:
                 self.set_stat("mp", self.get_max("mp"))
                 self.set_stat("vitality", self.get_max("vitality"))
 
+                # earn some money
+                if self.location != pytfall.jail:
+                    wage = self.expected_wage
+                    if self.status == "slave":
+                        wage = wage/10
+                    wage = randint(0, wage)
+                    if wage != 0:
+                        self.add_money(wage, reason="Wages")
+
                 #self.restore()
                 self.restore_ap()
                 self.item_counter()
@@ -2526,6 +2523,9 @@ init -9 python:
                     self.mod_stat("joy", 5)
 
                 super(Char, self).next_day()
+
+                # Shopping (For now will not cost AP):
+                self.nd_autoshop()
                 return
 
             # hero's worker
@@ -2685,35 +2685,45 @@ init -9 python:
                 self.nd_auto_train()
 
                 # Shopping (For now will not cost AP):
-                self.nd_autoshop()
+                self.nd_autoshop(self.txt)
 
-        def nd_autoshop(self):
+        def nd_autoshop(self, txt=None):
             if self.autobuy is False or self.gold < 1000:
                 return # can not afford it
             if self.has_flag("cnd_shopping_day"):
                 return # recently shopped
             self.set_flag("cnd_shopping_day", day+4)
 
-            temp = choice(["%s decided to go on a shopping tour :)" % self.nickname,
+            if txt is not None:
+                temp = choice(["%s decided to go on a shopping tour :)" % self.nickname,
                                "%s went to town to relax, take %s mind of things and maybe even do some shopping!" % (self.nickname, self.pp)])
-
-            self.txt.append(temp)
+                txt.append(temp)
 
             result = self.auto_buy(amount=randint(1, 2))
             if result:
-                flag_green = True
                 self.mod_stat("joy", 5 * len(result))
 
+                # might want to use the new item(s)
+                if self.autoequip:
+                    for item in result:
+                        if item.slot != 'consumable':
+                            self.equip_for(self.last_known_aeq_purpose)
+                            break
+
+                if txt is None:
+                    return
                 temp = choice(("%s bought %sself {color=blue}%s %s{/color}.", 
                                "%s got %s hands on {color=blue}%s %s{/color}!"))
-                temp = temp % (self.pC, self.op, ", ".join(result), plural("item", len(result)))
+                temp = temp % (self.pC, self.op, ", ".join([item.id for item in result]), plural("item", len(result)))
                 temp += choice(("This brightened %s mood a bit!" % self.pp, "%s's definitely in better mood because of that!" % self.pC))
 
                 temp = "{color=green}" + temp + "{/color}"
             else:
+                if txt is None:
+                    return
                 temp = choice(["But %s ended up not doing much else than window-shopping..." % self.p,
-                               "But %s could not find what %s was looking for..." % (self.p, self.p)])
-            self.txt.append(temp)
+                                "But %s could not find what %s was looking for..." % (self.p, self.p)])
+            txt.append(temp)
 
         def nd_joy_disposition_checks(self, mood, flag_red):
             friends_disp_check(self, self.txt)
