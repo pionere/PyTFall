@@ -85,12 +85,12 @@ label city_tavern_play_dice: # starting the dice game
     if 'Drunk' in hero.effects: # dizzy screen does not look good with dices animation...
         "You are too drunk for games at the moment."
         jump city_tavern_menu
-    elif hero.gold < city_tavern_dice_bet:
+    if hero.gold < global_flags.flag("city_tavern_dice_bet"):
         "Sadly, you don't have enough money to make a bet."
         jump city_tavern_menu
 
     hide drunkards with dissolve
-    $ city_tavern_current_dice_bet = city_tavern_dice_bet # current bet may increase after every victory
+    $ city_tavern_current_dice_bet = global_flags.flag("city_tavern_dice_bet") # current bet may increase after every victory
 
 
 label city_tavern_play_dice_another_round: # additional rounds continue from here
@@ -117,51 +117,43 @@ label city_tavern_play_show_dice:
     $ d_2 = sum(dice_2)
     show screen city_tavern_show_status(d_1, d_2)
     with dissolve
-    if sum(dice_1) == 21:
+    if d_1 == 21:
         $ ai_passed = True
-    if sum(dice_2) == 21:
+    if d_2 == 21:
         $ player_passed = True
-    if sum(dice_2) > 21 or sum(dice_1) > 21:
+    if d_2 > 21 or d_1 > 21:
         $ ai_passed = player_passed = True
     if ai_passed and player_passed:
         hide screen city_tavern_dicing # we need to hide controls screen immediately after the game ends, or it still be available when it shouldn't be already
-        if sum(dice_1) > 21 and sum(dice_2) <= 21:
-            $ game_outcome = 1
-        elif sum(dice_2) > 21 and sum(dice_1) <= 21:
-            $ game_outcome = -1
-        elif sum(dice_2) > 21 and sum(dice_1) > 21:
-            $ game_outcome = 0
-        elif sum(dice_2) == 21 and sum(dice_1) == 21:
-            $ game_outcome = 0
-        elif sum(dice_2) == sum(dice_1):
-            $ game_outcome = 0
-        elif sum(dice_2) > sum(dice_1):
-            $ game_outcome = 1
+        if d_1 > 21:
+            $ result = 1 if d_2 <= 21 else 0
+        elif d_2 > 21:
+            $ result = -1
+        elif d_1 == d_2:
+            $ result = 0
         else:
-            $ game_outcome = -1
-        if game_outcome == -1:
+            $ result = 1 if d_2 > d_1 else -1
+        if result == -1:
             $ hero.take_money(city_tavern_current_dice_bet, reason="Tavern")
-            $ narrator ("You lost!")
-        elif game_outcome == 0:
-            $ narrator ("It's a draw! You break even.")
+            "You lost!"
+        elif result == 0:
+            "It's a draw! You break even."
         else:
             if hero.gold >= city_tavern_current_dice_bet*2:
                 menu:
                     "You won! You can take your money right now or double your bet if you are feeling lucky."
                     "Take the money":
-                        $ hero.add_money(city_tavern_current_dice_bet, reason="Tavern")
+                        $ pass
                     "Double the bet":
                         $ city_tavern_current_dice_bet *= 2
                         hide screen city_tavern_show_dices
                         jump city_tavern_play_dice_another_round
             else:
                 "You won!"
-                $ hero.add_money(city_tavern_current_dice_bet, reason="Tavern")
-        $ del city_tavern_current_dice_bet
-        hide screen city_tavern_show_dices
-        with dissolve
-        jump city_tavern_menu
-    elif sum(dice_2) == 21:
+
+            $ hero.add_money(city_tavern_current_dice_bet, reason="Tavern")
+        jump city_tavern_dices_done
+    elif d_2 == 21:
         jump city_tavern_throw_dice
     else:
         show screen city_tavern_dicing()
@@ -169,14 +161,14 @@ label city_tavern_play_show_dice:
             $ result = ui.interact()
 
 label city_tavern_throw_dice:
-    if not(player_passed):
+    if not player_passed:
         $ dice_2.append(throw_a_normal_dice())
         if check_if_should_throw_dice(sum(dice_1), sum(dice_2), player_passed) and not(ai_passed):
             $ dice_1.append(throw_a_normal_dice())
         else:
             $ ai_passed = True
-    else:
-        while (check_if_should_throw_dice(sum(dice_1), sum(dice_2), player_passed) and not(ai_passed)):
+    elif not ai_passed:
+        while check_if_should_throw_dice(sum(dice_1), sum(dice_2), player_passed):
             $ dice_1.append(throw_a_normal_dice())
         $ ai_passed = True
     jump city_tavern_play_show_dice
@@ -195,23 +187,31 @@ screen city_tavern_dicing(): # dice game controls menu
             button:
                 xysize (120, 40)
                 yalign .5
-                action [Jump("city_tavern_throw_dice")]
+                action Jump("city_tavern_throw_dice")
                 text "Throw dice" size 15
             button:
                 xysize (120, 40)
                 yalign .5
-                action [Jump("tavern_dice_pass")]
+                action Jump("tavern_dice_pass")
                 text "Pass" size 15
             button:
                 xysize (120, 40)
                 yalign .5
-                action [Jump("city_tavern_dices_give_up")]
+                action Jump("city_tavern_dices_give_up")
                 text "Give up" size 15
 
 label city_tavern_dices_give_up:
     $ hero.take_money(city_tavern_current_dice_bet, reason="Tavern")
-    $ del city_tavern_current_dice_bet
+
+label city_tavern_dices_done:
     hide screen city_tavern_dicing
     hide screen city_tavern_show_dices
     with dissolve
+    python hide:
+        cleanup = ["city_tavern_current_dice_bet", "result",
+                  "d_1", "d_2", "dice_1", "dice_2",
+                  "ai_passed", "player_passed"]
+        for i in cleanup:
+            if hasattr(store, i):
+                delattr(store, i)
     jump city_tavern_menu

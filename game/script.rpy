@@ -1451,6 +1451,9 @@ label after_load:
             if store.heard_about_arena:
                 global_flags.set_flag("heard_about_arena")
             del store.heard_about_arena
+        if hasattr(store, "city_tavern_dice_bet"):
+            global_flags.set_flag("city_tavern_dice_bet", store.city_tavern_dice_bet)
+            del store.city_tavern_dice_bet
         if hasattr(store, "clone_id"):
             cid = store.clone_id
             if cid != 0:

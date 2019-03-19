@@ -2,23 +2,21 @@
 label city_tavern_play_poker: # additional rounds continue from here
     if not global_flags.flag('played_poker_in_tavern'):
         $ global_flags.set_flag('played_poker_in_tavern')
-        "The goal of the game is to get a better hand than the opponent. The best hand is all five dice showing the same value, and the worst scoring one is one pair. In case of draw wins the one with higher overall dice value. Optionally, after the initial throw, you and your opponent can choose one dice to throw again in hopes to get a better hand."
+        "The goal of the game is to get a better hand than the opponent. The best hand is all five dice showing the same value, and the worst scoring one is one pair. In case of draw the winner is the one with higher overall dice value. Optionally, after the initial throw, you and your opponent can choose one dice to throw again in hopes to get a better hand."
     if 'Drunk' in hero.effects: # dizzy screen does not look good with dices animation...
         "You are too drunk for games at the moment."
         jump city_tavern_menu
-    elif hero.gold < city_tavern_dice_bet:
+    if hero.gold < global_flags.flag("city_tavern_dice_bet"):
         "Sadly, you don't have enough money to make a bet."
         jump city_tavern_menu
 
+    hide drunkards with dissolve
     python:
-        dice_1 = []
-        dice_2 = []
-        selected_dice = 0 # number of selected by player dice - goes from 1 to 5; 0 means no selected
+        selected_dice = 0 # index of the dice selected by the player - goes from 1 to 5; 0 means no selected
         selected_ai_dice = 0 # same for ai
-        city_tavern_current_dice_bet = city_tavern_dice_bet
+        city_tavern_current_dice_bet = global_flags.flag("city_tavern_dice_bet")
 
 label city_tavern_show_poker_dices_start:
-    hide drunkards with dissolve
     hide screen city_tavern_show_poker_dices
     python:
         dice_1 = [throw_a_normal_dice() for i in range(5)]
@@ -100,12 +98,12 @@ screen city_tavern_show_poker_dices_controls:
         button:
             xysize (120, 40)
             yalign .5
-            action [Jump("city_tavern_show_poker_shuffle")]
+            action Jump("city_tavern_show_poker_shuffle")
             text "Next" size 15
         button:
             xysize (120, 40)
             yalign .5
-            action [Hide("city_tavern_show_poker_dices"), Jump("city_tavern_poker_give_up")]
+            action Jump("city_tavern_poker_give_up")
             text "Give Up" size 15
 
 transform dice_roll_zooming(x):
@@ -131,14 +129,6 @@ transform dice_roll_null(x):
     subpixel True
     anchor (.5, .5)
 
-label city_tavern_poker_give_up:
-    $ hero.take_money(city_tavern_current_dice_bet, reason="Tavern")
-    $ del city_tavern_current_dice_bet
-    hide screen city_tavern_show_poker_dices
-    hide screen city_tavern_show_poker_dices_controls
-    with dissolve
-    jump city_tavern_menu
-
 label city_tavern_show_poker_shuffle:
     $ selected_ai_dice = dice_poker_ai_decision(dice_1, dice_2) # ai selects a dice it wants to change
     show screen city_tavern_show_poker_dices(dice_1, dice_2, dice_roll_null, dice_roll_change) # and we show selected by player and ai dices for a second
@@ -150,33 +140,31 @@ label city_tavern_show_poker_shuffle:
             $ dice_2[selected_dice-1] = throw_a_normal_dice()
         if selected_ai_dice != 0:
             $ dice_1[selected_ai_dice-1] = throw_a_normal_dice()
-    $ selected_dice = selected_ai_dice = 0
+        $ selected_dice = selected_ai_dice = 0
     show screen city_tavern_show_poker_dices(dice_1, dice_2, dice_roll_null, dice_roll_null) # then we reroll selected dices and show new dice sets
     if rerolls < 2:
         jump city_tavern_show_poker_dices_loop
 
     hide screen city_tavern_show_poker_dices_controls
     if dice_poker_decide_winner(dice_1, dice_2) == 1:
-        $ narrator("You lost!")
+        "You lost!"
         $ hero.take_money(city_tavern_current_dice_bet, reason="Tavern")
     elif dice_poker_decide_winner(dice_1, dice_2) == 2:
         if hero.gold >= city_tavern_current_dice_bet*2:
             menu:
                 "You won! You can take your money right now or double your bet if you are feeling lucky."
                 "Take the money":
-                    $ hero.add_money(city_tavern_current_dice_bet, reason="Tavern")
+                    $ pass
                 "Double the bet":
                     $ city_tavern_current_dice_bet *= 2
                     hide screen city_tavern_show_dices
                     jump city_tavern_show_poker_dices_start
         else:
-            $ narrator("You won!")
-            $ hero.add_money(city_tavern_current_dice_bet, reason="Tavern")
+            "You won!"
+        $ hero.add_money(city_tavern_current_dice_bet, reason="Tavern")
     else:
-        $ narrator("It's a draw! You break even.")
-    $ del city_tavern_current_dice_bet
-    hide screen city_tavern_show_poker_dices
-    jump city_tavern_menu
+        "It's a draw! You break even."
+    jump city_tavern_poker_done
 
 screen city_tavern_show_poker_status(): # additional screen, shows all info related to the dice game
     frame:
@@ -216,3 +204,19 @@ screen city_tavern_show_poker_status(): # additional screen, shows all info rela
             xalign .5
             add "content/gfx/interface/images/tavern_gold.png"
             text str(city_tavern_current_dice_bet) xalign .5 style "stats_value_text" color "gold"
+
+label city_tavern_poker_give_up:
+    $ hero.take_money(city_tavern_current_dice_bet, reason="Tavern")
+
+label city_tavern_poker_done:
+    hide screen city_tavern_show_poker_dices
+    hide screen city_tavern_show_poker_dices_controls
+    with dissolve
+    python hide:
+        cleanup = ["city_tavern_current_dice_bet", "i",
+                  "rerolls", "dice_1", "dice_2",
+                  "selected_dice", "selected_ai_dice"]
+        for i in cleanup:
+            if hasattr(store, i):
+                delattr(store, i)
+    jump city_tavern_menu

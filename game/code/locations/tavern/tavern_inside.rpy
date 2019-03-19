@@ -20,7 +20,7 @@ label tavern_town:
 
     if not global_flags.flag('visited_tavern'):
         $ global_flags.set_flag('visited_tavern')
-        $ city_tavern_dice_bet = 5 # default dice bet
+        $ global_flags.set_flag("city_tavern_dice_bet", 5) # default dice bet
         show expression npcs["Rita_tavern"].get_vnsprite() as npc
         with dissolve
         tavern_rita "Oh, hello! Welcome to our tavern! We will always have a seat for you! *wink*"
@@ -82,22 +82,25 @@ label city_tavern_menu: # "lively" status is limited by drunk effect; every acti
         $ result = ui.interact()
 
 label city_tavern_choose_label:
+    $ bet = global_flags.flag("city_tavern_dice_bet")
     "Here you can set how much to bet to avoid doing it before every game in the tavern. The more your tier, the higher bets are available."
-    "The current bet is [city_tavern_dice_bet] Gold."
+    "The current bet is [bet] Gold."
     menu:
         "How much Gold do you wish to bet?"
         "10":
-            $ city_tavern_dice_bet = 10
+            $ bet = 10
         "25" if hero.tier >= 1:
-            $ city_tavern_dice_bet = 25
+            $ bet = 25
         "50" if hero.tier >= 2:
-            $ city_tavern_dice_bet = 50
+            $ bet = 50
         "100" if hero.tier >= 3:
-            $ city_tavern_dice_bet = 100
+            $ bet = 100
         "200" if hero.tier >= 4:
-            $ city_tavern_dice_bet = 200
+            $ bet = 200
         "500" if hero.tier >= 5:
-            $ city_tavern_dice_bet = 500
+            $ bet = 500
+    $ global_flags.set_flag("city_tavern_dice_bet", bet)
+    $ del bet
     jump city_tavern_menu
 
 screen city_tavern_inside():
