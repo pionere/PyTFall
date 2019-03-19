@@ -369,6 +369,7 @@ init -9 python:
                     char.gfx_mod_stat("disposition", randint(10, 40))
                 else:
                     char.gfx_mod_stat("disposition", 50 + randint(0, price/100))
+                char.del_flag("cnd_interactions_blowoff")
                 char.gfx_mod_stat("affection", affection_reward(char, stat="gold"))
 
         def next_index(self):

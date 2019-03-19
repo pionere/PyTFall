@@ -652,7 +652,7 @@ init -11 python:
                 else:
                     raise Exception("Unknown area '%s' referenced in map '%s'." % (area.area, area.name))
                 unlocks = dict()
-                for a, v in area.unlocks.items():
+                for a, v in getattr(area, "unlocks", {}).items():
                     if a in named_areas:
                         a = named_areas[a]
                         unlocks[a.id] = v

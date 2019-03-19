@@ -13,7 +13,7 @@
         "stage": 1,
         "tier": 0.5,
         "desc": "A large barren area. Most animals and monsters avoid it, only slimes and occasional bandits can be encountered here.",
-        "unlocked": true,
+        "unlocked": false,
         "travel_time": 0.2,
         "maxexplored": 500,
         "mobs": ["Slime", "Alkaline Slime", "Acid Slime", "Thug"],
@@ -31,7 +31,7 @@
         "unlocked": false,
         "travel_time": 1.0,
         "mobs": ["Amazon Thief", "Amazon Warrior", "Amazon Archer", "Boros"],
-        "unlocks": {"Melted Sands": 50, "Big Crater": 90},
+        "unlocks": {"Melting Sands": 50, "Big Crater": 90},
         "cash_limit": 100,
         "items_limit": 500,
         "hazard": {
@@ -50,6 +50,7 @@
         "unlocked": false,
         "travel_time": 1.0,
         "mobs": ["Lava Elemental", "Fire Spirit"],
+        "unlocks": {},
         "cash_limit": 200,
         "items_limit": 700,
         "hazard": {
@@ -68,6 +69,7 @@
         "unlocked": false,
         "travel_time": 2.0,
         "mobs": ["Shadowman", "Horny Mummy", "Undead Unicorn", "Skeleton Warrior"],
+        "unlocks": {},
         "cash_limit": 300,
         "items_limit": 1000,
         "hazard": {
