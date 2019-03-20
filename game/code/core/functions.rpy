@@ -33,6 +33,13 @@ init -11 python:
     def get_mean(numbers):
         return float(sum(numbers)) / max(len(numbers), 1)
 
+    def get_linear_value_of(x, x1, y1, x2, y2):
+        '''
+        Return the y value at x, given a linear function by two points with coordinates
+        '''
+        dx = (y2-y1)/float(x2-x1)
+        return y1 + (x - x1)*dx
+
     def round_int(value):
         return int(round(value))
 

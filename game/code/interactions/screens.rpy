@@ -165,8 +165,13 @@ label girl_interactions_after_greetings: # when character wants to say something
             pytfall.world_actions.gm_choice("Hire", condition="not(char in hero.chars) and not char.flag('quest_cannot_be_hired')", index=(m, 4))
             pytfall.world_actions.gm_choice("Sparring", condition="cgo('Combatant')", index=(m, 5))
 
-            # INTIMACY
+            # PLAY A GAME
             m = 8
+            pytfall.world_actions.menu(m, "Play")
+            pytfall.world_actions.gm_choice("Archery", label="play_bow", index=(m, 0))
+
+            # INTIMACY
+            m = 9
             pytfall.world_actions.menu(m, "Intimacy")
             pytfall.world_actions.gm_choice("Hug", index=(m, 0))
             pytfall.world_actions.gm_choice("Grab Butt", index=(m, 1))
@@ -183,7 +188,7 @@ label girl_interactions_after_greetings: # when character wants to say something
             Expects a dictionary with the following k/v pairs to be set as a flag that starts with :
             event_to_interactions_  as a flag and {"label": "some_label", "button_name='Some Name'", "condition": "True"}
             """
-            m = 9
+            m = 10
             n = 0
             for k, v in char.flags.items():
                 if k.startswith("event_to_interactions_") and renpy.has_label(v["label"]):
