@@ -1061,7 +1061,7 @@ init -9 python:
                 weighted = {"consumable": []}
             else:
                 # preserve current stat in case we need to restore battle_stats
-                last_battle_stats = [char.get_stat(s) for s in ("health", "mp", "vitality")]
+                last_battle_stats = [self.get_stat(s) for s in ("health", "mp", "vitality")]
                 last_equipment = sorted(self.eqslots.items())
 
                 weighted = {}
@@ -1222,7 +1222,7 @@ init -9 python:
                 else:
                     # all the same -> restore battle_stats
                     for stat, value in zip(("health", "mp", "vitality"), last_battle_stats):
-                        char.set_stat(stat, value)
+                        self.set_stat(stat, value)
 
             return returns
 

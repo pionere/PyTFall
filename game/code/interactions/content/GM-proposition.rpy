@@ -55,7 +55,7 @@ label interactions_sparring: # sparring with MC, for Combatant occupations only
         "Unfortunately, you are not in shape for sparring."
         jump girl_interactions
 
-    $ m = interactions_flag_count_checker(char, "flag_interactions_girlfriend")
+    $ m = interactions_flag_count_checker(char, "flag_interactions_sparring")
     if m > 1:
         $ del m
         call interactions_refused_because_tired from _call_interactions_refused_because_tired_1

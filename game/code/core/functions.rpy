@@ -105,13 +105,3 @@ init -11 python:
             renpy.hide_screen(scr.tag)
         else:
             renpy.scene("screens")
-
-    def digital_screen_logic(string, value):
-        # logic for digital input screen
-        if len(string) >= 14:
-            return string
-
-        if string == "0":
-            return value
-        else:
-            return string + value

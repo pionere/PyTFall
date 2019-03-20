@@ -1206,12 +1206,14 @@ screen digital_keyboard(line=""):
             align (.5, .7)
             xysize (190, 135)
             for i in range(1, 10):
+                $ temp = str(i)
                 button:
                     xysize(60, 30)
                     background "content/gfx/interface/buttons/hp_1s.png"
                     hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/hp_1s.png", im.matrix.brightness(.10)))
-                    text str(i) color "gold" size 22 outlines [(1, "black", 0, 0)] align (.5, .5) text_align .5
-                    action SetScreenVariable("current_number", digital_screen_logic(current_number, str(i)))
+                    text temp color "gold" size 22 outlines [(1, "black", 0, 0)] align (.5, .5) text_align .5
+                    action SetScreenVariable("current_number", temp if current_number == "0" else (current_number + temp))
+                    sensitive len(current_number) < 14
                     keysym ("K_KP%d"%i), ("K_%d"%i)
             button:
                 xysize(60, 30)
@@ -1225,7 +1227,8 @@ screen digital_keyboard(line=""):
                 background "content/gfx/interface/buttons/hp_1s.png"
                 hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/hp_1s.png", im.matrix.brightness(.10)))
                 text "0" color "gold" size 22 outlines [(1, "black", 0, 0)] align (.5, .5) text_align .5
-                action SetScreenVariable("current_number", digital_screen_logic(current_number, "0"))
+                action SetScreenVariable("current_number", current_number + "0")
+                sensitive len(current_number) < 14 and current_number != "0"
                 keysym "K_KP0", "K_0"
             button:
                 xysize(60, 30)
