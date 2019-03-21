@@ -189,7 +189,6 @@ label next_day_calculations:
         tl.end("AutoEquip Consumables for Workers")
 
         # Building events Start:
-        tl.start("ND-Buildings")
         tl.start("ND-Rest (First pass)")
         for c in hero.chars:
             if not isinstance(c.action, Rest):
@@ -202,9 +201,9 @@ label next_day_calculations:
         tl.end("ND-Rest (First pass)")
 
         # run the next day logic of the building:
+        tl.start("ND-Buildings")
         for b in hero.buildings:
             b.next_day()
-
         tl.end("ND-Buildings")
         # Building events END.
 
@@ -232,12 +231,14 @@ label next_day_calculations:
         tl.end("pytfall/calender .next_day")
 
         # Reset Flags:
+        tl.start("ND-Flags Reset")
         for char in itertools.chain(chars.values(), [hero]):
             for flag in char.flags.keys():
                 if flag.startswith("dnd"):
                     char.del_flag(flag)
                 elif flag.startswith("cnd") and char.flags[flag] == day:
                     char.del_flag(flag)
+        tl.end("ND-Flags Reset")
 
     $ tl.end("Next Day")
     return

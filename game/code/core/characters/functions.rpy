@@ -312,14 +312,12 @@ init -11 python:
         if not name:
             if not store.female_first_names:
                 store.female_first_names = load_female_first_names(200)
-            rg.name = get_first_name()
-        else:
-            rg.name = name
+            name = get_first_name()
+        rg.name = rg.nickname = name
 
         if not last_name:
-            rg.fullname = " ".join([rg.name, get_last_name()])
-
-        rg.nickname = rg.name
+            last_name = get_last_name()
+        rg.fullname = " ".join([name, last_name])
 
         origin = data.get("origin", None)
         if origin is None:
@@ -392,7 +390,7 @@ init -11 python:
                         rg.magic_skills.append(ms) 
 
         # Rest of the expected data:
-        for i in ("gold", "desc", "height", "full_race"):
+        for i in ("gold", "desc", "height", "full_race", "gender"):
             if i in data:
                 setattr(rg, i, data[i])
 
@@ -470,7 +468,7 @@ init -11 python:
             if not gbti_kwargs:
                 gbti_kwargs = {
                     "slots": {slot: 1 for slot in EQUIP_SLOTS},
-                    #"casual": True, - ignored and no necessary anyway
+                    #"casual": True, - ignored and not necessary anyway
                     "equip": True,
                     "check_money": False,
                     "limit_tier": False, # No need, the items are already limited to limit_tier
@@ -1043,7 +1041,7 @@ init -11 python:
                 raise Exception("Unknown stat %s in preferences of %s" % (k, char.name))
             mod += v * min(2, float(val) / (max(max_val, 1)))
         mod /= len(temp)
-        mod *= len(STATIC_CHAR.PREFS)
+        mod *= DAILY_AFF_CORE
 
         if "Frigid" in char.traits:
             mod *= .8
