@@ -112,9 +112,9 @@ label interactions_archery_loop:
                 speed *= force * speed_per_force
                 
                 if speed == 0:
+                    # miss
                     hero_arrows.append((None, None, 0))
-
-                    renpy.notify("Miss")
+                    value = "D"
                 else:
                     # distance effect
                     posy += distance / speed
@@ -122,7 +122,6 @@ label interactions_archery_loop:
                     '''
                      :FIXME: add wind effect
                     '''
-                    posx, posy = round_int(posx), round_int(posy)
 
                     centerx, centery = config.screen_width/2, config.screen_height/2-(66*target_scale)
                     size = target_scale*((target_size-target_border)/2)
@@ -139,25 +138,57 @@ label interactions_archery_loop:
 
                         rotation = randint(0, 360)
                         hero_arrows.append(((posx, posy), rotation, value))
-
-                        renpy.notify(str(value))
                     else:
                         # miss
                         hero_arrows.append((None, None, 0))
 
-                        renpy.notify("Miss")
+                        value = ""
+                        if posx <= centerx - size:
+                            if posx < centerx - 2*size:
+                                value += "L" # far to the left
+                            else:
+                                value += "l" # a bit to the left
+                        elif posx >= centerx + size:
+                            if posx > centerx + 2*size:
+                                value += "R" # far to the right
+                            else:
+                                value += "r" # a bit to the right
+                        if posy <= centery - size:
+                            if posy < centery - 2*size:
+                                value += "U" # far low
+                            else:
+                                value += "u" # a bit low
+                        elif posy >= centery + size:
+                            if posy > centery + 2*size:
+                                value += "D" # far low
+                            else:
+                                value += "d" # a bit low
+                        if value == "":
+                            # in the box of the target, but still a miss
+                            if posx < centerx:
+                                if posy < centery:
+                                    value = "_l" # bottom-left corner
+                                else:
+                                    value = "_L" # upper-left corner
+                            else:
+                                if posy < centery:
+                                    value = "_r" # bottom-right corner
+                                else:
+                                    value = "_R" # upper-right corner 
+                store.archery_result = value
             jump interactions_archery_result
         elif result == "timeout":
             python hide:
                 posx, posy = renpy.get_mouse_pos()
-                # bit of random shake sideways 
-                posx += randint(0, 4) -  2
+                # bit of random shake sideways
+                dx = get_linear_value_of(hero_skill, archery_min_skill, 2, archery_max_skill, .5) 
+                posx += random.uniform(-dx, dx)
                 # breath effect
-                posy += 4*math.cos(time.time()*math.pi*2/4)
+                posy += 2*dx*math.cos(time.time()*math.pi*2/4)
                 # heart-beat effect
-                posy += math.cos(time.time()*math.pi*2)
+                posy += math.cos(time.time()*math.pi*2*2)
                 # weight of the bow
-                posy += randint(0, 2)
+                posy += random.uniform(0, dx/2)
                 renpy.set_mouse_pos(round_int(posx), round_int(posy))
                 # relaxing muscles
                 if store.archery_strain < 2:
@@ -184,12 +215,12 @@ screen interactions_archery_range_target:
         offset = -((math.sqrt(2)-1.0)*size) # add offset to offset the rotation
     for (pos, rot, value), c in izip_longest(hero_arrows, char_arrows):
         if pos is not None: # skip missed shots
-            $ pos = [pos[0]-size, pos[1]-size]
+            $ pos = [round_int(pos[0]-size), round_int(pos[1]-size)]
             add Transform(hero_img, rotate=rot) pos pos offset (offset, offset)
         if c is not None: # not shot yet
             $ pos, rot, value = c
             if pos is not None: # skip missed shots
-                $ pos = [pos[0]-size, pos[1]-size]
+                $ pos = [round_int(pos[0]-size), round_int(pos[1]-size)]
                 add Transform(char_img, rotate=rot) pos pos offset (offset, offset)
 
 screen interactions_archery_range_targeting:
@@ -244,10 +275,10 @@ screen interactions_archery_range_shoot:
             xysize(22, 175)
 
     $ scale = get_linear_value_of(hero_skill, archery_min_skill, 1.0, archery_max_skill, .25)
-    $ sizex, sizey = crosshair_size, crosshair_size
+    $ sizex, sizey = round_int(crosshair_size*scale), round_int(crosshair_size*scale)
     $ pos = renpy.get_mouse_pos()
     $ pos = (pos[0]-sizex/2, pos[1]-sizey/2)
-    add im.Scale("content/gfx/images/crosshair.webp", sizex*scale, sizey*scale) pos pos
+    add im.Scale("content/gfx/images/crosshair.webp", sizex, sizey) pos pos
 
     hbox:
         align .1, .1
@@ -304,8 +335,10 @@ label interactions_archery_result:
     show screen interactions_archery_range_result
     with dissolve
 
-    $ renpy.restart_interaction()
     $ config.mouse_hide_time = prev_mouse_hide
+
+    call interaction_archery_char_comment from _call_interaction_archery_char_comment
+
     while 1:
         $ result = ui.interact()
 
@@ -322,7 +355,6 @@ label interactions_archery_result:
                 value *= target_size # independent of the distance -> distance effect...
 
                 posx, posy = centerx + random.gauss(0, 0.6)*value, centery + random.gauss(0, 0.6)*value
-                posx, posy = round_int(posx), round_int(posy)
 
                 value = math.hypot(posx-centerx, posy-centery)
                 if value <= size:
@@ -357,11 +389,11 @@ label interactions_archery_result:
                     char_points = sum(char_points)
 
                 if hero_points > char_points:
-                    narrator("You won.")
+                    store.archery_result = hero
                 elif hero_points < char_points:
-                    narrator("[char.name] won.")
+                    store.archery_result = char
                 else:
-                    narrator("Draw.")
+                    store.archery_result = None
             jump interactions_archery_end
 
 screen interactions_archery_range_result:
@@ -388,11 +420,111 @@ screen interactions_archery_range_result:
             text "[char.name]'s turn" style "pb_button_text"
             align .5, .9
 
+label interaction_archery_char_comment: # (archery_result)
+    if isinstance(archery_result, int):
+        # hit
+        if archery_result == 10:
+            # Bulls Eye
+            $ temp = choice(["Right in the middle.", "Bullseye..."])
+            if target_scale < 0.7:
+                $ archery_result = choice([" Impressive!", " Lucky shot!"]) 
+            else:
+                $ archery_result = choice([" Not bad.", " Nice."])
+            char.say "[temp]" 
+            extend "[archery_result]"
+        elif archery_result < 4:
+            # weak hit
+            $ rc("A [archery_result]. Now watch me!", "Anyone can hit a [archery_result].", "A [archery_result]. Do you even try?")
+        else:
+            # normal hit
+            $ rc("A [archery_result]. You try to challenge me?", "A hit of [archery_result] is not bad for a beginner.", "Hm.. [archery_result]. Is this your lucky shot?", "[archery_result]. It is O.K., considering the circumstances...", "Are you satisfied with your [archery_result]?")
+    else:
+        # miss
+        if archery_result[0] == "_": # "_r", "_R", "_l", "_L"
+            # in the box of target
+            $ archery_result = archery_result[1]
+            if archery_result == "r":
+                $ archery_result = "up and left"
+            elif archery_result == "R":
+                $ archery_result = "down and left"
+            elif archery_result == "l":
+                $ archery_result = "up and right"
+            else: # "L"
+                $ archery_result = "down and right"
+            char.say "That was close."
+            extend " A bit more to [archery_result] and you will hit."
+        elif len(archery_result) == 1:
+            # one-way miss  ("r", "R", "l", "L", "u", "U", "d", "D")
+            if archery_result == "r":
+                char.say "You need to aim more to the left."
+            elif archery_result == "R":
+                char.say "That was way too far to the right."
+            elif archery_result == "l":
+                char.say "You need to aim more to the right."
+            elif archery_result == "L":
+                char.say "That was way too far to the left."
+            elif archery_result == "u":
+                char.say "You need to lower your aim."
+            elif archery_result == "U":
+                $ rc("Are you shooting for the stars?", "Watch your back, the arrow might come around the Earth.", "Please, do not hurt the birds!")
+            elif archery_result == "d":
+                char.say "You need to raise your aim."
+            else: # archery_result == "D":
+                $ rc("Try not to shoot yourself in the foot!", "Are you hunting for gophers?", "You never had to dig a borehole by hand, right?")
+        else:
+            # two-way miss
+            if archery_result == archery_result.lower():
+                # ("ru", "rd", "lu", "ld")
+                if archery_result == "ru":
+                    $ archery_result = "lower and to the left"
+                elif archery_result == "rd":
+                    $ archery_result = "higher and to the left"
+                elif archery_result == "lu":
+                    $ archery_result = "lower and to the right"
+                else: # archery_result == "ld":
+                    $ archery_result = "higher and to the right"
+                char.say "With a bit more practice and aiming [archery_result], you might hit the target."
+            elif archery_result == archery_result.upper():
+                # ("RU", "RD", "LU", "LD")
+                if archery_result == "RU":
+                    $ archery_result = "high and to the right."
+                elif archery_result == "RD":
+                    $ archery_result = "low and to the right."
+                elif archery_result == "LU":
+                    $ archery_result = "high and to the left."
+                else: # archery_result == "LD":
+                    $ archery_result = "low and to the left."
+                $ temp = choice(["You need some glasses?", "It was hopeless from the beginning!"]) 
+                char.say "[temp]"
+                extend " That was way too [archery_result]"
+            else:
+                # ("rU", "rD", "lU", "lD", "Ru", "Rd", "Lu", "Ld")
+                if archery_result[0] == archery_result[0].upper():
+                    $ archery_result = archery_result[0]
+                else:
+                    $ archery_result = archery_result[1]
+                if archery_result == "R":
+                    char.say "That was way too far to the right."
+                    extend " Not to mention other issues..."
+                elif archery_result == "L":
+                    char.say "That was way too far to the left."
+                    extend " Not to mention other issues..."
+                elif archery_result == "U":
+                    $ rc("Are you shooting for the stars?", "Watch your back, the arrow might come around the Earth.", "Please, do not hurt the birds!")
+                else: # archery_result == "D":
+                    $ rc("Try not to shoot yourself in the foot!", "Are you hunting for gophers?", "You never had to dig a borehole by hand, right?")
+    return
 label interactions_archery_end:
+    if archery_result == hero:
+        "You won."
+    elif archery_result == char:
+        "[char.name] won."
+    else:
+        "Draw."
     hide screen interactions_archery_range_result
     with dissolve
     python hide:
-        cleanup = ["hero_arrows", "char_arrows",
+        cleanup = ["hero_arrows", "char_arrows", "archery_result", "temp",
                    "archery_min_skill", "archery_max_skill", "speed_per_force",
                    "prev_mouse_hide", "hero_skill", "char_skill",
                    "target_scale", "target size", "target_border", "crosshair_size",
