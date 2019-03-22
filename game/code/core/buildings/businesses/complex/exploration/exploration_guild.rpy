@@ -845,14 +845,44 @@ init -6 python: # Guild, Tracker and Log.
 
                 # Hazzard:
                 if area.hazard:
-                    temp = "{color=yellow}Hazardous area!{/color} The team was effected."
-                    tracker.log(temp)
+                    temp = []
                     for char in team:
-                        for stat, value in area.hazard:
+                        tmp = []
+                        for stat, value in area.hazard.items():
                             # value, because we calculated effects on daily base in the past...
-                            if value:
-                                var = max(1, (value+10)/20)
+                            var = value/20
+                            val = value-(20*var)
+                            if val != 0:
+                                if val < 0:
+                                    val = -val
+                                if dice(val*5):
+                                    var += 1 if value >= 0 else -1 
+                            if var != 0:
+                                if stat == "health" and var >= char.get_stat("health"):
+                                    tracker.flag_red = True
+                                    tracker.died.append(char)
                                 char.mod_stat(stat, -var)
+                                tmp.append((stat, var))
+                        if tmp:
+                            stat_to_color_map = {"health": "orangered", "mp": "dodgerblue", "vitality": "greenyellow"}
+                            tmp = ["".join(["{color=", stat_to_color_map.get(stat, "ivory"), "}", "+" if var < 0 else "", str(-var), "{/color}"]) for stat, var in tmp]
+                            tmp = ", ".join(tmp)
+                            tmp = "".join(["{color=pink}", char.name, "{/color} (", tmp, ")"])
+                            temp.append(tmp)
+                    if temp:
+                        temp = "".join([", ".join(temp), " were" if len(temp) > 1 else " was", " affected."])
+                    else:
+                        temp = "Nobody was affected."
+                    tracker.log("{color=yellow}Hazardous area!{/color} " + temp)
+
+                    if tracker.died:
+                        temp = "Your team is no longer complete. This concludes the exploration for the team."
+                        tracker.log(temp)
+                        if DEBUG_SE:
+                            msg = "{} has finished an exploration scenario. (Lost a member due to hazards)".format(team.name)
+                            se_debug(msg)
+                        self.env.exit("back2camp") # member died -> back to camp
+
                     check_team = True # initiate a check at the end of the loop
 
                 # Items:

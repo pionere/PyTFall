@@ -59,8 +59,6 @@
         "maxexplored": 1350,
         "mobs": ["Bats", "Goblin", "Goblin Archer", "Goblin Shaman"],
         "hazard": {
-            "health": 0,
-            "mp": 0,
             "vitality": 5
         },
         "unlocks": {
@@ -99,7 +97,6 @@
         "mobs": ["Yeti", "Wadding", "Cannon Turtle"],
         "hazard": {
             "health": 5,
-            "mp": 0,
             "vitality": 5
         },
         "unlocks": {"Frozen Caverns": 60},

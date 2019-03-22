@@ -20,7 +20,6 @@
         "mobs": ["Yeti", "Polar Bear", "Tundra Wolf", "Wadding"],
         "hazard": {
             "health": 5,
-            "mp": 0,
             "vitality": 5
         },
         "unlocks": {"Frozen Passage": 75},
@@ -42,7 +41,6 @@
         "mobs": ["Frozen Heart", "Frost Giant", "Ice Golem"],
         "hazard": {
             "health": 1,
-            "mp": 0,
             "vitality": 2
         },
         "unlocks": {"Frozen Throne": 99},

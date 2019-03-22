@@ -235,8 +235,8 @@ screen interactions_archery_range_targeting:
     button:
         style_group "pb"
         action [Hide("interactions_archery_range_targeting"), Return("done")]
-        text "Done" style "pb_button_text"
-        align .5, .8
+        text "Begin" style "pb_button_text"
+        align .5, .9
 
 screen interactions_archery_range_shoot:
     # the target
@@ -330,44 +330,14 @@ label interactions_archery_char_turn:
 
     if archery_result is not None:
         call interaction_archery_char_comment from _call_interaction_archery_char_comment
+    else:
+        jump interactions_archery_char_shoot
 
     while 1:
         $ result = ui.interact()
 
         if result == "char_turn":
-            python hide:
-                centerx, centery = config.screen_width/2, config.screen_height/2-(66*target_scale)
-                size = target_scale*((target_size-target_border)/2)
-
-                value = get_linear_value_of(char_skill, archery_min_skill, .3, archery_max_skill, .05)
-                '''
-                 :FIXME: add wind effect
-                '''
-
-                value *= target_size # independent of the distance -> distance effect...
-
-                posx, posy = centerx + random.gauss(0, 0.6)*value, centery + random.gauss(0, 0.6)*value
-
-                value = math.hypot(posx-centerx, posy-centery)
-                if value <= size:
-                    # hit
-                    value = 5*(1.0-value/size)
-                    if value >= 4.75:
-                        # Bulls Eye
-                        value = 10
-                    else:
-                        value = int(value)+1
-
-                    rotation = randint(0, 360)
-                    char_arrows.append(((posx, posy), rotation, value))
-
-                    store.archery_result = ((posx, posy), None, value)
-                else:
-                    # miss
-                    char_arrows.append((None, None, 0))
-
-                    store.archery_result = ((posx, posy), size, (centerx, centery))
-            jump interactions_archery_hero_turn
+            jump interactions_archery_char_shoot
 
         elif result == "done":
             python hide:
@@ -389,6 +359,41 @@ label interactions_archery_char_turn:
                     store.archery_result = None
             jump interactions_archery_end
 
+label interactions_archery_char_shoot:
+    python hide:
+        centerx, centery = config.screen_width/2, config.screen_height/2-(66*target_scale)
+        size = target_scale*((target_size-target_border)/2)
+
+        value = get_linear_value_of(char_skill, archery_min_skill, .3, archery_max_skill, .05)
+        '''
+         :FIXME: add wind effect
+        '''
+
+        value *= target_size # independent of the distance -> distance effect...
+
+        posx, posy = centerx + random.gauss(0, 0.6)*value, centery + random.gauss(0, 0.6)*value
+
+        value = math.hypot(posx-centerx, posy-centery)
+        if value <= size:
+            # hit
+            value = 5*(1.0-value/size)
+            if value >= 4.75:
+                # Bulls Eye
+                value = 10
+            else:
+                value = int(value)+1
+
+            rotation = randint(0, 360)
+            char_arrows.append(((posx, posy), rotation, value))
+
+            store.archery_result = ((posx, posy), None, value)
+        else:
+            # miss
+            char_arrows.append((None, None, 0))
+
+            store.archery_result = ((posx, posy), size, (centerx, centery))
+    jump interactions_archery_hero_turn
+
 screen interactions_archery_range_result:
     # the target
     use interactions_archery_range_target
@@ -405,8 +410,7 @@ screen interactions_archery_range_result:
             button:
                 style_group "pb"
                 action Return("char_turn")
-                $ temp = "Next Round" if len(char_arrows) else "Begin"
-                text temp style "pb_button_text"
+                text "Next Round" style "pb_button_text"
                 align .5, .9
 
 label interactions_prearchery_lines: # lines before archery

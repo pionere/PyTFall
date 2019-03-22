@@ -21,9 +21,7 @@
         "cash_limit": 400,
         "items_limit": 1500,
         "hazard": {
-            "health": 0,
-            "mp": 20,
-            "vitality": 0
+            "mp": 20
         },
         "items": {"Earthquake Charm": 25}
     },
@@ -44,7 +42,6 @@
         "items_limit": 0,
         "hazard": {
             "health": 100,
-            "mp": 0,
             "vitality": 50
         },
         "items": {"Old Chest": 90, "One For All": 20, "Golden Mask": 30, "Ultimate Healing Potion": 10, "Ultimate Mana Potion": 10}
@@ -65,7 +62,6 @@
         "cash_limit": 500,
         "items_limit": 3000,
         "hazard": {
-            "health": 0,
             "mp": 20,
             "vitality": 20
         },

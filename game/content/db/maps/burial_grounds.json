@@ -34,9 +34,7 @@
         "maxexplored": 700,
         "mobs": ["Spectre", "Phantasm", "Skeleton Warrior"],
         "hazard": {
-            "health": 0,
-            "mp": 5,
-            "vitality": 0
+            "mp": 5
         },
         "unlocks": {"Forest Tomb": 75},
         "cash_limit": 120,
@@ -55,7 +53,6 @@
         "maxexplored": 1450,
         "mobs": ["Vampire Bats", "Lesser Vampire", "Undead Werecat"],
         "hazard": {
-            "health": 0,
             "mp": 5,
             "vitality": 5
         },

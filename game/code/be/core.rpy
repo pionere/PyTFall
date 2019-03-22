@@ -518,9 +518,7 @@ init -1 python: # Core classes:
 
                     if c.controller is not None:
                         c.controller.source = c
-                    for s in f.magic_skills:
-                        s.source = None
-                    for s in f.attack_skills:
+                    for s in chain(f.magic_skills, f.attack_skills):
                         s.source = None
 
                     f.restore_char()

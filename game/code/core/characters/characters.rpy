@@ -1214,7 +1214,7 @@ init -9 python:
                         returns.append(item.id)
 
             # restore battle_stats in case the equipment is not changed and nothing was consumed
-            if not weighted.get("consumable", False):
+            if not weighted.get("consumable", False) and "last_equipment" in locals():
                 current_equipment = sorted(self.eqslots.items())
                 for prev_item, new_item in zip(last_equipment, current_equipment):
                     if prev_item != new_item:

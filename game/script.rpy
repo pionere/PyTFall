@@ -481,13 +481,6 @@ label after_load:
         if not BE_Core.BDP:
             BE_Core.init()
 
-        # Do we need/want these?
-        if hasattr(store, "dummy"):
-            del store.dummy
-
-        for skill in store.battle_skills.values():
-            skill.source = None
-
     # Save-Load Compatibility TODO Delete when we're willing to break saves (again :D).
     # python hide:
     #     for c in pytfall.sm.inhabitants.copy():

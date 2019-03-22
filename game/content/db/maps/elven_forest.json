@@ -37,9 +37,7 @@
         "cash_limit": 100,
         "items_limit": 900,
         "hazard": {
-            "health": 0,
-            "mp": 50,
-            "vitality": 0
+            "mp": 50
         },
         "items": {
             "Maid Fairy": 30,
