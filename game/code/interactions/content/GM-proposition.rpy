@@ -121,7 +121,7 @@ label interactions_presparring_lines: # lines before sparring
     elif ct("Ane"):
         $ rc("Hehe, let's both do our best.", "Fine, but let's be careful, ok?")
     elif ct("Kamidere"):
-        $ rc("Alright, let's see what you can do.", "I suppose a have a few minutes to spare.")
+        $ rc("Alright, let's see what you can do.", "I suppose I have a few minutes to spare.")
     elif ct("Yandere"):
         $ rc("Sure, but don't blame me if it gets a little rough...", "I'll try to be gentle, but no promises.")
     else:

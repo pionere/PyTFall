@@ -8,6 +8,8 @@ label interactions_play_bow: # additional rounds continue from here
         jump girl_interactions
     $ del m
     
+    call interactions_prearchery_lines from _call_interactions_prearchery_lines
+
     menu:
         "Where would you like to do it?"
         "Beach":
@@ -41,13 +43,22 @@ label interactions_play_bow: # additional rounds continue from here
         min_distance, max_distance_perc = 50, .1
         target_scale = 1.0
 
-        archery_min_skill, archery_max_skill = 0, 2000
-        hero_skill = hero.get_stat("attack")
-        if "Bow Master" in hero.traits:
-            hero_skill *= 1.2
-        char_skill = char.get_stat("attack")
-        if "Bow Master" in char.traits:
-            char_skill *= 1.2
+        archery_min_skill, archery_max_skill = 0, hero.get_relative_max_stat("attack", tier=MAX_TIER)
+
+        dummy = copy_char(hero)
+        temp = dummy.eqslots['weapon']
+        if temp:
+            dummy.unequip(temp, aeq_mode=True)
+        dummy.equip(items["Long Bow"], remove=False, aeq_mode=True)
+        hero_skill = dummy.get_stat("attack")
+
+        dummy = copy_char(char)
+        temp = dummy.eqslots['weapon']
+        if temp:
+            dummy.unequip(temp, aeq_mode=True)
+        dummy.equip(items["Long Bow"], remove=False, aeq_mode=True)
+        char_skill = dummy.get_stat("attack")
+
         if "Clumsy" in char.traits:
             char_skill *= .8
         if "Bad Eyesight" in char.traits:
@@ -67,6 +78,7 @@ label interactions_play_bow: # additional rounds continue from here
         target_border = 3
         crosshair_size = 400
         prev_mouse_hide = config.mouse_hide_time
+        archery_result = None
 
 label interactions_archery_start:
     # adjust and show wind indicator
@@ -95,7 +107,14 @@ label interactions_archery_start:
 
     $ distance = min_distance / target_scale
 
-label interactions_archery_loop:
+    jump interactions_archery_char_turn
+
+label interactions_archery_hero_turn:
+    if archery_result is not None:
+        call interaction_archery_char_comment_self from _call_interaction_archery_char_comment_self
+
+    hide screen interactions_archery_range_result
+
     show screen interactions_archery_range_shoot
 
     $ config.mouse_hide_time = 0
@@ -114,7 +133,8 @@ label interactions_archery_loop:
                 if speed == 0:
                     # miss
                     hero_arrows.append((None, None, 0))
-                    value = "D"
+
+                    store.archery_result = (None, None, None)
                 else:
                     # distance effect
                     posy += distance / speed
@@ -138,45 +158,15 @@ label interactions_archery_loop:
 
                         rotation = randint(0, 360)
                         hero_arrows.append(((posx, posy), rotation, value))
+
+                        store.archery_result = ((posx, posy), None, value)
                     else:
                         # miss
                         hero_arrows.append((None, None, 0))
 
-                        value = ""
-                        if posx <= centerx - size:
-                            if posx < centerx - 2*size:
-                                value += "L" # far to the left
-                            else:
-                                value += "l" # a bit to the left
-                        elif posx >= centerx + size:
-                            if posx > centerx + 2*size:
-                                value += "R" # far to the right
-                            else:
-                                value += "r" # a bit to the right
-                        if posy <= centery - size:
-                            if posy < centery - 2*size:
-                                value += "U" # far low
-                            else:
-                                value += "u" # a bit low
-                        elif posy >= centery + size:
-                            if posy > centery + 2*size:
-                                value += "D" # far low
-                            else:
-                                value += "d" # a bit low
-                        if value == "":
-                            # in the box of the target, but still a miss
-                            if posx < centerx:
-                                if posy < centery:
-                                    value = "_l" # bottom-left corner
-                                else:
-                                    value = "_L" # upper-left corner
-                            else:
-                                if posy < centery:
-                                    value = "_r" # bottom-right corner
-                                else:
-                                    value = "_R" # upper-right corner 
-                store.archery_result = value
-            jump interactions_archery_result
+                        store.archery_result = ((posx, posy), size, (centerx, centery))
+
+            jump interactions_archery_char_turn
         elif result == "timeout":
             python hide:
                 posx, posy = renpy.get_mouse_pos()
@@ -213,10 +203,12 @@ screen interactions_archery_range_target:
         char_img = im.Scale(im.MatrixColor("content/gfx/images/archery_fletching_2.webp", im.matrix.tint(*char_img)), size, size)
         size /= 2
         offset = -((math.sqrt(2)-1.0)*size) # add offset to offset the rotation
-    for (pos, rot, value), c in izip_longest(hero_arrows, char_arrows):
-        if pos is not None: # skip missed shots
-            $ pos = [round_int(pos[0]-size), round_int(pos[1]-size)]
-            add Transform(hero_img, rotate=rot) pos pos offset (offset, offset)
+    for h, c in izip_longest(hero_arrows, char_arrows):
+        if h is not None:
+            $ pos, rot, value = h
+            if pos is not None: # skip missed shots
+                $ pos = [round_int(pos[0]-size), round_int(pos[1]-size)]
+                add Transform(hero_img, rotate=rot) pos pos offset (offset, offset)
         if c is not None: # not shot yet
             $ pos, rot, value = c
             if pos is not None: # skip missed shots
@@ -244,7 +236,7 @@ screen interactions_archery_range_targeting:
         style_group "pb"
         action [Hide("interactions_archery_range_targeting"), Return("done")]
         text "Done" style "pb_button_text"
-        align .5, .9
+        align .5, .8
 
 screen interactions_archery_range_shoot:
     # the target
@@ -330,14 +322,14 @@ screen interactions_archery_range_shoot:
 
     timer .1 action Return("timeout") repeat True
 
-label interactions_archery_result:
+label interactions_archery_char_turn:
     hide screen interactions_archery_range_shoot
     show screen interactions_archery_range_result
-    with dissolve
 
     $ config.mouse_hide_time = prev_mouse_hide
 
-    call interaction_archery_char_comment from _call_interaction_archery_char_comment
+    if archery_result is not None:
+        call interaction_archery_char_comment from _call_interaction_archery_char_comment
 
     while 1:
         $ result = ui.interact()
@@ -368,13 +360,14 @@ label interactions_archery_result:
 
                     rotation = randint(0, 360)
                     char_arrows.append(((posx, posy), rotation, value))
-                    
-                    renpy.notify(str(value))
+
+                    store.archery_result = ((posx, posy), None, value)
                 else:
                     # miss
                     char_arrows.append((None, None, 0))
-                    
-                    renpy.notify("Miss")
+
+                    store.archery_result = ((posx, posy), size, (centerx, centery))
+            jump interactions_archery_hero_turn
 
         elif result == "done":
             python hide:
@@ -401,26 +394,126 @@ screen interactions_archery_range_result:
     use interactions_archery_range_target
 
     # Confirm:
-    if len(char_arrows) == num_arrows:
-        button :
-            style_group "pb"
-            action Return("done")
-            text "Done" style "pb_button_text"
-            align .5, .9
-    elif len(hero_arrows) == len(char_arrows):
-        button:
-            style_group "pb"
-            action [Hide("interactions_archery_range_result"), Jump("interactions_archery_loop")]
-            text "Next Round" style "pb_button_text"
-            align .5, .9
+    if archery_result is None:
+        if len(hero_arrows) == num_arrows:
+            button :
+                style_group "pb"
+                action Return("done")
+                text "Done" style "pb_button_text"
+                align .5, .9
+        else:
+            button:
+                style_group "pb"
+                action Return("char_turn")
+                $ temp = "Next Round" if len(char_arrows) else "Begin"
+                text temp style "pb_button_text"
+                align .5, .9
+
+label interactions_prearchery_lines: # lines before archery
+    if ct("Impersonal"):
+        $ rc("Understood. Initialising battle mode.", "Very well. Switching to training mode.")
+    elif ct("Imouto"):
+        $ rc("Behold of my amazing techniques, [char.mc_ref]!")
+    elif ct("Dandere"):
+        $ rc("Let's end this quickly, [char.mc_ref]. We have many other things to do.",  "Let's see who's better.")
+    elif ct("Kuudere"):
+        $ rc("Fine, I accept your challenge.", "Let's fight fair and square.")
+    elif ct("Tsundere"):
+        $ rc("I won't go easy on you!", "Fine, I'll show you how it's done.")
+    elif ct("Bokukko"):
+        $ rc("I'm gonna whack you good!", "All right, let's get over with this fast!")
+    elif ct("Ane"):
+        $ rc("Hehe, let's both do our best.", "Fine, let's find out who is better at this!")
+    elif ct("Kamidere"):
+        $ rc("Alright, let's see what you can do.", "I suppose, I have a few minutes to spare.")
+    elif ct("Yandere"):
+        $ rc("Sure, but don't blame me if your ass is gonna be kicked...", "I'll try to be gentle, but no promises.")
     else:
-        button:
-            style_group "pb"
-            action Return("char_turn")
-            text "[char.name]'s turn" style "pb_button_text"
-            align .5, .9
+        $ rc("I don't mind. Let's do it.", "Sure, I can use some practice.")
+    return
+
+label interactions_postarchery_lines: # lines and rewards after archery
+    if archery_result == hero:
+        "You won."
+
+        $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.33))
+        $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.1))
+
+        $ char.gfx_mod_stat("disposition", randint(5, 10))
+        $ char.gfx_mod_stat("affection", affection_reward(char, .5, stat="attack"))
+
+    elif archery_result == char:
+        "[char.name] won."
+
+        $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.1))
+        $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.33))
+
+        $ char.gfx_mod_stat("disposition", randint(10, 15))
+        $ char.gfx_mod_stat("affection", affection_reward(char, .25, stat="attack"))
+        $ char.gfx_mod_stat("affection", affection_reward(char, .25))
+    else:
+        "Draw."
+
+        $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.33))
+        $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.33))
+        
+        $ char.gfx_mod_stat("disposition", randint(15, 20))
+        $ char.gfx_mod_stat("affection", affection_reward(char, .4, stat="attack"))
+        $ char.gfx_mod_stat("affection", affection_reward(char, .4))
+
+    if ct("Impersonal"):
+        $ rc("Practice is over. Switching to standby mode.", "All right, let's get back to normal.")
+    elif ct("Imouto"):
+        $ rc("Woohoo! Getting better every day!", "Haha, it was fun! We should do it again!")
+    elif ct("Dandere"):
+        $ rc("Guess that does it. Good fight.", "Ok, I suppose we can leave it at this.")
+    elif ct("Kuudere"):
+        $ rc("You are a worthy opponent.", "We both still have much to learn.")
+    elif ct("Tsundere"):
+        $ rc("Jeez, now I'm tired after all that.", "Haaa... It was pretty fun.")
+    elif ct("Bokukko"):
+        $ rc("Oh, we done already?", "Not a bad exercise, was it?")
+    elif ct("Ane"):
+        $ rc("Oh my, I think I may have overdone it a little. Apologies.")
+    elif ct("Kamidere"):
+        $ rc("I'm tired. We are done here.", "I suppose it was a valuable experience.")
+    elif ct("Yandere"):
+        $ rc("Sorry, I got carried away. But you did well nevertheless.", "Goodness, look at this. I got my clothes all wet.")
+    else:
+        $ rc("You're pretty good.", "Phew... We should do this again sometime.")
+
+    return
+
+label interaction_archery_char_comment_self: # (archery_result)
+    call interactions_archery_eval_result from _call_interactions_archery_eval_result_2
+
+    if isinstance(archery_result, int):
+        # hit
+        if archery_result == 10:
+            # Bulls Eye
+            $ temp = choice(["Right in the middle.", "Bullseye!"])
+            if target_scale < 0.7:
+                $ archery_result = choice([" Yeah!", " Lucky shot!"]) 
+            else:
+                $ archery_result = choice([" Not bad.", " Nice one, right?"])
+            $ char.gfx_mod_stat("joy", randint(1,2))
+            char.say "[temp]" 
+            extend "[archery_result]"
+        elif archery_result < 4:
+            # weak hit
+            $ rc("Well, a [archery_result]. Maybe the next one...", "Ehh... [archery_result]. Could have been better.", "A [archery_result]. Not my best one.")
+        else:
+            # normal hit
+            $ rc("A [archery_result]. It is fine, I guess.", "A hit of [archery_result] is O.K. with me.", "Hm.. [archery_result]. That was a nice shot, don't you think?", "A [archery_result]. For now that will do.", "Can to beat this [archery_result]?")
+    else:
+        # miss
+        $ rc("Hmpf... Can I try again?", "Ouch... that hurts.", "Stop distracting me!", "Eh... Maybe we should not play against the sun.", "Well, here goes nothing...")
+    $ archery_result = None
+    return
 
 label interaction_archery_char_comment: # (archery_result)
+    call interactions_archery_eval_result from _call_interactions_archery_eval_result_1
+
     if isinstance(archery_result, int):
         # hit
         if archery_result == 10:
@@ -437,7 +530,7 @@ label interaction_archery_char_comment: # (archery_result)
             $ rc("A [archery_result]. Now watch me!", "Anyone can hit a [archery_result].", "A [archery_result]. Do you even try?")
         else:
             # normal hit
-            $ rc("A [archery_result]. You try to challenge me?", "A hit of [archery_result] is not bad for a beginner.", "Hm.. [archery_result]. Is this your lucky shot?", "[archery_result]. It is O.K., considering the circumstances...", "Are you satisfied with your [archery_result]?")
+            $ rc("A [archery_result]. You try to challenge me?", "A hit of [archery_result] is not bad for a beginner.", "Hm.. [archery_result]. Is this your lucky shot?", "A [archery_result]. It is O.K., considering the circumstances...", "Are you satisfied with your [archery_result]?")
     else:
         # miss
         if archery_result[0] == "_": # "_r", "_R", "_l", "_L"
@@ -513,18 +606,68 @@ label interaction_archery_char_comment: # (archery_result)
                     $ rc("Are you shooting for the stars?", "Watch your back, the arrow might come around the Earth.", "Please, do not hurt the birds!")
                 else: # archery_result == "D":
                     $ rc("Try not to shoot yourself in the foot!", "Are you hunting for gophers?", "You never had to dig a borehole by hand, right?")
+    $ archery_result = None
     return
+
+# transform the archery_result from the format of [(posx, posy), size, (centerx, centery)] to string  
+label interactions_archery_eval_result:
+    python hide:
+        pos, size, value = store.archery_result
+        if pos is None:
+            # a complete miss by not shooting the arrow (speed == 0)
+            value = "D"
+        elif size is None:
+            # a hit
+            pass
+        else:
+            # a miss -> convert to string
+            posx, posy = pos
+            centerx, centery = value
+
+            value = ""
+            if posx <= centerx - size:
+                if posx < centerx - 2*size:
+                    value += "L" # far to the left
+                else:
+                    value += "l" # a bit to the left
+            elif posx >= centerx + size:
+                if posx > centerx + 2*size:
+                    value += "R" # far to the right
+                else:
+                    value += "r" # a bit to the right
+            if posy <= centery - size:
+                if posy < centery - 2*size:
+                    value += "U" # far low
+                else:
+                    value += "u" # a bit low
+            elif posy >= centery + size:
+                if posy > centery + 2*size:
+                    value += "D" # far low
+                else:
+                    value += "d" # a bit low
+            if value == "":
+                # in the box of the target, but still a miss
+                if posx < centerx:
+                    if posy < centery:
+                        value = "_l" # bottom-left corner
+                    else:
+                        value = "_L" # upper-left corner
+                else:
+                    if posy < centery:
+                        value = "_r" # bottom-right corner
+                    else:
+                        value = "_R" # upper-right corner
+        store.archery_result = value 
+    return
+
 label interactions_archery_end:
-    if archery_result == hero:
-        "You won."
-    elif archery_result == char:
-        "[char.name] won."
-    else:
-        "Draw."
     hide screen interactions_archery_range_result
     with dissolve
+
+    call interactions_postarchery_lines from _call_interactions_postarchery_lines
+
     python hide:
-        cleanup = ["hero_arrows", "char_arrows", "archery_result", "temp",
+        cleanup = ["hero_arrows", "char_arrows", "archery_result", "temp", "dummy",
                    "archery_min_skill", "archery_max_skill", "speed_per_force",
                    "prev_mouse_hide", "hero_skill", "char_skill",
                    "target_scale", "target size", "target_border", "crosshair_size",
