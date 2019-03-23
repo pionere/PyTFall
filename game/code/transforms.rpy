@@ -2,6 +2,12 @@ init -948: # Transforms:
     # Basic transforms:
 
     # First, More default positions:
+    transform bottom_right:
+        align (1.0, 1.0)
+
+    transform bottom_left:
+        align (.0, 1.0)
+
     transform mid_right:
         align (.75, 1.0)
 
@@ -15,8 +21,12 @@ init -948: # Transforms:
         align (.05, .5)
 
     # Other Transforms:
-    transform move_to_pos_with_offset(pos, t):
-        linear t offset pos
+    transform move_from_to_pos_with_linear(start_pos=(0, 0), end_pos=(config.screen_width, config.screen_height), t, hide_when_done):
+        # Move by pos with easeOut:
+        subpixel True
+        pos start_pos
+        linear t pos end_pos
+        alpha (.0 if hide_when_done else 1.0)
 
     transform move_from_to_pos_with_ease(start_pos=(0, 0), end_pos=(config.screen_width, config.screen_height), t=1.0, wait=0):
         # Moves the child from start position to end position in t seconds

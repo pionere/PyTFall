@@ -171,6 +171,8 @@ label dev_testing_menu_and_load_mc:
                         $ n = 0
                     "Overpowered":
                         $ n = 10
+                    "Back":
+                        jump dev_testing_menu_and_load_mc
                 $ tier_up_to(hero, n, level_bios=(.9, 1.1), skill_bios=(.8, 1.2), stat_bios=(.8, 1.0))
                 $ del n
             "Content":

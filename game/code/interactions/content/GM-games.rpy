@@ -36,8 +36,8 @@ label interactions_play_bow: # additional rounds continue from here
 
     hide screen girl_interactions
 
-    show expression hero.get_vnsprite() at Transform(align=(.0, 1.0)) as player with dissolve
-    show expression char.get_vnsprite() at Transform(align=(1.0, 1.0)) as character with dissolve
+    show expression hero.get_vnsprite() at bottom_left as player with dissolve
+    show expression char.get_vnsprite() at bottom_right as character with dissolve
 
     python:
         min_distance = 5        # the minimum distance of the target
@@ -67,20 +67,22 @@ label interactions_play_bow: # additional rounds continue from here
         hero_skill = min(hero_skill, archery_max_skill)
         char_skill = min(char_skill, archery_max_skill)
 
-        max_strain = 1000      # the relative maximum strain
-        speed_per_force = 40   # the maximum speed of the arrow when released
-        g_force = 5            # half of the standard grav. force to simplify the calculation
-        distance_per_speed = 6 # conversion between pixels and world distance
+        max_strain = 1000       # the relative maximum strain
+        speed_per_force = 200   # the maximum speed of the arrow when released
+        g_force = 5             # half of the standard grav. force to simplify the calculation
+        distance_per_speed = 40 # conversion between pixels and world distance
 
         temp = {"beach": 5, "city": 4, "village": 3, "park": 2, "forest": 1}
         wind = temp[archery_location]
         wind = [uniform(.8, 1.2)*wind, randint(0, 360), None]
+        wind_mpl = 5           # default multiplier of the wind effect
 
         target_size = 200      # the width of the target at min_distance
         target_border = 3      # border of the target where the hit does not count
         crosshair_size = 400   # base size of the crosshair (reduced by skill)
         prev_mouse_hide = config.mouse_hide_time
-        archery_result = None
+        arrow = None           # the flying arrow of the hero
+        archery_result = None  # detailed result of the shot to give feedback
 
 label interactions_archery_start:
     # adjust and show wind indicator
@@ -121,7 +123,7 @@ label interactions_archery_hero_turn:
 
     $ config.mouse_hide_time = 0
     $ archery_strain = 300   # initial strain
-    
+
     show screen interactions_archery_range_shoot
 
     while 1:
@@ -129,15 +131,15 @@ label interactions_archery_hero_turn:
 
         if result == "shoot":
             python hide:
-                posx, posy = renpy.get_mouse_pos()
+                m_posx, m_posy = posx, posy = renpy.get_mouse_pos()
                 speed = (archery_strain/float(max_strain)) # strain percentage -> 0.0 <= speed <= 1.0
                 speed = 8*(1.0-speed)                      #                   -> 8.0 >= speed >= 0.0
                 speed = speed*(math.e**(-speed))           # x * e^(-x)        -> 0.0 <= speed <= 0.36788
                 force = get_linear_value_of(hero_skill, archery_min_skill, .5, archery_max_skill, 1.0)
                 speed *= force * speed_per_force
                 # wind (y) effect
-                speed += wind[0]*math.cos(wind[1]*math.pi/180)
-                
+                speed += wind_mpl * wind[0]*math.cos(wind[1]*math.pi/180) * uniform(.9, 1.1)
+
                 if speed <= 0:
                     # miss
                     hero_arrows.append((None, None, 0))
@@ -149,8 +151,11 @@ label interactions_archery_hero_turn:
                     posy += dt * dt * g_force * distance_per_speed * target_scale
 
                     # wind (x) effect
-                    wind_speed = wind[0]*math.sin(wind[1]*math.pi/180)
+                    wind_speed = wind_mpl * wind[0]*math.sin(wind[1]*math.pi/180) * uniform(.9, 1.1)
                     posx += dt * wind_speed * distance_per_speed * target_scale
+
+                    rotation = randint(0, 360)
+                    store.arrow = [[round_int(m_posx), round_int(m_posy)], [round_int(posx), round_int(posy)], dt, rotation]
 
                     centerx, centery = config.screen_width/2, config.screen_height/2-(66*target_scale)
                     size = target_scale*((target_size-target_border)/2)
@@ -165,7 +170,6 @@ label interactions_archery_hero_turn:
                         else:
                             value = int(value)+1
 
-                        rotation = randint(0, 360)
                         hero_arrows.append(((posx, posy), rotation, value))
 
                         store.archery_result = ((posx, posy), None, value)
@@ -180,7 +184,7 @@ label interactions_archery_hero_turn:
             python hide:
                 posx, posy = renpy.get_mouse_pos()
                 # bit of random shake sideways
-                dx = get_linear_value_of(hero_skill, archery_min_skill, 2, archery_max_skill, .5) 
+                dx = get_linear_value_of(hero_skill, archery_min_skill, 2+2.0*archery_strain/max_strain, archery_max_skill, .5) 
                 posx += random.uniform(-dx, dx)
                 # breath effect
                 posy += 2*dx*math.cos(time.time()*math.pi*2/4)
@@ -224,6 +228,9 @@ screen interactions_archery_range_target:
         char_img = im.Scale(im.MatrixColor("content/gfx/images/archery_fletching_2.webp", im.matrix.tint(*char_img)), size, size)
         size /= 2
         offset = -((math.sqrt(2)-1.0)*size) # add offset to offset the rotation
+
+        if arrow is not None:
+            last_arrow = hero_arrows.pop()
     for h, c in izip_longest(hero_arrows, char_arrows):
         if h is not None:
             $ pos, rot, value = h
@@ -235,6 +242,14 @@ screen interactions_archery_range_target:
             if pos is not None: # skip missed shots
                 $ pos = [round_int(pos[0]-size), round_int(pos[1]-size)]
                 add Transform(char_img, rotate=rot) pos pos offset (offset, offset)
+    # the flying arrow
+    if arrow is not None:
+        python:
+            rot = arrow.pop()
+            arrow.append(last_arrow[0] is None)
+        add Transform(hero_img, rotate=rot) at move_from_to_pos_with_linear(*arrow) offset (offset-size, offset-size)
+        $ hero_arrows.append(last_arrow)
+        $ store.arrow = None
 
 screen interactions_archery_range_targeting:
     # Set Distance
@@ -390,7 +405,7 @@ label interactions_archery_char_shoot:
         # independent of the distance -> distance effect...
         value *= target_size
         # wind effect
-        value *= get_linear_value_of(wind[0], 0, 1.0, 6.4, 1.2) # archery_min_wind = 0, archery_max_wind = 6.4
+        value *= get_linear_value_of(wind[0]*math.sin(wind[1]*math.pi/180) , 0, 1.0, 6.4, 1.2) # archery_min_wind = 0, archery_max_wind = 6.4
 
         posx, posy = centerx + random.gauss(0, 0.6)*value, centery + random.gauss(0, 0.6)*value
 
@@ -464,7 +479,10 @@ label interactions_postarchery_lines: # lines and rewards after archery
         $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.33))
         $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.1))
 
-        $ char.gfx_mod_stat("disposition", randint(5, 10))
+        if hero_skill > char_skill*2:
+            $ char.gfx_mod_stat("disposition", randint(2, 5))
+        else:
+            $ char.gfx_mod_stat("disposition", randint(5, 10))
         $ char.gfx_mod_stat("affection", affection_reward(char, .5, stat="attack"))
 
     elif archery_result == char:
@@ -473,7 +491,10 @@ label interactions_postarchery_lines: # lines and rewards after archery
         $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.1))
         $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.33))
 
-        $ char.gfx_mod_stat("disposition", randint(10, 15))
+        if hero_skill > char_skill*2:
+            $ char.gfx_mod_stat("disposition", randint(10, 15))
+        else:
+            $ char.gfx_mod_stat("disposition", randint(2, 5))
         $ char.gfx_mod_stat("affection", affection_reward(char, .25, stat="attack"))
         $ char.gfx_mod_stat("affection", affection_reward(char, .25))
     else:
@@ -560,33 +581,24 @@ label interaction_archery_char_comment: # (archery_result)
         # miss
         if archery_result[0] == "_": # "_r", "_R", "_l", "_L"
             # in the box of target
-            $ archery_result = archery_result[1]
-            if archery_result == "r":
-                $ archery_result = "up and left"
-            elif archery_result == "R":
-                $ archery_result = "down and left"
-            elif archery_result == "l":
-                $ archery_result = "up and right"
-            else: # "L"
-                $ archery_result = "down and right"
             char.say "That was close."
-            extend " A bit more to [archery_result] and you will hit."
+            extend " A bit more luck and you will hit."
         elif len(archery_result) == 1:
             # one-way miss  ("r", "R", "l", "L", "u", "U", "d", "D")
             if archery_result == "r":
-                char.say "You need to aim more to the left."
+                $ rc("You might want to come a bit closer?", "I guess now you try to blame the wind.")
             elif archery_result == "R":
-                char.say "That was way too far to the right."
+                $ rc("That was way too far to the right.", "I would not even try to find that arrow.")
             elif archery_result == "l":
-                char.say "You need to aim more to the right."
+                $ rc("You might want to come a bit closer?", "I guess now you try to blame the wind.")
             elif archery_result == "L":
-                char.say "That was way too far to the left."
+                $ rc("That was way too far to the left.", "I would not even try to find that arrow.")
             elif archery_result == "u":
-                char.say "You need to lower your aim."
+                $ rc("I see you have high hopes.", "Optimism helps in many situations.")
             elif archery_result == "U":
                 $ rc("Are you shooting for the stars?", "Watch your back, the arrow might come around the Earth.", "Please, do not hurt the birds!")
             elif archery_result == "d":
-                char.say "You need to raise your aim."
+                $ rc("All right, so the trestle is stable.", "You might want to try this on the Moon.", "Well, at least we do not have to pay for this arrow.")
             else: # archery_result == "D":
                 $ rc("Try not to shoot yourself in the foot!", "Are you hunting for gophers?", "You never had to dig a borehole by hand, right?")
         else:
@@ -604,17 +616,7 @@ label interaction_archery_char_comment: # (archery_result)
                 char.say "With a bit more practice and aiming [archery_result], you might hit the target."
             elif archery_result == archery_result.upper():
                 # ("RU", "RD", "LU", "LD")
-                if archery_result == "RU":
-                    $ archery_result = "high and to the right."
-                elif archery_result == "RD":
-                    $ archery_result = "low and to the right."
-                elif archery_result == "LU":
-                    $ archery_result = "high and to the left."
-                else: # archery_result == "LD":
-                    $ archery_result = "low and to the left."
-                $ temp = choice(["You need some glasses?", "It was hopeless from the beginning!"]) 
-                char.say "[temp]"
-                extend " That was way too [archery_result]"
+                $ temp = choice(["Are you sure this is the right time to play this game?", "You might want to try something else!"]) 
             else:
                 # ("rU", "rD", "lU", "lD", "Ru", "Rd", "Lu", "Ld")
                 if archery_result[0] == archery_result[0].upper():
@@ -698,7 +700,7 @@ label interactions_archery_end:
                    "target_scale", "target size", "target_border", "crosshair_size",
                    "distance", "min_distance", "max_distance_perc",
                    "wind", "archery_location", "archery_strain",
-                   "num_arrows", "best_of"]
+                   "num_arrows", "best_of", "wind_mpl", "arrow"]
         for i in cleanup:
             if hasattr(store, i):
                 delattr(store, i)
