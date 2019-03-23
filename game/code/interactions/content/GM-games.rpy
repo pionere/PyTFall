@@ -21,8 +21,8 @@ label interactions_play_bow: # additional rounds continue from here
             #show bg b_nature_1 with fade
             $ archery_location="park"
         "Village":
-            show bg hiddenvillage_alley with fade
-            #show bg b_village_1 with fade
+            #show bg hiddenvillage_alley with fade
+            show bg b_village_1 with fade
             $ archery_location="village"
         "City":
             show bg b_city_1 with fade
@@ -40,7 +40,8 @@ label interactions_play_bow: # additional rounds continue from here
     show expression char.get_vnsprite() at Transform(align=(1.0, 1.0)) as character with dissolve
 
     python:
-        min_distance, max_distance_perc = 50, .1
+        min_distance = 5        # the minimum distance of the target
+        max_distance_perc = .1  # 
         target_scale = 1.0
 
         archery_min_skill, archery_max_skill = 0, hero.get_relative_max_stat("attack", tier=MAX_TIER)
@@ -66,23 +67,26 @@ label interactions_play_bow: # additional rounds continue from here
         hero_skill = min(hero_skill, archery_max_skill)
         char_skill = min(char_skill, archery_max_skill)
 
-        archery_strain = 300
-        max_strain = 1000
-        speed_per_force = 40
+        max_strain = 1000      # the relative maximum strain
+        speed_per_force = 40   # the maximum speed of the arrow when released
+        g_force = 5            # half of the standard grav. force to simplify the calculation
+        distance_per_speed = 6 # conversion between pixels and world distance
 
-        wind_speed = {"beach": 5, "city": 4, "village": 3, "park": 2, "forest": 1}
-        wind_speed = wind_speed[archery_location]
-        wind_speed = (uniform(.8, 1.2)*wind_speed, uniform(.8, 1.2)*wind_speed)
+        temp = {"beach": 5, "city": 4, "village": 3, "park": 2, "forest": 1}
+        wind = temp[archery_location]
+        wind = [uniform(.8, 1.2)*wind, randint(0, 360), None]
 
-        target_size = 200
-        target_border = 3
-        crosshair_size = 400
+        target_size = 200      # the width of the target at min_distance
+        target_border = 3      # border of the target where the hit does not count
+        crosshair_size = 400   # base size of the crosshair (reduced by skill)
         prev_mouse_hide = config.mouse_hide_time
         archery_result = None
 
 label interactions_archery_start:
     # adjust and show wind indicator
-    $ wind_speed = (uniform(.9, 1.1)*wind_speed[0], uniform(.9, 1.1)*wind_speed[1])
+    $ wind = [min(6.4, uniform(.9, 1.1)*wind[0]), round_int(uniform(.9, 1.1)*wind[1]) % 360, None]
+    $ temp = ["azure", "lightcyan", "lightblue", "lightsalmon", "lightcoral", "tomato", "orangered"]
+    $ wind[2] = temp[round_int(wind[0])]
 
     $ hero_arrows = []
     $ char_arrows = []
@@ -115,9 +119,11 @@ label interactions_archery_hero_turn:
 
     hide screen interactions_archery_range_result
 
+    $ config.mouse_hide_time = 0
+    $ archery_strain = 300   # initial strain
+    
     show screen interactions_archery_range_shoot
 
-    $ config.mouse_hide_time = 0
     while 1:
         $ result = ui.interact()
 
@@ -129,19 +135,22 @@ label interactions_archery_hero_turn:
                 speed = speed*(math.e**(-speed))           # x * e^(-x)        -> 0.0 <= speed <= 0.36788
                 force = get_linear_value_of(hero_skill, archery_min_skill, .5, archery_max_skill, 1.0)
                 speed *= force * speed_per_force
+                # wind (y) effect
+                speed += wind[0]*math.cos(wind[1]*math.pi/180)
                 
-                if speed == 0:
+                if speed <= 0:
                     # miss
                     hero_arrows.append((None, None, 0))
 
                     store.archery_result = (None, None, None)
                 else:
                     # distance effect
-                    posy += distance / speed
+                    dt = distance / speed
+                    posy += dt * dt * g_force * distance_per_speed * target_scale
 
-                    '''
-                     :FIXME: add wind effect
-                    '''
+                    # wind (x) effect
+                    wind_speed = wind[0]*math.sin(wind[1]*math.pi/180)
+                    posx += dt * wind_speed * distance_per_speed * target_scale
 
                     centerx, centery = config.screen_width/2, config.screen_height/2-(66*target_scale)
                     size = target_scale*((target_size-target_border)/2)
@@ -181,14 +190,26 @@ label interactions_archery_hero_turn:
                 posy += random.uniform(0, dx/2)
                 renpy.set_mouse_pos(round_int(posx), round_int(posy))
                 # relaxing muscles
-                if store.archery_strain < 2:
+                dx = round_int(2*dx)
+                if store.archery_strain < dx:
                     store.archery_strain = 0
                 else:
-                    store.archery_strain -= randint(1, 2)
+                    store.archery_strain -= randint(1, dx)
                 renpy.restart_interaction()
 
 screen interactions_archery_range_target:
-    # FIXME: add wind indicator
+    # wind indicator
+    fixed:
+        align .8, .0
+        xysize 200, 200
+        add im.Scale("content/gfx/images/vane_back_1.webp", 150, 150) align .5, .5
+        add Transform(im.Scale("content/gfx/images/vane_3.webp", 25, 90), rotate=wind[1]) align .5, .5 
+        button:
+            align .5, 1.0
+            style_group "basic_choice2"
+            text str(round(wind[0], 1)) size 14 color wind[2]
+            action NullAction()
+            tooltip "Wind speed and direction."
 
     # the target
     $ sizex, sizey = target_size, 332
@@ -223,7 +244,7 @@ screen interactions_archery_range_targeting:
         text "Distance" style "pb_button_text" color "black" outlines [(2, "ivory", 1, 1)] size 20
         bar:
             bar_invert True
-            value FieldValue(store, 'target_scale', 1.0, max_is_zero=False, style='scrollbar', offset=max_distance_perc, step=.05)
+            value FieldValue(store, 'target_scale', 1.0-max_distance_perc, max_is_zero=False, style='scrollbar', offset=max_distance_perc, step=.05)
             xmaximum 150
             thumb 'content/gfx/interface/icons/move15.png'
             tooltip "Adjust the distance to the target."
@@ -365,11 +386,11 @@ label interactions_archery_char_shoot:
         size = target_scale*((target_size-target_border)/2)
 
         value = get_linear_value_of(char_skill, archery_min_skill, .3, archery_max_skill, .05)
-        '''
-         :FIXME: add wind effect
-        '''
 
-        value *= target_size # independent of the distance -> distance effect...
+        # independent of the distance -> distance effect...
+        value *= target_size
+        # wind effect
+        value *= get_linear_value_of(wind[0], 0, 1.0, 6.4, 1.2) # archery_min_wind = 0, archery_max_wind = 6.4
 
         posx, posy = centerx + random.gauss(0, 0.6)*value, centery + random.gauss(0, 0.6)*value
 
@@ -672,11 +693,11 @@ label interactions_archery_end:
 
     python hide:
         cleanup = ["hero_arrows", "char_arrows", "archery_result", "temp", "dummy",
-                   "archery_min_skill", "archery_max_skill", "speed_per_force",
+                   "archery_min_skill", "archery_max_skill", "speed_per_force", "g_force",
                    "prev_mouse_hide", "hero_skill", "char_skill",
                    "target_scale", "target size", "target_border", "crosshair_size",
                    "distance", "min_distance", "max_distance_perc",
-                   "wind_speed", "archery_location", "archery_strain",
+                   "wind", "archery_location", "archery_strain",
                    "num_arrows", "best_of"]
         for i in cleanup:
             if hasattr(store, i):
