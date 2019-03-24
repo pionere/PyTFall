@@ -171,8 +171,8 @@ init -9 python:
         GENDER_FILTERS = {"any": ["unisex", "female", "male"],
                           "male": ["unisex", "male"],
                           "female": ["unisex", "female"]}
-        SLOT_FILTERS = {"all": ('weapon', 'smallweapon', 'head', 'body', 'wrist',
-            'feet', 'cape', 'amulet', 'ring', 'consumable', 'gift', 'misc', 'quest',
+        SLOT_FILTERS = {"all": ("weapon", "smallweapon", "head", "body", "wrist",
+            "feet", "cape", "amulet", "ring", "consumable", "gift", "misc", "quest",
             "resources", "loot"),
             "quest": ("quest", "resources", "loot")}
 

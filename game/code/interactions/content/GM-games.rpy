@@ -47,16 +47,10 @@ label interactions_play_bow: # additional rounds continue from here
         archery_min_skill, archery_max_skill = 0, hero.get_relative_max_stat("attack", tier=MAX_TIER)
 
         dummy = copy_char(hero)
-        temp = dummy.eqslots['weapon']
-        if temp:
-            dummy.unequip(temp, aeq_mode=True)
         dummy.equip(items["Long Bow"], remove=False, aeq_mode=True)
         hero_skill = dummy.get_stat("attack")
 
         dummy = copy_char(char)
-        temp = dummy.eqslots['weapon']
-        if temp:
-            dummy.unequip(temp, aeq_mode=True)
         dummy.equip(items["Long Bow"], remove=False, aeq_mode=True)
         char_skill = dummy.get_stat("attack")
 
@@ -354,7 +348,7 @@ screen interactions_archery_range_shoot:
             hover_background hover_img
             action Return("shoot")
             text "Space" align .5, .5 size 30 color "black"
-            keysym "K_SPACE", "mousedown_1" 
+            keysym "K_SPACE", "mousedown_1", "K_ESCAPE"
 
     timer .1 action Return("timeout") repeat True
 

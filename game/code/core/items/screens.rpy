@@ -38,18 +38,18 @@ screen eqdoll(active_mode=True, char=None, frame_size=[55, 55], scr_align=(.23, 
         align scr_align
         xysize fx_size
 
-        default equipSlotsPositions = {'head': (.2, .1),
-                                       'body': (.2, .3),
-                                       'amulet': (1.0, .3),
-                                       'cape': (1.0, .1),
-                                       'weapon': (.2, .5),
-                                       'smallweapon': (1.0, .5),
-                                       'feet': (1.0, .7),
-                                       'misc': (.025, .41),
-                                       'wrist': (.2, .7),
-                                       'ring': (1.18, .2),
-                                       'ring1': (1.18, .4),
-                                       'ring2': (1.18, .6)}
+        default equipSlotsPositions = {"head": (.2, .1),
+                                       "body": (.2, .3),
+                                       "amulet": (1.0, .3),
+                                       "cape": (1.0, .1),
+                                       "weapon": (.2, .5),
+                                       "smallweapon": (1.0, .5),
+                                       "feet": (1.0, .7),
+                                       "misc": (.025, .41),
+                                       "wrist": (.2, .7),
+                                       "ring0": (1.18, .2),
+                                       "ring1": (1.18, .4),
+                                       "ring2": (1.18, .6)}
         for slot, pos in equipSlotsPositions.items():
             python:
                 is_multiple_pytgroup = False

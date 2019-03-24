@@ -650,6 +650,8 @@ label after_load:
             clearCharacters = True
         if hasattr(hero.fin, "stored_upkeep"):
             clearCharacters = True
+        if "ring" in hero.eqslots:
+            clearCharacters = True
         if isinstance(simple_jobs["Manager"], Manager):
             pmj = simple_jobs["Manager"]
             mj = ManagerJob()
@@ -936,14 +938,37 @@ label after_load:
                 global_flags.set_flag("been_in_old_ruins")
                 hero.del_flag("been_in_old_ruins")
 
-            for char in itertools.chain([hero], chars.values(), hero.chars, npcs.values()):
-                outfits = char.eqsave
-                char.eqsave = []
-                for o in outfits:
-                    if any(o.values()):
-                        if not "name" in o:
-                            o["name"] = "Outfit %d" % (len(char.eqsave)+1)
-                        char.eqsave.append(o)
+            arena = pytfall.arena
+            all_live_chars = set([hero] + chars.values() + hero.chars + npcs.values())
+            for fighter in itertools.chain(arena.ladder, arena.arena_fighters.values()):
+                all_live_chars.add(fighter)
+            for team in itertools.chain(arena.teams_2v2, arena.teams_3v3,\
+                 arena.dogfights_1v1, arena.dogfights_2v2, arena.dogfights_3v3,\
+                 arena.lineup_1v1, arena.lineup_2v2, arena.lineup_3v3):
+
+                    for fighter in team:
+                        all_live_chars.add(fighter)
+            for setup in itertools.chain(arena.matches_1v1, arena.matches_2v2, arena.matches_3v3):
+                for fighter in itertools.chain(setup[0].members, setup[1].members):
+                    all_live_chars.add(fighter)
+
+            for char in all_live_chars:
+                if hasattr(char, "inventory"):
+                    outfits = char.eqsave
+                    char.eqsave = []
+                    for o in outfits:
+                        if any(o.values()):
+                            if not "name" in o:
+                                o["name"] = "Outfit %d" % (len(char.eqsave)+1)
+                            if "ring" in o:
+                                o["ring0"] = o["ring"]
+                                del o["ring"]
+                            char.eqsave.append(o)
+                    if "ring" in char.eqslots:
+                        char.eqslots["ring0"] = char.eqslots["ring"]
+                        del char.eqslots["ring"]
+                    if char.last_known_aeq_purpose == "":
+                        char.last_known_aeq_purpose = None
 
                 if char.has_flag("drunk_counter"):
                     char.set_flag("dnd_drunk_counter", char.get_flag("drunk_counter"))
@@ -1106,68 +1131,6 @@ label after_load:
             #for girl in itertools.chain(jail.chars_list, pytfall.ra.girls.keys()):
             #    if girl.controller == "player":
             #        girl.controller = None
-
-            arena = pytfall.arena
-            for fighter in itertools.chain(arena.ladder, arena.arena_fighters.values()):
-                if fighter.controller == "player":
-                    fighter.controller = None
-                if hasattr(fighter, "_arena_rep"):
-                    fighter.arena_rep = fighter._arena_rep
-                    del fighter._arena_rep
-                if hasattr(fighter, "_location"):
-                    fighter.location = fighter._location
-                    del fighter._location
-                if fighter.location == arena:
-                    fighter.location = None
-                    fighter.arena_active = True
-                if hasattr(fighter, "_action"):
-                    del fighter._action
-                    del fighter.previousaction
-                    fighter._job = None
-                    fighter._task = None
-                if not "affection" in fighter.stats:
-                    fighter.stats.stats["affection"] = 0
-                    fighter.stats.imod["affection"] = 0
-                    fighter.stats.min["affection"] = -1000
-                    fighter.stats.max["affection"] = 1000
-                    fighter.stats.lvl_max["affection"] = 1000
-
-            for team in itertools.chain(arena.teams_2v2, arena.teams_3v3,\
-                 arena.dogfights_1v1, arena.dogfights_2v2, arena.dogfights_3v3,\
-                 arena.lineup_1v1, arena.lineup_2v2, arena.lineup_3v3):
-
-                    for fighter in team:
-                        if fighter.controller == "player":
-                            fighter.controller = None
-                        if hasattr(fighter, "_arena_rep"):
-                            fighter.arena_rep = fighter._arena_rep
-                            del fighter._arena_rep
-                        if hasattr(fighter, "_location"):
-                            fighter.location = fighter._location
-                            del fighter._location
-                        if not "affection" in fighter.stats:
-                            fighter.stats.stats["affection"] = 0
-                            fighter.stats.imod["affection"] = 0
-                            fighter.stats.min["affection"] = -1000
-                            fighter.stats.max["affection"] = 1000
-                            fighter.stats.lvl_max["affection"] = 1000
-
-            for setup in itertools.chain(arena.matches_1v1, arena.matches_2v2, arena.matches_3v3):
-                for fighter in itertools.chain(setup[0].members, setup[1].members):
-                    if fighter.controller == "player":
-                        fighter.controller = None
-                    if hasattr(fighter, "_arena_rep"):
-                        fighter.arena_rep = fighter._arena_rep
-                        del fighter._arena_rep
-                    if hasattr(fighter, "_location"):
-                        fighter.location = fighter._location
-                        del fighter._location
-                    if not "affection" in fighter.stats:
-                        fighter.stats.stats["affection"] = 0
-                        fighter.stats.imod["affection"] = 0
-                        fighter.stats.min["affection"] = -1000
-                        fighter.stats.max["affection"] = 1000
-                        fighter.stats.lvl_max["affection"] = 1000
 
             for b in hero.buildings:
                 if hasattr(b, "all_clients"):

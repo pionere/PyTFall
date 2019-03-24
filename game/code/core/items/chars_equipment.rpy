@@ -182,9 +182,8 @@ label char_equip_loop:
         elif result[0] == "unequip_all":
             python:
                 if equipment_access(eqtarget, silent=False):
-                    for slot in eqtarget.eqslots.values():
-                        if slot:
-                            eqtarget.unequip(slot)
+                    for slot in eqtarget.eqslots:
+                        eqtarget.unequip(slot=slot)
                     del slot
 
                 focusitem = None

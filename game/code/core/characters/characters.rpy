@@ -95,19 +95,19 @@ init -9 python:
             if inventory:
                 self.inventory = Inventory(15)
                 eqslots = {
-                    'head': False,
-                    'body': False,
-                    'cape': False,
-                    'feet': False,
-                    'amulet': False,
-                    'wrist': False,
-                    'weapon': False,
-                    'smallweapon': False,
-                    'ring': False,
-                    'ring1': False,
-                    'ring2': False,
-                    'misc': False,
-                    'consumable': None,
+                    "head": False,
+                    "body": False,
+                    "cape": False,
+                    "feet": False,
+                    "amulet": False,
+                    "wrist": False,
+                    "weapon": False,
+                    "smallweapon": False,
+                    "ring0": False,
+                    "ring1": False,
+                    "ring2": False,
+                    "misc": False,
+                    "consumable": None,
                 }
                 self.eqslots = eqslots
                 self.eqsave = [] # saved equipment states
@@ -115,7 +115,7 @@ init -9 python:
                 self.constemp = dict()  # Dict of consumables with temp effects.
                 self.miscitems = dict()  # Counter for misc items.
                 self.miscblock = list()  # List of blocked misc items.
-                self.last_known_aeq_purpose = "" # We don't want to aeq needlessly, it's an expensive operation.
+                self.last_known_aeq_purpose = None # We don't want to aeq needlessly, it's an expensive operation.
                 # List to keep track of temporary effect
                 # consumables that failed to activate on cmax **We are not using this or at least I can't find this in code!
                 # self.maxouts = list()
@@ -849,13 +849,13 @@ init -9 python:
             # Basically we manually mess with inventory and have
             # no way of knowing what was done to it.
             if not aeq_mode and item.slot != 'consumable':
-                self.last_known_aeq_purpose = ''
+                self.last_known_aeq_purpose = None
 
             # This is a temporary check, to make sure nothing goes wrong:
             # Code checks during the equip method should make sure that the unique items never make it this far:
             if item.unique and item.unique != self.id:
                 raise Exception("""A character attempted to equip unique item that was not meant for him/her.
-                                   This is a flaw in game design, please report to out development team!
+                                   This is a flaw in game design, please report to our development team!
                                    Character: %s/%s, Item:%s""" % self.id, self.__class__, item.id)
 
             if item.sex not in ["unisex", self.gender]:
@@ -877,64 +877,73 @@ init -9 python:
                 if item in self.miscblock:
                     return
 
-                if self.eqslots['misc']: # Unequip if equipped.
-                    temp = self.eqslots['misc']
-                    self.inventory.append(temp)
-                    del(self.miscitems[temp])
+                curr_item = self.eqslots['misc']
+                if curr_item: # Unequip if equipped.
+                    self.inventory.append(curr_item)
+                    del(self.miscitems[curr_item])
                 self.eqslots['misc'] = item
                 self.miscitems[item] = item.mtemp
                 if remove:
                     self.inventory.remove(item)
-            elif item.slot == 'ring':
-                if not self.eqslots['ring']:
-                    self.eqslots['ring'] = item
-                elif not self.eqslots['ring1']:
-                    self.eqslots['ring1'] = item
-                elif not self.eqslots['ring2']:
-                    self.eqslots['ring2'] = item
+            elif item.slot == "ring":
+                if not self.eqslots["ring0"]:
+                    self.eqslots["ring0"] = item
+                elif not self.eqslots["ring1"]:
+                    self.eqslots["ring1"] = item
+                elif not self.eqslots["ring2"]:
+                    self.eqslots["ring2"] = item
                 else:
-                    self.apply_item_effects(self.eqslots['ring'], direction=False)
-                    self.inventory.append(self.eqslots['ring'])
-                    self.eqslots['ring'] = self.eqslots['ring1']
-                    self.eqslots['ring1'] = self.eqslots['ring2']
-                    self.eqslots['ring2'] = item
+                    self.apply_item_effects(self.eqslots["ring0"], direction=False)
+                    self.inventory.append(self.eqslots["ring0"])
+                    self.eqslots["ring0"] = self.eqslots["ring1"]
+                    self.eqslots["ring1"] = self.eqslots["ring2"]
+                    self.eqslots["ring2"] = item
                 self.apply_item_effects(item)
                 if remove:
                     self.inventory.remove(item)
             else:
                 # Any other slot:
-                if self.eqslots[item.slot]: # If there is any item equipped:
-                    self.apply_item_effects(self.eqslots[item.slot], direction=False) # Remove equipped item effects
-                    self.inventory.append(self.eqslots[item.slot]) # Add unequipped item back to inventory
+                curr_item = self.eqslots[item.slot]
+                if curr_item: # If there is any item equipped:
+                    self.apply_item_effects(curr_item, direction=False) # Remove equipped item effects
+                    self.inventory.append(curr_item) # Add unequipped item back to inventory
                 self.eqslots[item.slot] = item # Assign new item to the slot
                 self.apply_item_effects(item) # Apply item effects
                 if remove:
                     self.inventory.remove(item) # Remove item from the inventory
 
-        def unequip(self, item, slot=None, aeq_mode=False):
+        def unequip(self, item=None, slot=None, aeq_mode=False):
+            '''
+            Unequip the item or slot. Consumables can not be unequipped.
+            '''
             # AEQ considerations:
             # Basically we manually mess with inventory and have
             # no way of knowing what was done to it.
-            _slot = item.slot
-            if not aeq_mode and _slot != 'consumable':
-                self.last_known_aeq_purpose = ''
+            if slot is None:
+                slot = item.slot
+                if slot == "ring":
+                    if self.eqslots["ring0"] == item:
+                        slot = "ring0"
+                    elif self.eqslots["ring1"] == item:
+                        slot = "ring1"
+                    elif self.eqslots["ring2"] == item:
+                        slot = "ring2"
+                    else:
+                        raise Exception("Error while unequiping a ring!")
+            elif item is None:
+                item = self.eqslots[slot]
+                if not item:
+                    return
 
-            if _slot == 'misc':
+            if not aeq_mode:
+                self.last_known_aeq_purpose = None
+
+            if slot == "misc":
                 del self.miscitems[item]
             else:
                 self.apply_item_effects(item, direction=False)
-                if _slot == 'ring':
-                    if slot:
-                        _slot = slot
-                    elif self.eqslots['ring'] == item:
-                        _slot = "ring"
-                    elif self.eqslots['ring1'] == item:
-                        _slot = "ring1"
-                    elif self.eqslots['ring2'] == item:
-                        _slot = "ring2"
-                    else:
-                        raise Exception("Error while unequiping a ring!")
-            self.eqslots[_slot] = None
+
+            self.eqslots[slot] = None
             self.inventory.append(item)
 
         def equip_chance(self, item):
@@ -1068,16 +1077,12 @@ init -9 python:
                 # Go over all slots and unequip items:
                 for s in slots:
                     if s == "ring":
-                        for r in ["ring", "ring1", "ring2"]:
-                            item = self.eqslots[r]
-                            if item:
-                                self.unequip(item, slot=r, aeq_mode=True)
+                        for r in ["ring0", "ring1", "ring2"]:
+                            self.unequip(slot=r, aeq_mode=True)
                     elif s == "consumable":
                         pass
                     else:
-                        item = self.eqslots[s]
-                        if item:
-                            self.unequip(item, slot=s, aeq_mode=True)
+                        self.unequip(slot=s, aeq_mode=True)
                     weighted[s] = []
 
             # allow a little stat/skill penalty, just make sure the net weight is positive.
@@ -1294,8 +1299,7 @@ init -9 python:
         def auto_buy(self, amount=1, slots=None, casual=False,
                      equip=False, container=None, purpose=None,
                      check_money=True, inv=None,
-                     limit_tier=False, direct_equip=False,
-                     smart_ownership_limit=True):
+                     limit_tier=False, smart_ownership_limit=True):
             """Gives items a char, usually by 'buying' those,
             from the container that host all items that can be
             sold in PyTFall.
@@ -1310,8 +1314,6 @@ init -9 python:
                 for that purpose.
             container: Container with items or Inventory to shop from. If None
                 we use.
-            direct_equip: Special arg, only when building the char, we can just equip
-                the item they 'auto_buy'.
             smart_ownership_limit: Limit the total amount of item char can buy.
                 if char has this amount or more of that item:
                     3 of the same rings max.
@@ -1369,25 +1371,24 @@ init -9 python:
                     if _weight > 0:
                         selected.append([_weight, slot, item])
             selected.sort(key=itemgetter(0), reverse=True)
+            do_equip = False
             for w, slot, item in selected:
                 if not (slots[slot] and dice(item.chance)):
                     continue
-                c0 = not check_money
-                c1 = check_money and self.take_money(item.price, reason="Items")
-                if c0 or c1:
+                if (not check_money) or self.take_money(item.price, reason="Items"):
                     rv.append(item)
 
-                    if direct_equip and slot != "consumable":
-                        self.equip(item)
-                    else:
-                        self.inventory.append(item)
+                    self.inventory.append(item)
+
+                    if slot != "consumable":
+                        do_equip = True
 
                     slots[slot] -= 1
                     amount -= 1
                     if amount == 0:
                         break
 
-            if equip and not direct_equip:
+            if equip and do_equip:
                 self.equip_for(purpose)
 
             return rv
@@ -1402,7 +1403,7 @@ init -9 python:
                     continue
 
                 # rings can be on other fingers. swapping them is allowed in any case
-                if slot == "ring":
+                if slot == "ring0":
 
                     # if the wanted ring is on the next finger, or the next finger requires current ring, swap
                     if self.eqslots["ring1"] == desired_item or eqsave["ring1"] == current_item:
@@ -1412,7 +1413,7 @@ init -9 python:
                         if current_item == desired_item:
                             continue
 
-                if slot == "ring" or slot == "ring1":
+                if slot == "ring0" or slot == "ring1":
 
                     if self.eqslots["ring2"] == desired_item or eqsave["ring2"] == current_item:
                         (self.eqslots["ring2"], self.eqslots[slot]) = (self.eqslots[slot], self.eqslots["ring2"])
@@ -2712,16 +2713,9 @@ init -9 python:
                                "%s went to town to relax, take %s mind of things and maybe even do some shopping!" % (self.nickname, self.pp)])
                 txt.append(temp)
 
-            result = self.auto_buy(amount=randint(1, 2))
+            result = self.auto_buy(amount=randint(1, 2), equip=self.autoequip)
             if result:
                 self.mod_stat("joy", 5 * len(result))
-
-                # might want to use the new item(s)
-                if self.autoequip:
-                    for item in result:
-                        if item.slot != 'consumable':
-                            self.equip_for(self.last_known_aeq_purpose)
-                            break
 
                 if txt is None:
                     return

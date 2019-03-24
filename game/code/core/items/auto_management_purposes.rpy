@@ -1,11 +1,11 @@
 init python:
-    FIGHTING_AEQ_PURPOSES = [
+    FIGHTING_AEQ_PURPOSES = {
     "Combat",
     "Barbarian",
     "Shooter",
     "Battle Mage",
     "Mage"
-    ]
+    }
 
     AEQ_PURPOSES = {
     "Combat":
@@ -41,8 +41,8 @@ init python:
          "sub_purpose": ["Casual"],
          "real_weapons": False},
     "Barbarian":
-        {"target_stats": ['health', 'attack', 'defence', 'constitution', 'agility'],
-         "exclude_on_stats": ['health', 'attack'],
+        {"target_stats": ['health', 'attack', 'defence', 'constitution', 'agility', "luck"],
+         "exclude_on_stats": ['health', 'attack', "luck"],
          "target_skills": [],
          "exclude_on_skills": [],
          "base_purpose": ["Warrior"],
@@ -57,48 +57,48 @@ init python:
          "sub_purpose": ["Warrior"],
          "real_weapons": True},
     "Battle Mage":
-        {"target_stats": ['health', 'mp', 'attack', 'magic'],
-         "exclude_on_stats": ['magic', 'attack'],
+        {"target_stats": ['health', 'mp', 'attack', 'magic', "luck"],
+         "exclude_on_stats": ['magic', 'attack', "luck"],
          "target_skills": [],
          "exclude_on_skills": [],
          "base_purpose": ["Warrior", "Mage"],
          "sub_purpose": [],
          "real_weapons": True},
     "Mage":
-        {"target_stats": ['mp', 'magic', "luck", 'intelligence'],
-         "exclude_on_stats": ['magic', 'mp'],
+        {"target_stats": ['mp', 'magic', 'intelligence', "luck"],
+         "exclude_on_stats": ['magic', 'mp', "luck"],
          "target_skills": [],
          "exclude_on_skills": [],
          "base_purpose": ["Mage"],
          "sub_purpose": ["Warrior"],
          "real_weapons": True},
     "Striptease":
-        {"target_stats": ["charisma"],
-         "exclude_on_stats": ["charisma", "vitality"],
+        {"target_stats": ["charisma", "luck"],
+         "exclude_on_stats": ["charisma", "vitality", "luck"],
          "target_skills": ["strip", "dancing"],
          "exclude_on_skills": ["strip"],
          "base_purpose": ["Stripper"],
          "sub_purpose": ["SIW"],
          "real_weapons": False},
     "Sex":
-        {"target_stats": ["charisma"],
-         "exclude_on_stats": ["charisma"],
+        {"target_stats": ["charisma", "luck"],
+         "exclude_on_stats": ["charisma", "luck"],
          "target_skills": ["sex", "vaginal", "anal", "oral"],
          "exclude_on_skills": ["sex", "vaginal", "anal", "oral"],
          "base_purpose": ["Whore"],
          "sub_purpose": ["SIW"],
          "real_weapons": False},
     "Bartender":
-        {"target_stats": ["intelligence", "character", "vitality"],
-         "exclude_on_stats": ["intelligence", "character"],
+        {"target_stats": ["intelligence", "character", "vitality", "luck"],
+         "exclude_on_stats": ["intelligence", "character", "luck"],
          "target_skills": ["service", "bartending"],
          "exclude_on_skills": ["service", "bartending"],
          "base_purpose": ["Bartender"],
          "sub_purpose": ["Service"],
          "real_weapons": False},
     "Service":
-        {"target_stats": ["constitution", "agility", "vitality"],
-         "exclude_on_stats": ["constitution", "agility"],
+        {"target_stats": ["constitution", "agility", "vitality", "luck"],
+         "exclude_on_stats": ["constitution", "agility", "luck"],
          "target_skills": ["service", "cleaning"],
          "exclude_on_skills": ["service", "cleaning"],
          "base_purpose": ["Service"],

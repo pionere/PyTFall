@@ -1295,13 +1295,14 @@ init -10 python:
                 # Stats:
                 for stat, value in item.mod.iteritems():
                     if stat in exclude_on_stats and value < min_value:
-                        weights.append(-100 + value*10)
-                        continue
+                        weights = None
+                        break
 
                     if stat in _stats_curr:
                         # a new max may have to be considered
                         new_max = min(self.max[stat] + item.max[stat], self.lvl_max[stat]) if stat in item.max else _stats_max[stat]
                         if not new_max:
+                            aeq_debug("Ignoring item %s because of strange stat-max behavior of %s.", item.id, stat)
                             continue # Some weird exception?
 
                         # Get the resulting value:
@@ -1332,14 +1333,14 @@ init -10 python:
                 # Max Stats:
                 for stat, value in item.max.iteritems():
                     if stat in exclude_on_stats and value < 0:
-                        weights.append(-50 + value*5)
-                        continue
+                        weights = None
+                        break
 
                     if stat in _stats_max:
                         new_max = min(self.max[stat] + value, self.lvl_max[stat])
                         curr_max = _stats_max[stat]
                         if new_max == curr_max:
-                            continue
+                            pass
                         elif new_max > curr_max:
                             weights.append(50 + min(new_max-curr_max, 50))
                         else: # Item lowers max of this stat for the character:
@@ -1357,37 +1358,49 @@ init -10 python:
  
                 # Skills:
                 for skill, effect in item.mod_skills.iteritems():
-                    temp = sum(effect)
-                    if skill in exclude_on_skills and temp < 0:
-                        weights.append(-100)
-                        continue
+                    if skill in exclude_on_skills and sum(effect) < 0:
+                        weights = None
+                        break
 
                     if skill in skills:
-                        value = skills[skill]
-                        skill_remaining = SKILLS_MAX[skill] - value
-                        if skill_remaining > 0:
-                            # calculate skill with mods applied, as in apply_item_effects() and get_skill()
-                            mod_action = self.skills[skill][0] + effect[3]
-                            mod_training = self.skills[skill][1] + effect[4]
-                            mod_skill_multiplier = self.skills_multipliers[skill][2] + effect[2]
+                        curr_skill = skills[skill]
+                        max_skill = SKILLS_MAX[skill]
+                        if max_skill == curr_skill:
+                            continue
 
-                            if upto_skill_limit: # more precise calculation of skill limits
-                                training_range = mod_training * 3
-                                beyond_training = mod_action - training_range
-                                if beyond_training >= 0:
-                                    mod_training += training_range - mod_action + beyond_training/3.0
+                        # calculate skill with mods applied, as in apply_item_effects() and get_skill()
+                        mod_action = self.skills[skill][0] + effect[3]
+                        mod_training = self.skills[skill][1] + effect[4]
+                        mod_skill_multiplier = self.skills_multipliers[skill][2] + effect[2]
 
-                            mod_training += mod_action
-                            new_skill = mod_training*max(min(mod_skill_multiplier, 2.5), .5)
-                            if new_skill < min_value:
-                                weights.append(-111)
-                                continue
+                        if upto_skill_limit: # more precise calculation of skill limits
+                            training_range = mod_training * 3
+                            beyond_training = mod_action - training_range
+                            if beyond_training >= 0:
+                                mod_training += training_range - mod_action + beyond_training/3.0
 
-                            saturated_skill = max(value + 100, new_skill)
-                            mod_val = 50 + 100*(new_skill - value) / saturated_skill
-                            if mod_val > 100 or mod_val < -100:
-                                aeq_debug("Unusual mod value for skill %s: %s", skill, mod_val)
-                            weights.append(mod_val)
+                        mod_training += mod_action
+                        new_skill = mod_training*max(min(mod_skill_multiplier, 2.5), .5)
+                        if new_skill > max_skill:
+                            new_skill = max_skill
+
+                        if new_skill == curr_skill:
+                            pass
+                        elif new_skill > curr_skill:
+                            temp = 100*(new_skill - curr_skill)/max_skill
+                            weights.append(50 + temp)
+                        else:
+                            if skill not in exclude_on_skills:
+                                change = curr_skill-new_skill
+                                # proceed if it does not take off more than 20% of our skill...
+                                if change <= curr_skill/5:
+                                    continue
+                            # We want nothing to do with this item.
+                            weights = None
+                            break
+
+                if weights is None:
+                    continue # Loop did not finish -> skip
 
                 weighted[slot].append([weights, item])
 

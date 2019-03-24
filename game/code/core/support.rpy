@@ -253,7 +253,9 @@ init -9 python:
             tl.end("Arena-Fighter's ND")
 
             if not day % 14:
+                tl.start("PyTFall population ND")
                 self.populate_world(tier_offset=.0)
+                tl.end("PyTFall population ND")
 
             # Gazette:
             gazette.first_view = True

@@ -475,8 +475,7 @@ init -11 python:
                     "container": container,
                     "smart_ownership_limit": give_civilian_items,
 
-                    "purpose": None, # Figure out in auto_buy method.
-                    "direct_equip": True
+                    "purpose": None # Figure out in auto_buy method.
                 }
             char.auto_buy(**gbti_kwargs)
 
