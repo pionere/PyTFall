@@ -159,6 +159,18 @@ init -948: # Transforms:
         parallel:
             repeated_rotate(t=30.0)
 
+    transform elements_from_to_with_linear(start_pos, end_pos, t, offset_pos=None, rot=30.0, base_rot=0.0):
+        subpixel True
+        parallel:
+            elements
+        parallel:
+            pos (start_pos if offset_pos is None else offset_pos)
+            linear (t if offset_pos is None else t*(1.0 - (float(offset_pos[0]-start_pos[0])/(end_pos[0]-start_pos[0]) if end_pos[0] != start_pos[0] else float(offset_pos[1]-start_pos[1])/(end_pos[1]-start_pos[1])))) pos end_pos
+            block:
+                pos start_pos
+                linear t pos end_pos
+                repeat
+
     transform arena_textslide:
         # Slider for arena Vicroty/Defeat texts
         on show:

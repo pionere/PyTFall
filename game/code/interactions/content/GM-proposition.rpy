@@ -375,7 +375,7 @@ label interactions_hire:
         herovalue = max(1, char_value(hero))
         charvalue = char_value(char)
 
-        if DEBUG:
+        if DEBUG_LOG:
             devlog.info("Hero|Char: {}|{}".format(herovalue, charvalue))
 
         if hero.tier > char.tier:

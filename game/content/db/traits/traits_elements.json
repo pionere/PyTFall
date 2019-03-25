@@ -1,7 +1,7 @@
 [
     {
     "id": "Fire",
-    "desc": "Good with Fire in both offence and defence. Protects from Wind but weak against Water. Ice spells are weakened.",
+    "desc": "Good with Fire in both offence and defence. Protects from Air but weak against Water. Ice spells are weakened.",
     "icon": "content/gfx/interface/images/elements/fire.png",
     "elemental": true,
     "el_damage": {"fire": 0.25, "ice": -0.25},
@@ -19,7 +19,7 @@
     },
     {
     "id": "Air",
-    "desc": "Good with Air in both offence and defence. Protects from Electricity but weak against Fire. Earth spells  are weakened.",
+    "desc": "Good with Air in both offence and defence. Protects from Electricity but weak against Fire. Earth spells are weakened.",
     "icon": "content/gfx/interface/images/elements/air.png",
     "elemental": true,
     "el_damage": {"air": 0.25, "earth": -0.25},

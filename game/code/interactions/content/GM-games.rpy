@@ -1,13 +1,18 @@
-label interactions_play_bow: # additional rounds continue from here
+##################################################################################################
+#
+#                                ARCHERY
+#
+##################################################################################################    
+label interactions_play_bow:
     $ interactions_check_for_bad_stuff(char)
-    
+
     $ m = interactions_flag_count_checker(char, "flag_interactions_archery")
     if m > 1:
         $ del m
         call interactions_refused_because_tired from _call_interactions_refused_because_tired_4
         jump girl_interactions
     $ del m
-    
+
     call interactions_prearchery_lines from _call_interactions_prearchery_lines
 
     menu:
@@ -76,7 +81,7 @@ label interactions_play_bow: # additional rounds continue from here
         crosshair_size = 400   # base size of the crosshair (reduced by skill)
         prev_mouse_hide = config.mouse_hide_time
         arrow = None           # the flying arrow of the hero
-        archery_result = None  # detailed result of the shot to give feedback
+        game_result = None  # detailed result of the shot to give feedback
 
 label interactions_archery_start:
     # adjust and show wind indicator
@@ -110,7 +115,7 @@ label interactions_archery_start:
     jump interactions_archery_char_turn
 
 label interactions_archery_hero_turn:
-    if archery_result is not None:
+    if game_result is not None:
         call interaction_archery_char_comment_self from _call_interaction_archery_char_comment_self
 
     hide screen interactions_archery_range_result
@@ -125,6 +130,7 @@ label interactions_archery_hero_turn:
 
         if result == "shoot":
             python hide:
+                global game_result
                 m_posx, m_posy = posx, posy = renpy.get_mouse_pos()
                 speed = (archery_strain/float(max_strain)) # strain percentage -> 0.0 <= speed <= 1.0
                 speed = 8*(1.0-speed)                      #                   -> 8.0 >= speed >= 0.0
@@ -138,7 +144,7 @@ label interactions_archery_hero_turn:
                     # miss
                     hero_arrows.append((None, None, 0))
 
-                    store.archery_result = (None, None, None)
+                    game_result = (None, None, None)
                 else:
                     # distance effect
                     dt = distance / speed
@@ -166,12 +172,12 @@ label interactions_archery_hero_turn:
 
                         hero_arrows.append(((posx, posy), rotation, value))
 
-                        store.archery_result = ((posx, posy), None, value)
+                        game_result = ((posx, posy), None, value)
                     else:
                         # miss
                         hero_arrows.append((None, None, 0))
 
-                        store.archery_result = ((posx, posy), size, (centerx, centery))
+                        game_result = ((posx, posy), size, (centerx, centery))
 
             jump interactions_archery_char_turn
         elif result == "timeout":
@@ -358,7 +364,7 @@ label interactions_archery_char_turn:
 
     $ config.mouse_hide_time = prev_mouse_hide
 
-    if archery_result is not None:
+    if game_result is not None:
         call interaction_archery_char_comment from _call_interaction_archery_char_comment
     else:
         jump interactions_archery_char_shoot
@@ -371,6 +377,8 @@ label interactions_archery_char_turn:
 
         elif result == "done":
             python hide:
+                global game_result
+
                 hero_points = [a[2] for a in hero_arrows]
                 char_points = [a[2] for a in char_arrows]
 
@@ -382,15 +390,17 @@ label interactions_archery_char_turn:
                     char_points = sum(char_points)
 
                 if hero_points > char_points:
-                    store.archery_result = hero
+                    game_result = hero
                 elif hero_points < char_points:
-                    store.archery_result = char
+                    game_result = char
                 else:
-                    store.archery_result = None
+                    game_result = None
             jump interactions_archery_end
 
 label interactions_archery_char_shoot:
     python hide:
+        global game_result
+
         centerx, centery = config.screen_width/2, config.screen_height/2-(66*target_scale)
         size = target_scale*((target_size-target_border)/2)
 
@@ -416,12 +426,12 @@ label interactions_archery_char_shoot:
             rotation = randint(0, 360)
             char_arrows.append(((posx, posy), rotation, value))
 
-            store.archery_result = ((posx, posy), None, value)
+            game_result = ((posx, posy), None, value)
         else:
             # miss
             char_arrows.append((None, None, 0))
 
-            store.archery_result = ((posx, posy), size, (centerx, centery))
+            game_result = ((posx, posy), size, (centerx, centery))
     jump interactions_archery_hero_turn
 
 screen interactions_archery_range_result:
@@ -429,9 +439,9 @@ screen interactions_archery_range_result:
     use interactions_archery_range_target
 
     # Confirm:
-    if archery_result is None:
+    if game_result is None:
         if len(hero_arrows) == num_arrows:
-            button :
+            button:
                 style_group "pb"
                 action Return("done")
                 text "Done" style "pb_button_text"
@@ -466,8 +476,8 @@ label interactions_prearchery_lines: # lines before archery
         $ rc("I don't mind. Let's do it.", "Sure, I can use some practice.")
     return
 
-label interactions_postarchery_lines: # lines and rewards after archery
-    if archery_result == hero:
+label interactions_postgame_lines: # lines and rewards after games
+    if game_result == hero:
         "You won."
 
         $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.33))
@@ -479,7 +489,7 @@ label interactions_postarchery_lines: # lines and rewards after archery
             $ char.gfx_mod_stat("disposition", randint(5, 10))
         $ char.gfx_mod_stat("affection", affection_reward(char, .5, stat="attack"))
 
-    elif archery_result == char:
+    elif game_result == char:
         "[char.name] won."
 
         $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.1))
@@ -524,116 +534,117 @@ label interactions_postarchery_lines: # lines and rewards after archery
 
     return
 
-label interaction_archery_char_comment_self: # (archery_result)
+label interaction_archery_char_comment_self: # (game_result)
     call interactions_archery_eval_result from _call_interactions_archery_eval_result_2
 
-    if isinstance(archery_result, int):
+    if isinstance(game_result, int):
         # hit
-        if archery_result == 10:
+        if game_result == 10:
             # Bulls Eye
             $ temp = choice(["Right in the middle.", "Bullseye!"])
             if target_scale < 0.7:
-                $ archery_result = choice([" Yeah!", " Lucky shot!"]) 
+                $ game_result = choice([" Yeah!", " Lucky shot!"]) 
             else:
-                $ archery_result = choice([" Not bad.", " Nice one, right?"])
+                $ game_result = choice([" Not bad.", " Nice one, right?"])
             $ char.gfx_mod_stat("joy", randint(1,2))
             char.say "[temp]" 
-            extend "[archery_result]"
-        elif archery_result < 4:
+            extend "[game_result]"
+        elif game_result < 4:
             # weak hit
-            $ rc("Well, a [archery_result]. Maybe the next one...", "Ehh... [archery_result]. Could have been better.", "A [archery_result]. Not my best one.")
+            $ rc("Well, a [game_result]. Maybe the next one...", "Ehh... [game_result]. Could have been better.", "A [game_result]. Not my best one.")
         else:
             # normal hit
-            $ rc("A [archery_result]. It is fine, I guess.", "A hit of [archery_result] is O.K. with me.", "Hm.. [archery_result]. That was a nice shot, don't you think?", "A [archery_result]. For now that will do.", "Can to beat this [archery_result]?")
+            $ rc("A [game_result]. It is fine, I guess.", "A hit of [game_result] is O.K. with me.", "Hm.. [game_result]. That was a nice shot, don't you think?", "A [game_result]. For now that will do.", "Can to beat this [game_result]?")
     else:
         # miss
         $ rc("Hmpf... Can I try again?", "Ouch... that hurts.", "Stop distracting me!", "Eh... Maybe we should not play against the sun.", "Well, here goes nothing...")
-    $ archery_result = None
+    $ game_result = None
     return
 
-label interaction_archery_char_comment: # (archery_result)
+label interaction_archery_char_comment: # (game_result)
     call interactions_archery_eval_result from _call_interactions_archery_eval_result_1
 
-    if isinstance(archery_result, int):
+    if isinstance(game_result, int):
         # hit
-        if archery_result == 10:
+        if game_result == 10:
             # Bulls Eye
             $ temp = choice(["Right in the middle.", "Bullseye..."])
             if target_scale < 0.7:
-                $ archery_result = choice([" Impressive!", " Lucky shot!"]) 
+                $ game_result = choice([" Impressive!", " Lucky shot!"]) 
             else:
-                $ archery_result = choice([" Not bad.", " Nice."])
+                $ game_result = choice([" Not bad.", " Nice."])
             char.say "[temp]" 
-            extend "[archery_result]"
-        elif archery_result < 4:
+            extend "[game_result]"
+        elif game_result < 4:
             # weak hit
-            $ rc("A [archery_result]. Now watch me!", "Anyone can hit a [archery_result].", "A [archery_result]. Do you even try?")
+            $ rc("A [game_result]. Now watch me!", "Anyone can hit a [game_result].", "A [game_result]. Do you even try?")
         else:
             # normal hit
-            $ rc("A [archery_result]. You try to challenge me?", "A hit of [archery_result] is not bad for a beginner.", "Hm.. [archery_result]. Is this your lucky shot?", "A [archery_result]. It is O.K., considering the circumstances...", "Are you satisfied with your [archery_result]?")
+            $ rc("A [game_result]. You try to challenge me?", "A hit of [game_result] is not bad for a beginner.", "Hm.. [game_result]. Is this your lucky shot?", "A [game_result]. It is O.K., considering the circumstances...", "Are you satisfied with your [game_result]?")
     else:
         # miss
-        if archery_result[0] == "_": # "_r", "_R", "_l", "_L"
+        if game_result[0] == "_": # "_r", "_R", "_l", "_L"
             # in the box of target
             char.say "That was close."
             extend " A bit more luck and you will hit."
-        elif len(archery_result) == 1:
+        elif len(game_result) == 1:
             # one-way miss  ("r", "R", "l", "L", "u", "U", "d", "D")
-            if archery_result == "r":
+            if game_result == "r":
                 $ rc("You might want to come a bit closer?", "I guess now you try to blame the wind.")
-            elif archery_result == "R":
+            elif game_result == "R":
                 $ rc("That was way too far to the right.", "I would not even try to find that arrow.")
-            elif archery_result == "l":
+            elif game_result == "l":
                 $ rc("You might want to come a bit closer?", "I guess now you try to blame the wind.")
-            elif archery_result == "L":
+            elif game_result == "L":
                 $ rc("That was way too far to the left.", "I would not even try to find that arrow.")
-            elif archery_result == "u":
+            elif game_result == "u":
                 $ rc("I see you have high hopes.", "Optimism helps in many situations.")
-            elif archery_result == "U":
+            elif game_result == "U":
                 $ rc("Are you shooting for the stars?", "Watch your back, the arrow might come around the Earth.", "Please, do not hurt the birds!")
-            elif archery_result == "d":
+            elif game_result == "d":
                 $ rc("All right, so the trestle is stable.", "You might want to try this on the Moon.", "Well, at least we do not have to pay for this arrow.")
-            else: # archery_result == "D":
+            else: # game_result == "D":
                 $ rc("Try not to shoot yourself in the foot!", "Are you hunting for gophers?", "You never had to dig a borehole by hand, right?")
         else:
             # two-way miss
-            if archery_result == archery_result.lower():
+            if game_result == game_result.lower():
                 # ("ru", "rd", "lu", "ld")
-                if archery_result == "ru":
-                    $ archery_result = "lower and to the left"
-                elif archery_result == "rd":
-                    $ archery_result = "higher and to the left"
-                elif archery_result == "lu":
-                    $ archery_result = "lower and to the right"
-                else: # archery_result == "ld":
-                    $ archery_result = "higher and to the right"
-                char.say "With a bit more practice and aiming [archery_result], you might hit the target."
-            elif archery_result == archery_result.upper():
+                if game_result == "ru":
+                    $ game_result = "lower and to the left"
+                elif game_result == "rd":
+                    $ game_result = "higher and to the left"
+                elif game_result == "lu":
+                    $ game_result = "lower and to the right"
+                else: # game_result == "ld":
+                    $ game_result = "higher and to the right"
+                char.say "With a bit more practice and aiming [game_result], you might hit the target."
+            elif game_result == game_result.upper():
                 # ("RU", "RD", "LU", "LD")
                 $ temp = choice(["Are you sure this is the right time to play this game?", "You might want to try something else!"]) 
             else:
                 # ("rU", "rD", "lU", "lD", "Ru", "Rd", "Lu", "Ld")
-                if archery_result[0] == archery_result[0].upper():
-                    $ archery_result = archery_result[0]
+                if game_result[0] == game_result[0].upper():
+                    $ game_result = game_result[0]
                 else:
-                    $ archery_result = archery_result[1]
-                if archery_result == "R":
+                    $ game_result = game_result[1]
+                if game_result == "R":
                     char.say "That was way too far to the right."
                     extend " Not to mention other issues..."
-                elif archery_result == "L":
+                elif game_result == "L":
                     char.say "That was way too far to the left."
                     extend " Not to mention other issues..."
-                elif archery_result == "U":
+                elif game_result == "U":
                     $ rc("Are you shooting for the stars?", "Watch your back, the arrow might come around the Earth.", "Please, do not hurt the birds!")
-                else: # archery_result == "D":
+                else: # game_result == "D":
                     $ rc("Try not to shoot yourself in the foot!", "Are you hunting for gophers?", "You never had to dig a borehole by hand, right?")
-    $ archery_result = None
+    $ game_result = None
     return
 
-# transform the archery_result from the format of [(posx, posy), size, (centerx, centery)] to string  
+# transform the game_result from the format of [(posx, posy), size, (centerx, centery)] to string  
 label interactions_archery_eval_result:
     python hide:
-        pos, size, value = store.archery_result
+        global game_result
+        pos, size, value = game_result
         if pos is None:
             # a complete miss by not shooting the arrow (speed == 0)
             value = "D"
@@ -678,23 +689,635 @@ label interactions_archery_eval_result:
                         value = "_r" # bottom-right corner
                     else:
                         value = "_R" # upper-right corner
-        store.archery_result = value 
+        game_result = value 
     return
 
 label interactions_archery_end:
     hide screen interactions_archery_range_result
     with dissolve
 
-    call interactions_postarchery_lines from _call_interactions_postarchery_lines
+    call interactions_postgame_lines from _call_interactions_postgame_lines
 
     python hide:
-        cleanup = ["hero_arrows", "char_arrows", "archery_result", "temp", "dummy",
+        cleanup = ["hero_arrows", "char_arrows", "game_result", "temp", "dummy",
                    "archery_min_skill", "archery_max_skill", "speed_per_force", "g_force",
                    "prev_mouse_hide", "hero_skill", "char_skill",
                    "target_scale", "target size", "target_border", "crosshair_size",
                    "distance", "min_distance", "max_distance_perc",
                    "wind", "archery_location", "archery_strain",
                    "num_arrows", "best_of", "wind_mpl", "arrow"]
+        for i in cleanup:
+            if hasattr(store, i):
+                delattr(store, i)
+    jump girl_interactions
+
+##################################################################################################
+#
+#                                POWER BALLS
+#
+##################################################################################################    
+label interactions_play_power:
+    $ interactions_check_for_bad_stuff(char)
+
+    $ m = interactions_flag_count_checker(char, "flag_interactions_power_balls")
+    if m > 1:
+        $ del m
+        call interactions_refused_because_tired from _call_interactions_refused_because_tired_5
+        jump girl_interactions
+    $ del m
+
+    call interactions_prearchery_lines from _call_interactions_prearchery_lines_2
+
+    hide screen girl_interactions
+
+    show expression hero.get_vnsprite() at bottom_left as player with dissolve
+    show expression char.get_vnsprite() at bottom_right as character with dissolve
+
+    python:
+        # off|def    Earth    Water    Fire    Air    Elec    Ice    Dark    Light
+        # Earth        1       1.25     .9     .9      .9     .75     .9      .9
+        # Water       .75       1      1.25    .9      .9     .9      .9      .9
+        # Fire        .9       .75       1    1.25     .9     .9      .9      .9
+        # Air         .9       .9       .75     1     1.25    .9      .9      .9
+        # Elec        .9       .9       .9     .75      1    1.25     .9      .9
+        # Ice        1.25      .9       .9     .9      .75     1      .9      .9
+        # Dark       1.05      1.05     .85    .85    .85     1.05     1      .8
+        # Light       .85      .85     1.05    1.05   1.05    .85     .8       1
+        hero_power_map = {"earth": {"earth" : 1, "water":1.25, "fire":.9, "air":.9, "electricity":.9, "ice":0.75, "darkness":.9, "light":.9}, 
+                     "water": {"earth" : 0.75, "water":1, "fire":1.25, "air":.9, "electricity":.9, "ice":.9, "darkness":.9, "light":.9},
+                     "fire": {"earth" : .9, "water":0.75, "fire":1, "air":1.25, "electricity":.9, "ice":.9, "darkness":.9, "light":.9},
+                     "air": {"earth" : .9, "water":.9, "fire":0.75, "air":1, "electricity":1.25, "ice":.9, "darkness":.9, "light":.9},
+                     "electricity": {"earth" : .9, "water":.9, "fire":.9, "air":0.75, "electricity":1, "ice":1.25, "darkness":.9, "light":.9},
+                     "ice": {"earth" : 1.25, "water":.9, "fire":.9, "air":.9, "electricity":0.75, "ice":1, "darkness":.9, "light":.9},
+                     "darkness": {"earth" : 1.05, "water":1.05, "fire":0.85, "air":0.85, "electricity":0.85, "ice":1.05, "darkness":1, "light":.8},
+                     "light": {"earth" : 0.85, "water":0.85, "fire":1.05, "air":1.05, "electricity":1.05, "ice":0.85, "darkness":.8, "light":1}}
+        char_power_map = deepcopy(hero_power_map)
+
+        rotation_speed = 20
+        source_speed = 10
+
+        hero_magics = ["earth", "water", "fire", "air", "electricity", "ice", "darkness", "light"]
+        shuffle(hero_magics)
+        char_magics = ["earth", "water", "fire", "air", "electricity", "ice", "darkness", "light"]
+        shuffle(char_magics)
+
+        hero_skill = hero.get_stat("magic") + hero.get_stat("intelligence")
+        char_skill = char.get_stat("magic") + char.get_stat("intelligence")
+
+        power_min_skill = 0
+        power_max_skill = hero.get_relative_max_stat("magic", tier=MAX_TIER) + hero.get_relative_max_stat("intelligence", tier=MAX_TIER)
+
+        active_power_lineups = [[None, []], [None, []], [None, []], [None, []], [None, []]]
+        live_balls = [[], [], [], [], []]
+
+        hero_life = char_life = max_life = 100
+
+        hero_attack = get_linear_value_of(hero_skill, power_min_skill, 20, power_max_skill, 60)
+        char_attack = get_linear_value_of(char_skill, power_min_skill, 20, power_max_skill, 60)
+
+        hero_defence = get_linear_value_of(hero_skill, power_min_skill, 1, power_max_skill, 3)
+        char_defence = get_linear_value_of(char_skill, power_min_skill, 1, power_max_skill, 3)
+
+        hero_defence = {s: hero_defence for s in hero_power_map}
+        char_defence = {s: char_defence for s in hero_power_map}
+
+        char_action_time = get_linear_value_of(char.tier, 0, 2.0, MAX_TIER, 1.2)
+
+        hero_last_move = hero_last_shot = hero_last_source = char_last_move = char_last_shot = char_last_source = 0
+        hero_source_base = char_source_base = 0
+        hero_ball_idx = char_ball_idx = 0
+        hero_pos = char_pos = 2
+        running = False
+        redraw_hero_sources = True
+        redraw_char_sources = True
+
+label interactions_power_balls_start:
+    # add board
+    python hide:
+        # main lanes
+        for i in range(5):
+            img = Frame("content/gfx/frame/p_frame53.png", xsize=86, ysize=740, xpos=420+44+88*i, ypos=730)
+            renpy.show("lane%d"%i, what=img)
+        # boxes for the sources
+        for i in range(7):
+            img = Frame("content/gfx/frame/MC_bg2.png", xsize=86, ysize=86, xpos=420+44+88*(i-1), ypos=94)
+            renpy.show("source_box_0_%d"%i, what=img)
+            img = Frame("content/gfx/frame/MC_bg2.png", xsize=86, ysize=86, xpos=420+44+88*(i-1), ypos=714)
+            renpy.show("source_box_1_%d"%i, what=img)
+
+    # add power sources
+    $ start_time = curr_time = time.time()
+    call interactions_power_sources from _call_interactions_power_sources_1
+
+    # show the interface
+    show screen interactions_power_balls_interface
+    
+    while 1:
+        $ result = ui.interact()
+        $ curr_time = time.time()
+        if result == "timeout":
+            $ pass
+        elif result == "shoot":
+            if running is True:
+                $ interactions_power_shoot(hero, "hero_ball_%d" % hero_ball_idx, hero_pos, (600, 0),
+                                           hero_source_base, hero_magics, hero_attack)
+                $ hero_last_shot = curr_time
+                $ hero_ball_idx += 1
+                
+        elif result == "move_left":
+            $ hero_pos -= 1
+            $ hero_last_move = curr_time 
+        elif result == "move_right":
+            $ hero_pos += 1
+            $ hero_last_move = curr_time
+        elif result == "source_left":
+            $ hero_source_base -= 88
+            $ hero_last_source = curr_time
+            $ redraw_hero_sources = True
+        elif result == "source_right":
+            $ hero_source_base += 88
+            $ hero_last_source = curr_time
+            $ redraw_hero_sources = True
+        elif result == "start":
+            $ running = True
+        
+        if running is True:
+            python hide:
+                # calculate positions of live balls
+                global running, char_life, hero_life, char_pos, char_last_shot, char_last_move, char_last_source, char_ball_idx, char_source_base, redraw_char_sources
+
+                pops = []
+                for idx, line in enumerate(live_balls):
+                    for ball in line:
+                        ypos = (curr_time - ball[0]) * 600 / 16.0
+                        if ball[1] == hero:
+                            ypos = 600 - ypos
+                            if ypos < 90:
+                                # hit to char
+                                char_life -= ball[3]/char_defence[ball[4]]
+                                ypos = None
+                        else:
+                            ypos = ypos + 90 
+                            if ypos > 600:
+                                # hit to hero
+                                hero_life -= ball[3]/hero_defence[ball[4]]
+                                ypos = None
+                        ball[5] = ypos
+                        if ypos is None:
+                            pops.append((ball, line))
+
+                            apl = active_power_lineups[idx]
+                            balls = apl[1]
+                            for b in balls:
+                                if b[2] == ball[2]:
+                                    balls.remove(b)
+                                    break
+                            if not balls:
+                                apl[0] = None
+
+                # check collisions/hits
+                for line in live_balls:
+                    for ball in line:
+                        ypos = ball[5]
+                        if ypos is None:
+                            continue # popped
+    
+                        owner = ball[1]
+                        size = ball[3]
+                        for ball_ in line:
+                            if ball == ball_ or ball_[1] == owner:
+                                continue
+                            ypos_ = ball_[5]
+                            if ypos_ is None:
+                                continue # popped
+    
+                            ypos_ -= ypos
+                            if ypos_ < 0:
+                                ypos_ = -ypos_
+                            size_ = ball_[3]
+                            if ypos_ < (size + size_):
+                                # collision
+                                source = ball[4]
+                                source_ = ball_[4]
+                                if owner == hero:
+                                    pm = hero_power_map
+                                    pm_ = char_power_map
+                                else:
+                                    pm = char_power_map
+                                    pm_ = hero_power_map
+                                size *= pm[source][source_]
+                                size_ *= pm_[source_][source]
+                                
+                                size -= size_
+                                if size > 0:
+                                    pops.append((ball_, line))
+                                    ball_[5] = None
+                                    ball[3] = size
+                                elif size < 0:
+                                    pops.append((ball, line))
+                                    ball[5] = None
+                                    ball_[3] = -size
+                                    break
+                                else:
+                                    pops.append((ball, line))
+                                    pops.append((ball_, line))
+                                    ball[5] = None
+                                    ball_[5] = None
+                                    break
+    
+                # remove popped balls
+                for ball, line in pops:
+                    #if ball in line: 
+                    line.remove(ball)
+                    # FIXME pop effect?
+                    renpy.hide(ball[2])
+
+                # AI move
+                can_move = (curr_time - 1) > char_last_move
+                can_source = (curr_time - 1) > char_last_source
+                if (curr_time - char_action_time) > char_last_shot:
+                    # AI ready to shoot
+                    option = None # (move, source)
+                    if can_move:
+                        if can_source:
+                            # 5 available options -> always shoot
+                            limit = 0
+                            for delta in [-2, 2, -1, 1, 0]:
+                                lane = (char_pos+delta) % 5
+                                source = interactions_power_source_at(lane, char_source_base, char_magics)
+                                lane = active_power_lineups[lane]
+                                if lane[0] is hero:
+                                    value = char_power_map[source][lane[1][0][4]]
+                                elif lane[0] is char:
+                                    value = .8
+                                else:
+                                    value = 1
+                                if value >= limit:
+                                    limit = value
+                                    option = [-1 if delta < 0 else (1 if delta > 0 else 0), 1 if delta == -2 else (-1 if delta == 2 else 0)]
+                        else:
+                            # 3 available options -> shoot if there is a gain (1.1)
+                            limit = 1.1
+                            for delta in [-1, 1, 0]:
+                                lane = (char_pos+delta) % 5
+                                source = interactions_power_source_at(lane, char_source_base, char_magics)
+                                lane = active_power_lineups[lane]
+                                if lane[0] is hero:
+                                    value = char_power_map[source][lane[1][0][4]]
+                                    if value >= limit:
+                                        limit = value
+                                        option = [delta, 0]
+                    else:
+                        if can_source:
+                            # 3 available options -> shoot if there is a gain (1.1)
+                            limit = 1.1
+                            for delta in [-1, 1, 0]:
+                                lane = (char_pos+delta) % 5
+                                source = interactions_power_source_at(lane, char_source_base, char_magics)
+                                lane = active_power_lineups[lane]
+                                if lane[0] is hero:
+                                    value = char_power_map[source][lane[1][0][4]]
+                                    if value >= limit:
+                                        limit = value
+                                        option = [0, -delta]
+                        else:
+                            # 1 available option -> wait if current lane is not lucrative (1.2)
+                            source = interactions_power_source_at(char_pos, char_source_base, char_magics)
+                            lane = active_power_lineups[char_pos]
+                            if lane[0] is hero and char_power_map[source][lane[1][0][4]] >= 1.2:
+                                option = [0, 0]
+
+                    if option is not None:
+                        if option[0] != 0: # move char
+                            char_pos += option[0]
+                            char_last_move = curr_time
+                        if option[1] != 0: # move source
+                            char_source_base += option[1]
+                            redraw_char_sources = True
+                            char_last_source = curr_time
+                        # fire projectile
+                        interactions_power_shoot(char, "char_ball_%d" % char_ball_idx, char_pos, (90, 690),
+                                                 char_source_base, char_magics, char_attack)
+                        char_last_shot = curr_time
+                        char_ball_idx += 1
+                elif can_move:
+                    if char_pos == 0:
+                        char_pos = 1
+                        char_last_move = curr_time
+                    elif char_pos == 4:
+                        char_pos = 3
+                        char_last_move = curr_time
+                    else:
+                        pass # FIXME check threat at distance
+    
+                # check game state
+                if (hero_life < max_life/5 and char_life < max_life/5):
+                    running = "Draw"
+                elif hero_life < 0:
+                    running = char
+                elif char_life < 0:
+                    running = hero
+    
+            if redraw_hero_sources or redraw_char_sources:
+                call interactions_power_sources from _call_interactions_power_sources_2
+            #$ renpy.restart_interaction()
+
+label interactions_power_sources:
+    python hide:
+        global redraw_hero_sources, redraw_char_sources
+        dt = curr_time-start_time
+        dx = 992 - 288
+        size = 70
+        if redraw_hero_sources:
+            ypos = 670
+            for idx, source in enumerate(hero_magics):
+                img = ProportionalScale(traits[source.capitalize()].icon, size, size)
+                img = ImageButton(idle_image=img, hover_image=im.MatrixColor(img, im.matrix.brightness(.25)), action=NullAction(), tooltip=source.capitalize())
+                offset = 288 + (hero_source_base+88*idx + dx*dt/16) % dx
+                renpy.show("hero_magic%d" % idx, what=img, at_list=[elements_from_to_with_linear((288, ypos), (992, ypos), t=16, offset_pos=(offset, ypos), rot=randint(15, 45), base_rot=randint(0, 360))])
+    
+        if redraw_char_sources:
+            ypos = 50
+            for idx, source in enumerate(char_magics):
+                img = ProportionalScale(traits[source.capitalize()].icon, size, size)
+                img = ImageButton(idle_image=img, hover_image=im.MatrixColor(img, im.matrix.brightness(.25)), action=NullAction(), tooltip=source.capitalize())
+                offset = 288 + (char_source_base+88*idx + dx*dt/16) % dx
+                renpy.show("char_magic%d" % idx, what=img, at_list=[elements_from_to_with_linear((288, ypos), (992, ypos), t=16, offset_pos=(offset, ypos), rot=randint(15, 45), base_rot=randint(0, 360))])
+    
+        redraw_char_sources = redraw_hero_sources = False
+    return
+
+init python:
+    def interactions_power_source_at(pos, source_base, magics):
+        dt = curr_time-start_time
+        offset = 420 + pos * 88 + 44 - 288
+        dx = (992 - 288)
+        dx = (dx*dt/16+source_base) % dx
+        return magics[round_int((offset-dx)/88.0)]
+
+    def interactions_power_shoot(shooter, name, pos, ypos, source_base, magics, attack):
+        #dt = curr_time-start_time
+        #offset = 420 + pos * 88 + 44 - 288
+        #dx = (992 - 288)
+        #dx = (dx*dt/16+source_base) % dx
+        #source = magics[round_int((offset-dx)/88.0)]
+        source = interactions_power_source_at(pos, source_base, magics)
+    
+        size = attack
+        size *= random.uniform(.9, 1.1)
+        
+        img = ProportionalScale(traits[source.capitalize()].icon, size, size)
+        img = ImageButton(idle_image=img, hover_image=im.MatrixColor(img, im.matrix.brightness(.25)), action=NullAction(), tooltip=source.capitalize())
+        offset = 420 + pos * 88 + 44
+        renpy.show(name, what=img, at_list=[elements_from_to_with_linear((offset, ypos[0]), (offset, ypos[1]), t=16, offset_pos=None, rot=randint(15, 45), base_rot=randint(0, 360))])
+    
+        # append to live_balls
+        ball = [curr_time, shooter, name, size, source, None]
+        live_balls[pos].append(ball)
+    
+        # add to active_power_lineups
+        temp = active_power_lineups[pos]
+        if temp[0] is None:
+            temp[0] = shooter
+        if temp[0] == shooter:
+            temp[1].append(ball[:])
+        else:
+            # apply to the list
+            pops = []
+            for b in temp[1]:
+                size_ = b[3]
+                source_ = b[4]
+                if shooter == hero:
+                    pm = hero_power_map
+                    pm_ = char_power_map
+                else:
+                    pm = char_power_map
+                    pm_ = hero_power_map
+                size *= pm[source][source_]
+                size_ *= pm_[source_][source]
+                
+                size -= size_
+                if size > 0:
+                    pops.append(b)
+                elif size < 0:
+                    b[3] = -size
+                    break
+                else:
+                    pops.append(b)
+                    break
+            else:
+                ball = ball[:]
+                ball[3] = size
+                temp[0] = shooter
+                temp[1] = [ball]
+
+            if temp[0] != shooter:
+                lane = temp[1]
+                for b in pops:
+                    lane.remove(b)
+                if not lane:
+                    temp[0] = None
+
+screen interactions_power_balls_interface:
+    $ curr_time = time.time()
+
+    # borders
+    
+    # life indicators
+    #  heros
+    vbox:
+        align (.05, .31)
+
+        vbar:
+            top_gutter 13
+            bottom_gutter 0
+            value max(0, hero_life-max_life/2)
+            range max_life/2
+            bottom_bar "content/gfx/interface/bars/progress_bar_full1.png"
+            top_bar "content/gfx/interface/bars/progress_bar_1.png"
+            thumb None
+            xysize (22, 175)
+
+        vbar:
+            top_gutter 12
+            bottom_gutter 0
+            value min(max_life/2, hero_life)
+            range max_life/2
+            bottom_bar "content/gfx/interface/bars/bar_mine.png"
+            top_bar im.Flip("content/gfx/interface/bars/progress_bar_1.png", vertical=True)
+            thumb None
+            xysize(22, 175)
+    #  chars
+    vbox:
+        align (.95, .31)
+
+        vbar:
+            top_gutter 13
+            bottom_gutter 0
+            value max(0, char_life-max_life/2)
+            range max_life/2
+            bottom_bar "content/gfx/interface/bars/progress_bar_full1.png"
+            top_bar "content/gfx/interface/bars/progress_bar_1.png"
+            thumb None
+            xysize (22, 175)
+
+        vbar:
+            top_gutter 12
+            bottom_gutter 0
+            value min(max_life/2, char_life)
+            range max_life/2
+            bottom_bar "content/gfx/interface/bars/bar_mine.png"
+            top_bar im.Flip("content/gfx/interface/bars/progress_bar_1.png", vertical=True)
+            thumb None
+            xysize(22, 175)
+    
+    # buttons
+    add im.Flip(im.Scale("content/gfx/images/cloud.webp", 330, 220), horizontal=True) pos 90, 560
+    add im.Scale("content/gfx/images/cloud.webp", 330, 220) pos 860, 560
+    
+    $ img = im.Scale("content/gfx/images/button.webp", 40, 40)
+    $ hover_img = im.MatrixColor(img, im.matrix.brightness(.10))
+    $ ins_img = im.Sepia(img)
+    button:
+        pos (340-2, 670)
+        xysize 40, 40
+        if (curr_time - 1) > hero_last_source:
+            idle_background img
+            hover_background hover_img
+            action Return("source_left")
+        else:
+            idle_background ins_img
+            hover_background ins_img
+            action NullAction()
+        text "A" align .5, .5 size 30 color "black" offset (2, 4)
+        keysym "a"
+    button:
+        pos (380-2, 630)
+        xysize 40, 40
+        if (curr_time - 1) > hero_last_move and hero_pos != 0:
+            idle_background img
+            hover_background hover_img
+            action Return("move_left")
+        else:
+            idle_background ins_img
+            hover_background ins_img
+            action NullAction()
+        text "S" align .5, .5 size 30 color "black" offset (2, 4)
+        keysym "s"
+    button:
+        pos (860+2, 630)
+        xysize 40, 40
+        if (curr_time - 1) > hero_last_move and hero_pos != 4:
+            idle_background img
+            hover_background hover_img
+            action Return("move_right")
+        else:
+            idle_background ins_img
+            hover_background ins_img
+            action NullAction()
+        text "D" align .5, .5 size 30 color "black" offset (2, 4)
+        keysym "d"
+    button:
+        pos (900+2, 670)
+        xysize 40, 40
+        if (curr_time - 1) > hero_last_source:
+            idle_background img
+            hover_background hover_img
+            action Return("source_right")
+        else:
+            idle_background ins_img
+            hover_background ins_img
+            action NullAction()
+        text "F" align .5, .5 size 30 color "black" offset (2, 4)
+        keysym "f"
+
+    add im.Flip(im.Scale("content/gfx/images/cloud.webp", 330, 220), horizontal=True, vertical=True) pos 90, -50
+    add im.Flip(im.Scale("content/gfx/images/cloud.webp", 330, 220), vertical=True) pos 860, -50
+    
+    $ img = im.Scale("content/gfx/images/button.webp", 80, 30)
+    $ hover_img = im.MatrixColor(img, im.matrix.brightness(.10))
+    $ ins_img = im.Sepia(img)
+    button:
+        pos (420 + 3 + hero_pos * 88, 600-2)
+        xysize 80, 30
+        if (curr_time - 1) > hero_last_shot:
+            idle_background img
+            hover_background hover_img
+            action Return("shoot")
+        else:
+            idle_background ins_img
+            hover_background ins_img
+            action NullAction()
+        text "Space" align .5, .5 size 15 color "black"
+        keysym "K_SPACE"
+    # char buttons
+    $ img = im.Scale("content/gfx/images/button.webp", 40, 40)
+    button:
+        pos (340-2, 10)
+        xysize 40, 40
+        idle_background img
+        hover_background img
+        action NullAction()
+    button:
+        pos (380-2, 50)
+        xysize 40, 40
+        idle_background img
+        hover_background img
+        action NullAction()
+    button:
+        pos (860+2, 50)
+        xysize 40, 40
+        idle_background img
+        hover_background img
+        action NullAction()
+    button:
+        pos (900+2, 10)
+        xysize 40, 40
+        idle_background img
+        hover_background img
+        action NullAction()
+    $ img = im.Scale("content/gfx/images/button.webp", 80, 30)
+    button:
+        pos (420 + 3 + char_pos * 88, 90+2)
+        xysize 80, 30
+        idle_background img
+        hover_background img
+        action NullAction()
+
+    if running is False:
+        # Not started
+        button:
+            style_group "pb"
+            action Return("start")
+            text "Start" style "pb_button_text" size 20
+            align .5, .5
+            keysym "K_SPACE"
+    elif running is not True:
+        # Game Over
+        $ temp = "You win!" if running == hero else ("You lost!" if running == char else running)
+        button:
+            style_group "pb"
+            action SetVariable("game_result", running), Jump("interactions_power_balls_end")
+            text "[temp]" style "pb_button_text" size 20
+            align .5, .5
+
+    timer 0.1 action Return("timeout") repeat True
+
+label interactions_power_balls_end:
+    hide screen interactions_power_balls_interface
+    with dissolve
+
+    call interactions_postgame_lines from _call_interactions_postgame_lines_2
+
+    python hide:
+        cleanup = ["hero_power_map", "char_power_map", "start_time", "curr_time", "running",
+                   "rotation_speed", "source_speed", "active_power_lineups", "live_balls",
+                   "hero_magics", "char_magics", "char_attack", "hero_attack", "char_defence", "hero_defence",
+                   "power_min_skill", "power_max_skill", "char_skill", "hero_skill",
+                   "char_life", "hero_life", "max_life", "char_pos", "hero_pos", "char_action_time",
+                   "hero_last_shot", "hero_last_move", "hero_last_source", "hero_ball_idx", "hero_source_base",
+                   "char_last_shot", "char_last_move", "char_last_source", "char_ball_idx", "char_source_base",
+                   "redraw_char_sources", "redraw_hero_sources", "result"]
         for i in cleanup:
             if hasattr(store, i):
                 delattr(store, i)

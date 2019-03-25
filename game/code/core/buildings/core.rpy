@@ -321,7 +321,8 @@ init -10 python:
                 elif self.location == "Richford":
                     self.threat_mod = 0
                 else:
-                    devlog.warn("{} Building with an unknown location detected!".format(self.name))
+                    if DEBUG_LOG:
+                        devlog.warn("{} Building with an unknown location detected!".format(self.name), "warn")
 
             if hasattr(self, "inventory"):
                 if bool(self.inventory):

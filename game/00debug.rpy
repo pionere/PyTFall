@@ -31,6 +31,7 @@ init -998 python:
         if DEBUG_SIMPY:
             devlog.info("|SIMPY DEBUG| {}".format(msg), *args)
 
+    # Next Day:
     DEBUG_ND = False
     def nd_debug(msg, mode="info"):
         if DEBUG_ND:

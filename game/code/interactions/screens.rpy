@@ -169,6 +169,7 @@ label girl_interactions_after_greetings: # when character wants to say something
             m = 8
             pytfall.world_actions.menu(m, "Play")
             pytfall.world_actions.gm_choice("Archery", label="play_bow", index=(m, 0))
+            pytfall.world_actions.gm_choice("PowerBalls", label="play_power", index=(m, 1))
 
             # INTIMACY
             m = 9

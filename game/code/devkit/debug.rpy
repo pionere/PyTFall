@@ -17,7 +17,7 @@ init -999 python:
             func = getattr(devlog, mode)
             func("|CHAR DEBUG| {}".format(msg))
 
-    # Qeust/Events
+    # Quests/Events
     DEBUG_QE = False # Debug Quests and Events
     def qe_debug(msg, mode="info"):
         if DEBUG_QE:
@@ -27,9 +27,9 @@ init -999 python:
     # SimPy:
     DEBUG_SIMPY = False
     DEBUG_SIMPY_ND_BUILDING_REPORT = DSNBR = False
-    def simpy_debug(msg):
+    def simpy_debug(msg, *args):
         if DEBUG_SIMPY:
-            devlog.info("|SIMPY DEBUG| {}".format(msg))
+            devlog.info("|SIMPY DEBUG| {}".format(msg), *args)
 
     # Next Day:
     DEBUG_ND = False
@@ -40,9 +40,9 @@ init -999 python:
 
     # Item systems:
     DEBUG_AUTO_ITEM = False
-    def aeq_debug(msg):
+    def aeq_debug(msg, *args):
         if DEBUG_AUTO_ITEM:
-            devlog.info("|AEQ DEBUG| {}".format(msg))
+            devlog.info("|AEQ DEBUG| {}".format(msg), *args)
 
     # Battle Engine:
     DEBUG_BE = False
@@ -52,7 +52,7 @@ init -999 python:
 
     # Simulated exploration:
     DEBUG_SE = False
-    def se_debug(msg, mode="warning"):
+    def se_debug(msg, mode="info"):
         if DEBUG_SE:
             func = getattr(devlog, mode)
             func("|SE DEBUG| {}".format(msg))
@@ -62,8 +62,8 @@ label debug_callstack:
 
 label force_clear_console:
     python in _console:
-         stdio_lines = []
-         stderr_lines = []
-         console.history = []
+        stdio_lines = []
+        stderr_lines = []
+        console.history = []
 
     jump mainscreen

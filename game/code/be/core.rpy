@@ -95,7 +95,7 @@ init -1 python: # Core classes:
                         minv, maxv, lvl = bonus
                         if lvl <= 0:
                             lvl = 1
-                        if lvl < char.level:
+                        if lvl > char.level:
                             maxv = max(minv, float(char.level)*maxv/lvl)
                         maxv += self.delivery_bonus.get(delivery, 0)
                         self.delivery_bonus[delivery] = maxv
@@ -118,7 +118,7 @@ init -1 python: # Core classes:
                     minv, maxv, lvl = trait.evasion_bonus
                     if lvl <= 0:
                         lvl = 1
-                    if lvl >= char.level:
+                    if lvl <= char.level:
                         self.evasion_bonus += maxv
                     else:
                         self.evasion_bonus += max(minv, float(char.level)*maxv/lvl)
@@ -136,7 +136,7 @@ init -1 python: # Core classes:
                         minv, maxv, lvl = bonus
                         if lvl <= 0:
                             lvl = 1
-                        if lvl < char.level:
+                        if lvl > char.level:
                             maxv = max(minv, float(char.level)*maxv/lvl)
                         maxv += self.defence_bonus.get(delivery, 0)
                         self.defence_bonus[delivery] = maxv

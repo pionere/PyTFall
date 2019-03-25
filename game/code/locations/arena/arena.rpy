@@ -47,8 +47,8 @@ init -9 python:
             self.dogfights_3v3 = list()
             self.dogfight_day = 1
 
-            self.df_count = 0 
-            self.hero_match_result = None 
+            self.df_count = 0
+            self.hero_match_result = None
             self.daily_report = []
 
             self.result = None
@@ -353,7 +353,7 @@ init -9 python:
             elif team_size == 2:
                 lineup = self.lineup_2v2
             elif team_size == 3:
-                lineup = self.lineup_3v3 
+                lineup = self.lineup_3v3
             else:
                 raise Exception("Invalid team size for Automatic Arena Combat Resolver: %d" % team_size)
 
@@ -368,7 +368,7 @@ init -9 python:
                     for idx, t in enumerate(lineup):
                         if t.leader == hero:
                             # another team in the lineup -> replace it with the current one
-                            lineup[idx] = winner 
+                            lineup[idx] = winner
                             winner_added = True
                             break
                 if not "winner_added" in locals():
@@ -379,7 +379,7 @@ init -9 python:
                 index = lineup.index(loser)
                 lineup.insert(index+2, loser)
                 del lineup[index]
- 
+
         def find_opfor(self):
             """
             Find a team to fight challenger team in the official arena matches.
@@ -521,7 +521,7 @@ init -9 python:
 
             if fight_day == day and self.hero_match_result:
                 return "You already had a fight today. Having two official matches on the same day is not allowed!"
- 
+
             result = renpy.call_screen("yesno_prompt",
                 "Are you sure you want to schedule a fight? Backing out of it later will mean a hit on reputation!",
                 Return(["Yes"]), Return(["No"]))
@@ -834,7 +834,7 @@ init -9 python:
                 self.cf_setup = self.chain_fights[result]
 
             # Picking an opponent(s):
-            num_opps = len(hero.team) 
+            num_opps = len(hero.team)
             team = Team(name=self.cf_setup.get("id", "Captured Creatures"), max_size=num_opps)
 
             new_level = self.cf_setup["level"]
@@ -845,7 +845,7 @@ init -9 python:
                 num_opps -= 1
             else:
                 new_level = round_int(new_level)
- 
+
             # Add the same amount of mobs as there characters on the MCs team:
             for i in range(num_opps):
                 mob = build_mob(choice(self.cf_setup["mobs"]), level=new_level)
@@ -988,7 +988,7 @@ init -9 python:
         # -------------------------- Battle/Next Day ------------------------------->
         @staticmethod
         def arena_rep_reward(loser, winner):
-            return max(0.0, (loser.get_rep() - (winner.get_rep() / 2)) / 10.0) 
+            return max(0.0, (loser.get_rep() - (winner.get_rep() / 2)) / 10.0)
 
         def auto_resolve_combat(self, off_team, def_team, type="dog_fight"):
 
@@ -1000,7 +1000,7 @@ init -9 python:
 
             rep = self.arena_rep_reward(loser, winner)
             if type == "dog_fight":
-                rep = min(50.0, max(3.0, rep)) 
+                rep = min(50.0, max(3.0, rep))
 
             for fighter in winner:
                 if fighter not in battle.corpses:
@@ -1116,7 +1116,7 @@ init -9 python:
             tmp = Team(name=team.name, implicit=team.implicit, free = team.free, max_size = team.max_size)
             tmp.set_leader(team.leader)
             return tmp
- 
+
         def execute_matchfight(self, setup):
             """
             Bridge to battle engine + rewards/penalties.
@@ -1171,7 +1171,7 @@ init -9 python:
                 else:
                     member.combat_stats = "K.O."
 
-            rew_rep = rew_rep / 10.0 
+            rew_rep = rew_rep / 10.0
             for member in loser:
                 member.arena_rep -= int(rew_rep)
                 member.mod_exp(exp_reward(member, winner, exp_mod=2*.15))
@@ -1194,7 +1194,7 @@ init -9 python:
 
             # record the event
             self.hero_match_result = [self.shallow_copy_team(winner), self.shallow_copy_team(loser)]
- 
+
             fday = setup[2]
             for d in hero.fighting_days[:]:
                 if d == fday:
@@ -1202,7 +1202,7 @@ init -9 python:
 
         @staticmethod
         def append_match_result(txt, f2f, match_result):
-            if f2f: 
+            if f2f:
                 temp = "{} has defeated {} in a one on one fight. ".format(
                           match_result[0][0].name, match_result[1][0].name)
             else:
@@ -1230,7 +1230,7 @@ init -9 python:
 
             # Add the hero's matchresult from today
             if self.hero_match_result:
-                self.append_match_result(txt, len(self.hero_match_result[0]) == 1, self.hero_match_result) 
+                self.append_match_result(txt, len(self.hero_match_result[0]) == 1, self.hero_match_result)
 
             tl.start("Arena: Matches")
             # Running the matches:
@@ -1239,7 +1239,7 @@ init -9 python:
                 if setup[2] == day and setup[0].leader != hero:
                     if setup[0] and setup[1]:
                         match_result = self.auto_resolve_combat(setup[0], setup[1], "match")
-                        self.append_match_result(txt, True, match_result) 
+                        self.append_match_result(txt, True, match_result)
 
                     setup[0] = Team(max_size=1)
                     setup[1] = Team(max_size=1)
