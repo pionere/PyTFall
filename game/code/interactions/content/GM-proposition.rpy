@@ -367,7 +367,7 @@ init python:
         return (value / n) if n else 0
 
 label interactions_hire:
-    if char.flag("quest_cannot_be_hired") == True:
+    if char.flag("quest_cannot_be_hired") or char.arena_active:
         call interactions_refuses_to_be_hired from _call_interactions_refuses_to_be_hired
         jump girl_interactions
 

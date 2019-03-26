@@ -26,7 +26,7 @@ init -1 python:
             cell_chars = list()
             self.girls = cell_chars
             interactive_chars = set(gm.get_all_girls()) | set(hero.chars)
-            possible_chars = [c for c in chars.itervalues() if (not c.arena_active) and (c not in interactive_chars)]
+            possible_chars = [c for c in chars.itervalues() if c not in interactive_chars]
 
             # Get available girls and check stuff:
             choices = list()
