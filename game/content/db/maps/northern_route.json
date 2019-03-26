@@ -34,7 +34,7 @@
         "tier": 0.5,
         "desc": "A vast cold forest that must be traveled through to reach the mountain peaks.",
         "unlocked": false,
-        "travel_time": 0.5,
+        "travel_time": 1,
         "mobs": ["Undead Rat", "Thug", "Wolf"],
         "cash_limit": 30,
         "items_price_limit": 100,
