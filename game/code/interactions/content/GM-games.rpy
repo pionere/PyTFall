@@ -819,7 +819,7 @@ label interactions_power_balls_start:
             $ pass
         elif result == "shoot":
             if running is True:
-                $ interactions_power_shoot(hero, "hero_ball_%d" % hero_ball_idx, hero_pos, (600, 0),
+                $ interactions_power_shoot(hero, "hero_ball_%d" % hero_ball_idx, hero_pos, (630, 0),
                                            hero_source_base, hero_magics, hero_attack)
                 $ hero_last_shot = curr_time
                 $ hero_ball_idx += 1
@@ -849,16 +849,16 @@ label interactions_power_balls_start:
                 pops = []
                 for idx, line in enumerate(live_balls):
                     for ball in line:
-                        ypos = (curr_time - ball[0]) * 600 / 16.0
+                        ypos = (curr_time - ball[0]) * 630 / 16.0
                         if ball[1] == hero:
-                            ypos = 600 - ypos
+                            ypos = 630 - ypos
                             if ypos < 90:
                                 # hit to char
                                 char_life -= ball[3]/char_defence[ball[4]]
                                 ypos = None
                         else:
                             ypos = ypos + 90 
-                            if ypos > 600:
+                            if ypos > 630:
                                 # hit to hero
                                 hero_life -= ball[3]/hero_defence[ball[4]]
                                 ypos = None
@@ -940,46 +940,48 @@ label interactions_power_balls_start:
                     option = None # (move, source)
                     if can_move:
                         if can_source:
-                            # 5 available options -> always shoot
+                            # 9 or 6 available options -> always shoot
                             limit = 0
-                            for delta in [-2, 2, -1, 1, 0]:
-                                lane = (char_pos+delta) % 5
-                                source = interactions_power_source_at(lane, char_source_base, char_magics)
-                                lane = active_power_lineups[lane]
-                                if lane[0] is hero:
-                                    value = char_power_map[source][lane[1][0][4]]
-                                elif lane[0] is char:
-                                    value = .8
-                                else:
-                                    value = 1
-                                if value >= limit:
-                                    limit = value
-                                    option = [-1 if delta < 0 else (1 if delta > 0 else 0), 1 if delta == -2 else (-1 if delta == 2 else 0)]
-                        else:
-                            # 3 available options -> shoot if there is a gain (1.1)
-                            limit = 1.1
-                            for delta in [-1, 1, 0]:
-                                lane = (char_pos+delta) % 5
-                                source = interactions_power_source_at(lane, char_source_base, char_magics)
-                                lane = active_power_lineups[lane]
-                                if lane[0] is hero:
-                                    value = char_power_map[source][lane[1][0][4]]
-                                    if value >= limit:
+                            for dl in ([0, 1] if char_pos == 0 else ([0, -1] if char_pos == 4 else [0, -1, 1])):
+                                for ds in [0, -1, 1]:
+                                    lane = char_pos+dl
+                                    source = lane+ds
+                                    lane = active_power_lineups[lane]
+                                    source = interactions_power_source_at(source, char_source_base, char_magics)
+                                    if lane[0] is hero:
+                                        value = char_power_map[source][lane[1][0][4]]
+                                    elif lane[0] is char:
+                                        value = .8
+                                    else:
+                                        value = 1
+                                    if value > limit:
                                         limit = value
-                                        option = [delta, 0]
+                                        option = [dl, -ds]
+                        else:
+                            # 3 or 2 available options -> shoot if there is a gain (1.1)
+                            limit = 1.1
+                            for dl in ([0, 1] if char_pos == 0 else ([0, -1] if char_pos == 4 else [0, -1, 1])):
+                                lane = char_pos+dl
+                                source = interactions_power_source_at(lane, char_source_base, char_magics)
+                                lane = active_power_lineups[lane]
+                                if lane[0] is hero:
+                                    value = char_power_map[source][lane[1][0][4]]
+                                    if value > limit:
+                                        limit = value
+                                        option = [dl, 0]
                     else:
                         if can_source:
                             # 3 available options -> shoot if there is a gain (1.1)
                             limit = 1.1
-                            for delta in [-1, 1, 0]:
-                                lane = (char_pos+delta) % 5
-                                source = interactions_power_source_at(lane, char_source_base, char_magics)
-                                lane = active_power_lineups[lane]
+                            for ds in [0, -1, 1]:
+                                source = char_pos+ds
+                                source = interactions_power_source_at(source, char_source_base, char_magics)
+                                lane = active_power_lineups[char_pos]
                                 if lane[0] is hero:
                                     value = char_power_map[source][lane[1][0][4]]
-                                    if value >= limit:
+                                    if value > limit:
                                         limit = value
-                                        option = [0, -delta]
+                                        option = [0, -ds]
                         else:
                             # 1 available option -> wait if current lane is not lucrative (1.2)
                             source = interactions_power_source_at(char_pos, char_source_base, char_magics)
@@ -1001,15 +1003,33 @@ label interactions_power_balls_start:
                         char_last_shot = curr_time
                         char_ball_idx += 1
                 elif can_move:
-                    if char_pos == 0:
-                        char_pos = 1
-                        char_last_move = curr_time
+                    # can not shoot, but move -> move closer to threat/center
+                    if char_pos == 2:
+                        if active_power_lineups[0][0] == hero:
+                            if active_power_lineups[2][0] != hero and active_power_lineups[3][0] != hero and active_power_lineups[4][0] != hero:
+                                char_pos = 1
+                                char_last_move = curr_time
+                        elif active_power_lineups[4][0] == hero:
+                            if active_power_lineups[2][0] != hero and active_power_lineups[1][0] != hero and active_power_lineups[0][0] != hero:
+                                char_pos = 3
+                                char_last_move = curr_time
+                    elif char_pos == 1:
+                        if active_power_lineups[0][0] != hero and (active_power_lineups[1][0] != hero or (active_power_lineups[2][0] == hero and active_power_lineups[3][0] == hero)):
+                            char_pos = 2
+                            char_last_move = curr_time
+                    elif char_pos == 3:
+                        if active_power_lineups[4][0] != hero and (active_power_lineups[3][0] != hero or (active_power_lineups[2][0] == hero and active_power_lineups[1][0] == hero)):
+                            char_pos = 2
+                            char_last_move = curr_time
+                    elif char_pos == 0:
+                        if active_power_lineups[0][0] != hero or (active_power_lineups[1][0] == hero and active_power_lineups[2][0] == hero):
+                            char_pos = 1
+                            char_last_move = curr_time
                     elif char_pos == 4:
-                        char_pos = 3
-                        char_last_move = curr_time
-                    else:
-                        pass # FIXME check threat at distance
-    
+                        if active_power_lineups[4][0] != hero or (active_power_lineups[3][0] == hero and active_power_lineups[2][0] == hero):
+                            char_pos = 3
+                            char_last_move = curr_time
+
                 # check game state
                 if (hero_life < max_life/5 and char_life < max_life/5):
                     running = "Draw"
@@ -1056,11 +1076,6 @@ init python:
         return magics[round_int((offset-dx)/88.0)]
 
     def interactions_power_shoot(shooter, name, pos, ypos, source_base, magics, attack):
-        #dt = curr_time-start_time
-        #offset = 420 + pos * 88 + 44 - 288
-        #dx = (992 - 288)
-        #dx = (dx*dt/16+source_base) % dx
-        #source = magics[round_int((offset-dx)/88.0)]
         source = interactions_power_source_at(pos, source_base, magics)
     
         size = attack
@@ -1121,8 +1136,6 @@ init python:
 screen interactions_power_balls_interface:
     $ curr_time = time.time()
 
-    # borders
-    
     # life indicators
     #  heros
     vbox:
@@ -1294,7 +1307,7 @@ screen interactions_power_balls_interface:
             keysym "K_SPACE"
     elif running is not True:
         # Game Over
-        $ temp = "You win!" if running == hero else ("You lost!" if running == char else running)
+        $ temp = "You win!" if running == hero else ("You lose!" if running == char else running)
         button:
             style_group "pb"
             action SetVariable("game_result", running), Jump("interactions_power_balls_end")
@@ -1307,7 +1320,29 @@ label interactions_power_balls_end:
     hide screen interactions_power_balls_interface
     with dissolve
 
+    python hide:
+        # remove remaining balls
+        for lane in live_balls:
+            for ball in lane:
+                # TODO pop effect?
+                renpy.hide(ball[2])
+
     call interactions_postgame_lines from _call_interactions_postgame_lines_2
+
+    python hide:
+        # sources
+        for i in range(len(hero_magics)):
+            renpy.hide("hero_magic%d" % i)
+
+        for i in range(len(char_magics)):
+            renpy.hide("char_magic%d" % i)
+        # main lanes
+        for i in range(5):
+            renpy.hide("lane%d"%i)
+        # boxes for the sources
+        for i in range(7):
+            renpy.hide("source_box_0_%d"%i)
+            renpy.hide("source_box_1_%d"%i)
 
     python hide:
         cleanup = ["hero_power_map", "char_power_map", "start_time", "curr_time", "running",
