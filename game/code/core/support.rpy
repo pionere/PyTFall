@@ -169,8 +169,7 @@ init -9 python:
                              set_status=status,
                              tier=tier, tier_kwargs=None,
                              give_civilian_items=True,
-                             give_bt_items=give_bt_items,
-                             spells_to_tier=False) # Do we want this for mages?
+                             give_bt_items=give_bt_items)
 
         # ----------------------------------------->
         def next_day(self):

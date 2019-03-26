@@ -596,17 +596,16 @@ init -9 python:
 
                 a_team = Team(name=name, max_size=teamsize)
                 for index, member in enumerate(members):
+                    tier = tiers[index]
                     if member == "random_char":
                         member = build_rc(bt_go_patterns=["Combatant"],
-                                          tier=uniform(.8, 1.4),
-                                          give_bt_items=True,
-                                          spells_to_tier=True)
+                                          tier=tier,
+                                          give_bt_items=True)
                     elif member in rchars:
                         member = build_rc(id=member,
                                           bt_go_patterns=["Combatant"],
-                                          tier=uniform(.8, 1.4),
-                                          give_bt_items=True,
-                                          spells_to_tier=True)
+                                          tier=tier,
+                                          give_bt_items=True)
                     else:
                         if teamsize != 1:
                             if member in team_members:
@@ -630,13 +629,12 @@ init -9 python:
                             break
                         self.arena_fighters[member.id] = member
 
+                        tier_up_to(member, tier)
+                        auto_buy_for_bt(member)
+                        give_tiered_magic_skills(member)
+
                     member.arena_active = True
                     #member.arena_permit = True
-
-                    tier = tiers[index]
-                    tier_up_to(member, tier)
-                    auto_buy_for_bt(member, casual=False)
-                    give_tiered_magic_skills(member)
                     member.arena_rep = randint(int(tier*9000), int(tier*11000))
 
                     a_team.add(member)
@@ -703,13 +701,12 @@ init -9 python:
                 if candidates:
                     char = candidates.pop()
                     tier_up_to(char, 7, **tier_kwargs)
-                    auto_buy_for_bt(char, casual=None)
+                    auto_buy_for_bt(char)
                     give_tiered_magic_skills(char)
                 else:
                     char = build_rc(tier=7,
                                     tier_kwargs=tier_kwargs,
-                                    give_bt_items=True,
-                                    spells_to_tier=True)
+                                    give_bt_items=True)
 
                 char.arena_active = True
                 #char.arena_permit = True
@@ -733,12 +730,12 @@ init -9 python:
                     break
                 if fighter is None:
                     fighter = build_rc(bt_go_patterns=["Combatant"], tier=tier,
-                           give_bt_items=True, spells_to_tier=True)
+                           give_bt_items=True)
                     # print("Created Arena RG: {}".format(fighter.name))
                     new_candidates.append(fighter)
                 else:
                     tier_up_to(fighter, tier)
-                    auto_buy_for_bt(fighter, casual=None)
+                    auto_buy_for_bt(fighter)
                     give_tiered_magic_skills(fighter)
 
                 #fighter.arena_active = True

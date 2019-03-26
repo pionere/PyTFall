@@ -56,9 +56,16 @@ label start:
         # Battle Skills:
         tl.start("Loading: Battle Skills")
         battle_skills = load_battle_skills()
-        tiered_magic_skills = dict()
+        # tiered (offensive/support) skills for faster access
+        tiered_magic_skills = [[],[],[],[],[]] # MAX_MAGIC_TIER = 4, order is not preserved by the user!
+        tiered_healing_skills = [[],[],[],[],[]] # MAX_MAGIC_TIER = 4, order is not preserved by the user!
         for s in battle_skills.values():
-            tiered_magic_skills.setdefault(s.tier, []).append(s)
+            if set(["status", "healing"]).intersection(s.attributes) or s.kind == "revival":
+                tiered_healing_skills[s.tier or 0].append(s)
+                continue
+            if "magic" not in s.attributes or getattr(s, "mob_only", False) or getattr(s, "item_only", False):
+                continue
+            tiered_magic_skills[s.tier or 0].append(s)
         del s
         tl.end("Loading: Battle Skills")
 
@@ -318,9 +325,9 @@ label sort_items_for_gameplay:
         #    auto_buy_items[k].sort()
 
         # Items sorting per Tier:
-        tiered_items = {}
+        tiered_items = [[],[],[],[],[]] # MAX_ITEM_TIER = 4
         for i in items.values():
-            tiered_items.setdefault(i.tier, []).append(i)
+            tiered_items[i.tier or 0].append(i)
         del i
     return
 
@@ -603,12 +610,21 @@ label after_load:
             c.del_flag("train_with_aine")
             c.del_flag("train_with_witch")
 
-        tierless_items = store.tiered_items.get(None)
-        if tierless_items:
-            for item in tierless_items:
-                item.tier = 0
-                store.tiered_items[0].append(item)
-            del store.tiered_items[None]
+        if isinstance(store.tiered_items, dict):
+            store.tiered_items = [[],[],[],[],[]] # MAX_ITEM_TIER = 4
+            for i in store.items.values():
+                store.tiered_items[i.tier or 0].append(i)
+
+        if isinstance(store.tiered_magic_skills, dict):
+            store.tiered_magic_skills = [[],[],[],[],[]] # MAX_MAGIC_TIER = 4, order is not preserved by the user!
+            store.tiered_healing_skills = [[],[],[],[],[]] # MAX_MAGIC_TIER = 4, order is not preserved by the user!
+            for s in store.battle_skills.values():
+                if set(["status", "healing"]).intersection(s.attributes) or s.kind == "revival":
+                    store.tiered_healing_skills[s.tier or 0].append(s)
+                    continue
+                if "magic" not in s.attributes or getattr(s, "mob_only", False) or getattr(s, "item_only", False):
+                    continue
+                store.tiered_magic_skills[s.tier or 0].append(s)
 
         if not hasattr(pytfall.arena, "df_count"):
             pytfall.arena.df_count = 0

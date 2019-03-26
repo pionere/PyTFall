@@ -240,7 +240,7 @@ init -11 python:
                  tier=0, tier_kwargs=None, add_to_gameworld=True,
                  give_civilian_items=False, gci_kwargs=None,
                  give_bt_items=False, gbti_kwargs=None,
-                 spells_to_tier=False, stt_kwargs=None):
+                 spells_to_tier=True, stt_kwargs=None):
         '''Creates a random character!
         id: id to choose from the rchars dictionary that holds rGirl loading data.
             from JSON files, will be chosen at random if none available.
@@ -418,16 +418,16 @@ init -11 python:
         # And at last, leveling up and stats/skills applications:
         tier_up_to(rg, tier, **tier_kwargs)
 
+        # Spells to Tier:
+        if spells_to_tier:
+            give_tiered_magic_skills(rg, **stt_kwargs)
+
         # Items, give and/or autoequip:
         initial_item_up(rg, give_civilian_items, give_bt_items,
                             gci_kwargs, gbti_kwargs)
 
         # if equip_to_tier: # Old (faster but less precise) way of giving items:
         #     give_tiered_items(rg, **gtt_kwargs) # (old/simle(er) func)
-
-        # Spells to Tier:
-        if spells_to_tier:
-            give_tiered_magic_skills(rg, **stt_kwargs)
 
         # And add to char! :)
         if add_to_gameworld:
@@ -446,9 +446,9 @@ init -11 python:
         """
         if give_civilian_items or give_bt_items:
             container = []
-            limit_tier = ((char.tier/2)+1)
+            limit_tier = min(((char.tier/2)+1), 4)
             for i in range(limit_tier):
-                container.extend(store.tiered_items.get(i, []))
+                container.extend(store.tiered_items[i]) # MAX_ITEM_TIER
 
         if give_civilian_items:
             if not gci_kwargs:
@@ -479,21 +479,15 @@ init -11 python:
                 }
             char.auto_buy(**gbti_kwargs)
 
-    def auto_buy_for_bt(char, slots=None, casual=None, equip=True,
-                        check_money=False, limit_tier=False,
-                        container=None):
-        if slots is None:
-            slots = {slot: 1 for slot in EQUIP_SLOTS}
-        if casual is None:
-            casual = True
-        if container is None:
-            container = []
-            limit_tier = ((char.tier/2)+1)
-            for i in range(limit_tier):
-                container.extend(store.tiered_items.get(i, []))
+    def auto_buy_for_bt(char):
+        slots = {slot: 1 for slot in EQUIP_SLOTS}
+        container = []
+        limit_tier = min(((char.tier/2)+1), 4)
+        for i in range(limit_tier):
+            container.extend(store.tiered_items[i]) # MAX_ITEM_TIER
 
-        char.auto_buy(slots=slots, casual=casual, equip=equip,
-                      check_money=check_money, limit_tier=limit_tier,
+        char.auto_buy(slots=slots, casual=False, equip=True,
+                      check_money=False, limit_tier=limit_tier,
                       container=container)
 
     def create_traits_base(patterns):
@@ -522,7 +516,7 @@ init -11 python:
         occ: Specific basetrait.
         equip: Run auto_equip function after we're done.
         """
-        tier = max(min(round_int(char.tier*.5), 4), 0)
+        tier = min(((char.tier/2)+1), 4) # MAX_ITEM_TIER
         if gen_occ is None:
             try:
                 gen_occ = choice(char.gen_occs)
@@ -594,7 +588,7 @@ init -11 python:
         amount: Amount of skills to give. "auto" will get it from occupations and tiers.
         support_amount: healing and status spells (forced).
         """
-        tier = max(min(round_int(char.tier*.5), 4), 0)
+        tier = min(((char.tier/2)+1), 4) # MAX_MAGIC_TIER = 4
         attributes = set([t.id.lower() for t in char.elements])
         if support_amount is None:
             if traits["Healer"] in char.traits.basetraits:
@@ -610,7 +604,7 @@ init -11 python:
             if "Caster" in char.gen_occs:
                 amount = tier + randint(1, 2)
                 s_amount += 1
-            elif "Combatant" in char.gen_occs or "Specialist" in char.gen_occs:
+            elif "Combatant" in char.gen_occs:
                 if "neutral" in attributes:
                     amount = randint(0, 1)
                 else:
@@ -624,7 +618,7 @@ init -11 python:
         for _ in reversed(range(tier+1)):
             if amount > 0:
                 if "neutral" in attributes:
-                    spells = tiered_magic_skills[_][:] # testing spells have tier higher than 10
+                    spells = tiered_magic_skills[_] # [:] - no need for the moment
                 else:
                     spells = [s for s in tiered_magic_skills[_] if attributes.intersection(s.attributes)]
                 shuffle(spells)
@@ -632,20 +626,18 @@ init -11 python:
                     if s not in char.magic_skills:
                         char.magic_skills.append(s)
                         amount -= 1
-                    if amount <= 0:
-                        break
+                        if amount <= 0:
+                            break
 
             if s_amount > 0:
-                spells = [s for s in tiered_magic_skills[_] if \
-                    set(["status", "healing"]).intersection(s.attributes) or s.kind == "revival"]
+                spells = tiered_healing_skills[_] # [:] - no need for the moment
                 shuffle(spells)
                 for s in spells:
                     if s not in char.magic_skills:
                         char.magic_skills.append(s)
                         s_amount -= 1
-
-                    if s_amount <= 0:
-                        break
+                        if s_amount <= 0:
+                            break
 
             # print(", ".join([s.name for s in spells]))
             if amount <= 0 and s_amount <= 0:
