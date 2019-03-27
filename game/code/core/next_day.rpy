@@ -227,7 +227,6 @@ label next_day_calculations:
         tl.start("pytfall/calender .next_day")
         pytfall.next_day()
         calendar.next() # day + 1 is here.
-        gm.gm_points = 0
         tl.end("pytfall/calender .next_day")
 
         # Reset Flags:

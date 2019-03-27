@@ -69,7 +69,7 @@ init -5 python:
             effectiveness = job.work_brothel(worker=worker, client=client, building=building,
                                              log=log, effectiveness=effectiveness)
 
-            worker.jobpoints -= job.calc_jp_cost(manager_effectiveness=building.manager_effectiveness, cost=100)
+            worker.PP -= job.calc_jp_cost(manager_effectiveness=building.manager_effectiveness, cost=100)
 
             earned = payout(job, effectiveness, difficulty,
                             building, self, worker, client, log)

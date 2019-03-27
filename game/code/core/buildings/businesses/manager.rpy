@@ -37,7 +37,7 @@ init -5 python:
             for m in managers:
                 m._dnd_effectiveness = mj.effectiveness(m, building.tier, None, False)
                 m._dnd_mlog = NDEvent(job=mj, char=m, loc=building)
-                m._dnd_jobpoints = m.jobpoints
+                m._dnd_pp = m.PP
 
                 workers.remove(m)
 
@@ -65,7 +65,7 @@ init -5 python:
         #building.log("%s is overseeing the building!" % manager.name)
 
         # Special bonus to JobPoints (aka pep talk) :D
-        if building.init_pep_talk and manager.jobpoints >= 10:
+        if building.init_pep_talk and manager.PP >= 10:
             mp_init_jp_bonus(manager, building, effectiveness)
 
         cheered_up_workers = set()
@@ -74,7 +74,7 @@ init -5 python:
             yield env.timeout(5)
             simpy_debug("Entering manager_process at %s", env.now)
             # select a new manager if the current one is exhausted
-            if manager.jobpoints <= 10:
+            if manager.PP <= 10:
                 if managers:
                     manager = managers.pop()
                     effectiveness = manager._dnd_effectiveness
@@ -89,7 +89,7 @@ init -5 python:
 
             # Special direct bonus to tired/sad characters
             #c1 = not env.now % 5
-            if building.cheering_up and manager.jobpoints > 10 and dice(effectiveness-50):
+            if building.cheering_up and manager.PP > 10 and dice(effectiveness-50):
                 workers = [w for w in building.available_workers if
                            w != manager and
                            w not in cheered_up_workers and
@@ -124,7 +124,7 @@ init -5 python:
 
                     building.log("Your manager cheered up %s." % worker.name)
 
-                    manager.jobpoints -= 10
+                    manager.PP -= 10
 
             simpy_debug("Exiting manager_process at %s", env.now)
 
@@ -144,7 +144,7 @@ init -5 python:
         workers = building.available_workers
         if workers:
             # Bonus to the maximum amount of workers:
-            max_job_points = manager.jobpoints*.5
+            max_job_points = manager.PP*.5
             per_worker = 10
             max_workers = round_int(max_job_points/per_worker)
 
@@ -161,8 +161,8 @@ init -5 python:
 
             init_jp_bonus += 1.0
             for w in workers:
-                w.jobpoints = round_int(w.jobpoints*init_jp_bonus)
-            manager.jobpoints -= len(workers)*per_worker
+                w.PP = round_int(w.PP*init_jp_bonus)
+            manager.PP -= len(workers)*per_worker
             
     def manager_post_nd(building):
         managers = getattr(building, "_dnd_managers", None)
@@ -174,7 +174,7 @@ init -5 python:
         building.manager_effectiveness = 0
 
         for m in managers:
-            points_used = m._dnd_jobpoints - m.jobpoints
+            points_used = m._dnd_pp - m.PP
             log = m._dnd_mlog
             if points_used != 0:
                 if dice(points_used):
@@ -186,9 +186,9 @@ init -5 python:
                 ap_used = (points_used)/100.0
                 log.logws("exp", exp_reward(m, building.tier, exp_mod=ap_used))
 
-                if points_used > m._dnd_jobpoints*3/4:
+                if points_used > m._dnd_pp*3/4:
                     log.append("%s had a long working day." % m.name)
-                elif points_used > m._dnd_jobpoints/2:
+                elif points_used > m._dnd_pp/2:
                     log.append("%s's day was quite busy on the job." % m.name)
                 else:
                     log.append("%s had only a few things to accomplish during the day." % m.name)
@@ -204,4 +204,4 @@ init -5 python:
 
             del m._dnd_effectiveness
             del m._dnd_mlog
-            del m._dnd_jobpoints
+            del m._dnd_pp

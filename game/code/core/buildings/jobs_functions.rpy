@@ -1,7 +1,7 @@
 init -10 python:
     def convert_ap_to_jp(char):
         # Do not convert AP when Char is in school.
-        char.jobpoints += char.AP*100 # += is safer here.
+        char.PP += char.AP*100 # += is safer here.
         char.AP = 0
 
     def payout(job, effectiveness, difficulty, building, business, worker, clients, log):
@@ -38,12 +38,12 @@ init -10 python:
             else:
                 temp = "Due to inadequate service provided by {} client refuses to pay the full price.".format(worker.name)
             log.append(temp)
-            if me >= 90 and building.help_ineffective_workers and building._dnd_manager.jobpoints >= 1:
+            if me >= 90 and building.help_ineffective_workers and building._dnd_manager.PP >= 1:
                 manager = building._dnd_manager
                 temp = "Your skilled manager {} intervened and straitened things out.".format(manager.name)
                 manager._dnd_mlog.append("{} helped to calm a client down after {}'s poor performance and salvaged part of the payment!".format(
                                                     manager.name, worker.name))
-                manager.jobpoints -= 1
+                manager.PP -= 1
 
                 if me >= 150 and dice(85):
                     if is_plural:
@@ -134,7 +134,7 @@ init -10 python:
     def can_do_work(c, check_ap=True, log=None):
         """Checks whether the character is injured/tired/has AP and sets her/him to auto rest.
 
-        AP check is optional and if True, also checks for jobpoints.
+        AP check is optional and if True, also checks for action points.
         """
         # We do not want girls in school to AutoRest,
         # Idea is that the school is taking care of this.
@@ -177,7 +177,7 @@ init -10 python:
                 if log:
                     log.append("And going to take few days off to recover. ")
         if check_ap:
-            if c.AP <= 0 and c.jobpoints <= 0:
+            if c.AP <= 0 and c.PP <= 0:
                 return False
 
         return True

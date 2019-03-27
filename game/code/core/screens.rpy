@@ -268,15 +268,14 @@ screen top_stripe(show_return_button=True, return_button_action=None,
         # AP Frame/Next Day button:
         $ tc_0 = any([renpy.current_screen().tag == "next_day", hero.AP == 0])
         $ tc_1 = show_lead_away_buttons and renpy.current_screen().tag not in ["mainscreen"]
-        $ gm_points = gm.gm_points
+        $ pp_h = hero.PP / 25
 
-        $ tt_string = "You have {} Action Points to interact with the world".format(hero.AP)
-        if gm_points:
-            $ tt_string += " and {} free points to interact with any of the characters!".format(gm_points)
-        else:
-            $ tt_string += "!"
+        $ tt_string = "You have %s Action %s" % (hero.AP, plural("Point", hero.AP))
+        if pp_h:
+            $ tt_string += " and %s Partial (Action) %s" % (pp_h, plural("Point", pp_h))
+        $ tt_string += " to interact with the world!"
 
-        if all([tc_0, tc_1, not gm_points]):
+        if all([tc_0, tc_1, not pp_h]):
             button:
                 style_group "basic"
                 align (.5, .6)
@@ -301,8 +300,8 @@ screen top_stripe(show_return_button=True, return_button_action=None,
                         text_size 23
                         text_color "ivory"
                         text_bold True
-                    if gm_points:
-                        text "[gm_points]":
+                    if pp_h:
+                        text "[pp_h]":
                             color "pink"
                             style "proper_stats_text"
                             yoffset 7

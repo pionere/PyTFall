@@ -65,9 +65,9 @@ init -5 python:
                         dirt_cleaned += value
                         cleaners.add(w)
 
-                        w.jobpoints -= 5
+                        w.PP -= 5
                         w.up_counter("jobs_points_spent", 5)
-                        if w.jobpoints <= 0:
+                        if w.PP <= 0:
                             temp = "%s is done cleaning for the day!" % w.nickname
                             temp = set_font_color(temp, "cadetblue")
                             self.log(temp, True)
@@ -162,7 +162,7 @@ init -5 python:
                     log.logws("agility", 1, char=w)
                 if dice(10):
                     log.logws("constitution", 1, char=w)
-                # This is imperfect. We need to track jobpoints spent to get this right...
+                # This is imperfect. We need to track partial points spent to get this right...
                 log.logws("exp", exp_reward(w, loc.tier, exp_mod=ap_used*.5), char=w)
                 w.del_flag("jobs_points_spent")
 

@@ -612,7 +612,7 @@ init -12 python:
             worker.serving_clients = set() # actively serving these clients
             clients_served = [] # client served during the shift (all of them, for the report)
 
-            while worker.jobpoints > 0 and du_working > 0:
+            while worker.PP > 0 and du_working > 0:
                 simpy_debug("Entering PublicBusiness(%s).worker_control iteration at %s", self.name, self.env.now)
 
                 # Add clients to serve:
@@ -630,7 +630,7 @@ init -12 python:
                 yield self.env.timeout(1)
                 du_working -= 1
 
-                worker.jobpoints -= len(worker.serving_clients)*2 # 2 jobpoints per client?
+                worker.PP -= len(worker.serving_clients)*2 # 2 partial AP per client?
 
                 simpy_debug("Exiting PublicBusiness(%s).worker_control iteration at %s", self.name, self.env.now)
 
@@ -686,8 +686,9 @@ init -12 python:
             self.type = "on_demand_service"
             self.workable = True
             self.active_workers = list()
-            self.action = None # Action that is currently running! For example guard that are presently on patrol should still respond to act
-                               # of violence by the customers, even thought it may appear that they're busy (in code).
+            # Action that is currently running! For example guard that are presently on patrol should still respond to act
+            # of violence by the customers, even thought it may appear that they're busy (in code).
+            self.action = None
 
             # SimPy and etc follows:
             self.time = 1 # Same.

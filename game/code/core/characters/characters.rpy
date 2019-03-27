@@ -54,7 +54,7 @@ init -9 python:
             self.baseAP = 3
             #self.AP = 3        # Remaining AP for the day - initialized later
             #self.setAP = 1     # This is set to the AP calculated for that day.
-            self.jobpoints = 0
+            self.PP = 0         # Remaining PP (partial AP) for the day (100PP == 1AP)
 
             # Locations and actions, most are properties with setters and getters.
             #                    Home        Workplace         Job  Action  Task        Location 
@@ -778,6 +778,7 @@ init -9 python:
             if ap > 0 and "Injured" in self.effects:
                 ap -= 1
             self.AP = ap
+            self.PP = 0
 
         def take_ap(self, value):
             """
@@ -785,10 +786,22 @@ init -9 python:
             Returns False if there is not enough Action points.
             This one is useful for game events.
             """
-            if self.AP - value >= 0:
+            if self.AP >= value:
                 self.AP -= value
                 return True
             return False
+
+        def take_pp(self, value):
+            ap = self.AP
+            while self.PP < value:
+                if ap <= 0:
+                    return False
+                ap -= 1
+                value -= 100
+            self.AP = ap
+            if value != 0:
+                self.PP -= value
+            return True
 
         # Logging and updating daily stats change on next day:
         def log_stats(self):
@@ -1831,7 +1844,6 @@ init -9 python:
             return char in self.lovers
 
         def next_day(self):
-            self.jobpoints = 0
             self.clear_img_cache()
 
             self.up_counter("days_in_game")
@@ -2070,8 +2082,12 @@ init -9 python:
             return self._chars
 
         def add_char(self, char):
-            if char not in self._chars:
-                self._chars.append(char)
+            if char in self._chars:
+                raise Exception, "This char (ID: %s) is already in service to the player!!!" % self.id
+
+            self._chars.append(char)
+
+            char.baseAP -= 1 # reduce available AP (the char spends it on shopping, self-time, etc...)
 
         def remove_char(self, char):
             if char in self._chars:
@@ -2087,6 +2103,7 @@ init -9 python:
                         if char in team:
                             team.remove(char)
 
+                char.baseAP += 1 # restore available AP
             else:
                 raise Exception, "This char (ID: %s) is not in service to the player!!!" % self.id
 
@@ -2308,8 +2325,6 @@ init -9 python:
             self.location = "slavemarket"
 
             self.rank = 1
-
-            self.baseAP = 2
 
             # Can set character specific event for recapture
             self.runaway_look_event = "escaped_girl_recapture"

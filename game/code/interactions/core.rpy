@@ -141,7 +141,6 @@ init -1 python:
             # Current interaction
             self.char = None
             self.img = None
-            self.gm_points = 0
 
             # Cells
             self.girlcells = dict()
@@ -241,17 +240,14 @@ init -1 python:
             # If the action costs AP:
             if not free:
                 # If we have no more points
-                if not self.gm_points and hero.AP <= 0:
-                    renpy.show_screen("message_screen", "You have no Action Points left!")
+                if hero.PP < 25 and hero.AP <= 0:
+                    renpy.show_screen("message_screen", "You don't have time (Action Points) for that!")
                     return
-                else:
-                    # Take AP
-                    if not self.gm_points:
-                        hero.take_ap(1)
-                        self.gm_points = 3
+                if not self.char.take_pp(25):
+                    renpy.show_screen("message_screen", "%s doesn't have time (Action Points) for that!" % self.char.pC)
+                    return
 
-                # Take points
-                self.gm_points -= 1
+                hero.take_pp(25)
 
             # Notify and jump
             self.show_menu = False

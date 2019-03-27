@@ -214,6 +214,7 @@ screen char_profile():
     default stats_display = "main"
 
     if girls:
+        $ char_is_controlled = controlled_char(char)
         # Picture and left/right buttons ====================================>
         frame:
             background Frame("content/gfx/frame/p_frame6.png", 10, 10)
@@ -225,7 +226,7 @@ screen char_profile():
                 background store.bg
                 hover_background store.hbg
                 action Hide("char_profile"), With(dissolve), Function(gm.start_int, char, img=gm_img)
-                sensitive controlled_char(char)
+                sensitive char_is_controlled
                 tooltip "Click to interact with %s!\n%s" % (char.nickname, char.desc)
                 add store.img
                 alternate Return(['control', 'return']) # keep in sync with mousedown_3
@@ -317,7 +318,7 @@ screen char_profile():
                         text_size 18
                         pos 100, 47
                     action Show("char_rename", char=char)
-                    sensitive controlled_char(char)
+                    sensitive char_is_controlled
                     tooltip "Click to rename {} (renaming is limited for free girls).".format(char.fullname)
 
                 label "Tier:  [char.tier]":
@@ -370,7 +371,7 @@ screen char_profile():
                             else: # Can't set home for free chars, they decide it on their own.
                                 action NullAction()
                                 tooltip "%s is a free citizen and decides on where to live at!" % char.nickname
-                            sensitive controlled_char(char)
+                            sensitive char_is_controlled
                             text "[char.home]" size 18
                     hbox:
                         add circle_green yalign 0.5 xoffset -2
@@ -382,7 +383,7 @@ screen char_profile():
                             style_group "ddlist"
                             xalign .0
                             action Return(["dropdown", "workplace", char])
-                            sensitive controlled_char(char)
+                            sensitive char_is_controlled
                             tooltip "Choose a place for %s to work at!" % char.nickname
                             text "[char.workplace]" size 18
                     hbox:
@@ -395,13 +396,13 @@ screen char_profile():
                             style_group "ddlist"
                             xalign .0
                             action Return(["dropdown", "action", char])
-                            sensitive controlled_char(char)
+                            sensitive char_is_controlled
                             tooltip "Choose a task for %s to do!" % char.nickname
                             text "[char.action]" size 18
 
             hbox:
                 pos (10, 200)
-                if controlled_char(char):
+                if char_is_controlled:
                     if char in hero.team:
                         imagebutton:
                             idle im.Scale("content/gfx/interface/buttons/RG.png", 27, 30)
@@ -662,19 +663,19 @@ screen char_profile():
                     button:
                         xysize (150, 40)
                         action Show("char_control")
-                        sensitive controlled_char(char)
+                        sensitive char_is_controlled
                         tooltip "Set desired behavior for %s!" % char.op
                         text "Controls"
                     button:
                         xysize (150, 40)
                         action Hide("char_profile"), SetVariable("came_to_equip_from", "char_profile"), SetVariable("eqtarget", char), SetVariable("equip_girls", girls), Jump('char_equip')
-                        sensitive controlled_char(char)
+                        sensitive char_is_controlled
                         tooltip "Manage %s inventory and equipment!" % char.pp
                         text "Equipment"
                     button:
                         xysize (150, 40)
                         action [Hide("char_profile"), With(dissolve), Return(["girl", "gallery"])]
-                        sensitive controlled_char(char)
+                        sensitive char_is_controlled
                         tooltip "View %s gallery!\n(building a gallery may take some time for large packs)" % char.pp
                         text "Gallery"
 
@@ -683,19 +684,19 @@ screen char_profile():
                     button:
                         xysize (150, 40)
                         action Hide("char_profile"), With(dissolve), Jump('school_training')
-                        sensitive controlled_char(char)
+                        sensitive char_is_controlled
                         tooltip "Send %s to School!" % char.op
                         text "Training"
                     button:
                         xysize (150, 40)
                         action Show("finances", None, char, mode="logical")
-                        sensitive controlled_char(char)
+                        sensitive char_is_controlled
                         tooltip "Review Finances!"
                         text "Finances"
                     button:
                         xysize (150, 40)
                         action Return(["girl", "get_rid"])
-                        sensitive controlled_char(char)
+                        sensitive char_is_controlled
                         tooltip "Get rid of %s!" % char.op
                         if char.status == "slave":
                             text "Sell"
@@ -707,7 +708,10 @@ screen char_profile():
                 xalign .5 ypos 160
                 xysize 300, 90
                 background ProportionalScale("content/gfx/frame/frame_ap.webp", 300, 100)
-                label ("[char.AP]"):
+                $ temp = char.AP
+                if not char_is_controlled:
+                    $ temp -= 1 # reduced AP is available when the character is hired
+                label ("[temp]"):
                     pos (200, 0)
                     style "content_label"
                     text_color "ivory"

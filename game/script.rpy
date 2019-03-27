@@ -668,6 +668,10 @@ label after_load:
             clearCharacters = True
         if "ring" in hero.eqslots:
             clearCharacters = True
+        if not hasattr(hero, "PP"):
+            hero.PP = store.gm.gm_points * 25
+            del store.gm.gm_points
+            clearCharacters = True
         if isinstance(simple_jobs["Manager"], Manager):
             pmj = simple_jobs["Manager"]
             mj = ManagerJob()
@@ -985,6 +989,11 @@ label after_load:
                         del char.eqslots["ring"]
                     if char.last_known_aeq_purpose == "":
                         char.last_known_aeq_purpose = None
+                if not hasattr(char, "PP"):
+                    char.PP = char.jobpoints
+                    del char.jobpoints
+                    if char not in hero.chars:
+                        char.baseAP += 1 
 
                 if char.has_flag("drunk_counter"):
                     char.set_flag("dnd_drunk_counter", char.get_flag("drunk_counter"))

@@ -1064,7 +1064,7 @@ init -10 python:
                     # not enough capacity to handle the client 
                     # Wait for the business to open in case of a favorite:
                     if any((not self.asks_clients_to_wait,
-                            self.manager_effectiveness == 0 or self._dnd_manager.jobpoints == 0,
+                            self.manager_effectiveness == 0 or self._dnd_manager.PP == 0,
                             business != fav_business,
                             self.env.now > 85)):
                         continue # no one can help -> skip
@@ -1075,7 +1075,7 @@ init -10 python:
                     self.log(temp)
 
                     self._dnd_manager._dnd_mlog.append("\nAsked a client to wait for a spot in {} to open up!".format(fav_business.name))
-                    self._dnd_manager.jobpoints -= 1
+                    self._dnd_manager.PP -= 1
 
                     # the actual waiting
                     for i in range(5):

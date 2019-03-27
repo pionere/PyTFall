@@ -66,10 +66,10 @@ init -5 python:
                         threat_cleared += value
                         defenders.add(w)
 
-                        # Adjust JP and Remove the clear after running out of jobpoints:
-                        w.jobpoints -= 5
+                        # Adjust PP and Remove the worker after running out of action points:
+                        w.PP -= 5
                         w.up_counter("jobs_points_spent", 5)
-                        if w.jobpoints <= 0:
+                        if w.PP <= 0:
                             temp = "%s is done guarding for the day!" % w.nickname
                             temp = set_font_color(temp, "cadetblue")
                             self.log(temp, True)

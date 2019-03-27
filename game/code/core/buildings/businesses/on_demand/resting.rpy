@@ -135,7 +135,7 @@ init -5 python:
             # About 5 days for full mp recovery.
             # TODO Maybe use home bonuses???
             convert_ap_to_jp(worker)
-            jp = worker.jobpoints
+            jp = worker.PP
             init_jp = worker.setAP*100
 
             ratio = float(jp)/(init_jp or 300)
@@ -155,7 +155,7 @@ init -5 python:
                 return
 
             for i in range(3):
-                worker.jobpoints -= jp_step
+                worker.PP -= jp_step
 
                 value = round_int(health/3)
                 log.logws('health', value)
@@ -172,8 +172,8 @@ init -5 python:
                 if self.is_rested(worker):
                     break
 
-            if worker.jobpoints < 0:
-                worker.jobpoints = 0
+            if worker.PP < 0:
+                worker.PP = 0
 
         def is_rested(self, worker):
             c0 = worker.get_stat("vitality") >= worker.get_max("vitality")*.95

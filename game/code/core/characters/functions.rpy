@@ -145,13 +145,7 @@ init -11 python:
     # GUI helpers:
     def controlled_char(char):
         # used in chars profile, most user interface options disabled if this returns False.
-        global char_profile_entry
-        if char_profile_entry == "employment_agency":
-            return False
-        elif not char.is_available:
-            return False
-
-        return True
+        return char in hero.chars and char.is_available
 
     # Characters related:
     def get_first_name(sex="female"):
