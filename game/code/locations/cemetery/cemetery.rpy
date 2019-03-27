@@ -1,8 +1,7 @@
 label graveyard_town:
     $ gm.enter_location(goodtraits=["Undead", "Divine Creature", "Demonic Creature"],
                         badtraits=["Elf", "Android", "Monster", "Human", "Furry"],
-                        curious_priority=False)
-    $ coords = [[.1, .55], [.5, .84], [.92, .45]]
+                        curious_priority=False, coords=[[.1, .55], [.5, .84], [.92, .45]])
     # Music
     if not global_flags.has_flag("keep_playing_music"):
         $ PyTFallStatic.play_music("cemetery", fadein=.5)
@@ -168,7 +167,7 @@ screen graveyard_town():
     if gm.show_girls:
         key "mousedown_3" action ToggleField(gm, "show_girls")
         add "content/gfx/images/bg_gradient.webp" yalign .45
-        for j, entry in enumerate(gm.display_girls()):
+        for entry, pos in zip(gm.display_girls(), gm.coords):
             hbox:
-                align (coords[j])
+                align pos
                 use rg_lightbutton(return_value=['jump', entry])

@@ -1,8 +1,8 @@
 #Angelica
 
 label mages_tower:
-    $ gm.enter_location(goodtraits=["Psychic"], badtraits=["Indifferent"], goodoccupations=["Caster"], badoccupations=["SIW"], curious_priority=True)
-    $ coords = [[.07, .8], [.57, .64], [.93, .61]]
+    $ gm.enter_location(goodtraits=["Psychic"], badtraits=["Indifferent"], goodoccupations=["Caster"], badoccupations=["SIW"],
+                        curious_priority=True, coords=[[.07, .8], [.57, .64], [.93, .61]])
     # Music related:
     if not global_flags.has_flag("keep_playing_music"):
         $ PyTFallStatic.play_music("mages_tower")
@@ -52,7 +52,7 @@ screen mages_tower():
 
         add "content/gfx/images/bg_gradient.webp" yalign .45
 
-        for j, entry in enumerate(gm.display_girls()):
+        for entry, pos in zip(gm.display_girls(), gm.coords):
             hbox:
-                align (coords[j])
+                align pos
                 use rg_lightbutton(return_value=['jump', entry])

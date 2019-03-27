@@ -1,6 +1,6 @@
 label city_beach_right:
-    $ gm.enter_location(goodtraits=["Not Human", "Alien"], badtraits=["Shy", "Coward", "Homebody", "Human"], curious_priority=False)
-    $ coords = [[.4, .9], [.6, .8], [.9, .7]]
+    $ gm.enter_location(goodtraits=["Not Human", "Alien"], badtraits=["Shy", "Coward", "Homebody", "Human"],
+                        curious_priority=False, coords=[[.4, .9], [.6, .8], [.9, .7]])
     python:
         # Build the actions
         if pytfall.world_actions.location("city_beach_right"):
@@ -57,7 +57,7 @@ screen city_beach_right():
 
         add "content/gfx/images/bg_gradient.webp" yalign .45
         
-        for j, entry in enumerate(gm.display_girls()):
+        for entry, pos in zip(gm.display_girls(), gm.coords):
             hbox:
-                align (coords[j])
+                align pos
                 use rg_lightbutton(return_value=['jump', entry])

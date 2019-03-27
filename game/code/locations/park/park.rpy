@@ -1,6 +1,6 @@
 label city_park:
-    $ gm.enter_location(goodtraits=["Elf", "Furry"], badtraits=["Aggressive", "Adventurous"], curious_priority=False)
-    $ coords = [[.1, .7], [.4, .45], [.74, .73]]
+    $ gm.enter_location(goodtraits=["Elf", "Furry"], badtraits=["Aggressive", "Adventurous"],
+                        curious_priority=False, coords=[[.1, .7], [.4, .45], [.74, .73]])
     python:
         # Build the actions
         if pytfall.world_actions.location("city_park"):
@@ -54,9 +54,9 @@ screen city_park():
     if gm.show_girls:
         key "mousedown_3" action ToggleField(gm, "show_girls")
         add "content/gfx/images/bg_gradient.webp" yalign .45
-        for j, entry in enumerate(gm.display_girls()):
+        for entry, pos in zip(gm.display_girls(), gm.coords):
             hbox:
-                align (coords[j])
+                align pos
                 use rg_lightbutton(return_value=['jump', entry])
 
     if not gm.show_girls:

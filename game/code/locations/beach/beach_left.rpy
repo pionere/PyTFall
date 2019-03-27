@@ -1,6 +1,6 @@
 label city_beach_left:
-    $ gm.enter_location(goodtraits=["Athletic", "Dawdler"], badtraits=["Scars", "Undead", "Furry", "Monster"], curious_priority=False)
-    $ coords = [[.15, .5], [.5, .45], [.7, .8]]
+    $ gm.enter_location(goodtraits=["Athletic", "Dawdler"], badtraits=["Scars", "Undead", "Furry", "Monster"],
+                        curious_priority=False, coords=[[.15, .5], [.5, .45], [.7, .8]])
     # Music related:
     if not global_flags.has_flag("keep_playing_music"):
         $ PyTFallStatic.play_music("beach_main")
@@ -91,9 +91,9 @@ screen city_beach_left():
 
         add "content/gfx/images/bg_gradient.webp" yalign .45
 
-        for j, entry in enumerate(gm.display_girls()):
+        for entry, pos in zip(gm.display_girls(), gm.coords):
             hbox:
-                align (coords[j])
+                align pos
                 use rg_lightbutton(return_value=['jump', entry])
 
 label mc_action_city_beach_rest:

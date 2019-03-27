@@ -126,8 +126,8 @@ init python:
         return books
 
 label academy_town:
-    $ gm.enter_location(badtraits=["Adventurous", "Slime", "Monster"], curious_priority=True, has_tags=["girlmeets", "schoolgirl"])
-    $ coords = [[.1, .55], [.45, .64], [.86, .65]]
+    $ gm.enter_location(badtraits=["Adventurous", "Slime", "Monster"], has_tags=["girlmeets", "schoolgirl"],
+                        curious_priority=True, coords=[[.1, .55], [.45, .64], [.86, .65]])
     # Music
     if not global_flags.has_flag("keep_playing_music"):
         $ PyTFallStatic.play_music("library", fadein=.5)
@@ -250,9 +250,9 @@ screen academy_town():
 
         add "content/gfx/images/bg_gradient.webp" yalign .45
 
-        for j, entry in enumerate(gm.display_girls()):
+        for entry, pos in zip(gm.display_girls(), gm.coords):
             hbox:
-                align (coords[j])
+                align pos
                 use rg_lightbutton(return_value=['jump', entry])
 
 label library_read_matrix:

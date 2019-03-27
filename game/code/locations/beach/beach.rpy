@@ -1,6 +1,6 @@
 label city_beach:
-    $ gm.enter_location(goodtraits=["Energetic", "Exhibitionist"], badtraits=["Scars", "Undead", "Furry", "Monster", "Not Human"], curious_priority=False)
-    $ coords = [[.14, .65], [.42, .6], [.85, .45]]
+    $ gm.enter_location(goodtraits=["Energetic", "Exhibitionist"], badtraits=["Scars", "Undead", "Furry", "Monster", "Not Human"],
+                        curious_priority=False, coords=[[.14, .65], [.42, .6], [.85, .45]])
 
     # Music related:
     if not global_flags.has_flag("keep_playing_music"):
@@ -94,9 +94,9 @@ screen city_beach():
         key "mousedown_3" action ToggleField(gm, "show_girls")
 
         add "content/gfx/images/bg_gradient.webp" yalign .45
-        for j, entry in enumerate(gm.display_girls()):
+        for entry, pos in zip(gm.display_girls(), gm.coords):
             hbox:
-                align (coords[j])
+                align pos
                 use rg_lightbutton(return_value=['jump', entry])
 
 screen city_beach_swim():

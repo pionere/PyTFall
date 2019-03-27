@@ -139,6 +139,7 @@ init -1 python:
             self.img_cache = Null()
 
             # Current interaction
+            self.coords = None # list of positions to show the portraits in the GmCell
             self.char = None
             self.img = None
 
@@ -334,13 +335,14 @@ init -1 python:
             """
             self.start("girl_trainings", char, img, exit, bg)
 
-        def enter_location(self, **kwargs):
+        def enter_location(self, coords=None, **kwargs):
             """
             Enters the current location for the GM system.
             """
             self.label_cache = str(last_label)
             self.bg_cache = " ".join(["bg", self.label_cache])
             self.show_girls = False
+            self.coords = coords
 
             # Creation:
             if self.label_cache not in self.girlcells:

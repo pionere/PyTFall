@@ -1,6 +1,6 @@
 label swimming_pool:
-    $ gm.enter_location(has_tags=["girlmeets", "swimsuit"], has_no_tags=["beach", "sleeping"], curious_priority=False)
-    $ coords = [[.2, .45], [.42, .6], [.7, .5]]
+    $ gm.enter_location(has_tags=["girlmeets", "swimsuit"], has_no_tags=["beach", "sleeping"],
+                        curious_priority=False, coords=[[.2, .45], [.42, .6], [.7, .5]])
     # Music
     if not global_flags.has_flag("keep_playing_music"):
         $ PyTFallStatic.play_music("swimming_pool")
@@ -77,9 +77,9 @@ screen swimming_pool():
 
         add "content/gfx/images/bg_gradient.webp" yalign .45
 
-        for j, entry in enumerate(gm.display_girls()):
+        for entry, pos in zip(gm.display_girls(), gm.coords):
             hbox:
-                align (coords[j])
+                align pos
                 use rg_lightbutton(return_value=['jump', entry])
 
 screen swimmong_pool_swim():

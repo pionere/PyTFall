@@ -1,6 +1,5 @@
 label hiddenvillage_entrance:
-    $ gm.enter_location(limited_location=True)
-    $ coords = [[.2, .25], [.55, .2], [.8, .18]]
+    $ gm.enter_location(limited_location=True, coords=[[.2, .25], [.55, .2], [.8, .18]])
     # Music
     if not global_flags.has_flag("keep_playing_music"):
         $ PyTFallStatic.play_music("village", fadein=.5)
@@ -55,9 +54,9 @@ screen hiddenvillage_entrance:
 
         add "content/gfx/images/bg_gradient.webp" yalign .45
 
-        for j, entry in enumerate(gm.display_girls()):
+        for entry, pos in zip(gm.display_girls(), gm.coords):
             hbox:
-                align (coords[j])
+                align pos
                 use rg_lightbutton(return_value=['jump', entry])
 
 label hidden_village_shop: # ninja shop logic

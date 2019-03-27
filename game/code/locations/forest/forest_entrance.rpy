@@ -1,6 +1,6 @@
 label forest_entrance:
-    $ gm.enter_location(goodtraits=["Furry", "Monster", "Scars", "Adventurous"], badtraits=["Homebody", "Coward", "Exhibitionist", "Human"], curious_priority=True)
-    $ coords = [[.1, .7], [.39, .84], [.88, .71]]
+    $ gm.enter_location(goodtraits=["Furry", "Monster", "Scars", "Adventurous"], badtraits=["Homebody", "Coward", "Exhibitionist", "Human"],
+                        curious_priority=True, coords=[[.1, .7], [.39, .84], [.88, .71]])
     # Music related:
     if not global_flags.has_flag("keep_playing_music"):
         $ PyTFallStatic.play_music("forest_entrance")
@@ -73,9 +73,9 @@ screen forest_entrance():
         key "mousedown_3" action ToggleField(gm, "show_girls")
 
         add "content/gfx/images/bg_gradient.webp" yalign .45
-        for j, entry in enumerate(gm.display_girls()):
+        for entry, pos in zip(gm.display_girls(), gm.coords):
             hbox:
-                align (coords[j])
+                align pos
                 use rg_lightbutton(return_value=['jump', entry])
 
     if not gm.show_girls:

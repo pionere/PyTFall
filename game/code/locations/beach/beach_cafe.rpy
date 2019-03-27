@@ -1,6 +1,6 @@
 label city_beach_cafe:
-    $ gm.enter_location(goodtraits=["Athletic", "Dawdler", "Always Hungry"], badtraits=["Scars", "Undead", "Furry", "Monster"], curious_priority=False)
-    $ coords = [[.2, .75], [.5, .65], [.87, .6]]
+    $ gm.enter_location(goodtraits=["Athletic", "Dawdler", "Always Hungry"], badtraits=["Scars", "Undead", "Furry", "Monster"],
+                        curious_priority=False, coords=[[.2, .75], [.5, .65], [.87, .6]])
     $ global_flags.set_flag("keep_playing_music")
 
     python:
@@ -59,7 +59,7 @@ screen city_beach_cafe:
 
         add "content/gfx/images/bg_gradient.webp" yalign .45
 
-        for j, entry in enumerate(gm.display_girls()):
+        for entry, pos in zip(gm.display_girls(), gm.coords):
             hbox:
-                align (coords[j])
+                align pos
                 use rg_lightbutton(return_value=['jump', entry])

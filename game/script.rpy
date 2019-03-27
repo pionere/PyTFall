@@ -696,6 +696,9 @@ label after_load:
             del store.businesses
         if hasattr(store, "adverts"):
             del store.adverts
+        if not hasattr(store.gm, "coords"):
+            store.gm.coords = store.coords
+            del store.coords
 
         if not hasattr(TapBeer, "ID"):
             load_buildings()

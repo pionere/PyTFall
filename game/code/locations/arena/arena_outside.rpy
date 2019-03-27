@@ -26,8 +26,8 @@ init -9 python:
 label arena_outside:
     $ setup_xeona()
     if not global_flags.has_flag("menu_return"):
-        $ gm.enter_location(goodtraits=["Manly", "Courageous", "Aggressive"], badtraits=["Coward", "Nerd", "Homebody"], goodoccupations=["Combatant"], curious_priority=False)
-        $ coords = [[.1, .6], [.59, .64], [.98, .61]]
+        $ gm.enter_location(goodtraits=["Manly", "Courageous", "Aggressive"], badtraits=["Coward", "Nerd", "Homebody"],
+                            goodoccupations=["Combatant"], curious_priority=False, coords=[[.1, .6], [.59, .64], [.98, .61]])
         # Music related:
         if not global_flags.has_flag("keep_playing_music"):
             $ PyTFallStatic.play_music("arena_outside")
@@ -36,11 +36,11 @@ label arena_outside:
         scene bg arena_outside
         with dissolve
 
-        $ ax = npcs["Xeona_arena"].say
 
         # Texts: ---------------------------------------------------------->
         if not global_flags.flag("visited_arena"):
             $ global_flags.set_flag("visited_arena")
+            $ ax = npcs["Xeona_arena"].say
             'You see a pretty, confident girl approaching you.'
             show expression xeona_status.sprite as xeona
             with dissolve
@@ -95,6 +95,7 @@ label xeona_goodbye:
     ax "Find me if you need anything, I'm always here."
     hide xeona with dissolve
     $ global_flags.set_flag("menu_return")
+    $ del ax
     jump arena_outside
 
 label xeona_talking:
@@ -347,9 +348,9 @@ screen arena_outside:
         key "mousedown_3" action ToggleField(gm, "show_girls")
 
         add "content/gfx/images/bg_gradient.webp" yalign .45
-        for j, entry in enumerate(gm.display_girls()):
+        for entry, pos in zip(gm.display_girls(), gm.coords):
             hbox:
-                align (coords[j])
+                align pos
                 use rg_lightbutton(return_value=['jump', entry])
 
 screen xeona_screen():
