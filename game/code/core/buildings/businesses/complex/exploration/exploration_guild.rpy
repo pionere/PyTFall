@@ -115,9 +115,9 @@ init -6 python: # Guild, Tracker and Log.
 
             # This is the general items that can be found at any exploration location,
             # Limited by price:
-            self.exploration_items = dict([(item.id, item.chance) for item in store.items.values() if
+            self.exploration_items = {item.id: item.chance for item in store.items.values() if
                                           "Exploration" in item.locations and
-                                          area.items_price_limit >= item.price])
+                                          area.items_price_limit >= item.price}
 
             # We assume that it's never right outside of the city walls:
             self.base_distance = max(area.travel_time, 6)
@@ -132,13 +132,14 @@ init -6 python: # Guild, Tracker and Log.
             self.mobs_defeated = defaultdict(int)
             self.found_items = list()
             self.captured_chars = list()
+            self.found_areas = set()
             self.cash = list()
             self.daily_items = None
 
             self.flag_red = False
             self.flag_green = False
             self.logs = list() # List of all log object we create during this exploration run.
-            self.team_charmod = dict([(w, {}) for w in team])
+            self.team_charmod = {w: {} for w in team}
             self.died = list()
 
         def get_team_ability(self):
@@ -234,7 +235,14 @@ init -6 python: # Guild, Tracker and Log.
                         mod_by_max("mp", .25)
                         mod_by_max("vitality", .25)
 
-                #ratio = _self_.env.now/100.0 
+                for key in self.found_areas:
+                    if not fg_areas[key]:
+                        fg_areas[key] = True
+                        temp = "As they arrived back to the Guild, they excitedly report about a new path they found in the wilderness. It leads to %s and might worth to explore!" % key
+                        temp = set_font_color(temp, "lime")
+                        self.log(temp)
+                        self.green_flag = True
+
                 for char in team:
                     #char.AP -= round_int(char.setAP*ratio)
                     #if char.AP < 0:
@@ -837,10 +845,7 @@ init -6 python: # Guild, Tracker and Log.
                         ep = area.get_explored_percentage()
                         for key, value in area.unlocks.items():
                             if value <= ep and not fg_areas[key].unlocked:
-                                fg_areas[key].unlocked = True
-                                temp = "Found a new path in the wilderness. It might worth to explore %s!" % key
-                                temp = set_font_color(temp, "lime")
-                                tracker.log(temp)
+                                tracker.found_areas.add(key)
                     tracker.logws("exploration")
 
                 # Hazzard:
