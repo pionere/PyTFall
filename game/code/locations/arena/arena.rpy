@@ -630,8 +630,8 @@ init -9 python:
                         self.arena_fighters[member.id] = member
 
                         tier_up_to(member, tier)
-                        auto_buy_for_bt(member)
                         give_tiered_magic_skills(member)
+                        auto_buy_for_bt(member)
 
                     member.arena_active = True
                     #member.arena_permit = True
@@ -701,8 +701,8 @@ init -9 python:
                 if candidates:
                     char = candidates.pop()
                     tier_up_to(char, 7, **tier_kwargs)
-                    auto_buy_for_bt(char)
                     give_tiered_magic_skills(char)
+                    auto_buy_for_bt(char)
                 else:
                     char = build_rc(tier=7,
                                     tier_kwargs=tier_kwargs,
@@ -735,8 +735,8 @@ init -9 python:
                     new_candidates.append(fighter)
                 else:
                     tier_up_to(fighter, tier)
-                    auto_buy_for_bt(fighter)
                     give_tiered_magic_skills(fighter)
+                    auto_buy_for_bt(fighter)
 
                 #fighter.arena_active = True
                 #fighter.arena_permit = True
@@ -876,7 +876,7 @@ init -9 python:
             renpy.music.stop(channel="world")
             global battle
             if auto is True:
-                battle = new_style_conflict_resolver(hero.team, team, ai="complex")
+                battle = new_style_conflict_resolver(hero.team, team, simple_ai=False)
             else:
                 renpy.play(choice(["content/sfx/sound/world/arena/prepare.mp3", "content/sfx/sound/world/arena/new_opp.mp3"]))
                 track = get_random_battle_track()
@@ -989,8 +989,7 @@ init -9 python:
 
         def auto_resolve_combat(self, off_team, def_team, type="dog_fight"):
 
-            battle = new_style_conflict_resolver(off_team, def_team,
-                     battle_kwargs={"max_turns": 15*(len(off_team)+len(def_team))})
+            battle = new_style_conflict_resolver(off_team, def_team, simple_ai=True)
 
             winner = battle.winner
             loser = off_team if winner == def_team else def_team

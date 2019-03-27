@@ -73,25 +73,24 @@ init -11 python:
             if new_results: return "D", exp
             else: return "defeat"
 
-    def new_style_conflict_resolver(off_team, def_team, ai="simple", battle_kwargs=None):
-        if battle_kwargs is None:
-            battle_kwargs = {}
+    def new_style_conflict_resolver(off_team, def_team, simple_ai=True):
+        for fighter in chain(off_team, def_team):
+            # dress for fight - not needed at the moment
+            #if fighter.last_known_aeq_purpose not in FIGHTING_AEQ_PURPOSES and fighter.autoequip and fighter != hero:
+            #    fighter.equip_for("Fighting")
+            # create AI-controller
+            fighter.controller = BE_AI(fighter) if simple_ai else Complex_BE_AI(fighter)
 
-        chained = partial(chain, off_team, def_team)
+        max_turns=15*(len(off_team)+len(def_team))
 
-        store.battle = battle = BE_Core(logical=True, **battle_kwargs)
+        global battle
+        battle = BE_Core(logical=True, max_turns=max_turns)
         battle.teams = [off_team, def_team]
-
-        for fighter in chained():
-            if ai == "simple":
-                fighter.controller = BE_AI(fighter)
-            elif ai == "complex":
-                fighter.controller = Complex_BE_AI(fighter)
 
         if DEBUG_BE:
             msg = "\n    Custom Logical Combat Scenario ===================================================>>>>"
             msg += "\n{} VS {}".format(str([c.name for c in off_team.members]), str([c.name for c in def_team.members]))
-            msg += "\nUsing {} ai.".format(ai)
+            msg += "\nUsing simple ai: {}.".format(simple_ai)
             be_debug(msg)
 
         tl.start("logical combat: BATTLE")
@@ -157,8 +156,7 @@ init -11 python:
                     music=track, quotes=prebattle,
                     max_skill_lvl=skill_lvl, give_up=give_up,
                     use_items=use_items)
-        battle.teams.append(your_team)
-        battle.teams.append(enemy_team)
+        battle.teams = [your_team, enemy_team]
         battle.start_battle()
 
         your_team.reset_controller()

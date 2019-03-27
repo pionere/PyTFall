@@ -46,10 +46,14 @@ label interactions_harrasment_after_battle: # after MC provoked a free character
                 invs = [i for i in char.inventory.items.keys() if i.price <= 1000 and can_transfer(char, hero, i, silent=True, force=True)]
                 if equips or invs:
                     temp = choice(equips + invs)
+                    narrator("On %s you found %s!" % (char.op, temp.id))
+                    reequip = False
                     if temp not in invs:
                         char.unequip(temp)
-                    narrator("On %s you found %s!" % (char.op, temp.id))
+                        reequip = True
                     transfer_items(char, hero, temp, amount=1, silent=True, force=True)
+                    if reequip:
+                        char.equip_for(char.last_known_aeq_purpose)
                     char.gfx_mod_stat("disposition", -randint(20, 45))
                     char.gfx_mod_stat("affection", -randint(3,5))
                 else:

@@ -229,8 +229,7 @@ label city_dark_forest_fight:
     python hide:
         mob = choice(["slime", "were", "harpy", "goblin", "wolf", "bear",
                       "druid", "rat", "undead", "butterfly"])
-        et_len = min(len(hero.team) + 1, 3)
-
+        et_len = 3
         if mob == "slime":
             msg = "You encountered a small group of predatory slimes."
             mob_ids = ["Alkaline Slime", "Slime", "Acid Slime"]
@@ -243,11 +242,9 @@ label city_dark_forest_fight:
         elif mob == "goblin":
             msg = "You find yourself surrounded by a group of goblins."
             mob_ids = ["Goblin", "Goblin Archer", "Goblin Warrior", "Goblin Shaman"]
-            et_len = 3
         elif mob == "wolf":
             msg = "A pack of wolves picks you for dinner."
             mob_ids = ["Wolf", "Black Wolf"]
-            et_len = 3
         elif mob == "bear":
             msg = "You disturbed an angry bear."
             mob_ids = ["Bear", "Beargirl"]
@@ -261,7 +258,6 @@ label city_dark_forest_fight:
         elif mob == "undead":
             msg = "A group of decayed skeletons rise from the ground."
             mob_ids = ["Skeleton", "Skeleton Warrior"]
-            et_len = 3
         else:
             msg = "You encountered a small group of aggressive giant butterflies."
             mob_ids = ["Black Butterfly"]
