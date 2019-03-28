@@ -1,7 +1,7 @@
 # Characters classes and methods:
 init -9 python:
     class STATIC_CHAR():
-        __slots__ = ("STATS", "SKILLS", "GEN_OCCS", "STATUS", "ORIGIN", "MOOD_TAGS", "UNIQUE_SAY_SCREEN_PORTRAIT_OVERLAYS", "BASE_UPKEEP", "BASE_WAGES", "TRAININGS", "FIXED_MAX", "SEX_SKILLS", "PREFS")
+        __slots__ = ("STATS", "SKILLS", "GEN_OCCS", "STATUS", "ORIGIN", "MOOD_TAGS", "UNIQUE_SAY_SCREEN_PORTRAIT_OVERLAYS", "BASE_UPKEEP", "BASE_WAGES", "TRAININGS", "FIXED_MAX", "DEGRADING_STATS", "SEX_SKILLS", "PREFS")
         STATS =  {"charisma", "constitution", "joy", "character", "fame", "reputation",
                   "health", "mood", "disposition", "affection", "vitality", "intelligence",
                   "luck", "attack", "magic", "defence", "agility", "mp"}
@@ -23,7 +23,8 @@ init -9 python:
         TRAININGS = {"Abby Training": "Abby the Witch",
                      "Aine Training": "Aine",
                      "Xeona Training": "Xeona"}
-        FIXED_MAX = {"joy", "mood", "disposition", "affection", "vitality", "luck"}
+        FIXED_MAX = {"joy":200, "mood":1000, "disposition":1000, "affection":1000, "vitality":200, "luck":50}
+        DEGRADING_STATS = ["constitution", "fame", "reputation", "intelligence", "attack", "magic", "defence", "agility"]
         SEX_SKILLS = {"vaginal", "anal", "oral", "sex", "group", "bdsm"}
         PREFS = {"gold", "fame", "reputation", "arena_rep", "charisma", "constitution", # "character",
                   "intelligence", "attack", "magic", "defence", "agility", "luck",
@@ -127,20 +128,20 @@ init -9 python:
 
             # Stat support Dicts:
             stats = {
-                'charisma': [5, 0, 50, 60],          # means [stat, min, max, lvl_max]
+                'charisma': [5, 0, 50, 60],           # means [stat, min, max, lvl_max]
                 'constitution': [5, 0, 50, 60],
-                'joy': [50, 0, 100, 200],
+                'joy': [50, 0, 100, 200],             # FIXED_MAX
                 'character': [5, 0, 50, 60],
                 'reputation': [0, 0, 100, 100],
                 'health': [100, 0, 100, 200],
                 'fame': [0, 0, 100, 100],
-                'mood': [0, 0, 1000, 1000], # not used...
-                'disposition': [0, -1000, 1000, 1000],
-                'affection': [0, -1000, 1000, 1000],
-                'vitality': [100, 0, 100, 200],
+                'mood': [0, 0, 1000, 1000],           # FIXED_MAX not used...
+                'disposition': [0, -1000, 1000, 1000],# FIXED_MAX
+                'affection': [0, -1000, 1000, 1000],  # FIXED_MAX
+                'vitality': [100, 0, 100, 200],       # FIXED_MAX
                 'intelligence': [5, 0, 50, 60],
 
-                'luck': [0, -50, 50, 50],
+                'luck': [0, -50, 50, 50],             # FIXED_MAX
 
                 'attack': [5, 0, 50, 60],
                 'magic': [5, 0, 50, 60],
@@ -2254,6 +2255,18 @@ init -9 python:
             # Run the effects if they are available:
             for effect in self.effects.values():
                 effect.next_day(self)
+
+            # auto-degrading stats/skills
+            # FIXME should be done for all chars, but non-workers do not gain stats at the moment
+            #        might be merged with the degrading disposition/affection
+            for stat in STATIC_CHAR.DEGRADING_STATS:
+                value = self.get_stat(stat)/100
+                if value >= 1 and dice(value):
+                    self.stats._mod_base_stat(stat, -1)
+            for skill in STATIC_CHAR.SKILLS:
+                value = self.get_skill(skill)/100
+                if value >= 1 and dice(value):
+                    self.stats.mod_full_skill(skill, -1)
 
             txt = self.txt
             flag_red = False

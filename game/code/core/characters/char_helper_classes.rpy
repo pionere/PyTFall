@@ -22,8 +22,9 @@ init -10 python:
 
         # used in a number of places to guess what the max stat for n tier might be.
         def get_max_stat(self, stat, tier):
-            if stat in STATIC_CHAR.FIXED_MAX:
-                return self.stats.get_max(stat)
+            value = STATIC_CHAR.FIXED_MAX.get(stat, None)
+            if value is not None:
+                return value
 
             if tier is None:
                 tier = self.tier
@@ -37,13 +38,14 @@ init -10 python:
                 return self.stats.get_max(stat)
 
             if tier is None:
-                tier = self.tier or .5
+                tier = self.tier
+            if tier == 0:
+                tier = .5
 
             if stat in self.stats.get_base_stats():
                 per_tier = 100 # MAX_STAT_PER_TIER
             else:
                 per_tier = 50  # MAX_STAT_PER_TIER/2
-
             return per_tier * tier
 
         def recalculate_tier(self):
@@ -58,7 +60,6 @@ init -10 python:
             In case of one basetrait, we multiply result by 2!
             """
             if self.tier >= MAX_TIER:
-                #self.tier = MAX_TIER
                 return False
 
             target_tier = self.tier+1.0 # To get a float for Py2.7
@@ -117,7 +118,7 @@ init -10 python:
                 if total_points < 100:
                     return False
 
-            self.tier = min(MAX_TIER, self.tier+1)
+            self.tier += 1
             return True
 
         def calc_expected_wage(self, kind=None):
