@@ -115,7 +115,7 @@ screen hero_profile():
                     button:
                         xysize 20, 20
                         offset -6, -12
-                        background pscale("content/gfx/interface/icons/stars/legendary.png", 16, 16)
+                        background ProportionalScale("content/gfx/interface/icons/stars/legendary.png", 16, 16)
                         action NullAction()
                         tooltip "This is a Class Stat!"
 
@@ -161,9 +161,9 @@ screen hero_profile():
                         text stat.capitalize() xalign .02 color color
                         if stat in base_ss:
                             button:
-                                xysize 20, 20
+                                xysize 16, 16
                                 offset -5, -5
-                                background pscale("content/gfx/interface/icons/stars/legendary.png", 20, 20)
+                                background ProportionalScale("content/gfx/interface/icons/stars/legendary.png", 16, 16)
                                 action NullAction()
                                 tooltip "This is a Class Stat!"
                         $ temp, tmp = hero.get_stat(stat), hero.get_max(stat)
@@ -177,9 +177,9 @@ screen hero_profile():
                         text stat.capitalize() xalign .02 color "#79CDCD"
                         if stat in base_ss:
                             button:
-                                xysize 20, 20
+                                xysize 16, 16
                                 offset -5, -5
-                                background pscale("content/gfx/interface/icons/stars/legendary.png", 20, 20)
+                                background ProportionalScale("content/gfx/interface/icons/stars/legendary.png", 16, 16)
                                 action NullAction()
                                 tooltip "This is a Class Stat!"
                         text "%d/%d"%(hero.get_stat(stat), hero.get_max(stat)) xalign 1.0 style_suffix "value_text" xoffset -6 yoffset 4
@@ -241,40 +241,32 @@ screen hero_profile():
         elif lframe_display == "skills":
             null height 26
             viewport:
-                xysize (230, 500)
+                xysize (217, 500)
                 mousewheel True
                 vbox:
-                    xpos 10
                     spacing 1
                     for skill in hero.stats.skills:
                         $ skill_val = int(hero.get_skill(skill))
                         $ skill_limit = int(hero.get_max_skill(skill))
                         # We don't care about the skill if it's less than 10% of limit:
                         if skill in base_ss or skill_val/float(skill_limit) > .1:
-                            hbox:
-                                xsize 200
-                                text "{}:".format(skill.capitalize()) style_suffix "value_text" color "gold" xalign .0 size 18
-                                hbox:
-                                    xalign 1.0
-                                    yoffset 8
-                                    use stars(skill_val, skill_limit)
-                vbox:
-                    spacing 1
-                    for skill in hero.stats.skills:
-                        $ skill_val = int(hero.get_skill(skill))
-                        $ skill_limit = int(hero.get_max_skill(skill))
-                        # We don't care about the skill if it's less than 10% of limit:
-                        if skill in base_ss or skill_val/float(skill_limit) > .1:
-                            if skill in base_ss:
-                                fixed:
-                                    xysize 20, 26
+                            frame:
+                                xoffset -4
+                                xysize (212, 27)
+                                xpadding 7
+                                background Null()
+                                text skill.capitalize() color "gold" size 18 xoffset 10 # style_suffix "value_text" 
+                                if skill in base_ss:
                                     button:
-                                        xysize 20, 20
-                                        background pscale("content/gfx/interface/icons/stars/legendary.png", 20, 20)
+                                        xysize 16, 16
+                                        xoffset -3
+                                        background ProportionalScale("content/gfx/interface/icons/stars/legendary.png", 16, 16)
                                         action NullAction()
                                         tooltip "This is a Class Skill!"
-                            else:
-                                null height 26
+                                hbox:
+                                    xalign 1.0
+                                    yoffset 4
+                                    use stars(skill_val, skill_limit)
 
     # BUTTONS on the "bottom layer" ------------------------------------>
     hbox:

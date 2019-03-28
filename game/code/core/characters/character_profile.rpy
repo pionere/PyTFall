@@ -450,40 +450,25 @@ screen char_profile():
                     ypos 230 xalign .5
                     has vbox spacing 1
 
-                    frame:
-                        xoffset 4
-                        xysize (270, 27)
-                        xpadding 7
-                        text "Health:" color "#CD4F39"
-                        if "health" in base_ss:
-                            button:
-                                xysize 20, 20
-                                offset -10, -5
-                                background pscale("content/gfx/interface/icons/stars/legendary.png", 20, 20)
-                                action NullAction()
-                                tooltip "This is a Class Stat!"
-                        $ temp, tmp = char.get_stat("health"), char.get_max("health")
-                        if temp <= tmp*.3:
-                            text (u"%d/%d"%(temp, tmp)) color "red" xalign 1.0 style_suffix "value_text"
-                        else:
-                            text (u"%d/%d"%(temp, tmp)) xalign 1.0 style_suffix "value_text"
-                    frame:
-                        xoffset 4
-                        xysize (270, 27)
-                        xpadding 7
-                        text "Vitality:" color "#43CD80"
-                        if "vitality" in base_ss:
-                            button:
-                                xysize 20, 20
-                                offset -10, -5
-                                background pscale("content/gfx/interface/icons/stars/legendary.png", 20, 20)
-                                action NullAction()
-                                tooltip "This is a Class Stat!"
-                        $ temp, tmp = char.get_stat("vitality"), char.get_max("vitality")
-                        if temp < tmp*.3:
-                            text (u"%d/%d"%(temp, tmp)) color "red" xalign 1.0 style_suffix "value_text"
-                        else:
-                            text (u"%d/%d"%(temp, tmp)) xalign 1.0 style_suffix "value_text"
+                    $ stats = [("health", "#CD4F39"), ("vitality", "#43CD80")]
+                    for stat, color in stats:
+                        frame:
+                            xoffset 4
+                            xysize (270, 27)
+                            xpadding 7
+                            text "%s:"%stat.capitalize() color color
+                            if stat in base_ss:
+                                button:
+                                    xysize 16, 16
+                                    offset -10, -5
+                                    background ProportionalScale("content/gfx/interface/icons/stars/legendary.png", 16, 16)
+                                    action NullAction()
+                                    tooltip "This is a Class Stat!"
+                            $ temp, tmp = char.get_stat(stat), char.get_max(stat)
+                            if temp <= tmp*.3:
+                                text (u"%d/%d"%(temp, tmp)) color "red" style_suffix "value_text"
+                            else:
+                                text (u"%d/%d"%(temp, tmp)) style_suffix "value_text"
 
                     $ stats = [("mp", "#009ACD"), ("luck", "#00FA9A")]
                     for stat, color in stats:
@@ -495,9 +480,9 @@ screen char_profile():
                             $ stat = stat
                             if stat in base_ss:
                                 button:
-                                    xysize 20, 20
+                                    xysize 16, 16
                                     offset -10, -5
-                                    background pscale("content/gfx/interface/icons/stars/legendary.png", 20, 20)
+                                    background ProportionalScale("content/gfx/interface/icons/stars/legendary.png", 16, 16)
                                     action NullAction()
                                     tooltip "This is a Class Stat!"
                             text "%d/%d"%(char.get_stat(stat), char.get_max(stat)) style_suffix "value_text" color color
@@ -513,12 +498,12 @@ screen char_profile():
                             text "%s"%stat.capitalize() color "#79CDCD"
                             if stat in base_ss:
                                 button:
-                                    xysize 20, 20
+                                    xysize 16, 16
                                     offset -10, -5
-                                    background pscale("content/gfx/interface/icons/stars/legendary.png", 20, 20)
+                                    background ProportionalScale("content/gfx/interface/icons/stars/legendary.png", 16, 16)
                                     action NullAction()
                                     tooltip "This is a Class Stat!"
-                            text "%d/%d"%(char.get_stat(stat), char.get_max(stat)) xalign 1.0 style_suffix "value_text"
+                            text "%d/%d"%(char.get_stat(stat), char.get_max(stat)) style_suffix "value_text"
 
                     null height 10
 
@@ -559,9 +544,9 @@ screen char_profile():
                             text stat.capitalize() color "#79CDCD"
                             if stat in base_ss:
                                 button:
-                                    xysize 20, 20
-                                    offset -10, -5
-                                    background pscale("content/gfx/interface/icons/stars/legendary.png", 20, 20)
+                                    xysize 16, 16
+                                    offset -8, -2
+                                    background ProportionalScale("content/gfx/interface/icons/stars/legendary.png", 16, 16)
                                     action NullAction()
                                     tooltip "This is a Class Stat!"
                             text "%d/%d" % (char.get_stat(stat), char.get_max(stat)) xalign 1.0 style_suffix "value_text"
@@ -577,9 +562,9 @@ screen char_profile():
                             text stat.capitalize() color color
                             if stat in base_ss:
                                 button:
-                                    xysize 20, 20
-                                    offset -10, -5
-                                    background pscale("content/gfx/interface/icons/stars/legendary.png", 20, 20)
+                                    xysize 16, 16
+                                    offset -8, -2
+                                    background ProportionalScale("content/gfx/interface/icons/stars/legendary.png", 16, 16)
                                     action NullAction()
                                     tooltip "This is a Class Stat!"
                             text "%d/%d" % (char.get_stat(stat), char.get_max(stat)) style_suffix "value_text" color color
@@ -593,40 +578,27 @@ screen char_profile():
                     has viewport xysize (310, 392) draggable True mousewheel True child_size (300, 1000)
                     vbox:
                         spacing 1
-                        xpos 10
                         for skill in char.stats.skills:
                             $ skill_val = int(char.get_skill(skill))
                             $ skill_limit = int(char.get_max_skill(skill))
                             # We don't care about the skill if it's less than 10% of limit:
                             if skill in base_ss or skill_val/float(skill_limit) > .1:
-                                hbox:
-                                    xsize 250
-                                    text "{}:".format(skill.capitalize()):
-                                        style_suffix "value_text"
-                                        color "gold"
-                                        xalign .0
-                                        size 18
-                                    hbox:
-                                        xalign 1.0
-                                        yoffset 8
-                                        use stars(skill_val, skill_limit)
-                    vbox:
-                        spacing 1
-                        for skill in char.stats.skills:
-                            $ skill_val = int(char.get_skill(skill))
-                            $ skill_limit = int(char.get_max_skill(skill))
-                            # We don't care about the skill if it's less than 10% of limit:
-                            if skill in base_ss or skill_val/float(skill_limit) > .1:
-                                if skill in base_ss:
-                                    fixed:
-                                        xysize 20, 26
+                                frame:
+                                    xoffset 4
+                                    xysize (270, 27)
+                                    xpadding 7
+                                    text skill.capitalize() color "gold" size 18 xoffset 10 # style_suffix "value_text" 
+                                    if skill in base_ss:
                                         button:
-                                            xysize 20, 20
-                                            background pscale("content/gfx/interface/icons/stars/legendary.png", 20, 20)
+                                            xysize 16, 16
+                                            xoffset -3
+                                            background ProportionalScale("content/gfx/interface/icons/stars/legendary.png", 16, 16)
                                             action NullAction()
                                             tooltip "This is a Class Skill!"
-                                else:
-                                    null height 26
+                                    hbox:
+                                        xalign 1.0
+                                        yoffset 4
+                                        use stars(skill_val, skill_limit)
             elif stats_display == "dev_skills":
                 frame:
                     style_prefix "proper_stats"
