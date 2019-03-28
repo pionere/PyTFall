@@ -36,8 +36,8 @@ label interactions_kiss:
         $ base = 350
 
     if char.get_stat("affection") > (base+50*sub) or slave_siw_check(char):
-        $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.33))
-        $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.33))
+        $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.25))
+        $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.25))
         $ char.gfx_mod_stat("affection", affection_reward(char, 1.5))
         $ char.gfx_mod_stat("disposition", randint(40, 55))
 
@@ -108,8 +108,8 @@ label interactions_kiss:
             $ narrator(choice(["You feel especially close.", "It felt like it could go on forever."]))
             $ char.gfx_mod_stat("joy", randint(0, 1))
             $ char.gfx_mod_stat("disposition", randint(1, 2))
-            $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.33))
-            $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.33))
+            $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.25))
+            $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.25))
             $ char.gfx_mod_stat("affection", affection_reward(char, .1))
 
         $ del char_dispo

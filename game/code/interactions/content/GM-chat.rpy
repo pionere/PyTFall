@@ -30,8 +30,8 @@ label interactions_smalltalk:
             $ narrator(choice(["You feel especially close.", "[char.pC] was much more approachable."]))
             $ char.gfx_mod_stat("joy", randint(0, 1))
             $ char.gfx_mod_stat("disposition", randint(1, 2))
-            $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.33))
-            $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.33))
+            $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.25))
+            $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.25))
             $ char.gfx_mod_stat("affection", affection_reward(char, .1))
     elif char.get_stat("disposition") >= -100:
         if ct("Impersonal", "Dandere", "Shy"):
@@ -57,8 +57,8 @@ label interactions_smalltalk:
         $ m = 0
     $ char.gfx_mod_stat("disposition", m)
     $ char.gfx_mod_stat("affection", affection_reward(char, .5))
-    $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.33))
-    $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.33))
+    $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.25))
+    $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.25))
     $ del m, n
     jump girl_interactions
 
@@ -175,8 +175,8 @@ label girl_interactions_aboutjob: # TO DO: here would help additional logic base
         $ char.gfx_mod_stat("joy", randint(0, 1))
         $ char.restore_portrait()
 
-    $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.33))
-    $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.33))
+    $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.25))
+    $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.25))
 
     jump girl_interactions
 
@@ -257,8 +257,8 @@ label interactions_howshefeels:
     $ char.gfx_mod_stat("disposition", randint(2, 4))
     $ char.gfx_mod_stat("affection", affection_reward(char))
 
-    $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.33))
-    $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.33))
+    $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.25))
+    $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.25))
 
     jump girl_interactions
 
@@ -551,14 +551,14 @@ label interactions_abouther:
         else:
             $ narrator(choice(["She was much more approachable."]))
             $ char.gfx_mod_stat("disposition", randint(2, 6))
-        $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.33))
-        $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.33))
+        $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.25))
+        $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.25))
 
     $ char.gfx_mod_stat("disposition", randint(5, 15))
     $ char.gfx_mod_stat("affection", affection_reward(char))
 
-    $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.33))
-    $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.33))
+    $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.25))
+    $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.25))
 
     $ del gm_abouther_list, pref_list, m, n
     jump girl_interactions
@@ -610,8 +610,8 @@ label interactions_aboutoccupation:
         for t in temp:
             rc("Something is amiss with my profession: %s... (Please tell the Devs about that!)" % t)
 
-    $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.20))
-    $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.20))
+    $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.15))
+    $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.15))
 
     jump girl_interactions
 
@@ -695,14 +695,14 @@ label interactions_interests:
             $ narrator(choice(["She was much more approachable."]))
             $ char.gfx_mod_stat("disposition", randint(2, 6))
         $ char.gfx_mod_stat("affection", affection_reward(char))
-        $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.15))
-        $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.15))
+        $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.1))
+        $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.1))
 
     $ char.gfx_mod_stat("disposition", randint(10, 20))
     $ char.gfx_mod_stat("affection", affection_reward(char))
     
-    $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.20))
-    $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.20))
+    $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.15))
+    $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.15))
 
     if char.get_stat("joy") >= 65:
         if dice(char.get_stat("joy")-20):
@@ -782,11 +782,11 @@ label interactions_flirt:
         $ narrator(choice(["You feel especially close."]))
         $ char.gfx_mod_stat("joy", randint(0, 1))
         $ char.gfx_mod_stat("affection", affection_reward(char))
-        $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.15))
-        $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.15))
+        $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.10))
+        $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.10))
 
-    $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.33))
-    $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.33))
+    $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.25))
+    $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.25))
 
     $ char.gfx_mod_stat("disposition", randint(5, 15))
     $ char.gfx_mod_stat("affection", affection_reward(char))

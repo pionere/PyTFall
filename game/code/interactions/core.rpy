@@ -356,7 +356,7 @@ init -1 python:
             safe = Whether to prevent the label jump.
             """
             # Music flag:
-            if not self.mode in self.USE_GI and renpy.music.get_playing(channel='world'):
+            if self.mode != "girl_interactions" and renpy.music.get_playing(channel='world'):
                 global_flags.set_flag("keep_playing_music")
 
             # Reset scene

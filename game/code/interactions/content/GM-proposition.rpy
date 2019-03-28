@@ -79,10 +79,10 @@ label interactions_sparring: # sparring with MC, for Combatant occupations only
                                 use_items=True)
 
         if result is True:
-            hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.33))
+            hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.25))
             char.gfx_mod_stat("disposition", randint(15, 30))
         elif result is False:
-            char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.33))
+            char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.25))
             char.gfx_mod_stat("disposition", randint(2, 5))
 
     if char.get_stat("health") < char.get_max("health")/2:
@@ -206,8 +206,8 @@ label interactions_girlfriend:
 
     if (char.flag("quest_cannot_be_lover") != True) and (char.get_stat("affection") >= (600 - l_ch)) and (dice(l_ch + char.get_stat("affection")/5)):
         $ set_lovers(hero, char)
-        $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.33))
-        $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.33))
+        $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.25))
+        $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.25))
         $ char.gfx_mod_stat("affection", affection_reward(char))
         $ char.gfx_mod_stat("joy", 25)
         $ char.override_portrait("portrait", "shy")
@@ -309,8 +309,8 @@ label interactions_movein:
 
     $ char.home = hero.home
 
-    $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.33))
-    $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.33))
+    $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.25))
+    $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.25))
     if True: # FIXME imlement the responses if ct("Impersonal"):
         $ char.gfx_mod_stat("joy", 15)
         $ char.override_portrait("portrait", "indifferent")
@@ -326,8 +326,8 @@ label interactions_moveout:
         jump girl_interactions
 
     $ char.home = pytfall.city
-    $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.33))
-    $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.33))
+    $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.25))
+    $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.25))
     if True: # FIXME imlement the responses if ct("Impersonal"):
         $ char.gfx_mod_stat("joy", -15)
         $ char.gfx_mod_stat("disposition", -150)
@@ -345,8 +345,8 @@ label interactions_breakup:
         jump girl_interactions
 
     $ end_lovers(hero, char)
-    $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.33))
-    $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.33))
+    $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.25))
+    $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.25))
     if True: # FIXME imlement the responses if ct("Impersonal"):
         $ char.gfx_mod_stat("joy", -25)
         $ char.override_portrait("portrait", "indifferent")

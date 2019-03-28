@@ -220,8 +220,6 @@ label girl_interactions_after_greetings: # when character wants to say something
 
 label girl_interactions_end:
         # End the GM:
-        if gm.mode == "girl_meets":
-            $ global_flags.set_flag("keep_playing_music")
         $ gm.end()
 
 label interactions_control:

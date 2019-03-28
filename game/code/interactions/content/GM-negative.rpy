@@ -101,7 +101,7 @@ label interactions_escalation: # character was provoked to attack MC
     if result is True:
         python hide:
             for member in hero.team:
-                member.gfx_mod_exp(exp_reward(member, enemy_team, exp_mod=.33))
+                member.gfx_mod_exp(exp_reward(member, enemy_team, exp_mod=.25))
             char.set_stat("health", 1)
             for member in hero.team:
                 if all([member != hero, member.status != "slave", not("Vicious" in member.traits), not("Yandere" in member.traits)]): # they don't like when MC harasses and then beats other chars, unless they are evil
@@ -117,7 +117,7 @@ label interactions_escalation: # character was provoked to attack MC
         call interactions_fight_lost from _call_interactions_fight_lost
         jump interactions_harrasment_after_battle
     else:
-        $ char.gfx_mod_exp(exp_reward(char, hero.team, exp_mod=.33))
+        $ char.gfx_mod_exp(exp_reward(char, hero.team, exp_mod=.25))
         show screen girl_interactions
         $ gm.restore_img()
         $ del result, enemy_team
