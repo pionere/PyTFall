@@ -47,8 +47,8 @@ init -9 python:
                 self.special_chars = getattr(self, "special_chars", dict())
 
                 # Chars capture:
-                self.chars = dict() # id: [explored, chance_per_day]
-                self.rchars = dict() # id can be 'any' here, meaning any rChar.
+                self.chars = getattr(self, "chars", dict()) # id: [explored, chance_per_day]
+                self.rchars = getattr(self, "rchars", dict()) # id can be 'any' here, meaning any rChar.
 
                 # the initial state of the area
                 self.explored = 0         # the counter to keep track of the exploration
@@ -457,7 +457,7 @@ init -6 python: # Guild, Tracker and Log.
                 tracker.died = list()
                 tracker.daily_items = None # lose the daily items # FIXME lost special items?
             # Set the state to traveling back if we're done:
-            elif tracker.day - tracker.traveled >= tracker.days:
+            elif tracker.state != "traveling back" and tracker.day - tracker.traveled >= tracker.days:
                 tracker.state = "traveling back"
                 tracker.traveled = None # Reset for traveling back.
 
@@ -942,62 +942,58 @@ init -6 python: # Guild, Tracker and Log.
                 if tracker.capture_chars and not self.env.now % 10:
                     # Special Chars:
                     ep = area.get_explored_percentage()
-                    if area.special_chars:
-                        for char, explored in area.special_chars.items():
-                            if ep >= explored:
-                                del(area.special_chars[char])
-                                tracker.captured_chars.append(char)
+                    for char, explored in area.special_chars.items():
+                        if ep >= explored:
+                            del(area.special_chars[char])
+                            tracker.captured_chars.append(char)
 
-                                temp = "Your team has captured a 'special' character: %s!" % char.name
-                                temp = set_font_color(temp, "orange")
-                                tracker.log(temp)
-                                if DEBUG_SE:
-                                    msg = "{} has finished an exploration scenario. (Captured a special char {})".format(team.name, char.id)
-                                    se_debug(msg)
+                            temp = "Your team has captured a 'special' character: %s!" % char.name
+                            temp = set_font_color(temp, "orange")
+                            tracker.log(temp)
+                            if DEBUG_SE:
+                                msg = "{} has finished an exploration scenario. (Captured a special char {})".format(team.name, char.id)
+                                se_debug(msg)
 
-                                self.env.exit("back2camp")
+                            self.env.exit("back2camp")
 
                     # uChars (also from Area):
-                    if area.chars:
-                        for id, data in area.chars.items():
-                            explored, chance = data
-                            if ep >= explored and dice(chance*.1):
-                                del(area.chars[id])
+                    for id, data in area.chars.items():
+                        explored, chance = data
+                        if ep >= explored and dice(chance*.1):
+                            del(area.chars[id])
 
-                                char = store.chars[id]
-                                tracker.captured_chars.append(char)
-                                temp = "Your team has captured {color=pink}%s{/color}!" % char.name
-                                temp = set_font_color(temp, "lawngreen")
-                                tracker.log(temp)
-                                if DEBUG_SE:
-                                    msg = "{} has finished an exploration scenario. (Captured a uChar {})".format(team.name, char.id)
-                                    se_debug(msg)
+                            char = store.chars[id]
+                            tracker.captured_chars.append(char)
+                            temp = "Your team has captured {color=pink}%s{/color}!" % char.name
+                            temp = set_font_color(temp, "lawngreen")
+                            tracker.log(temp)
+                            if DEBUG_SE:
+                                msg = "{} has finished an exploration scenario. (Captured a uChar {})".format(team.name, char.id)
+                                se_debug(msg)
 
-                                self.env.exit("back2camp")
-
+                            self.env.exit("back2camp")
                     # rChars:
-                    if area.rchars:
-                        for id, data in area.rchars.items():
-                            explored, chance = data
-                            if ep >= explored and dice(chance*.1):
-                                # Get tier:
-                                if area.tier == 0:
-                                    tier = random.uniform(.1, .3)
-                                else:
-                                    tier = random.uniform(area.tier*.8, area.tier*1.2)
+                    for id, data in area.rchars.items():
+                        explored, chance = data
+                        if ep >= explored and dice(chance*.1):
+                            # Get tier:
+                            tier = area.tier
+                            if tier == 0:
+                                tier = .5
+                            tier = random.uniform(tier*.8, tier*1.2)
 
-                                if id == "any":
-                                    id = None
-                                char = build_rc(id=id, tier=tier, set_status="slave", set_locations=pytfall.streets)
-                                tracker.captured_chars.append(char)
-                                temp = "Your team has captured %s!" % char.name
-                                temp = set_font_color(temp, "lawngreen")
-                                tracker.log(temp)
-                                if DEBUG_SE:
-                                    msg = "{} has finished an exploration scenario. (Captured an rChar {})".format(team.name, char.id)
-                                    se_debug(msg)
+                            if id == "any":
+                                id = None
+                            char = build_rc(id=id, tier=tier, set_status="slave", set_locations=pytfall.streets)
+                            tracker.captured_chars.append(char)
+                            temp = "Your team has captured %s!" % char.name
+                            temp = set_font_color(temp, "lawngreen")
+                            tracker.log(temp)
+                            if DEBUG_SE:
+                                msg = "{} has finished an exploration scenario. (Captured an rChar {})".format(team.name, char.id)
+                                se_debug(msg)
 
-                                self.env.exit("back2camp")
+                            self.env.exit("back2camp")
 
                 if area.mobs:
                     # The expected number of encounters per day is increased by one after every 25 point of risk,

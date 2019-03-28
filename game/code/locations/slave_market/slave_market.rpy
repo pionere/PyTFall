@@ -512,7 +512,7 @@ screen slave_shopping(source, buy_button, buy_tt):
                         textbutton "Sell":
                             xsize 150
                             text_size text_s
-                            action Function(pytfall.jail.sell_captured, char)
+                            action Return(['sell', char])
                             tooltip "Sell %s for %d Gold." % (char.name, source.sell_price(char))
                     textbutton "[buy_button]":
                         xsize 150

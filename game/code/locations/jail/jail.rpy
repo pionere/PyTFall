@@ -47,10 +47,11 @@ label city_jail:
             $ msg = pytfall.jail.bail_char(char)
             if msg:
                 call screen message_screen(msg)
-            $ del msg
+            $ del char, msg
 
             if not pytfall.jail.chars_list:
                 hide screen city_jail_cells
+                with dissolve
         elif result[0] == "buy":
             $ char = result[1]
             if pytfall.jail.chars_list == pytfall.jail.slaves:
@@ -59,10 +60,21 @@ label city_jail:
                 $ msg = pytfall.jail.retrieve_captured(char, "Blue")
             if msg:
                 call screen message_screen(msg)
-            $ del msg
+            $ del char, msg
 
             if not pytfall.jail.chars_list:
                 hide screen slave_shopping
+                with dissolve
+        elif result[0] == "sell":
+            $ char = result[1]
+            $ msg = pytfall.jail.sell_captured(char)
+            if msg:
+                call screen message_screen(msg)
+            $ del char, msg
+
+            if not pytfall.jail.chars_list:
+                hide screen slave_shopping
+                with dissolve
         elif result[0] == "control":
             if result[1] == "return":
                 hide screen city_jail
