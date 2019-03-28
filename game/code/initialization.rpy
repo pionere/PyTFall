@@ -492,12 +492,12 @@ init python: # Locking random seed of internal renpys random
             except:
                 return False
 init:
-    default SKILLS_MAX = {k: 5000 for k in STATIC_CHAR.SKILLS}
-    default SKILLS_THRESHOLD = {k: 2000 for k in STATIC_CHAR.SKILLS} # Must be exceeded before skills becomes harder to gain.
     default DAILY_EXP_CORE = 30 # 1 lvl per 10 days give or take. Rebalance experience gain.
     default DAILY_AFF_CORE = 10 # about 20 affection per day, give or take. Rebalance affection gain. 
     default MAX_TIER = 10 # to limit the characters tier
     #default MAX_MAGIC_TIER = MAX_ITEM_TIER = 4 just to make it easier to search for dependencies
+    #default MAX_STAT_PER_TIER = 100
+    #default SKILLS_MAX = 5000
     default block_say = False
     define PytPix = renpy.display.transition.Pixellate
     default last_label_pure = ""

@@ -15,21 +15,34 @@ init -10 python:
 
         def get_max_skill(self, skill, tier=None):
             if tier is None:
-                tier = self.tier or .5
-            return SKILLS_MAX[skill]*tier/MAX_TIER
+                tier = self.tier
+            if tier == 0:
+                tier = .5
+            return 5000*tier/MAX_TIER # SKILLS_MAX
 
+        # used in a number of places to guess what the max stat for n tier might be.
+        def get_max_stat(self, stat, tier):
+            if stat in STATIC_CHAR.FIXED_MAX:
+                return self.stats.get_max(stat)
+
+            if tier is None:
+                tier = self.tier
+            if tier == 0:
+                tier = .5
+            return 100*tier # MAX_STAT_PER_TIER
+
+        # used in a number of places to guess what the max stat for the current character at tier n might be.
         def get_relative_max_stat(self, stat, tier=None):
             if stat in STATIC_CHAR.FIXED_MAX:
                 return self.stats.get_max(stat)
 
-            # used in a number of places to guess what the max stat for n tier might be.
             if tier is None:
                 tier = self.tier or .5
 
-            if stat in self.stats.get_base_ss():
-                per_tier = 100
+            if stat in self.stats.get_base_stats():
+                per_tier = 100 # MAX_STAT_PER_TIER
             else:
-                per_tier = 50
+                per_tier = 50  # MAX_STAT_PER_TIER/2
 
             return per_tier * tier
 
@@ -1032,13 +1045,13 @@ init -10 python:
             action = self.skills[skill][0]
             training = self.skills[skill][1]
 
-            training_range = training * 3
-            beyond_training = action - training_range
-
+            beyond_training = action - (training * 3)
             if beyond_training >= 0:
-                training += training_range + beyond_training / 3.0
-            else:
-                training += action
+                action -= beyond_training / 1.5
+
+            training += action
+            if training > 5000: # SKILLS_MAX
+                training = 5000 # SKILLS_MAX
             return training * max(min(self.skills_multipliers[skill][2], 2.5), .5)
 
         def __getitem__(self, key):
@@ -1169,22 +1182,13 @@ init -10 python:
                 1 - Training (knowledge part) skill...
             value: the value to be added
             """
-
-            curr_value = self.get_skill(key)
-            skill_max = SKILLS_MAX[key]
-            if curr_value >= skill_max:
+            curr_value = self.skills[key][at]
+            if curr_value == 5000: # SKILLS_MAX
                 return 0 # Maxed out...
 
-            value *= max(.5, min(self.skills_multipliers[key][at], 2.5))
+            value *= max(.5, min(self.skills_multipliers[key][at], 2.5)) 
+            value *= (1.0 - float(curr_value)/5000) # SKILLS_MAX
 
-            threshold = SKILLS_THRESHOLD[key]
-            beyond_training = curr_value - threshold
-
-            if beyond_training > 0: # insufficient training... lessened increase beyond
-                at_zero = skill_max - threshold
-                value *= max(.1, 1 - float(beyond_training)/at_zero)
-
-            curr_value = self.skills[key][at]
             value += curr_value
             self.skills[key][at] = value
             return round_int(value)-round_int(curr_value) # return the real delta
@@ -1192,8 +1196,8 @@ init -10 python:
         def mod_full_skill(self, skill, value):
             """This spreads the skill bonus over both action and training.
             """
-            self._mod_raw_skill(skill, 0, value*(2/3.0))
-            self._mod_raw_skill(skill, 1, value*(1/3.0))
+            self._mod_raw_skill(skill, 0, value/1.5)
+            self._mod_raw_skill(skill, 1, value/3.0)
 
         def eval_inventory(self, inventory, weighted, target_stats, target_skills,
                            exclude_on_skills, exclude_on_stats,
@@ -1364,8 +1368,7 @@ init -10 python:
 
                     if skill in skills:
                         curr_skill = skills[skill]
-                        max_skill = SKILLS_MAX[skill]
-                        if max_skill == curr_skill:
+                        if curr_skill == 5000: # SKILLS_MAX
                             continue
 
                         # calculate skill with mods applied, as in apply_item_effects() and get_skill()
@@ -1374,20 +1377,19 @@ init -10 python:
                         mod_skill_multiplier = self.skills_multipliers[skill][2] + effect[2]
 
                         if upto_skill_limit: # more precise calculation of skill limits
-                            training_range = mod_training * 3
-                            beyond_training = mod_action - training_range
+                            beyond_training = mod_action - (mod_training * 3)
                             if beyond_training >= 0:
-                                mod_training += training_range - mod_action + beyond_training/3.0
+                                mod_action -= beyond_training / 1.5
 
                         mod_training += mod_action
+                        if mod_training > 5000: # SKILLS_MAX
+                            mod_training = 5000 # SKILLS_MAX
                         new_skill = mod_training*max(min(mod_skill_multiplier, 2.5), .5)
-                        if new_skill > max_skill:
-                            new_skill = max_skill
 
                         if new_skill == curr_skill:
                             pass
                         elif new_skill > curr_skill:
-                            temp = 100*(new_skill - curr_skill)/max_skill
+                            temp = 100*(new_skill - curr_skill)/5000 # SKILLS_MAX
                             weights.append(50 + temp)
                         else:
                             if skill not in exclude_on_skills:

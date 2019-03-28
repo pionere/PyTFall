@@ -49,7 +49,7 @@ label interactions_play_bow:
         max_distance_perc = .1  # 
         target_scale = 1.0
 
-        archery_min_skill, archery_max_skill = 0, hero.get_relative_max_stat("attack", tier=MAX_TIER)
+        archery_min_skill, archery_max_skill = 0, hero.get_max_stat("attack", tier=MAX_TIER)
 
         dummy = copy_char(hero)
         dummy.equip(items["Long Bow"], remove=False, aeq_mode=True)
@@ -765,7 +765,7 @@ label interactions_play_power:
         char_skill = char.get_stat("magic") + char.get_stat("intelligence")
 
         power_min_skill = 0
-        power_max_skill = hero.get_relative_max_stat("magic", tier=MAX_TIER) + hero.get_relative_max_stat("intelligence", tier=MAX_TIER)
+        power_max_skill = hero.get_max_stat("magic", tier=MAX_TIER) + hero.get_max_stat("intelligence", tier=MAX_TIER)
 
         active_power_lineups = [[None, []], [None, []], [None, []], [None, []], [None, []]]
         live_balls = [[], [], [], [], []]

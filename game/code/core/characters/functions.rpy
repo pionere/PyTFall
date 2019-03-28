@@ -1017,10 +1017,10 @@ init -11 python:
                 max_val = pytfall.arena.ladder[0].arena_rep * .8
                 val = hero.arena_rep
             elif is_stat(k):
-                max_val = char.get_relative_max_stat(k)
+                max_val = char.get_max_stat(k, tier=char.tier)
                 val = hero.get_stat(k)
             elif is_skill(k):
-                max_val = char.get_max_skill(k)
+                max_val = char.get_max_skill(k, tier=char.tier)
                 val = hero.get_skill(k)
             else:
                 raise Exception("Unknown stat %s in preferences of %s" % (k, char.name))

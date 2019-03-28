@@ -1689,10 +1689,10 @@ init -9 python:
 
             # Traits:
             for trait in itertools.chain(item.removetraits, item.addtraits):
-                if item.slot not in ['consumable', 'misc'] or (item.slot == 'consumable' and item.ctemp):
-                    truetrait = False
-                else:
+                if item.slot == "misc" or (item.slot == "consumable" and not item.ctemp):
                     truetrait = True
+                else:
+                    truetrait = False
 
                 if trait in item.addtraits:
                     func = self.apply_trait if direction else self.remove_trait

@@ -261,9 +261,7 @@ init -10 python:
 
         def normalize_required_stat(self, worker, stat, effectiveness, difficulty):
             value = worker.get_stat(stat)
-            if difficulty < .5:
-                difficulty = .5
-            max_value = worker.get_relative_max_stat(stat, difficulty)
+            max_value = worker.get_max_stat(stat, tier=difficulty)
             if max_value == 0:
                 raise Exception("Zero Dev #1 (%s)", stat)
 
@@ -272,8 +270,6 @@ init -10 python:
 
         def normalize_required_skill(self, worker, skill, effectiveness, difficulty):
             value = worker.get_skill(skill)
-            if difficulty < .5:
-                difficulty = .5
             max_value = worker.get_max_skill(skill, tier=difficulty)
             if max_value == 0:
                 raise Exception("Zero Dev #2 (%s)", skill)
@@ -316,9 +312,6 @@ init -10 python:
                 bt_bonus += tier_bonus*2
 
 
-            if not difficulty:
-                difficulty = .5 # Risking ZeroDev error otherwise + Throws off further calculations...
-
             # Skills/Stats:
             default_points = 25
             skills = self.base_skills
@@ -334,7 +327,7 @@ init -10 python:
                     max_p = default_points*weight_ratio
 
                     sp = worker.get_skill(skill)
-                    sp_required = worker.get_max_skill(skill, difficulty)
+                    sp_required = worker.get_max_skill(skill, tier=difficulty)
                     # if not sp_required:
                     #     raise Exception("Zero Dev #4 (%s)", skill)
                     total_skills += min(sp*max_p/sp_required, max_p*1.1)
@@ -352,7 +345,7 @@ init -10 python:
                     max_p = default_points*weight_ratio
 
                     sp = worker.get_stat(stat)
-                    sp_required = worker.get_relative_max_stat(stat, difficulty)
+                    sp_required = worker.get_max_stat(stat, tier=difficulty)
                     if sp_required == 0:
                         raise Exception("Zero Dev #6 (%s)", stat)
                     total_stats += min(sp*max_p/sp_required, max_p*1.1)
