@@ -359,9 +359,8 @@ init -9 python:
 
             if winner in lineup:
                 index = lineup.index(winner)
-                if index:
-                    lineup.insert(index-1, winner)
-                    del lineup[index+1]
+                if index != 0:
+                    lineup[index], lineup[index-1] = lineup[index-1], winner
             else:
                 # check if the hero has an another team in the lineup
                 if winner == hero.team:
@@ -372,13 +371,12 @@ init -9 python:
                             winner_added = True
                             break
                 if not "winner_added" in locals():
-                    del lineup[-1]
-                    lineup.append(winner)
+                    lineup[-1] = winner
 
             if loser in lineup:
                 index = lineup.index(loser)
-                lineup.insert(index+2, loser)
-                del lineup[index]
+                if index != len(lineup)-1:
+                    lineup[index], lineup[index+1] = lineup[index+1], loser
 
         def find_opfor(self):
             """

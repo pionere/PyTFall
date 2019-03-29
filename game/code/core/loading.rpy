@@ -661,6 +661,10 @@ init -11 python:
                         raise Exception("Unknown area '%s' to unlock by map '%s'." % (a, area.name))
                 area.unlocks = unlocks
 
+                for m in getattr(area, "mobs", []):
+                    if m not in store.mobs:
+                        raise Exception("Unknown mobs '%s' in map '%s'." % (m, area.name))
+
         # initialize the possible objects
         objects = load_db_json('maps/data/objects.json')
         om = dict()
