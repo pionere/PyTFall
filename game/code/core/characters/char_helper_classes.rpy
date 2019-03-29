@@ -143,13 +143,14 @@ init -10 python:
             if kind:
                 wage = STATIC_CHAR.BASE_WAGES[kind]
             else:
-                for i in ["Combatant", "Specialist", "SIW", "Server"]:
-                    if i in self.gen_occs:
-                        wage = STATIC_CHAR.BASE_WAGES[i]
-                        break
-                else:
-                    raise Exception("Impossible character detected! ID: {} ~ BT: {} ~ Occupations: {}".format(self.id,
-                                    ", ".join([str(t) for t in self.traits.basetraits]), ", ".join([str(t) for t in self.occupations])))
+                wage = 0
+                for i in self.gen_occs:
+                    w = STATIC_CHAR.BASE_WAGES.get(i, 0)
+                    if w > wage:
+                        wage = w
+                if wage == 0:
+                    raise Exception("Impossible character detected! ID: {} ~ BT: {} ~ Gen.Occupations: {}".format(self.id,
+                                    ", ".join([str(t) for t in self.traits.basetraits]), ", ".join([str(t) for t in self.gen_occs])))
 
             # Each tier increases wage by 50% without stacking:
             wage = wage + wage*self.tier*.5

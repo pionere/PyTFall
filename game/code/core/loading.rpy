@@ -89,8 +89,8 @@ init -11 python:
         dirlist = os.listdir(dir)
         content = dict()
 
-        exist = getattr(store, "chars", {}).keys()
-        exist.extend(getattr(store, "npcs", {}).keys())
+        exist = set(getattr(store, "chars", {}).keys())
+        exist.update(getattr(store, "npcs", {}))
 
         # Get to a folder with unique girl datafiles and imagefolders:
         for packfolder in os.walk(os.path.join(dir,'.')).next()[1]:
@@ -211,12 +211,7 @@ init -11 python:
                                     char_debug("%s JSON Loading func tried to apply unknown default attack skill: %s!" % (gd["id"], skill))
 
                             if "magic_skills" in gd:
-                                # Skills can be either a list or a dict:
                                 skills = gd["magic_skills"]
-                                if isinstance(skills, list):
-                                    pass
-                                else:
-                                    skills = skills.keys()
                                 for skill in skills:
                                     if skill in store.battle_skills:
                                         skill = store.battle_skills[skill]
@@ -319,6 +314,12 @@ init -11 python:
                         # Set the path to the folder:
                         gd["_path_to_imgfolder"] = os.path.join("content", "rchars", packfolder, folder)
 
+                        # validate skills so we do not have to to it in runtime
+                        if "default_attack_skill" in gd:
+                            skill = gd["default_attack_skill"]
+                            if skill not in store.battle_skills:
+                                raise Exception("%s JSON Loading func tried to apply unknown default attack skill: %s!" % (gd["id"], skill))
+
                         content[id] = gd
 
         return content
@@ -326,11 +327,11 @@ init -11 python:
     def load_special_arena_fighters():
         females = getattr(store, "female_fighters", {})
         males = getattr(store, "male_fighters", {})
-        exist = females.keys()
-        exist.extend(males.keys())
+        exist = set(females.keys())
+        exist.update(males)
         h = getattr(store, "hero")
         if h:
-            exist.append(h.id)
+            exist.add(h.id)
         json_data_raw = load_db_json("arena_fighters.json")
         json_data = {}
         for i in json_data_raw:

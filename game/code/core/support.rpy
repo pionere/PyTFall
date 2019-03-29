@@ -23,7 +23,7 @@ init -9 python:
         '''
         RCD = {"SIW": 0, "Specialist": 0,
                "Combatant": 0, "Server": 0,
-               "Healer": 0} # All general occupations for rchar population
+               "Caster": 0} # All general occupations for rchar population
         def __init__(self):
 
             # Maps
@@ -59,7 +59,7 @@ init -9 python:
             # Random Chars distribution:
             self.rc_free_pop_distr = {"SIW": 30, "Specialist": 10,
                                       "Combatant": 30, "Server": 15,
-                                      "Healer": 5}
+                                      "Caster": 5}
             self.rc_free_population = 40
             self.rc_slave_pop_distr = {"SIW": 60, "Server": 40}
             self.rc_slave_population = 30
@@ -136,8 +136,6 @@ init -9 python:
                 for occ in c.gen_occs:
                     if occ in current_distibution_raw:
                         current_distibution_raw[occ] += 1
-                if "Healer" in c.traits:
-                    current_distibution_raw["Healer"] += 1
 
             wanted_distibution_perc = {}
             total = sum(current_distibution_raw.values())
@@ -155,7 +153,7 @@ init -9 python:
 
             # We are done with distibution, now tiers:
             give_bt_items = status == "free"
-            for bt_group, amount in distibution.items():
+            for bt_go_base, amount in distibution.items():
                 for i in range(amount):
                     if dice(1): # Super char!
                         tier = hero.tier + uniform(2.5, 4.0)
@@ -165,7 +163,7 @@ init -9 python:
                         tier = hero.tier + uniform(.1, 1.0)
                     tier += tier_offset
 
-                    build_rc(bt_group=bt_group,
+                    build_rc(bt_go_base=bt_go_base,
                              set_status=status,
                              tier=tier, tier_kwargs=None,
                              give_civilian_items=True,

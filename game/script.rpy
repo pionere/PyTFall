@@ -503,6 +503,18 @@ label after_load:
         if isinstance(store.defeated_mobs, dict):
             store.defeated_mobs = set(store.defeated_mobs.keys())
 
+        if "Caster" not in employment_agency_chars:
+            temp = [c for cl in employment_agency_chars.values() for c in cl]
+            del employment_agency_chars["Healer"]
+            for v in employment_agency_chars.itervalues():
+                v[:] = []
+            employment_agency_chars["Caster"] = []
+            for c in temp:
+                for occ in c.gen_occs:
+                    employment_agency_chars[occ].append(c)
+            store.pytfall.rc_free_pop_distr["Caster"] = store.pytfall.rc_free_pop_distr["Healer"]
+            del store.pytfall.rc_free_pop_distr["Healer"]
+
         for d in store.dungeons.values():
             event = getattr(d, "event", {})
             for e in event.values():

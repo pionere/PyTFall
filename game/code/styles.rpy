@@ -3,6 +3,17 @@ init -3 python:
     tisa_otm_adv = FontGroup().add("fonts/Hosohuwafont.ttf", 0x2E80, 0xFE4F).add("fonts/DejaVuSans.ttf", 0x00A0, 0xE007F).add("fonts/TisaOTM.otf", 0x0020, 0x007f)
     # tisa_otb_adv = FontGroup().add("fonts/", 0x00A0, 0xE007F).add("fonts/TisaOTB.otf", 0x0020, 0x007f)
 
+    def hyperlink_styler(link):
+        return style.hyperlink_text
+
+    def hyperlink_clicked(link):
+        return link
+
+    def hyperlink_hovered(link):
+        return link
+         
+    style.default.hyperlink_functions = (hyperlink_styler, hyperlink_clicked, hyperlink_hovered)
+
 # Well... better late than never :)
 # My first ever style is created here!
 # Neow!

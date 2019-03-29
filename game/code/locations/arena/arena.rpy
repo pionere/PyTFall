@@ -704,9 +704,8 @@ init -9 python:
                     give_tiered_magic_skills(char)
                     auto_buy_for_bt(char)
                 else:
-                    char = build_rc(tier=7,
-                                    tier_kwargs=tier_kwargs,
-                                    give_bt_items=True)
+                    char = build_rc(bt_go_patterns=["Combatant"], tier=7,
+                                    tier_kwargs=tier_kwargs, give_bt_items=True)
 
                 char.arena_active = True
                 #char.arena_permit = True

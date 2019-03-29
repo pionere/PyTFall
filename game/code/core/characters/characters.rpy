@@ -1,7 +1,7 @@
 # Characters classes and methods:
 init -9 python:
     class STATIC_CHAR():
-        __slots__ = ("STATS", "SKILLS", "GEN_OCCS", "STATUS", "ORIGIN", "MOOD_TAGS", "UNIQUE_SAY_SCREEN_PORTRAIT_OVERLAYS", "BASE_UPKEEP", "BASE_WAGES", "TRAININGS", "FIXED_MAX", "DEGRADING_STATS", "SEX_SKILLS", "PREFS")
+        __slots__ = ("STATS", "SKILLS", "GEN_OCCS", "SLAVE_GEN_OCCS", "STATUS", "ORIGIN", "MOOD_TAGS", "UNIQUE_SAY_SCREEN_PORTRAIT_OVERLAYS", "BASE_UPKEEP", "BASE_WAGES", "TRAININGS", "FIXED_MAX", "DEGRADING_STATS", "SEX_SKILLS", "PREFS")
         STATS =  {"charisma", "constitution", "joy", "character", "fame", "reputation",
                   "health", "mood", "disposition", "affection", "vitality", "intelligence",
                   "luck", "attack", "magic", "defence", "agility", "mp"}
@@ -10,8 +10,9 @@ init -9 python:
                       "bartending", "cleaning", "waiting", "management",
                       "exploration", "teaching", "swimming", "fishing",
                       "security"}
-        GEN_OCCS = {"SIW", "Combatant", "Server", "Specialist"}
-        STATUS = {"slave", "free"}
+        GEN_OCCS = ["SIW", "Combatant", "Server", "Specialist"]
+        SLAVE_GEN_OCCS = ["SIW", "Server"]
+        STATUS = ["slave", "free"]
         ORIGIN = ["Alkion", "PyTFall", "Crossgate"]
 
         MOOD_TAGS = {"angry", "confident", "defiant", "ecstatic", "happy",
@@ -212,12 +213,6 @@ init -9 python:
             else:
                 self.gold += value
 
-        # Game assist methods:
-        def set_status(self, s):
-            if s not in STATIC_CHAR.STATUS:
-                raise Exception("{} status is not valid for {} with an id: {}".format(s, self.__class__, self.id))
-            self.status = s
-
         def update_sayer(self):
             self.say = Character(self.nickname, show_two_window=True, show_side_image=self.show("portrait", resize=(120, 120)), **self.say_style)
 
@@ -249,10 +244,9 @@ init -9 python:
             Not decided if this should be strings, Trait objects of a combination of both.
             """
             allowed = set()
-            for t in self.traits:
-                if t.basetrait:
-                    allowed.add(t)
-                    allowed.update(t.occupations)
+            for t in self.traits.basetraits:
+                allowed.add(t)
+                allowed.update(t.occupations)
             return allowed
 
         def can_work(self, job):

@@ -10,12 +10,10 @@ label special_items_slime_bottle:
             $ tier = locked_random("uniform", max(hero.tier, .5), hero.tier+.7)
             if locked_dice(80):
                 $ status_ = "free"
-                $ patterns_ = ["Combatant", "Server"]
             else:
                 $ status_ = "slave"
-                $ patterns_ = ["Server"]
-            $ new_slime = build_rc(id="Slime", tier=tier, bt_go_patterns=patterns_, set_status=status_)
-            $ del status_, patterns_, tier
+            $ new_slime = build_rc(id="Slime", tier=tier, set_status=status_)
+            $ del status_, tier
 
             $ new_slime.gfx_mod_stat("disposition", 300)
             $ new_slime.gfx_mod_stat("affection", affection_reward(new_slime))

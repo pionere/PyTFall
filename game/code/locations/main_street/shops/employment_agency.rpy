@@ -3,7 +3,7 @@ default employment_agency_chars = {
         "Specialist": [],
         "Combatant": [],
         "Server": [],
-        "Healer": []}
+        "Caster": []}
 
 default employment_agency_reroll_day = 0
 
@@ -17,8 +17,10 @@ init python:
 
         if day >= employment_agency_reroll_day:
             employment_agency_reroll_day += randint(7, 14)
-            for k, v in employment_agency_chars.iteritems():
+            for v in employment_agency_chars.itervalues():
                 v[:] = []
+
+            for k in employment_agency_chars.iterkeys():
                 for i in range(randint(2, 4)):
                     if dice(1): # Super char!
                         tier = hero.tier + uniform(2.5, 4.0)
@@ -26,12 +28,13 @@ init python:
                         tier = hero.tier + uniform(1.0, 2.5)
                     else: # Ok char...
                         tier = hero.tier + uniform(.1, 1.0)
-                    char = build_rc(bt_group=k,
+                    char = build_rc(bt_go_base=k,
                                     set_locations=True,
                                     tier=tier, tier_kwargs=None,
                                     give_civilian_items=True,
                                     give_bt_items=True)
-                    v.append(char)
+                    for occ in char.gen_occs:
+                        employment_agency_chars[occ].append(char)
 
             # Gazette:
             c = npcs["Charla_ea"]
@@ -70,22 +73,23 @@ label employment_agency:
         if result[0] == 'hire':
             $ char = result[1]
             $ cost = calc_hire_price_for_ea(char) # Two month of wages to hire.
-            $ container = result[2]
             $ block_say = True
             if hero.gold >= cost:
                 menu:
                     ea "The fee to hire [char.name] is [cost]! What do you say?"
                     "Yes":
-                        $ renpy.play("content/sfx/sound/world/purchase_1.ogg")
-                        $ hero.take_money(cost, reason="Hiring Workers")
-                        $ hero.chars.append(char)
-                        $ container.remove(char)
+                        python hide:
+                            renpy.play("content/sfx/sound/world/purchase_1.ogg")
+                            hero.take_money(cost, reason="Hiring Workers")
+                            hero.chars.append(char)
+                            for occ in char.gen_occs:
+                                employment_agency_chars[occ].remove(char)
                     "No":
                         "Would you like to pick someone else?"
             else:
                 ea "You look a bit light on the Gold [hero.name]..."
             $ block_say = False
-            $ del char, cost, container
+            $ del char, cost
 
         if result[0] == 'control':
             if result[1] == 'return':

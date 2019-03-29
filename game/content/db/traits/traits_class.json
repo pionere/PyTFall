@@ -79,7 +79,7 @@
     {
         "id": "Stripper",
         "occupations": [
-            "Server", "SIW"
+            "SIW"
         ],
         "desc": "They know the right way how to undress.",
         "base_skills": {
@@ -583,7 +583,7 @@
     {
         "id": "Warrior",
         "occupations": [
-            "Combatant", "Warrior"
+            "Combatant"
         ],
         "desc": "Doesn't have notable strengths and weaknesses due to balanced combat style, but prefers melee weapons.",
         "basetrait": true,
@@ -661,7 +661,7 @@
     {
         "id": "Knight",
         "occupations": [
-            "Combatant", "Warrior"
+            "Combatant"
         ],
         "desc": "Specializes in heavy armored combat. Agility and attack are not high, but health and defense compensate it.",
         "higher_tiers": ["Warrior"],
@@ -824,9 +824,6 @@
             "attack": 20,
             "defence": 5,
             "agility": 20
-        },
-        "defence_multiplier": {
-            "status": 0.2
         },
         "delivery_multiplier": {"status": 0.2},
         "base_skills": {

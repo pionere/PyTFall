@@ -227,47 +227,33 @@ init -11 python:
         return mob
 
     def build_rc(id=None, name=None, last_name=None,
-                 bt_direct=None, bt_go_patterns=None,
-                 bt_group=None, bt_preset=None,
-                 set_locations=True,
-                 set_status="free",
+                 bt_go_patterns=None, bt_go_base=None,
+                 set_status="free", set_locations=True,
                  tier=0, tier_kwargs=None, add_to_gameworld=True,
-                 give_civilian_items=False, gci_kwargs=None,
-                 give_bt_items=False, gbti_kwargs=None,
-                 spells_to_tier=True, stt_kwargs=None):
+                 give_civilian_items=False, give_bt_items=False,
+                 spells_to_tier=True):
         '''Creates a random character!
         id: id to choose from the rchars dictionary that holds rGirl loading data.
             from JSON files, will be chosen at random if none available.
         name: (String) Name for a girl to use. If None one will be chosen from randomNames file!
         last_name: Same thing only for last name :)
-        bt_direct: A list of one or more specific base traits
-            to use in character creation. If more than two are provided, two will be chosen at random.
         bt_go_patterns: General occupation patterns to use when creating the character!
             Expects general occupation or list of the same.
             Use create_traits_base function to build basetraits.
             Input could be ["Combatant", "Specialist"] for example, we will pick from all
             Combatant and Specialist bts in the game randomly.
-        bt_group: Groups of custom selections of basetraits.
-        bt_preset: Random choice from custom presets of basetraits.
-
+        bt_go_base: a gen.occupation as a base to select the first basetrait. Occasionally a secondary random basetrait is added.
         tier: Tier of the character... floats are allowed.
         add_to_gameworld: Adds to characters dictionary, should always
             be True unless character is created not to participate in the game world...
 
-        give_civilian_items/gci_kwargs // give_bt_items/gbti_kwargs:
+        give_civilian_items // give_bt_items:
             *Note: bt_ ==> base_traits* (award items for profession)
             Give/Equip item sets using auto_buy without paying cash.
-            Expects a dict of kwargs or we just take our best guess.
-        spells_to_tier/stt_kwargs: Award spells and kwargs for the func
+        spells_to_tier: Award spells to the char
         '''
         if tier_kwargs is None:
             tier_kwargs = {}
-        if gci_kwargs is None:
-            gci_kwargs = {}
-        if gbti_kwargs is None:
-            gbti_kwargs = {}
-        if stt_kwargs is None:
-            stt_kwargs = {}
 
         rg = rChar()
 
@@ -324,9 +310,9 @@ init -11 python:
         if set_status is False:
             pass
         elif set_status is not True:
-            rg.set_status(set_status)
+            rg.status = set_status
         else:
-            rg.set_status(choice(["free", "slave"]))
+            rg.status = choice(STATIC_CHAR.STATUS)
 
         # Locations:
         if set_locations is False:
@@ -340,20 +326,24 @@ init -11 python:
 
         # BASE TRAITS:
         selection = None
-        if bt_direct:
-            selection = bt_direct
-        elif bt_go_patterns:
+        if bt_go_patterns:
             selection = create_traits_base(bt_go_patterns)
-        elif bt_group:
-            selection = choice(base_trait_presets[choice(base_traits_groups[bt_group])])
-        elif bt_preset:
-            selection = choice(base_trait_presets[bt_preset])
         else:
-            selection = base_trait_presets["Combatant"] + base_trait_presets["SIW"] + base_trait_presets["Maid"]
-            selection = choice(selection)
-
-        if len(selection) > 2:
-            selection = random.sample(selection, 2)
+            if bt_go_base is None:
+                if rg.status == "slave":
+                    bt_go_base = STATIC_CHAR.SLAVE_GEN_OCCS
+                else:
+                    bt_go_base = STATIC_CHAR.GEN_OCCS
+                bt_go_base = choice(bt_go_base)
+            selection = [choice(tuple(gen_occ_basetraits[bt_go_base]))]
+            if dice(50):
+                # multiclass
+                if rg.status == "slave":
+                    bt_go_base = STATIC_CHAR.SLAVE_GEN_OCCS
+                else:
+                    bt_go_base = STATIC_CHAR.GEN_OCCS
+                bt_go_base = choice(bt_go_base)
+                selection.append(choice(tuple(gen_occ_basetraits[bt_go_base])))
 
         basetraits = set()
         for t in selection:
@@ -367,21 +357,7 @@ init -11 python:
         # Battle and Magic skills:
         if "default_attack_skill" in data:
             skill = data["default_attack_skill"]
-            if skill in store.battle_skills:
-                rg.default_attack_skill = store.battle_skills[skill]
-            else:
-                char_debug(str("Unknown default battle skill: %s for random girl: %s!" % (skill, id)))
-
-        if "magic_skills" in data:
-            for skill, chance in data["magic_skills"]:
-                if dice(chance):
-                    ms = store.battle_skills.get(skill, None)
-                    if ms is None:
-                        char_debug(str("Unknown magic skill: %s for random girl: %s!" % (skill, id)))
-                    elif ms in rg.magic_skills:
-                        char_debug(str("Magic skill: %s added twice for random girl: %s!" (skill, id)))
-                    else:
-                        rg.magic_skills.append(ms) 
+            rg.default_attack_skill = store.battle_skills[skill]
 
         # Rest of the expected data:
         for i in ("gold", "desc", "height", "full_race", "gender"):
@@ -399,12 +375,6 @@ init -11 python:
                     color = "ivory"
                 rg.say_style[key] = color
 
-        # add a random character trait if none exists yet
-        if all(not t.character_trait for t in rg.traits) and dice(50):
-            t = choice(tgs.ct)
-            if getattr(t, "gender", rg.gender) == rg.gender:
-                rg.apply_trait(t)
-
         # Normalizing new girl:
         # We simply run the init method of parent class for this:
         rg.init()
@@ -414,11 +384,10 @@ init -11 python:
 
         # Spells to Tier:
         if spells_to_tier:
-            give_tiered_magic_skills(rg, **stt_kwargs)
+            give_tiered_magic_skills(rg)
 
         # Items, give and/or autoequip:
-        initial_item_up(rg, give_civilian_items, give_bt_items,
-                            gci_kwargs, gbti_kwargs)
+        initial_item_up(rg, give_civilian_items, give_bt_items)
 
         # if equip_to_tier: # Old (faster but less precise) way of giving items:
         #     give_tiered_items(rg, **gtt_kwargs) # (old/simle(er) func)
@@ -432,46 +401,27 @@ init -11 python:
 
         return rg
 
-    def initial_item_up(char, give_civilian_items=False, give_bt_items=False,
-                        gci_kwargs=None, gbti_kwargs=None):
+    def initial_item_up(char, give_civilian_items=False, give_bt_items=False):
         """Gives items to a character as well as equips for a specific task.
 
         Usually ran right after we created the said character.
         """
-        if give_civilian_items or give_bt_items:
-            container = []
-            limit_tier = min(((char.tier/2)+1), 4)
-            for i in range(limit_tier):
-                container.extend(store.tiered_items[i]) # MAX_ITEM_TIER
+        if (not give_civilian_items) and (not give_bt_items):
+            return
 
+        container = []
+        limit_tier = min(((char.tier/2)+1), 4)
+        for i in range(limit_tier):
+            container.extend(store.tiered_items[i]) # MAX_ITEM_TIER
+
+        slots = {slot: 1 for slot in EQUIP_SLOTS}
         if give_civilian_items:
-            if not gci_kwargs:
-                gci_kwargs = {
-                    "slots": {slot: 1 for slot in EQUIP_SLOTS},
-                    #"casual": True,  - ignored and not necessary anyway
-                    "equip": not give_bt_items, # Equip only for civ items.
-                    "purpose": "Slave" if char.status == "slave" else "Casual",
-                    "check_money": False,
-                    "limit_tier": False, # No need, the items are already limited to limit_tier
-                    "container": container,
-                    "smart_ownership_limit": False
-                }
-            char.auto_buy(**gci_kwargs)
-
+            char.auto_buy(slots=slots, equip=not give_bt_items, check_money=False, limit_tier=False, container=container,
+                          purpose="Slave" if char.status == "slave" else "Casual",
+                          smart_ownership_limit=False)
         if give_bt_items:
-            if not gbti_kwargs:
-                gbti_kwargs = {
-                    "slots": {slot: 1 for slot in EQUIP_SLOTS},
-                    #"casual": True, - ignored and not necessary anyway
-                    "equip": True,
-                    "check_money": False,
-                    "limit_tier": False, # No need, the items are already limited to limit_tier
-                    "container": container,
-                    "smart_ownership_limit": give_civilian_items,
-
-                    "purpose": None # Figure out in auto_buy method.
-                }
-            char.auto_buy(**gbti_kwargs)
+            char.auto_buy(slots=slots, equip=True, check_money=False, limit_tier=False, container=container,
+                          smart_ownership_limit=give_civilian_items, purpose=None)
 
     def auto_buy_for_bt(char):
         slots = {slot: 1 for slot in EQUIP_SLOTS}
@@ -489,16 +439,13 @@ init -11 python:
 
         patterns: Single general occupation or list of the same to build a specific pattern from.
         """
-        try:
-            if isinstance(patterns, basestring):
-                patterns = [patterns]
-            patterns = list(chain.from_iterable(gen_occ_basetraits[p] for p in patterns))
-            if len(patterns) > 1 and dice(55):
-                return random.sample(patterns, 2)
-            else:
-                return random.sample(patterns, 1)
-        except:
-            raise Exception("Cannot create base traits list from patterns: {}".format(patterns))
+        if isinstance(patterns, basestring):
+            patterns = [patterns]
+        patterns = list(chain.from_iterable(gen_occ_basetraits[p] for p in patterns))
+        if len(patterns) > 1 and dice(50):
+            return random.sample(patterns, 2)
+        else:
+            return random.sample(patterns, 1)
 
     def give_tiered_items(char, amount=1, gen_occ=None, occ=None, equip=False):
         """Gives items based on tier and class of the character.
@@ -681,7 +628,7 @@ init -11 python:
 
         # Patterns:
         if pattern is None:
-            pattern = choice(tuple(STATIC_CHAR.GEN_OCCS))
+            pattern = STATIC_CHAR.GEN_OCCS
         pattern = create_traits_base(pattern)
         for i in pattern:
             client.traits.basetraits.add(i)
