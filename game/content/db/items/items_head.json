@@ -285,7 +285,7 @@
     "icon": "content/items/head/fm.png",
     "price": 2500,
     "sex": "male",
-    "chance": 0.5,
+    "chance": 1,
     "badness": 100,
     "eqchance": 60,
     "hidden": true,
