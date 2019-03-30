@@ -73,10 +73,9 @@ screen city_dark_forest():
             button:
                 xysize (120, 40)
                 yalign .5
-                action [Hide("city_dark_forest"), Jump("forest_entrance"), With(dissolve)]
+                action Jump("dark_forest_exit")
                 text "Leave" size 15
-
-    key "mousedown_3" action [Hide("city_dark_forest"), Jump("forest_entrance"), With(dissolve)]
+                keysym "mousedown_3"
 
 label city_dark_forest_explore:
     if not(take_team_ap(1)):
@@ -130,7 +129,7 @@ label mc_action_city_dark_forest_rest:
     $ forest_bg_change = False
     $ global_flags.set_flag("keep_playing_music")
 
-    python:
+    python hide:
         for i in hero.team:
             i.gfx_mod_stat("vitality", i.get_max("vitality")/4)
             i.gfx_mod_stat("health", i.get_max("health")/20)
@@ -306,7 +305,18 @@ label mc_action_city_dark_forest_river:
     scene bg forest_lake
     with dissolve
     "You found a river. Fresh, clean water restores some of your vitality."
-    python:
+    python hide:
         for i in hero.team:
             i.gfx_mod_stat("vitality", i.get_max("vitality")/2)
     jump forest_dark_continue
+
+label dark_forest_exit:
+    hide screen city_dark_forest
+    with dissolve
+
+    $ del background_number, forest_location, forest_bg_change
+    if hasattr(store, "j"):
+        $ del store.j
+    if hasattr(store, "N"):
+        $ del store.N
+    jump forest_entrance

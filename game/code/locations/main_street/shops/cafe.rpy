@@ -26,7 +26,7 @@ label cafe:
         $ hero.set_flag("health_bonus_from_eating_in_cafe", value=0)
         w "Welcome to the Cafe!"
         "Here you can find delicious food and tasty beverages!"
-
+    $ del w
     $ inviting_character = hero
 
     if dice(50) and len(hero.team)>1 and not hero.has_flag("dnd_ate_in_cafe"): # the chance for a member of MC team to invite team

@@ -134,7 +134,7 @@ label witch_talking_menu:
             "Nevermind":
                 jump witch_menu
             "Leave the shop":
-                jump forest_entrance
+                jump witches_hut_exit
 
 screen witch_shop():
     style_prefix "dropdown_gm"
@@ -150,5 +150,12 @@ screen witch_shop():
         textbutton "Talk":
             action Hide("witch_shop"), Jump("witch_talking_menu")
         textbutton "Leave":
-            action Hide("witch_shop"), Jump("forest_entrance")
+            action Jump("witches_hut_exit")
             keysym "mousedown_3"
+
+label witches_hut_exit:
+    hide screen witch_shop
+    with dissolve
+
+    $ del w
+    jump forest_entrance
