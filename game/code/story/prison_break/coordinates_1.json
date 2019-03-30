@@ -82,7 +82,7 @@
     "entries": ["CRoom", "Passage_4"],
     "sfx": "events/prison_cell_door.mp3",
     "mobs": ["Slime", "Alkaline Slime", "Acid Slime"],
-    "items": ["food", "loot"],
+    "items": ["alcohol", "loot"],
     "tooltip": "Food Storage",
     "place": "left"
     },

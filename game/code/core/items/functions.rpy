@@ -304,8 +304,10 @@ init -11 python:
 
         return True
 
-    def give_to_mc_item_reward(types, price=None, locations=["Exploration"]):
-        item = get_item_drops(types=types, price=price, tier=hero.tier, locations=locations)
+    def give_to_mc_item_reward(types, price=None, tier=None, locations=["Exploration"]):
+        if tier is None:
+            tier = hero.tier
+        item = get_item_drops(types=types, price=price, tier=tier, locations=locations)
         if not item:
             return False
         hero.add_item(item)
@@ -354,7 +356,7 @@ init -11 python:
                 continue
 
             if "consumable" in types:
-                if item.slot == "consumable" and item.type != "food":
+                if item.slot == "consumable" and item.type not in ("food", "alcohol"):
                     picked.append(item)
                     continue
 

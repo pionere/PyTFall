@@ -174,16 +174,10 @@ label city_dark_forest_hideout:
 
     "After killing all bandits, you found stash with loot."
 
-    $ give_to_mc_item_reward("treasure", price=300)
-    if locked_dice(50):
-        $ give_to_mc_item_reward("treasure", price=300)
-    $ give_to_mc_item_reward("restore", price=100)
-    if locked_dice(50):
-        $ give_to_mc_item_reward("restore", price=200)
-    if locked_dice(50):
-        $ give_to_mc_item_reward("armor", price=300)
-    if locked_dice(50):
-        $ give_to_mc_item_reward("weapon", price=300)
+    python hide:
+        for type, price in (("treasure", 300), ("restore", 100), ("armor", 300), ("weapon", 300)):
+            if locked_dice(50):
+                give_to_mc_item_reward(type, tier=2, price=price)
     jump forest_dark_continue
 
 label city_dark_forest_hideout_fight:
@@ -265,7 +259,7 @@ label city_dark_forest_fight:
 
     if result is True:
         $ give_to_mc_item_reward(["treasure", "scrolls", "consumables",
-                                 "potions", "restore"])
+                                 "potions", "restore"], tier=2)
     elif result == "escape":
         scene black
         pause 1.0

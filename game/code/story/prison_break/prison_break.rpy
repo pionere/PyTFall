@@ -337,16 +337,19 @@ label storyi_search_items:
             elif i == "food":
                 msg = "Most of the food is spoiled, but some of it is still edible."
                 prices = [500, 500, 500]
+            elif i == "alcohol":
+                msg = "The food is spoiled, but alcohol is still good..."
+                prices = [500, 500, 500]
             elif i == "dress":
                 msg = "There is a pile of clothes in the corner, probably remained from the former prisoners."
                 prices = [500, 500, 500]
             else:
                 continue
             narrator(msg)
-            found |= give_to_mc_item_reward(i, price=prices[0])
-            found |= give_to_mc_item_reward(i, price=prices[1])
+            found |= give_to_mc_item_reward(i, tier=2, price=prices[0])
+            found |= give_to_mc_item_reward(i, tier=2, price=prices[1])
             if dice(luck):
-                found |= give_to_mc_item_reward(i, price=prices[2])
+                found |= give_to_mc_item_reward(i, tier=2, price=prices[2])
 
         if not found:
             narrator("There is only trash on the floor.")

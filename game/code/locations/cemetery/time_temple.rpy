@@ -50,7 +50,7 @@ label time_temple:
                         temp += 150
 
                     if temp > 0:
-                        temp_charcters[i] = temp
+                        temp_charcters[i] = temp*(i.tier+3)
 
             if not temp_charcters:
                 t "I don't see the need in healing right now."
@@ -58,7 +58,7 @@ label time_temple:
                 $ del temp_charcters
                 jump time_temple_menu
             else:
-                $ res = sum(temp_charcters.values()) * 8
+                $ res = sum(temp_charcters.values())
 
                 t "I see your team could use our services. It will be [res] gold."
                 if hero.gold < res:
@@ -132,8 +132,8 @@ label time_temple:
             if not global_flags.has_flag("asked_miel_about_wounds"):
                 $ global_flags.set_flag("asked_miel_about_wounds")
                 t "I can heal your workers injuries. It's a common problem among adventurers these days."
-            $ temp_charcters = list(c for c in hero.chars if (c.is_available and "Injured" in c.effects))
-            $ p = len(temp_charcters)*150
+            $ temp_charcters = {c: 150*(c.tier+3) for c in hero.chars if (c.is_available and "Injured" in c.effects)}
+            $ p = sum(temp_charcters.values())
             if p == 0:
                 t "I don't think you need this service at the moment."
             elif hero.gold < p:

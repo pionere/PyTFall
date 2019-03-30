@@ -1353,7 +1353,7 @@
     "slot": "consumable",
     "type": "alcohol",
     "mod": {"mp": 10, "joy": 10},
-    "locations": ["Tavern"]
+    "locations": ["Tavern", "Exploration"]
     },
     {
     "id": "White Wine",
@@ -1370,7 +1370,7 @@
     "slot": "consumable",
     "type": "alcohol",
     "mod": {"mp": 8, "joy": 8},
-    "locations": ["Tavern"]
+    "locations": ["Tavern", "Exploration"]
     },
     {
     "id": "Champagne",
@@ -1387,7 +1387,7 @@
     "slot": "consumable",
     "type": "alcohol",
     "mod": {"mp": 5, "joy": 5},
-    "locations": ["Tavern"]
+    "locations": ["Tavern", "Exploration"]
     },
     {
     "id": "Beer",
@@ -1404,7 +1404,7 @@
     "slot": "consumable",
     "type": "alcohol",
     "mod": {"joy": 3},
-    "locations": ["Tavern"]
+    "locations": ["Tavern", "Exploration"]
     },
     {
     "id": "Whiskey",
