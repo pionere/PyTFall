@@ -265,10 +265,7 @@ label frog_deathfight:
                               background="battle_arena_1", end_background="arena_outside",
                               death=False, use_items=True)
 
-        if result is True:
-            for member in hero.team:
-                member.gfx_mod_exp(exp_reward(member, enemy_team, exp_mod=2))
-        else:
+        if result is not True:
             jump("game_over")
 
     show expression npcs["Xeona_arena"].get_vnsprite() as xeona

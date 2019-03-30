@@ -233,19 +233,11 @@ label city_beach_monsters_fight:
     $ result = interactions_pick_background_for_fight("beach")
     $ result = run_default_be(enemy_team, background=result, end_background="city_beach", give_up="escape", use_items=True)
 
-    scene bg city_beach
-
     if result is True:
-        if persistent.battle_results:
-            call screen give_exp_after_battle(hero.team, enemy_team)
-        else:
-            python hide:
-                for member in hero.team:
-                    member.gfx_mod_exp(exp_reward(member, enemy_team))
+        $ pass
     elif result is False:
         "The guards managed to drive away monsters, but your wounds are deep..."
     else:
-        $ be_hero_escaped(hero.team)
         scene black
         pause 1.0
     $ del result, enemy_team

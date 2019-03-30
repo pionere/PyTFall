@@ -115,7 +115,7 @@ init -11 python:
         return choice(battle_tracks)
 
     def be_hero_escaped(team):
-        '''Punished Hero team for escaping'''
+        '''Punish team for escaping'''
         for i in team:
             i.AP = 0
             mod_by_max(i, "vitality", -.3)
@@ -171,12 +171,20 @@ init -11 python:
                     if member != hero:
                         member.mod_stat("joy", -randint(5, 15))
 
-        if battle.combat_status in ("escape", "surrender"):
-            rv = battle.combat_status
-        else:
-            for mob in enemy_team:
-                defeated_mobs.add(mob.id)
-
+        rv = battle.combat_status
+        if rv == "escape":
+            be_hero_escaped(your_team)
+        elif rv != "surrender":
             rv = battle.win
+            if rv is True:
+                for mob in enemy_team:
+                    if mob.__class__ == Mob:
+                        defeated_mobs.add(mob.id)
+
+                if persistent.battle_results:
+                    renpy.call_screen("give_exp_after_battle", your_team, enemy_team)
+                else:
+                    for member in hero.team:
+                        member.gfx_mod_exp(exp_reward(member, enemy_team))
 
         return rv

@@ -168,10 +168,6 @@ label city_dark_forest_hideout:
 
         $ j += 1
 
-    # Could be wrong... but this looks like double :(
-    # if persistent.battle_results:
-    #     call screen give_exp_after_battle(hero.team, exp)
-
     show screen city_dark_forest
     scene bg forest_hideout
     with dissolve
@@ -204,16 +200,8 @@ label city_dark_forest_hideout_fight:
                               background=result, end_background=forest_location,
                               death=False, give_up="escape", use_items=True)
     if result is True:
-        if persistent.battle_results:
-            call screen give_exp_after_battle(hero.team, enemy_team)
-        else:
-            python hide:
-                for member in hero.team:
-                    member.gfx_mod_exp(exp_reward(member, enemy_team))
         $ del result, enemy_team
-
     elif result == "escape":
-        $ be_hero_escaped(hero.team)
         $ del result, enemy_team
         scene black
         pause 1.0
@@ -276,17 +264,9 @@ label city_dark_forest_fight:
                               death=False, give_up="escape", use_items=True)
 
     if result is True:
-        if persistent.battle_results:
-            call screen give_exp_after_battle(hero.team, enemy_team)
-        else:
-            python hide:
-                for member in hero.team:
-                    member.gfx_mod_exp(exp_reward(member, enemy_team))
-
         $ give_to_mc_item_reward(["treasure", "scrolls", "consumables",
                                  "potions", "restore"])
     elif result == "escape":
-        $ be_hero_escaped(hero.team)
         scene black
         pause 1.0
     else:

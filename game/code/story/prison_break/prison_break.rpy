@@ -256,23 +256,15 @@ label storyi_randomfight:  # initiates fight with random enemy team
         play world "Theme2.ogg" fadein 2.0 loop
 
         if storyi_prison_location not in storyi_treasures and dice(hero.get_stat("luck")+30):
-            $ money = randint(10, 30)
-            $ hero.add_money(money, reason="Loot")
-        else:
-            $ money = 0
-
-        if persistent.battle_results:
-            call screen give_exp_after_battle(hero.team, enemy_team, money=money)
-        else:
             python hide:
-                for member in hero.team:
-                    member.gfx_mod_exp(exp_reward(member, enemy_team))
+                money = randint(10, 30)
+                hero.add_money(money, reason="Loot")
+                gfx_overlay.random_find(money, 'gold')
 
-        $ del result, enemy_team, money
+        $ del result, enemy_team
         call storyi_show_bg from _call_storyi_show_bg_3
         jump storyi_gui_loop
     elif result == "escape":
-        $ be_hero_escaped(hero.team)
         $ del result, enemy_team
         scene black
         pause 1.0

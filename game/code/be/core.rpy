@@ -700,6 +700,7 @@ init -1 python: # Core classes:
                 self.winner = self.teams[1]
                 return True
             if self.logical and self.logical_counter >= self.max_turn:
+                self.win = False
                 self.winner = self.teams[1]
                 self.log("Battle went on for far too long! %s is considered the winner!" % self.winner.name)
                 return True

@@ -100,9 +100,9 @@ label interactions_escalation: # character was provoked to attack MC
 
     if result is True:
         python hide:
-            for member in hero.team:
-                member.gfx_mod_exp(exp_reward(member, enemy_team, exp_mod=.25))
             char.set_stat("health", 1)
+            char.gfx_mod_stat("disposition", -randint(100, 200)) # that's the beaten character, big penalty to disposition
+            char.gfx_mod_stat("affection", -randint(20,30))
             for member in hero.team:
                 if all([member != hero, member.status != "slave", not("Vicious" in member.traits), not("Yandere" in member.traits)]): # they don't like when MC harasses and then beats other chars, unless they are evil
                     if "Virtuous" in member.traits:
@@ -111,8 +111,6 @@ label interactions_escalation: # character was provoked to attack MC
                     else:
                         member.gfx_mod_stat("disposition", -randint(10, 20))
                         member.gfx_mod_stat("affection", -randint(1,3))
-        $ char.gfx_mod_stat("disposition", -randint(100, 200)) # that's the beaten character, big penalty to disposition
-        $ char.gfx_mod_stat("affection", -randint(20,30))
         $ del result, enemy_team
         call interactions_fight_lost from _call_interactions_fight_lost
         jump interactions_harrasment_after_battle

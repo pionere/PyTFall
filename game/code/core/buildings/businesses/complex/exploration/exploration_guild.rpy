@@ -1092,11 +1092,10 @@ init -6 python: # Guild, Tracker and Log.
                             msg = "{} died during a battle scenario.".format(member.name)
                             se_debug(msg)
 
-            for mob in enemy_team:
-                if mob in battle.corpses:
+            if battle.winner == team:
+                for mob in enemy_team:
                     tracker.mobs_defeated[mob.id] += 1
 
-            if battle.winner == team:
                 log.suffix = set_font_color("Victory", "lawngreen")
                 for w in team:
                     if w in battle.corpses:

@@ -206,6 +206,7 @@ label city_tavern_brawl_fight:
                 "Run away":
                     "You quickly leave the tavern."
                     $ hero.set_flag("dnd_fought_in_tavern")
+                    $ del num, i
                     jump city
 
         call city_tavern_thugs_fight from _call_city_tavern_thugs_fight
@@ -215,13 +216,15 @@ label city_tavern_brawl_fight:
                 "You were beaten and robbed..."
             else:
                 "You were beaten..."
-                jump city
+            $ del num, i
+            jump city
 
         $ i += 1
 
     "The fight is finally over. You found a few coins in thugs pockets."
     $ hero.add_money(randint(50, 150)*(i+1), reason="Tavern")
     $ hero.set_flag("dnd_fought_in_tavern")
+    $ del num, i
     jump city
 
 
@@ -271,10 +274,7 @@ label city_tavern_thugs_fight: # fight with random thugs in the brawl mode
         result = run_default_be(enemy_team, skill_lvl=3, use_items=True,
                                 background=back, end_background="tavern_inside")
 
-        if result is True:
-            for member in hero.team:
-                member.gfx_mod_exp(exp_reward(member, enemy_team))
-        else:
+        if result is not True:
             hero.set_flag("dnd_fought_in_tavern")
     return
 

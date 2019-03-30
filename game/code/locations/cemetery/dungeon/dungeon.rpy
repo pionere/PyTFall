@@ -227,13 +227,7 @@ init -1 python:
                                     slaves=False, prebattle=False,
                                     death=True, use_items=True) # TODO: maybe make escape working here too?
 
-            if result is True:
-                if persistent.battle_results:
-                    renpy.call_screen("give_exp_after_battle", hero.team, enemy_team)
-                else:
-                    for member in hero.team:
-                        member.gfx_mod_exp(exp_reward(member, enemy_team))
-            else:
+            if result is not True:
                 jump("game_over")
 
         def grab_item(self, item, sound=None):

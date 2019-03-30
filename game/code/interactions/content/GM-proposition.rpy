@@ -79,7 +79,6 @@ label interactions_sparring: # sparring with MC, for Combatant occupations only
                                 use_items=True)
 
         if result is True:
-            hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.25))
             char.gfx_mod_stat("disposition", randint(15, 30))
         elif result is False:
             char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.25))

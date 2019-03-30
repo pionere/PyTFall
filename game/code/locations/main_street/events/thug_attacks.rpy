@@ -39,8 +39,6 @@ label city_events_thugs_robbery:
                         enemy_team.add(mob)
                     result = run_default_be(enemy_team, slaves=True, background=back, end_background="street_alley")
                     if result is True:
-                        for member in hero.team:
-                            member.gfx_mod_exp(exp_reward(member, enemy_team))
                         renpy.jump("city_events_thugs_robbery_win")
                     else:
                         renpy.jump("city_events_thugs_robbery_lost")
@@ -86,9 +84,6 @@ label city_events_thugs_robbery_attack:
 
         if result is True:
             # win
-            for member in hero.team:
-                member.gfx_mod_exp(exp_reward(member, enemy_team))
-
             g = randint(10, 40)
             hero.add_money(g, reason="Events")
             gfx_overlay.random_find(g, 'gold')
