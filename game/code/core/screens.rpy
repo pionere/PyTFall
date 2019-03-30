@@ -266,28 +266,17 @@ screen top_stripe(show_return_button=True, return_button_action=None,
 
         # Left HBox: ======================================================>>>>>>
         # AP Frame/Next Day button:
-        $ tc_0 = any([renpy.current_screen().tag == "next_day", hero.AP == 0])
-        $ tc_1 = show_lead_away_buttons and renpy.current_screen().tag not in ["mainscreen"]
-        $ pp_h = hero.PP / 25
-
-        $ tt_string = "You have %s Action %s" % (hero.AP, plural("Point", hero.AP))
-        if pp_h:
-            $ tt_string += " and %s Partial (Action) %s" % (pp_h, plural("Point", pp_h))
-        $ tt_string += " to interact with the world!"
-
-        if all([tc_0, tc_1, not pp_h]):
+        hbox:
+            xalign .4
+            spacing 5
+            # Remaining AP:
+            $ tt_string = "You have %s Action %s" % (hero.AP, plural("Point", hero.AP))
+            $ pp_h = hero.PP
+            if pp_h:
+                $ tt_string += " and %s Partial (Action) %s" % (pp_h, plural("Point", pp_h))
+            $ tt_string += " to interact with the world!"
             button:
-                style_group "basic"
-                align (.5, .6)
-                tooltip "Next Day for businesses and game world in general!"
-                if renpy.current_screen().tag == "next_day":
-                    action Return(['control', "next_day_local"])
-                else:
-                    action (hs, Function(global_flags.set_flag, "nd_music_play"), Jump("next_day"))
-                text "Next Day"
-        else:
-            button:
-                xalign .5 ypos 3
+                ypos 3
                 xysize 170, 50
                 focus_mask True
                 background ProportionalScale("content/gfx/frame/frame_ap.webp", 170, 50)
@@ -305,10 +294,23 @@ screen top_stripe(show_return_button=True, return_button_action=None,
                             color "pink"
                             style "proper_stats_text"
                             yoffset 7
+            # Next Day:
+            if show_lead_away_buttons and renpy.current_screen().tag not in ["mainscreen"]:
+                $ img = ProportionalScale("content/gfx/interface/buttons/sunset.png", 80, 40)
+                imagebutton:
+                    idle img
+                    hover im.MatrixColor(img, im.matrix.brightness(.15))
+                    if renpy.current_screen().tag == "next_day":
+                        action Return(['control', "next_day_local"])
+                    else:
+                        action (hs, Function(global_flags.set_flag, "nd_music_play"), Jump("next_day"))
+                    tooltip "Next Day"
+            else:
+                null width 80 # just a placeholder to keep the top stripe more static
 
         # Right HBox:
         hbox:
-            align (.8, .5)
+            align (.9, .5)
             spacing 5
             if False:
                 textbutton "F":
