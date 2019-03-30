@@ -44,7 +44,7 @@ init -950 python:
     if persistent.unsafe_mode is None:
         persistent.unsafe_mode = True
     if persistent.battle_results is None:
-        persistent.battle_results = True
+        persistent.battle_results = False
     if persistent.auto_saves is None:
         persistent.auto_saves = False
     if persistent.intro is None:

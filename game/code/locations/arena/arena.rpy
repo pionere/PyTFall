@@ -51,8 +51,6 @@ init -9 python:
             self.hero_match_result = None
             self.daily_report = []
 
-            self.result = None
-
             # Chanfighting:
             self.chain_fights = {f["id"]: f for f in load_db_json("arena_chainfights.json")}
             self.chain_fights_order = list(f["id"] for f in sorted(self.chain_fights.values(), key=itemgetter("level")))
@@ -467,14 +465,12 @@ init -9 python:
             Checks if player team is ready for a dogfight.
             """
             if len(hero.team) != len(team):
-                renpy.call_screen("message_screen", "Make sure that your team has %d members!"%len(team))
-                return
-            for member in hero.team:
-                if member != hero and member.status == "slave":
-                    return "%s is a slave and slaves are not allowed to fight in the Arena under the penalty of death to both a slave and the owner!"%member.name
+                return "Make sure that your team has %d members!"%len(team)
             for member in hero.team:
                 if member.AP < 2:
                     return "%s does not have enough Action Points for a fight (2 required)!"%member.name
+                if member.status == "slave":
+                    return "%s is a slave and slaves are not allowed to fight in the Arena under the penalty of death to both a slave and the owner!"%member.name
 
             hlvl = hero.team.get_level()
             elvl = team.get_level()
@@ -541,11 +537,10 @@ init -9 python:
                 return "Make sure that your team has %d members!"%len(team)
 
             for member in hero.team:
-                if member.status == "slave":
-                    return "%s is a slave and slaves are not allowed to fight in the Arena under the penalty of death to both slave and the owner!"%member.name
-            for member in hero.team:
                 if member.AP < 2:
                     return "%s does not have enough Action Points for a fight (2 required)!"%member.name
+                if member.status == "slave":
+                    return "%s is a slave and slaves are not allowed to fight in the Arena under the penalty of death to both slave and the owner!"%member.name
 
             # If we got this far, we can safely take AP off teammembers:
             for member in hero.team:
@@ -805,28 +800,23 @@ init -9 python:
 
             self.cf_count = 1
 
+            # Select Opponent:
+            result = renpy.call_screen("chain_fight")
+            if result == "break":
+                renpy.show_screen("arena_inside")
+                return
+
+            # If we got this far, we can safely take AP off teammembers:
+            for member in hero.team:
+                member.AP -= 2
+
+            self.cf_setup = self.chain_fights[result]
+
             self.setup_chainfight()
 
         def setup_chainfight(self):
             """Setting up a chainfight.
             """
-            # Case: First battle:
-            if not self.cf_mob:
-                # renpy.hide_screen("arena_inside")
-                renpy.call_screen("chain_fight")
-
-                result, self.result = self.result, None
-
-                if result == "break":
-                    renpy.show_screen("arena_inside")
-                    return
-
-                # If we got this far, we can safely take AP off teammembers:
-                for member in hero.team:
-                    member.AP -= 2
-
-                self.cf_setup = self.chain_fights[result]
-
             # Picking an opponent(s):
             num_opps = len(hero.team)
             team = Team(name=self.cf_setup.get("id", "Captured Creatures"), max_size=num_opps)

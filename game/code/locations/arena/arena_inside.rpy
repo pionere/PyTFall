@@ -1086,19 +1086,19 @@ init: # ChainFights vs Mobs:
                                     xfill True
                                     ysize 60
                                     background None
-                                    action [SetField(pytfall.arena, "result", setup), Hide("arena_inside"), Hide("chain_fight"), Return("Bupkis")]
+                                    action [Hide("arena_inside"), Hide("chain_fight"), Return(setup)]
                                     align (.5, .5)
                                     text "Fight!" style "arena_badaboom_text" size 40 outlines [(2, "#3a3a3a", 0, 0)]
                 null height 5
                 button:
                     style_group "basic"
-                    action SetField(pytfall.arena, "result", "break"), Return("Bupkis")
+                    action Return("break")
                     minimum(50, 30)
                     align (.5, .9995)
                     text  "Close"
                     keysym "mousedown_3"
         else:
-            timer .5 action [SetField(pytfall.arena, "result", "break"), Return("Bupkis")]
+            timer .5 action Return("break")
 
     screen arena_minigame(data, length):
         zorder 2

@@ -139,11 +139,11 @@ init -11 python:
         if your_team is None:
             your_team = Team(name="Your Team")
             for member in hero.team:
-                if member.status == "slave" and slaves:
-                    member.controller = BE_AI(member)
-                    your_team.add(member)
-                elif member.status == "free":
+                if member.status == "free":
                     member.controller = None # no AI -> controlled by the player
+                    your_team.add(member)
+                elif slaves: # and member.status == "slave"
+                    member.controller = BE_AI(member)
                     your_team.add(member)
 
         # Controllers:

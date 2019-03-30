@@ -154,15 +154,8 @@ screen graveyard_town():
             pos(1090, 180)
             idle (img_mausoleum)
             hover (im.MatrixColor(img_mausoleum, im.matrix.brightness(.15)))
-            if day >= global_flags.get_flag("can_access_cemetery_dungeon", 0):
-                tooltip "Dungeon\nBeware all who enter here"
-                action [Hide("graveyard_town"), Jump("enter_dungeon")]
-            else:
-                if global_flags.flag("can_access_cemetery_dungeon")-day >= 2:
-                    tooltip "You may re-enter in {} days.".format(global_flags.flag("can_access_cemetery_dungeon")-day)
-                else:
-                    tooltip "You may re-enter tomorrow."
-                action NullAction()
+            action [Hide("graveyard_town"), Jump("enter_dungeon")]
+            tooltip "Dungeon\nBeware all who enter here"
 
     if gm.show_girls:
         key "mousedown_3" action ToggleField(gm, "show_girls")

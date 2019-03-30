@@ -136,7 +136,7 @@ init -11 python:
         and function will return False, otherwise True
         """
         for i in hero.team:
-            if i.AP - value < 0:
+            if i.AP < value:
                 return False
         for i in hero.team:
             i.AP -= value

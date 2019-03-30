@@ -122,6 +122,7 @@ label time_temple:
                             renpy.with_statement(Dissolve(.4))
 
                             hero.AP = hero.setAP
+                            hero.PP = 0
                         t "Your time has been returned to you. Come again if you need me."
                     "No":
                         $ pass

@@ -212,7 +212,7 @@ label city_dark_forest_hideout_fight:
                     member.gfx_mod_exp(exp_reward(member, enemy_team))
         $ del result, enemy_team
 
-    elif result == "escaoe":
+    elif result == "escape":
         $ be_hero_escaped(hero.team)
         $ del result, enemy_team
         scene black
@@ -285,16 +285,14 @@ label city_dark_forest_fight:
 
         $ give_to_mc_item_reward(["treasure", "scrolls", "consumables",
                                  "potions", "restore"])
-        $ del result, enemy_team
-        jump forest_dark_continue
     elif result == "escape":
         $ be_hero_escaped(hero.team)
-        $ del result, enemy_team
         scene black
         pause 1.0
-        jump forest_dark_continue
     else:
         jump game_over
+    $ del result, enemy_team
+    jump forest_dark_continue
 
 label dark_forest_girl_meet:
     $ hero.set_flag("dnd_dark_forest_girl")
