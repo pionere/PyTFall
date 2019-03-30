@@ -283,19 +283,20 @@ screen top_stripe(show_return_button=True, return_button_action=None,
                 action NullAction()
                 tooltip tt_string
                 hbox:
-                    align .8, .1
+                    yalign .1
+                    xpos 105
                     label "[hero.AP]":
                         style "content_label"
                         text_size 23
                         text_color "ivory"
                         text_bold True
                     if pp_h:
-                        text "[pp_h]":
+                        text "%02d"%pp_h:
                             color "pink"
                             style "proper_stats_text"
                             yoffset 7
             # Next Day:
-            if show_lead_away_buttons and renpy.current_screen().tag not in ["mainscreen"]:
+            if show_lead_away_buttons and renpy.current_screen().tag != "mainscreen":
                 $ img = ProportionalScale("content/gfx/interface/buttons/sunset.png", 80, 40)
                 imagebutton:
                     idle img
