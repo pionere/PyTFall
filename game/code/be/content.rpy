@@ -168,7 +168,7 @@ init python:
         def __call__(self, *args, **kwargs):
             source = self.source
 
-            if source.status == "free":
+            if source.status == "free" and source.take_pp():
                 msg = "%s skips a turn." % source.nickname
 
                 # Restoring Vitality:
@@ -185,7 +185,7 @@ init python:
                     source.mp += temp
                     msg += " {color=dodgerblue}+%d MP{/color}" % temp
                 battle.log(msg)
-            else: # Slaves case...
+            else: # Slaves or inactive character:
                 msg = "%s stands still." % source.nickname
                 battle.log(msg)
 

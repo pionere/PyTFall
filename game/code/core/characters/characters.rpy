@@ -792,7 +792,7 @@ init -9 python:
                 if ap <= 0:
                     return False
                 ap -= 1
-                value -= 100
+                value -= 100    # PP_PER_AP = 100
             self.AP = ap
             if value != 0:
                 self.PP -= value

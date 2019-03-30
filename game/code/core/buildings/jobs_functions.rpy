@@ -1,7 +1,7 @@
 init -10 python:
     def convert_ap_to_jp(char):
         # Do not convert AP when Char is in school.
-        char.PP += char.AP*100 # += is safer here.
+        char.PP += char.AP*100 # += is safer here. PP_PER_AP
         char.AP = 0
 
     def payout(job, effectiveness, difficulty, building, business, worker, clients, log):

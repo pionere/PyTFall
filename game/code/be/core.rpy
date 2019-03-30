@@ -14,6 +14,9 @@ init -1 python: # Core classes:
             self.attack_skills = char.attack_skills
             self.magic_skills = char.magic_skills
 
+            self.AP = char.AP
+            self.PP = char.PP
+
             self.health = char.get_stat("health")
             self.delayedhp = self.health
             self.maxhp = char.get_max("health")
@@ -199,7 +202,22 @@ init -1 python: # Core classes:
                     be_items[item] = amount
             return be_items
 
+        def take_pp(self):
+            if self.PP < 10:
+                if self.AP <= 0:
+                    return False
+                self.PP += 100 # PP_PER_AP = 100
+                self.AP -= 1
+            self.PP -= 10
+            return True
+
+        def has_pp(self):
+            return self.AP > 0 or self.PP >= 10
+
         def restore_char(self):
+            self.char.AP = self.AP
+            self.char.PP = self.PP
+
             self.char.set_stat("health", self.health)
             self.char.set_stat("mp", self.mp)
             self.char.set_stat("vitality", self.vitality)
@@ -427,7 +445,7 @@ init -1 python: # Core classes:
                 # Lets render the teammembers:
                 for team in self.teams:
                     for member in team:
-                        member.portrait = member.char.show('portrait', resize=(93, 93), cache=True)
+                        member.portrait = member.char.show('portrait', resize=(118, 118), cache=True)
                         member.angry_portrait = member.char.show("portrait", "angry", resize=(65, 65), type='reduce', cache=True)
                         self.show_char(member, at_list=[Transform(pos=self.get_icp(team, member))])
 
@@ -973,26 +991,26 @@ init -1 python: # Core classes:
                 return False
 
             # Check if attacker has enough resources for the attack:
-            if not isinstance(self.mp_cost, int):
-                mp_cost = int(member.maxmp*self.mp_cost)
-            else:
-                mp_cost = self.mp_cost
+            cost = self.mp_cost
+            if not isinstance(cost, int):
+                cost = int(member.maxmp*cost)
+            if member.mp < cost:
+                return False
 
-            if not isinstance(self.health_cost, int):
-                health_cost = int(member.maxhp*self.health_cost)
-            else:
-                health_cost = self.health_cost
+            cost = self.vitality_cost
+            if not isinstance(cost, int):
+                cost = int(member.maxvit*cost)
+            if member.vitality < cost:
+                return False
 
-            if not isinstance(self.vitality_cost, int):
-                vitality_cost = int(member.maxvit*self.vitality_cost)
-            else:
-                vitality_cost = self.vitality_cost
+            cost = self.health_cost
+            if not isinstance(cost, int):
+                cost = int(member.maxhp*cost)
+            if member.health <= cost:
+                return False
 
-            # We need to make sure that we have enough resources for this one:
-            # Making sure we cannot kill the source by taking off all the health:
-            if (member.mp - mp_cost >= 0) and (member.health - health_cost > 0) and (member.vitality - vitality_cost >= 0):
-                if self.get_targets(member):
-                    return True
+            # Check if there is a target in sight
+            return self.get_targets(member)
 
         # Logical Effects:
         def effects_resolver(self, targets):
@@ -1339,25 +1357,26 @@ init -1 python: # Core classes:
 
         def settle_cost(self):
             # Here we need to take of cost:
-            if not(isinstance(self.mp_cost, int)):
-                mp_cost = int(self.source.maxmp*self.mp_cost)
-            else:
-                mp_cost = self.mp_cost
-            if not(isinstance(self.health_cost, int)):
-                health_cost = int(self.source.maxhp*self.health_cost)
-            else:
-                health_cost = self.health_cost
-            if not(isinstance(self.vitality_cost, int)):
-                vitality_cost = int(self.source.maxvit*self.vitality_cost)
-            else:
-                vitality_cost = self.vitality_cost
+            source = self.source
+            source.take_pp()
 
-            self.source.mp -= mp_cost
-            self.source.health = max(1, self.source.health - health_cost)
-            self.source.vitality -= vitality_cost
+            cost = self.mp_cost
+            if not(isinstance(cost, int)):
+                cost = int(self.source.maxmp*cost)
+            source.mp -= cost
+
+            cost = self.health_cost
+            if not(isinstance(cost, int)):
+                cost = int(self.source.maxhp*cost)
+            source.health -= cost
+
+            cost = self.vitality_cost
+            if not(isinstance(cost, int)):
+                cost = int(self.source.maxvit*cost)
+            source.vitality -= cost
 
             if not battle.logical:
-                self.source.update_delayed()
+                source.update_delayed()
 
         # Game/Gui Assists:
         def get_element(self):

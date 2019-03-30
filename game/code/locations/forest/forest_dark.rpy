@@ -105,13 +105,13 @@ label city_dark_forest_explore:
             jump city_dark_forest_hideout
 
 label city_dark_forest_ruines_part:
-    if not(take_team_ap(2)):
+    if not(take_team_ap(1)):
         if len(hero.team) > 1:
             "Unfortunately, your team is too tired to explore dungeons. Maybe another time."
         else:
             "Unfortunately, you are too tired to explore dungeons. Maybe another time."
 
-        "Each member of your party should have at least 2 AP."
+        "Each member of your party should have at least 1 AP."
 
         $ global_flags.set_flag("keep_playing_music")
         jump forest_dark_continue

@@ -467,8 +467,6 @@ init -9 python:
             if len(hero.team) != len(team):
                 return "Make sure that your team has %d members!"%len(team)
             for member in hero.team:
-                if member.AP < 2:
-                    return "%s does not have enough Action Points for a fight (2 required)!"%member.name
                 if member.status == "slave":
                     return "%s is a slave and slaves are not allowed to fight in the Arena under the penalty of death to both a slave and the owner!"%member.name
 
@@ -488,10 +486,6 @@ init -9 python:
                 else:
                     team.leader.say("We are not looking for a fight outside of our league.")
                     return
-
-            # If we got this far, we can safely take AP off teammembers:
-            for member in hero.team:
-                member.AP -= 2
 
             renpy.scene(layer="screens")
 
@@ -537,14 +531,8 @@ init -9 python:
                 return "Make sure that your team has %d members!"%len(team)
 
             for member in hero.team:
-                if member.AP < 2:
-                    return "%s does not have enough Action Points for a fight (2 required)!"%member.name
                 if member.status == "slave":
                     return "%s is a slave and slaves are not allowed to fight in the Arena under the penalty of death to both slave and the owner!"%member.name
-
-            # If we got this far, we can safely take AP off teammembers:
-            for member in hero.team:
-                member.AP -= 2
 
             renpy.hide_screen("arena_inside")
             renpy.hide_screen("arena_1v1_fights")
@@ -793,8 +781,6 @@ init -9 python:
             Checks before chainfight.
             """
             for member in hero.team:
-                if member.AP < 2:
-                    return "%s does not have enough Action Points to start a chain fight (2 AP required)!"%member.name
                 if member.status == "slave":
                     return "%s is a Slave forbidden from participation in Combat!"%member.name
 
@@ -805,10 +791,6 @@ init -9 python:
             if result == "break":
                 renpy.show_screen("arena_inside")
                 return
-
-            # If we got this far, we can safely take AP off teammembers:
-            for member in hero.team:
-                member.AP -= 2
 
             self.cf_setup = self.chain_fights[result]
 
@@ -860,6 +842,10 @@ init -9 python:
             """
             team = self.cf_mob
 
+            member_aps = []
+            for member in hero.team:
+                member_aps.append((member.AP, member.PP))
+
             renpy.music.stop(channel="world")
             global battle
             if auto is True:
@@ -881,10 +867,11 @@ init -9 python:
                 renpy.music.stop(fadeout=1.0)
 
             if battle.winner == hero.team:
-                for member in hero.team:
+                for member, aps in zip(hero.team, member_aps):
                     # Awards:
                     if member not in battle.corpses:
-                        rew_xp = exp_reward(member, team, exp_mod=.3)
+                        aps = aps[0] - member.AP + (aps[1] - member.PP)/100.0 # PP_PER_AP = 100
+                        rew_xp = exp_reward(member, team, exp_mod=aps*.15)
                         rew_rep = max(int(self.mob_power*.2), 1) # only little bit of reputation
                         #rew_gold = 0 # no gold for mobs, because they give items, unlike all other modes
                         member.mod_exp(rew_xp)
@@ -1014,14 +1001,15 @@ init -9 python:
             renpy.music.play(track, fadein=1.5)
             renpy.pause(.5)
 
+            member_aps = {}
             start_health = 0
-            finish_health = 0
+            for member in hero.team:
+                start_health += member.get_stat("health")
+                member_aps[member] = (member.AP, member.PP)
 
             for member in enemy_team:
                 member.controller = Complex_BE_AI(member)
-
-            for member in hero.team:
-                start_health += member.get_stat("health")
+                member_aps[member] = (member.AP, member.PP)
 
             battle = BE_Core(bg="battle_dogfights_1", start_sfx=get_random_image_dissolve(1.5),
                              end_bg="battle_arena_1", end_sfx=dissolve, give_up="surrender")
@@ -1037,6 +1025,11 @@ init -9 python:
             else:
                 loser = hero.team
 
+            for member in chain(winner, loser):
+                aps = member_aps[member]
+                member_aps[member] = aps[0] - member.AP + (aps[1] - member.PP)/100.0 # PP_PER_AP = 100
+
+            finish_health = 0
             for member in hero.team:
                 finish_health += member.get_stat("health")
 
@@ -1053,7 +1046,7 @@ init -9 python:
 
             for member in winner:
                 if member not in battle.corpses:
-                    rew_xp = exp_reward(member, loser, exp_mod=2)
+                    rew_xp = exp_reward(member, loser, exp_mod=member_aps[member])
                     rew_rep = int(rep)
 
                     member.mod_exp(rew_xp)
@@ -1076,7 +1069,7 @@ init -9 python:
             rep = rep / 10.0
             for member in loser:
                 member.arena_rep -= int(rep)
-                member.mod_exp(exp_reward(member, winner, exp_mod=2*.15))
+                member.mod_exp(exp_reward(member, winner, exp_mod=member_aps[member]*.15))
                 self.remove_team_from_dogfights(member)
                 member.combat_stats = "K.O."
 
@@ -1111,8 +1104,13 @@ init -9 python:
             renpy.pause(1.3)
             renpy.music.play(track, fadein=1.5)
 
+            member_aps = {}
+            for member in hero.team:
+                member_aps[member] = (member.AP, member.PP)
+
             for member in enemy_team:
                 member.controller = Complex_BE_AI(member)
+                member_aps[member] = (member.AP, member.PP)
 
             global battle
             battle = BE_Core(bg="battle_arena_1", start_sfx=get_random_image_dissolve(1.5),
@@ -1129,12 +1127,16 @@ init -9 python:
             else:
                 loser = hero.team
 
+            for member in chain(winner, loser):
+                aps = member_aps[member]
+                member_aps[member] = aps[0] - member.AP + (aps[1] - member.PP)/100.0 # PP_PER_AP = 100
+
             rew_rep = self.arena_rep_reward(loser, winner)
             rew_gold = int(max(200, 250*(float(loser.get_level()) /max(1, winner.get_level()))))
 
             for member in winner:
                 if member not in battle.corpses:
-                    rew_xp = exp_reward(member, loser, exp_mod=2)
+                    rew_xp = exp_reward(member, loser, exp_mod=member_aps[member])
 
                     member.mod_exp(rew_xp)
                     member.arena_rep += int(rew_rep)
@@ -1157,7 +1159,7 @@ init -9 python:
             rew_rep = rew_rep / 10.0
             for member in loser:
                 member.arena_rep -= int(rew_rep)
-                member.mod_exp(exp_reward(member, winner, exp_mod=2*.15))
+                member.mod_exp(exp_reward(member, winner, exp_mod=member_aps[member]*.15))
                 # self.remove_team_from_dogfights(member)
                 member.combat_stats = "K.O."
 

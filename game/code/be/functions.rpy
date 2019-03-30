@@ -150,6 +150,8 @@ init -11 python:
         for member in enemy_team:
             member.controller = Complex_BE_AI(member)
 
+        pre_aps = [(member.AP, member.PP) for member in your_team]
+
         global battle
         battle = BE_Core(background, start_sfx=get_random_image_dissolve(1.5),
                     end_bg=end_background, end_sfx=dissolve,
@@ -181,10 +183,14 @@ init -11 python:
                     if mob.__class__ == Mob:
                         defeated_mobs.add(mob.id)
 
+                ap_used = {}
+                for member, aps in zip(hero.team, pre_aps):
+                    ap_used[member] = aps[0] - member.AP + (aps[1] - member.PP)/100.0 # PP_PER_AP = 100
+
                 if persistent.battle_results:
-                    renpy.call_screen("give_exp_after_battle", your_team, enemy_team)
+                    renpy.call_screen("give_exp_after_battle", your_team, enemy_team, ap_used)
                 else:
                     for member in hero.team:
-                        member.gfx_mod_exp(exp_reward(member, enemy_team))
+                        member.gfx_mod_exp(exp_reward(member, enemy_team, exp_mod=ap_used[member]))
 
         return rv

@@ -378,16 +378,6 @@ label enter_dungeon:
         $ del temp
         jump graveyard_town
 
-    if not(take_team_ap(2)):
-        if len(hero.team) > 1:
-            "Unfortunately, your team is too tired to explore dungeons. Maybe another time."
-        else:
-            "Unfortunately, you are too tired to explore dungeons. Maybe another time."
-
-        "Each member of your party should have at least 2 AP."
-        $ global_flags.set_flag("keep_playing_music")
-        jump graveyard_town
-
     menu:
         "This old dungeon looks dangerous. Are you sure you want to go in?"
         "Yes":

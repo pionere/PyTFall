@@ -117,8 +117,12 @@ screen pick_skill(char):
         magic.sort(key=attrgetter("name"))
 
         # Collect the currently usable attacks/spells:
-        active_attacks = [i for i in attacks if i.check_conditions(char)]
-        active_magic = [i for i in magic if i.check_conditions(char)]
+        if char.has_pp():
+            active_attacks = [i for i in attacks if i.check_conditions(char)]
+            active_magic = [i for i in magic if i.check_conditions(char)]
+        else:
+            active_attacks = []
+            active_magic = []
 
     if menu_mode == "top":
         frame:
@@ -303,15 +307,10 @@ screen battle_overlay(be):
                         profile_img = im.Sepia(profile_img)
                     except:
                         pass
-                scr = renpy.get_screen("pick_skill")
-                if scr:
-                    char = scr.scope["_args"][0] # This is not the best code :(
-                if scr and member == char:
-                    portrait_frame = im.Twocolor("content/gfx/frame/MC_bg3.png", "grey", "grey")
-                    img = "content/gfx/frame/ink_box.png"
-                else:
-                    portrait_frame = "content/gfx/frame/MC_bg3.png"
-                    img = "content/gfx/frame/ink_box.png"
+                portrait_frame = "content/gfx/frame/MC_bg3.png"
+                img = "content/gfx/frame/ink_box.png"
+                if battle.controller == member:
+                    portrait_frame = im.Twocolor(portrait_frame, "grey", "grey")
 
             frame:
                 style_prefix "proper_stats"
@@ -319,10 +318,10 @@ screen battle_overlay(be):
                 padding 5, 3
                 has hbox spacing 3
 
-                # Girl Image:
+                # Char Image:
                 frame:
                     background Frame(portrait_frame, 5 ,5)
-                    xysize 95, 95
+                    xysize 120, 120
                     padding 2, 2
                     yalign .5
                     add profile_img align .5, .5 alpha .96
@@ -335,13 +334,26 @@ screen battle_overlay(be):
                     has vbox
 
                     label "[member.name]":
+                        yalign .03
                         text_size 16
                         text_bold True
-                        yalign .03
-                        if isinstance(member, Char):
-                            text_color "pink"
-                        else:
-                            text_color "ivory"
+                        text_color ("pink" if isinstance(member, Char) else "ivory")
+
+                    # AP, PP
+                    $ ap = member.AP
+                    $ pp = member.PP
+                    fixed:
+                        ysize 25
+                        yoffset -4
+                        frame:
+                            xysize 140, 25
+                            align .5, .5
+                            background im.Scale("content/gfx/frame/frame_ap.webp", 140, 25)
+                            hbox:
+                                align .8, .1
+                                text "[ap]" size 16 bold True style_suffix "value_text" yoffset -2 color "ivory"
+                                if pp:
+                                    text "[pp]" size 12 style_suffix "value_text" yoffset 4 color "pink"
 
                     $ health = member.delayedhp
                     fixed:

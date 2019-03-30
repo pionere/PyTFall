@@ -1114,7 +1114,7 @@ screen panic_screen():
     key "й" action Hide("panic_screen")
     key "Й" action Hide("panic_screen")
 
-screen give_exp_after_battle(group, enemy_team, ap_used=1, money=0):
+screen give_exp_after_battle(group, enemy_team, ap_used):
     modal True
     zorder 100
 
@@ -1137,14 +1137,7 @@ screen give_exp_after_battle(group, enemy_team, ap_used=1, money=0):
 
         # actually give the EXP:
         for b in bars:
-            timer .01 action Function(b.mod_exp, exp_reward(b.char, enemy_team, exp_mod=ap_used)) repeat False
-
-        if money > 0:
-            hbox:
-                xalign .5
-                text ("You found [money]") size 20 align (.5, .5) style "proper_stats_value_text" bold True outlines [(1, "#181818", 0, 0)] color "#DAA520"
-                null width 5
-                add "coin_top" align (.5, .5)
+            timer .01 action Function(b.mod_exp, exp_reward(b.char, enemy_team, exp_mod=ap_used[b.char])) repeat False
 
         style_prefix "wood"
         null height 15
