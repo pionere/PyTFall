@@ -32,77 +32,125 @@ label graveyard_town:
                 jump city
 
 label show_dead_list:
-    $ dead_list = list(pytfall.afterlife.inhabitants) # list of dead characters
-    if dead_list:
-        $ random.shuffle(dead_list) # randomizing list every time the screen opens
-        $ number = 0
-        show screen cemetry_list_of_dead_chars (dead_list, number)
-        with dissolve
-        while 1:
-            $ result = ui.interact()
-    else:
+    $ dead_chars = pytfall.afterlife.inhabitants # list of dead characters
+    if not dead_chars:
         "You look around, but all tombstones are old and worn out. Nothing interesting."
-        $ del dead_list
+        $ del dead_chars
         jump graveyard_town
 
-label show_dead_list_without_shuffle:
-    show screen cemetry_list_of_dead_chars (dead_list, number)
+    $ dead_chars = dead_chars.items()
+    $ num_chars = len(dead_chars)
+    $ number = randint(0, num_chars-1) # start from a random point
+
+    show screen cemetry_list_of_dead_chars
+    with dissolve
+
+    hide screen graveyard_town
+    with dissolve
+
     while 1:
         $ result = ui.interact()
 
-screen cemetry_list_of_dead_chars(dead_list, number): # the list should not be empty!
-    on "show":
-        action Hide("graveyard_town", dissolve)
-    # on "hide":
-        # action Show("graveyard_town", dissolve)
+        if result == "next":
+            $ number -= 1
+            if number < 0:
+                $ number = num_chars-1
+        elif result == "prev":
+            $ number += 1
+            if number == num_chars:
+                $ number = 0
+        elif result == "exit":
+            hide screen cemetry_list_of_dead_chars
+            with dissolve
 
-    frame:
-        align (.5, .5)
-        xysize (234, 420)
-        background Frame("content/gfx/frame/tombstone.png", 234, 420)
-        vbox:
-            align (.54, .65)
-            $ character = dead_list[number]
+            $ del dead_chars, num_chars, number
+            jump graveyard_town
 
-            if character.has_image('portrait', 'indifferent'):
-                $ char_profile_img = character.show('portrait', 'indifferent', resize=(99, 99), cache=True)
-            else:
-                $ char_profile_img = character.show('portrait', 'happy', resize=(99, 99), cache=True, type="reduce")
+screen cemetry_list_of_dead_chars(): # the list should not be empty!
+    python:
+        data = dead_chars[number]
+        data = [data[0], data[1]]   # 0-1. char, date
+        data.append((.5, .5))       # 2. tombstone align
+        data.append((234, 420))     # 3. tombstone size
+        data.append(99)             # 4. portrait size
+        data.append(16)             # 5. text/box size
+        charslist = [None, data, None]
+        if num_chars >= 3:
+            num = (number-1)%num_chars
+            data = dead_chars[num]
+            data = [data[0], data[1]]   # 0-1. char, date
+            data.append((.2, .6))       # 2. tombstone align
+            data.append((180, 315))     # 3. tombstone size
+            data.append(60)             # 4. portrait size
+            data.append(12)             # 5. text/box size
+            charslist[0] = data
 
+            num = (number+1)%num_chars
+            data = dead_chars[num]
+            data = [data[0], data[1]]   # 0-1. char, date
+            data.append((.8, .6))       # 2. tombstone align
+            data.append((180, 315))     # 3. tombstone size
+            data.append(60)             # 4. portrait size
+            data.append(12)             # 5. text/box size
+            charslist[2] = data
+
+    for data in charslist:
+        if data is not None:
             frame:
-                background Frame("content/gfx/frame/MC_bg.png")
-                add im.Sepia(char_profile_img) align .5, .5
-                xalign .5
-                xysize (102, 102)
+                align data[2]
+                xysize data[3]
+                background Frame(im.Scale("content/gfx/frame/tombstone.png", *data[3]))
+                vbox:
+                    align (.5, .7)
+                    $ character, date = data[0], data[1]
 
-            spacing 5
+                    if character.has_image('portrait', 'indifferent'):
+                        $ char_profile_img = character.show('portrait', 'indifferent', resize=(data[4], data[4]), cache=True)
+                    else:
+                        $ char_profile_img = character.show('portrait', 'happy', resize=(data[4], data[4]), cache=True, type="reduce")
 
-            frame:
-                background Frame("content/gfx/frame/namebox3.png")
-                xsize 160
-                text ([character.name]) xalign .5 style "stats_value_text" color "silver":
-                    if len(character.name) > 10:
-                        size 12
+                    frame:
+                        background Frame("content/gfx/frame/MC_bg.png")
+                        add im.Sepia(char_profile_img) align .5, .5
+                        xalign .5
+                        xysize (data[4]+3, data[4]+3)
 
-            frame:
-                background Frame("content/gfx/frame/namebox3.png")
-                xsize 160
-                text ("[character.level] lvl") xalign .5 style "stats_value_text" color "silver"
+                    spacing 5
 
-    $ img = "content/gfx/interface/buttons/next.png"
-    $ img1 = im.Flip("content/gfx/interface/buttons/next.png", horizontal=True)
+                    frame:
+                        background Frame("content/gfx/frame/namebox3.png")
+                        xsize data[5]*10
+                        text ([character.name]) align .5, .5 size data[5] style "stats_value_text" color "silver":
+                            if len(character.name) > 10:
+                                size data[5]-4
 
-    imagebutton:
-        align (.415, .62)
-        idle (img1)
-        hover (im.MatrixColor(img1, im.matrix.brightness(.15)))
-        action [Jump("cemetery_prev_char")]
+                    frame:
+                        background Frame("content/gfx/frame/namebox3.png")
+                        xsize data[5]*10
+                        text ("[character.level] lvl") align .5, .5 size data[5] style "stats_value_text" color "silver"
 
-    imagebutton:
-        align (.59, .62)
-        idle (img)
-        hover (im.MatrixColor(img, im.matrix.brightness(.15)))
-        action [Jump("cemetery_next_char")]
+                    frame:
+                        background Frame("content/gfx/frame/namebox3.png")
+                        xsize data[5]*10
+                        text ("[date]") align .5, .5 size data[5]-2 style "stats_value_text" color "silver"
+
+    if num_chars > 1:
+        $ img = "content/gfx/interface/buttons/next.png"
+        $ img1 = im.Flip(img, horizontal=True)
+
+        imagebutton:
+            align (.415, .62)
+            idle (img1)
+            hover (im.MatrixColor(img1, im.matrix.brightness(.15)))
+            action Return("next")
+            keysym "mousedown_4"
+
+        imagebutton:
+            align (.59, .62)
+            idle (img)
+            hover (im.MatrixColor(img, im.matrix.brightness(.15)))
+            action Return("prev")
+            keysym "mousedown_5"
 
     vbox:
         style_group "wood"
@@ -110,23 +158,9 @@ screen cemetry_list_of_dead_chars(dead_list, number): # the list should not be e
         button:
             xysize (120, 40)
             yalign .5
-            action [Hide("cemetry_list_of_dead_chars"), Jump("graveyard_town")]
+            action Return("exit")
             text "Exit" size 15
             keysym "mousedown_3"
-
-label cemetery_prev_char:
-    if number > 0:
-        $ number -= 1
-    else:
-        $ number = len(dead_list)-1
-    jump show_dead_list_without_shuffle
-
-label cemetery_next_char:
-    if number < len(dead_list)-1:
-        $ number += 1
-    else:
-        $ number = 0
-    jump show_dead_list_without_shuffle
 
 screen graveyard_town():
 

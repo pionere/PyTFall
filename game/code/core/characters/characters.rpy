@@ -323,9 +323,9 @@ init -9 python:
             homes.
             """
             if isinstance(self._home, HabitableLocation):
-                self._home.inhabitants.remove(self)
+                self._home.remove_inhabitant(self)
             if isinstance(value, HabitableLocation):
-                value.inhabitants.add(self)
+                value.add_inhabitant(self)
             self._home = value
 
         def settle_effects(self, key, value):

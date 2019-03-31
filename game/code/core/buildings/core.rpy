@@ -123,8 +123,23 @@ init -10 python:
         def get_daily_modifier(self):
             return self.daily_modifier
 
+        def add_inhabitant(self, char):
+            self.inhabitants.add(char)
+        def remove_inhabitant(self, char):
+            self.inhabitants.remove(char)
+
         def __str__(self):
             return str(getattr(self, "name", self.id))
+
+    class AfterLife(HabitableLocation):
+        """
+        """
+        def __init__(self):
+            super(AfterLife, self).__init__(id="After Life", daily_modifier=.0, desc="No one knows where is this place and what's going on there")
+            self.inhabitants = OrderedDict()
+
+        def add_inhabitant(self, char):
+            self.inhabitants[char] = calendar.string()
 
     class InvLocation(HabitableLocation):
         """Location with an inventory:

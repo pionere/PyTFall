@@ -39,7 +39,7 @@ init -9 python:
 
             self.city = HabitableLocation(id="City Apartments", daily_modifier=.2, desc="Girls apartments somewhere in the city")
             self.streets = HabitableLocation(id="Streets", daily_modifier=-.1, desc="Cold and unneighborly city alleys")
-            self.afterlife = HabitableLocation(id="After Life", daily_modifier=.0, desc="No one knows where is this place and what's going on there")
+            self.afterlife = AfterLife()
 
             self.hp = GuiHeroProfile()
 

@@ -1294,6 +1294,12 @@ label after_load:
 
             del store.locations
 
+        if not isinstance(pytfall.afterlife, AfterLife):
+            afterlife = pytfall.afterlife
+            pytfall.afterlife = AfterLife()
+            for char in afterlife.inhabitants:
+                pytfall.afterlife.add_inhabitant(char)
+
     python hide:
         if getattr(store, "chars_list_state", None):
             cls = store.chars_list_state
