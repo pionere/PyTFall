@@ -296,7 +296,7 @@ init -9 python:
             try:
                 return items[self.page]
             except IndexError:
-                if self.page - 1 >= 0:
+                if self.page >= 1:
                     self.page -= 1
                     return items[self.page]
                 else:
@@ -329,14 +329,16 @@ init -9 python:
             if isinstance(item, basestring):
                 item = store.items[item]
 
-            if self.items.get(item, 0) - amount >= 0:
-                self.items[item] = self.items.get(item, 0) - amount
-                if self.items[item] <= 0:
-                    del(self.items[item])
-                    if item in self.filtered_items:
-                        self.filtered_items.remove(item)
-                return True
-            return False
+            num = self.items.get(item, 0) - amount
+            if num < 0:
+                return False
+            if num == 0:
+                self.items.pop(item, 0)
+                if item in self.filtered_items:
+                    self.filtered_items.remove(item)
+            else:
+                self.items[item] = num
+            return True
 
         def clear(self):
             """Removes ALL items from inventory!!!

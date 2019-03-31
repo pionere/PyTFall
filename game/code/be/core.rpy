@@ -1345,7 +1345,7 @@ init -1 python: # Core classes:
             if not isinstance(targets, (list, tuple, set)):
                 targets = [targets]
             for t in targets:
-                if t.health - t.beeffects[0] > 0:
+                if t.health > t.beeffects[0]:
                     t.health -= t.beeffects[0]
                 else:
                     t.health = 1
@@ -1474,7 +1474,7 @@ init -1 python: # Core classes:
 
                 if real_passed_time < stamp:
                     pause = stamp-real_passed_time
-                    if pause-.05 > 0:
+                    if pause > .05:
                         # devlog.info("Paused for: {}".format(round(pause, 2)))
                         # ui.pausebehavior(pause, False)
                         # ui.interact(mouse='pause', type='pause', roll_forward=None)

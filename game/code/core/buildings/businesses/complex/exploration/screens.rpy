@@ -368,7 +368,7 @@ screen building_management_midframe_exploration_guild_mode:
                 align .5, .97
                 hbox:
                     spacing 5
-                    $ temp = workers.page - 1 >= 0
+                    $ temp = workers.page >= 1
                     button:
                         style_suffix "button_left2x"
                         tooltip "First Page"
@@ -407,7 +407,7 @@ screen building_management_midframe_exploration_guild_mode:
             xalign .5 ypos 611
             hbox:
                 spacing 5
-                $ temp = guild_teams.page - 1 >= 0
+                $ temp = guild_teams.page >= 1
                 button:
                     style_suffix "button_left2x"
                     tooltip "First Page"

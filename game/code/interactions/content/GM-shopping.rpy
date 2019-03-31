@@ -127,9 +127,7 @@ label interactions_shopping:
                         focus = False
 
                     elif purchasing_dir == 'sell':
-                        result = bool(pytfall.tailor_store.gold - focus.price >= 0)
-
-                        if result:
+                        if pytfall.tailor_store.gold >= focus.price:
                             pytfall.tailor_store.gold -= focus.price
                             hero.add_money(focus.price, reason="Items")
                             char.inventory.remove(focus)

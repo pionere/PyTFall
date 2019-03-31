@@ -303,7 +303,7 @@ init python:
                 renpy.pause(.2)
                 renpy.hide("bb")
 
-            if t.health - damage > 0:
+            if t.health > damage:
                 t.health -= damage
                 msg = "%s is poisoned! {color=green}☠: %d{/color}" % (t.name, damage)
                 battle.log(msg)
@@ -769,21 +769,22 @@ init python:
                 char = source
             else:
                 char = self.source
-            if not(isinstance(self.mp_cost, int)):
-                mp_cost = int(char.maxmp*self.mp_cost)
-            else:
-                mp_cost = self.mp_cost
-            if not(isinstance(self.health_cost, int)):
-                health_cost = int(char.maxhp*self.health_cost)
-            else:
-                health_cost = self.health_cost
-            if not(isinstance(self.vitality_cost, int)):
-                vitality_cost = int(char.maxvit*self.vitality_cost)
-            else:
-                vitality_cost = self.vitality_cost
-            if (char.mp - mp_cost >= 0) and (char.health - health_cost >= 0) and (char.vitality - vitality_cost >= 0):
-                if self.get_targets(char):
-                    return True
+            cost = self.mp_cost
+            if not(isinstance(cost, int)):
+                cost = int(char.maxmp*cost)
+            if char.mp < cost:
+                return False
+            cost = self.vitality_cost
+            if not(isinstance(cost, int)):
+                cost = int(char.maxvit*cost)
+            if char.vitality < cost:
+                return False
+            cost = self.health_cost
+            if not(isinstance(cost, int)):
+                cost = int(char.maxhp*cost)
+            if cost <= char.health:
+                return False
+            return self.get_targets(char)
 
         def effects_resolver(self, targets):
             if not isinstance(targets, (list, tuple, set)):

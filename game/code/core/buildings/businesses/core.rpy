@@ -141,7 +141,7 @@ init -12 python:
 
             # relocate the possible extra inhabitant
             if self.habitable and building.vacancies < 0:
-                for char in building.inhabitants: break
+                char = next(iter(building.inhabitants))
                 char.home = pytfall.streets
 
         def get_client_count(self):
