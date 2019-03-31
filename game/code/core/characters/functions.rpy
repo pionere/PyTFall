@@ -335,15 +335,24 @@ init -11 python:
                 else:
                     bt_go_base = STATIC_CHAR.GEN_OCCS
                 bt_go_base = choice(bt_go_base)
-            selection = [choice(tuple(gen_occ_basetraits[bt_go_base]))]
-            if dice(50):
+            base_traits = list(gen_occ_basetraits[bt_go_base])
+            selection = [choice(base_traits)]
+            dist = randint(0, 100)
+            if dist > 50:
                 # multiclass
-                if rg.status == "slave":
-                    bt_go_base = STATIC_CHAR.SLAVE_GEN_OCCS
+                if dist > 80 or len(base_traits) == 1:
+                    # choose an occ from other occ-group
+                    curr_occ = bt_go_base
+                    if rg.status == "slave":
+                        bt_go_base = STATIC_CHAR.SLAVE_GEN_OCCS
+                    else:
+                        bt_go_base = STATIC_CHAR.GEN_OCCS
+                    bt_go_base = [t for t in bt_go_base if bt_go_base != curr_occ]
+                    base_traits = tuple(gen_occ_basetraits[choice(bt_go_base)])
                 else:
-                    bt_go_base = STATIC_CHAR.GEN_OCCS
-                bt_go_base = choice(bt_go_base)
-                selection.append(choice(tuple(gen_occ_basetraits[bt_go_base])))
+                    # select another occ from the same occ-group
+                    base_traits.remove(selection[0])
+                selection.append(choice(base_traits))
 
         basetraits = set()
         for t in selection:
