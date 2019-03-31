@@ -52,80 +52,70 @@ screen new_style_tooltip_content(tooltip):
                 # else:
                 #     $ line = "{color=orange}Status skill{/color}"
 
-                if "inevitable" in combat_skill.attributes:
-                    $ line = "Can't be dodged!"
-                else:
-                    $ line = None
-
-                if combat_skill.critpower != 0:
-                    if combat_skill.critpower > 0:
-                        $ critpower = "+[combat_skill.critpower]%"
-                    else:
-                        $ critpower = "[combat_skill.critpower]%"
-                else:
-                    $ critpower = None
-
-                if combat_skill.effect > 0:
-                    $ effect = "[combat_skill.effect]"
-                else:
-                    $ effect = None
-
                 # Elements:
                 text "[combat_skill.name]" size 20 color "ivory" outlines [(2, "#3a3a3a", 0, 0)]
                 text "[combat_skill.desc]" color "ivory"
 
                 null height 5
 
-                if line:
+                if "inevitable" in combat_skill.attributes:
                     hbox:
                         xsize 170
-                        text "{}".format(line)
+                        text "Can't be dodged!" italic True
                 hbox:
                     xsize 200
                     text "Damage: "
                     text "[temp]" xalign 1.0
-                if critpower:
+
+                $ value = combat_skill.critpower
+                if value != 0:
+                    if value > 0:
+                        $ value = "+%s"%str(value)
                     hbox:
                         xsize 200
                         text "Critical damage:"
-                        text "%s" % critpower xalign 1.0
-                if effect:
+                        text "%s%%"%str(value) xalign 1.0
+                $ value = combat_skill.effect
+                if value != 0:
                     hbox:
                         xsize 200
                         text "Relative power:"
-                        text "%s" % effect xalign 1.0
+                        text "%s"%str(value) xalign 1.0
+                $ value = combat_skill.multiplier
+                if value != 0:
+                    hbox:
+                        xsize 200
+                        text "Damage multiplier:"
+                        text "%s"%str(value) xalign 1.0
 
                 null height 5
 
                 hbox:
                     spacing 10
-                    if combat_skill.health_cost > 0:
-                        if isinstance(combat_skill.health_cost, int):
-                            text "HP: [combat_skill.health_cost] " color "red"
-                        else:
-                            $ value = int(combat_skill.health_cost * 100)
-                            text "HP: [value] % " color "red"
-                    if combat_skill.mp_cost > 0:
-                        if isinstance(combat_skill.mp_cost, int):
-                            text "MP: [combat_skill.mp_cost] " color "blue"
-                        else:
-                            $ value = int(combat_skill.mp_cost * 100)
-                            text "MP: [value] % " color "blue"
-
-                    if combat_skill.vitality_cost > 0:
-                        if isinstance(combat_skill.vitality_cost, int):
-                            text "VP: [combat_skill.vitality_cost] " color "green"
-                        else:
-                            $ value = int(combat_skill.vitality_cost * 100)
-                            text "VP: [value] % " color "green"
+                    $ value = combat_skill.health_cost
+                    if value != 0:
+                        if not isinstance(value, int):
+                            $ value = "%d %%" % int(value * 100)
+                        text "HP: %s"%str(value) color "red"
+                    $ value = combat_skill.mp_cost
+                    if value != 0:
+                        if not isinstance(value, int):
+                            $ value = "%d %%" % int(value * 100)
+                        text "MP: %s"%str(value) color "royalblue"
+                    $ value = combat_skill.vitality_cost
+                    if value != 0:
+                        if not isinstance(value, int):
+                            $ value = "%d %%" % int(value * 100)
+                        text "VP: %s"%str(value) color "green"
                     if (combat_skill.type=="all_enemies" and combat_skill.piercing) or combat_skill.type=="all_allies":
-                        text "Target: All" color "gold"
+                        $ value = "All"
                     elif combat_skill.type=="all_enemies":
-                        text "Target: First Row" color "gold"
+                        $ value = "First Row"
                     elif combat_skill.piercing:
-                        text "Target: Any" color "gold"
+                        $ value = "Any"
                     else:
-                        text "Target: One" color "gold"
+                        $ value = "One"
+                    text "Target: %s"%value color "gold"
 
 image water_texture__ = Movie(channel="main_gfx_bow", play="content/gfx/animations/water_texture_webm/movie.webm")
 
@@ -267,7 +257,7 @@ screen top_stripe(show_return_button=True, return_button_action=None,
         # Left HBox: ======================================================>>>>>>
         # AP Frame/Next Day button:
         hbox:
-            xalign .4
+            xalign .45
             spacing 5
             # Remaining AP:
             $ tt_string = "You have %s Action %s" % (hero.AP, plural("Point", hero.AP))
