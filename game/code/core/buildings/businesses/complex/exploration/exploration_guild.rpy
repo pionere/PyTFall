@@ -192,9 +192,9 @@ init -6 python: # Guild, Tracker and Log.
             area = self.area
             building = self.guild.building
 
-            # Main and Sub Area Stuff:
-            area.logs.extend([l for l in self.logs if l.ui_log])
-            area.trackers.remove(self)
+            # finish off dead members
+            for char in self.died:
+                kill_char(char)
 
             # Settle rewards and update data:
             if len(self.team) != 0:
@@ -204,15 +204,16 @@ init -6 python: # Guild, Tracker and Log.
                 if cash_earned:
                     hero.add_money(cash_earned, reason="Exploration Guild")
                     building.fin.log_logical_income(cash_earned, "Exploration Guild")
-                inv = building.inventory if hasattr(building, "inventory") else hero.inventory
+                inv = getattr(building, "inventory", hero.inventory)
                 for i, a in found_items.items():
                     item = items[i]
                     inv.append(item, a)
-                for char in self.captured_chars:
-                    pytfall.jail.add_capture(char)
+                for char, data in self.captured_chars:
+                    pytfall.jail.add_capture(char) # FIXME special chars?
 
                 chars_captured = len(self.captured_chars)
 
+                # Main and Sub Area Stuff:
                 area.mobs_defeated = add_dicts(area.mobs_defeated, self.mobs_defeated)
                 area.found_items = add_dicts(area.found_items, found_items)
                 area.cash_earned += cash_earned
@@ -255,8 +256,18 @@ init -6 python: # Guild, Tracker and Log.
                 # FIXME lost special items? 
                 charmod = None
 
-            # Restore Chars and Remove from guild:
+                # scramble the logs
+                for l in self.logs:
+                    if dice(50):
+                        l.txt = [" . . . "]
+                self.log("\n . . . \n")
+
+            # Remove Tracker:
+            area.trackers.remove(self)
             self.guild.explorers.remove(self)
+
+            # update area log
+            area.logs.extend([l for l in self.logs if l.ui_log])
 
             # Next Day Stuff:
             # Not sure if this is required... we can add log objects and build
@@ -273,8 +284,9 @@ init -6 python: # Guild, Tracker and Log.
                 img.add(Transform(vp, align=(.5, .9)))
 
             # We need to create major report for nd to keep track of progress:
-            for log in [l for l in self.logs if l.nd_log]:
-                txt.append("\n".join(log.txt))
+            for l in self.logs:
+                if l.nd_log:
+                    txt.append("\n".join(l.txt))
 
             evt = NDEvent(type='explorationndreport',
                           img=img,
@@ -438,36 +450,53 @@ init -6 python: # Guild, Tracker and Log.
                 result = yield process(self.travel_to(tracker))
                 if result == "arrived":
                     tracker.state = None
-            elif tracker.died:
-                died = []
-                for d in tracker.died:
-                    if dice(tracker.risk) and not dice(d.get_stat("luck")):
-                        kill_char(d)
-                        died.append(d)
-                    else:
-                        d.enable_effect("Injured", duration=3)
+            elif tracker.state == "traveling back":
+                if tracker.traveled is None and tracker.died:
+                    died = []
+                    for d in tracker.died:
+                        if dice(tracker.risk) and not dice(d.get_stat("luck")):
+                            died.append(d)
+                        else:
+                            d.enable_effect("Injured", duration=8)
+                    if died:
+                        temp = "{color=red}%s{/color} did not make it through the night. RIP." % ", ".join([d.fullname for d in died])
+                        tracker.log(temp)
 
-                if died:
-                    temp = "{color=red}%s{/color} did not make it through the night. RIP." % ", ".join([d.fullname for d in died])
-                    tracker.log(temp)
-                if len(tracker.team) == 0:
-                    tracker.finish_exploring() # Build the ND report!
-                    self.env.exit() # They're done...
-                # The remaining team is heading home -> reset the died list so they can sleep during the nights
-                tracker.died = list()
-                tracker.daily_items = None # lose the daily items # FIXME lost special items?
-            # Set the state to traveling back if we're done:
-            elif tracker.state != "traveling back" and tracker.day - tracker.traveled >= tracker.days:
-                tracker.state = "traveling back"
-                tracker.traveled = None # Reset for traveling back.
+                        # release captured chars
+                        for char, data in tracker.captured_chars:
+                            if isinstance(char, rChar):
+                                remove_from_gameworld(char)
+                            elif isinstance(char, Char):
+                                temp = getattr(char, "dict_id", char.id)
+                                data = [data[0], max(1, data[1]/2)] # 'reduced' chance from now on
+                                tracker.area.chars[temp] = data
+                            else:
+                                # special char -> add back to area
+                                data = [data[0], max(1, data[1]/2)] # 'reduced' chance from now on
+                                tracker.area.special_chars[char] = data
 
-            if tracker.state == "traveling back":
+                        if len(tracker.team) == len(died):
+                            tracker.state = "died off"
+                            tracker.traveled = 0
+                            tracker.distance = 2*self.travel_distance(tracker) # delay ND report
+                            self.env.exit() # They're done...
+
+                    # The remaining team is heading home
+                    tracker.died = died        # update deads-list
+                    tracker.daily_items = None # lose the daily items # FIXME lost special items?
+
+                # travel back
                 result = yield process(self.travel_back(tracker))
                 if result == "back2guild":
                     tracker.finish_exploring() # Build the ND report!
                     self.env.exit() # We're done...
+            elif tracker.state == "died off":
+                tracker.traveled += 20
+                if tracker.traveled >= tracker.distance:
+                    tracker.finish_exploring() # Build the ND report!
+                self.env.exit() # We're done...
 
-            elif self.env.now < 75: # do not go on exploring if the day is mostly over
+            if self.env.now < 75: # do not go on exploring if the day is mostly over
                 if tracker.state is None:
                     # just arrived to the location -> decide what to do
                     if tracker.building_camp:
@@ -496,10 +525,18 @@ init -6 python: # Guild, Tracker and Log.
 
             # Go to rest
             result = self.overnight(tracker)
+            tracker.day += 1
+            # Set the state to traveling back if we're done:
             if result == "go2guild":
                 tracker.state = "traveling back"
                 tracker.traveled = None # Reset for traveling back.
-            tracker.day += 1
+
+        @staticmethod
+        def travel_distance(tracker):
+            # setup the distance. This can be offset by traits and stats in the future. (except when the team dies off)
+            distance = tracker.base_distance
+            delta = int(distance * .3)
+            return distance + randint(0, delta) - delta/2
 
         def travel_to(self, tracker):
             # Env func that handles the travel to routine.
@@ -513,13 +550,16 @@ init -6 python: # Guild, Tracker and Log.
             # Figure out how far we can travel in steps of 5 DU:
             # Understanding here is that any team can travel 20 KM per day on average.
             if tracker.traveled is None:
-                temp = "{color=green}%s{/color} is en route to {color=lightgreen}%s{/color}." % (team_name, area_name)
-                tracker.log(temp)
+                # setup the distance.
+                tracker.distance = self.travel_distance(tracker)
 
-                # setup the distance. This can be offset by traits and stats in the future.
-                tracker.distance = tracker.base_distance
-                delta = int(tracker.base_distance * .3)
-                tracker.distance += randint(0, delta) - delta/2
+                temp = "{color=green}%s{/color} is en route to {color=lightgreen}%s{/color}." % (team_name, area_name)
+                for char in tracker.team:
+                    if "Injured" in char.effects:
+                        tracker.distance *= 2
+                        temp += " The progression of the team is slowed due to injuries."
+                        break
+                tracker.log(temp)
 
                 tracker.traveled = 0
 
@@ -560,15 +600,19 @@ init -6 python: # Guild, Tracker and Log.
             # Figure out how far we can travel in 5 du:
             # Understanding here is that any team can travel 20 KM per day on average.
             if tracker.traveled is None:
+                # setup the distance.
+                tracker.distance = self.travel_distance(tracker)
+
                 temp = "{color=green}%s{/color} is traveling back home." % team_name
+                for char in tracker.team:
+                    if "Injured" in char.effects:
+                        tracker.distance *= 2
+                        temp += " The progression of the team is slowed due to injuries."
+                        break
                 tracker.log(temp)
 
-                # setup the distance. This can be offset by traits and stats in the future.
-                tracker.distance = tracker.base_distance
-                delta = int(tracker.base_distance * .3)
-                tracker.distance += randint(0, delta) - delta/2
-
                 tracker.traveled = 0
+
             while 1:
                 yield self.env.timeout(5) # We travel...
 
@@ -684,17 +728,8 @@ init -6 python: # Guild, Tracker and Log.
                     msg = "{} has finished an exploration scenario. (Day Ended)".format(team.name)
                     se_debug(msg)
 
+            rv = "ok"
             team_name = set_font_color(team.name, "green")
-            if tracker.died:
-                # some member(s) of the team died -> no rest for the remaining team, if any
-                if len(tracker.died) == len(team):
-                    # all members died -> just wait for the dawn to see if their make it
-                    tracker.log("The members of %s suffered fatal wounds. It is going to be a miracle if they make it through the night." % team_name)
-                else:
-                    # some members are alive -> send them back to the guild
-                    tracker.log("The remaining of %s has a sleepless night at the base camp." % team_name)
-                return "go2guild"
-
             in_camp = True
             if tracker.state is None:
                 temp = "After their journey %s spends the night in the camp!" % team_name
@@ -715,10 +750,23 @@ init -6 python: # Guild, Tracker and Log.
                     msg = "State '{}' unrecognized while team {} is overnighting in camp".format(tracker.state, team.name)
                     se_debug(msg, mode="warn")
                 temp = "Tracker of team '%s' is in unrecognized state '%s'" % (tracker.state, team.name)
+            if in_camp is True:
+                if tracker.died:
+                    # some member(s) of the team died -> no rest for the remaining team, if any
+                    if len(tracker.died) == len(team):
+                        # all members died -> just wait for the dawn to see if their make it
+                        tracker.log("The members of %s suffered fatal wounds. It is going to be a miracle if they make it through the night." % team_name)
+                    else:
+                        # some members are alive -> send them back to the guild
+                        tracker.log("The remaining of %s has a sleepless night at the base camp." % team_name)
+                    return "go2guild"
+
+                # check if exploration time is over
+                if (tracker.day - tracker.traveled + 1) >= tracker.days:
+                    rv = "go2guild"
             tracker.log(temp)
 
-            multiplier = tracker.area.daily_modifier * (200 - self.env.now) / 100
-            rv = "ok"
+            multiplier = tracker.area.daily_modifier * (200 - self.env.now) / 100.0
             if in_camp:
                 for o in tracker.area.camp_objects:
                     if hasattr(o, "daily_modifier_mod"):
@@ -746,7 +794,7 @@ init -6 python: # Guild, Tracker and Log.
                             mod = o.capt_daily_modifier_mod
                             for i in range(limit):
                                 capt_multiplier[i] *= mod
-                    for c, mod in zip(tracker.captured_chars, capt_multiplier):
+                    for (c, data), mod in zip(tracker.captured_chars, capt_multiplier):
                         mod -= 1.15 - tracker.area.daily_modifier
                         for stat in ("health", "mp", "vitality"):
                             mod_by_max(c, stat, mod)
@@ -942,10 +990,11 @@ init -6 python: # Guild, Tracker and Log.
                 if tracker.capture_chars and not self.env.now % 10:
                     # Special Chars:
                     ep = area.get_explored_percentage()
-                    for char, explored in area.special_chars.items():
-                        if ep >= explored:
+                    for char, data in area.special_chars.items():
+                        explored, chance = data
+                        if ep >= explored and dice(chance*.1):
                             del(area.special_chars[char])
-                            tracker.captured_chars.append(char)
+                            tracker.captured_chars.append((char, data))
 
                             temp = "Your team has captured a 'special' character: %s!" % char.name
                             temp = set_font_color(temp, "orange")
@@ -963,7 +1012,7 @@ init -6 python: # Guild, Tracker and Log.
                             del(area.chars[id])
 
                             char = store.chars[id]
-                            tracker.captured_chars.append(char)
+                            tracker.captured_chars.append((char, data))
                             temp = "Your team has captured {color=pink}%s{/color}!" % char.name
                             temp = set_font_color(temp, "lawngreen")
                             tracker.log(temp)
@@ -985,7 +1034,7 @@ init -6 python: # Guild, Tracker and Log.
                             if id == "any":
                                 id = None
                             char = build_rc(id=id, tier=tier, set_status="slave", set_locations=pytfall.streets)
-                            tracker.captured_chars.append(char)
+                            tracker.captured_chars.append((char, data))
                             temp = "Your team has captured %s!" % char.name
                             temp = set_font_color(temp, "lawngreen")
                             tracker.log(temp)
@@ -1058,9 +1107,9 @@ init -6 python: # Guild, Tracker and Log.
                 se_debug(msg)
 
             # Get a level we'll set the mobs to:
-            min_lvl = max(mobs[mob]["min_lvl"], tracker.area.tier*20)
+            lvl = (tracker.area.tier+1)*20
             for i in xrange(enemy_team_size):
-                temp = build_mob(id=mob, level=randint(min_lvl, min_lvl+10))
+                temp = build_mob(id=mob, level=lvl)
                 temp.controller = BE_AI(temp)
                 enemy_team.add(temp)
 
