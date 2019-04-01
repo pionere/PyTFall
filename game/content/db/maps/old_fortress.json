@@ -1,0 +1,68 @@
+[
+    {
+        "name": "Old Fortress",
+        "unlocked": false,
+        "stage": 6,
+        "img": "content/maps/dw_fortress.webp",
+        "allowed_objects": []
+    },
+    {
+        "name": "Fortress Entrance",
+        "area": "Old Fortress",
+        "img": "content/maps/dw_fortress.webp",
+        "stage": 1,
+        "tier": 0.75,
+		"desc": "This old fortress was used as a command post during the last war. It's nearly destroyed, but underground passage leads deep into the cliff.",
+        "unlocked": true,
+        "travel_time": 0.25,
+        "maxexplored": 2000,
+        "mobs": [],
+        "unlocks": {"Fortress Dungeon": 30},
+        "cash_limit": 150,
+        "items_limit": 400
+    },
+    {
+        "name": "Fortress Dungeon",
+        "area": "Old Fortress",
+        "img": "content/maps/dw_fortress.webp",
+        "stage": 2,
+        "tier": 1.0,
+        "desc": "The dungeon is filled with provisions stocks and weird equipment fragments.",
+        "unlocked": false,
+        "travel_time": 0.26,
+        "maxexplored": 2000,
+        "mobs": [],
+        "unlocks": {"Deep Caves": 35, "Crystal Caves": 65},
+        "cash_limit": 200,
+        "items_limit": 500
+    },
+    {
+        "name": "Deep Caves",
+        "area": "Old Fortress",
+        "img": "content/maps/dw_fortress.webp",
+        "stage": 3,
+        "tier": 1.4,
+        "desc": "A big network of semi flooded caves permeates the cliff.",
+        "unlocked": false,
+        "travel_time": 0.3,
+        "maxexplored": 800,
+        "mobs": [],
+        "unlocks": {},
+        "cash_limit": 250,
+        "items_limit": 500
+    },
+    {
+        "name": "Crystal Caves",
+        "area": "Old Fortress",
+        "img": "content/maps/dw_fortress.webp",
+        "stage": 4,
+        "tier": 2.0,
+        "desc": "These caves are filled with sparkling crystals charged with electricity, and the air itself is abuzz with the power.",
+        "unlocked": false,
+        "travel_time": 0.35,
+        "mobs": [],
+        "unlocks": {},
+        "cash_limit": 400,
+        "items_limit": 600
+    }
+]

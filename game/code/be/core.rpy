@@ -900,9 +900,6 @@ init -1 python: # Core classes:
             self.effects_resolver(t)
             died = self.apply_effects(t)
 
-            if not isinstance(died, (list, set, tuple)):
-                died = list()
-
             if not battle.logical:
                 self.time_gfx(t, died)
 
@@ -1022,9 +1019,6 @@ init -1 python: # Core classes:
             But it is this method that writes to the log to be displayed later... (But you can change even this :D)
             """
             # prepare the variables:
-            if not isinstance(targets, (list, tuple, set)):
-                targets = [targets]
-
             a = self.source
             attributes = self.attributes
 
@@ -1152,13 +1146,17 @@ init -1 python: # Core classes:
             a = self.source
 
             if "melee" in self.attributes:
-                attack = (a.attack*.7 + a.agility*.3 + self.effect) * self.multiplier
+                attack = a.attack*.7 + a.agility*.3
             elif "ranged" in self.attributes:
-                attack = (a.attack*.7 + a.intelligence*.3 + self.effect) * self.multiplier
+                attack = a.attack*.7 + a.intelligence*.3
             elif "magic" in self.attributes:
-                attack = (a.magic*.7 + a.intelligence*.3 + self.effect) * self.multiplier
+                attack = a.magic*.7 + a.intelligence*.3
             elif "status" in self.attributes:
-                attack = (a.intelligence*.7 + a.agility*.3 + self.effect) * self.multiplier
+                attack = a.intelligence*.7 + a.agility*.3
+            else:
+                raise Exception("Skill %s does not have a valid delivery type[melee, ranged, magic or status] in its attributes" % self.name)
+            attack += self.effect
+            attack *= self.multiplier
 
             delivery = self.delivery
 
@@ -1223,14 +1221,12 @@ init -1 python: # Core classes:
 
             return defense if defense > 0 else 1
 
-        def damage_calculator(self, attack, defense, multiplier, attacker, absorbed=False):
+        def damage_calculator(self, damage, defense, multiplier, attacker, absorbed=False):
             """Used to calc damage of the attack.
             Before multipliers and effects are applied.
             """
-            if not absorbed:
-                damage = self.effect+attack
-            else:
-                damage = -attack
+            if absorbed:
+                damage = -damage
 
             damage *= multiplier * (75.0/(75 + defense)) * uniform(.90, 1.10)
 
@@ -1342,8 +1338,6 @@ init -1 python: # Core classes:
             # Here it is simple since we are only focusing on damaging health:
             # prepare the variables:
             died = list()
-            if not isinstance(targets, (list, tuple, set)):
-                targets = [targets]
             for t in targets:
                 if t.health > t.beeffects[0]:
                     t.health -= t.beeffects[0]
@@ -1412,9 +1406,6 @@ init -1 python: # Core classes:
             # Simple effects for the magic attack:
             attacker = self.source
             battle = store.battle
-
-            if not isinstance(targets, (list, tuple, set)):
-                targets = [targets]
 
             # We need to build a dict of pause timespamp: func to call.
             self.timestamps = {}
@@ -2034,7 +2025,7 @@ init -1 python: # Core classes:
                 # So we have a skill... now lets pick a target(s):
                 skill.source = self.source
                 targets = skill.get_targets() # Get all targets in range.
-                targets = targets if "all" in skill.type else choice(targets) # We get a correct amount of targets here.
+                targets = targets if "all" in skill.type else [choice(targets)] # We get a correct amount of targets here.
 
                 skill(ai=True, t=targets)
             else:
@@ -2082,7 +2073,7 @@ init -1 python: # Core classes:
                     targets = skill.get_targets(source=self.source)
                     if targets:
                         skill.source = self.source
-                        targets = targets if "all" in skill.type else choice(targets)
+                        targets = targets if "all" in skill.type else [choice(targets)]
                         skill(ai=True, t=targets)
                         return
 
@@ -2093,7 +2084,7 @@ init -1 python: # Core classes:
                     for t in targets:
                         if t.health < t.maxhp*.5:
                             skill.source = self.source
-                            targets = targets if "all" in skill.type else t
+                            targets = targets if "all" in skill.type else [t]
                             skill(ai=True, t=targets)
                             return
 
@@ -2103,7 +2094,7 @@ init -1 python: # Core classes:
                     targets = skill.get_targets(source=self.source)
                     if targets:
                         skill.source = self.source
-                        targets = targets if "all" in skill.type else random.choice(targets)
+                        targets = targets if "all" in skill.type else [choice(targets)]
                         skill(ai=True, t=targets)
                         return
 
@@ -2118,7 +2109,7 @@ init -1 python: # Core classes:
                     if not attack_skills or dice(70):
                         skill.source = self.source
                         targets = skill.get_targets()
-                        targets = targets if "all" in skill.type else random.choice(targets)
+                        targets = targets if "all" in skill.type else [choice(targets)]
                         skill(ai=True, t=targets)
                         return
 

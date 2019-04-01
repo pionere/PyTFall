@@ -17,7 +17,7 @@
         "travel_time": 0.2,
         "maxexplored": 500,
         "mobs": ["Slime", "Alkaline Slime", "Acid Slime", "Thug"],
-        "unlocks": {"Abnormal Sands": 90},
+        "unlocks": {"Abnormal Sands": 60, "Old Fortress": 90},
         "cash_limit": 50,
         "items_limit": 200
     },
@@ -27,7 +27,7 @@
         "img": "content/maps/waste_1.webp",
         "stage": 2,
         "tier": 1.0,
-        "desc": "Heavily damaged by abnormal weapons during the last war, over time fertile meadows became a small desert.",
+        "desc": "Heavily damaged by anomalistic weapons during the last war, over time fertile meadows became a small desert.",
         "unlocked": false,
         "travel_time": 1.0,
         "mobs": ["Amazon Thief", "Amazon Warrior", "Amazon Archer", "Boros"],

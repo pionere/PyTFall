@@ -722,8 +722,6 @@ init python:
             super(BasicHealingSpell, self).__init__()
 
         def effects_resolver(self, targets):
-            if not isinstance(targets, (list, tuple, set)):
-                targets = [targets]
             source = self.source
             attributes = self.attributes
             base_restore = self.get_attack()
@@ -743,8 +741,6 @@ init python:
                 self.log_to_battle(effects, restore, source, t, message=temp)
 
         def apply_effects(self, targets):
-            if not isinstance(targets, (list, tuple, set)):
-                targets = [targets]
             for t in targets:
                 t.health += t.beeffects[0]
                 if t.health > t.maxhp:
@@ -787,8 +783,6 @@ init python:
             return self.get_targets(char)
 
         def effects_resolver(self, targets):
-            if not isinstance(targets, (list, tuple, set)):
-                targets = [targets]
             char = self.source
             attributes = self.attributes
 
@@ -807,9 +801,6 @@ init python:
                 battle.log(s)
 
         def apply_effects(self, targets):
-            if not isinstance(targets, (list, tuple, set)):
-                targets = [targets]
-
             for t in targets:
                 battle.corpses.remove(t)
                 t.health = t.beeffects[0]
@@ -836,8 +827,6 @@ init python:
             self.defence_gfx = "default"
 
         def effects_resolver(self, targets):
-            if not isinstance(targets, (list, tuple, set)):
-                targets = [targets]
             source = self.source
             attributes = self.attributes
 
@@ -888,8 +877,6 @@ init python:
             super(ConsumeItem, self).init()
 
         def effects_resolver(self, targets):
-            if not isinstance(targets, (list, tuple, set)):
-                targets = [targets]
             source = self.source
             attributes = self.attributes
             item = self.item
@@ -898,8 +885,6 @@ init python:
                 battle.log("%s uses a %s!" % (source.nickname, item.id))
 
         def apply_effects(self, targets):
-            if not isinstance(targets, (list, tuple, set)):
-                targets = [targets]
             item = self.item
 
             self.source.remove_item(item)

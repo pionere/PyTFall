@@ -47,7 +47,7 @@ screen target_practice(skill, source, targets):
                         ysize 30
                         hovered Function(renpy.show, "enemy__"+str(index), **temp)
                         unhovered hide_action
-                        action Return(t)
+                        action Return([t])
                         text "[t.name]":
                             align .5, .5
                             style "dropdown_gm_button_text"
@@ -76,7 +76,7 @@ screen target_practice(skill, source, targets):
                 else:
                     hovered Function(renpy.show, "enemy__"+str(index), **temp)
                     unhovered hide_action
-                    action Return(t)
+                    action Return([t])
 
     for t in targets: # Show killed things for revival..
         if t in battle.corpses:
