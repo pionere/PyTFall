@@ -643,6 +643,8 @@ label after_load:
             pytfall.arena.hero_match_result = None 
         if hasattr(pytfall.arena, "setup"):
             del pytfall.arena.setup
+        if hasattr(pytfall.arena, "seen_report"):
+            del pytfall.arena.seen_report
 
         if hasattr(hero, "STATS"):
             for c in itertools.chain(chars.values(), [hero], hero.chars, npcs.values()):

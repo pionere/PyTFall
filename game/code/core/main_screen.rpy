@@ -49,30 +49,10 @@ label mainscreen:
     while 1:
         $ result = ui.interact()
 
-        #if len(result) > 1:
-        #    python:
-        #        renpy.hide_screen("mainscreen")
-        #        pytfall.arena.seen_report = True
-        #        jump(result[1])
-        if result[0] == "chars_list":
-            stop world
-            $ renpy.hide_screen("mainscreen")
-            $ pytfall.arena.seen_report = True
-            # scene bg gallery
-            # with irisin
-            $ jump(result[0])
-        elif result[0] == "city":
+        if result == "city":
             $ global_flags.set_flag("keep_playing_music")
-            $ renpy.hide_screen("mainscreen")
-            $ pytfall.arena.seen_report = True
-            scene bg pytfall
-            # with irisin
-            $ jump(result[0])
-        else:
-            python:
-                renpy.hide_screen("mainscreen")
-                pytfall.arena.seen_report = True
-                jump(result[0])
+        hide screen mainscreen
+        jump expression result
 
 screen mainscreen():
     key "mousedown_3" action Show("s_menu", transition=dissolve)
@@ -102,13 +82,13 @@ screen mainscreen():
             ypos 305
             spacing 15
             textbutton "Characters":
-                action Stop("world"), Hide("mainscreen"), Jump("chars_list")
+                action Return("chars_list")
                 tooltip "A list of all of your workers"
             textbutton "Buildings":
-                action Return(["building_management"])
-                tooltip "Manage here your properties and businesses"
+                action Return("building_management")
+                tooltip "Manage your properties and businesses"
             textbutton "Go to the City":
-                action Return(["city"])
+                action Return("city")
                 tooltip 'Explore the city'
 
             null height 5
