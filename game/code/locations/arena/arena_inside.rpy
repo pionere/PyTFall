@@ -697,7 +697,10 @@ init: # Main Screens:
                         text "-Unknown-" xalign .5 ypos -1 style "TisaOTM" color "indianred"
                         add im.Twocolor(img, "black", "black") xalign .5
                     else:
-                        text creature xalign .5 ypos -1 style "TisaOTM" color ("ivory" if in_focus_mob == data else "gold")
+                        text creature xalign .5 style "TisaOTM" size 20 color ("ivory" if in_focus_mob == data else "gold"):
+                            if len(creature) > 12:
+                                size 16
+                                yoffset 4
                         imagebutton:
                             xalign .5
                             idle img

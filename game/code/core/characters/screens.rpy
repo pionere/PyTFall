@@ -480,7 +480,7 @@ screen effect_info(effect, xsize, ysize, idle_color="ivory", strikethrough=False
             background Null()
             xysize (xsize, ysize)
             action NullAction()
-            text "[effect.name]" idle_color idle_color align .5, .5 hover_color "crimson" size font_size strikethrough strikethrough
+            text "[effect.name]" idle_color idle_color align .5, .5 hover_color "crimson" size font_size layout "nobreak" strikethrough strikethrough
             tooltip "%s" % effect.desc
             hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
 
@@ -496,7 +496,7 @@ screen skill_info(skill, xsize, ysize, idle_color="ivory", strikethrough=False):
             background Null()
             xysize (xsize, ysize)
             action NullAction()
-            text "[skill.name]" idle_color idle_color align .5, .5 hover_color "crimson" size font_size strikethrough strikethrough
+            text "[skill.name]" idle_color idle_color align .5, .5 hover_color "crimson" size font_size layout "nobreak" strikethrough strikethrough
             tooltip ["be", skill]
             hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
 
@@ -512,7 +512,7 @@ screen trait_info(trait, xsize, ysize, idle_color="ivory", strikethrough=False):
             background Null()
             xysize (xsize, ysize)
             action Show("show_trait_info", trait=trait.id)
-            text trait.id idle_color idle_color align .5, .5 hover_color "crimson" text_align .5 size font_size strikethrough strikethrough
+            text trait.id idle_color idle_color align .5, .5 hover_color "crimson" text_align .5 size font_size layout "nobreak" strikethrough strikethrough
             tooltip "%s" % trait.desc
             hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
 

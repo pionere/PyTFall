@@ -452,6 +452,21 @@ init -11 python:
             if "id" not in mob:
                 mob["id"] = mob["name"]
             # mob["defeated"] = 0 # We need to track if the mob was defeated for bestiary.
+
+            # make sure the following fields exist so we do not have to check at runtime
+            for field in ["attack_skills", "magic_skills", "traits", "basetraits"]:
+                if field not in mob:
+                    mob[field] = []
+            for field in ["stats", "skills"]:
+                if field not in mob:
+                    mob[field] = {}
+            if "min_lvl" not in mob:
+                mob["min_lvl"] = 1
+            # validate data
+            for skill in mob["skills"]:
+                if not is_skill(skill):
+                    raise Exception("Skill: %s for Mob with id: %s is invalid!" % (skill, mob["id"]))
+
             mobs[mob["id"]] = mob
         return mobs
 

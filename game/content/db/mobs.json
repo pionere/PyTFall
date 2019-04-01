@@ -19,7 +19,8 @@
             "luck":50,
             "charisma":0,
             "constitution": 100,
-            "intelligence": 0
+            "intelligence": 0,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Unknown", "Neutral", "Physical Resistance", "Light Weakness"],
@@ -49,7 +50,8 @@
             "luck": -40,
             "charisma": 0,
             "constitution": 10,
-            "intelligence": 5
+            "intelligence": 5,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Monster", "Neutral", "Earth Weakness"],
@@ -79,7 +81,8 @@
             "luck": -35,
             "charisma": 0,
             "constitution": 5,
-            "intelligence": 5
+            "intelligence": 5,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Monster", "Neutral", "Earth Weakness"],
@@ -109,7 +112,8 @@
             "luck": -35,
             "charisma": 8,
             "constitution": 5,
-            "intelligence": 10
+            "intelligence": 10,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Monster", "Fire", "Earth Weakness"],
@@ -139,7 +143,8 @@
             "luck": -40,
             "charisma": 5,
             "constitution": 10,
-            "intelligence": 5
+            "intelligence": 5,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Monster", "Neutral", "Earth Weakness"],
@@ -169,7 +174,8 @@
             "luck":0,
             "charisma":20,
             "constitution": 15,
-            "intelligence": 75
+            "intelligence": 75,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Furry", "Air Immunity", "Ice Immunity", "Neutral", "Fire Weakness"],
@@ -199,7 +205,8 @@
             "luck":-20,
             "charisma":10,
             "constitution": 30,
-            "intelligence": 15
+            "intelligence": 15,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Monster", "Water", "Ice Weakness"],
@@ -229,7 +236,8 @@
             "luck":20,
             "charisma": 10,
             "constitution": 10,
-            "intelligence": 2
+            "intelligence": 2,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Monster", "Neutral", "Fire Weakness"],
@@ -259,7 +267,8 @@
             "luck":40,
             "charisma": 30,
             "constitution": 15,
-            "intelligence": 5
+            "intelligence": 5,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Monster", "Darkness", "Fire Weakness"],
@@ -289,7 +298,8 @@
             "luck":-10,
             "charisma":5,
             "constitution": 0,
-            "intelligence": 5
+            "intelligence": 5,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Monster", "Neutral", "Electricity Weakness"],
@@ -319,7 +329,8 @@
             "luck":-5,
             "charisma":50,
             "constitution": 90,
-            "intelligence": 10
+            "intelligence": 10,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Monster", "Neutral", "Electricity Weakness"],
@@ -349,7 +360,8 @@
             "luck":-5,
             "charisma":50,
             "constitution": 90,
-            "intelligence": 10
+            "intelligence": 10,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Human", "Neutral", "Electricity Weakness"],
@@ -379,7 +391,8 @@
             "luck":25,
             "charisma":20,
             "constitution": 20,
-            "intelligence": 20
+            "intelligence": 20,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Demonic Creature", "Neutral", "Earth Weakness"],
@@ -409,7 +422,8 @@
             "luck":-30,
             "charisma":0,
             "constitution": 10,
-            "intelligence": 4
+            "intelligence": 4,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Furry", "Neutral", "Fire Weakness"],
@@ -439,7 +453,8 @@
             "luck":-20,
             "charisma":5,
             "constitution": 15,
-            "intelligence": 6
+            "intelligence": 6,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Furry", "Neutral", "Fire Weakness"],
@@ -469,7 +484,8 @@
             "luck":0,
             "charisma":10,
             "constitution": 20,
-            "intelligence": 30
+            "intelligence": 30,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Furry", "Earth", "Air Weakness"],
@@ -499,7 +515,8 @@
             "luck":10,
             "charisma":15,
             "constitution": 20,
-            "intelligence": 25
+            "intelligence": 25,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Furry", "Fire", "Earth", "Minor Physical Resistance", "Air Weakness"],
@@ -529,7 +546,8 @@
             "luck":-30,
             "charisma":0,
             "constitution": 25,
-            "intelligence": 6
+            "intelligence": 6,
+            "vitality": 160
         },
         "skills": {},
         "traits": ["Furry", "Neutral", "Fire Weakness"],
@@ -559,7 +577,8 @@
             "luck":-30,
             "charisma":20,
             "constitution": 25,
-            "intelligence": 15
+            "intelligence": 15,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Monster", "Fire", "Ice Immunity", "Fire Resistance", "Electricity Weakness"],
@@ -589,7 +608,8 @@
             "luck":-25,
             "charisma":30,
             "constitution": 15,
-            "intelligence": 5
+            "intelligence": 5,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Monster", "Water", "Air", "Electricity Weakness"],
@@ -619,7 +639,8 @@
             "luck":-30,
             "charisma":10,
             "constitution": 70,
-            "intelligence": 45
+            "intelligence": 45,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Monster", "Fire", "Minor Physical Resistance", "Ice Weakness"],
@@ -649,7 +670,8 @@
             "luck":0,
             "charisma":30,
             "constitution": 15,
-            "intelligence": 5
+            "intelligence": 5,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Monster", "Electricity", "Air Weakness"],
@@ -678,7 +700,8 @@
             "luck": -50,
             "charisma": 0,
             "constitution": 40,
-            "intelligence": 5
+            "intelligence": 5,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Water", "Slime", "Ice Weakness"],
@@ -708,7 +731,8 @@
             "luck": -15,
             "charisma": 5,
             "constitution": 50,
-            "intelligence": 10
+            "intelligence": 10,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Water", "Slime", "Poison Absorption", "Ice Weakness"],
@@ -739,7 +763,8 @@
             "luck": 0,
             "charisma": 40,
             "constitution": 60,
-            "intelligence": 10
+            "intelligence": 10,
+            "vitality": 120
         },
         "skills": {},
         "traits": ["Water", "Slime", "Minor Physical Resistance", "Ice Weakness"],
@@ -770,7 +795,8 @@
             "luck": 10,
             "charisma": 20,
             "constitution": 60,
-            "intelligence": 5
+            "intelligence": 5,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Water", "Slime", "Poison Absorption", "Ice Weakness"],
@@ -801,7 +827,8 @@
             "luck": 20,
             "charisma": 50,
             "constitution": 50,
-            "intelligence": 15
+            "intelligence": 15,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Water", "Slime", "Ice Weakness"],
@@ -832,7 +859,8 @@
             "luck": 30,
             "charisma": 40,
             "constitution": 70,
-            "intelligence": 20
+            "intelligence": 20,
+            "vitality": 140
         },
         "skills": {},
         "traits": ["Water", "Slime", "Minor Physical Resistance", "Ice Weakness"],
@@ -865,7 +893,8 @@
             "luck":30,
             "charisma":0,
             "constitution": 30,
-            "intelligence": 25
+            "intelligence": 25,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Demonic Creature", "Darkness", "Light Weakness"],
@@ -895,7 +924,8 @@
             "luck": 0,
             "charisma":0,
             "constitution": 70,
-            "intelligence": 0
+            "intelligence": 0,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Undead", "Darkness Immunity", "Neutral", "Healing Immunity", "Poison Immunity", "Light Weakness"],
@@ -925,7 +955,8 @@
             "luck":-40,
             "charisma":0,
             "constitution": 30,
-            "intelligence": 0
+            "intelligence": 0,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Undead", "Darkness Immunity", "Neutral", "Healing Immunity", "Poison Immunity", "Light Weakness"],
@@ -955,7 +986,8 @@
             "luck":-10,
             "charisma":0,
             "constitution": 40,
-            "intelligence": 0
+            "intelligence": 0,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Undead", "Darkness Immunity", "Neutral", "Healing Immunity", "Poison Immunity", "Light Weakness"],
@@ -985,7 +1017,8 @@
             "luck":-5,
             "charisma":10,
             "constitution": 20,
-            "intelligence": 20
+            "intelligence": 20,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Undead", "Neutral", "Physical Vulnerability"],
@@ -1015,7 +1048,8 @@
             "luck": 20,
             "charisma": 25,
             "constitution": 90,
-            "intelligence": 40
+            "intelligence": 40,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Undead", "Light", "Light Immunity", "Physical Weakness", "Darkness Resistance"],
@@ -1045,7 +1079,8 @@
             "luck":-20,
             "charisma":0,
             "constitution": 20,
-            "intelligence": 60
+            "intelligence": 60,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Monster", "Electricity", "Water Weakness"],
@@ -1075,7 +1110,8 @@
             "luck": 20,
             "charisma": 55,
             "constitution": 40,
-            "intelligence": 65
+            "intelligence": 65,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Human", "Neutral", "Earth Weakness"],
@@ -1105,7 +1141,8 @@
             "luck": 20,
             "charisma": 40,
             "constitution": 75,
-            "intelligence": 55
+            "intelligence": 55,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Human", "Neutral", "Earth Weakness"],
@@ -1135,7 +1172,8 @@
             "luck": 25,
             "charisma": 35,
             "constitution": 60,
-            "intelligence": 55
+            "intelligence": 55,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Human", "Neutral", "Earth Weakness"],
@@ -1165,7 +1203,8 @@
             "luck": 10,
             "charisma": 30,
             "constitution": 80,
-            "intelligence": 35
+            "intelligence": 35,
+            "vitality": 120
         },
         "skills": {},
         "traits": ["Monster", "Neutral", "Earth Weakness"],
@@ -1195,7 +1234,8 @@
             "luck":10,
             "charisma":35,
             "constitution": 40,
-            "intelligence": 25
+            "intelligence": 25,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Monster", "Neutral", "Earth Weakness"],
@@ -1225,7 +1265,8 @@
             "luck":10,
             "charisma":35,
             "constitution": 40,
-            "intelligence": 25
+            "intelligence": 25,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Monster", "Neutral", "Earth Weakness"],
@@ -1255,7 +1296,8 @@
             "luck":10,
             "charisma": 20,
             "constitution": 30,
-            "intelligence": 3
+            "intelligence": 3,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Monster", "Neutral", "Fire Weakness"],
@@ -1285,7 +1327,8 @@
             "luck":-10,
             "charisma": 20,
             "constitution": 30,
-            "intelligence": 3
+            "intelligence": 3,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Monster", "Water", "Fire Weakness"],
@@ -1315,7 +1358,8 @@
             "luck":50,
             "charisma":100,
             "constitution": 65,
-            "intelligence": 5
+            "intelligence": 5,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Undead", "Air Immunity", "Water Immunity", "Electricity Immunity", "Neutral", "Poison Resistance", "Minor Physical Resistance", "Light Weakness"],
@@ -1345,7 +1389,8 @@
             "luck":50,
             "charisma":100,
             "constitution": 100,
-            "intelligence": 5
+            "intelligence": 5,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Undead", "Air Immunity", "Water Immunity", "Electricity Immunity", "Neutral", "Poison Resistance", "Minor Physical Resistance", "Light Weakness"],
@@ -1375,7 +1420,8 @@
             "luck":-30,
             "charisma": 10,
             "constitution": 30,
-            "intelligence": 3
+            "intelligence": 3,
+            "vitality": 175
         },
         "skills": {},
         "traits": ["Monster", "Neutral", "Fire Weakness"],
@@ -1405,7 +1451,8 @@
             "luck":-10,
             "charisma": 40,
             "constitution": 50,
-            "intelligence": 40
+            "intelligence": 40,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Monster", "Fire", "Air Resistance", "Earth Weakness"],
@@ -1435,7 +1482,8 @@
             "luck":-10,
             "charisma":10,
             "constitution": 30,
-            "intelligence": 5
+            "intelligence": 5,
+            "vitality": 175
         },
         "skills": {},
         "traits": ["Monster", "Neutral", "Poison Resistance", "Fire Weakness"],
@@ -1465,7 +1513,8 @@
             "luck":0,
             "charisma": 10,
             "constitution": 30,
-            "intelligence": 3
+            "intelligence": 3,
+            "vitality": 150
         },
         "skills": {},
         "traits": ["Monster", "Neutral", "Poison Resistance", "Fire Weakness"],
@@ -1495,7 +1544,8 @@
             "luck":10,
             "charisma": 10,
             "constitution": 30,
-            "intelligence": 3
+            "intelligence": 3,
+            "vitality": 150
         },
         "skills": {},
         "traits": ["Monster", "Neutral", "Poison Resistance", "Fire Weakness"],
@@ -1525,7 +1575,8 @@
             "luck":10,
             "charisma": 20,
             "constitution": 40,
-            "intelligence": 5
+            "intelligence": 5,
+            "vitality": 175
         },
         "skills": {},
         "traits": ["Monster", "Neutral", "Fire Weakness"],
@@ -1555,7 +1606,8 @@
             "luck": -5,
             "charisma": 10,
             "constitution": 45,
-            "intelligence": 60
+            "intelligence": 60,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Slime", "Water", "Water Immunity", "Electricity Weakness"],
@@ -1585,7 +1637,8 @@
             "luck": 0,
             "charisma": 30,
             "constitution": 40,
-            "intelligence": 75
+            "intelligence": 75,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Slime", "Water", "Darkness", "Water Immunity", "Light Weakness"],
@@ -1615,7 +1668,8 @@
             "luck": 0,
             "charisma": 30,
             "constitution": 45,
-            "intelligence": 65
+            "intelligence": 65,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Slime", "Water", "Electricity", "Water Immunity", "Electricity Absorption", "Earth Weakness"],
@@ -1645,7 +1699,8 @@
             "luck": -15,
             "charisma": 35,
             "constitution": 50,
-            "intelligence": 35
+            "intelligence": 35,
+            "vitality": 140
         },
         "skills": {},
         "traits": ["Monster", "Water", "Ice", "Ice Immunity", "Water Resistance", "Fire Weakness"],
@@ -1675,7 +1730,8 @@
             "luck": 0,
             "charisma": 25,
             "constitution": 20,
-            "intelligence": 15
+            "intelligence": 15,
+            "vitality": 120
         },
         "skills": {},
         "traits": ["Furry", "Air", "Darkness Weakness"],
@@ -1705,7 +1761,8 @@
             "luck": 0,
             "charisma": 30,
             "constitution": 40,
-            "intelligence": 25
+            "intelligence": 25,
+            "vitality": 150
         },
         "skills": {},
         "traits": ["Furry", "Air", "Darkness Weakness"],
@@ -1735,7 +1792,8 @@
             "luck": 10,
             "charisma": 35,
             "constitution": 50,
-            "intelligence": 35
+            "intelligence": 35,
+            "vitality": 175
         },
         "skills": {},
         "traits": ["Furry", "Air", "Darkness Weakness"],
@@ -1765,7 +1823,8 @@
             "luck":-30,
             "charisma": 20,
             "constitution": 90,
-            "intelligence": 30
+            "intelligence": 30,
+            "vitality": 150
         },
         "skills": {},
         "traits": ["Monster", "Earth Resistance", "Neutral", "Minor Physical Resistance", "Water Weakness"],
@@ -1795,7 +1854,8 @@
             "luck":-10,
             "charisma":70,
             "constitution": 55,
-            "intelligence": 80
+            "intelligence": 80,
+            "vitality": 160
         },
         "skills": {},
         "traits": ["Furry", "Air", "Air Resistance", "Electricity Weakness"],
@@ -1825,7 +1885,8 @@
             "luck":-30,
             "charisma":15,
             "constitution": 35,
-            "intelligence": 10
+            "intelligence": 10,
+            "vitality": 160
         },
         "skills": {},
         "traits": ["Monster", "Darkness", "Minor Physical Resistance", "Poison Resistance", "Light Weakness"],
@@ -1855,7 +1916,8 @@
             "luck":0,
             "charisma":70,
             "constitution": 30,
-            "intelligence": 50
+            "intelligence": 50,
+            "vitality": 160
         },
         "skills": {},
         "traits": ["Furry", "Darkness", "Light Weakness"],
@@ -1885,7 +1947,8 @@
             "luck":0,
             "charisma":40,
             "constitution": 35,
-            "intelligence": 55
+            "intelligence": 55,
+            "vitality": 120
         },
         "skills": {},
         "traits": ["Furry", "Earth", "Ice Weakness"],
@@ -1915,7 +1978,8 @@
             "luck":5,
             "charisma":30,
             "constitution": 65,
-            "intelligence": 20
+            "intelligence": 20,
+            "vitality": 180
         },
         "skills": {},
         "traits": ["Monster", "Neutral", "Air Weakness"],
@@ -1945,7 +2009,8 @@
             "luck":5,
             "charisma":30,
             "constitution": 65,
-            "intelligence": 20
+            "intelligence": 20,
+            "vitality": 180
         },
         "skills": {},
         "traits": ["Furry", "Neutral", "Air Weakness"],
@@ -1975,7 +2040,8 @@
             "luck":-40,
             "charisma":10,
             "constitution": 40,
-            "intelligence": 15
+            "intelligence": 15,
+            "vitality": 180
         },
         "skills": {},
         "traits": ["Monster", "Fire", "Fire Immunity", "Air Weakness"],
@@ -2005,7 +2071,8 @@
             "luck":10,
             "charisma":10,
             "constitution": 50,
-            "intelligence": 50
+            "intelligence": 50,
+            "vitality": 160
         },
         "skills": {},
         "traits": ["Monster", "Air", "Darkness Weakness"],
@@ -2035,7 +2102,8 @@
             "luck":-10,
             "charisma":30,
             "constitution": 70,
-            "intelligence": 5
+            "intelligence": 5,
+            "vitality": 180
         },
         "skills": {},
         "traits": ["Furry", "Neutral", "Fire Weakness"],
@@ -2065,7 +2133,8 @@
             "luck":-20,
             "charisma":30,
             "constitution": 25,
-            "intelligence": 75
+            "intelligence": 75,
+            "vitality": 120
         },
         "skills": {},
         "traits": ["Monster", "Water", "Fire Weakness"],
@@ -2095,7 +2164,8 @@
             "luck":-10,
             "charisma":35,
             "constitution": 50,
-            "intelligence": 30
+            "intelligence": 30,
+            "vitality": 180
         },
         "skills": {},
         "traits": ["Monster", "Poison Immunity", "Fire Weakness"],
@@ -2125,7 +2195,8 @@
             "luck":0,
             "charisma":0,
             "constitution": 40,
-            "intelligence": 20
+            "intelligence": 20,
+            "vitality": 120
         },
         "skills": {},
         "traits": ["Android", "Neutral", "Electricity Immunity", "Earth Weakness"],
@@ -2155,7 +2226,8 @@
             "luck":0,
             "charisma": 60,
             "constitution": 25,
-            "intelligence": 70
+            "intelligence": 70,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Android", "Electricity", "Earth Weakness"],
@@ -2185,7 +2257,8 @@
             "luck": -30,
             "charisma": 5,
             "constitution": 60,
-            "intelligence": 20
+            "intelligence": 20,
+            "vitality": 160
         },
         "skills": {},
         "traits": ["Monster", "Earth", "Poison Immunity", "Air Weakness"],
@@ -2215,7 +2288,8 @@
             "luck": -35,
             "charisma": 15,
             "constitution": 66,
-            "intelligence": 20
+            "intelligence": 20,
+            "vitality": 160
         },
         "skills": {},
         "traits": ["Monster", "Earth", "Earth Immunity", "Poison Immunity", "Water Weakness"],
@@ -2245,7 +2319,8 @@
             "luck": -25,
             "charisma": 15,
             "constitution": 74,
-            "intelligence": 20
+            "intelligence": 20,
+            "vitality": 160
         },
         "skills": {},
         "traits": ["Monster", "Earth", "Fire", "Fire Immunity", "Earth Absorption", "Poison Immunity", "Ice Weakness"],
@@ -2275,7 +2350,8 @@
             "luck":5,
             "charisma":10,
             "constitution": 40,
-            "intelligence": 10
+            "intelligence": 10,
+            "vitality": 120
         },
         "skills": {},
         "traits": ["Monster", "Earth", "Earth Resistance", "Electricity Weakness"],
@@ -2305,10 +2381,11 @@
             "agility": 55,
             "luck":20,
             "constitution": 65,
-            "intelligence": 80
+            "intelligence": 80,
+            "vitality": 100
         },
         "skills": {},
-        "traits": ["Fire Absorption", "Fire", "Physical Resistance", "Ice Weakness"],
+        "traits": ["Unknown", "Fire Absorption", "Fire", "Physical Resistance", "Ice Weakness"],
         "attack_skills": [
 
         ],
@@ -2335,7 +2412,8 @@
             "luck": -10,
             "charisma": 15,
             "constitution": 86,
-            "intelligence": 20
+            "intelligence": 20,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Monster", "Earth", "Earth Absorption", "Physical Resistance", "Electricity Weakness"],
@@ -2365,7 +2443,8 @@
             "luck": -40,
             "charisma": 0,
             "constitution": 70,
-            "intelligence": 5
+            "intelligence": 5,
+            "vitality": 120
         },
         "skills": {},
         "traits": ["Monster", "Neutral", "Air Weakness"],
@@ -2395,7 +2474,8 @@
             "luck": 20,
             "charisma": 10,
             "constitution": 40,
-            "intelligence": 25
+            "intelligence": 25,
+            "vitality": 160
         },
         "skills": {},
         "traits": ["Darkness", "Monster", "Poison Resistance", "Air Weakness"],
@@ -2425,7 +2505,8 @@
             "luck": 10,
             "charisma": 5,
             "constitution": 65,
-            "intelligence": 10
+            "intelligence": 10,
+            "vitality": 160
         },
         "skills": {},
         "traits": ["Monster", "Neutral", "Air Weakness"],
@@ -2455,7 +2536,8 @@
             "luck":10,
             "charisma":20,
             "constitution": 35,
-            "intelligence": 20
+            "intelligence": 20,
+            "vitality": 160
         },
         "skills": {},
         "traits": ["Monster", "Neutral", "Air Weakness"],
@@ -2485,7 +2567,8 @@
             "luck": -5,
             "charisma": 10,
             "constitution": 55,
-            "intelligence": 15
+            "intelligence": 15,
+            "vitality": 180
         },
         "skills": {},
         "traits": ["Monster", "Neutral", "Air Weakness"],
@@ -2515,7 +2598,8 @@
             "luck": -15,
             "charisma": 20,
             "constitution": 100,
-            "intelligence": 20
+            "intelligence": 20,
+            "vitality": 180
         },
         "skills": {},
         "traits": ["Darkness", "Undead", "Darkness Immunity", "Minor Physical Resistance", "Healing Immunity", "Poison Immunity", "Light Weakness"],
@@ -2545,7 +2629,8 @@
             "luck":-30,
             "charisma":5,
             "constitution": 80,
-            "intelligence": 5
+            "intelligence": 5,
+            "vitality": 160
         },
         "skills": {},
         "traits": ["Monster", "Neutral", "Minor Physical Resistance", "Electricity Weakness"],
@@ -2575,7 +2660,8 @@
             "luck":-20,
             "charisma":20,
             "constitution": 30,
-            "intelligence": 20
+            "intelligence": 20,
+            "vitality": 150
         },
         "skills": {},
         "traits": ["Monster", "Neutral", "Electricity Weakness"],
@@ -2605,7 +2691,8 @@
             "luck":0,
             "charisma":25,
             "constitution": 20,
-            "intelligence": 40
+            "intelligence": 40,
+            "vitality": 120
         },
         "skills": {},
         "traits": ["Elf", "Earth", "Earth Immunity", "Water Absorption", "Poison Absorption", "Fire Weakness"],
@@ -2635,7 +2722,8 @@
             "luck":15,
             "charisma":85,
             "constitution": 50,
-            "intelligence": 45
+            "intelligence": 45,
+            "vitality": 120
         },
         "skills": {},
         "traits": ["Monster", "Earth", "Fire Weakness"],
@@ -2665,7 +2753,8 @@
             "luck":20,
             "charisma":20,
             "constitution": 25,
-            "intelligence": 45
+            "intelligence": 45,
+            "vitality": 120
         },
         "skills": {},
         "traits": ["Human", "Earth", "Water", "Air", "Poison Immunity", "Fire Weakness"],
@@ -2695,7 +2784,8 @@
             "luck":30,
             "charisma":85,
             "constitution": 30,
-            "intelligence": 40
+            "intelligence": 40,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Elf", "Earth", "Minor Physical Resistance", "Fire Weakness"],
@@ -2725,7 +2815,8 @@
             "luck":-40,
             "charisma":10,
             "constitution": 60,
-            "intelligence": 0
+            "intelligence": 0,
+            "vitality": 140
         },
         "skills": {},
         "traits": ["Monster", "Water Absorption", "Earth Absorption", "Air Absorption", "Light Absorption", "Earth", "Fire Weakness", "Ice Weakness"],
@@ -2755,7 +2846,8 @@
             "luck":20,
             "charisma":65,
             "constitution": 20,
-            "intelligence": 40
+            "intelligence": 40,
+            "vitality": 140
         },
         "skills": {},
         "traits": ["Monster", "Earth", "Earth Immunity", "Water Absorption", "Poison Absorption", "Fire Weakness"],
@@ -2785,7 +2877,8 @@
             "luck":-30,
             "charisma": 50,
             "constitution": 20,
-            "intelligence": 40
+            "intelligence": 40,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Monster", "Earth", "Water", "Water Resistance", "Fire Weakness"],
@@ -2814,7 +2907,8 @@
             "luck":20,
             "charisma":60,
             "constitution": 30,
-            "intelligence": 40
+            "intelligence": 40,
+            "vitality": 150
         },
         "skills": {},
         "traits": ["Human", "Neutral"],
@@ -2844,7 +2938,8 @@
             "luck": -10,
             "charisma": 10,
             "constitution": 40,
-            "intelligence": 20
+            "intelligence": 20,
+            "vitality": 180
         },
         "skills": {},
         "traits": ["Human", "Neutral"],
@@ -2874,7 +2969,8 @@
             "luck": -15,
             "charisma": 12,
             "constitution": 20,
-            "intelligence": 25
+            "intelligence": 25,
+            "vitality": 140
         },
         "skills": {},
         "traits": ["Human", "Neutral"],
@@ -2904,7 +3000,8 @@
             "luck":10,
             "charisma":70,
             "constitution": 35,
-            "intelligence": 85
+            "intelligence": 85,
+            "vitality": 140
         },
         "skills": {},
         "traits": ["Elf", "Darkness", "Light Weakness"],
@@ -2934,7 +3031,8 @@
             "luck": -5,
             "charisma": 17,
             "constitution": 45,
-            "intelligence": 25
+            "intelligence": 25,
+            "vitality": 180
         },
         "skills": {},
         "traits": ["Human", "Neutral"],
@@ -2964,7 +3062,8 @@
             "luck":-30,
             "charisma":0,
             "constitution": 30,
-            "intelligence": 20
+            "intelligence": 20,
+            "vitality": 180
         },
         "skills": {},
         "traits": ["Human", "Neutral"],
@@ -2994,7 +3093,8 @@
             "luck": 15,
             "charisma": 0,
             "constitution": 50,
-            "intelligence": 10
+            "intelligence": 10,
+            "vitality": 180
         },
         "skills": {},
         "traits": ["Human", "Neutral"],
@@ -3024,7 +3124,8 @@
             "luck":-25,
             "charisma":40,
             "constitution": 40,
-            "intelligence": 25
+            "intelligence": 25,
+            "vitality": 180
         },
         "skills": {},
         "traits": ["Human", "Neutral"],
@@ -3054,7 +3155,8 @@
             "luck": 40,
             "charisma": 25,
             "constitution": 30,
-            "intelligence": 85
+            "intelligence": 85,
+            "vitality": 160
         },
         "skills": {},
         "traits": ["Human", "Neutral", "Light Weakness"],
@@ -3084,7 +3186,8 @@
             "luck":-10,
             "charisma":20,
             "constitution": 40,
-            "intelligence": 40
+            "intelligence": 40,
+            "vitality": 180
         },
         "skills": {},
         "traits": ["Human", "Neutral"],
@@ -3114,7 +3217,8 @@
             "luck": 15,
             "charisma": 15,
             "constitution": 30,
-            "intelligence": 35
+            "intelligence": 35,
+            "vitality": 180
         },
         "skills": {},
         "traits": ["Human", "Neutral"],
@@ -3144,7 +3248,8 @@
             "luck":0,
             "charisma":10,
             "constitution": 60,
-            "intelligence": 40
+            "intelligence": 40,
+            "vitality": 200
         },
         "skills": {},
         "traits": ["Human", "Neutral"],
@@ -3174,7 +3279,8 @@
             "luck":0,
             "charisma":30,
             "constitution": 30,
-            "intelligence": 40
+            "intelligence": 40,
+            "vitality": 120
         },
         "skills": {},
         "traits": ["Air", "Air Immunity", "Undead", "Earth Weakness"],
@@ -3204,7 +3310,8 @@
             "luck":0,
             "charisma":40,
             "constitution": 30,
-            "intelligence": 30
+            "intelligence": 30,
+            "vitality": 120
         },
         "skills": {},
         "traits": ["Water", "Water Immunity", "Undead", "Fire Weakness"],
@@ -3234,7 +3341,8 @@
             "luck":0,
             "charisma":30,
             "constitution": 40,
-            "intelligence": 35
+            "intelligence": 35,
+            "vitality": 120
         },
         "skills": {},
         "traits": ["Fire", "Fire Immunity", "Undead", "Ice Weakness"],
@@ -3264,7 +3372,8 @@
             "luck":40,
             "charisma":0,
             "constitution": 100,
-            "intelligence": 50
+            "intelligence": 50,
+            "vitality": 120
         },
         "skills": {},
         "traits": ["Slime", "Magic Immunity", "Neutral", "Healing Immunity"],
@@ -3294,7 +3403,8 @@
             "luck": 33,
             "charisma": 33,
             "constitution": 60,
-            "intelligence": 60
+            "intelligence": 60,
+            "vitality": 120
         },
         "skills": {},
         "traits": ["Divine Creature", "Light", "Light Immunity", "Darkness Weakness"],
@@ -3324,7 +3434,8 @@
             "luck": 33,
             "charisma": 50,
             "constitution": 70,
-            "intelligence": 70
+            "intelligence": 70,
+            "vitality": 120
         },
         "skills": {},
         "traits": ["Divine Creature", "Light", "Light Absorption", "Minor Physical Resistance", "Darkness Weakness"],
@@ -3354,7 +3465,8 @@
             "luck": 33,
             "charisma": 80,
             "constitution": 80,
-            "intelligence": 80
+            "intelligence": 80,
+            "vitality": 140
         },
         "skills": {},
         "traits": ["Divine Creature", "Light", "Light Absorption", "Minor Physical Resistance", "Darkness Weakness"],
@@ -3384,7 +3496,8 @@
             "luck":20,
             "charisma": 30,
             "constitution": 85,
-            "intelligence": 75
+            "intelligence": 75,
+            "vitality": 140
         },
         "skills": {},
         "traits": ["Furry", "Fire", "Fire Absorption", "Electricity Immunity", "Air Immunity", "Physical Resistance", "Poison Immunity", "Ice Weakness", "Water Weakness"],
@@ -3414,7 +3527,8 @@
             "luck":50,
             "charisma":77,
             "constitution": 77,
-            "intelligence": 77
+            "intelligence": 77,
+            "vitality": 140
         },
         "skills": {},
         "traits": ["Divine Creature", "Light", "Light Absorption", "Darkness Immunity", "Minor Physical Resistance", "Darkness Weakness"],
@@ -3444,7 +3558,8 @@
             "luck":0,
             "charisma": 50,
             "constitution": 40,
-            "intelligence": 40
+            "intelligence": 40,
+            "vitality": 140
         },
         "skills": {},
         "traits": ["Demonic Creature", "Darkness", "Light Weakness"],
@@ -3474,7 +3589,8 @@
             "luck":20,
             "charisma": 65,
             "constitution": 50,
-            "intelligence": 50
+            "intelligence": 50,
+            "vitality": 140
         },
         "skills": {},
         "traits": ["Demonic Creature", "Darkness", "Darkness Immunity", "Light Weakness"],
@@ -3504,7 +3620,8 @@
             "luck":30,
             "charisma": 80,
             "constitution": 60,
-            "intelligence": 60
+            "intelligence": 60,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Demonic Creature", "Darkness", "Darkness Absorption", "Minor Physical Resistance", "Light Weakness"],
@@ -3534,7 +3651,8 @@
             "luck":50,
             "charisma":66,
             "constitution": 66,
-            "intelligence": 66
+            "intelligence": 66,
+            "vitality": 100
         },
         "skills": {},
         "traits": ["Demonic Creature", "Darkness", "Darkness Absorption", "Physical Absorption", "Light Weakness"],
@@ -3564,7 +3682,8 @@
             "luck":50,
             "charisma":100,
             "constitution": 66,
-            "intelligence": 66
+            "intelligence": 66,
+            "vitality": 140
         },
         "skills": {},
         "traits": ["Demonic Creature", "Darkness", "Darkness Absorption", "Physical Immunity", "Light Weakness"],
@@ -3594,7 +3713,8 @@
             "luck":-30,
             "charisma":80,
             "constitution": 70,
-            "intelligence": 10
+            "intelligence": 10,
+            "vitality": 180
         },
         "skills": {},
         "traits": ["Android", "Neutral", "Electricity Absorption", "Air Absorption", "Water Absorption", "Minor Physical Resistance", "Earth Weakness"],
@@ -3624,7 +3744,8 @@
             "luck":-30,
             "charisma":25,
             "constitution": 40,
-            "intelligence": 15
+            "intelligence": 15,
+            "vitality": 180
         },
         "skills": {},
         "traits": ["Furry", "Ice Resistance", "Earth Weakness"],
@@ -3654,7 +3775,8 @@
             "luck":-30,
             "charisma":25,
             "constitution": 55,
-            "intelligence": 20
+            "intelligence": 20,
+            "vitality": 200
         },
         "skills": {},
         "traits": ["Furry", "Ice Resistance", "Earth Weakness"],
@@ -3684,7 +3806,8 @@
             "luck":-20,
             "charisma":15,
             "constitution": 20,
-            "intelligence": 15
+            "intelligence": 15,
+            "vitality": 180
         },
         "skills": {},
         "traits": ["Monster", "Ice Immunity", "Neutral", "Earth Weakness"],
@@ -3714,7 +3837,8 @@
             "luck":-20,
             "charisma":15,
             "constitution": 40,
-            "intelligence": 15
+            "intelligence": 15,
+            "vitality": 200
         },
         "skills": {},
         "traits": ["Monster", "Ice Immunity", "Neutral", "Air Weakness"],
@@ -3744,7 +3868,8 @@
             "luck":30,
             "charisma":30,
             "constitution": 95,
-            "intelligence": 55
+            "intelligence": 55,
+            "vitality": 200
         },
         "skills": {},
         "traits": ["Monster", "Fire Immunity", "Ice Immunity", "Neutral", "Air Resistance", "Air Weakness"],
@@ -3774,7 +3899,8 @@
             "luck":20,
             "charisma":15,
             "constitution": 60,
-            "intelligence": 25
+            "intelligence": 25,
+            "vitality": 200
         },
         "skills": {},
         "traits": ["Monster", "Ice Immunity", "Neutral", "Air Weakness"],
@@ -3804,7 +3930,8 @@
             "luck":10,
             "charisma":25,
             "constitution": 40,
-            "intelligence": 65
+            "intelligence": 65,
+            "vitality": 140
         },
         "skills": {},
         "traits": ["Human", "Ice Absorption", "Ice", "Poison Resistance", "Minor Physical Resistance", "Fire Weakness"],
@@ -3834,7 +3961,8 @@
             "luck":-10,
             "charisma":0,
             "constitution": 90,
-            "intelligence": 5
+            "intelligence": 5,
+            "vitality": 200
         },
         "skills": {},
         "traits": ["Monster", "Ice Absorption", "Ice", "Physical Resistance", "Fire Weakness"],
@@ -3864,7 +3992,8 @@
             "luck":10,
             "charisma":0,
             "constitution": 70,
-            "intelligence": 85
+            "intelligence": 85,
+            "vitality": 120
         },
         "skills": {},
         "traits": ["Monster", "Ice Absorption", "Ice", "Physical Weakness", "Fire Weakness"],
@@ -3894,7 +4023,8 @@
             "luck":20,
             "charisma":45,
             "constitution": 60,
-            "intelligence": 85
+            "intelligence": 85,
+            "vitality": 120
         },
         "skills": {},
         "traits": ["Human", "Ice Absorption", "Ice", "Physical Immunity", "Poison Resistance", "Fire Weakness"],
@@ -3924,7 +4054,8 @@
             "luck":-30,
             "charisma":50,
             "constitution": 40,
-            "intelligence": 35
+            "intelligence": 35,
+            "vitality": 120
         },
         "skills": {},
         "traits": ["Undead", "Darkness", "Poison Resistance", "Minor Physical Resistance", "Light Weakness"],
@@ -3954,7 +4085,8 @@
             "luck":-40,
             "charisma":15,
             "constitution": 50,
-            "intelligence": 0
+            "intelligence": 0,
+            "vitality": 160
         },
         "skills": {},
         "traits": ["Undead", "Darkness", "Darkness Immunity", "Healing Immunity", "Poison Immunity", "Minor Physical Resistance", "Light Weakness"],
@@ -3984,7 +4116,8 @@
             "luck": 0,
             "charisma":90,
             "constitution": 30,
-            "intelligence": 50
+            "intelligence": 50,
+            "vitality": 160
         },
         "skills": {},
         "traits": ["Undead", "Darkness Immunity", "Neutral", "Poison Immunity", "Light Weakness"],
@@ -4014,7 +4147,8 @@
             "luck":20,
             "charisma":90,
             "constitution": 40,
-            "intelligence": 40
+            "intelligence": 40,
+            "vitality": 180
         },
         "skills": {},
         "traits": ["Undead", "Darkness", "Darkness Absorption", "Minor Physical Resistance", "Light Weakness"],
@@ -4044,7 +4178,8 @@
             "luck":30,
             "charisma":30,
             "constitution": 100,
-            "intelligence": 50
+            "intelligence": 50,
+            "vitality": 180
         },
         "skills": {},
         "traits": ["Undead", "Darkness", "Darkness Absorption", "Poison Immunity", "Physical Resistance", "Light Weakness"],
@@ -4074,7 +4209,8 @@
             "luck":30,
             "charisma":0,
             "constitution": 90,
-            "intelligence": 10
+            "intelligence": 10,
+            "vitality": 180
         },
         "skills": {},
         "traits": ["Undead", "Darkness Immunity", "Darkness", "Physical Immunity", "Poison Absorption", "Healing Immunity", "Light Weakness", "Fire Weakness"],
@@ -4104,7 +4240,8 @@
             "luck":20,
             "charisma":70,
             "constitution": 30,
-            "intelligence": 35
+            "intelligence": 35,
+            "vitality": 200
         },
         "skills": {},
         "traits": ["Demonic Creature", "Darkness", "Darkness Absorption", "Minor Physical Resistance", "Light Weakness"],
@@ -4134,7 +4271,8 @@
             "luck":10,
             "charisma": 60,
             "constitution": 30,
-            "intelligence": 70
+            "intelligence": 70,
+            "vitality": 200
         },
         "skills": {},
         "traits": ["Monster", "Fire Absorption", "Fire", "Light Absorption", "Light", "Ice Weakness"],
@@ -4164,7 +4302,8 @@
             "luck":-5,
             "charisma":40,
             "constitution": 100,
-            "intelligence": 50
+            "intelligence": 50,
+            "vitality": 160
         },
         "skills": {},
         "traits": ["Unknown", "Electricity", "Electricity Absorption", "Physical Immunity", "Poison Resistance", "Earth Weakness"],
@@ -4194,7 +4333,8 @@
             "luck":-5,
             "charisma":40,
             "constitution": 100,
-            "intelligence": 50
+            "intelligence": 50,
+            "vitality": 120
         },
         "skills": {},
         "traits": ["Unknown", "Water", "Fire", "Water Absorption", "Physical Immunity", "Poison Resistance", "Air Weakness"],
@@ -4224,7 +4364,8 @@
             "luck":10,
             "charisma":40,
             "constitution": 75,
-            "intelligence": 30
+            "intelligence": 30,
+            "vitality": 120
         },
         "skills": {},
         "traits": ["Monster", "Darkness Absorption", "Darkness", "Healing Immunity", "Poison Immunity", "Physical Resistance", "Light Weakness"],
@@ -4254,7 +4395,8 @@
             "luck":10,
             "charisma":60,
             "constitution": 50,
-            "intelligence": 30
+            "intelligence": 30,
+            "vitality": 200
         },
         "skills": {},
         "traits": ["Monster", "Neutral", "Minor Physical Resistance"],
@@ -4284,7 +4426,8 @@
             "luck":10,
             "charisma":0,
             "constitution": 90,
-            "intelligence": 5
+            "intelligence": 5,
+            "vitality": 200
         },
         "skills": {},
         "traits": ["Monster", "Neutral", "Minor Physical Resistance"],
@@ -4314,7 +4457,8 @@
             "luck":20,
             "charisma":80,
             "constitution": 40,
-            "intelligence": 85
+            "intelligence": 85,
+            "vitality": 120
         },
         "skills": {},
         "traits": ["Monster", "Fire", "Fire Absorption", "Physical Resistance", "Poison Resistance", "Ice Weakness", "Water Weakness"],
@@ -4344,7 +4488,8 @@
             "luck":0,
             "charisma":60,
             "constitution": 85,
-            "intelligence": 40
+            "intelligence": 40,
+            "vitality": 200
         },
         "skills": {},
         "traits": ["Monster", "Fire", "Fire Absorption", "Darkness", "Darkness Immunity", "Air Immunity", "Minor Physical Resistance", "Light Weakness"],
@@ -4374,10 +4519,11 @@
             "luck":0,
             "charisma":10,
             "constitution": 50,
-            "intelligence": 20
+            "intelligence": 20,
+            "vitality": 260
         },
         "skills": {},
-        "traits": ["Darkness Absorption", "Darkness", "Physical Absorption", "Poison Absorption", "Light Weakness"],
+        "traits": ["Undead", "Darkness Absorption", "Darkness", "Physical Absorption", "Poison Absorption", "Light Weakness"],
         "attack_skills": [
             "Scythe Slash", "Scythe Slash 2X", "Steel Assault"
         ],
@@ -4404,7 +4550,8 @@
             "luck":10,
             "charisma":20,
             "constitution": 75,
-            "intelligence": 80
+            "intelligence": 80,
+            "vitality": 200
         },
         "skills": {},
         "traits": ["Undead", "Fire", "Darkness", "Healing Immunity", "Poison Immunity", "Physical Resistance", "Light Weakness", "Water Weakness"],
@@ -4434,7 +4581,8 @@
             "luck":10,
             "charisma":20,
             "constitution": 75,
-            "intelligence": 80
+            "intelligence": 80,
+            "vitality": 200
         },
         "skills": {},
         "traits": ["Undead", "Electricity", "Darkness", "Healing Immunity", "Poison Immunity", "Physical Resistance", "Earth Weakness"],
@@ -4464,7 +4612,8 @@
             "luck":10,
             "charisma":25,
             "constitution": 65,
-            "intelligence": 55
+            "intelligence": 55,
+            "vitality": 200
         },
         "skills": {},
         "traits": ["Monster", "Fire", "Fire Immunity", "Poison Immunity", "Physical Resistance", "Water Weakness"],
@@ -4494,7 +4643,8 @@
             "luck":10,
             "charisma":25,
             "constitution": 65,
-            "intelligence": 55
+            "intelligence": 55,
+            "vitality": 200
         },
         "skills": {},
         "traits": ["Monster", "Electricity", "Electricity Immunity", "Poison Immunity", "Physical Resistance", "Earth Weakness"],
@@ -4524,7 +4674,8 @@
             "luck":10,
             "charisma":25,
             "constitution": 65,
-            "intelligence": 55
+            "intelligence": 55,
+            "vitality": 200
         },
         "skills": {},
         "traits": ["Monster", "Darkness", "Darkness Immunity", "Poison Immunity", "Physical Resistance", "Light Weakness"],
@@ -4554,7 +4705,8 @@
             "luck":10,
             "charisma":25,
             "constitution": 65,
-            "intelligence": 55
+            "intelligence": 55,
+            "vitality": 200
         },
         "skills": {},
         "traits": ["Monster", "Water", "Water Immunity", "Poison Immunity", "Physical Resistance", "Electricity Weakness"],
@@ -4584,7 +4736,8 @@
             "luck":10,
             "charisma":25,
             "constitution": 65,
-            "intelligence": 55
+            "intelligence": 55,
+            "vitality": 200
         },
         "skills": {},
         "traits": ["Monster", "Air", "Air Immunity", "Poison Immunity", "Physical Resistance", "Earth Weakness"],

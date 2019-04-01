@@ -174,7 +174,7 @@ init -11 python:
             store.random_team_names = load_team_names(50)
         return random_team_names.pop()
 
-    def build_mob(id=None, level=1, max_out_stats=False):
+    def build_mob(id=None, level=1):
         mob = Mob()
 
         if not id:
@@ -189,40 +189,41 @@ init -11 python:
             if i in data:
                 setattr(mob, i, data[i])
 
-        for skill, value in data.get("skills", {}).iteritems():
-            if is_skill(skill):
-                mob.stats.mod_full_skill(skill, value)
-            else:
-                char_debug(str("Skill: {} for Mob with id: {} is invalid! ".format(skill, id)))
+        for skill, value in data["skills"].iteritems():
+            mob.stats.mod_full_skill(skill, value)
 
         # Get and normalize basetraits:
-        mob.traits.basetraits = set(traits[t] for t in data.get("basetraits", []))
+        mob.traits.basetraits = set(traits[t] for t in data["basetraits"])
         for trait in mob.traits.basetraits:
             mob.apply_trait(trait)
 
-        for trait in data.get("traits", []):
+        for trait in data["traits"]:
             mob.apply_trait(trait)
 
         if "default_attack_skill" in data:
             skill = data["default_attack_skill"]
             mob.default_attack_skill = store.battle_skills[skill]
-        for skill in data.get("attack_skills", []):
+        for skill in data["attack_skills"]:
             mob.attack_skills.append(store.battle_skills[skill])
-        for skill in data.get("magic_skills", []):
+        for skill in data["magic_skills"]:
             mob.magic_skills.append(store.battle_skills[skill])
 
         mob.init()
 
-        level = max(level, data.get("min_lvl", 1))
+        level = max(level, data["min_lvl"])
         if level != 1:
-            initial_levelup(mob, level, max_out_stats=max_out_stats)
+            initial_levelup(mob, level)
 
-        if not max_out_stats:
-            for stat, value in data.get("stats", {}).iteritems():
-                if stat != "luck":
-                    mob.mod_stat(stat, value)
-                else:
-                    mob.set_stat(stat, value)
+        stats = mob.stats
+        for stat, value in data["stats"].iteritems():
+            if stat != "vitality":
+                stats._mod_base_stat(stat, value)
+            else:
+                if stats.max[stat] < value:
+                    stats.max[stat] = value
+                if stats.lvl_max[stat] < value:
+                    stats.lvl_max[stat] = value
+                stats.stats[stat] = value
 
         return mob
 
