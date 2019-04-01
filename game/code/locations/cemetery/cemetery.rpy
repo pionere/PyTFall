@@ -73,7 +73,7 @@ screen cemetry_list_of_dead_chars(): # the list should not be empty!
         data.append((.5, .5))       # 2. tombstone align
         data.append((234, 420))     # 3. tombstone size
         data.append(99)             # 4. portrait size
-        data.append(16)             # 5. text/box size
+        data.append(18)             # 5. text/box size
         charslist = [None, data, None]
         if num_chars >= 3:
             num = (number-1)%num_chars
@@ -82,7 +82,7 @@ screen cemetry_list_of_dead_chars(): # the list should not be empty!
             data.append((.2, .6))       # 2. tombstone align
             data.append((180, 315))     # 3. tombstone size
             data.append(60)             # 4. portrait size
-            data.append(12)             # 5. text/box size
+            data.append(14)             # 5. text/box size
             charslist[0] = data
 
             num = (number+1)%num_chars
@@ -91,7 +91,7 @@ screen cemetry_list_of_dead_chars(): # the list should not be empty!
             data.append((.8, .6))       # 2. tombstone align
             data.append((180, 315))     # 3. tombstone size
             data.append(60)             # 4. portrait size
-            data.append(12)             # 5. text/box size
+            data.append(14)             # 5. text/box size
             charslist[2] = data
 
     for data in charslist:
@@ -101,7 +101,7 @@ screen cemetry_list_of_dead_chars(): # the list should not be empty!
                 xysize data[3]
                 background Frame(im.Scale("content/gfx/frame/tombstone.png", *data[3]))
                 vbox:
-                    align (.5, .7)
+                    align (.5, .6)
                     $ character, date = data[0], data[1]
 
                     if character.has_image('portrait', 'indifferent'):
@@ -115,24 +115,15 @@ screen cemetry_list_of_dead_chars(): # the list should not be empty!
                         xalign .5
                         xysize (data[4]+3, data[4]+3)
 
-                    spacing 5
+                    spacing 4
 
-                    frame:
-                        background Frame("content/gfx/frame/namebox3.png")
-                        xsize data[5]*10
-                        text ([character.name]) align .5, .5 size data[5] style "stats_value_text" color "silver":
-                            if len(character.name) > 10:
-                                size data[5]-4
+                    text ([character.name]) xalign .5 size data[5] style "content_text" color "black" outlines [(0, "goldenrod", 1, 2)]:
+                        if len(character.name) > 14:
+                            size data[5]-4
 
-                    frame:
-                        background Frame("content/gfx/frame/namebox3.png")
-                        xsize data[5]*10
-                        text ("[character.level] lvl") align .5, .5 size data[5] style "stats_value_text" color "silver"
+                    text ("[character.level] lvl") xalign .5 size data[5]-2 style "content_text" color "black" outlines [(0, "goldenrod", 1, 2)]
 
-                    frame:
-                        background Frame("content/gfx/frame/namebox3.png")
-                        xsize data[5]*10
-                        text ("[date]") align .5, .5 size data[5]-2 style "stats_value_text" color "silver"
+                    text ("[date]") xalign .5 size data[5]-2 style "content_text" color "black" outlines [(0, "goldenrod", 1, 2)]
 
     if num_chars > 1:
         $ img = "content/gfx/interface/buttons/next.png"
