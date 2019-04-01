@@ -816,17 +816,6 @@ init -9 python:
             else:
                 return []
 
-        def get_owned_items_per_slot(self, slot):
-            # figure out how many items actor owns:
-            if self.eqslots.get(slot, None):
-                amount = 1
-            else:
-                amount = 0
-
-            slot_items = [i for i in self.inventory if i.slot == slot]
-
-            return amount + len(slot_items)
-
         def add_item(self, item, amount=1):
             self.inventory.append(item, amount=amount)
 
@@ -1029,7 +1018,7 @@ init -9 python:
 
             self.last_known_aeq_purpose = purpose
 
-            kwargs = AEQ_PURPOSES[purpose]
+            kwargs = STATIC_ITEM.AEQ_PURPOSES[purpose]
             if DEBUG_AUTO_ITEM:
                 aeq_debug("Auto Equipping for -- {} --".format(purpose))
                 aeq_debug("Auto Equipping Real Weapons: {} --!!".format(kwargs["real_weapons"]))
@@ -1264,44 +1253,39 @@ init -9 python:
             bt = self.traits.basetraits
             purpose = None # Needs to be defaulted to something.
 
-            if hint in store.AEQ_PURPOSES:
+            if hint in STATIC_ITEM.AEQ_PURPOSES:
                 purpose = hint
             elif hint == "Fighting":
-                if traits["Shooter"] in bt:
-                    purpose = "Shooter"
-                elif "Caster" in occs:
-                    if "Warrior" in occs:
-                        purpose = "Battle Mage"
-                    else:
-                        purpose = "Mage"
-                elif "Combatant" in occs:
+                for t in bt:
+                    if "Combatant" in t.occupations:
+                        t = t.id
+                        if t == "Healer":
+                            t = "Mage"
+                        elif t not in ["Shooter", "Mage"]:
+                            t = "Barbarian"
+                        if purpose is None:
+                            purpose = t
+                        elif purpose != t:
+                            if t != "Shooter" and purpose != "Shooter":
+                                purpose = "Battle Mage"
+                            else:
+                                purpose = "Shooter"
+                if purpose is None:
                     purpose = "Barbarian"
             else: # We just guess...
-                if "Specialist" in occs:
-                    purpose = "Manager"
-                elif traits["Stripper"] in bt:
-                    purpose = "Striptease"
-                elif traits["Maid"] in bt:
-                    purpose = "Service"
-                elif traits["Prostitute"] in bt:
-                    purpose = "Sex"
-                elif "Caster" in occs:
-                    if "Warrior" in occs:
-                        purpose = "Battle Mage"
-                    else:
-                        purpose = "Mage"
-                elif traits["Shooter"] in bt:
-                    purpose = "Shooter"
-                elif "Combatant" in occs:
-                    purpose = "Barbarian"
-                else: # Safe option.
-                    if DEBUG_AUTO_ITEM:
-                        temp = "Supplied unknown aeq purpose: %s for %s, (Class: %s)" % (purpose,
-                                                                    self.name, self.__class__.__name__)
-                        temp += " ~Casual will be used."
-                        aeq_debug(temp)
-                    purpose = "Casual"
-
+                for t in bt:
+                    t = STATIC_ITEM.TRAIT_TO_AEQ_PURPOSE[t.id]
+                    if purpose is None:
+                        purpose = t
+                    elif purpose != t:
+                        for p in ["Manager", "Service", "Striptease", "Bartender", "Sex", "Shooter"]:
+                            if p == purpose:
+                                break
+                            if p == t:
+                                purpose = t
+                                break
+                        else:
+                            purpose = "Battle Mage"
             return purpose
 
         def auto_buy(self, amount=1, slots=None, casual=False,
@@ -1356,7 +1340,7 @@ init -9 python:
             if not purpose: # Let's see if we can get a purpose from last known auto equip purpose:
                 purpose = self.guess_aeq_purpose(self.last_known_aeq_purpose)
 
-            kwargs = AEQ_PURPOSES[purpose].copy()
+            kwargs = STATIC_ITEM.AEQ_PURPOSES[purpose].copy()
             kwargs.pop("real_weapons", None)
             kwargs["base_purpose"] = set(kwargs["base_purpose"])
             kwargs["sub_purpose"] = set(kwargs["sub_purpose"])

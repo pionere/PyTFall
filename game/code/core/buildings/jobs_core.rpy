@@ -237,7 +237,7 @@ init -10 python:
 
             # Special considerations:
             if purpose == "Fighting":
-                if last_known in FIGHTING_AEQ_PURPOSES:
+                if last_known in STATIC_ITEM.FIGHTING_AEQ_PURPOSES:
                     return
 
             # Otherwise, let us AEQ:
