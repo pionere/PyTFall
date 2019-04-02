@@ -1911,7 +1911,6 @@ init -9 python:
 
             # Basic Images:
             self.battle_sprite = ""
-            self.combat_img = ""
 
             self.controller = None
 
@@ -1940,7 +1939,6 @@ init -9 python:
         def show(self, *args, **kwargs):
             what = args[0]
             resize = kwargs.get("resize", (100, 100))
-            cache = kwargs.get("cache", True)
 
             if what == "portrait":
                 what = self.portrait
@@ -1951,8 +1949,6 @@ init -9 python:
                     return ImageReference(webm_spites["idle"][0])
                 else:
                     what = self.battle_sprite
-            elif what in ["combat", "battle", "fighting"] and self.combat_img:
-                what = self.combat_img
             else:
                 what = self.battle_sprite
 
@@ -2790,7 +2786,7 @@ init -9 python:
 
 
     class Customer(PytCharacter):
-        def __init__(self, gender="male", caste="Peasant"):
+        def __init__(self, gender="male", rank=1):
             super(Customer, self).__init__()
 
             # Using direct access instead of a flag, looks better in code:
@@ -2798,13 +2794,12 @@ init -9 python:
             self.du_without_service = 0 # How long did this client spent without service
 
             self.gender = gender
-            self.caste = caste
-            self.rank = CLIENT_CASTES.index(caste)
+            self.rank = rank
+            self.caste = CLIENT_CASTES[rank]
             self.regular = False # Regular clients do not get removed from building lists as those are updated.
 
             # Alex, we should come up with a good way to set portrait depending on caste
             self.portrait = "" # path to portrait
-            self.questpic = "" # path to picture used in quests
 
             # determine act
             if self.gender == 'male':

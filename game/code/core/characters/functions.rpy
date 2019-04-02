@@ -615,7 +615,7 @@ init -11 python:
 
     def build_client(id=None, gender="male", caste="Peasant",
                      name=None, last_name=None,
-                     pattern=None, likes=None, dislikes=None, tier=1):
+                     pattern=None, likes=None, tier=1):
         """
         This function creates Customers to be used in the jobs.
         Some things are initiated in __init__ and funcs/methods that call this.
@@ -626,7 +626,8 @@ init -11 python:
         client = Customer(gender, caste)
 
         if not id:
-            client.id = "Client" + str(random.random())
+            id = "Client" + str(random.random())
+        client.id = id
 
         # Names:
         if not name:

@@ -655,35 +655,30 @@ init -10 python:
         def expects_clients(self):
             return any(i.expects_clients for i in self._businesses)
 
-        def create_customer(self, name="", likes=None):
+        def create_customer(self, likes=None):
             """
             Returns a customer for this Building.
-            If name is an empty string, a random customer is returned.
-            If name is given, the returning customer with that name is returned
-            by this method. A NameError will be raised if the given name is not
-            associated with a returning customer.
             """
-            if name:
-                raise NotImplementedError("Returning customers are not implemented yet")
-
-            # determine gender of random customer
+            # determine gender of the customer
             gender = "male" if dice(75) else "female"
 
-            # determine caste of random customer
-            caste = randint(0, 2)
-            if self.rep < 50: caste = max(caste, 1)
-            elif self.rep <= 150: caste += 1
-            elif self.rep <= 400: caste += 2
-            elif self.rep <= 600: caste += 3
-            elif self.rep <= 800: caste += 4
-            else:                 caste += 5
-            caste = CLIENT_CASTES[caste]
+            # determine rank(caste) of the customer
+            rank = randint(0, 2)
+            rep = self.rep
+            if rep < 50: rank = max(rank, 1)
+            elif rep <= 150: rank += 1
+            elif rep <= 400: rank += 2
+            elif rep <= 600: rank += 3
+            elif rep <= 800: rank += 4
+            else:            rank += 5
+
+            # determine tier of the customer
+            tier = self.tier
+            tier = uniform(float(max(tier-2, .1)), float(tier + 1))
 
             # create random customer
-            min_tier = float(max(self.tier-2, .1))
-            max_tier = float(self.tier + 1)
-            customer = build_client(gender=gender, caste=caste,
-                                    tier=uniform(min_tier, max_tier),
+            customer = build_client(gender=gender, rank=rank,
+                                    tier=tier,
                                     likes=likes)
             return customer
 

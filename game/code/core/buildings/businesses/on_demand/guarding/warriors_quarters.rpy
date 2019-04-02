@@ -273,18 +273,17 @@ init -5 python:
 
             # Prepare the teams:
             # Enemies:
-            capacity = building.get_max_client_capacity()
-            enemies = capacity/5
+            enemies = building.get_max_client_capacity()/5
             enemies = min(10, max(enemies, 1)) # prolly never more than 10 enemies...
 
             # Note: We could draw from client pool in the future, for now,
             # we'll just generate offenders.
             enemy_team = Team(name="Hooligans", max_size=enemies)
             for e in range(enemies):
-                enemy = build_client(gender="male", caste="Peasant", name="Hooligan",
-                                 last_name="{}".format(e+1),
+                # Tier + 2.0 cause we don't give them any items so it's a brawl!
+                enemy = build_client(gender="male", rank=1,
+                                 name="Hooligan", last_name=str(e+1),
                                  pattern=["Combatant"], tier=building.tier+2.0)
-                                 # Tier + 1.5 cause we don't give them any items so it's a brawl!
                 enemy.front_row = 1
                 enemy.apply_trait("Fire")
                 enemy.controller = BE_AI(enemy)
