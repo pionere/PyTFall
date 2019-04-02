@@ -766,6 +766,10 @@ label interactions_play_power:
 
         power_min_skill = 0
         power_max_skill = hero.get_max_stat("magic", tier=MAX_TIER) + hero.get_max_stat("intelligence", tier=MAX_TIER)
+        if hero_skill > power_max_skill:
+            hero_skill = power_max_skill
+        if char_skill > power_max_skill:
+            hero_skill = power_max_skill
 
         active_power_lineups = [[None, []], [None, []], [None, []], [None, []], [None, []]]
         live_balls = [[], [], [], [], []]
@@ -819,7 +823,7 @@ label interactions_power_balls_start:
             $ pass
         elif result == "shoot":
             if running is True:
-                $ interactions_power_shoot(hero, "hero_ball_%d" % hero_ball_idx, hero_pos, (630, 0),
+                $ interactions_power_shoot(hero, "hero_ball_%d" % hero_ball_idx, hero_pos, (630, 30),
                                            hero_source_base, hero_magics, hero_attack)
                 $ hero_last_shot = curr_time
                 $ hero_ball_idx += 1
@@ -849,16 +853,16 @@ label interactions_power_balls_start:
                 pops = []
                 for idx, line in enumerate(live_balls):
                     for ball in line:
-                        ypos = (curr_time - ball[0]) * 630 / 16.0
+                        ypos = (curr_time - ball[0]) * (600.0 / 16.0) # DISTANCE / DT
                         if ball[1] == hero:
-                            ypos = 630 - ypos
-                            if ypos < 90:
+                            ypos = 630 - ypos   # HERO_Y_POS
+                            if ypos < 90:       # CHAR_Y_POS
                                 # hit to char
                                 char_life -= ball[3]/char_defence[ball[4]]
                                 ypos = None
                         else:
-                            ypos = ypos + 90 
-                            if ypos > 630:
+                            ypos = ypos + 90    # CHAR_Y_POS
+                            if ypos > 630:      # HERO_Y_POS
                                 # hit to hero
                                 hero_life -= ball[3]/hero_defence[ball[4]]
                                 ypos = None
@@ -876,7 +880,7 @@ label interactions_power_balls_start:
                                 apl[0] = None
 
                 # check collisions/hits
-                for line in live_balls:
+                for idx, line in enumerate(live_balls):
                     for ball in line:
                         ypos = ball[5]
                         if ypos is None:
@@ -895,7 +899,7 @@ label interactions_power_balls_start:
                             if ypos_ < 0:
                                 ypos_ = -ypos_
                             size_ = ball_[3]
-                            if ypos_ < (size + size_):
+                            if ypos_ < (size + size_)/2:
                                 # collision
                                 source = ball[4]
                                 source_ = ball_[4]
@@ -913,10 +917,20 @@ label interactions_power_balls_start:
                                     pops.append((ball_, line))
                                     ball_[5] = None
                                     ball[3] = size
+
+                                    # redraw the ball with reduced size
+                                    orig_ypos = (630, 30) if owner == hero else (90, 690) # HERO_Y_POS, - DISTANCE ; CHAR_Y_POS, + DISTANCE
+                                    interactions_power_ball_draw(ball, idx, orig_ypos)
+
                                 elif size < 0:
                                     pops.append((ball, line))
                                     ball[5] = None
                                     ball_[3] = -size
+
+                                    # redraw the ball with reduced size
+                                    orig_ypos = (90, 690) if owner == hero else (630, 30) # CHAR_Y_POS, + DISTANCE ; HERO_Y_POS, - DISTANCE
+                                    interactions_power_ball_draw(ball_, idx, orig_ypos)
+
                                     break
                                 else:
                                     pops.append((ball, line))
@@ -1132,6 +1146,21 @@ init python:
                     lane.remove(b)
                 if not lane:
                     temp[0] = None
+
+    def interactions_power_ball_draw(ball, pos, ypos):
+        # ball = [curr_time, shooter, name, size, source, None]
+        curr_time = time.time()
+
+        name = ball[2]
+        size = ball[3]
+        source = ball[4]
+
+        yoffset = ypos[0] + (curr_time-ball[0]) * (ypos[1]-ypos[0]) / 16.0 # DISTANCE / DT
+
+        img = ProportionalScale(traits[source.capitalize()].icon, size, size)
+        img = ImageButton(idle_image=img, hover_image=im.MatrixColor(img, im.matrix.brightness(.25)), action=NullAction(), tooltip=source.capitalize())
+        offset = 420 + pos * 88 + 44
+        renpy.show(name, what=img, at_list=[elements_from_to_with_linear((offset, ypos[0]), (offset, ypos[1]), t=16, offset_pos=(offset, yoffset), rot=randint(15, 45), base_rot=randint(0, 360))])
 
 screen interactions_power_balls_interface:
     $ curr_time = time.time()
