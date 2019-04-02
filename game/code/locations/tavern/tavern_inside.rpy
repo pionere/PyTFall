@@ -268,7 +268,7 @@ label city_tavern_thugs_fight: # fight with random thugs in the brawl mode
             id = random.choice(enemies)
             min_lvl = mobs[id]["min_lvl"]
             mob = build_mob(id=id, level=randint(min_lvl, min_lvl+20))
-            mob.front_row = True
+            mob.front_row = 1
             enemy_team.add(mob)
         back = interactions_pick_background_for_fight("tavern")
         result = run_default_be(enemy_team, skill_lvl=3, use_items=True,

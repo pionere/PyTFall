@@ -285,7 +285,7 @@ init -5 python:
                                  last_name="{}".format(e+1),
                                  pattern=["Combatant"], tier=building.tier+2.0)
                                  # Tier + 1.5 cause we don't give them any items so it's a brawl!
-                enemy.front_row = True
+                enemy.front_row = 1
                 enemy.apply_trait("Fire")
                 enemy.controller = BE_AI(enemy)
                 enemy_team.add(enemy)

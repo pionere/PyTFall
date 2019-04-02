@@ -63,7 +63,7 @@ label special_items_slime_bottle:
                 new_slime.say "AAAAGHHHHHH!"
                 "She attacks you!"
 
-                $ new_slime.front_row = True
+                $ new_slime.front_row = 1
                 $ enemy_team = Team(name="Enemy Team", max_size=3)
                 $ enemy_team.add(new_slime)
                 $ result = run_default_be(enemy_team, slaves=True,

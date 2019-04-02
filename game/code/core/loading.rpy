@@ -466,7 +466,9 @@ init -11 python:
             for skill in mob["skills"]:
                 if not is_skill(skill):
                     raise Exception("Skill: %s for Mob with id: %s is invalid!" % (skill, mob["id"]))
-
+            front_row = mob.get("front_row", 0)
+            if front_row not in [0, 1]:
+                mob["front_row"] = 1 if front_row else 0
             mobs[mob["id"]] = mob
         return mobs
 

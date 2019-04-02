@@ -682,6 +682,8 @@ label after_load:
             clearCharacters = True
         if "ring" in hero.eqslots:
             clearCharacters = True
+        if not isinstance(hero.front_row, int):
+            clearCharacters = True
         if not hasattr(hero, "PP"):
             hero.PP = store.gm.gm_points * 25
             del store.gm.gm_points
@@ -1128,6 +1130,8 @@ label after_load:
                     del char.days_depressed
                 if hasattr(char, "exp_bar"):
                     del char.exp_bar
+                if not isinstance(char.front_row, int):
+                    char.front_row = 1 if char.front_row else 0
                 if hasattr(char.stats, "delayed_stats"):
                     del char.stats.delayed_stats
                 if hasattr(char, "besprite"):

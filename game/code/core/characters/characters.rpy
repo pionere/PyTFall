@@ -157,7 +157,7 @@ init -9 python:
                 self.effects = _dict()
 
             self.controller = None # by default the player is in control in BE
-            self.front_row = True # 1 for front row and 0 for back row.
+            self.front_row = 1 # 1 for front row and 0 for back row.
 
             self.attack_skills = SmartTracker(self)  # Attack Skills
             self.magic_skills = SmartTracker(self)  # Magic Skills

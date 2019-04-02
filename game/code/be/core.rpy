@@ -486,9 +486,9 @@ init -1 python: # Core classes:
                     else:
                         char.beinx = idx
                     if pos == "l":
-                        char.row = int(char.front_row)
+                        char.row = char.front_row
                     else: # Case "r"
-                        char.row = 2 if char.front_row else 3
+                        char.row = 3 - char.front_row
 
                     # Allegiance:
                     char.allegiance = team
@@ -594,7 +594,7 @@ init -1 python: # Core classes:
             # We're going to land the character at the default position from now on,
             # with centered bottom of the image landing directly on the position!
             # This makes more sense for all purposes:
-            x, y = self.row_pos[team_index + str(int(member.front_row))][char_index]
+            x, y = self.row_pos[team_index + str(member.front_row)][char_index]
             w, h = member.besprite_size
             xpos = round_int(x-w*.5)
             ypos = round_int(y-h)
@@ -922,8 +922,8 @@ init -1 python: # Core classes:
             # First figure out all targets within the range:
             # We calculate this by assigning.
             all_targets = battle.get_fighters(self.target_state)
-            left_front_row_empty = not any(f for f in all_targets if f.row == 1)
-            right_front_row_empty = not any(f for f in all_targets if f.row == 2)
+            left_front_row_empty = all(f.row != 1 for f in all_targets)
+            right_front_row_empty = all(f.row != 2 for f in all_targets)
             range = self.range
             if left_front_row_empty:
                 # 'move' closer because of an empty row
