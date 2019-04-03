@@ -432,7 +432,7 @@ screen girl_interactions():
                                             $ img = "content/gfx/interface/icons/gifts_0.png"
                                         elif dismod <= 30:
                                             $ img = "content/gfx/interface/icons/gifts_1.png"
-                                        elif dismod > 30:
+                                        else:
                                             $ img = "content/gfx/interface/icons/gifts_2.png"
                                         $ img = im.Scale(img, 65, 35)
                                         if flag_value >= 0:

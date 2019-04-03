@@ -363,7 +363,7 @@ init python:
         value = 0
         for i in c.traits.basetraits:
             for s in i.base_stats:
-                value += getattr(c, s)
+                value += c.get_stat(s)
                 n += 1
         return (value / n) if n else 0
 

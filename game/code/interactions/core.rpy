@@ -409,8 +409,6 @@ init -1 python:
 
 
     def friends_list_gms(char): # handles GMs started from hero friends list
-        global pytfall
-        pytfall.hp.came_from = "chars_list"
         locations_list = []
         if char.has_image("girlmeets", "beach"):
             locations_list.append("beach")
