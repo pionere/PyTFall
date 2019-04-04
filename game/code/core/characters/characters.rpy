@@ -2686,7 +2686,7 @@ init -9 python:
             self.restore_ap()
             self.item_counter()
 
-            img = 'profile' if mood is None else self.show("profile", mood, resize=ND_IMAGE_SIZE)
+            img = 'profile' if mood is None else self.show("profile", mood)
 
             self.nd_log_report(txt, img, flag_red, type='girlndreport')
             self.txt = list()

@@ -303,7 +303,7 @@ init -5 python:
                 log.logws("joy", 1)
 
             excluded = ["sad", "angry", "in pain"]
-            kwargs = dict(exclude=excluded, resize=ND_IMAGE_SIZE, type="reduce", add_mood=False)
+            kwargs = dict(exclude=excluded, type="reduce", add_mood=False)
             tags = (["stripping", "stage"], ["stripping", "simple bg"], ["stripping", "no bg"])
 
             result = get_simple_act(worker, tags, excluded)

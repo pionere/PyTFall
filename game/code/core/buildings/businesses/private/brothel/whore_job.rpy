@@ -213,11 +213,10 @@ init -5 python:
 
             always_exclude = ["sexwithmc", "angry", "in pain", "dungeon", "sad", "rape"]
 
-            size = ND_IMAGE_SIZE
             # Acts, Images, Tags and things Related:
             # Straight Sex Act
             if client.act == 'sex':
-                kwargs = dict(exclude=["gay", "restrained"]+always_exclude, resize=size, type="reduce", add_mood=False)
+                kwargs = dict(exclude=["gay", "restrained"]+always_exclude, type="reduce", add_mood=False)
                 log.append(choice(["%s hired %s for some good old straight sex. " % (client.name, worker.op),
                                    "%s is willing to pay for %s." % (client.name, "her pussy" if worker.gender == "female" else "his dick")]))
                 if "Lesbian" in worker.traits: # lesbians will have only a part of skill level compared to others during normal sex
@@ -255,7 +254,7 @@ init -5 python:
                 self.take_virginity(worker, log.loc, log)
             # Anal Sex Act
             elif client.act == 'anal':
-                kwargs = dict(exclude=["gay", "restrained"]+always_exclude, resize=size, type="reduce", add_mood=False)
+                kwargs = dict(exclude=["gay", "restrained"]+always_exclude, type="reduce", add_mood=False)
                 log.append(choice(["%s hired her for some anal fun. " % client.name, "%s is willing to pay her for backdoor action. " % client.name]))
                 if "Lesbian" in worker.traits:
                     effectiveness -= 25
@@ -293,7 +292,7 @@ init -5 python:
                                        'And so he took her in her butt. \n']))
             # Various job acts
             elif client.act == 'blowjob':
-                kwargs = dict(exclude=["gay", "restrained"]+always_exclude, resize=size, type="reduce", add_mood=False)
+                kwargs = dict(exclude=["gay", "restrained"]+always_exclude, type="reduce", add_mood=False)
                 log.append(choice(["%s hired her for some side job on his thing. " % client.name, "%s is paying her today for naughty service. " % client.name]))
                 # here we will have to choose skills depending on selected act
                 tags = ({"tags": ["bc deepthroat"], "exclude": ["restrained"]+always_exclude},
@@ -393,9 +392,7 @@ init -5 python:
             elif client.act == 'lesbian':
                 log.append("%s hired her for some hot girl on girl action. " % client.name)
                 skill = worker.get_skill("vaginal")
-                kwargs = dict(exclude=["restrained"]+always_exclude,
-                                resize=size, type="reduce", add_mood=False)
-
+                kwargs = dict(exclude=["restrained"]+always_exclude, type="reduce", add_mood=False)
 
                 tags = ({"tags": ["gay", "2c lickpussy"], "exclude": ["restrained"]+always_exclude},
                         {"tags": ["gay", "bc lickpussy"], "exclude": ["restrained"]+always_exclude},

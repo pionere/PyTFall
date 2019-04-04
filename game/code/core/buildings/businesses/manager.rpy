@@ -196,7 +196,7 @@ init -5 python:
                 log.append("%s had nothing to do on the job." % m.name)
 
             # finalize the log:
-            log.img = m.show("profile", resize=ND_IMAGE_SIZE, add_mood=True)
+            log.img = m.show("profile", add_mood=True)
             log.type = "manager_report"
             log.after_job()
 

@@ -1101,7 +1101,7 @@ screen next_day():
                 char_imgs = None
                 # Try to analyze self.img in order to figure out what it represents:
                 if isinstance(bg_img, renpy.display.core.Displayable):
-                    bg_img = pscale(bg_img, *ND_IMAGE_SIZE) # a standard displayable -> make sure it has the right scale
+                    pass # a standard displayable -> ok
                 elif isinstance(bg_img, basestring):
                     if not bg_img:
                         raise Exception("Basestring Supplied as img {}: Ev.type: {}, Ev.loc.name: {}".format(
@@ -1109,16 +1109,17 @@ screen next_day():
                                     event.type,
                                     event.loc.name if event.loc else "Unknown"))
                     elif "." in bg_img:
-                        bg_img = pscale(bg_img, *ND_IMAGE_SIZE)
+                        pass
                     else:
-                        bg_img = event.char.show(bg_img, resize=ND_IMAGE_SIZE, cache=True)
+                        bg_img = event.char.show(bg_img, cache=True)
                 elif isinstance(bg_img, list):
                     # list of displayables -> first img is the background, rest is list of char-images
                     char_imgs = bg_img[1:]
-                    bg_img = pscale(bg_img[0], *ND_IMAGE_SIZE)
+                    bg_img = bg_img[0]
                 else:
                     nd_debug("Unknown Image Type: {} Provided to Event (Next Day Events class)".format(bg_img), "warning")
-                    bg_img = pscale("content/gfx/interface/images/no_image.png", *ND_IMAGE_SIZE)
+                    bg_img = "content/gfx/interface/images/no_image.png"
+                bg_img = pscale(bg_img, *ND_IMAGE_SIZE)
 
             frame:
                 align .5, .5

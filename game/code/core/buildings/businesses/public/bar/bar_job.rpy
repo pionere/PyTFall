@@ -266,11 +266,9 @@ init -5 python:
             log.logws('refinement', choice([0, 0, 0, 1]))
             log.logws('vitality', round_int(len_clients*-.5))
 
-            size = ND_IMAGE_SIZE
-
             if worker.has_image("waitress", exclude=["sex"]):
-                log.img = worker.show("waitress", exclude=["sex"], resize=size)
+                log.img = worker.show("waitress", exclude=["sex"])
             elif worker.has_image("maid", exclude=["sex"]):
-                log.img = worker.show("maid", exclude=["sex"], resize=size)
+                log.img = worker.show("maid", exclude=["sex"])
             else:
-                log.img = worker.show("profile", exclude=["sex", "nude"], resize=size)
+                log.img = worker.show("profile", exclude=["sex", "nude"])

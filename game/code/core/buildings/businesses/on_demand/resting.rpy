@@ -34,7 +34,7 @@ init -5 python:
 
             # if vitality is really low, they try to sleep, assuming there is a sleeping picture
             if worker.get_stat("vitality") < worker.get_max("vitality")/5 and worker.has_image("sleeping", **kwargs):
-                log.img = worker.show("sleeping", resize=ND_IMAGE_SIZE, **kwargs)
+                log.img = worker.show("sleeping", **kwargs)
                 log.append("%s is too tired to do anything but sleep at %s free time." % (worker.name, worker.pp))
             else:
             # otherwise we build a list of usable tags
@@ -65,7 +65,7 @@ init -5 python:
                 if not(available):
                     available = ["profile"] # no rest at all? c'mon...
 
-                log.img = worker.show(choice(available), resize=ND_IMAGE_SIZE, **kwargs)
+                log.img = worker.show(choice(available), **kwargs)
                 image_tags = log.img.get_image_tags()
                 if "sleeping" in image_tags:
                     if "living" in image_tags:
@@ -128,7 +128,7 @@ init -5 python:
                                            "%s is taking a break during %s free time." % (worker.name, worker.pp)]))
 
             if not log.img:
-                log.img = worker.show("rest", resize=ND_IMAGE_SIZE)
+                log.img = worker.show("rest")
 
             # Work with JP in order to try and waste nothing.
             # Any Char without impairments should recover health and vitality in 3 days fully.

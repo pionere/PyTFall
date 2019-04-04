@@ -212,13 +212,12 @@ init python:
                 # Get char image from data:
                 tags = self.data.get("imageTags", ["profile"])
                 mode = self.data.get("imageMode", "reduce")
-                kwargs = dict(exclude=self.data.get("noImageTags", []),
-                              resize=ND_IMAGE_SIZE, type=mode, add_mood=False)
+                kwargs = dict(exclude=self.data.get("noImageTags", []), type=mode, add_mood=False)
                 img = char.show(*tags, **kwargs)
                 flag_red = False
 
             elif type == "failed_to_pay":
-                img = char.show("profile", "sad", resize=ND_IMAGE_SIZE)
+                img = char.show("profile", "sad")
                 flag_red = True
 
             evt = NDEvent(type="course_nd_report",
