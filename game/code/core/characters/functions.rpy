@@ -613,7 +613,7 @@ init -11 python:
                     char.mod_stat(stat, char.get_max(stat))
         # --------
 
-    def build_client(id=None, gender="male", caste="Peasant",
+    def build_client(id=None, gender="male", rank=1,
                      name=None, last_name=None,
                      pattern=None, likes=None, tier=1):
         """
@@ -623,7 +623,7 @@ init -11 python:
         - pattern: Pattern (string) to be supplied to the create_traits_base function.
         - likes: Expects a list/set/tuple of anything a client may find attractive in a worker/building/upgrade, will be added to other likes (mostly traits), usually adds a building...
         """
-        client = Customer(gender, caste)
+        client = Customer(gender, rank)
 
         if not id:
             id = "Client" + str(random.random())
