@@ -723,7 +723,6 @@ init python:
 
         def effects_resolver(self, targets):
             source = self.source
-            attributes = self.attributes
             base_restore = self.get_attack()
 
             for t in targets:
@@ -784,7 +783,6 @@ init python:
 
         def effects_resolver(self, targets):
             char = self.source
-            attributes = self.attributes
 
             for t in targets:
                 minh, maxh = int(t.maxhp*.1), int(t.maxhp*.3)
@@ -828,7 +826,6 @@ init python:
 
         def effects_resolver(self, targets):
             source = self.source
-            attributes = self.attributes
 
             base_effect = 100
 
@@ -878,7 +875,6 @@ init python:
 
         def effects_resolver(self, targets):
             source = self.source
-            attributes = self.attributes
             item = self.item
 
             for t in targets:

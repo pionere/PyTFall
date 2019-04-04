@@ -13,7 +13,7 @@ label test_be:
         n.status = "free"
 
         for skill in battle_skills.values():
-            if "melee" in skill.attributes or "ranged" in skill.attributes:
+            if skill.delivery in ["melee", "ranged"]:
                 if skill not in h.attack_skills:
                     h.attack_skills.append(skill)
                 if skill not in n.attack_skills:
@@ -58,7 +58,7 @@ label test_be:
         for i in enemy_team:
             # i.controller = Complex_BE_AI(i)
             for skill in battle_skills.values():
-                if "melee" in skill.attributes or "ranged" in skill.attributes:
+                if skill.delivery in ["melee", "ranged"]:
                     if skill not in i.attack_skills:
                         i.attack_skills.append(skill)
                     if skill not in i.attack_skills:

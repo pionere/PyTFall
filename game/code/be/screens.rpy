@@ -217,10 +217,10 @@ screen pick_skill(char):
 
             for skill in magic:
                 e = skill.get_element()
-                if e in d:
-                    d[e].append(skill)
-                else:
+                if e == "me":
                     me.append(skill)
+                else:
+                    d[e].append(skill)
                 # else:
                     # ne.append(skill)
 

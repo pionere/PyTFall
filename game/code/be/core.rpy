@@ -837,6 +837,7 @@ init -1 python: # Core classes:
             self.piercing = False
             self.true_pierce = False # Does full damage to back rows.
             self.attributes = []
+            self.delivery = None
             self.effect = 0
             self.multiplier = 1
             self.desc = ""
@@ -864,10 +865,8 @@ init -1 python: # Core classes:
             if not self.mn:
                 self.mn = self.name
 
-            try:
-                self.delivery = self.DELIVERY.intersection(self.attributes).pop()
-            except:
-                self.delivery = ""
+            if self.delivery not in self.DELIVERY:
+                raise Exception("Skill %s does not have a valid delivery type[melee, ranged, magic or status]!" % self.name)
 
             self.damage = [d for d in self.attributes if d in self.DAMAGE]
 
@@ -1020,43 +1019,37 @@ init -1 python: # Core classes:
             """
             # prepare the variables:
             a = self.source
-            attributes = self.attributes
-
-            # Get the attack power:
-            attack = self.get_attack()
-            name = self.name
 
             # DAMAGE Mods:
-            if self.damage:
-                attack = attack/len(self.damage)
+            num_dmg = len(self.damage)
+            if num_dmg != 0:
+                # Get the attack power:
+                attack = self.get_attack()
+                attack /= num_dmg
+
+            if self.delivery in ["melee", "ranged"]:
+                melee_ranged_delivery = True
+                inevitable = "inevitable" in self.attributes # inevitable attribute makes skill/spell undodgeable/unresistable
+                # ch bonuses: Items bonuses + Traits bonuses
+                base_ch = 100.0*(a.item_ch_mpl + a.ch_mpl)
+            else:
+                melee_ranged_delivery = False
 
             for t in targets:
                 # effect list must be cleared here first thing... preferably in the future, at the end of each skill execution...
                 effects = t.beeffects
 
-                defense = self.get_defense(t)
-                if self.damage:
-                    defense = defense/len(self.damage)
-
                 # We get the multiplier and any effects that those may bring.
                 multiplier = 1.0
-                total_damage = 0
-
                 # Critical Strike and Evasion checks:
-                if self.delivery in ["melee", "ranged"]:
+                if melee_ranged_delivery is True:
                     # Critical Hit Chance:
-                    ch = max(0, min((a.luck - t.luck), 20)) # No more than 20% chance based on luck
-
-                    # Items bonuses:
-                    ch += 100*a.item_ch_mpl
-
-                    # Traits bonuses:
-                    ch += 100*a.ch_mpl
+                    ch = base_ch + max(0, min((a.luck - t.luck), 20)) # No more than 20% chance based on luck
 
                     if dice(ch):
                         multiplier += 1.1 + self.critpower
                         effects.append("critical_hit")
-                    elif ("inevitable" not in attributes): # inevitable attribute makes skill/spell undodgeable/unresistable
+                    elif not inevitable:
                         ev = max(0, min(t.agility*.05-a.agility*.05, 15) + min(t.luck-a.luck, 15)) # Max 15 for agility and luck each...
 
                         # Items bonuses:
@@ -1065,7 +1058,7 @@ init -1 python: # Core classes:
                         # Traits Bonuses:
                         ev += t.evasion_bonus
 
-                        if t.health <= t.maxhp*.25:
+                        if t.health <= t.maxhp/4:
                             if ev < 0:
                                 ev = 0 # Even when weighed down adrenaline takes over and allows for temporary superhuman movements
                             ev += randint(1,5) # very low health provides additional random evasion, 1-5%
@@ -1075,35 +1068,40 @@ init -1 python: # Core classes:
                             self.log_to_battle(effects, 0, a, t, message=None)
                             continue
 
-                # Rows Damage:
-                if self.row_penalty(t):
-                    multiplier *= .5
-                    effects.append("backrow_penalty")
+                total_damage = 0
+                if num_dmg != 0:
+                    defense = self.get_defense(t)
+                    defense /= num_dmg
 
-                for type in self.damage:
-                    result = self.damage_modifier(t, attack, type)
+                    # Rows Damage:
+                    if self.row_penalty(t):
+                        multiplier *= .5
+                        effects.append("backrow_penalty")
 
-                    # Resisted:
-                    if result == 0:
-                        effects.append((type, "resisted"))
-                        continue
+                    for type in self.damage:
+                        result = self.damage_modifier(t, attack, type)
 
-                    # We also check for absorbtion:
-                    absorb_ratio = self.check_absorbtion(t, type)
-                    if absorb_ratio:
-                        result = absorb_ratio*result
-                        # We also set defence to 0, no point in defending against absorption:
-                        temp_def = 0
-                        absorbed = True
-                    else:
-                        temp_def = defense
-                        absorbed = False
+                        # Resisted:
+                        if result == 0:
+                            effects.append((type, "resisted"))
+                            continue
 
-                    # Get the damage:
-                    result = self.damage_calculator(result, temp_def, multiplier, a, absorbed)
+                        # We also check for absorbtion:
+                        absorb_ratio = self.check_absorbtion(t, type)
+                        if absorb_ratio:
+                            result = absorb_ratio*result
+                            # We also set defence to 0, no point in defending against absorption:
+                            temp_def = 0
+                            absorbed = True
+                        else:
+                            temp_def = defense
+                            absorbed = False
 
-                    effects.append((type, result))
-                    total_damage += result
+                        # Get the damage:
+                        result = self.damage_calculator(result, temp_def, multiplier, a, absorbed)
+
+                        effects.append((type, result))
+                        total_damage += result
 
                 if self.event_class:
                     # First check resistance, then check if event is already in play:
@@ -1145,20 +1143,18 @@ init -1 python: # Core classes:
             """
             a = self.source
 
-            if "melee" in self.attributes:
+            delivery = self.delivery
+            if delivery == "melee":
                 attack = a.attack*.7 + a.agility*.3
-            elif "ranged" in self.attributes:
+            elif delivery == "ranged":
                 attack = a.attack*.7 + a.intelligence*.3
-            elif "magic" in self.attributes:
+            elif delivery == "magic":
                 attack = a.magic*.7 + a.intelligence*.3
-            elif "status" in self.attributes:
+            else: #if delivery == "status":
                 attack = a.intelligence*.7 + a.agility*.3
-            else:
-                raise Exception("Skill %s does not have a valid delivery type[melee, ranged, magic or status] in its attributes" % self.name)
+
             attack += self.effect
             attack *= self.multiplier
-
-            delivery = self.delivery
 
             # Items bonuses:
             attack += a.item_delivery_bonus.get(delivery, 0)
@@ -1166,8 +1162,8 @@ init -1 python: # Core classes:
             attack *= m
 
             # Trait Bonuses:
-            attack += a.delivery_bonus.get(self.delivery, 0)
-            m = 1.0 + a.delivery_multiplier.get(self.delivery, 0)
+            attack += a.delivery_bonus.get(delivery, 0)
+            m = 1.0 + a.delivery_multiplier.get(delivery, 0)
             attack *= m
 
             # Simple randomization factor?:
@@ -1177,49 +1173,51 @@ init -1 python: # Core classes:
             # healthlevel=(1.0*a.health)/(1.0*a.maxhp)*.5 # low health decreases attack power, down to 50% at close to 0 health.
             # attack *= (.5+healthlevel)
 
-            return int(attack) if attack >= 1 else 1
+            return attack if attack >= 1 else 1
 
         def get_defense(self, target):
             """
             A method to get defence value vs current attack.
             """
-            if "melee" in self.attributes:
-                defense = round(target.defence*.7 + target.constitution*.3)
-            elif "ranged" in self.attributes:
-                defense = round(target.defence*.7 + target.agility*.3)
-            elif "magic" in self.attributes:
-                defense = round(target.defence*.4 + target.magic*.2 + target.intelligence*.4)
-            elif "status" in self.attributes:
-                defense = round(target.defence*.4 + target.intelligence*.3 + target.constitution*.3)
+            delivery = self.delivery
+
+            if delivery == "melee":
+                defense = target.defence*.7 + target.constitution*.3
+            elif delivery == "ranged":
+                defense = target.defence*.7 + target.agility*.3
+            elif delivery == "magic":
+                defense = target.defence*.4 + target.magic*.2 + target.intelligence*.4
+            else: # if delivery == "status":
+                defense = target.defence*.4 + target.intelligence*.3 + target.constitution*.3
 
             # Items bonuses:
-            defense += target.item_defence_bonus.get(self.delivery, 0)
-            m = 1.0 + target.item_defence_multiplier.get(self.delivery, 0)
+            defense += target.item_defence_bonus.get(delivery, 0)
+            m = 1.0 + target.item_defence_multiplier.get(delivery, 0)
             defense *= m
 
             # Trait Bonuses:
-            defense += target.defence_bonus.get(self.delivery, 0)
-            m = 1.0 + target.defence_multiplier.get(self.delivery, 0)
+            defense += target.defence_bonus.get(delivery, 0)
+            m = 1.0 + target.defence_multiplier.get(delivery, 0)
             defense *= m
 
             # Testing status mods through be skillz:
-            m = 1.0
+            m = 0
             d = 0
             for event in battle.get_all_events():
                 if event.target == target:
                     if hasattr(event, "defence_bonus"):
-                        d += event.defence_bonus.get(self.delivery, 0)
+                        d += event.defence_bonus.get(delivery, 0)
                         event.activated_this_turn = True
                     if hasattr(event, "defence_multiplier"):
-                        m = m + event.defence_multiplier.get(self.delivery, 0)
+                        m += event.defence_multiplier.get(delivery, 0)
                         event.activated_this_turn = True
 
-            if d or m != 1.0:
+            if d or m:
                 target.beeffects.append("magic_shield")
                 defense += d
-                defense *= m
+                defense *= (1.0 + m)
 
-            return defense if defense > 0 else 1
+            return defense if defense >= 1 else 1
 
         def damage_calculator(self, damage, defense, multiplier, attacker, absorbed=False):
             """Used to calc damage of the attack.
@@ -1286,7 +1284,6 @@ init -1 python: # Core classes:
             """
             # String for the log:
             effects = t.beeffects
-            attributes = self.attributes
             s = list()
             value = t.beeffects[0]
 
@@ -1376,12 +1373,16 @@ init -1 python: # Core classes:
         def get_element(self):
             # This may have to be expanded if we permit multi-elemental attacks in the future.
             # Returns first (if any) an element bound to spell or attack:
-            if len(tgs.el_names.intersection(self.attributes)) > 1:
-                return "me"
+            elem = None
+            for a in self.attributes:
+                if a in tgs.el_names:
+                    if elem is None:
+                        elem = a
+                    else:
+                        return "me"
 
             for t in tgs.elemental:
-                element = t.id
-                if element.lower() in self.attributes:
+                if t.id.lower() == elem:
                     return t
 
         # GFX/SFX:
