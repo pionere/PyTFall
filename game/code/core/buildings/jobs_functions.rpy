@@ -93,7 +93,7 @@ init -10 python:
 
         return earned
 
-    def vp_or_fixed(workers, show_args, show_kwargs, xmax=820):
+    def nd_report_image(bg_img, workers, *show_args, **show_kwargs):
         """This will create a sidescrolling displayable to show off all portraits/images in team efforts if they don't fit on the screen in a straight line.
 
         We will attempt to detect a size of a single image and act accordingly. Spacing is 15 pixels between the images.
@@ -101,35 +101,41 @@ init -10 python:
         xmax is used to determine the max size of the viewport/fixed returned from here
         """
         # See if we can get a required image size:
-        lenw = len(workers)
-        size = show_kwargs.get("resize", (90, 90))
-        xpos_offset = size[0] + 15
-        xsize = xpos_offset * lenw
-        ysize = size[1]
+        img = [bg_img]
+        for w in workers:
+            img.append(w.show(*show_args, **show_kwargs))
 
-        if xsize < xmax:
-            d = Fixed(xysize=(xsize, ysize))
-            xpos = 0
-            for i in workers:
-                _ = i.show(*show_args, **show_kwargs)
-                d.add(Transform(_, xpos=xpos))
-                xpos = xpos + xpos_offset
-            return d
-        else:
-            d = Fixed(xysize=(xsize, ysize))
-            xpos = 0
-            for i in workers:
-                _ = i.show(*show_args, **show_kwargs)
-                d.add(Transform(_, xpos=xpos))
-                xpos = xpos + xpos_offset
+        return img
 
-            c = Fixed(xysize=(xsize*2, ysize))
-            atd = At(d, mm_clouds(xsize, 0, 25))
-            atd2 = At(d, mm_clouds(0, -xsize, 25))
-            c.add(atd)
-            c.add(atd2)
-            vp = Viewport(child=c, xysize=(xmax, ysize))
-            return vp
+        #size = (150, 150)
+        #show_kwargs["resize"] = size
+        #xpos_offset = size[0] + 15
+        #xsize = xpos_offset * lenw
+        #ysize = size[1]
+
+        #if xsize < xmax:
+        #    vp = Fixed(xysize=(xsize, ysize))
+        #    xpos = 0
+        #    for i in workers:
+        #        _ = i.show(*show_args, **show_kwargs)
+        #        vp.add(Transform(_, xpos=xpos))
+        #        xpos += xpos_offset
+        #else:
+        #    d = Fixed(xysize=(xsize, ysize))
+        #    xpos = 0
+        #    for i in workers:
+        #        _ = i.show(*show_args, **show_kwargs)
+        #        d.add(Transform(_, xpos=xpos))
+        #        xpos += xpos_offset
+
+        #    c = Fixed(xysize=(xsize*2, ysize))
+        #    atd = At(d, mm_clouds(xsize, 0, 25))
+        #    atd2 = At(d, mm_clouds(0, -xsize, 25))
+        #    c.add(atd)
+        #    c.add(atd2)
+        #    vp = Viewport(child=c, xysize=(xmax, ysize))
+        #img.add(Transform(vp, align=(.5, .9)))
+        #return img
 
     def can_do_work(c, check_ap=True, log=None):
         """Checks whether the character is injured/tired/has AP and sets her/him to auto rest.

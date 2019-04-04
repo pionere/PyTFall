@@ -483,6 +483,14 @@ init -948: # Transforms:
         linear t clockwise circles 1
         repeat
 
+    transform scroll_around(t):
+        subpixel True
+        #additive 1.0
+        xpan -180
+        linear t xpan 180
+        repeat
+
+    # same as scroll_around, but works in more contexts
     transform mm_clouds(start, end, t):
         subpixel True
         additive 1.0

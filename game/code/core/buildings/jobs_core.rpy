@@ -2,9 +2,6 @@ init -10 python:
     class NDEvent(_object):
         """Next Day Report. Logs in a single event to be read in next_day label.
 
-        The load_image method will always return the same image. If you want to
-        do another search, you have to set the 'img' attribute to 'None'.
-
         MONEY:
         During jobs, we log cash that players gets to self.earned
         Cash that workers may get during the job:
@@ -60,32 +57,6 @@ init -10 python:
         def append(self, text):
             # Adds a text to the log.
             self.log.append(text)
-
-        def load_image(self):
-            """
-            Returns a renpy image showing the event.
-
-            The image is selected based on the event type and the character.
-            """
-            # select/load an image according to img
-            d = self.img
-            # Try to analyze self.img in order to figure out what it represents:
-            if isinstance(d, renpy.display.core.Displayable):
-                return d
-
-            size = ND_IMAGE_SIZE
-            if isinstance(d, basestring):
-                if not d:
-                    raise Exception("Basestring Supplied as img {}: Ev.type: {}, Ev.loc.name: {}".format(
-                                d,
-                                self.type,
-                                self.loc.name if self.loc else "Unknown"))
-                elif "." in d:
-                    return ProportionalScale(d, *size)
-                else:
-                    return self.char.show(self.img, resize=size, cache=True)
-            nd_debug("Unknown Image Type: {} Provided to Event (Next Day Events class)".format(self.img), "warning")
-            return ProportionalScale("content/gfx/interface/images/no_image.png", *size)
 
         # Data logging and application:
         def logws(self, s, value, char=None):

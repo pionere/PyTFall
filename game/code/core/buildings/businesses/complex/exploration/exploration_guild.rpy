@@ -275,13 +275,9 @@ init -6 python: # Guild, Tracker and Log.
             txt = []
 
             # Build an image combo for the report:
-            img = Fixed(xysize=(820, 705))
-            img.add(Transform(area.img, size=(820, 705)))
+            img = area.img
             if team is not None:
-                vp = vp_or_fixed(team, ["fighting"],
-                                 {"exclude": ["sex"],
-                                 "resize": (150, 150)}, xmax=820)
-                img.add(Transform(vp, align=(.5, .9)))
+                img = nd_report_image(img, team, "fighting", exclude=["sex"])
 
             # We need to create major report for nd to keep track of progress:
             for l in self.logs:

@@ -573,7 +573,7 @@ init -9 python:
                 add_mood = Automatically adds proper mood tag. This will not work if a mood tag was specified on request OR this is set to False
                 gm_mode = overwrite to add nude/not nude logic for GMs pictures no matter how and where we get them
             '''
-            maxw, maxh = kwargs.get("resize", (None, None))
+            resize = kwargs.get("resize", None)
             cache = kwargs.get("cache", False)
             label_cache = kwargs.get("label_cache", False)
             exclude = kwargs.get("exclude", None)
@@ -595,18 +595,12 @@ init -9 python:
                         exclude.append("nude")
 
 
-            if not all([maxw, maxh]):
-                t0 = "Width or Height were not provided to an Image when calling .show method!\n"
-                t1 = "Character id: {}; Action: {}; Tags: {}; Last Label: {}.".format(self.id, str(self.action),
-                                                                    ", ".join(tags), str(last_label))
-                raise Exception(t0 + t1)
-
             # Direct image request:
             if "-" in tags[0]:
                 _path = "/".join([self.path_to_imgfolder, tags[0]])
                 if not renpy.loadable(_path):
                     _path = "content/gfx/interface/images/no_image.png"
-                return ProportionalScale(_path, maxw, maxh)
+                return _path if resize is None else ProportionalScale(_path, *resize)
 
             # Mood will never be checked in auto-mode when that is not sensible
             add_mood = kwargs.get("add_mood", True)
@@ -622,12 +616,14 @@ init -9 python:
             if label_cache:
                 for entry in self.label_cache:
                     if entry[1] == last_label and entry[0] == tags:
-                        return ProportionalScale(entry[2], maxw, maxh)
+                        entry = entry[2]
+                        return entry if resize is None else ProportionalScale(entry, *resize)
 
             if cache:
                 for entry in self.cache:
                     if entry[0] == tags:
-                        return ProportionalScale(entry[1], maxw, maxh)
+                        entry = entry[1]
+                        return entry if resize is None else ProportionalScale(entry, *resize)
 
             imgpath = ""
             if type in ["normal", "first_default", "reduce"]:
@@ -719,7 +715,7 @@ init -9 python:
             if cache:
                 self.cache.append([tags, imgpath])
 
-            return ProportionalScale(imgpath, maxw, maxh)
+            return imgpath if resize is None else ProportionalScale(imgpath, *resize)
 
         def get_img_from_cache(self, label):
             """

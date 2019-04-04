@@ -141,10 +141,9 @@ label next_day:
     $ nd_stats, nd_all_stats = NextDayEvents.get_nd_stats()
     # Setting index and picture
     $ FilteredList = NextDayEvents.event_list
-    $ event = gimg = None
+    $ event = None
     if FilteredList:
         $ event = FilteredList[0]
-        $ gimg = event.load_image()
 
     hide screen next_day_calculations
 
@@ -161,7 +160,7 @@ label next_day:
     if persistent.auto_saves:
         call special_auto_save from _call_special_auto_save
 
-    $ del FilteredList, nd_stats, nd_all_stats, gimg, event, next_day_local
+    $ del FilteredList, nd_stats, nd_all_stats, event, next_day_local
     jump mainscreen
 
 label next_day_calculations:
@@ -282,7 +281,6 @@ label next_day_controls:
 
                 if FilteredList:
                     event = FilteredList[0]
-                    gimg = event.load_image()
                     index = 0
                 else:
                     nd_debug("all NextDayEvents were filtered for: "+result[0]+", "+result[1], "warn")
@@ -296,13 +294,11 @@ label next_day_controls:
                     index = FilteredList.index(event)
                     if index > 0:
                         event = FilteredList[index-1]
-                        gimg = event.load_image()
             elif result[1] == 'right':
                 python:
                     index = FilteredList.index(event)
                     if index < len(FilteredList)-1:
                         event = FilteredList[index+1]
-                        gimg = event.load_image()
             elif result[1] == "next_day_local":
                 # Special Logic required:
                 hide screen next_day
@@ -1098,12 +1094,73 @@ screen next_day():
             background Frame("content/gfx/frame/p_frame7.webp", 10, 10)
             padding 0, 0
             margin 0, 0
+
+            python:
+                # select/load an image according to img
+                bg_img = event.img
+                char_imgs = None
+                # Try to analyze self.img in order to figure out what it represents:
+                if isinstance(bg_img, renpy.display.core.Displayable):
+                    bg_img = pscale(bg_img, *ND_IMAGE_SIZE) # a standard displayable -> make sure it has the right scale
+                elif isinstance(bg_img, basestring):
+                    if not bg_img:
+                        raise Exception("Basestring Supplied as img {}: Ev.type: {}, Ev.loc.name: {}".format(
+                                    bg_img,
+                                    event.type,
+                                    event.loc.name if event.loc else "Unknown"))
+                    elif "." in bg_img:
+                        bg_img = pscale(bg_img, *ND_IMAGE_SIZE)
+                    else:
+                        bg_img = event.char.show(bg_img, resize=ND_IMAGE_SIZE, cache=True)
+                elif isinstance(bg_img, list):
+                    # list of displayables -> first img is the background, rest is list of char-images
+                    char_imgs = bg_img[1:]
+                    bg_img = pscale(bg_img[0], *ND_IMAGE_SIZE)
+                else:
+                    nd_debug("Unknown Image Type: {} Provided to Event (Next Day Events class)".format(bg_img), "warning")
+                    bg_img = pscale("content/gfx/interface/images/no_image.png", *ND_IMAGE_SIZE)
+
             frame:
                 align .5, .5
                 padding 5, 5
                 margin 0, 0
                 background Frame("content/gfx/frame/MC_bg3.png", 10 , 10)
-                add gimg align .5, .5
+                add bg_img align .5, .5
+            if char_imgs is not None:
+                $ num_imgs = len(char_imgs)
+                $ border, csize = 5, 150
+                if num_imgs < 4:
+                    frame:
+                        background Solid("#00000011")
+                        align .5, .9
+                        xysize ((csize+border)*num_imgs+border, csize + 2*border)
+                        padding border, border
+                        margin 0, 0
+                        $ xpos = 0
+                        for char in char_imgs:
+                            fixed:
+                                xysize (csize, csize)
+                                pos (xpos, 0)
+                                add pscale(char, csize, csize) align (.5, .5)
+                            $ xpos += csize + border
+                else:
+                    $ xsize = (csize + border) * num_imgs
+                    viewport:
+                        align .5, .9
+                        xysize (500, csize + 2*border)
+                        child_size xsize, csize
+                        frame:
+                            background Solid("#00000011")
+                            xysize (xsize, csize + 2*border)
+                            ypadding border
+                            at scroll_around(num_imgs*4)
+                            $ xpos = 0
+                            for char in char_imgs:
+                                fixed:
+                                    xysize (csize, csize)
+                                    pos (xpos, 0)
+                                    add pscale(char, csize, csize) align (.5, .5)
+                                $ xpos += csize + border
 
         # Stat Frames:
         $ show_stat_frame = event.charmod or event.team_charmod or event.locmod
@@ -1134,20 +1191,24 @@ screen next_day():
 
                     # team report with multiple members
                     if charmod == event.team_charmod:
+                        # use a slideshow thing for teams:
+                        $ num_char = len(charmod)
+                        $ xsize, ysize = num_char*136, 355
                         viewport:
                             xalign .5
                             ypos 45
-                            xysize (136, 355)
-                            child_size 5000, 355
-                            # We'll use a single vbox for stats in case of one char and the usual slideshow thing for teams:
-                            $ xsize = len(charmod)*136
-                            for i in range(2):
-                                fixed:
-                                    xysize xsize, 355
-                                    if not i:
-                                        at mm_clouds(xsize, 0, 10)
-                                    else:
-                                        at mm_clouds(0, -xsize, 10)
+                            xysize (136, ysize)
+                            child_size xsize, ysize
+                            #for i in range(2):
+                            #    fixed:
+                            frame:
+                                    background Null()
+                                    xysize xsize, ysize
+                                    #if not i:
+                                    #    at mm_clouds(xsize, 0, num_char*4)
+                                    #else:
+                                    #    at mm_clouds(0, -xsize, num_char*4)
+                                    at scroll_around(num_char*4)
                                     $ xpos = 0
                                     for w, mod in charmod.iteritems():
                                         vbox:
@@ -1286,8 +1347,8 @@ screen next_day():
                     frame:
                         align (.5, .5)
                         background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.9), 5, 5)
-                        xysize (90, 40)
-                        text(u'Act: %d/%d'%(FilteredList.index(event)+1, len(FilteredList))) align (.5, .5) size 16 style "proper_stats_text" text_align .5
+                        xysize (100, 40)
+                        text(u'Act: %d/%d'%(FilteredList.index(event)+1, len(FilteredList))) align (.5, .5) size 16 style "proper_stats_text"
                     button:
                         xysize (120, 40)
                         style "right_wood_button"

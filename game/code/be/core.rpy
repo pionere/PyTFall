@@ -1285,7 +1285,6 @@ init -1 python: # Core classes:
             # String for the log:
             effects = t.beeffects
             s = list()
-            value = t.beeffects[0]
 
             str_effects = list()
             type_effects = list()
@@ -1317,6 +1316,7 @@ init -1 python: # Core classes:
 
             # And finally, combined damage for multi-type attacks:
             if len(type_effects) > 1:
+                value = effects[0]
                 if value < 0:
                     value = -value
                     color = battle.TYPE_TO_COLOR_MAP["healing"]
@@ -1336,9 +1336,8 @@ init -1 python: # Core classes:
             # prepare the variables:
             died = list()
             for t in targets:
-                if t.health > t.beeffects[0]:
-                    t.health -= t.beeffects[0]
-                else:
+                t.health -= t.beeffects[0]
+                if t.health <= 0:
                     t.health = 1
                     battle.end_turn_events.append(RPG_Death(t))
                     died.append(t)
