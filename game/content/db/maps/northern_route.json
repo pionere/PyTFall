@@ -99,13 +99,13 @@
             "health": 5,
             "vitality": 5
         },
-        "unlocks": {"Frozen Caverns": 60, "Rose of Wind": 90},
+        "unlocks": {"Frozen Caverns": 60, "Rose of Winds": 90},
         "cash_limit": 20,
         "items_limit": 250,
         "items": {"Stone": 100, "Victory Charm": 15}
     },
     {
-        "name": "Rose of Wind",
+        "name": "Rose of Winds",
         "area": "Northern Route",
         "img": "content/maps/high_pass.webp",
         "stage": 8,
@@ -120,9 +120,29 @@
             "mp": 0,
             "vitality": 10
         },
-        "unlocks": {},
+        "unlocks": {"Northern Peak": 90},
         "cash_limit": 250,
         "items_limit": 400,
         "items": { }
+    },
+    {
+        "name": "Northern Peak",
+        "area": "Northern Route",
+        "img": "content/maps/high_pass.webp",
+        "stage": 9,
+        "tier": 3.0,
+        "desc": "The highest mountain in the area. Due to rarefied air only the most powerful creatures can live here.",
+        "unlocked": false,
+        "travel_time": 2.8,
+        "mobs": [],
+        "hazard": {
+            "health": 5,
+            "mp": 0,
+            "vitality": 10
+        },
+        "unlocks": {"Gardens of Eden": 80},
+        "cash_limit": 500,
+        "items_limit": 800,
+        "items": {}
     }
 ]

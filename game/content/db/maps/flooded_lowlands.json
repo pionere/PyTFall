@@ -13,7 +13,7 @@
         "stage": 4,
         "tier": 2.2,
         "desc": "Numerous underground rivers turned this area into a deadly swamp.",
-        "unlocked": false,
+        "unlocked": true,
         "travel_time": 0.5,
         "maxexplored": 500,
         "mobs": [],

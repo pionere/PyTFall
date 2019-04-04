@@ -1,0 +1,69 @@
+[
+    {
+        "name": "Gardens of Eden",
+        "unlocked": false,
+        "stage": 10,
+        "img": "content/maps/eden.webp",
+        "allowed_objects": []
+    },
+    {
+        "name": "Floating Islands",
+        "area": "Gardens of Eden",
+        "img": "content/maps/eden.webp",
+        "stage": 1,
+        "tier": 4,
+        "desc": "Most holy creatures prefer to live far from land surface to emphasize their importance. Trespassers are attacked without warning.",
+        "unlocked": true,
+        "travel_time": 1,
+        "mobs": [],
+        "unlocks": {"White City": 50, "Infinite Tower": 90},
+        "cash_limit": 1000,
+        "items_limit": 2000,
+        "items": {}
+    },
+    {
+        "name": "White City",
+        "area": "Gardens of Eden",
+        "img": "content/maps/eden.webp",
+        "stage": 2,
+        "tier": 5,
+        "desc": "A small city built by celestials. Not much is known about it due to highly aggressive guards.",
+        "unlocked": false,
+        "travel_time": 1.5,
+        "mobs": [],
+        "unlocks": {"Place of Judgment": 80},
+        "cash_limit": 1500,
+        "items_limit": 2500,
+        "items": {}
+    },
+    {
+        "name": "Infinite Tower",
+        "area": "Gardens of Eden",
+        "img": "content/maps/eden.webp",
+        "stage": 3,
+        "tier": 5.5,
+        "desc": "A massive tower connecting this world and the world of angels. For trespassers every next step is harder than previous, preventing them from reaching the top.",
+        "unlocked": false,
+        "travel_time": 1.8,
+        "mobs": [],
+        "unlocks": {},
+        "cash_limit": 2000,
+        "items_limit": 2500,
+        "items": {}
+    },
+    {
+        "name": "Place of Judgment",
+        "area": "Gardens of Eden",
+        "img": "content/maps/eden.webp",
+        "stage": 4,
+        "tier": 6,
+        "desc": "A remote fortress with demons locked inside extremely powerful holy barrier.",
+        "unlocked": false,
+        "travel_time": 1.5,
+        "mobs": [],
+        "unlocks": {},
+        "cash_limit": 2000,
+        "items_limit": 2500,
+        "items": {}
+    }
+]
