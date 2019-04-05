@@ -246,18 +246,17 @@ init python:
             return True
 
         def apply_effects(self):
-            battle.corpses.add(self.target)
+            target = self.target
+            battle.corpses.add(target)
 
-            if not store.battle.logical:
+            if not battle.logical:
                 if self.death_effect == "dissolve":
-                    renpy.hide(self.target.betag)
+                    renpy.hide(target.betag)
                     if self.death_effect == "dissolve":
                         renpy.with_statement(dissolve)
 
-            # Forgot to remove poor sods from the queue:
-            for target in battle.queue[:]:
-                if self.target == target:
-                    store.battle.queue.remove(self.target)
+            # Remove poor sod from the queue:
+            battle.queue = [t for t in battle.queue if t != target]
 
             battle.log(self.msg, delayed=True)
 
@@ -286,7 +285,7 @@ init python:
 
             # Damage Calculations:
             damage = t.maxhp * self.effect
-            damage = max(randint(5, 10), int(damage) + randint(-2, 2))
+            damage = max(8, int(damage)) + randint(-2, 2)
 
             # Take care of modifiers:
             damage = round_int(self.damage_modifier(t, damage, self.type))
@@ -320,7 +319,7 @@ init python:
             self.counter -= 1
 
             if self.counter <= 0:
-                msg = "{color=teal}Poison effect on %s has ran it's course...{/color}" % (t.name)
+                msg = "{color=teal}Poison effect on %s has ran its course...{/color}" % (t.name)
                 battle.log(msg)
 
 
@@ -360,7 +359,7 @@ init python:
             self.counter -= 1
 
             if self.counter <= 0:
-                msg = "{color=teal}Defence Buff on %s has warn out!{/color}" % (self.target.name)
+                msg = "{color=teal}Defence Buff on %s has worn out!{/color}" % (self.target.name)
                 battle.log(msg)
 
 
@@ -736,7 +735,7 @@ init python:
                 t.dmg_font = "lawngreen" # Color the battle bounce green!
 
                 # String for the log:
-                temp = "%s used %s to restore HP of %s!" % (source.nickname, self.name, t.name)
+                temp = "%s used %s to heal %s!" % (source.nickname, self.name, t.name)
                 self.log_to_battle(effects, restore, source, t, message=temp)
 
         def apply_effects(self, targets):
@@ -746,7 +745,6 @@ init python:
                     t.health = t.maxhp
 
             self.settle_cost()
-
 
     class BasicPoisonSpell(BE_Action):
         def __init__(self):
@@ -785,15 +783,13 @@ init python:
             char = self.source
 
             for t in targets:
-                minh, maxh = int(t.maxhp*.1), int(t.maxhp*.3)
-                revive = randint(minh, maxh)
+                maxh = int(t.maxhp*.3)
+                revive = randint(maxh/3, maxh)
 
-                effects = list()
-                effects.append(revive)
-                t.beeffects = effects
+                t.beeffects = [revive]
 
                 # String for the log:
-                s = ("{color=green}%s brings %s back!{/color}" % (char.nickname, t.name))
+                s = ("{color=green}%s revives %s!{/color}" % (char.nickname, t.name))
                 t.dmg_font = "lawngreen" # Color the battle bounce green!
 
                 battle.log(s)
@@ -875,10 +871,11 @@ init python:
 
         def effects_resolver(self, targets):
             source = self.source
-            item = self.item
-
-            for t in targets:
-                battle.log("%s uses a %s!" % (source.nickname, item.id))
+            if len(targets) == 1 and targets[0] == source:
+                temp = "%sself" % source.char.op
+            else:
+                temp = ", ".join([t.name for t in targets])
+            battle.log("%s uses a %s on %s!" % (source.nickname, self.item.id, temp))
 
         def apply_effects(self, targets):
             item = self.item
