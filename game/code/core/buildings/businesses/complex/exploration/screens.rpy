@@ -821,15 +821,22 @@ screen fg_area(area):
             padding 10, 10
             background Null()
             $ objects = sorted(area.camp_objects, key=attrgetter("layer"))
-            for o in objects:
-                button:
-                    style 'image_button'
-                    pos o.pos
-                    idle_background o.img
-                    focus_mask True
-                    action NullAction()
-                    hover_background im.MatrixColor(o.img, im.matrix.brightness(.25))
-                    tooltip o.name
+            viewport:
+                xysize (600, 350)
+                frame:
+                    xysize (600, 350)
+                    background Null()
+                    padding 0, 0
+                    margin 0, 0
+                    for o in objects:
+                        button:
+                            style 'image_button'
+                            pos o.pos
+                            idle_background o.img
+                            focus_mask True
+                            action NullAction()
+                            hover_background im.MatrixColor(o.img, im.matrix.brightness(.25))
+                            tooltip o.name
 
         # Teams
         frame:

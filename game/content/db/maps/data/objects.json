@@ -26,7 +26,7 @@
       "name": "Tent",
       "desc": "",
       "type": "tent",
-      "pos": [-100, 180],
+      "pos": [-80, 180],
       "layer": 4,
       "cost": 8000,
 

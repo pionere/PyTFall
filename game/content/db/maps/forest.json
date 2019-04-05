@@ -25,7 +25,7 @@
         "cash_limit": 20,
         "items_limit": 200,
         "allowed_objects": ["+", { "id": "bench", "pos": [130, 240]},
-                            {"id":"tent", "pos": [0, 230], "cost": 3500, "capacity":3, "img": "content/maps/objects/tent_cf.webp"},
+                            {"id":"tent", "pos": [-80, 230], "cost": 3500, "capacity":3},
                             {"id": "kitchen", "pos": [316, 140]},
                             {"id": "cantine", "pos": [319, 131], "img": "content/maps/objects/cantine_cf.webp"},
                             {"id": "cage", "img": "content/maps/objects/cage_cf.webp"},
