@@ -996,9 +996,10 @@ screen se_debugger():
         has vbox
 
         for area in fg_areas.values():
-            if area.trackers:
+            $ trackers = getattr(area, "trackers", None)
+            if trackers:
                 text area.name
-                for t in area.trackers:
+                for t in trackers:
                     hbox:
                         xsize 500
                         spacing 5

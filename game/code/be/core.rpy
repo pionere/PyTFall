@@ -44,8 +44,9 @@ init -1 python: # Core classes:
             # cached item bonuses
             items = char.eq_items()
 
+            critical_hit_chance = 0
+
             self.item_damage_multiplier = 0
-            self.item_ch_mpl = 0
             self.item_delivery_bonus = {}
             self.item_delivery_multiplier = {}
             self.item_evasion_bonus = 0
@@ -53,7 +54,7 @@ init -1 python: # Core classes:
             self.item_defence_multiplier = {}
             for i in items:
                 self.item_damage_multiplier += getattr(i, "damage_multiplier", 0)
-                self.item_ch_mpl += getattr(i, "ch_multiplier", 0)
+                critical_hit_chance += getattr(i, "ch_multiplier", 0)
 
                 if hasattr(i, "delivery_bonus"):
                     for delivery, bonus in i.delivery_bonus.iteritems():
@@ -79,7 +80,6 @@ init -1 python: # Core classes:
 
             # cached trait bonuses
             self.damage_multiplier = 0
-            self.ch_mpl = 0
             self.delivery_bonus = {}
             self.delivery_multiplier = {}
             self.el_dmg = {}
@@ -90,7 +90,7 @@ init -1 python: # Core classes:
             self.defence_multiplier = {}
             for trait in char.traits:
                 self.damage_multiplier += getattr(trait, "damage_multiplier", 0)
-                self.ch_mpl += getattr(trait, "ch_multiplier", 0)
+                critical_hit_chance += getattr(trait, "ch_multiplier", 0)
 
                 if hasattr(trait, "delivery_bonus"):
                     for delivery, bonus in trait.delivery_bonus.iteritems():
@@ -153,6 +153,9 @@ init -1 python: # Core classes:
                         mpl *= base_mpl
                         mpl += self.defence_multiplier.get(delivery, 0)
                         self.defence_multiplier[delivery] = mpl
+
+            # prepare base critical hit chance: (Items bonuses + Traits bonuses)
+            self.base_ch = 100.0*critical_hit_chance
 
             # Convert absorptions to ratios:
             for type, val in self.absorbs.iteritems():
@@ -404,15 +407,6 @@ init -1 python: # Core classes:
 
                 self.logical_counter += 1
 
-                # if DEBUG_BE and self.logical:
-                #     temp = "Debug: Loop: %d, TLeft: %d, TRight: %d"%(self.logical_counter, len(self.get_fighters(state="dead", rows=(0, 1))),  len(self.get_fighters(state="dead", rows=(2, 3))))
-                #     temp += ", ".join([str(i.health) for i in self.teams[0]])
-                #     self.log(temp)
-
-                for event in self.get_all_events():
-                    if hasattr(event, "activated_this_turn"):
-                        event.activated_this_turn = False
-
                 if not self.logical:
                     for c in self.get_fighters("all"):
                         c.update_delayed()
@@ -648,8 +642,7 @@ init -1 python: # Core classes:
                 if type == "sopos":
                     xpos = member.dpos[0] + member.besprite_size[0] / 2
                     ypos = member.dpos[1] + yo
-
-                if type == "pos":
+                elif type == "pos":
                     xpos = member.cpos[0]
                     ypos = member.cpos[1] + yo
                 elif type == "center":
@@ -672,28 +665,27 @@ init -1 python: # Core classes:
             # in case we do not care about position of a target/caster and just provide "overwrite" we should use instead:
             else:
                 xpos, ypos = override
-                if yo:
-                    ypos = ypos + yo # Same as for comment below (Maybe I just forgot how offsets work and why...)
+                ypos += yo # Same as for comment below (Maybe I just forgot how offsets work and why...)
 
             # While yoffset is the same, x offset depends on the team position: @REVIEW: AM I TOO WASTED OR DOES THIS NOT MAKE ANY SENSE???
             if member.row in [0, 1]:
-                xpos = xpos + xo
+                xpos += xo
             else:
-                xpos = xpos - xo # Is this a reasonable approach instead of providing correct (negative/positive) offsets? Something to consider during the code review...
+                xpos -= xo # Is this a reasonable approach instead of providing correct (negative/positive) offsets? Something to consider during the code review...
 
             if use_absolute:
                 return absolute(xpos), absolute(ypos)
             else:
                 return xpos, ypos
 
-        def get_fighters(self, state="alive", rows=None):
+        def get_fighters(self, state="alive", row=None):
             """
             Returns a list of all fighters from the team.
             states:
             - alive: All active member on the battlefield.
             - all: Everyone dead or alive.
             - dead: Everyone dead in the battlefield.
-            rows: If provided, should be an iterable in range of 0 - 3. Only fighters in the row will be returned.
+            row: If provided, should be number in range of 0 - 3. Only fighters in the row will be returned.
             """
             if state == "all":
                 l = list(i for i in itertools.chain.from_iterable(self.teams))
@@ -702,8 +694,8 @@ init -1 python: # Core classes:
             elif state == "dead":
                 l = list(self.corpses)
 
-            if rows:
-                l = list(i for i in l if i.row in rows)
+            if row:
+                l = list(i for i in l if i.row == row)
 
             return l
 
@@ -904,11 +896,11 @@ init -1 python: # Core classes:
 
                 for tag in self.tags_to_hide:
                     renpy.hide(tag)
-                self.tags_to_hide= list()
+                self.tags_to_hide = list()
 
             # Clear (maybe move to separate method if this ever gets complicated), should be moved to core???
             for f in battle.get_fighters(state="all"):
-                f.beeffects= []
+                f.beeffects = []
 
         # Targeting/Conditioning.
         def get_targets(self, source=None):
@@ -1030,8 +1022,6 @@ init -1 python: # Core classes:
             if self.delivery in ["melee", "ranged"]:
                 melee_ranged_delivery = True
                 inevitable = "inevitable" in self.attributes # inevitable attribute makes skill/spell undodgeable/unresistable
-                # ch bonuses: Items bonuses + Traits bonuses
-                base_ch = 100.0*(a.item_ch_mpl + a.ch_mpl)
             else:
                 melee_ranged_delivery = False
 
@@ -1044,7 +1034,7 @@ init -1 python: # Core classes:
                 # Critical Strike and Evasion checks:
                 if melee_ranged_delivery is True:
                     # Critical Hit Chance:
-                    ch = base_ch + max(0, min((a.luck - t.luck), 20)) # No more than 20% chance based on luck
+                    ch = a.base_ch + max(0, min((a.luck - t.luck), 20)) # No more than 20% chance based on luck
 
                     if dice(ch):
                         multiplier += 1.1 + self.critpower
@@ -1111,7 +1101,7 @@ init -1 python: # Core classes:
                     else:
                         for event in store.battle.mid_turn_events:
                             if t == event.target and event.type == type:
-                                battle.log("%s is already effected by %s!" % (t.nickname, type))
+                                battle.log("%s is already affected by %s!" % (t.nickname, type))
                                 break
                         else:
                             duration = getattr(self, "event_duration", 3)
@@ -1127,10 +1117,10 @@ init -1 python: # Core classes:
             # It's always the normal damage except for rows 0 and 3 (unless everyone in the front row are dead :) ).
             # Adding true_piece there as well:
             if t.row == 3:
-                if battle.get_fighters(rows=[2]) and not self.true_pierce:
+                if battle.get_fighters(row=2) and not self.true_pierce:
                     return True
             elif t.row == 0:
-                if battle.get_fighters(rows=[1]) and not self.true_pierce:
+                if battle.get_fighters(row=1) and not self.true_pierce:
                     return True
 
         def check_absorbtion(self, t, type):
@@ -1173,7 +1163,7 @@ init -1 python: # Core classes:
             # healthlevel=(1.0*a.health)/(1.0*a.maxhp)*.5 # low health decreases attack power, down to 50% at close to 0 health.
             # attack *= (.5+healthlevel)
 
-            return attack if attack >= 1 else 1
+            return attack
 
         def get_defense(self, target):
             """
@@ -1217,7 +1207,7 @@ init -1 python: # Core classes:
                 defense += d
                 defense *= (1.0 + m)
 
-            return defense if defense >= 1 else 1
+            return defense
 
         def damage_calculator(self, damage, defense, multiplier, attacker, absorbed=False):
             """Used to calc damage of the attack.
@@ -1226,7 +1216,7 @@ init -1 python: # Core classes:
             if absorbed:
                 damage = -damage
 
-            damage *= multiplier * (75.0/(75 + defense)) * uniform(.90, 1.10)
+            damage *= multiplier * (75.0/(75 + defense)) * uniform(.9, 1.1)
 
             # Items Bonus:
             damage *= 1.0 + attacker.item_damage_multiplier
@@ -1976,16 +1966,17 @@ init -1 python: # Core classes:
                 # This should ensure that we do not show the shield for major damage effects, it will not look proper.
                 elif "magic_shield" in target.beeffects and self.target_sprite_damage_effect["gfx"] != "fly_away":
                     # Get GFX:
+                    what = None
                     for event in battle.get_all_events():
-                        if isinstance(event, DefenceBuff):
-                            if event.target == target:
-                                if event.activated_this_turn:
-                                    what = event.gfx_effect
-                                    break
-                    else:
+                        if event.target == target and isinstance(event, DefenceBuff) and event.activated_this_turn:
+                            what = event
+                            event.activated_this_turn = False # reset the flag
+
+                    if what is None:
                         be_debug("No Effect GFX detected for magic_shield dodge_effect!")
                         continue
 
+                    what = what.gfx_effect
                     # we just show the shield:
                     if what == "default":
                         what, size = "resist", (300, 300)

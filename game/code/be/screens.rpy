@@ -181,7 +181,7 @@ screen pick_skill(char):
         frame:
             at fade_in_out(t1=.6, t2=.3)
 
-            style_prefix "dropdown_gm"
+            style_group "dropdown_gm"
             align .5, .36
 
             # Sorting off menu_pos:
@@ -190,7 +190,7 @@ screen pick_skill(char):
             if not DEBUG_BE:
                 vbox:
                     for skill in attacks:
-                        textbutton "[skill.mn]":
+                        textbutton skill.mn:
                             action SensitiveIf(skill in active_attacks), Return(skill)
                             tooltip ["be", skill]
             else:
@@ -202,14 +202,14 @@ screen pick_skill(char):
                     side_xalign .5
                     $ attacks.sort(key=attrgetter("mn"))
                     for skill in attacks:
-                        textbutton "%s"%skill.mn:
+                        textbutton skill.mn:
                             xysize 200, 25
                             action SensitiveIf(skill in active_attacks), Return(skill)
                             tooltip ["be", skill]
     elif menu_mode == "magic":
         python:
             d = OrderedDict()
-            ne = []
+            #ne = []
             me = []
 
             for e in tgs.elemental:
@@ -217,28 +217,22 @@ screen pick_skill(char):
 
             for skill in magic:
                 e = skill.get_element()
-                if e == "me":
-                    me.append(skill)
-                else:
+                if e in d:
                     d[e].append(skill)
+                else:
+                    me.append(skill)
                 # else:
                     # ne.append(skill)
 
-            for e in d:
-                if d[e]:
-                    d[e].sort(key=attrgetter("menu_pos"))
-            if me:
-                me.sort(key=attrgetter("menu_pos"))
+            for ss in d.values():
+                ss.sort(key=attrgetter("menu_pos"))
+            me.sort(key=attrgetter("menu_pos"))
 
         frame:
             style_group "dropdown_gm"
             pos (.5, .2) anchor (.5, .0)
             margin 0, 0
             padding 5, 5
-            has vbox
-
-            at fade_in_out(t1=.6, t2=.3)
-
             hbox:
                 spacing 1
                 xalign .5
@@ -248,35 +242,35 @@ screen pick_skill(char):
                             margin 0, 0
                             padding 1, 3
                             xalign .5
-                            xysize 140, 320
+                            xysize 140, 330
                             vbox:
                                 if e.icon:
                                     $ img = ProportionalScale(e.icon, 70, 70)
                                     add img align .5, .1
                                 for skill in d[e]:
-                                    textbutton "{=text}{color=black}{size=-6}[skill.mn]":
-                                        padding 0, 1
-                                        margin 0, 0
+                                    button:
                                         xsize 138
-                                        xalign .5
+                                        padding 0, 0
+                                        margin 0, 0
                                         action SensitiveIf(skill in active_magic), Return(skill)
+                                        text skill.mn size 15 layout "nobreak" style "dropdown_gm_button_text"
                                         tooltip ["be", skill]
                 if me:
                     frame:
                         margin 0, 0
-                        padding 3, 3
+                        padding 1, 3
                         xalign .5
-                        xysize 140, 320
+                        xysize 140, 330
                         default me_icon = build_multi_elemental_icon()
                         vbox:
                             add ProportionalScale("content/gfx/interface/images/elements/multi.png", 70, 70) align (.5, .1) # xcenter 230 ycenter 58
                             for skill in me:
-                                textbutton "{=text}{color=black}{size=-6}[skill.mn]":
-                                    padding 0, 1
+                                button:
+                                    xsize 138
+                                    padding 0, 0
                                     margin 0, 0
-                                    xsize 125
-                                    xalign .5
                                     action SensitiveIf(skill in active_magic), Return(skill)
+                                    text skill.mn size 15 layout "nobreak" style "dropdown_gm_button_text"
                                     tooltip ["be", skill]
 
 screen battle_overlay(be):
