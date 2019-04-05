@@ -581,7 +581,7 @@ init -9 python:
             default = kwargs.get("default", None)
             gm_mode = kwargs.get("gm_mode", False)
 
-            if gm_mode and not "Slime" in self.traits:
+            if gm_mode:
                 if check_lovers(self, hero) or "Exhibitionist" in self.traits:
                     if dice(40):
                         if not "nude" in tags:
