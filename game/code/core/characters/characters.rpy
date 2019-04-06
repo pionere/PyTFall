@@ -1982,14 +1982,6 @@ init -9 python:
             self.team.name = "Player Team"
             self.teams = [self.team]
 
-            self.autocontrol = {
-                "Rest": False,
-                "Tips": False,
-                "SlaveDriver": False,
-                "Acts": {"normalsex": True, "anal": True, "blowjob": True, "lesbian": True},
-                "S_Tasks": {"clean": True, "bar": True, "waitress": True},
-            }
-
         # Girls/Brothels/Buildings Ownership
         @property
         def buildings(self):
@@ -2309,9 +2301,6 @@ init -9 python:
 
             self.rank = 1
 
-            # Can set character specific event for recapture
-            self.runaway_look_event = "escaped_girl_recapture"
-
             # Relays for game mechanics
             #self.wagemod = 100 # Percentage to change wage payout
 
@@ -2550,7 +2539,7 @@ init -9 python:
                 if self.location == pytfall.ra:
                     # If escaped:
                     self.mod_stat("health", -randint(3, 5))
-                    txt.append("{color=red}%s has escaped! Assign guards to search for %s or do so yourself.{/color}" % (self.fullname, self.pp))
+                    txt.append("{color=red}%ss location is still unknown. You might want to increase your efforts to find %s, otherwise %s will be gone forever.{/color}" % (self.fullname, self.pp, self.p))
                 else:
                     # your worker is in jail TODO might want to do this in the ND of the jail
                     mod = pytfall.jail.get_daily_modifier()
@@ -2741,31 +2730,46 @@ init -9 python:
                 if self.days_unhappy > 0:
                     self.days_unhappy -= 1
 
-            if self.days_unhappy > 7 and self.status != "slave":
-                self.txt.append("{color=red}%s has left your employment because you do not give a rats ass about how %s feels!{/color}" % (self.pC, self.p))
-                flag_red = True
-                hero.remove_char(self)
-                self.home = pytfall.city
-                self.reset_workplace_action()
-                set_location(self, None)
-            elif self.get_stat("disposition") < -500:
-                if self.status != "slave":
-                    self.txt.append("{color=red}%s has left your employment because %s no longer trusts or respects you!{/color}" % (self.pC, self.pp))
+            if self.status == "slave":
+                if self.days_unhappy > 7 or self.get_stat("disposition") < -200:
+                    escaped, mode = pytfall.ra.try_escape(self, location=self.workplace) # FIXME check for home/location?
+                    if escaped:
+                        msg = "{color=red}%s has escaped!" % self.fullname
+                        if mode == pytfall.ra.FOUGHT:
+                            msg += " Although the guards fought valiantly, they could not stop %s." % self.op
+                        msg += " Now you have to search for %s yourself.{/color}" % self.op
+                    elif mode == pytfall.ra.CAUGHT:
+                        msg = "{color=red}%s tried to escape, but the guards were alert and stopped %s.{/color}" % (self.name, self.op)
+                    elif mode == pytfall.ra.FOUGHT:
+                        msg = "{color=red}%s tried to escape, but the guards subdued %s.{/color}" % (self.name, self.op)
+                    elif self.get_stat("disposition") < -500:
+                        if dice(50):
+                            msg = "{color=red}Took %s own life because %s could no longer live as your slave!{/color}" % (self.pp, self.p)
+                            kill_char(self)
+                        else:
+                            msg = "{color=red}Tried to take %s own life because %s could no longer live as your slave!{/color}" % (self.pp, self.p)
+                            self.set_stat("health", 1)
+                    else:
+                        msg = None
+
+                    if msg is not None:
+                        flag_red = True
+                        mood = "sad"
+                        self.txt.append(msg)
+            else:
+                # free char
+                if self.days_unhappy > 7 or self.get_stat("disposition") < -100:
+                    if self.days_unhappy > 7:
+                        msg = "{color=red}%s has left your employment because you do not give a rats ass about how %s feels!{/color}" % (self.pC, self.p)
+                        mood = "sad"
+                    else:
+                        msg = "{color=red}%s has left your employment because %s no longer trusts or respects you!{/color}" % (self.pC, self.pp)
+                    self.txt.append(msg)
                     flag_red = True
-                    mood = "sad"
                     hero.remove_char(self)
                     self.home = pytfall.city
                     self.reset_workplace_action()
                     set_location(self, None)
-                elif self.days_unhappy > 7:
-                    mood = "sad"
-                    flag_red = True
-                    if dice(50):
-                        self.txt.append("{color=red}Took %s own life because %s could no longer live as your slave!{/color}" % (self.pp, self.p))
-                        kill_char(self)
-                    else:
-                        self.txt.append("{color=red}Tried to take %s own life because %s could no longer live as your slave!{/color}" % (self.pp, self.p))
-                        self.set_stat("health", 1)
 
             return mood, flag_red
 
@@ -2791,7 +2795,7 @@ init -9 python:
 
             self.gender = gender
             self.rank = rank
-            self.caste = CLIENT_CASTES[rank]
+            #self.caste = CLIENT_CASTES[rank]
             self.regular = False # Regular clients do not get removed from building lists as those are updated.
 
             # Alex, we should come up with a good way to set portrait depending on caste

@@ -680,6 +680,9 @@ label after_load:
             clearCharacters = True
         if hasattr(hero.fin, "stored_upkeep"):
             clearCharacters = True
+        if hasattr(hero, "autocontrol"):
+            del hero.autocontrol
+            clearCharacters = True
         if "ring" in hero.eqslots:
             clearCharacters = True
         if not isinstance(hero.front_row, int):
@@ -1173,6 +1176,8 @@ label after_load:
                 if hasattr(char.fin, "stored_upkeep"):
                     char.calc_upkeep()
                     del char.fin.stored_upkeep
+                if getattr(char, "runaway_look_event", None) == "escaped_girl_recapture":
+                    del char.runaway_look_event
 
             #for girl in itertools.chain(jail.chars_list, pytfall.ra.girls.keys()):
             #    if girl.controller == "player":
@@ -1299,6 +1304,10 @@ label after_load:
                 pytfall.jail.cell_restock_day = day
 
             del store.locations
+
+        if not hasattr(pytfall.ra, "chars"):
+            del pytfall.ra.girls
+            pytfall.ra.chars = dict()
 
         if not isinstance(pytfall.afterlife, AfterLife):
             afterlife = pytfall.afterlife

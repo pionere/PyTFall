@@ -169,7 +169,7 @@ init -9 python:
 
                 for c in slaves:
                     if c.location == pytfall.ra:
-                        del pytfall.ra.girls[c]
+                        del pytfall.ra.chars[c]
                     self.add_slave(c)
 
             if day >= self.cell_restock_day:
@@ -461,384 +461,116 @@ init -9 python:
 
     class RunawayManager(_object):
         """
-        The class that handles runawawy logic.
+        The class that handles runaway logic.
         """
 
         STATUS_STATS = ["vitality", "intelligence", "agility"]
 
-        ACTION = "Hiding"
-        LOCATION = "Unknown"
-
         CAUGHT = "caught"
-        DEFEATED = "defeated"
         FOUGHT = "fought"
-        ESCAPED = "escaped"
 
         def __init__(self):
             """
-            Creates a new RunawwayManager.
+            Creates a new RunawayManager.
             """
-            self.girls = dict()
+            self.chars = dict()
             self.look_cache = dict()
 
-
-        def add(self, girl, jail=False):
+        def add(self, char):
             """
-            Adds a girl that has runaway.
-            girl = The girl to add.
-            jail = Whether to add straight to jail.
+            Adds a char that has run away.
+            char = The char to add.
             """
-            if girl not in self:
-                for team in hero.teams:
-                    if girl in team:
-                        team.remove(girl)
+            for team in hero.teams:
+                if char in team:
+                    team.remove(char)
 
-                if jail:
-                    pytfall.jail.add_slave(girl)
+            self.chars[char] = day
+            set_location(char, pytfall.ra)
 
-                else:
-                    self.girls[girl] = 0
-                    #girl_disobeys(girl, 10)
-                    set_location(girl, pytfall.ra)
-
-        def can_escape(self, girl, location, guards=None, girlmod=None, pos_traits=None,
-                       neg_traits=["Restrained"], use_be=True, simulate=True, be_kwargs=None):
+        def try_escape(self, char, location=None, guards=None):
             """
-            Calculates whether a girl can the location.
-            girl = The girl check.
-            location = The location to check, or None to ignore security and go straight to combat.
-            guards = A list of guards to use in combat. If None guards/warriors are pulled from the locaiton.
-            girlmod = A dict to use to record the girls stats.
-            pos_traits = A list of trait names that increase the girls chance.
-            neg_trats = A list of trait names that decrease the girls chance.
-            use_be = Whether to require a BE simulation at high security levels.
-            simulate = Whether to simulate the battle or use the BE.
-            be_kwargs = Keyword arguments to pass to the BE.
+            Calculates whether a character can escape the location.
+            char = The char check.
+            location = The location to check, or None to ignore security
+            guards = The list of explicit guards
             """
-            # This requires revision to be used in the future!
-
-            # Ensure stats in girlmod
-            if girlmod:
-                girlmod.setdefault("health", 0)
-                girlmod.setdefault("vitality", 0)
-                girlmod.setdefault("joy", 0)
-                girlmod.setdefault("disposition", 0)
-                girlmod.setdefault("exp", 0)
-
-            be_kwargs = dict() if be_kwargs is None else be_kwargs
-            # Get traits
-            p = 0
-            if pos_traits:
-                for i in pos_traits:
-                    p += girl_training_trait_mult(girl, i)
-
-            n = 0
-            if neg_traits:
-                for i in neg_traits:
-                    n += girl_training_trait_mult(girl, i)
 
             # Get security
-            if location:
+            if location is not None:
                 sec = self.location_security(location)
-                runaway = (self.location_runaway(location) + p) < (sec - n)
-
-            else:
-                sec = 1
-                runaway = True
-
-            if runaway:
-                # If no BE or low security
-                if not use_be or sec < .5:
-                    # Girl escaped without fighting
-                    return True, self.ESCAPED
-
-                # If girl is too injured to fight
-                elif girl.get_stat("health") < girl.get_max("health")/4 or girl.get_stat("vitality") < girl.get_max("vitality")/4:
-                    # Girl was caught without fighting
-                    return False, self.CAUGHT
-
-                # BE simultaion
+                if guards is None:
+                    guards = [hero] + hero.chars
+                    guards = [w for w in guards if w.workplace == location and w.action == simple_jobs["Guarding"] and w.is_available]
                 else:
-                    # If we need guards
-                    if not guards:
-
-                        # If we have no location, girl walks out
-                        if not location:
-                            return True, self.ESCAPED
-
-                        else:
-                            # Get guards if available action
-                            if hasattr(location, "actions") and "Guard" in location.actions:
-                                guards = [g for g in location.get_girls("Guard") if g.AP > 0 and g.get_stat("health") > 40 and g.get_stat("vitality") > 40]
-
-                            # Get warriors
-                            else:
-                                guards = [g for g in location.get_girls(occupation="Combatant") if g.AP > 0 and g.get_stat("health") > 40 and g.get_stat("vitality") > 40]
-
-                            if girl in guards: guards.remove(girl)
-
-                            # Force simulation if hero not available
-                            if not simulate: simulate = hero.workplace is not location
-
-                            # If we are simulating
-                            if simulate:
-                                # Get amount according to location
-                                gam = max(int(len(guards) * ((sec-0.5) * 2)), 1)
-                                while len(guards) > gam: guards.remove(choice(guards))
-
-                                # Add hero
-                                if hero.workplace is location: guards.append(hero)
-
-                            # Else we are BE
-                            else:
-                                # If we have more then 2, get the player and 2 random guards
-                                if len(guards) > 2:
-                                    g = randint(0, len(guards)-1)
-                                    guards = [hero, guards[g], guards[g+1]]
-                                    pt_ai = [False, True, True]
-
-                                else:
-                                    guards.insert(0, hero)
-                                    pt_ai = [True for i in guards]
-                                    pt_ai[0] = False
-
-                    # If we want to simulate
-                    if simulate:
-
-                        # If we end up with no guards
-                        if not guards:
-                            return True, self.ESCAPED
-
-                        result, exp = s_conflict_resolver(guards, [girl], new_results=True)
-
-                        # Remove hero from guards to avoid event
-                        if hero in guards: guards.remove(hero)
-
-                        # Overwhelming victory
-                        # Girl was caught without fighting
-                        if result == "OV":
-                            for g in guards:
-                                guard_escape_event.count(g, 1)
-                                guard_escape_event.against(g, [girl])
-                                guard_escape_event.stats(g, dict(exp=randint(15, 25)))
-                                guard_escape_event.win(g, 1)
-
-                            return False, self.CAUGHT
-
-                        # Desisive victory
-                        # Girl was caught easily while fighting
-                        elif result == "DV":
-                            for g in guards:
-                                guard_escape_event.count(g, 1)
-                                guard_escape_event.against(g, [girl])
-                                guard_escape_event.stats(g, dict(health=randint(-10, -20),
-                                                                 vitality=randint(-10, -20),
-                                                                 exp=exp
-                                                                 ))
-                                guard_escape_event.win(g, 1)
-
-                            if girlmod:
-                                girlmod["health"] -= randint(20, 30)
-                                girlmod["vitality"] -= randint(20, 30)
-                                girlmod["joy"] -= randint(0, 6)
-
-                            else:
-                                girl.mod_stat("health", -randint(20, 30))
-                                girl.mod_stat("vitality", -randint(20, 30))
-                                girl.mod_stat("joy", -randint(0, 6))
-
-                            return False, self.DEFEATED
-
-                        # Victory
-                        # Girl was caught while fighting
-                        elif result == "V":
-                            for g in guards:
-                                guard_escape_event.count(g, 1)
-                                guard_escape_event.against(g, [girl])
-                                guard_escape_event.stats(g, dict(health=randint(-10, -20),
-                                                                 vitality=randint(-10, -20),
-                                                                 exp=exp
-                                                                 ))
-                                guard_escape_event.win(g, 1)
-
-                            if girlmod:
-                                girlmod["health"] -= randint(10, 20)
-                                girlmod["vitality"] -= randint(10, 20)
-                                girlmod["joy"] -= randint(0, 3)
-
-                            else:
-                                girl.mod_stat("health", -randint(10, 20))
-                                girl.mod_stat("vitality", -randint(10, 20))
-                                girl.mod_stat("joy", -randint(0, 3))
-
-                            return False, self.DEFEATED
-
-                        # Lucky victory
-                        # Girl was bearly caught while fighting
-                        elif result == "LV":
-                            for g in guards:
-                                guard_escape_event.count(g, 1)
-                                guard_escape_event.against(g, [girl])
-                                guard_escape_event.stats(g, dict(health=randint(-20, -30),
-                                                                 vitality=randint(-20, -30),
-                                                                 ))
-                                guard_escape_event.win(g, 1)
-
-                            if girlmod:
-                                girlmod["health"] -= randint(10, 20)
-                                girlmod["vitality"] -= randint(10, 20)
-                                girlmod["exp"] += exp
-
-                            else:
-                                girl.mod_stat("health", -randint(10, 20))
-                                girl.mod_stat("vitality", -randint(10, 20))
-                                girl.mod_exp(exp)
-
-                            return False, self.DEFEATED
-
-                        # Defeat
-                        # Girl was able to escape while fighting
-                        elif result == "D":
-                            for g in guards:
-                                guard_escape_event.count(g, 1)
-                                guard_escape_event.against(g, [girl])
-                                guard_escape_event.stats(g, dict(health=randint(-20, -30),
-                                                                 vitality=randint(-20, -30),
-                                                                 ))
-                                guard_escape_event.loss(g, 1)
-
-                            if girlmod:
-                                girlmod["health"] -= randint(10, 20)
-                                girlmod["vitality"] -= randint(10, 20)
-                                girlmod["exp"] += exp
-                                girlmod["joy"] += randint(0, 3)
-
-                            else:
-                                girl.mod_stat("health", -randint(10, 20))
-                                girl.mod_stat("vitality", -randint(10, 20))
-                                girl.mod_exp(exp)
-                                girl.mod_stat("joy", randint(0, 3))
-
-                            return True, self.FOUGHT
-
-                        # Overwhelming defeat
-                        # Girl was able to escape without fighting
-                        elif result == "OD":
-                            for g in guards:
-                                guard_escape_event.count(g, 1)
-                                guard_escape_event.against(g, [girl])
-                                guard_escape_event.loss(g, 1)
-
-                            if girlmod:
-                                girlmod["exp"] += exp
-                                girlmod["joy"] += randint(0, 6)
-
-                            else:
-                                girl.mod_exp(exp)
-                                girl.mod_stat("joy", randint(0, 6))
-
-                            return True, self.ESCAPED
-
-                    else:
-                        # Fight!
-                        # TODO lt training (Alex) Check out what this is/does:
-                        result, dead = start_battle(guards, [girl], pt_ai=pt_ai, **be_kwargs)
-
-                        exp = (girl.attack + girl.defence + girl.agility + girl.magic) / 10
-
-                        # Remove hero from guards to avoid event
-                        if hero in guards: guards.remove(hero)
-
-                        # If the guards won
-                        if result:
-                            for g in guards:
-                                guard_escape_event.count(g, 1)
-                                guard_escape_event.against(g, [girl])
-                                guard_escape_event.stats(g, dict(vitality=-randint(-10, -20),
-                                                                 exp=exp
-                                                                 ))
-                                guard_escape_event.win(g, 1)
-
-                            if girlmod:
-                                girlmod["vitality"] -= randint(10, 20)
-                                girlmod["joy"] -= randint(0, 3)
-
-                            else:
-                                girl.mod_stat("health", -randint(10, 20))
-                                girl.mod_stat("joy", -randint(0, 3))
-
-                            return True, self.DEFEATED
-
-                        # Else the girl won
-                        else:
-                            for g in guards:
-                                guard_escape_event.count(g, 1)
-                                guard_escape_event.against(g, [girl])
-                                guard_escape_event.stats(g, dict(vitality=-randint(-10, -20),
-                                                                 exp=exp
-                                                                 ))
-                                guard_escape_event.loss(g, 1)
-
-                            if girlmod:
-                                girlmod["vitality"] -= randint(10, 20)
-                                girlmod["exp"] += exp
-                                girlmod["joy"] += randint(0, 3)
-                            else:
-                                girl.mod_stat("vitality", -randint(10, 20))
-                                girl.mod_exp(exp)
-                                girl.mod_stat("joy", randint(0, 3))
-
-                            return False, self.FOUGHT
-
+                    sec += len(guards)
             else:
+                if guards is None:
+                    sec = 0
+                else:
+                    sec = len(guards) 
+
+            # get the char capability
+            status = self.status(char)
+            if guards is not None and char in guards:
+                # Trojan horse
+                guards.remove(char)
+                sec /= 2
+
+            # check for weak security
+            if sec == 0 or dice(status/sec):
+                self.add(char)
+                return True
+
+            # check for smart 'char' -> capable, but the security is tight at the moment
+            if dice(status):
                 return False
 
-        def get_look_around_girl(self, event):
-            """
-            Gets the girl for the event.
-            event = The event to return the girl for.
-            """
-            return self.look_cache.pop(event.name, None)
+            # check if the only protection is the building -> noone to fight
+            if not guards:
+                return False
 
-        def location_runaway(self, location, sutree=None):
-            """
-            Returns a runaway chance for the location.
-            location = The location to calculate the chance for.
-            sutree = The name of the security upgrade tree to use if not default.
+            # check for 'damaged' char -> pointless to fight
+            if any("Injured" in char.effects,
+                   char.get_stat("health") < char.get_max("health")/4,
+                   char.get_stat("vitality") < char.get_max("vitality")/4,
+                   (char.AP*100 + char.PP) <= 200): # PP_PER_AP
+                if dice(max(status, 50)):
+                    return False
+                return False, self.CAUGHT
 
-            Calculates the chance using:
-            - The mod_runaway function if it exists.
-            - The amount of guards in the location, if the action exists.
-            - The amount of warriors in the location
+            # escalate to fight
+            guards = random.sample(guards, min(len(guards), 3))
+            member_aps = []
+            def_team = Team(name="Guards", maxsize=3)
+            for g in guards:
+                def_team.add(g)
+                member_aps.append((g.AP, g.PP))
+            off_team = Team(name="Runner", maxsize=1)
+            off_team.add(char)
 
-            Returns:
-            0 = high chance.
-            1 = low chance
-            """
-            # Get runaway modifier
-            mod = 0
+            battle = new_style_conflict_resolver(off_team, def_team)
+            if battle.winner == off_team:
+                char.mod_exp(exp_reward(char, def_team, exp_mod=10))
+                char.mod_stat("joy", randint(2, 6))
 
-            # If location has own function, use it # FIXME check upgrades and business!
-            if hasattr(location, "mod_runaway"):
-                mod = location.mod_runaway()
-
-            # Else if has guard action, use amount over total
-            elif hasattr(location, "actions") and "Guard" in location.actions:
-                girls = [g for g in hero.chars if g.workplace == location]
-                if girls:
-                    mod = float(len(location.get_girls("Guard"))) / float(len(girls))
-                else:
-                    mod = 0
-
-            # Else use warriors over total
+                self.add(char)
+                return True, self.FOUGHT
             else:
-                girls = [g for g in hero.chars if g.workplace == location]
-                if girls:
-                    mod = float(len(location.get_girls(occupation="Combatant"))) / float(len(girls))
-                else:
-                    mod = 0
+                for member, aps in zip(def_team, member_aps):
+                    # Awards:
+                    if member not in battle.corpses:
+                        aps = aps[0] - member.AP + (aps[1] - member.PP)/100.0 # PP_PER_AP = 100
+                        member.mod_exp(exp_reward(member, char, exp_mod=aps*.1))
+                char.mod_stat("joy", -randint(1, 5))
+                return False, self.FOUGHT
 
-            return mod
+        def get_look_around_char(self, event):
+            """
+            Gets the char for the event.
+            event = The event to return the char for.
+            """
+            return self.look_cache[event.name]
 
         def location_security(self, location, modifier=1):
             """
@@ -847,115 +579,121 @@ init -9 python:
             modifier = A multiplier for the final modifier.
 
             Returns:
-            1 = low chance
-            2 = high chance
+            1 = low security
+            2 = high security
             """
-            # Handled differently now.
-            return 1 # (random.random() * (2 - location.security_mult())) * modifier
+            # Get runaway modifier
+            mod = 1
+
+            # If location has own function, use it
+            if hasattr(location, "mod_runaway"):
+                mod += location.mod_runaway()
+
+            # Add workers effect
+            workers = [hero] + hero.chars
+            workers = [w for w in workers if w.workplace == location and w.is_available]
+            if workers:
+                guards = [g for g in workers if g.action == simple_jobs["Guarding"]]
+                guards = len(guards)
+                workers = len(workers) - guards
+                if workers == 0:
+                    mod *= guards
+                else:
+                    mod *= float(guards) / float(workers)
+
+            return mod
 
         def next_day(self):
             """
-            Solves the next day logic for the girls.
+            Solves the next day logic for the chars.
             """
-            type = "runawayndreport"
-            txt = ["Escaped girls:"]
+            rachars = self.chars
+            if not rachars:
+                return
 
-            # Replace with better code to prevent mass-creation/destruction of events?
-            # Clean look_cache
-            for i in self.look_cache.keys():
-                kill_event(i)
-                del self.look_cache[i]
+            txt = ["Escaped characters:"]
 
-            # Loop through girls in a random order
-            girls = list(self.girls.keys())
-            shuffle(girls)
-            for girl in girls:
-                cdb = config.developer
-                txt.append("    %s"%girl.fullname)
+            # Loop through chars in a random order
+            rachars = list(rachars.keys())
+            shuffle(rachars)
 
-                # Increase girls escape time
-                girl_away_days = self.girls[girl] + 1
-                self.girls[girl] = girl_away_days
+            for char in rachars:
+                txt.append("    %s"%char.fullname)
+
+                # get the chars escape time
+                char_away_days = day - self.chars[char]+1
 
                 # Get status
-                status = self.status(girl)
-                if cdb: txt.append("{color=blue}        status: %s{/color}"%status)
+                status = self.status(char)
 
                 # Chance to escape for good
-                if girl_away_days > 20:
-                    if dice(status) and dice(girl_away_days):
-                        del self.girls[girl]
-                        hero.remove_char(girl)
-                        char.home = pytfall.city
-                        set_location(char, None)
-                        char.reset_workplace_action()
-                        char.status = "free"
-                        if cdb: txt.append("{color=blue}        escaped for good{/color}")
-                        continue
+                if char_away_days > 20 and dice(status) and dice(char_away_days):
+                    self.remove_char(char)
+                    hero.remove_char(char)
 
-                # Chance to go to jail
-                if girl_away_days > 10:
-                    if dice(status):
-                        del self.girls[girl]
-                        pytfall.jail.add_slave(char)
-
-
-                        if cdb: txt.append("{color=blue}        sent to jail.{/color}")
-                        continue
-
-                # Chance to find in look_around
-                if dice(status) and len(self.look_cache) < 5:
-                    ev = "runaway_look_around_%s"%str(girl)
-                    self.look_cache[ev] = girl
-                    # Add event for girl (do we want high priority?)
-                    register_event(ev, label=girl.runaway_look_event, trigger_type="look_around", locations=["all"], dice=status, max_runs=1, start_day=day+1, priority=999)
-
-                    if cdb: txt.append("{color=blue}        in look around (%s days till escape){/color}"%(20-girl_away_days))
+                    char.home = pytfall.city
+                    set_location(char, None)
+                    char.reset_workplace_action()
+                    char.status = "free"
                     continue
 
-                if cdb: txt.append("{color=blue}        %s days till escape{/color}"%(20-girl_away_days))
+                status = 100-status
+                # Chance to go to jail
+                if char_away_days > 10 and dice(status):
+                    self.remove_char(char)
+                    pytfall.jail.add_slave(char)
+                    continue
+
+                # Chance to find in look_around
+                if dice(status):
+                    ev = "runaway_look_around_%s"%str(char)
+                    if ev not in self.look_cache:
+                        self.look_cache[ev] = char
+                        # Add event for the char (do we want high priority?)
+                        register_event(ev, label=getattr(char, "runaway_look_event", "runaway_char_recapture"), trigger_type="look_around", locations=["all"], dice=status, times_per_days=(1,0), start_day=day+1, priority=999)
+
+            # If we have escaped chars, post the event
+            ev = NDEvent(type = "runawayndreport",
+                         char = None,
+                         img = "content/gfx/bg/locations/dungeoncell.webp",
+                         txt = "\n".join(txt))
+            NextDayEvents.append(ev)
 
 
-            # If we have escaped girls, post the event
-            if self.girls:
-                ev = NDEvent()
-                ev.type = type
-                ev.char = None
-                ev.img = im.Scale("content/gfx/bg/locations/dungeoncell.webp", int(config.screen_width*.6), int(config.screen_height*.8))
-                ev.txt = "\n".join(txt)
-                NextDayEvents.append(ev)
-
-
-        def retrieve(self, girl):
+        def remove_char(self, char):
             """
-            Returns a girl to the player.
-            girl = The girl to return.
+            Removes the character from the Manager.
+            char = The char to remove.
             """
-            if girl in self:
-                del self.girls[girl]
+            del self.chars[char]
 
-                ev = "runaway_look_around_%s"%str(girl)
-                if ev in self.look_cache:
-                    del self.look_cache[ev]
-                    kill_event(ev)
+            ev = "runaway_look_around_%s"%str(char)
+            ev = self.look_cache.pop(ev, None)
+            if ev is not None:
+                kill_event(ev)
 
-
-                girl.home = pytfall.streets 
-                set_location(girl, None)
-
-        def status(self, girl):
+        def retrieve(self, char):
             """
-            Returns the "runaway status" of the girl.
-            girl = The girl to get the status for.
+            Returns a character to the player.
+            char = The char to return.
+            """
+            self.remove(char)
+
+            char.home = pytfall.streets 
+            set_location(char, None)
+
+        def status(self, char):
+            """
+            Returns the "runaway status" of the character.
+            char = The character to get the status for.
             """
             a = 0
             b = 0
             for i in self.STATUS_STATS:
-                a += girl.stats[i]
-                b += girl.stats.max[i]
+                a += char.get_stat(i)
+                b += char.get_max_stat(i)
 
-            status = (float(a) / float(b)) * 100
-            status *= girl_training_trait_mult(girl, "Restrained")
-            if girl.status == "slave": status *= .75
-
-            return 100-status
+            status = float(100*a)/float(b)
+            #status *= girl_training_trait_mult(girl, "Restrained")
+            status *= .75 # if char.status == "slave" - only slaves can run away at the moment
+            return status
