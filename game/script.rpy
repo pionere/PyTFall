@@ -1179,6 +1179,11 @@ label after_load:
                 if getattr(char, "runaway_look_event", None) == "escaped_girl_recapture":
                     del char.runaway_look_event
 
+                char.magic_skills.items = {k: v for k, v in char.magic_skills.items.items() if v != 0}
+                char.attack_skills.items = {k: v for k, v in char.attack_skills.items.items() if v != 0}
+
+                char.traits.blocked_traits = set([traits[t] if isinstance(t, basestring) else t for t in char.traits.blocked_traits])
+
             #for girl in itertools.chain(jail.chars_list, pytfall.ra.girls.keys()):
             #    if girl.controller == "player":
             #        girl.controller = None

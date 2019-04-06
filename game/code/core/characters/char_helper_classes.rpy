@@ -333,47 +333,52 @@ init -10 python:
             # ==> For battle & magic skills:
             if self.be_skill:
                 if isinstance(item, basestring):
-                    if item in store.battle_skills:
-                        item = store.battle_skills[item]
-                    else:
-                        char_debug("Tried to apply unknown skill %s to %s!" % (item, self.instance.__class__))
-                        return
+                    item = store.battle_skills.get(item, None)
+                    if item is None:
+                        raise Exception("Tried to apply unknown skill %s to %s!" % (item, self.instance.__class__))
+
+            num = self.items.get(item, 0)
             if normal: #  Item applied by anything other than that
                 self.normal.add(item)
+                num += 1
             else:
-                self.items[item] = self.items.get(item, 0) + 1
+                num += 1
+                self.items[item] = num
+                if item in self.normal:
+                    num += 1
 
-            # The above is enough for magic/battle skills, but for traits...
-            # we need to know if the effects should be applied.
-            c_absolute = item not in self.list # DO NOTHING otherwise.
-            total = bool(item in self.normal) + self.items.get(item, 0)
-            if c_absolute and total > 0:
-                self.list.append(item)
-                return True
+            if num > 0:
+                if item not in self.list:
+                    self.list.append(item)
+                    return True
 
         def remove(self, item, normal=True):
             # Overwriting default list method.
             # ==> For battle & magic skills:
             if self.be_skill:
                 if isinstance(item, basestring):
-                    if item in store.battle_skills:
-                        item = store.battle_skills[item]
-                    else:
-                        char_debug("Tried to remove unknown skill %s from %s!" % (item, self.instance.__class__))
-                        return
+                    item = store.battle_skills.get(item, None)
+                    if item is None:
+                        raise Exception("Tried to remove unknown skill %s from %s!" % (item, self.instance.__class__))
+
+            num = self.items.get(item, 0)
             if normal:
                 self.normal.discard(item)
             else:
-                self.items[item] = self.items.get(item, 0) - 1
+                num -= 1
+                if num == 0:
+                    self.items.pop(item)
+                else:
+                    self.items[items] = num
+                if item in self.normal:
+                    num += 1
 
             # The above is enough for magic/battle skills, but for traits...
             # we need to know if the effects should be applied.
-            c_absolute = item in self.list # DO NOTHING otherwise.
-            total = bool(item in self.normal) + self.items.get(item, 0)
-            if c_absolute and total <= 0:
-                self.list.remove(item)
-                return True
-
+            if num <= 0:
+                if item in self.list: # DO NOTHING otherwise.
+                    self.list.remove(item)
+                    return True
 
     class Trait(_object):
         def __init__(self):
@@ -498,7 +503,7 @@ init -10 python:
                 return
 
             # We cannot allow "Neutral" element to be applied if there is at least one element present already:
-            if trait.elemental and trait.id == "Neutral":
+            if trait.id == "Neutral": # and trait.elemental:
                 if char.elements:
                     return
 
@@ -508,22 +513,22 @@ init -10 python:
 
             # Unique Traits:
             if trait.personality:
-                if list(t for t in self if t.personality):
+                if getattr(char, "personality", False):
                     return
                 else:
                     char.personality = trait
             if trait.race:
-                if list(t for t in self if t.race):
+                if getattr(char, "race", False):
                     return
                 else:
                     char.race = trait
             if trait.gents:
-                if list(t for t in self if t.gents):
+                if getattr(char, "gents", False):
                     return
                 else:
                     char.gents = trait
             if trait.body:
-                if list(t for t in self if t.body):
+                if getattr(char, "body", False):
                     return
                 else:
                     char.body = trait
@@ -634,22 +639,16 @@ init -10 python:
                 stats.min[key] -= trait.min[key]
 
             if trait.blocks:
-                _traits = set()
-                for entry in trait.blocks:
-                    if entry in traits:
-                        _traits.add(traits[entry])
-                    else:
-                        char_debug(str("Tried to block unknown trait: %s, id: %s, class: %s" % (entry, char.id, char.__class__)))
-                self.blocked_traits -= _traits
-
-            # Ensure that blocks forced by other traits were not removed:
-            for entry in self:
-                self.blocked_traits = self.blocked_traits.union(entry.blocks)
+                # Update blocked traits
+                blocks = set()
+                for entry in self:
+                    blocks.update(entry.blocks)
+                self.blocked_traits = set([traits[t] for t in blocks])
 
             # For now just the girls get effects...
             if isinstance(char, Char):
                 for entry in trait.effects:
-                    self.instance.disable_effect(entry)
+                    char.disable_effect(entry)
 
             if trait.mod_stats:
                 temp = trait.mod_stats.get("upkeep", None)
@@ -673,10 +672,10 @@ init -10 python:
 
             # Remove resisting elements and attacks:
             for i in trait.resist:
-                self.instance.resist.remove(i)
+                char.resist.remove(i)
 
             # We add the Neutral element if there are no elements left at all...
-            if not self.instance.elements:
+            if trait.elemental and not char.elements:
                 self.apply("Neutral")
 
     class Finances(_object):
@@ -1243,11 +1242,18 @@ init -10 python:
             # if an item has less than the most weights the remaining are imputed with 50 weights
             # Nor sure why????
             # most_weights = {slot: 0 for slot in weighted}
+            if smart_ownership_limit is True:
+                owned_items = dict(char.inventory.items)
+                for item in char.eqslots.values():
+                    if item:
+                        owned_items[item] = owned_items.get(item, 0) + 1
+            else:
+                owned_items = None
 
             for item in inventory:
                 slot = item.slot
-                if smart_ownership_limit is True:
-                    owned = count_owned_items(char, item)
+                if owned_items is not None:
+                    owned = owned_items.get(item, 0) #count_owned_items(char, item)
                     if slot == "ring":
                         if owned >= 3:
                             continue
@@ -1281,7 +1287,7 @@ init -10 python:
                 #if "Slave" in base_purpose and "Slave" in item.pref_class:
                 #    weights = [200] # As all slave items are shit anyway...
                 #else:
-                weights = chance_func(item) if chance_func else [item.eqchance]
+                weights = [item.eqchance] if chance_func is None else chance_func(item) 
                 if weights is None: # We move to the next item!
                     aeq_debug("Ignoring item %s on weights.", item.id)
                     continue

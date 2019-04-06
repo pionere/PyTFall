@@ -3,7 +3,6 @@
     "id": "Abnormally Large Boobs",
     "desc": "One wonders how she keeps her balance. Those things are like miniature moons...",
     "gender": "female",
-    "blocks": ["Big Boobs", "Average Boobs", "Small Boobs"],
     "min": {"charisma": 20},
     "max": {"charisma": 40, "agility": -20},
     "mod_stats": {"charisma": [1, 2], "agility": [-1, 2]},
@@ -16,7 +15,6 @@
     "id": "Big Boobs",
     "desc": "This girl really has knockers.",
     "gender": "female",
-    "blocks": ["Abnormally Large Boobs", "Average Boobs", "Small Boobs"],
     "min": {"charisma": 10},
     "max": {"charisma": 20, "agility": -15},
     "mod_stats": {"charisma": [1, 5], "agility": [-1, 5]},
@@ -29,7 +27,6 @@
     "id": "Average Boobs",
     "desc": "Her boobs are not too big and not too small. Any classy guy will say that this is the ideal size.",
     "gender": "female",
-    "blocks": ["Abnormally Large Boobs", "Big Boobs", "Small Boobs"],
     "mod_stats": {"charisma": [1, 5]},
     "gents": true,
     "market": true
@@ -38,7 +35,6 @@
     "id": "Small Boobs",
     "desc": "Her boobs may be small, but some people like that.",
     "gender": "female",
-    "blocks": ["Abnormally Large Boobs", "Average Boobs", "Big Boobs"],
     "min": {"agility": 5},
     "max": {"charisma": -10, "agility": 10},
     "mod_stats": {"agility": [1, 5]},
@@ -51,7 +47,6 @@
     "id": "Abnormally Large Dick",
     "desc": "One wonders how he keeps his balance. That thing is like a miniature tower...",
     "gender": "male",
-    "blocks": ["Big Dick", "Average Dick", "Small Dick"],
     "min": {"charisma": 20},
     "max": {"charisma": 40, "agility": -20},
     "mod_stats": {"charisma": [1, 2], "agility": [-1, 2]},
@@ -64,7 +59,6 @@
     "id": "Big Dick",
     "desc": "This guy really has a slong.",
     "gender": "male",
-    "blocks": ["Abnormally Large Dick", "Average Dick", "Small Dick"],
     "min": {"charisma": 10},
     "max": {"charisma": 20, "agility": -15},
     "mod_stats": {"charisma": [1, 5], "agility": [-1, 5]},
@@ -77,7 +71,6 @@
     "id": "Average Dick",
     "desc": "His dick is not too big and not too small. Any classy girl will say that this is the ideal size.",
     "gender": "male",
-    "blocks": ["Abnormally Large Dick", "Big Dick", "Small Dick"],
     "mod_stats": {"charisma": [1, 5]},
     "gents": true,
     "market": true
@@ -86,7 +79,6 @@
     "id": "Small Dick",
     "desc": "His dick may be small, but some people like that.",
     "gender": "male",
-    "blocks": ["Abnormally Large Dick", "Average Dick", "Big Dick"],
     "min": {"agility": 5},
     "max": {"charisma": -10, "agility": 10},
     "mod_stats": {"agility": [1, 5]},
@@ -140,7 +132,6 @@
     {
     "id": "Lolita",
     "desc": "Looks very young and small.",
-    "blocks": ["Slim", "Chubby", "Athletic", "Manly"],
     "min": {"agility": 5},
     "max": {"vitality": -50, "health": -50},
     "mod_stats": {"constitution": [-1, 4], "agility": [1, 4]},
@@ -153,7 +144,6 @@
     {
     "id": "Slim",
     "desc": "A slender, slim figure.",
-    "blocks": ["Lolita", "Chubby", "Athletic", "Manly"],
     "mod_stats": {"constitution": [-1, 5], "charisma": [1, 5]},
     "max": {"vitality": -25, "charisma": 15},
     "body": true,
@@ -161,7 +151,6 @@
     },
     {
     "id": "Chubby",
-    "blocks": ["Lolita", "Slim", "Athletic", "Manly"],
     "desc": "A plump, slightly round figure.",
     "mod_stats": {"constitution": [1, 4], "agility": [-1, 4]},
     "max": {"health": 25},
@@ -171,7 +160,6 @@
     },
     {
     "id": "Athletic",
-    "blocks": ["Lolita", "Slim", "Chubby", "Manly"],
     "desc": "Tough and trained physique. The body is in great shape.",
     "min": {"constitution": 5},
     "mod_stats": {"constitution": [1, 5], "agility": [1, 5]},
@@ -182,7 +170,6 @@
     },
    {
     "id": "Manly",
-    "blocks": ["Lolita", "Slim", "Chubby", "Athletic"],
     "desc": "Very muscular. Perhaps even too muscular.",
     "min": {"constitution": 15},
     "mod_stats": {"constitution": [2, 5], "charisma": [-1, 5], "agility": [-1, 5]},

@@ -74,13 +74,12 @@ init -11 python:
 
         @param: silent: If False, game will notify the player with a reason why an item cannot be equipped.
         """
-        if equipment_safe_mode and item.slot == "consumable":
-            if item.jump_to_label or item.type == "permanent":
+        if item.slot == 'consumable':
+            if equipment_safe_mode and item.jump_to_label:
                 if not silent:
                     renpy.show_screen("message_screen", "Special items cannot be used right now.")
                 return
 
-        if item.slot == 'consumable':
             if item in character.consblock:
                 if not silent:
                     if character.consblock[item] > 1:
@@ -107,13 +106,13 @@ init -11 python:
                     return
             char = character
             return True
-        if item.unique and item.unique != character.id:
-            if not silent:
-                renpy.show_screen("message_screen", "This unique item cannot be equipped on {}.".format(character.name))
-            return
-        elif item.sex not in ["unisex", character.gender]:
+        if item.sex not in ["unisex", character.gender]:
             if not silent:
                 renpy.show_screen('message_screen', "This item cannot be equipped on a character of {} gender.".format(character.gender))
+            return
+        elif item.unique and item.unique != character.id:
+            if not silent:
+                renpy.show_screen("message_screen", "This unique item cannot be equipped on {}.".format(character.name))
             return
         elif item.type == "scroll": # prevents using scroll if it gives already known spell
             battle_skill = store.battle_skills[item.add_be_spells[0]]
