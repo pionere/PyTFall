@@ -271,11 +271,6 @@ label continue_with_start:
         pytfall.jail.populate_chars_list()
         tl.end("Loading: Populating SlaveMarket And Jail")
 
-    #  --------------------------------------
-    # Put here to facilitate testing:
-    if DEBUG and renpy.has_label("testing"):
-        call testing from _call_testing
-
     python in _console:
         if store.DEBUG:
             stdio_lines = []
@@ -1112,7 +1107,7 @@ label after_load:
                     char.arena_active = True
                 if hasattr(char, "breasts"):
                     char.gents = char.breasts
-                    del char.gents
+                    del char.breasts
                 if hasattr(char, "likes"):
                     del char.likes
                 if hasattr(char, "dislikes"):

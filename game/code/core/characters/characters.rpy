@@ -37,21 +37,21 @@ init -9 python:
         """
         def __init__(self, arena=False, inventory=False, effects=False, is_worker=True):
             super(PytCharacter, self).__init__()
-            self.img = ""
-            self.portrait = ""
+            self.img = None
+            self.portrait = None
             self.gold = 0
 
-            self.name = ""
-            self.fullname = ""
-            self.nickname = ""
+            self.name = None
+            self.fullname = None
+            self.nickname = None
 
             self._mc_ref = None # This is how characters refer to MC (hero). May depend on case per case basis and is accessed through obj.mc_ref property.
             self.height = "average"
             self.gender = "female"
-            self.origin = ""
+            self.origin = None
             self.status = "free"
-            self.race = ""
-            self.full_race = ""
+            self.race = None
+            self.full_race = None
 
             self.baseAP = 3
             #self.AP = 3        # Remaining AP for the day - initialized later
@@ -1801,7 +1801,7 @@ init -9 python:
                           "joy": -randint(8, 12)}
                 duration = locked_random("randint", 6, 14)
             else:
-                ss_mod = kwargs.get("ss_mod", {})
+                ss_mod = kwargs.get("ss_mod", None)
                 duration = kwargs.get("duration", 10)
             obj = CharEffect(name, duration=duration, ss_mod=ss_mod)
             obj.enable(self)
