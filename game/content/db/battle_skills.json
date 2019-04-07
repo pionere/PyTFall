@@ -1147,7 +1147,7 @@
 		"effect": 60,
 		"vitality_cost": 5,
 		"menu_pos": 1.0,
-		"desc": "Shot an arrow made of light.",
+		"desc": "Shoots an arrow made of light.",
 		"item_only": true,
 		"main_effect": {
 			"gfx": "angel_bow_attack_webm",
@@ -1183,7 +1183,7 @@
 		"vitality_cost": 2,
 		"health_cost": 2,
 		"menu_pos": 1.0,
-		"desc": "Shot an arrow made of darkness.",
+		"desc": "Shoots an arrow made of darkness.",
 		"item_only": true,
 		"main_effect": {
 			"gfx": "demon_bow_attack_webm",
@@ -1218,7 +1218,7 @@
 		"vitality_cost": 4,
 		"menu_pos": 1.5,
 		"piercing": true,
-		"desc": "Shot a poisonous arrow.",
+		"desc": "Shoots a poisonous arrow.",
 		"item_only": true,
 		"main_effect": {
 			"gfx": "green_hit_webm",
@@ -1247,7 +1247,7 @@
 		"mp_cost": 3,
 		"range": 4,
 		"piercing": true,
-		"desc": "Shot an arrow empowered with nature itself.",
+		"desc": "Shoots an arrow empowered with nature itself.",
 		"item_only": true,
 		"firing_effects": {
 			"gfx": "emerald_bow_webm",
@@ -1305,7 +1305,7 @@
 		"mp_cost": 5,
 		"range": 4,
 		"piercing": true,
-		"desc": "Shot a triple arrow made of highly concentrated light.",
+		"desc": "Shoots a triple arrow made of highly concentrated light.",
 		"item_only": true,
 		"firing_effects": {
 			"gfx": "angel_bow_webm",
@@ -1411,7 +1411,7 @@
 		"range": 3,
 		"vitality_cost": 3,
 		"menu_pos": 1.0,
-		"desc": "Shot a fire arrow.",
+		"desc": "Shoots a fire arrow.",
 		"item_only": true,
 		"piercing": true,
 		"main_effect": {
@@ -1443,7 +1443,7 @@
 		"range": 3,
 		"vitality_cost": 3,
 		"menu_pos": 1.0,
-		"desc": "Shot an ice arrow.",
+		"desc": "Shoots an ice arrow.",
 		"item_only": true,
 		"piercing": true,
 		"main_effect": {
@@ -1481,7 +1481,7 @@
 		"vitality_cost": 10,
 		"range": 4,
 		"piercing": true,
-		"desc": "Shot an arrow of scorching air.",
+		"desc": "Shoots an arrow of scorching air.",
 		"item_only": true,
 		"firing_effects": {
 			"gfx": "Fire Arrow cast",
@@ -1541,7 +1541,7 @@
 		"vitality_cost": 10,
 		"range": 4,
 		"piercing": true,
-		"desc": "Shot an arrow of frozen water.",
+		"desc": "Shoots an arrow of frozen water.",
 		"item_only": true,
 		"firing_effects": {
 			"gfx": "Ice Arrow cast",
@@ -1635,7 +1635,7 @@
 		"range": 4,
 		"vitality_cost": 1,
 		"menu_pos": 0,
-		"desc": "Shot a bolt.",
+		"desc": "Shoots a bolt.",
 		"item_only": true,
 		"piercing": true,
 		"main_effect": {
@@ -2307,7 +2307,7 @@
 		"menu_pos": 0,
 		"multiplier": 0.55,
 		"piercing": true,
-		"desc": "Shot a large caliber.",
+		"desc": "Shoots a large caliber.",
 		"item_only": true,
 		"main_effect": {
 			"gfx": "simple_cannon_attack_webm",
@@ -2569,7 +2569,7 @@
 		"vitality_cost": 2,
 		"menu_pos": 0,
 		"multiplier": 0.5,
-		"desc": "Shot a bullet.",
+		"desc": "Shoots a bullet.",
 		"item_only": true,
 		"main_effect": {
 			"gfx": "simple_gun_attack_webm",

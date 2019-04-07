@@ -1137,7 +1137,7 @@ init -1 python: # Core classes:
             if delivery == "melee":
                 attack = a.attack*.7 + a.agility*.3
             elif delivery == "ranged":
-                attack = a.attack*.7 + a.intelligence*.3
+                attack = a.agility*.7 + a.attack*.3
             elif delivery == "magic":
                 attack = a.magic*.7 + a.intelligence*.3
             else: #if delivery == "status":
