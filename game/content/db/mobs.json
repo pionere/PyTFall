@@ -5,7 +5,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/ck.webp",
         "portrait": "content/npc/mobs/ck1.webp",
-        "race": "Stone..?",
+        "full_race": "Stone..?",
         "locations": [],
         "min_lvl": 5,
         "basetraits": [
@@ -36,7 +36,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/w.webp",
         "portrait": "content/npc/mobs/w1.webp",
-        "race": "Goblinoid",
+        "full_race": "Goblinoid",
         "locations": [],
         "min_lvl": 5,
         "basetraits": [
@@ -67,7 +67,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/x.webp",
         "portrait": "content/npc/mobs/x1.webp",
-        "race": "Goblinoid",
+        "full_race": "Goblinoid",
         "locations": [],
         "min_lvl": 5,
         "basetraits": [
@@ -98,7 +98,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/z.webp",
         "portrait": "content/npc/mobs/z1.webp",
-        "race": "Goblinoid",
+        "full_race": "Goblinoid",
         "locations": [],
         "min_lvl": 5,
         "basetraits": [
@@ -129,7 +129,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/y.webp",
         "portrait": "content/npc/mobs/y1.webp",
-        "race": "Goblinoid",
+        "full_race": "Goblinoid",
         "locations": [],
         "min_lvl": 10,
         "basetraits": [
@@ -160,7 +160,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/dn.webp",
         "portrait": "content/npc/mobs/dn1.webp",
-        "race": "Animal",
+        "full_race": "Animal",
         "locations": [],
         "min_lvl": 15,
         "basetraits": [
@@ -191,7 +191,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/sah.webp",
         "portrait": "content/npc/mobs/sah1.webp",
-        "race": "Monster",
+        "full_race": "Monster",
         "locations": [],
         "min_lvl": 10,
         "basetraits": [
@@ -222,7 +222,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/aq.webp",
         "portrait": "content/npc/mobs/aq1.webp",
-        "race": "Animal",
+        "full_race": "Animal",
         "locations": [],
         "min_lvl": 5,
         "basetraits": [
@@ -253,7 +253,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/ar.webp",
         "portrait": "content/npc/mobs/ar1.webp",
-        "race": "Animal",
+        "full_race": "Animal",
         "locations": [],
         "min_lvl": 15,
         "basetraits": [
@@ -284,7 +284,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/dh.webp",
         "portrait": "content/npc/mobs/dh1.webp",
-        "race": "Insect",
+        "full_race": "Insect",
         "locations": [],
         "min_lvl": 15,
         "basetraits": [
@@ -315,7 +315,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/mim.webp",
         "portrait": "content/npc/mobs/mim.webp",
-        "race": "Monster",
+        "full_race": "Monster",
         "locations": [],
         "min_lvl": 20,
         "basetraits": [
@@ -346,7 +346,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/cf.webp",
         "portrait": "content/npc/mobs/cf1.webp",
-        "race": "Monster Girl",
+        "full_race": "Monster Girl",
         "locations": [],
         "min_lvl": 25,
         "basetraits": [
@@ -377,7 +377,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/ch.webp",
         "portrait": "content/npc/mobs/ch1.webp",
-        "race": "Monster Girl",
+        "full_race": "Monster Girl",
         "locations": [],
         "min_lvl": 50,
         "basetraits": [
@@ -408,7 +408,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/bc.webp",
         "portrait": "content/npc/mobs/bc1.webp",
-        "race": "Animal",
+        "full_race": "Animal",
         "locations": [],
         "min_lvl": 15,
         "basetraits": [
@@ -439,7 +439,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/bd.webp",
         "portrait": "content/npc/mobs/bd1.webp",
-        "race": "Animal",
+        "full_race": "Animal",
         "locations": [],
         "min_lvl": 20,
         "basetraits": [
@@ -470,7 +470,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/bh.webp",
         "portrait": "content/npc/mobs/bh1.webp",
-        "race": "Animal",
+        "full_race": "Animal",
         "locations": [],
         "min_lvl": 20,
         "basetraits": [
@@ -501,7 +501,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/bg.webp",
         "portrait": "content/npc/mobs/bg1.webp",
-        "race": "Animal",
+        "full_race": "Animal",
         "locations": [],
         "min_lvl": 25,
         "basetraits": [
@@ -532,7 +532,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/be.webp",
         "portrait": "content/npc/mobs/be1.webp",
-        "race": "Animal",
+        "full_race": "Animal",
         "locations": [],
         "min_lvl": 25,
         "basetraits": [
@@ -563,7 +563,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/dl.webp",
         "portrait": "content/npc/mobs/dl1.webp",
-        "race": "Insect",
+        "full_race": "Insect",
         "locations": [],
         "min_lvl": 30,
         "basetraits": [
@@ -594,7 +594,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/dt.webp",
         "portrait": "content/npc/mobs/dt1.webp",
-        "race": "Animal",
+        "full_race": "Animal",
         "locations": [],
         "min_lvl": 20,
         "basetraits": [
@@ -625,7 +625,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/du.webp",
         "portrait": "content/npc/mobs/du1.webp",
-        "race": "Animal",
+        "full_race": "Animal",
         "locations": [],
         "min_lvl": 30,
         "basetraits": [
@@ -656,7 +656,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/jellyfish.webp",
         "portrait": "content/npc/mobs/jellyfish1.webp",
-        "race": "Animal",
+        "full_race": "Animal",
         "locations": [],
         "min_lvl": 30,
         "basetraits": [
@@ -686,7 +686,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/c.webp",
         "portrait": "content/npc/mobs/c1.webp",
-        "race": "Slime",
+        "full_race": "Slime",
         "locations": [],
         "min_lvl": 25,
         "basetraits": [
@@ -717,7 +717,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/b.webp",
         "portrait": "content/npc/mobs/b1.webp",
-        "race": "Slime",
+        "full_race": "Slime",
         "locations": [],
         "min_lvl": 30,
         "basetraits": [
@@ -749,7 +749,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/e.webp",
         "portrait": "content/npc/mobs/e1.webp",
-        "race": "Slime",
+        "full_race": "Slime",
         "locations": [],
         "min_lvl": 30,
         "basetraits": [
@@ -781,7 +781,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/f.webp",
         "portrait": "content/npc/mobs/f1.webp",
-        "race": "Slime",
+        "full_race": "Slime",
         "locations": [],
         "min_lvl": 30,
         "basetraits": [
@@ -813,7 +813,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/d.webp",
         "portrait": "content/npc/mobs/d1.webp",
-        "race": "Slime",
+        "full_race": "Slime",
         "locations": [],
         "min_lvl": 30,
         "basetraits": [
@@ -845,7 +845,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/a.webp",
         "portrait": "content/npc/mobs/a1.webp",
-        "race": "Slime",
+        "full_race": "Slime",
         "locations": [],
         "min_lvl": 35,
         "basetraits": [
@@ -879,7 +879,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/bz.webp",
         "portrait": "content/npc/mobs/bz1.webp",
-        "race": "Demon",
+        "full_race": "Demon",
         "locations": [],
         "min_lvl": 25,
         "basetraits": [
@@ -910,7 +910,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/urat.webp",
         "portrait": "content/npc/mobs/urat1.webp",
-        "race": "Undead",
+        "full_race": "Undead",
         "locations": [],
         "min_lvl": 30,
         "basetraits": [
@@ -941,7 +941,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/bl.webp",
         "portrait": "content/npc/mobs/bl1.webp",
-        "race": "Undead",
+        "full_race": "Undead",
         "locations": [],
         "min_lvl": 35,
         "basetraits": [
@@ -972,7 +972,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/bm.webp",
         "portrait": "content/npc/mobs/bm1.webp",
-        "race": "Undead",
+        "full_race": "Undead",
         "locations": [],
         "min_lvl": 40,
         "basetraits": [
@@ -1003,7 +1003,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/ww.webp",
         "portrait": "content/npc/mobs/ww.webp",
-        "race": "Undead",
+        "full_race": "Undead",
         "locations": [],
         "min_lvl": 40,
         "basetraits": [
@@ -1034,7 +1034,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/aj.webp",
         "portrait": "content/npc/mobs/aj1.webp",
-        "race": "Undead",
+        "full_race": "Undead",
         "locations": [],
         "min_lvl": 45,
         "basetraits": [
@@ -1065,7 +1065,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/cw.webp",
         "portrait": "content/npc/mobs/cw1.webp",
-        "race": "Monster",
+        "full_race": "Monster",
         "locations": [],
         "min_lvl": 40,
         "basetraits": [
@@ -1096,7 +1096,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/m.webp",
         "portrait": "content/npc/mobs/m1.webp",
-        "race": "Human",
+        "full_race": "Human",
         "locations": [],
         "min_lvl": 50,
         "basetraits": [
@@ -1127,7 +1127,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/n.webp",
         "portrait": "content/npc/mobs/n1.webp",
-        "race": "Human",
+        "full_race": "Human",
         "locations": [],
         "min_lvl": 50,
         "basetraits": [
@@ -1158,7 +1158,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/o.webp",
         "portrait": "content/npc/mobs/o1.webp",
-        "race": "Human",
+        "full_race": "Human",
         "locations": [],
         "min_lvl": 50,
         "basetraits": [
@@ -1189,7 +1189,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/q.webp",
         "portrait": "content/npc/mobs/q1.webp",
-        "race": "Lamia",
+        "full_race": "Lamia",
         "locations": [],
         "min_lvl": 55,
         "basetraits": [
@@ -1220,7 +1220,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/dg.webp",
         "portrait": "content/npc/mobs/dg1.webp",
-        "race": "Monster Girl",
+        "full_race": "Monster Girl",
         "locations": [],
         "min_lvl": 60,
         "basetraits": [
@@ -1251,7 +1251,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/fc.webp",
         "portrait": "content/npc/mobs/fc1.webp",
-        "race": "Monster Girl",
+        "full_race": "Monster Girl",
         "locations": [],
         "min_lvl": 60,
         "basetraits": [
@@ -1282,7 +1282,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/as.webp",
         "portrait": "content/npc/mobs/as1.webp",
-        "race": "Insect",
+        "full_race": "Insect",
         "locations": [],
         "min_lvl": 50,
         "basetraits": [
@@ -1313,7 +1313,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/au.webp",
         "portrait": "content/npc/mobs/au1.webp",
-        "race": "Monster",
+        "full_race": "Monster",
         "locations": [],
         "min_lvl": 55,
         "basetraits": [
@@ -1344,7 +1344,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/do.webp",
         "portrait": "content/npc/mobs/do1.webp",
-        "race": "Undead",
+        "full_race": "Undead",
         "locations": [],
         "min_lvl": 45,
         "basetraits": [
@@ -1375,7 +1375,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/dp.webp",
         "portrait": "content/npc/mobs/dp1.webp",
-        "race": "Undead",
+        "full_race": "Undead",
         "locations": [],
         "min_lvl": 55,
         "basetraits": [
@@ -1406,7 +1406,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/aw.webp",
         "portrait": "content/npc/mobs/aw1.webp",
-        "race": "Insect",
+        "full_race": "Insect",
         "locations": [],
         "min_lvl": 50,
         "basetraits": [
@@ -1437,7 +1437,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/ap.webp",
         "portrait": "content/npc/mobs/ap1.webp",
-        "race": "Chimera",
+        "full_race": "Chimera",
         "locations": [],
         "min_lvl": 55,
         "basetraits": [
@@ -1468,7 +1468,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/sco.webp",
         "portrait": "content/npc/mobs/sco1.webp",
-        "race": "Insect",
+        "full_race": "Insect",
         "locations": [],
         "min_lvl": 55,
         "basetraits": [
@@ -1499,7 +1499,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/at.webp",
         "portrait": "content/npc/mobs/at1.webp",
-        "race": "Insect",
+        "full_race": "Insect",
         "locations": [],
         "min_lvl": 60,
         "basetraits": [
@@ -1530,7 +1530,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/ara.webp",
         "portrait": "content/npc/mobs/ara1.webp",
-        "race": "Monster Girl",
+        "full_race": "Monster Girl",
         "locations": [],
         "min_lvl": 65,
         "basetraits": [
@@ -1561,7 +1561,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/gro.webp",
         "portrait": "content/npc/mobs/gro1.webp",
-        "race": "Insect",
+        "full_race": "Insect",
         "locations": [],
         "min_lvl": 65,
         "basetraits": [
@@ -1592,7 +1592,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/ac.webp",
         "portrait": "content/npc/mobs/ac1.webp",
-        "race": "Undine",
+        "full_race": "Undine",
         "locations": [],
         "min_lvl": 60,
         "basetraits": [
@@ -1623,7 +1623,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/ad.webp",
         "portrait": "content/npc/mobs/ad1.webp",
-        "race": "Undine",
+        "full_race": "Undine",
         "locations": [],
         "min_lvl": 65,
         "basetraits": [
@@ -1654,7 +1654,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/ae.webp",
         "portrait": "content/npc/mobs/ae1.webp",
-        "race": "Undine",
+        "full_race": "Undine",
         "locations": [],
         "min_lvl": 65,
         "basetraits": [
@@ -1685,7 +1685,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/af.webp",
         "portrait": "content/npc/mobs/af1.webp",
-        "race": "Undine",
+        "full_race": "Undine",
         "locations": [],
         "min_lvl": 70,
         "basetraits": [
@@ -1716,7 +1716,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/t.webp",
         "portrait": "content/npc/mobs/t1.webp",
-        "race": "Harpy",
+        "full_race": "Harpy",
         "locations": [],
         "min_lvl": 70,
         "basetraits": [
@@ -1747,7 +1747,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/u.webp",
         "portrait": "content/npc/mobs/u1.webp",
-        "race": "Harpy",
+        "full_race": "Harpy",
         "locations": [],
         "min_lvl": 75,
         "basetraits": [
@@ -1778,7 +1778,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/v.webp",
         "portrait": "content/npc/mobs/v1.webp",
-        "race": "Harpy",
+        "full_race": "Harpy",
         "locations": [],
         "min_lvl": 75,
         "basetraits": [
@@ -1809,7 +1809,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/vip.webp",
         "portrait": "content/npc/mobs/vip1.webp",
-        "race": "Gargoyle",
+        "full_race": "Gargoyle",
         "locations": [],
         "min_lvl": 80,
         "basetraits": [
@@ -1840,7 +1840,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/dr.webp",
         "portrait": "content/npc/mobs/dr1.webp",
-        "race": "Monster Girl",
+        "full_race": "Monster Girl",
         "locations": [],
         "min_lvl": 100,
         "basetraits": [
@@ -1871,7 +1871,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/bf.webp",
         "portrait": "content/npc/mobs/bf1.webp",
-        "race": "Monster",
+        "full_race": "Monster",
         "locations": [],
         "min_lvl": 75,
         "basetraits": [
@@ -1902,7 +1902,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/ca.webp",
         "portrait": "content/npc/mobs/ca1.webp",
-        "race": "Monster Girl",
+        "full_race": "Monster Girl",
         "locations": [],
         "min_lvl": 80,
         "basetraits": [
@@ -1933,7 +1933,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/cb.webp",
         "portrait": "content/npc/mobs/cb1.webp",
-        "race": "Monster Girl",
+        "full_race": "Monster Girl",
         "locations": [],
         "min_lvl": 85,
         "basetraits": [
@@ -1964,7 +1964,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/min.webp",
         "portrait": "content/npc/mobs/min1.webp",
-        "race": "Monster",
+        "full_race": "Monster",
         "locations": [],
         "min_lvl": 80,
         "basetraits": [
@@ -1995,7 +1995,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/cc.webp",
         "portrait": "content/npc/mobs/cc1.webp",
-        "race": "Monster Girl",
+        "full_race": "Monster Girl",
         "locations": [],
         "min_lvl": 85,
         "basetraits": [
@@ -2026,7 +2026,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/co.webp",
         "portrait": "content/npc/mobs/co1.webp",
-        "race": "Animal",
+        "full_race": "Animal",
         "locations": [],
         "min_lvl": 80,
         "basetraits": [
@@ -2057,7 +2057,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/cp.webp",
         "portrait": "content/npc/mobs/cp1.webp",
-        "race": "Animal",
+        "full_race": "Animal",
         "locations": [],
         "min_lvl": 80,
         "basetraits": [
@@ -2088,7 +2088,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/ds.webp",
         "portrait": "content/npc/mobs/ds1.webp",
-        "race": "Monster Girl",
+        "full_race": "Monster Girl",
         "locations": [],
         "min_lvl": 85,
         "basetraits": [
@@ -2119,7 +2119,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/dw.webp",
         "portrait": "content/npc/mobs/dw1.webp",
-        "race": "Monster Girl",
+        "full_race": "Monster Girl",
         "locations": [],
         "min_lvl": 85,
         "basetraits": [
@@ -2150,7 +2150,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/fb.webp",
         "portrait": "content/npc/mobs/fb1.webp",
-        "race": "Monster Girl",
+        "full_race": "Monster Girl",
         "locations": [],
         "min_lvl": 90,
         "basetraits": [
@@ -2181,7 +2181,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/cs.webp",
         "portrait": "content/npc/mobs/cs1.webp",
-        "race": "Droid",
+        "full_race": "Droid",
         "locations": [],
         "min_lvl": 100,
         "basetraits": [
@@ -2212,7 +2212,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/dv.webp",
         "portrait": "content/npc/mobs/dv1.webp",
-        "race": "Droid",
+        "full_race": "Droid",
         "locations": [],
         "min_lvl": 100,
         "basetraits": [
@@ -2243,7 +2243,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/ag.webp",
         "portrait": "content/npc/mobs/ag1.webp",
-        "race": "Elemental",
+        "full_race": "Elemental",
         "locations": [],
         "min_lvl": 85,
         "basetraits": [
@@ -2274,7 +2274,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/ah.webp",
         "portrait": "content/npc/mobs/ah1.webp",
-        "race": "Elemental",
+        "full_race": "Elemental",
         "locations": [],
         "min_lvl": 90,
         "basetraits": [
@@ -2305,7 +2305,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/ai.webp",
         "portrait": "content/npc/mobs/ai1.webp",
-        "race": "Elemental",
+        "full_race": "Elemental",
         "locations": [],
         "min_lvl": 95,
         "basetraits": [
@@ -2336,7 +2336,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/cg.webp",
         "portrait": "content/npc/mobs/cg1.webp",
-        "race": "Elemental",
+        "full_race": "Elemental",
         "locations": [],
         "min_lvl": 95,
         "basetraits": [
@@ -2368,7 +2368,7 @@
         "battle_sprite": "content/npc/mobs/bl_star.webp",
         "portrait": "content/npc/mobs/bl_star.webp",
         "be_webm_sprites": {"idle": ["BlStar_idle", [200, 150]]},
-        "race": "Unknown",
+        "full_race": "Unknown",
         "locations": [],
         "min_lvl": 100,
         "basetraits": [
@@ -2398,7 +2398,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/ak.webp",
         "portrait": "content/npc/mobs/ak1.webp",
-        "race": "Elemental",
+        "full_race": "Elemental",
         "locations": [],
         "min_lvl": 100,
         "basetraits": [
@@ -2429,7 +2429,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/l.webp",
         "portrait": "content/npc/mobs/l1.webp",
-        "race": "Goblinoid",
+        "full_race": "Goblinoid",
         "locations": [],
         "min_lvl": 100,
         "basetraits": [
@@ -2460,7 +2460,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/r.webp",
         "portrait": "content/npc/mobs/r1.webp",
-        "race": "Monster",
+        "full_race": "Monster",
         "locations": [],
         "min_lvl": 105,
         "basetraits": [
@@ -2491,7 +2491,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/aa.webp",
         "portrait": "content/npc/mobs/aa1.webp",
-        "race": "Goblinoid",
+        "full_race": "Goblinoid",
         "locations": [],
         "min_lvl": 105,
         "basetraits": [
@@ -2522,7 +2522,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/cl.webp",
         "portrait": "content/npc/mobs/cl1.webp",
-        "race": "Monster Girl",
+        "full_race": "Monster Girl",
         "locations": [],
         "min_lvl": 110,
         "basetraits": [
@@ -2553,7 +2553,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/ab.webp",
         "portrait": "content/npc/mobs/ab1.webp",
-        "race": "Goblinoid",
+        "full_race": "Goblinoid",
         "locations": [],
         "min_lvl": 105,
         "basetraits": [
@@ -2584,7 +2584,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/s.webp",
         "portrait": "content/npc/mobs/s1.webp",
-        "race": "Undead Monster",
+        "full_race": "Undead Monster",
         "locations": [],
         "min_lvl": 110,
         "basetraits": [
@@ -2615,7 +2615,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/beh.webp",
         "portrait": "content/npc/mobs/beh1.webp",
-        "race": "Animal",
+        "full_race": "Animal",
         "locations": [],
         "min_lvl": 105,
         "basetraits": [
@@ -2646,7 +2646,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/cm.webp",
         "portrait": "content/npc/mobs/cm1.webp",
-        "race": "Monster Girl",
+        "full_race": "Monster Girl",
         "locations": [],
         "min_lvl": 105,
         "basetraits": [
@@ -2677,7 +2677,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/bi.webp",
         "portrait": "content/npc/mobs/bi1.webp",
-        "race": "Dryad",
+        "full_race": "Dryad",
         "locations": [],
         "min_lvl": 110,
         "basetraits": [
@@ -2708,7 +2708,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/cock.webp",
         "portrait": "content/npc/mobs/cock1.webp",
-        "race": "Monster",
+        "full_race": "Monster",
         "locations": [],
         "min_lvl": 110,
         "basetraits": [
@@ -2739,7 +2739,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/bj.webp",
         "portrait": "content/npc/mobs/bj1.webp",
-        "race": "Human",
+        "full_race": "Human",
         "locations": [],
         "min_lvl": 115,
         "basetraits": [
@@ -2770,7 +2770,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/fa.webp",
         "portrait": "content/npc/mobs/fa1.webp",
-        "race": "Fairy",
+        "full_race": "Fairy",
         "locations": [],
         "min_lvl": 115,
         "basetraits": [
@@ -2801,7 +2801,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/plant.webp",
         "portrait": "content/npc/mobs/plant1.webp",
-        "race": "Plant",
+        "full_race": "Plant",
         "locations": [],
         "min_lvl": 115,
         "basetraits": [
@@ -2832,7 +2832,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/ivy.webp",
         "portrait": "content/npc/mobs/ivy1.webp",
-        "race": "Monster Girl",
+        "full_race": "Monster Girl",
         "locations": [],
         "min_lvl": 120,
         "basetraits": [
@@ -2863,7 +2863,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/gaz.webp",
         "portrait": "content/npc/mobs/gaz1.webp",
-        "race": "Plant",
+        "full_race": "Plant",
         "locations": [],
         "min_lvl": 120,
         "basetraits": [
@@ -2893,7 +2893,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/thi.webp",
         "portrait": "content/npc/mobs/thi1.webp",
-        "race": "Human",
+        "full_race": "Human",
         "locations": [],
         "min_lvl": 50,
         "basetraits": [
@@ -2924,7 +2924,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/h.webp",
         "portrait": "content/npc/mobs/h1.webp",
-        "race": "Human",
+        "full_race": "Human",
         "locations": [],
         "min_lvl": 125,
         "basetraits": [
@@ -2955,7 +2955,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/i.webp",
         "portrait": "content/npc/mobs/i1.webp",
-        "race": "Human",
+        "full_race": "Human",
         "locations": [],
         "min_lvl": 125,
         "basetraits": [
@@ -2986,7 +2986,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/dq.webp",
         "portrait": "content/npc/mobs/dq1.webp",
-        "race": "Dark Elf",
+        "full_race": "Dark Elf",
         "locations": [],
         "min_lvl": 125,
         "basetraits": [
@@ -3017,7 +3017,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/j.webp",
         "portrait": "content/npc/mobs/j1.webp",
-        "race": "Human",
+        "full_race": "Human",
         "locations": [],
         "min_lvl": 125,
         "basetraits": [
@@ -3048,7 +3048,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/ct.webp",
         "portrait": "content/npc/mobs/ct1.webp",
-        "race": "Human",
+        "full_race": "Human",
         "locations": [],
         "min_lvl": 125,
         "basetraits": [
@@ -3079,7 +3079,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/k.webp",
         "portrait": "content/npc/mobs/k1.webp",
-        "race": "Human",
+        "full_race": "Human",
         "locations": [],
         "min_lvl": 125,
         "basetraits": [
@@ -3110,7 +3110,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/ci.webp",
         "portrait": "content/npc/mobs/ci1.webp",
-        "race": "Human",
+        "full_race": "Human",
         "locations": [],
         "min_lvl": 130,
         "basetraits": [
@@ -3141,7 +3141,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/p.webp",
         "portrait": "content/npc/mobs/p1.webp",
-        "race": "Human",
+        "full_race": "Human",
         "locations": [],
         "min_lvl": 125,
         "basetraits": [
@@ -3172,7 +3172,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/cx.webp",
         "portrait": "content/npc/mobs/cx1.webp",
-        "race": "Human",
+        "full_race": "Human",
         "locations": [],
         "min_lvl": 125,
         "basetraits": [
@@ -3203,7 +3203,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/g.webp",
         "portrait": "content/npc/mobs/g1.webp",
-        "race": "Human",
+        "full_race": "Human",
         "locations": [],
         "min_lvl": 130,
         "basetraits": [
@@ -3234,7 +3234,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/cq.webp",
         "portrait": "content/npc/mobs/cq1.webp",
-        "race": "Human",
+        "full_race": "Human",
         "locations": [],
         "min_lvl": 135,
         "basetraits": [
@@ -3265,7 +3265,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/ws.webp",
         "portrait": "content/npc/mobs/ws1.webp",
-        "race": "Elemental",
+        "full_race": "Elemental",
         "locations": [],
         "min_lvl": 135,
         "basetraits": [
@@ -3296,7 +3296,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/was.webp",
         "portrait": "content/npc/mobs/was1.webp",
-        "race": "Elemental",
+        "full_race": "Elemental",
         "locations": [],
         "min_lvl": 135,
         "basetraits": [
@@ -3327,7 +3327,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/fir.webp",
         "portrait": "content/npc/mobs/fir1.webp",
-        "race": "Elemental",
+        "full_race": "Elemental",
         "locations": [],
         "min_lvl": 135,
         "basetraits": [
@@ -3358,7 +3358,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/cv.webp",
         "portrait": "content/npc/mobs/cv1.webp",
-        "race": "Elemental",
+        "full_race": "Elemental",
         "locations": [],
         "min_lvl": 140,
         "basetraits": [
@@ -3389,7 +3389,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/al.webp",
         "portrait": "content/npc/mobs/al1.webp",
-        "race": "Angel",
+        "full_race": "Angel",
         "locations": [],
         "min_lvl": 145,
         "basetraits": [
@@ -3420,7 +3420,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/am.webp",
         "portrait": "content/npc/mobs/am1.webp",
-        "race": "Angel",
+        "full_race": "Angel",
         "locations": [],
         "min_lvl": 145,
         "basetraits": [
@@ -3451,7 +3451,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/an.webp",
         "portrait": "content/npc/mobs/an1.webp",
-        "race": "Angel",
+        "full_race": "Angel",
         "locations": [],
         "min_lvl": 150,
         "basetraits": [
@@ -3482,7 +3482,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/av.webp",
         "portrait": "content/npc/mobs/av1.webp",
-        "race": "Elemental",
+        "full_race": "Elemental",
         "locations": [],
         "min_lvl": 150,
         "basetraits": [
@@ -3513,7 +3513,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/cj.webp",
         "portrait": "content/npc/mobs/cj1.webp",
-        "race": "Angel",
+        "full_race": "Angel",
         "locations": [],
         "min_lvl": 155,
         "basetraits": [
@@ -3544,7 +3544,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/ax.webp",
         "portrait": "content/npc/mobs/ax1.webp",
-        "race": "Demon",
+        "full_race": "Demon",
         "locations": [],
         "min_lvl": 145,
         "basetraits": [
@@ -3575,7 +3575,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/ay.webp",
         "portrait": "content/npc/mobs/ay1.webp",
-        "race": "Demon",
+        "full_race": "Demon",
         "locations": [],
         "min_lvl": 150,
         "basetraits": [
@@ -3606,7 +3606,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/az.webp",
         "portrait": "content/npc/mobs/az1.webp",
-        "race": "Demon",
+        "full_race": "Demon",
         "locations": [],
         "min_lvl": 155,
         "basetraits": [
@@ -3637,7 +3637,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/ba.webp",
         "portrait": "content/npc/mobs/ba1.webp",
-        "race": "Demon",
+        "full_race": "Demon",
         "locations": [],
         "min_lvl": 155,
         "basetraits": [
@@ -3668,7 +3668,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/bb.webp",
         "portrait": "content/npc/mobs/bb1.webp",
-        "race": "Demon",
+        "full_race": "Demon",
         "locations": [],
         "min_lvl": 160,
         "basetraits": [
@@ -3699,7 +3699,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/fog.webp",
         "portrait": "content/npc/mobs/fog1.webp",
-        "race": "Construct",
+        "full_race": "Construct",
         "locations": [],
         "min_lvl": 140,
         "basetraits": [
@@ -3730,7 +3730,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/bp.webp",
         "portrait": "content/npc/mobs/bp1.webp",
-        "race": "Animal",
+        "full_race": "Animal",
         "locations": [],
         "min_lvl": 140,
         "basetraits": [
@@ -3761,7 +3761,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/bo.webp",
         "portrait": "content/npc/mobs/bo1.webp",
-        "race": "Animal",
+        "full_race": "Animal",
         "locations": [],
         "min_lvl": 145,
         "basetraits": [
@@ -3792,7 +3792,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/bq.webp",
         "portrait": "content/npc/mobs/bq1.webp",
-        "race": "Snow Creature",
+        "full_race": "Snow Creature",
         "locations": [],
         "min_lvl": 150,
         "basetraits": [
@@ -3823,7 +3823,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/br.webp",
         "portrait": "content/npc/mobs/br1.webp",
-        "race": "Snow Creature",
+        "full_race": "Snow Creature",
         "locations": [],
         "min_lvl": 155,
         "basetraits": [
@@ -3854,7 +3854,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/dm.webp",
         "portrait": "content/npc/mobs/dm1.webp",
-        "race": "Titan",
+        "full_race": "Titan",
         "locations": [],
         "min_lvl": 160,
         "basetraits": [
@@ -3885,7 +3885,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/bs.webp",
         "portrait": "content/npc/mobs/bs1.webp",
-        "race": "Snow Creature",
+        "full_race": "Snow Creature",
         "locations": [],
         "min_lvl": 160,
         "basetraits": [
@@ -3916,7 +3916,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/icy.webp",
         "portrait": "content/npc/mobs/icy1.webp",
-        "race": "Elemental",
+        "full_race": "Elemental",
         "locations": [],
         "min_lvl": 165,
         "basetraits": [
@@ -3947,7 +3947,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/bu.webp",
         "portrait": "content/npc/mobs/bu1.webp",
-        "race": "Snow Creature",
+        "full_race": "Snow Creature",
         "locations": [],
         "min_lvl": 165,
         "basetraits": [
@@ -3978,7 +3978,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/bv.webp",
         "portrait": "content/npc/mobs/bv1.webp",
-        "race": "Snow Creature",
+        "full_race": "Snow Creature",
         "locations": [],
         "min_lvl": 165,
         "basetraits": [
@@ -4009,7 +4009,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/ice.webp",
         "portrait": "content/npc/mobs/ice1.webp",
-        "race": "Elemental",
+        "full_race": "Elemental",
         "locations": [],
         "min_lvl": 170,
         "basetraits": [
@@ -4040,7 +4040,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/dk.webp",
         "portrait": "content/npc/mobs/dk1.webp",
-        "race": "Undead",
+        "full_race": "Undead",
         "locations": [],
         "min_lvl": 175,
         "basetraits": [
@@ -4071,7 +4071,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/bn.webp",
         "portrait": "content/npc/mobs/bn1.webp",
-        "race": "Undead",
+        "full_race": "Undead",
         "locations": [],
         "min_lvl": 175,
         "basetraits": [
@@ -4102,7 +4102,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/uniz.webp",
         "portrait": "content/npc/mobs/uniz1.webp",
-        "race": "Undead",
+        "full_race": "Undead",
         "locations": [],
         "min_lvl": 175,
         "basetraits": [
@@ -4133,7 +4133,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/vamp.webp",
         "portrait": "content/npc/mobs/vamp1.webp",
-        "race": "Undead",
+        "full_race": "Undead",
         "locations": [],
         "min_lvl": 175,
         "basetraits": [
@@ -4164,7 +4164,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/bk.webp",
         "portrait": "content/npc/mobs/bk1.webp",
-        "race": "Undead",
+        "full_race": "Undead",
         "locations": [],
         "min_lvl": 175,
         "basetraits": [
@@ -4195,7 +4195,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/cu.webp",
         "portrait": "content/npc/mobs/cu1.webp",
-        "race": "Undead",
+        "full_race": "Undead",
         "locations": [],
         "min_lvl": 180,
         "basetraits": [
@@ -4226,7 +4226,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/oni.webp",
         "portrait": "content/npc/mobs/oni1.webp",
-        "race": "Demon",
+        "full_race": "Demon",
         "locations": [],
         "min_lvl": 185,
         "basetraits": [
@@ -4257,7 +4257,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/gar.webp",
         "portrait": "content/npc/mobs/gar1.webp",
-        "race": "Animal",
+        "full_race": "Animal",
         "locations": [],
         "min_lvl": 190,
         "basetraits": [
@@ -4288,7 +4288,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/cd.webp",
         "portrait": "content/npc/mobs/cd1.webp",
-        "race": "???",
+        "full_race": "???",
         "locations": [],
         "min_lvl": 200,
         "basetraits": [
@@ -4319,7 +4319,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/ce.webp",
         "portrait": "content/npc/mobs/ce1.webp",
-        "race": "???",
+        "full_race": "???",
         "locations": [],
         "min_lvl": 200,
         "basetraits": [
@@ -4350,7 +4350,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/cy.webp",
         "portrait": "content/npc/mobs/cy1.webp",
-        "race": "Elemental",
+        "full_race": "Elemental",
         "locations": [],
         "min_lvl": 200,
         "basetraits": [
@@ -4381,7 +4381,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/dj.webp",
         "portrait": "content/npc/mobs/dj1.webp",
-        "race": "Homunculus",
+        "full_race": "Homunculus",
         "locations": [],
         "min_lvl": 200,
         "basetraits": [
@@ -4412,7 +4412,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/di.webp",
         "portrait": "content/npc/mobs/di1.webp",
-        "race": "Homunculus",
+        "full_race": "Homunculus",
         "locations": [],
         "min_lvl": 200,
         "basetraits": [
@@ -4443,7 +4443,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/if.webp",
         "portrait": "content/npc/mobs/if1.webp",
-        "race": "Elemental",
+        "full_race": "Elemental",
         "locations": [],
         "min_lvl": 205,
         "basetraits": [
@@ -4474,7 +4474,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/cn.webp",
         "portrait": "content/npc/mobs/cn1.webp",
-        "race": "Elemental",
+        "full_race": "Elemental",
         "locations": [],
         "min_lvl": 210,
         "basetraits": [
@@ -4505,7 +4505,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/dea.webp",
         "portrait": "content/npc/mobs/dea1.webp",
-        "race": "Elemental",
+        "full_race": "Elemental",
         "locations": [],
         "min_lvl": 220,
         "basetraits": [
@@ -4536,7 +4536,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/cz.webp",
         "portrait": "content/npc/mobs/cz1.webp",
-        "race": "Elemental",
+        "full_race": "Elemental",
         "locations": [],
         "min_lvl": 225,
         "basetraits": [
@@ -4567,7 +4567,7 @@
         "front_row": 1,
         "battle_sprite": "content/npc/mobs/da.webp",
         "portrait": "content/npc/mobs/da1.webp",
-        "race": "Elemental",
+        "full_race": "Elemental",
         "locations": [],
         "min_lvl": 225,
         "basetraits": [
@@ -4598,7 +4598,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/db.webp",
         "portrait": "content/npc/mobs/db1.webp",
-        "race": "Elemental",
+        "full_race": "Elemental",
         "locations": [],
         "min_lvl": 230,
         "basetraits": [
@@ -4629,7 +4629,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/dc.webp",
         "portrait": "content/npc/mobs/dc1.webp",
-        "race": "Elemental",
+        "full_race": "Elemental",
         "locations": [],
         "min_lvl": 230,
         "basetraits": [
@@ -4660,7 +4660,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/dd.webp",
         "portrait": "content/npc/mobs/dd1.webp",
-        "race": "Elemental",
+        "full_race": "Elemental",
         "locations": [],
         "min_lvl": 230,
         "basetraits": [
@@ -4691,7 +4691,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/de.webp",
         "portrait": "content/npc/mobs/de1.webp",
-        "race": "Elemental",
+        "full_race": "Elemental",
         "locations": [],
         "min_lvl": 230,
         "basetraits": [
@@ -4722,7 +4722,7 @@
         "front_row": 0,
         "battle_sprite": "content/npc/mobs/df.webp",
         "portrait": "content/npc/mobs/df1.webp",
-        "race": "Elemental",
+        "full_race": "Elemental",
         "locations": [],
         "min_lvl": 230,
         "basetraits": [

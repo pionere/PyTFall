@@ -185,7 +185,7 @@ init -11 python:
         data = mobs[id]
         mob.id = id
 
-        for i in ("name", "desc", "battle_sprite", "portrait", "origin", "locations", "full_race", "race", "front_row"):
+        for i in ("name", "desc", "battle_sprite", "portrait", "origin", "locations", "full_race", "front_row"):
             if i in data:
                 setattr(mob, i, data[i])
 

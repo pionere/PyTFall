@@ -343,7 +343,7 @@ label final_frog_event:
             $ b = Character("Stranger", color="red", what_color="green", show_two_window=True)
             b "Thanks, dude. You really saved me. About that princess and gold..."
             $ finish_quest("Frog Princess!", "{color=blue}You've completed the Quest... but the whole thing was a scam...{/color}")
-            extend " {color=red} It was all crap! Sorry, gotta go!"
+            extend " {color=red} It was all crap! Sorry, gotta go!{/color}"
             hide expression stranger
             with fade
             $ del flash, b, stranger

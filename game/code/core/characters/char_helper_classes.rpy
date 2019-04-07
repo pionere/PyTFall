@@ -369,7 +369,7 @@ init -10 python:
                 if num == 0:
                     self.items.pop(item)
                 else:
-                    self.items[items] = num
+                    self.items[item] = num
                 if item in self.normal:
                     num += 1
 
