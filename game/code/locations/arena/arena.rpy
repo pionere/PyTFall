@@ -616,7 +616,7 @@ init -9 python:
 
                     member.arena_active = True
                     #member.arena_permit = True
-                    member.arena_rep = randint(int(tier*9000), int(tier*11000))
+                    member.arena_rep = int(tier*10000*random.uniform(.9, 1.1))
 
                     a_team.add(member)
 
@@ -718,11 +718,6 @@ init -9 python:
                     give_tiered_magic_skills(fighter)
                     auto_buy_for_bt(fighter)
 
-                #fighter.arena_active = True
-                #fighter.arena_permit = True
-
-                #fighter.arena_rep = randint(int(tier*9000), int(tier*11000))
-
             candidates.extend(new_candidates)
 
             # Populate tournament ladders:
@@ -737,7 +732,7 @@ init -9 python:
                     f.arena_active = True
                     #f.arena_permit = True
                     if f.arena_rep == 0:
-                        f.arena_rep = randint(int(f.level*450), int(f.level*550))
+                        f.arena_rep = int(f.level * 500 * random.uniform(.9, 1.1))
                     team.add(f)
 
             # 2v2 Ladder lineup:
@@ -753,7 +748,7 @@ init -9 python:
                     f.arena_active = True
                     #f.arena_permit = True
                     if f.arena_rep == 0:
-                        f.arena_rep = randint(int(f.level*450), int(f.level*550))
+                        f.arena_rep = int(f.level * 500 * random.uniform(.9, 1.1))
                     team.add(f)
 
             # 3v3 Ladder lineup:
@@ -769,7 +764,7 @@ init -9 python:
                     f.arena_active = True
                     #f.arena_permit = True
                     if f.arena_rep == 0:
-                        f.arena_rep = randint(int(f.level*450), int(f.level*550))
+                        f.arena_rep = int(f.level * 500 * random.uniform(.9, 1.1))
                     team.add(f)
 
             # Populate the reputation ladder:
@@ -1055,10 +1050,10 @@ init -9 python:
 
                     statdict = {"gold":rew_gold, "Arena Rep":rew_rep, "exp":rew_xp}
                     if dice(loser.get_level()):
-                        if randint(0, 1):
+                        if random.random() > .5:
                             member.mod_stat("fame", 1)
                             statdict["fame"] = 1
-                        if randint(0, 1):
+                        if random.random() > .5:
                             member.mod_stat("reputation", 1)
                             statdict["reputation"] = 1
 
@@ -1144,14 +1139,14 @@ init -9 python:
 
                     statdict = {"gold":rew_gold, "Arena Rep":int(rew_rep), "exp":rew_xp}
                     if dice(loser.get_level()):
-                        rew_fame = randint(0, 2)
+                        rew_fame = randrange(3)
                         if rew_fame:
                             member.mod_stat("fame", rew_fame)
                             statdict["fame"] = rew_fame
-                        rew_r = randint(0, 2)
+                        rew_r = randrange(3)
                         if rew_r:
-                            member.mod_stat("reputation", rew_fame)
-                            statdict["reputation"] = rew_fame
+                            member.mod_stat("reputation", rew_r)
+                            statdict["reputation"] = rew_r
                     member.combat_stats = statdict
                 else:
                     member.combat_stats = "K.O."

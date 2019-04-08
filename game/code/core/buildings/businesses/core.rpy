@@ -459,13 +459,10 @@ init -12 python:
                     # Tips:
                     worker, effectiveness = client.served_by
                     client.served_by = ()
-                    if effectiveness >= 150:
-                        tips = tier*randint(2, 3)
-                    elif effectiveness >= 100:
+                    if effectiveness >= 100:
                         tips = tier*randint(1, 2)
-                    else:
-                        tips = 0
-                    if tips:
+                        if effectiveness >= 150:
+                            tips += tier
                         for u in self.upgrades:
                             if isinstance(u, TapBeer) and dice(75):
                                 tips += tier

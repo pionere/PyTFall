@@ -425,15 +425,15 @@ init -948: # Transforms:
         offset (0, 0)
         pause delay
         choice:
-            linear t offset(renpy.random.randint(*random_range), renpy.random.randint(*random_range))
+            linear t offset(randint(*random_range), randint(*random_range))
         choice:
-            linear t offset(renpy.random.randint(*random_range), renpy.random.randint(*random_range))
+            linear t offset(randint(*random_range), randint(*random_range))
         choice:
-            linear t offset(renpy.random.randint(*random_range), renpy.random.randint(*random_range))
+            linear t offset(randint(*random_range), randint(*random_range))
         choice:
-            linear t offset(renpy.random.randint(*random_range), renpy.random.randint(*random_range))
+            linear t offset(randint(*random_range), randint(*random_range))
         choice:
-            linear t offset(renpy.random.randint(*random_range), renpy.random.randint(*random_range))
+            linear t offset(randint(*random_range), randint(*random_range))
         repeat
 
     transform vertical_damage_shake(t, random_range, delay=0): # earthquake-like vertical shaking for some earth spells
@@ -441,15 +441,15 @@ init -948: # Transforms:
         offset (0, 0)
         pause delay
         choice:
-            linear t offset(0, renpy.random.randint(*random_range))
+            linear t offset(0, randint(*random_range))
         choice:
-            linear t offset(0, renpy.random.randint(*random_range))
+            linear t offset(0, randint(*random_range))
         choice:
-            linear t offset(0, renpy.random.randint(*random_range))
+            linear t offset(0, randint(*random_range))
         choice:
-            linear t offset(0, renpy.random.randint(*random_range))
+            linear t offset(0, randint(*random_range))
         choice:
-            linear t offset(0, renpy.random.randint(*random_range))
+            linear t offset(0, randint(*random_range))
         repeat
 
     transform battle_bounce(pos):

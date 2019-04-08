@@ -783,8 +783,7 @@ init python:
             char = self.source
 
             for t in targets:
-                maxh = int(t.maxhp*.3)
-                revive = randint(maxh/3, maxh)
+                revive = int(t.maxhp * (0.1 + 0.2*random.random()))
 
                 t.beeffects = [revive]
 

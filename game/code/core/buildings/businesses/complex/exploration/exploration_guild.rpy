@@ -530,9 +530,7 @@ init -6 python: # Guild, Tracker and Log.
         @staticmethod
         def travel_distance(tracker):
             # setup the distance. This can be offset by traits and stats in the future. (except when the team dies off)
-            distance = tracker.base_distance
-            delta = int(distance * .3)
-            return distance + randint(0, delta) - delta/2
+            return int(tracker.base_distance * (.7 + 0.6*random.random())) # base distance +- 30% 
 
         def travel_to(self, tracker):
             # Env func that handles the travel to routine.
@@ -973,7 +971,7 @@ init -6 python: # Guild, Tracker and Log.
 
                 # Cash:
                 if tracker.max_cash > tracker.daily_cash and dice(tracker.risk/5):
-                    give = max(1, randint(1, tracker.max_cash/2))
+                    give = max(1, int(tracker.max_cash * random.random() * .5))
                     tracker.daily_cash += give
 
                     temp = "Found {color=gold}%d Gold{/color}!" % give

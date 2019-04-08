@@ -344,10 +344,10 @@ init -11 python:
                 bt_go_base = choice(bt_go_base)
             base_traits = list(gen_occ_basetraits[bt_go_base])
             selection = [choice(base_traits)]
-            dist = randint(0, 100)
-            if dist > 50:
+            dist = random.random()
+            if dist > .5:
                 # multiclass
-                if dist > 80 or len(base_traits) == 1:
+                if dist > .8 or len(base_traits) == 1:
                     # choose an occ from other occ-group
                     curr_occ = bt_go_base
                     if rg.status == "slave":
@@ -564,9 +564,9 @@ init -11 python:
                 s_amount += 1
             elif "Combatant" in char.gen_occs:
                 if "neutral" in attributes:
-                    amount = randint(0, 1)
+                    amount = randrange(2)
                 else:
-                    amount = randint(0, 2)
+                    amount = randrange(3)
             else:
                 amount = 0
 

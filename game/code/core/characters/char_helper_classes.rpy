@@ -1515,7 +1515,8 @@ init -10 python:
                 if self.days_active == self.duration:
                     char.mod_stat("joy", self.ss_mod["joy"])
                     self.duration += randint(2, 4)
-                    self.ss_mod['joy'] = randint(20, 30) if randrange(2) else -randint(20, 30)
+                    ss_mod = randrange(22)
+                    self.ss_mod['joy'] = (9+ss_mod) if ss_mod > 10 else -(20+ss_mod)
             elif name == "Optimist":
                 if char.get_stat("joy") >= 30:
                     char.mod_stat("joy", 1)

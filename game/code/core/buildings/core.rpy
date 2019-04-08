@@ -664,7 +664,7 @@ init -10 python:
             gender = "male" if dice(75) else "female"
 
             # determine rank(caste) of the customer
-            rank = randint(0, 2)
+            rank = randrange(3)
             rep = self.rep
             if rep < 50: rank = max(rank, 1)
             elif rep <= 150: rank += 1

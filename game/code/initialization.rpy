@@ -15,7 +15,7 @@ init -950 python:
     import math
     from math import sin, cos, radians
     import random
-    from random import randrange, randint, choice, shuffle, uniform
+    from random import choice, shuffle, uniform
     import copy
     from copy import deepcopy, copy as shallowcopy
     import itertools
@@ -297,6 +297,12 @@ init -950 python:
         #    if value in self.flags[flag]:
         #        self.flags[flag].remove(value)
 
+
+    # unsafe, but faster random generators
+    def randrange(a):
+        return int(random.random()*a)
+    def randint(a, b):
+        return a + int(random.random() * (b - a + 1))
 
     def dice(percent_chance):
         """ returns randomly True with given % chance, or False """

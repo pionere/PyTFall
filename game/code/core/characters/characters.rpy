@@ -1788,7 +1788,8 @@ init -9 python:
                 if ss_mod is None:
                     ss_mod = {"health": -locked_random("randint", 5, 10)}
             elif name == "Unstable":
-                ss_mod = {"joy": randint(20, 30) if randrange(2) else -randint(20, 30)}
+                ss_mod = randrange(22)
+                ss_mod = {"joy": (9+ss_mod) if ss_mod > 10 else -(20+ss_mod)}
                 duration = randint(2, 4)
             elif name == "Down with Cold":
                 ss_mod = {"health": -randint(2, 5),
@@ -2375,7 +2376,7 @@ init -9 python:
 
             # generate random preferences if none provided
             if not hasattr(self, "preferences"):
-                self.preferences = dict([(p, randint(0, 100)/100.0) for p in STATIC_CHAR.PREFS])
+                self.preferences = {p: random.random() for p in STATIC_CHAR.PREFS}
 
             # Second round of stats normalization:
             for stat in ["health", "joy", "mp", "vitality"]:
@@ -2511,7 +2512,7 @@ init -9 python:
                     wage = self.expected_wage
                     if self.status == "slave":
                         wage = wage/10
-                    wage = randint(0, wage)
+                    wage = randrange(wage)
                     if wage != 0:
                         self.add_money(wage, reason="Wages")
 

@@ -264,7 +264,7 @@ label examples_2:
     # Mainscreen has it's own scene statement so it will clear sprites and background we left here!
 
 label simple_numbers_game:
-    $ n = randrange(1, 6)
+    $ n = randint(1, 5)
     # This is a python function... it returns a random number from 1 to 5.
 
     menu:

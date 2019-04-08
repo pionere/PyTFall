@@ -1423,8 +1423,8 @@ init python:
         args = [ ]
         for i in xrange(count):
             args.append(anim.State(i, None,
-                                   Position(xpos=randrange(-dist, dist),
-                                            ypos=randrange(-dist, dist),
+                                   Position(xpos=randint(-dist, dist),
+                                            ypos=randint(-dist, dist),
                                             xanchor='left',
                                             yanchor='top',
                                             )))
