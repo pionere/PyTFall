@@ -1,37 +1,37 @@
 init 1000 python:
     class TestSuite(_object):
-        
+
         @staticmethod
         def testAll():
             testContext()
             testGame()
-        
+
         @staticmethod
         def testContext():
             testPyp()
             testMobs()
             testTagDB()
-            
-        @staticmethod    
+
+        @staticmethod
         def testChars():
             testNPCs()
             testUChars()
             testRChars()
             testFighters()
 
-        @staticmethod    
+        @staticmethod
         def testGame():
             gameItems()
             gameTraits()
             gameAreas()
             gameChars()
             gameHero()
-        
-        @staticmethod    
+
+        @staticmethod
         def testPyp():
             pass
-            
-        @staticmethod    
+
+        @staticmethod
         def testMobs():
             for m in mobs:
                 mob = build_mob(id=m, level=10)
@@ -44,23 +44,35 @@ init 1000 python:
                     raise Exception("The entity of mob %s does not have a race, or it is not a Trait instance %s" % (m, mob.race))
                 if not isinstance(mob.full_race, basestring):
                     raise Exception("The entity of mob %s does not have a full_race, or it is not a basestring instance %s" % (m, mob.full_race))
-                
-        @staticmethod    
+
+        @staticmethod
         def testTagDB():
             pass
-        
-        @staticmethod    
+
+        @staticmethod
         def checkChar(c, context):
             if c.gender not in ["female", "male"]:
                 raise Exception("The entity (%s) %s does not have a valid gender %s" % (context, c.fullname, c.gender))
-            if not isinstance(getattr(c, "race", None), Trait):
-                raise Exception("The entity (%s) %s does not have a race, or it is not a Trait instance %s" % (context, c.fullname, getattr(c, "race", "Undefined")))
-            if not isinstance(getattr(c, "personality", None), Trait):
-                raise Exception("The entity (%s) %s does not have a personality, or it is not a Trait instance %s" % (context, c.fullname, getattr(c, "personality", "Undefined")))
-            if not isinstance(getattr(c, "gents", None), Trait):
-                raise Exception("The entity (%s) %s does not have a gents-trait, or it is not a Trait instance %s" % (context, c.fullname, getattr(c, "gents", "Undefined")))
-            if not isinstance(getattr(c, "body", None), Trait):
-                raise Exception("The entity (%s) %s does not have a body-trait, or it is not a Trait instance %s" % (context, c.fullname, getattr(c, "body", "Undefined")))
+            temp = getattr(c, "race", None)
+            if not isinstance(temp, Trait):
+                raise Exception("The entity (%s) %s does not have a race, or it is not a Trait instance %s" % (context, c.fullname, temp))
+            if temp not in c.traits:
+                raise Exception("The entity (%s) %s's race traits is not listed in its traits" % (context, c.fullname))
+            temp = getattr(c, "personality", None)
+            if not isinstance(temp, Trait):
+                raise Exception("The entity (%s) %s does not have a personality, or it is not a Trait instance %s" % (context, c.fullname, temp))
+            if temp not in c.traits:
+                raise Exception("The entity (%s) %s's personality trait is not listed in its traits" % (context, c.fullname))
+            temp = getattr(c, "gents", None)
+            if not isinstance(temp, Trait):
+                raise Exception("The entity (%s) %s does not have a gents-trait, or it is not a Trait instance %s" % (context, c.fullname, temp))
+            if temp not in c.traits:
+                raise Exception("The entity (%s) %s's gents-trait is not listed in its traits" % (context, c.fullname))
+            temp = getattr(c, "body", None)
+            if not isinstance(temp, Trait):
+                raise Exception("The entity (%s) %s does not have a body-trait, or it is not a Trait instance %s" % (context, c.fullname, temp))
+            if temp not in c.traits:
+                raise Exception("The entity (%s) %s's body-trait is not listed in its traits" % (context, c.fullname))
             if not c.elements:
                 raise Exception("The entity (%s) %s does not have an elemental trait" % (context, c.fullname))
             for item in c.inventory:
@@ -96,7 +108,11 @@ init 1000 python:
                 if e.days_active > e.duration:
                     raise Exception("The entity (%s) %s's effect %s run longer (%d) than expected (%d)" % (context, c.fullname, e.days_active, e.duration))
 
-        @staticmethod    
+            for k, v in c.eqslots.items():
+                if v and getattr(v, "gender", c.gender) != c.gender:
+                    raise Exception("The entity (%s) %s has a gender mismatching equipment (%s vs %s) in slot %s" % (context, c.fullname, v.gender, c.gender, k))
+
+        @staticmethod
         def testRChars():
             for i in range(100):
                 c = build_rc(name="alpha", last_name="beta",
@@ -108,7 +124,7 @@ init 1000 python:
                 if c.fullname != "alpha beta":
                     raise Exception("Ignored name presets while creating a random char (result: %s)" % c.fullname)
                 TestSuite.checkChar(c, "rchar/freeSpecialist")
-                
+
             for i in range(100):
                 c = build_rc(bt_go_base="Server",
                              set_status="free", set_locations=True,
@@ -144,11 +160,22 @@ init 1000 python:
                              spells_to_tier=True)
 
                 TestSuite.checkChar(c, "rchar/slaveServer")
-        
-        @staticmethod    
+
+        @staticmethod
         def gameChars():
             for c in chars.values():
                 TestSuite.checkChar(c, "game-char")
+
+        @staticmethod
+        def gameTraits():
+            for key, trait in traits.items():
+                if trait.id != key:
+                    raise Exception("Bad Trait Entry %s for trait %s" % (key, trait.id))
+                if not isinstance(trait, Trait):
+                    raise Exception("Invalid entry %s for key %s (not a Trait instance)!" % (key, str(trait)))
+                for t in trait.blocks:
+                    if not isinstance(t, Trait):
+                        raise Exception("Invalid blocked trait %s for trait %s (not a Trait instance)!" % (str(t), key))
 
         @staticmethod
         def gameItems():
@@ -157,8 +184,10 @@ init 1000 python:
                     raise Exception("Bad Item Entry %s for item %s" % (key, item.id))
                 if not isinstance(item, Item):
                     raise Exception("Invalid entry %s for key %s (not an Item instance)!" % (key, str(item)))
-        
-        @staticmethod        
+                if getattr(item, "gender", "female") not in ["female", "male"]:
+                    raise Exception("Invalid gender %s for item %s (not 'female' or 'male')!" % (item.gender, key))
+
+        @staticmethod
         def performanceTest():
             msg = "Attempt to auto-buy 3 items for {} girls!".format(len(chars))
             tl.start(msg)

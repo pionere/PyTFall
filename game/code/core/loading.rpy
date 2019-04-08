@@ -631,12 +631,13 @@ init -11 python:
             traits[t.id] = t
 
         # final checks
-        for t in traits:
+        for t in traits.values():
             temp = getattr(t, "blocks", None)
             if temp:
                 for k in temp:
                     if k not in traits:
                         raise Exception("Invalid trait (%s) to block by %s trait." % (k, t.id))
+                t.blocks = [traits[k] for k in temp] # store the references of traits instead of their names
         return traits
 
     def load_fg_areas():
