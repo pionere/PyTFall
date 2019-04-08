@@ -539,29 +539,22 @@ init -9 python:
             '''Basic counter to be activated on next day
             '''
             if self.restockday == day:
-                self.gold += randint(int(self.normal_gold_amount / 10), int(self.normal_gold_amount / 7))
-                if self.gold > self.normal_gold_amount: self.gold = randint(int(self.normal_gold_amount * 1.3), int(self.normal_gold_amount * 1.6))
                 self.restock()
                 if self.total_items_price > 0:
-                    self.gold += int(self.total_items_price * .35)
-                self.total_items_price = 0
+                    self.gold += self.total_items_price /4
+                    self.total_items_price = 0
                 self.restockday += locked_random("randint", 3, 7)
 
+            base = self.normal_gold_amount
+            if self.gold < base:
+                self.gold += int(random.uniform(.2, .3) * base)
+            elif self.gold < 2*base:
+                self.gold += int(random.uniform(.1, .15)* base)
+            else:
+                self.gold -= int(random.uniform(.3, .6) * base)
 
     class GeneralStore(ItemShop):
-        '''General Store (sells basic items)
+        '''General Store (sells basic items) FIXME obsolete
         '''
         def __init__(self, name, inv_length, locations, *args, **kwargs):
             ItemShop.__init__(self, name, inv_length, locations, *args, **kwargs)
-
-        def next_day(self):
-            '''Basic counter to be activated on next day
-            '''
-            if self.restockday == day:
-                self.gold += randint(int(self.normal_gold_amount / 10), int(self.normal_gold_amount / 7))
-                if self.gold > self.normal_gold_amount: self.gold = randint(int(self.normal_gold_amount * 1.3), int(self.normal_gold_amount * 1.6))
-                self.restock()
-                self.restockday += randint(3, 7)
-            else:
-                if self.gold < 15000:
-                    self.gold += locked_random("randint", 16000, 25000)
