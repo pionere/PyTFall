@@ -73,7 +73,6 @@ init -12 python:
             # It may be a good idea to turn this into a direct job assignment instead of a set...
             self.jobs = list()
             self.workers = set() # List of on duty characters.
-            self.clients = set() # Local clients, this is used during next day and reset on when that ends.
 
             # If False, no clients are expected.
             # If all businesses in the building have this set to false, no client stream will be generated at all.
@@ -154,9 +153,7 @@ init -12 python:
             # self.time is amount of time we expect to spend per client.
             if not self.time:
                 raise Exception("Zero Modulo Division Detected #02")
-            amount = round_int(((101.0/self.time)*self.capacity)*.7)
-
-            return amount
+            return round_int(((101.0/self.time)*self.capacity)*.7)
 
         @property
         def env(self):
@@ -676,8 +673,6 @@ init -12 python:
             self.is_running = False
             self.send_in_worker = False
             self.active_workers = set()
-            self.clients = set()
-
 
     class OnDemandBusiness(Business):
         def __init__(self):
@@ -691,7 +686,6 @@ init -12 python:
             self.action = None
 
             # SimPy and etc follows:
-            self.time = 1 # Same.
             # We can bind an active process here if
             # it can be interrupted. I'ma an idiot... This needs to be reset.
             self.interrupt = None

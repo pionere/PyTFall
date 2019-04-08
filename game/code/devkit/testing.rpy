@@ -173,6 +173,8 @@ init 1000 python:
                     raise Exception("Bad Trait Entry %s for trait %s" % (key, trait.id))
                 if not isinstance(trait, Trait):
                     raise Exception("Invalid entry %s for key %s (not a Trait instance)!" % (key, str(trait)))
+                if getattr(trait, "gender", "female") not in ["female", "male"]:
+                    raise Exception("Invalid gender %s for trait %s (not 'female' or 'male')!" % (trait.gender, key))
                 for t in trait.blocks:
                     if not isinstance(t, Trait):
                         raise Exception("Invalid blocked trait %s for trait %s (not a Trait instance)!" % (str(t), key))

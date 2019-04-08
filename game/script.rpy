@@ -1365,6 +1365,8 @@ label after_load:
                     u.intro_string = u.__class__.intro_string
                 if hasattr(u, "log_intro_string"):
                     u.log_intro_string = u.__class__.log_intro_string
+                if hasattr(u, "clients"):
+                    del u.clients
 
         for e in pytfall.world_events.events:
             for i, c in enumerate(e.simple_conditions):
