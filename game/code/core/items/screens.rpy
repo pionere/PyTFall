@@ -192,16 +192,17 @@ screen itemstats(item=None, size=(635, 380), style_group="content", mc_mode=Fals
                             xysize 195, 22
                             padding 4, 1
                             text ('Sex:') color "ivory" xalign .0 yoffset -1
+                            $ temp = getattr(item, "gender", "unisex")
                             if item.slot in ["gift", "resources", "loot"]:
                                 label "N/A" xalign 1.0 text_size 18 yoffset -2
-                            elif item.type == "food" and item.sex == 'unisex':
+                            elif item.type == "food" and temp == 'unisex':
                                 label "N/A" xalign 1.0 text_size 18 yoffset -2
-                            elif item.sex == 'male':
-                                label ('{color=#FFA54F}%s'%item.sex.capitalize()) xalign 1.0 text_size 18 yoffset -2
-                            elif item.sex == 'female':
-                                label ('{color=#FFAEB9}%s'%item.sex.capitalize()) xalign 1.0 text_size 18 yoffset -2
-                            elif item.sex == 'unisex':
-                                label ('%s'%item.sex.capitalize()) xalign 1.0 text_size 18 yoffset -2
+                            elif temp == 'male':
+                                label ('{color=#FFA54F}%s'%temp.capitalize()) xalign 1.0 text_size 18 yoffset -2
+                            elif temp == 'female':
+                                label ('{color=#FFAEB9}%s'%temp.capitalize()) xalign 1.0 text_size 18 yoffset -2
+                            else:
+                                label ('%s'%temp.capitalize()) xalign 1.0 text_size 18 yoffset -2
                     frame:
                         xalign 1.0
                         xysize (165, 130)

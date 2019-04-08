@@ -1011,16 +1011,14 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                     frame:
                         xysize (160, 25)
                         text "Sex:" color "#F5F5DC" xalign .02
+                        $ temp = getattr(item, "gender", "unisex")
                         if item.slot in ["gift", "resources", "loot"]:
                             label "{size=-4}N/A" align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
-                        elif item.type == "food" and item.sex == "unisex":
+                        elif item.type == "food" and temp == "unisex":
                             label "{size=-4}N/A" align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
-                        elif item.sex == 'male':
-                            label ('{color=#F5F5DC}{size=-4}{color=#FFA54F}%s'%item.sex.capitalize()) align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
-                        elif item.sex == 'female':
-                            label ('{color=#F5F5DC}{size=-4}{color=#FFAEB9}%s'%item.sex.capitalize()) align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
-                        elif item.sex == 'unisex':
-                            label ('{color=#F5F5DC}{size=-4}%s'%item.sex.capitalize()) align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
+                        else:
+                            $ color = "#FFA54F" if temp == "male" else ("#FFAEB9" if temp == "female" else "#F5F5DC")
+                            label ('{size=-4}{color=%s}%s'%(color, temp.capitalize())) align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
 
                 # Buttons and image:
                 button:

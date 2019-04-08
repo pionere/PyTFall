@@ -14,9 +14,6 @@
             "charisma": 50
         },
         "basetrait": true,
-        "mod": {
-            "charisma": 20
-        },
         "max": {
             "charisma": 60
         },
@@ -92,10 +89,6 @@
             "agility": 50
         },
         "basetrait": true,
-        "mod": {
-            "charisma": 20,
-            "agility": 10
-        },
         "max": {
             "charisma": 40,
             "agility": 20
@@ -158,10 +151,6 @@
         "base_stats": {
             "constitution": 50,
             "agility": 25
-        },
-        "mod": {
-            "constitution": 40,
-            "agility": 20
         },
         "max": {
             "constitution": 40,
@@ -226,10 +215,6 @@
         "base_stats": {
             "intelligence": 50,
             "character": 50
-        },
-        "mod": {
-            "intelligence": 40,
-            "character": 40
         },
         "max": {
             "intelligence": 40,
@@ -298,10 +283,6 @@
             "character": 20,
             "constitution": 20,
             "agility": 20
-        },
-        "mod": {
-            "constitution": 40,
-            "agility": 15
         },
         "max": {
             "constitution": 40,
@@ -398,10 +379,6 @@
         "base_stats": {
             "character": 60,
             "intelligence": 40
-        },
-        "mod": {
-            "character": 45,
-            "intelligence": 30
         },
         "max": {
             "character": 45,

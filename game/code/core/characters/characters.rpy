@@ -56,7 +56,7 @@ init -9 python:
             self.baseAP = 3
             #self.AP = 3        # Remaining AP for the day - initialized later
             #self.setAP = 1     # This is set to the AP calculated for that day.
-            self.PP = 0         # Remaining PP (partial AP) for the day (100PP == 1AP)
+            self.PP = 0         # Remaining PP (partial AP) for the day (100PP == 1AP) PP_PER_AP
 
             # Locations and actions, most are properties with setters and getters.
             #                    Home        Workplace         Job  Action  Task        Location 
@@ -851,8 +851,9 @@ init -9 python:
                                    This is a flaw in game design, please report to our development team!
                                    Character: %s/%s, Item:%s""" % self.id, self.__class__, item.id)
 
-            if item.sex not in ["unisex", self.gender]:
-                char_debug(str("False character sex value: %s, %s, %s" % (item.sex, item.id, self.__class__.__name__)))
+            temp = self.gender
+            if getattr(item, "gender", temp) != temp:
+                char_debug(str("False character sex value: %s, %s, %s, %s" % (item.gender, item.id, self.__class__.__name__, temp)))
                 return
 
             if item.slot == 'consumable':
@@ -1149,15 +1150,14 @@ init -9 python:
 
                             # test if the item is still useful
                             for stat in target_stats:
-                                if stat in item.max and item.max[stat] > 0:
+                                if item.max.get(stat, 0) > 0:
                                     break # useful
-                                if stat in item.mod:
-                                    bonus = item.mod[stat]
-                                    if bonus < 0:
-                                        continue
-                                    gain = item.get_stat_eq_bonus(self.stats, stat)
-                                    if gain > bonus/2: # We basically allow 50% waste
-                                        break # useful
+                                bonus = item.mod.get(stat, 0)
+                                if bonus <= 0:
+                                    continue
+                                gain = item.get_stat_eq_bonus(self.stats, stat)
+                                if gain > bonus/2: # We basically allow 50% waste
+                                    break # useful
                             else:
                                 # not useful for stat -> Let's try skills:
                                 for skill in item.mod_skills:

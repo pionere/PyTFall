@@ -92,65 +92,63 @@ init -1 python: # Core classes:
                 self.damage_multiplier += getattr(trait, "damage_multiplier", 0)
                 critical_hit_chance += getattr(trait, "ch_multiplier", 0)
 
-                if hasattr(trait, "delivery_bonus"):
-                    for delivery, bonus in trait.delivery_bonus.iteritems():
+                temp = getattr(trait, "delivery_bonus", None)
+                if temp is not None:
+                    for delivery, bonus in temp.iteritems():
                         # Reference: (minv, maxv, lvl)
                         minv, maxv, lvl = bonus
-                        if lvl <= 0:
-                            lvl = 1
                         if lvl > char.level:
                             maxv = max(minv, float(char.level)*maxv/lvl)
                         maxv += self.delivery_bonus.get(delivery, 0)
                         self.delivery_bonus[delivery] = maxv
 
-                if hasattr(trait, "delivery_multiplier"):
-                    for delivery, mpl in trait.delivery_multiplier.iteritems():
+                temp = getattr(trait, "delivery_multiplier", None)
+                if temp is not None:
+                    for delivery, mpl in temp.iteritems():
                         mpl += self.delivery_multiplier.get(delivery, 0)
                         self.delivery_multiplier[delivery] = mpl
 
-                for type, val in trait.el_damage.iteritems():
-                    val += self.el_dmg.get(type, 0)
-                    self.el_dmg[type] = val
+                temp = getattr(trait, "el_damage", None)
+                if temp is not None:
+                    for type, val in temp.iteritems():
+                        val += self.el_dmg.get(type, 0)
+                        self.el_dmg[type] = val
 
-                for type, val in trait.el_defence.iteritems():
-                    val += self.el_def.get(type, 0)
-                    self.el_def[type] = val
+                temp = getattr(trait, "el_defence", None)
+                if temp is not None:
+                    for type, val in temp.iteritems():
+                        val += self.el_def.get(type, 0)
+                        self.el_def[type] = val
 
-                if hasattr(trait, "evasion_bonus"):
+                temp = getattr(trait, "evasion_bonus", None)
+                if temp is not None:
                     # Reference: (minv, maxv, lvl)
-                    minv, maxv, lvl = trait.evasion_bonus
-                    if lvl <= 0:
-                        lvl = 1
-                    if lvl <= char.level:
-                        self.evasion_bonus += maxv
-                    else:
-                        self.evasion_bonus += max(minv, float(char.level)*maxv/lvl)
+                    minv, maxv, lvl = temp
+                    if lvl > char.level:
+                        maxv = max(minv, float(char.level)*maxv/lvl)
+                    self.evasion_bonus += maxv
 
                 # Get all absorption capable traits:
-                if trait.el_absorbs:
-                    for type, val in trait.el_absorbs.iteritems():
+                temp = getattr(trait, "el_absorbs", None)
+                if temp is not None:
+                    for type, val in temp.iteritems():
                         absorbs = self.absorbs.get(type, [])
                         absorbs.append(val)
                         self.absorbs[type] = absorbs
 
-                if hasattr(trait, "defence_bonus"):
-                    for delivery, bonus in trait.defence_bonus.iteritems():
+                temp = getattr(trait, "defence_bonus", None)
+                if temp is not None:
+                    for delivery, bonus in temp.iteritems():
                         # Reference: (minv, maxv, lvl)
                         minv, maxv, lvl = bonus
-                        if lvl <= 0:
-                            lvl = 1
                         if lvl > char.level:
                             maxv = max(minv, float(char.level)*maxv/lvl)
                         maxv += self.defence_bonus.get(delivery, 0)
                         self.defence_bonus[delivery] = maxv
 
-                if hasattr(trait, "defence_multiplier"):
-                    base_mpl = 1
-                    if trait in char.traits.basetraits and len(char.traits.basetraits)==1:
-                        base_mpl = 2
-                    
-                    for delivery, mpl in trait.defence_multiplier.iteritems():
-                        mpl *= base_mpl
+                temp = getattr(trait, "defence_multiplier", None)
+                if temp is not None:
+                    for delivery, mpl in temp.iteritems():
                         mpl += self.defence_multiplier.get(delivery, 0)
                         self.defence_multiplier[delivery] = mpl
 

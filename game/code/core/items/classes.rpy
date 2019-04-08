@@ -149,7 +149,7 @@ init -9 python:
             self.hidden = True
             self.jump_to_label = ""
             self.price = 0
-            self.sex = 'unisex'
+            # self.gender = 'unisex' optional field
             self.unique = "" # Should be girls id in case of unique item.
             self.statmax = False
             self.skillmax = False
@@ -237,9 +237,6 @@ init -9 python:
                 self.statmax = False
                 self.skillmax = False
 
-            # Gets rid of possible caps:
-            self.sex = self.sex.lower()
-
             # validate references so we do not have to check runtime
             for skill in self.mod_skills:
                 if not is_skill(skill):
@@ -271,7 +268,7 @@ init -9 python:
                 new_max = min(new_max, char_stats.lvl_max[stat])
             else:
                 new_max = char_stats.get_max(stat)
-            new_stat = char_stats.stats[stat] + char_stats.imod[stat] + (self.mod[stat] if stat in self.mod else 0)
+            new_stat = char_stats.stats[stat] + char_stats.imod[stat] + self.mod.get(stat, 0)
             if new_stat > new_max:
                 new_stat = new_max
             return new_stat - char_stats._get_stat(stat)
@@ -283,9 +280,6 @@ init -9 python:
     # Inventory with listing
     # this is used together with a specialized screens/functions
     class Inventory(_object):
-        GENDER_FILTERS = {"any": ["unisex", "female", "male"],
-                          "male": ["unisex", "male"],
-                          "female": ["unisex", "female"]}
         SLOT_FILTERS = {"all": ("weapon", "smallweapon", "head", "body", "wrist",
             "feet", "cape", "amulet", "ring", "consumable", "gift", "misc", "quest",
             "resources", "loot"),
@@ -328,8 +322,9 @@ init -9 python:
                 self.gender_filter = gender
 
             # Genders:
-            gf = self.GENDER_FILTERS[self.gender_filter]
-            self.filtered_items = [i for i in self.filtered_items if i.sex in gf]
+            gf = self.gender_filter
+            if gf != "any":
+                self.filtered_items = [i for i in self.filtered_items if getattr(i, "gender", gf) == gf]
 
             # Complex:
             key, reverse = self.final_sort_filter

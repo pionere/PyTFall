@@ -96,17 +96,21 @@ init -11 python:
         elements = {}
 
         for trait in char.traits:
-            for element in trait.el_damage:
-                if not element in elements.keys():
-                    elements[element] = {}
+            temp = getattr(trait, "el_damage", None)
+            if temp is not None:
+                for element, value in temp.iteritems():
+                    if not element in elements:
+                        elements[element] = {}
 
-                elements[element]["attack"] = elements[element].get("attack", 0) + int(trait.el_damage[element]*100)
+                    elements[element]["attack"] = elements[element].get("attack", 0) + int(value*100)
 
-            for element in trait.el_defence:
-                if not element in elements.keys():
-                    elements[element] = {}
+            temp = getattr(trait, "el_defence", None)
+            if temp is not None:
+                for element, value in temp.iteritems():
+                    if not element in elements:
+                        elements[element] = {}
 
-                elements[element]["defence"] = elements[element].get("defence", 0) + int(trait.el_defence[element]*100)
+                    elements[element]["defence"] = elements[element].get("defence", 0) + int(value*100)
 
             for i in trait.resist:
                 if not i in elements.keys():
@@ -114,11 +118,13 @@ init -11 python:
 
                 elements[i]["resist"] = True
 
-            for element in trait.el_absorbs:
-                if not element in elements.keys():
-                    elements[element] = {}
+            temp = getattr(trait, "el_absorbs", None)
+            if temp is not None:
+                for element, value in temp.iteritems():
+                    if not element in elements:
+                        elements[element] = {}
 
-                elements[element]["abs"] = elements[element].get("abs", 0) + int(trait.el_absorbs[element]*100)
+                    elements[element]["abs"] = elements[element].get("abs", 0) + int(value*100)
 
         for i in elements:
             if not "defence" in elements[i].keys():
@@ -491,8 +497,9 @@ init -11 python:
         filled_slots = {s: [] for s in EQUIP_SLOTS}
         # Perfect matches are subclass matches, such as a Bow would be for a Shooter
 
+        gender = char.gender
         for _ in reversed(range(tier+1)):
-            _items = [i for i in tiered_items[_] if i.sex in (char.gender, 'unisex')]
+            _items = [i for i in tiered_items[_] if getattr(i, "gender", gender) == gender]
             # print(", ".join([i.id for i in _items]))
             perfect = defaultdict(list)
             normal = defaultdict(list)

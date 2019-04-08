@@ -106,7 +106,8 @@ init -11 python:
                     return
             char = character
             return True
-        if item.sex not in ["unisex", character.gender]:
+        temp = character.gender
+        if getattr(item, "gender", temp) != temp:
             if not silent:
                 renpy.show_screen('message_screen', "This item cannot be equipped on a character of {} gender.".format(character.gender))
             return

@@ -385,7 +385,6 @@ init -10 python:
             self.desc = ''
             self.icon = None
             self.hidden = False
-            self.mod = dict() # To be removed!
             self.mod_stats = dict()
             self.mod_skills = dict()
             self.max = dict()
@@ -395,12 +394,12 @@ init -10 python:
 
             # Occupations related:
             self.occupations = list() # GEN_OCCS (Misnamed here)
-            self.higher_tiers = list() # Required higher tier basetraits to enable this trait.
+            #self.higher_tiers = list() # optional Required higher tier basetraits to enable this trait.
 
-            self.sex = "unisex" # Until we set this up in traits: this should be "unisex" by default.
+            # self.gender = "unisex" # optional field to restrict usage
 
             # Types:
-            self.type = "" # Specific type if specified.
+            #self.type = "" # Specific type if specified.
             self.basetrait = False
             self.personality = False
             self.race = False
@@ -419,11 +418,9 @@ init -10 python:
             # Elemental:
             self.font_color = None
             self.resist = list()
-            self.el_name = ""
-            self.el_absorbs = dict() # Pure ratio, NOT a modificator to a multiplier like for dicts below.
-            self.el_damage = dict()
-            self.el_defence = dict()
-            self.el_special = dict()
+            #self.el_absorbs = dict() # Pure ratio, NOT a modificator to a multiplier like for dicts below.
+            #self.el_damage = dict()
+            #self.el_defence = dict()
 
             # Base mods on init:
             self.init_mod = dict() # Mod value setting
@@ -498,8 +495,9 @@ init -10 python:
                 trait = store.traits[trait]
             char = self.instance
 
-            # All the checks required to make sure we can even apply this fucking trait: ======================>>
-            if trait.sex not in ["unisex", char.gender]:
+            # All the checks required to make sure we can even apply this trait: ======================>>
+            temp = char.gender
+            if getattr(trait, "gender", temp) != temp:
                 return
 
             # We cannot allow "Neutral" element to be applied if there is at least one element present already:
@@ -541,19 +539,19 @@ init -10 python:
             stats = char.stats
             # If the trait is a basetrait:
             if trait in self.basetraits:
-                for k, v in trait.init_lvlmax.items(): # Mod value setting
+                for k, v in trait.init_lvlmax.iteritems(): # Mod value setting
                     v *= 2
                     stats.lvl_max[k] = max(v, stats.lvl_max[k])
 
-                for k, v in trait.init_max.items(): # Mod value setting
+                for k, v in trait.init_max.iteritems(): # Mod value setting
                     v *= 2
                     stats.max[k] = max(v, stats.max[k]) 
 
-                for k, v in trait.init_mod.items(): # Mod value setting
+                for k, v in trait.init_mod.iteritems(): # Mod value setting
                     v *= 2
                     stats.stats[k] = max(v, stats.stats[k])
 
-                for k, v in trait.init_skills.items(): # Mod value setting
+                for k, v in trait.init_skills.iteritems(): # Mod value setting
                     value = v[0]*2
                     stats.skills[k][0] = max(value, stats.skills[k][0])
                     value =  v[1]*2
@@ -564,14 +562,14 @@ init -10 python:
                 if trait.mod_ap:
                     char.baseAP += trait.mod_ap
 
-            for key in trait.max:
-                stats.max[key] += trait.max[key]
+            for key, value in trait.max.iteritems():
+                stats.max[key] += value
 
-            for key in trait.min:
-                stats.min[key] += trait.min[key]
+            for key, value in trait.min.iteritems():
+                stats.min[key] += value
 
             for entry in trait.blocks:
-                self.blocked_traits.add(traits[entry])
+                self.blocked_traits.add(entry)
 
             # For now just the girls get effects...
             if hasattr(char, "effects"):
@@ -590,17 +588,15 @@ init -10 python:
                     char.mod_stat("affection", temp[0])
                 char.stats.apply_trait_statsmod(trait, 0, char.level)
 
-            if hasattr(trait, "mod_skills"):
-                for key in trait.mod_skills:
-                    sm = stats.skills_multipliers[key] # skillz muplties
-                    m = trait.mod_skills[key] # mod
-                    sm[0] += m[0]
-                    sm[1] += m[1]
-                    sm[2] += m[2]
+            for key, mod in trait.mod_skills.iteritems():
+                sm = stats.skills_multipliers[key] # skillz muplties
+                sm[0] += mod[0]
+                sm[1] += mod[1]
+                sm[2] += mod[2]
 
             # Adding resisting elements and attacks:
             for i in trait.resist:
-                char.resist.append(i)
+                char.resist.append(i, truetrait)
 
             # NEVER ALLOW NEUTRAL ELEMENT WITH ANOTHER ELEMENT!
             if trait.elemental:
@@ -617,7 +613,8 @@ init -10 python:
                 trait = store.traits[trait]
             char = self.instance
 
-            if trait.sex not in ["unisex", char.gender]:
+            temp = char.gender
+            if getattr(trait, "gender", temp) != temp:
                 return
 
             # We Never want to remove a base trait:
@@ -632,18 +629,18 @@ init -10 python:
                 return
 
             stats = char.stats
-            for key in trait.max:
-                stats.max[key] -= trait.max[key]
+            for key, value in trait.max.iteritems():
+                stats.max[key] -= value
 
-            for key in trait.min:
-                stats.min[key] -= trait.min[key]
+            for key, value in trait.min.iteritems():
+                stats.min[key] -= value
 
             if trait.blocks:
                 # Update blocked traits
                 blocks = set()
                 for entry in self:
                     blocks.update(entry.blocks)
-                self.blocked_traits = set([traits[t] for t in blocks])
+                self.blocked_traits = blocks
 
             # For now just the girls get effects...
             if isinstance(char, Char):
@@ -662,17 +659,15 @@ init -10 python:
                     char.mod_stat("affection", -temp[0])
                 char.stats.apply_trait_statsmod(trait, char.level, 0)
 
-            if hasattr(trait, "mod_skills"):
-                for key in trait.mod_skills:
-                    sm = stats.skills_multipliers[key] # skillz muplties
-                    m = trait.mod_skills[key] # mod
-                    sm[0] -= m[0]
-                    sm[1] -= m[1]
-                    sm[2] -= m[2]
+            for key, mod in trait.mod_skills.iteritems():
+                sm = stats.skills_multipliers[key] # skillz muplties
+                sm[0] -= mod[0]
+                sm[1] -= mod[1]
+                sm[2] -= mod[2]
 
             # Remove resisting elements and attacks:
             for i in trait.resist:
-                char.resist.remove(i)
+                char.resist.remove(i, truetrait)
 
             # We add the Neutral element if there are no elements left at all...
             if trait.elemental and not char.elements:
@@ -1108,9 +1103,9 @@ init -10 python:
                 multiplier *= num_lvl
                 for trait in traits:
                     # Super Stat Bonuses:
-                    for stat in trait.leveling_stats:
-                        self.lvl_max[stat] += trait.leveling_stats[stat][0] * multiplier
-                        self.max[stat] += trait.leveling_stats[stat][1] * multiplier
+                    for stat, value in trait.leveling_stats.iteritems():
+                        self.lvl_max[stat] += value[0] * multiplier
+                        self.max[stat] += value[1] * multiplier
 
                     # Super Skill Bonuses:
                     for skill in trait.init_skills:
@@ -1274,7 +1269,8 @@ init -10 python:
                     continue
 
                 # Gender:
-                if item.sex not in (char.gender, "unisex"):
+                temp = char.gender
+                if getattr(item, "gender", temp) != temp:
                     aeq_debug("Ignoring item %s on gender.", item.id)
                     continue
 
