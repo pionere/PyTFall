@@ -16,7 +16,7 @@
         "unlocked": true,
         "travel_time": 0.5,
         "maxexplored": 500,
-        "mobs": [],
+        "mobs": ["Sahagin", "Skyfish", "Dark Undine", "Horny Medusa", "Ogre", "Steam Cloud"],
         "unlocks": {"Hidden Lake": 50},
         "cash_limit": 500,
         "items_limit": 700
@@ -31,7 +31,7 @@
         "unlocked": false,
         "travel_time": 0.6,
         "maxexplored": 1250,
-        "mobs": [],
+        "mobs": ["Sahagin", "Sky Jellyfish", "Insect Queen", "Water Spirit"],
         "unlocks": {"Underwater Caves": 90},
         "cash_limit": 500,
         "items_limit": 700
@@ -46,7 +46,7 @@
         "unlocked": false,
         "travel_time": 0.7,
         "maxexplored": 400,
-        "mobs": [],
+        "mobs": ["Cetus", "Shy Rabber", "Angry Rabber", "Naiad", "Aqueous Spirit"],
         "unlocks": {
         },
         "cash_limit": 1000,

@@ -12,11 +12,11 @@
         "img": "content/maps/dw_fortress.webp",
         "stage": 1,
         "tier": 0.75,
-		"desc": "This old fortress was used as a command post during the last war. It's nearly destroyed, but underground passage leads deep into the cliff.",
+        "desc": "This old fortress was used as a command post during the last war. It's nearly destroyed, but underground passage leads deep into the cliff.",
         "unlocked": true,
         "travel_time": 0.25,
         "maxexplored": 2000,
-        "mobs": [],
+        "mobs": ["Goblin Warrior", "Seeker", "Barbarian", "Barbarian Maiden"],
         "unlocks": {"Fortress Dungeon": 30},
         "cash_limit": 150,
         "items_limit": 400
@@ -31,7 +31,7 @@
         "unlocked": false,
         "travel_time": 0.26,
         "maxexplored": 2000,
-        "mobs": [],
+        "mobs": ["Mimic", "Alarmer", "Electrificator", "Mud Elemental"],
         "unlocks": {"Deep Caves": 35, "Abandoned Laboratory": 70},
         "cash_limit": 200,
         "items_limit": 500
@@ -46,7 +46,7 @@
         "unlocked": false,
         "travel_time": 0.28,
         "maxexplored": 2000,
-        "mobs": [],
+        "mobs": ["Mimicess", "Treasure Slime", "Earth Elemental", "Ogress"],
         "unlocks": {
         },
         "cash_limit": 200,
@@ -62,7 +62,7 @@
         "unlocked": false,
         "travel_time": 0.3,
         "maxexplored": 800,
-        "mobs": [],
+        "mobs": ["Seductive Slime", "Gargoyle", "Foggy Knight", "Thunder Spirit"],
         "unlocks": {"Crystal Caves": 65, "Flooded Lowlands": 90},
         "cash_limit": 250,
         "items_limit": 500
@@ -76,7 +76,7 @@
         "desc": "These caves are filled with sparkling crystals charged with electricity, and the air itself is abuzz with the power.",
         "unlocked": false,
         "travel_time": 0.35,
-        "mobs": [],
+        "mobs": ["King Slime", "Undine", "Energized Undine", "Stoner", "Stone Eater", "Thunderous Cloud", "Thunderous Shadow"],
         "unlocks": {},
         "cash_limit": 400,
         "items_limit": 600

@@ -17,7 +17,7 @@
         },
         "desc": "Sinister trees form an ever changing massive maze, as if preventing travelers from going deeper into the forest.",
         "unlocked": true,
-        "mobs": ["Black Butterfly", "Black Wolf", "Link Wolf", "Bear"],
+        "mobs": ["Black Butterfly", "Black Wolf", "Link Wolf", "Bear", "Minotaur", "Minotauress", "Bemoth"],
         "unlocks": {"Cursed Forest": 100},
         "travel_time": 0.2,
         "maxexplored": 400,
@@ -41,7 +41,7 @@
         "tier": 1.0,
         "travel_time": 1.0,
         "unlocked": false,
-        "mobs": ["Werewolf", "Weregirl", "Werecat", "Undead Rat"],
+        "mobs": ["Werewolf", "Weregirl", "Werecat", "Undead Rat", "Arachna"],
         "unlocks": {"Black Woods": 80, "Dead Forest": 40},
         "cash_limit": 100,
         "items_limit": 500
@@ -55,7 +55,7 @@
         "tier": 1.5,
         "travel_time": 1.0,
         "unlocked": false,
-        "mobs": ["Undead Rat", "Undead Werecat", "Undead Unicorn"],
+        "mobs": ["Undead Rat", "Undead Werecat", "Undead Unicorn", "Naga Archer", "Naga Warrior"],
         "unlocks": {"Elven Burial Grounds": 80},
         "cash_limit": 200,
         "items_limit": 700

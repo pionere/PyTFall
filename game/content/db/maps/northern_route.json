@@ -35,7 +35,7 @@
         "desc": "A vast cold forest that must be traveled through to reach the mountain peaks.",
         "unlocked": false,
         "travel_time": 1,
-        "mobs": ["Undead Rat", "Thug", "Wolf"],
+        "mobs": ["Undead Rat", "Thug", "Wolf", "Orc"],
         "cash_limit": 30,
         "items_price_limit": 100,
         "unlocks": {
@@ -57,7 +57,7 @@
         "unlocked": false,
         "travel_time": 1,
         "maxexplored": 1350,
-        "mobs": ["Bats", "Goblin", "Goblin Archer", "Goblin Shaman"],
+        "mobs": ["Bats", "Goblin", "Goblin Archer", "Goblin Shaman", "Malicious Stone", "Harpy"],
         "hazard": {
             "vitality": 5
         },
@@ -94,7 +94,7 @@
         "unlocked": false,
         "travel_time": 2,
         "maxexplored": 1250,
-        "mobs": ["Yeti", "Wadding", "Cannon Turtle"],
+        "mobs": ["Yeti", "Wadding", "Cannon Turtle", "Malicious Stone", "Vixen"],
         "hazard": {
             "health": 5,
             "vitality": 5
@@ -114,7 +114,7 @@
         "unlocked": false,
         "travel_time": 2.5,
         "maxexplored": 700,
-        "mobs": [],
+        "mobs": ["Blast Beetle", "Hag", "Wind Spirit", "Storm Spirit"],
         "hazard": {
             "health": 0,
             "mp": 0,
@@ -134,7 +134,7 @@
         "desc": "The highest mountain in the area. Due to rarefied air only the most powerful creatures can live here.",
         "unlocked": false,
         "travel_time": 2.8,
-        "mobs": [],
+        "mobs": ["Harpy Queen", "Titan", "Garuda"],
         "hazard": {
             "health": 5,
             "mp": 0,

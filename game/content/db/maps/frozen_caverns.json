@@ -17,7 +17,7 @@
         "travel_time": 2.2,
         "maxexplored": 2500,
         "daily_modifier": 0.08,
-        "mobs": ["Yeti", "Polar Bear", "Tundra Wolf", "Wadding"],
+        "mobs": ["Yeti", "Polar Bear", "Tundra Wolf", "Wadding", "Frozen Undine"],
         "hazard": {
             "health": 5,
             "vitality": 5
@@ -38,7 +38,7 @@
         "travel_time": 2.3,
         "maxexplored": 1700,
         "daily_modifier": 0.08,
-        "mobs": ["Frozen Heart", "Frost Giant", "Ice Golem"],
+        "mobs": ["Frozen Heart", "Frost Giant", "Ice Golem", "Blast Beetle"],
         "hazard": {
             "health": 1,
             "vitality": 2
