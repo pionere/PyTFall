@@ -44,6 +44,8 @@ init 1000 python:
                     raise Exception("The entity of mob %s does not have a race, or it is not a Trait instance %s" % (m, mob.race))
                 if not isinstance(mob.full_race, basestring):
                     raise Exception("The entity of mob %s does not have a full_race, or it is not a basestring instance %s" % (m, mob.full_race))
+                if mob.front_row is not 0 and mob.front_row is not 1:
+                    raise Exception("The entity of mob %s does not have a valid front_row attribute. It is set to %s, but it should be 0 or 1" % (m, mob.front_row))
 
         @staticmethod
         def testTagDB():
@@ -78,6 +80,9 @@ init 1000 python:
             for item in c.inventory:
                 if item.id not in items:
                     raise Exception("The entity (%s) %s's inventory has an unknown item %s" % (context, c.fullname, item.id))
+
+            if c.front_row is not 0 and c.front_row is not 1:
+                raise Exception("The entity (%s) %s's front_row attribute is set to %s, but it should be 0 or 1" % (context, c.fullname, c.front_row))
 
             for k, v in c.magic_skills.items.items():
                 if v == 0:

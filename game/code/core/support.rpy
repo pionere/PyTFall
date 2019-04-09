@@ -155,13 +155,13 @@ init -9 python:
             give_bt_items = status == "free"
             for bt_go_base, amount in distibution.items():
                 for i in range(amount):
+                    tier = hero.tier + tier_offset
                     if dice(1): # Super char!
-                        tier = hero.tier + uniform(2.5, 4.0)
+                        tier += uniform(2.5, 4.0)
                     elif dice(20): # Decent char.
-                        tier = hero.tier + uniform(1.0, 2.5)
+                        tier += uniform(1.0, 2.5)
                     else: # Ok char...
-                        tier = hero.tier + uniform(.1, 1.0)
-                    tier += tier_offset
+                        tier += uniform(.1, 1.0)
 
                     build_rc(bt_go_base=bt_go_base,
                              set_status=status,
@@ -242,19 +242,14 @@ init -9 python:
                 self.populate_world(tier_offset=.0)
                 tl.end("PyTFall population ND")
 
-            # Gazette:
-            gazette.first_view = True
-            gazette.show = False
-
-
     class Gazette(_object):
         def __init__(self):
-            self.show = False
-            self.first_view = True
-
             self.clear()
 
         def clear(self):
+            self.show = False
+            self.first_view = True
+
             self.arena = []
             self.shops = []
             self.other = []
@@ -262,7 +257,6 @@ init -9 python:
             self.global_events = []
             self.city_events = []
             self.obituaries = []
-
 
     class Difficulties(_object):
         """

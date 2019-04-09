@@ -308,7 +308,7 @@ init -10 python:
             self.normal = set() # Normal we consider anything that's been applied by normal game operations like events, loading routines and etc.
             self.items = dict() # Stuff that's been applied through items, it's a counter as multiple items can apply the same thing (like a trait).
             self.be_skill = be_skill # If we expect a be skill or similar mode.
-            self.list = _list()
+            self.list = list()
 
         # the iterator of the MutableSequence is SLOW, use iterator of the list instead
         def __iter__(self): return self.list.__iter__()

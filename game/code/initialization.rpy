@@ -85,7 +85,6 @@ init -950 python:
         def __init__(self):
             # dict of msg: start_time
             self.log = {}
-            self.logged = {} # (History) We may want to view it later...
 
         def start(self, msg, report_start=False):
             if DEBUG_PROFILING:
@@ -98,15 +97,15 @@ init -950 python:
 
         def end(self, msg):
             if DEBUG_PROFILING:
-                if msg not in self.log:
+                duration = self.log.pop(msg, None)
+                if duration is None:
                     devlog.warning("!!! Tried to end before starting a timer: {}!".format(msg))
                     return
 
-                duration = time.time() - self.log[msg]
+                duration = time.time() - duration
                 duration = round(duration, 2)
-                self.logged[msg] = duration
-                devlog.info("{} completes in {}s.".format(msg, duration))
-                del(self.log[msg])
+                msg = (" " * len(self.log)) + msg
+                devlog.info("%s completes in %ss." % (msg, duration))
 
     tl = TimeLog()
     tl.start("Ren'Py User Init!")

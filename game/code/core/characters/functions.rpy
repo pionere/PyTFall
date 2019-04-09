@@ -719,21 +719,22 @@ init -11 python:
                 setattr(assign_to, attr, value[:])
 
         # Smart Trackers:
-        new.traits[:] = list(char.traits)
+        new.traits.list = char.traits.list[:]
         new.traits.normal = char.traits.normal.copy()
         new.traits.items = char.traits.items.copy()
         new.traits.ab_traits = char.traits.ab_traits.copy()
         new.traits.blocked_traits = char.traits.blocked_traits.copy()
         new.traits.basetraits = char.traits.basetraits.copy()
 
-        new.resist[:] = list(char.resist)
+        new.resist.list = char.resist.list[:]
+        new.resist.normal = char.resist.normal.copy()
+        new.resist.items = char.resist.items.copy()
+
+        new.attack_skills.list = char.attack_skills.list[:]
         new.attack_skills.normal = char.attack_skills.normal.copy()
         new.attack_skills.items = char.attack_skills.items.copy()
 
-        new.attack_skills[:] = list(char.attack_skills)
-        new.attack_skills.normal = char.attack_skills.normal.copy()
-        new.attack_skills.items = char.attack_skills.items.copy()
-        new.magic_skills[:] = list(char.magic_skills)
+        new.magic_skills.list = char.magic_skills.list[:]
         new.magic_skills.normal = char.magic_skills.normal.copy()
         new.magic_skills.items = char.magic_skills.items.copy()
 
