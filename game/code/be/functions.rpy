@@ -128,13 +128,13 @@ init -11 python:
                         defeated_mobs.add(mob.id)
 
                 ap_used = {}
-                for member, aps in zip(hero.team, pre_aps):
+                for member, aps in zip(your_team, pre_aps):
                     ap_used[member] = aps[0] - member.AP + (aps[1] - member.PP)/100.0 # PP_PER_AP = 100
 
                 if persistent.battle_results:
                     renpy.call_screen("give_exp_after_battle", your_team, enemy_team, ap_used)
                 else:
-                    for member in hero.team:
+                    for member in your_team:
                         member.gfx_mod_exp(exp_reward(member, enemy_team, exp_mod=ap_used[member]))
 
         return rv

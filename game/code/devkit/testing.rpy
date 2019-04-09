@@ -3,29 +3,31 @@ init 1000 python:
 
         @staticmethod
         def testAll():
-            testContext()
-            testGame()
+            TestSuite.testContext()
+            TestSuite.testGame()
 
         @staticmethod
         def testContext():
-            testPyp()
-            testMobs()
-            testTagDB()
+            TestSuite.testPyp()
+            TestSuite.testMobs()
+            TestSuite.testTagDB()
+            TestSuite.testBE()
+            TestSuite.testChars()
 
         @staticmethod
         def testChars():
-            testNPCs()
-            testUChars()
-            testRChars()
-            testFighters()
+            TestSuite.testNPCs()
+            TestSuite.testUChars()
+            TestSuite.testRChars()
+            TestSuite.testFighters()
 
         @staticmethod
         def testGame():
-            gameItems()
-            gameTraits()
-            gameAreas()
-            gameChars()
-            gameHero()
+            TestSuite.gameItems()
+            TestSuite.gameTraits()
+            TestSuite.gameAreas()
+            TestSuite.gameChars()
+            TestSuite.gameHero()
 
         @staticmethod
         def testPyp():
@@ -50,6 +52,74 @@ init 1000 python:
         @staticmethod
         def testTagDB():
             pass
+
+        @staticmethod
+        def testBE():
+            TestSuite.testBEDirect()
+            TestSuite.testBEConflictR()
+
+        @staticmethod
+        def testBEDirect():
+            # Prepear the teams:
+            off_team = Team(name="Off Team", max_size=3)
+            mob = build_mob(id="Goblin Shaman", level=120)
+            mob.controller = BE_AI(mob)
+            mob.front_row = 1
+            off_team.add(mob)
+            mob = build_mob(id="Goblin Archer", level=100)
+            mob.controller = BE_AI(mob)
+            off_team.add(mob)
+            mob = build_mob(id="Goblin Archer", level=100)
+            mob.controller = BE_AI(mob)
+            off_team.add(mob)
+
+            def_team = Team(name="Def Team", max_size=3)
+            mob = build_mob(id="Goblin Shaman", level=60)
+            mob.controller = BE_AI(mob)
+            mob.front_row = 1
+            def_team.add(mob)
+            mob = build_mob(id="Goblin Archer", level=60)
+            mob.controller = BE_AI(mob)
+            def_team.add(mob)
+            mob = build_mob(id="Goblin Archer", level=60)
+            mob.controller = BE_AI(mob)
+            def_team.add(mob)
+
+            max_turns=15*(len(off_team)+len(def_team))
+
+            global battle
+            battle = BE_Core(logical=True, max_turns=max_turns)
+            battle.teams.append(off_team)
+            battle.teams.append(def_team)
+
+            battle.start_battle()
+
+            # Reset Controller:
+            off_team.reset_controller()
+            def_team.reset_controller()
+
+            rv = battle.combat_status
+            if isinstance(rv, basestring):
+                raise Exception("Battle result is %s, but it should not be a string." % rv)
+            if battle.winner != off_team:
+                raise Exception("The weaker team won, but they should not since they are much weaker!")
+
+        @staticmethod
+        def testBEConflictR(simple_ai=True):
+            off_team = None
+            for mob in mobs:
+                if off_team is None:
+                    off_team = Team(name="Off Team", max_size=3)
+                    def_team = Team(name="Def Team", max_size=3)
+                mob = build_mob(id=mob, level=100)
+                if len(off_team) < 3:
+                    off_team.add(mob)
+                    continue
+                if len(def_team) < 3:
+                    def_team.add(mob)
+                    continue
+                battle = new_style_conflict_resolver(off_team, def_team, simple_ai)
+                off_team = None
 
         @staticmethod
         def checkChar(c, context):
@@ -167,6 +237,71 @@ init 1000 python:
                 TestSuite.checkChar(c, "rchar/slaveServer")
 
         @staticmethod
+        def testNPCs():
+            pass
+        @staticmethod
+        def testUChars():
+            pass
+        @staticmethod
+        def testFighters():
+            pass
+
+        @staticmethod
+        def gameHero():
+            if hero.front_row is not 0 and hero.front_row is not 1:
+                raise Exception("Hero(%s)'s front_row attribute is set to %s, but it should be 0 or 1" % (hero.fullname, hero.front_row))
+
+            for k, v in hero.magic_skills.items.items():
+                if v == 0:
+                    raise Exception("Hero(%s)'s magic_skills is not properly cleaned (%s:%d)" % (hero.fullname, k, v))
+            for k, v in hero.attack_skills.items.items():
+                if v == 0:
+                    raise Exception("Hero(%s)'s attack_skills is not properly cleaned (%s:%d)" % (hero.fullname, k, v))
+
+            for t in hero.traits:
+                if not isinstance(t, Trait):
+                    raise Exception("Hero(%s)'s traits contains an invalid entry %s" % (hero.fullname, t))
+                if getattr(t, "gender", hero.gender) != hero.gender:
+                    raise Exception("Hero(%s)'s traits contains a gender mismatching entry %s (%s vs. %s)" % (hero.fullname, t, t.gender, hero.gender))
+                
+            for t in hero.traits.blocked_traits:
+                if not isinstance(t, Trait):
+                    raise Exception("Hero(%s)'s blocked_traits contains an invalid entry %s" % (hero.fullname, t))
+
+            for t in hero.traits.ab_traits:
+                if not isinstance(t, Trait):
+                    raise Exception("Hero(%s)'s ab_traits contains an invalid entry %s" % (hero.fullname, t))
+
+            for k, e in hero.effects.items():
+                if not isinstance(e, CharEffect):
+                    raise Exception("The entity (%s) %s has an invalid effect %s with key %s" % (hero.fullname, e, k))
+                if e.name != k:
+                    raise Exception("The entity (%s) %s's effect %s is registered with wrong key %s" % (hero.fullname, e, k))
+                if e.days_active > e.duration:
+                    raise Exception("Hero(%s)'s effect %s run longer (%d) than expected (%d)" % (hero.fullname, e.days_active, e.duration))
+
+            for k, v in hero.eqslots.items():
+                if v and getattr(v, "gender", hero.gender) != hero.gender:
+                    raise Exception("Hero (%s) has a gender mismatching equipment (%s vs %s) in slot %s" % (hero.fullname, v.gender, hero.gender, k))
+
+            # Teams:
+            if hero.team not in hero.teams:
+                raise Exception("Hero(%s)'s current team %s is not listed in their teams" % (hero.fullname, hero.team.name))
+
+            for team in hero.teams:
+                if team.members[0] != hero:
+                    raise Exception("Hero(%s)'s team %s does not have hero as its first member." % (hero.fullname, team.name))
+                for member in team:
+                    if member != hero and member not in hero.chars:
+                        raise Exception("Hero(%s)'s team-member %s is not under hero's controll (not listed in hero.chars)." % (hero.fullname, member.name))
+
+            # chars:
+            all_chars = chars.values()
+            for char in hero.chars:
+                if char not in all_chars:
+                    raise Exception("Hero(%s)'s char %s is no longer in the global chars." % (hero.fullname, char.name))
+
+        @staticmethod
         def gameChars():
             for c in chars.values():
                 TestSuite.checkChar(c, "game-char")
@@ -177,7 +312,7 @@ init 1000 python:
                 if trait.id != key:
                     raise Exception("Bad Trait Entry %s for trait %s" % (key, trait.id))
                 if not isinstance(trait, Trait):
-                    raise Exception("Invalid entry %s for key %s (not a Trait instance)!" % (key, str(trait)))
+                    raise Exception("Invalid entry %s for key %s (not a Trait instance)!" % (str(trait), key))
                 if getattr(trait, "gender", "female") not in ["female", "male"]:
                     raise Exception("Invalid gender %s for trait %s (not 'female' or 'male')!" % (trait.gender, key))
                 for t in trait.blocks:
@@ -190,9 +325,21 @@ init 1000 python:
                 if item.id != key:
                     raise Exception("Bad Item Entry %s for item %s" % (key, item.id))
                 if not isinstance(item, Item):
-                    raise Exception("Invalid entry %s for key %s (not an Item instance)!" % (key, str(item)))
+                    raise Exception("Invalid entry %s for key %s (not an Item instance)!" % (str(item), key))
                 if getattr(item, "gender", "female") not in ["female", "male"]:
                     raise Exception("Invalid gender %s for item %s (not 'female' or 'male')!" % (item.gender, key))
+
+        @staticmethod
+        def gameAreas():
+            for key, area in fg_areas.items():
+                if area.id != key:
+                    raise Exception("Bad Area Entry %s for area %s" % (key, area.id))
+                if not isinstance(area, FG_Area):
+                    raise Exception("Invalid entry %s for key %s (not an FG_Area instance)!" % (key, str(area)))
+                if area.area is None:
+                    continue # just a main area -> skip
+                if not isinstance(area.maxexplored, (int, float)) or area.maxexplored <= 0:
+                    raise Exception("Area %s has an invalid maxexplored setting %s (should be a greater than zero number)!" % (key, str(area.maxexplored)))
 
         @staticmethod
         def performanceTest():
