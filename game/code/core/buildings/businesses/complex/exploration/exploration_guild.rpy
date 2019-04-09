@@ -113,11 +113,13 @@ init -6 python: # Guild, Tracker and Log.
             self.day = 1 # Day since start.
             self.days_in_camp = 0 # Simple counter for the amount of days team is spending at camp. This is set back to 0 when team recovers inside of the camping method.
 
+            self.exploration_items = [[i, d] for i, d in area.items.iteritems()]
             # This is the general items that can be found at any exploration location,
             # Limited by price:
-            self.exploration_items = {item.id: item.chance for item in store.items.values() if
-                                          "Exploration" in item.locations and
-                                          area.items_price_limit >= item.price}
+            limit = area.items_price_limit
+            if limit != 0:
+                self.exploration_items.extend([[item.id, item.chance] for item in store.items.values() if
+                                          "Exploration" in item.locations and limit >= item.price])
 
             # We assume that it's never right outside of the city walls:
             self.base_distance = max(area.travel_time, 6)
@@ -837,36 +839,7 @@ init -6 python: # Guild, Tracker and Log.
                     se_debug(msg)
                 # Let's run the expensive item calculations once and just give
                 # Items as we explore. This just figures what items to give.
-
-                chosen_items = [] # Picked items:
-                # Local Items:
-                local_items = []
-                for i, d in area.items.iteritems():
-                    if dice(d):
-                        local_items.append(i)
-
-                area_items = []
-                for i, d in tracker.exploration_items.iteritems():
-                    if dice(d):
-                        area_items.append(i)
-
-                if DEBUG_SE:
-                    msg = "Local Items: {}|Area Items: {}".format(len(local_items), len(area_items))
-                    se_debug(msg)
-
-                while len(chosen_items) < max_items and (area_items or local_items):
-                    # always pick from local item list first!
-                    if local_items:
-                        chosen_items.append(choice(local_items))
-
-                    if area_items and len(chosen_items) < max_items:
-                        chosen_items.append(choice(area_items))
-
-                if DEBUG_SE:
-                    msg = "({}) Items were picked for choice!".format(len(chosen_items))
-                    se_debug(msg)
-
-                tracker.chosen_items = chosen_items
+                tracker.chosen_items = weighted_sample(tracker.exploration_items, max_items)
             else:
                 if DEBUG_SE:
                     msg = "{} is continuing the exploration.".format(team.name)

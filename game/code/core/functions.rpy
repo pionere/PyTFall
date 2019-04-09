@@ -46,7 +46,7 @@ init -11 python:
     # ---------------------- Game related:
     # Assists:
     # Function are not named according to PEP8 because we'll be using the living shit out of them in the game:
-    def weighted_choice(choices):
+    def weighted_sample(choices, amount=1):
         values, weights = zip(*choices)
         total = 0
         cum_weights = []
@@ -55,9 +55,15 @@ init -11 python:
             cum_weights.append(total)
         if total <= 0:
             return None
-        x = random.random() * total
-        i = bisect.bisect(cum_weights, x)
-        return values[i]
+        result = []
+        for i in xrange(amount):
+            x = random.random() * total
+            x = bisect.bisect(cum_weights, x)
+            x = values[x]
+            result.append(x)
+        if amount == 1:
+            return result[0] 
+        return result
 
     def plural(string, amount):
         """

@@ -189,7 +189,7 @@ init python:
         skills_values=[]
         for t in skills:
             skills_values.append([t, char.get_skill(t)])
-        result = weighted_choice(skills_values)
+        result = weighted_sample(skills_values)
         if not(result):
             result=choice(skills)
         return result

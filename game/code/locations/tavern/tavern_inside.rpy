@@ -29,7 +29,7 @@ label tavern_town:
         $ global_flags.set_flag("tavern_status", value=[day, "cozy"])
     else:
         if global_flags.flag("tavern_status")[0] != day: # every day tavern can randomly have one of three statuses, depending on the status it has very different activities available
-            $ tavern_status = weighted_choice([["cozy", 40], ["lively", 40], ["brawl", 20]])
+            $ tavern_status = weighted_sample([["cozy", 40], ["lively", 40], ["brawl", 20]])
             $ global_flags.set_flag("tavern_status", value=[day, tavern_status])
     $ tavern_event_list = []
     if global_flags.flag("tavern_status")[1] == "cozy":

@@ -401,30 +401,20 @@ label mc_action_beach_start_fishing:
                 jump end_fishing 
                    
             $ item = None
-            python:
+            python hide:
+                global item
                 # Get a list of fishing items player is skilled enough to fish out
                 fishing_skill = hero.get_skill("fishing")
-                num = 0
                 all_fish = []
                 for i in items.values():
                     if "Fishing" in i.locations and min_fish_price <= i.price <= fishing_skill:
-                        num += i.chance
+                        chance = i.chance
                         # count real fishes twice
                         if i.type == "fish":
-                            num += i.chance
-                        all_fish.append(i)  
+                            chance += chance
+                        all_fish.append([i, chance])
+                item = weighted_sample(all_fish) 
 
-                if num:
-                    num = randint(1, num)
-                    for i in all_fish:
-                        num -= i.chance
-                        # count real fishes twice
-                        if i.type == "fish":
-                            num -= i.chance
-                        if num <= 0:
-                            item = i
-                            break 
- 
             if not item:
                 $ exit_string = "Damn' it got away..."
                 jump end_fishing
@@ -448,7 +438,7 @@ label end_fishing:
         cleanup = ["fishing_attempts", "min_fish_price",
                   "c0", "c1", "c2", "use_baits",
                   "num_fish", "stop_fishing", "exit_string",
-                  "item", "fishing_skill", "num", "all_fish"]
+                  "item"]
         for i in cleanup:
             if hasattr(store, i):
                 delattr(store, i)

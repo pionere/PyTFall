@@ -375,23 +375,7 @@ init -11 python:
                     picked.append(item)
                     continue
 
-        num = 0
+        choices = []
         for i in picked:
-            num += i.chance
-
-        if num == 0:
-            return
-
-        result = []
-        for n in range(amount):
-            idx = randint(1, num)
-            for i in picked:
-                idx -= i.chance
-                if idx <= 0:
-                    result.append(i)
-                    break 
-
-        if amount == 1:
-            return result[0]
-        else:
-            return result
+            choices.append([i, i.chance])
+        return weighted_sample(choices, amount)
