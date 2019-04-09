@@ -18,7 +18,7 @@
         "mobs": ["Succubus", "Cockatrice", "Angel"],
         "unlocks": {"White City": 50, "Infinite Tower": 90},
         "cash_limit": 1000,
-        "items_limit": 2000,
+        "items_price_limit": 2000,
         "items": {}
     },
     {
@@ -33,7 +33,7 @@
         "mobs": ["Archangel", "Oni"],
         "unlocks": {"Place of Judgment": 80},
         "cash_limit": 1500,
-        "items_limit": 2500,
+        "items_price_limit": 2500,
         "items": {}
     },
     {
@@ -48,7 +48,7 @@
         "mobs": ["Mare", "Seraph", "Night Mare", "Lust", "Chaos"],
         "unlocks": {},
         "cash_limit": 2000,
-        "items_limit": 2500,
+        "items_price_limit": 2500,
         "items": {}
     },
     {
@@ -63,7 +63,7 @@
         "mobs": ["Devil Rat", "Heaven Guardian", "Lilith", "Horny Succubus"],
         "unlocks": {},
         "cash_limit": 2000,
-        "items_limit": 2500,
+        "items_price_limit": 2500,
         "items": {}
     }
 ]

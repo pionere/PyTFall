@@ -19,7 +19,7 @@
         "mobs": ["Sahagin", "Skyfish", "Dark Undine", "Horny Medusa", "Ogre", "Steam Cloud"],
         "unlocks": {"Hidden Lake": 50},
         "cash_limit": 500,
-        "items_limit": 700
+        "items_price_limit": 700
     },
     {
         "name": "Hidden Lake",
@@ -34,7 +34,7 @@
         "mobs": ["Sahagin", "Sky Jellyfish", "Insect Queen", "Water Spirit"],
         "unlocks": {"Underwater Caves": 90},
         "cash_limit": 500,
-        "items_limit": 700
+        "items_price_limit": 700
     },
     {
         "name": "Underwater Caves",
@@ -50,6 +50,6 @@
         "unlocks": {
         },
         "cash_limit": 1000,
-        "items_limit": 1000
+        "items_price_limit": 1000
     }
 ]

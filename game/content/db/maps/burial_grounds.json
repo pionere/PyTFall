@@ -19,7 +19,7 @@
         "mobs": ["Undead Rat", "Skeleton", "Will-o-wisp"],
         "unlocks": {"Inner Burial Grounds": 75},
         "cash_limit": 100,
-        "items_limit": 400,
+        "items_price_limit": 400,
         "items": {"Darksome Trophy": 25, "Necklace of Pain Reversal": 50}
     },
     {
@@ -38,7 +38,7 @@
         },
         "unlocks": {"Forest Tomb": 75},
         "cash_limit": 120,
-        "items_limit": 600,
+        "items_price_limit": 600,
         "items": {"Bone Ring": 25}
     },
     {
@@ -58,7 +58,7 @@
         },
         "unlocks": {},
         "cash_limit": 150,
-        "items_limit": 750,
+        "items_price_limit": 750,
         "items": {"Vampire Cape": 20}
     }
 ]

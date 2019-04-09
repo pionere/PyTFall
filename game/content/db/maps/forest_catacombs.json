@@ -19,7 +19,7 @@
         "mobs": ["Shadowman", "Horny Mummy", "Dark Spirit", "Crawler", "Spectre"],
         "unlocks": {"The Bottom": 80, "Treasures Rooms": 50},
         "cash_limit": 400,
-        "items_limit": 1500,
+        "items_price_limit": 1500,
         "hazard": {
             "mp": 20
         },
@@ -39,7 +39,7 @@
         "mobs": ["Phantasm", "Spectre", "Woolman", "Cyclop"],
         "unlocks": {},
         "cash_limit": 5000,
-        "items_limit": 0,
+        "items_price_limit": 0,
         "hazard": {
             "health": 100,
             "vitality": 50
@@ -60,7 +60,7 @@
         "mobs": ["Undead Cemetery", "Deathling", "Vortex"],
         "unlocks": {},
         "cash_limit": 500,
-        "items_limit": 3000,
+        "items_price_limit": 3000,
         "hazard": {
             "mp": 20,
             "vitality": 20

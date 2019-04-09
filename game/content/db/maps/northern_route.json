@@ -65,7 +65,7 @@
             "High Pass": 90
         },
         "cash_limit": 50,
-        "items_limit": 200,
+        "items_price_limit": 200,
         "items": {"Stone": 50}
     },
     {
@@ -81,7 +81,7 @@
         "mobs": ["Druid", "Black Wolf", "Wild Dryad", "Link Wolf"], 
         "unlocks": {"Elven Forest": 95},
         "cash_limit": 200,
-        "items_limit": 800,
+        "items_price_limit": 800,
         "items": {"Watermelon of Knowledge": 25, "Candied Nuts of Knowledge": 60, "Frost Fairy": 20}
     },
     {
@@ -101,7 +101,7 @@
         },
         "unlocks": {"Frozen Caverns": 60, "Rose of Winds": 90},
         "cash_limit": 20,
-        "items_limit": 250,
+        "items_price_limit": 250,
         "items": {"Stone": 100, "Victory Charm": 15}
     },
     {
@@ -122,7 +122,7 @@
         },
         "unlocks": {"Northern Peak": 90},
         "cash_limit": 250,
-        "items_limit": 400,
+        "items_price_limit": 400,
         "items": { }
     },
     {
@@ -142,7 +142,7 @@
         },
         "unlocks": {"Gardens of Eden": 80},
         "cash_limit": 500,
-        "items_limit": 800,
+        "items_price_limit": 800,
         "items": {}
     }
 ]

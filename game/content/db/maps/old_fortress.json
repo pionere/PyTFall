@@ -19,7 +19,7 @@
         "mobs": ["Goblin Warrior", "Seeker", "Barbarian", "Barbarian Maiden"],
         "unlocks": {"Fortress Dungeon": 30},
         "cash_limit": 150,
-        "items_limit": 400
+        "items_price_limit": 400
     },
     {
         "name": "Fortress Dungeon",
@@ -34,7 +34,7 @@
         "mobs": ["Mimic", "Alarmer", "Electrificator", "Mud Elemental"],
         "unlocks": {"Deep Caves": 35, "Abandoned Laboratory": 70},
         "cash_limit": 200,
-        "items_limit": 500
+        "items_price_limit": 500
     },
     {
         "name": "Abandoned Laboratory",
@@ -50,7 +50,7 @@
         "unlocks": {
         },
         "cash_limit": 200,
-        "items_limit": 500
+        "items_price_limit": 500
     },
     {
         "name": "Deep Caves",
@@ -65,7 +65,7 @@
         "mobs": ["Seductive Slime", "Gargoyle", "Foggy Knight", "Thunder Spirit"],
         "unlocks": {"Crystal Caves": 65, "Flooded Lowlands": 90},
         "cash_limit": 250,
-        "items_limit": 500
+        "items_price_limit": 500
     },
     {
         "name": "Crystal Caves",
@@ -79,6 +79,6 @@
         "mobs": ["King Slime", "Undine", "Energized Undine", "Stoner", "Stone Eater", "Thunderous Cloud", "Thunderous Shadow"],
         "unlocks": {},
         "cash_limit": 400,
-        "items_limit": 600
+        "items_price_limit": 600
     }
 ]

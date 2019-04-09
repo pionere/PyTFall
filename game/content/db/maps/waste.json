@@ -19,7 +19,7 @@
         "mobs": ["Slime", "Alkaline Slime", "Acid Slime", "Thug", "Malicious Stone"],
         "unlocks": {"Abnormal Sands": 60, "Old Fortress": 90},
         "cash_limit": 50,
-        "items_limit": 200
+        "items_price_limit": 200
     },
     {
         "name": "Abnormal Sands",
@@ -33,7 +33,7 @@
         "mobs": ["Amazon Thief", "Amazon Warrior", "Amazon Archer", "Boros", "Lamia", "Gluttony", "Fiery Shadow"],
         "unlocks": {"Melting Sands": 50, "Big Crater": 90},
         "cash_limit": 100,
-        "items_limit": 500,
+        "items_price_limit": 500,
         "hazard": {
             "health": 5,
             "mp": 0,
@@ -52,7 +52,7 @@
         "mobs": ["Lava Elemental", "Fire Spirit", "Giant Scorpion", "Lava Elemental", "Fire Spirit", "Ifrit", "Flame Spirit"],
         "unlocks": {},
         "cash_limit": 200,
-        "items_limit": 700,
+        "items_price_limit": 700,
         "hazard": {
             "health": 10,
             "mp": 0,
@@ -71,7 +71,7 @@
         "mobs": ["Undead Unicorn", "Chimera", "Quick Silver", "Flaming Fox", "Vortex"],
         "unlocks": {},
         "cash_limit": 300,
-        "items_limit": 1000,
+        "items_price_limit": 1000,
         "hazard": {
             "health": 25,
             "mp": 0,

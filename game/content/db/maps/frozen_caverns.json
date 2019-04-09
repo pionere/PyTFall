@@ -24,7 +24,7 @@
         },
         "unlocks": {"Frozen Passage": 75},
         "cash_limit": 20,
-        "items_limit": 600,
+        "items_price_limit": 600,
         "items": {"Ice Daggers": 40, "Ice Axe": 40, "Icy Sword": 20}
     },
     {
@@ -45,7 +45,7 @@
         },
         "unlocks": {"Frozen Throne": 99},
         "cash_limit": 40,
-        "items_limit": 700,
+        "items_price_limit": 700,
         "items": {"Crystal Wand": 30, "Ice Charm": 20, "Winter Ring": 25
         }
     },
@@ -68,7 +68,7 @@
         },
         "unlocks": {},
         "cash_limit": 100,
-        "items_limit": 1000,
+        "items_price_limit": 1000,
         "items": {
             "Icicle Staff": 20,
             "Frost Cape": 20,
