@@ -3,7 +3,9 @@ init -9 python:
         """Dummy class for objects in camps (for now).
         """
         def __init__(self):
-            pass
+            self.pos = (0, 0)   # position on the screen
+            self.img = None     # image of the object
+            self.name = ""      # name of the object (shown as tooltip)
 
     # FG Area
     class FG_Area(_object):
@@ -239,9 +241,10 @@ init -6 python: # Guild, Tracker and Log.
                         mod_by_max("vitality", .25)
 
                 for key in self.found_areas:
-                    if not fg_areas[key]:
-                        fg_areas[key] = True
-                        temp = "As they arrived back to the Guild, they excitedly report about a new path they found in the wilderness. It leads to %s and might worth to explore!" % key
+                    if not fg_areas[key].unlocked:
+                        fg_areas[key].unlocked = True
+                        area.unlocks.pop(key)
+                        temp = "As they arrived back to the Guild, they excitedly report about a new path they found in the wilderness. It leads to %s and might worth to explore!" % fg_areas[key].name
                         temp = set_font_color(temp, "lime")
                         self.log(temp)
                         self.green_flag = True
