@@ -134,6 +134,7 @@ label next_day:
         $ del nd_turns
         # prepare the data to show to the player
         $ NextDayEvents.prepare_summary()
+        $ global_flags.set_flag("day_start")
 
     # Preparing to display ND.
     ####### - - - - - #######

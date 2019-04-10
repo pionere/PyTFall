@@ -1480,6 +1480,8 @@ label after_load:
             if cid != 0:
                 global_flags.up_counter("clone_id", cid)
             del store.clone_id
+        if hasattr(gazette, "first_view"):
+            del gazette.first_view
 
     stop music
     return

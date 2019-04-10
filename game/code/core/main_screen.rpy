@@ -41,10 +41,8 @@ label mainscreen:
         for scr in main_scr_predict:
             renpy.start_predict_screen(scr)
 
-    $ pytfall.world_events.next_day() # Get new set of active events
-    $ pytfall.world_quests.run_quests("auto") # Unsquelch active quests
-    $ pytfall.world_events.run_events("auto") # Run current events
-    $ pytfall.world_quests.next_day() # Garbage collect quests
+        pytfall.world_quests.run_quests("auto") # Run active quests
+        pytfall.world_events.run_events("auto") # Run current events
 
     while 1:
         $ result = ui.interact()
@@ -57,11 +55,77 @@ label mainscreen:
 screen mainscreen():
     key "mousedown_3" action Show("s_menu", transition=dissolve)
 
-    default fadein = (2.0 if global_flags.has_flag("game_start") else 0.5)
-    $ global_flags.del_flag("game_start")
+    python:
+        if global_flags.has_flag("game_start"):
+            global_flags.del_flag("game_start")
+            fadein = 2.0
+            location = "mc_bedroom"
+            global_flags.set_flag("mc_home_location", location)
+        elif global_flags.has_flag("day_start"):
+            global_flags.del_flag("day_start")
+            fadein = 0.5
+            location = "mc_bedroom"
+            global_flags.set_flag("mc_home_location", location)
+        else:
+            fadein = 0
+            location = global_flags.get_flag("mc_home_location", "entry")
 
-    # Main pic:
-    add im.Scale("content/gfx/bg/main_brothel.webp", config.screen_width, config.screen_height-40) at fade_from_to(.0, 1.0, fadein) ypos 40
+        sections = getattr(hero.home, "sections", None)
+        if sections is None:
+            location = None
+        else:
+            section = sections.get(location, None)
+            if isinstance(section, basestring):
+                section = sections[section]
+            if section is None:
+                location = None
+            else:
+                location = section["img"]
+                objects = section.get("objects", None)
+
+        if location is None:
+            location = "content/gfx/bg/main_brothel.webp"
+            objects = None
+
+    # Home pic + objects:
+    frame:
+        xysize (config.screen_width, config.screen_height)
+        xalign .5
+        padding 0, 0
+        margin 0, 0
+        background location
+        at fade_from_to(.0, 1.0, fadein)
+    # Overlay objects
+        if objects:
+            $ objects = objects[:]
+            $ objects.sort(key=lambda x: x.get("layer", 0))
+            for o in objects:
+                $ name = o.get("name", None)
+                $ next_loc = o.get("location", None)
+                $ tooltip = o.get("tooltip", None)
+                button:
+                    style 'image_button'
+                    pos o["pos"]
+                    idle_background o["img"]
+                    hover_background im.MatrixColor(o["img"], im.matrix.brightness(.25))
+                    focus_mask True
+                    if name == "gazette":
+                        action ToggleField(gazette, "show")
+                        tooltip (tooltip or "PyTFall's GAZETTE")
+                        sensitive day > 1
+                    elif name == "report":
+                        tooltip (tooltip or "Review Reports!")
+                        action SetVariable("just_view_next_day", True), Hide("mainscreen"), Jump("next_day")
+                        sensitive day > 1
+                    elif name == "exit":
+                        tooltip (tooltip or "Go to the City")
+                        action Return("city")
+                    elif next_loc is None:
+                        action NullAction()
+                    else:
+                        action Function(global_flags.set_flag, "mc_home_location", next_loc)
+                        if tooltip:
+                            tooltip tooltip
 
     frame:
         align (.995, .88)
@@ -143,7 +207,7 @@ screen mainscreen():
             textbutton "Clear Console":
                 action Jump("force_clear_console")
 
-    showif day > 1 and (gazette.first_view or gazette.show):
+    showif day > 1 and gazette.show:
         default gazette_map = (
         ("arena", "Today at the Arena!"),
         ("shops", "Shopkeepers in PyTFall reporting:"),
@@ -170,7 +234,7 @@ screen mainscreen():
                         label "[t]" text_size 17
                         text "\n".join(content)
                         null height 10
-            if gazette.first_view:
-                timer 6 action ToggleField(gazette, "first_view")
+            if gazette.show == "first_view":
+                timer 6 action ToggleField(gazette, "show")
 
     use top_stripe(False)

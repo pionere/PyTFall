@@ -27,6 +27,7 @@ label city:
         if result[0] == 'control':
             if result[1] == 'return':
                 $ global_flags.set_flag("keep_playing_music")
+                $ global_flags.del_flag("mc_home_location")
                 hide screen city_screen
                 jump mainscreen
         elif result[0] == 'location':
@@ -92,7 +93,7 @@ screen city_screen():
         imagebutton:
             idle im.Scale("content/gfx/interface/buttons/MS.png", 38, 37)
             hover im.MatrixColor(im.Scale("content/gfx/interface/buttons/MS.png", 38, 37), im.matrix.brightness(.15))
-            action (Hide(renpy.current_screen().tag), Function(global_flags.del_flag, "keep_playing_music"),  Jump("mainscreen"))
+            action Return(["control", "return"])
             tooltip "Return to Main Screen"
         imagebutton:
             idle im.Scale("content/gfx/interface/buttons/profile.png", 35, 40)

@@ -820,7 +820,8 @@ screen fg_area(area):
             xalign .5
             padding 10, 10
             background Null()
-            $ objects = sorted(area.camp_objects, key=attrgetter("layer"))
+            $ objects = area.camp_objects[:]
+            $ objects.sort(key=lambda x: getattr(x, "layer", 0))
             viewport:
                 xysize (600, 350)
                 frame:

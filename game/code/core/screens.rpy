@@ -344,7 +344,7 @@ screen top_stripe(show_return_button=True, return_button_action=None,
                     if 'next_day' in last_label:
                         action return_action
                     else:
-                        action (Function(renpy.scene, layer="screens"), Function(global_flags.del_flag, "keep_playing_music"), Jump("mainscreen"))
+                        action (Function(renpy.scene, layer="screens"), Function(global_flags.del_flag, "keep_playing_music"), Function(global_flags.del_flag, "mc_home_location"), Jump("mainscreen"))
 
             if show_lead_away_buttons:
                 $ img = ProportionalScale("content/gfx/interface/buttons/profile.png", 35, 40)
