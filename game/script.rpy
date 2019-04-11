@@ -1174,6 +1174,11 @@ label after_load:
                 if getattr(char, "runaway_look_event", None) == "escaped_girl_recapture":
                     del char.runaway_look_event
 
+                if char.has_flag("days_in_game"):
+                    if isinstance(char, rChar):
+                        char.set_flag("from_day_in_game", day - char.flag("days_in_game"))
+                    char.del_flag("days_in_game")
+
                 char.magic_skills.items = {k: v for k, v in char.magic_skills.items.items() if v != 0}
                 char.attack_skills.items = {k: v for k, v in char.attack_skills.items.items() if v != 0}
 

@@ -303,8 +303,48 @@ init 1000 python:
 
         @staticmethod
         def gameChars():
-            for c in chars.values():
+            all_chars = chars.values()
+            for c in all_chars:
                 TestSuite.checkChar(c, "game-char")
+                if isinstance(c, rChar):
+                    if not c.has_flag("from_day_in_game"):
+                        raise Exception("Rchar %s does not have 'from_day_in_game' flag" % c.fullname)
+
+            # check Slave Market
+            for c in pytfall.sm.inhabitants:
+                if c not in all_chars:
+                    raise Exception("Char %s is not registered, but inhabitant of the slave market" % c.fullname)
+
+            for c in pytfall.sm.chars_list:
+                if c not in all_chars:
+                    raise Exception("Char %s is not registered, but on sale in the slave market" % c.fullname)
+
+            # TODO blue_slaves ?
+
+            # check Jail
+            for c in pytfall.jail.slaves:
+                if c not in all_chars:
+                    raise Exception("Char %s is not registered, but she/he is in jail as a runaway slave" % c.fullname)
+                if c.status != "slave":
+                    raise Exception("Non-slave char %s listed as runaway slave" % c.fullname)
+
+            for c in pytfall.jail.captures:
+                if c not in all_chars:
+                    raise Exception("Char %s is not registered, but listed as captured in the jail" % c.fullname)
+
+            for c in pytfall.jail.cells:
+                if c not in all_chars:
+                    raise Exception("Char %s is not registered, but she/he is in the jail" % c.fullname)
+                if c.status != "free":
+                    raise Exception("Non-free char %s listed as civilian prisoner" % c.fullname)
+
+            # check Employment Agency
+            for v in employment_agency_chars.itervalues():
+                for c in v:
+                    if c not in all_chars:
+                        raise Exception("Char %s is not registered, but she/he available at the EA" % c.fullname)
+                    if c.status != "free":
+                        raise Exception("Non-free char %s listed to be hired at EA" % c.fullname)
 
         @staticmethod
         def gameTraits():

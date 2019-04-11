@@ -410,6 +410,7 @@ init -11 python:
 
         # And add to char! :)
         if add_to_gameworld:
+            rg.set_flag("from_day_in_game", day)
             rg.log_stats()
             dict_id = "_".join([rg.id, rg.name, rg.fullname.split(" ")[1]])
             rg.dict_id = dict_id

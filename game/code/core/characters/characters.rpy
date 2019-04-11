@@ -1822,7 +1822,6 @@ init -9 python:
         def next_day(self):
             self.clear_img_cache()
 
-            self.up_counter("days_in_game")
             self.log_stats()
 
         def auto_training(self, kind):

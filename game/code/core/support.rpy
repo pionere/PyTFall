@@ -104,13 +104,15 @@ init -9 python:
                 else:
                     rc_slaves.append(c)
 
+            limit = day - 10
             for c in rc_slaves[:]:
-                if c.get_flag("days_in_game", 0) > 10:
+                if c.flag("from_day_in_game") < limit:
                     rc_slaves.remove(c)
                     remove_from_gameworld(c)
 
+            limit = day - 20
             for c in rc_free[:]:
-                if c.get_flag("days_in_game", 0) > 20 and c.get_stat("disposition") <= 0 and c.get_stat("affection") <= 0:
+                if c.flag("from_day_in_game") < limit and c.get_stat("disposition") <= 0 and c.get_stat("affection") <= 0:
                     rc_free.remove(c)
                     remove_from_gameworld(c)
 
