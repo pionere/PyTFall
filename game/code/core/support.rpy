@@ -242,11 +242,6 @@ init -9 python:
                 self.populate_world(tier_offset=.0)
                 tl.end("PyTFall population ND")
 
-            tl.start("Quest/Events ND")
-            self.world_events.next_day() # Get new set of active events
-            self.world_quests.next_day() # Garbage collect quests
-            tl.end("Quest/Events ND")
-
     class Gazette(_object):
         def __init__(self):
             self.clear()

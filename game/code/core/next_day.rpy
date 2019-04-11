@@ -120,16 +120,19 @@ init python:
 label next_day:
     scene
 
-    $ next_day_local = None
-
     if getattr(store, "just_view_next_day", False): # Review old reports:
         $ del just_view_next_day
     else: # Do the calculations:
         show screen next_day_calculations
+
+        if global_flags.flag("nd_music_play"):
+            $ global_flags.del_flag("nd_music_play")
+            $ PyTFallStatic.play_music("pytfall")
+        $ global_flags.set_flag("keep_playing_music")
+
         $ nd_turns = getattr(store, "nd_turns", 1)
         while nd_turns:
             call next_day_calculations from _call_next_day_calculations
-            call next_day_effects_check from _call_next_day_effects_check
             $ nd_turns -= 1
         $ del nd_turns
         # prepare the data to show to the player
@@ -142,18 +145,12 @@ label next_day:
     $ nd_stats, nd_all_stats = NextDayEvents.get_nd_stats()
     # Setting index and picture
     $ FilteredList = NextDayEvents.event_list
-    $ event = None
-    if FilteredList:
-        $ event = FilteredList[0]
+    $ event_index = 0
 
     hide screen next_day_calculations
 
     call next_day_controls from _call_next_day_controls
-
-    # Lets free some memory...
-    if not day%50:
-        $ renpy.free_memory()
-    if next_day_local:
+    if _return:
         jump next_day
 
     hide screen next_day
@@ -161,18 +158,15 @@ label next_day:
     if persistent.auto_saves:
         call special_auto_save from _call_special_auto_save
 
-    $ del FilteredList, nd_stats, nd_all_stats, event, next_day_local
+    $ del FilteredList, nd_stats, nd_all_stats, event_index
     jump mainscreen
 
 label next_day_calculations:
-    if global_flags.flag("nd_music_play"):
-        $ global_flags.del_flag("nd_music_play")
-        $ PyTFallStatic.play_music("pytfall")
-    $ global_flags.set_flag("keep_playing_music")
-
-    $ tl.start("Next Day")
-    $ NextDayEvents = NextDayStats()
     python hide:
+        tl.start("Next Day")
+
+        global NextDayEvents
+        NextDayEvents = NextDayStats()
         nd_debug("Day: %s, Girls (Player): %s, Girls (Game): %s" % (day, len(hero.chars), len(chars)))
 
         # Fog of war over fg areas:
@@ -207,15 +201,6 @@ label next_day_calculations:
         tl.end("ND-Buildings")
         # Building events END.
 
-        # Searching events Start:
-        # tl.start("Searching") # TODO (lt) Find out if we still want escaping chars?
-        # for building in hero.buildings:
-        #     girls = building.get_girls("Search")
-        #     while girls:
-        #         EscapeeSearchJob(choice(girls), building, girls)
-        # tl.end("Searching")
-        # Searching events End.
-
         # Second iteration of Rest:
         tl.start("ND-Rest (Second pass)")
         for c in hero.chars:
@@ -226,7 +211,7 @@ label next_day_calculations:
         ################## Logic ##################
         tl.start("pytfall/calender .next_day")
         pytfall.next_day()
-        calendar.next() # day + 1 is here.
+        calendar.next()                 # day + 1 is here.
         tl.end("pytfall/calender .next_day")
 
         # Reset Flags:
@@ -239,79 +224,9 @@ label next_day_calculations:
                     char.del_flag(flag)
         tl.end("ND-Flags Reset")
 
-    $ tl.end("Next Day")
-    return
-
-label next_day_controls:
-    scene bg profile_2
-    show screen next_day
-    with dissolve
-    while 1:
-        python:
-            result = ui.interact()
-
-            if result[0] == 'filter':
-                e = None
-                FilteredList = NextDayEvents.event_list
-                if result[1] == 'all':
-                    pass
-                elif result[1] == 'red_flags':
-                    FilteredList = [e for e in FilteredList if e.red_flag]
-                elif result[1] == 'mc':
-                    FilteredList = [e for e in FilteredList if e.type == 'mcndreport']
-                elif result[1] == 'school':
-                    order = {"school_nd_report": 1, "course_nd_report": 2}
-                    FilteredList = sorted([e for e in FilteredList if e.type in order], key=lambda e: order[e.type])
-                    del order
-                elif result[1] == 'gndreports': # Girl Next Day Reports
-                    FilteredList = [e for e in FilteredList if e.type == 'girlndreport']
-                elif result[1] == 'xndreports': # Exploration Next Day Reports
-                    FilteredList = [e for e in FilteredList if e.type == 'explorationndreport']
-                elif result[1] == 'building':
-                    building = result[2]
-                    order = {"buildingreport": 1, "manager_report": 2, "explorationndreport": 3, "jobreport": 4, "taskreport": 5}
-                    FilteredList = sorted([e for e in FilteredList if e.loc == building and e.type in order], key=lambda e: order[e.type])
-                    del order, building
-                elif result[1] == "fighters_guild":
-                    order = {"fg_report": 1, "exploration_report": 2, "fg_job": 3}
-                    FilteredList = sorted([e for e in FilteredList if e.type in order], key=lambda e: order[e.type])
-                    del order
-                else:
-                    nd_debug("unhandled event:"+result[1], "warn")
-                del e
-
-                if FilteredList:
-                    event = FilteredList[0]
-                    index = 0
-                else:
-                    nd_debug("all NextDayEvents were filtered for: "+result[0]+", "+result[1], "warn")
-                    # if result[1] == 'gndreports':
-                    # Preventing Index Exception on empty filter
-                    FilteredList = NextDayEvents.event_list
-
-        if result[0] == 'control':
-            if result[1] == 'left':
-                python:
-                    index = FilteredList.index(event)
-                    if index > 0:
-                        event = FilteredList[index-1]
-            elif result[1] == 'right':
-                python:
-                    index = FilteredList.index(event)
-                    if index < len(FilteredList)-1:
-                        event = FilteredList[index+1]
-            elif result[1] == "next_day_local":
-                # Special Logic required:
-                hide screen next_day
-                $ next_day_local = True
-                return
-            elif result[1] == 'return':
-                return
-
-label next_day_effects_check:  # all traits and effects which require some unusual checks every turn do it here
-    python hide:
+        # Effect checks:
+        tl.start("ND-Effects")
         for i in chars.values(): # chars with low or high joy get joy-related effects every day
-
             if 'Depression' in i.effects:
                 i.AP -= 1
             elif i.get_stat("joy") > 25:
@@ -356,8 +271,73 @@ label next_day_effects_check:  # all traits and effects which require some unusu
                         i.mod_stat("joy", 1)
 
             mod_by_max(hero, "health", .1)
+        tl.end("ND-Effects")
+
+        tl.start("Quest/Events ND")
+        pytfall.world_events.next_day() # Get new set of active events
+        pytfall.world_quests.next_day() # Garbage collect quests
+        tl.end("Quest/Events ND")
+
+        tl.end("Next Day")
+
+        # Lets free some memory...
+        if not day%50:
+            renpy.free_memory()
 
     return
+
+label next_day_controls:
+    scene bg profile_2
+    show screen next_day
+    with dissolve
+    while 1:
+        $ result = ui.interact()
+        if result[0] == 'filter':
+            python hide:
+                global FilteredList, event_index
+                FilteredList = NextDayEvents.event_list
+                filter = result[1]
+                if filter == 'all':
+                    pass
+                elif filter == 'red_flags':
+                    FilteredList = [e for e in FilteredList if e.red_flag]
+                elif filter == 'mc':
+                    FilteredList = [e for e in FilteredList if e.type == 'mcndreport']
+                elif filter == 'school':
+                    order = {"school_nd_report": 1, "course_nd_report": 2}
+                    FilteredList = sorted([e for e in FilteredList if e.type in order], key=lambda e: order[e.type])
+                elif filter == 'gndreports': # Girl Next Day Reports
+                    FilteredList = [e for e in FilteredList if e.type == 'girlndreport']
+                elif filter == 'xndreports': # Exploration Next Day Reports
+                    FilteredList = [e for e in FilteredList if e.type == 'explorationndreport']
+                elif filter == 'building':
+                    building = result[2]
+                    order = {"buildingreport": 1, "manager_report": 2, "explorationndreport": 3, "jobreport": 4, "taskreport": 5}
+                    FilteredList = sorted([e for e in FilteredList if e.loc == building and e.type in order], key=lambda e: order[e.type])
+                elif filter == "fighters_guild":
+                    order = {"fg_report": 1, "exploration_report": 2, "fg_job": 3}
+                    FilteredList = sorted([e for e in FilteredList if e.type in order], key=lambda e: order[e.type])
+                else:
+                    nd_debug("unhandled filter:%s" % filter, "warn")
+
+                event_index = 0
+                if not FilteredList:
+                    nd_debug("all NextDayEvents were filtered for: %s." % filter, "warn")
+                    # Preventing Index Exception on empty filter
+                    FilteredList = NextDayEvents.event_list
+
+        elif result[0] == 'control':
+            if result[1] == 'left':
+                if event_index > 0:
+                    $ event_index -= 1
+            elif result[1] == 'right':
+                if event_index < len(FilteredList)-1:
+                    $ event_index += 1
+            elif result[1] == "next_day_local":
+                # Special Logic required:
+                return True
+            elif result[1] == 'return':
+                return
 
 label special_auto_save: # since built-in autosave works like shit, I use normal saves to save in auto slots
     $ renpy.notify("Autosaving... You can disable it in game settings")
@@ -1089,6 +1069,7 @@ screen next_day():
         key "mousedown_5" action Return(['control', 'left'])
 
         # Image frame:
+        $ event = FilteredList[event_index]
         frame:
             pos 0, 0
             xysize 839, 720
@@ -1350,7 +1331,7 @@ screen next_day():
                         align (.5, .5)
                         background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.9), 5, 5)
                         xysize (100, 40)
-                        text(u'Act: %d/%d'%(FilteredList.index(event)+1, len(FilteredList))) align (.5, .5) size 16 style "proper_stats_text"
+                        text(u'Act: %d/%d'%(event_index+1, len(FilteredList))) align (.5, .5) size 16 style "proper_stats_text"
                     button:
                         xysize (120, 40)
                         style "right_wood_button"

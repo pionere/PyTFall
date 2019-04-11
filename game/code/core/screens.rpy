@@ -341,17 +341,17 @@ screen top_stripe(show_return_button=True, return_button_action=None,
                     idle img
                     hover im.MatrixColor(img, im.matrix.brightness(.15))
                     tooltip "Return to Main Screen"
-                    if 'next_day' in last_label:
+                    if renpy.current_screen().tag == "next_day":
                         action return_action
                     else:
-                        action (Function(renpy.scene, layer="screens"), Function(global_flags.del_flag, "keep_playing_music"), Function(global_flags.del_flag, "mc_home_location"), Jump("mainscreen"))
+                        action (hs, Function(global_flags.del_flag, "keep_playing_music"), Function(global_flags.del_flag, "mc_home_location"), Jump("mainscreen"))
 
             if show_lead_away_buttons:
                 $ img = ProportionalScale("content/gfx/interface/buttons/profile.png", 35, 40)
                 imagebutton:
                     idle img
                     hover im.MatrixColor(img, im.matrix.brightness(.15))
-                    action [SetField(pytfall.hp, "came_from", last_label), Hide(renpy.current_screen().tag), Jump("hero_profile")]
+                    action [SetField(pytfall.hp, "came_from", last_label), hs, Jump("hero_profile")]
                     tooltip "View Hero Profile"
 
             null width 10
@@ -384,7 +384,7 @@ screen top_stripe(show_return_button=True, return_button_action=None,
                 idle img
                 hover im.MatrixColor(img, im.matrix.brightness(.25))
                 insensitive_background im.Sepia(img)
-                action [Hide("fg_log"), return_action]
+                action return_action
                 # sensitive not str(last_label).startswith("mc_action_")
                 tooltip "Return to previous screen"
                 if not get_screens(*special_screens):

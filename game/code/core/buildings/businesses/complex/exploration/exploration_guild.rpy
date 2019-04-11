@@ -241,10 +241,11 @@ init -6 python: # Guild, Tracker and Log.
                         mod_by_max("vitality", .25)
 
                 for key in self.found_areas:
-                    if not fg_areas[key].unlocked:
-                        fg_areas[key].unlocked = True
+                    a = fg_areas[key]
+                    if not a.unlocked:
+                        a.unlocked = True
                         area.unlocks.pop(key)
-                        temp = "As they arrived back to the Guild, they excitedly report about a new path they found in the wilderness. It leads to %s and might worth to explore!" % fg_areas[key].name
+                        temp = "As they arrived back to the Guild, they excitedly report about a new path they found in the wilderness. It leads to %s and might worth to explore!" % a.name
                         temp = set_font_color(temp, "lime")
                         self.log(temp)
                         self.green_flag = True

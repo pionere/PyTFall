@@ -108,7 +108,6 @@ label hero_in_jail:
             $ nd_turns = 1 if result == "wait" else pytfall.jail.prison_time(hero)
             while nd_turns:
                 call next_day_calculations from _call_next_day_calculations_2
-                call next_day_effects_check from _call_next_day_effects_check_2
                 $ nd_turns -= 1
             $ del nd_turns
             # prepare the data to show to the player
