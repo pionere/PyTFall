@@ -123,7 +123,7 @@
         "unlocks": {"Northern Peak": 90},
         "cash_limit": 250,
         "items_price_limit": 400,
-        "items": { }
+        "items": {"Draconic Leather Armor": 10}
     },
     {
         "name": "Northern Peak",

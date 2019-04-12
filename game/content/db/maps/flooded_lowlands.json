@@ -50,6 +50,7 @@
         "unlocks": {
         },
         "cash_limit": 1000,
-        "items_price_limit": 1000
+        "items_price_limit": 1000,
+        "items": {"Godward Shell": 20}
     }
 ]

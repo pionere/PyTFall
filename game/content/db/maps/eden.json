@@ -64,6 +64,6 @@
         "unlocks": {},
         "cash_limit": 2000,
         "items_price_limit": 2500,
-        "items": {}
+        "items": {"Succubus' Wardress": 30, "Demonic Cloak": 20}
     }
 ]
