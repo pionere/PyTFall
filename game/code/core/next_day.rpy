@@ -224,55 +224,6 @@ label next_day_calculations:
                     char.del_flag(flag)
         tl.end("ND-Flags Reset")
 
-        # Effect checks:
-        tl.start("ND-Effects")
-        for i in chars.values(): # chars with low or high joy get joy-related effects every day
-            if 'Depression' in i.effects:
-                i.AP -= 1
-            elif i.get_stat("joy") > 25:
-                i.del_flag("depression_counter")
-            else:
-                if not "Pessimist" in i.traits and i.get_stat("joy") <= randint(15, 20):
-                    i.up_counter("depression_counter", 1)
-                if i.get_flag("depression_counter", 0) >= 3:
-                    i.enable_effect('Depression')
-
-            if 'Elation' in i.effects:
-                if dice(10):
-                    i.AP += 1
-            elif i.get_stat("joy") < 85:
-                i.del_flag("elation_counter")
-            else:
-                if i.get_stat("joy") >= 95:
-                    i.up_counter("elation_counter", 1)
-                if i.get_flag("elation_counter", 0) >= 3:
-                    i.enable_effect('Elation')
-
-            if i.get_stat("vitality") < i.get_max("vitality")*.3 and not 'Exhausted' in i.effects: # 5+ days with vitality < .3 max lead to Exhausted effect, can be removed by one day of rest or some items
-                i.up_counter("exhausted_counter", 1)
-            if i.get_flag("exhausted_counter", 0) >= 5 and not 'Exhausted' in i.effects:
-                i.enable_effect('Exhausted')
-
-            if 'Horny' in i.effects: # horny effect which affects various sex-related things and scenes
-                i.disable_effect("Horny")
-            else:
-                if interactions_silent_check_for_bad_stuff(i):
-                    if "Nymphomaniac" in i.traits and locked_dice(60):
-                        i.enable_effect("Horny")
-                    elif not ("Frigid" in i.traits) and locked_dice(30) and i.get_stat("joy") > 50:
-                        i.enable_effect("Horny")
-
-        # hero-only trait which heals everybody
-        if "Life Beacon" in hero.traits:
-            if hero.location != pytfall.jail:
-                for i in hero.chars:
-                    if i.is_available:
-                        mod_by_max(i, "health", .1)
-                        i.mod_stat("joy", 1)
-
-            mod_by_max(hero, "health", .1)
-        tl.end("ND-Effects")
-
         tl.start("Quest/Events ND")
         pytfall.world_events.next_day() # Get new set of active events
         pytfall.world_quests.next_day() # Garbage collect quests

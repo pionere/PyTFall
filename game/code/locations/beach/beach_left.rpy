@@ -181,6 +181,7 @@ label mc_action_city_beach_rest:
             $ narrator(msg)
             $ char.gfx_mod_skill("sex", 0, 1)
             $ hero.gfx_mod_skill("sex", 0, 1)
+            $ hero.gfx_mod_stat("joy", randint(0, 1))
             $ char.gfx_mod_stat("disposition", 3)
             $ char.gfx_mod_stat("affection", affection_reward(char))
             $ del msg, result, excluded, tags, char

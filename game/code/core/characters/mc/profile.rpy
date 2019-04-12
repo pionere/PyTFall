@@ -169,7 +169,7 @@ screen hero_profile():
                         $ temp, tmp = hero.get_stat(stat), hero.get_max(stat)
                         text "%s/%s"%(temp, tmp) color ("red" if temp <= tmp*.3 else "#F5F5DC") xalign 1.0 style_suffix "value_text" xoffset -6 yoffset 4
 
-                $ stats = ["constitution", "charisma", "intelligence"]
+                $ stats = ["constitution", "charisma", "intelligence", "joy"]
                 for stat in stats:
                     frame:
                         xysize (212, 27)

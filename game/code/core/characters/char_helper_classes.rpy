@@ -1535,12 +1535,6 @@ init -10 python:
                 char.mod_stat("mp", max(1, h))
             elif name == "Small Regeneration":
                 char.mod_stat("health", 15)
-            elif name == "Depression":
-                if char.get_stat("joy") >= 30:
-                    self.end(char)
-            elif name == "Elation":
-                if char.get_stat("joy") < 85:
-                    self.end(char)
             elif name == "Pessimist":
                 if char.get_stat("joy") > 80:
                     char.mod_stat("joy", -2)
@@ -1577,8 +1571,8 @@ init -10 python:
                 if char.get_stat("vitality") > char.get_max("vitality")/2:
                     char.set_stat("vitality", char.get_max("vitality")/2)
                 char.mod_stat("joy", -10)
-            elif name == "Exhausted":
-                char.mod_stat("vitality", -char.get_max("vitality")/5)
+                if self.days_active >= self.duration:
+                    self.end(char)
             elif name == "Lactation": # TODO add milking activities, to use this fetish more widely
                 if char.get_stat("health") >= 30 and char.get_stat("vitality") >= 30 and char in hero.chars and char.is_available:
                     if "Slime" in char.traits:

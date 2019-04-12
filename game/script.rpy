@@ -1184,6 +1184,9 @@ label after_load:
 
                 char.traits.blocked_traits = set([traits[t] if isinstance(t, basestring) else t for t in char.traits.blocked_traits])
 
+                for e in char.effects.values():
+                    if e.duration is not None and e.name not in ["Poisoned", "Unstable", "Down with Cold", "Food Poisoning", "Injured"]:
+                        e.duration = None
             #for girl in itertools.chain(jail.chars_list, pytfall.ra.girls.keys()):
             #    if girl.controller == "player":
             #        girl.controller = None

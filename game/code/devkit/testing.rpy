@@ -180,8 +180,8 @@ init 1000 python:
                     raise Exception("The entity (%s) %s has an invalid effect %s with key %s" % (context, c.fullname, e, k))
                 if e.name != k:
                     raise Exception("The entity (%s) %s's effect %s is registered with wrong key %s" % (context, c.fullname, e, k))
-                if e.days_active > e.duration:
-                    raise Exception("The entity (%s) %s's effect %s run longer (%d) than expected (%d)" % (context, c.fullname, e.days_active, e.duration))
+                if e.duration is not None and e.days_active > e.duration:
+                    raise Exception("The entity (%s) %s's effect %s run longer (%d) than expected (%d)" % (context, c.fullname, e.name, e.days_active, e.duration))
 
             for k, v in c.eqslots.items():
                 if v and getattr(v, "gender", c.gender) != c.gender:

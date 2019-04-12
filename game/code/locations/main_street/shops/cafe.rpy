@@ -109,30 +109,17 @@ label mc_action_cafe_eat_alone_cafe_invitation:
             if hero.take_money(10, reason="Cafe"):
                 $ name = "small_food_" + str(renpy.random.randint(1, 3))
                 show image name at truecenter with dissolve
-                # show image random.choice(movie_list)
                 $ hero.set_flag("dnd_ate_in_cafe")
-                $ result = "You feel a bit better!"
-                if hero.get_stat("vitality") < hero.get_max("vitality"):
-                    $ result_v = randint(4, 10)
-                else:
-                    $ result_v = 0
+                "You feel a bit better!"
+                $ result_v = randint(4, 10)
                 if "Effective Metabolism" in hero.traits:
                     $ result_v *= 2
                 $ hero.gfx_mod_stat("vitality", result_v)
-                if hero.get_stat("mp") < hero.get_max("mp"):
-                    $ result_m = randint(4, 10)
-                else:
-                    $ result_m = 0
-                $ hero.gfx_mod_stat("mp", result_m)
-                if result_v > 0:
-                    $ result += "{color=green} +%d Vitality{/color}" % result_v
-                if result_m > 0:
-                    $ result += "{color=blue} +%d MP{/color}" % result_m
-                $ hero.say("%s" % result)
+                $ hero.gfx_mod_stat("mp", randint(4, 10))
+                $ hero.gfx_mod_stat("joy", randint(1, 2))
                 $ hero.gfx_mod_exp(exp_reward(hero, hero))
-                $ del result, result_v, result_m
                 hide image name with dissolve
-                $ del name
+                $ del name, result_v
             else:
                 "You don't have that amount of gold."
 
@@ -141,35 +128,17 @@ label mc_action_cafe_eat_alone_cafe_invitation:
                 $ name = "medium_food_" + str(renpy.random.randint(1, 3))
                 show image name at truecenter with dissolve
                 $ hero.set_flag("dnd_ate_in_cafe")
-                $ result = "You feel quite satisfied."
-                if hero.get_stat("vitality") < hero.get_max("vitality"):
-                    $ result_v = randint(8, 15)
-                else:
-                    $ result_v = 0
+                "You feel quite satisfied."
+                $ result_v = randint(8, 15)
                 if "Effective Metabolism" in hero.traits:
                     $ result_v *= 2
                 $ hero.gfx_mod_stat("vitality", result_v)
-                if hero.get_stat("mp") < hero.get_max("mp"):
-                    $ result_m = randint(8, 15)
-                else:
-                    $ result_m = 0
-                $ hero.gfx_mod_stat("mp", result_m)
-                if hero.get_stat("health") < hero.get_max("health"):
-                    $ result_h = randint(8, 15)
-                else:
-                    $ result_h = 0
-                $ hero.gfx_mod_stat("health", result_h)
-                if result_v > 0:
-                    $ result += "{color=green} +%d Vitality{/color}" % result_v
-                if result_m > 0:
-                    $ result += "{color=blue} +%d MP{/color}" % result_m
-                if result_h > 0:
-                    $ result += "{color=red} +%d Health{/color}" % result_h
-                $ hero.say ("%s" % result)
+                $ hero.gfx_mod_stat("mp", randint(8, 15))
+                $ hero.gfx_mod_stat("health", randint(8, 15))
+                $ hero.gfx_mod_stat("joy", randint(2, 4))
                 $ hero.gfx_mod_exp(exp_reward(hero, hero))
-                $ del result, result_v, result_m, result_h
                 hide image name with dissolve
-                $ del name
+                $ del name, result_v
             else:
                 "You don't have that amount of gold."
         "Extra Large Meal (50 G)":   # by eating big meals hero can increase max health by 2 with 75% chance; after increasing it by 50 the chance drops to 10% with smaller bonus
@@ -177,48 +146,31 @@ label mc_action_cafe_eat_alone_cafe_invitation:
                 $ name = "big_food_" + str(renpy.random.randint(1, 3))
                 show image name at truecenter with dissolve
                 $ hero.set_flag("dnd_ate_in_cafe")
-                $ result = "You feel extremely full and satisfied."
-                if hero.get_stat("vitality") < hero.get_max("vitality"):
-                    $ result_v = randint(10, 20)
-                else:
-                    $ result_v = 0
+                "You feel extremely full and satisfied."
+                $ result_v = randint(10, 20)
                 if "Effective Metabolism" in hero.traits:
                     $ result_v *= 2
                 $ hero.gfx_mod_stat("vitality", result_v)
-                if hero.get_stat("mp") < hero.get_max("mp"):
-                    $ result_m = randint(10, 20)
-                else:
-                    $ result_m = 0
-                $ hero.gfx_mod_stat("mp", result_m)
-                if hero.get_stat("health") < hero.get_max("health"):
-                    $ result_h = randint(10, 20)
-                else:
-                    $ result_h = 0
-                $ hero.gfx_mod_stat("health", result_h)
+                $ hero.gfx_mod_stat("mp", randint(10, 20))
+                $ hero.gfx_mod_stat("health", randint(10, 20))
+                $ hero.gfx_mod_stat("joy", randint(3, 6))
+                $ hero.gfx_mod_exp(exp_reward(hero, hero))
                 if hero.flag("health_bonus_from_eating_in_cafe") <= 25 and locked_dice(75):
                     $ hero.stats.lvl_max["health"] += 2
                     $ hero.stats.max["health"] += 2
                     $ hero.gfx_mod_stat("health", 2)
-                    $ result += "{color=goldenrod} +2 Max Health{/color}"
-                    $ hero.set_flag("health_bonus_from_eating_in_cafe", value=hero.flag("health_bonus_from_eating_in_cafe")+1)
-                elif locked_dice(10) and hero.flag("health_bonus_from_eating_in_cafe") <= 50: # after 50 successful attempts bonus no longer applies
+                    $ hero.up_counter("health_bonus_from_eating_in_cafe", 2)
+                    extend "{color=goldenrod} +2 Max Health{/color}"
+                elif hero.flag("health_bonus_from_eating_in_cafe") <= 50 and locked_dice(10): # after 50 successful attempts bonus no longer applies
                     $ hero.stats.lvl_max["health"] += 1
                     $ hero.stats.max["health"] += 1
                     $ hero.gfx_mod_stat("health", 1)
-                    $ result += "{color=goldenrod} +1 Max Health{/color}"
-                    $ hero.set_flag("health_bonus_from_eating_in_cafe", value=hero.flag("health_bonus_from_eating_in_cafe")+1)
-
-                if result_v > 0:
-                    $ result += "{color=green} +%d vitality{/color}" % result_v
-                if result_m > 0:
-                    $ result += "{color=blue} +%d MP{/color}" % result_m
-                if result_h > 0:
-                    $ result += "{color=red} +%d Health{/color}" % result_h
-                $ hero.say ("%s" % result)
-                $ hero.gfx_mod_exp(exp_reward(hero, hero))
-                $ del result, result_v, result_m, result_h
+                    $ hero.up_counter("health_bonus_from_eating_in_cafe", 1)
+                    extend "{color=goldenrod} +1 Max Health{/color}"
                 hide image name with dissolve
-                $ del name
+                $ del name, result_v
+            else:
+                "You don't have that amount of gold."
     jump cafe_menu
 
 label cafe_eat_group:
@@ -270,9 +222,9 @@ label mc_action_cafe_invitation: # we jump here when the group was invited by on
                 member.gfx_mod_stat("health", stat)
                 stat = int(randint(5, 10)*d)
                 member.gfx_mod_stat("mp", stat)
+                stat = int(randint(4, 8)*d)
+                member.gfx_mod_stat("joy", stat)
                 if member != hero:
-                    stat = int(randint(4, 8)*d)
-                    member.gfx_mod_stat("joy", stat)
                     stat = int(randint(10, 20)*d)
                     if len(hero.team)<3: # when there is only one char, disposition bonus is higher
                         stat += randint(5, 10)

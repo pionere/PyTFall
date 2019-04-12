@@ -1381,15 +1381,19 @@ label interaction_sex_scene_check_skill_jobs: # skill level check for girl side 
     if skill_for_checking >= 2000:
         "She was so good that you profusely came after a few seconds. Pretty impressive."
         $ char.gfx_mod_stat("joy", randint(3, 5))
+        $ hero.mod_stat("joy", randint(4, 6))
     elif skill_for_checking >= 1000:
         "You barely managed to hold out for half a minute in the face of her amazing skills."
         $ char.gfx_mod_stat("joy", randint(2, 4))
+        $ hero.mod_stat("joy", randint(3, 5))
     elif skill_for_checking >= 500:
         "It was very fast and very satisfying."
         $ char.gfx_mod_stat("joy", randint(1, 2))
+        $ hero.mod_stat("joy", randint(2, 4))
     elif skill_for_checking >= 200:
         "Nothing extraordinary, but it wasn't half bad either."
         $ char.gfx_mod_stat("joy", randint(0, 1))
+        $ hero.mod_stat("joy", randint(1, 2))
     elif skill_for_checking >= 100:
         "It took some time and effort on her part. Her skills could be improved."
     elif skill_for_checking >= 50:
@@ -1399,6 +1403,7 @@ label interaction_sex_scene_check_skill_jobs: # skill level check for girl side 
         $ char.mod_stat("vitality", -randint(10, 15))
         "Her moves were clumsy and untimely. By the time she finished the moment had passed, bringing you little satisfaction."
         $ char.gfx_mod_stat("joy", -randint(2, 4))
+        $ hero.mod_stat("joy", -randint(1, 2))
     $ sex_count += 1
     if skill_for_checking >= 50:
         $ guy_count +=1
@@ -1411,12 +1416,15 @@ label interaction_sex_scene_check_skill_gives: # # skill level check for MC side
             if skill_for_checking >= 2000:
                 extend " The pleasure from joy went through her body as she reached an orgasm."
                 $ char.gfx_mod_stat("joy", randint(3, 5))
+                $ hero.mod_stat("joy", randint(2, 4))
             elif skill_for_checking >= 1000:
                 extend " You managed to make her cum multiple times."
                 $ char.gfx_mod_stat("joy", randint(2, 4))
+                $ hero.mod_stat("joy", randint(1, 2))
             elif skill_for_checking >= 500:
                 extend " Finally you made her cum."
                 $ char.gfx_mod_stat("joy", randint(1, 2))
+                $ hero.mod_stat("joy", randint(0, 1))
             elif skill_for_checking >= 200:
                 extend " You licked her pussy until she came. It felt good."
                 $ char.gfx_mod_stat("joy", randint(0, 1))
@@ -1429,18 +1437,22 @@ label interaction_sex_scene_check_skill_gives: # # skill level check for MC side
             else:
                 extend " Unfortunately, you didn't have the skill to satisfy her as well. [char.name] looks disappointed."
                 $ hero.mod_stat("vitality", -randint(10, 15))
+                $ hero.mod_stat("joy", -randint(0, 2))
             $ char.gfx_mod_stat("affection", affection_reward(char, .5, stat="oral"))
             $ char.gfx_mod_stat("affection", affection_reward(char, .5, stat="vaginal"))
         elif current_action == "fingervag":
             if skill_for_checking >= 2000:
                 extend " Your bodies merged into a single entity, filling each other with pleasure and satisfaction."
                 $ char.gfx_mod_stat("joy", randint(3, 5))
+                $ hero.mod_stat("joy", randint(2, 4))
             elif skill_for_checking >= 1000:
                 extend " You managed to make her cum multiple times."
                 $ char.gfx_mod_stat("joy", randint(2, 4))
+                $ hero.mod_stat("joy", randint(1, 2))
             elif skill_for_checking >= 500:
                 extend " Finally you made her cum."
                 $ char.gfx_mod_stat("joy", randint(1, 2))
+                $ hero.mod_stat("joy", randint(0, 1))
             elif skill_for_checking >= 200:
                 extend " You fingered her until she came. It felt good."
                 $ char.gfx_mod_stat("joy", randint(0, 1))
@@ -1453,6 +1465,7 @@ label interaction_sex_scene_check_skill_gives: # # skill level check for MC side
             else:
                 extend " Unfortunately, you didn't have the skill to satisfy her as well. [char.name] looks disappointed."
                 $ hero.mod_stat("vitality", -randint(10, 15))
+                $ hero.mod_stat("joy", -randint(0, 2))
             $ char.gfx_mod_stat("affection", affection_reward(char, .7, stat="vaginal"))
     else:
         if skill_for_checking >= 1000:
@@ -1470,15 +1483,19 @@ label interaction_sex_scene_check_skill_acts: # skill level check for two sides 
         if skill_for_checking >= 2000:
             "Her technique is fantastic, your bodies move in perfect synchronization, and her pussy feels like velvet."
             $ char.gfx_mod_stat("joy", randint(3, 5))
+            $ hero.mod_stat("joy", randint(3, 5))
         elif skill_for_checking >= 1000:
             "Her refined skills, rhythmic movements, and wet hot pussy quickly brought you to the finish."
             $ char.gfx_mod_stat("joy", randint(2, 4))
+            $ hero.mod_stat("joy", randint(2, 4))
         elif skill_for_checking >= 500:
             "Her pussy felt very good, her movement patterns and amazing skills quickly exhausted your ability to hold back."
             $ char.gfx_mod_stat("joy", randint(1, 2))
+            $ hero.mod_stat("joy", randint(1, 2))
         elif skill_for_checking >= 200:
             "Her movements were pretty good. Nothing extraordinary, but it wasn't half bad either."
             $ char.gfx_mod_stat("joy", randint(0, 1))
+            $ hero.mod_stat("joy", randint(0, 1))
         elif skill_for_checking >= 100:
             "It took some time and effort on her part. Her pussy could use some training."
             $ char.mod_stat("vitality", -randint(5, 10))
@@ -1488,21 +1505,26 @@ label interaction_sex_scene_check_skill_acts: # skill level check for two sides 
         else:
             "Her moves were clumsy and untimely, and her pussy was too dry. Sadly, she was unable to satisfy you adequately."
             $ char.gfx_mod_stat("joy", -randint(2, 4))
+            $ hero.mod_stat("joy", -randint(2, 4))
             $ char.mod_stat("vitality", -randint(10, 15))
         $ char.gfx_mod_stat("affection", affection_reward(char, stat="vaginal"))
     elif current_action == "anal":
         if skill_for_checking >= 2000:
             "Her technique is fantastic, your bodies move in perfect synchronization, and her asshole feels nice and tight."
             $ char.gfx_mod_stat("joy", randint(3, 5))
+            $ hero.mod_stat("joy", randint(3, 5))
         elif skill_for_checking >= 1000:
             "Her refined skills, rhythmic movements, and tight hot ass quickly brought you to the finish."
             $ char.gfx_mod_stat("joy", randint(2, 4))
+            $ hero.mod_stat("joy", randint(2, 4))
         elif skill_for_checking >= 500:
             "Her anus felt very good, her movement patterns and amazing skills quickly exhausted your ability to hold back."
             $ char.gfx_mod_stat("joy", randint(1, 2))
+            $ hero.mod_stat("joy", randint(1, 2))
         elif skill_for_checking >= 200:
             "Her movements were pretty good. Nothing extraordinary, but it wasn't half bad either."
             $ char.gfx_mod_stat("joy", randint(0, 1))
+            $ hero.mod_stat("joy", randint(0, 1))
         elif skill_for_checking >= 100:
             "It took some time and effort on her part. Her anus could use some training."
             $ char.mod_stat("vitality", -randint(5, 10))
@@ -1511,21 +1533,27 @@ label interaction_sex_scene_check_skill_acts: # skill level check for two sides 
             $ char.mod_stat("vitality", -randint(10, 15))
         else:
             "Her moves were clumsy and untimely, and her anus wasn't quite ready for that. Sadly, she was unable to satisfy you adequately."
+            $ char.gfx_mod_stat("joy", -randint(2, 4))
+            $ hero.mod_stat("joy", -randint(2, 4))
             $ char.mod_stat("vitality", -randint(10, 15))
         $ char.gfx_mod_stat("affection", affection_reward(char, stat="anal"))
     if sex_scene_libido > 0:
         if male_skill_for_checking >= 2000:
             extend " Your bodies merged into a single entity, filling each other with pleasure and satisfaction."
             $ char.gfx_mod_stat("joy", randint(3, 5))
+            $ hero.mod_stat("joy", randint(3, 5))
         elif male_skill_for_checking >= 1000:
             extend " In the end, you both cum together multiple times."
             $ char.gfx_mod_stat("joy", randint(2, 4))
+            $ hero.mod_stat("joy", randint(2, 4))
         elif male_skill_for_checking >= 500:
             extend " In the end, you both cum together."
             $ char.gfx_mod_stat("joy", randint(1, 2))
+            $ hero.mod_stat("joy", randint(1, 2))
         elif male_skill_for_checking >= 200:
             extend " You fucked her until you both came. It felt good."
             $ char.gfx_mod_stat("joy", randint(0, 1))
+            $ hero.mod_stat("joy", randint(0, 1))
         elif male_skill_for_checking >= 100:
             extend " You fucked her until you both came."
             $ hero.mod_stat("vitality", -randint(5, 10))
@@ -1534,6 +1562,8 @@ label interaction_sex_scene_check_skill_acts: # skill level check for two sides 
             $ hero.mod_stat("vitality", -randint(10, 15))
         else:
             extend " Unfortunately, you didn't have the skill to satisfy her as well. [char.name] looks disappointed."
+            $ char.gfx_mod_stat("joy", -randint(0, 1))
+            $ hero.mod_stat("joy", -randint(0, 1))
             $ hero.mod_stat("vitality", -randint(10, 15))
     else:
         if male_skill_for_checking >= 1000:

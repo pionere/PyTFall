@@ -114,8 +114,7 @@ init -11 python:
                     kill_char(member)
                 else:
                     member.set_stat("health", 1)
-                    if member != hero:
-                        member.mod_stat("joy", -randint(5, 15))
+                    member.mod_stat("joy", -randint(5, 15))
 
         rv = battle.combat_status
         if rv == "escape":

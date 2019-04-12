@@ -1803,7 +1803,7 @@ init -9 python:
                 duration = locked_random("randint", 6, 14)
             else:
                 ss_mod = kwargs.get("ss_mod", None)
-                duration = kwargs.get("duration", 10)
+                duration = kwargs.get("duration", None)
             obj = CharEffect(name, duration=duration, ss_mod=ss_mod)
             obj.enable(self)
 
@@ -1811,6 +1811,65 @@ init -9 python:
             effect = self.effects.get(name, None)
             if effect is not None:
                 effect.end(self)
+
+        def nd_effects(self):
+            # Run the effects if they are available:
+            for effect in self.effects.values():
+                effect.next_day(self)
+
+            # 3+ days with low joy lead to Depression effect, removed if joy raises above a limit
+            joy = self.get_stat("joy")
+            if "Depression" in self.effects:
+                self.AP -= 1
+                if joy > 30:
+                    self.disable_effect("Depression")
+            elif joy > 30:
+                self.del_flag("depression_counter")
+            else:
+                if not "Pessimist" in self.traits and joy <= randint(15, 20):
+                    self.up_counter("depression_counter", 1)
+                if self.get_flag("depression_counter", 0) >= 3:
+                    self.enable_effect("Depression")
+
+            # 3+ days with high joy lead to Elation effect, removed if joy falls below a limit
+            if "Elation" in self.effects:
+                if dice(10):
+                    self.AP += 1
+                if joy < 85:
+                    self.disable_effect("Elation")
+            elif joy < 85:
+                self.del_flag("elation_counter")
+            else:
+                if joy >= 95:
+                    self.up_counter("elation_counter", 1)
+                    if self.flag("elation_counter") >= 3:
+                        self.enable_effect('Elation')
+
+            # 5+ days with vitality < .3 max lead to Exhausted effect, can be removed by one day of rest or some items
+            vit = self.get_stat("vitality")
+            max = self.get_max("vitality")
+            if "Exhausted" in self.effects:
+                self.mod_stat("vitality", -max/5)
+            elif vit > max * .8:
+                self.del_flag("exhausted_counter")
+            else:
+                if vit < max * .3:
+                    self.up_counter("exhausted_counter", 1)
+                    if self.flag("exhausted_counter") >= 5:
+                        self.enable_effect('Exhausted')
+
+            if "Horny" in self.effects: # horny effect which affects various sex-related things and scenes
+                self.disable_effect("Horny")
+            else:
+                if interactions_silent_check_for_bad_stuff(self):
+                    if "Nymphomaniac" in self.traits:
+                        chance = 60
+                    elif "Frigid" in self.traits:
+                        chance = 1
+                    else:
+                        chance = 30
+                    if locked_dice(chance):
+                        self.enable_effect("Horny")
 
         # Relationships:
         def is_friend(self, char):
@@ -2214,10 +2273,6 @@ init -9 python:
             return flag_red
 
         def next_day(self):
-            # Run the effects if they are available:
-            for effect in self.effects.values():
-                effect.next_day(self)
-
             # auto-degrading stats/skills
             # FIXME should be done for all chars, but non-workers do not gain stats at the moment
             #        might be merged with the degrading disposition/affection
@@ -2276,10 +2331,20 @@ init -9 python:
 
             super(Player, self).next_day()
 
-            # Training with NPCs is on the next day --------------------------------------->
+            # Next day morning --------------------------------------->
+            self.nd_effects()
+            # hero-only trait which heals everybody
+            if "Life Beacon" in self.traits:
+                if self.location != pytfall.jail:
+                    for i in self.chars:
+                        if i.is_available:
+                            mod_by_max(i, "health", .1)
+                            i.mod_stat("joy", 1)
+
+                mod_by_max(self, "health", .1)
+            # Training with NPCs
             if self.location != pytfall.jail:
                 self.nd_auto_train()
-
 
     class Char(PytCharacter):
         # wranks = {
@@ -2479,10 +2544,6 @@ init -9 python:
 
 
         def next_day(self):
-            # Run the effects if they are available:
-            for effect in self.effects.values():
-                effect.next_day(self)
-
             # Adjust disposition/affection
             temp = self.get_stat("disposition")
             if temp < 0:
@@ -2525,6 +2586,8 @@ init -9 python:
 
                 super(Char, self).next_day()
 
+                # Next day morning --------------------------------------->
+                self.nd_effects()
                 # Shopping (For now will not cost AP):
                 self.nd_autoshop()
                 return
@@ -2681,7 +2744,9 @@ init -9 python:
             self.txt = list()
             super(Char, self).next_day()
 
-            # Training with NPCs and shopping on the next day ---------------------------------------------->
+            # Next day morning ---------------------------------------------->
+            self.nd_effects()
+            # Training with NPCs and shopping
             if self.is_available:
                 self.nd_auto_train()
 

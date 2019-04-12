@@ -459,7 +459,7 @@ init -6 python: # Guild, Tracker and Log.
                         if dice(tracker.risk) and not dice(d.get_stat("luck")):
                             died.append(d)
                         else:
-                            d.enable_effect("Injured", duration=8)
+                            d.enable_effect("Injured", duration=randint(6, 12))
                     if died:
                         temp = "{color=red}%s{/color} did not make it through the night. RIP." % ", ".join([d.fullname for d in died])
                         tracker.log(temp)

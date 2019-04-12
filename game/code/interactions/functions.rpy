@@ -90,16 +90,15 @@ init -11 python:
 
     # we check issues without outputting any lines or doing something else, and just return True/False
     def interactions_silent_check_for_bad_stuff(char):
-        if "Food Poisoning" in char.effects:
-            return False
+        for e in char.effects:
+            if e in ["Food Poisoning", "Depression", "Exhausted"]:
+                return False
         if char.get_stat("vitality") <= char.get_max("vitality")/10:
             return False
         if char.get_stat("health") < char.get_max("health")/5:
             return False
         joy = char.get_stat("joy")
         if joy < 10 or ("Pessimist" not in char.traits and joy <= 25):
-            return False
-        if char.AP <= 0:
             return False
         return True
 
@@ -108,6 +107,8 @@ init -11 python:
         if not cgochar(char, "Combatant"):
             return False
         if not interactions_silent_check_for_bad_stuff(char):
+            return False
+        if char.AP < 2:
             return False
         if "Aggressive" in char.traits:
             base *= 2
@@ -145,7 +146,7 @@ init -11 python:
             else:
                 narrator("It looks like %s is in a bad mood today and not does not want to do anything." % char.p)
                 renpy.jump ("girl_interactions")
-        elif "Down with Cold" in char.effects: #if she's ill, there is a chance that she will disagree to chat
+        elif "Down with Cold" in char.effects or "Injured" in char.effects: #if she's ill, there is a chance that she will disagree to chat
             if dice(interactions_influence(char)) and dice(80):
                 narrator("It looks like %s is not feeling well today, however you managed to cheer %s up a bit." % (char.p, char.op))
                 char.gfx_mod_stat("disposition", 2)
