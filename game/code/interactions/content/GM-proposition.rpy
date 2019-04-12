@@ -165,6 +165,8 @@ label interactions_girlfriend:
         $ char.gfx_mod_stat("affection", -randint(8,12))
         if char.get_stat("joy") > 50:
             $ char.gfx_mod_stat("joy", -randint(0, 1))
+        if hero.get_stat("joy") > 60:
+            $ hero.gfx_mod_stat("joy", -randint(1, 2))
         jump girl_interactions
     $ del m
     if interactions_gender_mismatch(char, just_sex=False):
@@ -211,6 +213,8 @@ label interactions_girlfriend:
         $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.25))
         $ char.gfx_mod_stat("affection", affection_reward(char))
         $ char.gfx_mod_stat("joy", 25)
+        if hero.get_stat("joy") < 80:
+            $ hero.gfx_mod_stat("joy", randint(1, 2))
         $ char.override_portrait("portrait", "shy")
         if ct("Impersonal"):
             $ rc("You want me to have an affair with you. Understood.", "As you wish. I'm yours.", "I understand. I suppose we're now lovers.")
@@ -258,6 +262,8 @@ label interactions_girlfriend:
             $ rc("That's not for you to decide.", "That's too bad, I have no interest in you.", "That sort of relationship will be a big problem for both of us, you know?", "Being in a relationship is more trouble than it's worth.", "No way. I mean, you're just not good enough for me.")
         else:
             $ rc("I-I'm sorry! Let's just be good friends!", "That's... I'm sorry! Please let's continue being good friends!", "What's your problem? Saying that out of nowhere.", "That's nice of you to say, but... I can't help you there.")
+        if hero.get_stat("joy") > 70:
+            $ hero.gfx_mod_stat("joy", -randint(1, 2))
     $ char.restore_portrait()
     $ del l_ch
     jump girl_interactions
@@ -303,6 +309,8 @@ label interactions_movein:
         jump girl_interactions
     if hero.home.get_dirt_percentage() > 50:
         "Into that shit-hole? You expect me to clean your underwear too?"
+        if hero.get_stat("joy") > 60:
+            $ hero.gfx_mod_stat("joy", -randint(0, 1))
         jump girl_interactions
     if hero.home.vacancies <= 0:
         "That place is too small for us."
@@ -314,6 +322,8 @@ label interactions_movein:
     $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.25))
     if True: # FIXME imlement the responses if ct("Impersonal"):
         $ char.gfx_mod_stat("joy", 15)
+        if hero.get_stat("joy") < 80:
+            $ hero.gfx_mod_stat("joy", randint(0, 1))
         $ char.override_portrait("portrait", "indifferent")
         $ rc("Sure thing.", "As you wish.", "Of course, but I need my own room.")
         $ char.restore_portrait()
@@ -350,6 +360,8 @@ label interactions_breakup:
     $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.25))
     if True: # FIXME imlement the responses if ct("Impersonal"):
         $ char.gfx_mod_stat("joy", -25)
+        if hero.get_stat("joy") > 70:
+            $ hero.gfx_mod_stat("joy", -randint(0, 1))
         $ char.override_portrait("portrait", "indifferent")
         $ rc("If that's what you want.", "As you wish. Bye.", "I understand. I suppose that was it.")
         $ char.restore_portrait()

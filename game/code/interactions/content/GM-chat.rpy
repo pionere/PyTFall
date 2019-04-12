@@ -12,6 +12,8 @@ label interactions_smalltalk:
         $ char.gfx_mod_stat("affection", -randint(0,3))
         if char.get_stat("joy") > 80:
             $ char.gfx_mod_stat("joy", -1)
+        if hero.get_stat("joy") > 70:
+            $ hero.gfx_mod_stat("joy", -1)
         jump girl_interactions
     if char.get_stat("disposition") >= 100:
         if ct("Impersonal", "Dandere", "Shy"):
@@ -26,8 +28,9 @@ label interactions_smalltalk:
                                "[char.pC] is visibly at ease when talking to you.",
                                "You both have enjoyed the conversation."]))
 
-        if 2*m <= n and dice(50) and dice(char.get_stat("joy")):
+        if 2*m <= n and dice(50) and dice(char.get_stat("joy")) and dice(hero.get_stat("joy")):
             $ narrator(choice(["You feel especially close.", "[char.pC] was much more approachable."]))
+            $ hero.gfx_mod_stat("joy", randint(0, 1))
             $ char.gfx_mod_stat("joy", randint(0, 1))
             $ char.gfx_mod_stat("disposition", randint(1, 2))
             $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.25))
@@ -275,6 +278,8 @@ label interactions_abouther:
         $ char.gfx_mod_stat("affection", -randint(0,2))
         if char.get_stat("joy") > 40:
             $ char.gfx_mod_stat("joy", -randint(0,2))
+        if hero.get_stat("joy") > 70:
+            $ hero.gfx_mod_stat("joy", -1)
         jump girl_interactions
 
     if char.get_stat("disposition") <= 50:
@@ -282,6 +287,8 @@ label interactions_abouther:
         $ char.gfx_mod_stat("disposition", -randint(3, 10))
         $ char.gfx_mod_stat("affection", -randint(0,2))
         $ char.gfx_mod_stat("joy", -randint(0, 1))
+        if hero.get_stat("joy") > 70:
+            $ hero.gfx_mod_stat("joy", -randint(0, 1))
         if char.status != "free":
             "You tried to know [char.nickname] better."
         jump interactions_refused
@@ -551,6 +558,8 @@ label interactions_abouther:
         else:
             $ narrator(choice(["She was much more approachable."]))
             $ char.gfx_mod_stat("disposition", randint(2, 6))
+        if hero.get_stat("joy") < 80:
+            $ hero.gfx_mod_stat("joy", randint(0, 1))
         $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.25))
         $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.25))
 
@@ -627,6 +636,8 @@ label interactions_interests:
         $ char.gfx_mod_stat("affection", -randint(1,3))
         if char.get_stat("joy") > 40:
             $ char.gfx_mod_stat("joy", -randint(1, 2))
+        if hero.get_stat("joy") > 70:
+            $ hero.gfx_mod_stat("joy", -randint(0, 1))
         jump girl_interactions
 
     if char.get_stat("disposition") <= 100:
@@ -634,6 +645,8 @@ label interactions_interests:
         $ char.gfx_mod_stat("disposition", -randint(3, 10))
         $ char.gfx_mod_stat("affection", -randint(0,2))
         $ char.gfx_mod_stat("joy", -randint(0, 1))
+        if hero.get_stat("joy") > 70:
+            $ hero.gfx_mod_stat("joy", -randint(0, 1))
         if char.status != "free":
             "You tried to know [char.nickname] better."
         jump interactions_refused
@@ -694,6 +707,8 @@ label interactions_interests:
         else:
             $ narrator(choice(["She was much more approachable."]))
             $ char.gfx_mod_stat("disposition", randint(2, 6))
+        if hero.get_stat("joy") < 80:
+            $ hero.gfx_mod_stat("joy", randint(0, 1))
         $ char.gfx_mod_stat("affection", affection_reward(char))
         $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.1))
         $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.1))
@@ -711,6 +726,8 @@ label interactions_interests:
         else:
             "It was a pretty lively conversation."
             $ char.gfx_mod_stat("joy", randint(2, 4))
+        if hero.get_stat("joy") < 80:
+            $ hero.gfx_mod_stat("joy", randint(0, 1))
     elif char.get_stat("joy") >= 30:
         if dice(char.get_stat("joy") + 20):
             "You had a fairly normal conversation."
@@ -720,6 +737,8 @@ label interactions_interests:
     else:
         "It was a short and not very pleasant conversation."
         $ char.gfx_mod_stat("joy", -randint(0, 2))
+        if hero.get_stat("joy") > 70:
+            $ hero.gfx_mod_stat("joy", -randint(0, 2))
 
     $ del m, n, line
     jump girl_interactions
@@ -737,6 +756,8 @@ label interactions_flirt:
         $ char.gfx_mod_stat("affection", -randint(0,2))
         if char.get_stat("joy") > 30:
             $ char.gfx_mod_stat("joy", -randint(2, 4))
+        if hero.get_stat("joy") > 70:
+            $ hero.gfx_mod_stat("joy", -randint(0, 1))
         jump girl_interactions
 
     if char.get_stat("affection") <= 150 or char.get_stat("disposition") <= 50:
@@ -744,6 +765,8 @@ label interactions_flirt:
         $ char.gfx_mod_stat("disposition", -randint(5, 10))
         $ char.gfx_mod_stat("affection", -randint(0,2))
         $ char.gfx_mod_stat("joy", -randint(0, 1))
+        if hero.get_stat("joy") > 70:
+            $ hero.gfx_mod_stat("joy", -randint(0, 1))
         if char.status != "free":
             "You tried to flirt with [char.nickname]."
         jump interactions_refused
@@ -784,6 +807,8 @@ label interactions_flirt:
         $ char.gfx_mod_stat("affection", affection_reward(char))
         $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.10))
         $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.10))
+        if hero.get_stat("joy") < 80:
+            $ hero.gfx_mod_stat("joy", randint(0, 1))
 
     $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.25))
     $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.25))

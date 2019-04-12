@@ -149,19 +149,19 @@ label frog1_event_abby:
             w "I should have the answer soon. Visit me in few days."
             $ advance_quest("Frog Princess!", "For a hefty sum of 1000 Gold Abby the witch promised to look into the frog matter. You should visit her again in a few days.")
             $ hero.take_money(1000, reason="Events")
-            if DEBUG_QE:
-                $ menu_extensions.add_extension("Abby The Witch Main", ("Ask about the frog (again)", Jump("frog1_event_abby_2"), "day > {}".format(day)))
-            else:
-                $ menu_extensions.add_extension("Abby The Witch Main", ("Ask about the frog (again)", Jump("frog1_event_abby_2"), "day > {}".format(day + 4)))
+            $ hero.set_flag("cnd_frog1_event_abby_2", 10)
+            $ menu_extensions.add_extension("Abby The Witch Main", ("Ask about the frog (again)", Jump("frog1_event_abby_2"), "day > {}".format(day)))
             $ menu_extensions.remove_extension("Abby The Witch Main", "Ask about the Frog")
+            $ global_flags.del_flag("frog_spoke_abby")
         "I don't have that kind of money right now.":
             w "That's too bad. Come back when you have the money."
             $ global_flags.set_flag("frog_spoke_abby")
         "1000??? I'm not paying!":
-            "Being the last ray of hope for a princess turned into a talking frog  to regain her humanity, you decided that spending 1000 gold was too much."
+            "Being the last ray of hope for a princess turned into a talking frog to regain her humanity, you decided that spending 1000 gold was too much."
             extend "{color=red} Way to go cheapskate!"
             $ finish_quest("Frog Princess!", "You've rejected the Frog Princess Quest! It's further fate is unknown.")
             $ menu_extensions.remove_extension("Abby The Witch Main", "Ask about the Frog")
+            $ global_flags.del_flag("frog_spoke_abby")
     $ del w
     jump forest_entrance
 
@@ -172,27 +172,30 @@ label frog1_event_abby_2:
     with dissolve
 
     hero.say "Did you found anything?"
-    if dice(50 - day/3):
+    if hero.has_flag("dnd_frog1_event_abby_2"):
+        w "As I said, I am still going through my books and scrolls. Now if you wont stop bother me I'm never going to find a solution."
+        $ hero.up_counter("cnd_frog1_event_abby_2")
+    elif hero.get_flag("cnd_frog1_event_abby_2", 0) >= 7:
+        w "Sorry, but I had other things to do. Come back later."
+        $ hero.set_flag("dnd_frog1_event_abby_2")
+    elif dice(60 - hero.get_flag("cnd_frog1_event_abby_2", 0)*8):
         w "I am still going through my books and scrolls. Come back later."
-
-        $ menu_extensions.remove_extension("Abby The Witch Main", "Ask about the frog (again)")
-        $ menu_extensions.add_extension("Abby The Witch Main", ("Ask about the frog (again)", Jump("frog1_event_abby_2"), "day > {}".format(day)))
-
+        $ hero.set_flag("dnd_frog1_event_abby_2")
     else:
         w "I found a solution. A rare magic potion should do the trick, but that's not the hard part..."
         extend " I need another 10 000 gold to buy the necessary ingredients, but the real trick will be getting a goblin champion eye."
 
+        $ menu_extensions.remove_extension("Abby The Witch Main", "Ask about the frog (again)")
+        $ hero.del_flag("cnd_frog1_event_abby_2")
+
         menu:
             "I will get you the money and the eye...":
-                $ menu_extensions.remove_extension("Abby The Witch Main", "Ask about the frog (again)")
                 $ advance_quest("Frog Princess!", "Abby asked you to acquire another 10000 Gold for ingredients and an eye of a Goblin Champion...")
-
                 $ menu_extensions.add_extension("Xeona Main", ("Enquire about an eye of a Goblin Champion!", Jump("frog_event_arena")))
 
             "10 000? Not a chance...":
                 "You gave up :("
                 $ finish_quest("Frog Princess!", "You've rejected the Frog Princess Quest! It's further fate is unknown.")
-                $ menu_extensions.remove_extension("Abby The Witch Main", "Ask about the frog (again)")
     $ del w
     jump forest_entrance
 

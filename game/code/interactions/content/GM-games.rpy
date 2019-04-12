@@ -573,7 +573,8 @@ label interaction_archery_char_comment: # (game_result)
                 $ game_result = choice([" Impressive!", " Lucky shot!"]) 
             else:
                 $ game_result = choice([" Not bad.", " Nice."])
-            char.say "[temp]" 
+            $ hero.gfx_mod_stat("joy", randint(1, 2))
+            char.say "[temp]"
             extend "[game_result]"
         elif game_result < 4:
             # weak hit

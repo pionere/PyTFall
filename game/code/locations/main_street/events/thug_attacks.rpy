@@ -25,6 +25,8 @@ label city_events_thugs_robbery:
                 $ kill_event("city_events_thugs_robbery_attack")
                 $ register_event("city_events_thugs_robbery", locations=["main_street"], dice=100, trigger_type = "look_around", priority = 50, start_day=day+7, jump=True, times_per_days=(1,3))
                 $ hero.take_money(200, reason="Robbery")
+                if hero.get_stat("joy") > 70:
+                    $ hero.gfx_mod_stat("joy", -randint(0, 2))
             "No":
                 t "It's your choice. Don't blame me if something will happen."
                 $ register_event("city_events_thugs_robbery_attack", locations=["main_street", "city_parkgates", "graveyard_town"], dice=100, trigger_type = "look_around", priority = 1000, start_day=day+1, times_per_days=(1,2), jump=True)
@@ -59,11 +61,9 @@ label city_events_thugs_robbery_lost:
     t "Huuh? That's it?!"
     if hero.gold > 0:
         t "I'm taking your gold to give you a lesson: don't start a battle you can't win, idiot."
-    $ g = randint (500, 800)
-    if hero.gold < g:
-        $ hero.take_money(hero.gold, reason="Robbery")
-    else:
-        $ hero.take_money(g, reason="Robbery")
+    $ g = min(hero.gold, randint(500, 800))
+    $ hero.take_money(g, reason="Robbery")
+    $ hero.gfx_mod_stat("joy", -randint(1, 3))
     "He walks away."
     $ del t, g
     jump main_street
@@ -92,6 +92,7 @@ label city_events_thugs_robbery_attack:
             # lost
             g = min(hero.gold, randint(200, 400))
             hero.take_money(g, reason="Robbery")
+            hero.gfx_mod_stat("joy", -randint(0, 2))
             narrator("After beating you, they took some gold and disappeared before City Guards arrived.")
 
         renpy.jump(scr)

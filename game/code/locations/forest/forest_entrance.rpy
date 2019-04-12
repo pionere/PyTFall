@@ -57,6 +57,7 @@ label mc_action_wood_cutting:
             $ hero.gfx_mod_stat("attack", randint(0, 2))
         if dice(50):
             $ hero.gfx_mod_stat("constitution", 1)
+        $ hero.gfx_mod_stat("joy", -randint(0, 2))
         $ hero.add_item("Wood", wood)
         $ gfx_overlay.random_find(items["Wood"], 'items', wood)
         $ del wood

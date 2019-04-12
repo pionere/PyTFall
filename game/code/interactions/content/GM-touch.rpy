@@ -13,6 +13,8 @@ label interactions_hug:
         $ char.gfx_mod_stat("affection", -randint(1, 3))
         if char.get_stat("joy") > 40:
             $ char.gfx_mod_stat("joy", -randint(1, 3))
+        if hero.get_stat("joy") > 70:
+            $ hero.gfx_mod_stat("joy", -randint(0, 1))
         jump girl_interactions
 
     $ sub = check_submissivity(char)
@@ -58,6 +60,8 @@ label interactions_hug:
         if 2*m <= n and dice(50) and dice(char.get_stat("joy")-20):
             $ narrator(choice(["You feel especially close.", "It felt like it could go on forever."]))
             $ char.gfx_mod_stat("joy", randint(0, 1))
+            if hero.get_stat("joy") < 80:
+                $ hero.gfx_mod_stat("joy", randint(0, 1))
             $ char.gfx_mod_stat("disposition", randint(2, 4))
             $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.25))
             $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.25))
@@ -68,6 +72,10 @@ label interactions_hug:
         $ char.show_portrait_overlay("sweat", "reset")
 
         if char.status == "free":
+            if hero.get_stat("joy") > 70:
+                $ hero.gfx_mod_stat("joy", -randint(0, 1))
+            if char.get_stat("joy") > 80:
+                $ char.gfx_mod_stat("joy", -randint(0, 1))
             $ char.gfx_mod_stat("disposition", -randint(15, 25))
             $ char.gfx_mod_stat("affection", -randint(4,6))
             if ct("Impersonal"):
@@ -122,6 +130,8 @@ label interactions_grabbutt:
             $ char.gfx_mod_stat("affection", -randint(4,6))
             if char.get_stat("joy") > 30:
                 $ char.gfx_mod_stat("joy", -randint(1, 3))
+            if hero.get_stat("joy") > 70:
+                $ hero.gfx_mod_stat("joy", -randint(0, 1))
         else:
             $ del m
             call interactions_lesbian_refuse_because_of_gender from _call_interactions_lesbian_refuse_because_of_gender_3
@@ -139,6 +149,8 @@ label interactions_grabbutt:
         $ char.gfx_mod_stat("affection", -randint(4,6))
         if char.get_stat("joy") > 30:
             $ char.gfx_mod_stat("joy", -randint(1, 3))
+        if hero.get_stat("joy") > 70:
+            $ hero.gfx_mod_stat("joy", -randint(0, 1))
         jump girl_interactions
 
     $ sub = check_submissivity(char)
@@ -184,6 +196,8 @@ label interactions_grabbutt:
         if 2*m <= n and dice(50) and dice(char.get_stat("joy")-20):
             $ narrator(choice(["[char.name] looks at you with a mischievous smile.", "[char.name] looks at you with glowing eyes."]))
             $ char.gfx_mod_stat("joy", randint(1, 2))
+            if hero.get_stat("joy") < 80:
+                $ hero.gfx_mod_stat("joy", randint(0, 1))
             $ char.gfx_mod_stat("disposition", randint(1, 2))
             $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.25))
             $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.25))
@@ -194,6 +208,10 @@ label interactions_grabbutt:
         $ char.show_portrait_overlay("angry", "reset")
 
         if char.status == "free":
+            if hero.get_stat("joy") > 70:
+                $ hero.gfx_mod_stat("joy", -randint(0, 1))
+            if char.get_stat("joy") > 80:
+                $ char.gfx_mod_stat("joy", -randint(0, 1))
             $ char.gfx_mod_stat("disposition", -randint(10, 25))
             $ char.gfx_mod_stat("affection", -randint(5,7))
 
@@ -252,6 +270,8 @@ label interactions_grabbreasts:
             $ char.gfx_mod_stat("affection", -randint(5,7))
             if char.get_stat("joy") > 30:
                 $ char.gfx_mod_stat("joy", -randint(1, 3))
+            if hero.get_stat("joy") > 70:
+                $ hero.gfx_mod_stat("joy", -randint(0, 1))
         else:
             $ del m
             call interactions_lesbian_refuse_because_of_gender from _call_interactions_lesbian_refuse_because_of_gender_4
@@ -270,6 +290,8 @@ label interactions_grabbreasts:
         $ char.gfx_mod_stat("affection", -randint(5,7))
         if char.get_stat("joy") > 30:
             $ char.gfx_mod_stat("joy", -randint(1, 3))
+        if hero.get_stat("joy") > 70:
+            $ hero.gfx_mod_stat("joy", -randint(0, 1))
         jump girl_interactions
 
     $ sub = check_submissivity(char)
@@ -313,6 +335,8 @@ label interactions_grabbreasts:
         if 2*m <= n and dice(50) and dice(char.get_stat("joy")-40):
             $ narrator(choice(["[char.pC] looks at you with a mischievous smile.", "[char.name] looks at you with glowing eyes."]))
             $ char.gfx_mod_stat("joy", randint(1, 2))
+            if hero.get_stat("joy") < 80:
+                $ hero.gfx_mod_stat("joy", randint(0, 1))
             $ char.gfx_mod_stat("disposition", randint(1, 2))
             $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.25))
             $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.25))
@@ -322,6 +346,10 @@ label interactions_grabbreasts:
         $ char.override_portrait("portrait", "angry")
         $ char.show_portrait_overlay("angry", "reset")
         if char.status == "free":
+            if hero.get_stat("joy") > 70:
+                $ hero.gfx_mod_stat("joy", -randint(0, 1))
+            if char.get_stat("joy") > 80:
+                $ char.gfx_mod_stat("joy", -randint(0, 1))
             $ char.gfx_mod_stat("disposition", -randint(15, 25))
             $ char.gfx_mod_stat("affection", -randint(7,9))
 

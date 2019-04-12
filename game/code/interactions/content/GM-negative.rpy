@@ -157,6 +157,9 @@ label interactions_insult: # (mode)
     $ mpl = max(min(hero_vals / float(char_vals+1), 2.0), .5)
     $ del char_vals, hero_vals, mode
 
+    if "Sadist" in hero.traits:
+        $ hero.gfx_mod_stat("joy", randint(0, 2))
+
     if dice(50-25*sub):
         $ char.gfx_mod_stat("character", -randint(0,1))
     $ char.gfx_mod_stat("joy", -randint(2, 4))
