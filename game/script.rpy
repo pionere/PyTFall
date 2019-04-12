@@ -1476,6 +1476,8 @@ label after_load:
             del store.gm_disp_mult
         if hasattr(store, "gm_fight_bg"):
             del store.gm_fight_bg
+        if hasattr(store, "stored_random_seed"):
+            del store.stored_random_seed
         if hasattr(store, "heard_about_arena"):
             if store.heard_about_arena:
                 global_flags.set_flag("heard_about_arena")

@@ -482,9 +482,8 @@ init -1 python: # Constants:
 
 init python: # Locking random seed of internal renpys random
     def locked_random(type, *args, **kwargs):
-        rv = getattr(renpy.random, type)(*args, **kwargs)
-        store.stored_random_seed = renpy.random.getstate()
-        return rv
+        #store.stored_random_seed = renpy.random.getstate()
+        return getattr(renpy.random, type)(*args, **kwargs)
 
     # Or we crash due to an engine bug (going to MMS):
     class SetVariable(SetField):
