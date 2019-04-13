@@ -281,6 +281,33 @@ init -10 python:
                 arena_rep += member.arena_rep
             return int(math.ceil(arena_rep/len(self._members)))
 
+        def take_ap(self, value):
+            """
+            Checks the whole team for enough AP;
+            if at least one teammate doesn't have enough AP, AP won't decrease,
+            and function will return False, otherwise True
+            """
+            for i in self._members:
+                if i.AP < value:
+                    return False
+            for i in self._members:
+                i.AP -= value
+            return True
+
+        def take_pp(self, value):
+            """
+            Checks the whole team for enough PP;
+            if at least one teammate doesn't have enough PP, PP won't decrease,
+            and function will return False, otherwise True
+            WARNING: only values lower than an AP are supported for the moment!
+            """
+            for i in self._members:
+                if i.AP <= 0 and i.PP < value:
+                    return False
+            for i in self._members:
+                i.take_pp(value)
+            return True
+
         # BE Related:
         def reset_controller(self):
             # Resets combat controller

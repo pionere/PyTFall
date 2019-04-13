@@ -2,9 +2,18 @@ label forest_dark:
     python:
         background_number = -1
         forest_bg_change = True
+        forest_location = None
         # Build the actions
-        if pytfall.world_actions.location("forest_entrance"):
-            pytfall.world_actions.finish()
+        #if pytfall.world_actions.location("forest_entrance"):
+        #    pytfall.world_actions.finish()
+    if not(hero.team.take_pp(80)):
+        if len(hero.team) > 1:
+            "Unfortunately, your team is too tired at the moment. Maybe another time."
+        else:
+            "Unfortunately, you are too tired at the moment. Maybe another time."
+
+        "Each member of your party must have at least 80 PP (and 2 AP is recommended)."
+        jump dark_forest_exit
 
 label forest_dark_continue:
     if forest_bg_change:
@@ -78,21 +87,21 @@ screen city_dark_forest():
                 keysym "mousedown_3"
 
 label city_dark_forest_explore:
-    if not(take_team_ap(1)):
+    if not(hero.team.take_pp(20)):
         if len(hero.team) > 1:
             "Unfortunately, your team is too tired at the moment. Maybe another time."
         else:
             "Unfortunately, you are too tired at the moment. Maybe another time."
 
-        "Each member of your party should have at least 1 AP."
+        "Each member of your party should have at least 20 PP (and 1 AP is recommended)."
 
         $ global_flags.set_flag("keep_playing_music")
         $ forest_bg_change = False
         jump forest_dark_continue
     else:
-        if (not hero.has_flag("dnd_dark_forest_river")) and hero.get_stat("vitality") < hero.get_max("vitality") and dice(35):
+        if (not hero.has_flag("dnd_dark_forest_river")) and hero.get_stat("vitality") < hero.get_max("vitality") and dice(10):
             jump mc_action_city_dark_forest_river
-        elif not global_flags.has_flag("found_old_ruins") and day >= 10 and dice(50):
+        elif not global_flags.has_flag("found_old_ruins") and dice(5):
             $ global_flags.set_flag("found_old_ruins")
             hide screen city_dark_forest
             jump storyi_start
@@ -105,13 +114,13 @@ label city_dark_forest_explore:
             jump city_dark_forest_hideout
 
 label city_dark_forest_ruines_part:
-    if not(take_team_ap(1)):
+    if not(hero.team.take_pp(20)):
         if len(hero.team) > 1:
             "Unfortunately, your team is too tired to explore dungeons. Maybe another time."
         else:
             "Unfortunately, you are too tired to explore dungeons. Maybe another time."
 
-        "Each member of your party should have at least 1 AP."
+        "Each member of your party should have at least 20 PP (and 2 AP is recommended)."
 
         $ global_flags.set_flag("keep_playing_music")
         jump forest_dark_continue

@@ -135,19 +135,6 @@ init -11 python:
 
         return elements
 
-    def take_team_ap(value):
-        """
-        Checks the whole hero team for enough AP;
-        if at least one teammate doesn't have enough AP, AP won't decrease,
-        and function will return False, otherwise True
-        """
-        for i in hero.team:
-            if i.AP < value:
-                return False
-        for i in hero.team:
-            i.AP -= value
-        return True
-
     # GUI helpers:
     def controlled_char(char):
         # used in chars profile, most user interface options disabled if this returns False.
