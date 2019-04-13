@@ -25,7 +25,7 @@
         "unlocks": {"Frozen Passage": 75},
         "cash_limit": 20,
         "items_price_limit": 600,
-        "items": {"Ice Daggers": 40, "Ice Axe": 40, "Icy Sword": 20}
+        "items": {"Ice Daggers": 40, "Ice Axe": 40, "Icy Sword": 20, "Frost Cape": 25}
     },
     {
         "name": "Frozen Passage",
@@ -71,7 +71,6 @@
         "items_price_limit": 1000,
         "items": {
             "Icicle Staff": 20,
-            "Frost Cape": 20,
             "Ice Shoes": 50
         }
     }

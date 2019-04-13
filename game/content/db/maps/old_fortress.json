@@ -50,7 +50,8 @@
         "unlocks": {
         },
         "cash_limit": 200,
-        "items_price_limit": 500
+        "items_price_limit": 500,
+        "items": {"Fireproof Cape": 25}
     },
     {
         "name": "Deep Caves",
@@ -65,7 +66,8 @@
         "mobs": ["Seductive Slime", "Gargoyle", "Foggy Knight", "Thunder Spirit"],
         "unlocks": {"Crystal Caves": 65, "Flooded Lowlands": 90},
         "cash_limit": 250,
-        "items_price_limit": 500
+        "items_price_limit": 500,
+        "items": {"Weighted Cape": 25}
     },
     {
         "name": "Crystal Caves",
@@ -79,6 +81,7 @@
         "mobs": ["King Slime", "Undine", "Energized Undine", "Stoner", "Stone Eater", "Thunderous Cloud", "Thunderous Shadow"],
         "unlocks": {},
         "cash_limit": 400,
-        "items_price_limit": 600
+        "items_price_limit": 600,
+        "items": {"Grounded Cape": 25}
     }
 ]
