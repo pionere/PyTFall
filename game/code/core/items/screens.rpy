@@ -252,12 +252,6 @@ screen itemstats(item=None, size=(635, 380), style_group="content", mc_mode=Fals
                                     $ skill = battle_skills[skill]
                                     use skill_info(skill, 153, 20)
                                 null height 2
-                            if item.remove_be_spells:
-                                label ('Removes Skills:') text_size 16 text_color "gold" xpos 10
-                                for skill in item.remove_be_spells:
-                                    $ skill = battle_skills[skill]
-                                    use skill_info(skill, 153, 20)
-                                null height 2
                             if item.addeffects:
                                 label ('Adds Effects:') text_size 16 text_color "gold" xpos 10
                                 for effect in item.addeffects:

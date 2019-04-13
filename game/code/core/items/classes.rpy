@@ -131,7 +131,7 @@ init -9 python:
             self.addtraits = []
             self.removetraits = []
             self.add_be_spells = []
-            self.remove_be_spells = []
+            self.attacks = None
             self.addeffects = []
             self.removeeffects = []
             self.goodtraits = set()
@@ -147,7 +147,7 @@ init -9 python:
             # mostly not used atm, decides if we should hide the item effects;
             # does hide effects for gifts which have not been used at least once, becoming False afterwards
             self.hidden = True
-            self.jump_to_label = ""
+            self.jump_to_label = None
             self.price = 0
             # self.gender = 'unisex' optional field
             self.unique = "" # Should be girls id in case of unique item.
@@ -246,15 +246,17 @@ init -9 python:
                 if trait not in store.traits:
                     raise Exception("Invalid trait '%s' for item %s!" % (trait, self.id))
 
-            for battle_skill in itertools.chain(self.add_be_spells, self.remove_be_spells):
+            for battle_skill in self.add_be_spells:
                 if battle_skill not in store.battle_skills:
-                    raise Exception("Invalid battle skill '%s' for item %s!" % (battle_skill, self.id))
+                    raise Exception("Invalid battle skill '%s' added by item %s!" % (battle_skill, self.id))
 
-            attack_skills = getattr(self, "attacks", None)
-            if attack_skills is not None:
-                for battle_skill in attack_skills:
+            if self.attacks is not None:
+                for battle_skill in self.attacks:
                     if battle_skill not in store.battle_skills:
                         raise Exception("Invalid attack skill '%s' for item %s!" % (battle_skill, self.id))
+
+            if self.jump_to_label and self.pref_class:
+                raise Exception("Invalid pref_class/jump_to_label settings (%s/%s) for item %s (these fields are exclusive)!" % (", ".join(self.pref_class), self.jump_to_label, self.id))
 
         def get_stat_eq_bonus(self, char_stats, stat):
             """Simple method that tries to get the real bonus an item can offer for the stat.

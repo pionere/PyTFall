@@ -1164,8 +1164,14 @@ init -9 python:
                                     if skill in target_skills:
                                         break # useful
                                 else:
-                                    # not useful for skills either -> next
-                                    break
+                                    # not useful for skills either -> try battle skills
+                                    for skill in item.add_be_spells:
+                                        skill = store.battle_skills[skill]
+                                        if skill not in self.magic_skills:
+                                            break # useful
+                                    else:
+                                        # not useful for battle skills either -> next
+                                        break
 
                             inv.remove(item)
                             self.equip(item, remove=False, aeq_mode=True)
@@ -1434,27 +1440,24 @@ init -9 python:
             """
             # Attacks/Magic -------------------------------------------------->
             # Attack Skills:
-            attack_skills = getattr(item, "attacks", None)
-            if attack_skills is not None:
-                for battle_skill in attack_skills:
+            if item.attacks is not None:
+                for battle_skill in item.attacks:
                     battle_skill = store.battle_skills[battle_skill]
                     func = self.attack_skills.append if direction else self.attack_skills.remove
                     func(battle_skill, False)
 
                 # Settle the default attack skill:
                 default = self.default_attack_skill
-                if not self.attack_skills:
+                num_skills = len(self.attack_skills)
+                if num_skills == 0:
                     self.attack_skills.append(default)
-                elif len(self.attack_skills) > 1 and default in self.attack_skills:
+                elif num_skills > 1 and default in self.attack_skills:
                     self.attack_skills.remove(default)
 
             # Combat Spells:
-            for battle_skill in itertools.chain(item.add_be_spells, item.remove_be_spells):
+            for battle_skill in item.add_be_spells:
                 battle_skill = store.battle_skills[battle_skill]
-                if battle_skill.name in item.add_be_spells:
-                    func = self.magic_skills.append if direction else self.magic_skills.remove
-                else:
-                    func = self.magic_skills.remove if direction else self.magic_skills.append
+                func = self.magic_skills.append if direction else self.magic_skills.remove
                 func(battle_skill, False)
 
             # Taking care of stats: -------------------------------------------------->
@@ -1678,31 +1681,27 @@ init -9 python:
                 if item.slot == 'consumable' and direction:
                     if item.type == 'food':
                         self.up_counter("dnd_food_poison_counter", 1)
-                        if self.get_flag("dnd_food_poison_counter", 0) >= 7 and not ('Food Poisoning' in self.effects):
+                        if self.get_flag("dnd_food_poison_counter", 0) >= 7:
                             self.enable_effect('Food Poisoning')
 
                     elif item.type == 'alcohol':
                         self.up_counter("dnd_drunk_counter", item.mod["joy"])
-                        if self.get_flag("dnd_drunk_counter", 0) >= 35 and not ('Drunk' in self.effects):
+                        if self.get_flag("dnd_drunk_counter", 0) >= 35:
                             self.enable_effect('Drunk')
-                        elif 'Drunk' in self.effects and self.AP > 0 and not ('Drinker' in self.effects):
-                            self.AP -=1
 
-                for effect in item.addeffects:
-                    if direction and not effect in self.effects:
-                        self.enable_effect(effect)
-                    elif not direction and effect in self.effects:
+                    for effect in item.removeeffects:
                         self.disable_effect(effect)
 
-                for effect in item.removeeffects:
-                    if direction and effect in self.effects:
+                for effect in item.addeffects:
+                    if direction:
+                        self.enable_effect(effect)
+                    else:
                         self.disable_effect(effect)
 
             # Jump away from equipment screen if appropriate:
-            if getattr(store, "eqtarget", None) is self:
-                if item.jump_to_label:
-                    renpy.scene(layer="screens") # hides all screens
-                    jump(item.jump_to_label)
+            if item.jump_to_label and getattr(store, "eqtarget", None) is self:
+                renpy.scene(layer="screens") # hides all screens
+                jump(item.jump_to_label)
 
         def item_counter(self):
             # Timer to clear consumable blocks
@@ -1778,6 +1777,10 @@ init -9 python:
         # Effects:
         ### Effects Methods
         def enable_effect(self, name, **kwargs):
+            # Prevent same effect from being enable twice (and handle exceptions)
+            if name in self.effects:
+                return
+
             if name == "Poisoned":
                 if "Artificial Body" in self.traits:
                     return

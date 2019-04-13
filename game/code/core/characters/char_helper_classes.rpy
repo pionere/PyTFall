@@ -1254,6 +1254,8 @@ init -10 python:
             for stat in target_stats:
                 _stats_curr[stat] = self._get_stat(stat) # current stat value
                 _stats_max[stat] = self.get_max(stat)   # current stat max
+            elements = set([e.id.lower() for e in char.elements])
+            gender = char.gender
 
             # Add 'Any' as base purpose:
             base_purpose.add("Any")
@@ -1294,8 +1296,7 @@ init -10 python:
                     continue
 
                 # Gender:
-                temp = char.gender
-                if getattr(item, "gender", temp) != temp:
+                if getattr(item, "gender", gender) != gender:
                     aeq_debug("Ignoring item %s on gender.", item.id)
                     continue
 
@@ -1431,6 +1432,17 @@ init -10 python:
 
                 if weights is None:
                     continue # Loop did not finish -> skip
+
+                # Spells:
+                for battle_skill in item.add_be_spells:
+                    battle_skill = store.battle_skills[battle_skill]
+                    if battle_skill not in char.magic_skills:
+                        value = (battle_skill.tier or 0)+1
+                        if elements.isdisjoint(battle_skill.attributes):
+                            value *= 5
+                        else:
+                            value *= 20
+                        weights.append(value)
 
                 weighted[slot].append([weights, item])
 
@@ -1641,6 +1653,8 @@ init -10 python:
                 char.mod_stat("health", -10)
                 char.mod_stat("joy", -5)
                 char.mod_stat("mp", -20)
+                if not ('Drinker' in char.effects):
+                    char.take_ap(1)
                 self.end(char)
             elif name == "Food Poisoning":
                 char.mod_stat("health", self.ss_mod["health"])
@@ -1667,8 +1681,4 @@ init -10 python:
                     char.del_flag("elation_counter")
 
         def enable(self, char):
-            # Prevent same effect from being enable twice (and handle exceptions)
-            if self.name in char.effects:
-                return
-            else:
-                char.effects[self.name] = self
+            char.effects[self.name] = self

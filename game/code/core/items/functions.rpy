@@ -348,9 +348,6 @@ init -11 python:
                 if locations.isdisjoint(item.locations):
                     continue
 
-            if getattr(item, "jump_to_label", False):
-                continue
-
             if types == "all" or item.type in types:
                 picked.append(item)
                 continue

@@ -1302,12 +1302,6 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                             for skill in item.add_be_spells:
                                 $ skill = battle_skills[skill]
                                 use skill_info(skill, 146, 20)
-                            null height 2
-                        if item.remove_be_spells:
-                            label ('Removes Skills:') text_size 14 text_color "gold" xpos 10
-                            for skill in item.remove_be_spells:
-                                $ skill = battle_skills[skill]
-                                use skill_info(skill, 146, 20)
                             #null height 2
 
     else: # equipment saves
