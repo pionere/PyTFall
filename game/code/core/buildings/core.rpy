@@ -855,17 +855,20 @@ init -10 python:
                             break
                         if c == hero or "Messy" in c.traits:
                             continue
-                        c0 = c.get_stat("disposition") > 800 and c.get_stat("joy") > 80
-                        c1 = "Neat" in c.traits and c.get_stat("disposition") > 650 and c.get_stat("joy") > 60
-                        if c0 or c1:
-                            effectiveness_ratio = simple_jobs["Cleaning"].effectiveness(c, self.tier)
+                        if "Neat" in c.traits:
+                            if c.get_stat("disposition") < 650 or c.get_stat("joy") < 60:
+                                continue
+                        else:
+                            if c.get_stat("disposition") < 800 or c.get_stat("joy") > 80:
+                                continue
+                        effectiveness = simple_jobs["Cleaning"].effectiveness(c, self.tier, txt)
 
-                            self.moddirt(-5 * effectiveness_ratio)
+                        self.moddirt(-effectiveness / 5.0)
 
-                            c.mod_stat("disposition", -50)
-                            c.mod_stat("affection", -10)
-                            c.mod_stat("joy", -10)
-                            txt.append("%s cleaned up a bit." % c.nickname)
+                        c.mod_stat("disposition", -50)
+                        c.mod_stat("affection", -10)
+                        c.mod_stat("joy", -10)
+                        txt.append("%s cleaned up a bit." % c.nickname)
 
                 # in-house fighting between the inhabitants
                 for c in self.inhabitants:

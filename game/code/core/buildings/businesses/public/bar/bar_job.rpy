@@ -21,17 +21,21 @@ init -5 python:
         def traits_and_effects_effectiveness_mod(self, worker, log):
             effectiveness = 0
 
-            if 'Food Poisoning' in worker.effects:
-                log.append("%s suffers from Food Poisoning, and is very far from %s top shape." % (worker.name, worker.pp))
+            name = worker.name
+            if 'Exhausted' in worker.effects:
+                log.append("%s is exhausted and is in need of some rest." % name)
+                effectiveness -= 75
+            elif 'Injured' in worker.effects:
+                log.append("%s is injured and is in need of some rest." % name)
+                effectiveness -= 70
+            elif 'Food Poisoning' in worker.effects:
+                log.append("%s suffers from Food Poisoning, and is very far from %s top shape." % (name, worker.pp))
                 effectiveness -= 50
             elif 'Down with Cold' in worker.effects:
-                log.append("%s is not feeling well due to colds..." % worker.name)
+                log.append("%s is not feeling well due to colds..." % name)
                 effectiveness -= 15
-            elif 'Exhausted' in worker.effects:
-                log.append("%s is exhausted and is in need of some rest." % worker.name)
-                effectiveness -= 75
             elif 'Drunk' in worker.effects:
-                log.append("Being drunk, %s perfectly understands %s customers who also are far from sobriety." % (worker.name, worker.pp))
+                log.append("Being drunk, %s perfectly understands %s customers who also are far from sobriety." % (name, worker.pp))
                 effectiveness += 20
 
             # traits don't always work, even with high amount of traits
@@ -52,56 +56,56 @@ init -5 python:
                     return effectiveness
 
                 if trait == "Great Arse":
-                    log.append("The customers kept ordering drinks from the bottom shelf just to watch %s bend over. What a view!" % worker.name)
+                    log.append("The customers kept ordering drinks from the bottom shelf just to watch %s bend over. What a view!" % name)
                     effectiveness += 25
                 elif trait == "Lolita":
-                    log.append("Poor %s has a hard time with the top shelves of the bar due to %s height." % (worker.name, worker.pp))
+                    log.append("Poor %s has a hard time with the top shelves of the bar due to %s height." % (name, worker.pp))
                     effectiveness -= 20
                 elif trait == "Bad Eyesight":
-                    log.append("Occasionally %s serves the wrong drinks, making customers unhappy." % worker.name)
+                    log.append("Occasionally %s serves the wrong drinks, making customers unhappy." % name)
                     effectiveness -= 15
                 elif trait == "Curious":
-                    log.append("Curious %s can listen to customers complaints about their lives for hours, making a great barmaid." % worker.name)
+                    log.append("Curious %s can listen to customers complaints about their lives for hours, making a great barmaid." % name)
                     effectiveness += 10
                 elif trait == "Indifferent":
-                    log.append("%s provides some really bland service. The customers aren't even sure %s is paying attention." % (worker.name, worker.p))
+                    log.append("%s provides some really bland service. The customers aren't even sure %s is paying attention." % (name, worker.p))
                     effectiveness -= 10
                 elif trait == "Neat":
-                    log.append("%s keeps the bar and all the glasses perfect clean, making a good impression on customers." % worker.name)
+                    log.append("%s keeps the bar and all the glasses perfect clean, making a good impression on customers." % name)
                     effectiveness += 20
                 elif trait == "Messy":
-                    log.append("It's not unusual for %s to serve drinks without cleaning glasses first. That does not add to %s popularity as a barmaid." % (worker.name, worker.pp))
+                    log.append("It's not unusual for %s to serve drinks without cleaning glasses first. That does not add to %s popularity as a barmaid." % (name, worker.pp))
                     effectiveness -= 20
                 elif trait == "Heavy Drinker":
                     if dice(50):
-                        log.append("%s's deep knowledge of alcohol helps to serve the best possible drink." % worker.name)
+                        log.append("%s's deep knowledge of alcohol helps to serve the best possible drink." % name)
                         effectiveness += 10
                     else:
-                        log.append("The customers all passed out in no time. %s has no idea why - drinks don't seem that strong to %s." % (worker.name, worker.op))
+                        log.append("The customers all passed out in no time. %s has no idea why - drinks don't seem that strong to %s." % (name, worker.op))
                         effectiveness -= 10
                 elif trait == "Ill-mannered":
-                    log.append("Unfortunately %s's rudeness scares away customers, affecting the business." % worker.name)
+                    log.append("Unfortunately %s's rudeness scares away customers, affecting the business." % name)
                     effectiveness -= 20
                 elif trait == "Psychic":
-                    log.append("People marvel at how %s usually already has the drink ready before the customer comes up to the bar." % worker.name)
+                    log.append("People marvel at how %s usually already has the drink ready before the customer comes up to the bar." % name)
                     effectiveness += 25
                 elif trait == "Shy":
-                    log.append("It's difficult for %s to serve drinks and maintain a conversation at the same time. %s's too afraid of making mistakes." % (worker.name, worker.pC))
+                    log.append("It's difficult for %s to serve drinks and maintain a conversation at the same time. %s's too afraid of making mistakes." % (name, worker.pC))
                     effectiveness -= 25
                 elif trait == "Nerd":
-                    log.append("%s is a bit awkward as a bartender, always more interested in %s little hobby than on tending to the customers." % (worker.name, worker.pp))
+                    log.append("%s is a bit awkward as a bartender, always more interested in %s little hobby than on tending to the customers." % (name, worker.pp))
                     effectiveness -= 10
                 elif trait == "Natural Follower" or trait == "Virtuous":
-                    log.append("Customers keep asking %s for a discount and %s keeps accepting. Maybe it's not the best job for %s." % (worker.name, worker.p, worker.op))
+                    log.append("Customers keep asking %s for a discount and %s keeps accepting. Maybe it's not the best job for %s." % (name, worker.p, worker.op))
                     effectiveness -= 15
                 elif trait == "Natural Leader":
-                    log.append("%s has a real way with words. Customers like to talk to %s about anything just to hear %s voice." % (worker.name, worker.op, worker.pp))
+                    log.append("%s has a real way with words. Customers like to talk to %s about anything just to hear %s voice." % (name, worker.op, worker.pp))
                     effectiveness += 15
                 elif trait == "Clumsy":
-                    log.append("The sound of breaking glass filled the building once %s began %s shift. Sigh..." % (worker.name, worker.pp))
+                    log.append("The sound of breaking glass filled the building once %s began %s shift. Sigh..." % (name, worker.pp))
                     effectiveness -= 15
                 elif trait == "Stupid":
-                    log.append("%s has to ask for help all the time because %s can't remember how to make anything." % (worker.name, worker.p))
+                    log.append("%s has to ask for help all the time because %s can't remember how to make anything." % (name, worker.p))
                     effectiveness -= 20
                 elif trait == "Abnormally Large Boobs" or trait == "Big Boobs":
                     log.append("People keep asking her to make cocktails just to watch her boobs quake.")
@@ -113,7 +117,7 @@ init -5 python:
                     log.append("A tough looking bartender helps to keep some of the rowdy customers in line.")
                     effectiveness += 10
                 elif trait == "Vicious":
-                    log.append("It's nice to have %s working as a bartender. %s doesn't let the customers build up a tab no matter how pitiable they are." % (worker.name, worker.pC))
+                    log.append("It's nice to have %s working as a bartender. %s doesn't let the customers build up a tab no matter how pitiable they are." % (name, worker.pC))
                     effectiveness += 10
 
             return effectiveness
@@ -147,51 +151,49 @@ init -5 python:
                 disposition += 100
             return disposition
 
-        def settle_workers_disposition(self, worker, log=None):
+        def settle_workers_disposition(self, worker, log):
             """
             handles penalties in case of wrong job
             """
-            if log is None:
-                log = []
-
+            name = set_font_color(choice([worker.fullname, worker.name, worker.nickname]), "pink")
             if not("Server" in worker.gen_occs):
                 sub = check_submissivity(worker)
                 if worker.status != 'slave':
                     if sub < 0:
                         if dice(15):
                             worker.logws('character', 1)
-                        log.append("%s is not very happy with %s current job as a barmaid, but %s will get the job done." % (worker.name, worker.pp, worker.p))
+                        log.append("%s is not very happy with %s current job as a barmaid, but %s will get the job done." % (name, worker.pp, worker.p))
                     elif sub == 0:
                         if dice(25):
                             worker.logws('character', 1)
-                        log.append("%s serves customers as a barmaid, but, truth be told, %s would prefer to do something else." % (worker.nickname, worker.p))
+                        log.append("%s serves customers as a barmaid, but, truth be told, %s would prefer to do something else." % (name, worker.p))
                     else:
                         if dice(35):
                             worker.logws('character', 1)
-                        log.append("%s makes it clear that %s wants another job before getting busy with clients." % (worker.name, worker.p))
+                        log.append("%s makes it clear that %s wants another job before getting busy with clients." % (name, worker.p))
                     worker.logws("joy", -randint(3, 5))
                     worker.logws("disposition", -randint(5, 10))
                     worker.logws('vitality', -randint(2, 5)) # a small vitality penalty for wrong job
                 else:
                     if sub < 0:
                         if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
-                            log.append("%s is a slave so no one really cares, but being forced to work as a barmaid, %s's quite upset." % (worker.name, worker.p))
+                            log.append("%s is a slave so no one really cares, but being forced to work as a barmaid, %s's quite upset." % (name, worker.p))
                         else:
-                            log.append("%s will do as %s is told, but doesn't mean that %s'll be happy about %s bar duties." % (worker.name, worker.p, worker.p, worker.pp))
+                            log.append("%s will do as %s is told, but doesn't mean that %s'll be happy about %s bar duties." % (name, worker.p, worker.p, worker.pp))
                         if dice(25):
                             worker.logws('character', 1)
                     elif sub == 0:
                         if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
-                            log.append("%s will do as you command, but %s will hate every second of %s barmaid shift..." % (worker.name, worker.p, worker.pp))
+                            log.append("%s will do as you command, but %s will hate every second of %s barmaid shift..." % (name, worker.p, worker.pp))
                         else:
-                            log.append("%s was very displeased by %s order to work as a barmaid, but didn't dare to refuse." % (worker.name, worker.pp))
+                            log.append("%s was very displeased by %s order to work as a barmaid, but didn't dare to refuse." % (name, worker.pp))
                         if dice(35):
                             worker.logws('character', 1)
                     else:
                         if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
-                            log.append("%s was very displeased by %s order to work as a barmaid, and makes it clear for everyone before getting busy with clients." % (worker.name, worker.pp))
+                            log.append("%s was very displeased by %s order to work as a barmaid, and makes it clear for everyone before getting busy with clients." % (name, worker.pp))
                         else:
-                            log.append("%s will do as you command and work as a barmaid, but not without a lot of grumbling and complaining." % worker.name)
+                            log.append("%s will do as you command and work as a barmaid, but not without a lot of grumbling and complaining." % name)
                         if dice(45):
                             worker.logws('character', 1)
                     if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
@@ -202,10 +204,10 @@ init -5 python:
                         worker.logws("joy", -randint(2, 4))
                         worker.logws('vitality', -randint(1, 4))
             else:
-                log.append(choice(["%s is doing %s shift as a barmaid." % (worker.name, worker.pp),
-                                   "%s gets busy with clients." % worker.fullname,
-                                   "%s serves customers in the bar." % worker.nickname]))
-            return True
+                log.append(choice(["%s is doing %s shift as a barmaid." % (name, worker.pp),
+                                   "%s gets busy with clients." % name,
+                                   "%s is working the bar!" % name, 
+                                   "%s serves customers in the bar." % name]))
 
         def work_bar(self, worker, clients, effectiveness, log):
 

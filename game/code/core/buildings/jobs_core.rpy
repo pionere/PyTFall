@@ -249,18 +249,13 @@ init -10 python:
             return value/float(max_value)*effectiveness
 
         # We should also have a number of methods or properties to evaluate new dicts:
-        def effectiveness(self, worker, difficulty, log=None, return_ratio=True,
-                          manager_effectiveness=0):
+        def effectiveness(self, worker, difficulty, log, manager_effectiveness=0):
             """We check effectiveness here during jobs from SimPy land.
 
             difficulty is used to counter worker tier.
             100 is considered a score where worker does the task with acceptable performance.
             min = 0 and max is 200
-
-            return_ratio argument, when True, returns a multiplier of .1 to 2.0 instead...
             """
-            ability = 0
-
             matched_gen_occ = len(worker.occupations.intersection(self.occupations))
             matched_base_traits = len(worker.basetraits.intersection(self.occupation_traits))
 
@@ -281,7 +276,6 @@ init -10 python:
                 bt_bonus /= 1+abs(diff)
             elif diff > 0:
                 bt_bonus += tier_bonus*2
-
 
             # Skills/Stats:
             default_points = 25
@@ -356,11 +350,6 @@ init -10 python:
                 devlog.info("Stats: {}:".format(temp))
                 args = (bt_bonus, tier_bonus, traits_bonus, total_skills, total_stats, disposition_multiplier, total)
                 devlog.info("Gen Occ/BT: {}, Tier: {}, Traits: {}, Skills: {}, Stats: {}, Disposition Multiplier {} ==>> {}".format(*args))
-
-            if return_ratio:
-                total /= 100.0
-                if total < .1:
-                    total = .1
 
             return total
 

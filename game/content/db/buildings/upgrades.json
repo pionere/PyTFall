@@ -82,26 +82,26 @@
     {
         "name": "Enforced Order",
         "class": "EnforcedOrder",
-        "desc": "Enforced Order!\nSet of decorations and tools in order to over-secure your building.\nBut your workers feel 'out of place'.\n+5 Job Power points. Brawl event is blocked.\n-Joy and Disposition for civilians working the building.",
+        "desc": "Enforced Order!\nSet of decorations and tools in order to over-secure your building.\n+100 Job Effectiveness. Brawl event is blocked.\nBut your workers feel 'out of place'.\n-Joy and Disposition for civilians working the building.",
         "img": "content/buildings/upgrades/training_qt.webp",
         "materials": {"Wood": 5, "Stone": 20, "Steel": 30},
         "cost": 5000,
         "in_slots": 5,
         "ex_slots": 1,
 
-        "job_power_mod": 5
+        "job_effectiveness_mod": 100
     },
     {
         "name": "Closet",
         "class": "BroomCloset",
-        "desc": "Broom Closet!\nCloset full of magical brooms which can be used to speed up cleaning process.\n(+2 Job Power)",
+        "desc": "Broom Closet!\nCloset full of magical brooms which can be used to speed up cleaning process.\n(+40 Job Effectiveness)",
         "img": "content/buildings/upgrades/broom_closet.webp",
         "materials": {"Wood": 20, "Stone": 10, "Steel": 5},
         "cost": 1000,
         "in_slots": 2,
         "ex_slots": 0,
 
-        "job_power_mod": 2
+        "job_effectiveness_mod": 40
     },
     {
         "name": "The Eye",

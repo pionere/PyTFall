@@ -151,9 +151,12 @@ init -6 python: # Guild, Tracker and Log.
             ability = 0
             # Difficulty is tier of the area explored + 1/10 of the same value / 100 * risk.
             difficulty = self.area.tier*(1 + .001*self.risk)
+            log = []
             for char in self.team:
                 # Set their exploration capabilities as temp flag
-                ability += char.task.effectiveness(char, difficulty, log=None, return_ratio=False)
+                ability += char.task.effectiveness(char, difficulty, log)
+            for l in log:
+                self.log(l)
             return ability
 
         def log(self, txt, name="", nd_log=True, ui_log=False, **kwargs):
@@ -550,6 +553,9 @@ init -6 python: # Guild, Tracker and Log.
             # Figure out how far we can travel in steps of 5 DU:
             # Understanding here is that any team can travel 20 KM per day on average.
             if tracker.traveled is None:
+                # Starting day
+                simple_jobs["Exploring"].settle_workers_disposition(tracker.team, tracker.log)
+
                 # setup the distance.
                 tracker.distance = self.travel_distance(tracker)
 

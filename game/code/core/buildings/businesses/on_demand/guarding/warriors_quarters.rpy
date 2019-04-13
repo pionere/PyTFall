@@ -32,14 +32,16 @@ init -5 python:
             had_brawl_event = False
 
             # Pure workers, container is kept around for checking during all_on_deck scenarios
-            strict_workers = self.get_strict_workers(job, power_flag_name, use_slaves=False)
+            log = []
+            strict_workers = self.get_strict_workers(job, power_flag_name, use_slaves=False, log=log)
             workers = strict_workers.copy() # workers on active duty
 
             while 1:
-                simpy_debug("Entering WarriorQuarters.business_control at %s", self.env.now)
+                now = self.env.now
+                simpy_debug("Entering WarriorQuarters.business_control at %s", now)
 
                 threat = building.threat
-                if DSNBR and not self.env.now % 5:
+                if DSNBR and not now % 5:
                     temp = "{color=red}" + "DEBUG: {0:.2f} Threat to THE BUILDING!".format(threat)
                     self.log(temp, True)
 
@@ -47,12 +49,11 @@ init -5 python:
                     if threat >= 500:
                         if not using_all_workers:
                             using_all_workers = True
-                            workers = self.all_on_deck(workers, job,
-                                                power_flag_name, use_slaves=False)
+                            workers = self.all_on_deck(workers, job, power_flag_name, use_slaves=False, log=log)
 
                     if not make_nd_report_at:
                         wlen = len(workers)
-                        make_nd_report_at = min(self.env.now+25, 100)
+                        make_nd_report_at = min(now+25, 100)
                         if wlen:
                             temp = "%s Workers have started to guard %s!" % (set_font_color(wlen, "red"), building.name)
                             self.log(temp, True)
@@ -60,7 +61,7 @@ init -5 python:
                 # Actually handle threat:
                 if make_nd_report_at and threat > 0:
                     for w in workers.copy():
-                        value = int(w.flag(power_flag_name))
+                        value = w.flag(power_flag_name)
                         building.modthreat(value)
 
                         threat_cleared += value
@@ -75,32 +76,31 @@ init -5 python:
                             self.log(temp, True)
                             workers.remove(w)
 
-                if EnforcedOrder_active and self.env.now > 0 and not self.env.now % 50:
+                if EnforcedOrder_active is True and now > 50:
                     self.log("Enforced order is making your civilian workers uneasy...")
                     for w in building.all_workers:
                         if not "Combatant" in w.gen_occs:
                             w.mod_stat("disposition", -1)
                             if dice(50):
                                 w.mod_stat("joy", -1)
+                    EnforcedOrder_active = 1 # run only once per day
 
                 # Create actual report:
-                c0 = self.env.now >= make_nd_report_at
-                c1 = defenders # No point in a report if no workers participated in the guarding.
-                if c0 and c1:
+                # No point in a report if no workers participated in the guarding.
+                if now >= make_nd_report_at and defenders:
                     if DSNBR:
-                        temp = "DEBUG! WRITING GUARDING REPORT! (%s, %s)" % (c0, c1)
-                        self.log(temp, True)
+                        self.log("DEBUG! WRITING GUARDING REPORT!", True)
 
-                    c0 = not make_nd_report_at % 25 # what is this? some kind of random?
-                    if all([SparringQuarters_active, c0, threat < 500]):
+                    if SparringQuarters_active and threat < 500 and dice(25):
                         use_SQ = True
+                        SparringQuarters_active = False # run only once per day
                     else:
                         use_SQ = False
-                    self.write_nd_report(strict_workers, defenders,
-                                         -threat_cleared, use_SQ=use_SQ)
+                    self.write_nd_report(strict_workers, defenders, log, -threat_cleared, use_SQ)
                     make_nd_report_at = 0
                     threat_cleared = 0
                     defenders = set()
+                    log = list()
 
                 # Release none-pure workers:
                 if building.threat < 500 and using_all_workers:
@@ -110,7 +110,7 @@ init -5 python:
                         workers -= extra
                         building.available_workers[0:0] = list(extra)
 
-                simpy_debug("Exiting WarriorQuarters.business_control at %s", self.env.now)
+                simpy_debug("Exiting WarriorQuarters.business_control at %s", now)
                 if not EnforcedOrder_active and threat >= 500 and not had_brawl_event:
                     self.intercept(workers, power_flag_name)
                     had_brawl_event = True
@@ -118,7 +118,7 @@ init -5 python:
                 else:
                     yield self.env.timeout(1)
 
-        def write_nd_report(self, strict_workers, all_workers, threat_cleared, **kwargs):
+        def write_nd_report(self, strict_workers, all_workers, pre_log, threat_cleared, use_SQ):
             simpy_debug("Entering WarriorQuarters.write_nd_report at %s", self.env.now)
 
             job, loc = self.jobs[0], self.building
@@ -134,6 +134,10 @@ init -5 python:
             wlen = len(all_workers)
             temp = "{} Workers kept your businesses safe today.".format(set_font_color(wlen, "red"))
             log.append(temp)
+
+            # add log from preparation
+            for l in pre_log:
+                log.append(l)
 
             log.img = nd_report_image(loc.img, all_workers, "fighting", exclude=["sex"])
 
@@ -159,7 +163,7 @@ init -5 python:
             temp = "\nA total of {} threat was removed.".format(set_font_color(threat_cleared, "red"))
             log.append(temp)
 
-            if kwargs.get("use_SQ", False):
+            if use_SQ:
                 log.append("Your guards managed to sneak in a friendly sparring match between their patrol duties!")
                 for w in workers:
                     exp_mod = w.get_flag("jobs_points_spent", 0)/1000.0
@@ -221,7 +225,7 @@ init -5 python:
 
             simpy_debug("Exiting WarriorQuarters.write_nd_report at %s", self.env.now)
 
-        def intercept(self, workers, power_flag_name, interrupted=False):
+        def intercept(self, workers, power_flag_name):
             """This intercepts a bunch of aggressive clients and
                     resolves the issue through combat or intimidation.
 
@@ -239,97 +243,100 @@ init -5 python:
             job = simple_jobs["Guarding"]
 
             # gather the response forces:
-            defenders = list()
-
+            log = []
             all_workers = self.all_on_deck(workers, job,
-                                power_flag_name, use_slaves=False)
+                                power_flag_name, use_slaves=False, log=log)
             defenders = all_workers.union(workers)
-
-            # temp = "{}: {} Guards are intercepting attack event in {}".format(self.env.now, set_font_color(len(defenders), "red"), building.name)
-            # self.log(temp)
 
             temp = "{color=red}A number of clients got completely out of hand!{/color}"
             self.log(temp, True)
 
-            if not defenders:
-                # If there are no defenders, we're screwed:
-                temp = "No one was available to put them down"
-                dirt = 400
-                threat = 500
-                temp += "\n  +{} Dirt and +{} Threat!".format(dirt, threat)
+            num_defenders = len(defenders) 
+            if num_defenders != 0:
+                temp = "{} Guards and employees are responding!".format(set_font_color(num_defenders, "red"), building.name)
                 self.log(temp)
 
+                for l in log:
+                    self.log(l)
+
+                # Prepare the teams:
+                # Enemies:
+                enemies = building.get_max_client_capacity()/5
+                enemies = min(10, max(enemies, 1)) # prolly never more than 10 enemies...
+
+                # Note: We could draw from client pool in the future, for now,
+                # we'll just generate offenders.
+                enemy_team = Team(name="Hooligans", max_size=enemies)
+                for e in range(enemies):
+                    # Tier + 2.0 cause we don't give them any items so it's a brawl!
+                    enemy = build_client(gender="male", rank=1,
+                                     name="Hooligan", last_name=str(e+1),
+                                     pattern=["Combatant"], tier=building.tier+2.0)
+                    enemy.front_row = 1
+                    enemy.apply_trait("Fire")
+                    enemy.controller = BE_AI(enemy)
+                    enemy_team.add(enemy)
+
+                defence_team = Team(name="Guardians Of The Galaxy", max_size=num_defenders)
+                for i in defenders:
+                    i.controller = BE_AI(i)
+                    defence_team.add(i)
+
+                # ImageReference("chainfights")
+                global battle
+                battle = BE_Core(logical=True, max_skill_lvl=6,
+                            max_turns=(enemies+num_defenders)*4)
+                battle.teams = [defence_team, enemy_team]
+
+                battle.start_battle()
+
+                # Reset the controllers:
+                defence_team.reset_controller()
+                enemy_team.reset_controller()
+
+                # We also should restore the list if there was interruption:
+                # if "active_workers_backup" in locals():
+                #     for i in active_workers_backup:
+                #         if can_do_work(i, check_ap=False): # Check if we're still ok to work...
+                #             self.active_workers.append(i)
+
+                # decided to add report in debug mode after all :)
+                self.log(set_font_color("Battle Starts!", "crimson"))
+                for entry in battle.combat_log:
+                    self.log(entry)
+                self.log(set_font_color("=== Battle Ends ===", "crimson"))
+
+                if battle.winner == defence_team:
+                    building.modthreat(-200)
+                    building.moddirt(35*enemies)
+
+                    temp = "Interception is a Success!"
+                    temp = set_font_color(temp, "lawngreen")
+                    # temp = temp + set_font_color("....", "crimson")
+                    self.log(temp)
+                    # self.env.exit(True) # return True
+                else:
+                    dirt = 100
+                    threat = 60*enemies
+                    building.modthreat(dirt)
+                    building.moddirt(threat)
+
+                    temp = "Interception Failed, your Guards have been defeated!"
+                    temp = set_font_color(temp, "crimson")
+                    temp += "\n  +%d Dirt and +%d Threat!" % (dirt, threat)
+                    self.log(temp)
+                    # self.env.exit(False)
+            else:
+                # If there are no defenders, we're screwed:
+                dirt = 400
+                threat = 600
                 building.moddirt(dirt)
                 building.modthreat(threat)
 
-                self.env.exit(False)
-            else:
-                temp = "{} Guards and employees are responding!".format(set_font_color(len(defenders), "red"), building.name)
+                temp = "No one was available to put them down!"
+                temp = set_font_color(temp, "red")
+                temp += "\n  +%d Dirt and +%d Threat!" % (dirt, threat)
                 self.log(temp)
-
-            # Prepare the teams:
-            # Enemies:
-            enemies = building.get_max_client_capacity()/5
-            enemies = min(10, max(enemies, 1)) # prolly never more than 10 enemies...
-
-            # Note: We could draw from client pool in the future, for now,
-            # we'll just generate offenders.
-            enemy_team = Team(name="Hooligans", max_size=enemies)
-            for e in range(enemies):
-                # Tier + 2.0 cause we don't give them any items so it's a brawl!
-                enemy = build_client(gender="male", rank=1,
-                                 name="Hooligan", last_name=str(e+1),
-                                 pattern=["Combatant"], tier=building.tier+2.0)
-                enemy.front_row = 1
-                enemy.apply_trait("Fire")
-                enemy.controller = BE_AI(enemy)
-                enemy_team.add(enemy)
-
-            defence_team = Team(name="Guardians Of The Galaxy", max_size=len(defenders))
-            for i in defenders:
-                i.controller = BE_AI(i)
-                defence_team.add(i)
-
-            # ImageReference("chainfights")
-            global battle
-            battle = BE_Core(logical=True, max_skill_lvl=6,
-                        max_turns=(enemies+len(defenders))*4)
-            battle.teams.append(defence_team)
-            battle.teams.append(enemy_team)
-
-            battle.start_battle()
-
-            # Reset the controllers:
-            defence_team.reset_controller()
-            enemy_team.reset_controller()
-
-            # We also should restore the list if there was interruption:
-            # if "active_workers_backup" in locals():
-            #     for i in active_workers_backup:
-            #         if can_do_work(i, check_ap=False): # Check if we're still ok to work...
-            #             self.active_workers.append(i)
-
-            # decided to add report in debug mode after all :)
-            self.log(set_font_color("Battle Starts!", "crimson"))
-            for entry in battle.combat_log:
-                self.log(entry)
-            self.log(set_font_color("=== Battle Ends ===", "crimson"))
-
-            if battle.winner == defence_team:
-                temp = "Interception is a Success!"
-                temp = set_font_color(temp, "lawngreen")
-                # temp = temp + set_font_color("....", "crimson")
-                self.log(temp)
-                building.modthreat(-200)
-                building.moddirt(35*enemies)
-                # self.env.exit(True) # return True
-            else:
-                temp = "Interception Failed, your Guards have been defeated!"
-                temp = set_font_color(temp, "crimson")
-                # temp = temp + set_font_color("....", "crimson")
-                self.log(temp)
-                building.modthreat(100)
-                building.moddirt(60*enemies)
-                # self.env.exit(False)
+                #self.env.exit(False)
 
             simpy_debug("Exiting WarriorQuarters.intercept at %s", self.env.now)

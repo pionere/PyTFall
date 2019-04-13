@@ -583,19 +583,15 @@ init -12 python:
             job, building = self.jobs[0], self.building # a single job per business at the moment
             log = NDEvent(job=job, char=worker, loc=building, business=self)
 
-            log.append(self.log_intro_string % (worker.name))
-            log.append("\n")
+            job.settle_workers_disposition(worker, log)
 
             difficulty = building.tier
-            effectiveness = job.effectiveness(worker, difficulty, log, False,
-                                manager_effectiveness=building.manager_effectiveness)
+            effectiveness = job.effectiveness(worker, difficulty, log, building.manager_effectiveness)
 
             # Upgrade mods:
             # Move to Job method?
-            eff_mod = 0
             for u in self.upgrades:
-                eff_mod += getattr(u, "job_effectiveness_mod", 0)
-            effectiveness += eff_mod
+                effectiveness += getattr(u, "job_effectiveness_mod", 0)
 
             if DSNBR:
                 log.append("Debug: Her effectiveness: {}! (difficulty: {}, Tier: {})".format(
@@ -688,7 +684,7 @@ init -12 python:
             self.interrupt = None
             self.expands_capacity = False
 
-        def get_strict_workers(self, job, power_flag_name, use_slaves=True):
+        def get_strict_workers(self, job, power_flag_name, use_slaves, log):
             workers = set(self.get_workers(job, amount=float("inf"),
                            rule="strict",
                            use_slaves=use_slaves))
@@ -697,11 +693,11 @@ init -12 python:
                 # Do Disposition checks:
                 job.settle_workers_disposition(workers, self)
                 # Do Effectiveness calculations:
-                self.calc_job_power(workers, job, power_flag_name)
+                self.calc_job_power(workers, job, power_flag_name, log)
 
             return workers
 
-        def all_on_deck(self, workers, job, power_flag_name, use_slaves=True):
+        def all_on_deck(self, workers, job, power_flag_name, use_slaves, log):
             # calls everyone in the building to clean it
             new_workers = self.get_workers(job, amount=float("inf"),
                             rule="loose", use_slaves=use_slaves)
@@ -710,7 +706,7 @@ init -12 python:
                 # Do Disposition checks:
                 job.settle_workers_disposition(new_workers, self, all_on_deck=True)
                 # Do Effectiveness calculations:
-                self.calc_job_power(new_workers, job, power_flag_name)
+                self.calc_job_power(new_workers, job, power_flag_name, log)
             workers = workers.union(new_workers)
 
             # Throw in the manager:
@@ -719,29 +715,28 @@ init -12 python:
 
             return workers
 
-        def calc_job_power(self, workers, job, power_flag_name,
-                                remove_from_available_workers=True):
+        def calc_job_power(self, workers, job, power_flag_name, log):
             building = self.building
             difficulty = building.tier
 
             for w in workers:
                 if not w.flag(power_flag_name):
-                    effectiveness_ratio = job.effectiveness(w, difficulty,
-                            manager_effectiveness=building.manager_effectiveness)
+                    effectiveness = job.effectiveness(w, difficulty, log, building.manager_effectiveness)
+
+                    # Upgrade mods:
+                    # Move to Job method?
+                    for u in self.upgrades:
+                        effectiveness += getattr(u, "job_effectiveness_mod", 0)
 
                     if DEBUG_SIMPY:
                         devlog.info("{} Effectiveness: {}: {}".format(job.id,
-                                            w.nickname, effectiveness_ratio))
-                    value = -(5 * effectiveness_ratio)
+                                            w.nickname, effectiveness))
 
-                    for u in self.upgrades:
-                        value += getattr(u, "job_power_mod", 0)
-
+                    value = -round_int(effectiveness / 20.0)
                     w.set_flag(power_flag_name, value)
 
                     # Remove from active workers:
-                    if remove_from_available_workers:
-                        building.available_workers.remove(w)
+                    building.available_workers.remove(w)
 
         def post_nd(self):
             # Resets all flags and variables after next day calculations are finished.

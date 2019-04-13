@@ -22,29 +22,30 @@ init -5 python:
 
             self.allowed_status = ["free"]
 
-        def traits_and_effects_effectiveness_mod(self, worker, log=None):
+        def traits_and_effects_effectiveness_mod(self, worker, log):
             """Affects worker's effectiveness during one turn. Should be added to effectiveness calculated by the function below.
                Calculates only once per turn, in the very beginning.
 
                Another 'team' job which we have individual lines for...
                Maybe unique reports should be a thing as well for on_demand businesses?
             """
-            if not log:
-                log = []
-
             effectiveness = 0
-            if 'Food Poisoning' in worker.effects:
-                log.append("%s suffers from Food Poisoning, and is very far from %s top shape." % (worker.name, worker.pp))
-                effectiveness -= 50
-            elif 'Exhausted' in worker.effects:
-                log.append("%s is exhausted and is in need of some rest." % worker.name)
+            name = worker.name
+            if 'Exhausted' in worker.effects:
+                log.append("%s is exhausted and is in need of some rest." % name)
                 effectiveness -= 75
-            elif 'Down with Cold' in worker.effects:
-                log.append("%s is not feeling well due to colds..." % worker.name)
-                effectiveness -= 15
+            elif 'Injured' in worker.effects:
+                log.append("%s is injured and is in need of some rest." % name)
+                effectiveness -= 70
+            elif 'Food Poisoning' in worker.effects:
+                log.append("%s suffers from Food Poisoning, and is very far from %s top shape." % (name, worker.pp))
+                effectiveness -= 50
             elif 'Drunk' in worker.effects:
-                log.append("%s is drunk, which affects %s coordination. Not the best thing when you need to guard something." % (worker.name, worker.pp))
+                log.append("%s is drunk, which affects %s coordination. Not the best thing when you need to guard something." % (name, worker.pp))
                 effectiveness -= 20
+            elif 'Down with Cold' in worker.effects:
+                log.append("%s is not feeling well due to colds..." % name)
+                effectiveness -= 15
             elif 'Revealing Clothes' in worker.effects:
                 if dice(50):
                     log.append("%s revealing clothes attract unneeded attention, interfering with work." % worker.ppC)
@@ -68,62 +69,62 @@ init -5 python:
                     return effectiveness
 
                 if trait == "Abnormally Large Boobs":
-                    log.append("Her massive tits get in the way and keep her off balance as %s tries to work security." % worker.name)
+                    log.append("Her massive tits get in the way and keep her off balance as %s tries to work security." % name)
                     effectiveness -= 25
                 elif trait == "Aggressive":
                     if dice(50):
-                        log.append("%s keeps disturbing customers who aren't doing anything wrong. Maybe it's not the best job for %s." % (worker.name, worker.op))
+                        log.append("%s keeps disturbing customers who aren't doing anything wrong. Maybe it's not the best job for %s." % (name, worker.op))
                         effectiveness -= 35
                     else:
-                        log.append("Looking for a good fight, %s patrols the area, scaring away the rough customers." % worker.name)
+                        log.append("Looking for a good fight, %s patrols the area, scaring away the rough customers." % name)
                         effectiveness += 50
                 elif trait == "Lolita":
-                    log.append("%s is too small to be taken seriously. Some of the problematic customers just laugh at %s." % (worker.name, worker.op))
+                    log.append("%s is too small to be taken seriously. Some of the problematic customers just laugh at %s." % (name, worker.op))
                     effectiveness -= 50
                 elif trait == "Coward":
-                    log.append("%s keeps asking for backup every single time an incident arises." % worker.name)
+                    log.append("%s keeps asking for backup every single time an incident arises." % name)
                     effectiveness -= 25
                 elif trait == "Stupid":
-                    log.append("%s has trouble adapting to the constantly evolving world of crime prevention." % worker.name)
+                    log.append("%s has trouble adapting to the constantly evolving world of crime prevention." % name)
                     effectiveness -= 15
                 elif trait == "Smart":
-                    log.append("%s keeps learning new ways to prevent violence before it happens." % worker.name)
+                    log.append("%s keeps learning new ways to prevent violence before it happens." % name)
                     effectiveness += 15
                 elif trait == "Neat":
-                    log.append("%s refuses to dirty %s hands on some of the uglier looking criminals." % (worker.name, worker.pp))
+                    log.append("%s refuses to dirty %s hands on some of the uglier looking criminals." % (name, worker.pp))
                     effectiveness -= 15
                 elif trait == "Psychic":
-                    log.append("%s knows when customers are going to start something, and prevents it easily." % worker.name)
+                    log.append("%s knows when customers are going to start something, and prevents it easily." % name)
                     effectiveness += 30
                 elif trait == "Adventurous":
                     log.append("%s experience fighting bandits as an adventurer makes working security relatively easier." % worker.ppC)
                     effectiveness += 25
                 elif trait == "Natural Leader":
-                    log.append("%s often manages to talk customers out of starting an incident." % worker.name)
+                    log.append("%s often manages to talk customers out of starting an incident." % name)
                     effectiveness += 50
                 elif trait == "Scars":
-                    log.append("One look at %s scars is enough to tell the violators that %s means business." % (worker.pp, worker.name))
+                    log.append("One look at %s scars is enough to tell the violators that %s means business." % (worker.pp, name))
                     effectiveness += 20
                 elif trait == "Artificial Body":
-                    log.append("%s makes no effort to hide the fact that %s was a construct, intimidating would-be violators." % (worker.name, worker.p))
+                    log.append("%s makes no effort to hide the fact that %s was a construct, intimidating would-be violators." % (name, worker.p))
                     effectiveness += 25
                 elif trait == "Sexy Air":
-                    log.append("People around %s back %s up just because of %s sexiness." % (worker.name, worker.op, worker.pp))
+                    log.append("People around %s back %s up just because of %s sexiness." % (name, worker.op, worker.pp))
                     effectiveness += 15
                 elif trait == "Courageous":
-                    log.append("%s refuses to back down no matter the odds, making a great guard." % worker.name)
+                    log.append("%s refuses to back down no matter the odds, making a great guard." % name)
                     effectiveness += 25
                 elif trait == "Manly":
-                    log.append("%s is bigger than usual, %s prevents a lot of trouble just by being there." % (worker.name, worker.p))
+                    log.append("%s is bigger than usual, %s prevents a lot of trouble just by being there." % (name, worker.p))
                     effectiveness += 35
                 elif trait == "Sadist":
-                    log.append("%s gladly beats it out of any violators. Everyone deserves to be punished." % worker.name)
+                    log.append("%s gladly beats it out of any violators. Everyone deserves to be punished." % name)
                     effectiveness += 15
                 elif trait == "Nerd":
-                    log.append("%s feels like a super hero while protecting your workers." % worker.name)
+                    log.append("%s feels like a super hero while protecting your workers." % name)
                     effectiveness += 15
                 elif trait == "Peaceful":
-                    log.append("%s has to deal with some very unruly patrons that give %s a hard time." % (worker.name, worker.op))
+                    log.append("%s has to deal with some very unruly patrons that give %s a hard time." % (name, worker.op))
                     effectiveness -= 35
             return effectiveness
 
@@ -140,50 +141,52 @@ init -5 python:
                 log(set_font_color("Your guards are starting their shift!", "cadetblue"))
 
             for worker in workers:
-                if not("Combatant" in worker.gen_occs):
-                    sub = check_submissivity(worker)
-                    if worker.status != 'slave':
-                        if sub < 0:
-                            if dice(15):
-                                worker.logws('character', 1)
-                            log("%s doesn't enjoy working as guard, but %s will get the job done." % (worker.name, worker.p))
-                        elif sub == 0:
-                            if dice(25):
-                                worker.logws('character', 1)
-                            log("%s will work as a guard, but %s would prefer to do something else." % (worker.nickname, worker.p))
-                        else:
-                            if dice(35):
-                                worker.logws('character', 1)
-                            log("%s makes it clear that %s wants another job." % (worker.name, worker.p))
-                        worker.logws("joy", -randint(3, 5))
-                        worker.logws("disposition", -randint(5, 10))
-                        worker.logws('vitality', -randint(2, 5)) # a small vitality penalty for wrong job
+                if "Combatant" in worker.gen_occs:
+                    continue
+                sub = check_submissivity(worker)
+                name = set_font_color(choice([worker.fullname, worker.name, worker.nickname]), "pink")
+                if worker.status != 'slave':
+                    if sub < 0:
+                        if dice(15):
+                            worker.logws('character', 1)
+                        log("%s doesn't enjoy working as guard, but %s will get the job done." % (name, worker.p))
+                    elif sub == 0:
+                        if dice(25):
+                            worker.logws('character', 1)
+                        log("%s will work as a guard, but %s would prefer to do something else." % (name, worker.p))
                     else:
-                        if sub < 0:
-                            if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
-                                log("%s is a slave so no one really cares, but being forced to work as a guard, %s's quite upset." % (worker.name, worker.p))
-                            else:
-                                log("%s will do as %s's told, but this doesn't mean that %s'll be happy about %s guarding duties." % (worker.name, worker.p, worker.p, worker.pp))
-                            if dice(25):
-                                worker.logws('character', 1)
-                        elif sub == 0:
-                            if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
-                                log("%s will do as you command, but %s will hate every second of being forced to work as a guard..." % (worker.name, worker.p))
-                            else:
-                                log("%s was very displeased by %s order to work as a guard, but didn't dare to refuse." % (worker.name, worker.pp))
-                            if dice(35):
-                                worker.logws('character', 1)
-                        else:
-                            if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
-                                log("%s was very displeased by %s order to work as a guard." % (worker.name, worker.pp))
-                            else:
-                                log("%s will do as you command and work as a guard, but not without a lot of grumbling and complaining." % worker.name)
-                            if dice(45):
-                                worker.logws('character', 1)
+                        if dice(35):
+                            worker.logws('character', 1)
+                        log("%s makes it clear that %s wants another job." % (name, worker.p))
+                    worker.logws("joy", -randint(3, 5))
+                    worker.logws("disposition", -randint(5, 10))
+                    worker.logws('vitality', -randint(2, 5)) # a small vitality penalty for wrong job
+                else:
+                    if sub < 0:
                         if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
-                            worker.logws("joy", -randint(4, 8))
-                            worker.logws("disposition", -randint(5, 10))
-                            worker.logws('vitality', -randint(5, 10))
+                            log("%s is a slave so no one really cares, but being forced to work as a guard, %s's quite upset." % (name, worker.p))
                         else:
-                            worker.logws("joy", -randint(2, 4))
-                            worker.logws('vitality', -randint(1, 4))
+                            log("%s will do as %s's told, but this doesn't mean that %s'll be happy about %s guarding duties." % (name, worker.p, worker.p, worker.pp))
+                        if dice(25):
+                            worker.logws('character', 1)
+                    elif sub == 0:
+                        if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
+                            log("%s will do as you command, but %s will hate every second of being forced to work as a guard..." % (name, worker.p))
+                        else:
+                            log("%s was very displeased by %s order to work as a guard, but didn't dare to refuse." % (name, worker.pp))
+                        if dice(35):
+                            worker.logws('character', 1)
+                    else:
+                        if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
+                            log("%s was very displeased by %s order to work as a guard." % (name, worker.pp))
+                        else:
+                            log("%s will do as you command and work as a guard, but not without a lot of grumbling and complaining." % name)
+                        if dice(45):
+                            worker.logws('character', 1)
+                    if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
+                        worker.logws("joy", -randint(4, 8))
+                        worker.logws("disposition", -randint(5, 10))
+                        worker.logws('vitality', -randint(5, 10))
+                    else:
+                        worker.logws("joy", -randint(2, 4))
+                        worker.logws('vitality', -randint(1, 4))

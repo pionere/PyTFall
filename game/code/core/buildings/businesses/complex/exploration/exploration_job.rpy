@@ -22,29 +22,30 @@ init -5 python:
 
             self.allowed_status = ["free"]
 
-        def traits_and_effects_effectiveness_mod(self, worker, log=None):
+        def traits_and_effects_effectiveness_mod(self, worker, log):
             """Affects worker's effectiveness during one turn. Should be added to effectiveness calculated by the function below.
                Calculates only once per turn, in the very beginning.
 
                Another 'team' job which we have individual lines for...
                Maybe unique reports should be a thing as well for on_demand businesses?
             """
-            if not log:
-                log = []
-
             effectiveness = 0
-            if 'Food Poisoning' in worker.effects:
-                log.append("%s suffers from Food Poisoning, and is very far from %s top shape." % (worker.name, worker.pp))
-                effectiveness -= 50
-            elif 'Exhausted' in worker.effects:
-                log.append("%s is exhausted and is in need of some rest." % worker.name)
+            name = worker.name
+            if 'Exhausted' in worker.effects:
+                log.append("%s is exhausted and is in need of some rest." % name)
                 effectiveness -= 75
-            elif 'Down with Cold' in worker.effects:
-                log.append("%s is not feeling well due to colds..." % worker.name)
-                effectiveness -= 15
+            elif 'Injured' in worker.effects:
+                log.append("%s is injured and is in need of some rest." % name)
+                effectiveness -= 70
+            elif 'Food Poisoning' in worker.effects:
+                log.append("%s suffers from Food Poisoning, and is very far from %s top shape." % (name, worker.pp))
+                effectiveness -= 50
             elif 'Drunk' in worker.effects:
-                log.append("%s is drunk, which affects %s coordination. Not the best thing when you need to guard something." % (worker.name, worker.pp))
+                log.append("%s is drunk, which affects %s coordination. Not the best thing when you need to guard something." % (name, worker.pp))
                 effectiveness -= 20
+            elif 'Down with Cold' in worker.effects:
+                log.append("%s is not feeling well due to colds..." % name)
+                effectiveness -= 15
 
             if locked_dice(65): # traits don't always work, even with high amount of traits there are normal days when performance is not affected
                 traits = ["Abnormally Large Boobs", "Aggressive", "Coward", "Stupid", "Psychic",
@@ -60,60 +61,55 @@ init -5 python:
                     return effectiveness
 
                 if trait == "Abnormally Large Boobs":
-                    log.append("Her massive tits get in the way and keep her off balance as %s tries to work security." % worker.name)
+                    log.append("Her massive tits get in the way and keep her off balance as %s tries to work security." % name)
                     effectiveness -= 25
                 elif trait == "Aggressive":
                     if dice(50):
-                        log.append("%s can not sit still, which disrupts the plans of your team." % worker.name)
+                        log.append("%s can not sit still, which disrupts the plans of your team." % name)
                         effectiveness -= 35
                     else:
-                        log.append("Looking for a good fight, %s patrols the area, scaring away the marauders." % worker.name)
+                        log.append("Looking for a good fight, %s patrols the area, scaring away the marauders." % name)
                         effectiveness += 50
                 elif trait == "Coward":
-                    log.append("%s keeps asking for backup every single time an incident arises." % worker.name)
+                    log.append("%s keeps asking for backup every single time an incident arises." % name)
                     effectiveness -= 25
                 elif trait == "Stupid":
-                    log.append("%s has trouble adapting to the constantly evolving world." % worker.name)
+                    log.append("%s has trouble adapting to the constantly evolving world." % name)
                     effectiveness -= 15
                 elif trait == "Smart":
-                    log.append("%s keeps learning new ways to track the enemy." % worker.name)
+                    log.append("%s keeps learning new ways to track the enemy." % name)
                     effectiveness += 15
                 elif trait == "Neat":
-                    log.append("%s refuses to dirty %s hands on some of the uglier looking beasts." % (worker.name, worker.pp))
+                    log.append("%s refuses to dirty %s hands on some of the uglier looking beasts." % (name, worker.pp))
                     effectiveness -= 15
                 elif trait == "Psychic":
-                    log.append("%s knows the enemy movements and always steps in the right direction." % worker.name)
+                    log.append("%s knows the enemy movements and always steps in the right direction." % name)
                     effectiveness += 30
                 elif trait == "Adventurous":
-                    log.append("%s is always looking for new adventures." % worker.name)
+                    log.append("%s is always looking for new adventures." % name)
                     effectiveness += 25
                 elif trait == "Natural Leader":
-                    log.append("%s leads the way of your team." % worker.name)
+                    log.append("%s leads the way of your team." % name)
                     effectiveness += 50
                 elif trait == "Artificial Body":
-                    log.append("%s is a construct and walk through bushes effortless." % worker.name)
+                    log.append("%s is a construct and walk through bushes effortless." % name)
                     effectiveness += 25
                 elif trait == "Courageous":
-                    log.append("%s refuses to back down no matter the odds, making a great explorer." % worker.name)
+                    log.append("%s refuses to back down no matter the odds, making a great explorer." % name)
                     effectiveness += 25
                 elif trait == "Manly":
-                    log.append("%s is bigger than usual and does not shy away in dire situations." % worker.name)
+                    log.append("%s is bigger than usual and does not shy away in dire situations." % name)
                     effectiveness += 35
                 elif trait == "Nerd":
-                    log.append("%s feels like a super hero while walking in the forest." % worker.name)
+                    log.append("%s feels like a super hero while walking in the forest." % name)
                     effectiveness += 15
                 elif trait == "Peaceful":
-                    log.append("%s has to deal with some very unruly opponents that give %s a hard time." % (worker.name, worker.op))
+                    log.append("%s has to deal with some very unruly opponents that give %s a hard time." % (name, worker.op))
                     effectiveness -= 35
             return effectiveness
 
-        def settle_workers_disposition(self, workers, business, all_on_deck=False):
-            if not isinstance(workers, (set, list, tuple)):
-                workers = [workers]
-
-            log = business.log
-
-            log(set_font_color("Your team is ready for the day!", "cadetblue"))
+        def settle_workers_disposition(self, workers, log):
+            log(set_font_color("Your team is ready for action!", "cadetblue"))
 
             for worker in workers:
                 if not("Combatant" in worker.gen_occs):

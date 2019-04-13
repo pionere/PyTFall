@@ -1372,7 +1372,7 @@ label after_load:
                 if hasattr(u, "intro_string"):
                     u.intro_string = u.__class__.intro_string
                 if hasattr(u, "log_intro_string"):
-                    u.log_intro_string = u.__class__.log_intro_string
+                    del u.log_intro_string
                 if hasattr(u, "clients"):
                     del u.clients
 

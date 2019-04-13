@@ -25,18 +25,22 @@ init -5 python:
                Calculates only once per turn, in the very beginning.
             """
             effectiveness = 0
+            name = worker.name
             # effects always work
-            if 'Food Poisoning' in worker.effects:
-                log.append("%s suffers from Food Poisoning and doesn't feel like whoring." % worker.name)
-                effectiveness -= 50
-            elif 'Exhausted' in worker.effects:
-                log.append("%s is exhausted and is in need of some rest." % worker.name)
+            if 'Exhausted' in worker.effects:
+                log.append("%s is exhausted and is in need of some rest." % name)
                 effectiveness -= 75
+            elif 'Injured' in worker.effects:
+                log.append("%s is injured and is in need of some rest." % name)
+                effectiveness -= 70
+            elif 'Food Poisoning' in worker.effects:
+                log.append("%s suffers from Food Poisoning and doesn't feel like whoring." % name)
+                effectiveness -= 50
             elif 'Down with Cold' in worker.effects:
-                log.append("%s is not feeling well (down with cold)..." % worker.name)
+                log.append("%s is not feeling well (down with cold)..." % name)
                 effectiveness -= 15
             elif 'Horny' in worker.effects:
-                log.append("%s is horny. It's perfect mindset for %s job!" % (worker.name, worker.pp))
+                log.append("%s is horny. It's perfect mindset for %s job!" % (name, worker.pp))
                 effectiveness += 20
             elif 'Revealing Clothes' in worker.effects:
                 log.append("%s revealing clothes appeal to customers and make them really horny." % worker.ppC)
@@ -54,59 +58,59 @@ init -5 python:
                     return effectiveness
 
                 if trait == "Ill-mannered":
-                    log.append("%s is pretty rude today, but fortunately in bed %s bad manners makes customers harder." % (worker.name, worker.pp))
+                    log.append("%s is pretty rude today, but fortunately in bed %s bad manners makes customers harder." % (name, worker.pp))
                     effectiveness += 15
                 elif trait == "Always Hungry":
                     if locked_dice(50):
-                        log.append("Sperm is a good source of protein, and today %s intends to get all protein available!" % worker.name)
+                        log.append("Sperm is a good source of protein, and today %s intends to get all protein available!" % name)
                         effectiveness += 25
                     else:
-                        log.append("Hungry %s eats %s snacks all the day, making customers feel like they are less important for %s than food... Which may be true." % (worker.name, worker.pp, worker.pp))
+                        log.append("Hungry %s eats %s snacks all the day, making customers feel like they are less important for %s than food... Which may be true." % (name, worker.pp, worker.pp))
                         effectiveness -= 25
                         log.logloc("dirt", 1)
                 elif trait == "Heavy Drinker":
                     if locked_dice(50):
-                        log.append("Unfortunately %s drank too much yesterday, and now suffers from a hangover." % worker.name)
+                        log.append("Unfortunately %s drank too much yesterday, and now suffers from a hangover." % name)
                         effectiveness -= 20
                     else:
-                        log.append("Slightly drunk %s sexually assaults customers all the day, they don't complain." % worker.name)
+                        log.append("Slightly drunk %s sexually assaults customers all the day, they don't complain." % name)
                         effectiveness += 20
                 elif trait == "Neat":
-                    log.append("Unfortunately %s is too focused on keeping %s freshly laundered clothes clean instead of satisfying %s partners..." % (worker.name, worker.pp, worker.pp))
+                    log.append("Unfortunately %s is too focused on keeping %s freshly laundered clothes clean instead of satisfying %s partners..." % (name, worker.pp, worker.pp))
                     effectiveness -= 20
                 elif trait == "Messy":
-                    log.append("Today %s wants it really sloppy and messy, attracting customers with similar tastes." % worker.name)
+                    log.append("Today %s wants it really sloppy and messy, attracting customers with similar tastes." % name)
                     log.logloc("dirt", randint(1, 2))
                     effectiveness += 20
                 elif trait == "Homebody":
-                    log.append("%s really enjoys %s job, having warm food and soft bed nearby all the time. Nice to see someone dedicated to their work." % (worker.name, worker.pp))
+                    log.append("%s really enjoys %s job, having warm food and soft bed nearby all the time. Nice to see someone dedicated to their work." % (name, worker.pp))
                     effectiveness += 15
                 elif trait == "Indifferent":
-                    log.append("Somehow %s doesn't care much about being fucked today, and most customers don't appreciate it." % worker.name)
+                    log.append("Somehow %s doesn't care much about being fucked today, and most customers don't appreciate it." % name)
                     effectiveness -= 15
                 elif trait == "Open Minded":
-                    log.append("%s has no problems trying different things sexually, making a perfect partner for customers with unusual tastes." % worker.name)
+                    log.append("%s has no problems trying different things sexually, making a perfect partner for customers with unusual tastes." % name)
                     effectiveness += 25
                 elif trait == "Dawdler":
-                    log.append("%s's slow movements find favor among oversensitive customers who'd came too soon otherwise." % worker.name)
+                    log.append("%s's slow movements find favor among oversensitive customers who'd came too soon otherwise." % name)
                     effectiveness += 20
                 elif trait == "Energetic":
-                    log.append("%s's moves too fast for %s own good today, rushing too much to the displeasure of %s partners." % (worker.name, worker.pp, worker.pp))
+                    log.append("%s's moves too fast for %s own good today, rushing too much to the displeasure of %s partners." % (name, worker.pp, worker.pp))
                     effectiveness -= 20
                 elif trait == "Sexy Air":
-                    log.append("%s's sexiness gives customers more fuel, resulting in better satisfaction." % worker.name)
+                    log.append("%s's sexiness gives customers more fuel, resulting in better satisfaction." % name)
                     effectiveness += 15
                 elif trait == "Frigid":
-                    log.append("For %s sex is just a boring job, and many customers don't appreciate it." % worker.name)
+                    log.append("For %s sex is just a boring job, and many customers don't appreciate it." % name)
                     effectiveness -= 40
                 elif trait == "Nymphomaniac":
-                    log.append("%s is always glad to engage in sex, and this job is just perfect for %s." % (worker.name, worker.op))
+                    log.append("%s is always glad to engage in sex, and this job is just perfect for %s." % (name, worker.op))
                     effectiveness += 40
                 elif trait == "Psychic":
-                    log.append("Knowing what %s partners really want is a trivial matter for a psychic like %s, making %s customers happier." % (worker.pp, worker.name, worker.pp))
+                    log.append("Knowing what %s partners really want is a trivial matter for a psychic like %s, making %s customers happier." % (worker.pp, name, worker.pp))
                     effectiveness += 35
                 elif trait == "Lactation":
-                    log.append("%s is lactating! Sometimes customers crave whitish liquids as much as working girls." % worker.name)
+                    log.append("%s is lactating! Sometimes customers crave whitish liquids as much as working girls." % name)
                     effectiveness += 25
             return effectiveness
 
@@ -153,44 +157,45 @@ init -5 python:
 
         def settle_workers_disposition(self, worker, log):
             # handles penalties in case of wrong job
+            name = set_font_color(choice([worker.fullname, worker.name, worker.nickname]), "pink")
             if not("SIW" in worker.gen_occs):
                 sub = check_submissivity(worker)
                 if worker.status != 'slave':
                     if sub < 0:
                         if dice(15):
                             worker.logws('character', 1)
-                        log.append("%s is not very happy with %s current job as a harlot, but %s'll get the job done." % (worker.name, worker.pp, worker.p))
+                        log.append("%s is not very happy with %s current job as a harlot, but %s'll get the job done." % (name, worker.pp, worker.p))
                     elif sub == 0:
                         if dice(25):
                             worker.logws('character', 1)
-                        log.append("%s serves customers as a whore, but %s would prefer to do something else." % (worker.nickname, worker.p))
+                        log.append("%s serves customers as a whore, but %s would prefer to do something else." % (name, worker.p))
                     else:
                         if dice(35):
                             worker.logws('character', 1)
-                        log.append("%s makes it clear that %s wants another job before getting busy with clients." % (worker.name, worker.p))
+                        log.append("%s makes it clear that %s wants another job before getting busy with clients." % (name, worker.p))
                     worker.logws("joy", -randint(3, 6))
                     worker.logws("disposition", -randint(10, 15))
                     worker.logws('vitality', -randint(2, 8)) # a small vitality penalty for wrong job
                 else:
                     if sub < 0:
                         if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
-                            log.append("%s is a slave so no one really cares, but being forced to work as a whore, %s's quite upset." % (worker.name, worker.p))
+                            log.append("%s is a slave so no one really cares, but being forced to work as a whore, %s's quite upset." % (name, worker.p))
                         else:
-                            log.append("%s will do as %s is told, but doesn't mean that %s'll be happy about doing 'it' with strangers." % (worker.name, worker.p, worker.p))
+                            log.append("%s will do as %s is told, but doesn't mean that %s'll be happy about doing 'it' with strangers." % (name, worker.p, worker.p))
                         if dice(25):
                             worker.logws('character', 1)
                     elif sub == 0:
                         if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
-                            log.append("%s will do as you command, but %s will hate every second of %s working as a harlot..." % (worker.name, worker.p, worker.pp))
+                            log.append("%s will do as you command, but %s will hate every second of %s working as a harlot..." % (name, worker.p, worker.pp))
                         else:
-                            log.append("%s was very displeased by %s order to work as a whore, but didn't dare to refuse." % (worker.name, worker.pp))
+                            log.append("%s was very displeased by %s order to work as a whore, but didn't dare to refuse." % (name, worker.pp))
                         if dice(35):
                             worker.logws('character', 1)
                     else:
                         if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
-                            log.append("%s was very displeased by %s order to work as a whore, and makes it clear for everyone before getting busy with clients." % (worker.name, worker.pp))
+                            log.append("%s was very displeased by %s order to work as a whore, and makes it clear for everyone before getting busy with clients." % (name, worker.pp))
                         else:
-                            log.append("%s will do as you command and work as a harlot, but not without a lot of grumbling and complaining." % worker.name)
+                            log.append("%s will do as you command and work as a harlot, but not without a lot of grumbling and complaining." % name)
                         if dice(45):
                             worker.logws('character', 1)
                     if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
@@ -201,10 +206,9 @@ init -5 python:
                         worker.logws("joy", -randint(2, 4))
                         worker.logws('vitality', -randint(2, 6))
             else:
-                log.append(choice(["{color=pink}%s is doing %s shift as a harlot.{/color}" % (worker.name, worker.p),
-                                   "{color=pink}%s gets busy with clients.{/color}" % worker.fullname,
-                                   "{color=pink}%s serves customers as a whore.{/color}" % worker.nickname]))
-            return True
+                log.append(choice(["%s is doing %s shift as a harlot." % (name, worker.p),
+                                   "%s gets busy with clients." % name,
+                                   "%s serves customers as a whore." % name]))
 
         def work_brothel(self, worker, client, building, log, effectiveness):
             # Pass the flags from occupation_checks:
@@ -212,6 +216,8 @@ init -5 python:
             log.append("\n")
 
             always_exclude = ["sexwithmc", "angry", "in pain", "dungeon", "sad", "rape"]
+
+            nickname = worker.nickname
 
             # Acts, Images, Tags and things Related:
             # Straight Sex Act
@@ -237,11 +243,11 @@ init -5 python:
                 if "ontop" in image_tags:
                     log.append("He invited her to 'sit' on his lap as he unsheathed his cock. They've continued along the same lines in 'girl-on-top' position. \n")
                 elif "doggy" in image_tags:
-                    log.append("He ordered %s to bend over and took her from behind. \n" % worker.nickname)
+                    log.append("He ordered %s to bend over and took her from behind. \n" % nickname)
                 elif "missionary" in image_tags:
-                    log.append("He pushed %s on her back, shoved his cock in, screaming: 'Oh, Your pussy is wrapping around me so tight!' \n" % worker.nickname)
+                    log.append("He pushed %s on her back, shoved his cock in, screaming: 'Oh, Your pussy is wrapping around me so tight!' \n" % nickname)
                 elif "onside" in image_tags:
-                    log.append("%s lay on her side inviting the customer to fuck her. He was more than happy to oblige.\n" % worker.nickname)
+                    log.append("%s lay on her side inviting the customer to fuck her. He was more than happy to oblige.\n" % nickname)
                 elif "standing" in image_tags:
                     log.append("Not even bothering getting into a position, he took her standing up. \n")
                 elif "spooning" in image_tags:
@@ -265,7 +271,7 @@ init -5 python:
                     sexmod = 1 if dice(10) else 0
                 log.append(choice(["Anal sex is the best, customer thought... ",
                                    "I am in the mood for a good anal fuck, customer said. ",
-                                   "Customer's dick got harder and harder just from the thought of %s's asshole! "%worker.nickname]))
+                                   "Customer's dick got harder and harder just from the thought of %s's asshole! "%nickname]))
 
                 if worker.has_image("2c anal", **kwargs):
                     log.img = worker.show("2c anal", **kwargs)
@@ -277,11 +283,11 @@ init -5 python:
                 if "ontop" in image_tags:
                     log.append("He invited her to 'sit' on his lap as he unsheathed his cock. They've continued along the same lines in 'girl on top' position. \n")
                 elif "doggy" in image_tags:
-                    log.append("He ordered %s to bend over and took her from behind. \n"%worker.nickname)
+                    log.append("He ordered %s to bend over and took her from behind. \n"%nickname)
                 elif "missionary" in image_tags:
-                    log.append("He pushed %s on her back, shoved his cock in, screaming: 'Oh, Your anus is wrapping around me so tight!' \n"%worker.nickname)
+                    log.append("He pushed %s on her back, shoved his cock in, screaming: 'Oh, Your anus is wrapping around me so tight!' \n"%nickname)
                 elif "onside" in image_tags:
-                    log.append("%s lays on her side inviting the customer to fuck her. He was more than happy to oblige.\n"%worker.nickname)
+                    log.append("%s lays on her side inviting the customer to fuck her. He was more than happy to oblige.\n"%nickname)
                 elif "standing" in image_tags:
                     log.append("Not even bothering getting into a position, he took her standing up. \n")
                 elif "spooning" in image_tags:
@@ -314,7 +320,7 @@ init -5 python:
                         sexmod = 1 if dice(10) else 0
                     log.img = worker.show("bc deepthroat", **kwargs)
                 elif act == tags[1]:
-                    log.append("He told %s to give him a good handjob.\n"%worker.nickname)
+                    log.append("He told %s to give him a good handjob.\n"%nickname)
                     if "Lesbian" in worker.traits:
                         effectiveness -= 25
                         oralmod = 1 if dice(20) else 0
@@ -348,7 +354,7 @@ init -5 python:
                                            "Seeing her knockers, customer wanted nothing else then to park his dick between them. \n",
                                            "Lustfully gazing on your girl's burst, he asked for a titsjob. \n",
                                            "He put his manhood between her big tits. \n" ,
-                                           "He showed his cock between %s's enormous breasts. \n"%worker.nickname]))
+                                           "He showed his cock between %s's enormous breasts. \n"%nickname]))
                     elif traits["Small Boobs"] in worker.traits:
                         if dice(15):
                             log.append("With a smirk on his face, customer asked for a titsjob. He was having fun from her vain efforts. \n")
@@ -357,8 +363,8 @@ init -5 python:
                                                "Even when knowing that her breasts are small, he wanted to be caressed by them. \n"]))
                     else:
                         log.append(choice(["He asked for a titsjob. \n",
-                                           "He let %s to caress him with her breasts. \n" % worker.nickname,
-                                           "He showed his cock between %s's tits. \n" % worker.nickname]))
+                                           "He let %s to caress him with her breasts. \n" % nickname,
+                                           "He showed his cock between %s's tits. \n" % nickname]))
                     log.img = worker.show("bc titsjob", **kwargs)
                 elif act == tags[4]:
                     if "Lesbian" in worker.traits:
@@ -418,8 +424,8 @@ init -5 python:
 
                 # We'll be adding "les" here as Many lesbian pics do not fall in any of the categories and will never be called...
                 if act == tags[0]:
-                    log.append(choice(["Clearly in the mood for some cunt, she licked %ss pussy clean.\n" % worker.nickname,
-                                       "Hungry for a cunt, she told %s to be still and started licking her soft pussy with her hot tong. \n" % worker.nickname]))
+                    log.append(choice(["Clearly in the mood for some cunt, she licked %ss pussy clean.\n" % nickname,
+                                       "Hungry for a cunt, she told %s to be still and started licking her soft pussy with her hot tong. \n" % nickname]))
                     if "Lesbian" in worker.traits: # bisexuals will have normal value during lesbian action, lesbians will get +15 effectiveness, and straight ones -25
                         effectiveness += 15
                         sexmod = 1 if dice(25) else 0
@@ -436,8 +442,8 @@ init -5 python:
                         vaginalmod = 1 if dice(8) else 0
                     log.img = worker.show("gay", "2c lickpussy", **kwargs)
                 elif act == tags[1]:
-                    log.append(choice(["All hot and bothered, she ordered %s to lick her cunt. \n" % worker.nickname,
-                                       "As if she had an itch, she quickly told %s to tong her pussy. \n" % worker.nickname]))
+                    log.append(choice(["All hot and bothered, she ordered %s to lick her cunt. \n" % nickname,
+                                       "As if she had an itch, she quickly told %s to tong her pussy. \n" % nickname]))
                     if "Lesbian" in worker.traits:
                         effectiveness += 15
                         sexmod = 1 if dice(10) else 0
@@ -455,8 +461,8 @@ init -5 python:
                         vaginalmod = 1 if dice(8) else 0
                     log.img = worker.show("gay", "bc lickpussy", **kwargs)
                 elif act == tags[2]:
-                    log.append(choice(["She licked %ss anus clean.\n" % worker.nickname,
-                                       "She told %s to be still and started licking her asshole with her hot tong. \n" % worker.nickname]))
+                    log.append(choice(["She licked %ss anus clean.\n" % nickname,
+                                       "She told %s to be still and started licking her asshole with her hot tong. \n" % nickname]))
                     if "Lesbian" in worker.traits:
                         effectiveness += 15
                         sexmod = 1 if dice(25) else 0
@@ -473,8 +479,8 @@ init -5 python:
                         analmod = 1 if dice(8) else 0
                     log.img = worker.show("gay", "2c lickanus", **kwargs)
                 elif act == tags[3]:
-                    log.append(choice(["All hot and bothered, she ordered %s to lick her asshole. \n" % worker.nickname,
-                                       "As if she had an itch, she quickly told %s to tong her anus. \n" % worker.nickname]))
+                    log.append(choice(["All hot and bothered, she ordered %s to lick her asshole. \n" % nickname,
+                                       "As if she had an itch, she quickly told %s to tong her anus. \n" % nickname]))
                     if "Lesbian" in worker.traits:
                         effectiveness += 15
                         sexmod = 1 if dice(10) else 0
@@ -492,7 +498,7 @@ init -5 python:
                     log.img = worker.show("gay", "bc lickanus", **kwargs)
                 elif act == tags[4]:
                     log.append(choice(["In mood for a hot lesbo action, she stuck her fingers in your girls pussy. \n",
-                                       "She watched %s moan as she stuck fingers in her pussy. \n" % worker.nickname]))
+                                       "She watched %s moan as she stuck fingers in her pussy. \n" % nickname]))
                     if "Lesbian" in worker.traits:
                         effectiveness += 15
                         sexmod = 1 if dice(25) else 0
@@ -507,7 +513,7 @@ init -5 python:
                     log.img = worker.show("gay", "2c vaginalfingering", **kwargs)
                 elif act == tags[5]:
                     log.append(choice(["Quite horny, she ordered your girl to finger her cunt. \n",
-                                       "Clearly in the mood, she told %s to finger her until she cums. \n" % worker.nickname]))
+                                       "Clearly in the mood, she told %s to finger her until she cums. \n" % nickname]))
                     if "Lesbian" in worker.traits:
                         effectiveness += 15
                         sexmod = 1 if dice(25) else 0
@@ -522,7 +528,7 @@ init -5 python:
                     log.img = worker.show("gay", "bc vagnalhandjob", **kwargs)
                 elif act == tags[6]:
                     log.append(choice(["In mood for a hot lesbo action, she stuck her fingers in your girls anus. \n",
-                                       "She watched %s moan as she stuck fingers in her asshole. \n" % worker.nickname]))
+                                       "She watched %s moan as she stuck fingers in her asshole. \n" % nickname]))
                     if "Lesbian" in worker.traits:
                         effectiveness += 15
                         sexmod = 1 if dice(25) else 0
@@ -537,7 +543,7 @@ init -5 python:
                     log.img = worker.show("gay", "2c analfingering", **kwargs)
                 elif act == tags[7]:
                     log.append(choice(["Quite horny, she ordered your girl to finger her anus. \n",
-                                       "Clearly in the mood, she told %s to finger her asshole until she cums. \n" % worker.nickname]))
+                                       "Clearly in the mood, she told %s to finger her asshole until she cums. \n" % nickname]))
                     if "Lesbian" in worker.traits:
                         effectiveness += 15
                         sexmod = 1 if dice(25) else 0
@@ -588,7 +594,7 @@ init -5 python:
                     log.img = worker.show("gay", "bc hug", "2c hug", **kwargs)
                 elif act == tags[11]:
                     log.append(choice(["She put on a strapon and fucked your girl in her cunt. \n",
-                                       "Equipping herself with a strap-on, she lustfully shoved it in %ss pussy. \n"%worker.nickname]))
+                                       "Equipping herself with a strap-on, she lustfully shoved it in %ss pussy. \n"%nickname]))
                     if "Lesbian" in worker.traits:
                         effectiveness += 15
                         vaginalmod = 1 if dice(25) else 0
@@ -603,8 +609,8 @@ init -5 python:
                     log.img = worker.show("gay", "2c vaginal", **kwargs)
                     self.take_virginity(worker, log.loc, log)
                 elif act == tags[12]:
-                    log.append(choice(["She ordered %s to put on a strapon and fuck her silly with it. \n" % worker.nickname,
-                                       "She equipped %s with a strapon and told her that she was 'up' for a good fuck! \n" % worker.nickname]))
+                    log.append(choice(["She ordered %s to put on a strapon and fuck her silly with it. \n" % nickname,
+                                       "She equipped %s with a strapon and told her that she was 'up' for a good fuck! \n" % nickname]))
                     if "Lesbian" in worker.traits:
                         effectiveness += 15
                         sexmod = 1 if dice(25) else 0
@@ -619,7 +625,7 @@ init -5 python:
                     log.img = worker.show("gay", "bc vaginal", **kwargs)
                 elif act == tags[13]:
                     log.append(choice(["She put on a strapon and fucked your girl in her butt. \n",
-                                       "Equipping herself with a strapon, she lustfully shoved it in %s's asshole. \n" % worker.nickname]))
+                                       "Equipping herself with a strapon, she lustfully shoved it in %s's asshole. \n" % nickname]))
                     if "Lesbian" in worker.traits:
                         effectiveness += 15
                         analmod = 1 if dice(25) else 0
@@ -633,8 +639,8 @@ init -5 python:
                         sexmod = 1 if dice(8) else 0
                     log.img = worker.show("gay", "2c anal", **kwargs)
                 elif act == tags[14]:
-                    log.append(choice(["She ordered %s to put on a strapon and butt-fuck her silly with it. \n" % worker.nickname,
-                                       "She equipped %s with a strapon and told her that she was 'up' for a good anal fuck! \n" % worker.nickname]))
+                    log.append(choice(["She ordered %s to put on a strapon and butt-fuck her silly with it. \n" % nickname,
+                                       "She equipped %s with a strapon and told her that she was 'up' for a good anal fuck! \n" % nickname]))
                     if "Lesbian" in worker.traits:
                         effectiveness += 15
                         sexmod = 1 if dice(25) else 0
@@ -648,8 +654,8 @@ init -5 python:
                         analmod = 1 if dice(8) else 0
                     log.img = worker.show("gay", "bc anal", **kwargs)
                 elif act == tags[15]:
-                    log.append(choice(["She played with a toy and %ss pussy. \n" % worker.nickname,
-                                       "She stuck a toy up %s cunt. \n" % worker.nickname]))
+                    log.append(choice(["She played with a toy and %ss pussy. \n" % nickname,
+                                       "She stuck a toy up %s cunt. \n" % nickname]))
                     if "Lesbian" in worker.traits:
                         effectiveness += 15
                         sexmod = 1 if dice(25) else 0
@@ -664,7 +670,7 @@ init -5 python:
                     log.img = worker.show("gay", "2c vaginaltoy", **kwargs)
                     self.take_virginity(worker, log.loc, log)
                 elif act == tags[16]:
-                    log.append(choice(["Without further ado, %s fucked her with a toy. \n" % worker.nickname,
+                    log.append(choice(["Without further ado, %s fucked her with a toy. \n" % nickname,
                                        "She asked your girl to fuck her pussy with a toy. \n"]))
                     if "Lesbian" in worker.traits:
                         effectiveness += 15
@@ -694,7 +700,7 @@ init -5 python:
                         analmod = 1 if dice(8) else 0
                     log.img = worker.show("gay", "2c analtoy", **kwargs)
                 elif act == tags[18]:
-                    log.append(choice(["After some foreplay, she asked %s to shove a toy up her ass. \n" % worker.nickname,
+                    log.append(choice(["After some foreplay, she asked %s to shove a toy up her ass. \n" % nickname,
                                        "This female customer of your brothel clearly believed that there is no greater pleasure than a toy up her butt. \n"]))
                     if "Lesbian" in worker.traits:
                         effectiveness += 15
@@ -742,34 +748,35 @@ init -5 python:
 
             # Charisma mods:
             charisma = self.normalize_required_stat(worker, "charisma", effectiveness, building.tier)
+            name = worker.name
             if charisma >= 170:
-                log.append("Her supernal loveliness made the customer to shed tears of happiness, comparing %s to ancient goddess of love. Be wary of possible cults dedicated to her..." % worker.name)
+                log.append("Her supernal loveliness made the customer to shed tears of happiness, comparing %s to ancient goddess of love. Be wary of possible cults dedicated to her..." % name)
                 log.logws("joy", 1)
                 log.logloc("fame", choice([0, 1, 1, 1]))
                 log.logloc("reputation", choice([0, 1]))
             elif charisma >= 160:
-                log.append("%s made the customer fall in love with her unearthly beauty. Careful now girl, we don't need crowds of admires around our businesses..." % worker.name)
+                log.append("%s made the customer fall in love with her unearthly beauty. Careful now girl, we don't need crowds of admires around our businesses..." % name)
                 log.logws("joy", 1)
                 log.logloc("fame", choice([0, 1]))
                 log.logloc("reputation", choice([0, 0, 1]))
             elif charisma >= 145:
-                log.append("%s completely enchanted the customer with her stunning beauty." % worker.name)
+                log.append("%s completely enchanted the customer with her stunning beauty." % name)
                 log.logloc("fame", choice([0, 0, 1]))
                 log.logloc("reputation", choice([0, 0, 0, 1]))
             elif charisma >= 120:
-                log.append("The client was happy to be alone with such a breathtakingly beautiful girl as %s." % worker.name)
+                log.append("The client was happy to be alone with such a breathtakingly beautiful girl as %s." % name)
                 log.logloc("fame", choice([0, 0, 0, 1]))
             elif charisma >= 100:
-                log.append("%s good looks clearly was pleasing to the customer." %worker.name)
+                log.append("%s good looks clearly was pleasing to the customer." %name)
             elif charisma >= 50:
-                log.append("%s did her best to make the customer like her, but her beauty could definitely be enhanced." % worker.name)
+                log.append("%s did her best to make the customer like her, but her beauty could definitely be enhanced." % name)
             else:
                 log.logws("joy", -2)
                 log.logloc("fame", choice([-1, 0]))
                 if client.gender == "male":
-                    log.append("The customer was unimpressed by %s looks, to say at least. Still, he preferred fucking her over a harpy. Hearing that from him however, was not encouraging for the poor girl at all..." % worker.name)
+                    log.append("The customer was unimpressed by %s looks, to say at least. Still, he preferred fucking her over a harpy. Hearing that from him however, was not encouraging for the poor girl at all..." % name)
                 else:
-                    log.append("The customer was unimpressed by %s looks, to say at least. Still, she preferred fucking her over a harpy. Hearing that from her however, was not encouraging for the poor girl at all..." % worker.name)
+                    log.append("The customer was unimpressed by %s looks, to say at least. Still, she preferred fucking her over a harpy. Hearing that from her however, was not encouraging for the poor girl at all..." % name)
 
             refinement = self.normalize_required_skill(worker, "refinement", effectiveness, building.tier)
             if charisma >= 100 and refinement >= 100 and dice(75):
@@ -803,20 +810,20 @@ init -5 python:
                 log.append("Her well honed sexual tricks and techniques were very pleasing to the customer, and she was quite pleased in return by client's praises.")
                 log.logws("joy", 1)
             elif effectiveness >= 65:
-                log.append("%s did the job to the best of her ability, making a good impression, but her skills could definitely be improved." % worker.name)
+                log.append("%s did the job to the best of her ability, making a good impression, but her skills could definitely be improved." % name)
             elif effectiveness >= 35:
-                log.append("The girl performed quite poorly. Still, %s somewhat managed to provide required service, following impatient instructions of the client." % worker.name)
+                log.append("The girl performed quite poorly. Still, %s somewhat managed to provide required service, following impatient instructions of the client." % name)
             else:
                 if worker.get_stat("charisma") >= 200:
-                    log.append("Even though %s failed to satisfy the client, her performance was however somewhat saved by her looks." % worker.name)
+                    log.append("Even though %s failed to satisfy the client, her performance was however somewhat saved by her looks." % name)
                 else:
-                    log.append("Unfortunately, %s failed to satisfy the client. Her looks were not likely to be of any help to her either." % worker.name)
+                    log.append("Unfortunately, %s failed to satisfy the client. Her looks were not likely to be of any help to her either." % name)
             if effectiveness < 100: # with low effectiveness wrong orientation will take some vitality
                 if ("Lesbian" in worker.traits) and (client.gender == "male"):
-                    log.append(" It was a bit difficult for %s to do it with a man due to her sexual orientation..." % worker.name)
+                    log.append(" It was a bit difficult for %s to do it with a man due to her sexual orientation..." % name)
                     log.logws("vitality", -randint(1, 5))
                 elif (client.gender == "female") and not("Lesbian" in worker.traits) and not("Bisexual" in worker.traits):
-                    log.append(" It was a bit difficult for %s to do it with a woman due to her sexual orientation..." % worker.name)
+                    log.append(" It was a bit difficult for %s to do it with a woman due to her sexual orientation..." % name)
                     log.logws("vitality", -randint(1, 5))
 
             log.append("")
@@ -839,7 +846,7 @@ init -5 python:
                 worker.logws("oral", oralmod)
                 sexskill += 1
             if sexskill + constmod > 0:
-                log.append("%s feels like she learned something! \n"% worker.name)
+                log.append("%s feels like she learned something! \n"% name)
                 worker.logws("joy", 1)
 
             return effectiveness

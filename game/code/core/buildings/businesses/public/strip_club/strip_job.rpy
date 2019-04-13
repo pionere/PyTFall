@@ -28,25 +28,26 @@ init -5 python:
                Calculates only once per turn, in the very beginning.
             """
             # Special check to prevent crashing
-            if log is None:
-                log = []
-
             effectiveness = 0
+            name = worker.name
             # effects always work
-            if 'Food Poisoning' in worker.effects:
-                log.append("%s suffers from Food Poisoning, and is very far from %s top shape." % (worker.name, worker.pp))
-                effectiveness -= 50
-            elif 'Exhausted' in worker.effects:
-                log.append("%s is exhausted and is in need of some rest." % worker.name)
+            if 'Exhausted' in worker.effects:
+                log.append("%s is exhausted and is in need of some rest." % name)
                 effectiveness -= 75
+            elif 'Injured' in worker.effects:
+                log.append("%s is injured and is in need of some rest." % name)
+                effectiveness -= 70
+            elif 'Food Poisoning' in worker.effects:
+                log.append("%s suffers from Food Poisoning, and is very far from %s top shape." % (name, worker.pp))
+                effectiveness -= 50
             elif 'Down with Cold' in worker.effects:
-                log.append("%s is not feeling well due to colds..." % worker.name)
+                log.append("%s is not feeling well due to colds..." % name)
                 effectiveness -= 15
             elif 'Horny' in worker.effects:
-                log.append("%s is horny. A positive mindset for %s job!" % (worker.name, worker.pp))
+                log.append("%s is horny. A positive mindset for %s job!" % (name, worker.pp))
                 effectiveness += 10
             elif 'Drunk' in worker.effects:
-                log.append("%s is drunk, which affects %s coordination. Not the best thing when you need to dance around pole." % (worker.name, worker.pp))
+                log.append("%s is drunk, which affects %s coordination. Not the best thing when you need to dance around pole." % (name, worker.pp))
                 effectiveness -= 20
             elif 'Revealing Clothes' in worker.effects:
                 log.append("%s revealing clothes are perfect for %s job!" % (worker.ppC, worker.pp))
@@ -66,71 +67,71 @@ init -5 python:
 
                 if trait == "Abnormally Large Boobs":
                     if dice(65):
-                        log.append("%s makes a big splash today playing with her massive boobs to customers delight." % worker.name)
+                        log.append("%s makes a big splash today playing with her massive boobs to customers delight." % name)
                         effectiveness += 50
                     else:
-                        log.append("Handling massive boobs on daily basis is a tiresome job, even more so when %s has to dance at the stage." % worker.name)
+                        log.append("Handling massive boobs on daily basis is a tiresome job, even more so when %s has to dance at the stage." % name)
                         worker.logws('vitality', -randint(5, 10))
                 elif trait == "Small Boobs":
                     if not "Lolita" in worker.traits:
-                        log.append("%s tries her best, but most customers are not very impressed by her modest forms." % worker.name)
+                        log.append("%s tries her best, but most customers are not very impressed by her modest forms." % name)
                         effectiveness -= 25
                     else:
-                        log.append("%s may not have many fans due to her forms, but there are always lolicons among customers." % worker.name)
+                        log.append("%s may not have many fans due to her forms, but there are always lolicons among customers." % name)
                         effectiveness += 20
                 elif trait == "Scars":
-                    log.append("Poor %s does %s best, but many customers turn away when they see %s scars..." % (worker.name, worker.pp, worker.pp))
+                    log.append("Poor %s does %s best, but many customers turn away when they see %s scars..." % (name, worker.pp, worker.pp))
                     effectiveness -= 35
                 elif trait == "Not Human":
-                    log.append("%s's inhuman features attract more attention than usual, and that is never a bad thing in striptease." % worker.name)
+                    log.append("%s's inhuman features attract more attention than usual, and that is never a bad thing in striptease." % name)
                     effectiveness += 15
                 elif trait == "Flat Ass":
-                    log.append("%s tries %s best, but skill alone cannot replace a fine ass." % (worker.name, worker.pp))
+                    log.append("%s tries %s best, but skill alone cannot replace a fine ass." % (name, worker.pp))
                     effectiveness -= 15
                 elif trait == "Exhibitionist":
-                    log.append("%s is at least as aroused as the customers and isn't afraid to show it." % worker.name)
+                    log.append("%s is at least as aroused as the customers and isn't afraid to show it." % name)
                     effectiveness += 50
                 elif trait == "Sexy Air":
-                    log.append("%s's sexiness attracts the views all day. %s has an air about %s that makes %s a natural at stripping." % (worker.name, worker.pC, worker.op, worker.op))
+                    log.append("%s's sexiness attracts the views all day. %s has an air about %s that makes %s a natural at stripping." % (name, worker.pC, worker.op, worker.op))
                     effectiveness += 10
                 elif trait == "Clumsy":
-                    log.append("Sadly, %s ruins the show when %s trips and falls from the stage. At least customers had a good laugh." % (worker.name, worker.p))
+                    log.append("Sadly, %s ruins the show when %s trips and falls from the stage. At least customers had a good laugh." % (name, worker.p))
                     effectiveness -= 25
                 elif trait == "Flexible":
-                    log.append("%s makes a good use of %s flexibility, bending around the pole in impossible ways." % (worker.name, worker.pp))
+                    log.append("%s makes a good use of %s flexibility, bending around the pole in impossible ways." % (name, worker.pp))
                     effectiveness += 20
                 elif trait == "Psychic":
-                    log.append("Every customer wants different things, which is quite confusing for psychics like %s when so many people watching %s." % (worker.name, worker.op))
+                    log.append("Every customer wants different things, which is quite confusing for psychics like %s when so many people watching %s." % (name, worker.op))
                     effectiveness -= 20
                 elif trait == "Manly":
-                    log.append("It looks like %s is a bit too muscular for this job, intimidating some customers." % worker.name)
+                    log.append("It looks like %s is a bit too muscular for this job, intimidating some customers." % name)
                     effectiveness -= 25
                 elif trait == "Artificial Body":
-                    log.append("Sadly, customers figured out that %s body is a construct and booed %s off the stage." % (worker.pp, worker.name))
+                    log.append("Sadly, customers figured out that %s body is a construct and booed %s off the stage." % (worker.pp, name))
                     effectiveness -= 50
                 elif trait == "Lesbian":
-                    log.append("%s is somewhat disgusted by the idea of letting so many MEN see her naked." % worker.name)
+                    log.append("%s is somewhat disgusted by the idea of letting so many MEN see her naked." % name)
                     effectiveness -= 30
                 elif trait == "Shy":
-                    log.append("%s is too nervous and stiff, making customers bored." % worker.name)
+                    log.append("%s is too nervous and stiff, making customers bored." % name)
                     effectiveness -= 30
                 elif trait == "Aggressive":
-                    log.append("%s slaps customers who get too close, ruining the mood." % worker.name)
+                    log.append("%s slaps customers who get too close, ruining the mood." % name)
                     effectiveness -= 20
                 elif trait == "Big Boobs":
                     log.append("The customers' eyes are glued to her tits all the time.")
                     effectiveness += 15
                 elif trait == "Great Arse":
-                    log.append("%s shakes %s sexy ass to great effect. It's like %s curves were made for stripping." % (worker.name, worker.pp, worker.pp))
+                    log.append("%s shakes %s sexy ass to great effect. It's like %s curves were made for stripping." % (name, worker.pp, worker.pp))
                     effectiveness += 15
                 elif trait == "Long Legs":
-                    log.append("Today the customers went nuts for those sexy legs of %s." % worker.name)
+                    log.append("Today the customers went nuts for those sexy legs of %s." % name)
                     effectiveness += 15
                 elif trait == "Strange Eyes":
                     log.append("%s exotic eyes hold the customers in a trance." % worker.ppC)
                     effectiveness += 10
                 elif trait == "Natural Follower":
-                    log.append("%s is quick to figure out how a crowd likes %s to move, making a great show." % (worker.name, worker.op))
+                    log.append("%s is quick to figure out how a crowd likes %s to move, making a great show." % (name, worker.op))
                     effectiveness += 20
             return effectiveness
 
@@ -168,21 +169,22 @@ init -5 python:
             Handles penalties in case of wrong job
             """
             # Formerly check_occupation
+            name = set_font_color(choice([worker.fullname, worker.name, worker.nickname]), "pink")
             if not("Stripper" in worker.traits) and worker.get_stat("disposition") < self.calculate_disposition_level(worker):
                 sub = check_submissivity(worker)
                 if worker.status != 'slave':
                     if sub < 0:
                         if dice(15):
                             log.logws('character', 1)
-                        log.append("%s is not very happy with %s current job as a stripper, but %s will get the job done." % (worker.name, worker.pp, worker.p))
+                        log.append("%s is not very happy with %s current job as a stripper, but %s will get the job done." % (name, worker.pp, worker.p))
                     elif sub == 0:
                         if dice(25):
                             log.logws('character', 1)
-                        log.append("%s shows %s goods to customers, but %s would prefer to do something else." % (worker.nickname, worker.pp, worker.p))
+                        log.append("%s shows %s goods to customers, but %s would prefer to do something else." % (name, worker.pp, worker.p))
                     else:
                         if dice(35):
                             log.logws('character', 1)
-                        log.append("%s makes it clear that %s wants another job before going to the stage." % (worker.name, worker.p))
+                        log.append("%s makes it clear that %s wants another job before going to the stage." % (name, worker.p))
                     worker.logws("joy", -randint(1, 10))
                     worker.logws("disposition", -randint(10, 15))
                     worker.logws('vitality', -randint(5, 10))
@@ -190,23 +192,23 @@ init -5 python:
                     sub = check_submissivity(worker)
                     if sub< 0:
                         if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
-                            log.append("%s is a slave so no one really cares, but being forced to work as a stripper, %s's quite upset." % (worker.name, worker.p))
+                            log.append("%s is a slave so no one really cares, but being forced to work as a stripper, %s's quite upset." % (name, worker.p))
                         else:
-                            log.append("%s will do as %s is told, but doesn't mean that %s'll be happy about showing %s body to strangers." % (worker.name, worker.p, worker.p, worker.pp))
+                            log.append("%s will do as %s is told, but doesn't mean that %s'll be happy about showing %s body to strangers." % (name, worker.p, worker.p, worker.pp))
                         if dice(25):
                             log.logws('character', 1)
                     elif sub == 0:
                         if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
-                            log.append("%s will do as you command, but %s will hate every second of %s stripper shift..." % (worker.name, worker.p, worker.pp))
+                            log.append("%s will do as you command, but %s will hate every second of %s stripper shift..." % (name, worker.p, worker.pp))
                         else:
-                            log.append("%s was very displeased by %s order to work as a stripper, but didn't dare to refuse." % (worker.name, worker.pp))
+                            log.append("%s was very displeased by %s order to work as a stripper, but didn't dare to refuse." % (name, worker.pp))
                         if dice(35):
                             log.logws('character', 1)
                     else:
                         if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
-                            log.append("%s was very displeased by %s order to work as a stripper, and makes it clear for everyone before going to the stage." % (worker.name, worker.pp))
+                            log.append("%s was very displeased by %s order to work as a stripper, and makes it clear for everyone before going to the stage." % (name, worker.pp))
                         else:
-                            log.append("%s will do as you command and work as a stripper, but not without a lot of grumbling and complaining." % worker.name)
+                            log.append("%s will do as you command and work as a stripper, but not without a lot of grumbling and complaining." % name)
                         if dice(45):
                             log.logws('character', 1)
 
@@ -219,42 +221,44 @@ init -5 python:
                         worker.logws('vitality', -randint(2, 6))
             else:
                 log.append(choice(["%s is doing %s shift as a stripper.",
-                                   "%s entertains customers with %s body at the stage.",
-                                   "%s shows %s goods to clients."]) % (choice([worker.fullname, worker.name, worker.nickname]), worker.pp))
-            return True
+                                   "%s entertains customers with %s body on the stage.",
+                                   "%s begins %s striptease performance!",
+                                   "%s shows %s goods to clients."]) % (name, worker.pp))
 
         def work_strip_club(self, worker, clients, effectiveness, log):
             len_clients = len(clients)
             building = log.loc
+            tier = building.tier
 
-            strip = self.normalize_required_skill(worker, "strip", effectiveness, building.tier)
-            dancing = self.normalize_required_skill(worker, "dancing", effectiveness, building.tier)
+            strip = self.normalize_required_skill(worker, "strip", effectiveness, tier)
+            dancing = self.normalize_required_skill(worker, "dancing", effectiveness, tier)
             skill = (strip*1.3 + dancing)/2
-            charisma = self.normalize_required_stat(worker, "charisma", effectiveness, building.tier)
+            charisma = self.normalize_required_stat(worker, "charisma", effectiveness, tier)
 
+            name = worker.name
             if charisma >= 170:
-                log.append("%s supernal loveliness instantly captivated audiences. " % worker.name)
+                log.append("%s supernal loveliness instantly captivated audiences. " % name)
                 log.logws("joy", 2)
             elif charisma >= 150:
-                log.append("The attention of customers was entirely focused on %s thanks to %s prettiness. " % (worker.name, worker.pp))
+                log.append("The attention of customers was entirely focused on %s thanks to %s prettiness. " % (name, worker.pp))
                 log.logws("joy", 1)
             elif charisma >= 120:
-                log.append("%s enchanted customers with her stunning beauty. " % (worker.name, worker.pp))
+                log.append("%s enchanted customers with her stunning beauty. " % (name, worker.pp))
             elif charisma >= 100:
-                log.append("Customers were delighted with %s beauty. " % worker.name)
+                log.append("Customers were delighted with %s beauty. " % name)
             elif charisma >= 75:
-                log.append("%s good looks was pleasing to audiences. " % worker.name)
+                log.append("%s good looks was pleasing to audiences. " % name)
             elif charisma >= 50:
-                log.append("%s did %s best to make customers like %s, but %s charm could definitely be enhanced. " % (worker.name, worker.pp, worker.op, worker.pp))
+                log.append("%s did %s best to make customers like %s, but %s charm could definitely be enhanced. " % (name, worker.pp, worker.op, worker.pp))
             else:
                 log.logws("joy", -2)
-                log.append("Customers clearly were unimpressed by %s looks, to say the least. Such a cold reception was not encouraging for the poor fellow at all..." % worker.name)
+                log.append("Customers clearly were unimpressed by %s looks, to say the least. Such a cold reception was not encouraging for the poor fellow at all..." % name)
 
             # Award EXP:
             if effectiveness >= 90:
-                log.logws("exp", exp_reward(worker, building.tier))
+                log.logws("exp", exp_reward(worker, tier))
             else:
-                log.logws("exp", exp_reward(worker, building.tier, exp_mod=.5))
+                log.logws("exp", exp_reward(worker, tier, exp_mod=.5))
 
             log.append("\n")
             if skill >= 170:
@@ -296,7 +300,7 @@ init -5 python:
                 log.logws("strip", 1)
                 learned = True
 
-            log.logws('vitality', round_int(len_clients*-.5))
+            log.logws('vitality', -len_clients/2)
 
             if "learned" in locals():
                 log.append("\n%s feels like %s learned something!\n" % (worker.name, worker.p))

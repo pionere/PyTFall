@@ -2,7 +2,6 @@ init -5 python:
     class StripClub(PublicBusiness):
         # For now, before we'll have to split the method.
         intro_string = "{color=pink}%s{/color} comes out to do striptease!"
-        log_intro_string = "{color=pink}%s{/color} is performing Striptease!"
         # Looks weird but until we have a better way to debug SimPy :(
         job_method = "work_strip_club"
 

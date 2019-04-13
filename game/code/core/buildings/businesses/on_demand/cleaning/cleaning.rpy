@@ -28,13 +28,15 @@ init -5 python:
             job = simple_jobs["Cleaning"]
 
             # Pure cleaners, container is kept around for checking during all_on_deck scenarios
-            strict_workers = self.get_strict_workers(job, power_flag_name)
+            log = []
+            strict_workers = self.get_strict_workers(job, power_flag_name, use_slaves=True, log=log)
             workers = strict_workers.copy() # cleaners on active duty
 
             while 1:
-                simpy_debug("Entering Cleaners.business_control iteration at %s", self.env.now)
+                now = self.env.now
+                simpy_debug("Entering Cleaners.business_control iteration at %s", now)
 
-                if DSNBR and not self.env.now % 5:
+                if DSNBR and not now % 5:
                     temp = "{color=red}" + "DEBUG: {0:.2f} DIRT IN THE BUILDING!".format(building.dirt)
                     self.log(temp, True)
 
@@ -47,11 +49,11 @@ init -5 python:
 
                         if not using_all_workers:
                             using_all_workers = True
-                            workers = self.all_on_deck(workers, job, power_flag_name)
+                            workers = self.all_on_deck(workers, job, power_flag_name, use_slaves=True, log=log)
 
                     if not make_nd_report_at:
                         wlen = len(workers)
-                        make_nd_report_at = min(self.env.now+25, 105) # FIXME MAX_DU
+                        make_nd_report_at = min(now+25, 105) # FIXME MAX_DU
                         if wlen:
                             temp = "%s Workers have started to clean %s!" % (set_font_color(wlen, wlen_color), building.name)
                             self.log(temp, True)
@@ -59,7 +61,7 @@ init -5 python:
                 # Actually handle dirt cleaning:
                 if make_nd_report_at and dirt > 0:
                     for w in workers.copy():
-                        value = int(w.flag(power_flag_name))
+                        value = w.flag(power_flag_name)
                         building.moddirt(value)
 
                         dirt_cleaned += value
@@ -74,17 +76,16 @@ init -5 python:
                             workers.remove(w)
 
                 # Create actual report:
-                c0 = self.env.now >= make_nd_report_at
-                c1 = cleaners # No point in a report if no workers worked the cleaning.
-                if c0 and c1:
+                # No point in a report if no workers worked the cleaning.
+                if now >= make_nd_report_at and cleaners:
                     if DSNBR:
-                        temp = "{}: DEBUG! WRITING CLEANING REPORT! ({}, {})".format(self.env.now, c0, c1)
-                        self.log(temp)
+                        self.log("DEBUG! WRITING CLEANING REPORT!", True)
 
-                    self.write_nd_report(strict_workers, cleaners, -dirt_cleaned)
+                    self.write_nd_report(strict_workers, cleaners, log, -dirt_cleaned)
                     make_nd_report_at = 0
                     dirt_cleaned = 0
                     cleaners = set()
+                    log = list()
 
                 # Release none-pure cleaners:
                 if building.dirt < 500 and using_all_workers:
@@ -94,10 +95,10 @@ init -5 python:
                         workers -= extra
                         building.available_workers[0:0] = list(extra)
 
-                simpy_debug("Exiting Cleaners.business_control iteration at %s", self.env.now)
+                simpy_debug("Exiting Cleaners.business_control iteration at %s", now)
                 yield self.env.timeout(1)
 
-        def write_nd_report(self, strict_workers, all_workers, dirt_cleaned):
+        def write_nd_report(self, strict_workers, all_workers, pre_log, dirt_cleaned):
             simpy_debug("Entering Cleaners.write_nd_report at %s", self.env.now)
 
             job, loc = self.jobs[0], self.building
@@ -113,6 +114,10 @@ init -5 python:
             wlen = len(all_workers)
             temp = "{} Workers cleaned the building today.".format(set_font_color(wlen, "red"))
             log.append(temp)
+
+            # add log from preparation
+            for l in pre_log:
+                log.append(l)
 
             log.img = nd_report_image(loc.img, all_workers, "maid", "cleaning", exclude=["sex"], type="any")
 
