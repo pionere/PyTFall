@@ -18,7 +18,8 @@
     "mod": {"constitution": 2, "vitality": -10},
     "locations": ["Work Shop"],
     "badtraits": ["Athletic", "Artificial Body"],
-    "goodtraits": ["Bokukko"]
+    "goodtraits": ["Bokukko"],
+    "pref_class":["Warrior", "Mage", "Shooter", "Whore", "Bartender", "Service"]
     },
     {
     "id": "Military Training Dummy",
@@ -39,7 +40,7 @@
     "mod": {"attack": 1, "vitality": -10},
     "locations": ["Ninja Shop", "Exploration"],
     "goodtraits": [],
-    "pref_class":["Knight", "Warrior", "Assassin"]
+    "pref_class":["Warrior", "Shooter"]
     },
     {
     "id": "Animated Training Dummy",
@@ -58,7 +59,8 @@
     "mdestruct": false,
     "tier": 2,
     "mod": {"vitality": -15, "agility": 1, "defence": 1},
-    "locations": ["Exploration", "Arena"]
+    "locations": ["Exploration", "Arena"],
+    "pref_class":["Warrior", "Shooter"]
     },
     {
     "id": "Maid Fairy",
@@ -80,7 +82,7 @@
     "mod_skills": {"service": [0, 0, 0, 5, 5]},
     "locations": ["Witches Hut", "Exploration"],
     "goodtraits": ["Neat"],
-    "pref_class":["Maid"]
+    "pref_class":["Whore", "Stripper", "Bartender"]
     },
     {
     "id": "Nymph Fairy",
@@ -103,7 +105,7 @@
     "locations": ["Witches Hut", "Ninja Shop", "Exploration"],
     "goodtraits": ["Nymphomaniac"],
     "badtraits": ["Frigid"],
-    "pref_class":["SIW"]
+    "pref_class":["Whore"]
     },
     {
     "id": "Frost Fairy",
@@ -123,7 +125,7 @@
     "tier": 2,
     "mod": {"mp": 20, "vitality": -5, "joy": -5, "gold": -5},
     "locations": ["Witches Hut", "Exploration"],
-    "pref_class":["Mage", "Healer"]
+    "pref_class":["Mage"]
     },
     {
     "id": "Cat",
@@ -164,7 +166,7 @@
     "mod_skills": {"security": [0, 0, 0, 5, 5]},
     "mod": {"joy": 3, "character": 1, "gold": -15},
     "locations": ["General Store", "Ninja Shop"],
-    "pref_class":["Warrior", "Mage", "Shooter", "Assassin"]
+    "pref_class":["Warrior", "Mage", "Shooter"]
     },
     {
     "id": "Codex of Eros",
@@ -185,7 +187,8 @@
     "mod_skills": {"vaginal": [0, 0, 0, 0, 100], "anal": [0, 0, 0, 0, 50], "oral": [0, 0, 0, 0, 50], "sex": [0, 0, 0, 0, 50]},
     "locations": ["Exploration", "Arena"],
     "goodtraits": ["Curious"],
-    "badtraits": ["Lesbian", "Frigid"]
+    "badtraits": ["Lesbian", "Frigid"],
+    "pref_class":["Whore"]
     },
     {
     "id": "Codex of Mars",
@@ -206,7 +209,7 @@
     "mod_skills": {"security": [0, 0, 0, 0, 50]},
     "max": {"attack": 25, "defence": 25},
     "locations": ["Exploration", "Arena"],
-    "pref_class":["Knight", "Warrior", "Mage", "Shooter", "Assassin"]
+    "pref_class":["Warrior", "Mage", "Shooter"]
     },
     {
     "id": "Codex of Sappho",
@@ -227,7 +230,8 @@
     "mod_skills": {"vaginal": [0, 0, 0, 0, 20], "anal": [0, 0, 0, 0, 20], "oral": [0, 0, 0, 0, 60], "sex": [0, 0, 0, 0, 60]},
     "locations": ["Exploration", "Arena"],
     "goodtraits": ["Curious", "Lesbian", "Bisexual"],
-    "badtraits": ["Frigid"]
+    "badtraits": ["Frigid"],
+    "pref_class":["Whore"]
     },
     {
     "id": "Codex of Submission",
@@ -270,7 +274,7 @@
     "tier": 2,
     "max": {"magic": 50, "mp": 50},
     "locations": ["Exploration", "Arena"],
-    "pref_class":["Mage", "Healer"]
+    "pref_class":["Mage"]
     },
     {
     "id": "Codex of the Courtesan",
@@ -292,7 +296,8 @@
     "mod_skills": {"service": [0, 0, 0, 0, 100], "strip": [0, 0, 0, 0, 50]},
     "max": {"charisma": 20, "intelligence": 15, "character": 20},
     "locations": ["Exploration", "Arena"],
-    "goodtraits": ["Neat", "Curious"]
+    "goodtraits": ["Neat", "Curious"],
+    "pref_class":["Whore", "Stripper", "Bartender", "Manager", "Mage"]
     },
     {
     "id": "Manual of Arms",
@@ -314,7 +319,7 @@
     "max": {"attack": 25, "defence": 25},
     "locations": ["General Store"],
     "goodtraits": ["Adventurous"],
-    "pref_class":["Knight", "Warrior", "Shooter", "Assassin"]
+    "pref_class":["Warrior", "Mage", "Shooter"]
     },
     {
     "id": "Manual of Health",
@@ -335,7 +340,7 @@
     "mod": {"constitution": 15, "defence": 5},
     "max": {"health": 25, "vitality": 25},
     "locations": ["General Store"],
-    "pref_class":["Any"]
+    "pref_class":["Warrior", "Mage", "Shooter", "Whore", "Bartender", "Service"]
     },
     {
     "id": "Manual of Magic",
@@ -356,7 +361,7 @@
     "mod": {"magic": 30},
     "max": {"mp": 25, "magic": 10},
     "locations": ["Witches Hut"],
-    "pref_class":["Mage", "Healer"]
+    "pref_class":["Mage"]
     },
     {
     "id": "Manual of Sex",
@@ -377,7 +382,8 @@
     "mod_skills": {"vaginal": [0, 0, 0, 0, 50], "anal": [0, 0, 0, 0, 50], "sex": [0, 0, 0, 0, 25]},
     "locations": ["General Store"],
     "goodtraits": ["Curious"],
-    "badtraits": ["Lesbian", "Frigid"]
+    "badtraits": ["Lesbian", "Frigid"],
+    "pref_class":["Whore"]
     },
     {
     "id": "Manual of the Dancer",
@@ -398,7 +404,8 @@
     "tier": 1,
     "mod": {"agility": 5},
     "mod_skills": {"service": [0, 0, 0, 0, 15], "strip": [0, 0, 0, 0, 10], "dancing": [0, 0, 0, 0, 100], "refinement": [0, 0, 0, 0, 20]},
-    "locations": ["General Store"]
+    "locations": ["General Store"],
+    "pref_class":["Stripper"]
     },
     {
     "id": "Manual of Two Roses",
@@ -418,7 +425,8 @@
     "tier": 1,
     "mod_skills": {"oral": [0, 0, 0, 0, 50], "vaginal": [0, 0, 0, 0, 15], "anal": [0, 0, 0, 0, 5], "sex": [0, 0, 0, 0, 25]},
     "locations": ["Witches Hut"],
-    "goodtraits": ["Curious", "Bisexual", "Lesbian"]
+    "goodtraits": ["Curious", "Bisexual", "Lesbian"],
+    "pref_class":["Whore"]
     },
     {
     "id": "Stripper Pole",
@@ -487,7 +495,7 @@
     "locations": ["General Store"],
     "goodtraits": ["Manly"],
     "badtraits": ["Lolita"],
-    "pref_class":["Warrior", "Knight", "Assassin"]
+    "pref_class":["Warrior", "Mage", "Shooter", "Whore", "Bartender", "Service"]
     },
     {
     "id": "Dream Orb",
@@ -527,7 +535,7 @@
     "tier": 0,
     "mod": {"mp": 10},
     "locations": ["Witches Hut", "Exploration"],
-    "pref_class": ["Mage", "Healer"]
+    "pref_class": ["Mage"]
     },
     {
     "id": "Water of Life",
@@ -547,7 +555,7 @@
     "tier": 0,
     "mod": {"health": 15},
     "locations": ["Witches Hut", "Exploration", "Ninja Shop"],
-    "pref_class":["Any"]
+    "pref_class":["Warrior"]
     },
     {
     "id": "Willbreaker Spice",
@@ -587,7 +595,7 @@
     "tier": 2,
     "mod": {"intelligence": 2, "mp": -10},
     "locations": ["Exploration", "Arena"],
-    "pref_class": ["Mage", "Healer", "Manager"]
+    "pref_class": ["Mage", "Manager", "Bartender"]
     },
     {
     "id": "Ancient Purse",
@@ -629,7 +637,7 @@
     "mod": {"vitality": -5},
     "mod_skills": {"anal": [0, 0, 0, 1, 0]},
     "locations": ["General Store"],
-    "pref_class": ["SIW"]
+    "pref_class": ["Whore"]
     },
     {
     "id": "Encyclopedia of Fishes",

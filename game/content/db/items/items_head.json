@@ -17,7 +17,7 @@
     "goodtraits": ["Imouto"],
     "badtraits": ["Furry"],
     "tier": 0,
-    "pref_class":["Any"]
+    "pref_class":["Whore", "Stripper", "Service"]
     },
     {
     "id": "Angel Halo",
@@ -38,7 +38,7 @@
     "goodtraits": ["Deredere"],
     "badtraits": ["Divine Creature", "Demonic Creature"],
     "tier": 0,
-    "pref_class":["Any"]
+    "pref_class":["Whore", "Stripper"]
     },
     {
     "id": "Flower Bonnet",
@@ -57,7 +57,7 @@
     "locations": ["Tailor Store"],
     "goodtraits": ["Ane"],
     "tier": 0,
-    "pref_class":["Any"]
+    "pref_class":["Bartender", "Manager", "Casual"]
     },
     {
     "id": "Nurse Cap",
@@ -77,7 +77,7 @@
     "locations": ["Tailor Store"],
     "goodtraits": ["Healer"],
     "tier": 1,
-    "pref_class":["Mage", "Healer"]
+    "pref_class":["Mage"]
     },
     {
     "id": "Leather hood",
@@ -116,7 +116,7 @@
     "mod": {"agility": 20},
     "locations": ["Tailor Store"],
     "tier": 2,
-    "pref_class":["Manager"]
+    "pref_class":["Warrior", "Mage", "Shooter", "Manager"]
     },
     {
     "id": "Catkin headgear",
@@ -135,7 +135,7 @@
     "mod": {"defence": 5, "agility": 10, "charisma": 5},
     "locations": ["Tailor Store", "Look around"],
     "tier": 1,
-    "pref_class":["Service", "Assassin"]
+    "pref_class":["Warrior", "Mage", "Shooter"]
     },
     {
     "id": "General Helmet",
@@ -153,7 +153,7 @@
     "mod": {"attack": 10, "defence": 30, "agility": -30},
     "locations": ["Work Shop", "Exploration", "Arena"],
     "tier": 3,
-    "pref_class":["Warrior"]
+    "pref_class":["Warrior", "Mage"]
     },
     {
     "id": "Officer Helmet",
@@ -171,7 +171,7 @@
     "mod": {"attack": 15, "defence": 15, "agility": -10},
     "locations": ["Work Shop", "Exploration", "Arena"],
     "tier": 2,
-    "pref_class":["Warrior"]
+    "pref_class":["Warrior", "Mage"]
     },
     {
     "id": "Private Helmet",
@@ -189,7 +189,7 @@
     "mod": {"agility": 5, "defence": 10},
     "locations": ["Work Shop"],
     "tier": 1,
-    "pref_class":["Warrior"]
+    "pref_class":["Warrior", "Mage", "Shooter"]
     },
     {
     "id": "Recon Helmet",
@@ -209,7 +209,7 @@
     "mod_skills": {"refinement": [-0.05, 0, -0.05, 0, 0]},
     "locations": ["Work Shop", "Arena"],
     "tier": 1,
-    "pref_class":["Shooter"]
+    "pref_class":["Warrior", "Mage", "Shooter"]
     },
     {
     "id": "Joy Hat",
@@ -230,8 +230,7 @@
     "locations": ["Exploration", "Arena"],
     "goodtraits": ["Optimist"],
     "badtraits": ["Serious"],
-    "tier": 2,
-    "pref_class":["Any"]
+    "tier": 2
     },
     {
     "id": "The All-Seeing Hat",
@@ -271,7 +270,7 @@
     "addtraits": ["Extremely Jealous", "Homebody"],
     "locations": ["Exploration", "Arena"],
     "tier": 4,
-    "pref_class":["Warrior", "Shooter"]
+    "pref_class":["Warrior", "Shooter", "SIW"]
     },
     {
     "id": "Old Mask",
@@ -290,7 +289,7 @@
     "mod": {"constitution": 100},
     "locations": ["Exploration", "Arena"],
     "tier": 4,
-    "pref_class":["Warrior", "Shooter", "Assassin"]
+    "pref_class":["Warrior", "Shooter", "SIW"]
     },
     {
     "id": "Fae Hood",
@@ -312,7 +311,7 @@
     "defence_multiplier": {"magic": 0.15, "ranged": 0.1},
     "delivery_multiplier": {"magic": 0.15},
     "tier": 4,
-    "pref_class":["Mage", "Healer"]
+    "pref_class":["Warrior", "Mage", "Manager"]
     },
     {
     "id": "Top Hat",
@@ -330,7 +329,7 @@
     "mod_skills": {"refinement": [0.05, 0.05, 0.05, 0, 0]},
     "locations": ["Tailor Store"],
     "tier": 1,
-    "pref_class":["SIW", "Casual"]
+    "pref_class":["Manager", "Casual"]
     },
     {
     "id": "Silver Barrette",
@@ -350,7 +349,7 @@
     "mod_skills": {"refinement": [0.05, 0.05, 0.05, 0, 0], "service": [0, 0, 0.05, 0, 0]},
     "locations": ["General Store"],
     "tier": 2,
-    "pref_class":["SIW", "Service", "Casual"]
+    "pref_class":["Whore", "Stripper", "Casual"]
     },
     {
     "id": "Golden Tiara",
@@ -371,7 +370,7 @@
     "addtraits": ["Elegant"],
     "locations": ["Exploration", "General Store"],
     "tier": 4,
-    "pref_class":["Manager", "SIW", "Casual"]
+    "pref_class":["Manager", "Whore", "Stripper", "Casual"]
     },
     {
     "id": "White Turban",
@@ -390,7 +389,7 @@
     "mod_skills": {"refinement": [0, 0, 0.1, 0, 0], "management": [0, 0, 0.1, 0, 0]},
     "locations": ["Exploration", "Arena"],
     "tier": 3,
-    "pref_class":["Manager", "Casual"]
+    "pref_class":["Manager", "Whore", "Stripper", "Casual"]
     },
     {
     "id": "Huntsman Hat",
@@ -408,7 +407,7 @@
     "mod": {"defence": 5, "charisma": 5},
     "locations": ["Tailor Store", "Arena"],
     "tier": 0,
-    "pref_class":["Warrior", "Shooter"]
+    "pref_class":["Warrior", "Mage", "Shooter"]
     },
     {
     "id": "Imperial Leather Helmet",
@@ -427,7 +426,7 @@
     "mod": {"defence": 15, "agility": 5, "charisma": 5},
     "locations": ["Work Shop", "Arena"],
     "tier": 1,
-    "pref_class":["Warrior", "Shooter"]
+    "pref_class":["Warrior", "Mage", "Shooter"]
     },
     {
     "id": "Tricorne",
@@ -446,7 +445,7 @@
     "mod_skills": {"security": [0.05, 0.05, 0.05, 0, 0], "management": [0.05, 0.05, 0.05, 0, 0]},
     "locations": ["Tailor Store"],
     "tier": 2,
-    "pref_class":["Manager"]
+    "pref_class":["Manager", "Bartender"]
     },
     {
     "id": "Bonnet",
@@ -466,7 +465,7 @@
     "mod_skills": {"service": [0, 0, 0.05, 0, 0], "cleaning": [0.05, 0.05, 0.05, 0, 0]},
     "locations": ["Tailor Store"],
     "tier": 1,
-    "pref_class":["Service", "Cleaner"]
+    "pref_class":["Service"]
     },
     {
     "id": "Leprechaun Hat",
@@ -504,7 +503,7 @@
     "locations": ["Tailor Store"],
     "goodtraits": ["Neat"],
     "tier": 3,
-    "pref_class":["Service", "Maid", "Cleaner"]
+    "pref_class":["Service", "Whore", "Stripper"]
     },
     {
     "id": "Elven Vail",
@@ -527,7 +526,7 @@
     "evasion_bonus": 1,
     "goodtraits": ["Not Human"],
     "tier": 4,
-    "pref_class":["Warrior", "Mage", "Shooter", "Assassin"]
+    "pref_class":["Warrior", "Mage", "Shooter"]
     },
     {
     "id": "Ancient Helmet",
@@ -547,7 +546,7 @@
     "defence_bonus": {"melee": 25},
     "locations": ["Exploration", "Arena"],
     "tier": 2,
-    "pref_class":["Warrior", "Manager", "Shooter"]
+    "pref_class":["Warrior", "Mage", "Shooter", "Manager"]
     },
     {
     "id": "Safety Glasses",

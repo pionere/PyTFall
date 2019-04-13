@@ -361,6 +361,7 @@ init 1000 python:
 
         @staticmethod
         def gameItems():
+            valid_pref_classes = ["Any", "Casual", "Warrior", "Mage", "Shooter", "Manager", "Bartender", "Whore", "Stripper", "SIW", "Service", "Slave"]
             for key, item in items.items():
                 if item.id != key:
                     raise Exception("Bad Item Entry %s for item %s" % (key, item.id))
@@ -368,6 +369,9 @@ init 1000 python:
                     raise Exception("Invalid entry %s for key %s (not an Item instance)!" % (str(item), key))
                 if getattr(item, "gender", "female") not in ["female", "male"]:
                     raise Exception("Invalid gender %s for item %s (not 'female' or 'male')!" % (item.gender, key))
+                for p in item.pref_class:
+                    if p not in valid_pref_classes:
+                        raise Exception("Invalid pref_class %s for item %s (not in %s)!" % (p, key, ", ".join(valid_pref_classes)))
 
         @staticmethod
         def gameAreas():
@@ -380,6 +384,9 @@ init 1000 python:
                     continue # just a main area -> skip
                 if not isinstance(area.maxexplored, (int, float)) or area.maxexplored <= 0:
                     raise Exception("Area %s has an invalid maxexplored setting %s (should be a greater than zero number)!" % (key, str(area.maxexplored)))
+                for item in area.items:
+                    if item not in items:
+                        raise Exception("Area %s has an invalid item to be found: %s!" % (key, item))
 
         @staticmethod
         def performanceTest():

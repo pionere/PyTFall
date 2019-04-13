@@ -1255,9 +1255,7 @@ init -10 python:
                 _stats_curr[stat] = self._get_stat(stat) # current stat value
                 _stats_max[stat] = self.get_max(stat)   # current stat max
 
-            # Add basetraits and occupations to basepurposes:
-            base_purpose.update(bt.id for bt in char.traits.basetraits)
-            base_purpose.update(str(t) for t in char.occupations)
+            # Add 'Any' as base purpose:
             base_purpose.add("Any")
 
             # per item the nr of weighting criteria may vary. At the end all of them are averaged.
@@ -1307,25 +1305,24 @@ init -10 python:
                         aeq_debug("Ignoring item %s on money.", item.id)
                         continue
 
-                #if "Slave" in base_purpose and "Slave" in item.pref_class:
-                #    weights = [200] # As all slave items are shit anyway...
-                #else:
-                weights = [item.eqchance] if chance_func is None else chance_func(item) 
-                if weights is None: # We move to the next item!
-                    aeq_debug("Ignoring item %s on weights.", item.id)
-                    continue
-
                 # Handle purposes:
                 if not base_purpose.isdisjoint(item.pref_class):
-                    weights.append(200)
+                    weights = [200]
                 elif not sub_purpose.isdisjoint(item.pref_class):
-                    weights.append(125)
+                    weights = [125]
                 else: # 'Any'
                     # If no purpose is valid for the item, we want nothing to do with it.
-                    if slot not in ("misc", "consumable"):
-                        aeq_debug("Ignoring item %s on purpose.", item.id)
+                    aeq_debug("Ignoring item %s on purpose.", item.id)
+                    continue
+
+                if chance_func:
+                    w = chance_func(item)
+                    if w is None:
+                        aeq_debug("Ignoring item %s on weights.", item.id)
                         continue
-                    weights.append(55)
+                    weights.extend(w)
+                else:
+                    weights.append(item.eqchance)
 
                 # Stats:
                 for stat, value in item.mod.iteritems():

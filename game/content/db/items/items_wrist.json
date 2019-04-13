@@ -173,7 +173,7 @@
     "mod_skills": {"service": [0.05, 0, 0.05, 0, 0], "refinement": [-0.05, 0, 0, 0, 0]},
     "tier": 1,
     "locations": ["General Store", "Look around"],
-    "pref_class":["Service", "Cleaner"]
+    "pref_class":["Service"]
     },
     {
     "id": "Bracer of Toughness",
@@ -210,8 +210,7 @@
     "type": "dress",
     "addtraits": ["Kleptomaniac", "Extremely Jealous"],
     "locations": ["Exploration", "Arena"],
-    "tier": 1,
-    "pref_class":["Any"]
+    "tier": 1
     },
     {
     "id": "Dealer Gloves",
@@ -230,7 +229,7 @@
     "locations": ["Tailor Store"],
     "goodtraits": ["Curious"],
     "tier": 1,
-    "pref_class":["Mage", "Manager"]
+    "pref_class":["Any"]
     },
     {
     "id": "Gloves of Concentration",
@@ -292,7 +291,7 @@
     "mod": {"defence": -100, "charisma": 60},
     "tier": 2,
     "locations": ["Exploration"],
-    "pref_class":["SIW"]
+    "pref_class":["Whore", "Stripper"]
     },
     {
     "id": "Wristbands of Power",
@@ -333,7 +332,7 @@
     "delivery_multiplier": {"melee": 0.05},
     "tier": 4,
     "locations": ["Exploration", "Arena"],
-    "pref_class":["Warrior"]
+    "pref_class":["Warrior", "Shooter"]
     },
     {
     "id": "Linen Gloves",
@@ -351,7 +350,7 @@
     "mod": {"charisma": 5},
     "tier": 0,
     "locations": ["Tailor Store"],
-    "pref_class":["SIW", "Casual"]
+    "pref_class":["Whore", "Stripper", "Casual"]
     },
     {
     "id": "Velvet Gloves",
@@ -371,7 +370,7 @@
     "mod_skills": {"refinement": [0, 0, 0.01, 0, 0]},
     "tier": 0,
     "locations": ["Tailor Store"],
-    "pref_class":["SIW", "Casual"]
+    "pref_class":["Whore", "Stripper", "Manager", "Bartender", "Casual"]
     },
     {
     "id": "Black Leather Gloves",
@@ -391,7 +390,7 @@
     "tier": 1,
     "mod_skills": {"refinement": [0, 0, 0.05, 0, 0], "strip": [0, 0, 0.05, 0, 0]},
     "locations": ["Tailor Store"],
-    "pref_class":["SIW", "Casual"]
+    "pref_class":["Whore", "Stripper", "Manager", "Bartender", "Casual"]
     },
     {
     "id": "Silken Gloves",
@@ -411,7 +410,7 @@
     "mod_skills": {"refinement": [0, 0, 0.05, 0, 0], "service": [0, 0, 0.05, 0, 0]},
     "tier": 2,
     "locations": ["Tailor Store"],
-    "pref_class":["SIW", "Casual", "Service"]
+    "pref_class":["Whore", "Stripper", "Manager", "Bartender", "Service", "Casual"]
     },
     {
     "id": "Tiger Gloves",
@@ -430,7 +429,7 @@
     "mod": {"charisma": 5, "agility": 5},
     "tier": 3,
     "locations": ["Tailor Store"],
-    "pref_class":["SIW", "Casual"]
+    "pref_class":["Whore", "Stripper", "Casual"]
     },
     {
     "id": "Satin Gloves",
@@ -450,7 +449,7 @@
     "tier": 4,
     "mod_skills": {"refinement": [0, 0, 0.05, 0, 0], "service": [0, 0, 0.05, 0, 0]},
     "locations": ["Tailor Store"],
-    "pref_class":["SIW", "Casual", "Service"]
+    "pref_class":["Whore", "Stripper", "Manager", "Bartender", "Service", "Casual"]
     },
     {
     "id": "Maid Gloves",
@@ -471,7 +470,7 @@
     "locations": ["Tailor Store"],
     "tier": 4,
     "goodtraits": ["Neat"],
-    "pref_class":["Service", "Maid", "Cleaner"]
+    "pref_class":["Whore", "Stripper", "Service", "Casual"]
     },
     {
     "id": "Elven Gloves",
@@ -494,7 +493,7 @@
     "locations": ["Exploration", "Arena"],
     "tier": 3,
     "goodtraits": ["Not Human"],
-    "pref_class":["Warrior"]
+    "pref_class":["Warrior", "Shooter"]
     },
     {
     "id": "Elven Ranger Armbands",
@@ -517,7 +516,7 @@
     "locations": ["Exploration", "Arena"],
     "tier": 3,
     "goodtraits": ["Not Human"],
-    "pref_class":["Shooter", "Warrior"]
+    "pref_class":["Warrior", "Shooter"]
     },
     {
     "id": "Elven Sage Armbands",
@@ -563,7 +562,7 @@
     "delivery_multiplier": {"magic": 0.05},
     "tier": 4,
     "goodtraits": ["Alien"],
-    "pref_class":["Mage"]
+    "pref_class":["Mage", "Stripper"]
     },
     {
     "id": "Fae Bracers",
@@ -585,7 +584,7 @@
     "defence_multiplier": {"magic": 0.1},
     "delivery_multiplier": {"magic": 0.1},
     "tier": 4,
-    "pref_class":["Mage", "Healer"]
+    "pref_class":["Mage", "Bartender"]
     },
     {
     "id": "Ninja Gloves",
@@ -608,7 +607,7 @@
     "defence_multiplier": {"status": 0.05},
     "delivery_multiplier": {"status": 0.05},
     "tier": 4,
-    "pref_class":["Assassin", "Warrior"]
+    "pref_class":["Warrior", "Mage", "Shooter"]
     },
     {
     "id": "Imperial Leather Gloves",
@@ -627,6 +626,6 @@
     "mod": {"defence": 5, "agility": 5, "charisma": 5},
     "tier": 0,
     "locations": ["Work Shop", "Arena"],
-    "pref_class":["Warrior", "Shooter"]
+    "pref_class":["Warrior", "Mage", "Shooter"]
     }
   ]

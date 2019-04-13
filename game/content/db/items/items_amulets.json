@@ -57,7 +57,7 @@
     "locations": ["Fishing"],
     "tier": 2,
     "goodtraits": ["Curious"],
-    "pref_class":["SIW"]
+    "pref_class":["SIW", "Slave"]
     },
     {
     "id": "Obsidian Choker",
@@ -97,7 +97,7 @@
     "mod_skills": {"refinement": [0, 0, 0.02, 0, 0]},
     "tier": 1,
     "locations": ["General Store"],
-    "pref_class":["SIW", "Casual"]
+    "pref_class":["Whore", "Stripper", "Casual"]
     },
     {
     "id": "Pet Collar",
@@ -157,7 +157,7 @@
     "locations": ["General Store", "Look around"],
     "tier": 0,
     "goodtraits": ["Manly", "Yandere"],
-    "pref_class":["Warrior"]
+    "pref_class":["Warrior", "Shooter"]
     },
     {
     "id": "Aromatic Pendant",
@@ -177,7 +177,7 @@
     "goodtraits": ["Nymphomaniac"],
     "tier": 2,
     "badtraits": ["Frigid"],
-    "pref_class":["SIW"]
+    "pref_class":["Whore", "Stripper"]
     },
     {
     "id": "Diamond Necklace",
@@ -216,7 +216,7 @@
     "locations": ["Work Shop"],
     "tier": 1,
     "goodtraits": ["Adventurous"],
-    "pref_class":["Warrior", "Assassin", "Shooter"]
+    "pref_class":["Warrior", "Shooter", "Mage"]
     },
     {
     "id": "Reflector",
@@ -234,7 +234,7 @@
     "mod": {"defence": 30, "agility": 15},
     "tier": 2,
     "locations": ["Arena", "Ninja Shop"],
-    "pref_class":["Warrior", "Assassin", "Shooter"]
+    "pref_class":["Warrior", "Shooter", "Mage"]
     },
     {
     "id": "Good Luck Charm",
@@ -251,7 +251,7 @@
     "mod": {"luck": 5},
     "tier": 0,
     "locations": ["Witches Hut"],
-    "pref_class":["Warrior", "Assassin", "Shooter", "Casual"]
+    "pref_class":["Any"]
     },
     {
     "id": "Health Charm",
@@ -268,7 +268,7 @@
     "max": {"health": 25},
     "tier": 0,
     "locations": ["Witches Hut"],
-    "pref_class":["Warrior", "Assassin", "Shooter", "Mage"]
+    "pref_class":["Warrior", "Shooter", "Mage"]
     },
     {
     "id": "Mana Charm",
@@ -303,7 +303,7 @@
     "mod": {"constitution": 5, "vitality": 5, "charisma": 5},
     "tier": 1,
     "locations": ["Tailor Store"],
-    "pref_class":["Casual"]
+    "pref_class":["Any"]
     },
     {
     "id": "Victory Charm",
@@ -323,7 +323,7 @@
     "removetraits": ["Pessimist"],
     "tier": 3,
     "locations": ["Ninja Shop"],
-    "pref_class":["Assassin", "Manager", "Casual"]
+    "pref_class":["Bartender", "Manager", "Casual"]
     },
     {
     "id": "Garem Charm",
@@ -341,8 +341,7 @@
     "max": {"joy": -10},
     "tier": 4,
     "removetraits": ["Extremely Jealous"],
-    "locations": ["Diving"],
-    "pref_class":["Any"]
+    "locations": ["Diving"]
     },
     {
     "id": "Darksome Trophy",
@@ -360,7 +359,7 @@
     "mod": {"attack": 5, "character": 5},
     "tier": 1,
     "locations": ["Fishing"],
-    "pref_class":["Mage", "Warrior"]
+    "pref_class":["Warrior", "Mage", "Shooter"]
     },
     {
     "id": "Master Charm",
@@ -379,7 +378,7 @@
     "mod_skills": {"management": [0.1, 0.1, 0.15, 0, 0]},
     "tier": 4,
     "locations": ["Arena"],
-    "pref_class":["Manager", "Casual"]
+    "pref_class":["Bartender", "Manager", "Casual"]
     },
     {
     "id": "Bandana",
@@ -401,7 +400,7 @@
     "evasion_bonus": 1,
     "tier": 0,
     "goodtraits": ["Bokukko"],
-    "pref_class":["Any", "Casual"]
+    "pref_class":["Bartender", "Manager", "Casual"]
     },
     {
     "id": "Spectacles",
@@ -421,7 +420,7 @@
     "tier": 1,
     "removetraits": ["Bad Eyesight"],
     "goodtraits": ["Bad Eyesight"],
-    "pref_class":["Any"]
+    "pref_class":["Warrior", "Shooter", "Manager", "Casual"]
     },
     {
     "id": "Hurricane Charm",
@@ -573,6 +572,6 @@
     "mod_skills": {"vaginal": [-0.2, -0.2, -0.2, 0, 0]},
     "tier": 2,
     "addeffects": ["Chastity"],
-    "pref_class":["SIW"]
+    "pref_class":["Whore"]
     }
   ]

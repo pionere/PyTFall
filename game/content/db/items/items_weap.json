@@ -15,7 +15,7 @@
     "mod": {"attack": 10, "character": 3},
     "locations": ["Work Shop", "Look around"],
     "tier": 0,
-    "pref_class":["Assassin", "Warrior"]
+    "pref_class":["Warrior"]
     },
     {
     "id": "Enchanted Dagger",
@@ -34,7 +34,7 @@
     "mod": {"attack": 20, "character": 5},
     "locations": ["Work Shop", "Arena"],
     "tier": 1,
-    "pref_class":["Assassin", "Warrior"]
+    "pref_class":["Warrior"]
     },
     {
     "id": "Assassin Dagger",
@@ -58,7 +58,7 @@
     "badtraits": ["Virtuous"],
     "locations": ["Ninja Shop", "Arena"],
     "tier": 4,
-    "pref_class":["Assassin", "Warrior"]
+    "pref_class":["Warrior"]
     },
     {
     "id": "Ice Daggers",
@@ -77,7 +77,7 @@
     "mod": {"attack": 25, "magic": 5},
     "locations": ["Exploration", "Arena"],
     "tier": 3,
-    "pref_class":["Assassin", "Warrior"]
+    "pref_class":["Warrior", "Mage"]
     },
     {
     "id": "Bone Knife",
@@ -96,7 +96,7 @@
     "mod": {"attack": 20, "charisma": -5},
     "locations": ["Exploration", "Arena"],
     "tier": 1,
-    "pref_class":["Assassin", "Warrior"]
+    "pref_class":["Warrior"]
     },
     {
     "id": "Kunai",
@@ -118,7 +118,7 @@
     "locations": ["Ninja Shop", "Exploration", "Arena"],
     "goodtraits": [],
     "tier": 4,
-    "pref_class":["Assassin", "Warrior"]
+    "pref_class":["Warrior"]
     },
     {
     "id": "Small Cane",
@@ -160,7 +160,7 @@
     "locations": ["Work Shop"],
     "goodtraits": ["Sadist"],
     "tier": 1,
-    "pref_class":["Any"]
+    "pref_class":["Warrior", "Manager"]
     },
     {
     "id": "Cat O'Nine Tails",
@@ -183,7 +183,7 @@
     "addtraits": ["Sadist"],
     "locations": ["Exploration", "Arena"],
     "tier": 2,
-    "pref_class":["Any"]
+    "pref_class":["Warrior", "Manager"]
     },
     {
     "id": "Claws",
@@ -202,7 +202,7 @@
     "mod": {"character": 10, "agility": 20, "attack": 10},
     "locations": ["Work Shop"],
     "tier": 1,
-    "pref_class":["Warrior", "Assassin"]
+    "pref_class":["Warrior"]
     },
     {
     "id": "Balanced Claws",
@@ -222,7 +222,7 @@
     "ch_multiplier": 0.01,
     "locations": ["Ninja Shop", "Exploration", "Arena"],
     "tier": 2,
-    "pref_class":["Warrior", "Assassin"]
+    "pref_class":["Warrior"]
     },
     {
     "id": "Crystal Wand",
@@ -243,7 +243,7 @@
     "ch_multiplier": -0.1,
     "locations": ["Work Shop", "Arena"],
     "tier": 0,
-    "pref_class":["Caster", "Mage"]
+    "pref_class":["Mage"]
     },
     {
     "id": "Replica Sword",
@@ -264,7 +264,7 @@
     "mod": {"attack": 15, "character": 5},
     "locations": ["Work Shop"],
     "tier": 0,
-    "pref_class":["Manager"]
+    "pref_class":["Warrior", "Manager"]
     },
     {
     "id": "Dildo Sword",
@@ -284,7 +284,7 @@
     "mod_skills": {"vaginal": [0, 0.05, 0, 0, 0], "anal": [0, 0.05, 0, 0, 0], "oral": [0, 0.05, 0, 0, 0], "sex": [0, 0.05, 0, 0, 0]},
     "locations": ["Fishing"],
     "tier": 0,
-    "pref_class":["SIW"]
+    "pref_class":["Whore"]
     },
     {
     "id": "Brass Knuckles",
@@ -345,7 +345,7 @@
     "locations": ["Ninja Shop", "Exploration", "Arena"],
     "goodtraits": [],
     "tier": 2,
-    "pref_class":["Assassin", "Shooter"]
+    "pref_class":["Warrior", "Shooter"]
     },
     {
     "id": "Throwing Knives",
@@ -364,7 +364,7 @@
     "mod": {"attack": 35, "agility": 5},
     "locations": ["Ninja Shop", "Arena"],
     "tier": 2,
-    "pref_class":["Assassin", "Shooter"]
+    "pref_class":["Warrior", "Shooter"]
     },
     {
     "id": "Foldable Crossbow",
@@ -628,7 +628,7 @@
     "goodtraits": ["Alien", "Virtuous"],
     "badtraits": ["Vicious"],
     "tier": 4,
-    "pref_class":["Warrior", "Assassin"]
+    "pref_class":["Warrior"]
     },
     {
     "id": "Demonic Blade",
@@ -651,7 +651,7 @@
     "goodtraits": ["Alien", "Vicious"],
     "badtraits": ["Virtuous"],
     "tier": 4,
-    "pref_class":["Warrior", "Assassin"]
+    "pref_class":["Warrior"]
     },
     {
     "id": "Excalibur",
@@ -673,7 +673,7 @@
     "ch_multiplier": 0.2,
     "locations": ["Exploration", "Fishing", "Arena"],
     "tier": 4,
-    "pref_class":["Warrior", "Assassin"]
+    "pref_class":["Warrior"]
     },
     {
     "id": "Rapier",
@@ -693,7 +693,7 @@
     "mod_skills": {"refinement": [0.05, 0, 0, 0, 0]},
     "locations": ["Work Shop"],
     "tier": 0,
-    "pref_class":["Warrior", "Assassin"]
+    "pref_class":["Warrior"]
     },
     {
     "id": "Elven Rapier",
@@ -716,7 +716,7 @@
     "delivery_multiplier": {"melee": 0.02},
     "goodtraits": ["Not Human"],
     "tier": 3,
-    "pref_class":["Warrior", "Assassin"]
+    "pref_class":["Warrior"]
     },
     {
     "id": "Chain Scythe",
@@ -737,7 +737,7 @@
     "delivery_multiplier": {"melee": 0.05},
     "locations": ["Work Shop", "Exploration", "Arena"],
     "tier": 2,
-    "pref_class":["Warrior", "Assassin"]
+    "pref_class":["Warrior"]
     },
     {
     "id": "Scythe of Death",
@@ -758,7 +758,7 @@
     "ch_multiplier": 0.25,
     "locations": ["Exploration", "Arena"],
     "tier": 4,
-    "pref_class":["Warrior", "Assassin"],
+    "pref_class":["Warrior"],
     "addtraits": ["Grim Reaper", "Healing Immunity"]
     },
     {
@@ -1081,7 +1081,7 @@
     "mod_skills": {"refinement": [0.05, 0, 0.05, 0, 0], "management": [0.05, 0, 0.05, 0, 0]},
     "locations": ["Tailor Store"],
     "tier": 0,
-    "pref_class":["SIW", "Manager", "Casual"]
+    "pref_class":["Whore", "Stripper", "Manager", "Casual"]
     },
     {
     "id": "Fancy Hand Fan",
@@ -1101,7 +1101,7 @@
     "mod_skills": {"refinement": [0.05, 0, 0.05, 0, 0], "management": [0.05, 0, 0.05, 0, 0], "dancing": [0, 0, 0.05, 0, 0]},
     "locations": ["Tailor Store"],
     "tier": 1,
-    "pref_class":["SIW", "Manager", "Casual"]
+    "pref_class":["Whore", "Stripper", "Manager", "Casual"]
     },
     {
     "id": "Big Umbrella",
@@ -1121,7 +1121,7 @@
     "mod_skills": {"refinement": [0.05, 0, 0, 0, 0], "security": [0.05, 0, 0, 0, 0]},
     "locations": ["Tailor Store"],
     "tier": 0,
-    "pref_class":["SIW", "Manager", "Casual"]
+    "pref_class":["Whore", "Stripper", "Manager", "Casual"]
     },
     {
     "id": "Silver Plate",
@@ -1140,7 +1140,7 @@
     "mod": {"attack": 5, "agility": -10, "character": 5},
     "locations": ["General Store"],
     "badtraits": ["Abnormally Large Boobs"],
-    "pref_class":["Bartender", "Assassin", "Shooter"]
+    "pref_class":["Bartender", "Shooter"]
     },
     {
     "id": "Broomstick",
@@ -1159,6 +1159,6 @@
     "max": {"magic": 10, "agility": 5, "constitution": 5},
     "mod": {"magic": -5, "attack": 5, "charisma": -5, "character": -5},
     "locations": ["Witches Hut"],
-    "pref_class":["Service", "Cleaner", "Mage"]
+    "pref_class":["Service", "Mage"]
     }
   ]

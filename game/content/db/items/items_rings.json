@@ -17,7 +17,7 @@
     "damage_multiplier": 0.05,
     "locations": ["Witches Hut", "Exploration"],
     "tier": 2,
-    "pref_class":["SIW", "Warrior"]
+    "pref_class":["Whore", "Warrior"]
     },
     {
     "id": "Bimbo Ring",
@@ -37,7 +37,7 @@
     "addtraits": ["Ill-mannered", "Serious"],
     "locations": ["Witches Hut"],
     "tier": 2,
-    "pref_class":["SIW"]
+    "pref_class":["Whore"]
     },
     {
     "id": "Crystal",
@@ -75,7 +75,7 @@
     "mod": {"charisma": 20},
     "locations": ["Witches Hut"],
     "tier": 0,
-    "pref_class":["Any"]
+    "pref_class":["Whore", "Stripper"]
     },
     {
     "id": "Ring of Pleasure",
@@ -94,7 +94,7 @@
     "locations": ["Exploration", "Arena"],
     "badtraits": ["Frigid"],
     "tier": 1,
-    "pref_class":["SIW"]
+    "pref_class":["Whore"]
     },
     {
     "id": "Ring of the Hivemind",
@@ -131,7 +131,7 @@
     "mod": {"charisma": 30},
     "locations": ["Witches Hut", "Fishing"],
     "tier": 1,
-    "pref_class":["SIW", "Manager", "Casual"]
+    "pref_class":["Whore", "Stripper", "Manager", "Casual"]
     },
     {
     "id": "Ring of Charisma",
@@ -150,7 +150,7 @@
     "mod": {"charisma": 60},
     "locations": ["Exploration", "Arena"],
     "tier": 2,
-    "pref_class":["SIW", "Manager", "Casual"]
+    "pref_class":["Whore", "Stripper", "Manager", "Casual"]
     },
     {
     "id": "Aquamarine Eye",
@@ -169,7 +169,7 @@
     "mod": {"charisma": 90},
     "locations": ["Exploration", "Arena"],
     "tier": 3,
-    "pref_class":["SIW"]
+    "pref_class":["Whore", "Stripper", "Casual"]
     },
     {
     "id": "Minor Ring of Refinement",
@@ -186,7 +186,7 @@
     "mod_skills": {"refinement": [0.05, 0.05, 0.05, 0, 0]},
     "locations": ["Witches Hut"],
     "tier": 1,
-    "pref_class":["SIW", "Manager", "Casual"]
+    "pref_class":["Manager", "Casual"]
     },
     {
     "id": "Ring of Refinement",
@@ -204,7 +204,7 @@
     "mod": {"intelligence": 5},
     "locations": ["Exploration", "Arena"],
     "tier": 2,
-    "pref_class":["SIW", "Manager", "Casual"]
+    "pref_class":["Bartender", "Manager", "Casual"]
     },
     {
     "id": "Flower Ring",
@@ -223,7 +223,7 @@
     "mod": {"charisma": 15},
     "locations": ["Exploration", "Arena"],
     "tier": 3,
-    "pref_class":["SIW", "Manager", "Casual"]
+    "pref_class":["Whore", "Stripper", "Bartender", "Manager", "Casual"]
     },
     {
     "id": "Minor Ring of the Horndog",
@@ -240,7 +240,7 @@
     "mod_skills": {"vaginal": [0.05, 0.05, 0, 0, 0], "anal": [0.05, 0.05, 0, 0, 0], "oral": [0.05, 0.05, 0, 0, 0], "sex": [0.05, 0.05, 0, 0, 0]},
     "locations": ["Witches Hut", "Exploration"],
     "tier": 2,
-    "pref_class":["SIW"]
+    "pref_class":["Whore"]
     },
     {
     "id": "Ring of the Horndog",
@@ -257,7 +257,7 @@
     "mod_skills": {"vaginal": [0.1, 0.1, 0, 0, 0], "anal": [0.1, 0.1, 0, 0, 0], "oral": [0.1, 0.1, 0, 0, 0], "sex": [0.1, 0.1, 0, 0, 0]},
     "locations": ["Exploration", "Arena"],
     "tier": 3,
-    "pref_class":["SIW"]
+    "pref_class":["Whore"]
     },
     {
     "id": "Minor Ring of Physique",
@@ -275,7 +275,7 @@
     "mod": {"constitution": 20},
     "locations": ["Ninja Shop", "Fishing"],
     "tier": 1,
-    "pref_class":["Any"]
+    "pref_class":["Warrior", "Mage", "Shooter", "Whore", "Bartender", "Service"]
     },
     {
     "id": "Ring of Physique",
@@ -293,7 +293,7 @@
     "mod": {"constitution": 30},
     "locations": ["Ninja Shop", "Exploration"],
     "tier": 2,
-    "pref_class":["Any"]
+    "pref_class":["Warrior", "Mage", "Shooter", "Whore", "Bartender", "Service"]
     },
     {
     "id": "Rogue's Ring",
@@ -313,7 +313,7 @@
     "evasion_bonus": 1,
     "goodtraits": ["Kleptomaniac"],
     "tier": 3,
-    "pref_class":["Shooter", "Assassin"]
+    "pref_class":["Warrior", "Shooter"]
     },
     {
     "id": "Minor Ring of Protection",
@@ -332,7 +332,7 @@
     "locations": ["Exploration", "Ninja Shop"],
     "goodtraits": ["Adventurous"],
     "tier": 1,
-    "pref_class":["Warrior", "Mage", "Shooter", "Assassin"]
+    "pref_class":["Warrior", "Mage", "Shooter"]
     },
     {
     "id": "Ring of Protection",
@@ -350,7 +350,7 @@
     "mod": {"defence": 50},
     "locations": ["Exploration", "Ninja Shop"],
     "tier": 2,
-    "pref_class":["Warrior", "Mage", "Shooter", "Assassin"]
+    "pref_class":["Warrior", "Mage", "Shooter"]
     },
     {
     "id": "Ring of Clear Thought",
@@ -368,7 +368,7 @@
     "mod": {"intelligence": 30},
     "locations": ["Exploration", "Arena"],
     "tier": 3,
-    "pref_class":["Mage"]
+    "pref_class":["Mage", "Manager", "Bartender"]
     },
     {
     "id": "Ring of Recklessness",
@@ -390,7 +390,7 @@
     "addtraits": ["Courageous", "Exhibitionist"],
     "locations": ["Exploration", "Fishing"],
     "tier": 4,
-    "pref_class":["Warrior"]
+    "pref_class":["Warrior", "Shooter"]
     },
     {
     "id": "Ring of Luck",
@@ -407,7 +407,7 @@
     "mod": {"luck": 30},
     "locations": ["Exploration", "Witches Hut"],
     "tier": 4,
-    "pref_class":["Assassin", "Any"]
+    "pref_class":["Any"]
     },
     {
     "id": "Ring of Magic Energy",
@@ -478,7 +478,7 @@
     "mod": {"character": 35},
     "locations": ["Witches Hut", "Look around"],
     "tier": 0,
-    "pref_class":["Manager"]
+    "pref_class":["Manager", "Bartender"]
     },
     {
     "id": "The Scratch",
@@ -495,8 +495,7 @@
     "type": "ring",
     "removetraits": ["Aggressive"],
     "locations": ["Exploration", "Arena"],
-    "tier": 3,
-    "pref_class":["Any"]
+    "tier": 3
     },
     {
     "id": "Onyx Ring",
@@ -571,7 +570,7 @@
     "locations": ["Exploration", "Arena"],
     "goodtraits": ["Vicious"],
     "tier": 4,
-    "pref_class":["Warrior", "Assassin", "Shooter"]
+    "pref_class":["Warrior", "Shooter"]
     },
     {
     "id": "The Clit",
@@ -592,7 +591,7 @@
     "goodtraits": ["Nymphomaniac"],
     "mod_skills": {"vaginal": [0.05, 0.05, 0.1, 0, 0]},
     "tier": 2,
-    "pref_class":["SIW"]
+    "pref_class":["Whore"]
     },
     {
     "id": "Golden Hoop",
@@ -611,7 +610,7 @@
     "mod": {"charisma": 5},
     "locations": ["General Store"],
     "tier": 1,
-    "pref_class":["SIW"]
+    "pref_class":["Whore"]
     },
     {
     "id": "Frozen Tear",
@@ -629,7 +628,7 @@
     "max": {"health": 5, "vitality": 5, "mp": 5},
     "locations": ["Exploration", "Arena"],
     "tier": 1,
-    "pref_class":["Any"]
+    "pref_class":["Warrior", "Mage", "Shooter", "Service"]
     },
     {
     "id": "Ribbon Ring",
@@ -647,7 +646,7 @@
     "mod": {"luck": 10, "defence": 40, "attack": 40, "constitution": 45},
     "locations": ["Exploration", "Ninja Shop"],
     "tier": 4,
-    "pref_class":["Shooter", "Assassin", "Warrior"]
+    "pref_class":["Any"]
     },
     {
     "id": "Emerald Ribbon",
@@ -667,7 +666,7 @@
     "locations": ["General Store", "Fishing"],
     "goodtraits": ["Lolita"],
     "tier": 1,
-    "pref_class":["SIW", "Assassin", "Casual"]
+    "pref_class":["Any"]
     },
     {
     "id": "Mysterious Gray Ring",
@@ -692,7 +691,7 @@
     "goodtraits": ["Indifferent"],
     "removetraits": ["Pessimist", "Optimist", "Serious"],
     "tier": 4,
-    "pref_class":["Warrior", "Mage", "Shooter", "Assassin"]
+    "pref_class":["Warrior", "Mage", "Shooter"]
     },
     {
     "id": "Flame Ring",

@@ -1284,7 +1284,7 @@ init -9 python:
                             purpose = "Battle Mage"
             return purpose
 
-        def auto_buy(self, amount=1, slots=None, casual=False,
+        def auto_buy(self, amount=1, slots=None,
                      equip=False, container=None, purpose=None,
                      check_money=True, inv=None,
                      limit_tier=False, smart_ownership_limit=True):
@@ -1296,7 +1296,6 @@ init -9 python:
             slots: what slots to shop for, if None equipment slots and
                 consumable will be used together with amount argument.
                 Otherwise expects a dict of slot: amount.
-            casual: If True, we also try to get a casual outfit for the character.
             equip: Equip the items after buying them, if true we equip whatever
                 we buy, if set to purpose (Casual, Barbarian, etc.), we auto_equip
                 for that purpose.
@@ -1312,7 +1311,6 @@ init -9 python:
             Simplify!
 
             - Add items class_prefs and Casual.
-            - Add casual as attr.
             - Maybe merge with give_tiered_items somehow!
             """
             if container is None: # Pick the container we usually shop from:

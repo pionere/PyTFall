@@ -1186,7 +1186,7 @@
     "type": "scroll",
     "add_be_spells": ["Life Wind"],
     "locations": ["Witch Spells Shop"],
-    "pref_class":["Healer"]
+    "pref_class":["Mage"]
     },
     {
     "id": "Curer Scroll",
@@ -1203,7 +1203,7 @@
     "type": "scroll",
     "add_be_spells": ["Curer"],
     "locations": ["Peevish Shop"],
-    "pref_class":["Healer"]
+    "pref_class":["Mage"]
     },
     {
     "id": "Restoration Scroll",
@@ -1220,7 +1220,7 @@
     "type": "scroll",
     "add_be_spells": ["Restoration"],
     "locations": ["Angelica Shop"],
-    "pref_class":["Healer"]
+    "pref_class":["Mage"]
     },
     {
     "id": "Revive Scroll",
@@ -1237,7 +1237,7 @@
     "type": "scroll",
     "add_be_spells": ["Revive"],
     "locations": ["Angelica Shop"],
-    "pref_class":["Healer"]
+    "pref_class":["Mage"]
     },
     {
     "id": "Poison Scroll",
@@ -1254,7 +1254,7 @@
     "type": "scroll",
     "add_be_spells": ["Poison"],
     "locations": ["Ninja Shop"],
-    "pref_class":["Assassin"]
+    "pref_class":["Warrior", "Shooter"]
     },
     {
     "id": "Deadly Poison Scroll",
@@ -1271,7 +1271,7 @@
     "type": "scroll",
     "add_be_spells": ["Deadly Poison"],
     "locations": ["Ninja Shop"],
-    "pref_class":["Assassin"]
+    "pref_class":["Warrior", "Shooter"]
     },
     {
     "id": "Aery Field Scroll",
@@ -1288,7 +1288,7 @@
     "type": "scroll",
     "add_be_spells": ["Aery Field"],
     "locations": ["Witch Spells Shop"],
-    "pref_class":["Knight", "Mage", "Healer"]
+    "pref_class":["Warrior", "Mage"]
     },
     {
     "id": "Aery Shield Scroll",
@@ -1305,7 +1305,7 @@
     "type": "scroll",
     "add_be_spells": ["Aery Shield"],
     "locations": ["Witch Spells Shop"],
-    "pref_class":["Knight", "Mage", "Healer"]
+    "pref_class":["Warrior", "Mage"]
     },
     {
     "id": "Arcane Field Scroll",
@@ -1322,7 +1322,7 @@
     "type": "scroll",
     "add_be_spells": ["Arcane Field"],
     "locations": ["Angelica Shop"],
-    "pref_class":["Knight", "Mage", "Healer"]
+    "pref_class":["Warrior", "Mage"]
     },
     {
     "id": "Arcane Shield Scroll",
@@ -1339,7 +1339,7 @@
     "type": "scroll",
     "add_be_spells": ["Arcane Shield"],
     "locations": ["Angelica Shop"],
-    "pref_class":["Knight", "Mage", "Healer"]
+    "pref_class":["Warrior", "Mage"]
     },
     {
     "id": "Solid Field Scroll",
@@ -1356,7 +1356,7 @@
     "type": "scroll",
     "add_be_spells": ["Solid Field"],
     "locations": ["Peevish Shop"],
-    "pref_class":["Knight", "Mage", "Healer"]
+    "pref_class":["Warrior", "Mage"]
     },
     {
     "id": "Solid Shield Scroll",
@@ -1373,6 +1373,6 @@
     "type": "scroll",
     "add_be_spells": ["Solid Shield"],
     "locations": ["Peevish Shop"],
-    "pref_class":["Knight", "Mage", "Healer"]
+    "pref_class":["Warrior", "Mage"]
     }
   ]

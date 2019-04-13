@@ -13,7 +13,7 @@
     "type": "restore",
     "mod": {"mp": 50},
     "locations": ["Witches Hut", "Fishing"],
-    "pref_class":["Mage", "Healer"],
+    "pref_class":["Mage"],
     "be": true
     },
     {
@@ -31,7 +31,7 @@
     "type": "restore",
     "mod": {"mp": 100},
     "locations": ["Witches Hut"],
-    "pref_class":["Mage", "Healer"],
+    "pref_class":["Mage"],
     "be": true
     },
     {
@@ -49,7 +49,7 @@
     "type": "restore",
     "mod": {"mp": 200},
     "locations": ["Witches Hut", "Exploration"],
-    "pref_class":["Mage", "Healer"],
+    "pref_class":["Mage"],
     "be": true
     },
     {
@@ -70,7 +70,7 @@
     "max": {"mp": 200, "magic": 100},
     "mod": {"mp": 10000, "constitution": -35, "vitality": -60, "defence": -25, "magic": 100},
     "locations": ["Exploration", "Arena"],
-    "pref_class":["Mage", "Healer"]
+    "pref_class":["Mage"]
     },
     {
     "id": "Small Healing Potion",
@@ -87,7 +87,7 @@
     "type": "restore",
     "mod": {"health": 50},
     "locations": ["Witches Hut", "Fishing"],
-    "pref_class":["Healer", "Shooter", "Warrior", "Knight"],
+    "pref_class":["Warrior", "Shooter", "Mage"],
     "be": true
     },
     {
@@ -105,7 +105,7 @@
     "type": "restore",
     "mod": {"health": 100},
     "locations": ["Witches Hut"],
-    "pref_class":["Healer", "Shooter", "Warrior", "Knight"],
+    "pref_class":["Warrior", "Shooter", "Mage"],
     "removeeffects": ["Injured"],
     "be": true
     },
@@ -124,7 +124,7 @@
     "type": "restore",
     "mod": {"health": 200},
     "locations": ["Witches Hut", "Exploration"],
-    "pref_class":["Healer", "Shooter", "Warrior", "Knight"],
+    "pref_class":["Warrior", "Shooter", "Mage"],
     "removeeffects": ["Injured"],
     "be": true
     },
@@ -147,7 +147,7 @@
     "mod": {"health": 10000, "constitution": 50, "vitality": 200, "defence": 10},
     "removeeffects": ["Injured", "Food Poisoning"],
     "locations": ["Exploration", "Arena"],
-    "pref_class":["Healer", "Shooter", "Warrior", "Knight"]
+    "pref_class":["Warrior", "Shooter", "Mage"]
     },
     {
     "id": "Small Potion of Serenity",
@@ -184,6 +184,7 @@
     "cblock": 1,
     "mod": {"vitality": 50, "mp": 10},
     "locations": ["Witches Hut"],
+    "pref_class":["Any"],
     "be": true
     },
     {
@@ -203,6 +204,7 @@
     "mod": {"vitality": 100, "mp": 20},
     "removeeffects": ["Exhausted"],
     "locations": ["Witches Hut", "Exploration"],
+    "pref_class":["Any"],
     "be": true
     },
     {
@@ -259,7 +261,7 @@
     "type": "restore",
     "removeeffects": ["Poisoned"],
     "locations": ["Witches Hut", "Exploration"],
-    "pref_class":["Healer"]
+    "pref_class":["Warrior", "Shooter", "Mage"]
     },
     {
     "id": "Mana Powder",
@@ -308,8 +310,7 @@
     "type": "restore",
     "mod": {"vitality": -10},
     "removeeffects": ["Down with Cold"],
-    "locations": ["Witches Hut", "Look around"],
-    "pref_class":["Healer"]
+    "locations": ["Witches Hut", "Look around"]
     },
     {
     "id": "Basic Makeup",
@@ -331,7 +332,7 @@
     "max": {"charisma": 10},
     "locations": ["Witches Hut", "Look around"],
     "badtraits": ["Bokukko", "Impersonal"],
-    "pref_class":["SIW", "Barmaid"]
+    "pref_class":["Stripper", "Whore", "Bartender"]
     },
     {
     "id": "Quality Makeup",
@@ -353,7 +354,7 @@
     "max": {"charisma": 40},
     "locations": ["General Store"],
     "badtraits": ["Bokukko", "Impersonal"],
-    "pref_class":["SIW", "Barmaid"]
+    "pref_class":["Stripper", "Whore", "Bartender"]
     },
     {
     "id": "Magic Makeup",
@@ -375,7 +376,7 @@
     "max": {"charisma": 80},
     "locations": ["General Store"],
     "badtraits": ["Bokukko", "Impersonal"],
-    "pref_class":["SIW", "Barmaid"]
+    "pref_class":["Stripper", "Whore", "Bartender"]
     },
     {
     "id": "Booty Lube",
@@ -396,7 +397,8 @@
     "mod_skills": {"anal": [0.05, 0.05, 0.05, 0, 0]},
     "locations": ["Witches Hut"],
     "goodtraits": ["Nymphomaniac"],
-    "badtraits": ["Frigid"]
+    "badtraits": ["Frigid"],
+    "pref_class":["Whore"]
     },
     {
     "id": "Deluxe Booty Lube",
@@ -417,7 +419,8 @@
     "mod_skills": {"anal": [0.15, 0.15, 0.1, 0, 0]},
     "locations": ["Witches Hut"],
     "goodtraits": ["Nymphomaniac"],
-    "badtraits": ["Frigid"]
+    "badtraits": ["Frigid"],
+    "pref_class":["Whore"]
     },
     {
     "id": "Cheap Perfume",
@@ -438,7 +441,7 @@
     "mod": {"charisma": 5},
     "mod_skills": {"refinement": [0.02, 0, 0.02, 0, 0]},
     "locations": ["General Store", "Look around"],
-    "pref_class":["SIW"]
+    "pref_class":["Stripper", "Whore", "Bartender"]
     },
     {
     "id": "Enchanting Perfume",
@@ -462,7 +465,7 @@
     "locations": ["General Store"],
     "goodtraits": ["Nymphomaniac"],
     "badtraits": ["Frigid"],
-    "pref_class":["SIW"]
+    "pref_class":["Stripper", "Whore", "Bartender"]
     },
     {
     "id": "Quality Perfume",
@@ -484,7 +487,7 @@
     "max": {"charisma": 20},
     "mod_skills": {"refinement": [0.02, 0, 0.03, 0, 0]},
     "locations": ["General Store"],
-    "pref_class":["SIW"]
+    "pref_class":["Stripper", "Whore", "Bartender"]
     },
     {
     "id": "Fancy Breath Mints",
@@ -503,7 +506,7 @@
     "cblock": 1,
     "mod": {"charisma": 1, "joy": 1},
     "locations": ["Cafe", "Look around"],
-    "pref_class":["Any"]
+    "pref_class":["Stripper", "Whore", "Bartender", "Manager"]
     },
     {
     "id": "Succubus Milk",
@@ -545,7 +548,8 @@
     "cblock": 2,
     "max": {"defence": 60},
     "mod": {"defence": 40, "attack": -30, "agility": -10},
-    "locations": ["Witches Hut", "Ninja Shop"]
+    "locations": ["Witches Hut", "Ninja Shop"],
+    "pref_class":["Warrior"]
     },
     {
     "id": "Potion of Lightning Speed",
@@ -564,7 +568,8 @@
     "cblock": 2,
     "max": {"attack": 60},
     "mod": {"defence": -15, "attack": 40, "agility": 20, "constitution": -20},
-    "locations": ["Witches Hut", "Ninja Shop"]
+    "locations": ["Witches Hut", "Ninja Shop"],
+    "pref_class":["Shooter"]
     },
     {
     "id": "Chatty Flowers",
@@ -582,7 +587,8 @@
     "type": "upgrade",
     "mod": {"joy": 20},
     "cblock": 5,
-    "locations": ["Witches Hut"]
+    "locations": ["Witches Hut"],
+    "pref_class":["Any"]
     },
     {
     "id": "Elixir of Ultimate Regeneration",
@@ -618,7 +624,8 @@
     "slot": "consumable",
     "type": "upgrade",
     "mod": {"luck": 10},
-    "locations": ["Exploration", "Arena"]
+    "locations": ["Exploration", "Arena"],
+    "pref_class":["Any"]
     },
     {
     "id": "Lolita Wand",
@@ -731,7 +738,8 @@
     "type": "permanent",
     "max": {"attack": 25, "defence": -10, "charisma": -10, "character": 10},
     "mod": {"attack": 25, "defence": -10, "charisma": -10, "character": 10},
-    "locations": ["Exploration", "Arena"]
+    "locations": ["Exploration", "Arena"],
+    "pref_class":["Warrior", "Shooter"]
     },
     {
     "id": "Elixir of Abstinence",
@@ -821,7 +829,8 @@
     "slot": "consumable",
     "type": "permanent",
     "max": {"health": -20, "mp": 50, "magic": 50, "constitution": -20, "vitality": -20},
-    "locations": ["Exploration", "Arena"]
+    "locations": ["Exploration", "Arena"],
+    "pref_class":["Mage"]
     },
     {
     "id": "Expensive Chocolates",
@@ -907,7 +916,8 @@
     "slot": "consumable",
     "type": "food",
     "mod": {"vitality": 5, "joy": -2, "health": 2},
-    "locations": ["Cafe"]
+    "locations": ["Cafe"],
+    "pref_class":["Any"]
     },
     {
     "id": "Crabapple Juice",
@@ -923,7 +933,8 @@
     "slot": "consumable",
     "type": "food",
     "mod": {"vitality": 1, "health": 8},
-    "locations": ["Cafe"]
+    "locations": ["Cafe"],
+    "pref_class":["Any"]
     },
     {
     "id": "Turducken",
@@ -939,7 +950,8 @@
     "slot": "consumable",
     "type": "food",
     "mod": {"joy": 1, "health": 8, "vitality": 8, "mp": -3},
-    "locations": ["Cafe"]
+    "locations": ["Cafe"],
+    "pref_class":["Any"]
     },
     {
     "id": "Grilled Goose",
@@ -955,7 +967,8 @@
     "slot": "consumable",
     "type": "food",
     "mod": {"joy": 1, "health": 5, "vitality": 5, "mp": -2},
-    "locations": ["Cafe"]
+    "locations": ["Cafe"],
+    "pref_class":["Any"]
     },
     {
     "id": "Roasted Duck",
@@ -971,7 +984,8 @@
     "slot": "consumable",
     "type": "food",
     "mod": {"joy": 1, "health": 6, "vitality": 6, "mp": -2},
-    "locations": ["Cafe"]
+    "locations": ["Cafe"],
+    "pref_class":["Any"]
     },
     {
     "id": "Potato Soup",
@@ -987,7 +1001,8 @@
     "slot": "consumable",
     "type": "food",
     "mod": {"vitality": 2},
-    "locations": ["Cafe"]
+    "locations": ["Cafe"],
+    "pref_class":["Any"]
     },
     {
     "id": "Vegetable Salad",
@@ -1003,7 +1018,8 @@
     "slot": "consumable",
     "type": "food",
     "mod": {"vitality": 3},
-    "locations": ["Cafe"]
+    "locations": ["Cafe"],
+    "pref_class":["Any"]
     },
     {
     "id": "Candy Apples",
@@ -1089,7 +1105,8 @@
     "type": "food",
     "cblock": 1,
     "mod": {"exp": 100, "joy": -10},
-    "locations": ["Cafe", "Fishing"]
+    "locations": ["Cafe", "Fishing"],
+    "pref_class":["Any"]
     },
     {
     "id": "Watermelon of Knowledge",
@@ -1171,7 +1188,8 @@
     "infinite": false,
     "slot": "consumable",
     "type": "special",
-    "locations": ["Exploration", "Fishing"]
+    "locations": ["Exploration", "Fishing"],
+    "pref_class":["Any"]
     },
     {
     "id": "One For All",
@@ -1221,7 +1239,7 @@
     "ctemp": 20,
     "type": "special",
     "locations": ["Exploration", "Witches Hut"],
-    "pref_class":["Healer"]
+    "pref_class":["Any"]
     },
     {
     "id": "Herbal Extract",
@@ -1237,8 +1255,7 @@
     "slot": "consumable",
     "type": "special",
     "jump_to_label": "special_items_herbal_extract",
-    "locations": ["Witches Hut"],
-    "pref_class":["Healer"]
+    "locations": ["Witches Hut"]
     },
     {
     "id": "Emerald Tincture",
@@ -1272,7 +1289,8 @@
     "type": "food",
     "mod": {"mp": 5, "health": 5, "vitality": 5},
     "goodtraits": ["Open Minded", "Curious"],
-    "locations": ["Cafe", "Tavern"]
+    "locations": ["Cafe", "Tavern"],
+    "pref_class":["Any"]
     },
     {
     "id": "Slime's Milk",
@@ -1307,7 +1325,8 @@
     "slot": "consumable",
     "type": "alcohol",
     "mod": {"mp": 10, "joy": 10},
-    "locations": ["Tavern", "Exploration"]
+    "locations": ["Tavern", "Exploration"],
+    "pref_class":["Any"]
     },
     {
     "id": "White Wine",
@@ -1323,7 +1342,8 @@
     "slot": "consumable",
     "type": "alcohol",
     "mod": {"mp": 8, "joy": 8},
-    "locations": ["Tavern", "Exploration"]
+    "locations": ["Tavern", "Exploration"],
+    "pref_class":["Any"]
     },
     {
     "id": "Champagne",
@@ -1339,7 +1359,8 @@
     "slot": "consumable",
     "type": "alcohol",
     "mod": {"mp": 5, "joy": 5},
-    "locations": ["Tavern", "Exploration"]
+    "locations": ["Tavern", "Exploration"],
+    "pref_class":["Any"]
     },
     {
     "id": "Beer",
@@ -1355,7 +1376,8 @@
     "slot": "consumable",
     "type": "alcohol",
     "mod": {"joy": 3},
-    "locations": ["Tavern", "Exploration"]
+    "locations": ["Tavern", "Exploration"],
+    "pref_class":["Any"]
     },
     {
     "id": "Whiskey",
@@ -1371,7 +1393,8 @@
     "slot": "consumable",
     "type": "alcohol",
     "mod": {"mp": 25, "joy": 25},
-    "locations": ["Tavern"]
+    "locations": ["Tavern"],
+    "pref_class":["Any"]
     },
     {
     "id": "Sake",
@@ -1387,7 +1410,8 @@
     "slot": "consumable",
     "type": "alcohol",
     "mod": {"mp": 15, "joy": 15},
-    "locations": ["Tavern"]
+    "locations": ["Tavern"],
+    "pref_class":["Any"]
     },
     {
     "id": "Puke-a-Cola",

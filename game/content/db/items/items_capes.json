@@ -33,7 +33,7 @@
     "max": {"mp": 35, "agility": -10},
     "locations": ["Tailor Store", "Exploration"],
     "tier": 1,
-    "pref_class":["Mage", "Healer"]
+    "pref_class":["Mage"]
     },
     {
     "id": "Mantle of the Keeper",
@@ -54,7 +54,7 @@
     "locations": ["Exploration", "Arena"],
     "goodtraits": ["Dandere"],
     "tier": 4,
-    "pref_class":["Mage", "Healer"]
+    "pref_class":["Mage"]
     },
     {
     "id": "Battle Cape",
@@ -75,7 +75,7 @@
     "defence_bonus": {"melee": 10},
     "locations": ["Work Shop"],
     "tier": 1,
-    "pref_class":["Warrior"]
+    "pref_class":["Warrior", "Mage", "Shooter"]
     },
     {
     "id": "Elven Cape",
@@ -97,7 +97,7 @@
     "defence_bonus": {"ranged": 35, "magic": 35},
     "goodtraits": ["Not Human"],
     "tier": 3,
-    "pref_class":["Mage", "Shooter", "Casual"]
+    "pref_class":["Warrior", "Mage", "Shooter", "Casual"]
     },
     {
     "id": "Mercenary Cape",
@@ -119,7 +119,7 @@
     "defence_bonus": {"melee": 35},
     "locations": ["Exploration", "Arena"],
     "tier": 3,
-    "pref_class":["Warrior"]
+    "pref_class":["Warrior", "Mage", "Shooter"]
     },
     {
     "id": "Linen Capelet",
@@ -138,7 +138,7 @@
     "mod": {"charisma": 5},
     "locations": ["Tailor Store"],
     "tier": 1,
-    "pref_class":["SIW", "Casual"]
+    "pref_class":["Whore", "Stripper", "Casual"]
     },
     {
     "id": "Linen Cape",
@@ -158,7 +158,7 @@
     "mod_skills": {"refinement": [0.05, 0, 0.05, 0, 0]},
     "locations": ["Tailor Store"],
     "tier": 1,
-    "pref_class":["SIW", "Service", "Casual"]
+    "pref_class":["Whore", "Stripper", "Service", "Casual"]
     },
     {
     "id": "Velvet Cape",
@@ -178,7 +178,7 @@
     "mod_skills": {"refinement": [0.05, 0.05, 0.05, 0, 0]},
     "locations": ["Tailor Store"],
     "tier": 1,
-    "pref_class":["SIW", "Service", "Casual"]
+    "pref_class":["Whore", "Stripper", "Service", "Casual"]
     },
     {
     "id": "Witch's Cloak",
@@ -217,7 +217,7 @@
     "delivery_bonus": {"magic": 30},
     "locations": ["Exploration", "Arena"],
     "tier": 2,
-    "pref_class":["Mage", "Healer"]
+    "pref_class":["Mage"]
     },
     {
     "id": "Wizard Robes",
@@ -280,7 +280,7 @@
     "defence_bonus": {"ranged": 20},
     "locations": ["Exploration", "Ninja Shop"],
     "tier": 1,
-    "pref_class": ["Assassin", "Shooter"]
+    "pref_class": ["Warrior", "Shooter"]
     },
     {
     "id": "Mage Robe",
@@ -323,7 +323,7 @@
     "delivery_multiplier": {"magic": 0.1},
     "goodtraits": ["Alien"],
     "tier": 4,
-    "pref_class":["Mage", "Healer"]
+    "pref_class":["Mage", "Stripper", "Bartender", "Casual"]
     },
     {
     "id": "Armoured Cape",
@@ -366,7 +366,7 @@
     "defence_multiplier": {"status": 0.1},
     "delivery_multiplier": {"status": 0.1},
     "tier": 4,
-    "pref_class":["Assassin"]
+    "pref_class":["Warrior", "Shooter"]
     },
     {
     "id": "Frost Cape",

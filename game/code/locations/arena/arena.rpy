@@ -612,7 +612,7 @@ init -9 python:
 
                         tier_up_to(member, tier)
                         give_tiered_magic_skills(member)
-                        auto_buy_for_bt(member)
+                        give_tiered_items(member, False, True)
 
                     member.arena_active = True
                     #member.arena_permit = True
@@ -683,7 +683,7 @@ init -9 python:
                     char = candidates.pop()
                     tier_up_to(char, 7, **tier_kwargs)
                     give_tiered_magic_skills(char)
-                    auto_buy_for_bt(char)
+                    give_tiered_items(char, False, True)
                 else:
                     char = build_rc(bt_go_patterns=["Combatant"], tier=7,
                                     tier_kwargs=tier_kwargs, give_bt_items=True)
@@ -716,7 +716,7 @@ init -9 python:
                 else:
                     tier_up_to(fighter, tier)
                     give_tiered_magic_skills(fighter)
-                    auto_buy_for_bt(fighter)
+                    give_tiered_items(fighter, False, True)
 
             candidates.extend(new_candidates)
 

@@ -96,7 +96,7 @@
     "mod_skills": {"refinement": [0, 0, 0.05, 0, 0], "sex": [0, 0, 0.05, 0, 0], "service": [0, 0, 0.05, 0, 0]},
     "locations": ["Tailor Store"],
     "tier": 1,
-    "pref_class":["SIW", "Service", "Casual"]
+    "pref_class":["Whore", "Stripper", "Service", "Casual"]
     },
     {
     "id": "Velvet Dress",
@@ -180,7 +180,7 @@
     "goodtraits": ["Exhibitionist"],
     "badtraits": ["Shy"],
     "tier": 2,
-    "pref_class":["SIW"]
+    "pref_class":["SIW", "Bartender", "Manager", "Casual"]
     },
     {
     "id": "Silken Dress",
@@ -200,7 +200,7 @@
     "mod_skills": {"refinement": [0.1, 0.1, 0.1, 0, 0], "management": [0.1, 0.1, 0.2, 0, 0], "strip": [0, 0, 0.05, 0, 0]},
     "locations": ["Tailor Store"],
     "tier": 3,
-    "pref_class":["SIW", "Manager", "Casual"]
+    "pref_class":["Whore", "Stripper", "Manager", "Casual"]
     },
     {
     "id": "Noble Gown",
@@ -220,7 +220,7 @@
     "mod_skills": {"refinement": [0.2, 0.2, 0.2, 0, 0], "management": [0.1, 0.1, 0.1, 0, 0], "strip": [0.1, 0.1, 0.1, 0, 0]},
     "locations": ["Tailor Store"],
     "tier": 4,
-    "pref_class":["SIW", "Manager", "Casual"]
+    "pref_class":["Whore", "Stripper", "Manager", "Casual"]
     },
     {
     "id": "Gemstone Dress",
@@ -260,7 +260,7 @@
     "mod_skills": {"dancing": [0.05, 0.05, 0.1, 0, 0], "strip": [0.05, 0.05, 0.05, 0, 0]},
     "locations": ["Tailor Store"],
     "tier": 1,
-    "pref_class":["Stripper"]
+    "pref_class":["Stripper", "Whore"]
     },
     {
     "id": "Maid Uniform",
@@ -282,7 +282,7 @@
     "locations": ["Tailor Store"],
     "goodtraits": ["Neat"],
     "tier": 4,
-    "pref_class":["Service", "Maid", "Cleaner"]
+    "pref_class":["Service"]
     },
     {
     "id": "Viny-patterned Corset",
@@ -302,7 +302,7 @@
     "mod_skills": {"refinement": [0.05, 0.05, 0.1, 0, 0], "strip": [0.05, 0.05, 0.1, 0, 0]},
     "locations": ["Tailor Store"],
     "tier": 2,
-    "pref_class":["SIW", "Stripper"]
+    "pref_class":["Whore", "Stripper"]
     },
     {
     "id": "Snow-knit Gown",
@@ -363,7 +363,7 @@
     "addeffects": ["Revealing Clothes"],
     "goodtraits": ["Manly"],
     "tier": 0,
-    "pref_class":["Warrior"]
+    "pref_class":["Warrior", "Shooter"]
     },
     {
     "id": "Plate Mail",
@@ -423,7 +423,7 @@
     "defence_multiplier": {"melee": 0.05, "magic": 0.05, "ranged": 0.05},
     "locations": ["Exploration", "Arena", "Arena"],
     "tier": 2,
-    "pref_class":["Warrior", "Shooter"]
+    "pref_class":["Warrior", "Mage", "Shooter"]
     },
     {
     "id": "Draconic Leather Armor",
@@ -490,7 +490,7 @@
     "locations": ["Tailor Store", "Ninja Shop"],
     "goodtraits": ["Athletic"],
     "tier": 1,
-    "pref_class":["Assassin"]
+    "pref_class":["Any"]
     },
     {
     "id": "Short Kimono",
@@ -514,7 +514,7 @@
     "locations": ["Ninja Shop"],
     "badtraits": ["Shy"],
     "tier": 3,
-    "pref_class":["SIW", "Service"]
+    "pref_class":["Whore", "Stripper", "Bartender", "Service"]
     },
     {
     "id": "Elven Armor",
@@ -540,7 +540,7 @@
     "locations": ["Exploration", "Arena"],
     "goodtraits": ["Not Human"],
     "tier": 4,
-    "pref_class":["Warrior"]
+    "pref_class":["Shooter", "Warrior", "Mage"]
     },
     {
     "id": "Elven Brigantine",
@@ -564,7 +564,7 @@
     "evasion_bonus": 5,
     "locations": ["Exploration", "Arena"],
     "tier": 4,
-    "pref_class":["Shooter", "Any", "Warrior"]
+    "pref_class":["Shooter", "Warrior", "Mage"]
     },
     {
     "id": "Elven Ranger Armor",
@@ -590,7 +590,7 @@
     "locations": ["Exploration", "Arena"],
     "goodtraits": ["Not Human"],
     "tier": 4,
-    "pref_class":["Shooter", "Any", "Warrior"]
+    "pref_class":["Shooter", "Warrior"]
     },
     {
     "id": "Elven Sage Armor",
@@ -640,7 +640,7 @@
     "mod_skills": {"refinement": [0, 0, 0.1, 0, 0], "security": [0.15, 0.15, 0.25, 0, 0]},
     "locations": ["Exploration", "Ninja Shop", "Arena"],
     "tier": 4,
-    "pref_class":["Assassin", "Any", "Warrior", "Casual"]
+    "pref_class":["Any"]
     },
     {
     "id": "Kunoichi Suit",
@@ -666,7 +666,7 @@
     "goodtraits": [],
     "badtraits": ["Frigid"],
     "tier": 4,
-    "pref_class":["Assassin", "Any", "Warrior", "Casual"]
+    "pref_class":["Any"]
     },
     {
     "id": "Pink Dress",
@@ -758,7 +758,7 @@
     "goodtraits": ["Nymphomaniac", "Sexy Air", "Exhibitionist"],
     "badtraits": ["Frigid", "Shy"],
     "tier": 2,
-    "pref_class":["SIW", "Stripper"]
+    "pref_class":["Whore", "Stripper"]
     },
     {
     "id": "Summer Clothes",
@@ -782,7 +782,7 @@
     "goodtraits": ["Long Legs", "Athletic", "Manly"],
     "badtraits": ["Lolita"],
     "tier": 2,
-    "pref_class":["Casual"]
+    "pref_class":["Any"]
     },
     {
     "id": "Faerie Gown",
@@ -806,7 +806,7 @@
     "locations": ["Exploration"],
     "goodtraits": ["Alien"],
     "tier": 4,
-    "pref_class":["Mage", "Healer"]
+    "pref_class":["Mage"]
     },
     {
     "id": "Fae Robe",
@@ -828,7 +828,7 @@
     "delivery_multiplier": {"magic": 0.25},
     "mod_skills": {"refinement": [0.15, 0.15, 0.2, 0, 0], "security": [0.4, 0.4, 0.5, 0, 0]},
     "tier": 4,
-    "pref_class":["Mage", "Healer"]
+    "pref_class":["Mage"]
     },
     {
     "id": "Godward Shell",
@@ -868,7 +868,7 @@
     "mod": {"magic": 25, "constitution": 15, "agility": -15, "attack": -15, "defence": 25},
     "locations": ["Work Shop"],
     "tier": 1,
-    "pref_class":["Mage", "Healer"]
+    "pref_class":["Mage"]
     },
     {
     "id": "Starlit Robes",
@@ -888,7 +888,7 @@
     "mod": {"magic": 60, "constitution": 15, "defence": 60, "attack": -50},
     "locations": ["Exploration", "Arena"],
     "tier": 2,
-    "pref_class":["Mage", "Healer"]
+    "pref_class":["Mage"]
     },
     {
     "id": "Organic Lingerie",
@@ -910,7 +910,7 @@
     "goodtraits": ["Nymphomaniac"],
     "badtraits": ["Frigid"],
     "tier": 2,
-    "pref_class":["Prostitute"]
+    "pref_class":["Whore"]
     },
     {
     "id": "Succubus' Wardress",
@@ -932,7 +932,7 @@
     "removetraits": ["Frigid"],
     "locations": [],
     "tier": 3,
-    "pref_class":["SIW"]
+    "pref_class":["SIW", "Bartender", "Manager"]
     },
     {
     "id": "Demonic Cloak",
@@ -974,7 +974,7 @@
     "mod": {"charisma": 10, "defence": 10},
     "locations": ["Tailor Store"],
     "tier": 0,
-    "pref_class":["Any", "Casual"]
+    "pref_class":["Any"]
     
     },
     {
@@ -994,7 +994,7 @@
     "mod": {"charisma": 15, "defence": 20},
     "defence_multiplier": {"melee": 0.1},
     "tier": 0,
-    "pref_class":["Any", "Casual"]
+    "pref_class":["Warrior", "Shooter", "Mage"]
     },
     {
     "id": "Artisan Outfit",
@@ -1014,7 +1014,7 @@
     "mod_skills": {"refinement": [0.1, 0.1, 0.1, 0, 0]},
     "locations": ["Tailor Store"],
     "tier": 1,
-    "pref_class":["Warrior", "Shooter", "Casual", "Any"]
+    "pref_class":["Warrior", "Shooter", "Mage", "SIW", "Casual"]
     },
     {
     "id": "Elite Artisan Outfit",
@@ -1034,7 +1034,7 @@
     "mod": {"charisma": 55, "defence": 65, "agility": -15},
     "mod_skills": {"refinement": [0.1, 0.1, 0.1, 0, 0], "security": [0.1, 0.1, 0.1, 0, 0]},
     "tier": 1,
-    "pref_class":["Warrior", "Shooter", "Casual", "Any"]
+    "pref_class":["Warrior", "Shooter", "Mage", "SIW", "Casual"]
     },
     {
     "id": "Leather Jacket",
@@ -1055,7 +1055,7 @@
     "mod_skills": {"refinement": [0.1, 0.1, 0.15, 0, 0], "security": [0.1, 0.1, 0.15, 0, 0]},
     "locations": ["Tailor Store"],
     "tier": 2,
-    "pref_class":["Warrior", "Shooter", "Casual", "Any"]
+    "pref_class":["Warrior", "Shooter", "Mage"]
     },
     {
     "id": "Altered Leather Jacket",
@@ -1075,7 +1075,7 @@
     "mod": {"charisma": 80, "defence": 55, "agility": 25},
     "mod_skills": {"refinement": [0.15, 0.15, 0.2, 0, 0], "security": [0.15, 0.15, 0.2, 0, 0]},
     "tier": 2,
-    "pref_class":["Warrior", "Shooter", "Casual", "Any"]
+    "pref_class":["Warrior", "Shooter", "Mage"]
     },
     {
     "id": "Mercenary Clothes",
@@ -1097,7 +1097,7 @@
     "mod_skills": {"security": [0.15, 0.15, 0.15, 0, 0], "management": [0.15, 0.15, 0.15, 0, 0], "refinement": [0.15, 0.15, 0.15, 0, 0]},
     "locations": ["Tailor Store"],
     "tier": 3,
-    "pref_class":["Warrior", "Shooter", "Knight"]
+    "pref_class":["Warrior", "Shooter", "Mage"]
     },
     {
     "id": "Proper Mercenary Clothes",
@@ -1118,7 +1118,7 @@
     "defence_multiplier": {"melee": 0.2, "ranged": 0.2, "magic": 0.1},
     "mod_skills": {"security": [0.2, 0.2, 0.2, 0, 0], "management": [0.2, 0.2, 0.2, 0, 0], "refinement": [0.2, 0.2, 0.2, 0, 0]},
     "tier": 3,
-    "pref_class":["Warrior", "Shooter", "Knight"]
+    "pref_class":["Warrior", "Shooter", "Mage"]
     },
     {
     "id": "Kilt",
@@ -1137,7 +1137,7 @@
     "max": {"defence": 20, "character": 20},
     "mod": {"character": 25, "defence": 10, "attack": 10},
     "tier": 1,
-    "pref_class":["Any"]
+    "pref_class":["Warrior", "Shooter", "Mage", "Manager", "Bartender"]
     },
     {
     "id": "Imperial Armor",
@@ -1157,7 +1157,7 @@
     "defence_multiplier": {"melee": 0.1, "ranged": 0.05},
     "locations": ["Work Shop"],
     "tier": 0,
-    "pref_class":["Warrior", "Shooter"]
+    "pref_class":["Warrior", "Shooter", "Mage"]
     },
     {
     "id": "Female Casual Clothes",

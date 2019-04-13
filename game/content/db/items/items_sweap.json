@@ -17,7 +17,7 @@
     "defence_bonus": {"melee": 20},
     "locations": ["Work Shop"],
     "tier": 0,
-    "pref_class":["Assassin", "Shooter", "Warrior"]
+    "pref_class":["Warrior", "Shooter"]
     },
     {
     "id": "Crystal Staff",
@@ -79,7 +79,7 @@
     "delivery_multiplier": {"magic": 0.05},
     "locations": ["Witches Hut", "Exploration"],
     "tier": 2,
-    "pref_class":["Caster", "Mage"]
+    "pref_class":["Mage"]
     },
     {
     "id": "Rune Staff",
@@ -145,7 +145,7 @@
     "goodtraits": ["Nymphomaniac"],
     "badtraits": ["Frigid"],
     "tier": 1,
-    "pref_class":["Assassin", "SIW"]
+    "pref_class":["Warrior", "Whore"]
     },
     {
     "id": "Jeweled Poignard",
@@ -164,7 +164,7 @@
     "mod_skills": {"refinement": [0, 0, 0.05, 0, 0], "management": [0, 0, 0.05, 0, 0]},
     "locations": ["Work Shop"],
     "tier": 1,
-    "pref_class":["Manager"]
+    "pref_class":["Warrior", "Shooter", "Bartender", "Manager"]
     },
     {
     "id": "Wand of Concentration",
@@ -206,7 +206,7 @@
     "mod": {"character": 20, "agility": 10, "defence": 15},
     "locations": ["Witches Hut"],
     "tier": 2,
-    "pref_class":["Any"]
+    "pref_class":["Warrior", "Shooter", "Manager", "Bartender", "SIW"]
     },
     {
     "id": "Spirit-Defender",
@@ -225,7 +225,7 @@
     "evasion_bonus": 2,
     "locations": ["Exploration", "Arena"],
     "tier": 4,
-    "pref_class":["Any"]
+    "pref_class":["Warrior", "Mage", "Shooter"]
     },
     {
     "id": "Magician Handbag",
@@ -264,7 +264,7 @@
     "defence_multiplier": {"melee": 0.45, "ranged": 0.45},
     "locations": ["Work Shop"],
     "tier": 2,
-    "pref_class":["Warrior"]
+    "pref_class":["Warrior", "SIW"]
     },
     {
     "id": "Buckler",
@@ -285,7 +285,7 @@
     "defence_multiplier": {"melee": 0.05, "ranged": 0.05},
     "locations": ["Work Shop"],
     "tier": 0,
-    "pref_class":["Warrior"]
+    "pref_class":["Warrior", "Mage"]
     },
     {
     "id": "Wooden Shield",
@@ -305,7 +305,7 @@
     "mod": {"defence": 15},
     "locations": ["Work Shop"],
     "tier": 1,
-    "pref_class":["Warrior"]
+    "pref_class":["Warrior", "Mage", "Shooter"]
     },
     {
     "id": "Kite Shield",
@@ -326,7 +326,7 @@
     "defence_multiplier": {"melee": 0.3, "ranged": 0.3},
     "locations": ["Work Shop"],
     "tier": 3,
-    "pref_class":["Warrior"]
+    "pref_class":["Warrior", "Mage"]
     },
     {
     "id": "Imperial Shield",
@@ -348,7 +348,7 @@
     "defence_multiplier": {"melee": 0.07, "ranged": 0.07},
     "locations": ["Work Shop"],
     "tier": 1,
-    "pref_class":["Warrior"]
+    "pref_class":["Warrior", "Mage", "Shooter"]
     },
     {
     "id": "Vibranium Shield",
