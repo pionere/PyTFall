@@ -1368,13 +1368,18 @@ label after_load:
                     delattr(store, i)
 
         for b in chain(hero.buildings, buildings.itervalues()):
-            for u in b._businesses:
+            for u in chain(b._businesses, b.allowed_businesses):
                 if hasattr(u, "intro_string"):
                     u.intro_string = u.__class__.intro_string
                 if hasattr(u, "log_intro_string"):
                     del u.log_intro_string
                 if hasattr(u, "clients"):
                     del u.clients
+                if not hasattr(u, "job_effectiveness_mod"):
+                    jem = 0
+                    for up in u.upgrades:
+                        jem += getattr(up, "job_effectiveness_mod", 0)
+                    u.job_effectiveness_mod = jem
 
         for e in pytfall.world_events.events:
             for i, c in enumerate(e.simple_conditions):

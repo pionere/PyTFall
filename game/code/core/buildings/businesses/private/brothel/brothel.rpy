@@ -59,9 +59,7 @@ init -5 python:
             effectiveness = job.effectiveness(worker, difficulty, log, building.manager_effectiveness)
 
             # Upgrade mods:
-            # Move to Job method?
-            for u in self.upgrades:
-                effectiveness += getattr(u, "job_effectiveness_mod", 0)
+            effectiveness += self.job_effectiveness_mod
 
             effectiveness = job.work_brothel(worker=worker, client=client, building=building,
                                              log=log, effectiveness=effectiveness)

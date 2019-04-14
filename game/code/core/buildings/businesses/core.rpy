@@ -93,6 +93,7 @@ init -12 python:
             self.allowed_upgrades = getattr(self, "allowed_upgrades", [])
             self.in_construction_upgrades = list() # Not used yet!
             self.upgrades = list()
+            self.job_effectiveness_mod = 0
 
         def can_close(self):
             # test if the business can be closed
@@ -343,6 +344,7 @@ init -12 python:
             upgrade.business = self
             self.upgrades.append(upgrade)
             self.upgrades.sort(key=attrgetter("ID"), reverse=True)
+            self.job_effectiveness_mod += getattr(upgrade, "job_effectiveness_mod", 0)
 
         def all_possible_extensions(self):
             # Named this was to conform to GUI (same as for Buildings)
@@ -589,9 +591,7 @@ init -12 python:
             effectiveness = job.effectiveness(worker, difficulty, log, building.manager_effectiveness)
 
             # Upgrade mods:
-            # Move to Job method?
-            for u in self.upgrades:
-                effectiveness += getattr(u, "job_effectiveness_mod", 0)
+            effectiveness += self.job_effectiveness_mod
 
             if DSNBR:
                 log.append("Debug: Her effectiveness: {}! (difficulty: {}, Tier: {})".format(
@@ -724,9 +724,7 @@ init -12 python:
                     effectiveness = job.effectiveness(w, difficulty, log, building.manager_effectiveness)
 
                     # Upgrade mods:
-                    # Move to Job method?
-                    for u in self.upgrades:
-                        effectiveness += getattr(u, "job_effectiveness_mod", 0)
+                    effectiveness += self.job_effectiveness_mod
 
                     if DEBUG_SIMPY:
                         devlog.info("{} Effectiveness: {}: {}".format(job.id,
