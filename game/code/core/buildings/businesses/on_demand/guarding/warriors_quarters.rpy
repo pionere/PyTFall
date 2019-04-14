@@ -50,6 +50,7 @@ init -5 python:
                         if not using_all_workers:
                             using_all_workers = True
                             workers = self.all_on_deck(workers, job, power_flag_name, use_slaves=False, log=log)
+                            SparringQuarters_active = False # no time for sparring in case of emergency
 
                     if not make_nd_report_at:
                         wlen = len(workers)
@@ -76,13 +77,14 @@ init -5 python:
                             self.log(temp, True)
                             workers.remove(w)
 
+                    threat = building.threat
+
                 if EnforcedOrder_active is True and now > 50:
                     self.log("Enforced order is making your civilian workers uneasy...")
                     for w in building.all_workers:
                         if not "Combatant" in w.gen_occs:
-                            w.mod_stat("disposition", -1)
-                            if dice(50):
-                                w.mod_stat("joy", -1)
+                            w.mod_stat("disposition", -randint(2, 5))
+                            w.mod_stat("joy", -randint(2, 5))
                     EnforcedOrder_active = 1 # run only once per day
 
                 # Create actual report:
@@ -91,7 +93,7 @@ init -5 python:
                     if DSNBR:
                         self.log("DEBUG! WRITING GUARDING REPORT!", True)
 
-                    if SparringQuarters_active and threat < 500 and dice(25):
+                    if SparringQuarters_active and dice(25):
                         use_SQ = True
                         SparringQuarters_active = False # run only once per day
                     else:
@@ -103,7 +105,7 @@ init -5 python:
                     log = list()
 
                 # Release none-pure workers:
-                if building.threat < 500 and using_all_workers:
+                if threat < 500 and using_all_workers:
                     using_all_workers = False
                     extra = workers - strict_workers
                     if extra:
@@ -111,9 +113,9 @@ init -5 python:
                         building.available_workers[0:0] = list(extra)
 
                 simpy_debug("Exiting WarriorQuarters.business_control at %s", now)
-                if not EnforcedOrder_active and threat >= 500 and not had_brawl_event:
+                if EnforcedOrder_active is False and using_all_workers:
                     self.intercept(workers, power_flag_name)
-                    had_brawl_event = True
+                    EnforcedOrder_active = 0 # run only once per day
                     yield self.env.timeout(5)
                 else:
                     yield self.env.timeout(1)
@@ -240,13 +242,9 @@ init -5 python:
             simpy_debug("Entering WarriorQuarters.intercept at %s", self.env.now)
 
             building = self.building
-            job = simple_jobs["Guarding"]
 
             # gather the response forces:
-            log = []
-            all_workers = self.all_on_deck(workers, job,
-                                power_flag_name, use_slaves=False, log=log)
-            defenders = all_workers.union(workers)
+            defenders = workers
 
             temp = "{color=red}A number of clients got completely out of hand!{/color}"
             self.log(temp, True)
@@ -255,9 +253,6 @@ init -5 python:
             if num_defenders != 0:
                 temp = "{} Guards and employees are responding!".format(set_font_color(num_defenders, "red"), building.name)
                 self.log(temp)
-
-                for l in log:
-                    self.log(l)
 
                 # Prepare the teams:
                 # Enemies:
