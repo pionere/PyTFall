@@ -258,30 +258,6 @@ init -11 python:
         data = rchars[id]
         rg.id = id
 
-        # Blocking traits:
-        for key in ("blocked_traits", "ab_traits"):
-            if key in data:
-                _traits  = set()
-                for t in data[key]:
-                    if t in store.traits:
-                        _traits.add(store.traits[t])
-                    else:
-                        char_debug("%s trait is unknown for %s (In %s)!" % (t, id, key))
-                setattr(rg.traits, key, _traits)
-
-        # Traits next:
-        if "random_traits" in data:
-            for item in data["random_traits"]:
-                trait, chance = item
-                if dice(chance):
-                    trait = traits.get(trait, None)
-                    if trait is None:
-                        char_debug(str("Unknown trait: %s for random girl: %s!" % (item[0], id)))
-                    elif trait.basetrait:
-                        char_debug(str("Trait: %s for random girl: %s is a basetrait which can not be set this way!" % (trait.id, id)))
-                    else:
-                        rg.apply_trait(trait)
-
         # Names/Origin:
         if not name:
             if not store.female_first_names:
@@ -317,6 +293,22 @@ init -11 python:
         elif set_locations:
             rg.home = pytfall.sm if rg.status == "slave" else pytfall.city
             set_location(rg, None)
+
+        # Common expected data:
+        for i in ("gold", "desc", "height", "full_race", "gender"):
+            if i in data:
+                setattr(rg, i, data[i])
+
+        # Colors in say screen:
+        for key in ("color", "what_color"):
+            if key in data:
+                color = data[key]
+                try:
+                    color = Color(color)
+                except:
+                    char_debug("Invalid %s: %s for random girl: %s!" % (key, data[key], id))
+                    color = "ivory"
+                rg.say_style[key] = color
 
         # BASE TRAITS:
         selection = None
@@ -357,26 +349,29 @@ init -11 python:
         for t in basetraits:
             rg.apply_trait(t)
 
+        # Blocking traits:
+        for key in ("blocked_traits", "ab_traits"):
+            if key in data:
+                _traits  = set()
+                for trait in data[key]:
+                    trait = traits[trait]
+                    # assert(trait is not None and not trait.basetrait)
+                    _traits.add(trait)
+                setattr(rg.traits, key, _traits)
+
+        # Traits next:
+        if "random_traits" in data:
+            for item in data["random_traits"]:
+                trait, chance = item
+                if dice(chance):
+                    trait = traits[trait]
+                    # assert(trait is not None and not trait.basetrait)
+                    rg.apply_trait(trait)
+
         # Battle and Magic skills:
         if "default_attack_skill" in data:
             skill = data["default_attack_skill"]
             rg.default_attack_skill = store.battle_skills[skill]
-
-        # Rest of the expected data:
-        for i in ("gold", "desc", "height", "full_race", "gender"):
-            if i in data:
-                setattr(rg, i, data[i])
-
-        # Colors in say screen:
-        for key in ("color", "what_color"):
-            if key in data:
-                color = data[key]
-                try:
-                    color = Color(color)
-                except:
-                    char_debug("Invalid %s: %s for random girl: %s!" % (key, data[key], id))
-                    color = "ivory"
-                rg.say_style[key] = color
 
         # Normalizing new girl:
         # We simply run the init method of parent class for this:

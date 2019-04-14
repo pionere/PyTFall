@@ -314,11 +314,28 @@ init -11 python:
                         # Set the path to the folder:
                         gd["_path_to_imgfolder"] = os.path.join("content", "rchars", packfolder, folder)
 
-                        # validate skills so we do not have to to it in runtime
+                        # validate data so we do not have to to it in runtime
                         if "default_attack_skill" in gd:
                             skill = gd["default_attack_skill"]
                             if skill not in store.battle_skills:
                                 raise Exception("%s JSON Loading func tried to apply unknown default attack skill: %s!" % (gd["id"], skill))
+
+                        for key in ("blocked_traits", "ab_traits"):
+                            if key in gd:
+                                for t in gd[key]:
+                                    trait = store.traits.get(t, None)
+                                    if trait is None:
+                                        raise Exception("Unknown trait: %s for random girl: %s in %s!" % (t, gd["id"], key))
+                                    elif trait.basetrait:
+                                        raise Exception("Trait: %s for random girl: %s is a basetrait which can not be blocked (%s)!" % (t, gd["id"], key))
+
+                        if "random_traits" in gd:
+                            for (t, c) in gd["random_traits"]:
+                                trait = store.traits.get(t, None)
+                                if trait is None:
+                                    raise Exception("Unknown trait: %s for random girl: %s as 'random_traits'!" % (t, gd["id"]))
+                                elif trait.basetrait:
+                                    raise Exception("Trait: %s for random girl: %s is a basetrait which can not set as 'random_traits'!" % (t, gd["id"]))
 
                         content[id] = gd
 
