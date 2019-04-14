@@ -766,8 +766,6 @@ init -9 python:
 
             self.setAP = ap
 
-            if ap > 0 and "Injured" in self.effects:
-                ap -= 1
             self.AP = ap
             self.PP = 0
 
@@ -1880,9 +1878,14 @@ init -9 python:
             return char in self.lovers
 
         def next_day(self):
+            self.restore_ap()
+
             self.clear_img_cache()
 
             self.log_stats()
+
+            # Next day morning --------------------------------------->
+            self.nd_effects()
 
         def auto_training(self, kind):
             """
@@ -2324,7 +2327,6 @@ init -9 python:
 
             # ------------->
             self.item_counter()
-            self.restore_ap()
 
             # ------------>
             self.nd_log_report(txt, 'profile', flag_red, type='mcndreport')
@@ -2333,7 +2335,6 @@ init -9 python:
             super(Player, self).next_day()
 
             # Next day morning --------------------------------------->
-            self.nd_effects()
             # hero-only trait which heals everybody
             if "Life Beacon" in self.traits:
                 if self.location != pytfall.jail:
@@ -2578,7 +2579,6 @@ init -9 python:
                         self.add_money(wage, reason="Wages")
 
                 #self.restore()
-                self.restore_ap()
                 self.item_counter()
 
                 # Adding joy mods:
@@ -2588,7 +2588,6 @@ init -9 python:
                 super(Char, self).next_day()
 
                 # Next day morning --------------------------------------->
-                self.nd_effects()
                 # Shopping (For now will not cost AP):
                 self.nd_autoshop()
                 return
@@ -2736,7 +2735,6 @@ init -9 python:
             self.fin.next_day()
 
             # Resets and Counters:
-            self.restore_ap()
             self.item_counter()
 
             img = 'profile' if mood is None else self.show("profile", mood)
@@ -2746,7 +2744,6 @@ init -9 python:
             super(Char, self).next_day()
 
             # Next day morning ---------------------------------------------->
-            self.nd_effects()
             # Training with NPCs and shopping
             if self.is_available:
                 self.nd_auto_train()

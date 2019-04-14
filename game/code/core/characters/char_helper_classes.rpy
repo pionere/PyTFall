@@ -1607,6 +1607,7 @@ init -10 python:
                 if char.get_stat("vitality") > char.get_max("vitality")/2:
                     char.set_stat("vitality", char.get_max("vitality")/2)
                 char.mod_stat("joy", -10)
+                char.take_ap(1)
                 if self.days_active >= self.duration:
                     self.end(char)
             elif name == "Lactation": # TODO add milking activities, to use this fetish more widely
