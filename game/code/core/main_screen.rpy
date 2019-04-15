@@ -75,6 +75,8 @@ screen mainscreen():
             location = None
         else:
             section = sections.get(location, None)
+            if section is None:
+                section = sections.get("entry", None)
             if isinstance(section, basestring):
                 section = sections[section]
             if section is None:
@@ -82,9 +84,28 @@ screen mainscreen():
             else:
                 location = section["img"]
                 objects = section.get("objects", None)
+                if objects is not None:
+                    # filter objects
+                    #  by dirt:
+                    dirt = getattr(hero.home, "dirt", 0)
+                    objects = [o for o in objects if o.get("dirt", 0) <= dirt]
+                    #  by upgrade:
+                    upgrades = [u.name for u in getattr(hero.home, "_upgrades", [])]
+                    upgrades.append(None)
+                    objects = [o for o in objects if o.get("upgrade", None) in upgrades]
+                    #  by business:
+                    businesses = [b.name for b in getattr(hero.home, "_businesses", [])]
+                    businesses.append(None)
+                    objects = [o for o in objects if o.get("business", None) in businesses]
+                    #  by business-upgrade
+                    business_upgrades = ["/".join(name,u) for name, upgrades in 
+                                            [[b.name, [u.name for u in b.upgrades]] for b in getattr(hero.home, "_businesses", [])] 
+                                         for u in upgrades]
+                    business_upgrades.append(None)
+                    objects = [o for o in objects if o.get("business_upgrade", None) in business_upgrades]
 
         if location is None:
-            location = "content/gfx/bg/main_brothel.webp"
+            location = "content/buildings/Rooms/slums.webp"
             objects = None
 
     # Home pic + objects:
@@ -97,7 +118,6 @@ screen mainscreen():
         at fade_from_to(.0, 1.0, fadein)
     # Overlay objects
         if objects:
-            $ objects = objects[:]
             $ objects.sort(key=lambda x: x.get("layer", 0))
             for o in objects:
                 $ name = o.get("name", None)

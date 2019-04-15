@@ -338,7 +338,11 @@
                              "img": "images/interface/icons/journal.webp"},
                              {"name": "exit",
                              "pos": [690, 196],
-                             "img": "content/buildings/Rooms/exit_beggar_3.webp"}
+                             "img": "content/buildings/Rooms/exit_beggar_3.webp"},
+                             {"name": "dirt0",
+                             "pos": [435, 645],
+                             "img": "content/buildings/Rooms/crumpled_paper.webp",
+                             "dirt": 100}
                         ]
                      },
                      "entry": "mc_bedroom"
@@ -358,11 +362,27 @@
         "maxthreat": 0,
 
         "rooms": 1,
+        "sections": {"mc_bedroom": {
+                        "img": "content/buildings/Rooms/simple.webp",
+                        "objects": [
+                            {"name": "report",
+                             "pos": [390, 315],
+                             "img": "content/gfx/interface/images/report.png"},
+                            {"name": "gazette",
+                             "pos": [300, 290],
+                             "img": "images/interface/icons/journal.webp"},
+                            {"name": "exit",
+                             "pos": [550, 650],
+                             "img": "content/gfx/interface/buttons/down.png"}
+                        ]
+                     },
+                     "entry": "mc_bedroom"
+        },
 
         "tier": 1,
         "daily_modifier": 0.15,
 
-        "img": "content/gfx/bg/buildings/apartment_1.webp"
+        "img": "content/buildings/Rooms/simple.webp"
     },
     {
         "name": "Large Apartment",
@@ -373,6 +393,22 @@
         "maxthreat": 0,
 
         "rooms": 3,
+        "sections": {"mc_bedroom": {
+                        "img": "content/buildings/Rooms/decent (1).webp",
+                        "objects": [
+                            {"name": "report",
+                             "pos": [790, 450],
+                             "img": "content/gfx/interface/images/report.png"},
+                            {"name": "gazette",
+                             "pos": [350, 470],
+                             "img": "images/interface/icons/journal.webp"},
+                            {"name": "exit",
+                             "pos": [550, 650],
+                             "img": "content/gfx/interface/buttons/down.png"}
+                        ]
+                     },
+                     "entry": "mc_bedroom"
+        },
 
         "tier": 3,
         "daily_modifier": 0.15,
