@@ -727,6 +727,7 @@ screen fg_area(area):
             align .5, .02
             xsize 330
             background None
+            $ builders = any(t.building_camp for t in area.trackers)
             if objects_mode == "allowed":
                 button:
                     xalign .5
@@ -757,6 +758,7 @@ screen fg_area(area):
                                 style "pb_button"
                                 text "[u.name]" align (.5, .5) color "ivory"
                                 action Function(area.queue, u)
+                                sensitive (not builders)
                                 tooltip u.desc
             else:
                 button:
@@ -786,6 +788,7 @@ screen fg_area(area):
                             style "pb_button"
                             text "[u.name]" align (.5, .5) color "ivory"
                             action Function(area.dequeue, u)
+                            sensitive (not builders)
                             tooltip u.desc
 
     # Mid-Frame:

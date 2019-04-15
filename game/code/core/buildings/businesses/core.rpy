@@ -424,6 +424,7 @@ init -12 python:
             self.res = None # Restored before every job... Resource Instance that may not be useful here...
             self.time = 10 # Time for a single shift.
             self.is_running = False # Active/Inactive.
+            self.has_tap_beer = False # cached result of check for TapBeer upgrade
 
         def client_control(self, client):
             """Handles the client after a spot is reserved...
@@ -465,9 +466,8 @@ init -12 python:
                         tips = tier*randint(1, 2)
                         if effectiveness >= 150:
                             tips += tier
-                        for u in self.upgrades:
-                            if isinstance(u, TapBeer) and dice(75):
-                                tips += tier
+                        if self.has_tap_beer and dice(75):
+                            tips += tier
                         worker.up_counter("_jobs_tips", tips)
 
                     # And remove client from actively served clients by the worker:
@@ -638,8 +638,9 @@ init -12 python:
 
                 earned = payout(job, effectiveness, difficulty, building,
                                 self, worker, clients_served, log)
-                temp = "%s earns %s by serving %d clients!" % (set_font_color(worker.name, "pink"),
-                                                               set_font_color("%d Gold" % earned, "gold"), len(clients_served))
+                temp = len(clients_served)
+                temp = "%s earns %s by serving %d %s!" % (set_font_color(worker.name, "pink"),
+                                                               set_font_color("%d Gold" % earned, "gold"), temp, plural("client", temp))
                 self.log(temp, True)
 
                 # Create the job report and settle!
@@ -660,6 +661,7 @@ init -12 python:
         def pre_nd(self):
             # Whatever we need to do at start of Next Day calculations.
             self.res = simpy.Resource(self.env, self.capacity)
+            self.has_tap_beer = self.has_extension(TapBeer)
 
         def post_nd(self):
             self.res = None

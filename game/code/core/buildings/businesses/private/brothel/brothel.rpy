@@ -12,13 +12,16 @@ init -5 python:
             simpy_debug("Entering BrothelBlock.request_resource after-yield at %s (W:%s/C:%s)", self.env.now, worker.name, client.name)
 
             # All is well and the client enters:
-            temp0 = "{} and {} enter the room.".format(
-                set_font_color(client.name, "beige"),
-                set_font_color(worker.name, "pink"))
-            temp1 = "{} and {} find a very private room for themselves.".format(
-                set_font_color(worker.name, "pink"),
-                set_font_color(client.name, "beige"))
-            self.log(choice([temp0, temp1]), True)
+            result = random.random()
+            if result < .5:
+                temp = "%s and %s enter the room." 
+            else:
+                temp = "%s and %s find a very private room for themselves." 
+            if result < .25 or result >= .75:
+                temp = temp % (set_font_color(client.name, "beige"), set_font_color(worker.name, "pink"))
+            else:
+                temp = temp % (set_font_color(worker.name, "pink"), set_font_color(client.name, "beige"))
+            self.log(temp, True)
 
             # This line will make sure code halts here until run_job ran it's course...
             yield self.env.timeout(self.time)
@@ -38,7 +41,7 @@ init -5 python:
                         set_font_color(client.name, "beige"),
                         line)
             self.log(temp, True)
-            temp = "{} leaves the {}.".format(set_font_color(client.name, "beige"), self.name)
+            temp = "%s leaves the %s." % (set_font_color(client.name, "beige"), self.name)
             self.log(temp, False)
 
             simpy_debug("Exiting BrothelBlock.request_resource after-yield at %s (W:%s/C:%s)", self.env.now, worker.name, client.name)
