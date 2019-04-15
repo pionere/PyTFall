@@ -274,6 +274,25 @@ screen diving_progress_bar(o2, max_o2): # oxygen bar for diving
         label "Find hidden items!" text_color "gold" text_size 18 xalign .5 yalign .5
         label "Right click or Esc to exit" text_color "gold" text_size 18 xalign .5 yalign .5
 
+screen diving_hidden_area(items=()):
+    on "hide":
+        action SetField(config, "mouse", None)
+
+    # randomly places a "hidden" rectangular area(s) on the screen.
+    # Areas are actually plain buttons with super low alpha...
+    # Expects a list/tuple, like: (["hidden_cache_1", (100, 100), (.1, .5)], ["hidden_cache_2", (50, 50), (.54, .10)])
+    # If cache is found, screen (which should be called) will return: "hidden_cache_1" string. Tuple is the size in pixels.
+    # Data is randomized outside of this screen!
+    for item, size, align in items:
+        button:
+            align align
+            background Transform(Solid("black", xysize=size), alpha=.01)
+            xysize size
+            focus_mask True
+            action Return(item)
+            hovered SetField(config, "mouse", {"default": [("content/gfx/interface/icons/net.png", 0, 0)]})
+            unhovered SetField(config, "mouse", None)
+
 label mc_action_city_beach_diving_checks:
     if not global_flags.has_flag('vitality_bonus_from_diving_at_beach'):
         $ global_flags.set_flag("vitality_bonus_from_diving_at_beach", value=0)
@@ -284,18 +303,17 @@ label mc_action_city_beach_diving_checks:
         "You need vitality to pick up items. Vitality is not consumed, but the more vitality you have in general, the more items you can pick up."
         "The goal is to find invisible items hidden on the seabed."
         "You can leave the sea anytime by clicking the right mouse button, and you will lose some health if you don't leave before the oxygen is over."
-    if hero.AP <= 0:
-        "You don't have Action Points at the moment. Try again tomorrow."
-        jump city_beach
-    elif hero.get_stat("vitality") < 20:
+    if hero.get_stat("vitality") < 20:
         "You're too tired at the moment."
         jump city_beach
     elif hero.get_stat("health") < hero.get_max("health")/2:
         "You are too wounded at the moment."
         jump city_beach
+    elif not hero.take_ap(1):
+        "You don't have Action Points at the moment. Try again tomorrow."
+        jump city_beach
 
     play world "underwater.mp3"
-    $ hero.AP -= 1
     scene bg ocean_underwater_1 with dissolve
     $ i = int(hero.get_skill("swimming")+1)
     if has_items("Snorkel Mask", hero, equipped=True):
@@ -305,47 +323,42 @@ label mc_action_city_beach_diving_checks:
         $ j = 120
     else:
         $ j = 60
+    $ loots = [[item, item.chance] for item in items.values() if "Diving" in item.locations]
     $ vitality = hero.get_stat("vitality")
     show screen diving_progress_bar(i, i)
     while vitality > 10:
         if not renpy.get_screen("diving_progress_bar"):
-            hide screen hidden_area
             "You've run out of air!"
             $ hero.gfx_mod_stat("health", -10)
-            jump city_beach
+            jump mc_action_city_beach_diving_exit
 
-        $ underwater_loot = tuple([choice(list(i for i in items.values() if "Diving" in i.locations and dice(i.chance)) or [False]), (j, j), (random.random(), random.random())] for i in range(4))
-        show screen hidden_area(underwater_loot)
+        $ result = tuple(["Item", (j, j), (random.random(), random.random())] for i in range(4))
+        show screen diving_hidden_area(result)
 
         $ result = ui.interact()
 
+        hide screen diving_hidden_area
         if result == "All out of Air!":
-            hide screen hidden_area
             "You've run out of air!"
             $ hero.gfx_mod_stat("health", -10)
-            jump city_beach
-        elif result == "Swim Out":
-            hide screen hidden_area
+            jump mc_action_city_beach_diving_exit
+        if result == "Swim Out":
             "You return to the surface before you run out of air."
-            jump city_beach
+            jump mc_action_city_beach_diving_exit
 
-        if isinstance(result, Item):
-            hide screen hidden_area
-            $ item = result
-            $ hero.add_item(item)
-            $ our_image = ProportionalScale(item.icon, 150, 150)
-            $ tkwargs = {"color": "blue", "outlines": [(1, "black", 0, 0)]}
-            $ gfx_overlay.notify("You caught %s!" % item.id, tkwargs=tkwargs)
-            $ gfx_overlay.random_find(item, 'fishy')
-        else:
-            $ tkwargs = {"color": "blue", "outlines": [(1, "black", 0, 0)]}
-            $ gfx_overlay.notify("There is nothing there...", tkwargs=tkwargs)
+        python hide:
+            if result == "Item":
+                item = weighted_sample(loots)
+                hero.add_item(item)
+                tkwargs = {"color": "blue", "outlines": [(1, "black", 0, 0)]}
+                gfx_overlay.notify("You caught %s!" % item.id, tkwargs=tkwargs)
+                gfx_overlay.random_find(item, 'fishy')
+            else:
+                tkwargs = {"color": "blue", "outlines": [(1, "black", 0, 0)]}
+                gfx_overlay.notify("There is nothing there...", tkwargs=tkwargs)
 
         $ vitality -= randint(10, 15)
-    $ del vitality
 
-    $ setattr(config, "mouse", None)
-    hide screen hidden_area
     hide screen diving_progress_bar
     "You're too tired to continue!"
     $ hero.mod_stat("vitality", -randint(10, 15))
@@ -354,6 +367,8 @@ label mc_action_city_beach_diving_checks:
         $ hero.stats.max["vitality"] += 1
         $ hero.mod_stat("vitality", 1)
         $ global_flags.up_counter("vitality_bonus_from_diving_at_beach")
-        $ narrator ("You feel more endurant than before {color=green}(max vitality +1){/color}.")
-    
+        "You feel more endurant than before {color=green}(max vitality +1){/color}."
+
+label mc_action_city_beach_diving_exit:
+    $ del i, j, loots, vitality
     jump city_beach
