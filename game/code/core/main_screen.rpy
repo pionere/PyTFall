@@ -56,27 +56,27 @@ screen mainscreen():
     key "mousedown_3" action Show("s_menu", transition=dissolve)
 
     python:
+        hero_home = hero.home
         if global_flags.has_flag("game_start"):
             global_flags.del_flag("game_start")
             fadein = 2.0
             location = "mc_bedroom"
-            global_flags.set_flag("mc_home_location", location)
         elif global_flags.has_flag("day_start"):
             global_flags.del_flag("day_start")
             fadein = 0.5
             location = "mc_bedroom"
-            global_flags.set_flag("mc_home_location", location)
         else:
             fadein = 0
-            location = global_flags.get_flag("mc_home_location", "entry")
+            hh, location = global_flags.get_flag("mc_home_location", [hero_home, "entry"])
+            if hh != hero_home:
+                location = "entry"
+        global_flags.set_flag("mc_home_location", [hero_home, location])
 
-        sections = getattr(hero.home, "sections", None)
+        sections = getattr(hero_home, "sections", None)
         if sections is None:
             location = None
         else:
             section = sections.get(location, None)
-            if section is None:
-                section = sections.get("entry", None)
             if isinstance(section, basestring):
                 section = sections[section]
             if section is None:
@@ -87,19 +87,19 @@ screen mainscreen():
                 if objects is not None:
                     # filter objects
                     #  by dirt:
-                    dirt = getattr(hero.home, "dirt", 0)
+                    dirt = getattr(hero_home, "dirt", 0)
                     objects = [o for o in objects if o.get("dirt", 0) <= dirt]
                     #  by upgrade:
-                    upgrades = [u.name for u in getattr(hero.home, "_upgrades", [])]
+                    upgrades = [u.name for u in getattr(hero_home, "_upgrades", [])]
                     upgrades.append(None)
                     objects = [o for o in objects if o.get("upgrade", None) in upgrades]
                     #  by business:
-                    businesses = [b.name for b in getattr(hero.home, "_businesses", [])]
+                    businesses = [b.name for b in getattr(hero_home, "_businesses", [])]
                     businesses.append(None)
                     objects = [o for o in objects if o.get("business", None) in businesses]
                     #  by business-upgrade
                     business_upgrades = ["/".join(name,u) for name, upgrades in 
-                                            [[b.name, [u.name for u in b.upgrades]] for b in getattr(hero.home, "_businesses", [])] 
+                                            [[b.name, [u.name for u in b.upgrades]] for b in getattr(hero_home, "_businesses", [])] 
                                          for u in upgrades]
                     business_upgrades.append(None)
                     objects = [o for o in objects if o.get("business_upgrade", None) in business_upgrades]
@@ -143,7 +143,7 @@ screen mainscreen():
                     elif next_loc is None:
                         action NullAction()
                     else:
-                        action Function(global_flags.set_flag, "mc_home_location", next_loc)
+                        action Function(global_flags.set_flag, "mc_home_location", [hero_home, next_loc])
                         if tooltip:
                             tooltip tooltip
 
