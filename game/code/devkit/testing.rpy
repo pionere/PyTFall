@@ -28,6 +28,7 @@ init 1000 python:
             TestSuite.gameAreas()
             TestSuite.gameChars()
             TestSuite.gameHero()
+            TestSuite.gameBuildings()
 
         @staticmethod
         def testPyp():
@@ -387,6 +388,84 @@ init 1000 python:
                 for item in area.items:
                     if item not in items:
                         raise Exception("Area %s has an invalid item to be found: %s!" % (key, item))
+
+        @staticmethod
+        def gameBuildings():
+            for b in chain(hero.buildings, buildings.itervalues()):
+                if b.needs_manager and b not in hero.buildings and any([b.clients, b.all_clients, b.regular_clients]):
+                    raise Exception("Building %s has active clients while it is for sale!" % b.name)
+
+                if not hasattr(b, "threat_mod"):
+                    locs = ["Flee Bottom", "Midtown", "Richford"]
+                    if b.location not in locs:
+                        raise Exception("Building %s has an invalid location field! It must be one of the followings : %s.(Or threat_mod must be configured manually)" % (b.name, ", ".join(locs))) # threat_mod setting depends on this
+
+                for u in b.upgrades:
+                    if not isinstance(getattr(u, "materials", None), dict):
+                        raise Exception("Upgrade %s in Building %s has an invalid 'materials' field! It must be a dict/map." % (b.name, u.name))
+                    for m in u.materials:
+                        if m not in items:
+                            raise Exception("Upgrade %s in Building %s requires an invalid item: %s!" % (b.name, u.name, m))
+                    if u.expands_capacity:
+                        raise Exception("Upgrade %s in Building %s is expandable, but it should not be!" % (b.name, u.name))
+                    if u.duration is not None:
+                        if not isinstance(u.duration, list) or len(u.duration) != 2:
+                            raise Exception("Upgrade %s in Building %s has an invalid 'duration' field! It must be a list(2)." % (b.name, u.name))
+                        if not (isinstance(u.duration[0], int) and isinstance(u.duration[1], int)):
+                            raise Exception("Upgrade %s in Building %s has an invalid 'duration' field! The values must be integers." % (b.name, u.name))
+
+                for bs in b.businesses:
+                    if bs.habitable and bs.workable:
+                        raise Exception("Business %s in Building %s is both habitable and workable, but these are exclusive settings!" % (bs.name, b.name)) # capacity calculation depends on this
+
+                    if bs.expects_clients and not bs.workable:
+                        raise Exception("Business %s in Building %s expects clients, but not workable!" % (bs.name, b.name))
+
+                    for u in b.upgrades:
+                        if not isinstance(getattr(u, "materials", None), dict):
+                            raise Exception("Business-Upgrade %s of %s in Building %s has an invalid 'materials' field! It must be a dict/map." % (u.name, bs.name, b.name))
+                        for m in u.materials:
+                            if m not in items:
+                                raise Exception("Business-Upgrade %s of %s in Building %s requires an invalid item: %s!" % (u.name, bs.name, b.name, m))
+                        if u.expands_capacity:
+                            raise Exception("Business-Upgrade %s of %s in Building %s is expandable, but it should not be!" % (u.name, bs.name, b.name))
+                        if u.duration is not None:
+                            if not isinstance(u.duration, list) or len(u.duration) != 2:
+                                raise Exception("Business-Upgrade %s of %s in Building %s has an invalid 'duration' field! It must be a list(2)." % (u.name, bs.name, b.name))
+                            if not (isinstance(u.duration[0], int) and isinstance(u.duration[1], int)):
+                                raise Exception("Business-Upgrade %s of %s in Building %s has an invalid 'duration' field! The values must be integers." % (u.name, bs.name, b.name))
+
+                    if not isinstance(getattr(bs, "materials", None), dict):
+                        raise Exception("Business %s in Building %s has an invalid 'materials' field! It must be a dict/map." % (bs.name, b.name))
+                    for m in bs.materials:
+                        if m not in items:
+                            raise Exception("Business %s in Building %s requires an invalid item: %s!" % (bs.name, b.name, m))
+                    if bs.duration is not None:
+                        if not isinstance(bs.duration, list) or len(bs.duration) != 2:
+                            raise Exception("Business %s in Building %s has an invalid 'duration' field! It must be a list(2)." % (bs.name, b.name))
+                        if not (isinstance(bs.duration[0], int) and isinstance(bs.duration[1], int)):
+                            raise Exception("Business %s in Building %s has an invalid 'duration' field! The values must be integers." % (bs.name, b.name))
+                    ec_fields = ["exp_cap_in_slots", "exp_cap_ex_slots", "exp_cap_cost", "exp_cap_materials", "exp_cap_duration"]
+                    if bs.expands_capacity:
+                        for f in ec_fields:
+                            if not hasattr(bs, f):
+                                raise Exception("Business %s in Building %s is expandable, but missing expansion-related field %s!" % (bs.name, b.name, f))
+
+                        if bs.exp_cap_duration is not None:
+                            if not isinstance(bs.exp_cap_duration, list) or len(bs.exp_cap_duration) != 2:
+                                raise Exception("Business %s in Building %s has an invalid 'exp_cap_duration' field! It must be a list(2)." % (bs.name, b.name))
+                            if not (isinstance(bs.exp_cap_duration[0], int) and isinstance(bs.exp_cap_duration[1], int)):
+                                raise Exception("Business %s in Building %s has an invalid 'exp_cap_duration' field! The values must be integers." % (bs.name, b.name))
+
+                        if not isinstance(getattr(bs, "exp_cap_materials", None), dict):
+                            raise Exception("Business %s in Building %s has an invalid 'exp_cap_materials' field! It must be a dict/map." % (bs.name, b.name))
+                        for m in bs.exp_cap_materials:
+                            if m not in items:
+                                raise Exception("Business %s in Building %s requires an invalid item (%s) to expand its capacity!" % (bs.name, b.name, m))
+                    else:
+                        for f in ec_fields:
+                            if hasattr(bs, f):
+                                raise Exception("Business %s in Building %s is not expandable, but has expansion-related field %s!" % (bs.name, b.name, f))
 
         @staticmethod
         def performanceTest():

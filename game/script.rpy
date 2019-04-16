@@ -801,12 +801,13 @@ label after_load:
                                 if hasattr(a, "_exp_cap_cost"):
                                     a.exp_cap_cost = a._exp_cap_cost
                                     del a._exp_cap_cost
-                                if not hasattr(a, "exp_cap_materials"):
-                                    a.exp_cap_materials = {}
-                                if not hasattr(a, "exp_cap_in_slots"):
-                                    a.exp_cap_in_slots = 0
-                                if not hasattr(a, "exp_cap_ex_slots"):
-                                    a.exp_cap_ex_slots = 0
+                                if a.expands_capacity:
+                                    if not hasattr(a, "exp_cap_materials"):
+                                        a.exp_cap_materials = {}
+                                    if not hasattr(a, "exp_cap_in_slots"):
+                                        a.exp_cap_in_slots = 0
+                                    if not hasattr(a, "exp_cap_ex_slots"):
+                                        a.exp_cap_ex_slots = 0
                                 if isinstance(getattr(a, "jobs", None), set):
                                     a.jobs = list(a.jobs)
                                 break

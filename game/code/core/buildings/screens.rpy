@@ -107,6 +107,15 @@ label building_management:
                         del price
                         bm_building.dirt = 0
                         bm_building.threat = 0
+                        if bm_building.needs_manager:
+                            bm_building.available_workers = list()  # TODO should be part of post_nd?
+                            bm_building.available_managers = list() # TODO should be part of post_nd?
+                            bm_building.all_clients = list()
+                            bm_building.regular_clients = set()
+                            bm_building.clients = list()
+                        if hasattr(bm_building, "inventory"):
+                            bm_building.inventory.clear()
+                            bm_building.given_items = dict()
 
                         if hero.buildings:
                             if bm_index >= len(hero.buildings):
@@ -664,18 +673,18 @@ init:
                 null height 5
                 text "To Cut Back:"
                 vbox:
-                        frame:
-                            xysize (296, 27)
-                            text "Indoor Slots Freed:" xalign .02 color "ivory"
-                            text "[in_slots]"  xalign .98 style_suffix "value_text"
-                        frame:
-                            xysize (296, 27)
-                            text "Exterior Slots Freed:" xalign .02 color "ivory"
-                            text "[ex_slots]"  xalign .98 style_suffix "value_text"
-                        frame:
-                            xysize (296, 27)
-                            text "Cost:" xalign .02 color "ivory"
-                            text "[cost]"  xalign .98 style_suffix "value_text"
+                    frame:
+                        xysize (296, 27)
+                        text "Indoor Slots Freed:" xalign .02 color "ivory"
+                        text "[in_slots]"  xalign .98 style_suffix "value_text"
+                    frame:
+                        xysize (296, 27)
+                        text "Exterior Slots Freed:" xalign .02 color "ivory"
+                        text "[ex_slots]"  xalign .98 style_suffix "value_text"
+                    frame:
+                        xysize (296, 27)
+                        text "Cost:" xalign .02 color "ivory"
+                        text "[cost]"  xalign .98 style_suffix "value_text"
                 null height 1
                 textbutton "Reduce Capacity":
                     style "pb_button"

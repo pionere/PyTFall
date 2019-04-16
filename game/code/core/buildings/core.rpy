@@ -332,14 +332,12 @@ init -10 python:
 
             if not hasattr(self, "threat_mod"):
                 if self.location == "Flee Bottom":
-                    self.threat_mod = 5
+                    mod = 5
                 elif self.location == "Midtown":
-                    self.threat_mod = 2
-                elif self.location == "Richford":
-                    self.threat_mod = 0
-                else:
-                    if DEBUG_LOG:
-                        devlog.warn("{} Building with an unknown location detected!".format(self.name), "warn")
+                    mod = 2
+                else: # if self.location == "Richford":
+                    mod = 0
+                self.threat_mod = mod
 
             if hasattr(self, "inventory"):
                 if bool(self.inventory):
@@ -648,11 +646,6 @@ init -10 python:
             # Fame percentage mod (linear scale):
             mod = self.get_fame_percentage() / 100.0
 
-            # Special check for larger buildings:
-            if mod > 80 and self.maxfame > 400:
-                txt.append("Extra clients are coming in! You business is getting very popular with the people")
-                mod *= 1.1
-
             # Upgrades:
             temp = False
             for u in self.upgrades:
@@ -664,7 +657,7 @@ init -10 python:
                 txt.append("Your building upgrades are attracting extra clients!")
 
             # Normalize everything:
-            clients = min(min_clients + round_int(clients * mod), clients)
+            clients = max(min_clients, round_int(clients * mod))
 
             return clients
 
