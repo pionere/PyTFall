@@ -560,7 +560,7 @@ init -11 python:
             build_businesses = building.pop("build_businesses", [])
             for bu in b.allowed_businesses:
                 if bu.__class__.__name__ in build_businesses:
-                    b.add_business(bu)
+                    b.build_business(bu)
 
             # create the list of allowed upgrade instances
             allowed_upgrades = building.pop("allowed_upgrades", [])

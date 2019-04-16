@@ -2,104 +2,122 @@
     {
         "name": "Main Hall",
         "class": "MainHall",
-        "desc": "Main Hall!\nA lux main hall will attract more clients.\n(+20% Clients)",
+        "desc": "A lux main hall will attract more clients.\n(+20% Clients)",
         "img": "content/buildings/upgrades/main_hall.webp",
         "materials": {"Bricks": 50, "Stone": 50, "Green Marble": 40, "Steel": 10},
         "cost": 5000,
         "in_slots": 5,
         "ex_slots": 1,
 
+        "duration": [10, 30],
+
         "client_flow_mod":1.2
     },
     {
         "name": "Garden",
         "class": "Garden",
-        "desc":"Garden!\nBeautiful garden to calm down your workers and clients.\n(+Chance to increase worker joy)\n(+Reduced threat accumulation from aggressive clients)",
+        "desc":"Beautiful garden to calm down your workers and clients.\n(+Chance to increase worker joy)\n(+Reduced threat accumulation from aggressive clients)",
         "img": "content/buildings/upgrades/garden.webp",
         "materials": {"Stone": 50, "Green Marble": 10, "Wood": 50},
         "cost": 6000,
         "in_slots": 1,
-        "ex_slots": 5
+        "ex_slots": 5,
+
+        "duration": [20, 0]
     },
     {
         "name": "Garden",
         "class": "SQLandscape",
-        "desc": "Beautiful Garden!\nA large and beautiful garden to put your slaves at ease.\n(+50% Overnight restoration for slaves in this building!)",
+        "desc": "A large and beautiful garden to put your slaves at ease.\n(+50% Overnight restoration for slaves in this building!)",
         "img": "content/buildings/upgrades/landscape.webp",
         "materials": {"Stone": 20, "Green Marble": 5, "Wood": 20},
         "cost": 3000,
         "in_slots": 2,
         "ex_slots": 5,
 
+        "duration": [20, 0],
+
         "daily_modifier_mod": 1.5
     },
     {
         "name": "Catwalk",
         "class": "Catwalk",
-        "desc": "Catwalk!\nA podium with strip poles to increase the effectiveness of your workers.(+20 Job Effectiveness)",
+        "desc": "A podium with strip poles to increase the effectiveness of your workers.(+20 Job Effectiveness)",
         "img": "content/buildings/upgrades/catwalk_2.webp",
         "materials": {"Bricks": 20, "Wood": 50, "Glass": 20},
         "cost": 2000,
         "in_slots": 2,
         "ex_slots": 0,
 
+        "duration": [2, 20],
+
         "job_effectiveness_mod": 20
     },
     {
         "name": "Tap Beer",
         "class": "TapBeer",
-        "desc": "Serve Fresh Tap Beer!\nBest brew in the city will keep your customers drunk and happy.\n(+10 Job Effectiveness)\n(+Small chance to get extra tips)",
+        "desc": "Serve Fresh Tap Beer! Best brew in the city will keep your customers drunk and happy.\n(+10 Job Effectiveness)\n(+Small chance to get extra tips)",
         "img": "content/buildings/upgrades/beer.webp",
         "materials": {"Wood": 2, "Glass": 5},
         "cost": 500,
         "in_slots": 1,
         "ex_slots": 0,
 
+        "duration": [5, 20],
+
         "job_effectiveness_mod": 10
     },
     {
         "name": "Statue",
         "class": "StatueOfSexGoddess",
-        "desc": "Statue Of The Sex Goddess!\nA large statue with mystical properties to stand outside of the Brothel.\n(+20 Job Effectiveness)",
+        "desc": "Statue Of The Sex Goddess! A large statue with mystical properties to stand outside of the Brothel.\n(+20 Job Effectiveness)",
         "img": "content/buildings/upgrades/statue_sexgoddess.webp",
         "materials": {"Bricks": 100, "Stone": 100, "Green Marble": 100, "Steel": 50},
         "cost": 10000,
         "in_slots": 2,
         "ex_slots": 4,
 
+        "duration": [20, 5],
+
         "job_effectiveness_mod": 20
     },
     {
         "name": "Sparring Quarters",
         "class": "SparringQuarters",
-        "desc": "Sparring Quarters!\nQuarters where guards can do some training between their patrol shifts.\n+Chance to earn extra combat stats, skills and experience.\n-Small chance to get hurt while training.",
+        "desc": "Quarters where guards can do some training between their patrol shifts.\n+Chance to earn extra combat stats, skills and experience.\n-Small chance to get hurt while training.",
         "img": "content/buildings/upgrades/sparring_qt.webp",
         "materials": {"Wood": 20, "Stone": 5, "Steel": 10},
         "cost": 2000,
         "in_slots": 2,
-        "ex_slots": 2
+        "ex_slots": 2,
+
+        "duration": [5, 15]
     },
     {
         "name": "Enforced Order",
         "class": "EnforcedOrder",
-        "desc": "Enforced Order!\nSet of decorations and tools in order to over-secure your building.\n+100 Job Effectiveness. Brawl event is blocked.\nBut your workers feel 'out of place'.\n-Joy and Disposition for civilians working the building.",
+        "desc": "Set of decorations and tools in order to over-secure your building.\n+100 Job Effectiveness. Brawl event is blocked.\nBut your workers feel 'out of place'.\n-Joy and Disposition for civilians working the building.",
         "img": "content/buildings/upgrades/training_qt.webp",
         "materials": {"Wood": 5, "Stone": 20, "Steel": 30},
         "cost": 5000,
         "in_slots": 5,
         "ex_slots": 1,
 
+        "duration": [10, 20],
+
         "job_effectiveness_mod": 100
     },
     {
         "name": "Closet",
         "class": "BroomCloset",
-        "desc": "Broom Closet!\nCloset full of magical brooms which can be used to speed up cleaning process.\n(+40 Job Effectiveness)",
+        "desc": "Closet full of magical brooms which can be used to speed up cleaning process.\n(+40 Job Effectiveness)",
         "img": "content/buildings/upgrades/broom_closet.webp",
         "materials": {"Wood": 20, "Stone": 10, "Steel": 5},
         "cost": 1000,
         "in_slots": 2,
         "ex_slots": 0,
+
+        "duration": [2, 10],
 
         "job_effectiveness_mod": 40
     },
@@ -109,10 +127,12 @@
         "img": "content/buildings/upgrades/the_eye.webp",
         "materials": {"Bricks": 20, "Stone": 10,
                      "Steel": 10, "Wood": 50},
-        "desc": "The Eye of Sauron!\nPowerful energy field with powerful effects.\n(+Exploration never falls below 50%)\n(+Reveals information about unexplored areas)",
+        "desc": "The Eye of Sauron! Powerful energy field with powerful effects.\n(+Exploration never falls below 50%)\n(+Reveals information about unexplored areas)",
         "cost": 500000,
         "in_slots": 5,
-        "ex_slots": 20
+        "ex_slots": 20,
+
+        "duration": [20, 10]
     },
     {
         "name": "Stables",
@@ -120,29 +140,35 @@
         "img": "content/buildings/upgrades/stables.webp",
         "materials": {"Bricks": 20, "Stone": 10,
                      "Steel": 10, "Wood": 50},
-        "desc": "Stables!\nA man on a horse is spiritually, as well as physically, bigger then a man on foot.\n(+100% Traveling Speed)",
+        "desc": "A man on a horse is spiritually, as well as physically, bigger then a man on foot.\n(+100% Traveling Speed)",
         "cost": 10000,
         "in_slots": 2,
-        "ex_slots": 10
+        "ex_slots": 10,
+
+        "duration": [10, 20]
     },
     {
         "name": "Healing Springs",
         "class": "HealingSprings",
         "img": "content/buildings/upgrades/onsen.webp",
         "materials": {"Green Marble": 20, "Stone": 10},
-        "desc": "Healing Springs!\nProvides the much needed relief when returning to Guild after a difficult quest.\n(+25% HP when returning to Guild)\n(+25% MP when returning to Guild)\n(+25% VP when returning to Guild)",
+        "desc": "Provides the much needed relief when returning to Guild after a difficult quest.\n(+25% HP when returning to Guild)\n(+25% MP when returning to Guild)\n(+25% VP when returning to Guild)",
         "cost": 5000,
         "in_slots": 2,
-        "ex_slots": 10
+        "ex_slots": 10,
+
+        "duration": [10, 0]
     },
     {
         "name": "Cartography Lab",
         "class": "CartographyLab",
         "img": "content/buildings/upgrades/map.webp",
         "materials": {"Green Marble": 20, "Stone": 10, "Wood": 50},
-        "desc": "Cartography Lab!\nEven a complete idiot would make the best of maps in this lab!\n(+50% Exploration rate)",
+        "desc": "Even a complete idiot would make the best of maps in this lab!\n(+50% Exploration rate)",
         "cost": 5000,
         "in_slots": 2,
-        "ex_slots": 10
+        "ex_slots": 10,
+
+        "duration": [10, 10]
     }
 ]

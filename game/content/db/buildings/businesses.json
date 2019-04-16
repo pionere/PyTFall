@@ -11,10 +11,14 @@
         "in_slots": 2,
         "ex_slots": 0,
 
+        "duration": [2, 10],
+
         "exp_cap_in_slots": 1,
         "exp_cap_ex_slots": 0,
         "exp_cap_cost": 100,
-        "exp_cap_materials": {"Wood": 2, "Bricks": 2, "Glass": 1}
+        "exp_cap_materials": {"Wood": 2, "Bricks": 2, "Glass": 1},
+
+        "exp_cap_duration": [1, 0]
     },
     {
         "name": "Cleaning Block",
@@ -26,7 +30,9 @@
         "capacity": 2,
         "cost": 100,
         "in_slots": 4,
-        "ex_slots": 0
+        "ex_slots": 0,
+
+        "duration": [2, 10]
     },
     {
         "name": "Warrior Quarters",
@@ -38,7 +44,9 @@
         "capacity": 2,
         "cost": 300,
         "in_slots": 4,
-        "ex_slots": 0
+        "ex_slots": 0,
+
+        "duration": [5, 10]
     },
     {
         "name": "Bar",
@@ -52,10 +60,14 @@
         "in_slots": 3,
         "ex_slots": 0,
 
+        "duration": [8, 10],
+
         "exp_cap_in_slots": 1,
         "exp_cap_ex_slots": 0,
         "exp_cap_cost": 100,
         "exp_cap_materials": {"Wood": 5, "Bricks": 5, "Glass": 3},
+
+        "exp_cap_duration": [2, 10],
 
         "allowed_upgrades": ["TapBeer"]
     },
@@ -71,10 +83,14 @@
         "in_slots": 2,
         "ex_slots": 0,
 
+        "duration": [5, 10],
+
         "exp_cap_in_slots": 1,
         "exp_cap_ex_slots": 0,
         "exp_cap_cost": 100,
         "exp_cap_materials": {"Wood": 5, "Bricks": 5, "Glass": 1},
+
+        "exp_cap_duration": [2, 10],
 
         "allowed_upgrades": ["Catwalk"]
     },
@@ -90,10 +106,14 @@
         "in_slots": 2,
         "ex_slots": 0,
 
+        "duration": [1, 10],
+
         "exp_cap_in_slots": 1,
         "exp_cap_ex_slots": 0,
         "exp_cap_cost": 100,
-        "exp_cap_materials": {"Wood": 10, "Bricks": 10, "Glass": 1}
+        "exp_cap_materials": {"Wood": 10, "Bricks": 10, "Glass": 1},
+
+        "exp_cap_duration": [1, 0]
     },
     {
         "name": "Exploration Guild",
@@ -106,6 +126,8 @@
         "cost": 100,
         "in_slots": 4,
         "ex_slots": 0,
+
+        "duration": [4, 0],
 
         "allowed_upgrades": ["TheEye", "GuildStables", "HealingSprings", "CartographyLab"]
     }]

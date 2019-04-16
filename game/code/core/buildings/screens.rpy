@@ -122,9 +122,9 @@ label building_management:
                 python hide:
                     temp = result[2]
                     if isinstance(temp, Business):
-                        bm_building.add_business(temp, normalize_jobs=True, pay=True)
+                        bm_building.build_business(temp, in_game=True)
                     else:
-                        result[3].add_upgrade(temp, pay=True)
+                        result[3].build_upgrade(temp)
         elif result[0] == "maintenance":
             python:
                 # Cleaning controls
@@ -455,8 +455,8 @@ init:
         frame:
             background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
             style_prefix "proper_stats"
-            xsize 316
-            padding 10, 10
+            xsize 317
+            padding 12, 12
             has vbox spacing 1
 
             frame:
@@ -501,48 +501,50 @@ init:
                     text "Reputation:" xalign .02 color "ivory"
                     text "%s/%s" % (bm_building.rep, bm_building.maxrep) xalign .98 style_suffix "value_text" yoffset 4
 
-        null height 5
-        frame:
-            background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
-            xysize (317, 480)
-            if bm_building._businesses or bm_building._upgrades:
+        if bm_building.businesses:
+            null height 5
+            frame:
+                background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
+                xsize 317
+                padding 12, 12
+                yfill True
                 frame:
-                    align .5, .02
+                    xalign .5
                     background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
                     xysize (180, 40)
-                    label 'Constructed:' text_color "ivory" xalign .5 text_bold True
+                    label 'Businesses' text_color "ivory" xalign .5 text_bold True
                 viewport:
-                    pos 3, 55
-                    xysize 310, 406
+                    ypos 45
+                    xfill True
                     mousewheel True
                     scrollbars "vertical"
                     draggable True
                     has vbox
                     # Businesses
-                    for u in bm_building._businesses:
+                    for u in bm_building.businesses:
                         frame:
-                            xalign .6
                             background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 5, 5)
-                            has fixed xysize 280, 80
+                            xysize 280, 90
                             frame:
-                                align .05, .1
+                                xpos 5
+                                yalign .5
                                 background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.95), 10, 10)
                                 if hasattr(u, "img"):
-                                    add im.Scale(u.img, 100, 65) align .5, .5
+                                    add im.Scale(u.img, 100, 65)# align .5, .5
                                 else:
-                                    add Solid("black", xysize=(100, 65)) align .5, .5
+                                    add Solid("black", xysize=(100, 65))# align .5, .5
                             vbox:
-                                xpos 125
-                                yalign .5
-                                xysize 150, 60
-                                text "[u.name]" xalign .5 style "proper_stats_text" size 20
+                                xpos 115
+                                yalign .6
+                                xysize 155, 60
+                                text "[u.name]" xalign .5 style "proper_stats_text" size 19
                                 null height 2
                                 textbutton "{size=15}{font=fonts/TisaOTM.otf}{color=goldenrod}Details":
                                     background Transform(Frame("content/gfx/interface/images/story12.png"), alpha=.8)
                                     hover_background Transform(Frame(im.MatrixColor("content/gfx/interface/images/story12.png", im.matrix.brightness(.15))), alpha=1)
                                     tooltip "View details or expand {}.\n{}".format(u.name, u.desc)
                                     xalign .5
-                                    top_padding 4
+                                    top_padding 3
                                     action Return(["bm_mid_frame_mode", u])
 
                             if u.can_close():
@@ -554,43 +556,26 @@ init:
                                                 message="Are you sure you wish to close this %s for %d Gold?" % (u.name, u.get_cost()[0]),
                                                 yes_action=[Function(bm_building.close_business, u), Hide("yesno_prompt")], no_action=Hide("yesno_prompt"))
                                     tooltip "Close the business"
-                    # Upgrades
-                    for u in bm_building._upgrades:
-                        frame:
-                            xalign .6
-                            background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 5, 5)
-                            has fixed xysize 280, 80
-                            frame:
-                                align .05, .1
-                                background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.95), 10, 10)
-                                if hasattr(u, "img"):
-                                    add im.Scale(u.img, 100, 65) align .5, .5
-                                else:
-                                    add Solid("black", xysize=(100, 65)) align .5, .5
 
     screen building_management_leftframe_businesses_mode:
         frame:
             background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
             style_group "proper_stats"
-            xsize 314
+            xsize 317
             padding 12, 12
-            margin 0, 0
             has vbox spacing 1
             # Slots:
             frame:
-                xysize (290, 27)
-                xalign .5
+                xysize (296, 27)
                 text "Indoor Slots:" xalign .02 color "ivory"
                 text "[bm_mid_frame_mode.in_slots]"  xalign .98 style_suffix "value_text"
             frame:
-                xysize (290, 27)
-                xalign .5
+                xysize (296, 27)
                 text "Exterior Slots:" xalign .02 color "ivory"
                 text "[bm_mid_frame_mode.ex_slots]"  xalign .98 style_suffix "value_text"
             if bm_mid_frame_mode.capacity or getattr(bm_mid_frame_mode, "expands_capacity", False):
                 frame:
-                    xysize (290, 27)
-                    xalign .5
+                    xysize (296, 27)
                     text "Capacity:" xalign .02 color "ivory"
                     text "[bm_mid_frame_mode.capacity]"  xalign .98 style_suffix "value_text"
 
@@ -599,24 +584,23 @@ init:
             frame:
                 background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
                 style_prefix "proper_stats"
-                xsize 314
+                xsize 317
                 padding 12, 12
-                margin 0, 0
                 has vbox spacing 1
 
                 text "To Expand:"
 
                 $ cost, materials, in_slots, ex_slots = bm_mid_frame_mode.get_expansion_cost()
-                $ can_build = True
+                $ can_build = not any(icu[0] == "capacity" for icu in bm_mid_frame_mode.in_construction_upgrades)
 
                 # Materials and GOLD
                 vpgrid:
                     cols 3
-                    xsize 290
+                    xsize 296
                     spacing 2
                     frame:
-                        xysize (95, 27)
-                        has hbox xysize (95, 27)
+                        xysize (97, 27)
+                        has hbox xysize (97, 27)
                         imagebutton:
                             idle ProportionalScale("content/gfx/animations/coin_top 0.13 1/1.webp", 20, 20)
                             xysize 20, 20
@@ -632,8 +616,8 @@ init:
                     for r, amount in materials.items():
                         $ r = items[r]
                         frame:
-                            xysize (95, 27)
-                            has hbox xysize (95, 27)
+                            xysize (97, 27)
+                            has hbox xysize (97, 27)
                             imagebutton:
                                 idle ProportionalScale(r.icon, 20, 20)
                                 xysize 20, 20
@@ -648,12 +632,12 @@ init:
 
                 vpgrid:
                     cols 2
-                    xsize 290
+                    xsize 296
                     spacing 2
                     if in_slots:
                         frame:
-                            xysize (144, 27)
-                            has hbox xysize (144, 27)
+                            xysize (147, 27)
+                            has hbox xysize (147, 27)
                             text "Indoor Slots:" xalign .1
                             if (bm_building.in_slots_max - bm_building.in_slots) >= in_slots:
                                 text "[in_slots]" xalign .8 style_suffix "value_text"
@@ -662,8 +646,8 @@ init:
                                 text "[in_slots]" xalign .8 color "grey" style_suffix "value_text"
                     if ex_slots:
                         frame:
-                            xysize (144, 27)
-                            has hbox xysize (144, 27)
+                            xysize (147, 27)
+                            has hbox xysize (147, 27)
                             text "Exterior Slots:" xalign .1
                             if (bm_building.ex_slots_max - bm_building.ex_slots) >= ex_slots:
                                 text "[ex_slots]" xalign .8 style_suffix "value_text"
@@ -680,56 +664,115 @@ init:
                 null height 5
                 text "To Cut Back:"
                 vbox:
-                        #has vbox
                         frame:
-                            xysize (290, 27)
-                            xalign .5
+                            xysize (296, 27)
                             text "Indoor Slots Freed:" xalign .02 color "ivory"
                             text "[in_slots]"  xalign .98 style_suffix "value_text"
                         frame:
-                            xysize (290, 27)
-                            xalign .5
+                            xysize (296, 27)
                             text "Exterior Slots Freed:" xalign .02 color "ivory"
                             text "[ex_slots]"  xalign .98 style_suffix "value_text"
                         frame:
-                            xysize (290, 27)
-                            xalign .5
+                            xysize (296, 27)
                             text "Cost:" xalign .02 color "ivory"
                             text "[cost]"  xalign .98 style_suffix "value_text"
                 null height 1
                 textbutton "Reduce Capacity":
                     style "pb_button"
                     xalign .5
-                    if bm_mid_frame_mode.can_reduce_capacity():
-                        action [Function(bm_mid_frame_mode.reduce_capacity),
-                            Play("audio", "content/sfx/sound/world/purchase_1.ogg")]
+                    if bm_mid_frame_mode.in_construction_upgrades:
+                        action NullAction()
+                        tooltip "Construction in progress!"
+                    elif bm_mid_frame_mode.can_reduce_capacity():
+                        action Function(bm_mid_frame_mode.reduce_capacity)
                         tooltip "Add more space to the building!"
                     else:
                         action NullAction()
-                        tooltip "The only remaining option is to close the business"
+                        tooltip "The only remaining option is to close the business!"
 
-        if getattr(bm_mid_frame_mode, "upgrades", None):
+        if bm_mid_frame_mode.upgrades or bm_mid_frame_mode.in_construction_upgrades:
             null height 5
             frame:
-                align .5, .02
-                background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
-                xysize (180, 40)
-                label 'Constructed:' text_color "ivory" xalign .5 text_bold True
-            viewport:
-                pos 3, 10
-                xysize 310, 406
-                mousewheel True
-                scrollbars "vertical"
-                has vbox
-                for u in bm_mid_frame_mode.upgrades:
-                    button:
-                        xsize 309
-                        style "pb_button"
-                        text "[u.name]":
-                            align .5, .5
-                            color "ivory"
-                        action NullAction()
-                        tooltip u.desc
+                background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
+                xsize 317
+                padding 12, 12
+                yfill True
+                frame:
+                    xalign .5
+                    background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
+                    xysize (180, 40)
+                    label 'Extensions' text_color "ivory" xalign .5 text_bold True
+                vpgrid:
+                    ypos 45
+                    xfill True
+                    mousewheel True
+                    scrollbars "vertical"
+                    draggable True
+                    cols 2
+                    spacing 2
+                    $ box_size = (139, 80)
+                    $ entry_size = (100, 65)
+                    # Active extensions
+                    for u in bm_mid_frame_mode.upgrades:
+                        $ desc = "{u}{i}%s{/u}{/i}\n%s" % (u.name, u.desc)
+                        $ img = getattr(u, "img", None)
+                        if img:
+                            $ img = im.Scale(img, *entry_size)
+                        else:
+                            $ img = Solid("black", xysize=entry_size)
+                        frame:
+                            background Null()
+                            xysize box_size
+                            margin 0, 0
+                            padding 0, 0
+                            frame:
+                                align .5, .5
+                                background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.95), 10, 10)
+                                imagebutton:
+                                    xysize entry_size
+                                    idle img
+                                    hover (im.MatrixColor(img, im.matrix.brightness(.15)))
+                                    action NullAction()
+                                    tooltip desc
+                    # Under construction
+                    $ uc_img = im.Scale("content/gfx/images/under_construction.webp", 60, 40)
+                    for icu in bm_mid_frame_mode.in_construction_upgrades:
+                        python:
+                            u, d, m = icu
+                            if u == "capacity":
+                                desc = "{u}{i}Capacity expansion{/u}{/i} - %d %s" % (d, plural("day", d))
+                                img = getattr(bm_mid_frame_mode, "img", None)
+                            else:
+                                desc = "{u}{i}%s{/u}{/i} - %d %s\n%s" % (u.name, d, plural("day", d), u.desc)
+                                img = getattr(u, "img", None)
+                            if img:
+                                img = im.Scale(img, *entry_size)
+                            else:
+                                img = Solid("black", xysize=entry_size)
+                            img = im.Sepia(img)
+                        frame:
+                            background Null()
+                            xysize box_size
+                            margin 0, 0
+                            padding 0, 0
+                            frame:
+                                align .5, .5
+                                background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.95), 10, 10)
+                                fixed:
+                                    xysize entry_size
+                                    imagebutton:
+                                        xysize entry_size
+                                        idle img
+                                        action NullAction()
+                                        tooltip desc
+                                    imagebutton:
+                                        xysize (60, 40)
+                                        align .5, .5
+                                        focus_mask True
+                                        idle uc_img
+                                        hover (im.MatrixColor(uc_img, im.matrix.brightness(.15)))
+                                        action Function(bm_mid_frame_mode.cancel_construction, icu)
+                                        tooltip "Stop Construction!"
 
     screen building_management_midframe_building_mode:
         frame:
@@ -783,14 +826,16 @@ init:
             has vbox xsize 618
             if hasattr(bm_mid_frame_mode, "all_possible_extensions"):
                 for u in bm_mid_frame_mode.all_possible_extensions():
-                    if not bm_mid_frame_mode.has_extension(u.__class__):
+                    $ can_build = not bm_mid_frame_mode.has_extension(u.__class__)
+                    $ can_build = can_build and not [up for (up, d, m) in bm_mid_frame_mode.in_construction_upgrades if u == up]
+                    if can_build:
                         frame:
                             xalign .5
                             background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
                             has fixed xysize 500, 150
-
                             $ cost, materials, in_slots, ex_slots = u.get_cost()
-                            $ can_build = True
+                            $ duration = u.duration
+
                             hbox:
                                 xalign .5
                                 xsize 340
@@ -864,6 +909,9 @@ init:
                                     else:
                                         $ can_build = False
                                         text "[ex_slots]" color "grey"
+                                if duration and duration[0] >= 1:
+                                    text "Days:"
+                                    text str(duration[0])
 
                             vbox:
                                 align 1.0, .8

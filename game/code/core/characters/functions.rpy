@@ -229,7 +229,7 @@ init -11 python:
         '''Creates a random character!
         id: id to choose from the rchars dictionary that holds rGirl loading data.
             from JSON files, will be chosen at random if none available.
-        name: (String) Name for a girl to use. If None one will be chosen from randomNames file!
+        name: (String) Name for the character to use. If None one will be chosen from randomNames file!
         last_name: Same thing only for last name :)
         bt_go_patterns: General occupation patterns to use when creating the character!
             Expects general occupation or list of the same.
@@ -306,7 +306,7 @@ init -11 python:
                 try:
                     color = Color(color)
                 except:
-                    char_debug("Invalid %s: %s for random girl: %s!" % (key, data[key], id))
+                    char_debug("Invalid %s: %s for random character: %s!" % (key, data[key], id))
                     color = "ivory"
                 rg.say_style[key] = color
 
@@ -373,7 +373,7 @@ init -11 python:
             skill = data["default_attack_skill"]
             rg.default_attack_skill = store.battle_skills[skill]
 
-        # Normalizing new girl:
+        # Normalizing new character:
         # We simply run the init method of parent class for this:
         rg.init()
 

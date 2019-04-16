@@ -16,6 +16,7 @@ init -12 python:
             self.in_slots = getattr(self, "in_slots", 0)
             self.ex_slots = getattr(self, "ex_slots", 0)
             self.materials = getattr(self, "materials", {})
+            self.duration = getattr(self, "duration", None)
 
             self.expands_capacity = False
 
@@ -37,10 +38,6 @@ init -12 python:
 
             in_slots = self.in_slots
             ex_slots = self.ex_slots
-            if self.expands_capacity:
-                cap = self.capacity
-                in_slots += cap*self.exp_cap_in_slots
-                ex_slots += cap*self.exp_cap_ex_slots
 
             materials = self.materials.copy()
             for k, v in materials.items():
@@ -77,7 +74,7 @@ init -12 python:
             # If False, no clients are expected.
             # If all businesses in the building have this set to false, no client stream will be generated at all.
             self.expects_clients = False
-            self.habitable = False
+            self.habitable = False # habitable/workable flags are exclusive (can not be True at the same time)
             self.workable = False
             # If not active, business is not executed and is considered "dead",
             # we run "inactive" method with a corresponding simpy process in this case.
@@ -89,15 +86,55 @@ init -12 python:
                 self.exp_cap_in_slots = getattr(self, "exp_cap_in_slots", 0)
                 self.exp_cap_ex_slots = getattr(self, "exp_cap_ex_slots", 0)
                 self.exp_cap_materials = getattr(self, "exp_cap_materials", {})
+                self.exp_cap_duration = getattr(self, "exp_cap_duration", None)
+
+                cap = self.capacity
+                self.in_slots += cap*self.exp_cap_in_slots
+                self.ex_slots += cap*self.exp_cap_ex_slots
+                self.base_capacity = cap
 
             self.allowed_upgrades = getattr(self, "allowed_upgrades", [])
-            self.in_construction_upgrades = list() # Not used yet!
+            self.in_construction_upgrades = list() # work (capacity expansion/upgrade) in progress. [("capacity"/upgrade), remaining days, job_effectiveness_mod]
             self.upgrades = list()
             self.job_effectiveness_mod = 0
 
         def can_close(self):
             # test if the business can be closed
             return True
+
+        # Business MainUpgrade related:
+        def build_upgrade(self, upgrade):
+            building = self.building
+
+            cost, materials, in_slots, ex_slots = upgrade.get_cost()
+            self.in_slots += in_slots
+            building.in_slots += in_slots
+            self.ex_slots += ex_slots
+            building.ex_slots += ex_slots
+
+            building.pay_for_extension(cost, materials)
+
+            duration = upgrade.duration
+            if duration is None or duration[0] < 1:
+                self.add_upgrade(upgrade)
+            else:
+                self.job_effectiveness_mod -= duration[1]
+                self.in_construction_upgrades.append([upgrade, duration[0], duration[1]])
+
+        def add_upgrade(self, upgrade):
+            upgrade.building = self.building
+            upgrade.business = self
+            self.upgrades.append(upgrade)
+            self.upgrades.sort(key=attrgetter("ID"), reverse=True)
+            self.job_effectiveness_mod += getattr(upgrade, "job_effectiveness_mod", 0)
+
+        def all_possible_extensions(self):
+            # Named this was to conform to GUI (same as for Buildings)
+            return self.allowed_upgrades
+
+        def has_extension(self, upgrade):
+            # Named this was to conform to GUI (same as for Buildings)
+            return any(u.__class__ == upgrade for u in self.upgrades)
 
         def expand_capacity(self):
             cost, materials, in_slots, ex_slots = self.get_expansion_cost()
@@ -110,7 +147,12 @@ init -12 python:
 
             building.pay_for_extension(cost, materials)
 
-            self.capacity += 1
+            duration = self.exp_cap_duration
+            if duration is None or duration[0] < 1:
+                self.capacity += 1
+            else:
+                self.job_effectiveness_mod -= duration[1]
+                self.in_construction_upgrades.append(["capacity", duration[0], duration[1]])
 
         def can_reduce_capacity(self):
             if not self.expands_capacity:
@@ -118,6 +160,8 @@ init -12 python:
             if self.capacity == 0:
                 return False
             if hero.gold < self.get_expansion_cost()[0]:
+                return False
+            if self.in_construction_upgrades:
                 return False
             # these two should never happen, but check anyways...
             if self.in_slots < self.exp_cap_in_slots:
@@ -127,6 +171,8 @@ init -12 python:
             return True
 
         def reduce_capacity(self):
+            renpy.play("content/sfx/sound/world/purchase_1.ogg")
+
             cost, materials, in_slots, ex_slots = self.get_expansion_cost()
             building = self.building
 
@@ -143,6 +189,19 @@ init -12 python:
             if self.habitable and building.vacancies < 0:
                 char = next(iter(building.inhabitants))
                 char.home = pytfall.streets
+
+        def cancel_construction(self, icu):
+            self.in_construction_upgrades.remove(icu)
+
+            u, d, m = icu
+            if u == "capacity":
+                cost, materials, in_slots, ex_slots = self.get_expansion_cost()
+            else:
+                cost, materials, in_slots, ex_slots = u.get_cost()
+            self.in_slots -= in_slots
+            building.in_slots -= in_slots
+            self.ex_slots -= ex_slots
+            building.ex_slots -= ex_slots
 
         def get_client_count(self):
             """Returns amount of clients we expect to come here.
@@ -329,31 +388,6 @@ init -12 python:
             while (1):
                 break #yield self.env.timeout(100)
 
-        # Business MainUpgrade related:
-        def add_upgrade(self, upgrade, pay=False):
-            building = self.building
-
-            cost, materials, in_slots, ex_slots = upgrade.get_cost()
-            building.in_slots += in_slots
-            building.ex_slots += ex_slots
-
-            if pay:
-                building.pay_for_extension(cost, materials)
-
-            upgrade.building = building
-            upgrade.business = self
-            self.upgrades.append(upgrade)
-            self.upgrades.sort(key=attrgetter("ID"), reverse=True)
-            self.job_effectiveness_mod += getattr(upgrade, "job_effectiveness_mod", 0)
-
-        def all_possible_extensions(self):
-            # Named this was to conform to GUI (same as for Buildings)
-            return self.allowed_upgrades
-
-        def has_extension(self, upgrade):
-            # Named this was to conform to GUI (same as for Buildings)
-            return any(u.__class__ == upgrade for u in self.upgrades)
-
     class PrivateBusiness(Business):
         def __init__(self):
             super(PrivateBusiness, self).__init__()
@@ -539,7 +573,7 @@ init -12 python:
                 # if False:
                 #     if counter < 1 and self.env.now > 20:
                 #         counter += 1
-                #         for u in building._businesses:
+                #         for u in building.businesses:
                 #             if u.__class__ == WarriorQuarters:
                 #                 process = u.request_action(building=building, start_job=True, priority=True, any=False, action="patrol")[1]
                 #                 u.interrupt = process # New field to which we can bind a process that can be interrupted.

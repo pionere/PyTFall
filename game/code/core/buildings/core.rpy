@@ -245,10 +245,12 @@ init -10 python:
             #self.price = 0
             self.rooms = 0
 
-            self._upgrades = list()
+            self.upgrades = []
             self.allowed_upgrades = []
-            self._businesses = list()
+            self.businesses = []
             self.allowed_businesses = []
+
+            self.in_construction_upgrades = [] # work (business/upgrade) in progress. [(business/upgrade), remaining days, job_effectiveness_mod]
 
             # We add allowed BUs here, for businesses that have not been built yet.
             # { business: ["u1", "u2", ...]}
@@ -353,15 +355,15 @@ init -10 python:
             return any(b.workable for b in self.allowed_businesses)
 
         def can_sell(self):
-            return all(u.can_close() for u in self._businesses)
+            return all(u.can_close() for u in self.businesses)
 
         def get_daily_modifier(self):
             daily_modifier = self.daily_modifier
-            for b in self._businesses:
+            for b in self.businesses:
                 for u in b.upgrades:
                     if hasattr(u, "daily_modifier_mod"):
                         daily_modifier *= u.daily_modifier_mod
-            for u in self._upgrades:
+            for u in self.upgrades:
                 if hasattr(u, "daily_modifier_mod"):
                     daily_modifier *= u.daily_modifier_mod
             daily_modifier *= 1.0 - max(0, (self.get_dirt_percentage() - 40)/100.0)
@@ -371,7 +373,7 @@ init -10 python:
             jobs = set()
             if self.needs_manager:
                 jobs.add(simple_jobs["Manager"])
-            for up in self._businesses:
+            for up in self.businesses:
                 jobs.update(up.jobs)
             self.jobs = jobs
 
@@ -388,9 +390,9 @@ init -10 python:
             # **We may want to take reputation and fame into account as well.
             price = self.price - self.get_cleaning_price()
 
-            for u in self._upgrades:
+            for u in self.upgrades:
                 price += u.get_price()
-            for b in self._businesses:
+            for b in self.businesses:
                 price += b.get_price()
 
             price *= (1.0 - self.get_threat_percentage()/200.0)
@@ -406,41 +408,48 @@ init -10 python:
                 for item, amount in materials.items():
                     hero.remove_item(item, amount)
 
-        def add_business(self, business, normalize_jobs=False, pay=False):
+        def build_business(self, business, in_game=False):
             """Add business to the building.
             """
             cost, materials, in_slots, ex_slots = business.get_cost()
             self.in_slots += in_slots
             self.ex_slots += ex_slots
 
-            if pay:
+            if in_game:
                 self.pay_for_extension(cost, materials)
 
-            business.in_slots = in_slots
-            business.ex_slots = ex_slots
+            duration = business.duration
+            if duration is None or duration[0] < 1 or not in_game:
+                self.add_business(business, in_game)
+            else:
+                #self.job_effectiveness_mod -= duration[1]
+                self.in_construction_upgrades.append([business, duration[0], duration[1]])
 
-            self._businesses.append(business)
-            self._businesses.sort(key=attrgetter("ID"), reverse=True)
-
-            if normalize_jobs:
+        def add_business(self, business, in_game):
+            self.businesses.append(business)
+            self.businesses.sort(key=attrgetter("ID"), reverse=True)
+            if in_game:
                 self.normalize_jobs()
 
         def close_business(self, business):
             """Remove a business from the building.
             """
-            self._businesses.remove(business)
+            self.businesses.remove(business)
 
-            self.in_slots -= business.in_slots
-            self.ex_slots -= business.ex_slots
+            cost, materials, in_slots, ex_slots = business.get_cost()
 
-            self.pay_for_extension(business.get_cost()[0], None)
+            self.in_slots -= in_slots
+            self.ex_slots -= ex_slots
+
+            self.pay_for_extension(cost, None)
 
             # reset the business
             business.upgrades = list()
             if business.expands_capacity:
-                business.in_slots -= business.capacity * business.exp_cap_in_slots
-                business.ex_slots -= business.capacity * business.exp_cap_ex_slots
-                business.capacity = 0
+                cap = business.capacity - business.base_capacity
+                business.in_slots -= cap * business.exp_cap_in_slots
+                business.ex_slots -= cap * business.exp_cap_ex_slots
+                business.capacity -= cap
 
             # update affected characters
             if business.habitable:
@@ -459,23 +468,40 @@ init -10 python:
                     if worker.job not in self.jobs:
                         worker.set_job(None)
 
-        def add_upgrade(self, upgrade, pay=False):
+        def build_upgrade(self, upgrade):
             cost, materials, in_slots, ex_slots = upgrade.get_cost()
             self.in_slots += in_slots
             self.ex_slots += ex_slots
 
-            if pay:
-                self.pay_for_extension(cost, materials)
+            self.pay_for_extension(cost, materials)
 
-            self._upgrades.append(upgrade)
-            self._upgrades.sort(key=attrgetter("ID"), reverse=True)
+            duration = upgrade.duration
+            if duration is None or duration[0] < 1:
+                self.add_upgrade(upgrade)
+            else:
+                #self.job_effectiveness_mod -= duration[1]
+                self.in_construction_upgrades.append([upgrade, duration[0], duration[1]])
+
+        def add_upgrade(self, upgrade):
+            self.upgrades.append(upgrade)
+            self.upgrades.sort(key=attrgetter("ID"), reverse=True)
+
+        def cancel_construction(self, icu):
+            self.in_construction_upgrades.remove(icu)
+
+            u, d, m = icu
+
+            cost, materials, in_slots, ex_slots = u.get_cost()
+
+            self.in_slots -= in_slots
+            self.ex_slots -= ex_slots
 
         def all_possible_extensions(self):
             # Returns a list of all possible extensions (businesses and upgrades)
             return self.allowed_businesses + self.allowed_upgrades
 
         def has_extension(self, extension):
-            return any(u.__class__ == extension for u in self._upgrades) or any(b.__class__ == extension for b in self._businesses)
+            return any(u.__class__ == extension for u in chain(self.upgrades, self.businesses))
 
         # Describing building purposes:
         def is_business(self):
@@ -484,13 +510,13 @@ init -10 python:
         @property
         def habitable(self):
             # Overloads property of Location core class to serve the building.
-            return self.rooms != 0 or any(i.habitable for i in self._businesses)
+            return self.rooms != 0 or any(i.habitable for i in self.businesses)
 
         @property
         def workable(self):
             """Returns True if this building has upgrades that are businesses.
             """
-            return any(i.workable for i in self._businesses)
+            return any(i.workable for i in self.businesses)
 
         @property
         def vacancies(self):
@@ -499,7 +525,7 @@ init -10 python:
         @property
         def workable_capacity(self):
             capacity = 0
-            for i in self._businesses:
+            for i in self.businesses:
                 if i.workable:
                     capacity += i.capacity
             return capacity
@@ -507,7 +533,7 @@ init -10 python:
         @property
         def habitable_capacity(self):
             capacity = self.rooms
-            for i in self._businesses:
+            for i in self.businesses:
                 if i.habitable:
                     capacity += i.capacity
             return capacity
@@ -533,7 +559,7 @@ init -10 python:
             """
             How much it costs to clean this building.
             """
-            return 10 + 2*self.dirt
+            return (10+self.dirt)*(self.tier+2) 
 
         def get_threat_percentage(self):
             """
@@ -613,7 +639,7 @@ init -10 python:
 
             clients = 0
             # Capacity of the businesses:
-            for u in self._businesses:
+            for u in self.businesses:
                 if u.expects_clients:
                     clients += u.get_client_count()
                     if DSNBR:
@@ -629,7 +655,7 @@ init -10 python:
 
             # Upgrades:
             temp = False
-            for u in self._upgrades:
+            for u in self.upgrades:
                 um = getattr(u, "client_flow_mod", 0)
                 if um != 0:
                     temp = True
@@ -647,14 +673,14 @@ init -10 python:
                 at any given time. This is used in a number of ND-calculations.
             """
             capacity = 0
-            for u in self._businesses:
+            for u in self.businesses:
                 if u.expects_clients:
                     capacity += u.capacity
             return capacity
 
         @property
         def expects_clients(self):
-            return any(i.expects_clients for i in self._businesses)
+            return any(i.expects_clients for i in self.businesses)
 
         def create_customer(self, likes=None):
             """
@@ -700,9 +726,9 @@ init -10 python:
             txt.append("")
 
             # Get businesses we wish SimPy to manage! business_manager method is expected here.
-            self.nd_ups = list(up for up in self._businesses if up.workable)
+            self.nd_ups = list(up for up in self.businesses if up.workable)
 
-            client_businesses = list(up for up in self._businesses if up.expects_clients)
+            client_businesses = list(up for up in self.businesses if up.expects_clients)
             if client_businesses:
                 # Clients:
                 tl.start("Generating clients in {}".format(self.name))
@@ -784,7 +810,7 @@ init -10 python:
                 txt.append(set_font_color("Starting the workday:", "lawngreen"))
                 # Create an environment and start the setup process:
                 self.env = simpy.Environment()
-                for up in self._businesses:
+                for up in self.businesses:
                     up.pre_nd()
 
                 # We run till 110 DU and should attempt to stop all businesses at 100.
@@ -815,7 +841,7 @@ init -10 python:
                 # Clear manager attributes which are used only during the nd run
                 manager_post_nd(self)
 
-                for up in self._businesses:
+                for up in self.businesses:
                     up.post_nd()
 
                 self.nd_ups = list()
@@ -937,7 +963,6 @@ init -10 python:
                     self.log("You could not pay the hired guards so they left the building.")
                     auto_guard = 0
             threatmod = self.threat_mod * max(1, min(self.fame - self.rep - self.threat, 50))
-            dirtmod = 5*self.tier # 5 dirt each 25 turns even if nothing is happening.
 
             while (1):
                 if not env.now % 20:
@@ -980,7 +1005,7 @@ init -10 python:
 
                 # add default mods of the building
                 if not env.now % 25:
-                    self.moddirt(dirtmod)
+                    self.moddirt(5) # 5 dirt each 25 turns even if nothing is happening.
                     self.modthreat(threatmod)
 
                     if has_garden and dice(25):
@@ -1043,19 +1068,20 @@ init -10 python:
             Once in, client is handled and managed by the Business itself until control is returned here!
             Once this method is terminated, client has completely left the building!
             """
+            client_name = set_font_color(client.name, "beige")
+
             # Register the fact that client arrived at the building:
-            temp = '{} arrives at the {}.'.format(
-                        set_font_color(client.name, "beige"), self.name)
+            temp = "%s arrives at the %s." % (client_name, self.name)
             self.log(temp, True)
 
             if self.dirt >= 800:
                 yield self.env.timeout(1)
-                temp = "Your building is as clean as a pig stall. {} storms right out.".format(client.name)
+                temp = "Your building is as clean as a pig stall. %s storms right out." % client_name
                 self.log(temp)
                 self.env.exit()
             if self.threat >= 800:
                 yield self.env.timeout(1)
-                temp = "Your building is as safe as a warzone. {} ran away.".format(client.name)
+                temp = "Your building is as safe as a warzone. %s ran away." % client_name
                 self.log(temp)
                 self.env.exit()
 
@@ -1064,18 +1090,18 @@ init -10 python:
                 self.modthreat(2 if has_garden else 3)
 
             # Visit counter:
-            client.up_counter("visited_building" + str(self.id))
+            #client.up_counter("visited_building" + str(self.id))
 
             # Prepare data:
             businesses = [b for b in self.nd_ups if b.expects_clients]
             shuffle(businesses)
 
-            fav_business = client.likes.intersection(self._businesses)
+            fav_business = client.likes.intersection(self.businesses)
 
             # Case where clients fav business was removed from the building, client to react appropriately.
             if not fav_business:
                 self.all_clients.remove(client)
-                temp = "%s storms out of the building pissed off as %s favorite business was removed!" % (set_font_color(client.name, "beige"), client.pp)
+                temp = "%s storms out of the building pissed off as %s favorite business was removed!" % (client_name, client.pp)
                 self.log(temp)
                 self.env.exit()
             else:
@@ -1101,11 +1127,11 @@ init -10 python:
                         continue # no one can help -> skip
                     
                     # Manager active effect:
-                    temp = "Your manager convinced {} to wait a bit for a slot in {} favorite {} to open up!".format(
-                                    set_font_color(client.name, "beige"), client.pp, fav_business.name)
+                    temp = "Your manager convinced %s to wait a bit for a slot in %s favorite %s to open up!" % (
+                                    client_name, client.pp, fav_business.name)
                     self.log(temp)
 
-                    self._dnd_manager._dnd_mlog.append("\nAsked a client to wait for a spot in {} to open up!".format(fav_business.name))
+                    self._dnd_manager._dnd_mlog.append("\nAsked a client to wait for a spot in %s to open up!" % (fav_business.name))
                     self._dnd_manager.PP -= 1
 
                     # the actual waiting
@@ -1142,9 +1168,9 @@ init -10 python:
                         yield self.env.process(business.client_control(client))
 
             if not visited:
-                temp = "There is not much for %s to do, so %s leaves your establishment cursing..." % (set_font_color(client.name, "beige"), client.p)
+                temp = "There is not much for %s to do, so %s leaves your establishment cursing..." % (client_name, client.p)
             else:
-                temp = "%s is leaving after visiting %d %s." % (set_font_color(client.name, "beige"), visited, plural("business", visited))
+                temp = "%s is leaving after visiting %d %s." % (client_name, visited, plural("business", visited))
             self.log(temp, True)
             self.env.exit()
 
@@ -1210,6 +1236,41 @@ init -10 python:
                     self.flag_red = True
 
                 self.fin.log_logical_expense(spentcash, "Ads")
+
+            # do the construction work 
+            for b in self.businesses:
+                if not b.in_construction_upgrades:
+                    continue
+                for icu in b.in_construction_upgrades[:]:
+                    u, d, m = icu
+                    d -= 1
+                    if d > 0:
+                        icu[1] = d
+                        continue
+                    if u == "capacity":
+                        b.capacity += 1
+                        txt.append("After the construction work, %s expanded its capacity!" % b.name)
+                    else:
+                        b.add_upgrade(u)
+                        txt.append("The construction work is finished on %s in %s!" % (u.name, b.name))
+                    b.in_construction_upgrades.remove(icu)
+                    b.job_effectiveness_mod += m
+
+            if self.in_construction_upgrades:
+                for icu in self.in_construction_upgrades[:]:
+                    u, d, m = icu
+                    d -= 1
+                    if d > 0:
+                        icu[1] = d
+                        continue
+                    if isinstance(u, Business):
+                        self.add_business(u, True)
+                        txt.append("After the construction work, %s is ready to open!" % u.name)
+                    else:
+                        self.add_upgrade(u)
+                        txt.append("The construction work is finished on %s!" % u.name)
+                    self.in_construction_upgrades.remove(icu)
+                    #self.job_effectiveness_mod += m
 
             locmod = self.nd_log_stats()
 

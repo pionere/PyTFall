@@ -739,6 +739,12 @@ label after_load:
                 if hasattr(b, "_price"):
                     b.price = b._price
                     del b._price
+                if hasattr(b, "_businesses"):
+                    b.businesses = b._businesses
+                    del b._businesses
+                if hasattr(b, "_upgrades"):
+                    b.upgrades = b._upgrades
+                    del b._upgrades
                 if not isinstance(b.stats_log, OrderedDict):
                     b.stats_log = OrderedDict(b.stats_log)
                 if hasattr(b, "DIRT_STATES"):
@@ -783,12 +789,12 @@ label after_load:
                         raise Exception("{} Building with an unknown location detected!".format(str(b)))
                 if not hasattr(b, "auto_guard"):
                     b.auto_guard = 0
-                if b._businesses and not b.allowed_businesses:
-                    for i in b._businesses:
+                if b.businesses and not b.allowed_businesses:
+                    for i in b.businesses:
                         b.allowed_businesses.append(i.__class__)
                 if b.allowed_businesses and isclass(b.allowed_businesses[0]):
                     allowed_business_upgrades = getattr(b, "allowed_business_upgrades", {})
-                    allowed_businesses = b._businesses[:]
+                    allowed_businesses = b.businesses[:]
                     for bclass in b.allowed_businesses:
                         for a in allowed_businesses:
                             if a.__class__ == bclass:
@@ -830,12 +836,12 @@ label after_load:
                         au = au()
                         au.building = b
                         b.allowed_upgrades.append(au)
-                    upgrades = b._upgrades
-                    b._upgrades = []
+                    upgrades = b.upgrades
+                    b.upgrades = []
                     for u in upgrades:
                         for au in b.allowed_upgrades:
                             if au.__class__ == u.__class__:
-                                b._upgrades.append(au)
+                                b.upgrades.append(au)
                                 break
                 if hasattr(b, "mlog"):
                     del b.mlog
@@ -1368,7 +1374,9 @@ label after_load:
                     delattr(store, i)
 
         for b in chain(hero.buildings, buildings.itervalues()):
-            for u in chain(b._businesses, b.allowed_businesses):
+            if not hasattr(b, "in_construction_upgrades"):
+                b.in_construction_upgrades = []
+            for u in chain(b.businesses, b.allowed_businesses):
                 if hasattr(u, "intro_string"):
                     u.intro_string = u.__class__.intro_string
                 if hasattr(u, "log_intro_string"):
@@ -1380,6 +1388,20 @@ label after_load:
                     for up in u.upgrades:
                         jem += getattr(up, "job_effectiveness_mod", 0)
                     u.job_effectiveness_mod = jem
+                if hasattr(u, "allowed_business_upgrades"):
+                    del u.allowed_business_upgrades
+                if u.expands_capacity:
+                    if not hasattr(u, "exp_cap_duration"):
+                        u.exp_cap_duration = None
+                    if not hasattr(u, "base_capacity"):
+                        cap = u.capacity
+                        u.in_slots += cap*u.exp_cap_in_slots
+                        u.ex_slots += cap*u.exp_cap_ex_slots
+                        u.base_capacity = cap
+
+                for up in u.upgrades:
+                    if not hasattr(up, "duration"):
+                        up.duration = None
 
         for e in pytfall.world_events.events:
             for i, c in enumerate(e.simple_conditions):
