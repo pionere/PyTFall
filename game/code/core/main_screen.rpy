@@ -105,7 +105,7 @@ screen mainscreen():
                     objects = [o for o in objects if o.get("business_upgrade", None) in business_upgrades]
 
         if location is None:
-            location = "content/buildings/Rooms/slums.webp"
+            location = "content/buildings/Rooms/street.webp"
             objects = None
 
     # Home pic + objects:
