@@ -90,16 +90,16 @@ screen mainscreen():
                     dirt = getattr(hero_home, "dirt", 0)
                     objects = [o for o in objects if o.get("dirt", 0) <= dirt]
                     #  by upgrade:
-                    upgrades = [u.name for u in getattr(hero_home, "_upgrades", [])]
+                    upgrades = [u.__class__.__name__ for u in getattr(hero_home, "upgrades", [])]
                     upgrades.append(None)
                     objects = [o for o in objects if o.get("upgrade", None) in upgrades]
                     #  by business:
-                    businesses = [b.name for b in getattr(hero_home, "_businesses", [])]
+                    businesses = [b.__class__.__name__ for b in getattr(hero_home, "businesses", [])]
                     businesses.append(None)
                     objects = [o for o in objects if o.get("business", None) in businesses]
                     #  by business-upgrade
-                    business_upgrades = ["/".join(name,u) for name, upgrades in 
-                                            [[b.name, [u.name for u in b.upgrades]] for b in getattr(hero_home, "_businesses", [])] 
+                    business_upgrades = ["/".join(b.__class__.__name__,u.__class__.__name__) for b, upgrades in 
+                                            [[b, b.upgrades] for b in getattr(hero_home, "businesses", [])] 
                                          for u in upgrades]
                     business_upgrades.append(None)
                     objects = [o for o in objects if o.get("business_upgrade", None) in business_upgrades]
