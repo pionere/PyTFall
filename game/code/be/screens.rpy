@@ -139,7 +139,10 @@ screen pick_skill(char):
                 action SetScreenVariable("menu_mode", "magic")
                 sensitive active_magic
             textbutton "Items":
-                if battle.use_items and bool(be_items):
+                if not char.has_pp():
+                    text_color "dimgrey"
+                    action Function(notify, "No AP left to use items!")
+                elif battle.use_items and bool(be_items):
                     action SetScreenVariable("menu_mode", "items")
                 elif bool(be_items):
                     text_color "dimgrey"

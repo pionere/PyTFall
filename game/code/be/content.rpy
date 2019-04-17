@@ -873,6 +873,7 @@ init python:
             battle.log("%s uses a %s on %s!" % (source.nickname, self.item.id, temp))
 
         def apply_effects(self, targets):
+            global equipment_safe_mode
             item = self.item
             # assert(len(targets) == 1)
             source = self.source
@@ -898,4 +899,5 @@ init python:
             target.restore_char()
             tc.equip(item)
             target.load_char(tc)
+            source.take_pp()
             return True
