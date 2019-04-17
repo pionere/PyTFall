@@ -419,9 +419,13 @@ init -10 python:
             duration = business.duration
             if duration is None or duration[0] < 1 or not in_game:
                 self.add_business(business, in_game)
+                for icu in self.in_construction_upgrades:
+                    business.job_effectiveness_mod -= icu[2]
             else:
-                #self.job_effectiveness_mod -= duration[1]
-                self.in_construction_upgrades.append([business, duration[0], duration[1]])
+                mod = duration[1]
+                for b in self.businesses:
+                    b.job_effectiveness_mod -= mod
+                self.in_construction_upgrades.append([business, duration[0], mod])
 
         def add_business(self, business, in_game):
             self.businesses.append(business)
@@ -477,8 +481,10 @@ init -10 python:
             if duration is None or duration[0] < 1:
                 self.add_upgrade(upgrade)
             else:
-                #self.job_effectiveness_mod -= duration[1]
-                self.in_construction_upgrades.append([upgrade, duration[0], duration[1]])
+                mod = duration[1]
+                for b in self.businesses:
+                    b.job_effectiveness_mod -= mod
+                self.in_construction_upgrades.append([upgrade, duration[0], mod])
 
         def add_upgrade(self, upgrade):
             self.upgrades.append(upgrade)
@@ -493,6 +499,9 @@ init -10 python:
 
             self.in_slots -= in_slots
             self.ex_slots -= ex_slots
+
+            for b in self.businesses:
+                b.job_effectiveness_mod += m
 
         def all_possible_extensions(self):
             # Returns a list of all possible extensions (businesses and upgrades)
@@ -1256,14 +1265,16 @@ init -10 python:
                     if d > 0:
                         icu[1] = d
                         continue
+                    self.in_construction_upgrades.remove(icu)
+                    for b in self.businesses:
+                        b.job_effectiveness_mod += m
+
                     if isinstance(u, Business):
                         self.add_business(u, True)
                         txt.append("After the construction work, %s is ready to open!" % u.name)
                     else:
                         self.add_upgrade(u)
                         txt.append("The construction work is finished on %s!" % u.name)
-                    self.in_construction_upgrades.remove(icu)
-                    #self.job_effectiveness_mod += m
 
             locmod = self.nd_log_stats()
 

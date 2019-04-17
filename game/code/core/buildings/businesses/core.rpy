@@ -194,6 +194,8 @@ init -12 python:
             self.in_construction_upgrades.remove(icu)
 
             u, d, m = icu
+            self.job_effectiveness_mod += m
+
             if u == "capacity":
                 cost, materials, in_slots, ex_slots = self.get_expansion_cost()
             else:
