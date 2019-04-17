@@ -406,12 +406,12 @@ init -9 python:
                 self.slaves = [0,]
                 for char in frees:
                     char.del_flag("release_day")
-                    char.home = pytfall.sm
-                    set_location(char, None)
                     if char in hero.chars:
                         hero.remove_char(char)
-                        char.reset_workplace_action()
                         # FIXME notify the player
+                    else:
+                        char.home = pytfall.sm
+                        set_location(char, None)
                     # pytfall.temp_text.append("Jail keepers sold off: {color=red}%s{/color}!" % char.name)
                 self.slaves = prisoners
 
@@ -629,12 +629,8 @@ init -9 python:
                 # Chance to escape for good
                 if char_away_days > 20 and dice(status) and dice(char_away_days):
                     self.remove_char(char)
-                    hero.remove_char(char)
-
-                    char.home = pytfall.city
-                    set_location(char, None)
-                    char.reset_workplace_action()
                     char.status = "free"
+                    hero.remove_char(char)
                     continue
 
                 status = 100-status

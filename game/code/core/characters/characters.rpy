@@ -2119,36 +2119,40 @@ init -9 python:
 
         @property
         def chars(self):
-            """List of owned girls
+            """List of owned/employed characters
             :returns: @todo
             """
             return self._chars
 
         def add_char(self, char):
             if char in self._chars:
-                raise Exception, "This char (ID: %s) is already in service to the player!!!" % self.id
+                raise Exception, "This char (ID: %s) is already in service to the player!!!" % char.id
 
             self._chars.append(char)
 
             char.baseAP -= 1 # reduce available AP (the char spends it on shopping, self-time, etc...)
 
         def remove_char(self, char):
-            if char in self._chars:
+            try:
                 self._chars.remove(char)
+            except ValueError:
+                raise Exception, "This char (ID: %s) is not in service to the player!!!" % char.id
 
-                # remove from the teams as well
-                for team in self.teams:
+            # remove from the teams as well
+            for team in self.teams:
+                if char in team:
+                    team.remove(char)
+
+            for fg in self.get_guild_businesses():
+                for team in fg.teams:
                     if char in team:
                         team.remove(char)
 
-                for fg in self.get_guild_businesses():
-                    for team in fg.teams:
-                        if char in team:
-                            team.remove(char)
+            char.baseAP += 1 # restore available AP
 
-                char.baseAP += 1 # restore available AP
-            else:
-                raise Exception, "This char (ID: %s) is not in service to the player!!!" % self.id
+            char.home = pytfall.sm if char.status == "slave" else pytfall.city
+            char.reset_workplace_action()
+            set_location(char, None)
 
         def new_team(self):
             t = Team(implicit=[self])
@@ -2259,8 +2263,6 @@ init -9 python:
                     else: # instance(confiscate, Char):
                         price = confiscate.get_price()
                         self.remove_char(confiscate)
-                        confiscate.home = pytfall.sm
-                        confiscate.reset_workplace_action()
 
                     multiplier = round(uniform(*cr), 2)
                     temp = choice(["{} has been confiscated for {}% of its original value. ".format(
@@ -2846,9 +2848,6 @@ init -9 python:
                     self.txt.append(msg)
                     flag_red = True
                     hero.remove_char(self)
-                    self.home = pytfall.city
-                    self.reset_workplace_action()
-                    set_location(self, None)
 
             return mood, flag_red
 

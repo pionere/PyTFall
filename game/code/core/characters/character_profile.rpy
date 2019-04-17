@@ -91,13 +91,6 @@ label char_profile:
                                 char.mod_stat("disposition", -400)
                                 char.mod_stat("affection", -50)
 
-                                char.reset_workplace_action()
-                                if char.status == "slave":
-                                    char.home = pytfall.sm
-                                else:
-                                    char.home = pytfall.city
-                                set_location(char, None)
-
                             if girls:
                                 hide screen char_profile
                                 jump char_profile
@@ -140,9 +133,7 @@ label char_profile:
 
                             $ del message
                             if char.status == 'slave':
-                                python:
-                                    hero.add_money(int(char.get_price()*.8), reason="SlaveTrade")
-                                    char.home = pytfall.sm
+                                $ hero.add_money(int(char.get_price()*.8), reason="SlaveTrade")
                             else:
                                 if char.get_stat("disposition") >= 500:
                                     $ block_say = True
@@ -153,16 +144,11 @@ label char_profile:
                                     call interactions_bad_goodbye from _call_interactions_bad_goodbye
                                     $ block_say = False
 
-                                python:
-                                    char.gfx_mod_stat("disposition", -400)
-                                    char.mod_stat("affection", -40)
-                                    char.home = pytfall.city
+                                $ char.gfx_mod_stat("disposition", -400)
+                                $ char.mod_stat("affection", -40)
 
-                            python:
-                                char.reset_workplace_action()
-                                set_location(char, None)
-                                hero.remove_char(char)
-                                girls.remove(char)
+                            $ hero.remove_char(char)
+                            $ girls.remove(char)
 
                             if girls:
                                 hide screen char_profile

@@ -665,12 +665,10 @@ init -11 python:
         if char == hero:
             jump("game_over")
 
-        char.location = None
-        char.home = pytfall.afterlife
-        char.reset_workplace_action()
-
         if char in hero.chars:
             hero.remove_char(char)
+
+        char.home = pytfall.afterlife
 
         gm.remove_girl(char)
 
