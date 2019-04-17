@@ -108,7 +108,7 @@ screen pick_skill(char):
     # First we'll get all the skills and sort them into: @Review: Might be a good idea to move this sorting off the screen!
     # *Attack (battle) skills.
     # *Magic skills.
-    default be_items = char.get_be_items()
+    default be_items = char.get_be_items(battle.use_items)
     python:
         attacks = list(char.attack_skills)
         attacks =  list(set(attacks)) # This will make sure that we'll never get two of the same attack skills.

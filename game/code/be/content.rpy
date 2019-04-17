@@ -852,12 +852,14 @@ init python:
 
 
     class ConsumeItem(BE_Action):
-        def __init__(self):
+        def __init__(self, source, item):
             super(ConsumeItem, self).__init__()
-            self.item = None # item to use...
+            self.source = source
+            self.item = item # item to use...
 
             self.type = "sa"
             self.attributes = ["item"]
+            self.delivery = "status"
             self.kind = "item"
             self.desc = "Use an item!"
 
@@ -868,19 +870,44 @@ init python:
 
             super(ConsumeItem, self).init()
 
+        def __call__(self, ai=False, t=None):
+            self.effects_resolver(t)
+            return self.apply_effects(t)
+
         def effects_resolver(self, targets):
             source = self.source
-            if len(targets) == 1 and targets[0] == source:
+            # assert(len(targets) == 1)
+            target = targets[0]
+            if target == source:
                 temp = "%sself" % source.char.op
             else:
-                temp = ", ".join([t.name for t in targets])
+                temp = target.name
             battle.log("%s uses a %s on %s!" % (source.nickname, self.item.id, temp))
 
         def apply_effects(self, targets):
             item = self.item
-
-            self.source.remove_item(item)
-            for t in targets:
-                t.restore_char()
-                t.char.equip(item)
-                t.__init__(t.char)
+            # assert(len(targets) == 1)
+            source = self.source
+            target = targets[0]
+            tc = target.char
+            if target != source:
+                if not can_transfer(source.char, tc, item):
+                    return False # can not give to the target
+                esm = equipment_safe_mode
+                equipment_safe_mode = True
+                if not can_equip(item, tc, silent=False):
+                    equipment_safe_mode = esm
+                    return False # can not equip
+                equipment_safe_mode = esm
+                transfer_items(source.char, tc, item):
+            else:
+                esm = equipment_safe_mode
+                equipment_safe_mode = True
+                if not can_equip(item, tc, silent=False):
+                    equipment_safe_mode = esm
+                    return False # can not equip
+                equipment_safe_mode = esm
+            target.restore_char()
+            tc.equip(item)
+            target.load_char(tc)
+            return True

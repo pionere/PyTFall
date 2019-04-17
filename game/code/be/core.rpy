@@ -5,6 +5,25 @@ init -1 python: # Core classes:
     """
     class BE_Combatant(_object):
         def __init__(self, char):
+            # BE assets:
+            self.besprite = None # Used to keep track of sprite displayable in the BE.
+            self.besprite_size = None # Sprite size in pixels.
+            self.beinx = 0 # Passes index from logical execution to SFX setup.
+            self.beteampos = None # This manages team position bound to target (left or right on the screen).
+            self.row = 1 # row on the battlefield, used to calculate range of weapons.
+            self.betag = None # Tag to keep track of the sprite.
+            self.dpos = None # Default position based on row + team.
+            self.sopos = () # Status underlay position, which should be fixed.
+            self.cpos = None # Current position of a sprite.
+            self.besk = None # BE Show **Kwargs!
+            self.allegiance = None # BE will default this to the team name.
+            self.beeffects = []
+            self.dmg_font = "red"
+            self.status_overlay = [] # Status icons over the sprites.
+
+            self.load_char(char)
+
+        def load_char(self, char):
             self.char = char
 
             # most commonly used variables during the battle
@@ -162,22 +181,6 @@ init -1 python: # Core classes:
 
             self.front_row = char.front_row
 
-            # BE assets:
-            self.besprite = None # Used to keep track of sprite displayable in the BE.
-            self.besprite_size = None # Sprite size in pixels.
-            self.beinx = 0 # Passes index from logical execution to SFX setup.
-            self.beteampos = None # This manages team position bound to target (left or right on the screen).
-            self.row = 1 # row on the battlefield, used to calculate range of weapons.
-            self.betag = None # Tag to keep track of the sprite.
-            self.dpos = None # Default position based on row + team.
-            self.sopos = () # Status underlay position, which should be fixed.
-            self.cpos = None # Current position of a sprite.
-            self.besk = None # BE Show **Kwargs!
-            self.allegiance = None # BE will default this to the team name.
-            self.beeffects = []
-            self.dmg_font = "red"
-            self.status_overlay = [] # Status icons over the sprites.
-
         def set_besprite(self, besprite):
             self.besprite = besprite
             if self.is_mob:
@@ -193,13 +196,13 @@ init -1 python: # Core classes:
             self.delayedmp = self.mp
             self.delayedvit = self.vitality
 
-        def get_be_items(self):
+        def get_be_items(self, use_items=1):
             # be_items only for non-logical battles (for the moment? Mobs do not have inventory anyway)
             if not hasattr(self.char, "inventory"):
                 return None
             be_items = OrderedDict()
             for item, amount in self.char.inventory.items.iteritems():
-                if item.be:
+                if use_items is 2 or item.be:
                     be_items[item] = amount
             return be_items
 
@@ -369,12 +372,16 @@ init -1 python: # Core classes:
                             if isinstance(rv, BESkip):
                                 if rv() == "break":
                                     break
+                            elif isinstance(rv, Item):
+                                # Using an item:
+                                skill = ConsumeItem(fighter, rv)
+                                targets = skill.get_targets()
+                                targets = renpy.call_screen("target_practice", skill, fighter, targets)
+                                if targets and skill(t=targets):
+                                    skill = None
+                                    break
                             else: # Normal Skills:
-                                if isinstance(rv, Item):
-                                    skill = ConsumeItem()
-                                    skill.item = rv
-                                else:
-                                    skill = rv
+                                skill = rv
 
                                 skill.source = fighter
                                 targets = skill.get_targets()
@@ -383,20 +390,14 @@ init -1 python: # Core classes:
                                     break
 
                         # We don't need to see status icons during skill executions!
-                        if not self.logical:
-                            renpy.hide_screen("be_status_overlay")
-                            renpy.hide("its_my_turn")
+                        renpy.hide_screen("be_status_overlay")
+                        renpy.hide("its_my_turn")
 
                         # This actually executes the skill!
                         if skill is not None:
                             skill(t=targets)
 
-                        if not self.logical:
-                            renpy.show_screen("be_status_overlay")
-
-                if not self.logical:
-                    renpy.hide_screen("pick_skill")
-                    renpy.hide_screen("target_practice")
+                        renpy.show_screen("be_status_overlay")
 
                 # End turn events, Death (Usually) is added here for example.
                 for event in self.end_turn_events[:]:

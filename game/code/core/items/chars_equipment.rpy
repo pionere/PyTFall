@@ -415,7 +415,7 @@ screen char_equip_left_frame(stats_display):
                     action Return(['control', 'left'])
                     foreground "content/gfx/interface/buttons/small_button_wood_left_idle.png" pos (10, 14)
                     hover_foreground "content/gfx/interface/buttons/small_button_wood_left_hover.png"
-                    tooltip "Previous Girl"
+                    tooltip "Previous Character"
             # PORTRAIT ============================>
             frame:
                 xysize (100, 100)
@@ -429,7 +429,7 @@ screen char_equip_left_frame(stats_display):
                     action Return(['control', 'right'])
                     foreground "content/gfx/interface/buttons/small_button_wood_right_idle.png" pos (45, 14)
                     hover_foreground "content/gfx/interface/buttons/small_button_wood_right_hover.png"
-                    tooltip "Next Girl"
+                    tooltip "Next Character"
 
         # LVL ============================>
         hbox:
