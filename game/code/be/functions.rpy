@@ -1,9 +1,7 @@
 init -11 python:
     def mod_to_tooltip(mod):
-        t = ""
-        for i in mod:
-            t += i + ": +" + str(mod[i]) + " "
-        return t
+        t = ["%s: %+d" % (k, v) for k, v in mod.items()]
+        return ", ".join(t)
 
     def show_all_targeting_closshairs(targets):
         for index, t in enumerate(targets):
