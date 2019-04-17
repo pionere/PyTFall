@@ -150,14 +150,12 @@ screen pick_skill(char):
             textbutton "Skip":
                 xminimum 100
                 action Return(BESkip(char))
-            if battle.give_up == "surrender":
-                textbutton "Surrender":
+            if battle.give_up:
+                $ temp = battle.give_up.capitalize()
+                textbutton "[temp]":
                     xminimum 100
-                    action Return(BESurrender(char))
-            elif battle.give_up == "escape":
-                textbutton "Escape":
-                    xminimum 100
-                    action Return(BEEscape(char))
+                    action Return(BELeave(char, battle.give_up))
+
     elif menu_mode == "items":
         frame:
             style_prefix "dropdown_gm"

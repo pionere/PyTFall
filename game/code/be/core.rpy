@@ -492,7 +492,20 @@ init -1 python: # Core classes:
             """Ends the battle, trying to normalize any variables that may have been used during the battle.
             """
             if not self.logical:
-                if self.win is True:
+                if self.combat_status:
+                    if self.combat_status == "escape":
+                        renpy.show("escape_gates", what="portal_webm",  at_list=[Transform(align=(.5, .5))], zorder=100)
+                        renpy.sound.play("content/sfx/sound/be/escape_portal.ogg")
+                        tkwargs = {"color": "gray",
+                                   "outlines": [(1, "black", 0, 0)]}
+                        gfx_overlay.notify("Escaped...", tkwargs=tkwargs)
+                    elif self.combat_status == "surrender":
+                        tkwargs = {"color": "gray",
+                                   "outlines": [(1, "black", 0, 0)]}
+                        gfx_overlay.notify("Surrendered...", tkwargs=tkwargs)
+                    else:
+                        pass # just leaving
+                elif self.win is True:
                     gfx_overlay.notify("You Win!")
                 elif self.win is False:
                     tkwargs = {"color": "blue",
@@ -704,7 +717,7 @@ init -1 python: # Core classes:
             # For now this assumes that team indexed 0 is player team.
             if self.terminate:
                 return True
-            if self.combat_status in ("escape", "surrender"):
+            if self.combat_status is not None: #in ("escape", "surrender", "leave"):
                 self.win = False
                 self.winner = self.teams[1]
                 return True
