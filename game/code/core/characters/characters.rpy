@@ -2092,13 +2092,30 @@ init -9 python:
             self._buildings = workable + habitable + rest
 
         def get_guild_businesses(self):
-            return [u for b in self.buildings for u in b.businesses if u.__class__ == ExplorationGuild]
+            return [u for b in self._buildings for u in b.businesses if u.__class__ == ExplorationGuild]
 
         def remove_building(self, building):
-            if building in self._buildings:
+            try:
                 self._buildings.remove(building)
-            else:
+            except ValueError:
                 raise Exception("{} building does not belong to the player!".format(str(building)))
+
+            retire_chars_from_building(self.chars + [self], building)
+
+            # 'cleanup' the building
+            for ad in building.adverts:
+                ad['active'] = False
+            building.dirt = 0
+            building.threat = 0
+            if building.needs_manager:
+                building.available_workers = list()  # TODO should be part of post_nd?
+                building.available_managers = list() # TODO should be part of post_nd?
+                building.all_clients = list()
+                building.regular_clients = set()
+                building.clients = list()
+            if hasattr(building, "inventory"):
+                building.inventory.clear()
+                building.given_items = dict()
 
         @property
         def chars(self):
@@ -2239,7 +2256,6 @@ init -9 python:
                     if isinstance(confiscate, Building):
                         price = confiscate.get_price()
                         self.remove_building(confiscate)
-                        retire_chars_from_building(self.chars + [self], confiscate)
                     else: # instance(confiscate, Char):
                         price = confiscate.get_price()
                         self.remove_char(confiscate)

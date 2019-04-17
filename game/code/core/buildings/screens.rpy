@@ -86,36 +86,15 @@ label building_management:
                     else:
                         renpy.show_screen("message_screen", "Not enough cash on hand!")
             elif result[1] == "sell":
-                python:
+                python hide:
+                    global bm_building, bm_index
                     price = int(bm_building.get_price()*.9)
 
                     if renpy.call_screen("yesno_prompt",
                                          message="Are you sure you wish to sell %s for %d Gold?" % (bm_building.name, price),
                                          yes_action=Return(True), no_action=Return(False)):
-                        if hero.home == bm_building:
-                            hero.home = pytfall.streets
-                        if hero.workplace == bm_building:
-                            hero.reset_workplace_action()
-
-                        retire_chars_from_building(hero.chars, bm_building)
-
                         hero.add_money(price, reason="Property")
                         hero.remove_building(bm_building)
-                        # 'cleanup' the building
-                        for price in bm_building.adverts:
-                            price['active'] = False
-                        del price
-                        bm_building.dirt = 0
-                        bm_building.threat = 0
-                        if bm_building.needs_manager:
-                            bm_building.available_workers = list()  # TODO should be part of post_nd?
-                            bm_building.available_managers = list() # TODO should be part of post_nd?
-                            bm_building.all_clients = list()
-                            bm_building.regular_clients = set()
-                            bm_building.clients = list()
-                        if hasattr(bm_building, "inventory"):
-                            bm_building.inventory.clear()
-                            bm_building.given_items = dict()
 
                         if hero.buildings:
                             if bm_index >= len(hero.buildings):
@@ -123,8 +102,6 @@ label building_management:
                             bm_building = hero.buildings[bm_index]
                         else:
                             jump("building_management_end")
-                    else:
-                        del price
         # Upgrades:
         elif result[0] == 'upgrade':
             if result[1] == "build":
