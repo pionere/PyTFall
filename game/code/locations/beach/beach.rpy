@@ -349,12 +349,15 @@ label mc_action_city_beach_diving_checks:
         python hide:
             if result == "Item":
                 item = weighted_sample(loots)
-                hero.add_item(item)
-                tkwargs = {"color": "blue", "outlines": [(1, "black", 0, 0)]}
+            else:
+                item = None
+            tkwargs = {"color": "dodgerblue", "outlines": [(1, "black", 0, 0)]}
+            if item is not None:
                 gfx_overlay.notify("You caught %s!" % item.id, tkwargs=tkwargs)
+
+                hero.add_item(item)
                 gfx_overlay.random_find(item, 'fishy')
             else:
-                tkwargs = {"color": "blue", "outlines": [(1, "black", 0, 0)]}
                 gfx_overlay.notify("There is nothing there...", tkwargs=tkwargs)
 
         $ vitality -= randint(10, 15)

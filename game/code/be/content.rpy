@@ -763,7 +763,7 @@ init python:
             cost = self.health_cost
             if not(isinstance(cost, int)):
                 cost = int(char.maxhp*cost)
-            if cost <= char.health:
+            if char.health <= cost:
                 return False
             return self.get_targets(char)
 
@@ -887,7 +887,7 @@ init python:
                     equipment_safe_mode = esm
                     return False # can not equip
                 equipment_safe_mode = esm
-                transfer_items(source.char, tc, item):
+                transfer_items(source.char, tc, item)
             else:
                 esm = equipment_safe_mode
                 equipment_safe_mode = True
