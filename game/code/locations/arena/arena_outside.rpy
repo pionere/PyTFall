@@ -59,6 +59,7 @@ label arena_outside:
             pytfall.world_actions.look_around()
             pytfall.world_actions.add("0xeona", "Find Xeona", Jump("find_xeona"))
             pytfall.world_actions.add("0arena", "Enter Arena", Return(["control", "enter_arena"]))
+            pytfall.world_actions.add("1arena", "Practice", Return(["control", "practice"]))
             pytfall.world_actions.finish()
 
     show screen arena_outside
@@ -79,6 +80,11 @@ label arena_outside:
                 $ renpy.music.stop(channel="gamemusic")
                 hide screen arena_outside
                 jump arena_inside
+
+            if result[1] == "practice":
+                $ renpy.music.stop(channel="gamemusic")
+                hide screen arena_outside
+                jump arena_practice_start
 
             if result[1] == 'return':
                 $ renpy.music.stop(channel="gamemusic")
@@ -339,6 +345,70 @@ label xeona_training:
                 $ del char
                 jump xeona_menu
 
+label arena_practice_start:
+    scene bg battle_arena_1
+
+    $ max_lvl = 250
+    python hide:
+        global opponent, level, opponents
+        opponent = ["dummy", 0]
+        opponents = [opponent] + sorted([[m, m["min_lvl"]] for k, m in mobs.items() if k in defeated_mobs], key=itemgetter(1))
+        opponent, level = 0, hero.level
+
+label arena_practice_loop:
+    show screen arena_practice
+    with fade
+
+    show expression hero.get_vnsprite() at mid_left as player with dissolve
+
+    while 1:
+        $ result = ui.interact()
+
+        if result == "start":
+            hide screen arena_practice
+            hide player
+
+            python hide:
+                your_team = Team(name="Your Team")
+                your_team.add(hero)
+                enemy_team = Team(name="Practice Team")
+                mob, min_lvl = opponents[opponent]
+                if mob == "dummy":
+                    mob = build_rc(bt_go_base="Combatant", give_bt_items=True, tier=level/20.0, add_to_gameworld=False)
+                else:
+                    mob = build_mob(mob["id"], level)
+                enemy_team.add(mob)
+
+                global battle
+                battle = BE_Core("battle_dogfights_1", start_sfx=get_random_image_dissolve(1.5),
+                    end_bg="battle_arena_1", end_sfx=dissolve, give_up="leave",
+                    use_items=2)
+                battle.teams = [your_team, enemy_team]
+                battle.start_battle()
+
+            jump arena_practice_loop
+
+        elif result == "next":
+            $ opponent += 1
+            if opponent == len(opponents):
+                $ opponent = 0
+            $ level = max(level, opponents[opponent][1])
+        elif result == "prev":
+            if opponent == 0:
+                $ opponent = len(opponents)
+            $ opponent -= 1
+            $ level = max(level, opponents[opponent][1])
+
+label arena_practice_end:
+    hide player
+
+    hide screen arena_practice
+    with dissolve
+
+    $ del opponent, level, opponents, max_lvl
+    $ global_flags.set_flag("menu_return")
+    jump arena_outside
+
 screen arena_outside:
     use top_stripe(True)
 
@@ -353,7 +423,7 @@ screen arena_outside:
                 align pos
                 use rg_lightbutton(return_value=['jump', entry])
 
-screen xeona_screen():
+screen xeona_screen:
     style_prefix "dropdown_gm"
     frame:
         pos (.98, .98) anchor (1.0, 1.0)
@@ -364,4 +434,104 @@ screen xeona_screen():
             action Hide("xeona_screen"), Jump("xeona_training")
         textbutton "Leave":
             action Hide("xeona_screen"), Jump("xeona_goodbye")
+            keysym "mousedown_3"
+
+screen arena_practice:
+    # opponent
+    frame:
+        align .7, .4
+        background Null()
+        xsize 300
+        has vbox xfill True
+        $ opp = opponents[opponent]
+        $ mob, min_lvl = opp
+        hbox:
+            ysize 220
+            xfill True
+            # prev mob
+            imagebutton:
+                align .1, .5
+                xysize (32, 32)
+                action Return("prev")
+                idle "content/gfx/interface/buttons/small_button_wood_left_idle.png"
+                hover "content/gfx/interface/buttons/small_button_wood_left_hover.png"
+                tooltip "Previous Mob"
+
+            # image
+            if mob == "dummy":
+                $ img = ProportionalScale("content/gfx/interface/images/doll_male.png", 150, 150)
+                $ creature = "Dummy" 
+            else:
+                $ img = ProportionalScale(mob["battle_sprite"], 150, 150)
+                $ creature = mob["name"]
+            frame:
+                align .5, .5
+                background Frame("content/gfx/frame/bst.png", 5, 5)
+                margin 2, 2
+                has vbox spacing 2 xysize 180, 200
+                text creature xalign .5 ypos -4 style "TisaOTM" size 20 color "ivory":
+                    if len(creature) > 12:
+                        size 16
+                        yoffset 4
+                imagebutton:
+                    xalign .5
+                    idle img
+                    hover (im.MatrixColor(img, im.matrix.brightness(.15)))
+                    action NullAction()
+
+            # next mob
+            imagebutton:
+                align .9, .5
+                xysize (32, 32)
+                action Return("next")
+                idle "content/gfx/interface/buttons/small_button_wood_right_idle.png"
+                hover "content/gfx/interface/buttons/small_button_wood_right_hover.png"
+                tooltip "Next Mob"
+
+        hbox:
+            xfill True
+            ysize 40
+            style_group "proper_stats"
+            frame:
+                align .5, .5
+                xysize (80, 40)
+                background Frame("content/gfx/frame/frame_bg.png", 5, 5)
+                text str(level) color "gold" align (.5, .5) size 20
+
+        hbox:
+            xfill True
+            ysize 50
+
+            $ img = "content/gfx/interface/buttons/prev.png"
+            imagebutton:
+                align .1, .5
+                idle img
+                hover (im.MatrixColor(img, im.matrix.brightness(.15)))
+                action SetField(store, "level", max(level-1, min_lvl))
+                tooltip "Decrement the level of the mob!"
+
+            bar:
+                xmaximum 180
+                align (.5, .5)
+                value FieldValue(store, "level", max_lvl-min_lvl, style='scrollbar', offset=min_lvl, step=1)
+                thumb 'content/gfx/interface/icons/move15.png'
+                tooltip "Adjust the level of the mob!" 
+
+            $ img = "content/gfx/interface/buttons/next.png"
+            imagebutton:
+                align .9, .5
+                idle img
+                hover (im.MatrixColor(img, im.matrix.brightness(.15)))
+                action SetField(store, "level", min(level+1, max_lvl))
+                tooltip "Increment the level of the mob!"
+
+    # buttons
+    style_prefix "dropdown_gm"
+    frame:
+        align (.682, .9)
+        has vbox
+        textbutton "Begin practice":
+            action Return("start")
+        textbutton "Leave":
+            action Jump("arena_practice_end")
             keysym "mousedown_3"
