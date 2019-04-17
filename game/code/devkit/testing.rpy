@@ -400,19 +400,39 @@ init 1000 python:
                     if b.location not in locs:
                         raise Exception("Building %s has an invalid location field! It must be one of the followings : %s.(Or threat_mod must be configured manually)" % (b.name, ", ".join(locs))) # threat_mod setting depends on this
 
+                for a in b.adverts:
+                    if "name" not in a:
+                        raise Exception("An Advert in Building %s missing its name field." % b.name)
+                    if not isinstance(a.get("upkeep", 0), int):
+                        raise Exception("Advert %s in Building %s has an invalid 'upkeep' field! It must be an integer." % (a["name"], b.name))
+                    if not isinstance(a.get("client", 0), int):
+                        raise Exception("Advert %s in Building %s has an invalid 'client' field! It must be an integer." % (a["name"], b.name))
+                    if "fame" in a:
+                        mod = a["fame"]
+                        if not isinstance(mod, list) or len(mod) != 2:
+                            raise Exception("Advert %s in Building %s has an invalid 'fame' field! It must be a list(2)." % (a["name"], b.name))
+                        if not (isinstance(mod[0], int) and isinstance(mod[1], int)):
+                            raise Exception("Advert %s in Building %s has an invalid 'fame' field! The values must be integers." % (a["name"], b.name))
+                    if "reputation" in a:
+                        mod = a["reputation"]
+                        if not isinstance(mod, list) or len(mod) != 2:
+                            raise Exception("Advert %s in Building %s has an invalid 'reputation' field! It must be a list(2)." % (a["name"], b.name))
+                        if not (isinstance(mod[0], int) and isinstance(mod[1], int)):
+                            raise Exception("Advert %s in Building %s has an invalid 'reputation' field! The values must be integers." % (a["name"], b.name))
+
                 for u in b.upgrades:
                     if not isinstance(getattr(u, "materials", None), dict):
-                        raise Exception("Upgrade %s in Building %s has an invalid 'materials' field! It must be a dict/map." % (b.name, u.name))
+                        raise Exception("Upgrade %s in Building %s has an invalid 'materials' field! It must be a dict/map." % (u.name, b.name))
                     for m in u.materials:
                         if m not in items:
-                            raise Exception("Upgrade %s in Building %s requires an invalid item: %s!" % (b.name, u.name, m))
+                            raise Exception("Upgrade %s in Building %s requires an invalid item: %s!" % (u.name, b.name, m))
                     if u.expands_capacity:
-                        raise Exception("Upgrade %s in Building %s is expandable, but it should not be!" % (b.name, u.name))
+                        raise Exception("Upgrade %s in Building %s is expandable, but it should not be!" % (u.name, b.name))
                     if u.duration is not None:
                         if not isinstance(u.duration, list) or len(u.duration) != 2:
-                            raise Exception("Upgrade %s in Building %s has an invalid 'duration' field! It must be a list(2)." % (b.name, u.name))
+                            raise Exception("Upgrade %s in Building %s has an invalid 'duration' field! It must be a list(2)." % (u.name, b.name))
                         if not (isinstance(u.duration[0], int) and isinstance(u.duration[1], int)):
-                            raise Exception("Upgrade %s in Building %s has an invalid 'duration' field! The values must be integers." % (b.name, u.name))
+                            raise Exception("Upgrade %s in Building %s has an invalid 'duration' field! The values must be integers." % (u.name, b.name))
 
                 for bs in b.businesses:
                     if bs.habitable and bs.workable:

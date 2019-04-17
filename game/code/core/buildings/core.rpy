@@ -1215,14 +1215,16 @@ init -10 python:
             # Applies effects of advertisements:
             for advert in self.adverts:
                 if advert['active']:
-                    if 'fame' in advert:
-                        modf = randint(*advert['fame'])
-                        self.modfame(modf)
-                        tmodfame += modf
-                    if 'reputation' in advert:
-                        modr = randint(*advert['reputation'])
-                        self.modrep(modr)
-                        tmodrep += modr
+                    mod = advert.get('fame', None)
+                    if mod is not None:
+                        mod = randint(*mod)
+                        self.modfame(mod)
+                        tmodfame += mod
+                    mod = advert.get('reputation', None)
+                    if mod is not None:
+                        mod = randint(*mod)
+                        self.modrep(mod)
+                        tmodrep += mod
 
                     spentcash += advert['upkeep']
                     if advert.get('unique', False):
