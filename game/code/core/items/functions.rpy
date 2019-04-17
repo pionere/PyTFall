@@ -82,16 +82,14 @@ init -11 python:
 
             if item in character.consblock:
                 if not silent:
-                    if character.consblock[item] > 1:
-                        renpy.show_screen("message_screen", "This item has been used recently by {}, it cannot be used again for {} turns.".format(character.name, character.consblock[item]))
-                    else:
-                        renpy.show_screen("message_screen", "This item has been used recently by {}, it cannot be used again for one turn.".format(character.name))
+                    turns = character.consblock[item]
+                    renpy.show_screen("message_screen", "This item has been used recently by %s, it cannot be used again for %d %s." % (character.name, turns, plural("turn", turns)))
                 return
 
         elif item.slot == 'misc':
             if item in character.miscblock:
                 if not silent:
-                    renpy.show_screen("message_screen", "This item has been already used by {}, and cannot be used again.".format(character.name))
+                    renpy.show_screen("message_screen", "This item has been already used by %s, and cannot be used again." % character.name)
                 return
 
         if isinstance(character, PytGroup):
@@ -109,17 +107,17 @@ init -11 python:
         temp = character.gender
         if getattr(item, "gender", temp) != temp:
             if not silent:
-                renpy.show_screen('message_screen', "This item cannot be equipped on a character of {} gender.".format(character.gender))
+                renpy.show_screen('message_screen', "This item cannot be equipped on a %s character." % character.gender)
             return
         elif item.unique and item.unique != character.id:
             if not silent:
-                renpy.show_screen("message_screen", "This unique item cannot be equipped on {}.".format(character.name))
+                renpy.show_screen("message_screen", "This unique item cannot be equipped on %s." % character.name)
             return
         elif item.type == "scroll": # prevents using scroll if it gives already known spell
             battle_skill = store.battle_skills[item.add_be_spells[0]]
             if battle_skill in character.magic_skills:
                 if not silent:
-                    renpy.show_screen('message_screen', "{} already knows this spell.".format(character.name))
+                    renpy.show_screen('message_screen', "%s already knows this spell." % character.name)
                 return
         elif not item.usable:
             if not silent:
@@ -127,7 +125,7 @@ init -11 python:
             return
         elif item.type == "food" and 'Food Poisoning' in character.effects:
             if not silent:
-                renpy.show_screen('message_screen', "{} is already suffering from food poisoning. More food won't do any good.".format(character.name))
+                renpy.show_screen('message_screen', "%s is already suffering from food poisoning. More food won't do any good." % character.name)
             return
         elif character.status == "slave":
             if item.slot == "weapon" and item.type != "tool":

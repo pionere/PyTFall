@@ -456,9 +456,10 @@ screen message_screen(msg, size=(500, 300), use_return=False):
                 text msg xalign .5 color "lightgoldenrodyellow" size 20
             textbutton "Ok":
                 action If(use_return, true=Return(), false=Hide("message_screen"))
-                minimum(120, 30)
+                xsize 120
                 xalign .5
-                style "yesno_button"
+                text_yoffset 1
+                style "dropdown_gm_button"
                 keysym "mousedown_3", "K_RETURN", "K_ESCAPE"
 
 screen pyt_input(default="", text="", length=20, size=(350, 150)):
