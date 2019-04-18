@@ -42,7 +42,7 @@ screen new_style_tooltip_content(tooltip):
                 xmaximum 400
                 has vbox
 
-                $ temp = "".join([combat_skill.DAMAGE_20[t] for t in combat_skill.damage])
+                $ temp = "".join([BE_Core.DAMAGE_20[t] for t in combat_skill.damage])
                 # if "melee" in combat_skill.attributes:
                 #     $ line = "{color=red}Melee skill{/color}"
                 # elif "ranged" in combat_skill.attributes:

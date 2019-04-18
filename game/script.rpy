@@ -548,6 +548,11 @@ label after_load:
         pytfall.maps = OnScreenMap()
 
         for s in store.battle_skills.values():
+            if isinstance(s, DefenceBuffSpell):
+                if not hasattr(s, "event_duration"):
+                    s.event_duration = (5, 8)
+            elif isinstance(getattr(s, "event_duration", None), int):
+                s.event_duration = (s.event_duration-1, s.event_duration+1)
             if "initial_pause" not in s.target_damage_effect.keys():
                 s.target_damage_effect["initial_pause"] = s.main_effect["duration"] * .75
             gfx = s.attacker_effects["gfx"]

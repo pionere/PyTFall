@@ -244,7 +244,7 @@ init python:
 
 
     class PoisonEvent(BE_Event):
-        def __init__(self, source, target, effect, duration=5):
+        def __init__(self, source, target, effect, duration):
             self.target = target
             self.source = source
             self.counter = duration
@@ -252,6 +252,8 @@ init python:
             self.type = "poison"
             self.group = "poison" # Or we collide with Buffs
             self.icon = "content/gfx/be/poison1.webp"
+            # We also add the icon to targets status overlay:
+            target.status_overlay.append(self.icon)
 
         def check_conditions(self):
             if battle.controller == self.target:
@@ -274,7 +276,7 @@ init python:
             damage = max(8, int(damage)) + randint(-2, 2)
 
             # Take care of modifiers:
-            damage = round_int(self.damage_modifier(t, damage, self.type))
+            damage = round_int(BE_Core.damage_modifier(self.source, t, damage, self.type))
 
             # GFX:
             if not battle.logical:
@@ -305,16 +307,16 @@ init python:
             self.counter -= 1
 
     class DefenceBuff(BE_Event):
-        def __init__(self, source, target, bonus=None, multi=None, icon=None, group=None, gfx_effect="default"):
+        def __init__(self, source, target, duration, bonus, multi, icon, group, gfx_effect):
             # bonus and multi both expect dicts if mods are desirable.
             self.target = target
             self.source = source
             self.type = type
-            self.buff = True # We may need this for debuffing later on?
+            #self.buff = True # We may need this for debuffing later on?
 
-            self.counter = randint(5, 8) # Active for 5-8 turns
+            self.counter = duration
 
-            self.icon = icon or "content/gfx/be/fists.webp"
+            self.icon = icon
             self.gfx_effect = gfx_effect
             self.activated_this_turn = False # Flag used to pass to gfx methods that this buff was triggered.
             self.group = group # No two buffs from the same group can be applied twice.
@@ -713,7 +715,7 @@ init python:
                 effects = []
 
                 # We get the multi and any effects that those may bring:
-                restore = round_int(self.damage_modifier(t, base_restore, "healing"))
+                restore = round_int(BE_Core.damage_modifier(source, t, base_restore, "healing"))
                 effects.append(("healing", restore))
 
                 t.dmg_font = "lawngreen" # Color the battle bounce green!
@@ -735,7 +737,7 @@ init python:
             super(BasicPoisonSpell, self).__init__()
             self.event_class = PoisonEvent
             self.buff_group = self.__class__
-            self.event_duration = 3
+            self.event_duration = (3, 5)  # Active for 3-5 turns
 
     class ReviveSpell(BE_Action):
         def __init__(self):
@@ -775,9 +777,10 @@ init python:
             super(DefenceBuffSpell, self).__init__()
             self.event_class = DefenceBuff
 
-            self.defence_bonus = {} # This is the direct def bonus.
-            self.defence_multiplier = {} # This is the def multiplier.
-            self.buff_icon = None
+            self.defence_bonus = None      # direct def bonus
+            self.defence_multiplier = None # def multiplier
+            self.event_duration = (5, 8)   # Active for 5-8 turns
+            self.buff_icon = "content/gfx/be/fists.webp"
             self.buff_group = self.__class__
             self.defence_gfx = "default"
 
@@ -790,7 +793,7 @@ init python:
                 effects = []
 
                 # We get the multi and any effects that those may bring:
-                effect = round_int(self.damage_modifier(t, base_effect, "status"))
+                effect = round_int(BE_Core.damage_modifier(source, t, base_effect, "status"))
 
                 if effect:
                     # Check if event is in play already:
@@ -799,9 +802,9 @@ init python:
                             battle.log("%s is already buffed by %ss spell!" % (t.nickname, event.source.name))
                             break
                     else:
-                        temp = self.event_class(source, t, self.defence_bonus, self.defence_multiplier,
-                                                icon=self.buff_icon, group=self.buff_group,
-                                                gfx_effect=self.defence_gfx)
+                        temp = self.event_class(source, t, randint(*self.event_duration),
+                                                self.defence_bonus, self.defence_multiplier,
+                                                self.buff_icon, self.buff_group, self.defence_gfx)
                         battle.mid_turn_events.append(temp)
                         temp = "%s buffs %ss defence!" % (source.nickname, t.name)
                         self.log_to_battle(effects, effect, source, t, message=temp)

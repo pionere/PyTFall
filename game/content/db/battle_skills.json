@@ -7080,8 +7080,8 @@
 		"range": 4,
 		"kind": "damage_over_time",
 		"buff_group": "poison",
-		"event_duration": 5,
-		"desc": "Sprays poison into the air around the target, decreasing health by 5% for 5 turns.",
+		"event_duration": [4, 6],
+		"desc": "Sprays poison into the air around the target, decreasing health by 5% for 4-6 turns.",
 		"attacker_effects": {
 			"gfx": "cast_default_1",
 			"sfx": "default",
@@ -7129,8 +7129,8 @@
 		"range": 4,
 		"kind": "damage_over_time",
 		"buff_group": "poison",
-		"event_duration": 3,
-		"desc": "Sprays concentrated poison into the air around the target, decreasing health by 10% for 3 turns.",
+		"event_duration": [2, 4],
+		"desc": "Sprays concentrated poison into the air around the target, decreasing health by 10% for 2-4 turns.",
 		"attacker_effects": {
 			"gfx": "cast_default_1",
 			"sfx": "default",

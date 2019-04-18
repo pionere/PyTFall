@@ -232,6 +232,16 @@ init -1 python: # Core classes:
     class BE_Core(_object):
         BDP = dict()               # BE DEFAULT POSITIONS
         TYPE_TO_COLOR_MAP = dict() # DAMAGE TYPE TO COLOR MAP
+        DELIVERY = set(["magic", "ranged", "melee", "status"]) # Damage/Effects Delivery Methods!
+        DAMAGE = {"physical": "{image=physical_be_viewport}", "fire": "{image=fire_element_be_viewport}", "water": "{image=water_element_be_viewport}",
+                  "ice": "{image=ice_element_be_viewport}", "earth": "{image=earth_element_be_viewport}", "air": "{image=air_element_be_viewport}",
+                  "electricity": "{image=ele_element_be_viewport}", "light": "{image=light_element_be_viewport}", "darkness": "{image=darkness_element_be_viewport}",
+                  "healing": "{image=healing_be_viewport}", "poison": "{image=poison_be_viewport}"} # Damage (Effect) types...
+        DAMAGE_20 = {"physical": "{image=physical_be_size20}", "fire": "{image=fire_element_be_size20}", "water": "{image=water_element_be_size20}",
+                     "ice": "{image=ice_element_be_size20}", "earth": "{image=earth_element_be_size20}", "air": "{image=air_element_be_size20}",
+                     "electricity": "{image=ele_element_be_size20}", "light": "{image=light_element_be_size20}", "darkness": "{image=darkness_element_be_size20}",
+                     "healing": "{image=healing_be_size20}", "poison": "{image=poison_be_size20}"}
+
         """Main BE attrs, data and the loop!
         """
         def __init__(self, bg=None, music=None, row_pos=None, start_sfx=None,
@@ -320,6 +330,77 @@ init -1 python: # Core classes:
 
             BE_Core.TYPE_TO_COLOR_MAP.clear()
             BE_Core.TYPE_TO_COLOR_MAP.update(type_to_color_map)
+
+        @staticmethod
+        def color_string_by_DAMAGE_type(effect, return_for="log"):
+            # Takes a string "s" and colors it based of damage "type".
+            # If type is not an element, color will be red or some preset (in this method) default.
+            type, value = effect
+
+            if value < 0:
+                value = -value
+                color = BE_Core.TYPE_TO_COLOR_MAP["healing"]
+            else:
+                color = BE_Core.TYPE_TO_COLOR_MAP.get(type, "red")
+
+            if return_for == "log":
+                s = "%s: %s" % (BE_Core.DAMAGE.get(type, type), value)
+                return "{color=%s}%s{/color}" % (color, s)
+            elif return_for == "bb": # battle bounce
+                return value, color
+            else:
+                return "Unknown Return For DAMAGE type!"
+
+        @staticmethod
+        def damage_modifier(a, t, damage, type):
+            """
+            This calculates the multiplier to use with effect of the skill.
+            t: target
+            damage: Damage (number per type)
+            type: Damage Type
+            """
+            if type in t.resist:
+                return 0
+
+            m = 1.0
+
+            # Get multiplier from traits:
+            # We decided that any trait could influence this:
+            # damage = 0
+            # defence = 0
+
+            # Damage first:
+            m += a.el_dmg.get(type, 0)
+
+            # Defence next:
+            m -= t.el_def.get(type, 0)
+
+            damage *= m
+
+            return damage
+
+        @staticmethod
+        def check_absorbtion(t, type):
+            # Get ratio:
+            return t.absorbs.get(type, None)
+
+        @staticmethod
+        def damage_calculator(damage, defense, multiplier, attacker, absorbed=False):
+            """Used to calc damage of the attack.
+            Before multipliers and effects are applied.
+            """
+            if absorbed:
+                damage = -damage
+
+            damage *= multiplier * (75.0/(75 + defense)) * uniform(.9, 1.1)
+
+            # Items Bonus:
+            damage *= 1.0 + attacker.item_damage_multiplier
+
+            # Traits Bonus:
+            damage *= 1.0 + attacker.damage_multiplier
+
+            return round_int(damage)
 
         def log(self, report, delayed=False):
             be_debug(report)
@@ -777,50 +858,9 @@ init -1 python: # Core classes:
         def apply_effects(self, targets=None):
             pass
 
-        # ported from Action class as we need this for Events as well:
-        def damage_modifier(self, t, damage, type):
-            """
-            This calculates the multiplier to use with effect of the skill.
-            t: target
-            damage: Damage (number per type)
-            type: Damage Type
-            """
-            if type in t.resist:
-                return 0
-
-            a = self.source
-            m = 1.0
-
-            # Get multiplier from traits:
-            # We decided that any trait could influence this:
-            # damage = 0
-            # defence = 0
-
-            # Damage first:
-            m += a.el_dmg.get(type, 0)
-
-            # Defence next:
-            m -= t.el_def.get(type, 0)
-
-            damage *= m
-
-            return damage
-
-
     class BE_Action(BE_Event):
         """Basic action class that assumes that there will be targeting of some kind and followup logical and graphical effects.
         """
-        DELIVERY = set(["magic", "ranged", "melee", "status"]) # Damage/Effects Delivery Methods!
-        DAMAGE = {"physical": "{image=physical_be_viewport}", "fire": "{image=fire_element_be_viewport}", "water": "{image=water_element_be_viewport}",
-                  "ice": "{image=ice_element_be_viewport}", "earth": "{image=earth_element_be_viewport}", "air": "{image=air_element_be_viewport}",
-                  "electricity": "{image=ele_element_be_viewport}", "light": "{image=light_element_be_viewport}", "darkness": "{image=darkness_element_be_viewport}",
-                  "healing": "{image=healing_be_viewport}", "poison": "{image=poison_be_viewport}"} # Damage (Effect) types...
-        DAMAGE_20 = {"physical": "{image=physical_be_size20}", "fire": "{image=fire_element_be_size20}", "water": "{image=water_element_be_size20}",
-                     "ice": "{image=ice_element_be_size20}", "earth": "{image=earth_element_be_size20}", "air": "{image=air_element_be_size20}",
-                     "electricity": "{image=ele_element_be_size20}", "light": "{image=light_element_be_size20}", "darkness": "{image=darkness_element_be_size20}",
-                     "healing": "{image=healing_be_size20}", "poison": "{image=poison_be_size20}"}
-
-
         def __init__(self):
             # Naming/Sorting:
             self.name = self.mn = None
@@ -864,10 +904,10 @@ init -1 python: # Core classes:
             if not self.mn:
                 self.mn = self.name
 
-            if self.delivery not in self.DELIVERY:
+            if self.delivery not in BE_Core.DELIVERY:
                 raise Exception("Skill %s does not have a valid delivery type[melee, ranged, magic or status]!" % self.name)
 
-            self.damage = [d for d in self.attributes if d in self.DAMAGE]
+            self.damage = [d for d in self.attributes if d in BE_Core.DAMAGE]
 
             # Dicts:
             self.tags_to_hide = list() # BE effects tags of all kinds, will be hidden when the show gfx method runs it's course and cleared for the next use.
@@ -1073,7 +1113,7 @@ init -1 python: # Core classes:
                         effects.append("backrow_penalty")
 
                     for type in self.damage:
-                        result = self.damage_modifier(t, attack, type)
+                        result = BE_Core.damage_modifier(a, t, attack, type)
 
                         # Resisted:
                         if result == 0:
@@ -1081,7 +1121,7 @@ init -1 python: # Core classes:
                             continue
 
                         # We also check for absorbtion:
-                        absorb_ratio = self.check_absorbtion(t, type)
+                        absorb_ratio = BE_Core.check_absorbtion(t, type)
                         if absorb_ratio:
                             result = absorb_ratio*result
                             # We also set defence to 0, no point in defending against absorption:
@@ -1092,7 +1132,7 @@ init -1 python: # Core classes:
                             absorbed = False
 
                         # Get the damage:
-                        result = self.damage_calculator(result, temp_def, multiplier, a, absorbed)
+                        result = BE_Core.damage_calculator(result, temp_def, multiplier, a, absorbed)
 
                         effects.append((type, result))
                         total_damage += result
@@ -1100,7 +1140,7 @@ init -1 python: # Core classes:
                 if self.event_class:
                     # First check resistance, then check if event is already in play:
                     type = self.buff_group
-                    if type in t.resist or self.check_absorbtion(t, type):
+                    if type in t.resist or BE_Core.check_absorbtion(t, type):
                         pass
                     else:
                         for event in store.battle.mid_turn_events:
@@ -1108,10 +1148,8 @@ init -1 python: # Core classes:
                                 battle.log("%s is already affected by %s!" % (t.nickname, type))
                                 break
                         else:
-                            temp = self.event_class(a, t, self.effect, duration=self.event_duration)
+                            temp = self.event_class(a, t, self.effect, randint(*self.event_duration))
                             battle.mid_turn_events.append(temp)
-                            # We also add the icon to targets status overlay:
-                            t.status_overlay.append(temp.icon)
 
                 # Finally, log to battle:
                 self.log_to_battle(effects, total_damage, a, t, message=None)
@@ -1125,10 +1163,6 @@ init -1 python: # Core classes:
             elif t.row == 0:
                 if battle.get_fighters(row=1) and not self.true_pierce:
                     return True
-
-        def check_absorbtion(self, t, type):
-            # Get ratio:
-            return t.absorbs.get(type, None)
 
         def get_attack(self):
             """
@@ -1212,23 +1246,6 @@ init -1 python: # Core classes:
 
             return defense
 
-        def damage_calculator(self, damage, defense, multiplier, attacker, absorbed=False):
-            """Used to calc damage of the attack.
-            Before multipliers and effects are applied.
-            """
-            if absorbed:
-                damage = -damage
-
-            damage *= multiplier * (75.0/(75 + defense)) * uniform(.9, 1.1)
-
-            # Items Bonus:
-            damage *= 1.0 + attacker.item_damage_multiplier
-
-            # Traits Bonus:
-            damage *= 1.0 + attacker.damage_multiplier
-
-            return round_int(damage)
-
         # To String methods:
         def log_to_battle(self, effects, total_damage, a, t, message=None):
             # Logs effects to battle, target...
@@ -1250,25 +1267,6 @@ init -1 python: # Core classes:
             s = s + self.effects_to_string(t)
 
             battle.log(" ".join(s), delayed=True)
-
-        def color_string_by_DAMAGE_type(self, effect, return_for="log"):
-            # Takes a string "s" and colors it based of damage "type".
-            # If type is not an element, color will be red or some preset (in this method) default.
-            type, value = effect
-
-            if value < 0:
-                value = -value
-                color = battle.TYPE_TO_COLOR_MAP["healing"]
-            else:
-                color = battle.TYPE_TO_COLOR_MAP.get(type, "red")
-
-            if return_for == "log":
-                s = "%s: %s" % (self.DAMAGE.get(type, type), value)
-                return "{color=%s}%s{/color}" % (color, s)
-            elif return_for == "bb": # battle bounce
-                return value, color
-            else:
-                return "Unknown Return For DAMAGE type!"
 
         def effects_to_string(self, t, default_color="red"):
             """Adds information about target to the list and returns it to be written to the log later.
@@ -1304,7 +1302,7 @@ init -1 python: # Core classes:
 
             # Next type effects:
             for effect in type_effects:
-                temp = self.color_string_by_DAMAGE_type(effect)
+                temp = BE_Core.color_string_by_DAMAGE_type(effect)
                 s.append(temp)
 
             # And finally, combined damage for multi-type attacks:
@@ -1312,7 +1310,7 @@ init -1 python: # Core classes:
                 value = effects[0]
                 if value < 0:
                     value = -value
-                    color = battle.TYPE_TO_COLOR_MAP["healing"]
+                    color = BE_Core.TYPE_TO_COLOR_MAP["healing"]
                 else:
                     color = "red"
                 temp = "{color=%s}DGM: %d{/color}" % (color, value)
@@ -1799,7 +1797,7 @@ init -1 python: # Core classes:
                                     effects.append(effect)
 
                             if len(effects) == 1:
-                                value, color = self.color_string_by_DAMAGE_type(effect, return_for="bb")
+                                value, color = BE_Core.color_string_by_DAMAGE_type(effect, return_for="bb")
                                 s = "%s" % value
                             else:
                                 if value < 0:
