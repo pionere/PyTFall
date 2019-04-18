@@ -123,9 +123,7 @@ init python:
                 # We can just play the sound here:
                 if self.chain_sfx is None:
                     pass
-                elif self.chain_sfx is False and self.count == 0 and len(self.displayable) == 1:
-                    renpy.play(self.sfx, channel="audio")
-                else:
+                elif self.chain_sfx or self.count == 1:
                     renpy.play(self.sfx, channel="audio")
 
             # Render everything else:
@@ -155,19 +153,17 @@ init python:
             interactions_prebattle_line([member.char for member in self.team])
 
 
-    class BESkip(BE_Event):
+    class BESkip(_object):
         """
         Simplest possible class that just skips the turn for the player and logs that fact.
         This can/should be a function but heck :D
 
-        This will now also restore 3 - 6% of Vitality!
+        This will now also restore 3 - 6% of Vitality and Mana!
         """
-        def __init__(self, source=None):
-            self.source = source
+        def __init__(self):
+            pass
 
-        def __call__(self, *args, **kwargs):
-            source = self.source
-
+        def execute(self, source):
             if source.status == "free" and source.take_pp():
                 msg = "%s skips a turn." % source.nickname
 
@@ -194,11 +190,10 @@ init python:
 
     class BELeave(BESkip):
         """Try to leave from the battle field"""
-        def __init__(self, source=None, mode=None):
-            self.source = source
+        def __init__(self, mode=None):
             self.mode = mode
 
-        def __call__(self, *args, **kwargs):
+        def execute(self, source):
             if self.mode == "escape":
                 # Try to escape:
                 if renpy.call_screen("yesno_prompt", message="Are you sure that you want to escape?", yes_action=Return(True), no_action=Return(False)):
@@ -240,8 +235,7 @@ init python:
             if not battle.logical:
                 if self.death_effect == "dissolve":
                     renpy.hide(target.betag)
-                    if self.death_effect == "dissolve":
-                        renpy.with_statement(dissolve)
+                    renpy.with_statement(dissolve)
 
             # Remove poor sod from the queue:
             battle.queue = [t for t in battle.queue if t != target]
@@ -265,7 +259,11 @@ init python:
 
         def kill(self):
             if not self.counter:
-                self.target.status_overlay.remove(self.icon)
+                t = self.target
+
+                t.status_overlay.remove(self.icon)
+                msg = "{color=teal}Poison effect on %s has ran its course...{/color}" % (t.name)
+                battle.log(msg)
                 return True
 
         def apply_effects(self):
@@ -306,13 +304,8 @@ init python:
 
             self.counter -= 1
 
-            if self.counter <= 0:
-                msg = "{color=teal}Poison effect on %s has ran its course...{/color}" % (t.name)
-                battle.log(msg)
-
-
     class DefenceBuff(BE_Event):
-        def __init__(self, source, target, bonus={}, multi=0, icon=None, group=None, gfx_effect="default"):
+        def __init__(self, source, target, bonus=None, multi=None, icon=None, group=None, gfx_effect="default"):
             # bonus and multi both expect dicts if mods are desirable.
             self.target = target
             self.source = source
@@ -340,16 +333,15 @@ init python:
 
         def kill(self):
             if not self.counter:
-                self.target.status_overlay.remove(self.icon)
+                t = self.target
+
+                t.status_overlay.remove(self.icon)
+                msg = "{color=teal}Defence Buff on %s has worn out!{/color}" % (t.name)
+                battle.log(msg)
                 return True
 
         def apply_effects(self):
             self.counter -= 1
-
-            if self.counter <= 0:
-                msg = "{color=teal}Defence Buff on %s has worn out!{/color}" % (self.target.name)
-                battle.log(msg)
-
 
     # Actions:
     class MultiAttack(BE_Action):
@@ -361,25 +353,27 @@ init python:
 
         def show_main_gfx(self, battle, attacker, targets):
             # Shows the MAIN part of the attack and handles appropriate sfx.
-            gfx = self.main_effect["gfx"]
-            sfx = self.main_effect["sfx"]
+            main_effect = self.main_effect
 
-            times = self.main_effect.get("times", 2)
-            interval = self.main_effect.get("interval", .2)
-            sd_duration = self.main_effect.get("sd_duration", .3)
-            alpha_fade = self.main_effect.get("alpha_fade", .3)
-            webm_size  = self.main_effect.get("webm_size", ())
+            gfx = main_effect["gfx"]
+            sfx = main_effect["sfx"]
+
+            times = main_effect.get("times", 2)
+            interval = main_effect.get("interval", .2)
+            sd_duration = main_effect.get("sd_duration", .3)
+            alpha_fade = main_effect.get("alpha_fade", .3)
+            webm_size  = main_effect.get("webm_size", ())
 
             # GFX:
             if gfx:
                 what = self.get_main_gfx()
 
                 # Flip the attack image if required:
-                if self.main_effect.get("hflip", None) and battle.get_cp(attacker)[0] > battle.get_cp(targets[0])[0]:
+                if main_effect.get("hflip", None) and battle.get_cp(attacker)[0] > battle.get_cp(targets[0])[0]:
                     what = Transform(what, xzoom=-1)
 
                 # Posional properties:
-                aim = self.main_effect["aim"]
+                aim = main_effect["aim"]
                 point = aim.get("point", "center")
                 anchor = aim.get("anchor", (.5, .5))
                 xo = aim.get("xo", 0)
@@ -402,28 +396,28 @@ init python:
 
         def show_main_gfx(self, battle, attacker, targets):
             # Shows the MAIN part of the attack and handles appropriate sfx.
-            gfx = self.main_effect["gfx"]
-            sfx = self.main_effect["sfx"]
-            loop_sfx = self.main_effect.get("loop_sfx", False)
+            main_effect = self.main_effect
+
+            gfx = main_effect["gfx"]
+            sfx = main_effect["sfx"]
 
             # SFX:
-            if isinstance(sfx, (list, tuple)):
-                if not loop_sfx:
-                    sfx = choice(sfx)
-
             if sfx:
+                if isinstance(sfx, (list, tuple)) and not main_effect.get("loop_sfx", False):
+                    sfx = choice(sfx)
+    
                 renpy.music.play(sfx, channel='audio')
 
             # GFX:
             if gfx:
                 what = self.get_main_gfx()
                 # Flip the attack image if required:
-                if self.main_effect.get("hflip", False) and battle.get_cp(attacker)[0] > battle.get_cp(targets[0])[0]:
+                if main_effect.get("hflip", False) and battle.get_cp(attacker)[0] > battle.get_cp(targets[0])[0]:
                     what = Transform(what, xzoom=-1)
 
                 target = targets[0]
                 teampos = target.beteampos
-                aim = self.main_effect["aim"]
+                aim = main_effect["aim"]
                 point = aim.get("point", "center")
                 anchor = aim.get("anchor", (.5, .5))
                 xo = aim.get("xo", 0)
@@ -454,7 +448,6 @@ init python:
             # We simply want to add projectile effect here:
             pro_gfx = self.projectile_effects["gfx"]
             pro_sfx = self.projectile_effects["sfx"]
-            pro_sfx = choice(pro_sfx) if isinstance(pro_sfx, (list, tuple)) else pro_sfx
             pause = self.projectile_effects["duration"]
 
             missle = Transform(pro_gfx, xzoom=-1, xanchor=1.0) if battle.get_cp(attacker)[0] > battle.get_cp(targets[0])[0] else pro_gfx
@@ -462,6 +455,8 @@ init python:
             initpos = battle.get_cp(attacker, type="fc", xo=60)
 
             if pro_sfx:
+                if isinstance(pro_sfx, (list, tuple)):
+                    pro_sfx = choice(pro_sfx)
                 renpy.sound.play(pro_sfx)
 
             for index, target in enumerate(targets):
@@ -480,8 +475,9 @@ init python:
             sfx = self.main_effect["sfx"]
 
             # SFX:
-            sfx = choice(sfx) if isinstance(sfx, (list, tuple)) else sfx
             if sfx:
+                if isinstance(sfx, (list, tuple)):
+                    sfx = choice(sfx)
                 renpy.sound.play(sfx)
 
             # GFX:
@@ -522,7 +518,6 @@ init python:
             # We simply want to add projectile effect here:
             pro_gfx = self.projectile_effects["gfx"]
             pro_sfx = self.projectile_effects["sfx"]
-            pro_sfx = choice(pro_sfx) if isinstance(pro_sfx, (list, tuple)) else pro_sfx
             pause = self.projectile_effects["duration"]
 
             target = targets[0]
@@ -532,6 +527,8 @@ init python:
             initpos = battle.get_cp(attacker, type="fc", xo=60)
 
             if pro_sfx:
+                if isinstance(pro_sfx, (list, tuple)):
+                    pro_sfx = choice(pro_sfx)
                 renpy.sound.play(pro_sfx)
 
             aimpos = battle.BDP["perfect_middle_right"] if target.beteampos == "l" else battle.BDP["perfect_middle_left"]
@@ -545,8 +542,9 @@ init python:
             sfx = self.main_effect["sfx"]
 
             # SFX:
-            sfx = choice(sfx) if isinstance(sfx, (list, tuple)) else sfx
             if sfx:
+                if isinstance(sfx, (list, tuple)):
+                    sfx = choice(sfx)
                 renpy.sound.play(sfx)
 
             # GFX:
@@ -577,12 +575,13 @@ init python:
         def show_main_gfx(self, battle, attacker, targets):
             firing_gfx = self.firing_effects["gfx"]
             firing_sfx = self.firing_effects["sfx"]
-            firing_sfx = choice(firing_sfx) if isinstance(firing_sfx, (list, tuple)) else firing_sfx
             pause = self.firing_effects["duration"]
 
             bow = Transform(firing_gfx, zoom=-1, xanchor=1.0) if battle.get_cp(attacker)[0] > battle.get_cp(targets[0])[0] else firing_gfx
 
             if firing_sfx:
+                if isinstance(firing_sfx, (list, tuple)):
+                    firing_sfx = choice(firing_sfx)
                 renpy.sound.play(firing_sfx)
 
             castpos = battle.get_cp(attacker, type="fc", xo=30)
@@ -596,12 +595,13 @@ init python:
             # We simply want to add projectile effect here:
             pro_gfx = self.projectile_effects["gfx"]
             pro_sfx = self.projectile_effects["sfx"]
-            pro_sfx = choice(pro_sfx) if isinstance(pro_sfx, (list, tuple)) else pro_sfx
             pause = self.projectile_effects["duration"]
 
             missle = Transform(pro_gfx, zoom=-1, xanchor=1.0) if battle.get_cp(attacker)[0] > battle.get_cp(targets[0])[0] else pro_gfx
 
             if pro_sfx:
+                if isinstance(pro_sfx, (list, tuple)):
+                    pro_sfx = choice(pro_sfx)
                 renpy.sound.play(pro_sfx)
 
             castpos = battle.get_cp(attacker, type="fc", xo=75)
@@ -623,8 +623,9 @@ init python:
             sfx = self.main_effect["sfx"]
 
             # SFX:
-            sfx = choice(sfx) if isinstance(sfx, (list, tuple)) else sfx
             if sfx:
+                if isinstance(sfx, (list, tuple)):
+                    sfx = choice(sfx)
                 renpy.sound.play(sfx)
 
             # GFX:
@@ -661,18 +662,16 @@ init python:
         def show_main_gfx(self, battle, attacker, targets):
             # Shows the MAIN part of the attack and handles appropriate sfx.
             sfx = self.main_effect["sfx"]
-            gfx = getattr(store, self.main_effect["atl"])
-            loop_sfx = self.main_effect.get("loop_sfx", False)
+            gfx = self.main_effect["atl"]
 
             # SFX:
-            if isinstance(sfx, (list, tuple)):
-                if not loop_sfx:
-                    sfx = choice(sfx)
-
             if sfx:
+                if isinstance(sfx, (list, tuple)) and not self.main_effect.get("loop_sfx", False):
+                    sfx = choice(sfx)
                 renpy.music.play(sfx, channel='audio')
 
             # GFX:
+            gfx = getattr(store, gfx)
             gfx = gfx(*self.main_effect["left_args"]) if battle.get_cp(attacker)[0] > battle.get_cp(targets[0])[0] else gfx(*self.main_effect["right_args"])
             gfxtag = "areal"
             renpy.show(gfxtag, what=gfx, zorder=1000)
@@ -688,14 +687,11 @@ init python:
             # Shows the MAIN part of the attack and handles appropriate sfx.
             gfx = self.main_effect["gfx"]
             sfx = self.main_effect["sfx"]
-            loop_sfx = self.main_effect.get("loop_sfx", False)
 
             # SFX:
-            if isinstance(sfx, (list, tuple)):
-                if not loop_sfx:
-                    sfx = choice(sfx)
-
             if sfx:
+                if isinstance(sfx, (list, tuple)) and not self.main_effect.get("loop_sfx", False):
+                    sfx = choice(sfx)
                 renpy.music.play(sfx, channel='audio')
 
             # GFX:
@@ -744,28 +740,6 @@ init python:
     class ReviveSpell(BE_Action):
         def __init__(self):
             super(ReviveSpell, self).__init__()
-
-        def check_conditions(self, source=None):
-            if source:
-                char = source
-            else:
-                char = self.source
-            cost = self.mp_cost
-            if not(isinstance(cost, int)):
-                cost = int(char.maxmp*cost)
-            if char.mp < cost:
-                return False
-            cost = self.vitality_cost
-            if not(isinstance(cost, int)):
-                cost = int(char.maxvit*cost)
-            if char.vitality < cost:
-                return False
-            cost = self.health_cost
-            if not(isinstance(cost, int)):
-                cost = int(char.maxhp*cost)
-            if char.health <= cost:
-                return False
-            return self.get_targets(char)
 
         def effects_resolver(self, targets):
             char = self.source
@@ -840,9 +814,8 @@ init python:
 
 
     class ConsumeItem(BE_Action):
-        def __init__(self, source, item):
+        def __init__(self, item):
             super(ConsumeItem, self).__init__()
-            self.source = source
             self.item = item # item to use...
 
             self.type = "sa"
@@ -858,7 +831,8 @@ init python:
 
             super(ConsumeItem, self).init()
 
-        def __call__(self, ai=False, t=None):
+        def execute(self, source, t=None):
+            self.source = source
             self.effects_resolver(t)
             return self.apply_effects(t)
 

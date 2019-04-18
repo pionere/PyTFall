@@ -151,13 +151,11 @@ screen pick_skill(char):
                     text_color "dimgrey"
                     action Function(notify, "You don't have items usable in battle!")
             textbutton "Skip":
-                xminimum 100
-                action Return(BESkip(char))
+                action Return(BESkip())
             if battle.give_up:
                 $ temp = battle.give_up.capitalize()
                 textbutton "[temp]":
-                    xminimum 100
-                    action Return(BELeave(char, battle.give_up))
+                    action Return(BELeave(battle.give_up))
 
     elif menu_mode == "items":
         frame:

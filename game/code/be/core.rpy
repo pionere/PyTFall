@@ -283,8 +283,8 @@ init -1 python: # Core classes:
 
             # Events:
             self.start_turn_events = list() # Events we execute on start of the turn.
-            self.mid_turn_events = list() # Events we execute on the end of the turn.
-            self.end_turn_events = list() # Events to execute after controller was set.
+            self.mid_turn_events = list() # Events to execute after controller was set.
+            self.end_turn_events = list() # Events we execute on the end of the turn.
             self.terminate = False
 
             self.logical = logical
@@ -339,21 +339,17 @@ init -1 python: # Core classes:
 
             while 1:
                 # We run events queued at the start of the turn first:
-                for event in self.start_turn_events[:]:
-                    if event():
-                        self.start_turn_events.remove(event)
+                self.start_turn_events = [event for event in self.start_turn_events if not event.execute()]
 
                 fighter = self.controller = self.next_turn()
 
-                for event in self.mid_turn_events[:]:
-                    if event():
-                        self.mid_turn_events.remove(event)
+                self.mid_turn_events = [event for event in self.mid_turn_events if not event.execute()]
 
                 # If the controller was killed off during the mid_turn_events:
                 if fighter not in self.corpses:
                     if fighter.controller is not None:
                         # This character is not controlled by the player so we call the (AI) controller:
-                        fighter.controller()
+                        fighter.controller.execute()
                     else: # Controller is the player:
                         # making known whose turn it is:
                         w, h = fighter.besprite_size
@@ -362,47 +358,42 @@ init -1 python: # Core classes:
                                                            anchor=(.5, 1.0))],
                                                            zorder=fighter.besk["zorder"]+1)
 
+                        skill = None
+                        targets = None
                         while 1:
-                            skill = None
-                            targets = None
-
                             rv = renpy.call_screen("pick_skill", fighter)
 
-                            # Unique check for Skip/Escape Events:
+                            # Skip/Escape Events:
                             if isinstance(rv, BESkip):
-                                if rv() == "break":
+                                if rv.execute(source=fighter) == "break":
                                     break
+                            # Using an item:
                             elif isinstance(rv, Item):
-                                # Using an item:
-                                skill = ConsumeItem(fighter, rv)
-                                targets = skill.get_targets()
-                                targets = renpy.call_screen("target_practice", skill, fighter, targets)
-                                if targets and skill(t=targets):
-                                    skill = None
+                                rv = ConsumeItem(rv)
+                                targets = rv.get_targets(fighter)
+                                targets = renpy.call_screen("target_practice", rv, fighter, targets)
+                                if rv.execute(source=fighter, t=targets):
                                     break
-                            else: # Normal Skills:
-                                skill = rv
-
-                                skill.source = fighter
-                                targets = skill.get_targets()
-                                targets = renpy.call_screen("target_practice", skill, fighter, targets)
+                            # Normal Skills:
+                            else:
+                                targets = rv.get_targets(fighter)
+                                targets = renpy.call_screen("target_practice", rv, fighter, targets)
                                 if targets:
+                                    skill = rv
                                     break
 
                         # We don't need to see status icons during skill executions!
                         renpy.hide_screen("be_status_overlay")
                         renpy.hide("its_my_turn")
 
-                        # This actually executes the skill!
+                        # Execute the skill:
                         if skill is not None:
-                            skill(t=targets)
+                            skill.execute(source=fighter, t=targets)
 
                         renpy.show_screen("be_status_overlay")
 
                 # End turn events, Death (Usually) is added here for example.
-                for event in self.end_turn_events[:]:
-                    if event():
-                        self.end_turn_events.remove(event)
+                self.end_turn_events = [event for event in self.end_turn_events if not event.execute()]
 
                 self.logical_counter += 1
 
@@ -757,7 +748,7 @@ init -1 python: # Core classes:
         def __init__(self, **kwargs):
             pass
 
-        def __call__(self, *args, **kwargs):
+        def execute(self):
             """
             Sets the pause and logic to allow event to be executed.
             """
@@ -899,7 +890,8 @@ init -1 python: # Core classes:
             if self.bg_main_effect["duration"] is None:
                 self.bg_main_effect["duration"] = self.main_effect["duration"]
 
-        def __call__(self, ai=False, t=None):
+        def execute(self, source, t=None):
+            self.source = source
             self.effects_resolver(t)
             died = self.apply_effects(t)
 
@@ -915,13 +907,11 @@ init -1 python: # Core classes:
                 f.beeffects = []
 
         # Targeting/Conditioning.
-        def get_targets(self, source=None):
+        def get_targets(self, source):
             """
-            Gets tagets that can be hit with this action.
+            Gets targets that can be hit with this action.
             Rows go [0, 1, 2, 3] from left to right of the battle-field.
             """
-            char = source if source else self.source
-
             # First figure out all targets within the range:
             # We calculate this by assigning.
             all_targets = battle.get_fighters(self.target_state)
@@ -931,17 +921,17 @@ init -1 python: # Core classes:
             if left_front_row_empty:
                 # 'move' closer because of an empty row
                 range += 1
-            elif char.row == 0 and self.range == 1:
+            elif source.row == 0 and self.range == 1:
                 # allow to reach over a teammate
                 range += 1
             if right_front_row_empty:
                 # 'move' closer because of an empty row
                 range += 1
-            elif char.row == 3 and self.range == 1:
+            elif source.row == 3 and self.range == 1:
                 # allow to reach over a teammate
                 range += 1
 
-            rows_from, rows_to = char.row - range, char.row + range
+            rows_from, rows_to = source.row - range, source.row + range
             in_range = [f for f in all_targets if rows_from <= f.row <= rows_to]
 
             #if DEBUG_BE:
@@ -950,7 +940,7 @@ init -1 python: # Core classes:
 
             # Lets handle the piercing (Or not piercing since piercing attacks include everyone in range already):
             if not self.piercing:
-                if char.row < 2:
+                if source.row < 2:
                     # Source is on left team:
                     # We need to check if there is at least one member on the opposing front row and if true, remove everyone in the back.
                     if not right_front_row_empty:
@@ -963,14 +953,14 @@ init -1 python: # Core classes:
 
             # Now the type, we just care about friends and enemies:
             if self.type in ("all_enemies", "se"):
-                in_range = [f for f in in_range if char.allegiance != f.allegiance]
+                in_range = [f for f in in_range if source.allegiance != f.allegiance]
             elif self.type in ("all_allies", "sa"):
-                in_range = [f for f in in_range if char.allegiance == f.allegiance]
+                in_range = [f for f in in_range if source.allegiance == f.allegiance]
 
             # @Review: Prevent AI from casting the same Buffs endlessly:
             # Note that we do not have a concrete setup for buffs yet so this
             # is coded to be safe.
-            if char.controller is not None:
+            if source.controller is not None:
                 # a character controller by an AI
                 buff_group = getattr(self, "buff_group", None)
                 if buff_group is not None:
@@ -982,10 +972,8 @@ init -1 python: # Core classes:
 
             return in_range # List: So we can support indexing...
 
-        def check_conditions(self, source=None):
+        def check_conditions(self, source):
             """Checks if the source can manage the attack."""
-            member = source if source else self.source
-
             # Indoor check:
             if self.menu_pos >= battle.max_skill_lvl:
                 return False
@@ -993,24 +981,24 @@ init -1 python: # Core classes:
             # Check if attacker has enough resources for the attack:
             cost = self.mp_cost
             if not isinstance(cost, int):
-                cost = int(member.maxmp*cost)
-            if member.mp < cost:
+                cost = int(source.maxmp*cost)
+            if source.mp < cost:
                 return False
 
             cost = self.vitality_cost
             if not isinstance(cost, int):
-                cost = int(member.maxvit*cost)
-            if member.vitality < cost:
+                cost = int(source.maxvit*cost)
+            if source.vitality < cost:
                 return False
 
             cost = self.health_cost
             if not isinstance(cost, int):
-                cost = int(member.maxhp*cost)
-            if member.health <= cost:
+                cost = int(source.maxhp*cost)
+            if source.health <= cost:
                 return False
 
             # Check if there is a target in sight
-            return self.get_targets(member)
+            return self.get_targets(source)
 
         # Logical Effects:
         def effects_resolver(self, targets):
@@ -1116,8 +1104,7 @@ init -1 python: # Core classes:
                                 battle.log("%s is already affected by %s!" % (t.nickname, type))
                                 break
                         else:
-                            duration = getattr(self, "event_duration", 3)
-                            temp = self.event_class(a, t, self.effect, duration=duration)
+                            temp = self.event_class(a, t, self.effect, duration=self.event_duration)
                             battle.mid_turn_events.append(temp)
                             # We also add the icon to targets status overlay:
                             t.status_overlay.append(temp.icon)
@@ -1354,17 +1341,17 @@ init -1 python: # Core classes:
 
             cost = self.mp_cost
             if not(isinstance(cost, int)):
-                cost = int(self.source.maxmp*cost)
+                cost = int(source.maxmp*cost)
             source.mp -= cost
 
             cost = self.health_cost
             if not(isinstance(cost, int)):
-                cost = int(self.source.maxhp*cost)
+                cost = int(source.maxhp*cost)
             source.health -= cost
 
             cost = self.vitality_cost
             if not(isinstance(cost, int)):
-                cost = int(self.source.maxvit*cost)
+                cost = int(source.maxvit*cost)
             source.vitality -= cost
 
             if not battle.logical:
@@ -1613,14 +1600,11 @@ init -1 python: # Core classes:
             # Shows the MAIN part of the attack and handles appropriate sfx.
             gfx = self.main_effect["gfx"]
             sfx = self.main_effect["sfx"]
-            loop_sfx = self.main_effect.get("loop_sfx", False)
 
             # SFX:
-            if isinstance(sfx, (list, tuple)):
-                if not loop_sfx:
-                    sfx = choice(sfx)
-
             if sfx:
+                if isinstance(sfx, (list, tuple)) and not self.main_effect.get("loop_sfx", False):
+                    sfx = choice(sfx)
                 renpy.music.play(sfx, channel='audio')
 
             # GFX:
@@ -2019,28 +2003,29 @@ init -1 python: # Core classes:
         def __init__(self, source):
             self.source = source
 
-        def __call__(self):
-            skip = BESkip(source=self.source)
-
+        def execute(self):
+            source = self.source
             skills = self.get_available_skills()
-            if skills:
+            while skills:
                 skill = choice(skills)
                 # So we have a skill... now lets pick a target(s):
-                skill.source = self.source
-                targets = skill.get_targets() # Get all targets in range.
-                targets = targets if "all" in skill.type else [choice(targets)] # We get a correct amount of targets here.
+                targets = skill.get_targets(source) # Get all targets in range.
+                if targets:
+                    targets = targets if "all" in skill.type else [choice(targets)] # We get a correct amount of targets here.
+                    skill.execute(source, t=targets)
+                    return
+                skills.remove(skill)
 
-                skill(ai=True, t=targets)
-            else:
-                skip()
+            # skip
+            BESkip().execute(source=source)
 
         def get_available_skills(self):
             # slaves should not battle
-            if self.source.status == "slave":
+            source = self.source
+            if source.status == "slave":
                 return
 
-            allskills = list(self.source.attack_skills) + list(self.source.magic_skills)
-            return [s for s in allskills if s.check_conditions(self.source)]
+            return [s for s in chain(source.attack_skills, source.magic_skills) if s.check_conditions(source)]
 
     class Complex_BE_AI(BE_AI):
         """This one does a lot more "thinking".
@@ -2056,12 +2041,13 @@ init -1 python: # Core classes:
         def __init__(self, source):
             super(Complex_BE_AI, self).__init__(source=source)
 
-        def __call__(self):
-            skip = BESkip(source=self.source)
+        def execute(self):
+            source = self.source
 
             temp = self.get_available_skills()
             if not temp:
-                skip()
+                # skip
+                BESkip().execute(source=source)
                 return
 
             # Split skills in containers:
@@ -2073,32 +2059,29 @@ init -1 python: # Core classes:
             revival_skills = skills.get("revival", None)
             if revival_skills and dice(50):
                 for skill in revival_skills:
-                    targets = skill.get_targets(source=self.source)
+                    targets = skill.get_targets(source)
                     if targets:
-                        skill.source = self.source
                         targets = targets if "all" in skill.type else [choice(targets)]
-                        skill(ai=True, t=targets)
+                        skill.execute(source=source, t=targets)
                         return
 
             healing_skills = skills.get("healing", None)
             if healing_skills and dice(70):
                 for skill in healing_skills:
-                    targets = skill.get_targets(source=self.source)
+                    targets = skill.get_targets(source)
                     for t in targets:
-                        if t.health < t.maxhp*.5:
-                            skill.source = self.source
+                        if t.health < t.maxhp/2:
                             targets = targets if "all" in skill.type else [t]
-                            skill(ai=True, t=targets)
+                            skill.execute(source=source, t=targets)
                             return
 
             buffs = skills.get("buffs", None)
             if buffs and dice(10):
                 for skill in buffs:
-                    targets = skill.get_targets(source=self.source)
+                    targets = skill.get_targets(source)
                     if targets:
-                        skill.source = self.source
                         targets = targets if "all" in skill.type else [choice(targets)]
-                        skill(ai=True, t=targets)
+                        skill.execute(source=source, t=targets)
                         return
 
             attack_skills = skills.get("assault", None)
@@ -2110,14 +2093,13 @@ init -1 python: # Core classes:
                     # Last skill in the list will execute!
                     skill = attack_skills.pop()
                     if not attack_skills or dice(70):
-                        skill.source = self.source
-                        targets = skill.get_targets()
+                        targets = skill.get_targets(source)
                         targets = targets if "all" in skill.type else [choice(targets)]
-                        skill(ai=True, t=targets)
+                        skill.execute(source=source, t=targets)
                         return
 
-            # In case we did not pick any specific skill:
-            skip()
+            # Skip in case we did not pick any specific skill:
+            BESkip().execute(source=source)
 
     #def get_char_with_lowest_attr(chars, attr="hp"):
     #    chars.sort(key=attrgetter(attr))
