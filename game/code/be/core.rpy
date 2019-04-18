@@ -206,6 +206,9 @@ init -1 python: # Core classes:
                     be_items[item] = amount
             return be_items
 
+        def get_default_attack(self):
+            return getattr(self, "last_skill", False) or self.char.default_attack_skill
+
         def take_pp(self):
             if self.PP < 10:
                 if self.AP <= 0:
@@ -389,6 +392,7 @@ init -1 python: # Core classes:
                         # Execute the skill:
                         if skill is not None:
                             skill.execute(source=fighter, t=targets)
+                            fighter.last_skill = skill
 
                         renpy.show_screen("be_status_overlay")
 

@@ -116,6 +116,7 @@ screen pick_skill(char):
         magic = list(char.magic_skills)
         magic.sort(key=attrgetter("name"))
 
+        default_attack = char.get_default_attack()
         # Collect the currently usable attacks/spells:
         if char.has_pp():
             active_attacks = [i for i in attacks if i.check_conditions(char)]
@@ -132,6 +133,14 @@ screen pick_skill(char):
             has vbox
 
             at fade_in_out(t1=.6, t2=.3)
+            if default_attack is None:
+                textbutton "-":
+                    action NullAction()
+            else:
+                textbutton default_attack.mn:
+                    action Return(default_attack)
+                    sensitive (default_attack in chain(active_attacks, active_magic))
+                    tooltip ["be", default_attack]
             textbutton "Attacks":
                 action SetScreenVariable("menu_mode", "attacks")
                 sensitive active_attacks
