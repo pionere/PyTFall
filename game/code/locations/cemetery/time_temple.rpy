@@ -218,8 +218,8 @@ label time_temple:
     jump graveyard_town
 
 screen time_temple():
-
-    use top_stripe(True, None, False, True, False)
+    use top_stripe(True, show_lead_away_buttons=False)
+    use team_status(False)
 
 label clone_character(character, add_to_hero=True):
     python:

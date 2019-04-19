@@ -489,12 +489,12 @@ screen hero_team():
         hbox:
             xalign .5
             for member in hero.team:
-                $ img = member.show("portrait", resize=(120, 120), cache=True)
                 #spacing 7
                 # Portrait/Button:
                 fixed:
                     align .5, .5
                     xysize 120, 120
+                    $ img = member.show("portrait", resize=(120, 120), cache=True)
                     imagebutton:
                         padding 1, 1
                         align .5, .5
@@ -504,10 +504,9 @@ screen hero_team():
                         selected_idle Transform(img, alpha=1.05)
                         action None
 
-                    python:
-                        img = ProportionalScale("content/gfx/interface/buttons/row_switch.png", 40, 20)
-                        if not member.front_row:
-                            img = im.Flip(img, horizontal=True)
+                    $ img = ProportionalScale("content/gfx/interface/buttons/row_switch.png", 40, 20)
+                    if not member.front_row:
+                        $ img = im.Flip(img, horizontal=True)
 
                     imagebutton:
                         align (0, 1.0)
@@ -518,11 +517,12 @@ screen hero_team():
                         tooltip "Toggle between rows in battle, currently character fights from the %s row" % ("front" if member.front_row else "back")
 
                     if member != hero:
+                        $ img = "content/gfx/interface/buttons/Profile.png"
                         imagebutton:
                             align (1.0, 1.0)
-                            idle Transform("content/gfx/interface/buttons/Profile.png", alpha=.9)
-                            hover Transform("content/gfx/interface/buttons/Profile.png", alpha=1.0)
-                            insensitive im.Sepia("content/gfx/interface/buttons/Profile.png")
+                            idle Transform(img, alpha=.9)
+                            hover Transform(img, alpha=1.0)
+                            insensitive im.Sepia(img)
                             action If(member.is_available, true=[Hide("hero_profile"),
                                                                       Hide("hero_team"),
                                                                       SetVariable("girls", [member]),

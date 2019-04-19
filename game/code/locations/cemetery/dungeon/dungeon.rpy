@@ -84,7 +84,7 @@ init -1 python:
 
                 # cleanup globals
                 vars = ["dungeon", "pc", "mpos", "mpos2", "sided", "blend", "areas", "shown",
-                        "hs", "hotspots", "distance", "lateral", "x", "y", "front_str",
+                        "hotspots", "distance", "lateral", "x", "y", "front_str",
                         "k", "d_items", "d_hotspots", "actions", "ri", "n", "e",
                         "situ", "pt", "it", "img_name", "brightness", "spawn", "ori",
                         "transparent_area", "bx", "by", "at", "to", "pos", "access_denied",
@@ -288,7 +288,8 @@ screen dungeon_move(hotspots):
         elif renpy.has_image(sw):
             add sw
 
-    use top_stripe(False, None, False, True)
+    use top_stripe(False, show_lead_away_buttons=False)
+    use team_status(True)
 
     # if dungeon.show_map:
     add dungeon.smallMap:
@@ -416,8 +417,8 @@ label enter_dungeon_r:
             hotspots = []
 
             if config.developer and dungeon.show_map == "teleport":
-                hs = [3, 43, len(dungeon._map[0])*6, len(dungeon._map)*6]
-                hotspots.append({ 'spot': hs, 'actions': [{ "function": "teleport", "arguments": [] }] })
+                hotspots.append({'spot': [3, 43, len(dungeon._map[0])*6, len(dungeon._map)*6],
+                                 'actions': [{ "function": "teleport", "arguments": [] }] })
 
             renpy.show(dungeon.background % dungeon.light)
 
@@ -588,9 +589,9 @@ label enter_dungeon_r:
                     # auto attack monsters
                     to = str(to)
                     spawn = dungeon.spawn[to]
-                    hs = dungeon.spawn_hotspots[spawn["name"]]
                     # prepare actions with the removal of the mobs at the front
-                    actions = [{ "function": "delitem", "arguments": ["spawn", to]}] + hs["actions"]
+                    actions = dungeon.spawn_hotspots[spawn["name"]]["actions"]
+                    actions = [{ "function": "delitem", "arguments": ["spawn", to]}] + actions
                     dungeon.next_events.extend(actions)
 
             while dungeon.next_events:
