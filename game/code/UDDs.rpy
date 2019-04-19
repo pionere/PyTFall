@@ -1404,7 +1404,7 @@ init python:
         w, h = d.render(0, 0, 0, 0).get_size()
         return int(round(w)), int(round(h))
 
-    def prop_resize(d, maxwidth, maxheight, **kwargs):
+    def pscale(d, maxwidth, maxheight, **kwargs):
         """
         Proportionally resizes anything... not just images.
         Image Manipulation is lost with this!
@@ -1416,8 +1416,6 @@ init python:
         width = int(round(ratio * width))
         height = int(round(ratio * height))
         return Transform(d, size=(width, height), **kwargs)
-
-    pscale = prop_resize
 
     def gen_randmotion(count, dist, delay):
         args = [ ]

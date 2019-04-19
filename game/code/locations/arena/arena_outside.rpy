@@ -351,9 +351,9 @@ label arena_practice_start:
     $ max_lvl = 250
     python hide:
         global opponent, level, opponents
-        opponent = ["dummy", 0]
+        opponent = ["dummy", 5]
         opponents = [opponent] + sorted([[m, m["min_lvl"]] for k, m in mobs.items() if k in defeated_mobs], key=itemgetter(1))
-        opponent, level = 0, hero.level
+        opponent, level = 0, max(hero.level, 5)
 
 label arena_practice_loop:
     show screen arena_practice
@@ -374,7 +374,11 @@ label arena_practice_loop:
                 enemy_team = Team(name="Practice Team")
                 mob, min_lvl = opponents[opponent]
                 if mob == "dummy":
-                    mob = build_rc(bt_go_base="Combatant", give_bt_items=True, tier=level/20.0, add_to_gameworld=False)
+                    mob = build_mob("Malicious Stone", level)
+                    mob.battle_sprite = "content/items/misc/std.png"
+                    mob.nickname = mob.name = "Training Dummy"
+                    mob.AP = 0
+                    mob.controller = BE_AI(mob)
                 else:
                     mob = build_mob(mob["id"], level)
                 enemy_team.add(mob)
@@ -459,11 +463,12 @@ screen arena_practice:
 
             # image
             if mob == "dummy":
-                $ img = ProportionalScale("content/gfx/interface/images/doll_male.png", 150, 150)
+                $ img = "content/items/misc/std.png"
                 $ creature = "Dummy" 
             else:
-                $ img = ProportionalScale(mob["battle_sprite"], 150, 150)
+                $ img = mob["battle_sprite"]
                 $ creature = mob["name"]
+            $ img = ProportionalScale(img, 150, 150)
             frame:
                 align .5, .5
                 background Frame("content/gfx/frame/bst.png", 5, 5)

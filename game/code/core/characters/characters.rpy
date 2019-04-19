@@ -2012,7 +2012,7 @@ init -9 python:
                 what = self.battle_sprite
 
             if isinstance(what, ImageReference):
-                return prop_resize(what, resize[0], resize[1])
+                return pscale(what, resize[0], resize[1])
             else:
                 return ProportionalScale(what, resize[0], resize[1])
 
