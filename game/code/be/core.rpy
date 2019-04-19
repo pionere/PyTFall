@@ -1385,6 +1385,13 @@ init -1 python: # Core classes:
                     return t
 
         # GFX/SFX:
+        def queue_call(self, at, func, *args):
+            if at in self.timestamps:
+                at += uniform(.001, .002)
+
+            self.timestamps[at] = renpy.curry(func)(*args)
+            return at
+
         def time_gfx(self, targets, died):
             """Executes GFX part of an attack. Disregarded during logical combat.
 
@@ -1487,7 +1494,8 @@ init -1 python: # Core classes:
             self.timestamps[0] = renpy.curry(self.show_attackers_first_action)(battle, attacker)
             delay = self.get_show_attackers_first_action_initial_pause() + self.attacker_effects.get("duration", 0)*persistent.battle_speed
             hide_first_action = delay + self.attacker_action.get("keep_alive_delay", 0)*persistent.battle_speed
-            self.timestamps[hide_first_action] = renpy.curry(self.hide_attackers_first_action)(battle, attacker)
+
+            self.queue_call(hide_first_action, self.hide_attackers_first_action, battle, attacker)
             return delay
 
         def show_attackers_first_action(self, battle, attacker):
@@ -1510,15 +1518,12 @@ init -1 python: # Core classes:
 
         def time_attackers_first_effect(self, battle, attacker, targets):
             start = self.get_show_attackers_first_action_initial_pause()
-            if start in self.timestamps:
-                start += uniform(.001, .002)
-            self.timestamps[start] = renpy.curry(self.show_attackers_first_effect)(battle, attacker, targets)
+            start = self.queue_call(start, self.show_attackers_first_effect, battle, attacker, targets)
 
             if self.attacker_effects["gfx"]:
                 effects_delay = start + self.attacker_effects.get("duration", 0)*persistent.battle_speed
-                if effects_delay in self.timestamps:
-                    effects_delay += uniform(.001, .002)
-                self.timestamps[effects_delay] = renpy.curry(self.hide_attackers_first_effect)(battle, attacker)
+
+                effects_delay = self.queue_call(effects_delay, self.hide_attackers_first_effect, battle, attacker)
                 return effects_delay
 
             return 0
@@ -1562,9 +1567,7 @@ init -1 python: # Core classes:
             renpy.hide("casting")
 
         def time_main_gfx(self, battle, attacker, targets, start):
-            if start in self.timestamps:
-                start += uniform(.001, .002)
-            self.timestamps[start] = renpy.curry(self.show_main_gfx)(battle, attacker, targets)
+            start = self.queue_call(start, self.show_main_gfx, battle, attacker, targets)
 
             pause = self.main_effect["duration"]
             # Kind of a shitty way of trying to handle attacks that come.
@@ -1573,10 +1576,7 @@ init -1 python: # Core classes:
             pause += getattr(self, "projectile_effects", {}).get("duration", 0)
             pause *= persistent.battle_speed
             pause += start
-            if pause in self.timestamps:
-                pause += uniform(.001, .002)
-
-            self.timestamps[pause] = renpy.curry(self.hide_main_gfx)(targets)
+            self.queue_call(pause, self.hide_main_gfx, targets)
 
         def get_main_gfx(self):
             gfx = self.main_effect["gfx"]
@@ -1647,15 +1647,11 @@ init -1 python: # Core classes:
             # We take previous start as basepoint for execution:
             damage_effect_start = start + self.target_sprite_damage_effect["initial_pause"]*persistent.battle_speed
 
-            if damage_effect_start in self.timestamps:
-                damage_effect_start += uniform(.001, .002)
-            self.timestamps[damage_effect_start] = renpy.curry(self.show_target_sprite_damage_effect)(targets)
+            damage_effect_start = self.queue_call(damage_effect_start, self.show_target_sprite_damage_effect, targets)
 
             delay = damage_effect_start + self.target_sprite_damage_effect["duration"]*persistent.battle_speed
-            if delay in self.timestamps:
-                delay += uniform(.001, .002)
 
-            self.timestamps[delay] = renpy.curry(self.hide_target_sprite_damage_effect)(targets, died)
+            self.queue_call(delay, self.hide_target_sprite_damage_effect, targets, died)
 
         def show_target_sprite_damage_effect(self, targets):
             """Target damage graphical effects.
@@ -1773,15 +1769,11 @@ init -1 python: # Core classes:
             # if no value was specified directly.
             damage_effect_start = start + self.target_damage_effect["initial_pause"]*persistent.battle_speed
 
-            if damage_effect_start in self.timestamps:
-                damage_effect_start += uniform(.001, .002)
-            self.timestamps[damage_effect_start] = renpy.curry(self.show_target_damage_effect)(targets, died)
+            damage_effect_start = self.queue_call(damage_effect_start, self.show_target_damage_effect, targets, died)
 
             delay = damage_effect_start + self.get_target_damage_effect_duration()
-            if delay in self.timestamps:
-                delay += uniform(.001, .002)
 
-            self.timestamps[delay] = renpy.curry(self.hide_target_damage_effect)(targets, died)
+            self.queue_call(delay, self.hide_target_damage_effect, targets, died)
 
         def show_target_damage_effect(self, targets, died):
             """Easy way to show damage like the bouncing damage effect.
@@ -1855,15 +1847,11 @@ init -1 python: # Core classes:
         def time_target_death_effect(self, died, start):
             death_effect_start = start + self.target_death_effect["initial_pause"]*persistent.battle_speed
 
-            if death_effect_start in self.timestamps:
-                death_effect_start += uniform(.001, .002)
-            self.timestamps[death_effect_start] = renpy.curry(self.show_target_death_effect)(died)
+            death_effect_start = self.queue_call(death_effect_start, self.show_target_death_effect, died)
 
             delay = death_effect_start + self.target_death_effect["duration"]*persistent.battle_speed
-            if delay in self.timestamps:
-                delay += uniform(.001, .002)
 
-            self.timestamps[delay] = renpy.curry(self.hide_target_death_effect)(died)
+            self.queue_call(delay, self.hide_target_death_effect, died)
 
         def show_target_death_effect(self, died):
             gfx = self.target_death_effect["gfx"]
@@ -1887,15 +1875,11 @@ init -1 python: # Core classes:
         def time_bg_main_effect(self, start):
             effect_start = start + self.bg_main_effect["initial_pause"]*persistent.battle_speed
 
-            if effect_start in self.timestamps:
-                effect_start += uniform(.001, .002)
-            self.timestamps[effect_start] = self.show_bg_main_effect
+            effect_start = self.queue_call(effect_start, self.show_bg_main_effect)
 
             delay = effect_start + self.bg_main_effect["duration"]*persistent.battle_speed
-            if delay in self.timestamps:
-                delay += uniform(.001, .002)
 
-            self.timestamps[delay] = self.hide_bg_main_effect
+            self.queue_call(delay, self.hide_bg_main_effect)
 
         def show_bg_main_effect(self):
             gfx = self.bg_main_effect["gfx"]
@@ -1932,16 +1916,12 @@ init -1 python: # Core classes:
             if effect_start < 0:
                 effect_start = 0
 
-            if effect_start in self.timestamps:
-                effect_start += uniform(.001, .002)
-            self.timestamps[effect_start] = renpy.curry(self.show_dodge_effect)(attacker, targets)
+            effect_start = self.queue_call(effect_start, self.show_dodge_effect, attacker, targets)
 
             # Hiding timing as well in our new version:
             delay = effect_start + self.main_effect["duration"]*persistent.battle_speed
-            if delay in self.timestamps:
-                delay += uniform(.001, .002)
 
-            self.timestamps[delay] = renpy.curry(self.hide_dodge_effect)(targets)
+            self.queue_call(delay, self.hide_dodge_effect, targets)
 
         def show_dodge_effect(self, attacker, targets):
             # This also handles shielding... which might not be appropriate and future safe...
