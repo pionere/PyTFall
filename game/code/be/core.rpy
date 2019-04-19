@@ -331,6 +331,15 @@ init -1 python: # Core classes:
             BE_Core.TYPE_TO_COLOR_MAP.clear()
             BE_Core.TYPE_TO_COLOR_MAP.update(type_to_color_map)
 
+        @property
+        def battle_speed(self):
+            value = 1.0/persistent.battle_speed
+            return math.log(value, 2)
+
+        @battle_speed.setter
+        def battle_speed(self, value):
+            persistent.battle_speed = 1.0/2**value
+
         @staticmethod
         def color_string_by_DAMAGE_type(effect, return_for="log"):
             # Takes a string "s" and colors it based of damage "type".
@@ -529,7 +538,7 @@ init -1 python: # Core classes:
 
                 # After we've set the whole thing up, we've launch the main loop:
                 gfx_overlay.notify(type="fight")
-                renpy.pause(.6)
+                renpy.pause(.6*persistent.battle_speed)
                 # renpy.pause(.35)
 
             self.main_loop()
@@ -588,7 +597,7 @@ init -1 python: # Core classes:
                                "outlines": [(1, "cyan", 0, 0)]}
                     gfx_overlay.notify("You Lose!", tkwargs=tkwargs)
 
-                renpy.pause(1.0) # Small pause before terminating the engine.
+                renpy.pause(1.0*persistent.battle_speed) # Small pause before terminating the engine.
 
                 renpy.scene(layer='screens')
                 renpy.scene()
@@ -1443,7 +1452,7 @@ init -1 python: # Core classes:
 
             # Doesn't feel conceptually correct to put this here,
             # but it's likely the safest solution atm.
-            gfx_overlay.be_taunt(attacker, self)
+            gfx_overlay.be_taunt(attacker, self, 1.5*persistent.battle_speed)
 
             time_stamps = sorted(self.timestamps.keys())
             st = time.time()
@@ -1476,14 +1485,14 @@ init -1 python: # Core classes:
         def time_attackers_first_action(self, battle, attacker):
             # Lets start with the very first part (attacker_action):
             self.timestamps[0] = renpy.curry(self.show_attackers_first_action)(battle, attacker)
-            delay = self.get_show_attackers_first_action_initial_pause() + self.attacker_effects.get("duration", 0)
-            hide_first_action = delay + self.attacker_action.get("keep_alive_delay", 0)
+            delay = self.get_show_attackers_first_action_initial_pause() + self.attacker_effects.get("duration", 0)*persistent.battle_speed
+            hide_first_action = delay + self.attacker_action.get("keep_alive_delay", 0)*persistent.battle_speed
             self.timestamps[hide_first_action] = renpy.curry(self.hide_attackers_first_action)(battle, attacker)
             return delay
 
         def show_attackers_first_action(self, battle, attacker):
             if self.attacker_action["gfx"] == "step_forward":
-                battle.move(attacker, battle.get_cp(attacker, xo=50), .5, pause=False)
+                battle.move(attacker, battle.get_cp(attacker, xo=50), .5*persistent.battle_speed, pause=False)
 
             sfx = self.attacker_action.get("sfx", None)
             if sfx:
@@ -1491,24 +1500,24 @@ init -1 python: # Core classes:
 
         def get_show_attackers_first_action_initial_pause(self):
             if self.attacker_action["gfx"] == "step_forward":
-                return .5
+                return .5*persistent.battle_speed
             else:
                 return 0
 
         def hide_attackers_first_action(self, battle, attacker):
             if self.attacker_action["gfx"] == "step_forward":
-                battle.move(attacker, attacker.dpos, .5, pause=False)
+                battle.move(attacker, attacker.dpos, .5*persistent.battle_speed, pause=False)
 
         def time_attackers_first_effect(self, battle, attacker, targets):
             start = self.get_show_attackers_first_action_initial_pause()
             if start in self.timestamps:
-                start = start + uniform(.001, .002)
+                start += uniform(.001, .002)
             self.timestamps[start] = renpy.curry(self.show_attackers_first_effect)(battle, attacker, targets)
 
             if self.attacker_effects["gfx"]:
-                effects_delay = start + self.attacker_effects.get("duration", 0)
+                effects_delay = start + self.attacker_effects.get("duration", 0)*persistent.battle_speed
                 if effects_delay in self.timestamps:
-                    effects_delay = effects_delay + uniform(.001, .002)
+                    effects_delay += uniform(.001, .002)
                 self.timestamps[effects_delay] = renpy.curry(self.hide_attackers_first_effect)(battle, attacker)
                 return effects_delay
 
@@ -1540,7 +1549,7 @@ init -1 python: # Core classes:
                     what = Transform(what, xzoom=-1)
                     align = (1.0 - align[0], align[1])
 
-                renpy.show("casting", what=what,  at_list=[Transform(pos=battle.get_cp(attacker, type=point, xo=xo, yo=yo), align=align)], zorder=attacker.besk["zorder"]+zorder)
+                renpy.show("casting", what=what, at_list=[Transform(pos=battle.get_cp(attacker, type=point, xo=xo, yo=yo), align=align)], zorder=attacker.besk["zorder"]+zorder)
 
             sfx = self.attacker_effects["sfx"]
             if sfx:
@@ -1554,16 +1563,18 @@ init -1 python: # Core classes:
 
         def time_main_gfx(self, battle, attacker, targets, start):
             if start in self.timestamps:
-                start = start + uniform(.001, .002)
+                start += uniform(.001, .002)
             self.timestamps[start] = renpy.curry(self.show_main_gfx)(battle, attacker, targets)
 
-            pause = start + self.main_effect["duration"]
+            pause = self.main_effect["duration"]
             # Kind of a shitty way of trying to handle attacks that come.
             # With their own pauses in time_main_gfx method.
             pause += getattr(self, "firing_effects", {}).get("duration", 0)
             pause += getattr(self, "projectile_effects", {}).get("duration", 0)
+            pause *= persistent.battle_speed
+            pause += start
             if pause in self.timestamps:
-                pause = pause + uniform(.001, .002)
+                pause += uniform(.001, .002)
 
             self.timestamps[pause] = renpy.curry(self.hide_main_gfx)(targets)
 
@@ -1634,15 +1645,15 @@ init -1 python: # Core classes:
 
         def time_target_sprite_damage_effect(self, targets, died, start):
             # We take previous start as basepoint for execution:
-            damage_effect_start = start + self.target_sprite_damage_effect["initial_pause"]
+            damage_effect_start = start + self.target_sprite_damage_effect["initial_pause"]*persistent.battle_speed
 
             if damage_effect_start in self.timestamps:
-                damage_effect_start = damage_effect_start + uniform(.001, .002)
+                damage_effect_start += uniform(.001, .002)
             self.timestamps[damage_effect_start] = renpy.curry(self.show_target_sprite_damage_effect)(targets)
 
-            delay = damage_effect_start + self.target_sprite_damage_effect["duration"]
+            delay = damage_effect_start + self.target_sprite_damage_effect["duration"]*persistent.battle_speed
             if delay in self.timestamps:
-                delay = delay + uniform(.001, .002)
+                delay += uniform(.001, .002)
 
             self.timestamps[delay] = renpy.curry(self.hide_target_sprite_damage_effect)(targets, died)
 
@@ -1760,15 +1771,15 @@ init -1 python: # Core classes:
             # Used to be .2 but it is a better idea to show
             # it after the attack gfx effects are finished
             # if no value was specified directly.
-            damage_effect_start = start + self.target_damage_effect["initial_pause"]
+            damage_effect_start = start + self.target_damage_effect["initial_pause"]*persistent.battle_speed
 
             if damage_effect_start in self.timestamps:
-                damage_effect_start = damage_effect_start + uniform(.001, .002)
+                damage_effect_start += uniform(.001, .002)
             self.timestamps[damage_effect_start] = renpy.curry(self.show_target_damage_effect)(targets, died)
 
             delay = damage_effect_start + self.get_target_damage_effect_duration()
             if delay in self.timestamps:
-                delay = delay + uniform(.001, .002)
+                delay += uniform(.001, .002)
 
             self.timestamps[delay] = renpy.curry(self.hide_target_damage_effect)(targets, died)
 
@@ -1828,13 +1839,12 @@ init -1 python: # Core classes:
 
             # Kind of a shitty way of trying to handle attacks that come
             # With their own pauses in time_main_gfx method.
-            firing = hasattr(self, "firing_effects")
             if hasattr(self, "firing_effects"):
                 duration += getattr(self, "firing_effects", {}).get("duration", 0)
                 duration += self.main_effect.get("duration")
             duration += getattr(self, "projectile_effects", {}).get("duration", 0)
 
-            return duration
+            return duration*persistent.battle_speed
 
         def hide_target_damage_effect(self, targets, died):
             for index, target in enumerate(targets):
@@ -1843,22 +1853,22 @@ init -1 python: # Core classes:
                     renpy.hide(tag)
 
         def time_target_death_effect(self, died, start):
-            death_effect_start = start + self.target_death_effect["initial_pause"]
+            death_effect_start = start + self.target_death_effect["initial_pause"]*persistent.battle_speed
 
             if death_effect_start in self.timestamps:
-                death_effect_start = death_effect_start + uniform(.001, .002)
+                death_effect_start += uniform(.001, .002)
             self.timestamps[death_effect_start] = renpy.curry(self.show_target_death_effect)(died)
 
-            delay = death_effect_start + self.target_death_effect["duration"]
+            delay = death_effect_start + self.target_death_effect["duration"]*persistent.battle_speed
             if delay in self.timestamps:
-                delay = delay + uniform(.001, .002)
+                delay += uniform(.001, .002)
 
             self.timestamps[delay] = renpy.curry(self.hide_target_death_effect)(died)
 
         def show_target_death_effect(self, died):
             gfx = self.target_death_effect["gfx"]
             sfx = self.target_death_effect["sfx"]
-            duration = self.target_death_effect["duration"]
+            duration = self.target_death_effect["duration"]*persistent.battle_speed
 
             if sfx:
                 renpy.sound.play(sfx)
@@ -1875,15 +1885,15 @@ init -1 python: # Core classes:
                 renpy.hide(target.betag)
 
         def time_bg_main_effect(self, start):
-            effect_start = start + self.bg_main_effect["initial_pause"]
+            effect_start = start + self.bg_main_effect["initial_pause"]*persistent.battle_speed
 
             if effect_start in self.timestamps:
-                effect_start = effect_start + uniform(.001, .002)
+                effect_start += uniform(.001, .002)
             self.timestamps[effect_start] = self.show_bg_main_effect
 
-            delay = effect_start + self.bg_main_effect["duration"]
+            delay = effect_start + self.bg_main_effect["duration"]*persistent.battle_speed
             if delay in self.timestamps:
-                delay = delay + uniform(.001, .002)
+                delay += uniform(.001, .002)
 
             self.timestamps[delay] = self.hide_bg_main_effect
 
@@ -1899,7 +1909,7 @@ init -1 python: # Core classes:
             elif gfx == "black":
                 renpy.with_statement(None)
                 renpy.show("bg", what=Solid("#000000"))
-                renpy.with_statement(dissolve)
+                renpy.with_statement(Dissolve(.5*persistent.battle_speed))
                 # renpy.pause(.5)
 
         def hide_bg_main_effect(self):
@@ -1909,7 +1919,7 @@ init -1 python: # Core classes:
             elif gfx == "black":
                 renpy.with_statement(None)
                 renpy.show("bg", what=battle.bg)
-                renpy.with_statement(dissolve)
+                renpy.with_statement(Dissolve(.5*persistent.battle_speed))
 
         def time_dodge_effect(self, targets, attacker, start):
             # effect_start = start - .3
@@ -1917,22 +1927,19 @@ init -1 python: # Core classes:
                 # effect_start = 0
 
             # Ok, so since we'll be using it for all kinds of attacks now, we need better timing controls:
-            effect_start = self.dodge_effect.get("initial_pause", None)
-            if effect_start is None:
-                effect_start = start - .3
-                if effect_start < 0:
-                    effect_start = 0
-            else:
-                effect_start = effect_start + start
+            effect_start = self.dodge_effect.get("initial_pause", -.3)*persistent.battle_speed
+            effect_start += start
+            if effect_start < 0:
+                effect_start = 0
 
             if effect_start in self.timestamps:
-                effect_start = effect_start + uniform(.001, .002)
+                effect_start += uniform(.001, .002)
             self.timestamps[effect_start] = renpy.curry(self.show_dodge_effect)(attacker, targets)
 
             # Hiding timing as well in our new version:
-            delay = effect_start + self.main_effect["duration"]
+            delay = effect_start + self.main_effect["duration"]*persistent.battle_speed
             if delay in self.timestamps:
-                delay = delay + uniform(.001, .002)
+                delay += uniform(.001, .002)
 
             self.timestamps[delay] = renpy.curry(self.hide_dodge_effect)(targets)
 
@@ -1952,11 +1959,11 @@ init -1 python: # Core classes:
                         xoffset = -100 if battle.get_cp(attacker)[0] > battle.get_cp(target)[0] else 100
 
                         # Figure out the pause:
-                        pause = self.main_effect["duration"]
-                        if pause < .5:
+                        pause = self.main_effect["duration"]-.5
+                        if pause < 0:
                             pause = 0
                         else:
-                            pause = pause - .5
+                            pause *= persistent.battle_speed
 
                         renpy.show(target.betag, what=target.besprite, at_list=[be_dodge(xoffset, pause)], zorder=target.besk["zorder"])
 

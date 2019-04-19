@@ -45,6 +45,8 @@ init -950 python:
         persistent.unsafe_mode = True
     if persistent.battle_results is None:
         persistent.battle_results = False
+    if persistent.battle_speed is None:
+        persistent.battle_speed = 1.0
     if persistent.auto_saves is None:
         persistent.auto_saves = False
     if persistent.intro is None:
@@ -439,7 +441,8 @@ init -950 python:
     del light, blend, fname, orientations, ori, wall, bgfname, fn_end, bg_img, tag, fg_img
 
     # Auto-Animations are last
-    def load_frame_by_frame_animations_from_dir(folder):
+    folder = path = dir = split_dir = len_split = folder_path = img_name = delay = loop = None
+    for folder in ("gfx/animations", "gfx/be/auto-animations"):
         path = content_path(folder)
         for dir in os.listdir(path):
             split_dir = dir.split(" ")
@@ -451,9 +454,7 @@ init -950 python:
             loop = bool(int(split_dir[2])) if len_split > 2 else False
 
             renpy.image(img_name, animate(folder_path, delay, loop=loop))
-
-    load_frame_by_frame_animations_from_dir("gfx/animations")
-    load_frame_by_frame_animations_from_dir("gfx/be/auto-animations")
+    del folder, path, dir, split_dir, len_split, folder_path, img_name, delay, loop
 
     colorprev = Color.__new__
     Color.__prev_new__ = classmethod(colorprev)

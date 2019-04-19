@@ -285,9 +285,9 @@ init python:
                 renpy.play("content/sfx/sound/be/poisoned.mp3", channel="audio")
                 txt = Text("%d"%damage, style="content_label", color="red", size=15)
                 renpy.show("bb", what=txt, at_list=[battle_bounce(store.battle.get_cp(t, type="tc", yo=-10))], zorder=t.besk["zorder"]+2)
-                renpy.pause(1.5)
+                renpy.pause(1.5*persistent.battle_speed)
                 renpy.hide("poison")
-                renpy.pause(.2)
+                renpy.pause(.2*persistent.battle_speed)
                 renpy.hide("bb")
 
             if t.health > damage:
@@ -362,7 +362,7 @@ init python:
 
             times = main_effect.get("times", 2)
             interval = main_effect.get("interval", .2)
-            sd_duration = main_effect.get("sd_duration", .3)
+            sd_duration = main_effect.get("sd_duration", .3)*persistent.battle_speed
             alpha_fade = main_effect.get("alpha_fade", .3)
             webm_size  = main_effect.get("webm_size", ())
 
@@ -450,7 +450,7 @@ init python:
             # We simply want to add projectile effect here:
             pro_gfx = self.projectile_effects["gfx"]
             pro_sfx = self.projectile_effects["sfx"]
-            pause = self.projectile_effects["duration"]
+            pause = self.projectile_effects["duration"]*persistent.battle_speed
 
             missle = Transform(pro_gfx, xzoom=-1, xanchor=1.0) if battle.get_cp(attacker)[0] > battle.get_cp(targets[0])[0] else pro_gfx
 
@@ -520,7 +520,7 @@ init python:
             # We simply want to add projectile effect here:
             pro_gfx = self.projectile_effects["gfx"]
             pro_sfx = self.projectile_effects["sfx"]
-            pause = self.projectile_effects["duration"]
+            pause = self.projectile_effects["duration"]*persistent.battle_speed
 
             target = targets[0]
 
@@ -572,12 +572,12 @@ init python:
         def __init__(self):
             super(ArrowsSkill, self).__init__()
 
-            self.firing_effects = { "gfx" : None, "sfx" : None, "duration": .1 }
+            self.firing_effects = { "gfx" : None, "sfx" : None, "duration": .6 }
 
         def show_main_gfx(self, battle, attacker, targets):
             firing_gfx = self.firing_effects["gfx"]
             firing_sfx = self.firing_effects["sfx"]
-            pause = self.firing_effects["duration"]
+            pause = self.firing_effects["duration"]*persistent.battle_speed
 
             bow = Transform(firing_gfx, zoom=-1, xanchor=1.0) if battle.get_cp(attacker)[0] > battle.get_cp(targets[0])[0] else firing_gfx
 
@@ -589,15 +589,12 @@ init python:
             castpos = battle.get_cp(attacker, type="fc", xo=30)
 
             renpy.show("casting", what=bow, at_list=[Transform(pos=castpos, yanchor=.5)], zorder=attacker.besk["zorder"]+50)
-            if pause > .6:
-                renpy.pause(pause)
-            else:
-                renpy.pause(.6)
+            renpy.pause(pause)
 
             # We simply want to add projectile effect here:
             pro_gfx = self.projectile_effects["gfx"]
             pro_sfx = self.projectile_effects["sfx"]
-            pause = self.projectile_effects["duration"]
+            pause = self.projectile_effects["duration"]*persistent.battle_speed
 
             missle = Transform(pro_gfx, zoom=-1, xanchor=1.0) if battle.get_cp(attacker)[0] > battle.get_cp(targets[0])[0] else pro_gfx
 

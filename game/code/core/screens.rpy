@@ -670,7 +670,7 @@ screen s_menu(s_menu="Settings", main_menu=False):
                         xsize 194
                         ypadding 8
                         style_group "dropdown_gm2"
-                        has vbox align (.5, .5)
+                        has vbox align (.5, .5) spacing 2
                         frame:
                             xsize 184
                             align (.5, .5)
@@ -684,7 +684,7 @@ screen s_menu(s_menu="Settings", main_menu=False):
                         xsize 194
                         ypadding 8
                         style_group "dropdown_gm2"
-                        has vbox align (.5, .5)
+                        has vbox align (.5, .5) spacing 2
                         frame:
                             xsize 184
                             align (.5, .5)
@@ -698,13 +698,12 @@ screen s_menu(s_menu="Settings", main_menu=False):
                         xsize 194
                         ypadding 10
                         style_group "dropdown_gm2"
-                        has vbox align (.5, .5)
+                        has vbox align (.5, .5) spacing 8
                         frame:
                             xsize 184
                             align (.5, .5)
                             background Frame(Transform("content/gfx/frame/stat_box_proper.png", alpha=.9), 10, 10)
                             text _("- Text Speed -") style "TisaOTMolxm"
-                        null height 8
                         bar value Preference("text speed") align (.5, .5)
 
                     frame:
@@ -728,7 +727,7 @@ screen s_menu(s_menu="Settings", main_menu=False):
                         xsize 194
                         ypadding 8
                         style_group "dropdown_gm2"
-                        has vbox align (.5, .5)
+                        has vbox align (.5, .5) spacing 2
                         frame:
                             xsize 184
                             align (.5, .5)
@@ -742,7 +741,7 @@ screen s_menu(s_menu="Settings", main_menu=False):
                         xsize 194
                         ypadding 8
                         style_group "dropdown_gm2"
-                        has vbox align (.5, .5)
+                        has vbox align (.5, .5) spacing 2
                         frame:
                             xsize 184
                             align (.5, .5)
@@ -773,7 +772,7 @@ screen s_menu(s_menu="Settings", main_menu=False):
                         ypadding 8
                         style_group "dropdown_gm2"
                         has vbox align (.5, .5)
-                        textbutton _("Begin Skipping") action Skip() xsize 150 text_size 16
+                        textbutton _("Begin Skipping") action Preference("begin skipping") xsize 150 text_size 16
 
                 # Right column...
                 frame:
@@ -789,7 +788,7 @@ screen s_menu(s_menu="Settings", main_menu=False):
 
                         ypadding 8
                         style_group "dropdown_gm2"
-                        has vbox align (.5, .5)
+                        has vbox align (.5, .5) spacing 2
                         frame:
                             xsize 184
 
@@ -804,13 +803,12 @@ screen s_menu(s_menu="Settings", main_menu=False):
                         xsize 194
                         ypadding 10
                         style_group "dropdown_gm2"
-                        has vbox align (.5, .5)
+                        has vbox align (.5, .5) spacing 8
                         frame:
                             xsize 184
                             align (.5, .5)
                             background Frame(Transform("content/gfx/frame/stat_box_proper.png", alpha=.9), 10, 10)
                             text _("- Music Volume -") align (.5, .0) style "TisaOTMolxm"
-                        null height 8
                         bar value Preference("music volume") align (.5, .5)
 
                     frame:
@@ -853,72 +851,78 @@ screen s_menu(s_menu="Settings", main_menu=False):
                         background Frame(Transform("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
                         xsize 194
                         ypadding 8
+                        $ msg = "{}\nPanic screen transforms your game window into a system-log. If enabled, press Q whenever you need it.".format("Active" if persistent.unsafe_mode else "Inactive")
                         textbutton _("Panic Screen"):
                             action ToggleField(persistent, "unsafe_mode"), tt.action("")
                             xsize 150
                             xalign .5
                             text_size 16
                             if main_menu or not persistent.tooltips:
-                                hovered tt.Action("{}\nPanic screen transforms your game window into a system-log. If enabled, press Q whenever you need it.".format("Active" if persistent.unsafe_mode else "Inactive"))
+                                hovered tt.Action(msg)
                             else:
-                                tooltip "{}\nPanic screen transforms your game window into a system-log. If enabled, press Q whenever you need it.".format("Active" if persistent.unsafe_mode else "Inactive")
+                                tooltip msg
                     frame:
                         background Frame(Transform("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
                         xsize 194
                         ypadding 8
+                        $ msg = "{}\nShows experience screen after combat.".format("Active" if persistent.battle_results else "Inactive")
                         textbutton _("Battle Results"):
                             action ToggleField(persistent, "battle_results"), tt.action("")
                             xsize 150
                             xalign .5
                             text_size 16
                             if main_menu or not persistent.tooltips:
-                                hovered tt.Action("{}\nShows experience screen after combat.".format("Active" if persistent.battle_results else "Inactive"))
+                                hovered tt.Action(msg)
                             else:
-                                tooltip "{}\nShows experience screen after combat.".format("Active" if persistent.battle_results else "Inactive")
+                                tooltip msg
                     frame:
                         background Frame(Transform("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
                         xsize 194
                         ypadding 8
+                        $ msg = "Use %s for targeting in battle engine." % ("menu" if persistent.use_be_menu_targeting else "pointer/arrows")
                         textbutton _("Combat Targeting"):
                             action ToggleField(persistent, "use_be_menu_targeting"), tt.action("")
                             xsize 150
                             xalign .5
                             text_size 16
                             if main_menu or not persistent.tooltips:
-                                hovered tt.Action("Use menu for targeting in battle engine.")
+                                hovered tt.Action(msg)
                             else:
-                                tooltip "Use arrows to target skills in battle engine."
+                                tooltip msg
                     frame:
                         background Frame(Transform("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
                         xsize 194
                         ypadding 8
+                        $ msg = "{}\nSaves your game progress every day. This can be slow, disable if it bothers you.".format("Active" if persistent.auto_saves else "Inactive")
                         textbutton _("AutoSaves"):
                             action ToggleField(persistent, "auto_saves"), tt.action("")
                             xsize 150
                             xalign .5
                             text_size 16
                             if main_menu or not persistent.tooltips:
-                                hovered tt.Action("{}\nSaves your game progress every day. This can be slow, disable if it bothers you.".format("Active" if persistent.auto_saves else "Inactive"))
+                                hovered tt.Action(msg)
                             else:
-                                tooltip "{}\nSaves your game progress every day. This can be slow, disable if it bothers you.".format("Active" if persistent.auto_saves else "Inactive")
+                                tooltip msg
                     frame:
                         background Frame(Transform("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
                         xsize 194
                         ypadding 8
+                        $ msg = "{}\nDisplay notifications as you make progress in Quests.".format("Active" if persistent.use_quest_popups else "Inactive")
                         textbutton _("Quest Pop-Up"):
                             action ToggleField(persistent, "use_quest_popups"), tt.action("")
                             xsize 150
                             xalign .5
                             text_size 16
                             if main_menu or not persistent.tooltips:
-                                hovered tt.Action("{}\nDisplay notifications as you make progress in Quests.".format("Active" if persistent.use_quest_popups else "Inactive"))
+                                hovered tt.Action(msg)
                             else:
-                                tooltip "{}\nDisplay notifications as you make progress in Quests.".format("Active" if persistent.use_quest_popups else "Inactive")
+                                tooltip msg
 
                     frame:
                         background Frame(Transform("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
                         xsize 194
                         ypadding 8
+                        $ msg = "New-style tooltips %s." % ("enabled" if persistent.tooltips else "disabled")
                         textbutton _("Tooltips"):
                             action ToggleField(persistent, "tooltips"), tt.action("Tooltips Disabled!")
                             xsize 150
@@ -926,11 +930,37 @@ screen s_menu(s_menu="Settings", main_menu=False):
                             text_size 16
                             if persistent.tooltips:
                                 if main_menu:
-                                    hovered tt.action("New-style tooltips enabled.")
+                                    hovered tt.Action(msg)
                                 else:
-                                    tooltip "New-style tooltips enabled."
+                                    tooltip msg
                             else:
-                                hovered tt.action("New-style tooltips disabled.")
+                                hovered tt.Action(msg)
+
+                    frame:
+                        background Frame(Transform("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
+                        xsize 194
+                        ypadding 10
+                        style_group "dropdown_gm2"
+                        has vbox align (.5, .5) spacing 8
+                        frame:
+                            xsize 184
+                            align (.5, .5)
+                            background Frame(Transform("content/gfx/frame/stat_box_proper.png", alpha=.9), 10, 10)
+                            text _("- Battle Speed -") style "TisaOTMolxm"
+                        if persistent.battle_speed == 1.0:
+                            $ msg = "Battle Animations run with the default speed."
+                        elif persistent.battle_speed > 1.0:
+                            $ msg = "Battle Animations run at half of the default speed."
+                        else:
+                            $ msg = "Battle Animations run %dX the default speed." % (1.0/persistent.battle_speed)
+                        bar:
+                            align (.5, .5)
+                            value FieldValue(BE_Core(), "battle_speed", range=4, offset=-1, step=1, max_is_zero=False, style="slider")
+                            changed renpy.restart_interaction
+                            if main_menu or not persistent.tooltips:
+                                hovered tt.Action(msg)
+                            else:
+                                tooltip msg
 
         elif s_menu in ("Save", "Load"):
             vbox:

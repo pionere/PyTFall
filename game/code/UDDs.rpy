@@ -37,7 +37,7 @@ init -960 python:
 
             renpy.redraw(self, 0)
 
-        def be_taunt(self, attacker, skill):
+        def be_taunt(self, attacker, skill, duration):
             if getattr(skill, "kind", None) != "assault":
                 return
 
@@ -89,7 +89,6 @@ init -960 python:
             kwargs["yoffset"] = -200
             kwargs["d"] = fixed
             kwargs["start"] = 0
-            duration = 1.5
             kwargs["duration"] = duration
             self.add_atl(char_stats_effect, duration, kwargs)
             # self.add_sfx("content/sfx/sound/events/bing.ogg", uniform(.5, 1.0))
@@ -658,9 +657,7 @@ init -960 python:
                 crop_ysize = int(round(self.height / float(self.crops)))
 
                 # The list:
-                i = 0
                 args = OrderedDict()
-                half = self.crops / 2.0
                 choices = range(*self.neg_range) + range(*self.pos_range)
 
                 for r in xrange(0, self.crops):
@@ -682,8 +679,8 @@ init -960 python:
                 coords = self.args[r]["coords"]
                 direction = self.args[r]["direction"]
                 render.blit(cr, tuple(coords))
-                coords[0] = coords[0] + direction[0]
-                coords[1] = coords[1] + direction[1]
+                coords[0] += direction[0]
+                coords[1] += direction[1]
             renpy.redraw(self, 0)
             return render
 

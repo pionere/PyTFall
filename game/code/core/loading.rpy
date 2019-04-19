@@ -809,7 +809,7 @@ init -11 python:
     def load_battle_skills():
         content = dict()
         battle_skills_data = load_db_json("battle_skills.json")
-        fx_maps = ("attacker_action", "attacker_effects", "main_effect", "dodge_effect", "target_sprite_damage_effect", "target_damage_effect", "target_death_effect", "bg_main_effect")
+        fx_maps = ("attacker_action", "attacker_effects", "firing_effects", "projectile_effects", "main_effect", "dodge_effect", "target_sprite_damage_effect", "target_damage_effect", "target_death_effect", "bg_main_effect")
 
         for skill in battle_skills_data:
             constructor = globals()[skill.pop("class")]
