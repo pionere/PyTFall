@@ -514,7 +514,7 @@ init -1 python: # Core classes:
                 # Lets render the teammembers:
                 for team in self.teams:
                     for member in team:
-                        member.portrait = member.char.show('portrait', resize=(118, 118), cache=True)
+                        member.portrait = member.char.show('portrait', resize=(112, 112), cache=True)
                         member.angry_portrait = member.char.show("portrait", "angry", resize=(65, 65), type='reduce', cache=True)
                         self.show_char(member, at_list=[Transform(pos=self.get_icp(team, member))])
 

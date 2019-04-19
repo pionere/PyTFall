@@ -286,18 +286,22 @@ screen battle_overlay(be):
 
     # be refers to battle core instance, we access the global directly atm.
     # Everything that is displayed all the time:
+    # Combat log:
     frame:
         align (.5, .99)
         background Frame("content/gfx/frame/MC_bg3.png", 10, 10)
         style "dropdown_gm_frame"
+        padding (10, 5)
         has viewport:
-            xysize (600, 50)
+            xysize (600, 55)
             scrollbars "vertical"
+            mousewheel True
+            draggable True
             has vbox
             for entry in reversed(battle.combat_log):
                 text entry style "stats_value_text" size 14 color "ivory"
 
-    # I'll need to condition this more appropriately later, for now this will do:
+    # Team members:
     hbox:
         spacing 2
         align .5, .01
@@ -309,22 +313,21 @@ screen battle_overlay(be):
                         profile_img = im.Sepia(profile_img)
                     except:
                         pass
-                portrait_frame = "content/gfx/frame/MC_bg3.png"
-                img = "content/gfx/frame/ink_box.png"
-                if battle.controller == member:
-                    portrait_frame = im.Twocolor(portrait_frame, "grey", "grey")
+                portrait_frame = "content/gfx/frame/mes11.webp"
+                if battle.controller != member:
+                    portrait_frame = Transform(portrait_frame, alpha=.25)
 
             frame:
                 style_prefix "proper_stats"
-                background Frame(Transform(img, alpha=.5), 5, 5)
+                background Frame(Transform("content/gfx/frame/ink_box.png", alpha=.5), 5, 5)
                 padding 5, 3
                 has hbox spacing 3
 
                 # Char Image:
                 frame:
-                    background Frame(portrait_frame, 5 ,5)
+                    background Frame(portrait_frame, 5, 5)
                     xysize 120, 120
-                    padding 2, 2
+                    padding 4, 4
                     yalign .5
                     add profile_img align .5, .5 alpha .96
 
