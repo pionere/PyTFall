@@ -29,7 +29,7 @@ label city_events_thugs_robbery:
                     $ hero.gfx_mod_stat("joy", -randint(0, 2))
             "No":
                 t "It's your choice. Don't blame me if something will happen."
-                $ register_event("city_events_thugs_robbery_attack", locations=["main_street", "city_parkgates", "graveyard_town"], dice=100, trigger_type = "look_around", priority = 1000, start_day=day+1, times_per_days=(1,2), jump=True)
+                $ register_event("city_events_thugs_robbery_attack", locations=["main_street", "city_parkgates", "graveyard_town", "village_town"], dice=100, trigger_type = "look_around", priority = 1000, start_day=day+1, times_per_days=(1,2), jump=True)
             "Attack him":
                 t "Oho, you have guts, I like it. Let's see what you can do against my boys!"
                 python hide:

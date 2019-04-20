@@ -51,6 +51,11 @@
             "pos": [388, 95]
         },
         {
+            "id": "village_town",
+            "name": "Town",
+            "pos": [385, 567]
+        },
+        {
             "id": "hiddenvillage_entrance",
             "name": "Hidden Village",
             "appearing": true,

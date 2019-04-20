@@ -29,6 +29,7 @@ label city:
                 $ global_flags.set_flag("keep_playing_music")
                 $ global_flags.del_flag("mc_home_location")
                 hide screen city_screen
+                with dissolve
                 jump mainscreen
         elif result[0] == 'location':
             hide screen city_screen
@@ -45,7 +46,7 @@ screen city_screen():
     key "mousedown_3" action Return(['control', 'return'])
 
     default loc_list = ["main_street", "arena_outside", "slave_market", "city_jail", "tavern_town",
-                        "city_parkgates", "academy_town", "mages_tower",
+                        "city_parkgates", "academy_town", "mages_tower", "village_town",
                         "graveyard_town", "city_beach", "forest_entrance", "hiddenvillage_entrance"]
     default selected = None
 
@@ -72,6 +73,7 @@ screen city_screen():
                 focus_mask True
                 tooltip key["name"]
                 action Return(['location', key["id"]])
+                alternate Return(['control', 'return'])
 
     add "content/gfx/frame/h2.webp"
 
