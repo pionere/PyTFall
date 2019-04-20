@@ -49,8 +49,19 @@ label city_beach_left:
 
 screen city_beach_left():
     use top_stripe(True)
+    use location_actions("city_beach_left")
 
-    if not gm.show_girls:
+    if gm.show_girls:
+        key "mousedown_3" action ToggleField(gm, "show_girls")
+
+        add "content/gfx/images/bg_gradient.webp" yalign .45
+
+        for entry, pos in zip(gm.display_girls(), gm.coords):
+            hbox:
+                align pos
+                use rg_lightbutton(return_value=['jump', entry])
+
+    else:
         # Jump buttons:
         $img = ProportionalScale("content/gfx/interface/icons/beach_cafe.png", 80, 80)
         imagebutton:
@@ -83,18 +94,6 @@ screen city_beach_left():
             hover (im.MatrixColor(img_beach_swim, im.matrix.brightness(.15)))
             action [Hide("city_beach_left"), Jump("mc_action_city_beach_rest")]
             tooltip "Rest"
-
-    use location_actions("city_beach_left")
-
-    if gm.show_girls:
-        key "mousedown_3" action ToggleField(gm, "show_girls")
-
-        add "content/gfx/images/bg_gradient.webp" yalign .45
-
-        for entry, pos in zip(gm.display_girls(), gm.coords):
-            hbox:
-                align pos
-                use rg_lightbutton(return_value=['jump', entry])
 
 label mc_action_city_beach_rest:
     show bg beach_rest with dissolve
@@ -339,6 +338,7 @@ label fishing_logic:
         "Try Fishing (-1 AP)":
             jump mc_action_beach_start_fishing
         "Nothing":
+            $ global_flags.set_flag("keep_playing_music")
             jump city_beach_left
 
 label mc_action_beach_start_fishing:

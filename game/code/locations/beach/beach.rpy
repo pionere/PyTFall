@@ -16,15 +16,14 @@ label city_beach:
 
     scene bg city_beach
     with dissolve
-    show screen city_beach
 
     if not global_flags.flag('visited_city_beach'):
         $ global_flags.set_flag('visited_city_beach')
-        $ block_say = True
         "Welcome to the beach!"
         "Sand, sun, and girls in bikinis, what else did you expect?"
         "Oh, we might have a Kraken hiding somewhere as well :)"
-        $ block_say = False
+
+    show screen city_beach
 
     $ pytfall.world_quests.run_quests("auto")
     $ pytfall.world_events.run_events("auto")
@@ -50,16 +49,25 @@ label city_beach:
         elif result[0] == 'control':
             if result[1] == 'return':
                 hide screen city_beach
+                with dissolve
                 jump city
 
 screen city_beach():
     use top_stripe(True)
+    use location_actions("city_beach")
 
-    if not gm.show_girls:
+    if gm.show_girls:
+        key "mousedown_3" action ToggleField(gm, "show_girls")
+
+        add "content/gfx/images/bg_gradient.webp" yalign .45
+        for entry, pos in zip(gm.display_girls(), gm.coords):
+            hbox:
+                align pos
+                use rg_lightbutton(return_value=['jump', entry])
+    else:
         # Jump buttons:
         $ img = im.Scale("content/gfx/interface/buttons/blue_arrow.png", 80, 80)
         imagebutton:
-            id "meow"
             align (.99, .5)
             idle (img)
             hover (im.MatrixColor(img, im.matrix.brightness(.15)))
@@ -87,17 +95,6 @@ screen city_beach():
             hover (im.MatrixColor(img_beach_swim, im.matrix.brightness(.15)))
             action [Hide("city_beach"), Show("city_beach_swim"), With(dissolve)]
             tooltip "Swim"
-
-    use location_actions("city_beach")
-
-    if gm.show_girls:
-        key "mousedown_3" action ToggleField(gm, "show_girls")
-
-        add "content/gfx/images/bg_gradient.webp" yalign .45
-        for entry, pos in zip(gm.display_girls(), gm.coords):
-            hbox:
-                align pos
-                use rg_lightbutton(return_value=['jump', entry])
 
 screen city_beach_swim():
     style_prefix "dropdown_gm"
