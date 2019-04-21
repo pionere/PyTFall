@@ -656,10 +656,10 @@ screen char_profile():
                 xalign .5 ypos 160
                 xysize 300, 90
                 background ProportionalScale("content/gfx/frame/frame_ap.webp", 300, 100)
-                $ temp = char.AP
+                $ temp = char.PP/100 # PP_PER_AP
                 if not char_is_controlled:
                     $ temp -= 1 # reduced AP is available when the character is hired
-                label ("[temp]"):
+                label str(temp):
                     pos (200, 0)
                     style "content_label"
                     text_color "ivory"

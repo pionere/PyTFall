@@ -33,7 +33,6 @@ init -1 python: # Core classes:
             self.attack_skills = char.attack_skills
             self.magic_skills = char.magic_skills
 
-            self.AP = char.AP
             self.PP = char.PP
 
             self.health = char.get_stat("health")
@@ -211,18 +210,14 @@ init -1 python: # Core classes:
 
         def take_pp(self):
             if self.PP < 10:
-                if self.AP <= 0:
-                    return False
-                self.PP += 100 # PP_PER_AP = 100
-                self.AP -= 1
+                return False
             self.PP -= 10
             return True
 
         def has_pp(self):
-            return self.AP > 0 or self.PP >= 10
+            return self.PP >= 10
 
         def restore_char(self):
-            self.char.AP = self.AP
             self.char.PP = self.PP
 
             self.char.set_stat("health", self.health)

@@ -534,7 +534,7 @@ init -9 python:
             if any("Injured" in char.effects,
                    char.get_stat("health") < char.get_max("health")/4,
                    char.get_stat("vitality") < char.get_max("vitality")/4,
-                   (char.AP*100 + char.PP) <= 200): # PP_PER_AP
+                   char.PP <= 200): # PP_PER_AP
                 if dice(max(status, 50)):
                     return False
                 return False, self.CAUGHT
@@ -545,7 +545,7 @@ init -9 python:
             def_team = Team(name="Guards", maxsize=3)
             for g in guards:
                 def_team.add(g)
-                member_aps.append((g.AP, g.PP))
+                member_aps.append(g.PP)
             off_team = Team(name="Runner", maxsize=1)
             off_team.add(char)
 
@@ -560,7 +560,7 @@ init -9 python:
                 for member, aps in zip(def_team, member_aps):
                     # Awards:
                     if member not in battle.corpses:
-                        aps = aps[0] - member.AP + (aps[1] - member.PP)/100.0 # PP_PER_AP = 100
+                        aps = (aps - member.PP)/100.0 # PP_PER_AP = 100
                         member.mod_exp(exp_reward(member, char, exp_mod=aps*.1))
                 char.mod_stat("joy", -randint(1, 5))
                 return False, self.FOUGHT

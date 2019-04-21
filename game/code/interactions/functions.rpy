@@ -76,8 +76,8 @@ init -11 python:
         char.up_counter("dnd_drunk_counter", count)
         if char.get_flag("dnd_drunk_counter", 0) >= 35 and not 'Drunk' in char.effects:
             char.enable_effect('Drunk')
-        elif 'Drunk' in char.effects and char.AP > 0 and not 'Drinker' in char.effects:
-            char.AP -= 1
+        elif 'Drunk' in char.effects and not 'Drinker' in char.effects:
+            char.take_ap(1)
         return
 
     # this function is used to check how many times a certain interaction was used during the current turn;
@@ -108,7 +108,7 @@ init -11 python:
             return False
         if not interactions_silent_check_for_bad_stuff(char):
             return False
-        if char.AP < 2:
+        if char.PP < 200: # PP_PER_AP
             return False
         if "Aggressive" in char.traits:
             base *= 2

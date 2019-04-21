@@ -41,7 +41,7 @@ label interactions_hireforsex: # we go to this label from GM menu hire for sex. 
         call interactions_sex_disagreement from _call_interactions_sex_disagreement
         jump girl_interactions
 
-    if char.get_stat("vitality") <= char.get_max("vitality")/4 or char.AP <= 0: # no sex with low vitality
+    if char.get_stat("vitality") <= char.get_max("vitality")/4 or not char.has_ap(): # no sex with low vitality
         call interactions_refused_because_tired from _call_interactions_refused_because_tired_2
         jump girl_interactions
 
@@ -167,7 +167,7 @@ label interactions_sex: # we go to this label from GM menu propose sex
     else:
         $ gender_disagreement = False
 
-    if char.get_stat("vitality") < char.get_max("vitality")/4 or char.AP <= 0:
+    if char.get_stat("vitality") < char.get_max("vitality")/4 or not char.has_ap():
         $ del gender_disagreement
         call interactions_refused_because_tired from _call_interactions_refused_because_tired_3
         jump girl_interactions
@@ -306,7 +306,7 @@ label interactions_sex_scene_begins: # here we set initial picture before the sc
     $ sex_count = guy_count = girl_count = together_count = cum_count = mast_count = 0 # these variable will decide the outcome of sex scene
     $ sex_prelude = False
     $ max_sex_scene_libido = sex_scene_libido = get_character_libido(char)
-    $ char.AP -= 1
+    $ char.take_ap(1)
 
     $ char.up_counter("flag_int_had_sex_with_mc")
 

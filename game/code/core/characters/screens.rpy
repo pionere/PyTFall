@@ -638,11 +638,7 @@ screen show_trait_info_content(trait=None, place="girl_trait", elemental_mode=Fa
                         if trait_info.mod_ap:
                             frame:
                                 xysize 170, 20
-                                $ output = "AP"
-                                if trait_info.mod_ap > 0:
-                                    $ output += " +" + str(trait_info.mod_ap)
-                                else:
-                                    $ output += str(trait_info.mod_ap)
+                                $ output = "AP %+d" % trait_info.mod_ap
                                 text (output) align .5, .5 size 15 color "yellowgreen" text_align .5 outlines [(1, "black", 0, 0)]
 
                         if hasattr(trait_info, "evasion_bonus"):

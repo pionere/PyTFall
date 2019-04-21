@@ -59,7 +59,7 @@ init -11 python:
     def be_hero_escaped(team):
         '''Punish team for escaping'''
         for i in team:
-            i.AP = 0
+            i.PP = 0
             mod_by_max(i, "vitality", -.3)
             mod_by_max(i, "mp", -.3)
 
@@ -92,7 +92,7 @@ init -11 python:
         for member in enemy_team:
             member.controller = Complex_BE_AI(member)
 
-        pre_aps = [(member.AP, member.PP) for member in your_team]
+        pre_aps = [member.PP for member in your_team]
 
         global battle
         battle = BE_Core(background, start_sfx=get_random_image_dissolve(1.5),
@@ -126,7 +126,7 @@ init -11 python:
 
                 ap_used = {}
                 for member, aps in zip(your_team, pre_aps):
-                    ap_used[member] = aps[0] - member.AP + (aps[1] - member.PP)/100.0 # PP_PER_AP = 100
+                    ap_used[member] = (aps - member.PP)/100.0 # PP_PER_AP = 100
 
                 if persistent.battle_results:
                     renpy.call_screen("give_exp_after_battle", your_team, enemy_team, ap_used)

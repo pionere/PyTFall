@@ -120,25 +120,25 @@ screen city_tavern_inside():
                 yalign .5
                 action [Hide("city_tavern_inside"), Jump("city_tavern_shopping")]
                 text "Buy a drink" size 15
-            if hero.AP > 0 and global_flags.flag("tavern_status")[1] == "lively":
+            if hero.has_ap() and global_flags.flag("tavern_status")[1] == "lively":
                 button:
                     xysize (120, 40)
                     yalign .5
                     action [Hide("city_tavern_inside"), Jump("mc_action_tavern_look_around")]
                     text "Look around" size 15
-            if hero.AP > 0 and global_flags.flag("tavern_status")[1] == "cozy" and not hero.has_flag("dnd_rest_in_tavern"):
+            if hero.has_ap() and global_flags.flag("tavern_status")[1] == "cozy" and not hero.has_flag("dnd_rest_in_tavern"):
                 button:
                     xysize (120, 40)
                     yalign .5
                     action [Hide("city_tavern_inside"), Jump("mc_action_tavern_relax")]
                     text "Relax" size 15
-            if hero.AP > 0 and global_flags.flag("tavern_status")[1] == "cozy":
+            if hero.has_ap() and global_flags.flag("tavern_status")[1] == "cozy":
                 button:
                     xysize (120, 40)
                     yalign .5
                     action [Hide("city_tavern_inside"), Jump("city_tavern_play_dice")]
                     text "Blackjack" size 15
-            if hero.AP > 0 and global_flags.flag("tavern_status")[1] == "cozy":
+            if hero.has_ap() and global_flags.flag("tavern_status")[1] == "cozy":
                 button:
                     xysize (120, 40)
                     yalign .5
@@ -241,6 +241,7 @@ label mc_action_tavern_look_around: # various bonuses to theoretical skills for 
             "A group of local fishermen celebrating a good catch in the corner. You join them, and they share a few secrets about fishing with you."
             $ hero.gfx_mod_skill("fishing", 1, randint(2, 5))
             hide sign with dissolve
+            $ del name
         elif N == "sex":
             $ character = random.choice(chars.values())
             $ picture = character.show("sex", resize=(500, 600))
@@ -248,6 +249,7 @@ label mc_action_tavern_look_around: # various bonuses to theoretical skills for 
             "A group of drunk young men and women boasting about their sexual feats. Most of the feats never happened, but you still got a few interesting ideas."
             $ hero.gfx_mod_skill("sex", 1, randint(1, 3))
             hide sign with dissolve
+            $ del character, picture
         else:
             show expression "content/gfx/interface/icons/exp.webp" as sign at truecenter with dissolve
             "You are sharing fresh rumors with patrons over a beer."

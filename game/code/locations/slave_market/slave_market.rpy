@@ -80,11 +80,10 @@ label slave_market_controls:
     python:
         # Build the actions
         if pytfall.world_actions.location("slave_market"):
-            pytfall.world_actions.slave_market(pytfall.sm, index=0)
+            pytfall.world_actions.slave_market(0, pytfall.sm)
             pytfall.world_actions.add(1, "Free Slaves", Jump("sm_free_slaves"))
-            pytfall.world_actions.add(2, "Find Blue", Jump("blue_menu"), condition=Iff(global_flag_complex("visited_sm")))
-            pytfall.world_actions.work(Iff(global_flag_complex("visited_sm")),
-                                       index=100, name="Work all day", returned="mc_action_work_in_slavemarket_all_day")
+            pytfall.world_actions.add(2, "Find Blue", Jump("blue_menu"))
+            pytfall.world_actions.work(100, name="Work", returned="work")
 
             pytfall.world_actions.look_around(index=1000)
             pytfall.world_actions.finish()
@@ -111,10 +110,7 @@ label slave_market_controls:
                 hide screen slave_shopping
         elif result[0] == "control":
             if result[1] == "work":
-                $ use_ap = 1
-                jump mc_action_work_in_slavemarket
-            elif result[1] == "mc_action_work_in_slavemarket_all_day":
-                $ use_ap = hero.AP
+                hide screen slavemarket
                 jump mc_action_work_in_slavemarket
             elif result[1] == "jumpclub":
                 hide screen slavemarket
@@ -205,6 +201,15 @@ label sm_free_slaves:
     jump slave_market_controls
 
 label mc_action_work_in_slavemarket:
+    menu:
+        "What do you want to do?"
+        "Work 1AP" if hero.has_ap():
+            $ use_ap = 1
+        "Work all day" if hero.PP >= 200: # PP_PER_AP
+            $ use_ap = hero.PP/100        # PP_PER_AP
+        "Nothing":
+            jump slave_market_controls
+
     pause 0.01
 
     if dice(50):
@@ -215,7 +220,6 @@ label mc_action_work_in_slavemarket:
         $ hero.say(choice(["What a boring job...",
                            "There's gotta be faster way to make money..."]))
 
-label mc_action_work_in_slavemarket_reward:
     python:
         result = 0
         for skill in STATIC_CHAR.SEX_SKILLS:

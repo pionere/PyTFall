@@ -287,25 +287,20 @@ init -10 python:
             if at least one teammate doesn't have enough AP, AP won't decrease,
             and function will return False, otherwise True
             """
-            for i in self._members:
-                if i.AP < value:
-                    return False
-            for i in self._members:
-                i.AP -= value
-            return True
+            value *= 100 # PP_PER_AP
+            return self.take_pp(value)
 
         def take_pp(self, value):
             """
             Checks the whole team for enough PP;
             if at least one teammate doesn't have enough PP, PP won't decrease,
             and function will return False, otherwise True
-            WARNING: only values lower than an AP are supported for the moment!
             """
             for i in self._members:
-                if i.AP <= 0 and i.PP < value:
+                if i.PP < value:
                     return False
             for i in self._members:
-                i.take_pp(value)
+                i.PP -= value
             return True
 
         # BE Related:
@@ -587,7 +582,7 @@ init -10 python:
             # Only for body traits:
             if trait.body:
                 if trait.mod_ap:
-                    char.baseAP += trait.mod_ap
+                    char.basePP += trait.mod_ap * 100 # PP_PER_AP
 
             for key, value in trait.max.iteritems():
                 stats.max[key] += value
@@ -598,7 +593,7 @@ init -10 python:
             for entry in trait.blocks:
                 self.blocked_traits.add(entry)
 
-            # For now just the girls get effects...
+            # For now just the chars get effects...
             if hasattr(char, "effects"):
                 for entry in trait.effects:
                     char.enable_effect(entry)
@@ -669,7 +664,7 @@ init -10 python:
                     blocks.update(entry.blocks)
                 self.blocked_traits = blocks
 
-            # For now just the girls get effects...
+            # For now just the chars get effects...
             if isinstance(char, Char):
                 for entry in trait.effects:
                     char.disable_effect(entry)
@@ -880,7 +875,7 @@ init -10 python:
         def settle_wage(self, txt, mood):
             """
             Settle wages between player and chars.
-            Called during next day method per each individual girl.
+            Called during next day method per each individual worker.
             """
             char = self.instance
 
@@ -896,7 +891,7 @@ init -10 python:
                     return mood
                 temp += " And yet... you chose to pay %s %d%% of the fair wage (%d Gold)!" % (char.op, real_wagemod, paid_wage)
                 txt.append(temp)
-            else: # Free girls:
+            else: # Free chars:
                 expected_wage = char.expected_wage
                 temp = choice(["%s expects to be compensated for %s services ({color=gold}%d Gold{/color})." % (char.pC, char.pp, expected_wage),
                                "%s expects to be paid a wage of {color=gold}%d Gold{/color}." % (char.pC, expected_wage)])
@@ -904,7 +899,7 @@ init -10 python:
                 temp += " You chose to pay %s %d%% of that! ({color=gold}%d Gold{/color})" % (char.pp, real_wagemod, paid_wage)
                 txt.append(temp)
 
-            if not paid_wage: # Free girl with 0% wage mod
+            if not paid_wage: # Free char with 0% wage mod
                 txt.append("You paid %s nothing..." % char.op)
             elif hero.take_money(paid_wage, reason="Wages"):
                 self.add_money(paid_wage, reason="Wages")
@@ -919,7 +914,7 @@ init -10 python:
                     return mood
 
             # So... if we got this far, we're either talking slaves that player
-            # chose to pay a wage or free girls who expect that.
+            # chose to pay a wage or free chars who expect that.
             if char.status == "free":
                 if got_paid:
                     diff = real_wagemod - 100 # We expected 100% of the wage at least.

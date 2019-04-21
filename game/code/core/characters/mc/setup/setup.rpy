@@ -127,7 +127,7 @@ label mc_setup_end:
                 elif temp == "magic_skill":
                     give_tiered_magic_skills(hero, amount=1)
                 elif temp == "ap":
-                    hero.baseAP += 1
+                    hero.basePP += 100 # PP_PER_AP
                 elif isinstance(temp, list) and len(temp) > 1:
                     t = temp[0]
                     if t == "scrolls":

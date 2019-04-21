@@ -241,7 +241,7 @@ init -1 python:
             # If the action costs AP:
             if not free:
                 # If we have no more points
-                if hero.PP < 25 and hero.AP <= 0:
+                if hero.PP < 25:
                     renpy.show_screen("message_screen", "You don't have time (Action Points) for that!")
                     return
                 if not self.char.take_pp(25):

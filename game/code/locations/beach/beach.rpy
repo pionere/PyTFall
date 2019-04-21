@@ -137,7 +137,7 @@ label city_beach_swimming_checks:
     else:
         if hero.get_stat("vitality") < 30:
             "You are too tired at the moment."
-        elif hero.AP <= 0:
+        elif not hero.has_ap():
             "You don't have Action Points at the moment. Try again tomorrow."
         elif hero.get_stat("health") < hero.get_max("health")/4:
             "You are too wounded at the moment."
@@ -148,7 +148,7 @@ label city_beach_swimming_checks:
     jump city_beach
 
 label mc_action_hero_ocean_skill_checks:
-    $ hero.AP -= 1
+    $ hero.take_ap(1)
     if locked_dice(20):
         $ narrator ("A group of sea monsters surrounded you!")
         if hero.get_skill("swimming") < 50:

@@ -345,7 +345,7 @@ label mc_action_beach_start_fishing:
     if not has_items("Fishing Pole", hero, equipped=True):
         "You don't have an equipped fishing rod at the moment. Try to get one from local shops."
         jump city_beach_left
-    elif hero.AP <= 0:
+    elif not hero.has_ap():
         "You don't have Action Points left. Try again tomorrow."
         jump city_beach_left
     else:
@@ -385,7 +385,7 @@ label mc_action_beach_start_fishing:
                     $ global_flags.set_flag("keep_playing_music")
                     jump city_beach_left
 
-        $ hero.AP -= 1
+        $ hero.take_ap(1)
 
         while fishing_attempts > 0:
             $ fishing_attempts -= 1

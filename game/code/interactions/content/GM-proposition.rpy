@@ -67,7 +67,7 @@ label interactions_sparring: # sparring with MC, for Combatant occupations only
 
     $ last_track = renpy.music.get_playing("world")
     python hide:
-        pre_aps = (char.AP, char.PP)
+        pre_aps = char.PP
         back = interactions_pick_background_for_fight(gm.label_cache)
 
         enemy_team = Team(name="Enemy Team")
@@ -82,7 +82,7 @@ label interactions_sparring: # sparring with MC, for Combatant occupations only
         if result is True:
             char.gfx_mod_stat("disposition", randint(15, 30))
         elif result is False:
-            ap_used = pre_aps[0] - char.AP + (pre_aps[1] - char.PP)/100.0 # PP_PER_AP = 100
+            ap_used = (pre_aps - char.PP)/100.0 # PP_PER_AP = 100
             char.gfx_mod_exp(exp_reward(char, hero, exp_mod=ap_used))
             char.gfx_mod_stat("disposition", randint(2, 5))
 

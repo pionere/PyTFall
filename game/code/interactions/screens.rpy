@@ -384,7 +384,7 @@ screen girl_interactions():
                 # null height 60
                 # text "{color=white}Mode: [gm.mode]"
                 # text "{color=white}Label: [gm.jump_cache]"
-                # text ("{color=white}Girl.AP: [gm.char.AP] / %s"%gm.char.setAP)
+                # text ("{color=white}Girl.PP: [gm.char.PP] / %s"%gm.char.setPP)
                 # text "{color=white}Points: [hero.PP]"
 
 
@@ -440,7 +440,7 @@ screen girl_interactions():
                                         add img align (.0, .9)
                                 null width 10
                                 text "[item.id]" yalign .5 style "library_book_header_sub" color "ivory"
-                            sensitive (hero.AP > 0 or hero.PP >= 25) 
+                            sensitive (hero.PP >= 25) 
                             action Return(["gift", item])
 
                 null height 10

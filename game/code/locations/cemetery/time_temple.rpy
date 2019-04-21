@@ -101,7 +101,7 @@ label time_temple:
                 t "I can return you the time you spent. But it's an expensive procedure."
                 "Miel can restore your action points, as long as you can pay for it."
                 "Only you can use this option, your teammates are not affected."
-            if hero.AP >= hero.setAP:
+            if hero.PP >= hero.setPP:
                 "Your action points are maxed out already at the moment."
                 jump time_temple_menu
             if hero.gold < 100000:
@@ -121,8 +121,7 @@ label time_temple:
                             renpy.hide("forest")
                             renpy.with_statement(Dissolve(.4))
 
-                            hero.AP = hero.setAP
-                            hero.PP = 0
+                            hero.PP = hero.setPP
                         t "Your time has been returned to you. Come again if you need me."
                     "No":
                         $ pass

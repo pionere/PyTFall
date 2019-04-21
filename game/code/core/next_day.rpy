@@ -114,7 +114,7 @@ init python:
 
     def auto_rest_conditions(char):
         # returns True if a char can go AutoResting, False if not.
-        return isinstance(char.action, Rest) and char.is_available and char.AP > 0
+        return isinstance(char.action, Rest) and char.is_available and char.PP > 0
 
 
 label next_day:

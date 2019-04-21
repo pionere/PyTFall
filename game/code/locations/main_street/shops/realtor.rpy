@@ -49,19 +49,15 @@ label realtor_agency:
         $ result = ui.interact()
 
         if result[0] == 'buy':
-            if hero.AP > 0 and hero.take_money(result[1].price, reason="Property"):
-                $ hero.AP -= 1
+            if not hero.has_ap():
+                $ renpy.call_screen('message_screen', "You don't have enough Action Points!")
+            elif not hero.take_money(result[1].price, reason="Property"):
+                $ renpy.call_screen('message_screen', "You don't have enough Gold!")
+            else:
+                $ hero.take_ap(1)
                 $ renpy.play("content/sfx/sound/world/purchase_1.ogg")
                 $ hero.add_building(result[1])
                 $ market_buildings.remove(result[1])
-
-                if hero.AP <= 0:
-                    jump realtor_exit
-            else:
-                if hero.AP <= 0:
-                    $ renpy.call_screen('message_screen', "You don't have enough Action Points!")
-                else:
-                    $ renpy.call_screen('message_screen', "You don't have enough Gold!")
         elif result[0] == 'control':
             if result[1] == 'return':
                 jump realtor_exit

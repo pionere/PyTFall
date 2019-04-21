@@ -254,9 +254,9 @@ init -6 python: # Guild, Tracker and Log.
                         self.green_flag = True
 
                 for char in team:
-                    #char.AP -= round_int(char.setAP*ratio)
-                    #if char.AP < 0:
-                    #    char.AP = 0
+                    #char.PP -= round_int(char.setPP*ratio)
+                    #if char.PP < 0:
+                    #    char.PP = 0
                     char.set_flag("dnd_back_from_track")
                 charmod = self.team_charmod
             else:

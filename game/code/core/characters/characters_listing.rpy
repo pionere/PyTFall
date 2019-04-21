@@ -24,16 +24,16 @@ init:
             def refresh(self):
                 # prepare the filters
                 self.update_filter_sets()
-                # update the girls list only if no filter was selected
+                # update the chars list only if no filter was selected
                 if not self.selected_filters:
                     self.source.filter()
-                # remove selected girls which are no longer available
-                gone_girls = []
+                # remove selected chars which are no longer available
+                gone_chars = []
                 for c in self.the_chosen:
                     if not (c.is_available and c in hero.chars):
-                        gone_girls.append(c)
-                if gone_girls:
-                    self.the_chosen -= gone_girls
+                        gone_chars.append(c)
+                if gone_chars:
+                    self.the_chosen -= gone_chars
 
             def next(self):
                 self.page += 1
@@ -275,8 +275,9 @@ screen chars_list():
                             align 1.0, .6 xoffset 5
                             hbox:
                                 xsize 60
+                                $ temp = c.PP/100 # PP_PER_AP
                                 text "AP:" xalign .0 color "ivory"
-                                text "[c.AP]" xalign .1 color "ivory"
+                                text str(temp) xalign .1 color "ivory"
                             hbox:
                                 xsize 60
                                 text "Tier:" xalign .0 color "ivory"

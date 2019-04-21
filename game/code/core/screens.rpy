@@ -259,8 +259,8 @@ screen top_stripe(show_return_button=True, return_button_action=None, show_lead_
             xalign .45
             spacing 5
             # Remaining AP:
-            $ tt_string = "You have %s Action %s" % (hero.AP, plural("Point", hero.AP))
-            $ pp_h = hero.PP
+            $ ap_h, pp_h = hero.ap_pp
+            $ tt_string = "You have %s Action %s" % (ap_h, plural("Point", ap_h))
             if pp_h:
                 $ tt_string += " and %s Partial (Action) %s" % (pp_h, plural("Point", pp_h))
             $ tt_string += " to interact with the world!"
@@ -274,7 +274,7 @@ screen top_stripe(show_return_button=True, return_button_action=None, show_lead_
                 hbox:
                     yalign .1
                     xpos 105
-                    label "[hero.AP]":
+                    label "%d"%ap_h:
                         style "content_label"
                         text_size 23
                         text_color "ivory"
@@ -409,7 +409,7 @@ screen team_status(allow_status_to_work=True, pos=(17, 50)):
                                 hover (im.MatrixColor(char_profile_img, im.matrix.brightness(.15)))
                                 action SensitiveIf(allow_status_to_work), Return(member)
 
-                            $ ap_h, pp_h = member.AP, member.PP
+                            $ ap_h, pp_h = member.ap_pp
                             $ tt_string = "%s has %s Action %s" % (member.nickname, ap_h, plural("Point", ap_h))
                             if pp_h:
                                 $ tt_string += " and %s Partial (Action) %s" % (pp_h, plural("Point", pp_h))

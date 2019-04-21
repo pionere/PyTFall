@@ -44,14 +44,14 @@ label forest_entrance:
 label mc_action_wood_cutting:
     if not has_items("Woodcutting Axe", hero, equipped=True):
         "You need an equipped Woodcutting Axe before doing anything."
-    elif hero.AP <= 0:
+    elif not hero.has_ap():
         "You don't have Action Points left. Try again tomorrow."
     elif hero.get_stat("vitality") < 50:
         "You are too tired for that."
     else:
         "You grab your axe and start working."
         $ wood = (hero.get_stat("constitution")+hero.get_stat("attack")) // 10 + randint(1, 2)
-        $ hero.AP -= 1
+        $ hero.take_ap(1)
         $ hero.mod_stat("vitality", -50)
         if dice(50):
             $ hero.gfx_mod_stat("attack", randint(0, 2))

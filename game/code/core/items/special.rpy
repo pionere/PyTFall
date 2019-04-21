@@ -277,7 +277,7 @@ label special_items_flashing_extract:
     else:
         $ eqtarget.set_flag("drunk_flashing_extract")
         $ renpy.show_screen('message_screen', "[eqtarget.name] becomes a bit faster (+1 AP).")
-        $ eqtarget.baseAP += 1
+        $ eqtarget.basePP += 100 # PP_PER_AP
         play events "events/item_3.wav"
         jump char_equip
 

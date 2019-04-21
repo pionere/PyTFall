@@ -345,8 +345,7 @@ screen battle_overlay(be):
                         text_color ("pink" if isinstance(member, Char) else "ivory")
 
                     # AP, PP
-                    $ ap = member.AP
-                    $ pp = member.PP
+                    $ ap, pp = member.ap_pp
                     fixed:
                         ysize 25
                         yoffset -4

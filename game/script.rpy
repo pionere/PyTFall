@@ -687,6 +687,8 @@ label after_load:
             clearCharacters = True
         if hero.front_row.__class__ != int:
             clearCharacters = True
+        if hasattr(hero, "baseAP"):
+            clearCharacters = True
         if not hasattr(hero, "PP"):
             hero.PP = store.gm.gm_points * 25
             del store.gm.gm_points
@@ -1023,6 +1025,14 @@ label after_load:
                     del char.jobpoints
                     if char not in hero.chars:
                         char.baseAP += 1 
+
+                if hasattr(char, "baseAP"):
+                    char.basePP = char.baseAP*100 # PP_PER_AP
+                    del char.baseAP
+                    char.setPP = char.setAP*100 # PP_PER_AP
+                    del char.setAP
+                    char.PP += char.AP*100 # PP_PER_AP
+                    del char.AP
 
                 if char.has_flag("drunk_counter"):
                     char.set_flag("dnd_drunk_counter", char.get_flag("drunk_counter"))

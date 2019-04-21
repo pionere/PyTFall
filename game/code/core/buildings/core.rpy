@@ -801,7 +801,6 @@ init -10 python:
                 # This basically roots out Resting/None chars!
                 workers = [w for w in self.all_workers if w.is_available and w.task is None]
                 for w in workers:
-                    convert_ap_to_jp(w)
                     if w != hero:
                         w.action.auto_equip(w)
                 self.available_workers = workers

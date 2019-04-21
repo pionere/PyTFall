@@ -45,10 +45,10 @@ label test_be:
 
         if len(hero.team) != 3 and h not in hero.team:
             hero.team.add(h)
-        h.AP = 6
+        h.restore_ap()
         if len(hero.team) != 3 and n not in hero.team:
             hero.team.add(n)
-        n.AP = 6
+        n.restore_ap()
 
         for i in hero.team:
             i.set_stat("health", i.get_max("health"))
@@ -121,10 +121,10 @@ label test_be_logical:
 
         if len(hero.team) != 3 and h not in hero.team:
             hero.team.add(h)
-        h.AP = 6
+        h.restore_ap()
         if len(hero.team) != 3 and n not in hero.team:
             hero.team.add(n)
-        n.AP = 6
+        n.restore_ap()
         # ImageReference("chainfights")
         battle = BE_Core(logical=True)
         battle.teams.append(hero.team)

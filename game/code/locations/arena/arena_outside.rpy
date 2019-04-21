@@ -377,7 +377,7 @@ label arena_practice_loop:
                     mob = build_mob("Malicious Stone", level)
                     mob.battle_sprite = "content/items/misc/std.png"
                     mob.nickname = mob.name = "Training Dummy"
-                    mob.AP = 0
+                    mob.PP = 0
                     mob.controller = BE_AI(mob)
                 else:
                     mob = build_mob(mob["id"], level)

@@ -134,9 +134,8 @@ init -5 python:
             # Any Char without impairments should recover health and vitality in 3 days fully.
             # About 5 days for full mp recovery.
             # TODO Maybe use home bonuses???
-            convert_ap_to_jp(worker)
             jp = worker.PP
-            init_jp = worker.setAP*100
+            init_jp = worker.setPP
 
             ratio = float(jp)/(init_jp or 300)
 

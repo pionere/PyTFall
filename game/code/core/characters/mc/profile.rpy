@@ -444,7 +444,8 @@ screen hero_profile():
     frame:
         align .5, .95
         background ProportionalScale("content/gfx/frame/frame_ap2.webp", 190, 80)
-        label "[hero.AP]":
+        $ temp = hero.PP / 100 # PP_PER_AP
+        label str(temp):
             pos (130, -2)
             style "content_label"
             text_color "ivory"

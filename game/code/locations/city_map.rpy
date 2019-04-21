@@ -115,8 +115,8 @@ screen city_screen():
 
     ### ----> Mid buttons <---- ###
     add "coin_top" pos (1015, 58)
-    $ g = gold_text(hero.gold)
-    text g size 18 color "gold" pos (1052, 62) outlines [(1, "#3a3a3a", 0, 0)]
+    $ temp = gold_text(hero.gold)
+    text temp size 18 color "gold" pos (1052, 62) outlines [(1, "#3a3a3a", 0, 0)]
     button:
         style "sound_button"
         pos (1138, 55)
@@ -127,7 +127,8 @@ screen city_screen():
         false=[Preference("sound mute", "enable"), Preference("music mute", "enable")])]
 
     add ProportionalScale("content/gfx/frame/frame_ap.webp", 155, 50) pos (1040, 90)
-    text "[hero.AP]" style "TisaOTM" color "#f1f1e1" size 24 outlines [(1, "#3a3a3a", 0, 0)] pos (1143, 85)
+    $ temp = hero.PP / 100 # PP_PER_AP
+    text str(temp) style "TisaOTM" color "#f1f1e1" size 24 outlines [(1, "#3a3a3a", 0, 0)] pos (1143, 85)
     fixed:
         pos (1202, 99)
         xsize 72

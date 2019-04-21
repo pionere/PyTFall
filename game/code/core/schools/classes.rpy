@@ -109,11 +109,11 @@ init python:
                     self.build_nd_report(char, type="failed_to_pay", txt=txt)
                     continue
 
-                ap_spent = char.AP
+                ap_spent = char.PP/100 # PP_PER_AP
                 if ap_spent != 0:
                     self.students_progress[char] += 1
                     completed = self.days_to_complete == self.students_progress[char]
-                    char.AP = 0
+                    char.take_ap(ap_spent)
                     school.students_attended += 1
 
                     primary_stats = []

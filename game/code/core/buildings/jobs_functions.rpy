@@ -1,9 +1,4 @@
 init -10 python:
-    def convert_ap_to_jp(char):
-        # Do not convert AP when Char is in school.
-        char.PP += char.AP*100 # += is safer here. PP_PER_AP
-        char.AP = 0
-
     def payout(job, effectiveness, difficulty, building, business, worker, clients, log):
         """
         Calculates payout for jobs based of effectiveness and other modifications.
@@ -142,7 +137,7 @@ init -10 python:
 
         AP check is optional and if True, also checks for action points.
         """
-        # We do not want girls in school to AutoRest,
+        # We do not want workers in school to AutoRest,
         # Idea is that the school is taking care of this.
         if c.action.__class__ in [StudyingJob, ExplorationJob]:
             return True
@@ -183,7 +178,7 @@ init -10 python:
                 if log:
                     log.append("And going to take few days off to recover. ")
         if check_ap:
-            if c.AP <= 0 and c.PP <= 0:
+            if c.PP <= 0:
                 return False
 
         return True

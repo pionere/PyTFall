@@ -168,7 +168,7 @@ init -9 python:
                     return False
                 if day+1 in member.fighting_days:
                     return False
-                if member.AP < 2:
+                if member.PP < 200: # PP_PER_AP
                     return False
 
             return True
@@ -839,7 +839,7 @@ init -9 python:
 
             member_aps = []
             for member in hero.team:
-                member_aps.append((member.AP, member.PP))
+                member_aps.append(member.PP)
 
             renpy.music.stop(channel="world")
             global battle
@@ -865,7 +865,7 @@ init -9 python:
                 for member, aps in zip(hero.team, member_aps):
                     # Awards:
                     if member not in battle.corpses:
-                        aps = aps[0] - member.AP + (aps[1] - member.PP)/100.0 # PP_PER_AP = 100
+                        aps = (aps - member.PP)/100.0 # PP_PER_AP = 100
                         rew_xp = exp_reward(member, team, exp_mod=aps*.15)
                         rew_rep = max(int(self.mob_power*.2), 1) # only little bit of reputation
                         #rew_gold = 0 # no gold for mobs, because they give items, unlike all other modes
@@ -1000,11 +1000,11 @@ init -9 python:
             start_health = 0
             for member in hero.team:
                 start_health += member.get_stat("health")
-                member_aps[member] = (member.AP, member.PP)
+                member_aps[member] = member.PP
 
             for member in enemy_team:
                 member.controller = Complex_BE_AI(member)
-                member_aps[member] = (member.AP, member.PP)
+                member_aps[member] = member.PP
 
             battle = BE_Core(bg="battle_dogfights_1", start_sfx=get_random_image_dissolve(1.5),
                              end_bg="battle_arena_1", end_sfx=dissolve, give_up="surrender")
@@ -1022,7 +1022,7 @@ init -9 python:
 
             for member in chain(winner, loser):
                 aps = member_aps[member]
-                member_aps[member] = aps[0] - member.AP + (aps[1] - member.PP)/100.0 # PP_PER_AP = 100
+                member_aps[member] = (aps - member.PP)/100.0 # PP_PER_AP = 100
 
             finish_health = 0
             for member in hero.team:
@@ -1101,11 +1101,11 @@ init -9 python:
 
             member_aps = {}
             for member in hero.team:
-                member_aps[member] = (member.AP, member.PP)
+                member_aps[member] = member.PP
 
             for member in enemy_team:
                 member.controller = Complex_BE_AI(member)
-                member_aps[member] = (member.AP, member.PP)
+                member_aps[member] = member.PP
 
             global battle
             battle = BE_Core(bg="battle_arena_1", start_sfx=get_random_image_dissolve(1.5),
@@ -1124,7 +1124,7 @@ init -9 python:
 
             for member in chain(winner, loser):
                 aps = member_aps[member]
-                member_aps[member] = aps[0] - member.AP + (aps[1] - member.PP)/100.0 # PP_PER_AP = 100
+                member_aps[member] = (aps - member.PP)/100.0 # PP_PER_AP = 100
 
             rew_rep = self.arena_rep_reward(loser, winner)
             rew_gold = int(max(200, 250*(float(loser.get_level()) /max(1, winner.get_level()))))

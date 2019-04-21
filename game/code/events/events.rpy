@@ -61,10 +61,9 @@ init -9 python:
             default = The label to go to if there are no available events.
             cost = The cost of triggering the event.
             """
-            if hero.AP < cost:
+            if not hero.take_ap(cost):
                 renpy.show_screen("message_screen", "Not enough AP left")
                 return
-            hero.AP -= cost
 
             self.label_cache = last_label
 

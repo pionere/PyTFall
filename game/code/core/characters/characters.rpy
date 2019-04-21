@@ -53,10 +53,9 @@ init -9 python:
             self.race = None
             self.full_race = None
 
-            self.baseAP = 3
-            #self.AP = 3        # Remaining AP for the day - initialized later
-            #self.setAP = 1     # This is set to the AP calculated for that day.
-            self.PP = 0         # Remaining PP (partial AP) for the day (100PP == 1AP) PP_PER_AP
+            self.basePP = 300   # PP_PER_AP
+            #self.setPP = 1     # This is set to the PP calculated for that day.
+            #self.PP = 0        # Remaining PP (partial AP) for the day (100PP == 1AP) PP_PER_AP - initialized later
 
             # Locations and actions, most are properties with setters and getters.
             #                    Home        Workplace         Job  Action  Task        Location 
@@ -90,7 +89,7 @@ init -9 python:
                 self.fighting_days = list() # Days of fights taking place
                 self.arena_willing = None # Indicates the desire to fight in the Arena
                 self.arena_permit = False # Has a permit to fight in main events of the arena.
-                self.arena_active = False # Indicates that girl fights at Arena at the time.
+                self.arena_active = False # Indicates that character fights at Arena at the time.
                 self.arena_rep = 0 # Arena reputation
 
             # Items
@@ -405,7 +404,7 @@ init -9 python:
             return self.stats.goal
 
         # -------------------------------------------------------------------------------->
-        # Show to mimic girls method behavior:
+        # Show to mimic chars method behavior:
         def get_sprite_size(self, tag="vnsprite"):
             # First, lets get correct sprites:
             if tag == "battle_sprite":
@@ -757,17 +756,19 @@ init -9 python:
 
         # AP + Training ------------------------------------------------------------->
         def restore_ap(self):
-            ap = self.baseAP
+            pp = self.basePP
             base = 60
             c = self.get_stat("constitution")
             while c >= base:
-                ap += 1
+                pp += 100
                 base *= 2
 
-            self.setAP = ap
+            self.setPP = pp
 
-            self.AP = ap
-            self.PP = 0
+            self.PP = pp
+
+        def has_ap(self, value=1):
+            return self.PP >= value*100 # PP_PER_AP
 
         def take_ap(self, value):
             """
@@ -775,22 +776,24 @@ init -9 python:
             Returns False if there is not enough Action points.
             This one is useful for game events.
             """
-            if self.AP >= value:
-                self.AP -= value
-                return True
-            return False
+            value *= 100 # PP_PER_AP
+            if self.PP < value:
+                return False
+            self.PP -= value
+            return True
 
         def take_pp(self, value):
-            ap = self.AP
-            while self.PP < value:
-                if ap <= 0:
-                    return False
-                ap -= 1
-                value -= 100    # PP_PER_AP = 100
-            self.AP = ap
-            if value != 0:
-                self.PP -= value
+            if self.PP < value:
+                return False
+            self.PP -= value
             return True
+
+        @property
+        def ap_pp(self):
+            pp = self.PP
+            ap = pp/100 # PP_PER_AP
+            pp %= 100
+            return ap, pp
 
         # Logging and updating daily stats change on next day:
         def log_stats(self):
@@ -1819,7 +1822,7 @@ init -9 python:
             # 3+ days with low joy lead to Depression effect, removed if joy raises above a limit
             joy = self.get_stat("joy")
             if "Depression" in self.effects:
-                self.AP -= 1
+                self.PP -= 100 # PP_PER_AP
                 if joy > 30:
                     self.disable_effect("Depression")
             elif joy > 30:
@@ -1833,7 +1836,7 @@ init -9 python:
             # 3+ days with high joy lead to Elation effect, removed if joy falls below a limit
             if "Elation" in self.effects:
                 if dice(10):
-                    self.AP += 1
+                    self.PP += 100 # PP_PER_AP
                 if joy < 85:
                     self.disable_effect("Elation")
             elif joy < 85:
@@ -1926,10 +1929,10 @@ init -9 python:
         def nd_auto_train(self):
             for key, trainer in STATIC_CHAR.TRAININGS.items():
                 if key in self.traits:
-                    if self.AP > 0:
+                    if self.PP >= 100: # PP_PER_AP
                         if hero.take_money(self.npc_training_price, "Training"):
                             self.auto_training(key)
-                            self.AP -= 1
+                            self.PP -= 100 # PP_PER_AP
                             temp = "Successfully completed scheduled training with %s!" % trainer
                         else:
                             self.remove_trait(traits[key])
@@ -1982,7 +1985,7 @@ init -9 python:
 
             self.arena_willing = True # Indicates the desire to fight in the Arena
             self.arena_permit = True # Has a permit to fight in main events of the arena.
-            self.arena_active = True # Indicates that girl fights at Arena at the time.
+            self.arena_active = True # Indicates that character fights at Arena at the time.
 
             if not self.portrait:
                 self.portrait = self.battle_sprite
@@ -2017,7 +2020,7 @@ init -9 python:
                 return ProportionalScale(what, resize[0], resize[1])
 
         def restore_ap(self):
-            self.AP = self.baseAP + self.get_stat("constitution")/20
+            self.PP = self.basePP + self.get_stat("constitution")*5 # FIXME too much?
 
     class Player(PytCharacter):
         def __init__(self):
@@ -2130,7 +2133,7 @@ init -9 python:
 
             self._chars.append(char)
 
-            char.baseAP -= 1 # reduce available AP (the char spends it on shopping, self-time, etc...)
+            char.basePP -= 100 # reduce available AP (the char spends it on shopping, self-time, etc...) - PP_PER_AP
 
         def remove_char(self, char):
             try:
@@ -2148,7 +2151,7 @@ init -9 python:
                     if char in team:
                         team.remove(char)
 
-            char.baseAP += 1 # restore available AP
+            char.basePP += 100 # restore available AP - PP_PER_AP
 
             char.home = pytfall.sm if char.status == "slave" else pytfall.city
             char.reset_workplace_action()
@@ -2395,7 +2398,7 @@ init -9 python:
             # Trait assets
             #self.init_traits = list() # List of traits to be enabled on game startup (should be deleted in init method)
 
-            # Autocontrol of girls action (during the next day mostly)
+            # Autocontrol of workers action (during the next day mostly)
             # TODO lt: Enable/Fix (to work with new skills/traits) this!
             # TODO lt: (Move to a separate instance???)
             self.autocontrol = {
@@ -2516,7 +2519,7 @@ init -9 python:
                     self.txt.append("%s used: %s %s during the day!" % (self.pC, ", ".join(l), plural("item", len(l))))
 
         def check_resting(self):
-            # Auto-Rest should return a well rested girl back to work (or send them auto-resting!):
+            # Auto-Rest should return a well rested worker back to work (or send them auto-resting!):
             if not isinstance(self.action, Rest):
                 # This will set this char to AutoRest using normal checks!
                 can_do_work(self, check_ap=False, log=None)
@@ -2738,12 +2741,10 @@ init -9 python:
                     self.autoequip = True
                     txt.append("%s will be handling %s own equipment from now on!" % (pC, self.pp))
 
-                # Prolly a good idea to throw a red flag if she is not doing anything:
-                # I've added another check to make sure this doesn't happen if
-                # a girl is in FG as there is always something to do there:
+                # throw a red flag if the worker is not doing anything:
                 if not self.action:
                     flag_red = True
-                    txt.append("  {color=red}Please note that %s is not really doing anything productive!-{/color}" % self.p)
+                    txt.append("  {color=red}Please note that %s is not really doing anything productive!{/color}" % self.p)
                     NextDayEvents.unassigned_chars += 1
 
                 # Unhappiness and related:
@@ -2853,11 +2854,11 @@ init -9 python:
 
 
     class rChar(Char):
-        '''Randomised girls (WM Style)
+        '''Randomised chars (WM Style)
         Basically means that there can be a lot more than one of them in the game
         Different from clones we discussed with Dark, because clones should not be able to use magic
-        But random girls should be as good as any of the unique girls in all aspects
-        It will most likely not be possible to write unique scripts for random girlz
+        But random chars should be as good as any of the unique chars in all aspects
+        It will most likely not be possible to write unique scripts for random charz
         '''
         def __init__(self):
             super(rChar, self).__init__()

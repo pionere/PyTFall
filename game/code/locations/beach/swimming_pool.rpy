@@ -100,7 +100,7 @@ screen swimmong_pool_swim():
 
 
 label single_swim_pool:
-    if hero.get_stat("vitality") < 20 or hero.AP <= 0:
+    if hero.get_stat("vitality") < 20 or not hero.has_ap():
         "You are too tired at the moment."
     elif hero.get_stat("health") < hero.get_max("health")/2:
         "You are too wounded at the moment."
@@ -114,7 +114,7 @@ label single_swim_pool:
     jump swimming_pool
 
 label instructor_swim_pool:
-    if hero.get_stat("vitality") < 20 or hero.AP <= 0:
+    if hero.get_stat("vitality") < 20 or not hero.has_ap():
         "You are too tired at the moment."
     elif hero.get_stat("health") < hero.get_max("health")/2:
         "You are too wounded at the moment."
@@ -128,7 +128,7 @@ label instructor_swim_pool:
     jump swimming_pool
 
 label mc_action_swimming_pool_skill_checks:
-    $ hero.AP -= 1
+    $ hero.take_ap(1)
     $ temp = hero.get_skill("swimming")
     if temp < 20:
         if locked_dice(60):
@@ -160,7 +160,7 @@ label mc_action_swimming_pool_skill_checks:
     return
 
 label mc_action_instructor_swimming_pool_skill_checks:
-    $ hero.AP -= 1
+    $ hero.take_ap(1)
     $ temp = hero.get_skill("swimming")
     if temp < 20:
         "The instructor teaches you water safety to prevent mouth-to-mouth accidents once and for all."
@@ -200,7 +200,7 @@ label mc_action_work_swim_pool: # here we could use an option to meet characters
     if hero.get_stat("vitality") < 20:
         "You are too tired for work."
         jump swimming_pool
-    elif hero.AP <= 0:
+    elif not hero.has_ap():
         "You don't have enough Action Points. Try again tomorrow."
         jump swimming_pool
     elif hero.get_stat("health") < hero.get_max("health")/2:
@@ -217,7 +217,7 @@ label mc_action_work_swim_pool_reward:
         if result > 200:
             result = randint (190, 220)
         result = gold_reward(hero, result)
-        hero.AP -= 1
+        hero.take_ap(1)
         hero.gfx_mod_skill("swimming", 0, randint(0,2))
         hero.gfx_mod_skill("swimming", 1, randint(1,2))
         hero.mod_stat("vitality", -randint (20, 35))

@@ -8,18 +8,16 @@ label city_jail:
     python:
         # Build the actions
         if pytfall.world_actions.location("city_jail"):
-            pytfall.world_actions.slave_market(pytfall.jail, button="Browse Escapees",
+            pytfall.world_actions.slave_market(0, pytfall.jail, button="Browse Escapees",
                                                button_tooltip="Claim an escaped slave at reduced price.",
                                                null_condition="not pytfall.jail.slaves",
                                                buy_button="Purchase", buy_tooltip="Claim this slave by paying %s Gold.",
-                                               prep_actions=[Function(pytfall.jail.switch_mode, "slaves")],
-                                               index=0)
-            pytfall.world_actions.slave_market(pytfall.jail, button="Captured Slaves",
+                                               prep_actions=[Function(pytfall.jail.switch_mode, "slaves")])
+            pytfall.world_actions.slave_market(1, pytfall.jail, button="Captured Slaves",
                                                button_tooltip="Sell or acquire the slaves captured by your explorers.",
                                                null_condition="not pytfall.jail.captures",
                                                buy_button="Train with Blue!", buy_tooltip="Train then acquire this slave by paying %s Gold.",
-                                               prep_actions=[Function(pytfall.jail.switch_mode, "captures")],
-                                               index=1)
+                                               prep_actions=[Function(pytfall.jail.switch_mode, "captures")])
             pytfall.world_actions.add(2, "Browse Cells",
                 [Function(pytfall.jail.switch_mode, "cells"), Show('city_jail_cells')],
                 null_condition="not pytfall.jail.cells")

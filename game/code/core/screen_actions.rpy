@@ -383,25 +383,26 @@ init -9 python:
             self.locations = dict()
             self.nest = []
 
-        def __call__(self, index, girl=None):
+        def __call__(self, index, char=None):
             """
             Returns the list of actions for the location sorted by their index.
             name = The name of the location.
-            girl = A girl to check for unique actions.
+            char = A character to check for unique actions.
             """
             if isinstance(index, basestring):
                 if index in self.locations and self.locations[index]:
-                    if girl is not None:
-                        if hasattr(girl, "world_actions"):
-                            self._n = index + "_" + str(girl)
-                            ga = girl.world_actions
+                    if char is not None:
+                        if hasattr(char, "world_actions"):
+                            self._n = index + "_" + str(char)
+                            cwa = char.world_actions
 
                             # Only check first item
-                            if not isinstance(ga.values()[0], (WorldAction, WorldActionMenu)):
-                                # Convert the girls actions into proper actions
-                                girl.world_actions = self.build(ga)
+                            if not isinstance(cwa.values()[0], (WorldAction, WorldActionMenu)):
+                                # Convert the chars actions into proper actions
+                                cwa = self.build(cwa)
+                                char.world_actions = cwa
 
-                            self.nest = self.combine(girl.world_actions, self.locations[index])
+                            self.nest = self.combine(cwa, self.locations[index])
                             return
 
                     self._n = index
@@ -625,24 +626,23 @@ init -9 python:
             """
             if index in self._a: self._a.pop(index)
 
-        def slave_market(self, store, button="Buy Slaves", prep_actions=[],
+        def slave_market(self, index, source, button="Buy Slaves", prep_actions=[],
                          button_tooltip="Check today's offers!",
                          null_button=None,
                          null_condition="not pytfall.sm.chars_list",
                          buy_button="Purchase",
-                         buy_tooltip="You can buy this great girl for the sum of %s Gold!",
-                         index="slave_market"):
+                         buy_tooltip="You can buy this great slave for the sum of %s Gold!"):
             """
             Adds the default "Go Shopping" slave market action.
-            store = The store interface to use.
+            index = The index to use.
+            source = The store interface to use.
             button = The text for the action button.
             button_tooltip = The default tooltip text for the button.
             null_button = The text for the action button when no slaves are available.
-            buy_button = The text for the buy girl button.
-            buy_tooltip = The tooltip for the buy girl button. Must contain 1 "%s" for the cost.
-            index = The index to use. Defaults to "slave_market".
+            buy_button = The text for the buy slave button.
+            buy_tooltip = The tooltip for the buy slave button. Must contain 1 "%s" for the cost.
             """
-            prep_actions.extend((Show("slave_shopping", source=store,
+            prep_actions.extend((Show("slave_shopping", source=source,
                                       buy_button=buy_button, buy_tt=buy_tooltip), With(dissolve)))
             self.add(index,
                      WorldAction(button, action=prep_actions, tooltip=button_tooltip,
@@ -672,13 +672,15 @@ init -9 python:
 
             return level
 
-        def work(self, condition=True, index="work", name="Work", returned="work"):
+        def work(self, index, name="Work", returned="work", condition=True):
             """
             Adds the default "Work" action.
+            index = The index to use.
+            name = The label for the button.
+            returned = The returned value with the 'control' prefix
             condition = The condition to check if the player can work here.
-            index = The index to use. Defaults to "work".
             """
-            self.add(index, WorldAction(name, Return(["control", returned]), condition=condition, null_button="Work", null_condition=Iff(S((hero, "AP")), "==", False)))
+            self.add(index, WorldAction(name, Return(["control", returned]), condition=condition, null_button=name, null_condition=None))
 
 
     class WorldAction(_object):
@@ -1021,10 +1023,10 @@ init -10 python:
                 callable()
 
 
-screen location_actions(actions, girl=None, pos=(.98, .98), anchor=(1.0, 1.0), align=None, style="dropdown_gm"):
+screen location_actions(actions, char=None, pos=(.98, .98), anchor=(1.0, 1.0), align=None, style="dropdown_gm"):
     python:
         if pytfall.world_actions != actions:
-            pytfall.world_actions(actions, girl)
+            pytfall.world_actions(actions, char)
 
         if not align:
             if not anchor: anchor = (.0, .0)

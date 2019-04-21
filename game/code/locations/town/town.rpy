@@ -86,9 +86,9 @@ label village_town_work:
         #$ del m
         #hide npc with dissolve
 
-    menu village_town_work_menu:
+    menu:
         "What do you want to do?"
-        "Work 1AP" if hero.AP > 0:
+        "Work 1AP" if hero.has_ap():
             $ time_limit = 100 # PP_PER_AP
         "Work":
             $ time_limit = None
@@ -274,12 +274,12 @@ screen village_town_work:
         hbox:
             yalign .1
             xpos 105
-            label "[hero.AP]":
+            $ ap_h, pp_h = hero.ap_pp
+            label "%d"%ap_h:
                 style "content_label"
                 text_size 23
                 text_color "ivory"
                 text_bold True
-            $ pp_h = hero.PP
             if pp_h:
                 text "%02d"%pp_h:
                     color "pink"
