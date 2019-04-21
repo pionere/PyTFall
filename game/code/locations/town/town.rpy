@@ -63,36 +63,31 @@ screen village_town:
 label village_town_work:
     scene bg workshop with dissolve
 
-    if global_flags.flag('visited_village_town_work'): # FIXME
+    if not global_flags.flag('visited_village_town_work'):
         $ global_flags.set_flag('visited_village_town_work')
 
-        #$ m = npcs["Mor"].say
-        #show expression npcs["Mor"].get_vnsprite() as npc
-        #with dissolve
-        #"A small boy fishes on the pier. Noticing you, he puts his fishing rod on the ground and approaches."
-        #m "Hey there, stranger! It looks like it's your first time here. Would you like to buy a Fishing Pole?"
-        #m "We offer a discount for newbies, so it's only 250 coins!"
-        #menu Mor_dialogue:
-        #    "Who are you?":
-        #        m "Me? I'm Mor. I'm helping my father. He's a fisherman. He usually takes a boat to catch more fish, and I stay here."
-        #        jump Mor_dialogue
-        #    "Buy the Pole" if hero.gold >= 250:
-        #        $ hero.take_money(250, reason="Items")
-        #        $ hero.add_item("Fishing Pole")
-        #        m "Nice, there you go! Happy fishing!"
-        #        m "If you have any questions about fishing, I'm usually here."
-        #    "Don't buy the Pole":
-        #        m "Fine by me. But you won't find it cheaper! I'm usually here if you change your mind."
-        #$ del m
-        #hide npc with dissolve
+        $ n = npcs["NKCell_town"].say
+        show expression npcs["NKCell_town"].get_vnsprite() as npc
+        with dissolve
+
+        "As you approach the place you see a strong woman both of her hand full of items which look like garbage from the distance."
+        "You want to get a closer look at it, but she stops in her movements and looks at you."
+        n "What!? Are you going to help or just watch?"
+        n "There is always a job for the willing, so come and grab these if you want to make yourself useful."
+        n "Don't worry, these are mostly garbage, so if you find anything salvable just toss it to the right heap there."
+        n "I can not pay much gold, but you get a share from the materials."
+        n "Now if you excuse me, I need get back to work."
+        n "Ohh, one more thing. You might want to protect your hands from injuries. I suggest a pair of Metal Gloves, but it is up to you."
+        hide npc with dissolve
+        $ del n
 
     menu:
         "What do you want to do?"
         "Work 1AP" if hero.has_ap():
             $ time_limit = 100 # PP_PER_AP
-        "Work":
+        "Work" if hero.PP > 0:
             $ time_limit = None
-        "Nothing":
+        "Leave":
             $ global_flags.set_flag("keep_playing_music")
             jump village_town
 
@@ -175,7 +170,25 @@ label village_town_work:
                 mqueue.append([item_pos, curr_time])
                 hand_item = [result, [item_pos[0]-mpos[0], item_pos[1]-mpos[1]], mqueue]
 
-            dt = curr_time - last_time                
+                # injuries
+                if hand_protection is True:
+                    pass
+                elif hand_protection:
+                    # bad protection -> chance to lose the item
+                    if dice(100.0 / (60 * 7)): # once per week
+                        hero.unequip(hand_protection)
+                        hero.remove_item(hand_protection)
+                        tkwargs = {"color": "dodgerblue", "outlines": [(1, "black", 0, 0)]}
+                        gfx_overlay.notify("Your %s is damaged beyond repair. Now you have to work barehanded." % hand_protection.id, tkwargs=tkwargs, duration=2.0)
+                        hand_protection = False
+                else:
+                    # no protection -> chance to injury
+                    if dice(100.0 / 60):     # once a day
+                        hero.gfx_mod_stat("health", -randint(2, 8))
+                        tkwargs = {"color": "tomato", "outlines": [(1, "black", 0, 0)]}
+                        gfx_overlay.notify("You hurt yourself as you reach for the item.", tkwargs=tkwargs, duration=2.0)
+
+            dt = curr_time - last_time
             # move the source items
             drops = []
             for item in source_items:
@@ -237,25 +250,7 @@ label village_town_work:
                         result = "stop" 
                 else:
                     result = "stop"
-                
-                # injuries
-                if hand_protection is True:
-                    pass
-                elif hand_protection:
-                    # bad protection -> chance to lose the item
-                    if dice(100.0 / (60 * 7)): # once per week
-                        hero.unequip(hand_protection)
-                        hero.remove_item(hand_protection)
-                        tkwargs = {"color": "dodgerblue", "outlines": [(1, "black", 0, 0)]}
-                        gfx_overlay.notify("Your %s is damaged beyond repair. Now you have to work barehanded." % hand_protection.id, tkwargs=tkwargs, duration=2.0)
-                        hand_protection = False
-                else:
-                    # no protection -> chance to injury
-                    if dice(100.0 / 60):       # once a day
-                        hero.gfx_mod_stat("health", -randint(2, 8))
-                        tkwargs = {"color": "tomato", "outlines": [(1, "black", 0, 0)]}
-                        gfx_overlay.notify("You hurt yourself while working with the sharp materials. Next time you might want to use protection.", tkwargs=tkwargs, duration=2.0)
-            
+
             # check to end
             if result == "stop":
                 jump("village_town_work_end")

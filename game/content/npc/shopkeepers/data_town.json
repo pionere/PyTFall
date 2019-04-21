@@ -1,0 +1,21 @@
+[
+    {
+        "id": "NKCell_town",
+        "name": "Cell",
+        "fullname": "NK Cell",
+        "desc": "A local factory worker. She runs PyTFall's recycling station.",
+        "origin": "PyTFall",
+        
+        "base_race": "Human",
+        "gender": "female",
+        "race": "Human",
+        "location": "city",
+        "status": "free",
+        "gold": 4000,
+        
+        "color": "sienna",
+        "what_color": "sienna",
+        
+        "basetraits": ["Warrior"]
+    }
+]
