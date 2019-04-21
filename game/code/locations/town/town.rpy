@@ -113,12 +113,12 @@ label village_town_work:
         running = False
         last_time = 0
 
-        sources = [items[item] for item in ["Bricks", "Stone", "Green Marble", "Glass", "Steel", "Nails"]]
+        sources = [items[item] for item in ["Bricks", "Stone", "Hay", "Glass", "Steel", "Nails"]]
         shuffle(sources)
 
         # initial belt
-        for item in xrange(randint(5, 10)): # BELT LEFT     ...   RIGHT-LEFT, BELT TOP ...      BOTTOM-TOP
-            source_items.append([choice(sources), [100 + random.random()*100, 100 + random.random()*500]])
+        for item in xrange(randint(5, 10)): # BELT LEFT    ...   RIGHT-LEFT, BELT TOP ...      BOTTOM-TOP-ITEM WIDTH
+            source_items.append([choice(sources), [80 + random.random()*100, 100 + random.random()*460]])
 
     show screen village_town_work
     with dissolve
@@ -181,7 +181,7 @@ label village_town_work:
             for item in source_items:
                 if item is not curr_item:
                     pos = item[1][0] - dt * 4 # BELT SPEED
-                    if pos < 100: # BELT LEFT
+                    if pos < 80: # BELT LEFT - ITEM WIDTH/2
                         drops.append(item)
                     else:
                         item[1][0] = pos
@@ -197,37 +197,36 @@ label village_town_work:
                     xpos = pos[0] + dt * speed[0]
                     ypos = pos[1] + dt * speed[1]
 
-                    if xpos < 200: # BELT RIGHT
-                        if xpos > 100 and ypos > 100 and ypos < 600: # BELT LEFT and TOP, BOTTOM
+                    if xpos < 180: # BELT RIGHT - ITEM WIDTH/2
+                        if xpos > 80 and ypos > 80 and ypos < 580: # BELT LEFT - ITEM WIDTH/2 and TOP - ITEM WIDTH/2, BOTTOM - ITEM WIDTH/2
                             # still on the belt -> preserve
                             item.pop()
                             source_items.append(item)
                         drops.append(item)
                     elif ypos > 650: # FLOOR
                         curr_item = item[0]
-                        pos = 600 + 100*sources.index(curr_item) # SEPARATOR + DIST
-                        if pos <= xpos <= pos + 60:
+                        pos = 580 + 100*sources.index(curr_item) # SEPARATOR + DIST - ITEM WIDTH/2
+                        if pos <= xpos <= pos + 100: # BASKET WIDTH + ITEM WIDTH
                             basket[item[0]] += 1
                         else:
                             renpy.show(curr_item.id, what=HitlerKaputt(curr_item.icon, 10), zorder=100)
-                            #renpy.show(curr_item.id, what=HitlerKaputt(curr_item.icon, 10), at_list=[Transform(pos=(xpos, ypos))], zorder=100)
 
                         drops.append(item)
                     elif xpos > config.screen_width: 
                         drops.append(item)
                     else:
-                        # FIXME check collision
+                        # TODO check collision
 
                         pos[0] = xpos
                         pos[1] = ypos
 
-                        # item[2][0] FIXME add drag ?
-                        speed[1] += 200 * dt # g * dt
+                        # item[2][0] TODO add drag ?
+                        speed[1] += 800 * dt # g * dt
             moving_items = [i for i in moving_items if i not in drops]
 
             # populate the belt
-            if dice(5): #                     BELT RIGHT, BELT TOP    ...   BOTTOM-TOP
-                source_items.append([choice(sources), [200, 100 + random.random()*500]])
+            if dice(5): #          BELT RIGHT-ITEM-WIDTH/2, BELT TOP    ...   BOTTOM-TOP-ITEM WIDTH
+                source_items.append([choice(sources), [180, 100 + random.random()*460]])
 
             # start new shift
             if curr_time > next_pp_time:
@@ -248,14 +247,14 @@ label village_town_work:
                         hero.unequip(hand_protection)
                         hero.remove_item(hand_protection)
                         tkwargs = {"color": "dodgerblue", "outlines": [(1, "black", 0, 0)]}
-                        gfx_overlay.notify("Your %s is damaged beyond repair. Now you have to work barehanded." % hand_protection.id, tkwargs=tkwargs)
+                        gfx_overlay.notify("Your %s is damaged beyond repair. Now you have to work barehanded." % hand_protection.id, tkwargs=tkwargs, duration=2.0)
                         hand_protection = False
                 else:
                     # no protection -> chance to injury
                     if dice(100.0 / 60):       # once a day
                         hero.gfx_mod_stat("health", -randint(2, 8))
-                        tkwargs = {"color": "crimson", "outlines": [(1, "black", 0, 0)]}
-                        gfx_overlay.notify("You hurt yourself while working with the sharp materials. Next time you might want to use protection.", tkwargs=tkwargs)
+                        tkwargs = {"color": "tomato", "outlines": [(1, "black", 0, 0)]}
+                        gfx_overlay.notify("You hurt yourself while working with the sharp materials. Next time you might want to use protection.", tkwargs=tkwargs, duration=2.0)
             
             # check to end
             if result == "stop":
@@ -267,7 +266,7 @@ label village_town_work:
 screen village_town_work:
     # Remaining AP:
     button:
-        ypos 3
+        pos (65, 10)
         xysize 170, 50
         focus_mask True
         background ProportionalScale("content/gfx/frame/frame_ap.webp", 170, 50)
@@ -287,8 +286,22 @@ screen village_town_work:
                     style "proper_stats_text"
                     yoffset 7
 
-    # belt FIXME
-    
+    $ img = im.Scale("content/gfx/images/button.webp", 150, 40)
+    button:
+        pos (70, 60)
+        xysize 160, 40
+        idle_background img
+        hover_background im.MatrixColor(img, im.matrix.brightness(.10))
+        insensitive_background im.Sepia(img)
+        action Return("drop")
+        sensitive hand_item is not None
+        text "Space" align .5, .5 size 30 color "black"
+        keysym "K_SPACE"
+        tooltip "Release the item!"
+
+    # belt
+    add im.Scale("content/gfx/frame/ink_box.png", 100, 500) pos (100, 100) # BELT RIGHT-LEFT, BOTTOM-TOP ... LEFT, TOP
+
     # items on the belt
     for item in source_items:
         $ temp, pos = item
@@ -303,14 +316,7 @@ screen village_town_work:
             action Return(item)
 
     # separator
-    $ img = im.Scale("content/gfx/frame/p_frame7.webp", 4, config.screen_height)
-    button:
-        style 'image_button'
-        pos (300, 0)
-        xysize (4, config.screen_height)
-        idle_background img
-        #focus_mask True
-        action NullAction()
+    add im.Scale("content/gfx/frame/p_frame7.webp", 4, config.screen_height) pos (300, 0)
 
     # flying items:
     for item in moving_items:
@@ -329,6 +335,7 @@ screen village_town_work:
     for idx, item in enumerate(sources):
         $ img = ProportionalScale(item.icon, 60, 60)
         textbutton str(basket[item]):
+            xysize (60, 60)
             style 'image_button'
             pos (600 + 100 * idx, 650) # SEPARATOR + DIST, FLOOR
             idle_background img
@@ -338,6 +345,8 @@ screen village_town_work:
             action NullAction()
             text_size 40
             text_align .5, .5
+            text_color "ivory"
+            text_outlines [(1, "black", 0, 0)]
 
     if running is False:
         # Not started
@@ -348,7 +357,6 @@ screen village_town_work:
             align .5, .5
             keysym "K_SPACE"
 
-    #key "mousedown_1" action Return("drop")
     key "mousedown_3" action Return("stop")
 
     timer 0.1 action Return("timeout") repeat True
@@ -371,6 +379,8 @@ label village_town_work_end:
         result = randint(money, money*2)
         hero.add_money(result, reason="Job")
         gfx_overlay.random_find(result, 'gold')
+
+        hero.gfx_mod_stat("joy", -randint(used_pp/50, used_pp/20)) # PP_PER_AP
 
     hero.say "This is all for now."
 
