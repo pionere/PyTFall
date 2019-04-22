@@ -111,7 +111,7 @@ label slave_market_controls:
         elif result[0] == "control":
             if result[1] == "work":
                 hide screen slavemarket
-                jump mc_action_work_in_slavemarket
+                jump slave_market_work
             elif result[1] == "jumpclub":
                 hide screen slavemarket
                 jump slave_market_club
@@ -200,17 +200,183 @@ label sm_free_slaves:
     hide stan with dissolve
     jump slave_market_controls
 
-label mc_action_work_in_slavemarket:
+label slave_market_work:
+    scene bg shower with dissolve
+
     menu:
         "What do you want to do?"
-        "Work 1AP" if hero.has_ap():
+        "Work 1AP" if hero.has_ap() and pytfall.sm.inhabitants:
             $ use_ap = 1
-        "Work all day" if hero.PP >= 200: # PP_PER_AP
-            $ use_ap = hero.PP/100        # PP_PER_AP
+        "Work all day" if hero.PP >= 200 and len(pytfall.sm.inhabitants) > 1: # PP_PER_AP
+            $ use_ap = hero.PP/100                                    # PP_PER_AP
         "Nothing":
             jump slave_market_controls
 
-    pause 0.01
+    python:
+        slaves = min(use_ap, len(pytfall.sm.inhabitants))
+        slaves = random.sample(tuple(pytfall.sm.inhabitants), slaves)
+        slaves = [s.show("nude", "no bg", "no clothes", resize=(560, 400), exclude=["sex", "rest", "outdoors", "onsen", "beach", "pool", "living"], type="first_default") for s in slaves] 
+
+        slave_index = 0
+        effectiveness = 20
+        dirt = None
+
+        sponge_loc = (320, 680)
+        sponge_in_hand = False
+        missed = cleaned = 0
+
+    show screen slave_market_work
+    with dissolve
+    
+    python hide:
+        global slaves, slave_index, dirt, missed, cleaned, effectiveness, sponge_in_hand
+        while 1:
+            if dirt is None:
+                dirt = []
+                for i in xrange(randint(8, 12)): # NUM_DIRT
+                    posx = int(random.gauss(config.screen_width/2, 40))
+                    posy = int(random.gauss(config.screen_height/2, 80))
+                    # add dirt     img-idx      posx  posy     size           rotation      alpha
+                    dirt.append([randint(0, 4), posx, posy, randint(6, 12), randint(0, 90), uniform(.5, .9)]) # MIN_SIZE, MAX_SIZE
+
+            result = ui.interact()
+
+            if result == "stop":
+                for i in dirt: 
+                    missed += 10 + i[3] # MIN_DIRT + size
+                for i in xrange(len(slaves)-slave_index):
+                    for j in xrange(randing(8, 12)): # NUM_DIRT
+                        missed += 10 + randint(6, 12) # MIN_DIRT ... MIN_SIZE, MAX_SIZE 
+                jump("slave_market_work_end")
+            if result == "next":
+                for i in dirt: 
+                    missed += 10 + i[3] # MIN_DIRT + size
+                dirt = None
+                slave_index += 1
+                if slave_index == len(slaves):
+                    jump("slave_market_work_end")
+            elif result == "pick":
+                sponge_in_hand = True
+            elif result == "drop":
+                sponge_in_hand = False
+            elif sponge_in_hand:
+                if result == "water":
+                    # direct click on the water in the bucket
+                    effectiveness += randint(16, 24)
+                    if effectiveness > 60:
+                        effectiveness = 60 # MAX_EFFECTIVENESS
+                elif result.startswith("dirt"):
+                    # direct click on a fleck
+                    idx = int(result[4:])
+                    eff = randint(0, min(effectiveness, 10))
+                    temp = dirt[idx][3] - eff
+                    if temp < 0:
+                        # smudge is gone
+                        del dirt[idx]
+                    else:
+                        dirt[idx][3] = temp
+                    effectiveness -= eff
+                    cleaned += eff
+                elif result.startswith("_dirt"):
+                    # hover over a fleck
+                    idx = int(result[5:])
+                    eff = randint(0, min(effectiveness, 2))
+                    temp = dirt[idx][3] - eff
+                    if temp < 0:
+                        # smudge is gone
+                        del dirt[idx]
+                    else:
+                        dirt[idx][3] = temp
+                    effectiveness -= eff
+                    cleaned += eff
+                else:
+                    # check hovers 
+                    focus = renpy.game.context().scene_lists.focused
+                    if focus == renpy.get_widget("slave_market_work", "water"):
+                        # keeping in the water in the bucket
+                        effectiveness += randint(2, 4)
+                        if effectiveness > 60:
+                            effectiveness = 60 # MAX_EFFECTIVENESS
+
+screen slave_market_work:
+    # the slave
+    add slaves[slave_index] align .5, .5
+
+    # dirt
+    if dirt:
+        for idx, d in enumerate(dirt):
+            $ pos = (d[1], d[2])
+            $ rotation = d[4]
+            $ alpha = d[5]
+            #$ img = Transform(ProportionalScale("content/gfx/images/smudge%02d.webp" % d[0], 45+(size*3/2), 30+size), rotate=rotation)
+            $ size = get_linear_value_of(d[3], 0, 1.0, 12, 1.8) # MAX_SIZE
+            $ img = ProportionalScale("content/gfx/images/smudge/smudge%02d.webp" % d[0], 30*size, 20*size)
+            #$ idle_img = Frame(Transform(img, alpha=alpha, rotate=rotation), 5, 5)
+            #$ hover_img = Frame(Transform(im.MatrixColor(img, im.matrix.brightness(.15)), alpha=alpha, rotate=rotation), 5, 5)
+            $ idle_img = Transform(img, alpha=alpha, rotate=rotation)
+            #$ hover_img = Transform(im.MatrixColor(img, im.matrix.brightness(.15)), alpha=alpha)
+            $ hover_img = Transform(im.MatrixColor(img, im.matrix.brightness(.15)), alpha=alpha, rotate=rotation)
+            button:
+                #at rotate_by(rotation)
+                style 'image_button'
+                pos pos
+                idle_background idle_img
+                hover_background hover_img
+                focus_mask True
+                action Return("dirt%02d"%idx)
+                hovered Return("_dirt%02d"%idx)
+        
+    # bucket
+    add ProportionalScale("content/gfx/images/bucket.png", 200, 233) pos 100, 520
+    
+    $ img = ProportionalScale("content/gfx/images/bucket_water.webp", 170, 60)
+    button id "water":
+        style 'image_button'
+        pos 118, 540 
+        idle_background img
+        hover_background im.MatrixColor(img, im.matrix.brightness(.15))
+        focus_mask True
+        action Return("water")
+
+    # next/done
+    $ temp = slave_index == len(slaves)-1
+    button:
+        style_group "pb"
+        action Return("next")
+        text ("Done" if temp else "Next") style "pb_button_text" size 20
+        align .5, .9
+        keysym "K_SPACE"
+
+    # sponge
+    $ temp = get_linear_value_of(effectiveness, 0, 1.0, 60, 1.6) # MAX_EFFECTIVENESS
+    $ img = ProportionalScale("content/gfx/images/sponge.webp", (30*temp), (20*temp))
+    if sponge_in_hand:
+        $ sponge_loc = renpy.get_mouse_pos()
+        $ sponge_loc = [sponge_loc[0] - int(30*temp/2), sponge_loc[1] - int(20*temp/2)]
+        add img pos sponge_loc
+    else:
+        button:
+            style 'image_button'
+            pos sponge_loc 
+            idle_background img
+            hover_background im.MatrixColor(img, im.matrix.brightness(.15))
+            focus_mask True
+            action Return("pick")
+
+    # next/done
+    button:
+        style_group "pb"
+        action Return("next")
+        text ("Done" if temp else "Next") style "pb_button_text" size 20
+        align .5, .9
+        
+    key "mousedown_3" action Return("drop")
+
+    timer 0.1 action Return("timeout") repeat True
+
+label slave_market_work_end:
+    hide screen slave_market_work
+    with dissolve
 
     if dice(50):
         $ narrator(choice(["You did some chores around the Slave Market!",
@@ -231,6 +397,7 @@ label mc_action_work_in_slavemarket:
             result += hero.level*5
 
         result = gold_reward(hero, result, use_ap)
+        result = result * cleaned / (missed + cleaned)
 
         if dice(.5 + hero.get_stat("luck")*.1):
             hero.gfx_mod_stat("charisma", use_ap)
@@ -243,7 +410,7 @@ label mc_action_work_in_slavemarket:
         hero.gfx_mod_exp(exp_reward(hero, hero, exp_mod=use_ap))
         hero.take_ap(use_ap)
 
-        del result, use_ap
+        del result, use_ap, slaves, slave_index, effectiveness, dirt, missed, cleaned, sponge_loc, sponge_in_hand
     jump slave_market_controls
 
 label blue_menu:
