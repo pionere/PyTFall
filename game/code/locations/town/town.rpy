@@ -222,7 +222,7 @@ label village_town_work:
                         if pos <= xpos <= pos + 100: # BASKET WIDTH + ITEM WIDTH
                             basket[item[0]] += 1
                         else:
-                            renpy.show(curr_item.id, what=HitlerKaputt(curr_item.icon, 10), zorder=100) # FIXME position?
+                            renpy.show(curr_item.id, what=HitlerKaputt(curr_item.icon, 10, offset=(xpos-config.screen_width/2, ypos-config.screen_height)), zorder=100)
 
                         drops.append(item)
                     elif xpos > config.screen_width: 

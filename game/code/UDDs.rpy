@@ -657,7 +657,7 @@ init -960 python:
                 crop_ysize = int(round(self.height / float(self.crops)))
 
                 # The list:
-                args = OrderedDict()
+                args = []
                 choices = range(*self.neg_range) + range(*self.pos_range)
 
                 for r in xrange(0, self.crops):
@@ -668,16 +668,14 @@ init -960 python:
 
                         direction = choice(choices), choice(choices)
 
-                        args[(Transform(t, rotate=randint(0, 90),
-                              crop=(x, y, crop_xsize, crop_ysize)))] = {"coords": [x, y],
-                              "direction": direction}
+                        args.append([Transform(t, rotate=randint(0, 90), crop=(x, y, crop_xsize, crop_ysize)),
+                                     [x, y],      # coords
+                                     direction])  # direction
                 self.args = args
 
             render = renpy.Render(self.width, self.height)
-            for r in self.args:
-                cr = renpy.render(r, width, height, st, at)
-                coords = self.args[r]["coords"]
-                direction = self.args[r]["direction"]
+            for cr, coords, direction in self.args:
+                cr = renpy.render(cr, width, height, st, at)
                 render.blit(cr, tuple(coords))
                 coords[0] += direction[0]
                 coords[1] += direction[1]
@@ -754,7 +752,7 @@ init -960 python:
                 if self.loop:
                     self.index = 0
             else:
-                self.index = self.index + 1
+                self.index += 1
 
             render = renpy.Render(self.width, self.height)
             child_render = t.render(width, height, st, at)
@@ -781,19 +779,21 @@ init -960 python:
 
             # We just need to animate once over the list, no need for any calculations:
             try:
-                t = self.images[self.index][0]
-                child_render = t.render(width, height, st, at)
+                index = self.index
+                img = self.images[index]
+                child_render = img[0].render(width, height, st, at)
 
                 w, h = child_render.get_size()
 
                 render = renpy.Render(w, h)
                 render.blit(child_render, (0, 0))
-                renpy.redraw(self, self.images[self.index][1])
+                renpy.redraw(self, img[1])
 
-                self.index = self.index + 1
-                if self.loop:
-                    if self.index > len(self.images) - 1:
-                        self.index = 0
+                index += 1
+                if self.loop and index >= len(self.images):
+                    index = 0
+                self.index = index
+
                 return render
             except IndexError:
                 return renpy.Render(0, 0)
@@ -937,19 +937,17 @@ init -960 python:
                 else:
                     step = (self.radius-self.limit_radius)/self.amount
                 for i in xrange(1, self.amount+1):
-                    if isinstance(self.time, (tuple, list)):
-                        t = uniform(*self.time)
-                    else:
-                        t = self.time
+                    t = self.time
+                    if isinstance(t, (tuple, list)):
+                        t = uniform(*t)
 
-                    if isinstance(self.circles, (tuple, list)):
-                        c = uniform(*self.circles)
-                    else:
-                        c = self.circles
+                    c = self.circles
+                    if isinstance(c, (tuple, list)):
+                        c = uniform(*c)
 
                     r = self.radius - step*i
                     if self.adjust_radius:
-                        r = r + randint(*self.adjust_radius)
+                        r += randint(*self.adjust_radius)
 
                     if self.reverse:
                         self.args.append(tfunc(self.displayable, t=t, angle=randint(0, 360), start_radius=0, end_radius=r, circles=c))
@@ -1067,9 +1065,9 @@ init -100 python:
                 self.shown[st + speed] = self.transform(self.d, st, (posx, posy), (endposx, endposy), speed)
                 if self.slow_start and st < self.slow_start[0]:
                     interval = self.slow_start[1]
-                    self.next = st + uniform(interval[0], interval[1])
                 else:
-                    self.next = st + uniform(self.interval[0], self.interval[1])
+                    interval = self.interval
+                self.next = st + uniform(interval[0], interval[1])
 
             for d in self.shown.keys():
                 if d < st:
@@ -1133,13 +1131,12 @@ init -100 python:
                 speed = rp.uniform(self.speed[0], self.speed[1])
                 angle = rp.random.randrange(self.angle[0], self.angle[1])
                 radius = rp.random.randrange(self.radius[0], self.radius[1])
-                if not self.msm:
-                    self.shown[st + speed] = particle(rp.random.choice(self.d), st, speed, self.around, angle, radius)
-                else:
-                    self.shown[st + speed] = particle(rp.random.choice(self.d), st, speed, rp.get_mouse_pos(), angle, radius)
+                pos = rp.get_mouse_pos() if self.msm else self.around
+                self.shown[st + speed] = particle(rp.random.choice(self.d), st, speed, pos, angle, radius)
+
                 self.next = st + rp.uniform(self.interval[0], self.interval[1])
                 if self.particles:
-                    self.particle = self.particle + 1
+                    self.particle += 1
 
             for d in self.shown.keys():
                 if d < st:
