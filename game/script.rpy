@@ -1536,5 +1536,12 @@ label after_load:
         if hasattr(gazette, "first_view"):
             del gazette.first_view
 
+        if hasattr(pytfall.general_store, "locations"):
+            for i in pytfall.__dict__.values():
+                if isinstance(i, ItemShop):
+                    if hasattr(i, "locations"):
+                        i.location = i.locations.pop()
+                        del i.locations
+
     stop music
     return

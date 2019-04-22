@@ -39,6 +39,8 @@ label angelica_meet:
                 a "Oh? Well, never mind then..."
                 a "I'll be around if you change your mind."
                 jump mages_tower
+
+    $ pytfall.angelica_shop.visible = True # done here so it is not enabled if the user is not interested in magic, but also not barred forever 
     a "How can I be of assistance?"
 
 label angelica_menu:

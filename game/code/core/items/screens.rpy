@@ -430,45 +430,44 @@ label shop_control:
                 if char.take_money(item_price*amount, "Items"):
                     play sound "content/sfx/sound/world/purchase_1.ogg"
                     python hide:
-                        for i in xrange(amount):
-                            shop.inventory.remove(focus)
-                            char.inventory.append(focus)
-                            shop.gold += item_price
-                            shop.total_items_price -= item_price
-                else:
-                    $ renpy.say("", choice(["Not enough money.", "No freebees.", "You'll need more money for this purchase"]))
-                $ amount = 1
-                $ focus = None
-            elif purchasing_dir == 'sell':
-                if not can_sell(focus, silent=False):
-                    jump shop_control
-                elif shop != pytfall.general_store and not shop.locations.intersection(focus.locations) and focus.type.lower() not in shop.sells:
-                    $ focus = None
-                    $ renpy.say("", "This shop doesn't buy such things.")
-                else:
-                    if shop.gold >= (item_price*amount):
-                        play sound "content/sfx/sound/world/purchase_1.ogg"
-                        python hide:
-                            for i in xrange(amount):
-                                shop.gold -= item_price
-                                char.add_money(item_price, reason="Items")
-                                char.inventory.remove(focus)
-                                shop.inventory.append(focus)
-                                shop.total_items_price += item_price
-                    else:
-                        $ renpy.say("", "The shop doesn't have enough money.")
+                        total = item_price*amount
+                        shop.inventory.remove(focus, amount)
+                        char.inventory.append(focus, amount)
+                        shop.gold += total
+                        shop.total_items_price -= total
                     $ amount = 1
                     $ focus = None
+                else:
+                    $ renpy.say("", choice(["Not enough money.", "No freebees.", "You'll need more money for this purchase"]))
+            elif purchasing_dir == 'sell':
+                $ total = item_price*amount
+                $ msg = shop.check_sell(focus, total)
+                if msg is None:
+                    play sound "content/sfx/sound/world/purchase_1.ogg"
+                    python hide:
+                        char.add_money(total, reason="Items")
+                        char.inventory.remove(focus, amount)
+                        shop.inventory.append(focus, amount)
+                        shop.gold -= total
+                        shop.total_items_price += total
+                    $ amount = 1
+                    $ focus = None
+                else:
+                    $ renpy.say("", msg)
+                $ del msg, total
 
     elif result[0] == 'control':
-        if isinstance(result[1], basestring):
-            if result[1] == 'return':
+        $ result = result[1]
+        if isinstance(result, basestring):
+            if result == 'return':
                 return
-        elif result[1] > 0:
-            if purchasing_dir == 'sell':
-                $ amount = min(amount + result[1], char.inventory[focus])
-            elif purchasing_dir == 'buy':
-                $ amount = min(amount + result[1], shop.inventory[focus])
         else:
-            $ amount = max(amount + result[1], 1)
+            $ amount += result
+            if result > 0:
+                if purchasing_dir == 'sell':
+                    $ amount = min(amount, char.inventory[focus])
+                else: # if purchasing_dir == 'buy':
+                    $ amount = min(amount, shop.inventory[focus])
+            else:
+                $ amount = max(amount, 1)
     jump shop_control

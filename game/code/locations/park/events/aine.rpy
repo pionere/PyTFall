@@ -30,6 +30,8 @@ label aine_menu:
 
         a "I can teach you {color=lightblue}Ice{/color} and {color=yellow}Electricity{/color} spells if you're interested,"
         extend " it will cost you, but you'll never have to hear a word about no pile of gold from me."
+
+        $ pytfall.aine_shop.visible = True
     else:
         a "Hello again. How are you today?"
 

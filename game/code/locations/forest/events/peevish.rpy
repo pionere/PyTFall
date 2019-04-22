@@ -61,6 +61,7 @@ label peevish_meeting:
     p "Well, don't expect it to be cheap!"
     extend " Talk to me when you have some G's on you!"
 
+    $ pytfall.peevish_shop.visible = True 
     $ global_flags.set_flag("met_peevish")
     $ global_flags.del_flag("keep_playing_music")
     jump forest_entrance

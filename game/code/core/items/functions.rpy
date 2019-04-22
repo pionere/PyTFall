@@ -208,19 +208,6 @@ init -11 python:
 
         return True
 
-    def can_sell(item, silent=True):
-        """Checks in an item can be sold to a shop.
-        """
-        if item.unique:
-            if not silent:
-                renpy.show_screen("message_screen", "Unique items cannot be sold!")
-            return
-        elif not item.sellable:
-            if not silent:
-                renpy.show_screen("message_screen", "This item cannot be sold!")
-            return
-        return True
-
     def equipment_access(character, item=None, silent=False, unequip=False):
         # Here we determine if a character would be willing to give MC access to her equipment:
         # Like if MC asked this character to equip or unequip an item.

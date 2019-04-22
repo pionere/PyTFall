@@ -486,56 +486,67 @@ init -9 python:
     class ItemShop(_object):
         '''Any shop that sells items ;)
         '''
-        def __init__(self, name, inv_length, locations=[], gold=10000, visible=True, sells=None, sell_margin=.8, buy_margin=1.2):
+        def __init__(self, name, location=None, gold=10000, visible=True, sells=[], sell_margin=.8, buy_margin=1.2):
             """Takes:
-            locations = must be a list of item location fields ["general_shop", "cafe"] for example
-            int_length = length of inventory field as arguments (must be an integer)
+            name = the name of the shop
+            location = the name of the shop as it is referenced by the items.locations. Defaults to name.
             gold = amount of gold shop has on start-up (int)
             visible = If the shop is visible to the player (bool), false is not used at the moment
             sells = list of all the item types this shop should trade.
+            sell_margin = at the shop items from the player are sold with this margin 
+            buy_margin = at the shop the player must pay this margin for the items 
             """
-            self.total_items_price = 0 # 25% of items price sold to shop goes to shop's gold on next gold update
             self.name = name
-            self.locations = set(locations)
-            self.inventory = Inventory(inv_length)
-            self.gold = gold
-            self.normal_gold_amount = gold
+            self.location = name if location is None else location
+            self.gold = self.normal_gold_amount = gold
+            self.visible = visible
+            self.sells = set(sells)
             self.sell_margin = sell_margin
             self.buy_margin = buy_margin
-            # self.target = None # Forgot what the hell tis is supposed to be
-            self.visible = visible
-            self.restockday = locked_random("randint", 3, 5)
-            if not sells:
-                self.sells = set()
-            else:
-                self.sells = set(sells)
+
+            self.inventory = Inventory(18)
+            self.restockday = 0
+            self.total_items_price = 0 # 25% of items price sold to shop goes to shop's gold on next gold update
 
             self.restock()
+
+        def check_sell(self, item, price):
+            """Checks in an item can be sold to a shop.
+            """
+            if item.unique:
+                return "Unique items cannot be sold!"
+            if not item.sellable:
+                return "This item cannot be sold!"
+            if "any" not in shop.sells and shop.location not in item.locations and item.type.lower() not in shop.sells:
+                return "This shop doesn't buy such things."
+            if shop.gold < price:
+                return "This shop doesn't have enough money."
+            return None
 
         def restock(self):
             '''Restock this shop
             Chance for an item appearing and amount of items are taken from the Item class
             '''
-            self.inventory.clear()
+            inventory = self.inventory
+            inventory.clear()
 
-            items = store.items
-            for item in items.itervalues():
-                if (not self.locations.isdisjoint(item.locations)) and dice(item.chance):
+            location = self.location
+            for item in store.items.itervalues():
+                if location in item.locations and dice(item.chance):
                     if item.infinite:
                         x = 100
                     else:
                         x = 1 + round_int(item.chance/10.0)
-                    self.inventory.append(item=item, amount=x)
+                    inventory.append(item=item, amount=x)
 
             # Gazette:
-            if self in pytfall.__dict__.values():
-                msg = [
-                "{} Restocked!".format(self.name),
-                "New merchandise arrived at {}.".format(self.name),
-                "Check out the new arrivals at {}.".format(self.name)
-                ]
-                gazette.shops.append(choice(msg))
+            if self.visible:
+                msg = choice(["%s Restocked!",
+                              "New merchandise arrived at %s.",
+                              "Check out the new arrivals at %s."]) % self.name
+                gazette.shops.append(msg)
 
+            self.restockday += locked_random("randint", 3, 7)
 
         def next_day(self):
             '''Basic counter to be activated on next day
@@ -545,7 +556,6 @@ init -9 python:
                 if self.total_items_price > 0:
                     self.gold += self.total_items_price /4
                     self.total_items_price = 0
-                self.restockday += locked_random("randint", 3, 7)
 
             base = self.normal_gold_amount
             if self.gold < base:
