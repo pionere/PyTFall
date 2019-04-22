@@ -222,7 +222,7 @@ label village_town_work:
                         if pos <= xpos <= pos + 100: # BASKET WIDTH + ITEM WIDTH
                             basket[item[0]] += 1
                         else:
-                            renpy.show(curr_item.id, what=HitlerKaputt(curr_item.icon, 10), zorder=100)
+                            renpy.show(curr_item.id, what=HitlerKaputt(curr_item.icon, 10), zorder=100) # FIXME position?
 
                         drops.append(item)
                     elif xpos > config.screen_width: 
@@ -238,7 +238,7 @@ label village_town_work:
             moving_items = [i for i in moving_items if i not in drops]
 
             # populate the belt
-            if dice(5): #          BELT RIGHT-ITEM-WIDTH/2, BELT TOP    ...   BOTTOM-TOP-ITEM WIDTH
+            if random.random() < dt/4: # BELT RIGHT-ITEM-WIDTH/2, BELT TOP ... BOTTOM-TOP-ITEM WIDTH
                 source_items.append([choice(sources), [180, 100 + random.random()*460]])
 
             # start new shift
@@ -261,7 +261,7 @@ label village_town_work:
 screen village_town_work:
     # Remaining AP:
     button:
-        pos (65, 10)
+        pos (65, 20)
         xysize 170, 50
         focus_mask True
         background ProportionalScale("content/gfx/frame/frame_ap.webp", 170, 50)
@@ -281,19 +281,6 @@ screen village_town_work:
                     style "proper_stats_text"
                     yoffset 7
 
-    $ img = im.Scale("content/gfx/images/button.webp", 150, 40)
-    button:
-        pos (70, 60)
-        xysize 160, 40
-        idle_background img
-        hover_background im.MatrixColor(img, im.matrix.brightness(.10))
-        insensitive_background im.Sepia(img)
-        action Return("drop")
-        sensitive hand_item is not None
-        text "Space" align .5, .5 size 30 color "black"
-        keysym "K_SPACE"
-        tooltip "Release the item!"
-
     # belt
     add im.Scale("content/gfx/frame/ink_box.png", 100, 500) pos (100, 100) # BELT RIGHT-LEFT, BOTTOM-TOP ... LEFT, TOP
 
@@ -309,6 +296,20 @@ screen village_town_work:
             focus_mask True
             tooltip temp.id
             action Return(item)
+
+    # release button
+    $ img = im.Scale("content/gfx/images/button.webp", 160, 40)
+    button:
+        pos (70, 630)
+        xysize 160, 40
+        idle_background img
+        hover_background im.MatrixColor(img, im.matrix.brightness(.10))
+        insensitive_background im.Sepia(img)
+        action Return("drop")
+        sensitive hand_item is not None
+        text "Space" align .5, .5 size 30 color "black"
+        keysym "K_SPACE"
+        tooltip "Release the item!"
 
     # separator
     add im.Scale("content/gfx/frame/p_frame7.webp", 4, config.screen_height) pos (300, 0)
@@ -371,9 +372,10 @@ label village_town_work_end:
             gfx_overlay.random_find(item, 'items', amount)
             money += amount
 
-        result = randint(money, money*2)
-        hero.add_money(result, reason="Job")
-        gfx_overlay.random_find(result, 'gold')
+        if money != 0:
+            result = randint(money, money*2)
+            hero.add_money(result, reason="Job")
+            gfx_overlay.random_find(result, 'gold')
 
         hero.gfx_mod_stat("joy", -randint(used_pp/50, used_pp/20)) # PP_PER_AP
 
