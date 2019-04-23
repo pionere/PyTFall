@@ -686,7 +686,7 @@ init -9 python:
 
             if not imgpath:
                 char_debug("could not find image with tags %s" % sorted(tags))
-                if not default:
+                if default is None:
                     # New rule (Default Battle Sprites):
                     if "battle_sprite" in pure_tags:
                         force_battle_sprite = True

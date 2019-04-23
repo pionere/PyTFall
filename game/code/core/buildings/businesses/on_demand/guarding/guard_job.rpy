@@ -31,22 +31,23 @@ init -5 python:
             """
             effectiveness = 0
             name = worker.name
-            if 'Exhausted' in worker.effects:
+            effects = worker.effects
+            if 'Exhausted' in effects:
                 log.append("%s is exhausted and is in need of some rest." % name)
                 effectiveness -= 75
-            elif 'Injured' in worker.effects:
+            elif 'Injured' in effects:
                 log.append("%s is injured and is in need of some rest." % name)
                 effectiveness -= 70
-            elif 'Food Poisoning' in worker.effects:
+            elif 'Food Poisoning' in effects:
                 log.append("%s suffers from Food Poisoning, and is very far from %s top shape." % (name, worker.pp))
                 effectiveness -= 50
-            elif 'Drunk' in worker.effects:
+            elif 'Drunk' in effects:
                 log.append("%s is drunk, which affects %s coordination. Not the best thing when you need to guard something." % (name, worker.pp))
                 effectiveness -= 20
-            elif 'Down with Cold' in worker.effects:
+            elif 'Down with Cold' in effects:
                 log.append("%s is not feeling well due to colds..." % name)
                 effectiveness -= 15
-            elif 'Revealing Clothes' in worker.effects:
+            elif 'Revealing Clothes' in effects:
                 if dice(50):
                     log.append("%s revealing clothes attract unneeded attention, interfering with work." % worker.ppC)
                     effectiveness -= 10

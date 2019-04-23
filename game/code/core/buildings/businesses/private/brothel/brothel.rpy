@@ -64,7 +64,7 @@ init -5 python:
             # Upgrade mods:
             effectiveness += self.job_effectiveness_mod
 
-            effectiveness = job.work_brothel(worker=worker, client=client, building=building,
+            effectiveness = job.log_work(worker=worker, client=client, building=building,
                                              log=log, effectiveness=effectiveness)
 
             worker.PP -= job.calc_jp_cost(manager_effectiveness=building.manager_effectiveness, cost=100)

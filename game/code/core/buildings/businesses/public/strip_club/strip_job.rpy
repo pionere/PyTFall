@@ -30,26 +30,27 @@ init -5 python:
             # Special check to prevent crashing
             effectiveness = 0
             name = worker.name
+            effects = worker.effects
             # effects always work
-            if 'Exhausted' in worker.effects:
+            if 'Exhausted' in effects:
                 log.append("%s is exhausted and is in need of some rest." % name)
                 effectiveness -= 75
-            elif 'Injured' in worker.effects:
+            elif 'Injured' in effects:
                 log.append("%s is injured and is in need of some rest." % name)
                 effectiveness -= 70
-            elif 'Food Poisoning' in worker.effects:
+            elif 'Food Poisoning' in effects:
                 log.append("%s suffers from Food Poisoning, and is very far from %s top shape." % (name, worker.pp))
                 effectiveness -= 50
-            elif 'Down with Cold' in worker.effects:
+            elif 'Down with Cold' in effects:
                 log.append("%s is not feeling well due to colds..." % name)
                 effectiveness -= 15
-            elif 'Horny' in worker.effects:
+            elif 'Horny' in effects:
                 log.append("%s is horny. A positive mindset for %s job!" % (name, worker.pp))
                 effectiveness += 10
-            elif 'Drunk' in worker.effects:
+            elif 'Drunk' in effects:
                 log.append("%s is drunk, which affects %s coordination. Not the best thing when you need to dance around pole." % (name, worker.pp))
                 effectiveness -= 20
-            elif 'Revealing Clothes' in worker.effects:
+            elif 'Revealing Clothes' in effects:
                 log.append("%s revealing clothes are perfect for %s job!" % (worker.ppC, worker.pp))
                 effectiveness += 40
 
@@ -138,29 +139,30 @@ init -5 python:
         def calculate_disposition_level(self, worker):
             """
             calculating the needed level of disposition;
-            since it's whoring we talking about, values are really close to max,
-            or even higher than max in some cases, making it impossible
             """
             sub = check_submissivity(worker)
-            if "Shy" in worker.traits:
-                disposition = 700 + 50 * sub
-            else:
-                disposition = 600 + 50 * sub
-            if cgochar(worker, "SIW"):
-                disposition -= 500
-            if "Exhibitionist" in worker.traits:
-                disposition -= 200
-            if "Nymphomaniac" in worker.traits:
-                disposition -= 50
-            elif "Frigid" in worker.traits:
-                disposition += 50
+            disposition = 600 + 50 * sub
+
             if check_lovers(hero, worker):
                 disposition -= 50
             elif check_friends(hero, worker):
                 disposition -= 25
-            if "Natural Follower" in worker.traits:
+
+            if cgochar(worker, "SIW"):
+                disposition -= 500
+
+            traits = worker.traits
+            if "Shy" in traits:
+                disposition += 100
+            if "Exhibitionist" in traits:
+                disposition -= 200
+            if "Nymphomaniac" in traits:
                 disposition -= 50
-            elif "Natural Leader" in worker.traits:
+            elif "Frigid" in traits:
+                disposition += 50
+            if "Natural Follower" in traits:
+                disposition -= 50
+            elif "Natural Leader" in traits:
                 disposition += 50
             return disposition
 
@@ -225,7 +227,7 @@ init -5 python:
                                    "%s begins %s striptease performance!",
                                    "%s shows %s goods to clients."]) % (name, worker.pp))
 
-        def work_strip_club(self, worker, clients, effectiveness, log):
+        def log_work(self, worker, clients, effectiveness, log):
             len_clients = len(clients)
             building = log.loc
             tier = building.tier
@@ -263,11 +265,13 @@ init -5 python:
             log.append("\n")
             if skill >= 170:
                 log.append("%s gave an amazing performance, %s sexy and elegant moves forced a few customers to come right away to their own embarrassment." % (worker.pC, worker.pp))
-                log.logloc("reputation", choice([0, 1]))
+                if dice(50):
+                    log.logloc("reputation", 1)
                 log.logws("joy", 3)
             elif skill >= 150:
                 log.append("%s gave a performance worthy of kings and queens as the whole hall was cheering for %s." % (worker.pC, worker.op))
-                log.logloc("reputation", choice([0, 0, 1]))
+                if dice(30):
+                    log.logloc("reputation", 1)
                 log.logws("joy", 2)
             elif skill >= 130:
                 log.append("%s lost all of %s clothing piece by piece as %s gracefully danced on the floor, the whole hall was cheering for %s." % (worker.pC, worker.pp, worker.p, worker.op))
@@ -280,7 +284,7 @@ init -5 python:
             elif skill >= 50:
                 log.append("%s barely knew what %s was doing. %s performance can hardly be called a striptease, but at least %s showed enough skin to arouse some customers in the club." % (worker.pC, worker.p, worker.ppC, worker.p))
             else:
-                if worker.get_stat("charisma") >= 200:
+                if charisma >= 100:
                     log.append("%s tripped several times while trying to undress %sself as %s 'stripdanced' on the floor. Still, %s was pretty enough to arouse some men and women in the club." % (worker.pC, worker.op, worker.p, worker.p))
                 else:
                     log.append("%s certainly did not shine as %s clumsily 'danced' on the floor. Neither %s looks nor %s skill could save the performance..." % (worker.pC, worker.p, worker.pp, worker.pp))

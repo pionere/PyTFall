@@ -22,19 +22,20 @@ init -5 python:
             effectiveness = 0
 
             name = worker.name
-            if 'Exhausted' in worker.effects:
+            effects = worker.effects
+            if 'Exhausted' in effects:
                 log.append("%s is exhausted and is in need of some rest." % name)
                 effectiveness -= 75
-            elif 'Injured' in worker.effects:
+            elif 'Injured' in effects:
                 log.append("%s is injured and is in need of some rest." % name)
                 effectiveness -= 70
-            elif 'Food Poisoning' in worker.effects:
+            elif 'Food Poisoning' in effects:
                 log.append("%s suffers from Food Poisoning, and is very far from %s top shape." % (name, worker.pp))
                 effectiveness -= 50
-            elif 'Down with Cold' in worker.effects:
+            elif 'Down with Cold' in effects:
                 log.append("%s is not feeling well due to colds..." % name)
                 effectiveness -= 15
-            elif 'Drunk' in worker.effects:
+            elif 'Drunk' in effects:
                 log.append("Being drunk, %s perfectly understands %s customers who also are far from sobriety." % (name, worker.pp))
                 effectiveness += 20
 
@@ -125,29 +126,30 @@ init -5 python:
         def calculate_disposition_level(self, worker):
             """
             calculating the needed level of disposition;
-            since it's whoring we talking about, values are really close to max,
-            or even higher than max in some cases, making it impossible
             """
             sub = check_submissivity(worker)
-            if "Shy" in worker.traits:
-                disposition = 400 + 50 * sub
-                if "Psychic" in worker.traits:
-                    disposition += 200
-            else:
-                disposition = 200 + 50 * sub
-                if "Psychic" in worker.traits:
-                    disposition -= 50
+            disposition = 200 + 50 * sub
+
             if check_lovers(hero, worker):
                 disposition -= 200
             elif check_friends(hero, worker):
                 disposition -= 100
-            if "Natural Follower" in worker.traits:
+
+            traits = worker.traits
+            if "Shy" in traits:
+                disposition += 200
+                if "Psychic" in traits:
+                    disposition += 200
+            else:
+                if "Psychic" in traits:
+                    disposition -= 50
+            if "Natural Follower" in traits:
                 disposition -= 50
-            elif "Natural Leader" in worker.traits:
+            elif "Natural Leader" in traits:
                 disposition += 50
-            if "Heavy Drinker" in worker.traits:
+            if "Heavy Drinker" in traits:
                 disposition -= 150
-            if "Indifferent" in worker.traits:
+            if "Indifferent" in traits:
                 disposition += 100
             return disposition
 
@@ -209,13 +211,13 @@ init -5 python:
                                    "%s is working the bar!" % name, 
                                    "%s serves customers in the bar." % name]))
 
-        def work_bar(self, worker, clients, effectiveness, log):
-
+        def log_work(self, worker, clients, effectiveness, log):
             len_clients = len(clients)
             building = log.loc
+            tier = building.tier
 
-            bartending = self.normalize_required_skill(worker, "bartending", effectiveness, building.tier)
-            charisma = self.normalize_required_stat(worker, "charisma", effectiveness, building.tier)
+            bartending = self.normalize_required_skill(worker, "bartending", effectiveness, tier)
+            charisma = self.normalize_required_stat(worker, "charisma", effectiveness, tier)
 
             if bartending > 150:
                 if dice(70):
@@ -260,13 +262,14 @@ init -5 python:
             #Stat Mods
             # Award EXP:
             if effectiveness >= 90:
-                log.logws("exp", exp_reward(worker, log.loc.tier))
+                log.logws("exp", exp_reward(worker, tier))
             else:
-                log.logws("exp", exp_reward(worker, log.loc.tier, exp_mod=.5))
+                log.logws("exp", exp_reward(worker, tier, exp_mod=.5))
 
-            log.logws('bartending', choice([1, 2]))
-            log.logws('refinement', choice([0, 0, 0, 1]))
-            log.logws('vitality', round_int(len_clients*-.5))
+            log.logws('bartending', 1 if dice(50) else 2)
+            if dice(25):
+                log.logws('refinement', 1)
+            log.logws('vitality', -(len_clients+1)/2)
 
             if worker.has_image("waitress", exclude=["sex"]):
                 log.img = worker.show("waitress", exclude=["sex"])

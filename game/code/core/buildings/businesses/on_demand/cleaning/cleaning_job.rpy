@@ -23,20 +23,21 @@ init -5 python:
             """
             effectiveness = 0
             name = worker.name
+            effects = worker.effects
             # effects always work
-            if 'Exhausted' in worker.effects:
+            if 'Exhausted' in effects:
                 log.append("%s is exhausted and is in need of some rest." % name)
                 effectiveness -= 75
-            elif 'Injured' in worker.effects:
+            elif 'Injured' in effects:
                 log.append("%s is injured and is in need of some rest." % name)
                 effectiveness -= 70
-            elif 'Food Poisoning' in worker.effects:
+            elif 'Food Poisoning' in effects:
                 log.append("%s suffers from Food Poisoning, and is very far from %s top shape." % (name, worker.pp))
                 effectiveness -= 50
-            elif 'Drunk' in worker.effects:
+            elif 'Drunk' in effects:
                 log.append("%s is drunk, which affects %s coordination. The occasional vomitting does not help either." % (name, worker.pp))
                 effectiveness -= 30
-            elif 'Down with Cold' in worker.effects:
+            elif 'Down with Cold' in effects:
                 log.append("%s is not feeling well due to colds..." % name)
                 effectiveness -= 15
 
@@ -86,23 +87,28 @@ init -5 python:
 
             return effectiveness
 
-        def calculate_disposition_level(self, worker): # calculating the needed level of disposition
+        def calculate_disposition_level(self, worker):
+            """
+            calculating the needed level of disposition;
+            """
             sub = check_submissivity(worker)
-            if "Shy" in worker.traits:
-                disposition = 150 + 50 * sub
-            else:
-                disposition = 200 + 50 * sub
+            disposition = 200 + 50 * sub
+
             if check_lovers(hero, worker):
                 disposition -= 50
             elif check_friends(hero, worker):
                 disposition -= 20
-            if "Natural Follower" in worker.traits:
-                disposition -= 25
-            elif "Natural Leader" in worker.traits:
-                disposition += 25
-            if "Neat" in worker.traits:
+
+            traits = worker.traits
+            if "Shy" in traits:
                 disposition -= 50
-            if "Messy" in worker.traits:
+            if "Natural Follower" in traits:
+                disposition -= 25
+            elif "Natural Leader" in traits:
+                disposition += 25
+            if "Neat" in traits:
+                disposition -= 50
+            if "Messy" in traits:
                 disposition += 100
             return disposition
 
