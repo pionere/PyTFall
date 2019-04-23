@@ -29,7 +29,7 @@ init -5 python:
 
             # Pure cleaners, container is kept around for checking during all_on_deck scenarios
             log = []
-            strict_workers = self.get_strict_workers(job, power_flag_name, use_slaves=True, log=log)
+            strict_workers = self.get_strict_workers(job, power_flag_name, log=log)
             workers = strict_workers.copy() # cleaners on active duty
 
             while 1:
@@ -49,7 +49,7 @@ init -5 python:
 
                         if not using_all_workers:
                             using_all_workers = True
-                            workers = self.all_on_deck(workers, job, power_flag_name, use_slaves=True, log=log)
+                            workers = self.all_on_deck(workers, job, power_flag_name, log=log)
 
                     if not make_nd_report_at:
                         wlen = len(workers)

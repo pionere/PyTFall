@@ -225,136 +225,123 @@ init -12 python:
             # Logs the text for next day event...
             self.building.log(item, add_time=add_time)
 
-        # Worker methods:
-        def has_workers(self, amount=1):
-            # Checks if there is a worker(s) available.
-            return False
-
         @property
         def all_workers(self):
             # This may be a poor way of doing it because different upgrades could have workers with the same job assigned to them.
             # Basically what is needed is to allow setting a business to a worker as well as the general building if required...
             # And this doesn't work? workers are never populated???
-            return list(i for i in self.building.available_workers if self.all_occs & i.occupations)
+            occs = self.all_occs
+            return [i for i in self.building.available_workers if occs & i.occupations]
 
-        def strict_rule_workers(self, job):
-            return list(i for i in self.building.available_workers if i.action == job)
+        def get_workers(self, job, amount=None, rule="normal", client=None):
+            """Tries to find workers for the given job.
 
-        def normal_rule_workers(self, job):
-            return list(i for i in self.building.available_workers if i.traits.basetraits.intersection(job.occupation_traits))
-
-        def loose_rule_workers(self, job):
-            return list(i for i in self.building.available_workers if i.occupations.intersection(job.occupations))
-
-        def get_workers(self, job, amount=1, match_to_client=None,
-                        rule="normal", use_slaves=True):
-            """Tries to find workers for any given job.
-
-            Will use given rule and check it vs building rule, using only
+            @param job: the job to find the workers for
+            @param amount: the limit on the number of workers to be returned. Must not be 0.
+            @param rule: Will use given rule and check it vs building rule, using only
                 workers permitted.
-
-            @param: match_to_client: Will try to find the a good match to client,
+            @param: client: try to find a good match to client,
                     expects a client (or any PytC instance with .likes set) object.
             """
             building = self.building
-            rv = list()
-            workers = list()
 
-            # Get the allowed rules:
             rules = building.WORKER_RULES
-            local_index = rules.index(rule)
-            building_rule_index = rules.index(building.workers_rule)
-            slice_by = min(local_index, building_rule_index) + 1
-            rules = rules[:slice_by]
+            # Select the stricter rule:
+            if rules.index(rule) > rules.index(building.workers_rule):
+                rule = building.workers_rule
+            if amount is None:
+                # no limit -> use the most relaxed rule only
+                rules = [rule]
+                amount = -1
 
+            rv = list()
+            checked_workers = list()
             for r in rules:
-                func = getattr(self, r + "_rule_workers")
-                workers = list(i for i in func(job) if i not in workers)
-                if not use_slaves:
-                    workers = [w for w in workers if w.status != "slave"]
+                workers = building.available_workers
+                if r == "strict":
+                    workers = [i for i in workers if i.action == job] 
+                elif r == "normal":
+                    workers = [i for i in workers if i.traits.basetraits.intersection(job.occupation_traits)]
+                else: # r == loose
+                    workers = [i for i in workers if i.occupations.intersection(job.occupations)]
+                workers = [w for w in workers if w not in checked_workers]
+                checked_workers.extend(workers)
 
                 shuffle(workers)
-                while len(rv) < amount and workers:
-                    if match_to_client:
-                        w = self.find_best_match(match_to_client, workers) # This is not ideal as we may end up checking a worker who will soon be removed...
+                while workers:
+                    if client is not None:
+                        # Attempts to match a client to a worker.
+                        for w in workers[:]:
+                            likes = client.likes.intersection(w.traits)
+                            if not likes:
+                                continue
+                            if not self.check_worker_for_job(w, job):
+                                workers.remove(w)
+                                continue
+                            slikes = ", ".join([str(l) for l in likes])
+                            if dice(50):
+                                temp = '%s liked %s for %s %s.' % (
+                                    set_font_color(client.name, "beige"),
+                                    set_font_color(w.nickname, "pink"),
+                                    slikes, plural("trait", len(likes)))
+                            else:
+                                temp = '%s found %s %s in %s very appealing.' % (
+                                    set_font_color(client.name, "beige"),
+                                    slikes, plural("trait", len(likes)),
+                                    set_font_color(w.nickname, "pink"))
+                            self.log(temp)
+                            client.set_flag("jobs_matched_traits", likes)
+                            workers.remove(w)
+                            break
+                        else:
+                            if not workers:
+                                break
+                            w = None
                     else:
+                        w = None
+                    if w is None:
                         w = workers.pop()
-                    if self.check_worker_capable(w) and self.check_worker_willing(w, job):
-                        rv.append(w)
+                        if not self.check_worker_for_job(w, job):
+                            continue
 
-                if len(rv) >= amount:
+                    rv.append(w)
+                    amount -= 1
+                    if amount == 0:
+                        return rv
+
+                if r == rule:
                     break
 
             return rv
 
-        def find_best_match(self, client, workers):
-            """Attempts to match a client to a worker.
-
-            This intersects worker traits with clients likes and acts accordingly.
-            Right now it will not try to find the very best match and instead will break on the first match found.
-            Returns a worker at random if that fails.
-            """
-            for w in workers:
-                likes = client.likes.intersection(w.traits)
-                if likes:
-                    slikes = ", ".join([str(l) for l in likes])
-                    temp0 = '{} liked {} for {} {}.'.format(
-                        set_font_color(client.name, "beige"),
-                        set_font_color(w.nickname, "pink"),
-                        slikes, plural("trait", len(likes)))
-                    temp1 = '{} found {} {} in {} very appealing.'.format(
-                        set_font_color(client.name, "beige"),
-                        slikes, plural("trait", len(likes)),
-                        set_font_color(w.nickname, "pink"))
-                    self.log(choice([temp0, temp1]))
-                    client.set_flag("jobs_matched_traits", likes)
-                    workers.remove(w)
-                    return w
-            return workers.pop()
-
-        def check_worker_willing(self, worker, job):
-            """Checks if the worker is willing to do the job.
+        def check_worker_for_job(self, worker, job):
+            """Checks if the worker is capable and willing to do the job.
 
             Removes worker from instances master list.
             Returns True is yes, False otherwise.
             """
-            if worker.can_work(job):
-                if DSNBR:
-                    temp = set_font_color("Debug: {} worker (Occupations: {}) with action: {} is doing {}.".format(
-                                          worker.nickname, ", ".join(list(str(t) for t in worker.occupations)), worker.action, job.id), "lawngreen")
-                    self.log(temp, True)
-                return True
-            else:
-                building = self.building
-                if worker in building.available_workers:
-                    building.available_workers.remove(worker)
+            if not can_do_work(worker):
+                self.building.available_workers.remove(worker)
 
+                temp = "%s is done working for the day." % worker.name
+                self.log(set_font_color(temp, "cadetblue"))
+                return False
+
+            if not worker.can_work(job):
                 if DSNBR:
-                    temp = set_font_color('Debug: {} worker (Occupations: {}) with action: {} refuses to do {}.'.format(
+                    temp = 'Debug: {} worker (Occupations: {}) with action: {} refuses to do {}.'.format(
                             worker.nickname, ", ".join(list(str(t) for t in worker.occupations)),
-                            worker.action, job.id), "red")
-                    self.log(temp)
+                            worker.action, job.id)
                 else:
-                    temp = set_font_color('{} is refuses to do {}!'.format(worker.name, job.id), "red")
-                    self.log(temp)
-
+                    temp = '%s refuses to do %s!' % (worker.name, job.id)
+                self.log(set_font_color(temp, "red"))
                 return False
 
-        def check_worker_capable(self, worker):
-            """Checks if the worker is capable of doing the job.
-
-            Removes worker from instances master list.
-            Returns True is yes, False otherwise.
-            """
-            if can_do_work(worker):
-                return True
-            else:
-                building = self.building
-                if worker in building.available_workers:
-                    building.available_workers.remove(worker)
-                temp = set_font_color('{} is done working for the day.'.format(worker.name), "cadetblue")
-                self.log(temp)
-                return False
+            if DSNBR:
+                temp = set_font_color("Debug: {} worker (Occupations: {}) with action: {} is doing {}.".format(
+                                          worker.nickname, ", ".join(list(str(t) for t in worker.occupations)), worker.action, job.id), "lawngreen")
+                self.log(temp, True)
+            return True
 
         # Runs before ND calcs stats for this building.
         def pre_nd(self):
@@ -379,7 +366,7 @@ init -12 python:
             self.building.fin.log_logical_income(amount, reason)
 
         def inactive_process(self):
-            temp = "{} is currently inactive, no actions will be conducted here!".format(self.name)
+            temp = "%s is currently inactive, no actions will be conducted here!" % self.name
             self.log(temp)
             #yield self.env.timeout(100)
 
@@ -387,8 +374,7 @@ init -12 python:
         def business_control(self):
             """SimPy business controller.
             """
-            while (1):
-                break #yield self.env.timeout(100)
+            raise Exception("The business_control method is not implemented for %s!" % self.name)
 
     class PrivateBusiness(Business):
         def __init__(self):
@@ -401,10 +387,10 @@ init -12 python:
             # SimPy and etc follows:
             self.res = None # Restored before every job...
             self.time = 10 # Same
-            self.is_running = False
 
         def has_workers(self):
-            return any((self.all_occs & i.occupations) for i in self.building.available_workers)
+            occs =  self.all_occs
+            return any((occs & i.occupations) for i in self.building.available_workers)
 
         def business_control(self):
             while 1:
@@ -414,7 +400,7 @@ init -12 python:
                     break
 
             # We remove the business from nd if there are no more strippers to entertain:
-            temp = "There are no workers available in the {} so it is shutting down!".format(self.name)
+            temp = "There are no workers available in the %s so it is shutting down!" % self.name
             self.log(temp)
             self.building.nd_ups.remove(self)
 
@@ -433,7 +419,6 @@ init -12 python:
 
         def post_nd(self):
             self.res = None
-            self.is_running = False
 
 
     class PublicBusiness(Business):
@@ -459,7 +444,6 @@ init -12 python:
             # SimPy and etc follows (L33t stuff :) ):
             self.res = None # Restored before every job... Resource Instance that may not be useful here...
             self.time = 10 # Time for a single shift.
-            self.is_running = False # Active/Inactive.
             self.has_tap_beer = False # cached result of check for TapBeer upgrade
 
         def client_control(self, client):
@@ -469,7 +453,7 @@ init -12 python:
             tier = self.building.tier or 1
 
             self.clients_waiting.add(client)
-            temp = "{color=beige}%s{/color} enters the %s." % (client.name, self.name)
+            temp = "%s enters the %s." % (set_font_color(client.name, "beige"), self.name)
             self.log(temp, True)
 
             dirt = 0
@@ -517,14 +501,14 @@ init -12 python:
                     break
 
                 if client.du_without_service >= 5:
-                    temp = "{color=beige}%s{/color} spent too long waiting for service!" % client.name
+                    temp = "%s spent too long waiting for service!" % set_font_color(client.name, "beige")
                     self.log(temp, True)
                     break
 
             dirt = randint(0, dirt)
             self.building.moddirt(dirt) # Move to business_control?)
 
-            temp = "{} exits the {} leaving {} dirt behind.".format(
+            temp = "%s exits the %s leaving %s dirt behind." % (
                                     set_font_color(client.name, "beige"), self.name, dirt)
             self.log(temp, True)
 
@@ -536,15 +520,15 @@ init -12 python:
         def add_worker(self, job):
             simpy_debug("Entering PublicBusiness(%s).add_worker at %s", self.name, self.env.now)
             # Get all candidates:
-            ws = self.get_workers(job)
+            ws = self.get_workers(job, amount=1)
             if ws:
                 w = ws.pop()
                 self.active_workers.add(w)
                 self.building.available_workers.remove(w)
                 self.env.process(self.worker_control(w))
             else:
-                temp = "{color=red}Could not find an available %s worker" % job
-                self.log(temp)
+                temp = "Could not find an available %s worker" % job
+                self.log(set_font_color(temp, "red"))
             simpy_debug("Exiting PublicBusiness(%s).add_worker at %s", self.name, self.env.now)
 
         def business_control(self):
@@ -564,40 +548,23 @@ init -12 python:
                         temp = "Adding {} workers to {}!".format(
                                 set_font_color(new_workers_required, "green"),
                                 self.name)
-                        temp = temp + " ~ self.send_in_worker == {}".format(
+                        temp += " ~ self.send_in_worker == {}".format(
                                     set_font_color(self.send_in_worker, "red"))
                         self.log(temp, True)
                     for i in range(new_workers_required):
                         self.add_worker(job)
                     self.send_in_worker = False
 
-                # Could be flipped to a job Brawl event?:
-                # if False:
-                #     if counter < 1 and self.env.now > 20:
-                #         counter += 1
-                #         for u in building.businesses:
-                #             if u.__class__ == WarriorQuarters:
-                #                 process = u.request_action(building=building, start_job=True, priority=True, any=False, action="patrol")[1]
-                #                 u.interrupt = process # New field to which we can bind a process that can be interrupted.
-                #                 break
-                #
-                #     # testing interruption:
-                #     if "process" in locals() and (counter == 1 and self.env.now > 40):
-                #         counter += 1
-                #         process.interrupt("fight")
-                #         self.env.process(u.intercept(interrupted=True))
-                # =====================================>>>
-
                 # Every 5 DU
                 if not self.env.now % 5:
                     if DSNBR:
                         temp = "Debug: {} capacity is currently in use.".format(
                                 set_font_color(self.res.count, "red"))
-                        temp = temp + " {} Workers are currently on duty in {}!".format(
+                        temp += " {} Workers are currently on duty in {}!".format(
                                 set_font_color(len(self.active_workers), "blue"),
                                 self.name)
                         siw_workers = len([w for w in building.available_workers if set(w.gen_occs).intersection(self.all_occs)])
-                        temp = temp + " {} (gen_occ) workers are available in the Building for the job!".format(
+                        temp += " {} (gen_occ) workers are available in the Building for the job!".format(
                                 set_font_color(siw_workers, "green"))
                         self.log(temp, True)
 
@@ -608,7 +575,7 @@ init -12 python:
                 yield self.env.timeout(1)
 
             # We remove the business from nd if there are no more strippers to entertain:
-            temp = "There are no workers available in the {} so it is shutting down!".format(self.name)
+            temp = "There are no workers available in the %s so it is shutting down!" % self.name
             self.log(temp)
             building.nd_ups.remove(self)
 
@@ -683,7 +650,7 @@ init -12 python:
                 log.after_job()
                 NextDayEvents.append(log)
             else:
-                temp = "There were no clients for {} to serve".format(worker.name)
+                temp = "There were no clients for %s to serve" % worker.name
                 self.log(temp, True)
 
             self.active_workers.remove(worker)
@@ -701,7 +668,6 @@ init -12 python:
 
         def post_nd(self):
             self.res = None
-            self.is_running = False
             self.send_in_worker = False
             self.active_workers = set()
 
@@ -711,21 +677,12 @@ init -12 python:
 
             self.type = "on_demand_service"
             self.workable = True
-            self.active_workers = list()
-            # Action that is currently running! For example guard that are presently on patrol should still respond to act
-            # of violence by the customers, even thought it may appear that they're busy (in code).
-            self.action = None
 
             # SimPy and etc follows:
-            # We can bind an active process here if
-            # it can be interrupted. I'ma an idiot... This needs to be reset.
-            self.interrupt = None
             self.expands_capacity = False
 
-        def get_strict_workers(self, job, power_flag_name, use_slaves, log):
-            workers = set(self.get_workers(job, amount=float("inf"),
-                           rule="strict",
-                           use_slaves=use_slaves))
+        def get_strict_workers(self, job, power_flag_name, log):
+            workers = set(self.get_workers(job, rule="strict"))
 
             if workers:
                 # Do Disposition checks:
@@ -735,10 +692,9 @@ init -12 python:
 
             return workers
 
-        def all_on_deck(self, workers, job, power_flag_name, use_slaves, log):
+        def all_on_deck(self, workers, job, power_flag_name, log):
             # calls everyone in the building to clean it
-            new_workers = self.get_workers(job, amount=float("inf"),
-                            rule="loose", use_slaves=use_slaves)
+            new_workers = self.get_workers(job, rule="loose")
 
             if new_workers:
                 # Do Disposition checks:
@@ -773,10 +729,6 @@ init -12 python:
 
                     # Remove from active workers:
                     building.available_workers.remove(w)
-
-        def post_nd(self):
-            # Resets all flags and variables after next day calculations are finished.
-            self.interrupt = None
 
 
     class TaskBusiness(Business):

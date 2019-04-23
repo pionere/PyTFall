@@ -32,7 +32,7 @@ init -10 python:
     BUSINESS:
         # Hold all data/methods required for business to operate.
         *Personal Service:
-            - Finds best client match using update.get_workers()
+            - Finds best client match using business.get_workers()
             - Runs the job.
         *Public Service:
             - Simply sends client to business.
@@ -55,7 +55,6 @@ init -10 python:
         SimPy Land:
             *res = Resource
             *time = cycle
-            *is_running = May be useless
 
         *Personal Service:
             *find_best_match = finds a best client/worker combination.
@@ -229,7 +228,7 @@ init -10 python:
         """
         WORKER_RULES = ["strict", "normal", "loose"]
         WORKER_RULES_DESC = {
-            "strict": "Workers will only preform jobs that are the exact match to the action you're assigned them!",
+            "strict": "Workers will only perform jobs that are the exact match to the action you're assigned them!",
             "normal": "Workers may choose to do a job that directly matches to their class if they are not busy otherwise!",
             "loose": "Workers may choose to do a job that is at least loosely matches to their class if they are not busy otherwise! (for example a Stripper doing a Whore Job)"
         }
@@ -947,9 +946,6 @@ init -10 python:
                 else: # inactive business
                     env.process(self.inactive_process())
 
-                if u.has_workers():
-                    u.is_running = True
-
             if self.clients:
                 env.process(self.clients_dispatcher(end=end-10))
 
@@ -1146,15 +1142,12 @@ init -10 python:
                 if business.type == "personal_service":
                     # Personal Service (Brothel-like):
                     job = business.jobs[0] # FIXME one job per business, is should be client specific anyway
-                    workers = business.get_workers(job, amount=1, match_to_client=client)
+                    workers = business.get_workers(job, amount=1, client=client)
 
-                    if not workers:
-                        continue # Send to the next update.
-                    else:
+                    if workers:
                         # We presently work just with the one char only, so:
                         worker = workers.pop()
-                        if worker in self.available_workers:
-                            self.available_workers.remove(worker)
+                        self.available_workers.remove(worker)
 
                         # We bind the process to a flag and wait until it is interrupted:
                         visited += 1

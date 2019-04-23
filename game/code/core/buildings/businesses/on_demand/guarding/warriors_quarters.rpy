@@ -33,7 +33,7 @@ init -5 python:
 
             # Pure workers, container is kept around for checking during all_on_deck scenarios
             log = []
-            strict_workers = self.get_strict_workers(job, power_flag_name, use_slaves=False, log=log)
+            strict_workers = self.get_strict_workers(job, power_flag_name, log=log)
             workers = strict_workers.copy() # workers on active duty
 
             while 1:
@@ -49,7 +49,7 @@ init -5 python:
                     if threat >= 500:
                         if not using_all_workers:
                             using_all_workers = True
-                            workers = self.all_on_deck(workers, job, power_flag_name, use_slaves=False, log=log)
+                            workers = self.all_on_deck(workers, job, power_flag_name, log=log)
                             SparringQuarters_active = False # no time for sparring in case of emergency
 
                     if not make_nd_report_at:
@@ -288,12 +288,6 @@ init -5 python:
                 # Reset the controllers:
                 defence_team.reset_controller()
                 enemy_team.reset_controller()
-
-                # We also should restore the list if there was interruption:
-                # if "active_workers_backup" in locals():
-                #     for i in active_workers_backup:
-                #         if can_do_work(i, check_ap=False): # Check if we're still ok to work...
-                #             self.active_workers.append(i)
 
                 # decided to add report in debug mode after all :)
                 self.log(set_font_color("Battle Starts!", "crimson"))

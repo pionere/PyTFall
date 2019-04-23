@@ -1399,6 +1399,14 @@ label after_load:
                     del u.log_intro_string
                 if hasattr(u, "clients"):
                     del u.clients
+                if hasattr(u, "is_running"):
+                    del u.is_running
+                if hasattr(u, "action"):
+                    del u.action
+                if hasattr(u, "interrupt"):
+                    del u.interrupt
+                if hasattr(u, "active_workers") and isinstance(u, OnDemandBusiness):
+                    del u.active_workers
                 if not hasattr(u, "job_effectiveness_mod"):
                     jem = 0
                     for up in u.upgrades:
