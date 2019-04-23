@@ -99,9 +99,9 @@ label village_town_work:
         
         hand_protection = hero.eqslots["wrist"]
         item = getattr(hand_protection, "id", False)
-        if item in ["Metal Gloves", "Steel Gloves", "Mail Gloves", "Mithril Gloves", "Draconic Leather Gloves", "Bracer of Toughness"]:
+        if item in ["Metal Gloves", "Steel Gloves", "Mail Gloves", "Mithril Gloves", "Draconic Leather Gloves"]:
             hand_protection = True
-        elif item == "Slave Handcuffs":
+        elif "Bracer" in item or item == "Slave Handcuffs":
             hand_protection = False
         next_pp_time = 0
         used_pp = 0
