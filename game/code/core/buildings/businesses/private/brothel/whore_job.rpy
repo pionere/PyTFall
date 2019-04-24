@@ -225,9 +225,16 @@ init -5 python:
             nickname = set_font_color(choice([worker.fullname, worker.name, worker.nickname]), "pink")
 
             sexmod = vaginalmod = analmod = oralmod = 0
+
+            # determine act
+            if client.gender == 'male':
+                act = choice(["sex", "anal", "blowjob"])
+            else: #if client.gender == 'female':
+                act = "lesbian"
+
             # Acts, Images, Tags and things Related:
             # Straight Sex Act
-            if client.act == 'sex':
+            if act == 'sex':
                 kwargs = dict(exclude=["gay"]+always_exclude, type="reduce", add_mood=False)
                 log.append(choice(["%s hired %s for some good old straight sex. " % (clientname, worker.op),
                                    "%s is willing to pay for %s." % (clientname, "her pussy" if worker.gender == "female" else "his dick")]))
@@ -265,7 +272,7 @@ init -5 python:
                 # Virgin trait check:
                 self.take_virginity(worker, log.loc, log)
             # Anal Sex Act
-            elif client.act == 'anal':
+            elif act == 'anal':
                 kwargs = dict(exclude=["gay"]+always_exclude, type="reduce", add_mood=False)
                 log.append(choice(["%s hired her for some anal fun. ", "%s is willing to pay her for backdoor action. "]) % clientname)
                 if "Lesbian" in worker.traits:
@@ -303,7 +310,7 @@ init -5 python:
                                        'He got his dose of it. \n',
                                        'And so he took her in her butt. \n']))
             # Various job acts
-            elif client.act == 'blowjob':
+            elif act == 'blowjob':
                 kwargs = dict(exclude=always_exclude, type="reduce", add_mood=False)
                 log.append(choice(["%s hired %s for some side job on his thing. ", "%s is paying %s today for naughty service. "]) % (clientname, worker.op))
                 # here we will have to choose skills depending on selected act
@@ -402,7 +409,7 @@ init -5 python:
                     oralmod = 10
                     log.img = worker.show("bc blowjob", **kwargs)
             # Lesbian Act
-            elif client.act == 'lesbian':
+            elif act == 'lesbian':
                 log.append("%s hired her for some hot girl on girl action. " % clientname)
                 skill = worker.get_skill("vaginal")
                 kwargs = dict(exclude=always_exclude, type="reduce", add_mood=False)

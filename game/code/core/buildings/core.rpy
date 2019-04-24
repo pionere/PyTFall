@@ -17,7 +17,7 @@ init -10 python:
             *Builds worker lists.
             *Logs the init data to the building report.
             *Runs pre_day for all businesses.
-            *Creates SimPy Environment and runs it (run_jobs being the main controlling process)
+            *Creates SimPy Environment and runs it
             *Runs the post_nd.
         building_manager():
             SimPy process that manages the building as a whole.
@@ -58,24 +58,25 @@ init -10 python:
 
         *Personal Service:
             *find_best_match = finds a best client/worker combination.
-            *request_resource:
-                - requests a room for worker/client.
-                - adds a run_job process to Env
+            *client_control:
+                - handles the client after a room is reserved.
+                - Waits for self.time delay
                 - logs it all to building log
             *run_job:
-                - Waits for self.time delay
                 - Calls the job so it can form an NDEvent
 
         *Public Service:
             *active_workers = Does this not simply double the normal workers?
             *request = plainly adds a client and keeps it in the business based on "ready_to_leave" flag set directly to the client.
+            *client_control:
+                - handles the client after a spot is reserved
             *add_worker:
                 # Adds workers to business to serve clients.
                 - Checks willingness to do the job.
                 - Adds workers as required.
                 - self.env.process(self.worker_control(worker)) Possible the most important part, this adds a process to Env.
                 - Removes worker from building in order to reserve her for this business
-            *run_job:
+            *business_control:
                 # main method/SimPy event that manages the job from start to end.
                 - Runs for as long there are active workers
                 - Waits for self.time delay
@@ -944,7 +945,7 @@ init -10 python:
                 if u.active:  # Business as usual:
                     env.process(u.business_control())
                 else: # inactive business
-                    env.process(self.inactive_process())
+                    env.process(u.inactive_process())
 
             if self.clients:
                 env.process(self.clients_dispatcher(end=end-10))
@@ -1071,12 +1072,12 @@ init -10 python:
             temp = "%s arrives at the %s." % (client_name, self.name)
             self.log(temp, True)
 
-            if self.dirt >= 800:
+            if self.dirt >= 800: # FIXME maxdirt?
                 yield self.env.timeout(1)
                 temp = "Your building is as clean as a pig stall. %s storms right out." % client_name
                 self.log(temp)
                 self.env.exit()
-            if self.threat >= 800:
+            if self.threat >= 800: # FIXME maxthreat?
                 yield self.env.timeout(1)
                 temp = "Your building is as safe as a warzone. %s ran away." % client_name
                 self.log(temp)
@@ -1107,12 +1108,23 @@ init -10 python:
             visited = 0 # Amount of businesses client has successfully visited.
             while businesses:
                 # Here we pick an upgrade if a client has one in preferences:
-                if not visited and fav_business in businesses:
+                if not visited:
                     # On the first run we'd want to pick the clients fav.
-                    business = fav_business
-                    businesses.remove(business)
+                    if fav_business in businesses:
+                        business = fav_business
+                        businesses.remove(business)
+                    else:
+                        if dice(50):
+                            temp = "%s storms out of the building pissed off as %s favorite business is closed!" % (client_name, client.pp)
+                            self.log(temp)
+                            self.env.exit()
+
+                        business = businesses.pop()
                 else:
                     business = businesses.pop()
+
+                if business.time + self.env.now > 100: # MAX_DU
+                    continue # not enough time
 
                 if business.res.count >= business.capacity:
                     # not enough capacity to handle the client 
@@ -1120,7 +1132,7 @@ init -10 python:
                     if any((not self.asks_clients_to_wait,
                             self.manager_effectiveness == 0 or self._dnd_manager.PP == 0,
                             business != fav_business,
-                            self.env.now > 85)):
+                            (business.time + self.env.now) > 95)): # MAX_DU - 5
                         continue # no one can help -> skip
                     
                     # Manager active effect:
@@ -1136,35 +1148,20 @@ init -10 python:
                         yield self.env.timeout(1)
                         if business.res.count < business.capacity:
                             break # a free spot -> jump
-                    else:
-                        continue # timeout -> skip
+                    else: # timeout -> skip
+                        temp = "%s could no wait any longer and decided to skip the %s." % (client_name, fav_business.name)
+                        self.log(temp)
+                        continue
 
-                if business.type == "personal_service":
-                    # Personal Service (Brothel-like):
-                    job = business.jobs[0] # FIXME one job per business, is should be client specific anyway
-                    workers = business.get_workers(job, amount=1, client=client)
+                # We bind the process to a flag and wait until it is interrupted:
+                visited += 1
+                with business.res.request() as request:
+                    yield request
+                    yield self.env.process(business.client_control(client))
 
-                    if workers:
-                        # We presently work just with the one char only, so:
-                        worker = workers.pop()
-                        self.available_workers.remove(worker)
-
-                        # We bind the process to a flag and wait until it is interrupted:
-                        visited += 1
-                        with business.res.request() as request:
-                            yield request
-                            yield self.env.process(business.request_resource(client, worker))
-                elif business.type == "public_service":
-                    # Jobs like the Club:
-                    visited += 1
-                    with business.res.request() as request:
-                        yield request
-                        yield self.env.process(business.client_control(client))
-
-            if not visited:
-                temp = "There is not much for %s to do, so %s leaves your establishment cursing..." % (client_name, client.p)
-            else:
-                temp = "%s is leaving after visiting %d %s." % (client_name, visited, plural("business", visited))
+            temp = "%s is leaving the %s." % (client_name, self.name)
+            if DSNBR:
+                temp += ".. after visiting %d business." % visited
             self.log(temp, True)
             self.env.exit()
 

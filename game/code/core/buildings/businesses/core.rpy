@@ -211,11 +211,10 @@ init -12 python:
             Right now we base our best guess on time and cap.
             """
             # .7 is just 70% of absolute max (to make upgrades meaningful).
-            # 101.0 is self.env duration.
             # self.time is amount of time we expect to spend per client.
             if not self.time:
                 raise Exception("Zero Modulo Division Detected #02")
-            return round_int(((101.0/self.time)*self.capacity)*.7)
+            return 70*self.capacity/self.time # MAX_DU * 70%
 
         @property
         def env(self):
@@ -368,7 +367,7 @@ init -12 python:
         def inactive_process(self):
             temp = "%s is currently inactive, no actions will be conducted here!" % self.name
             self.log(temp)
-            #yield self.env.timeout(100)
+            self.env.exit()
 
         # SimPy:
         def business_control(self):
@@ -404,15 +403,10 @@ init -12 python:
             self.log(temp)
             self.building.nd_ups.remove(self)
 
-        def request_resource(self, client, char):
-            """Requests a room from Sim'Py, under the current code, this will not be called if there are no rooms available...
+        def client_control(self, client):
+            """Handles the client after a room is reserved...
             """
-            raise Exception("request_resource method/process must be implemented")
-
-        def run_job(self, client, char):
-            """Waits for self.time delay and calls the job...
-            """
-            raise Exception("Run Job method/process must be implemented")
+            raise Exception("client_control method/process must be implemented")
 
         def pre_nd(self):
             self.res = simpy.Resource(self.env, self.capacity)
@@ -450,16 +444,14 @@ init -12 python:
             """Handles the client after a spot is reserved...
             We add dirt here.
             """
-            tier = self.building.tier or 1
-
-            self.clients_waiting.add(client)
             temp = "%s enters the %s." % (set_font_color(client.name, "beige"), self.name)
             self.log(temp, True)
 
-            dirt = 0
+            self.clients_waiting.add(client)
+
+            tier = self.building.tier or 1
             du_to_spend_here = self.time
-            du_spent_here = 0
-            client.du_without_service = 0
+            dirt = du_spent_here = du_without_service = 0
 
             while 1:
                 simpy_debug("Entering PublicBusiness(%s).client_control iteration at %s", self.name, self.env.now)
@@ -468,20 +460,17 @@ init -12 python:
                 if client in self.clients_waiting:
                     simpy_debug("Client %s is waiting to be served.", client.name)
                     du_spent_here += 1
-                    client.du_without_service += 1
+                    du_without_service += 1
                 else:
-                    client.du_without_service = 0
-
                     simpy_debug("Client %s is about to be served.", client.name)
                     yield self.env.timeout(3)
+
                     du_spent_here += 3
-                    #self.clients_being_served.remove(client)
-                    self.clients_waiting.add(client)
                     dirt += 3
+                    du_without_service = 0
 
                     # Tips:
-                    worker, effectiveness = client.served_by
-                    client.served_by = ()
+                    (worker, effectiveness), client.served_by = client.served_by, None
                     if effectiveness >= 100:
                         tips = tier*randint(1, 2)
                         if effectiveness >= 150:
@@ -492,18 +481,19 @@ init -12 python:
 
                     # And remove client from actively served clients by the worker:
                     worker.serving_clients.discard(client)
-
-                if client.du_without_service >= 2:
-                    # We need a worker ASAP:
-                    self.send_in_worker = True
+                    self.clients_waiting.add(client)
 
                 if du_spent_here >= du_to_spend_here:
                     break
 
-                if client.du_without_service >= 5:
-                    temp = "%s spent too long waiting for service!" % set_font_color(client.name, "beige")
-                    self.log(temp, True)
-                    break
+                if du_without_service >= 2:
+                    if du_without_service >= 5:
+                        temp = "%s spent too long waiting for service!" % set_font_color(client.name, "beige")
+                        self.log(temp, True)
+                        break
+
+                    # We need a worker ASAP:
+                    self.send_in_worker = True
 
             dirt = randint(0, dirt)
             self.building.moddirt(dirt) # Move to business_control?)
@@ -536,14 +526,13 @@ init -12 python:
             """
             #counter = 0
             building = self.building
-            #tier = building.tier
             job = self.jobs[0] # FIXME one job per business, is should be client specific anyway
 
             while 1:
                 simpy_debug("Entering PublicBusiness(%s).business_control iteration at %s", self.name, self.env.now)
 
                 if self.send_in_worker: # Sends in workers when needed!
-                    new_workers_required = max(1, len(self.clients_waiting)/5)
+                    new_workers_required = (4+len(self.clients_waiting))/5
                     if DSNBR:
                         temp = "Adding {} workers to {}!".format(
                                 set_font_color(new_workers_required, "green"),
@@ -612,20 +601,18 @@ init -12 python:
                 for c in self.clients_waiting.copy():
                     if len(worker.serving_clients) < can_serve:
                         self.clients_waiting.remove(c)
-                        #self.clients_being_served.add(c)
-                        c.du_without_service = 0 # Prevent more worker from being called on duty.
-                        c.served_by = (worker, effectiveness)
                         worker.serving_clients.add(c)
                         clients_served.append(c)
+
+                        c.served_by = (worker, effectiveness)
                     else:
                         break
 
+                simpy_debug("Exiting PublicBusiness(%s).worker_control iteration at %s", self.name, self.env.now)
                 yield self.env.timeout(1)
                 du_working -= 1
 
                 worker.PP -= len(worker.serving_clients)*2 # 2 partial AP per client?
-
-                simpy_debug("Exiting PublicBusiness(%s).worker_control iteration at %s", self.name, self.env.now)
 
             if clients_served:
                 # wait for the clients to finish

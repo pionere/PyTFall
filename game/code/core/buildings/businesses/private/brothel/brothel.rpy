@@ -5,11 +5,38 @@ init -5 python:
 
             self.jobs = [simple_jobs["Whore Job"]]
 
-        def request_resource(self, client, worker):
-            """Requests a room from Sim'Py, under the current code,
-               this will not be called if there are no rooms available...
+        def client_control(self, client):
+            """Handles the client after a room is reserved...
             """
-            simpy_debug("Entering BrothelBlock.request_resource after-yield at %s (W:%s/C:%s)", self.env.now, worker.name, client.name)
+            simpy_debug("Entering BrothelBlock.client_control iteration at %s", self.env.now)
+
+            # find a worker
+            job = simple_jobs["Whore Job"]
+            result = 0
+            while 1:
+                worker = business.get_workers(job, amount=1, client=client)
+                if not worker:
+                    yield self.env.timeout(1)
+                    result += 1
+                    if result >= 5:
+                        self.building.modfame(-randint(1, 2))
+                        self.building.moddirt(randint(3, 6))
+
+                        temp = "%s lost %s patience to wait for someone to satisfy %s needs, so %s leaves the %s cursing..." % (client_name, client.pp, client.pp, client.p, self.name)
+                        self.log(temp, True)
+                        return
+                    if self.env.now + self.time > 100: # MAX_DU
+                        self.building.moddirt(randint(3, 6))
+
+                        temp = "There is not much for %s to do before closing, so %s leaves the %s." % (client_name, client.p, self.name)
+                        self.log(temp, True)
+                        return
+                    continue
+
+                # We presently work just with the one char only, so:
+                worker = worker.pop()
+                self.building.available_workers.remove(worker)
+                break
 
             # All is well and the client enters:
             result = random.random()
@@ -23,10 +50,13 @@ init -5 python:
                 temp = temp % (set_font_color(worker.name, "pink"), set_font_color(client.name, "beige"))
             self.log(temp, True)
 
+            simpy_debug("Exiting BrothelBlock.client_control iteration at %s", self.env.now)
             # This line will make sure code halts here until run_job ran it's course...
             yield self.env.timeout(self.time)
 
-            result = self.run_job(client, worker)
+            simpy_debug("Entering BrothelBlock.client_control after-yield at %s (W:%s/C:%s)", self.env.now, worker.name, client.name)
+
+            result = self.run_job(job, client, worker)
 
             if result >= 150:
                 line = "The service was excellent!"
@@ -36,23 +66,17 @@ init -5 python:
                 line = "The service was 'meh'."
             else:
                 line = "The service was shit."
-            temp = "{} 'did' {}... {}".format(
-                        set_font_color(worker.name, "pink"),
-                        set_font_color(client.name, "beige"),
-                        line)
+            temp = "%s 'did' %s... %s" % (set_font_color(worker.name, "pink"), set_font_color(client.name, "beige"), line)
             self.log(temp, True)
             temp = "%s leaves the %s." % (set_font_color(client.name, "beige"), self.name)
             self.log(temp, False)
 
-            simpy_debug("Exiting BrothelBlock.request_resource after-yield at %s (W:%s/C:%s)", self.env.now, worker.name, client.name)
+            simpy_debug("Exiting BrothelBlock.client_control after-yield at %s (W:%s/C:%s)", self.env.now, worker.name, client.name)
 
-        def run_job(self, client, worker):
+        def run_job(self, job, client, worker):
             """Handles the job and job report.
             """
-            simpy_debug("Entering BrothelBlock.run_job after-yield at %s (W:%s/C:%s)", self.env.now, worker.name, client.name)
-
             # Execute the job/log results/handle finances and etc.:
-            job = simple_jobs["Whore Job"]
             building = self.building
             log = NDEvent(job=job, char=worker, loc=building, business=self)
 
@@ -81,7 +105,4 @@ init -5 python:
 
             # We return the char to the nd list:
             building.available_workers.insert(0, worker)
-
-            simpy_debug("Exiting BrothelBlock.run_job after-yield at %s (W:%s/C:%s)", self.env.now, worker.name, client.name)
-
             return effectiveness

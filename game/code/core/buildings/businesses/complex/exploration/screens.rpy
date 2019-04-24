@@ -530,42 +530,60 @@ screen building_management_midframe_exploration_guild_mode:
                     unhovered Function(setattr, config, "mouse", mouse_cursor)
 
 screen building_management_rightframe_exploration_guild_mode:
-    if False:
-        button:
-            xysize (150, 40)
-            yalign .5
-            action NullAction()
-            tooltip "All the meetings and conversations are held in this Hall. On the noticeboard, you can take job that available for your rank. Sometimes guild members or the master himself and his Council, can offer you a rare job."
-            text "Main Hall" size 15
-    button:
-        xysize (150, 40)
-        yalign .5
-        action SetVariable("bm_exploration_view_mode", "upgrades")
-        tooltip "Expand your Guild"
-        text "Upgrades" size 15
-    button:
-        xysize (150, 40)
-        yalign .5
-        action SetVariable("bm_exploration_view_mode", "team")
-        tooltip "You can customize your teams here or hire Guild members."
-        text "Teams" size 15
-    button:
-        xysize (150, 40)
-        yalign .5
-        action SetVariable("bm_exploration_view_mode", "explore")
-        tooltip ("On this screen you can organize the expedition. Also, there is a "+
-                 "possibility to see all available information on the various places, enemies and items drop.")
-        text "Exploration" size 15
-    button:
-        xysize (150, 40)
-        yalign .5
-        action SetVariable("bm_exploration_view_mode", "log")
-        tooltip "For each of your teams, recorded one last adventure, which you can see here in detail."
-        text "Log" size 15
+    frame:
+        xalign .5
+        xysize 260, 40
+        background Frame("content/gfx/frame/namebox5.png", 10, 10)
+        label str(bm_mid_frame_mode.name) text_size 18 text_color "ivory" align .5, .6
+
+    frame:
+        background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
+        align .5, .95
+        padding 10, 10
+        vbox:
+            style_group "wood"
+            align .5, .5
+            spacing 10
+            if False:
+                button:
+                    xysize (150, 40)
+                    yalign .5
+                    action NullAction()
+                    tooltip "All the meetings and conversations are held in this Hall. On the noticeboard, you can take job that available for your rank. Sometimes guild members or the master himself and his Council, can offer you a rare job."
+                    text "Main Hall" size 15
+            button:
+                xysize (150, 40)
+                yalign .5
+                action SetVariable("bm_exploration_view_mode", "upgrades")
+                tooltip "Expand your Guild"
+                text "Upgrades" size 15
+            button:
+                xysize (150, 40)
+                yalign .5
+                action SetVariable("bm_exploration_view_mode", "team")
+                tooltip "You can customize your teams here or hire Guild members."
+                text "Teams" size 15
+            button:
+                xysize (150, 40)
+                yalign .5
+                action SetVariable("bm_exploration_view_mode", "explore")
+                tooltip ("On this screen you can organize the expedition. Also, there is a "+
+                         "possibility to see all available information on the various places, enemies and items drop.")
+                text "Exploration" size 15
+            button:
+                xysize (150, 40)
+                yalign .5
+                action SetVariable("bm_exploration_view_mode", "log")
+                tooltip "For each of your teams, recorded one last adventure, which you can see here in detail."
+                text "Log" size 15
+            button:
+                xysize 150, 40
+                yalign .5
+                action Return(["bm_mid_frame_mode", None])
+                tooltip ("Back to the main overview of the building.")
+                text "Back" size 15
 
 # Customized screens for specific businesses:
-
-
 screen fg_area(area):
     modal True
     zorder 1

@@ -178,10 +178,9 @@ init:
             frame:
                 background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
                 xysize (330, 680)
-                # xanchor .01
                 ypos 40
                 style_group "content"
-                has vbox xfill True
+                has vbox xfill True yfill True
                 if bm_mid_frame_mode is None:
                     use building_management_leftframe_building_mode
                 elif isinstance(bm_mid_frame_mode, ExplorationGuild):
@@ -191,13 +190,15 @@ init:
 
             ## Right frame:
             frame:
-                xysize (330, 680)
-                ypos 40
-                xalign 1.0
                 background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
-                has vbox xfill True spacing 1
+                xysize (330, 680)
+                xalign 1.0
+                ypos 40
+                has vbox xfill True yfill True
                 if bm_mid_frame_mode is None:
                     use building_management_rightframe_building_mode
+                elif isinstance(bm_mid_frame_mode, ExplorationGuild):
+                    use building_management_rightframe_exploration_guild_mode
                 else: # Upgrade mode:
                     use building_management_rightframe_businesses_mode
         else:
@@ -370,72 +371,81 @@ init:
             text bm_building.desc xalign.5 style_prefix "proper_stats" text_align .5 color "goldenrod" outlines [(1, "#3a3a3a", 0, 0)]
 
     screen building_management_rightframe_businesses_mode:
-        $ frgr = Fixed(xysize=(315, 680))
-        $ frgr.add(ProportionalScale("content/gfx/images/e1.png", 315, 600, align=(.5, .0)))
-        $ frgr.add(ProportionalScale("content/gfx/images/e2.png", 315, 600, align=(.5, 1.0)))
         frame:
-            style_prefix "content"
-            xysize 315, 680
-            background Null()
-            foreground frgr
-            frame:
-                pos 25, 20
-                xysize 260, 40
-                background Frame("content/gfx/frame/namebox5.png", 10, 10)
-                label str(bm_mid_frame_mode.name) text_size 18 text_color "ivory" align .5, .6
+            xalign .5
+            xysize 260, 40
+            background Frame("content/gfx/frame/namebox5.png", 10, 10)
+            label str(bm_mid_frame_mode.name) text_size 18 text_color "ivory" align .5, .6
 
-            if isinstance(bm_mid_frame_mode, Business) and hasattr(bm_building, "all_workers"):
+        if isinstance(bm_mid_frame_mode, Business):
+            null height 10
+            if bm_mid_frame_mode.active:
+                $ img = "content/gfx/images/open.webp"
+                $ temp = "Close the business!"
+            else:
+                $ img = "content/gfx/images/closed.webp"
+                $ temp = "Open the business!"
+            $ img = ProportionalScale(img, 80, 40)
+            imagebutton:
+                xalign .5
+                idle img
+                hover (im.MatrixColor(img, im.matrix.brightness(.15)))
+                action ToggleField(bm_mid_frame_mode, "active")
+                tooltip temp
+
+            if hasattr(bm_building, "all_workers"):
                 $ workers = [w for w in bm_building.all_workers if w.job in bm_mid_frame_mode.jobs]
                 if workers:
                     $ workers.sort(key=attrgetter("level"), reverse=True)
-                    hbox:
-                        pos (0, 70)
-                        xsize 315
-                        text "Staff:" align (.5, .5) size 25 color "goldenrod" drop_shadow [(1, 2)] drop_shadow_color "black" antialias True style_prefix "proper_stats"
-                        
-                    vpgrid:
-                        pos (5, 120)
-                        style_group "dropdown_gm"
-                        xysize 300, 420
-                        cols 5
-                        spacing 2
-                        draggable True
-                        mousewheel True
-                
-                        for w in workers:
-                            frame:
-                                xysize 60, 60
-                                padding 5, 5
-                                background Frame("content/gfx/frame/p_frame53.png", 5, 5)
-                                $ img = w.show("portrait", resize=(50, 50), cache=True)
-                                imagebutton:
-                                    idle img
-                                    hover (im.MatrixColor(img, im.matrix.brightness(.15)))
-                                    action If(w.is_available, true=[SetVariable("char", w),
-                                                                    SetVariable("eqtarget", w),
-                                                                    SetVariable("equip_girls", [w]),
-                                                                    SetVariable("came_to_equip_from", last_label),
-                                                                    Jump("char_equip")],
-                                                              false=NullAction())
-                                    tooltip "Check %s's equipment" % w.name
-                               
-            
-            frame:
-                background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
-                align .5, .95
-                padding 10, 10
-                vbox:
-                    style_group "wood"
-                    align .5, .5
-                    spacing 10
-                    if isinstance(bm_mid_frame_mode, ExplorationGuild):
-                        use building_management_rightframe_exploration_guild_mode
-                    button:
-                        xysize 150, 40
-                        yalign .5
-                        action Return(["bm_mid_frame_mode", None])
-                        tooltip ("Back to the main overview of the building.")
-                        text "Back" size 15
+                    null height 20
+                    frame:
+                        style_prefix "content"
+                        xysize 315, 500
+                        background Null()
+                        hbox:
+                            xsize 315
+                            text "Staff:" align (.5, .5) size 25 color "goldenrod" drop_shadow [(1, 2)] drop_shadow_color "black" antialias True style_prefix "proper_stats"
+
+                        vpgrid:
+                            xpos 5
+                            style_group "dropdown_gm"
+                            xysize 300, 420
+                            cols 5
+                            spacing 2
+                            draggable True
+                            mousewheel True
+
+                            for w in workers:
+                                frame:
+                                    xysize 60, 60
+                                    padding 5, 5
+                                    background Frame("content/gfx/frame/p_frame53.png", 5, 5)
+                                    $ img = w.show("portrait", resize=(50, 50), cache=True)
+                                    imagebutton:
+                                        idle img
+                                        hover (im.MatrixColor(img, im.matrix.brightness(.15)))
+                                        action If(w.is_available, true=[SetVariable("char", w),
+                                                                        SetVariable("eqtarget", w),
+                                                                        SetVariable("equip_girls", [w]),
+                                                                        SetVariable("came_to_equip_from", last_label),
+                                                                        Jump("char_equip")],
+                                                                  false=NullAction())
+                                        tooltip "Check %s's equipment" % w.name
+
+        frame:
+            background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
+            align .5, .95
+            padding 10, 10
+            vbox:
+                style_group "wood"
+                align .5, .5
+                spacing 10
+                button:
+                    xysize 150, 40
+                    yalign .5
+                    action Return(["bm_mid_frame_mode", None])
+                    tooltip ("Back to the main overview of the building.")
+                    text "Back" size 15
 
     screen building_management_leftframe_building_mode:
         frame:

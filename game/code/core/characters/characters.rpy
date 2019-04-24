@@ -2869,23 +2869,15 @@ init -9 python:
             super(Customer, self).__init__()
 
             # Using direct access instead of a flag, looks better in code:
-            self.served_by = ()
-            self.du_without_service = 0 # How long did this client spent without service
+            self.served_by = None
 
             self.gender = gender
             self.rank = rank
             #self.caste = CLIENT_CASTES[rank]
             self.regular = False # Regular clients do not get removed from building lists as those are updated.
 
-            # Alex, we should come up with a good way to set portrait depending on caste
-            self.portrait = "" # path to portrait
-
-            # determine act
-            if self.gender == 'male':
-                self.act = choice(["sex", "anal", "blowjob"])
-
-            elif self.gender == 'female':
-                self.act = "lesbian"
+            # Alex, we should come up with a good way to set portrait depending on rank
+            #self.portrait = "" # path to portrait
 
             # Preferences:
             self.likes = set() # These are simple sets containing objects and possibly strings of what this character likes or dislikes...
