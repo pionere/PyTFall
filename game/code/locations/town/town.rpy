@@ -112,14 +112,14 @@ label village_town_work:
         shuffle(sources)
 
         # initial belt
-        for item in xrange(randint(5, 10)): # BELT LEFT    ...   RIGHT-LEFT, BELT TOP ...      BOTTOM-TOP-ITEM WIDTH
+        for item in xrange(randint(4, 6)): # BELT LEFT    ...   RIGHT-LEFT, BELT TOP ...      BOTTOM-TOP-ITEM WIDTH
             source_items.append([choice(sources), [80 + random.random()*100, 100 + random.random()*460]])
 
     show screen village_town_work
     with dissolve
     
     python hide:
-        global source_items, moving_items, basket, hand_item, hand_protection, next_pp_time, used_pp, running, last_time, sources
+        global source_items, moving_items, basket, hand_item, hand_protection, next_pp_time, used_pp, running, last_time, sources, time_limit
         while 1:
             result = ui.interact()
 
@@ -381,16 +381,7 @@ label village_town_work_end:
 
     hero.say "This is all for now."
 
-    # cleanup
-    # safe(r) cleanup:
-    python hide:
-        cleanup = ["source_items", "moving_items", "item",
-                  "basket", "hand_item", "hand_protection",
-                  "next_pp_time", "used_pp", "sources",
-                  "running", "last_time", "time_limit"]
-        for i in cleanup:
-            if hasattr(store, i):
-                delattr(store, i)
+    $ del source_items, moving_items, basket, hand_item, hand_protection, next_pp_time, used_pp, running, last_time, sources, time_limit, item
     $ global_flags.set_flag("keep_playing_music")
     jump village_town
     
