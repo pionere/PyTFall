@@ -191,15 +191,15 @@ screen realtor_agency():
                                 xalign .5
                                 spacing 4
                                 for business in focus.allowed_businesses:
-                                    $ img = im.Scale("content/buildings/upgrades/icons/" + business.__class__.__name__ + ".png", 24, 24)
-                                    if not (focus.has_extension(business)):
-                                        $ img = im.MatrixColor(img, im.matrix.desaturate())
+                                    $ img = im.Scale("content/buildings/upgrades/icons/" + business.__class__.__name__ + ".png", 26, 26)
+                                    if not (focus.has_extension(business.__class__)):
+                                        $ img = im.Grayscale(img)
                                     imagebutton:
-                                        xpadding 5
+                                        xpadding 3
                                         ypadding 2
-                                        background Frame("content/gfx/frame/MC_bg3.png", 2, 2)
-                                        xysize 35, 29
-                                        tooltip ("%s" % (business.__class__.__name__))
+                                        background Frame("content/gfx/frame/MC_bg3.png", 1, 1)
+                                        xysize 32, 30
+                                        tooltip ("%s" % (business.name))
                                         action NullAction()
                                         idle img
 
