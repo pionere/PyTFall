@@ -61,6 +61,7 @@ init -9 python:
                 # Flags for exploration tasks on "area" scope.
                 self.building_camp = False
                 self.capture_chars = False
+                self.use_horses = False
                 self.days = 3
                 self.risk = 50
 
@@ -125,9 +126,16 @@ init -6 python: # Guild, Tracker and Log.
 
             # We assume that it's never right outside of the city walls:
             self.base_distance = max(area.travel_time, 6)
-            if guild.has_extension(GuildStables):
-                self.base_distance /= 2
-
+            self.used_horses = None
+            if area.use_horses:
+                for u in guild.building.businesses:
+                    if u.__class__ == StableBusiness:
+                        num = len(team)
+                        reserved = u.reserved_capacity + num
+                        if u.capacity >= reserved:
+                            u.reserved_capacity = reserved
+                            self.base_distance /= 2
+                            self.used_horses = (u, num)
             self.traveled = None # Distance traveled in "KM"...
 
             # Exploration:
@@ -259,6 +267,11 @@ init -6 python: # Guild, Tracker and Log.
                     #    char.PP = 0
                     char.set_flag("dnd_back_from_track")
                 charmod = self.team_charmod
+
+                # return the borrowed horses
+                if self.used_horses is not None:
+                    u, num  = self.used_horses
+                    u.reserved_capacity -= num
             else:
                 # all dead -> just report
                 team = None
@@ -270,6 +283,18 @@ init -6 python: # Guild, Tracker and Log.
                     if dice(50):
                         l.txt = [" . . . "]
                 self.log("\n . . . \n")
+
+                # pay for the lost horses
+                if self.used_horses is not None:
+                    u, num  = self.used_horses
+                    u.reserved_capacity -= num
+
+                    self.log("\n and the horses are gone as well...")
+                    num *= 1000
+                    if not hero.take_money(num, "Horses"):
+                        hero.fin.property_tax_debt += num
+                        self.log("You could not afford to pay for the new horses, so you borrowed money using the building as collateral.")
+                    building.fin.log_logical_expense(num, "Horses")
 
             # Remove Tracker:
             area.trackers.remove(self)

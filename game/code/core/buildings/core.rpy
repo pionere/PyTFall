@@ -1016,7 +1016,7 @@ init -10 python:
         def clients_dispatcher(self, end):
             """This method provides stream of clients to the building following it's own algorithm.
 
-            We want 50% of all clients to come in the 'rush hour' (turn 50 - 80).
+            We want 50% of all clients to come in the 'rush hour' (turn 40 - 70).
             """
             expected = len(self.clients)
             running = 0
@@ -1033,7 +1033,7 @@ init -10 python:
 
                 if self.env.now >= end:
                     break
-                if 50 <= self.env.now <= 80:
+                if 40 <= self.env.now <= 70:
                     running += rush_hour_step
                 else:
                     running += normal_step

@@ -537,51 +537,54 @@ screen building_management_rightframe_exploration_guild_mode:
         label str(bm_mid_frame_mode.name) text_size 18 text_color "ivory" align .5, .6
 
     frame:
-        background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
-        align .5, .95
-        padding 10, 10
-        vbox:
-            style_group "wood"
-            align .5, .5
-            spacing 10
-            if False:
+        background Null()
+        xfill True yfill True
+        frame:
+            background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
+            align .5, .95
+            padding 10, 10
+            vbox:
+                style_group "wood"
+                align .5, .5
+                spacing 10
+                if False:
+                    button:
+                        xysize (150, 40)
+                        yalign .5
+                        action NullAction()
+                        tooltip "All the meetings and conversations are held in this Hall. On the noticeboard, you can take job that available for your rank. Sometimes guild members or the master himself and his Council, can offer you a rare job."
+                        text "Main Hall" size 15
                 button:
                     xysize (150, 40)
                     yalign .5
-                    action NullAction()
-                    tooltip "All the meetings and conversations are held in this Hall. On the noticeboard, you can take job that available for your rank. Sometimes guild members or the master himself and his Council, can offer you a rare job."
-                    text "Main Hall" size 15
-            button:
-                xysize (150, 40)
-                yalign .5
-                action SetVariable("bm_exploration_view_mode", "upgrades")
-                tooltip "Expand your Guild"
-                text "Upgrades" size 15
-            button:
-                xysize (150, 40)
-                yalign .5
-                action SetVariable("bm_exploration_view_mode", "team")
-                tooltip "You can customize your teams here or hire Guild members."
-                text "Teams" size 15
-            button:
-                xysize (150, 40)
-                yalign .5
-                action SetVariable("bm_exploration_view_mode", "explore")
-                tooltip ("On this screen you can organize the expedition. Also, there is a "+
-                         "possibility to see all available information on the various places, enemies and items drop.")
-                text "Exploration" size 15
-            button:
-                xysize (150, 40)
-                yalign .5
-                action SetVariable("bm_exploration_view_mode", "log")
-                tooltip "For each of your teams, recorded one last adventure, which you can see here in detail."
-                text "Log" size 15
-            button:
-                xysize 150, 40
-                yalign .5
-                action Return(["bm_mid_frame_mode", None])
-                tooltip ("Back to the main overview of the building.")
-                text "Back" size 15
+                    action SetVariable("bm_exploration_view_mode", "upgrades")
+                    tooltip "Expand your Guild"
+                    text "Upgrades" size 15
+                button:
+                    xysize (150, 40)
+                    yalign .5
+                    action SetVariable("bm_exploration_view_mode", "team")
+                    tooltip "You can customize your teams here or hire Guild members."
+                    text "Teams" size 15
+                button:
+                    xysize (150, 40)
+                    yalign .5
+                    action SetVariable("bm_exploration_view_mode", "explore")
+                    tooltip ("On this screen you can organize the expedition. Also, there is a "+
+                             "possibility to see all available information on the various places, enemies and items drop.")
+                    text "Exploration" size 15
+                button:
+                    xysize (150, 40)
+                    yalign .5
+                    action SetVariable("bm_exploration_view_mode", "log")
+                    tooltip "For each of your teams, recorded one last adventure, which you can see here in detail."
+                    text "Log" size 15
+                button:
+                    xysize 150, 40
+                    yalign .5
+                    action Return(["bm_mid_frame_mode", None])
+                    tooltip ("Back to the main overview of the building.")
+                    text "Back" size 15
 
 # Customized screens for specific businesses:
 screen fg_area(area):
@@ -593,6 +596,20 @@ screen fg_area(area):
     style_prefix "basic"
 
     # Left frame with Area controls
+    python:
+        can_use_horses = False
+        teams = bm_mid_frame_mode.teams_to_launch()
+        if teams:
+            if bm_mid_frame_mode.team_to_launch_index >= len(teams):
+                bm_mid_frame_mode.team_to_launch_index = 0
+            focus_team = teams[bm_mid_frame_mode.team_to_launch_index]
+
+            for u in bm_mid_frame_mode.building.businesses:
+                if u.__class__ == StableBusiness:
+                    num = len(focus_team)
+                    reserved = u.reserved_capacity + num
+                    if u.capacity >= reserved:
+                        can_use_horses = True
     frame:
         background Frame("content/gfx/frame/p_frame5.png", 10, 10)
         xysize 330, 680
@@ -612,6 +629,13 @@ screen fg_area(area):
             xysize 300, 30
             action ToggleField(area, "capture_chars")
             text "Capture Chars" xalign .5
+        button:
+            xalign .5
+            xysize 300, 30
+            if can_use_horses:
+                action ToggleField(area, "use_horses")
+                tooltip "Activate if you want the team to borrow horses from the Stable. Allows to travel twice as fast!"
+            text "Use horses" xalign .5
 
         null height 5
         $ distance = round_int(area.travel_time / 20.0)
@@ -626,12 +650,6 @@ screen fg_area(area):
                 xsize 300
                 if distance > 1:
                     text "Travel time is about %d days" % distance xpos 5
-                    if bm_mid_frame_mode.has_extension(GuildStables):
-                        textbutton "*":
-                            background Null()
-                            align (1.0, 0.0)
-                            tooltip "Now half of that because of the Stables."
-                            action NullAction()
                 elif distance == 1:
                     text "Travel time is about a day" xpos 5
                 else:
@@ -704,24 +722,17 @@ screen fg_area(area):
         hbox:
             spacing 10
             xalign .5
-            python:
-                temp = bm_mid_frame_mode
-                teams = temp.teams_to_launch()
-                if teams:
-                    if temp.team_to_launch_index >= len(teams):
-                        temp.team_to_launch_index = 0
-                    focus_team = teams[temp.team_to_launch_index]
             button:
                 style "paging_green_button_left"
                 yalign .5
-                action Function(temp.prev_team_to_launch)
+                action Function(bm_mid_frame_mode.prev_team_to_launch)
                 tooltip "Previous Team"
                 sensitive len(teams) > 1
             button:
                 style "marble_button"
                 padding 10, 10
                 if teams:
-                    action Function(temp.launch_team, focus_team, area), With(fade)
+                    action Function(bm_mid_frame_mode.launch_team, focus_team, area), With(fade)
                     tooltip "Send %s on %s days long exploration run!" % (focus_team.name, area.days)
                     vbox:
                         xminimum 150
@@ -735,7 +746,7 @@ screen fg_area(area):
             button:
                 style "paging_green_button_right"
                 yalign .5
-                action Function(temp.next_team_to_launch)
+                action Function(bm_mid_frame_mode.next_team_to_launch)
                 tooltip "Next Team"
                 sensitive len(teams) > 1
 

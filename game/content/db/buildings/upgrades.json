@@ -135,19 +135,6 @@
         "duration": [20, 10]
     },
     {
-        "name": "Stables",
-        "class": "GuildStables",
-        "img": "content/buildings/upgrades/stables.webp",
-        "materials": {"Bricks": 20, "Stone": 10,
-                     "Steel": 10, "Wood": 50},
-        "desc": "A man on a horse is spiritually, as well as physically, bigger then a man on foot.\n(+100% Traveling Speed)",
-        "cost": 10000,
-        "in_slots": 2,
-        "ex_slots": 10,
-
-        "duration": [10, 20]
-    },
-    {
         "name": "Healing Springs",
         "class": "HealingSprings",
         "img": "content/buildings/upgrades/onsen.webp",

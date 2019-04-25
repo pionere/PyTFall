@@ -198,7 +198,7 @@
         "img": "content/buildings/large_0.webp",
 
         "build_businesses": ["Cleaners", "WarriorQuarters"],
-        "allowed_businesses": ["BarBusiness", "ExplorationGuild",
+        "allowed_businesses": ["BarBusiness", "StableBusiness", "ExplorationGuild",
                                {"class": "Cleaners", "allowed_upgrades": ["BroomCloset"]},
                                {"class": "BrothelBlock", "allowed_upgrades": ["StatueOfSexGoddess"]},
                                {"class": "StripClub", "allowed_upgrades": ["Catwalk"]},
@@ -226,7 +226,7 @@
         "img": "content/buildings/palace.webp",
 
         "build_businesses": ["Cleaners", "WarriorQuarters"],
-        "allowed_businesses": ["BarBusiness", "ExplorationGuild",
+        "allowed_businesses": ["BarBusiness", "StableBusiness", "ExplorationGuild",
                                {"class": "Cleaners", "allowed_upgrades": ["BroomCloset"]},
                                {"class": "BrothelBlock", "allowed_upgrades": ["StatueOfSexGoddess"]},
                                {"class": "StripClub", "allowed_upgrades": ["Catwalk"], "desc": "Entance your clients with exotic dancers!"}, 
@@ -254,7 +254,7 @@
         "img": "content/buildings/centralpalace.webp",
 
         "build_businesses": ["BrothelBlock", "StripClub"],
-        "allowed_businesses": ["BarBusiness", "ExplorationGuild",
+        "allowed_businesses": ["BarBusiness", "StableBusiness", "ExplorationGuild",
                                {"class": "Cleaners", "allowed_upgrades": ["BroomCloset"]},
                                {"class": "BrothelBlock", "capacity": 5, "in_slots": 5, "allowed_upgrades": ["StatueOfSexGoddess"]},
                                {"class": "StripClub", "capacity": 5, "in_slots": 5, "allowed_upgrades": ["Catwalk"], "desc": "Entance your clients with exotic dancers!"},

@@ -116,6 +116,27 @@
         "exp_cap_duration": [1, 0]
     },
     {
+        "name": "Stable",
+        "class": "StableBusiness",
+        "desc": "Allows to keep horses in the building and also to rent them to customers",
+        "img": "content/buildings/upgrades/stables.webp",
+        "materials": {"Wood": 70, "Bricks": 20, "Hay": 100, "Steel": 5},
+
+        "capacity": 2,
+        "cost": 1000,
+        "in_slots": 0,
+        "ex_slots": 1,
+
+        "duration": [8, 10],
+
+        "exp_cap_in_slots": 0,
+        "exp_cap_ex_slots": 1,
+        "exp_cap_cost": 1000,
+        "exp_cap_materials": {"Wood": 10, "Bricks": 2, "Hay": 10},
+
+        "exp_cap_duration": [2, 10]
+    },
+    {
         "name": "Exploration Guild",
         "class": "ExplorationGuild",
         "desc": "Travel to exotic places, meet new monsters and people... and take their shit!",
@@ -129,5 +150,5 @@
 
         "duration": [4, 0],
 
-        "allowed_upgrades": ["TheEye", "GuildStables", "HealingSprings", "CartographyLab"]
+        "allowed_upgrades": ["TheEye", "HealingSprings", "CartographyLab"]
     }]

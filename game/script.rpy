@@ -96,7 +96,7 @@ label start:
     python: # Jobs:
         tl.start("Loading: Jobs")
         # This jobs are usually normal, most common type that we have in PyTFall
-        temp = [WhoreJob(), StripJob(), BarJob(), ManagerJob(), CleaningJob(), GuardJob(), ExplorationJob(), StudyingJob(), Rest(), AutoRest()]
+        temp = [WhoreJob(), StripJob(), BarJob(), ManagerJob(), CleaningJob(), GuardJob(), WranglerJob(), ExplorationJob(), StudyingJob(), Rest(), AutoRest()]
         simple_jobs = {j.id: j for j in temp}
         del temp
         tl.end("Loading: Jobs")
@@ -685,6 +685,8 @@ label after_load:
             clearCharacters = True
         if "ring" in hero.eqslots:
             clearCharacters = True
+        if "riding" not in hero.stats.skills:
+            clearCharacters = True
         if hero.front_row.__class__ != int:
             clearCharacters = True
         if hasattr(hero, "baseAP"):
@@ -706,6 +708,8 @@ label after_load:
             clearCharacters = True
         if "Study" not in simple_jobs:
             simple_jobs["Study"] = StudyingJob()
+        if "Wrangler" not in simple_jobs:
+            simple_jobs["Wrangler"] = WranglerJob()
         for j in simple_jobs.values():
             if hasattr(j, "jp_cost"):
                 del j.jp_cost
@@ -1144,6 +1148,9 @@ label after_load:
                     char.stats.min["affection"] = -1000
                     char.stats.max["affection"] = 1000
                     char.stats.lvl_max["affection"] = 1000
+                if "riding" not in char.stats.skills:
+                    char.stats.skills["riding"] = [0, 0]
+                    char.stats.skills_multipliers["riding"] = [1, 1, 1]
                 if hasattr(char, "price"):
                     del char.price
                 if hasattr(char, "days_depressed"):

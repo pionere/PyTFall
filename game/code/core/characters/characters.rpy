@@ -9,7 +9,7 @@ init -9 python:
                       "refinement", "group", "bdsm", "dancing",
                       "bartending", "cleaning", "waiting", "management",
                       "exploration", "teaching", "swimming", "fishing",
-                      "security"}
+                      "security", "riding"}
         GEN_OCCS = ["SIW", "Combatant", "Server", "Specialist"]
         SLAVE_GEN_OCCS = ["SIW", "Server"]
         STATUS = ["slave", "free"]
