@@ -158,7 +158,12 @@ init -5 python:
             handles penalties in case of wrong job
             """
             name = set_font_color(choice([worker.fullname, worker.name, worker.nickname]), "pink")
-            if not("Server" in worker.gen_occs):
+            if "Server" in worker.gen_occs:
+                log.append(choice(["%s is doing %s shift as a barmaid." % (name, worker.pp),
+                                   "%s gets busy with clients." % name,
+                                   "%s is working the bar!" % name, 
+                                   "%s serves customers in the bar." % name]))
+            else:
                 sub = check_submissivity(worker)
                 if worker.status != 'slave':
                     if sub < 0:
@@ -205,11 +210,6 @@ init -5 python:
                     else:
                         worker.logws("joy", -randint(2, 4))
                         worker.logws('vitality', -randint(1, 4))
-            else:
-                log.append(choice(["%s is doing %s shift as a barmaid." % (name, worker.pp),
-                                   "%s gets busy with clients." % name,
-                                   "%s is working the bar!" % name, 
-                                   "%s serves customers in the bar." % name]))
 
         def log_work(self, worker, clients, effectiveness, log):
             len_clients = len(clients)
@@ -252,7 +252,7 @@ init -5 python:
                     log.logloc('fame', 1)
                 log.append("Your worker was easy on the eyes, not bad for a bartender.")
             elif charisma > 50:
-                log.append("Your may consider buying some items for your worker. %s's not exactly pleasant to look at." % worker.pC)
+                log.append("You may consider buying some items for your worker. %s's not exactly pleasant to look at." % worker.pC)
             else:
                 log.logloc('fame', -2)
                 log.append("Customers did not appreciate a hag serving them. Consider sending this worker to a beauty school.")

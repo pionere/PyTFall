@@ -28,10 +28,10 @@ init:
                 if not self.selected_filters:
                     self.source.filter()
                 # remove selected chars which are no longer available
-                gone_chars = []
+                gone_chars = set()
                 for c in self.the_chosen:
                     if not (c.is_available and c in hero.chars):
-                        gone_chars.append(c)
+                        gone_chars.add(c)
                 if gone_chars:
                     self.the_chosen -= gone_chars
 

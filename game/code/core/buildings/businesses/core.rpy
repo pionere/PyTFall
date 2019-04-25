@@ -367,7 +367,9 @@ init -12 python:
         def inactive_process(self):
             temp = "%s is currently inactive, no actions will be conducted here!" % self.name
             self.log(temp)
-            self.env.exit()
+            self.building.nd_ups.remove(self)
+
+            yield self.env.exit()
 
         # SimPy:
         def business_control(self):

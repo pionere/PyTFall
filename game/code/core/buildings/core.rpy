@@ -799,10 +799,10 @@ init -10 python:
                 
                 # All workers and workable businesses:
                 # This basically roots out Resting/None chars!
-                workers = [w for w in self.all_workers if w.is_available and w.task is None]
+                workers = [w for w in self.all_workers if w.is_available and w.task is None and w.job is not None]
                 for w in workers:
                     if w != hero:
-                        w.action.auto_equip(w)
+                        w.job.auto_equip(w)
                 self.available_workers = workers
 
                 # Do the expensive manager preparation out of the loop once

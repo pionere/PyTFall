@@ -849,7 +849,10 @@ init -6 python: # Guild, Tracker and Log.
                     se_debug(msg)
                 # Let's run the expensive item calculations once and just give
                 # Items as we explore. This just figures what items to give.
-                tracker.chosen_items = weighted_sample(tracker.exploration_items, max_items)
+                temp = weighted_sample(tracker.exploration_items, max_items)
+                if max_items == 1:
+                    temp = [temp]
+                tracker.chosen_items = temp
             else:
                 if DEBUG_SE:
                     msg = "{} is continuing the exploration.".format(team.name)

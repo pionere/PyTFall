@@ -10,11 +10,13 @@ init -5 python:
             """
             simpy_debug("Entering BrothelBlock.client_control iteration at %s", self.env.now)
 
+            client_name = set_font_color(client.name, "beige")
+
             # find a worker
             job = simple_jobs["Whore Job"]
             result = 0
             while 1:
-                worker = business.get_workers(job, amount=1, client=client)
+                worker = self.get_workers(job, amount=1, client=client)
                 if not worker:
                     yield self.env.timeout(1)
                     result += 1
@@ -38,6 +40,8 @@ init -5 python:
                 self.building.available_workers.remove(worker)
                 break
 
+            worker_name = set_font_color(worker.name, "pink")
+
             # All is well and the client enters:
             result = random.random()
             if result < .5:
@@ -45,9 +49,9 @@ init -5 python:
             else:
                 temp = "%s and %s find a very private room for themselves." 
             if result < .25 or result >= .75:
-                temp = temp % (set_font_color(client.name, "beige"), set_font_color(worker.name, "pink"))
+                temp = temp % (client_name, worker_name)
             else:
-                temp = temp % (set_font_color(worker.name, "pink"), set_font_color(client.name, "beige"))
+                temp = temp % (worker_name, client_name)
             self.log(temp, True)
 
             simpy_debug("Exiting BrothelBlock.client_control iteration at %s", self.env.now)
@@ -66,9 +70,9 @@ init -5 python:
                 line = "The service was 'meh'."
             else:
                 line = "The service was shit."
-            temp = "%s 'did' %s... %s" % (set_font_color(worker.name, "pink"), set_font_color(client.name, "beige"), line)
+            temp = "%s 'did' %s... %s" % (worker_name, client_name, line)
             self.log(temp, True)
-            temp = "%s leaves the %s." % (set_font_color(client.name, "beige"), self.name)
+            temp = "%s leaves the %s." % (client_name, self.name)
             self.log(temp, False)
 
             simpy_debug("Exiting BrothelBlock.client_control after-yield at %s (W:%s/C:%s)", self.env.now, worker.name, client.name)

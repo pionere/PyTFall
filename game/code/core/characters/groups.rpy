@@ -189,7 +189,7 @@ init -8 python:
                 ".status": "various", ".location": "various", ".workplace": "various", ".action": "Several actions", ".disposition": min,
                 ".autobuy": [], ".front_row": [], ".autoequip": [], ".job": "Several jobs",
                 ".autocontrol{}": [], ".sex_acts{}": [], ".miscblock": [],
-                ".flag()": False, ".has_flag()": False,
+                ".flag()": False, ".has_flag()": False, ".is_available": False,
                 ".allowed_to_define_autobuy": False, ".allowed_to_define_autoequip": False,
                 ".allowed_to_view_personal_finances": False, ".can_work()": False,
                 "flatten": [".traits", ".attack_skills", ".magic_skills"]
