@@ -14,42 +14,32 @@ init -10 python:
                 earned *= len(clients) # Make sure we adjust the payout to the actual number of clients served.
             else:
                 client_name = "client"
+            client_name_c = client_name.capitalize()
         else:
-            client_name = clients.name
+            client_name = client_name_c = set_font_color(clients.name, "beige")
 
         me = building.manager_effectiveness
         if effectiveness <= 33: # Worker sucked so much, client just doesn't pay.
-            if is_plural:
-                temp = "Clients leave the {} refusing to pay for the inadequate service {} provided.".format(
-                                business.name, worker.name)
-            else:
-                temp = "{} leaves the {} refusing to pay for the inadequate service {} provided.".format(
-                                set_font_color(client_name.capitalize(), "beige"), business.name, worker.name)
+            temp = "are" if is_plural else "is"
+            temp = "%s %s leaving without paying for the inadequate service %s provided." % (client_name_c, temp, worker.name)
             log.append(temp)
             earned = 0
         elif effectiveness <= 90: # Worker sucked but situation may be salvageable by Manager.
-            if is_plural:
-                temp = "Due to inadequate service provided by {} clients refuse to pay the full price.".format(worker.name)
-            else:
-                temp = "Due to inadequate service provided by {} client refuses to pay the full price.".format(worker.name)
+            temp = "refuse" if is_plural else "refuses"
+            temp = "Due to inadequate service provided by %s, %s %s to pay the full price." % (worker.name, client_name, temp)
             log.append(temp)
             if me >= 90 and building.help_ineffective_workers and building._dnd_manager.PP >= 1:
                 manager = building._dnd_manager
-                temp = "Your skilled manager {} intervened and straitened things out.".format(manager.name)
-                manager._dnd_mlog.append("{} helped to calm a client down after {}'s poor performance and salvaged part of the payment!".format(
-                                                    manager.name, worker.name))
+                temp = "%s helped to calm a client down after %s's poor performance and salvaged part of the payment!" % (manager.name, worker.name)
+                manager._dnd_mlog.append(temp)
+                temp = "Your skilled manager %s intervened and straitened things out." % manager.name
                 manager.PP -= 1
 
                 if me >= 150 and dice(85):
-                    if is_plural:
-                        temp += " Clients were so pleased for the attention and ended up paying full price."
-                    else:
-                        temp += " Client was so pleased for the attention and ended up paying full price."
+                    tmp = "were" if is_plural else "was"
+                    temp += " %s %s pleased for the attention and ended up paying the full price." % (client_name_c, tmp)
                 elif dice(75):
-                    if is_plural:
-                        temp += " Clients agree to pay three quarters of the price."
-                    else:
-                        temp += " Client agreed to pay three quarters of the price."
+                    temp += " %s agreed to pay three quarters of the price." % client_name_c
                     earned *= .75
                 else:
                     earned *= .6
@@ -60,16 +50,12 @@ init -10 python:
                 temp = " You will get half..."
                 log.append(temp)
         elif effectiveness <= 150:
-            if is_plural:
-                temp = "Clients are very happy with {} service and pay the full price.".format(worker.name)
-            else:
-                temp = "Client is very happy with {} service and pays the full price.".format(worker.name)
+            temp = ("are", "pay") if is_plural else ("is", "pays")
+            temp = "%s %s very happy with %s's service and %s the full price." % (client_name_c, temp[0], temp[1], worker.name)
             log.append(temp)
         else:
-            if is_plural:
-                temp = "Clients are ecstatic! {} service was beyond any expectations. +20% to payout!".format(worker.name)
-            else:
-                temp = "Client is ecstatic! {} service was beyond any expectations. +20% to payout!".format(worker.name)
+            temp = "are" if is_plural else "is"
+            temp = "%s %s ecstatic! %s's service was beyond any expectations. +20%% to payout!" % (client_name_c, temp, worker.name)
             log.append(temp)
             earned *= 1.2
 
@@ -131,13 +117,6 @@ init -10 python:
         #    vp = Viewport(child=c, xysize=(xmax, ysize))
         #img.add(Transform(vp, align=(.5, .9)))
         #return img
-
-
-    def slave_siw_check(c): # slaves-SIWs allow more than other characters
-        if c.status == "slave" and ("SIW" in c.gen_occs) and c.get_stat("disposition") >= -150:
-            return True
-        else:
-            return False
 
     def check_submissivity(c):
         """Here we determine how submissive the character is, thus if she's willing to do something she doesn't want to, or for example take the initiative in certain cases.

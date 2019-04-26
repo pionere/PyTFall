@@ -23,7 +23,7 @@ label interactions_hug:
     else:
         $ base = 200
 
-    if char.get_stat("affection") > (base+50*sub) or slave_siw_check(char):
+    if char.get_stat("affection") > (base+50*sub) or interactions_slave_siw_check(char):
         $ char.gfx_mod_stat("disposition", randint(15, 30))
         $ char.gfx_mod_stat("affection", affection_reward(char, 1.4))
         $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.25))
@@ -159,7 +159,7 @@ label interactions_grabbutt:
     else:
         $ base = 250
 
-    if char.get_stat("affection") > (base+50*sub) or slave_siw_check(char):
+    if char.get_stat("affection") > (base+50*sub) or interactions_slave_siw_check(char):
         $ char.gfx_mod_stat("disposition", randint(20, 35))
         $ char.gfx_mod_stat("affection", affection_reward(char, 1.2))
         $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.25))
@@ -300,7 +300,7 @@ label interactions_grabbreasts:
     else:
         $ base = 300
 
-    if char.get_stat("affection") > (base+50*sub) or slave_siw_check(char):
+    if char.get_stat("affection") > (base+50*sub) or interactions_slave_siw_check(char):
         $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.25))
         $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.25))
         $ char.gfx_mod_stat("disposition", randint(25, 35))

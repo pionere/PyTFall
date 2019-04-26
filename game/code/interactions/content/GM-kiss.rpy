@@ -39,7 +39,7 @@ label interactions_kiss:
     else:
         $ base = 350
 
-    if char.get_stat("affection") > (base+50*sub) or slave_siw_check(char):
+    if char.get_stat("affection") > (base+50*sub) or interactions_slave_siw_check(char):
         $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.25))
         $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.25))
         $ char.gfx_mod_stat("affection", affection_reward(char, 1.5))

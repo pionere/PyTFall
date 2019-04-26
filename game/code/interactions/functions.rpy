@@ -36,6 +36,12 @@ init -11 python:
             return "bg girl_room"
 
     # Interactions (Girlsmeets Helper Functions):
+    def interactions_slave_siw_check(c): # slaves-SIWs allow more than other characters
+        if c.status == "slave" and ("SIW" in c.gen_occs) and c.get_stat("disposition") >= -150:
+            return True
+        else:
+            return False
+
     def interactions_influence(c):
         return ((hero.get_stat("charisma")*(1 + c.get_stat("disposition")/(3.0*c.get_max("disposition")))) - c.get_stat("character")) / (c.tier + 1) 
 

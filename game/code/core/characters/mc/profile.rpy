@@ -63,6 +63,38 @@ label hero_profile:
                 if len(n):
                     $ hero.team.name = n
                 $ del n
+        elif result[0] == "meetup":
+            hide screen mc_friends_list
+            hide hero_profile
+            with dissolve
+
+            python hide:
+                char = result[1]
+                locations_list = []
+                if char.has_image("girlmeets", "beach"):
+                    locations_list.append("beach")
+                if char.has_image("girlmeets", "urban"):
+                    locations_list.append("urban")
+                if char.has_image("girlmeets", "suburb"):
+                    locations_list.append("urban")
+                    locations_list.append("suburb")
+                if char.has_image("girlmeets", "nature"):
+                    locations_list.append("nature")
+                if locations_list:
+                    tag = random.choice(locations_list)
+                else:
+                    tag = "urban"
+
+                if tag == "beach":
+                    bg = "city_beach_cafe"
+                elif tag == "urban":
+                    bg = "main_street"
+                elif tag == "suburb":
+                    bg = "beach_rest"
+                else:
+                    bg = "city_park"
+
+                gm.start_gm(char, exit="hero_profile", img=char.show("girlmeets", tag, label_cache=True, resize=(300, 400), type="reduce"), bg=bg)
 
 # Screens:
 screen hero_profile():
@@ -820,8 +852,8 @@ screen mc_friends_list:
         xysize (930, 450)
         pos(210, 115)
         background Frame("content/gfx/frame/p_frame7.webp", 5, 5)
-        $ temp = sorted(list(hero.friends | hero.lovers), key=attrgetter("name"))
-        $ temp = list(i for i in temp if (i not in hero.chars) and i.is_available)
+        $ temp = list(i for i in chain(hero.friends, hero.lovers) if (i not in hero.chars) and i.is_available)
+        $ temp = sorted(temp, key=attrgetter("name"))
         if temp:
             text "Click on the character to meet them in the city" style "TisaOTMol" size 23 xalign .5
         else:
@@ -840,8 +872,6 @@ screen mc_friends_list:
             mousewheel True
             scrollbars "vertical"
             xysize (930, 390)
-
-
 
             for char in temp:
                 frame:
@@ -862,7 +892,7 @@ screen mc_friends_list:
                         align (.5, .5)
                         style "basic_choice2_button"
                         add char.show("portrait", resize=(120, 120), cache=True) align (.5, .5)
-                        action [Hide("mc_friends_list"), Hide("hero_profile"), With(dissolve), Function(friends_list_gms, char)]
+                        action Return(["meetup", char])
 
                     text "{=TisaOTMolxm}[char.nickname]" align (.5, 1.0) yoffset 5 xmaximum 190
                     if char in hero.lovers:

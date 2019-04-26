@@ -313,13 +313,6 @@ init -9 python:
             self.mooncycle = 29
             self.newmoonday = 1
 
-        def game_day(self):
-            """
-            Returns amount of days player has spent in game.
-            Counts first day as day 1.
-            """
-            return self.daycount_from_gamestart + 1
-
         def string(self):
             return "%s %d, %d"%(self.month_names[self.month], self.day, self.year)
 
@@ -366,43 +359,47 @@ init -9 python:
             moonidx = dayidx % self.mooncycle
             moondays = moonidx + 1
             percentage = moondays * 100.0 / self.mooncycle
-            return int(round(percentage))
+            return round_int(percentage)
 
         def moonphase(self):
             '''Returns the lunar phase according to daycount.
 
             Phases:
-            new moon -> waxing crescent -> first quater -> waxing moon ->
+            new moon -> waxing crescent -> first quarter -> waxing moon ->
                 full moon -> waning moon -> last quarter -> waning crescent -> ...
             '''
             # calculate days into the cycle
             newmoonidx = self.newmoonday - 1
             dayidx = self.daycount_from_gamestart - newmoonidx
             moonidx = dayidx % self.mooncycle
-            moondays = moonidx + 1
             # substract the number of named days
             unnamed_days = self.mooncycle - 4
             # calculate the days per quarter
             quarter = unnamed_days / 4.0
             # determine phase
-            if moonidx<1:
-                phase = "new moon"
-            elif moonidx<(quarter+1):
-                phase = "waxing crescent"
-            elif moonidx<(quarter+2):
-                phase = "first quarter"
-            elif moonidx<(2*quarter+2):
-                phase = "waxing moon"
-            elif moonidx<(2*quarter+3):
-                phase = "full moon"
-            elif moonidx<(3*quarter+3):
-                phase = "waning moon"
-            elif moonidx<(3*quarter+4):
-                phase = "last quarter"
+            cq = 1
+            if moonidx < cq:
+                return "new moon"
+            cq += quarter
+            if moonidx < cq:
+                return "waxing crescent"
+            cq += 1
+            if moonidx < cq:
+                return "first quarter"
+            cq += quarter
+            if moonidx < cq:
+                return "waxing moon"
+            cq += 1
+            if moonidx < cq:
+                return "full moon"
+            cq += quarter
+            if moonidx < cq:
+                return "waning moon"
+            cq += 1
+            if moonidx < cq:
+                return "last quarter"
             else:
-                phase = "waning crescent"
-            return phase
-
+                return "waning crescent"
 
     class OnScreenMap(_object):
         """
