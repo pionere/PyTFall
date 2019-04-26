@@ -84,7 +84,6 @@ label start:
         tl.start("Loading/Sorting: Items")
         items = load_items()
         global_flags.set_flag("last_modified_items", os.path.getmtime(content_path('db/items')))
-        items_upgrades = json.load(renpy.file("content/db/upgrades.json"))
 
         # Build shops:
         pytfall.init_shops()
@@ -1524,6 +1523,8 @@ label after_load:
             del store.aine_shop
         if hasattr(store, "peevish_shop"):
             del store.peevish_shop
+        if hasattr(store, "items_upgrades"):
+            del store.items_upgrades
         if hasattr(store, "filter"):
             del store.filter
         if hasattr(store, "background_number_list"):

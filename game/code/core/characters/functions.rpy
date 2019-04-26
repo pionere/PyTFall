@@ -260,8 +260,6 @@ init -11 python:
 
         # Names/Origin:
         if not name:
-            if not store.female_first_names:
-                store.female_first_names = load_female_first_names(200)
             name = get_first_name()
         rg.name = rg.nickname = name
 

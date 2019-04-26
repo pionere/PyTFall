@@ -138,12 +138,12 @@ screen shopkeeper_items_upgrades(upgrades_list):
                             xysize (100, 50)
                             align (.5, .5)
                             text "Order" size 16 color "goldenrod"
-                            action Show("yesno_prompt", message="Are you sure you wish to order a %s for %s Gold?" % (i["second_item"], price), yes_action=[Hide("yesno_prompt"), Return(i["first_item"])], no_action=Hide("yesno_prompt")) 
+                            action Show("yesno_prompt", message="Are you sure you wish to order a %s for %s Gold?" % (i["second_item"], price), yes_action=[Hide("yesno_prompt"), Return(i)], no_action=Hide("yesno_prompt")) 
                         null height 1
         vbar value YScrollValue("tailor_orders")
 
         null height 5
-        use exit_button(action=Return(-1), align=(.5, 1.05))
+        use exit_button(action=Return(None), align=(.5, 1.05))
 
 label tailor_special_order:
     if npcs["Kayo_Sudou"].has_flag("tailor_special_order"):
@@ -158,23 +158,22 @@ label tailor_special_order:
             $ npcs["Kayo_Sudou"].del_flag("tailor_special_order")
     else:
         t "For a small price, I can upgrade your clothes to better versions. What would you like to order?"
+        $ items_upgrades = load_db_json("items/upgrades.json")
         $ upgrade_list = list(i for i in items_upgrades if i["location"] == "Tailor")
 
         $ result = renpy.call_screen("shopkeeper_items_upgrades", upgrade_list)
-        $ del upgrade_list
-        if result == -1:
+        $ del upgrade_list, items_upgrades
+        if result is None:
             t "If you want anything, please don't hesitate to tell me."
         else:
-            $ our_list = list(i for i in items_upgrades if i["first_item"] == result)[0]
-            if not has_items(result, hero, equipped=False):
+            if not has_items(result["first_item"], hero, equipped=False):
                 t "I'm sorry, you don't have the required base item. Please make sure to unequip it if it's equipped."
-            elif hero.take_money(our_list["price"], reason="Tailor Upgrade"):
-                $ hero.remove_item(result)
+            elif hero.take_money(result["price"], reason="Tailor Upgrade"):
+                $ hero.remove_item(result["first_item"])
                 t "Of course, dear customer, it will be ready in three days. You can retrieve your order in our shop after the time passes."
-                $ npcs["Kayo_Sudou"].set_flag("tailor_special_order", value=[day, our_list["second_item"]])
+                $ npcs["Kayo_Sudou"].set_flag("tailor_special_order", value=[day, result["second_item"]])
             else:
                 t "I'm sorry, but you don't have that much gold."
-            $ del our_list
     jump tailor_menu
 
 screen tailor_shop():
