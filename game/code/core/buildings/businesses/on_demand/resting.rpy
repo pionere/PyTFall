@@ -14,14 +14,21 @@ init -5 python:
             self.desc = "No one can work without taking a break sometimes. Rest restores health, vitality and mp and removes some negative effects"
 
         def __call__(self, char):
-            loc = char.home
-            log = NDEvent(job=self, char=char, loc=loc)
-            self.rest(char, loc, log)
-            self.after_rest(char, log)
+            if char.PP < 15:
+                # not enough PP for a meaningful rest 
+                return
+            if self.is_rested(char):
+                # already rested via some other ways -> inactivate AutoRest, but ignore the log
+                self.after_rest(char)
+                return
+
+            # the real rest 
+            log = NDEvent(job=self, char=char, loc=char.home)
+            self.rest(char, log)
             log.after_job()
             NextDayEvents.append(log)
 
-        def rest(self, worker, loc, log):
+        def rest(self, worker, log):
             """Rests the worker.
             """
             worker.disable_effect('Exhausted') # rest immediately disables the effect and removes its counter
@@ -84,22 +91,22 @@ init -5 python:
                         log.append("%s takes a small nap during %s free time." % (name, worker.pp))
                 elif "masturbation" in image_tags:
                     log.append(choice(["%s has some fun with %sself during %s free time." % (name, worker.op, worker.pp),
-                                                 "%s is relieving %s sexual tension at the free time." % (name, worker.pp)]))
+                                       "%s is relieving %s sexual tension at the free time." % (name, worker.pp)]))
                 elif "onsen" in image_tags:
                     log.append("%s relaxes in the onsen. The perfect remedy for stress!" % name)
                 elif "reading" in image_tags:
                     log.append(choice(["%s spends %s free time reading." % (name, worker.pp),
-                                                 "%s is enjoying a book and relaxing." % name]))
+                                       "%s is enjoying a book and relaxing." % name]))
                 elif "shopping" in image_tags:
                     log.append(choice(["%s spends %s free time to visit some shops." % (name, worker.pp),
-                                                 "%s is enjoying a small shopping tour." % name]))
+                                       "%s is enjoying a small shopping tour." % name]))
                 elif "exercising" in image_tags:
                     log.append("%s keeps %sself in shape doing some exercises during %s free time." % (name, worker.op, worker.pp))
                 elif "sport" in image_tags:
                     log.append("%s is in a good shape today, so %s spends %s free time doing sports." % (name, worker.p, worker.pp))
                 elif "eating" in image_tags:
-                    log.append(choice(["%s has a snack during %s free time." % (name, worker.pp),
-                                                 "%s spends %s free time enjoying a meal." % (name, worker.pp)]))
+                    log.append(choice(["%s has a snack during %s free time.",
+                                       "%s spends %s free time enjoying a meal."]) % (name, worker.pp))
                 elif "bathing" in image_tags:
                     if "pool" in image_tags:
                         log.append("%s spends %s free time enjoying swimming in the local swimming pool." % (name, worker.pp))
@@ -111,27 +118,27 @@ init -5 python:
                         log.append("%s spends %s free time relaxing in a water." % (name, worker.pp))
                 else:
                     if "living" in image_tags:
-                        log.append(choice(["%s is resting in %s room." % (name, worker.pp),
-                                           "%s is taking a break in %s room to recover." % (name, worker.pp)]))
+                        log.append(choice(["%s is taking a break in %s room to recover.",
+                                           "%s is resting in %s room."]) % (name, worker.pp))
                     elif "beach" in image_tags:
-                            log.append(choice(["%s is relaxing at the local beach." % name,
-                                               "%s is taking a break at the local beach." % name]))
+                            log.append(choice(["%s is taking a break at the local beach.",
+                                               "%s is relaxing at the local beach."]) % name)
                     elif "pool" in image_tags:
-                            log.append(choice(["%s is relaxing in the local swimming pool." % name,
-                                               "%s is taking a break in the local swimming pool." % name]))
+                            log.append(choice(["%s is taking a break in the local swimming pool.",
+                                               "%s is relaxing in the local swimming pool."]) % name)
                     elif "nature" in image_tags:
                         if ("wildness" in image_tags):
-                            log.append(choice(["%s is resting in the local forest." % name,
-                                               "%s is taking a break in the local forest." % name]))
+                            log.append(choice(["%s is taking a break in the local forest.",
+                                               "%s is resting in the local forest."]) % name)
                         else:
-                            log.append(choice(["%s is resting in the local park." % name,
-                                               "%s is taking a break in the local park." % name]))
+                            log.append(choice(["%s is taking a break in the local park.",
+                                               "%s is resting in the local park."]) % name)
                     elif ("urban" in image_tags) or ("public" in image_tags):
-                            log.append(choice(["%s is relaxing somewhere in the city." % name,
-                                               "%s is taking a break somewhere in the city." % name]))
+                            log.append(choice(["%s is taking a break somewhere in the city.",
+                                               "%s is relaxing somewhere in the city."]) % name)
                     else:
-                        log.append(choice(["%s is relaxing during %s free time." % (name, worker.pp),
-                                           "%s is taking a break during %s free time." % (name, worker.pp)]))
+                        log.append(choice(["%s is taking a break during %s free time.",
+                                           "%s is relaxing during %s free time."]) % (name, worker.pp))
 
             # Work with JP in order to try and waste nothing.
             # Any Char without impairments should recover health and vitality in 3 days fully.
@@ -152,43 +159,38 @@ init -5 python:
                 vit *= .5
 
             # We do it in three steps to try and save some JP if possible:
-            jp_step = round_int(jp/3)
-            if jp_step < 5: # To little JP to matter:
-                return
+            jp /= 3
+            health = round_int(health/3)
+            vit = round_int(vit/3)
+            mp = round_int(mp/3)
 
             for i in range(3):
-                worker.PP -= jp_step
+                worker.PP -= jp
 
-                value = round_int(health/3)
-                log.logws('health', value)
+                log.logws('health', health)
+                log.logws('vitality', vit)
+                log.logws('mp', mp)
 
-                value = round_int(vit/3)
-                log.logws('vitality', value)
-
-                value = round_int(mp/3)
-                log.logws('mp', value)
-
-                if jp_step > 5:
+                if jp > 5:
                     log.logws('joy', randrange(2))
 
                 if self.is_rested(worker):
+                    self.after_rest(worker, log)
                     break
 
-            if worker.PP < 0:
-                worker.PP = 0
-
         def is_rested(self, worker):
-            if worker.get_stat("vitality") < worker.get_max("vitality")*.95:
+            if worker.get_stat("vitality") < worker.get_max("vitality"):
                 return False
-            if worker.get_stat("health") < worker.get_max('health')*.95:
+            if worker.get_stat("health") < worker.get_max('health'):
+                return False
+            if "Exhausted" in worker.effects:
                 return False
             if 'Food Poisoning' in worker.effects:
                 return False
             return True
 
-        def after_rest(self, worker, log):
-            # Must check for is_rested first always.
-            if self.is_rested(worker) and log is not None:
+        def after_rest(self, worker, log=None):
+            if log is not None:
                 log.append("%s is both well rested and healthy so at this point this is simply called: {color=red}slacking off :){/color}" % worker.pC)
 
 
@@ -199,21 +201,31 @@ init -5 python:
             self.id = "AutoRest"
             self.desc = "Autorest is a type of rest which automatically return character to previous job after resting is no longer needed"
 
-        def after_rest(self, worker, log):
-            if self.is_rested(worker):
-                worker.set_task(None)
-                action = worker.job
+        def is_rested(self, worker):
+            if worker.get_stat("vitality") < worker.get_max("vitality")*.95:
+                return False
+            if worker.get_stat("health") < worker.get_max('health')*.95:
+                return False
+            if "Exhausted" in worker.effects:
+                return False
+            if 'Food Poisoning' in worker.effects:
+                return False
+            return True
 
-                if log is not None:
-                    if action:
-                        log.append("%s is now both well rested and goes back to work as %s!" % (worker.name, action))
-                    else:
-                        log.append("%s is now both well rested and healthy!" % worker.name)
+        def after_rest(self, worker, log=None):
+            worker.set_task(None)
+            action = worker.job
 
-                if worker.autoequip:
-                    aeq_purpose = getattr(action, "aeq_purpose", None)
-                    if aeq_purpose and worker.last_known_aeq_purpose != aeq_purpose:
-                        worker.equip_for(aeq_purpose)
+            if log is not None:
+                if action:
+                    log.append("%s is now both well rested and goes back to work as %s!" % (worker.name, action))
+                else:
+                    log.append("%s is now both well rested and healthy!" % worker.name)
+
+            if worker.autoequip:
+                aeq_purpose = getattr(action, "aeq_purpose", None)
+                if aeq_purpose and worker.last_known_aeq_purpose != aeq_purpose:
+                    worker.equip_for(aeq_purpose)
 
     ####################### Training Job  #############################
     class StudyingJob(Job):

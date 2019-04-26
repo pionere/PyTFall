@@ -112,10 +112,6 @@ init python:
         def get_chars_dist(self):
             return self.free, self.slaves
 
-    def auto_rest_conditions(char):
-        # returns True if a char can go AutoResting, False if not.
-        return isinstance(char.action, Rest) and char.is_available and char.PP > 0
-
 
 label next_day:
     scene
@@ -175,24 +171,12 @@ label next_day_calculations:
             if temp > 0:
                 area.explored -= 1
 
-        # Restore (AutoEquip for HP/Vit/MP) before the jobs:
-        tl.start("AutoEquip Consumables for Workers")
+        # Building events Start:
+        tl.start("ND-Rest (Before Work)")
         for c in hero.chars:
             if c.is_available:
-                c.restore()
-        tl.end("AutoEquip Consumables for Workers")
-
-        # Building events Start:
-        tl.start("ND-Rest (First pass)")
-        for c in hero.chars:
-            if not isinstance(c.action, Rest):
-                # check whether the char needs rest
-                if can_do_work(c, check_ap=False, log=None):
-                    continue
-            if auto_rest_conditions(c):
-                # rest
-                c.action(c) # <--- Looks odd and off?
-        tl.end("ND-Rest (First pass)")
+                c.nd_rest()
+        tl.end("ND-Rest (Before Work)")
 
         # run the next day logic of the building:
         tl.start("ND-Buildings")
@@ -200,13 +184,6 @@ label next_day_calculations:
             b.next_day()
         tl.end("ND-Buildings")
         # Building events END.
-
-        # Second iteration of Rest:
-        tl.start("ND-Rest (Second pass)")
-        for c in hero.chars:
-            if auto_rest_conditions(c):
-                c.action(c)
-        tl.end("ND-Rest (Second pass)")
 
         ################## Logic ##################
         tl.start("pytfall/calender .next_day")

@@ -319,7 +319,7 @@ init -12 python:
             Removes worker from instances master list.
             Returns True is yes, False otherwise.
             """
-            if not can_do_work(worker):
+            if worker.can_do_work(True) is not True:
                 self.building.available_workers.remove(worker)
 
                 temp = "%s is done working for the day." % worker.name

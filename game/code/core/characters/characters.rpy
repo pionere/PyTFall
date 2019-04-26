@@ -2493,28 +2493,78 @@ init -9 python:
             return self.status == "slave" or self.get_stat("disposition") >= 850
 
         ### Next Day Methods
-        def restore(self):
-            # Called whenever character needs to have one of the main stats restored.
+        def can_do_work(self, check_ap):
+            """Checks whether the character is injured/tired/has AP.
+
+            AP check is optional and if True, also checks for action points.
+            """
+            # We do not want workers in school to AutoRest,
+            # Idea is that the school is taking care of this.
+            if self._task.__class__ == StudyingJob:
+                return True
+
+            if self.get_stat("health") < self.get_max("health")/4:
+                return "health"
+            if self.get_stat("vitality") <= self.get_max("vitality")/5:
+                return "vitality"
+            if "Exhausted" in self.effects:
+                return "exhausted"
+            if 'Food Poisoning' in self.effects:
+                return "food"
+            if check_ap:
+                if self.PP <= 0:
+                    return "pp"
+
+            return True
+
+        def nd_rest(self):
+            """Implements a character reactions to tiring/injury/food poisoning etc...
+                Called multiple times during the next day calculation.
+
+               Checks the employee if she/he is in need of rest (using can_do_work).
+               Turns on AutoRest and 'executes' the rest if there is PP available. 
+            """
+            if self._task.__class__ in [Rest, AutoRest]:
+                # Char is already resting, call the action
+                self._task.action(self) # <--- Looks odd and off?
+                return
+
+            # try to use our items to restore stats
             if self.autoequip:
                 l = list()
-                if self.get_stat("health") < self.get_max("health")*.3:
-                    l.extend(self.auto_equip(["health"]))
-                if self.get_stat("vitality") < self.get_max("vitality")/5:
-                    l.extend(self.auto_equip(["vitality"]))
-                if self.get_stat("mp") < self.get_max("mp")/10:
-                    l.extend(self.auto_equip(["mp"]))
-                if self.get_stat("joy") < self.get_max("joy")*.4:
-                    l.extend(self.auto_equip(["joy"]))
+                for stat, mod in [("health", 3), ("vitality", 5), ("mp", 10), ("joy", 2)]:
+                    if self.get_stat(stat) < self.get_max(stat)/mod:
+                        l.append(stat)
                 if l:
-                    self.txt.append("%s used: %s %s during the day!" % (self.pC, ", ".join(l), plural("item", len(l))))
+                    l = self.auto_equip(l)
+                    if l:
+                        self.txt.append("%s consumed %s %s to make %sself feel better." % (self.pC, ", ".join(l), plural("item", len(l)), self.op))
 
-        def check_resting(self):
-            # Auto-Rest should return a well rested worker back to work (or send them auto-resting!):
-            if not isinstance(self.action, Rest):
-                # This will set this char to AutoRest using normal checks!
-                can_do_work(self, check_ap=False, log=None)
-            else: # Char is resting already, we can check if is no longer required.
-                self.action.after_rest(self, log=None)
+            # check if rest is needed
+            temp = self.can_do_work(False)
+            if temp is True:
+                return # no -> done
+
+            # in need of rest
+            if not self.autocontrol['Rest']:
+                return # not in our control -> skip
+
+            # report
+            if temp == "vitality":
+                temp = "%s is too tired! %s going to take a few days off to recover." % (self.name, self.pC)
+            elif temp == "health":
+                temp = "%s is in need of medical attention! %s going to take a few days off to heal." % (self.name, self.pC)
+            elif temp == "exhausted":
+                temp = "%s is exhausted! %s needs a day off to recover." % (self.name, self.pC)
+            else:
+                temp = "%s is suffering from food poisoning! %s is going to take a few days off to recover." % (self.name, self.pC)
+            self.txt.append(temp)
+
+            # switch to AutoRest
+            task = simple_jobs["AutoRest"]
+            self.set_task(task)
+            # do the actual resting
+            task.action(self) # <--- Looks odd and off?
 
         def nd_sleep(self, txt):
             # Home location nd mods:
@@ -2589,7 +2639,7 @@ init -9 python:
                     if wage != 0:
                         self.add_money(wage, reason="Wages")
 
-                #self.restore()
+                #self.nd_rest()
                 self.item_counter()
 
                 # Adding joy mods:
@@ -2635,25 +2685,8 @@ init -9 python:
                 # Settle wages:
                 mood = self.fin.settle_wage(txt, mood)
             else:
-                # Front text (Days employed)
-                name = set_font_color(self.fullname, "green")
-                days = self.get_flag("daysemployed", 0)
-                if days == 0:
-                    txt.append("%s has started working for you today! " % name)
-                else:
-                    txt.append("%s has been working for you for %s %s. " % (name, days, plural("day", days)))
-                self.set_flag("daysemployed", days+1)
-
-                # commonly used pronouns
-                pC = self.pC
-
-                if self.status == "slave":
-                    txt.append("%s is a slave." % pC)
-                else:
-                    txt.append("%s is a free citizen." % pC)
-
-                # Home location nd mods:
-                flag_red = self.nd_sleep(txt)
+                # normal employee
+                self.up_counter("daysemployed")
 
                 # Finances:
                 # Upkeep:
@@ -2667,7 +2700,7 @@ init -9 python:
                     if not amount:
                         pass
                     elif amount < 0:
-                        txt.append("%s actually managed to save you some money ({color=gold}%d Gold{/color}) instead of requiring upkeep! Very convenient!" % (pC, -amount))
+                        txt.append("%s actually managed to save you some money ({color=gold}%d Gold{/color}) instead of requiring upkeep! Very convenient!" % (self.pC, -amount))
                         hero.add_money(-amount, reason="Workers Upkeep")
                     elif hero.take_money(amount, reason="Workers Upkeep"):
                         self.fin.log_logical_expense(amount, "Upkeep")
@@ -2700,7 +2733,7 @@ init -9 python:
 
                     if self.autocontrol["Tips"]:
                         temp = choice(["As per agreement, your worker gets to keep all %s tips! This is a very good motivator. " % self.pp,
-                                       "%s's happy to keep it." % pC])
+                                       "%s's happy to keep it." % self.pC])
                         txt.append(temp)
 
                         self.add_money(tips, reason="Tips")
@@ -2717,8 +2750,7 @@ init -9 python:
                         txt.append(temp)
                         hero.add_money(tips, reason="Worker Tips")
 
-                self.restore()
-                self.check_resting()
+                self.nd_rest()
 
                 # Effects:
                 if 'Poisoned' in self.effects:
@@ -2726,10 +2758,10 @@ init -9 python:
                     flag_red = True
                 if (not self.autobuy) and not self.allowed_to_define_autobuy:
                     self.autobuy = True
-                    txt.append("%s will go shopping whenever it may please %s from now on!" % (pC, self.pp))
+                    txt.append("%s will go shopping whenever it may please %s from now on!" % (self.pC, self.pp))
                 if (not self.autoequip) and not self.allowed_to_define_autoequip:
                     self.autoequip = True
-                    txt.append("%s will be handling %s own equipment from now on!" % (pC, self.pp))
+                    txt.append("%s will be handling %s own equipment from now on!" % (self.pC, self.pp))
 
                 # throw a red flag if the worker is not doing anything:
                 if not self.action:
@@ -2739,6 +2771,10 @@ init -9 python:
 
                 # Unhappiness and related:
                 mood, flag_red = self.nd_joy_disposition_checks(mood, flag_red)
+
+                # Home location nd mods:
+                if (flag_red is False or self in hero.chars) and self.nd_sleep(txt):
+                    flag_red = True
 
             # Finances related:
             self.fin.next_day()

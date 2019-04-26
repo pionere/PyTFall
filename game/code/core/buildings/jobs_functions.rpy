@@ -132,56 +132,6 @@ init -10 python:
         #img.add(Transform(vp, align=(.5, .9)))
         #return img
 
-    def can_do_work(c, check_ap=True, log=None):
-        """Checks whether the character is injured/tired/has AP and sets her/him to auto rest.
-
-        AP check is optional and if True, also checks for action points.
-        """
-        # We do not want workers in school to AutoRest,
-        # Idea is that the school is taking care of this.
-        if c.action.__class__ in [StudyingJob, ExplorationJob]:
-            return True
-
-        if c.get_stat("health") < c.get_max("health")/4:
-            if log:
-                log.append("%s is injured and in need of medical attention! "%c.name)
-            # self.img = c.show("profile", "sad", resize=(740, 685))
-            if c.autocontrol['Rest'] and c.action.__class__ not in [Rest, AutoRest]:
-                c.set_task(simple_jobs["AutoRest"])
-                if log:
-                    log.append("And going to take few days off to heal. ")
-            return False
-        if c.get_stat("vitality") <= c.get_max("vitality")/5:
-            if log:
-                log.append("%s is too tired! "%c.name)
-            # self.img = c.show("profile", "sad", resize=(740, 685))
-            if c.autocontrol['Rest'] and c.action.__class__ not in [Rest, AutoRest]:
-                c.set_task(simple_jobs["AutoRest"])
-                if log:
-                    log.append("And going to take few days off to recover. ")
-            return False
-        if "Exhausted" in c.effects:
-            if log:
-                log.append("%s is exhausted! " % c.name)
-            # self.img = c.show("profile", "sad", resize=(740, 685))
-            if c.autocontrol['Rest'] and c.action.__class__ not in [Rest, AutoRest]:
-                c.set_task(simple_jobs["AutoRest"])
-                if log:
-                    log.append("And needs a day to recover. ")
-            return False
-        if 'Food Poisoning' in c.effects:
-            if log:
-                log.append("%s is suffering from Food Poisoning! "%c.name)
-            # self.img = c.show("profile", "sad", resize=(740, 685))
-            if c.autocontrol['Rest'] and c.action.__class__ not in [Rest, AutoRest]:
-                c.set_task(simple_jobs["AutoRest"])
-                if log:
-                    log.append("And going to take few days off to recover. ")
-        if check_ap:
-            if c.PP <= 0:
-                return False
-
-        return True
 
     def slave_siw_check(c): # slaves-SIWs allow more than other characters
         if c.status == "slave" and ("SIW" in c.gen_occs) and c.get_stat("disposition") >= -150:
