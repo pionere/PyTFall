@@ -640,6 +640,12 @@ init -11 python:
         char.home = None
         char.reset_workplace_action()
 
+        # Relationships:
+        for c in char.friends:
+            c.friends.discard(char)
+        for c in char.lovers:
+            c.lovers.discard(char)
+
         # SlaveMarket
         pytfall.sm.remove_char(char)
         # Jail

@@ -1016,6 +1016,12 @@ label after_load:
                 for fighter in itertools.chain(setup[0].members, setup[1].members):
                     all_live_chars.add(fighter)
 
+            for c in hero.friends.copy():
+                if c not in all_live_chars:
+                    hero.friends.discard(c)
+            for c in hero.lovers.copy():
+                if c not in all_live_chars:
+                    hero.lovers.discard(c)
             for char in all_live_chars:
                 if hasattr(char, "inventory"):
                     outfits = char.eqsave

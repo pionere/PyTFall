@@ -65,7 +65,7 @@ label hero_profile:
                 $ del n
         elif result[0] == "meetup":
             hide screen mc_friends_list
-            hide hero_profile
+            hide screen hero_profile
             with dissolve
 
             python hide:

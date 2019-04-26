@@ -302,11 +302,24 @@ init 1000 python:
                 if char not in all_chars:
                     raise Exception("Hero(%s)'s char %s is no longer in the global chars." % (hero.fullname, char.name))
 
+            for cf in hero.friends:
+                if cf not in all_chars:
+                    raise Exception("Friend of Hero, named %s is not registered." % cf.fullname)
+            for cl in hero.lovers:
+                if cl not in all_chars:
+                    raise Exception("Lover of Hero, named %s is not registered." % cl.fullname)
+
         @staticmethod
         def gameChars():
             all_chars = chars.values()
             for c in all_chars:
                 TestSuite.checkChar(c, "game-char")
+                for cf in c.friends:
+                    if cf != hero and cf not in chars:
+                        raise Exception("Friend of Char %s, named %s is not registered." % (c.fullname, cf.fullname))
+                for cl in c.lovers:
+                    if cl != hero and cl not in chars:
+                        raise Exception("Lover of Char %s, named %s is not registered." % (c.fullname, cl.fullname))
                 if isinstance(c, rChar):
                     if not c.has_flag("from_day_in_game"):
                         raise Exception("Rchar %s does not have 'from_day_in_game' flag" % c.fullname)
