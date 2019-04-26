@@ -419,11 +419,9 @@ init -10 python:
             duration = business.duration
             if duration is None or duration[0] < 1 or not in_game:
                 self.add_business(business, in_game)
-                for icu in self.in_construction_upgrades:
-                    business.job_effectiveness_mod -= icu[2]
             else:
                 mod = duration[1]
-                for b in self.businesses:
+                for b in self.allowed_businesses:
                     b.job_effectiveness_mod -= mod
                 self.in_construction_upgrades.append([business, duration[0], mod])
 
@@ -482,7 +480,7 @@ init -10 python:
                 self.add_upgrade(upgrade)
             else:
                 mod = duration[1]
-                for b in self.businesses:
+                for b in self.allowed_businesses:
                     b.job_effectiveness_mod -= mod
                 self.in_construction_upgrades.append([upgrade, duration[0], mod])
 
@@ -500,7 +498,7 @@ init -10 python:
             self.in_slots -= in_slots
             self.ex_slots -= ex_slots
 
-            for b in self.businesses:
+            for b in self.allowed_businesses:
                 b.job_effectiveness_mod += m
 
         def all_possible_extensions(self):
@@ -1230,7 +1228,8 @@ init -10 python:
 
                 self.fin.log_logical_expense(spentcash, "Ads")
 
-            # do the construction work 
+            # do the construction work
+            #  construction in the businesses: 
             for b in self.businesses:
                 if not b.in_construction_upgrades:
                     continue
@@ -1249,6 +1248,7 @@ init -10 python:
                     b.in_construction_upgrades.remove(icu)
                     b.job_effectiveness_mod += m
 
+            #  construction in the main building:
             if self.in_construction_upgrades:
                 for icu in self.in_construction_upgrades[:]:
                     u, d, m = icu
@@ -1257,7 +1257,7 @@ init -10 python:
                         icu[1] = d
                         continue
                     self.in_construction_upgrades.remove(icu)
-                    for b in self.businesses:
+                    for b in self.allowed_businesses:
                         b.job_effectiveness_mod += m
 
                     if isinstance(u, Business):

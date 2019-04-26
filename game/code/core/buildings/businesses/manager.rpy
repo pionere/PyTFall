@@ -66,8 +66,7 @@ init -5 python:
         #building.log("%s is overseeing the building!" % manager.name)
 
         # Special bonus to JobPoints (aka pep talk) :D
-        if building.init_pep_talk and manager.PP >= 10:
-            mp_init_jp_bonus(manager, building, effectiveness)
+        mp_init_jp_bonus(manager, building, effectiveness)
 
         cheered_up_workers = set()
 
@@ -107,7 +106,7 @@ init -5 python:
                         handle = "sad"
                     else:
                         handle = "tired"
-                    temp0 = "%s noticed that %s looks a bit %s." % (manager.nickname, worker.nickname, handle)
+                    temp = "%s noticed that %s looks a bit %s." % (manager.nickname, worker.nickname, handle)
 
                     if give_joy and give_vit:
                         bonus_str = "(+10% Joy, +15% Vitality)"
@@ -120,8 +119,8 @@ init -5 python:
                         bonus_str = "(+30% Vitality)"
                         mod_by_max(worker, "vitality", .3)
 
-                    temp1 = " Your manager cheered %s up. %s" % (worker.op, set_font_color(bonus_str, "lawngreen"))
-                    manager._dnd_mlog.append(temp0+temp1)
+                    temp += " Your manager cheered %s up. %s" % (worker.op, set_font_color(bonus_str, "lawngreen"))
+                    manager._dnd_mlog.append(temp)
 
                     building.log("Your manager cheered up %s." % worker.name)
 
@@ -131,40 +130,44 @@ init -5 python:
 
 
     def mp_init_jp_bonus(manager, building, effectiveness):
+        if not building.init_pep_talk:
+            return
+
         # Special bonus to JobPoints (aka pep talk) :D
         init_jp_bonus = effectiveness-95
         if init_jp_bonus <= 0:
             return
 
-        init_jp_bonus /= 100.0
-        if init_jp_bonus > .3: # Too much power otherwise...
-            init_jp_bonus = .3
-        elif init_jp_bonus < .05: # Less than 5% is absurd...
-            init_jp_bonus = .05
+        if init_jp_bonus > 30: # Too much power otherwise...
+            init_jp_bonus = 30
+        elif init_jp_bonus < 5: # Less than 5% is absurd...
+            init_jp_bonus = 5
+
+        # Bonus to the maximum amount of workers:
+        max_workers = manager.PP / 20 # pp / (2 * PER_WORKER)
+        if max_workers == 0:
+            return
 
         workers = building.available_workers
-        if workers:
-            # Bonus to the maximum amount of workers:
-            max_job_points = manager.PP*.5
-            per_worker = 10
-            max_workers = round_int(max_job_points/per_worker)
+        if not workers:
+            return
 
-            if len(workers) > max_workers:
-                workers = random.sample(workers, max_workers)
+        if len(workers) > max_workers:
+            workers = random.sample(workers, max_workers)
 
-            temp = "{} gave a nice motivational speech and approached some of the workers individually! ".format(manager.name)
-            temp += ", ".join([w.name for w in workers])
-            temp += " responded positively! "
-            temp_p = "(+{}% Job Points)".format(round_int(init_jp_bonus*100))
-            temp += set_font_color(temp_p, "lawngreen")
-            manager._dnd_mlog.append(temp)
-            building.log("{} gave a motivational speech!".format(manager.name))
+        temp = manager.name
+        temp += " gave a nice motivational speech and approached some of the workers individually! "
+        temp += ", ".join([w.name for w in workers])
+        temp += " responded positively! "
+        temp += set_font_color("(+%d%% Job Points)" % init_jp_bonus, "lawngreen")
+        manager._dnd_mlog.append(temp)
+        building.log("%s gave a motivational speech!" % manager.name)
 
-            init_jp_bonus += 1.0
-            for w in workers:
-                w.PP = round_int(w.PP*init_jp_bonus)
-            manager.PP -= len(workers)*per_worker
-            
+        init_jp_bonus = 1.0 + init_jp_bonus/100.0
+        for w in workers:
+            w.PP = round_int(w.PP*init_jp_bonus)
+        manager.PP -= len(workers)*10 # PER_WORKER
+
     def manager_post_nd(building):
         managers = getattr(building, "_dnd_managers", None)
         if managers is None:

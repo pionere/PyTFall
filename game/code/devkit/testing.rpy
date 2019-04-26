@@ -421,6 +421,8 @@ init 1000 python:
                             raise Exception("Advert %s in Building %s has an invalid 'reputation' field! The values must be integers." % (a["name"], b.name))
 
                 for u in b.upgrades:
+                    if u not in b.allowed_upgrades:
+                        raise Exception("Built-Upgrade %s in Building %s is not allowed!" % (u.name, b.name))
                     if not isinstance(getattr(u, "materials", None), dict):
                         raise Exception("Upgrade %s in Building %s has an invalid 'materials' field! It must be a dict/map." % (u.name, b.name))
                     for m in u.materials:
@@ -435,6 +437,9 @@ init 1000 python:
                             raise Exception("Upgrade %s in Building %s has an invalid 'duration' field! The values must be integers." % (u.name, b.name))
 
                 for bs in b.businesses:
+                    if bs not in b.allowed_businesses:
+                        raise Exception("Built-Business %s in Building %s is not allowed!" % (bs.name, b.name))
+
                     if bs.habitable and bs.workable:
                         raise Exception("Business %s in Building %s is both habitable and workable, but these are exclusive settings!" % (bs.name, b.name)) # capacity calculation depends on this
 
@@ -442,6 +447,8 @@ init 1000 python:
                         raise Exception("Business %s in Building %s expects clients, but not workable!" % (bs.name, b.name))
 
                     for u in b.upgrades:
+                        if u not in bs.allowed_upgrades:
+                            raise Exception("Business-Upgrade %s of %s in Building %s is not allowed!" % (u.name, bs.name, b.name))
                         if not isinstance(getattr(u, "materials", None), dict):
                             raise Exception("Business-Upgrade %s of %s in Building %s has an invalid 'materials' field! It must be a dict/map." % (u.name, bs.name, b.name))
                         for m in u.materials:
