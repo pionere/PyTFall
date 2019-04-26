@@ -9,6 +9,8 @@ init 100 python:
     mobs = load_mobs()
     tl.end("Loading: Mobs")
 
+    load_aeq_purposes()
+
 default defeated_mobs = set()
 default gazette = Gazette()
 

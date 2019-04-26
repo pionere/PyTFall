@@ -755,6 +755,33 @@ init -11 python:
 
         return areas
 
+    def load_aeq_purposes():
+        data = load_db_json('items/aeq_purposes.json')
+
+        for entry in data:
+            id = entry.pop("id")
+
+            if entry.pop("weapons", False):
+                STATIC_ITEM.FIGHTING_AEQ_PURPOSES.add(id)
+            traits = entry.pop("traits", [])
+            for t in traits:
+                if t in STATIC_ITEM.TRAIT_TO_AEQ_PURPOSE:
+                    raise Exception("Trait %s is already set for AEQ_PURPOSE %s, can not be set to %s" % (t, STATIC_ITEM.TRAIT_TO_AEQ_PURPOSE[t], id))
+                STATIC_ITEM.TRAIT_TO_AEQ_PURPOSE[t] = id
+
+            # validate the entry
+            for t in entry:
+                if t not in ["target_stats", "target_skills", "exclude_on_stats", "exclude_on_skills", "base_purpose", "sub_purpose"]:
+                    raise Exception("Unknown field %s in AEQ_PURPOSE %s." % (t, id))
+
+            # convert or initialize these fields to sets
+            for t in ["exclude_on_stats", "exclude_on_skills", "base_purpose", "sub_purpose"]:
+                value = entry.get(t, None)
+                value = set(value) if value else set()
+                entry[t] = value
+
+            STATIC_ITEM.AEQ_PURPOSES[id] = entry
+
     def load_items():
         """
         Returns items dict with standard items and gift items to be used during girl_meets.

@@ -1017,31 +1017,30 @@ init -9 python:
             self.last_known_aeq_purpose = purpose
 
             kwargs = STATIC_ITEM.AEQ_PURPOSES[purpose]
+            real_weapons = purpose in STATIC_ITEM.FIGHTING_AEQ_PURPOSES
             if DEBUG_AUTO_ITEM:
-                aeq_debug("Auto Equipping for -- {} --".format(purpose))
-                aeq_debug("Auto Equipping Real Weapons: {} --!!".format(kwargs["real_weapons"]))
-            return self.auto_equip(slots=EQUIP_SLOTS, **kwargs)
+                aeq_debug("Auto Equipping for -- {} -- (real_weapons: {})".format(purpose, real_weapons))
+            return self.auto_equip(slots=EQUIP_SLOTS, real_weapons=real_weapons, **kwargs)
 
-        def auto_equip(self, target_stats, target_skills=None,
-                       exclude_on_skills=None, exclude_on_stats=None,
+        def auto_equip(self, target_stats, target_skills=list(),
+                       exclude_on_stats=set(), exclude_on_skills=set(),
                        slots=None, inv=None, real_weapons=False,
-                       base_purpose=None, sub_purpose=None):
+                       base_purpose=None, sub_purpose=set()):
             """
-            targetstats: expects a list of stats to pick the item
-            targetskills: expects a list of skills to pick the item
-            exclude_on_stats: items will not be used if stats in this list are being
+            target_stats: expects a set of stats to pick the item
+            target_skills: expects a set of skills to pick the item
+            exclude_on_stats: items will not be used if stats in this set are being
                 diminished by use of the item *Decreased the chance of picking this item
-            exclude_on_skills: items will not be used if stats in this list are being
+            exclude_on_skills: items will not be used if stats in this set are being
                 diminished by use of the item *Decreased the chance of picking this item
             ==>   do not put stats/skills both in target* and in exclude_on_* !
             *default: All Stats - targetstats
             slots: a list of slots, contains just consumables by default
             inv: inventory to draw from.
             real_weapons: Do we equip real weapon types (*Broom is now considered a weapon as well)
-            base_purpose: What we're equipping for, used to check vs item.pref_class (list)
-            sub_purpose: Same as above but less weight (list)
-                If not purpose is matched only 'Any' items will be used.
-
+            base_purpose: What we're equipping for, used to check vs item.pref_class (set)
+                If not set, items with char.basetraits, occupations or 'Any' will be considered.
+            sub_purpose: Same as above but less weight (set)
 
             So basically the way this works ATM is like this:
             We create a dict (weighted) of slot: [].
@@ -1052,16 +1051,16 @@ init -9 python:
             """
 
             # Prepare data:
-            if not inv:
+            if inv is None:
                 inv = self.inventory
-            if not target_skills:
-                target_skills = set()
-            exclude_on_stats = set(exclude_on_stats) if exclude_on_stats else set()
-            exclude_on_skills = set(exclude_on_skills) if exclude_on_skills else set()
-            base_purpose = set(base_purpose) if base_purpose else set()
-            sub_purpose = set(sub_purpose) if sub_purpose else set()
 
-            if not slots:
+            if base_purpose is None:
+                base_purpose = set()
+                base_purpose.add("Any")
+                base_purpose.update(bt.id for bt in self.traits.basetraits)
+                base_purpose.update(str(t) for t in self.occupations)
+
+            if slots is None:
                 weighted = {"consumable": []}
             else:
                 # preserve current stat in case we need to restore battle_stats
@@ -1104,11 +1103,6 @@ init -9 python:
             # about some stats more than others and this fucks that up completely.
             # exclude_on_stats = exclude_on_stats.union(target_stats)
             # exclude_on_skills = exclude_on_skills.union(target_skills)
-            # self.stats.eval_inventory(container, weighted, chance_func=self.equip_chance,
-            #                           upto_skill_limit=upto_skill_limit,
-            #                           min_value=min_value, check_money=check_money,
-            #                           limit_tier=limit_tier,
-            #                           **kwargs)
             self.stats.eval_inventory(inv, weighted,
                                       target_stats, target_skills,
                                       exclude_on_skills, exclude_on_stats,
@@ -1291,9 +1285,8 @@ init -9 python:
                             purpose = "Battle Mage"
             return purpose
 
-        def auto_buy(self, amount=1, slots=None,
-                     equip=False, container=None, purpose=None,
-                     check_money=True, inv=None,
+        def auto_buy(self, amount=1, slots=None, purpose=None,
+                     equip=False, container=None, check_money=True,
                      limit_tier=False, smart_ownership_limit=True):
             """Gives items a char, usually by 'buying' those,
             from the container that host all items that can be
@@ -1338,13 +1331,10 @@ init -9 python:
             # Create dict gather data, we gather slot: ([30, 50], item) types:
             weighted = {s: [] for s in slots}
 
-            if not purpose: # Let's see if we can get a purpose from last known auto equip purpose:
+            if purpose is None: # Let's see if we can get a purpose from last known auto equip purpose:
                 purpose = self.guess_aeq_purpose(self.last_known_aeq_purpose)
 
-            kwargs = STATIC_ITEM.AEQ_PURPOSES[purpose].copy()
-            kwargs.pop("real_weapons", None)
-            kwargs["base_purpose"] = set(kwargs["base_purpose"])
-            kwargs["sub_purpose"] = set(kwargs["sub_purpose"])
+            kwargs = STATIC_ITEM.AEQ_PURPOSES[purpose]
 
             min_value = -10
             upto_skill_limit = False

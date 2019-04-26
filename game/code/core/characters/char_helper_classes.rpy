@@ -1227,18 +1227,22 @@ init -10 python:
             """
             weigh items in inventory based on stats.
 
-            weighted: weights per item will be added to this
             inventory: the inventory to evaluate items from
+            weighted: weights per item will be added to this
             target_stats: a list of stats to consider for items
             target_skills: similarly, a list of skills
-            exclude_on_stats: items will be excluded if stats in this list are negatively affected
-            exclude_on_skills: similarly, a list of skills
+            exclude_on_stats: items will be excluded if stats in this list/tuple/set are negatively affected
+            exclude_on_skills: similarly, a list/tuple/set of skills
+            base_purpose: set of strings to match against item.pref_class
+            sub_purpose: set of strings to match against item.pref_class
+            limit_tier: filter the result by the tier of the items
             chance_func(): function that takes the item and returns a chance, between 0 and 100
             min_value: at what (negative) value the weight will become zero
             upto_skill_limit: whether or not to calculate bonus beyond training exactly
 
             # Auto-buy related.
             check_money: check is char has enough cash to buy the items.
+            smart_ownership_limit: prevent to hoard items by checking the char's inventory
             """
 
             # call the functions for these only once
@@ -1251,9 +1255,6 @@ init -10 python:
                 _stats_max[stat] = self.get_max(stat)   # current stat max
             elements = set([e.id.lower() for e in char.elements])
             gender = char.gender
-
-            # Add 'Any' as base purpose:
-            base_purpose.add("Any")
 
             # per item the nr of weighting criteria may vary. At the end all of them are averaged.
             # if an item has less than the most weights the remaining are imputed with 50 weights
