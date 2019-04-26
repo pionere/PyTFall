@@ -1060,19 +1060,21 @@ init: # ChainFights vs Mobs:
                     mousewheel True
                     child_size (700, 5000)
                     has vbox spacing 5
-                    for setup, portrait in zip(pytfall.arena.chain_fights_order, pytfall.arena.chain_fights_order_portraits):
+                    for setup in arena_chain_fights:
+                        $ id = setup["id"]
+                        $ lvl = setup["level"]
+                        $ portrait = setup["boss_portrait"] 
                         frame:
                             xysize (695, 55)
                             background Frame(Transform("content/gfx/frame/p_frame7.webp", alpha=1.0), 10, 10)
                             padding 1, 1
-                            # has hbox spacing 5
                             hbox:
                                 yalign .5
                                 frame:
                                     yalign .5
                                     xysize (350, 45)
                                     background Frame("content/gfx/frame/rank_frame.png", 5, 5)
-                                    text("[setup]") align .5, .5 size 25 style "proper_stats_text" color "gold"
+                                    text id align .5, .5 size 25 style "proper_stats_text" color "gold"
                                 frame:
                                     yalign .5
                                     xysize (45, 45)
@@ -1082,8 +1084,6 @@ init: # ChainFights vs Mobs:
                                     yalign .5
                                     xysize (100, 45)
                                     background Frame("content/gfx/frame/rank_frame.png", 5, 5)
-                                    $ lvl = pytfall.arena.chain_fights[setup]["level"]
-
                                     text("Lvl [lvl]") align .5, .5 size 25 style "proper_stats_text" color "gold"
                                 button:
                                     xfill True

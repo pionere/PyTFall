@@ -9,6 +9,10 @@ init 100 python:
     mobs = load_mobs()
     tl.end("Loading: Mobs")
 
+    school_courses = load_db_json("school_courses.json")
+
+    arena_chain_fights = Arena.load_chainfights()
+
     load_aeq_purposes()
 
 default defeated_mobs = set()
@@ -646,6 +650,10 @@ label after_load:
             del pytfall.arena.setup
         if hasattr(pytfall.arena, "seen_report"):
             del pytfall.arena.seen_report
+        if hasattr(pytfall.arena, "chain_fights"):
+            del pytfall.arena.chain_fights
+            del pytfall.arena.chain_fights_order
+            del pytfall.arena.chain_fights_order_portraits
 
         if hasattr(hero, "STATS"):
             for c in itertools.chain(chars.values(), [hero], hero.chars, npcs.values()):

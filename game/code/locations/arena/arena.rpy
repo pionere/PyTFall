@@ -52,12 +52,6 @@ init -9 python:
             self.daily_report = []
 
             # Chanfighting:
-            self.chain_fights = {f["id"]: f for f in load_db_json("arena_chainfights.json")}
-            self.chain_fights_order = list(f["id"] for f in sorted(self.chain_fights.values(), key=itemgetter("level")))
-            self.chain_fights_order_portraits = []
-            for i in self.chain_fights_order:
-                self.chain_fights_order_portraits.append(ProportionalScale(mobs[self.chain_fights[i]["boss"]]["portrait"], 36, 36))
-
             self.cf_mob = None
             self.cf_setup = None
             self.cf_count = 0
@@ -556,6 +550,14 @@ init -9 python:
                 if c.arena_active and c not in actives:
                     c.arena_active = False
 
+        @staticmethod
+        def load_chainfights():
+            chain_fights = load_db_json("arena_chainfights.json")
+            chain_fights.sort(key=itemgetter("level"))
+            for i in chain_fights:
+                i["boss_portrait"] = ProportionalScale(mobs[i["boss"]]["portrait"], 36, 36)
+            return chain_fights
+
         def load_special_team_presets(self):
             female_fighters = store.female_fighters
             teams = json.load(renpy.file("content/db/arena_teams.json"))
@@ -787,7 +789,7 @@ init -9 python:
                 renpy.show_screen("arena_inside")
                 return
 
-            self.cf_setup = self.chain_fights[result]
+            self.cf_setup = result
 
             self.setup_chainfight()
 
