@@ -316,7 +316,8 @@
         "img": "content/buildings/slave_quaters.webp",
 
         "build_businesses": ["SlaveQuarters"],
-        "allowed_businesses": [{"class": "SlaveQuarters", "capacity": 10, "in_slots": 10, "allowed_upgrades": ["SQLandscape"]}]
+        "allowed_businesses": [{"class": "SlaveQuarters", "capacity": 10, "in_slots": 10}],
+        "allowed_upgrades": ["Garden"]
     },
     {
         "name": "Slums Apartment",

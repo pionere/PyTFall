@@ -17,8 +17,7 @@ init 5 python:
             super(Garden, self).__init__()
 
     class SQLandscape(CoreExtension):
-        def __init__(self):
-            super(SQLandscape, self).__init__()
+        pass # FIXME obsolete
 
     class Catwalk(CoreExtension):
         def __init__(self):

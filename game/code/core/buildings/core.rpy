@@ -308,13 +308,15 @@ init -10 python:
         def init(self):
             if self.needs_manager:
                 # Management:
-                self.manager_effectiveness = 0 # Calculated once at start of each working day (performance)
                 self.workers_rule = "normal"
                 self.init_pep_talk = True
                 self.cheering_up = True
                 self.asks_clients_to_wait = True
                 self.help_ineffective_workers = True # Bad performance still may get a payout.
                 self.works_other_jobs = False
+                # Calculated fields for the ND (performance):
+                self.manager_effectiveness = 0
+                self.has_garden = False
                 # TODO Before some major release that breaks saves, move manager and effectiveness fields here.
 
                 # Workers:
@@ -357,13 +359,6 @@ init -10 python:
 
         def get_daily_modifier(self):
             daily_modifier = self.daily_modifier
-            for b in self.businesses:
-                for u in b.upgrades:
-                    if hasattr(u, "daily_modifier_mod"):
-                        daily_modifier *= u.daily_modifier_mod
-            for u in self.upgrades:
-                if hasattr(u, "daily_modifier_mod"):
-                    daily_modifier *= u.daily_modifier_mod
             daily_modifier *= 1.0 - max(0, (self.get_dirt_percentage() - 40)/100.0)
             return daily_modifier
 
@@ -487,6 +482,9 @@ init -10 python:
         def add_upgrade(self, upgrade):
             self.upgrades.append(upgrade)
             self.upgrades.sort(key=attrgetter("ID"), reverse=True)
+
+            if hasattr(upgrade, "daily_modifier_mod"):
+                self.daily_modifier *= u.daily_modifier_mod
 
         def cancel_construction(self, icu):
             self.in_construction_upgrades.remove(icu)
@@ -805,6 +803,7 @@ init -10 python:
 
                 # Do the expensive manager preparation out of the loop once
                 manager_pre_nd(self)
+                self.has_garden = self.has_extension(Garden) 
 
                 txt.append(set_font_color("Starting the workday:", "lawngreen"))
                 # Create an environment and start the setup process:
@@ -948,7 +947,6 @@ init -10 python:
             if self.clients:
                 env.process(self.clients_dispatcher(end=end-10))
 
-            has_garden = self.has_extension(Garden)
             auto_guard = self.auto_guard
             if auto_guard != 0:
                 if hero.take_money(auto_guard, "Hired Guards"):
@@ -1004,7 +1002,7 @@ init -10 python:
                     self.moddirt(5) # 5 dirt each 25 turns even if nothing is happening.
                     self.modthreat(threatmod)
 
-                    if has_garden and dice(25):
+                    if self.has_garden and dice(25):
                         for w in self.all_workers:
                             w.mod_stat("joy", 1)
 
@@ -1018,8 +1016,6 @@ init -10 python:
             """
             expected = len(self.clients)
             running = 0
-
-            has_garden = self.has_extension(Garden)
 
             # We do not want to add clients at the last 5 - 10 turns...
             # So we use 90 as base.
@@ -1044,7 +1040,7 @@ init -10 python:
                         if not self.clients:
                             break
                         client = self.clients.pop()
-                        self.env.process(self.client_manager(client, has_garden=has_garden))
+                        self.env.process(self.client_manager(client))
                     if not self.clients:
                         break
 
@@ -1053,7 +1049,7 @@ init -10 python:
                 simpy_debug("Exiting PublicBusiness(%s).client_dispatcher iteration at %s", self.name, self.env.now)
                 yield self.env.timeout(1)
 
-        def client_manager(self, client, has_garden=False):
+        def client_manager(self, client):
             """Manages a client using SimPy.
 
             - Picks a business
@@ -1083,7 +1079,7 @@ init -10 python:
 
             # Client threat mod:
             if "Aggressive" in client.traits:
-                self.modthreat(2 if has_garden else 3)
+                self.modthreat(2 if self.has_garden else 3)
 
             # Visit counter:
             #client.up_counter("visited_building" + str(self.id))

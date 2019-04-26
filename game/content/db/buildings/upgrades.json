@@ -11,28 +11,16 @@
 
         "duration": [10, 30],
 
-        "client_flow_mod":1.2
+        "client_flow_mod": 1.2
     },
     {
         "name": "Garden",
         "class": "Garden",
-        "desc":"Beautiful garden to calm down your workers and clients.\n(+Chance to increase worker joy)\n(+Reduced threat accumulation from aggressive clients)",
+        "desc":"Beautiful garden to calm down people in the building.\n(+Chance to increase worker joy)\n(+Reduced threat accumulation from aggressive clients)\n(+50% Overnight restoration for inhabitants of the building!)",
         "img": "content/buildings/upgrades/garden.webp",
         "materials": {"Stone": 50, "Green Marble": 10, "Wood": 50},
         "cost": 6000,
         "in_slots": 1,
-        "ex_slots": 5,
-
-        "duration": [20, 0]
-    },
-    {
-        "name": "Garden",
-        "class": "SQLandscape",
-        "desc": "A large and beautiful garden to put your slaves at ease.\n(+50% Overnight restoration for slaves in this building!)",
-        "img": "content/buildings/upgrades/landscape.webp",
-        "materials": {"Stone": 20, "Green Marble": 5, "Wood": 20},
-        "cost": 3000,
-        "in_slots": 2,
         "ex_slots": 5,
 
         "duration": [20, 0],
