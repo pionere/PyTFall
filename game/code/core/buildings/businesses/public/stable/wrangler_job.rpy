@@ -1,26 +1,23 @@
 init -5 python:
     class WranglerJob(Job):
-        def __init__(self):
-            """Creates reports for WranglerJob.
-            """
-            super(WranglerJob, self).__init__()
-            self.id = "Wrangler"
-            self.type = "Service"
+        id = "Wrangler"
+        type = "Service"
 
-            self.per_client_payout = 6
+        per_client_payout = 6
 
-            # Traits/Job-types associated with this job:
-            #self.occupations = ["Server"] # General Strings likes SIW, Combatant, Server...
-            self.occupation_traits = [traits["Maid"], traits["Knight"]] # Corresponding traits...
-            self.aeq_purpose = 'Wrangler'
+        # Traits/Job-types associated with this job:
+        #occupations = ["Server"] # General Strings likes SIW, Combatant, Server...
+        occupation_traits = ["Maid", "Knight"] # Corresponding traits, later replaced by the corresponding instance
+        aeq_purpose = 'Wrangler'
 
-            # Relevant skills and stats:
-            self.base_skills = {"service": 50, "riding": 100}
-            self.base_stats = {"agility": 50, "constitution": 50}
+        # Relevant skills and stats:
+        base_skills = {"service": 50, "riding": 100}
+        base_stats = {"agility": 50, "constitution": 50}
 
-            self.desc = "Wranglers tend the horses and handing over the horses to the customers"
+        desc = "Wranglers tend the horses and handing over the horses to the customers"
 
-        def traits_and_effects_effectiveness_mod(self, worker, log):
+        @staticmethod
+        def traits_and_effects_effectiveness_mod(worker, log):
             """Affects worker's effectiveness during one turn. Should be added to effectiveness calculated by the function below.
                Calculates only once per turn, in the very beginning.
             """
@@ -95,7 +92,8 @@ init -5 python:
                     effectiveness += 10
             return effectiveness
 
-        def settle_workers_disposition(self, worker, log):
+        @classmethod
+        def settle_workers_disposition(cls, worker, log):
             """
             handles penalties in case of wrong job
             """
@@ -125,27 +123,27 @@ init -5 python:
                     worker.logws('vitality', -randint(2, 5)) # a small vitality penalty for wrong job
                 else:
                     if sub < 0:
-                        if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
+                        if worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
                             log.append("%s is a slave so no one really cares, but being forced to work as a wrangler, %s's quite upset." % (name, worker.p))
                         else:
                             log.append("%s will do as %s is told, but doesn't mean that %s'll be happy about %s stable duties." % (name, worker.p, worker.p, worker.pp))
                         if dice(25):
                             worker.logws('character', 1)
                     elif sub == 0:
-                        if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
+                        if worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
                             log.append("%s will do as you command, but %s will hate every second of %s stable job..." % (name, worker.p, worker.pp))
                         else:
                             log.append("%s was very displeased by %s order to work as a wrangler, but didn't dare to refuse." % (name, worker.pp))
                         if dice(35):
                             worker.logws('character', 1)
                     else:
-                        if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
+                        if worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
                             log.append("%s was very displeased by %s order to work as a wrangler, and makes it clear for everyone before getting busy with the horses." % (name, worker.pp))
                         else:
                             log.append("%s will do as you command and work as a wrangler, but not without a lot of grumbling and complaining." % name)
                         if dice(45):
                             worker.logws('character', 1)
-                    if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
+                    if worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
                         worker.logws("joy", -randint(5, 10))
                         worker.logws("disposition", -randint(5, 15))
                         worker.logws('vitality', -randint(5, 10))
@@ -153,13 +151,14 @@ init -5 python:
                         worker.logws("joy", -randint(2, 4))
                         worker.logws('vitality', -randint(1, 4))
 
-        def log_work(self, worker, clients, effectiveness, log):
+        @classmethod
+        def log_work(cls, worker, clients, effectiveness, log):
             len_clients = len(clients)
             building = log.loc
             tier = building.tier
 
-            riding = self.normalize_required_skill(worker, "riding", effectiveness, tier)
-            service = self.normalize_required_skill(worker, "service", effectiveness, tier)
+            riding = cls.normalize_required_skill(worker, "riding", effectiveness, tier)
+            service = cls.normalize_required_skill(worker, "service", effectiveness, tier)
 
             if riding > 150:
                 if dice(70):

@@ -185,44 +185,6 @@ init -10 python:
                 return str(self.name)
             return super(BaseBuilding, self).__str__()
 
-        def get_girls(self, action=undefined, occupation=undefined, nott=False):
-            """
-            The girls that are in this location.
-            action = The type of action the girls are doing.
-            occupation = The occupation of the girls.
-            nott = Whether to negate the selection.
-
-            Note: undefined is used as an alternative to None, as a girl can have no action.
-            Used by School, should be refactored out of all modern code now.
-            """
-            # Get all girls
-            if action is undefined:
-                g = [girl for girl in hero.chars if girl.workplace is self]
-
-            # Only get girls that (don't) match action list
-            elif isinstance(action, (list,tuple)):
-                g = [girl for girl in hero.chars if girl.workplace is self and (girl.action in action) != nott]
-
-            # Only get girls that are training
-            elif action == "Course":
-                g = [girl for girl in hero.chars if girl.workplace is self and isinstance(girl.action, basestring) and girl.action.endswith("Course") != nott]
-
-            # Only get girls with specific action
-            else:
-                g = [girl for girl in hero.chars if girl.workplace is self and (girl.action == action) != nott]
-
-            # Get all girls
-            if occupation is undefined:
-                return g
-
-            # Only get girls that (don't) match occupation list
-            elif isinstance(occupation, (list,tuple)):
-                return [girl for girl in g if [tr for tr in girl.occupations if tr in occupation] != nott]
-
-            # Only get girls with specific occupation
-            else:
-                return [girl for girl in g if (occupation in girl.occupations) != nott]
-
     class Building(BaseBuilding):
         """
         The building that represents Business Buildings.
@@ -365,7 +327,7 @@ init -10 python:
         def normalize_jobs(self):
             jobs = set()
             if self.needs_manager:
-                jobs.add(simple_jobs["Manager"])
+                jobs.add(ManagerJob)
             for up in self.businesses:
                 jobs.update(up.jobs)
             self.jobs = jobs
@@ -885,7 +847,7 @@ init -10 python:
                         else:
                             if c.get_stat("disposition") < 800 or c.get_stat("joy") > 80:
                                 continue
-                        effectiveness = simple_jobs["Cleaning"].effectiveness(c, self.tier, txt)
+                        effectiveness = CleaningJob.effectiveness(c, self.tier, txt)
 
                         self.moddirt(-effectiveness / 5.0)
 

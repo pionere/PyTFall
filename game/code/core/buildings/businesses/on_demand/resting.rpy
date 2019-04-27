@@ -1,34 +1,39 @@
 init -5 python:
     ####################### Rest Job  #############################
     class Rest(Job):
+        pass # FIXME obsolete
+
+    class RestTask(Job):
         """Resting for character, technically not a job...
         """
+        id = "Rest"
+        type = "Resting"
+
+        desc = "No one can work without taking a break sometimes. Rest restores health, vitality and mp and removes some negative effects"
         def __init__(self):
             """
             Creates a new Rest.
             """
-            super(Rest, self).__init__()
-            self.id = "Rest"
-            self.type = "Resting"
+            super(Rest, self).__init__() # FIXME obsolete
 
-            self.desc = "No one can work without taking a break sometimes. Rest restores health, vitality and mp and removes some negative effects"
-
-        def __call__(self, char):
+        @classmethod
+        def run(cls, char):
             if char.PP < 15:
                 # not enough PP for a meaningful rest 
                 return
-            if self.is_rested(char):
+            if cls.is_rested(char):
                 # already rested via some other ways -> inactivate AutoRest, but ignore the log
-                self.after_rest(char)
+                cls.after_rest(char)
                 return
 
             # the real rest 
-            log = NDEvent(job=self, char=char, loc=char.home)
-            self.rest(char, log)
+            log = NDEvent(job=cls, char=char, loc=char.home)
+            cls.rest(char, log)
             log.after_job()
             NextDayEvents.append(log)
 
-        def rest(self, worker, log):
+        @classmethod
+        def rest(cls, worker, log):
             """Rests the worker.
             """
             worker.disable_effect('Exhausted') # rest immediately disables the effect and removes its counter
@@ -174,11 +179,12 @@ init -5 python:
                 if jp > 5:
                     log.logws('joy', randrange(2))
 
-                if self.is_rested(worker):
-                    self.after_rest(worker, log)
+                if cls.is_rested(worker):
+                    cls.after_rest(worker, log)
                     break
 
-        def is_rested(self, worker):
+        @staticmethod
+        def is_rested(worker):
             if worker.get_stat("vitality") < worker.get_max("vitality"):
                 return False
             if worker.get_stat("health") < worker.get_max('health'):
@@ -189,19 +195,22 @@ init -5 python:
                 return False
             return True
 
-        def after_rest(self, worker, log=None):
+        @staticmethod
+        def after_rest(worker, log=None):
             if log is not None:
                 log.append("%s is both well rested and healthy so at this point this is simply called: {color=red}slacking off :){/color}" % worker.pC)
 
 
-    class AutoRest(Rest):
-        """Same as Rest but game will try to reset character to it's previous job."""
-        def __init__(self):
-            super(AutoRest, self).__init__()
-            self.id = "AutoRest"
-            self.desc = "Autorest is a type of rest which automatically return character to previous job after resting is no longer needed"
+    class AutoRest(Job):
+        pass # FIXME obsolete
 
-        def is_rested(self, worker):
+    class AutoRestTask(Rest):
+        """Same as Rest but game will try to reset character to it's previous job."""
+        id = "AutoRest"
+        desc = "Autorest is a type of rest which automatically return character to previous job after resting is no longer needed"
+
+        @staticmethod
+        def is_rested(worker):
             if worker.get_stat("vitality") < worker.get_max("vitality")*.95:
                 return False
             if worker.get_stat("health") < worker.get_max('health')*.95:
@@ -212,7 +221,8 @@ init -5 python:
                 return False
             return True
 
-        def after_rest(self, worker, log=None):
+        @staticmethod
+        def after_rest(worker, log=None):
             worker.set_task(None)
             action = worker.job
 
@@ -229,14 +239,10 @@ init -5 python:
 
     ####################### Training Job  #############################
     class StudyingJob(Job):
-        """Studying at pytfall.school, technically not a job...
-        """
-        def __init__(self):
-            """
-            Constructor for the singleton.
-            """
-            super(StudyingJob, self).__init__()
-            self.id = "Study"
-            self.type = "Training"
+        pass # FIXME obsolete
 
-            self.desc = ""
+    class StudyingTask(Job):
+        id = "Study"
+        type = "Training"
+
+        desc = ""

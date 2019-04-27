@@ -39,7 +39,7 @@ init python:
                         cat = "Service" # merge SIW and Service jobs
                     if action == job:
                         a[cat] += 1
-                    elif action.__class__ in [Rest, AutoRest]:
+                    elif action in [RestTask, AutoRestTask]:
                         r[cat] += 1
                     
                     # Events:

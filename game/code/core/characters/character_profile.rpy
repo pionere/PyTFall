@@ -368,13 +368,14 @@ screen char_profile():
                             xysize 45, 18
                             yalign .5
                             text "Action:" color "ivory" yalign .5 size 18
+                        $ temp = getattr(char.action, "id", "None")
                         button:
                             style_group "ddlist"
                             xalign .0
                             action Return(["dropdown", "action", char])
                             sensitive char_is_controlled
                             tooltip "Choose a task for %s to do!" % char.nickname
-                            text "[char.action]" size 18
+                            text temp size 18
 
             hbox:
                 pos (10, 200)
@@ -831,11 +832,11 @@ screen char_control():
                     style_group "basic"
                     action Return(["dropdown", "action", char])
                     tooltip "Choose a task for %s to do" % char.nickname
-                    $ temp = str(char.action)
+                    $ temp = getattr(char.action, "id", "None")
                     if len(temp) <= 10:
-                        text "Action: [temp]" size 18 yalign .5 
+                        text ("Action: %s"%temp) size 18 yalign .5 
                     else:
-                        text "[temp]" size 16 yalign .5:
+                        text temp size 16 yalign .5:
                             if len(temp) > 18:
                                 size 13
                                 line_spacing -6

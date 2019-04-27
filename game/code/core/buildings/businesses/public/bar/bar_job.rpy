@@ -1,24 +1,23 @@
 init -5 python:
     class BarJob(Job):
-        def __init__(self):
-            super(BarJob, self).__init__()
-            self.id = "Bartending"
-            self.type = "Service"
+        id = "Bartending"
+        type = "Service"
 
-            self.per_client_payout = 6
+        per_client_payout = 6
 
-            # Traits/Job-types associated with this job:
-            self.occupations = ["Server"] # General Strings likes SIW, Combatant, Server...
-            self.occupation_traits = [traits["Maid"], traits["Barmaid"]] # Corresponding traits...
-            self.aeq_purpose = 'Bartender'
+        # Traits/Job-types associated with this job:
+        occupations = ["Server"] # General Strings likes SIW, Combatant, Server...
+        occupation_traits = ["Maid", "Barmaid"] # Corresponding traits, later replaced by the corresponding instances
+        aeq_purpose = 'Bartender'
 
-            # Relevant skills and stats:
-            self.base_skills = {"service": 50, "bartending": 100}
-            self.base_stats = {"intelligence": 50, "character": 50}
+        # Relevant skills and stats:
+        base_skills = {"service": 50, "bartending": 100}
+        base_stats = {"intelligence": 50, "character": 50}
 
-            self.desc = "Barmaids serve drinks from the bar and occasionally chat with customers"
+        desc = "Barmaids serve drinks from the bar and occasionally chat with customers"
 
-        def traits_and_effects_effectiveness_mod(self, worker, log):
+        @staticmethod
+        def traits_and_effects_effectiveness_mod(worker, log):
             effectiveness = 0
 
             name = worker.name
@@ -123,7 +122,8 @@ init -5 python:
 
             return effectiveness
 
-        def calculate_disposition_level(self, worker):
+        @staticmethod
+        def calculate_disposition_level(worker):
             """
             calculating the needed level of disposition;
             """
@@ -153,7 +153,8 @@ init -5 python:
                 disposition += 100
             return disposition
 
-        def settle_workers_disposition(self, worker, log):
+        @classmethod
+        def settle_workers_disposition(cls, worker, log):
             """
             handles penalties in case of wrong job
             """
@@ -183,27 +184,27 @@ init -5 python:
                     worker.logws('vitality', -randint(2, 5)) # a small vitality penalty for wrong job
                 else:
                     if sub < 0:
-                        if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
+                        if worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
                             log.append("%s is a slave so no one really cares, but being forced to work as a barmaid, %s's quite upset." % (name, worker.p))
                         else:
                             log.append("%s will do as %s is told, but doesn't mean that %s'll be happy about %s bar duties." % (name, worker.p, worker.p, worker.pp))
                         if dice(25):
                             worker.logws('character', 1)
                     elif sub == 0:
-                        if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
+                        if worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
                             log.append("%s will do as you command, but %s will hate every second of %s barmaid shift..." % (name, worker.p, worker.pp))
                         else:
                             log.append("%s was very displeased by %s order to work as a barmaid, but didn't dare to refuse." % (name, worker.pp))
                         if dice(35):
                             worker.logws('character', 1)
                     else:
-                        if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
+                        if worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
                             log.append("%s was very displeased by %s order to work as a barmaid, and makes it clear for everyone before getting busy with clients." % (name, worker.pp))
                         else:
                             log.append("%s will do as you command and work as a barmaid, but not without a lot of grumbling and complaining." % name)
                         if dice(45):
                             worker.logws('character', 1)
-                    if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
+                    if worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
                         worker.logws("joy", -randint(5, 10))
                         worker.logws("disposition", -randint(5, 15))
                         worker.logws('vitality', -randint(5, 10))
@@ -211,13 +212,14 @@ init -5 python:
                         worker.logws("joy", -randint(2, 4))
                         worker.logws('vitality', -randint(1, 4))
 
-        def log_work(self, worker, clients, effectiveness, log):
+        @classmethod
+        def log_work(cls, worker, clients, effectiveness, log):
             len_clients = len(clients)
             building = log.loc
             tier = building.tier
 
-            bartending = self.normalize_required_skill(worker, "bartending", effectiveness, tier)
-            charisma = self.normalize_required_stat(worker, "charisma", effectiveness, tier)
+            bartending = cls.normalize_required_skill(worker, "bartending", effectiveness, tier)
+            charisma = cls.normalize_required_stat(worker, "charisma", effectiveness, tier)
 
             if bartending > 150:
                 if dice(70):

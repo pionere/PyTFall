@@ -1,21 +1,20 @@
 init -5 python:
     class CleaningJob(Job):
-        def __init__(self):
-            super(CleaningJob, self).__init__()
-            self.id = "Cleaning"
-            self.type = "Service"
+        id = "Cleaning"
+        type = "Service"
 
-            # Traits/Job-types associated with this job:
-            self.occupations = ["Server"] # General Strings likes SIW, Combatant, Server...
-            self.occupation_traits = [traits["Maid"], traits["Cleaner"]] # Corresponding traits...
-            self.aeq_purpose = 'Service'
-            self.desc = "Keeps the building clean and neat"
+        # Traits/Job-types associated with this job:
+        occupations = ["Server"] # General Strings likes SIW, Combatant, Server...
+        occupation_traits = ["Maid", "Cleaner"] # Corresponding traits, later replaced by the corresponding instances
+        aeq_purpose = 'Service'
+        desc = "Keeps the building clean and neat"
 
-            # Relevant skills and stats:
-            self.base_skills = {"cleaning": 100, "service": 50}
-            self.base_stats = {"agility": 25, "constitution": 50}
+        # Relevant skills and stats:
+        base_skills = {"cleaning": 100, "service": 50}
+        base_stats = {"agility": 25, "constitution": 50}
 
-        def traits_and_effects_effectiveness_mod(self, worker, log):
+        @staticmethod
+        def traits_and_effects_effectiveness_mod(worker, log):
             """Affects worker's effectiveness during one turn. Should be added to effectiveness calculated by the function below.
                Calculates only once per turn, in the very beginning.
 
@@ -87,7 +86,8 @@ init -5 python:
 
             return effectiveness
 
-        def calculate_disposition_level(self, worker):
+        @staticmethod
+        def calculate_disposition_level(worker):
             """
             calculating the needed level of disposition;
             """
@@ -112,7 +112,8 @@ init -5 python:
                 disposition += 100
             return disposition
 
-        def settle_workers_disposition(self, cleaners, business, all_on_deck=False):
+        @classmethod
+        def settle_workers_disposition(cls, cleaners, business, all_on_deck=False):
             if not isinstance(cleaners, (set, list, tuple)):
                 cleaners = [cleaners]
 
@@ -147,27 +148,27 @@ init -5 python:
                     worker.logws('vitality', -randint(2, 5)) # a small vitality penalty for wrong job
                 else:
                     if sub < 0:
-                        if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
+                        if worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
                             log("%s is a slave so no one really cares, but being forced to work as a cleaner, %s's quite upset." % (name, worker.p))
                         else:
                             log("%s will do as %s is told, but doesn't mean that %s'll be happy about %s cleaning duties." % (name, worker.p, worker.p, worker.pp))
                         if dice(25):
                             worker.logws('character', 1)
                     elif sub == 0:
-                        if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
+                        if worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
                             log("%s will do as you command, but %s will hate every second of %s cleaning shift..." % (name, worker.p, worker.pp))
                         else:
                             log("%s was very displeased by %s order to work as a cleaner, but didn't dare to refuse." % (name, worker.pp))
                         if dice(35):
                             worker.logws('character', 1)
                     else:
-                        if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
+                        if worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
                             log("%s was very displeased by %s order to work as a cleaner, and makes it clear for everyone before getting busy with clients." % (name, worker.pp))
                         else:
                             log("%s will do as you command and work as a cleaner, but not without a lot of grumbling and complaining." % name)
                         if dice(45):
                             worker.logws('character', 1)
-                    if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
+                    if worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
                         worker.logws("joy", -randint(4, 8))
                         worker.logws("disposition", -randint(5, 10))
                         worker.logws('vitality', -randint(5, 10))

@@ -159,48 +159,41 @@ init -10 python:
 
 
     class Job(_object):
-        """Baseclass for jobs and other next day actions with some defaults.
-
-        - Presently is used in modern Job Classes. Very similar to Job.
+        """Baseclass for jobs and tasks.
         """
-        def __init__(self, event_type="jobreport"):
-            """Creates a new Job.
-            """
-            self.id = "Base Job"
-            self.type = None # job group to use in the report
+        id = "Base Job"
+        type = None # job group to use in the report
 
-            # Payout per single client, this is passed to Economy class and modified if needs be.
-            self.per_client_payout = 5
+        # Payout per single client, this is passed to Economy class and modified if needs be.
+        per_client_payout = 5
 
-            # Traits/Job-types associated with this job:
-            self.occupations = list() # General Strings likes SIW, Combatant, Server...
-            self.occupation_traits = list() # Corresponding traits...
-            self.aeq_purpose = 'Casual'
+        # Traits/Job-types associated with this job:
+        occupations = list() # General Strings likes SIW, Combatant, Server...
+        occupation_traits = list() # Corresponding traits...
+        aeq_purpose = 'Casual'
 
-            # Status we allow (workers):
-            self.allowed_status = ["free", "slave"]
-            self.allowed_genders = ["male", "female"]
+        # Status we allow (workers):
+        allowed_status = ["free", "slave"]
+        allowed_genders = ["male", "female"]
 
-            self.event_type = event_type
+        event_type = "jobreport"
 
-            # Each job should have two dicts of stats/skills to evaluate chars ability of performing it:
-            self.base_skills = dict()
-            self.base_stats = dict()
-            # Where key: value are stat/skill: weight!
+        # Each job should have two dicts of stats/skills to evaluate chars ability of performing it:
+        base_skills = dict()
+        base_stats = dict()
+        # Where key: value are stat/skill: weight!
 
-            self.desc = "Add Description." # String we can use to describe the Job.
+        desc = "Add Description." # String we can use to describe the Job.
 
-        def __str__(self):
-            return str(self.id)
-
-        def auto_equip(self, worker):
+        @classmethod
+        def auto_equip(cls, worker):
             """
             Auto-equip a worker for this job.
             """
             if not worker.autoequip:
                 return
 
-            purpose = self.aeq_purpose
+            purpose = cls.aeq_purpose
             last_known = worker.last_known_aeq_purpose
 
             if purpose == last_known:
@@ -214,15 +207,17 @@ init -10 python:
             # Otherwise, let us AEQ:
             worker.equip_for(purpose)
 
-        @property
-        def all_occs(self):
+        @classmethod
+        def all_occs(cls):
             # All Occupations:
-            return set(self.occupations + self.occupation_traits)
+            return set(cls.occupations + cls.occupation_traits)
 
-        def calculate_disposition_level(self, worker):
+        @staticmethod
+        def calculate_disposition_level(worker):
             return 0
 
-        def settle_workers_disposition(self, char=None):
+        @classmethod
+        def settle_workers_disposition(cls, char=None):
             # Formerly check_occupation
             """Settles effects of worker who already agreed to do the job.
 
@@ -230,7 +225,8 @@ init -10 python:
             """
             return True
 
-        def normalize_required_stat(self, worker, stat, effectiveness, difficulty):
+        @staticmethod
+        def normalize_required_stat(worker, stat, effectiveness, difficulty):
             value = worker.get_stat(stat)
             max_value = worker.get_max_stat(stat, tier=difficulty)
             if max_value == 0:
@@ -239,7 +235,8 @@ init -10 python:
             value = min(value, max_value*1.05)
             return value/float(max_value)*effectiveness
 
-        def normalize_required_skill(self, worker, skill, effectiveness, difficulty):
+        @staticmethod
+        def normalize_required_skill(worker, skill, effectiveness, difficulty):
             value = worker.get_skill(skill)
             max_value = worker.get_max_skill(skill, tier=difficulty)
             if max_value == 0:
@@ -248,16 +245,16 @@ init -10 python:
             value = min(value, max_value*1.05)
             return value/float(max_value)*effectiveness
 
-        # We should also have a number of methods or properties to evaluate new dicts:
-        def effectiveness(self, worker, difficulty, log, manager_effectiveness=0):
+        @classmethod
+        def effectiveness(cls, worker, difficulty, log, manager_effectiveness=0):
             """We check effectiveness here during jobs from SimPy land.
 
             difficulty is used to counter worker tier.
             100 is considered a score where worker does the task with acceptable performance.
             min = 0 and max is 200
             """
-            matched_gen_occ = len(worker.occupations.intersection(self.occupations))
-            matched_base_traits = len(worker.basetraits.intersection(self.occupation_traits))
+            matched_gen_occ = len(worker.occupations.intersection(cls.occupations))
+            matched_base_traits = len(worker.basetraits.intersection(cls.occupation_traits))
 
             # Class traits and Occs (Part 1)
             bt_bonus = 0
@@ -279,7 +276,7 @@ init -10 python:
 
             # Skills/Stats:
             default_points = 25
-            skills = self.base_skills
+            skills = cls.base_skills
             if not skills:
                 total_skills = default_points*.33
             else:
@@ -297,7 +294,7 @@ init -10 python:
                     #     raise Exception("Zero Dev #4 (%s)", skill)
                     total_skills += min(sp*max_p/sp_required, max_p*1.1)
 
-            stats = self.base_stats
+            stats = cls.base_stats
             if not stats:
                 total_stats = default_points*.33
             else:
@@ -316,10 +313,10 @@ init -10 python:
                     total_stats += min(sp*max_p/sp_required, max_p*1.1)
 
             # Bonuses:
-            traits_bonus = self.traits_and_effects_effectiveness_mod(worker, log)
+            traits_bonus = cls.traits_and_effects_effectiveness_mod(worker, log)
 
             # Manager passive effect:
-            if self.id == "Manager":
+            if cls.id == "Manager":
                 manager_bonus = 15
             else:
                 if manager_effectiveness >= 175:
@@ -344,7 +341,7 @@ init -10 python:
 
             if DEBUG_SIMPY:
                 temp = {}
-                for stat in self.base_stats:
+                for stat in cls.base_stats:
                     temp[stat] = worker.get_stat(stat)
                 devlog.info("Calculating Jobs Relative Ability, Char/Job: {}/{}:".format(worker.name, self.id))
                 devlog.info("Stats: {}:".format(temp))
@@ -353,14 +350,16 @@ init -10 python:
 
             return total
 
-        def traits_and_effects_effectiveness_mod(self, worker, log):
+        @staticmethod
+        def traits_and_effects_effectiveness_mod(worker, log):
             """Modifies workers effectiveness depending on traits and effects.
 
             returns an integer to be added to base calculations!
             """
             return 0
 
-        def calc_jp_cost(self, manager_effectiveness, cost):
+        @staticmethod
+        def calc_jp_cost(manager_effectiveness, cost):
             # a good manager can reduce the original cost by 50%. (passive effect)
             if manager_effectiveness > 80:        # original effectiveness is between 0 and 200
                 manager_effectiveness *= randint(75, 125)   # a bit of random -> 60(00) <= me <= 250(00)

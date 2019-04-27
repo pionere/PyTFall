@@ -221,7 +221,7 @@ init -9 python:
             # False if we cannot reach the character.
             if self.home == pytfall.afterlife:
                 return False
-            if self.action.__class__ == ExplorationJob:
+            if self.action == ExplorationTask:
                 return False
             if self.location in (pytfall.jail, pytfall.ra):
                 return False
@@ -281,10 +281,10 @@ init -9 python:
             return self._task
 
         def set_task(self, task, *args):
-            if self._task.__class__ == StudyingJob:
+            if self._task == StudyingTask:
                 pytfall.school.remove_student(self)
             self._task = task
-            if task.__class__ == StudyingJob:
+            if task == StudyingTask:
                 pytfall.school.add_student(self, args[0])
 
         @property
@@ -2500,7 +2500,7 @@ init -9 python:
             """
             # We do not want workers in school to AutoRest,
             # Idea is that the school is taking care of this.
-            if self._task.__class__ == StudyingJob:
+            if self._task == StudyingTask:
                 return True
 
             if self.get_stat("health") < self.get_max("health")/4:
@@ -2524,9 +2524,9 @@ init -9 python:
                Checks the employee if she/he is in need of rest (using can_do_work).
                Turns on AutoRest and 'executes' the rest if there is PP available. 
             """
-            if self._task.__class__ in [Rest, AutoRest]:
+            if self._task in [RestTask, AutoRestTask]:
                 # Char is already resting, call the action
-                self._task.action(self) # <--- Looks odd and off?
+                self._task.run(self) # <--- Looks odd and off?
                 return
 
             # try to use our items to restore stats
@@ -2561,10 +2561,9 @@ init -9 python:
             self.txt.append(temp)
 
             # switch to AutoRest
-            task = simple_jobs["AutoRest"]
-            self.set_task(task)
+            self.set_task(AutoRestTask)
             # do the actual resting
-            task.action(self) # <--- Looks odd and off?
+            AutoRestTask.run(self) # <--- Looks odd and off?
 
         def nd_sleep(self, txt):
             # Home location nd mods:
@@ -2672,7 +2671,7 @@ init -9 python:
 
                     txt.append("{color=red}%s is spending the night in the jail!{/color}" % self.fullname)
                 flag_red = True
-            elif self.action.__class__ == ExplorationJob:
+            elif self.action == ExplorationTask:
                 if self.has_flag("dnd_back_from_track"):
                     txt.append("{color=green}%s arrived back from the exploration run!{/color}" % self.fullname)
                     self.set_task(None)
@@ -2690,7 +2689,7 @@ init -9 python:
 
                 # Finances:
                 # Upkeep:
-                if self.action.__class__ == StudyingJob:
+                if self.action == StudyingTask:
                     # currently in school
                     txt.append("Upkeep is included in price of the class your worker's taking.")
                 else:

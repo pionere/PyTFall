@@ -1,28 +1,24 @@
 init -5 python:
     class GuardJob(Job):
-        def __init__(self):
-            """Creates reports for GuardJob.
-            """
-            super(GuardJob, self).__init__()
-            self.id = "Guarding"
-            self.type = "Combat"
+        id = "Guarding"
+        type = "Combat"
 
-            # Traits/Job-types associated with this job:
-            self.occupations = ["Combatant"] # General Strings likes SIW, Combatant, Server...
-            self.occupation_traits = [traits["Warrior"], traits["Mage"],
-                                      traits["Knight"], traits["Shooter"], traits["Healer"]] # Corresponding traits...
-            self.aeq_purpose = 'Fighting'
+        # Traits/Job-types associated with this job:
+        occupations = ["Combatant"] # General Strings likes SIW, Combatant, Server...
+        occupation_traits = ["Warrior", "Mage", "Knight", "Shooter", "Healer"] # Corresponding traits, later replaced by the corresponding instances
+        aeq_purpose = 'Fighting'
 
-            # Relevant skills and stats:
-            self.base_stats = {"attack": 20, "defence": 20,
-                               "agility": 20, "magic": 20}
-            self.base_skills = {"security": 100}
+        # Relevant skills and stats:
+        base_stats = {"attack": 20, "defence": 20,
+                           "agility": 20, "magic": 20}
+        base_skills = {"security": 100}
 
-            self.desc = "Protects your business and girls from rivals and aggressive customers"
+        desc = "Protects your business and girls from rivals and aggressive customers"
 
-            self.allowed_status = ["free"]
+        allowed_status = ["free"]
 
-        def traits_and_effects_effectiveness_mod(self, worker, log):
+        @staticmethod
+        def traits_and_effects_effectiveness_mod(worker, log):
             """Affects worker's effectiveness during one turn. Should be added to effectiveness calculated by the function below.
                Calculates only once per turn, in the very beginning.
 
@@ -129,7 +125,8 @@ init -5 python:
                     effectiveness -= 35
             return effectiveness
 
-        def settle_workers_disposition(self, workers, business, all_on_deck=False):
+        @classmethod
+        def settle_workers_disposition(cls, workers, business, all_on_deck=False):
             if not isinstance(workers, (set, list, tuple)):
                 workers = [workers]
 
@@ -164,27 +161,27 @@ init -5 python:
                     worker.logws('vitality', -randint(2, 5)) # a small vitality penalty for wrong job
                 else:
                     if sub < 0:
-                        if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
+                        if worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
                             log("%s is a slave so no one really cares, but being forced to work as a guard, %s's quite upset." % (name, worker.p))
                         else:
                             log("%s will do as %s's told, but this doesn't mean that %s'll be happy about %s guarding duties." % (name, worker.p, worker.p, worker.pp))
                         if dice(25):
                             worker.logws('character', 1)
                     elif sub == 0:
-                        if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
+                        if worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
                             log("%s will do as you command, but %s will hate every second of being forced to work as a guard..." % (name, worker.p))
                         else:
                             log("%s was very displeased by %s order to work as a guard, but didn't dare to refuse." % (name, worker.pp))
                         if dice(35):
                             worker.logws('character', 1)
                     else:
-                        if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
+                        if worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
                             log("%s was very displeased by %s order to work as a guard." % (name, worker.pp))
                         else:
                             log("%s will do as you command and work as a guard, but not without a lot of grumbling and complaining." % name)
                         if dice(45):
                             worker.logws('character', 1)
-                    if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
+                    if worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
                         worker.logws("joy", -randint(4, 8))
                         worker.logws("disposition", -randint(5, 10))
                         worker.logws('vitality', -randint(5, 10))

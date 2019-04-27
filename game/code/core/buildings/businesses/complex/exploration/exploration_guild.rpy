@@ -96,7 +96,7 @@ init -6 python: # Guild, Tracker and Log.
 
         Adapted from old FG, not sure what we can keep here..."""
         def __init__(self, team, area, guild):
-            """Creates a new ExplorationJob.
+            """Creates a new ExplorationTracker.
 
             team = The team that is exploring.
             area = The area that is being explored.
@@ -425,7 +425,7 @@ init -6 python: # Guild, Tracker and Log.
             # Setup Explorers:
             for char in team:
                 # We effectively remove char from the game so this is prolly ok.
-                char.set_task(simple_jobs["Exploring"])
+                char.set_task(ExplorationTask)
                 for t in hero.teams:
                     if char in t:
                         t.remove(char)
@@ -579,7 +579,7 @@ init -6 python: # Guild, Tracker and Log.
             # Understanding here is that any team can travel 20 KM per day on average.
             if tracker.traveled is None:
                 # Starting day
-                simple_jobs["Exploring"].settle_workers_disposition(tracker.team, tracker.log)
+                ExplorationTask.settle_workers_disposition(tracker.team, tracker.log)
 
                 # setup the distance.
                 tracker.distance = self.travel_distance(tracker)

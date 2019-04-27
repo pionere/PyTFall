@@ -106,9 +106,13 @@ screen items_transfer(it_members):
         style_group "dropdown_gm"
         xysize (1280, 45)
         if isinstance(lc, Char):
-            text "[lc.traits.base_to_string] ---- [lc.action]" align (.09, .5) style "content_text" color "ivory" size 20
+            $ traits = lc.traits.base_to_string
+            $ action = getattr(lc.action, "id", "None")
+            text ("%s ---- %s"%(traits, action)) align (.09, .5) style "content_text" color "ivory" size 20
         if isinstance(rc, Char):
-            text "[rc.traits.base_to_string] ---- [rc.action]" align (.92, .5) style "content_text" color "ivory" size 20
+            $ traits = rc.traits.base_to_string
+            $ action = getattr(rc.action, "id", "None")
+            text ("%s ---- %s"%(traits, action)) align (.92, .5) style "content_text" color "ivory" size 20
 
         use exit_button(size=(35, 35), align=(1.0, .6))
 
@@ -200,7 +204,13 @@ screen items_transfer(it_members):
             xanchor xanchor
             background Frame("content/gfx/frame/Mc_bg3.png", 10, 10)
             padding 1, 1
-            add fc.show("portrait", resize=(150, 150), cache=True) align .5, .5
+            $ img = fc.show("portrait", resize=(150, 150), cache=True)
+            imagebutton:
+                idle img
+                hover im.MatrixColor(img, im.matrix.brightness(.15))
+                align .5, .5
+                tooltip fc.name
+                action NullAction()
 
     if selection[1]:
         # Transfer Buttons:

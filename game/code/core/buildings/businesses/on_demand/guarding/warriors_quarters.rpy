@@ -2,7 +2,7 @@ init -5 python:
     class WarriorQuarters(OnDemandBusiness):
         def __init__(self):
             super(WarriorQuarters, self).__init__()
-            self.jobs = [simple_jobs["Guarding"]]
+            self.jobs = [GuardJob]
 
         def business_control(self):
             """We decided for this to work similarly (or the same as cleaning routines)
@@ -17,7 +17,7 @@ init -5 python:
             using_all_workers = False
 
             power_flag_name = "dnd_guarding_power"
-            job = simple_jobs["Guarding"]
+            job = GuardJob
 
             # Upgrades:
             EnforcedOrder_active = False
@@ -123,7 +123,7 @@ init -5 python:
         def write_nd_report(self, strict_workers, all_workers, pre_log, threat_cleared, use_SQ):
             simpy_debug("Entering WarriorQuarters.write_nd_report at %s", self.env.now)
 
-            job, loc = self.jobs[0], self.building
+            job, loc = GuardJob, self.building
             log = NDEvent(job=job, loc=loc, locmod={'threat':threat_cleared}, team=all_workers, business=self)
 
             extra_workers = all_workers - strict_workers

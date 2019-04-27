@@ -6,4 +6,4 @@ init -5 python:
         def __init__(self):
             super(StripClub, self).__init__()
 
-            self.jobs = [simple_jobs["Striptease Job"]]
+            self.jobs = [StripJob]

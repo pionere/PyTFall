@@ -1,26 +1,25 @@
 init -5 python:
     ####################### Whore Job  ############################
     class WhoreJob(Job):
-        def __init__(self):
-            super(WhoreJob, self).__init__()
-            self.id = "Whore Job"
-            self.type = "SIW"
+        id = "Whore"
+        type = "SIW"
 
-            self.per_client_payout = 30
+        per_client_payout = 30
 
-            # Traits/Job-types associated with this job:
-            self.occupations = ["SIW"] # General Strings likes SIW, Combatant, Server...
-            self.occupation_traits = [traits["Prostitute"]] # Corresponding traits...
-            self.aeq_purpose = 'Sex'
+        # Traits/Job-types associated with this job:
+        occupations = ["SIW"] # General Strings likes SIW, Combatant, Server...
+        occupation_traits = ["Prostitute"] # Corresponding trait, later replaced by the corresponding instance
+        aeq_purpose = 'Sex'
 
-            self.base_skills = {"sex": 60, "vaginal": 40, "anal": 40, "oral": 40}
-            self.base_stats = {"charisma": 100}
+        base_skills = {"sex": 60, "vaginal": 40, "anal": 40, "oral": 40}
+        base_stats = {"charisma": 100}
 
-            self.desc = "Oldest profession known to men, exchanging sex services for money"
+        desc = "Oldest profession known to men, exchanging sex services for money"
 
-            self.allowed_genders = ["female"]
+        allowed_genders = ["female"]
 
-        def traits_and_effects_effectiveness_mod(self, worker, log):
+        @staticmethod
+        def traits_and_effects_effectiveness_mod(worker, log):
             """Affects worker's effectiveness during one turn. Should be added to effectiveness calculated by the function below.
                Calculates only once per turn, in the very beginning.
             """
@@ -115,7 +114,8 @@ init -5 python:
                     effectiveness += 25
             return effectiveness
 
-        def calculate_disposition_level(self, worker):
+        @staticmethod
+        def calculate_disposition_level(worker):
             """calculating the needed level of disposition;
             since it's whoring we talking about, values are really close to max,
             or even higher than max in some cases, making it impossible.
@@ -159,7 +159,8 @@ init -5 python:
                 disposition += 50
             return disposition
 
-        def settle_workers_disposition(self, worker, log):
+        @classmethod
+        def settle_workers_disposition(cls, worker, log):
             # handles penalties in case of wrong job
             name = set_font_color(choice([worker.fullname, worker.name, worker.nickname]), "pink")
             if not("SIW" in worker.gen_occs):
@@ -182,27 +183,27 @@ init -5 python:
                     worker.logws('vitality', -randint(2, 8)) # a small vitality penalty for wrong job
                 else:
                     if sub < 0:
-                        if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
+                        if worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
                             log.append("%s is a slave so no one really cares, but being forced to work as a whore, %s's quite upset." % (name, worker.p))
                         else:
                             log.append("%s will do as %s is told, but doesn't mean that %s'll be happy about doing 'it' with strangers." % (name, worker.p, worker.p))
                         if dice(25):
                             worker.logws('character', 1)
                     elif sub == 0:
-                        if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
+                        if worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
                             log.append("%s will do as you command, but %s will hate every second of %s working as a harlot..." % (name, worker.p, worker.pp))
                         else:
                             log.append("%s was very displeased by %s order to work as a whore, but didn't dare to refuse." % (name, worker.pp))
                         if dice(35):
                             worker.logws('character', 1)
                     else:
-                        if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
+                        if worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
                             log.append("%s was very displeased by %s order to work as a whore, and makes it clear for everyone before getting busy with clients." % (name, worker.pp))
                         else:
                             log.append("%s will do as you command and work as a harlot, but not without a lot of grumbling and complaining." % name)
                         if dice(45):
                             worker.logws('character', 1)
-                    if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
+                    if worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
                         worker.logws("joy", -randint(8, 15))
                         worker.logws("disposition", -randint(25, 50))
                         worker.logws('vitality', -randint(10, 15))
@@ -214,7 +215,8 @@ init -5 python:
                                    "%s gets busy with clients." % name,
                                    "%s serves customers as a whore." % name]))
 
-        def log_work(self, worker, client, building, log, effectiveness):
+        @classmethod
+        def log_work(cls, worker, client, building, log, effectiveness):
             # Pass the flags from occupation_checks:
             # log.append(worker.flag("jobs_whoreintro"))
             log.append("\n")
@@ -270,7 +272,7 @@ init -5 python:
                                        'He was in the mood for some pussy pounding. \n',
                                        'He asked for some playtime with her vagina.\n']))
                 # Virgin trait check:
-                self.take_virginity(worker, log.loc, log)
+                cls.take_virginity(worker, log.loc, log)
             # Anal Sex Act
             elif act == 'anal':
                 kwargs = dict(exclude=["gay"]+always_exclude, type="reduce", add_mood=False)
@@ -320,7 +322,7 @@ init -5 python:
                         {"tags": ["bc titsjob"], "exclude": always_exclude},
                         {"tags": ["bc blowjob"], "exclude": always_exclude},
                         {"tags": ["after sex"], "exclude": always_exclude, "dice": 20})
-                act = self.get_act(worker, tags)
+                act = cls.get_act(worker, tags)
                 if act == tags[0]:
                     log.append(choice(["He shoved his cock all the way into her throat! \n",
                                        "Deepthroat is definitely my style, thought the customer... \n"]))
@@ -434,7 +436,7 @@ init -5 python:
                         {"tags": ["gay", "2c analtoy"], "exclude": always_exclude},
                         {"tags": ["gay", "bc toyanal"], "exclude": always_exclude},
                         {"tags": ["gay", "scissors"], "exclude": always_exclude})
-                act = self.get_act(worker, tags)
+                act = cls.get_act(worker, tags)
 
                 # We'll be adding "les" here as Many lesbian pics do not fall in any of the categories and will never be called...
                 if act == tags[0]:
@@ -621,7 +623,7 @@ init -5 python:
                         vaginalmod = 20
                         sexmod = 8
                     log.img = worker.show("gay", "2c vaginal", **kwargs)
-                    self.take_virginity(worker, log.loc, log)
+                    cls.take_virginity(worker, log.loc, log)
                 elif act == tags[12]:
                     log.append(choice(["She ordered %s to put on a strapon and fuck her silly with it. \n" % nickname,
                                        "She equipped %s with a strapon and told her that she was 'up' for a good fuck! \n" % nickname]))
@@ -682,7 +684,7 @@ init -5 python:
                         sexmod = 20
                         vaginalmod = 8
                     log.img = worker.show("gay", "2c vaginaltoy", **kwargs)
-                    self.take_virginity(worker, log.loc, log)
+                    cls.take_virginity(worker, log.loc, log)
                 elif act == tags[16]:
                     log.append(choice(["Without further ado, %s fucked her with a toy. \n" % nickname,
                                        "She asked your girl to fuck her pussy with a toy. \n"]))
@@ -762,7 +764,7 @@ init -5 python:
 
             tier = building.tier
             # Charisma mods:
-            charisma = self.normalize_required_stat(worker, "charisma", effectiveness, tier)
+            charisma = cls.normalize_required_stat(worker, "charisma", effectiveness, tier)
             if charisma >= 170:
                 log.append("Her supernal loveliness made the customer to shed tears of happiness, comparing %s to ancient goddess of love. Be wary of possible cults dedicated to her..." % nickname)
                 log.logws("joy", 1)
@@ -797,7 +799,7 @@ init -5 python:
                     log.logloc("fame", -1)
                 log.append("The customer was unimpressed by %s looks, to say at least. Still, %s preferred fucking her over a harpy. Hearing that from %s however, was not encouraging for the poor girl at all..." % (nickname, client.p, client.op))
 
-            refinement = self.normalize_required_skill(worker, "refinement", effectiveness, tier)
+            refinement = cls.normalize_required_skill(worker, "refinement", effectiveness, tier)
             if charisma >= 100 and refinement >= 100 and dice(75):
                 log.append("Her impeccable manners also made a very good impression.")
                 log.logloc("reputation", 1)
@@ -882,7 +884,8 @@ init -5 python:
 
             return act
 
-        def take_virginity(self, worker, loc, log):
+        @staticmethod
+        def take_virginity(worker, loc, log):
             # let's just assume (for now) that dildos are too small to take virginity, otherwise it becomes too complicated in terms of girls control :)
             if "Virgin" in worker.traits and "Chastity" not in worker.effects:
                 tips = 100 + worker.get_stat("charisma") * 3

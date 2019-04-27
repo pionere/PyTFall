@@ -133,7 +133,8 @@ screen chars_debug():
                                 size 6
                     fixed:
                         xysize 80, 20
-                        text "[char.action]" color "orange"
+                        $ temp = getattr(char.action, "id", "None")
+                        text temp color "orange"
                     python:
                         temp = []
                         for item in char.eqslots.values():

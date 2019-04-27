@@ -3,7 +3,7 @@ init -5 python:
         def __init__(self):
             super(Cleaners, self).__init__()
 
-            self.jobs = [simple_jobs["Cleaning"]]
+            self.jobs = [CleaningJob]
 
         def business_control(self):
             """This checks if there are idle workers willing/ready to clean in the building.
@@ -25,7 +25,7 @@ init -5 python:
             using_all_workers = False
 
             power_flag_name = "dnd_cleaning_power"
-            job = simple_jobs["Cleaning"]
+            job = CleaningJob
 
             # Pure cleaners, container is kept around for checking during all_on_deck scenarios
             log = []
@@ -101,7 +101,7 @@ init -5 python:
         def write_nd_report(self, strict_workers, all_workers, pre_log, dirt_cleaned):
             simpy_debug("Entering Cleaners.write_nd_report at %s", self.env.now)
 
-            job, loc = self.jobs[0], self.building
+            job, loc = CleaningJob, self.building
             log = NDEvent(job=job, loc=loc, locmod={'dirt':dirt_cleaned}, team=all_workers, business=self)
 
             extra_workers = all_workers - strict_workers

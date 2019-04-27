@@ -92,7 +92,16 @@ label char_equip_loop:
         if result[0] == "jump":
             if result[1] == "item_transfer":
                 hide screen char_equip
-                $ items_transfer([hero] + (equip_girls if equip_girls else [eqtarget]))
+                python hide:
+                    if equip_girls:
+                        index = equip_girls.index(eqtarget)
+                        if index == 0:
+                            equip_chars = equip_girls
+                        else:
+                            equip_chars = equip_girls[index:] + equip_girls[:index]
+                    else:
+                        equip_chars = [eqtarget]
+                    items_transfer([hero] + equip_chars)
                 show screen char_equip
         elif result[0] == "equip_for":
             python:
@@ -788,7 +797,8 @@ screen char_equip_right_frame():
             classes.sort()
             classes = ", ".join(classes)
 
-            t = "is %s{vspace=17}Classes: %s\nWork: %s\nAction: %s{/color}" % (eqtarget.status.capitalize(), classes, eqtarget.workplace, eqtarget.action)
+            t = getattr(eqtarget.action, "id", "None")
+            t = "is %s{vspace=17}Classes: %s\nWork: %s\nAction: %s{/color}" % (eqtarget.status.capitalize(), classes, eqtarget.workplace, t)
 
         text (u"{color=gold}[eqtarget.name]{/color}  {color=#ecc88a}%s" % t) size 14 align (.55, .65) font "fonts/TisaOTM.otf" line_leading -5
 

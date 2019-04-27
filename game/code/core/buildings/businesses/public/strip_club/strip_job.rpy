@@ -1,29 +1,24 @@
 init -5 python:
-    ####################### Strip Job  ############################
     class StripJob(Job):
-        """
-        Class for the solving of stripping logic.
-        """
-        def __init__(self):
-            super(StripJob, self).__init__()
-            self.id = "Striptease Job"
-            self.type = "SIW"
+        id = "Striptease"
+        type = "SIW"
 
-            self.per_client_payout = 8
+        per_client_payout = 8
 
-            # Traits/Job-types associated with this job:
-            self.occupations = ["SIW"] # General Strings likes SIW, Combatant, Server...
-            self.occupation_traits = [traits["Stripper"]] # Corresponding traits...
-            self.aeq_purpose = 'Striptease'
+        # Traits/Job-types associated with this job:
+        occupations = ["SIW"] # General Strings likes SIW, Combatant, Server...
+        occupation_traits = ["Stripper"] # Corresponding trait, later replaced by the corresponding instance
+        aeq_purpose = 'Striptease'
 
-            self.base_skills = {"strip": 100, "dancing": 40, "sex": 5}
-            self.base_stats = {"charisma": 70, "agility": 30}
+        base_skills = {"strip": 100, "dancing": 40, "sex": 5}
+        base_stats = {"charisma": 70, "agility": 30}
 
-            self.desc = "Strippers dance half-naked on the stage, keeping customers hard and ready to hire more whores"
+        desc = "Strippers dance half-naked on the stage, keeping customers hard and ready to hire more whores"
 
-            self.allowed_genders = ["female"]
+        allowed_genders = ["female"]
 
-        def traits_and_effects_effectiveness_mod(self, worker, log):
+        @staticmethod
+        def traits_and_effects_effectiveness_mod(worker, log):
             """Affects worker's effectiveness during one turn. Should be added to effectiveness calculated by the function below.
                Calculates only once per turn, in the very beginning.
             """
@@ -136,7 +131,8 @@ init -5 python:
                     effectiveness += 20
             return effectiveness
 
-        def calculate_disposition_level(self, worker):
+        @staticmethod
+        def calculate_disposition_level(worker):
             """
             calculating the needed level of disposition;
             """
@@ -166,13 +162,14 @@ init -5 python:
                 disposition += 50
             return disposition
 
-        def settle_workers_disposition(self, worker, log):
+        @classmethod
+        def settle_workers_disposition(cls, worker, log):
             """
             Handles penalties in case of wrong job
             """
             # Formerly check_occupation
             name = set_font_color(choice([worker.fullname, worker.name, worker.nickname]), "pink")
-            if not("Stripper" in worker.traits) and worker.get_stat("disposition") < self.calculate_disposition_level(worker):
+            if not("Stripper" in worker.traits) and worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
                 sub = check_submissivity(worker)
                 if worker.status != 'slave':
                     if sub < 0:
@@ -193,28 +190,28 @@ init -5 python:
                 else:
                     sub = check_submissivity(worker)
                     if sub< 0:
-                        if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
+                        if worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
                             log.append("%s is a slave so no one really cares, but being forced to work as a stripper, %s's quite upset." % (name, worker.p))
                         else:
                             log.append("%s will do as %s is told, but doesn't mean that %s'll be happy about showing %s body to strangers." % (name, worker.p, worker.p, worker.pp))
                         if dice(25):
                             log.logws('character', 1)
                     elif sub == 0:
-                        if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
+                        if worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
                             log.append("%s will do as you command, but %s will hate every second of %s stripper shift..." % (name, worker.p, worker.pp))
                         else:
                             log.append("%s was very displeased by %s order to work as a stripper, but didn't dare to refuse." % (name, worker.pp))
                         if dice(35):
                             log.logws('character', 1)
                     else:
-                        if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
+                        if worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
                             log.append("%s was very displeased by %s order to work as a stripper, and makes it clear for everyone before going to the stage." % (name, worker.pp))
                         else:
                             log.append("%s will do as you command and work as a stripper, but not without a lot of grumbling and complaining." % name)
                         if dice(45):
                             log.logws('character', 1)
 
-                    if worker.get_stat("disposition") < self.calculate_disposition_level(worker):
+                    if worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
                         worker.logws("joy", -randint(5, 10))
                         worker.logws("disposition", -randint(15, 30))
                         worker.logws('vitality', -randint(10, 15))
@@ -227,15 +224,16 @@ init -5 python:
                                    "%s begins %s striptease performance!",
                                    "%s shows %s goods to clients."]) % (name, worker.pp))
 
-        def log_work(self, worker, clients, effectiveness, log):
+        @classmethod
+        def log_work(cls, worker, clients, effectiveness, log):
             len_clients = len(clients)
             building = log.loc
             tier = building.tier
 
-            strip = self.normalize_required_skill(worker, "strip", effectiveness, tier)
-            dancing = self.normalize_required_skill(worker, "dancing", effectiveness, tier)
+            strip = cls.normalize_required_skill(worker, "strip", effectiveness, tier)
+            dancing = cls.normalize_required_skill(worker, "dancing", effectiveness, tier)
             skill = (strip*1.3 + dancing)/2
-            charisma = self.normalize_required_stat(worker, "charisma", effectiveness, tier)
+            charisma = cls.normalize_required_stat(worker, "charisma", effectiveness, tier)
 
             name = worker.name
             if charisma >= 170:

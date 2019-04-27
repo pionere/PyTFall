@@ -3,7 +3,7 @@ init -5 python:
         def __init__(self):
             super(BrothelBlock, self).__init__()
 
-            self.jobs = [simple_jobs["Whore Job"]]
+            self.jobs = [WhoreJob]
 
         def client_control(self, client):
             """Handles the client after a room is reserved...
@@ -13,7 +13,7 @@ init -5 python:
             client_name = set_font_color(client.name, "beige")
 
             # find a worker
-            job = simple_jobs["Whore Job"]
+            job = WhoreJob
             result = 0
             while 1:
                 worker = self.get_workers(job, amount=1, client=client)

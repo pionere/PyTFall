@@ -249,7 +249,8 @@ screen chars_list():
                                         xalign .0
                                         action Return(["dropdown", "action", c])
                                         tooltip "Choose a task for %s to do!" % c.nickname
-                                        text "[c.action]" size 14
+                                        $ temp = getattr(c.action, "id", "None")
+                                        text temp size 14
 
                         vbox:
                             align (.96, .035)
@@ -259,7 +260,7 @@ screen chars_list():
                                         status_img = "content/gfx/interface/icons/slave.png"
                                     else:
                                         status_img = "content/gfx/interface/icons/free.png"
-                                elif c.action.__class__ == ExplorationJob:
+                                elif c.action == ExplorationTask:
                                     status_img = "content/gfx/interface/icons/exploring.png"
                                 elif c.location == pytfall.jail:
                                     status_img = "content/gfx/interface/icons/arena.png"
@@ -407,11 +408,9 @@ screen chars_list():
                         button:
                             xysize 125, 32
                             action ModFilterSet(chars_list_state.source, "action_filters", f)
-                            $ t = str(f)
-                            if t.lower().endswith(" job"):
-                                $ t = t[:-4]
-                            text "[t]" color "darkblue":
-                                if len(str(t)) > 12:
+                            $ temp = getattr(f, "id", "None")
+                            text temp color "darkblue":
+                                if len(temp) > 12:
                                     size 10
                                     line_spacing -6
                                 else:

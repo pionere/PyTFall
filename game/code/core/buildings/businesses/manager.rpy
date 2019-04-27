@@ -1,27 +1,21 @@
 # Manager stuff goes here, will prolly be only one function but it doesn't fit anywhere else.
 init -5 python:
-    class Manager(_object):
+    class Manager(Job):
         pass # obsolete
     class ManagerJob(Job):
-        """This is the manager Job, so far it just creates the instance we can use to assign the job.
+        id = "Manager"
+        type = "Management"
 
-        - Later we may use this to do mod stats and level up Managers somehow...
-        """
-        def __init__(self):
-            super(ManagerJob, self).__init__()
-            self.id = "Manager"
-            self.type = "Management"
+        # Traits/Job-types associated with this job:
+        occupations = ["Specialist"] # General Strings likes SIW, Combatant, Server...
+        occupation_traits = ["Manager"] # Corresponding trait, later replaced by the corresponding instance
+        aeq_purpose = 'Manager'
+        desc = "Manages your business, helping workers in various ways and improving their performance."
 
-            # Traits/Job-types associated with this job:
-            self.occupations = ["Specialist"] # General Strings likes SIW, Combatant, Server...
-            self.occupation_traits = [traits["Manager"]] # Corresponding traits...
-            self.aeq_purpose = 'Manager'
-            self.desc = "Manages your business, helping workers in various ways and improving their performance."
+        base_skills = {"management": 80, "refinement": 20}
+        base_stats = {"character": 40, "intelligence": 60}
 
-            self.base_skills = {"management": 80, "refinement": 20}
-            self.base_stats = {"character": 40, "intelligence": 60}
-
-            self.allowed_status = ["free"]
+        allowed_status = ["free"]
 
     def manager_pre_nd(building):
         if not building.needs_manager:
@@ -29,7 +23,7 @@ init -5 python:
 
         workers = building.available_workers
 
-        mj = simple_jobs["Manager"]
+        mj = ManagerJob
         managers = [w for w in workers if w.action == mj]
 
         effectiveness = 0

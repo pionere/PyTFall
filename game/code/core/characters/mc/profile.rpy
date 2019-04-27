@@ -65,7 +65,6 @@ label hero_profile:
                 $ del n
         elif result[0] == "meetup":
             hide screen mc_friends_list
-            hide screen hero_profile
             with dissolve
 
             python hide:
@@ -259,16 +258,15 @@ screen hero_profile():
                     xysize 40, 16
                     yalign .5
                     text "Action:" color "ivory" yalign .5 size 16
+                $ temp = getattr(hero.action, "id", "None")
                 button:
                     style_group "ddlist"
                     xalign .0
                     action Return(["dropdown", "action"])
                     tooltip "Pick a task!"
-                    text "[hero.action]":
-                        if len(str(hero.action)) > 18:
+                    text temp size 16:
+                        if len(temp) > 18:
                             size 14
-                        else:
-                            size 16
 
         elif lframe_display == "skills":
             null height 26

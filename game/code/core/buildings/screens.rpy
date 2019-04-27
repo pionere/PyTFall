@@ -307,8 +307,7 @@ screen building_management_rightframe_building_mode:
 
     # Manager?
     if getattr(bm_building, "needs_manager", False):
-        $ managers = simple_jobs["Manager"]
-        $ managers = [w for w in bm_building.all_workers if w.job == managers]
+        $ managers = [w for w in bm_building.all_workers if w.job == ManagerJob]
         vbox:
             xalign .5
             $ temp = ("Current manager" if len(managers) == 1 else "Managers") if managers else "No manager" 

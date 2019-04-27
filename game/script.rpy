@@ -98,12 +98,14 @@ label start:
 
     $ hero = Player()
 
-    python: # Jobs:
+    python hide: # Jobs:
+        global simple_jobs, traits
         tl.start("Loading: Jobs")
         # This jobs are usually normal, most common type that we have in PyTFall
-        temp = [WhoreJob(), StripJob(), BarJob(), ManagerJob(), CleaningJob(), GuardJob(), WranglerJob(), ExplorationJob(), StudyingJob(), Rest(), AutoRest()]
-        simple_jobs = {j.id: j for j in temp}
-        del temp
+        for i in [WhoreJob, StripJob, BarJob, ManagerJob, CleaningJob, GuardJob, WranglerJob, ExplorationTask, StudyingTask, RestTask, AutoRestTask]:
+            # replace traits string with the corresponding trait instance
+            i.occupation_traits = [traits[j] if isinstance(j, basestring) else j for j in i.occupation_traits]
+            simple_jobs[i.id] = i
         tl.end("Loading: Jobs")
 
     python: # Ads and Buildings:
@@ -716,12 +718,25 @@ label after_load:
             simple_jobs[ej.id] = ej
             clearCharacters = True
         if "Study" not in simple_jobs:
-            simple_jobs["Study"] = StudyingJob()
+            simple_jobs["Study"] = StudyingTask
         if "Wrangler" not in simple_jobs:
-            simple_jobs["Wrangler"] = WranglerJob()
-        for j in simple_jobs.values():
-            if hasattr(j, "jp_cost"):
-                del j.jp_cost
+            simple_jobs["Wrangler"] = WranglerJob
+        for k, v in simple_jobs.items():
+            if hasattr(v, "jp_cost"):
+                del v.jp_cost
+            if isinstance(v, Job):
+                clearCharacters = True
+                v = v.__class__
+                if v == ExplorationJob:
+                    v = ExplorationTask
+                elif v == StudyingJob:
+                    v = StudyingTask
+                elif v == Rest:
+                    v = RestTask
+                elif v == AutoRest:
+                    v = AutoRestTask
+                v.occupation_traits = [traits[j] if isinstance(j, basestring) else j for j in v.occupation_traits]
+                simple_jobs[k] = v
 
         store.bm_mid_frame_mode = None
 
@@ -1228,6 +1243,10 @@ label after_load:
 
                 char.traits.blocked_traits = set([traits[t] if isinstance(t, basestring) else t for t in char.traits.blocked_traits])
 
+                if isinstance(char._task, Job):
+                    char._task = simple_jobs[char._task.id]
+                if isinstance(char._job, Job):
+                    char._job = simple_jobs[char._job.id]
                 for e in char.effects.values():
                     if e.duration is not None and e.name not in ["Poisoned", "Unstable", "Down with Cold", "Food Poisoning", "Injured"]:
                         e.duration = None
@@ -1414,7 +1433,8 @@ label after_load:
         for b in chain(hero.buildings, buildings.itervalues()):
             if not hasattr(b, "in_construction_upgrades"):
                 b.in_construction_upgrades = []
-            for u in chain(b.businesses, b.allowed_businesses):
+            jobs_changed = False
+            for u in b.allowed_businesses:
                 if hasattr(u, "intro_string"):
                     u.intro_string = u.__class__.intro_string
                 if hasattr(u, "log_intro_string"):
@@ -1448,6 +1468,12 @@ label after_load:
                 for up in u.upgrades:
                     if not hasattr(up, "duration"):
                         up.duration = None
+                for idx, ub in enumerate(u.jobs):
+                    if isinstance(ub, Job):
+                        u.jobs[idx] = simple_jobs[ub.id]
+                        jobs_changed = True
+            if jobs_changed:
+                b.normalize_jobs()
 
         for e in pytfall.world_events.events:
             for i, c in enumerate(e.simple_conditions):

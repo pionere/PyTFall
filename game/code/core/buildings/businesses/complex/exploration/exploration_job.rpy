@@ -1,28 +1,27 @@
 init -5 python:
     class ExplorationJob(Job):
-        def __init__(self):
-            """Creates reports for ExplorationJob.
-            """
-            super(ExplorationJob, self).__init__()
-            self.id = "Exploring"
-            self.type = "Combat"
+        pass # FIXME obsolete
 
-            # Traits/Job-types associated with this job:
-            self.occupations = ["Combatant"] # General Strings likes SIW, Combatant, Server...
-            self.occupation_traits = [traits["Warrior"], traits["Mage"],
-                                      traits["Knight"], traits["Shooter"], traits["Healer"]] # Corresponding traits...
-            self.aeq_purpose = 'Fighting'
+    class ExplorationTask(Job):
+        id = "Exploring"
+        type = "Combat"
 
-            # Relevant skills and stats:
-            self.base_stats = {"attack": 20, "defence": 20,
-                               "agility": 20, "magic": 20}
-            self.base_skills = {"exploration": 100}
+        # Traits/Job-types associated with this job:
+        occupations = ["Combatant"] # General Strings likes SIW, Combatant, Server...
+        occupation_traits = ["Warrior", "Mage", "Knight", "Shooter", "Healer"] # Corresponding traits, later replaced by the corresponding instances
+        aeq_purpose = 'Fighting'
 
-            self.desc = "Explores the world for you"
+        # Relevant skills and stats:
+        base_stats = {"attack": 20, "defence": 20,
+                           "agility": 20, "magic": 20}
+        base_skills = {"exploration": 100}
 
-            self.allowed_status = ["free"]
+        desc = "Explores the world for you"
 
-        def traits_and_effects_effectiveness_mod(self, worker, log):
+        allowed_status = ["free"]
+
+        @staticmethod
+        def traits_and_effects_effectiveness_mod(worker, log):
             """Affects worker's effectiveness during one turn. Should be added to effectiveness calculated by the function below.
                Calculates only once per turn, in the very beginning.
 
@@ -108,7 +107,8 @@ init -5 python:
                     effectiveness -= 35
             return effectiveness
 
-        def settle_workers_disposition(self, workers, log):
+        @classmethod
+        def settle_workers_disposition(cls, workers, log):
             log(set_font_color("Your team is ready for action!", "cadetblue"))
 
             for worker in workers:

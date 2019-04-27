@@ -18,7 +18,7 @@ screen set_action_dropdown(char, pos=()):
         anchor (xval, yval)
         has vbox
 
-        if char.action.__class__ == StudyingJob:
+        if char.action == StudyingTask:
             textbutton "Change Course":
                 action [Hide("set_action_dropdown"),
                         If(renpy.get_screen("chars_list"),
@@ -30,7 +30,7 @@ screen set_action_dropdown(char, pos=()):
                 action [Function(char.set_task, None),
                         Hide("set_action_dropdown"), With(Dissolve(0.1))]
                 tooltip "Call your worker back from the Academy."
-        elif char.action.__class__ in [Rest, AutoRest]:
+        elif char.action in [RestTask, AutoRestTask]:
             $ jobs = char.workplace.get_valid_jobs(char)
             for i in jobs:
                 textbutton "[i.id]":
@@ -56,7 +56,7 @@ screen set_action_dropdown(char, pos=()):
                     tooltip i.desc
             if char != hero: # Rest is not really useful for MC, which player controls.
                 textbutton "Rest":
-                    action [Function(char.set_task, simple_jobs["Rest"]),
+                    action [Function(char.set_task, RestTask),
                             Hide("set_action_dropdown"), With(Dissolve(0.1))]
                     tooltip "To prevent overworking..."
             textbutton "None":

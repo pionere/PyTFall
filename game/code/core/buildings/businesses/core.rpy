@@ -229,7 +229,7 @@ init -12 python:
             # This may be a poor way of doing it because different upgrades could have workers with the same job assigned to them.
             # Basically what is needed is to allow setting a business to a worker as well as the general building if required...
             # And this doesn't work? workers are never populated???
-            occs = self.all_occs
+            occs = self.all_occs()
             return [i for i in self.building.available_workers if occs & i.occupations]
 
         def get_workers(self, job, amount=None, rule="normal", client=None):
@@ -330,7 +330,7 @@ init -12 python:
                 if DSNBR:
                     temp = 'Debug: {} worker (Occupations: {}) with action: {} refuses to do {}.'.format(
                             worker.nickname, ", ".join(list(str(t) for t in worker.occupations)),
-                            worker.action, job.id)
+                            getattr(worker.action, "id", "None"), job.id)
                 else:
                     temp = '%s refuses to do %s!' % (worker.name, job.id)
                 self.log(set_font_color(temp, "red"))
@@ -338,7 +338,7 @@ init -12 python:
 
             if DSNBR:
                 temp = set_font_color("Debug: {} worker (Occupations: {}) with action: {} is doing {}.".format(
-                                          worker.nickname, ", ".join(list(str(t) for t in worker.occupations)), worker.action, job.id), "lawngreen")
+                                          worker.nickname, ", ".join(list(str(t) for t in worker.occupations)), getattr(worker.action, "id", "None"), job.id), "lawngreen")
                 self.log(temp, True)
             return True
 
@@ -351,11 +351,10 @@ init -12 python:
             # Resets all flags and variables after next day calculations are finished.
             return
 
-        @property
         def all_occs(self):
             s = set()
             for j in self.jobs:
-                s = s | j.all_occs
+                s = s | j.all_occs()
             return s
 
         def log_income(self, amount, reason=None):
@@ -390,7 +389,7 @@ init -12 python:
             self.time = 10 # Same
 
         def has_workers(self):
-            occs =  self.all_occs
+            occs =  self.all_occs()
             return any((occs & i.occupations) for i in self.building.available_workers)
 
         def business_control(self):
@@ -554,7 +553,7 @@ init -12 python:
                         temp += " {} Workers are currently on duty in {}!".format(
                                 set_font_color(len(self.active_workers), "blue"),
                                 self.name)
-                        siw_workers = len([w for w in building.available_workers if set(w.gen_occs).intersection(self.all_occs)])
+                        siw_workers = len([w for w in building.available_workers if set(w.gen_occs).intersection(self.all_occs())])
                         temp += " {} (gen_occ) workers are available in the Building for the job!".format(
                                 set_font_color(siw_workers, "green"))
                         self.log(temp, True)

@@ -185,7 +185,7 @@ init -9 python:
                                      "Heavy Drinker": ("Brawl", (3, 6))}
                 cells = []
                 for c in chars.values():
-                    if c.status != "free" or c.location == self or c.action.__class__ == ExplorationJob or c.home == pytfall.afterlife:
+                    if c.status != "free" or c.location == self or c.action == ExplorationTask or c.home == pytfall.afterlife:
                         continue
                     traits = list(i.id for i in c.traits if i.id in PUNISHABLE_TRAITS)
                     for t in traits:
@@ -501,7 +501,7 @@ init -9 python:
                 sec = self.location_security(location)
                 if guards is None:
                     guards = [hero] + hero.chars
-                    guards = [w for w in guards if w.workplace == location and w.action == simple_jobs["Guarding"] and w.is_available]
+                    guards = [w for w in guards if w.workplace == location and w.action == GuardJob and w.is_available]
                 else:
                     sec += len(guards)
             else:
@@ -593,7 +593,7 @@ init -9 python:
             workers = [hero] + hero.chars
             workers = [w for w in workers if w.workplace == location and w.is_available]
             if workers:
-                guards = [g for g in workers if g.action == simple_jobs["Guarding"]]
+                guards = [g for g in workers if g.action == GuardJob]
                 guards = len(guards)
                 workers = len(workers) - guards
                 if workers == 0:

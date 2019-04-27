@@ -6,7 +6,7 @@ init -5 python:
         def __init__(self):
             super(StableBusiness, self).__init__()
 
-            self.jobs = [simple_jobs["Wrangler"]]
+            self.jobs = [WranglerJob]
             self.time = 30
             self.reserved_capacity = 0
 

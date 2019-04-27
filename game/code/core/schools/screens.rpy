@@ -12,7 +12,6 @@ label school_training:
             python hide:
                 course = result[1]
 
-                job = simple_jobs["Study"]
                 if any((s not in course.students) for s in students):
                     # add students to the course
                     course_type = course.data.get("type", None)
@@ -33,7 +32,7 @@ label school_training:
 
                         curr_course = school.get_course(s)
                         if curr_course != course:
-                            s.set_task(job, course)
+                            s.set_task(StudyingTask, course)
                 else:
                     # remove students from the course
                     for s in students:
