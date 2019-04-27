@@ -244,13 +244,12 @@ init python:
 
 
     class PoisonEvent(BE_Event):
-        def __init__(self, source, target, effect, duration):
+        def __init__(self, source, target, effect, duration, group):
             self.target = target
             self.source = source
             self.counter = duration
             self.effect = effect
-            self.type = "poison"
-            self.group = "poison" # Or we collide with Buffs
+            self.group = group # Or we collide with Buffs
             self.icon = "content/gfx/be/poison1.webp"
             # We also add the icon to targets status overlay:
             target.status_overlay.append(self.icon)
@@ -276,7 +275,7 @@ init python:
             damage = max(8, int(damage)) + randint(-2, 2)
 
             # Take care of modifiers:
-            damage = round_int(BE_Core.damage_modifier(self.source, t, damage, self.type))
+            damage = round_int(BE_Core.damage_modifier(self.source, t, damage, "poison")) 
 
             # GFX:
             if not battle.logical:
@@ -311,7 +310,6 @@ init python:
             # bonus and multi both expect dicts if mods are desirable.
             self.target = target
             self.source = source
-            self.type = type
             #self.buff = True # We may need this for debuffing later on?
 
             self.counter = duration
@@ -783,25 +781,24 @@ init python:
 
         def effects_resolver(self, targets):
             source = self.source
-
-            base_effect = 100
+            type = self.damage[0] # FIXME what about multi type buffs? Partial resist?
+            group = self.buff_group
 
             for t in targets:
                 effects = []
 
                 # We get the multi and any effects that those may bring:
-                effect = round_int(BE_Core.damage_modifier(source, t, base_effect, "status"))
-
+                effect = round_int(BE_Core.damage_modifier(source, t, 100, type)) # BASE_EFFECT == 100
                 if effect:
                     # Check if event is in play already:
                     for event in store.battle.mid_turn_events:
-                        if t == event.target and event.group == self.buff_group:
+                        if t == event.target and event.group == group:
                             battle.log("%s is already buffed by %ss spell!" % (t.nickname, event.source.name))
                             break
                     else:
                         temp = self.event_class(source, t, randint(*self.event_duration),
                                                 self.defence_bonus, self.defence_multiplier,
-                                                self.buff_icon, self.buff_group, self.defence_gfx)
+                                                self.buff_icon, group, self.defence_gfx)
                         battle.mid_turn_events.append(temp)
                         temp = "%s buffs %ss defence!" % (source.nickname, t.name)
                         self.log_to_battle(effects, effect, source, t, message=temp)

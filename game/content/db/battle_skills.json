@@ -1936,46 +1936,6 @@
 		}
 	},
 	{
-		"class": "BasicPoisonSpell",
-		"name": "Poisonous Rune",
-		"range": 2,
-		"attributes": ["poison"],
-		"delivery": "status",
-		"effect": 0.05,
-		"mn": "P Rune",
-		"menu_pos": 0.7,
-		"multiplier": 1.0,
-		"vitality_cost": 20,
-		"mp_cost": 0.1,
-		"desc": "Blade enchantment materializes a good deal of poison above the target.",
-		"item_only": true,
-		"main_effect": {
-			"gfx": "poison_dagger_webm",
-			"sfx": "content/sfx/sound/be/poison_cloud.mp3",
-			"duration": 1.8,
-			"aim": {
-				"point": "tc",
-				"anchor": [0.5, 0.5]
-			},
-			"hflip": true,
-			"zoom": 1.1
-		},
-		"target_damage_effect": {
-			"gfx": "battle_bounce",
-			"initial_pause": 1.0
-		},
-		"target_sprite_damage_effect": {
-			"gfx": "poisoned_with_shake",
-			"initial_pause": 1.0,
-			"duration": 0.8
-		},
-		"target_death_effect": {
-			"gfx": "dissolve",
-			"initial_pause": 1.8,
-			"duration": 0.5
-		}
-	},
-	{
 		"class": "P2P_Skill",
 		"name": "Shadow Kunai",
 		"attributes": ["darkness", "physical"],
@@ -7067,6 +7027,47 @@
 		"_COMMENT": "###### Effects:",
 		"_COMMENT": "# Poison:",
 
+		"class": "BasicPoisonSpell",
+		"name": "Poisonous Rune",
+		"range": 2,
+		"attributes": ["poison"],
+		"delivery": "status",
+		"effect": 0.05,
+		"mn": "P Rune",
+		"menu_pos": 0.7,
+		"multiplier": 1.0,
+		"vitality_cost": 20,
+		"mp_cost": 0.1,
+		"event_class": "",
+		"desc": "Blade enchantment materializes a good deal of poison above the target.",
+		"item_only": true,
+		"main_effect": {
+			"gfx": "poison_dagger_webm",
+			"sfx": "content/sfx/sound/be/poison_cloud.mp3",
+			"duration": 1.8,
+			"aim": {
+				"point": "tc",
+				"anchor": [0.5, 0.5]
+			},
+			"hflip": true,
+			"zoom": 1.1
+		},
+		"target_damage_effect": {
+			"gfx": "battle_bounce",
+			"initial_pause": 1.0
+		},
+		"target_sprite_damage_effect": {
+			"gfx": "poisoned_with_shake",
+			"initial_pause": 1.0,
+			"duration": 0.8
+		},
+		"target_death_effect": {
+			"gfx": "dissolve",
+			"initial_pause": 1.8,
+			"duration": 0.5
+		}
+	},
+	{
 		"class": "BasicPoisonSpell",
 		"name": "Poison",
 		"menu_pos": 1,

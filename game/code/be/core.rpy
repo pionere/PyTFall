@@ -1143,16 +1143,17 @@ init -1 python: # Core classes:
 
                 if self.event_class:
                     # First check resistance, then check if event is already in play:
-                    type = self.buff_group
+                    type = self.damage[0] # FIXME what about multi type events? Partial resist?
                     if type in t.resist or BE_Core.check_absorbtion(t, type):
                         pass
                     else:
+                        group = self.buff_group
                         for event in store.battle.mid_turn_events:
-                            if t == event.target and event.type == type:
+                            if t == event.target and event.group == group:
                                 battle.log("%s is already affected by %s!" % (t.nickname, type))
                                 break
                         else:
-                            temp = self.event_class(a, t, self.effect, randint(*self.event_duration))
+                            temp = self.event_class(a, t, self.effect, randint(*self.event_duration), group)
                             battle.mid_turn_events.append(temp)
 
                 # Finally, log to battle:
