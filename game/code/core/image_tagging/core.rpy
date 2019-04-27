@@ -43,6 +43,15 @@ init -9 python:
                                 tdb.add_image(imgpath, taglist)
                 return tdb
 
+        @staticmethod
+        def get_image_tags(image_path):
+            """Returns a list of tags bound to the image.
+            """
+            image_name = image_path.split(os.sep)[-1]
+            image_name_base = image_name.split(".")[0]
+            obfuscated_tags = image_name_base.split("-")[1:]
+            return [tags_dict[tag] for tag in obfuscated_tags]
+
         def __init__(self):
             # maps image tags to sets of image paths
             self.all_tags = set(tags_dict.values())

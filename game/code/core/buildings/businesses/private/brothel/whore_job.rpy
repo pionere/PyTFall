@@ -250,11 +250,13 @@ init -5 python:
                 # Temporarily done here, should be moved to game init and after_load to improve performance
                 # probably not everything though, since now we don't form huge lists of pictures for some acts, using get_image_tags to figure out poses
                 if worker.has_image("2c vaginal", **kwargs):
-                    log.img = worker.show("2c vaginal", **kwargs)
+                    image_tags = worker.show("2c vaginal", **kwargs)
                 else:
                     kwargs["exclude"] = always_exclude
-                    log.img = worker.show("after sex", **kwargs)
-                image_tags = log.img.get_image_tags()
+                    image_tags = worker.show("after sex", **kwargs)
+
+                log.img = image_tags
+                image_tags = TagDatabase.get_image_tags(image_tags)
                 if "ontop" in image_tags:
                     log.append("He invited her to 'sit' on his lap as he unsheathed his cock. They've continued along the same lines in 'girl-on-top' position. \n")
                 elif "doggy" in image_tags:
@@ -289,12 +291,13 @@ init -5 python:
                                    "Customer's dick got harder and harder just from the thought of %s's asshole! " % nickname]))
 
                 if worker.has_image("2c anal", **kwargs):
-                    log.img = worker.show("2c anal", **kwargs)
+                    image_tags = worker.show("2c anal", **kwargs)
                 else:
                     kwargs["exclude"] = always_exclude
-                    log.img = worker.show("after sex", **kwargs)
+                    image_tags = worker.show("after sex", **kwargs)
 
-                image_tags = log.img.get_image_tags()
+                log.img = image_tags
+                image_tags = TagDatabase.get_image_tags(image_tags)
                 if "ontop" in image_tags:
                     log.append("He invited her to 'sit' on his lap as he unsheathed his cock. They've continued along the same lines in 'girl on top' position. \n")
                 elif "doggy" in image_tags:

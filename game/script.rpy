@@ -102,6 +102,7 @@ label start:
         global simple_jobs, traits
         tl.start("Loading: Jobs")
         # This jobs are usually normal, most common type that we have in PyTFall
+        simple_jobs = dict()
         for i in [WhoreJob, StripJob, BarJob, ManagerJob, CleaningJob, GuardJob, WranglerJob, ExplorationTask, StudyingTask, RestTask, AutoRestTask]:
             # replace traits string with the corresponding trait instance
             i.occupation_traits = [traits[j] if isinstance(j, basestring) else j for j in i.occupation_traits]

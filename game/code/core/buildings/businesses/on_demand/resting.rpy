@@ -56,35 +56,36 @@ init -5 python:
                 log.append("%s is too tired to do anything but sleep at %s free time." % (name, worker.pp))
             else:
             # otherwise we build a list of usable tags
-                available = list()
+                image_tags = list()
 
                 if worker.has_image("sleeping", **kwargs):
-                    available.append("sleeping")
+                    image_tags.append("sleeping")
                 if worker.has_image("reading", **kwargs):
-                    available.append("reading")
+                    image_tags.append("reading")
                 if vit_perc > 30: # not too tired for more active rest
                     if worker.has_image("shopping", **kwargs) and (worker.gold >= 200): # eventually there should be a real existing event about going to shop and buy a random item there for gold. after all we do have an algorithm for that. but atm it might be broken, so...
-                        available.append("shopping")
+                        image_tags.append("shopping")
                     if "Nymphomaniac" in worker.traits or "Horny" in worker.effects:
                         if worker.has_image("masturbation", **kwargs):
-                            available.append("masturbation")
+                            image_tags.append("masturbation")
                 if vit_perc > 50: # not too tired for sport stuff
                     if worker.has_image("sport", **kwargs):
-                        available.append("sport")
+                        image_tags.append("sport")
                     if worker.has_image("exercising", **kwargs):
-                        available.append("exercising")
+                        image_tags.append("exercising")
                 if worker.has_image("eating", **kwargs):
-                    available.append("eating")
+                    image_tags.append("eating")
                 if worker.has_image("bathing", **kwargs):
-                    available.append("bathing")
+                    image_tags.append("bathing")
                 if worker.has_image("rest", **kwargs):
-                    available.append("rest")
+                    image_tags.append("rest")
 
-                if not(available):
-                    available = ["profile"] # no rest at all? c'mon...
+                if not(image_tags):
+                    image_tags = ["profile"] # no rest at all? c'mon...
 
-                log.img = worker.show(choice(available), **kwargs)
-                image_tags = log.img.get_image_tags()
+                image_tags = worker.show(choice(image_tags), **kwargs)
+                log.img = image_tags
+                image_tags = TagDatabase.get_image_tags(image_tags)
                 if "sleeping" in image_tags:
                     if "living" in image_tags:
                         log.append("%s is enjoying additional bedtime in %s room." % (name, worker.pp))
@@ -204,7 +205,7 @@ init -5 python:
     class AutoRest(Job):
         pass # FIXME obsolete
 
-    class AutoRestTask(Rest):
+    class AutoRestTask(RestTask):
         """Same as Rest but game will try to reset character to it's previous job."""
         id = "AutoRest"
         desc = "Autorest is a type of rest which automatically return character to previous job after resting is no longer needed"
