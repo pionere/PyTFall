@@ -1,5 +1,4 @@
 init -5 python:
-    ####################### Whore Job  ############################
     class WhoreJob(Job):
         id = "Whore"
         type = "SIW"
@@ -9,14 +8,12 @@ init -5 python:
         # Traits/Job-types associated with this job:
         occupations = ["SIW"] # General Strings likes SIW, Combatant, Server...
         occupation_traits = ["Prostitute"] # Corresponding trait, later replaced by the corresponding instance
-        aeq_purpose = 'Sex'
+        aeq_purpose = "Sex"
 
         base_skills = {"sex": 60, "vaginal": 40, "anal": 40, "oral": 40}
         base_stats = {"charisma": 100}
 
         desc = "Oldest profession known to men, exchanging sex services for money"
-
-        allowed_genders = ["female"]
 
         @staticmethod
         def traits_and_effects_effectiveness_mod(worker, log):

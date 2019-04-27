@@ -2573,7 +2573,7 @@ init -9 python:
             pC = self.pC
             if mod > 0:
                 flag_red = False
-                temp = "%s comfortably spent a night in %s." % (pC, str(loc))
+                temp = "%s comfortably spent the night in %s." % (pC, str(loc))
                 if self.home == hero.home:
                     if self.get_stat("disposition") > -500:
                         self.mod_stat("disposition", 1)
@@ -2658,26 +2658,34 @@ init -9 python:
             txt = self.txt
             flag_red = False
 
+            # header
+            temp = "{u}%s{/u} (%s)\n" % (set_font_color(self.fullname, "pink"), set_font_color(self.status, "palegreen"))
+            if self.job is None:
+                temp += "{i}Not Assigned{/i}"
+            else:
+                temp += "{i}{b}%s{/b}, %s{/i}" % (self.job.id, set_font_color(self.workplace, "orange"))
+            txt.insert(0, temp)
+
             if self.location is not None:
                 if self.location == pytfall.ra:
                     # If escaped:
                     self.mod_stat("health", -randint(3, 5))
-                    txt.append("{color=red}%ss location is still unknown. You might want to increase your efforts to find %s, otherwise %s will be gone forever.{/color}" % (self.fullname, self.pp, self.p))
+                    txt.append("{color=red}%s location is still unknown. You might want to increase your efforts to find %s, otherwise %s will be gone forever.{/color}" % (self.ppC, self.pp, self.p))
                 else:
                     # your worker is in jail TODO might want to do this in the ND of the jail
                     mod = pytfall.jail.get_daily_modifier()
                     for stat in ("health", "mp", "vitality"):
                         mod_by_max(self, stat, mod)
 
-                    txt.append("{color=red}%s is spending the night in the jail!{/color}" % self.fullname)
+                    txt.append("{color=red}%s is spending the night in the jail!{/color}" % self.pC)
                 flag_red = True
             elif self.action == ExplorationTask:
                 if self.has_flag("dnd_back_from_track"):
-                    txt.append("{color=green}%s arrived back from the exploration run!{/color}" % self.fullname)
+                    txt.append("{color=green}%s arrived back from the exploration run!{/color}" % self.pC)
                     self.set_task(None)
                     flag_red = self.nd_sleep(txt)
                 else:
-                    txt.append("{color=green}%s is currently on the exploration run!{/color}" % self.fullname)
+                    txt.append("{color=green}%s is currently on the exploration run!{/color}" % self.pC)
 
                 self.up_counter("daysemployed")
 
@@ -2691,7 +2699,7 @@ init -9 python:
                 # Upkeep:
                 if self.action == StudyingTask:
                     # currently in school
-                    txt.append("Upkeep is included in price of the class your worker's taking.")
+                    txt.append("%s is currently in school. %s upkeep is included in price of the class %s is taking." % (self.pC, self.ppC, self.p))
                 else:
                     # The whole upkeep thing feels weird, penalties to slaves are severe...
                     amount = self.get_upkeep()
@@ -2711,14 +2719,14 @@ init -9 python:
                             self.mod_stat("joy", -randint(3, 5))
                             self.mod_stat("disposition", -randint(5, 10))
                             self.mod_stat("affection", affection_reward(self, -1, stat="gold"))
-                            txt.append("You failed to pay %s upkeep, %s's a bit cross with your because of that..." % (self.pp, self.p))
+                            txt.append("You failed to pay %s upkeep, %s is a bit cross with you because of that..." % (self.pp, self.p))
                         else:
                             self.mod_stat("joy", -20)
                             self.mod_stat("disposition", -randint(25, 50))
                             self.mod_stat("affection", affection_reward(self, -2, stat="gold"))
                             self.mod_stat("health", -10)
                             self.mod_stat("vitality", -25)
-                            txt.append("You've failed to provide even the most basic needs for your slave. This will end badly...")
+                            txt.append("You failed to provide even the most basic needs for your slave. This will end badly...")
 
                 # This whole routine is basically fucked and done twice or more. Gotta do a whole check of all related parts tomorrow.
                 # Settle wages:
@@ -2727,12 +2735,12 @@ init -9 python:
                 tips = self.flag("dnd_accumulated_tips")
                 if tips:
                     temp = choice(["Total tips earned: {color=gold}%d Gold{/color}. " % tips,
-                                   "%s got {color=gold}%d Gold{/color} in tips. " % (self.nickname, tips)])
+                                   "%s got {color=gold}%d Gold{/color} in tips. " % (self.pC, tips)])
                     txt.append(temp)
 
                     if self.autocontrol["Tips"]:
-                        temp = choice(["As per agreement, your worker gets to keep all %s tips! This is a very good motivator. " % self.pp,
-                                       "%s's happy to keep it." % self.pC])
+                        temp = choice(["As per agreement, %s gets to keep all of it! This is a very good motivator." % self.p,
+                                       "%s is happy to keep it." % self.pC])
                         txt.append(temp)
 
                         self.add_money(tips, reason="Tips")
@@ -2744,7 +2752,7 @@ init -9 python:
                         self.mod_stat("affection", affection_reward(self, .1, stat="gold"))
                         self.mod_stat("joy", 1 + round_int(tips*.025))
                     else:
-                        temp = choice(["You take all of %s tips for yourself. " % self.pp,
+                        temp = choice(["You take all of %s tips for yourself." % self.pp,
                                        "You keep all of it."])
                         txt.append(temp)
                         hero.add_money(tips, reason="Worker Tips")
@@ -2753,7 +2761,7 @@ init -9 python:
 
                 # Effects:
                 if 'Poisoned' in self.effects:
-                    txt.append("{color=red}This worker is suffering from the effects of Poison!{/color}")
+                    txt.append("{color=red}%s is suffering from Poisoning!{/color}" % self.pC)
                     flag_red = True
                 if (not self.autobuy) and not self.allowed_to_define_autobuy:
                     self.autobuy = True
@@ -2830,7 +2838,8 @@ init -9 python:
             friends_disp_check(self, self.txt)
 
             if self.get_stat("joy") <= 25:
-                self.txt.append("This worker is unhappy!")
+                temp = "%s is unhappy!" % self.pC
+                self.txt.append(set_font_color(temp, "tomato"))
                 mood = "sad"
                 self.days_unhappy += 1
             else:
@@ -2841,20 +2850,20 @@ init -9 python:
                 if self.days_unhappy > 7 or self.get_stat("disposition") < -200:
                     escaped, mode = pytfall.ra.try_escape(self, location=self.workplace) # FIXME check for home/location?
                     if escaped:
-                        msg = "{color=red}%s has escaped!" % self.fullname
+                        msg = "%s has escaped!" % self.fullname
                         if mode == pytfall.ra.FOUGHT:
                             msg += " Although the guards fought valiantly, they could not stop %s." % self.op
-                        msg += " Now you have to search for %s yourself.{/color}" % self.op
+                        msg += " Now you have to search for %s yourself." % self.op
                     elif mode == pytfall.ra.CAUGHT:
-                        msg = "{color=red}%s tried to escape, but the guards were alert and stopped %s.{/color}" % (self.name, self.op)
+                        msg = "%s tried to escape, but the guards were alert and stopped %s." % (self.name, self.op)
                     elif mode == pytfall.ra.FOUGHT:
-                        msg = "{color=red}%s tried to escape, but the guards subdued %s.{/color}" % (self.name, self.op)
+                        msg = "%s tried to escape, but the guards subdued %s." % (self.name, self.op)
                     elif self.get_stat("disposition") < -500:
                         if dice(50):
-                            msg = "{color=red}Took %s own life because %s could no longer live as your slave!{/color}" % (self.pp, self.p)
+                            msg = "Took %s own life because %s could no longer live as your slave!" % (self.pp, self.p)
                             kill_char(self)
                         else:
-                            msg = "{color=red}Tried to take %s own life because %s could no longer live as your slave!{/color}" % (self.pp, self.p)
+                            msg = "Tried to take %s own life because %s could no longer live as your slave!" % (self.pp, self.p)
                             self.set_stat("health", 1)
                     else:
                         msg = None
@@ -2862,16 +2871,16 @@ init -9 python:
                     if msg is not None:
                         flag_red = True
                         mood = "sad"
-                        self.txt.append(msg)
+                        self.txt.append(set_font_color(msg, "red"))
             else:
                 # free char
                 if self.days_unhappy > 7 or self.get_stat("disposition") < -100:
                     if self.days_unhappy > 7:
-                        msg = "{color=red}%s has left your employment because you do not give a rats ass about how %s feels!{/color}" % (self.pC, self.p)
+                        msg = "%s has left your employment because you do not give a rats ass about how %s feels!" % (self.pC, self.p)
                         mood = "sad"
                     else:
-                        msg = "{color=red}%s has left your employment because %s no longer trusts or respects you!{/color}" % (self.pC, self.pp)
-                    self.txt.append(msg)
+                        msg = "%s has left your employment because %s no longer trusts or respects you!" % (self.pC, self.pp)
+                    self.txt.append(set_font_color(msg, "red"))
                     flag_red = True
                     hero.remove_char(self)
 

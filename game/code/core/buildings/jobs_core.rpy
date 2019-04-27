@@ -161,7 +161,7 @@ init -10 python:
     class Job(_object):
         """Baseclass for jobs and tasks.
         """
-        id = "Base Job"
+        id = "Undefined"
         type = None # job group to use in the report
 
         # Payout per single client, this is passed to Economy class and modified if needs be.
@@ -170,11 +170,10 @@ init -10 python:
         # Traits/Job-types associated with this job:
         occupations = list() # General Strings likes SIW, Combatant, Server...
         occupation_traits = list() # Corresponding traits...
-        aeq_purpose = 'Casual'
+        aeq_purpose = "Casual"
 
         # Status we allow (workers):
         allowed_status = ["free", "slave"]
-        allowed_genders = ["male", "female"]
 
         event_type = "jobreport"
 

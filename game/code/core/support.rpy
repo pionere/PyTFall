@@ -436,9 +436,6 @@ init -9 python:
             self.confiscation_range = (.5, .7)
 
         def get_clients_pay(self, job, difficulty=1):
-            if isinstance(job, basestring):
-                job = store.simple_jobs[job]
-
             payout = job.per_client_payout
             payout *= max(difficulty, 1)
             payout *= self.state

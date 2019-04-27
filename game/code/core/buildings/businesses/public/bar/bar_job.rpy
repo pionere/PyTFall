@@ -1,6 +1,6 @@
 init -5 python:
     class BarJob(Job):
-        id = "Bartending"
+        id = "Bartender"
         type = "Service"
 
         per_client_payout = 6
@@ -8,7 +8,7 @@ init -5 python:
         # Traits/Job-types associated with this job:
         occupations = ["Server"] # General Strings likes SIW, Combatant, Server...
         occupation_traits = ["Maid", "Barmaid"] # Corresponding traits, later replaced by the corresponding instances
-        aeq_purpose = 'Bartender'
+        aeq_purpose = "Bartender"
 
         # Relevant skills and stats:
         base_skills = {"service": 50, "bartending": 100}

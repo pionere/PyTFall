@@ -1,12 +1,12 @@
 init -5 python:
     class GuardJob(Job):
-        id = "Guarding"
+        id = "Guard"
         type = "Combat"
 
         # Traits/Job-types associated with this job:
         occupations = ["Combatant"] # General Strings likes SIW, Combatant, Server...
         occupation_traits = ["Warrior", "Mage", "Knight", "Shooter", "Healer"] # Corresponding traits, later replaced by the corresponding instances
-        aeq_purpose = 'Fighting'
+        aeq_purpose = "Fighting"
 
         # Relevant skills and stats:
         base_stats = {"attack": 20, "defence": 20,

@@ -102,11 +102,11 @@ label start:
         global simple_jobs, traits
         tl.start("Loading: Jobs")
         # This jobs are usually normal, most common type that we have in PyTFall
-        simple_jobs = dict()
+        simple_jobs = list()
         for i in [WhoreJob, StripJob, BarJob, ManagerJob, CleaningJob, GuardJob, WranglerJob, ExplorationTask, StudyingTask, RestTask, AutoRestTask]:
             # replace traits string with the corresponding trait instance
             i.occupation_traits = [traits[j] if isinstance(j, basestring) else j for j in i.occupation_traits]
-            simple_jobs[i.id] = i
+            simple_jobs.append(i)
         tl.end("Loading: Jobs")
 
     python: # Ads and Buildings:
@@ -707,37 +707,38 @@ label after_load:
             hero.PP = store.gm.gm_points * 25
             del store.gm.gm_points
             clearCharacters = True
-        if isinstance(simple_jobs["Manager"], Manager):
-            pmj = simple_jobs["Manager"]
-            mj = ManagerJob()
-            simple_jobs[mj.id] = mj
-            for b in hero.buildings:
-                if hasattr(b, "jobs") and pmj in b.jobs:
-                    b.jobs.remove(pmj)
-                    b.jobs.add(mj)
-            ej = ExplorationJob()
-            simple_jobs[ej.id] = ej
-            clearCharacters = True
-        if "Study" not in simple_jobs:
-            simple_jobs["Study"] = StudyingTask
-        if "Wrangler" not in simple_jobs:
-            simple_jobs["Wrangler"] = WranglerJob
-        for k, v in simple_jobs.items():
-            if hasattr(v, "jp_cost"):
-                del v.jp_cost
-            if isinstance(v, Job):
+        if isinstance(simple_jobs, dict):
+            if isinstance(simple_jobs["Manager"], Manager):
+                pmj = simple_jobs["Manager"]
+                mj = ManagerJob()
+                simple_jobs[mj.id] = mj
+                for b in hero.buildings:
+                    if hasattr(b, "jobs") and pmj in b.jobs:
+                        b.jobs.remove(pmj)
+                        b.jobs.add(mj)
+                ej = ExplorationJob()
+                simple_jobs[ej.id] = ej
                 clearCharacters = True
-                v = v.__class__
-                if v == ExplorationJob:
-                    v = ExplorationTask
-                elif v == StudyingJob:
-                    v = StudyingTask
-                elif v == Rest:
-                    v = RestTask
-                elif v == AutoRest:
-                    v = AutoRestTask
-                v.occupation_traits = [traits[j] if isinstance(j, basestring) else j for j in v.occupation_traits]
-                simple_jobs[k] = v
+            if "Study" not in simple_jobs:
+                simple_jobs["Study"] = StudyingTask
+            if "Wrangler" not in simple_jobs:
+                simple_jobs["Wrangler"] = WranglerJob
+            for k, v in simple_jobs.items():
+                if hasattr(v, "jp_cost"):
+                    del v.jp_cost
+                if isinstance(v, Job):
+                    clearCharacters = True
+                    v = v.__class__
+                    if v == ExplorationJob:
+                        v = ExplorationTask
+                    elif v == StudyingJob:
+                        v = StudyingTask
+                    elif v == Rest:
+                        v = RestTask
+                    elif v == AutoRest:
+                        v = AutoRestTask
+                    v.occupation_traits = [traits[j] if isinstance(j, basestring) else j for j in v.occupation_traits]
+                    simple_jobs[k] = v
 
         store.bm_mid_frame_mode = None
 
@@ -1516,6 +1517,8 @@ label after_load:
                 if not hasattr(d, "keysym"):
                     d.keysym = None
 
+        if isinstance(store.simple_jobs, dict):
+            store.simple_jobs = [v for v in store.simple_jobs.values()]
         if hasattr(pytfall.world_events, "garbage"):
             temp = pytfall.world_events.garbage
             pytfall.world_events.events[:] = [e for e in pytfall.world_events.events if e not in temp]

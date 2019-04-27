@@ -1,6 +1,6 @@
 init -5 python:
     class StripJob(Job):
-        id = "Striptease"
+        id = "Stripper"
         type = "SIW"
 
         per_client_payout = 8
@@ -8,14 +8,12 @@ init -5 python:
         # Traits/Job-types associated with this job:
         occupations = ["SIW"] # General Strings likes SIW, Combatant, Server...
         occupation_traits = ["Stripper"] # Corresponding trait, later replaced by the corresponding instance
-        aeq_purpose = 'Striptease'
+        aeq_purpose = "Striptease"
 
         base_skills = {"strip": 100, "dancing": 40, "sex": 5}
         base_stats = {"charisma": 70, "agility": 30}
 
         desc = "Strippers dance half-naked on the stage, keeping customers hard and ready to hire more whores"
-
-        allowed_genders = ["female"]
 
         @staticmethod
         def traits_and_effects_effectiveness_mod(worker, log):

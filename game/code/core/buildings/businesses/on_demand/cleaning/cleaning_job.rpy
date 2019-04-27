@@ -1,12 +1,12 @@
 init -5 python:
     class CleaningJob(Job):
-        id = "Cleaning"
+        id = "Cleaner"
         type = "Service"
 
         # Traits/Job-types associated with this job:
         occupations = ["Server"] # General Strings likes SIW, Combatant, Server...
         occupation_traits = ["Maid", "Cleaner"] # Corresponding traits, later replaced by the corresponding instances
-        aeq_purpose = 'Service'
+        aeq_purpose = "Service"
         desc = "Keeps the building clean and neat"
 
         # Relevant skills and stats:
