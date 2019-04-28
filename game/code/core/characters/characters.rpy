@@ -104,7 +104,7 @@ init -9 python:
                     "wrist": False,
                     "weapon": False,
                     "smallweapon": False,
-                    "ring0": False,
+                    "ring": False,
                     "ring1": False,
                     "ring2": False,
                     "misc": False,
@@ -881,16 +881,16 @@ init -9 python:
                 if remove:
                     self.inventory.remove(item)
             elif item.slot == "ring":
-                if not self.eqslots["ring0"]:
-                    self.eqslots["ring0"] = item
+                if not self.eqslots["ring"]:
+                    self.eqslots["ring"] = item
                 elif not self.eqslots["ring1"]:
                     self.eqslots["ring1"] = item
                 elif not self.eqslots["ring2"]:
                     self.eqslots["ring2"] = item
                 else:
-                    self.apply_item_effects(self.eqslots["ring0"], direction=False)
-                    self.inventory.append(self.eqslots["ring0"])
-                    self.eqslots["ring0"] = self.eqslots["ring1"]
+                    self.apply_item_effects(self.eqslots["ring"], direction=False)
+                    self.inventory.append(self.eqslots["ring"])
+                    self.eqslots["ring"] = self.eqslots["ring1"]
                     self.eqslots["ring1"] = self.eqslots["ring2"]
                     self.eqslots["ring2"] = item
                 self.apply_item_effects(item)
@@ -917,8 +917,8 @@ init -9 python:
             if slot is None:
                 slot = item.slot
                 if slot == "ring":
-                    if self.eqslots["ring0"] == item:
-                        slot = "ring0"
+                    if self.eqslots["ring"] == item:
+                        slot = "ring"
                     elif self.eqslots["ring1"] == item:
                         slot = "ring1"
                     elif self.eqslots["ring2"] == item:
@@ -1071,7 +1071,7 @@ init -9 python:
                 # Go over all slots and unequip items:
                 for s in slots:
                     if s == "ring":
-                        for r in ["ring0", "ring1", "ring2"]:
+                        for r in ["ring", "ring1", "ring2"]:
                             self.unequip(slot=r, aeq_mode=True)
                     elif s == "consumable":
                         pass
@@ -1386,7 +1386,7 @@ init -9 python:
                     continue
 
                 # rings can be on other fingers. swapping them is allowed in any case
-                if slot == "ring0":
+                if slot == "ring":
 
                     # if the wanted ring is on the next finger, or the next finger requires current ring, swap
                     if self.eqslots["ring1"] == desired_item or eqsave["ring1"] == current_item:
@@ -1396,7 +1396,7 @@ init -9 python:
                         if current_item == desired_item:
                             continue
 
-                if slot == "ring0" or slot == "ring1":
+                if slot == "ring" or slot == "ring1":
 
                     if self.eqslots["ring2"] == desired_item or eqsave["ring2"] == current_item:
                         (self.eqslots["ring2"], self.eqslots[slot]) = (self.eqslots[slot], self.eqslots["ring2"])

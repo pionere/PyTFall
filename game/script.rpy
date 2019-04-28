@@ -695,8 +695,6 @@ label after_load:
         if hasattr(hero, "autocontrol"):
             del hero.autocontrol
             clearCharacters = True
-        if "ring" in hero.eqslots:
-            clearCharacters = True
         if "riding" not in hero.stats.skills:
             clearCharacters = True
         if hero.front_row.__class__ != int:
@@ -1047,13 +1045,7 @@ label after_load:
                         if any(o.values()):
                             if not "name" in o:
                                 o["name"] = "Outfit %d" % (len(char.eqsave)+1)
-                            if "ring" in o:
-                                o["ring0"] = o["ring"]
-                                del o["ring"]
                             char.eqsave.append(o)
-                    if "ring" in char.eqslots:
-                        char.eqslots["ring0"] = char.eqslots["ring"]
-                        del char.eqslots["ring"]
                     if char.last_known_aeq_purpose == "":
                         char.last_known_aeq_purpose = None
                 if not hasattr(char, "PP"):

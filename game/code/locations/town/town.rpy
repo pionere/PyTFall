@@ -101,7 +101,7 @@ label village_town_work:
         item = getattr(hand_protection, "id", False)
         if item in ["Metal Gloves", "Steel Gloves", "Mail Gloves", "Mithril Gloves", "Draconic Leather Gloves"]:
             hand_protection = True
-        elif "Bracer" in item or item == "Slave Handcuffs":
+        elif not item or "Bracer" in item or item == "Slave Handcuffs":
             hand_protection = False
         next_pp_time = 0
         used_pp = 0

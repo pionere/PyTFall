@@ -165,7 +165,7 @@ init -9 python:
                 # Search for slaves to add to the jail.
                 slaves = [c for c in chars.values() if c.status == "slave" and c not in pytfall.sm.chars_list and c not in hero.chars and c.location != pytfall.jail]
 
-                slaves = random.sample(slaves, min(randrange(3), max(0, 12 - len(self.slaves))))
+                slaves = random.sample(slaves, min(min(len(slaves), randrange(3)), max(0, 12 - len(self.slaves))))
 
                 for c in slaves:
                     if c.location == pytfall.ra:
@@ -191,7 +191,7 @@ init -9 python:
                     for t in traits:
                         cells.append((c, t))
 
-                cells = random.sample(cells, min(randrange(3), max(0, 12 - len(self.cells))))
+                cells = random.sample(cells, min(min(len(cells), randrange(3)), max(0, 12 - len(self.cells))))
                 temp = set()
                 for c in cells:
                     char = c[0]

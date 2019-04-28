@@ -47,7 +47,7 @@ screen eqdoll(active_mode=True, char=None, frame_size=[55, 55], scr_align=(.23, 
                                        "feet": (1.0, .7),
                                        "misc": (.025, .41),
                                        "wrist": (.2, .7),
-                                       "ring0": (1.18, .2),
+                                       "ring": (1.18, .2),
                                        "ring1": (1.18, .4),
                                        "ring2": (1.18, .6)}
         for slot, pos in equipSlotsPositions.items():
