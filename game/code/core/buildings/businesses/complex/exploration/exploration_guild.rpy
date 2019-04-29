@@ -247,7 +247,7 @@ init -6 python: # Guild, Tracker and Log.
                                    "The team took some time off to visit the Onsen on their way back"])
                     self.log(temp)
                     for char in team:
-                        mod_by_max("health", .25)
+                        mod_by_max("health", .25) # BATTLE_STATS
                         mod_by_max("mp", .25)
                         mod_by_max("vitality", .25)
 
@@ -679,32 +679,29 @@ init -6 python: # Guild, Tracker and Log.
 
                 # Base stats:
                 for c in team:
-                    c.mod_stat("health", randint(8, 12))
+                    c.mod_stat("health", randint(8, 12)) # BATTLE_STATS
                     c.mod_stat("mp", randint(8, 12))
                     c.mod_stat("vitality", randint(20, 50))
 
                 # Apply items:
                 if auto_equip_counter < 2:
-                    invlist = list(c.inventory for c in team)
-                    random.shuffle(invlist)
                     for explorer in team:
                         l = list()
-                        if explorer.get_stat("health") <= explorer.get_max("health")*.8:
-                            for inv in invlist:
-                                l.extend(explorer.auto_equip(["health"], inv=inv))
-                        if explorer.get_stat("vitality") <= explorer.get_max("vitality")*.8:
-                            for inv in invlist:
-                                l.extend(explorer.auto_equip(["vitality"], inv=inv))
-                        if explorer.get_stat("mp") <= explorer.get_max("mp")*.8:
-                            for inv in invlist:
-                                l.extend(explorer.auto_equip(["mp"], inv=inv))
-                        if l:
-                            temp = "%s used: {color=lawngreen}%s %s{/color} to recover!" % (explorer.nickname, ", ".join(l), plural("item", len(l)))
+                        for stat in ("health", "mp", "vitality"): # BATTLE_STATS
+                            if explorer.get_stat(stat) <= explorer.get_max(stat)*.8:
+                                l.append(stat)
+                        if not l:
+                            continue
+                        cl = []
+                        for c in team:
+                            cl.extend(explorer.auto_consume(l, inv=c.inventory))
+                        if cl:
+                            temp = "%s used: {color=lawngreen}%s %s{/color} to recover!" % (explorer.nickname, ", ".join(cl), plural("item", len(cl)))
                             self.log(temp)
                     auto_equip_counter += 1
 
                 for c in team:
-                    if c.get_stat("health") <= c.get_max("health")*.9:
+                    if c.get_stat("health") <= c.get_max("health")*.9: # BATTLE_STATS
                         break
                     if c.get_stat("mp") <= c.get_max("mp")*.9:
                         break
@@ -827,7 +824,7 @@ init -6 python: # Guild, Tracker and Log.
                                 capt_multiplier[i] *= mod
                     for (c, data), mod in zip(tracker.captured_chars, capt_multiplier):
                         mod -= 1.15 - tracker.area.daily_modifier
-                        for stat in ("health", "mp", "vitality"):
+                        for stat in ("health", "mp", "vitality"): # BATTLE_STATS
                             mod_by_max(c, stat, mod)
                         if mod < 0:
                             rv = "go2guild"
@@ -835,7 +832,7 @@ init -6 python: # Guild, Tracker and Log.
                 multiplier *= .5
 
             for c in team:
-                for stat in ("health", "mp", "vitality"):
+                for stat in ("health", "mp", "vitality"): # BATTLE_STATS
                     mod_by_max(c, stat, multiplier)
 
             return rv
@@ -1085,8 +1082,11 @@ init -6 python: # Guild, Tracker and Log.
                         self.env.exit("back2camp") # too much risk -> back to camp
 
                     temp = .8 - (tracker.risk/200.0)
-                    for c in team:
-                        if c.get_stat("health") > c.get_max("health")*temp and c.get_stat("mp") > c.get_max("mp")*temp and c.get_stat("vitality") > c.get_max("vitality")*temp:
+                    for c in team: # BATTLE_STATS
+                        for stat in ("health", "mp", "vitality"):
+                            if c.get_stat(stat) < c.get_max(stat)*temp:
+                                break
+                        else:
                             continue
 
                         temp = "The team needs some rest before they can continue with the exploration."

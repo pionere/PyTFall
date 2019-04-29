@@ -1,9 +1,12 @@
 label school_training:
-    $ school = pytfall.school
-    show screen school_training
-
     # Make sure we set char to the_chosen (means we came from listing)
-    $ students = getattr(store, "the_chosen", [char])
+    python:
+        school = pytfall.school
+        students = getattr(store, "the_chosen", None)
+        if students is None:
+            students = [char]
+
+    show screen school_training
 
     while 1:
         $ result = ui.interact()

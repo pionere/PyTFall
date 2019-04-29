@@ -797,8 +797,7 @@ screen char_equip_right_frame():
             classes.sort()
             classes = ", ".join(classes)
 
-            t = getattr(eqtarget.action, "id", "None")
-            t = "is %s{vspace=17}Classes: %s\nWork: %s\nAction: %s{/color}" % (eqtarget.status.capitalize(), classes, eqtarget.workplace, t)
+            t = "is %s{vspace=17}Classes: %s\nWork: %s\nAction: %s{/color}" % (eqtarget.status.capitalize(), classes, eqtarget.workplace, action_str(eqtarget))
 
         text (u"{color=gold}[eqtarget.name]{/color}  {color=#ecc88a}%s" % t) size 14 align (.55, .65) font "fonts/TisaOTM.otf" line_leading -5
 

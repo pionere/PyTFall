@@ -844,7 +844,7 @@ init -960 python:
         def get_image_tags(self):
             """Returns a list of tags bound to the image.
             """
-            TagDatabase.get_image_tags(self.image.filename)
+            return TagDatabase.get_image_tags(self.image.filename)
 
 
     class Mirage(renpy.Displayable):

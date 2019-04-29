@@ -126,8 +126,6 @@ init -5 python:
             job, loc = GuardJob, self.building
             log = NDEvent(job=job, loc=loc, locmod={'threat':threat_cleared}, team=all_workers, business=self)
 
-            extra_workers = all_workers - strict_workers
-
             temp = "{} Security Report!\n".format(loc.name)
             log.append(temp)
 
@@ -146,9 +144,11 @@ init -5 python:
             simpy_debug("Guards.write_nd_report marker 2")
 
             workers = all_workers
-            if extra_workers:
+            extra_workers = workers - strict_workers
+            xlen = len(extra_workers)
+            if xlen != 0:
                 temp = "Security threat became too high that non-combatant workers were called to mitigate it! "
-                if len(extra_workers) > 1:
+                if xlen > 1:
                     temp += "%s were pulled off their duties to help out..." % (", ".join([w.nickname for w in extra_workers]))
                 else:
                     w = next(iter(extra_workers))
@@ -157,8 +157,14 @@ init -5 python:
 
                 workers -= extra_workers
 
-            temp = "{} worked hard keeping your business safe as it is their direct job!".format(", ".join([w.nickname for w in workers]))
-            log.append(temp)
+            xlen = wlen - xlen
+            if xlen != 0:
+                if xlen > 1:
+                    temp = "%s worked hard keeping your business safe as it is their direct job!" % (", ".join([w.nickname for w in workers]))
+                else:
+                    w = next(iter(workers))
+                    temp = "%s worked hard keeping your business safe as it is %s direct job!" % (w.nickname, w.pp)
+                log.append(temp)
 
             simpy_debug("Guards.write_nd_report marker 3")
 

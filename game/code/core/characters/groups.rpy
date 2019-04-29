@@ -48,17 +48,19 @@ init -8 python:
                 return DeDist(arr, remedy=remedy, at="%s%s" % (at, bracket))
 
             # else try to get a single value for a list
-            if 'flatten' in self._remedy and at in self._remedy['flatten']:
+            rem = self._remedy.get('flatten', None)
+            if rem is not None and at in rem:
                 return list(frozenset([item for sublist in arr for item in sublist]))
 
             if not at in remedy:
                 renpy.error("%s\n%s\n%s" % (at, str(typical), str(arr)))
 
-            if isclass(remedy[at]) and issubclass(remedy[at], Delegator):
-                return remedy[at](l=arr, at=at, remedy=remedy)
+            rem = remedy[at]
+            if isclass(rem) and issubclass(rem, Delegator):
+                return rem(l=arr, at=at, remedy=remedy)
 
             # In case of an error here: define a remedy for the unlisting
-            return remedy[at](arr) if callable(remedy[at]) else remedy[at]
+            return rem(arr) if callable(rem) else rem
 
         def __getattr__(self, item):
             """ an undefined attribute was requested from the group """
@@ -66,7 +68,7 @@ init -8 python:
             if item.startswith('__') and item.endswith('__'):
                 return super(Delegator, self).__getattr__(item)
 
-            if callable(getattr(self._first, item)):
+            if [m for m in inspect.getmembers(self._first, inspect.ismethod) if item == m[0]]:
 
                 def wrapper(*args, **kwargs):
                     arr = [getattr(c, item)(*args, **kwargs) for c in self.lst]
@@ -185,9 +187,9 @@ init -8 python:
     class PytGroup(Delegator):
         def __init__(self, chars):
             remedy = {
-                ".eqslots{}": self._ordered_on_abundance, ".equip_for()": self._list_for_caller, ".home": ".home",
-                ".status": "various", ".location": "various", ".workplace": "various", ".action": "Several actions", ".disposition": min,
-                ".autobuy": [], ".front_row": [], ".autoequip": [], ".job": "Several jobs",
+                ".eqslots{}": self._ordered_on_abundance, ".equip_for()": self._list_for_caller, ".home": "various",
+                ".status": "various", ".location": "various", ".workplace": "various", ".action": "Several actions",
+                ".autobuy": [], ".front_row": [], ".autoequip": [], ".job": "Several jobs", ".pp": "their", ".op": "them",
                 ".autocontrol{}": [], ".sex_acts{}": [], ".miscblock": [],
                 ".flag()": False, ".has_flag()": False, ".is_available": False,
                 ".allowed_to_define_autobuy": False, ".allowed_to_define_autoequip": False,

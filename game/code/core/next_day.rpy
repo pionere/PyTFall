@@ -1028,7 +1028,7 @@ screen next_day():
                     bg_img = bg_img[0]
                 else:
                     nd_debug("Unknown Image Type: {} Provided to Event (Next Day Events class)".format(bg_img), "warning")
-                    bg_img = "content/gfx/interface/images/no_image.png"
+                    bg_img = IMG_NOT_FOUND_PATH
                 bg_img = pscale(bg_img, *ND_IMAGE_SIZE)
 
             frame:

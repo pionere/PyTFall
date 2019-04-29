@@ -24,8 +24,6 @@ init:
             linear 1.0 alpha .5
             repeat
 
-    image no_image = "content/gfx/interface/images/no_image.png"
-
     image bg_main = "content/gfx/bg/main.webp"
 
     image eyes:

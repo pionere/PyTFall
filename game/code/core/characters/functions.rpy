@@ -74,7 +74,7 @@ init -11 python:
         char.mod_stat(stat, value)
 
     def restore_battle_stats(char):
-        for stat in ("health", "mp", "vitality"):
+        for stat in ("health", "mp", "vitality"): # BATTLE_STATS
             char.set_stat(stat, char.get_max(stat))
 
     def build_multi_elemental_icon(size=70, elements=None):
@@ -91,6 +91,17 @@ init -11 python:
             i = Transform(icon, crop=crop, subpixel=True, xpos=xpos)
             fixed.add(i)
         return fixed
+
+    def action_str(char):
+        result = char.action
+        if result is None:
+            # action not set
+            result = "None"
+        elif hasattr(result, "id"):
+            # standard job/task
+            result = result.id
+        #else: # string result of PytGroup
+        return result
 
     def elements_calculator(char):
         elements = {}

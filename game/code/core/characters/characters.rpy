@@ -589,9 +589,9 @@ init -9 python:
 
             # Direct image request:
             if "-" in tags[0]:
-                _path = "/".join([self.path_to_imgfolder, tags[0]])
+                _path = os.path.join(self.path_to_imgfolder, tags[0])
                 if not renpy.loadable(_path):
-                    _path = "content/gfx/interface/images/no_image.png"
+                    _path = IMG_NOT_FOUND_PATH
                 return _path if resize is None else ProportionalScale(_path, *resize)
 
             # Mood will never be checked in auto-mode when that is not sensible
@@ -693,12 +693,12 @@ init -9 python:
 
             # If we got here without being able to find an image ("profile" lookup failed is the only option):
             if "force_battle_sprite" in locals(): # New rule (Default Battle Sprites):
-                imgpath = "content/gfx/images/" + "default_{}_battle_sprite.png".format(self.gender)
+                imgpath = os.path.join("content", "gfx", "images", "default_%s_battle_sprite.png" % self.gender)
             elif not imgpath:
                 char_debug(str("Total failure while looking for image with %s tags!!!" % tags))
-                imgpath = "content/gfx/interface/images/no_image.png"
+                imgpath = IMG_NOT_FOUND_PATH
             else: # We have an image, time to convert it to full path.
-                imgpath = "/".join([self.path_to_imgfolder, imgpath])
+                imgpath = os.path.join(self.path_to_imgfolder, imgpath)
 
             # FIXME regardless of type ???
             if label_cache:
@@ -829,8 +829,8 @@ init -9 python:
                 return
 
             if item.slot not in self.eqslots:
-                char_debug(str("Unknown Items slot: %s, %s" % (item.slot, self.__class__.__name__)))
-                return
+                raise Exception("A character attempted to equip on a wrong slot for a character. \
+                                   Character: %s/%s, Item:%s/%s" % self.id, self.__class__, item.id, item.slot)
 
             # AEQ considerations:
             # Basically we manually mess with inventory and have
@@ -841,14 +841,13 @@ init -9 python:
             # This is a temporary check, to make sure nothing goes wrong:
             # Code checks during the equip method should make sure that the unique items never make it this far:
             if item.unique and item.unique != self.id:
-                raise Exception("""A character attempted to equip unique item that was not meant for him/her.
-                                   This is a flaw in game design, please report to our development team!
-                                   Character: %s/%s, Item:%s""" % self.id, self.__class__, item.id)
+                raise Exception("A character attempted to equip a unique item that was not meant for him/her. \
+                                   Character: %s/%s, Item:%s/%s" % self.id, self.__class__, item.id, item.unique)
 
             temp = self.gender
             if getattr(item, "gender", temp) != temp:
-                char_debug(str("False character sex value: %s, %s, %s, %s" % (item.gender, item.id, self.__class__.__name__, temp)))
-                return
+                raise Exception("A character attempted to equip an item that was not meant for him/her gender. \
+                                   Character: %s/%s/%s, Item:%s/%s" % self.id, self.__class__, temp, item.id, item.gender)
 
             if item.slot == 'consumable':
                 if item in self.consblock:
@@ -1548,6 +1547,7 @@ init -9 python:
                         temp.add_money(value, reason="Items")
                 elif stat == "exp":
                     self.mod_exp(exp_reward(self, self, exp_mod=float(value)/DAILY_EXP_CORE))
+                #                BATTLE_STATS ?
                 elif stat in ['health', 'mp', 'vitality', 'joy'] or (item.slot in ['consumable', 'misc'] and not (item.slot == 'consumable' and item.ctemp)):
                     if item.type == "food" and 'Fast Metabolism' in self.effects:
                         value *= 2
@@ -2313,7 +2313,7 @@ init -9 python:
                     flag_red = True
                     txt.append("{color=red}You should find some shelter for the night... it's not healthy to sleep outside.{/color}")
 
-                for stat in ("health", "mp", "vitality"):
+                for stat in ("health", "mp", "vitality"): # BATTLE_STATS
                     mod_by_max(self, stat, mod)
 
             # Taxes:
@@ -2449,7 +2449,7 @@ init -9 python:
                 self.preferences = {p: random.random() for p in STATIC_CHAR.PREFS}
 
             # Second round of stats normalization:
-            for stat in ["health", "joy", "mp", "vitality"]:
+            for stat in ["health", "mp", "vitality", "joy"]: # BATTLE_STATS ?
                 self.set_stat(stat, self.get_max(stat))
 
             # Battle and Magic skills:
@@ -2524,8 +2524,8 @@ init -9 python:
 
             # try to use our items to restore stats
             if self.autoequip:
-                l = list()
-                for stat, mod in [("health", 3), ("vitality", 5), ("mp", 10), ("joy", 2)]:
+                l = list() # BATTLE_STATS ?
+                for stat, mod in [("health", 3), ("mp", 10), ("vitality", 5), ("joy", 2)]:
                     if self.get_stat(stat) < self.get_max(stat)/mod:
                         l.append(stat)
                 if l:
@@ -2593,7 +2593,7 @@ init -9 python:
                 txt.append("{color=red}It's not a comfortable or healthy place to sleep in.{/color}")
                 txt.append("{color=red}Try finding better accommodations for your worker!{/color}")
 
-            for stat in ("health", "mp", "vitality"):
+            for stat in ("health", "mp", "vitality"): # BATTLE_STATS
                 mod_by_max(self, stat, mod)
             return flag_red
 
@@ -2616,11 +2616,8 @@ init -9 python:
                 # Home location nd mods:
                 #loc = self.home
                 #mod = loc.get_daily_modifier()
-                #for stat in ("health", "mp", "vitality"):
-                #    mod_by_max(self, stat, mod)
-                self.set_stat("health", self.get_max("health"))
-                self.set_stat("mp", self.get_max("mp"))
-                self.set_stat("vitality", self.get_max("vitality"))
+                for stat in ("health", "mp", "vitality"): # BATTLE_STATS
+                    self.set_stat(stat, self.get_max(stat))
 
                 # earn some money
                 if self.location != pytfall.jail:
@@ -2667,7 +2664,7 @@ init -9 python:
                 else:
                     # your worker is in jail TODO might want to do this in the ND of the jail
                     mod = pytfall.jail.get_daily_modifier()
-                    for stat in ("health", "mp", "vitality"):
+                    for stat in ("health", "mp", "vitality"): # BATTLE_STATS
                         mod_by_max(self, stat, mod)
 
                     txt.append("{color=red}%s is spending the night in the jail!{/color}" % self.pC)

@@ -156,7 +156,7 @@ init -5 python:
             ratio = float(jp)/(init_jp or 300)
 
             # maximum restoration:
-            health = worker.get_max("health")*.33*ratio
+            health = worker.get_max("health")*.33*ratio # BATTLE_STATS
             vit = worker.get_max("vitality")*.33*ratio
             mp = worker.get_max("mp")*.2*ratio
 
@@ -186,10 +186,9 @@ init -5 python:
 
         @staticmethod
         def is_rested(worker):
-            if worker.get_stat("vitality") < worker.get_max("vitality"):
-                return False
-            if worker.get_stat("health") < worker.get_max('health'):
-                return False
+            for stat in ("vitality", "health", "mp"): # BATTLE_STATS
+                if worker.get_stat(stat) < worker.get_max(stat):
+                    return False
             if "Exhausted" in worker.effects:
                 return False
             if 'Food Poisoning' in worker.effects:
@@ -206,16 +205,15 @@ init -5 python:
         pass # FIXME obsolete
 
     class AutoRestTask(RestTask):
-        """Same as Rest but game will try to reset character to it's previous job."""
+        """Same as Rest but game will try to reset character to it's previous job and does not expect the mp to be restored."""
         id = "AutoRest"
         desc = "Autorest is a type of rest which automatically return character to previous job after resting is no longer needed"
 
         @staticmethod
         def is_rested(worker):
-            if worker.get_stat("vitality") < worker.get_max("vitality")*.95:
-                return False
-            if worker.get_stat("health") < worker.get_max('health')*.95:
-                return False
+            for stat in ("vitality", "health"): # BATTLE_STATS - mp
+                if worker.get_stat(stat) < worker.get_max(stat)*.95:
+                    return False
             if "Exhausted" in worker.effects:
                 return False
             if 'Food Poisoning' in worker.effects:

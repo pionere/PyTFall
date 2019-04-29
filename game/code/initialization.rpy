@@ -174,6 +174,7 @@ init -950 python:
     ######################## Classes/Functions ###################################
     IMAGE_EXTENSIONS = (".png", ".jpg", ".gif", ".jpeg", ".webp")
     MUSIC_EXTENSIONS = (".mp3", ".ogg", ".wav")
+    IMG_NOT_FOUND_PATH = os.path.join("content", "gfx", "interface", "images", "no_image.png")
 
     def check_image_extension(fn):
         return fn.lower().endswith(IMAGE_EXTENSIONS)
@@ -468,6 +469,7 @@ init -1 python: # Constants:
     # for f in renpy.list_files():
         # if check_image_extension(f):
             # renpy.image(f, At(f, slide(so1=(600, 0), t1=.7, eo2=(1300, 0), t2=.7)))
+    # BATTLE_STATS = ("health", "mp", "vitality")
     CLIENT_CASTES = ['None', 'Peasant', 'Merchant', 'Nomad', 'Wealthy Merchant', 'Clerk', 'Noble', 'Royal']
     EQUIP_SLOTS = OrderedDict([("body", "Body"),
                                ("head", "Head"),

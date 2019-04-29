@@ -38,8 +38,9 @@ label time_temple:
             $ temp_charcters = {}
             python hide:
                 for i in hero.team:
-                    temp = i.get_max("health") + i.get_max("mp") + i.get_max("vitality") - \
-                           (i.get_stat("health") + i.get_stat("mp") + i.get_stat("vitality"))
+                    temp = 0
+                    for stat in ("health", "mp", "vitality"): # BATTLE_STATS
+                        temp += i.get_max(stat) - i.get_stat(stat)
                     if "Food Poisoning" in i.effects:
                         temp += 100
                     if "Poisoned" in i.effects:
@@ -80,9 +81,8 @@ label time_temple:
                                 renpy.with_statement(Dissolve(.3))
 
                                 for i in temp_charcters:
-                                    i.gfx_mod_stat("health", i.get_max("health") - i.get_stat("health"))
-                                    i.gfx_mod_stat("mp", i.get_max("mp") - i.get_stat("mp"))
-                                    i.gfx_mod_stat("vitality", i.get_max("vitality") - i.get_stat("vitality"))
+                                    for stat in ("health", "mp", "vitality"): # BATTLE_STATS
+                                        i.gfx_mod_stat(stat, i.get_max(stat) - i.get_stat(stat))
 
                                     i.disable_effect("Poisoned")
                                     i.disable_effect("Food Poisoning")

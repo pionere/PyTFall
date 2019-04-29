@@ -249,8 +249,7 @@ screen chars_list():
                                         xalign .0
                                         action Return(["dropdown", "action", c])
                                         tooltip "Choose a task for %s to do!" % c.nickname
-                                        $ temp = getattr(c.action, "id", "None")
-                                        text temp size 14
+                                        text action_str(c) size 14
 
                         vbox:
                             align (.96, .035)

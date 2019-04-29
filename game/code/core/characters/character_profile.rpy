@@ -5,8 +5,8 @@ init python:
         global hero
         global index
         global img
-        global gm_img
         global bg, hbg
+        global gm_img
 
         try:
             index = girls.index(char)
@@ -30,6 +30,12 @@ init python:
                             exclude=["nude", "revealing", "lingerie", "swimsuit"], label_cache=True)
 
         image_tags = img.get_image_tags()
+        if "no bg" in image_tags:
+            frame_image = "content/gfx/frame/MC_bg3_white.png"
+        else:
+            frame_image = "content/gfx/frame/MC_bg3.png"
+        bg = Frame(frame_image, 10, 10)
+        hbg = Frame(im.MatrixColor(frame_image, im.matrix.brightness(.1)), 10, 10)
 
         if "Exhibitionist" in char.traits and dice(40):
             gm_img = char.show("girlmeets", "nude", "revealing", resize=gm.img_size)
@@ -42,13 +48,6 @@ init python:
                                         "lingerie",
                                         "swimsuit"],
                                resize=gm.img_size)
-
-        if "no bg" in image_tags:
-            frame_image = "content/gfx/frame/MC_bg3_white.png"
-        else:
-            frame_image = "content/gfx/frame/MC_bg3.png"
-        bg = Frame(frame_image, 10, 10)
-        hbg = Frame(im.MatrixColor(frame_image, im.matrix.brightness(.1)), 10, 10)
 
         return char
 
@@ -368,7 +367,7 @@ screen char_profile():
                             xysize 45, 18
                             yalign .5
                             text "Action:" color "ivory" yalign .5 size 18
-                        $ temp = getattr(char.action, "id", "None")
+                        $ temp = action_str(char)
                         button:
                             style_group "ddlist"
                             xalign .0
@@ -832,7 +831,7 @@ screen char_control():
                     style_group "basic"
                     action Return(["dropdown", "action", char])
                     tooltip "Choose a task for %s to do" % char.nickname
-                    $ temp = getattr(char.action, "id", "None")
+                    $ temp = action_str(char)
                     if len(temp) <= 10:
                         text ("Action: %s"%temp) size 18 yalign .5 
                     else:

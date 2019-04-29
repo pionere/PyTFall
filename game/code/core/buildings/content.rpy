@@ -446,8 +446,8 @@ init -9 python:
                     char.del_flag("release_day")
                     set_location(char, char.get_flag("last_location"))
                     char.del_flag("last_location")
-                    if char in hero.chars:
-                        pass # FIXME notify the player!
+                    #if char in hero.chars:
+                    #    pass # FIXME notify the player!
                     # If we know they're in jail
                     #    txt.append("    %s, in jail for %s days"%(char.fullname, days))
                     #    if cdb: txt.append("{color=blue}    (%s days till escape){/color}"%(20-girl_away_days))

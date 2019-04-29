@@ -258,7 +258,7 @@ screen hero_profile():
                     xysize 40, 16
                     yalign .5
                     text "Action:" color "ivory" yalign .5 size 16
-                $ temp = getattr(hero.action, "id", "None")
+                $ temp = action_str(hero)
                 button:
                     style_group "ddlist"
                     xalign .0

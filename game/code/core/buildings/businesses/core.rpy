@@ -330,16 +330,16 @@ init -12 python:
                 if DSNBR:
                     temp = 'Debug: {} worker (Occupations: {}) with action: {} refuses to do {}.'.format(
                             worker.nickname, ", ".join(list(str(t) for t in worker.occupations)),
-                            getattr(worker.action, "id", "None"), job.id)
+                            action_str(worker), job.id)
                 else:
                     temp = '%s refuses to do %s!' % (worker.name, job.id)
                 self.log(set_font_color(temp, "red"))
                 return False
 
             if DSNBR:
-                temp = set_font_color("Debug: {} worker (Occupations: {}) with action: {} is doing {}.".format(
-                                          worker.nickname, ", ".join(list(str(t) for t in worker.occupations)), getattr(worker.action, "id", "None"), job.id), "lawngreen")
-                self.log(temp, True)
+                temp = "Debug: {} worker (Occupations: {}) with action: {} is doing {}.".format(
+                            worker.nickname, ", ".join(list(str(t) for t in worker.occupations)), action_str(worker), job.id)
+                self.log(set_font_color(temp, "lawngreen"), True)
             return True
 
         # Runs before ND calcs stats for this building.

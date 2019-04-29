@@ -107,11 +107,11 @@ screen items_transfer(it_members):
         xysize (1280, 45)
         if isinstance(lc, Char):
             $ traits = lc.traits.base_to_string
-            $ action = getattr(lc.action, "id", "None")
+            $ action = action_str(lc)
             text ("%s ---- %s"%(traits, action)) align (.09, .5) style "content_text" color "ivory" size 20
         if isinstance(rc, Char):
             $ traits = rc.traits.base_to_string
-            $ action = getattr(rc.action, "id", "None")
+            $ action = action_str(rc)
             text ("%s ---- %s"%(traits, action)) align (.92, .5) style "content_text" color "ivory" size 20
 
         use exit_button(size=(35, 35), align=(1.0, .6))

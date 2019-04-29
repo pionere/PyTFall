@@ -34,7 +34,7 @@ init python:
                     if fn.endswith(IMAGE_EXTENSIONS):
                         images.append(os.path.join(folder, fn)) 
 
-            img = choice(images) if images else "no_image"
+            img = choice(images) if images else IMG_NOT_FOUND_PATH
             self.img = renpy.displayable(img)
 
         def get_status(self, char):
