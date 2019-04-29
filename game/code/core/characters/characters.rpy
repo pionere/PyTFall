@@ -1012,27 +1012,14 @@ init -9 python:
             real_weapons = purpose in STATIC_ITEM.FIGHTING_AEQ_PURPOSES
             if DEBUG_AUTO_ITEM:
                 aeq_debug("Auto Equipping for -- {} -- (real_weapons: {})".format(purpose, real_weapons))
-            return self.auto_equip(slots=EQUIP_SLOTS, real_weapons=real_weapons, **kwargs)
+            return self.auto_equip(real_weapons=real_weapons, **kwargs)
 
-        def auto_equip(self, target_stats, target_skills=list(),
-                       exclude_on_stats=set(), exclude_on_skills=set(),
-                       slots=None, inv=None, real_weapons=False,
-                       base_purpose=None, sub_purpose=set()):
+        def auto_equip(self, real_weapons, target_stats, target_skills, base_purpose):
             """
-            target_stats: expects a set of stats to pick the item
-            target_skills: expects a set of skills to pick the item
-            exclude_on_stats: items will not be used if stats in this set are being
-                diminished by use of the item *Decreased the chance of picking this item
-            exclude_on_skills: items will not be used if stats in this set are being
-                diminished by use of the item *Decreased the chance of picking this item
-            ==>   do not put stats/skills both in target* and in exclude_on_* !
-            *default: All Stats - targetstats
-            slots: a list of slots, contains just consumables by default
-            inv: inventory to draw from.
             real_weapons: Do we equip real weapon types (*Broom is now considered a weapon as well)
+            target_stats: a dict of stat-weight pairs to consider for items
+            target_skills: similarly, a dict of skill-weight pairs
             base_purpose: What we're equipping for, used to check vs item.pref_class (set)
-                If not set, items with char.basetraits, occupations or 'Any' will be considered.
-            sub_purpose: Same as above but less weight (set)
 
             So basically the way this works ATM is like this:
             We create a dict (weighted) of slot: [].
@@ -1043,66 +1030,48 @@ init -9 python:
             """
 
             # Prepare data:
-            if inv is None:
-                inv = self.inventory
+            inv = self.inventory
 
-            if base_purpose is None:
-                base_purpose = set()
-                base_purpose.add("Any")
-                base_purpose.update(bt.id for bt in self.traits.basetraits)
-                base_purpose.update(str(t) for t in self.occupations)
+            # preserve current stat in case we need to restore battle_stats
+            last_battle_stats = {s: self.get_stat(s) for s in ("health", "mp", "vitality")} # BATTLE_STATS
+            last_equipment = sorted(self.eqslots.items())
 
-            if slots is None:
-                weighted = {"consumable": []}
-            else:
-                # preserve current stat in case we need to restore battle_stats
-                last_battle_stats = [self.get_stat(s) for s in ("health", "mp", "vitality")]
-                last_equipment = sorted(self.eqslots.items())
-
-                weighted = {}
-                # Go over all slots and unequip items:
-                for s in slots:
-                    if s == "ring":
-                        for r in ["ring", "ring1", "ring2"]:
-                            self.unequip(slot=r, aeq_mode=True)
-                    elif s == "consumable":
-                        pass
-                    else:
-                        self.unequip(slot=s, aeq_mode=True)
-                    weighted[s] = []
+            weighted = {}
+            # Go over all slots and unequip items:
+            for s in EQUIP_SLOTS:
+                if s == "ring":
+                    for r in ["ring", "ring1", "ring2"]:
+                        self.unequip(slot=r, aeq_mode=True)
+                else:
+                    self.unequip(slot=s, aeq_mode=True)
+                weighted[s] = []
 
             # allow a little stat/skill penalty, just make sure the net weight is positive.
-            min_value = -5
             upto_skill_limit = False
 
             # traits that may influence the item selection process
             # This will never work, will it?????
             for t in self.traits:
                 t = t.id
-                # bad eyesight may cause inclusion of items with more penalty
-                if t == "Bad Eyesight":
-                    min_value = -10
-                # a clumsy person may also select items not in target skill
-                elif t == "Clumsy":
-                    target_skills = set(self.stats.skills.keys())
-                # a stupid person may also select items not in target stat
+                # a clumsy or bad eyesighted person may cause select items not in target stat/skill
+                if t == "Bad Eyesight" or t == "Clumsy":
+                    t = choice(self.stats.stats.keys())
+                    if t not in target_stats:
+                        target_stats[t] = 50
+                    t = choice(self.stats.skills.keys())
+                    if t not in target_skills:
+                        target_skills[t] = 50
+                # a stupid person may also select items regardless of target stats
                 elif t == "Stupid":
-                    target_stats = set(self.stats)
+                    target_stats = {s: 50 for s in self.stats.stats}
                 elif t == "Smart":
                     upto_skill_limit = True
 
-            # This looks like a shitty idea! Problem here is that we may care
-            # about some stats more than others and this fucks that up completely.
-            # exclude_on_stats = exclude_on_stats.union(target_stats)
-            # exclude_on_skills = exclude_on_skills.union(target_skills)
             self.stats.eval_inventory(inv, weighted,
                                       target_stats, target_skills,
-                                      exclude_on_skills, exclude_on_stats,
                                       chance_func=self.equip_chance,
                                       upto_skill_limit=upto_skill_limit,
-                                      min_value=min_value,
                                       base_purpose=base_purpose,
-                                      sub_purpose=sub_purpose,
                                       smart_ownership_limit=False)
 
             returns = list() # We return this list with all items used during the method.
@@ -1118,22 +1087,16 @@ init -9 python:
                 if not picks:
                     continue
 
-                if slot in ("consumable", "ring"):
+                if slot == "ring":
                     # create a list of weight/item pairs for consumables
                     #  and rings we may want to equip more than one of.
                     selected = [[sum(_weight), item] for _weight, item in picks if sum(_weight) > 0]
                     selected.sort(key=itemgetter(0), reverse=True)
 
-                    rings_to_equip = 3 if slot == "ring" else -1
+                    rings_to_equip = 3
                     for weight, item in selected:
                         while 1:
                             # Recheck the situation before using an item
-
-                            # consider the effects of Drunk, overeating, etc...
-                            if rings_to_equip == -1:
-                                result = self.equip_chance(item)
-                                if result is None or sum(result) <= 0:
-                                    break
 
                             # test if the item is still useful
                             for stat in target_stats:
@@ -1163,10 +1126,9 @@ init -9 python:
                             inv.remove(item)
                             self.equip(item, remove=False, aeq_mode=True)
                             returns.append(item.id)
-                            if rings_to_equip > 0:
-                                rings_to_equip -= 1
-                                if rings_to_equip == 0:
-                                    break
+                            rings_to_equip -= 1
+                            if rings_to_equip == 0:
+                                break
 
                             # Move on if we don't have any more of the item.
                             if item not in inv:
@@ -1188,8 +1150,6 @@ init -9 python:
                                 msg.append("Real Weapons: {}".format(real_weapons))
                                 if base_purpose:
                                     msg.append("Base: {}".format(base_purpose))
-                                if sub_purpose:
-                                    msg.append("Sub: {}".format(sub_purpose))
                                 aeq_debug(" ".join(msg))
                             continue
                         _weight = sum(_weight)
@@ -1205,15 +1165,130 @@ init -9 python:
                         returns.append(item.id)
 
             # restore battle_stats in case the equipment is not changed and nothing was consumed
-            if not weighted.get("consumable", False) and "last_equipment" in locals():
-                current_equipment = sorted(self.eqslots.items())
-                for prev_item, new_item in zip(last_equipment, current_equipment):
-                    if prev_item != new_item:
-                        break
-                else:
-                    # all the same -> restore battle_stats
-                    for stat, value in zip(("health", "mp", "vitality"), last_battle_stats):
-                        self.set_stat(stat, value)
+            current_equipment = sorted(self.eqslots.items())
+            for prev_item, new_item in zip(last_equipment, current_equipment):
+                if prev_item != new_item:
+                    break
+            else:
+                # all the same -> restore battle_stats
+                for stat, value in last_battle_stats.iteritems():
+                    self.set_stat(stat, value)
+
+            return returns
+
+        def auto_consume(self, target_stats, inv=None):
+            """
+            target_stats: expects a list of stats to pick the item
+            *default: All Stats - targetstats
+            slots: a list of slots, contains just consumables by default
+            inv: inventory to draw from.
+            base_purpose: What we're equipping for, used to check vs item.pref_class (set)
+                If not set, items with char.basetraits, occupations or 'Any' will be considered.
+
+            So basically the way this works ATM is like this:
+            We create a dict (weighted) of slot: [].
+
+            In the list of values of weighted we add lists of weight values
+            which we gather and item we gather them for. That is done in Stats.eval_inventory
+            and pytChar.equip_chance methods. Later we come back here and sort out the results
+            """
+
+            # Prepare data:
+            if inv is None:
+                inv = self.inventory
+
+            base_purpose = set()
+            base_purpose.add("Any")
+            base_purpose.update(bt.id for bt in self.traits.basetraits)
+            base_purpose.update(str(t) for t in self.occupations)
+
+            weighted = {"consumable": []}
+
+            # allow a little stat/skill penalty, just make sure the net weight is positive.
+            upto_skill_limit = False
+
+            # traits that may influence the item selection process
+            # This will never work, will it?????
+            for t in self.traits:
+                t = t.id
+                # a clumsy or bad eyesighted person may cause select items not in target stat/skill
+                if t == "Bad Eyesight" or t == "Clumsy":
+                    t = choice(self.stats.stats.keys())
+                    if t not in target_stats:
+                        target_stats.append(t)
+                # a stupid person may also select items regardless of target stats
+                elif t == "Stupid":
+                    target_stats = self.stats.stats.keys()
+                elif t == "Smart":
+                    upto_skill_limit = True
+            # convert the lists to dicts
+            target_stats = {s:50 for s in target_stats}
+            target_skills = {}
+            self.stats.eval_inventory(inv, weighted,
+                                      target_stats, target_skills,
+                                      chance_func=self.equip_chance,
+                                      upto_skill_limit=upto_skill_limit,
+                                      base_purpose=base_purpose,
+                                      smart_ownership_limit=False)
+
+            returns = list() # We return this list with all items used during the method.
+
+            if DEBUG_AUTO_ITEM:
+                for slot, picks in weighted.iteritems():
+                    for _weight, item in picks:
+                        aeq_debug("(A-Eq=> %s) Slot: %s Item: %s ==> Weights: %s",
+                                        self.name, item.slot, item.id, str(_weight))
+
+            # Actually equip the items on per-slot basis:
+            picks = weighted["consumable"]
+            if picks:
+                # create a list of weight/item pairs for consumables
+                #  and rings we may want to equip more than one of.
+                selected = [[sum(_weight), item] for _weight, item in picks if sum(_weight) > 0]
+                selected.sort(key=itemgetter(0), reverse=True)
+
+                rings_to_equip = -1
+                for weight, item in selected:
+                    while 1:
+                        # Recheck the situation before using an item
+
+                        # consider the effects of Drunk, overeating, etc...
+                        result = self.equip_chance(item)
+                        if result is None or sum(result) <= 0:
+                            break
+
+                        # test if the item is still useful
+                        for stat in target_stats:
+                            if item.max.get(stat, 0) > 0:
+                                break # useful
+                            bonus = item.mod.get(stat, 0)
+                            if bonus <= 0:
+                                continue
+                            gain = item.get_stat_eq_bonus(self.stats, stat)
+                            if gain > bonus/2: # We basically allow 50% waste
+                                break # useful
+                        else:
+                            # not useful for stat -> Let's try skills:
+                            for skill in item.mod_skills:
+                                if skill in target_skills:
+                                    break # useful
+                            else:
+                                # not useful for skills either -> try battle skills
+                                for skill in item.add_be_spells:
+                                    skill = store.battle_skills[skill]
+                                    if skill not in self.magic_skills:
+                                        break # useful
+                                else:
+                                    # not useful for battle skills either -> next
+                                    break
+
+                        inv.remove(item)
+                        self.equip(item, remove=False, aeq_mode=True)
+                        returns.append(item.id)
+
+                        # Move on if we don't have any more of the item.
+                        if item not in inv:
+                            break
 
             return returns
 
@@ -1328,12 +1403,10 @@ init -9 python:
 
             kwargs = STATIC_ITEM.AEQ_PURPOSES[purpose]
 
-            min_value = -10
             upto_skill_limit = False
             self.stats.eval_inventory(container, weighted, chance_func=self.equip_chance,
                                       upto_skill_limit=upto_skill_limit,
-                                      min_value=min_value, check_money=check_money,
-                                      limit_tier=limit_tier,
+                                      check_money=check_money, limit_tier=limit_tier,
                                       smart_ownership_limit=smart_ownership_limit,
                                       **kwargs)
 
@@ -2529,7 +2602,7 @@ init -9 python:
                     if self.get_stat(stat) < self.get_max(stat)/mod:
                         l.append(stat)
                 if l:
-                    l = self.auto_equip(l)
+                    l = self.auto_consume(l)
                     if l:
                         self.txt.append("%s consumed %s %s to make %sself feel better." % (self.pC, ", ".join(l), plural("item", len(l)), self.op))
 

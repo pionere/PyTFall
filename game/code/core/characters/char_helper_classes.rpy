@@ -1217,9 +1217,8 @@ init -10 python:
             self._mod_raw_skill(skill, 1, value/3.0)
 
         def eval_inventory(self, inventory, weighted, target_stats, target_skills,
-                           exclude_on_skills, exclude_on_stats,
-                           base_purpose, sub_purpose, limit_tier=False,
-                           chance_func=None, min_value=-5,
+                           base_purpose, limit_tier=False,
+                           chance_func=None,
                            upto_skill_limit=False,
                            check_money=False,
                            smart_ownership_limit=True):
@@ -1228,15 +1227,11 @@ init -10 python:
 
             inventory: the inventory to evaluate items from
             weighted: weights per item will be added to this
-            target_stats: a list of stats to consider for items
-            target_skills: similarly, a list of skills
-            exclude_on_stats: items will be excluded if stats in this list/tuple/set are negatively affected
-            exclude_on_skills: similarly, a list/tuple/set of skills
+            target_stats: a dict of stat-weight pairs to consider for items
+            target_skills: similarly, a dict of skill-weight pairs
             base_purpose: set of strings to match against item.pref_class
-            sub_purpose: set of strings to match against item.pref_class
             limit_tier: filter the result by the tier of the items
             chance_func(): function that takes the item and returns a chance, between 0 and 100
-            min_value: at what (negative) value the weight will become zero
             upto_skill_limit: whether or not to calculate bonus beyond training exactly
 
             # Auto-buy related.
@@ -1246,12 +1241,8 @@ init -10 python:
 
             # call the functions for these only once
             char = self.instance
-            _stats_curr = {}
-            _stats_max = {}
-            skills = {s: self.get_skill(s) for s in target_skills}
-            for stat in target_stats:
-                _stats_curr[stat] = self._get_stat(stat) # current stat value
-                _stats_max[stat] = self.get_max(stat)   # current stat max
+            _stats_mul_curr_max = {stat: [value, self._get_stat(stat), self.get_max(stat)] for stat, value in target_stats.iteritems()}
+            _skills_mul_curr = {skill: [value, self.get_skill(skill)] for skill, value in target_skills.iteritems()}
             elements = set([e.id.lower() for e in char.elements])
             gender = char.gender
 
@@ -1302,128 +1293,108 @@ init -10 python:
                         continue
 
                 # Handle purposes:
-                if not base_purpose.isdisjoint(item.pref_class):
-                    weights = [200]
-                elif not sub_purpose.isdisjoint(item.pref_class):
-                    weights = [125]
-                else: # 'Any'
+                if base_purpose.isdisjoint(item.pref_class):
                     # If no purpose is valid for the item, we want nothing to do with it.
                     aeq_debug("Ignoring item %s on purpose.", item.id)
                     continue
 
                 if chance_func:
-                    w = chance_func(item)
-                    if w is None:
+                    weights = chance_func(item)
+                    if weights is None:
                         aeq_debug("Ignoring item %s on weights.", item.id)
                         continue
-                    weights.extend(w)
                 else:
-                    weights.append(item.eqchance)
+                    weights = [item.eqchance]
 
                 # Stats:
                 for stat, value in item.mod.iteritems():
-                    if stat in exclude_on_stats and value < min_value:
-                        weights = None
-                        break
+                    mcm = _stats_mul_curr_max.get(stat, None)
+                    if mcm is None:
+                        continue
+                    # a new max may have to be considered
+                    new_max = min(self.max[stat] + item.max[stat], self.lvl_max[stat]) if stat in item.max else mcm[2]
+                    if not new_max:
+                        aeq_debug("Ignoring item %s because of strange stat-max behavior of %s.", item.id, stat)
+                        continue # Some weird exception?
 
-                    if stat in _stats_curr:
-                        # a new max may have to be considered
-                        new_max = min(self.max[stat] + item.max[stat], self.lvl_max[stat]) if stat in item.max else _stats_max[stat]
-                        if not new_max:
-                            aeq_debug("Ignoring item %s because of strange stat-max behavior of %s.", item.id, stat)
-                            continue # Some weird exception?
-
-                        # Get the resulting value:
-                        new_stat = max(min(self.stats[stat] + self.imod[stat] + value, new_max), self.min[stat])
-
-                        curr_stat = _stats_curr[stat]
-                        if curr_stat == new_stat:
-                            # the item could help, but not now
-                            if value > 0:
-                                weights.append(min(25, value*5))
-                        elif curr_stat < new_stat:
-                            # add the fraction increase/decrease
-                            temp = 100*(new_stat - curr_stat)/new_max
-                            weights.append(50 + temp)
-                        else: # Item lowers the stat for the character
-                            if stat not in exclude_on_stats:
-                                change = curr_stat - new_stat
-                                # proceed if it does not take off more than 20% of our stat...
-                                if change <= curr_stat/5:
-                                    continue
+                    # Get the resulting value:
+                    new_stat = max(min(self.stats[stat] + self.imod[stat] + value, new_max), self.min[stat])
+                    curr_stat = mcm[1]
+                    if curr_stat == new_stat:
+                        # the item could help, but not now
+                        weights.append(min(25, value*mcm[0]/2))
+                        continue
+                    elif curr_stat > new_stat:
+                        # Item lowers the stat for the character
+                        change = curr_stat - new_stat
+                        # proceed if it does not take off more than 20% of our stat...
+                        if change > curr_stat/5:
                             # We want nothing to do with this item.
                             weights = None
                             break
+                    # add the fraction increase/decrease
+                    weights.append(mcm[0]*100*(new_stat - curr_stat)/float(new_max))
 
                 if weights is None:
                     continue # Loop did not finish -> skip
 
                 # Max Stats:
                 for stat, value in item.max.iteritems():
-                    if stat in exclude_on_stats and value < 0:
-                        weights = None
-                        break
-
-                    if stat in _stats_max:
-                        new_max = min(self.max[stat] + value, self.lvl_max[stat])
-                        curr_max = _stats_max[stat]
-                        if new_max == curr_max:
-                            pass
-                        elif new_max > curr_max:
-                            weights.append(50 + min(new_max-curr_max, 50))
-                        else: # Item lowers max of this stat for the character:
-                            if True: #if stat not in exclude_on_stats:
-                                change = curr_max-new_max
-                                # proceed if it does not take off more than 20% of our stat...
-                                if change <= curr_max/5:
-                                    continue
+                    mcm = _stats_mul_curr_max.get(stat, None)
+                    if mcm is None:
+                        continue
+                    new_max = min(self.max[stat] + value, self.lvl_max[stat])
+                    curr_max = mcm[2]
+                    if curr_max == new_max:
+                        continue
+                    elif curr_max > new_max:
+                        # Item lowers max of this stat for the character:
+                        change = curr_max - new_max
+                        # proceed if it does not take off more than 20% of our stat...
+                        if change > curr_max/5:
                             # We want nothing to do with this item.
                             weights = None
                             break
+                    # add the increase/decrease
+                    weights.append(mcm[0]*(new_max - curr_max))
 
                 if weights is None:
                     continue # Loop did not finish -> skip
- 
+
                 # Skills:
                 for skill, effect in item.mod_skills.iteritems():
-                    if skill in exclude_on_skills and sum(effect) < 0:
-                        weights = None
-                        break
+                    smc = _skills_mul_curr.get(skill, None)
+                    if smc is None:
+                        continue
 
-                    if skill in skills:
-                        curr_skill = skills[skill]
-                        if curr_skill == 5000: # SKILLS_MAX
-                            continue
+                    # calculate skill with mods applied, as in apply_item_effects() and get_skill()
+                    mod_action = self.skills[skill][0] + effect[3]
+                    mod_training = self.skills[skill][1] + effect[4]
+                    mod_skill_multiplier = self.skills_multipliers[skill][2] + effect[2]
 
-                        # calculate skill with mods applied, as in apply_item_effects() and get_skill()
-                        mod_action = self.skills[skill][0] + effect[3]
-                        mod_training = self.skills[skill][1] + effect[4]
-                        mod_skill_multiplier = self.skills_multipliers[skill][2] + effect[2]
+                    if upto_skill_limit: # more precise calculation of skill limits
+                        beyond_training = mod_action - (mod_training * 3)
+                        if beyond_training >= 0:
+                            mod_action -= beyond_training / 1.5
 
-                        if upto_skill_limit: # more precise calculation of skill limits
-                            beyond_training = mod_action - (mod_training * 3)
-                            if beyond_training >= 0:
-                                mod_action -= beyond_training / 1.5
-
-                        mod_training += mod_action
-                        if mod_training > 5000: # SKILLS_MAX
-                            mod_training = 5000 # SKILLS_MAX
-                        new_skill = mod_training*max(min(mod_skill_multiplier, 2.5), .5)
-
-                        if new_skill == curr_skill:
-                            pass
-                        elif new_skill > curr_skill:
-                            temp = 100*(new_skill - curr_skill)/5000 # SKILLS_MAX
-                            weights.append(50 + temp)
-                        else:
-                            if skill not in exclude_on_skills:
-                                change = curr_skill-new_skill
-                                # proceed if it does not take off more than 20% of our skill...
-                                if change <= curr_skill/5:
-                                    continue
+                    mod_training += mod_action
+                    if mod_training > 5000: # SKILLS_MAX
+                        mod_training = 5000 # SKILLS_MAX
+                    new_skill = mod_training*max(min(mod_skill_multiplier, 2.5), .5)
+                    curr_skill = smc[1]
+                    if curr_skill == new_skill:
+                        continue
+                    elif curr_skill > new_skill:
+                        # Item lowers skill of the character:
+                        change = curr_skill - new_skill
+                        # proceed if it does not take off more than 20% of our skill...
+                        if change > curr_skill/5:
                             # We want nothing to do with this item.
                             weights = None
                             break
+
+                    # add the fraction increase/decrease
+                    weights.append(smc[0]*100*(new_skill - curr_skill)/5000.0) # SKILLS_MAX
 
                 if weights is None:
                     continue # Loop did not finish -> skip

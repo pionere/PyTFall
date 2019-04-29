@@ -771,14 +771,21 @@ init -11 python:
 
             # validate the entry
             for t in entry:
-                if t not in ["target_stats", "target_skills", "exclude_on_stats", "exclude_on_skills", "base_purpose", "sub_purpose"]:
+                if t not in ["target_stats", "target_skills", "base_purpose"]:
                     raise Exception("Unknown field %s in AEQ_PURPOSE %s." % (t, id))
 
             # convert or initialize these fields to sets
-            for t in ["exclude_on_stats", "exclude_on_skills", "base_purpose", "sub_purpose"]:
+            for t in ("base_purpose", ):
                 value = entry.get(t, None)
                 value = set(value) if value else set()
                 entry[t] = value
+            # convert or initialize these fields to dicts
+            for t in ("target_stats", "target_skills"):
+                value = entry.get(t, None)
+                if not value:
+                    entry[t] = dict()
+                elif not isinstance(value, dict):
+                    raise Exception("Field %s of %s must be a map/dict or empty!" % (t, id)) 
 
             STATIC_ITEM.AEQ_PURPOSES[id] = entry
 
