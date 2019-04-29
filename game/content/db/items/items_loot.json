@@ -7,7 +7,7 @@
     "chance": 90,
     "slot": "loot",
     "type": "treasure",
-    "locations": ["Exploration", "Look around", "Fishing"]
+    "locations": ["Exploration", "Look around", "Diving"]
     },
     {
     "id": "Old Purse",
@@ -37,7 +37,7 @@
     "chance": 60,
     "slot": "loot",
     "type": "treasure",
-    "locations": ["Exploration", "Arena"]
+    "locations": ["Exploration", "Diving"]
     },
     {
     "id": "Gilded Crown",
@@ -48,6 +48,66 @@
     "slot": "loot",
     "type": "treasure",
     "locations": ["Exploration", "Arena"]
+    },
+    {
+    "id": "Benitoite",
+    "desc": "A rare blue barium titanium silicate mineral.",
+    "icon": "content/items/loot/benitoite.png",
+    "price": 80,
+    "chance": 30,
+    "slot": "loot",
+    "type": "treasure",
+    "locations": ["Exploration", "Diving"]
+    },
+    {
+    "id": "Malachite",
+    "desc": "An opaque copper carbonate hydroxide mineral.",
+    "icon": "content/items/loot/malachite.png",
+    "price": 100,
+    "chance": 60,
+    "slot": "loot",
+    "type": "treasure",
+    "locations": ["Exploration", "Diving"]
+    },
+    {
+    "id": "Citrine",
+    "desc": "A variety of quartz whose color ranges from a pale yellow to brown due to ferric impurities.",
+    "icon": "content/items/loot/citrine.png",
+    "price": 140,
+    "chance": 50,
+    "slot": "loot",
+    "type": "treasure",
+    "locations": ["Exploration", "Diving"]
+    },
+    {
+    "id": "Aquamarine",
+    "desc": "A blue or cyan variety of beryl.",
+    "icon": "content/items/loot/aquamarine.png",
+    "price": 150,
+    "chance": 40,
+    "slot": "loot",
+    "type": "treasure",
+    "locations": ["Exploration", "Diving"]
+    },
+    {
+    "id": "Jadeite",
+    "desc": "One of two minerals recognized as the gemstone jade.",
+    "icon": "content/items/loot/jadeite.png",
+    "price": 180,
+    "chance": 50,
+    "slot": "loot",
+    "type": "treasure",
+    "locations": ["Exploration", "Diving"]
+    },
+    {
+    "id": "Golden Beryl",
+    "desc": "A yellow/golden variety of emerald suitable for use in jewelry.",
+    "icon": "content/items/loot/golden_beryl.png",
+    "price": 200,
+    "chance": 50,
+    "slot": "loot",
+    "type": "treasure",
+    "locations": ["Exploration", "Diving"]
     },
     {
     "id": "Amethyst",
@@ -157,7 +217,7 @@
     "chance": 30,
     "slot": "loot",
     "type": "treasure",
-    "locations": ["Fishing"]
+    "locations": ["Diving"]
     },
     {
     "id": "Golden God",

@@ -377,7 +377,7 @@ label village_town_work_end:
             hero.add_money(result, reason="Job")
             gfx_overlay.random_find(result, 'gold')
 
-        hero.gfx_mod_stat("joy", -randint(used_pp/50, used_pp/20)) # PP_PER_AP
+        hero.gfx_mod_stat("joy", -randint(used_pp/100, used_pp/40)) # PP_PER_AP
 
     hero.say "This is all for now."
 

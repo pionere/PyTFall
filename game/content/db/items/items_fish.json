@@ -248,7 +248,7 @@
     "chance": 80,
     "slot": "loot",
     "type": "bait",
-    "locations": ["General Store", "Look around"]
+    "locations": ["General Store", "Diving", "Look around"]
     },
     {
     "id": "Good Bait",
