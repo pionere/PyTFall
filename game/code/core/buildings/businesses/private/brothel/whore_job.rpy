@@ -1,19 +1,23 @@
 init -5 python:
     class WhoreJob(Job):
         id = "Whore"
+        desc = "Oldest profession known to men, exchanging sex services for money"
         type = "SIW"
 
         per_client_payout = 30
 
-        # Traits/Job-types associated with this job:
-        occupations = ["SIW"] # General Strings likes SIW, Combatant, Server...
-        occupation_traits = ["Prostitute"] # Corresponding trait, later replaced by the corresponding instance
         aeq_purpose = "Sex"
 
         base_skills = {"sex": 60, "vaginal": 40, "anal": 40, "oral": 40}
         base_stats = {"charisma": 100}
 
-        desc = "Oldest profession known to men, exchanging sex services for money"
+        @staticmethod
+        def want_work(worker):
+            return any(t.id == "Prostitute" for t in worker.basetraits)
+
+        @staticmethod
+        def willing_work(worker):
+            return any("SIW" in t.occupations for t in worker.basetraits)
 
         @staticmethod
         def traits_and_effects_effectiveness_mod(worker, log):
@@ -160,7 +164,11 @@ init -5 python:
         def settle_workers_disposition(cls, worker, log):
             # handles penalties in case of wrong job
             name = set_font_color(choice([worker.fullname, worker.name, worker.nickname]), "pink")
-            if not("SIW" in worker.gen_occs):
+            if cls.willing_work(worker):
+                log.append(choice(["%s is doing %s shift as a harlot." % (name, worker.p),
+                                   "%s gets busy with clients." % name,
+                                   "%s serves customers as a whore." % name]))
+            else:
                 sub = check_submissivity(worker)
                 if worker.status != 'slave':
                     if sub < 0:
@@ -207,10 +215,6 @@ init -5 python:
                     else:
                         worker.logws("joy", -randint(2, 4))
                         worker.logws('vitality', -randint(2, 6))
-            else:
-                log.append(choice(["%s is doing %s shift as a harlot." % (name, worker.p),
-                                   "%s gets busy with clients." % name,
-                                   "%s serves customers as a whore." % name]))
 
         @classmethod
         def log_work(cls, worker, client, building, log, effectiveness):

@@ -4,11 +4,9 @@ init -5 python:
 
     class ExplorationTask(Job):
         id = "Explorer"
+        desc = "Explores the world for you"
         type = "Combat"
 
-        # Traits/Job-types associated with this job:
-        occupations = ["Combatant"] # General Strings likes SIW, Combatant, Server...
-        occupation_traits = ["Warrior", "Mage", "Knight", "Shooter", "Healer"] # Corresponding traits, later replaced by the corresponding instances
         aeq_purpose = "Fighting"
 
         # Relevant skills and stats:
@@ -16,9 +14,13 @@ init -5 python:
                            "agility": 20, "magic": 20}
         base_skills = {"exploration": 100}
 
-        desc = "Explores the world for you"
+        @staticmethod
+        def want_work(worker):
+            return any(t.id in ["Warrior", "Knight", "Mage", "Shooter"] for t in worker.basetraits)
 
-        allowed_status = ["free"]
+        @staticmethod
+        def willing_work(worker):
+            return any("Combatant" in t.occupations for t in worker.basetraits)
 
         @staticmethod
         def traits_and_effects_effectiveness_mod(worker, log):
@@ -112,20 +114,21 @@ init -5 python:
             log(set_font_color("Your team is ready for action!", "cadetblue"))
 
             for worker in workers:
-                if not("Combatant" in worker.gen_occs):
-                    sub = check_submissivity(worker)
-                    if sub < 0:
-                        if dice(15):
-                            worker.logws('character', 1)
-                        log("%s doesn't enjoy going on exploration, but %s will get the job done." % (worker.name, worker.p))
-                    elif sub == 0:
-                        if dice(25):
-                            worker.logws('character', 1)
-                        log("%s would prefer to do something else." % worker.nickname)
-                    else:
-                        if dice(35):
-                            worker.logws('character', 1)
-                        log("%s makes it clear that %s wants to do something else." % (worker.name, worker.p))
-                    worker.logws("joy", -randint(3, 5))
-                    worker.logws("disposition", -randint(5, 10))
-                    worker.logws('vitality', -randint(2, 5)) # a small vitality penalty for wrong job
+                if cls.willing_work(worker):
+                    continue
+                sub = check_submissivity(worker)
+                if sub < 0:
+                    if dice(15):
+                        worker.logws('character', 1)
+                    log("%s doesn't enjoy going on exploration, but %s will get the job done." % (worker.name, worker.p))
+                elif sub == 0:
+                    if dice(25):
+                        worker.logws('character', 1)
+                    log("%s would prefer to do something else." % worker.nickname)
+                else:
+                    if dice(35):
+                        worker.logws('character', 1)
+                    log("%s makes it clear that %s wants to do something else." % (worker.name, worker.p))
+                worker.logws("joy", -randint(3, 5))
+                worker.logws("disposition", -randint(5, 10))
+                worker.logws('vitality', -randint(2, 5)) # a small vitality penalty for wrong job

@@ -102,11 +102,7 @@ label start:
         global simple_jobs, traits
         tl.start("Loading: Jobs")
         # This jobs are usually normal, most common type that we have in PyTFall
-        simple_jobs = list()
-        for i in [WhoreJob, StripJob, BarJob, ManagerJob, CleaningJob, GuardJob, WranglerJob, ExplorationTask, StudyingTask, RestTask, AutoRestTask]:
-            # replace traits string with the corresponding trait instance
-            i.occupation_traits = [traits[j] if isinstance(j, basestring) else j for j in i.occupation_traits]
-            simple_jobs.append(i)
+        simple_jobs = [WhoreJob, StripJob, BarJob, ManagerJob, CleaningJob, GuardJob, WranglerJob, ExplorationTask, StudyingTask, RestTask, AutoRestTask]
         tl.end("Loading: Jobs")
 
     python: # Ads and Buildings:
@@ -735,7 +731,12 @@ label after_load:
                         v = RestTask
                     elif v == AutoRest:
                         v = AutoRestTask
-                    v.occupation_traits = [traits[j] if isinstance(j, basestring) else j for j in v.occupation_traits]
+                    if hasattr(v, "occupation_traits"):
+                        del v.occupation_traits
+                    if hasattr(v, "occupations"):
+                        del v.occupations
+                    if hasattr(v, "allowed_status"):
+                        del v.allowed_status
                     simple_jobs[k] = v
 
         store.bm_mid_frame_mode = None

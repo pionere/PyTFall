@@ -332,13 +332,6 @@ init -10 python:
                 jobs.update(up.jobs)
             self.jobs = jobs
 
-        def get_valid_jobs(self, char):
-            """Returns a list of jobs available for the building that the character might be willing to do.
-
-            Returns an empty list if no jobs is available for the character.
-            """
-            return [job for job in self.jobs if char.can_work(job)]
-
         def get_price(self):
             # Returns our best guess for price of the Building
             # Needed for buying, selling the building or for taxation.

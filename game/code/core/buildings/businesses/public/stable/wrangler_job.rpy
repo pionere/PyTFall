@@ -1,20 +1,24 @@
 init -5 python:
     class WranglerJob(Job):
         id = "Wrangler"
+        desc = "Wranglers tend the horses and handing over the horses to the customers"
         type = "Service"
 
         per_client_payout = 6
 
-        # Traits/Job-types associated with this job:
-        #occupations = ["Server"] # General Strings likes SIW, Combatant, Server...
-        occupation_traits = ["Maid", "Knight"] # Corresponding traits, later replaced by the corresponding instance
         aeq_purpose = 'Wrangler'
 
         # Relevant skills and stats:
         base_skills = {"service": 50, "riding": 100}
         base_stats = {"agility": 50, "constitution": 50}
 
-        desc = "Wranglers tend the horses and handing over the horses to the customers"
+        @staticmethod
+        def want_work(worker):
+            return any(t.id in ["Knight", "Maid"] for t in worker.basetraits)
+
+        @staticmethod
+        def willing_work(worker):
+            return True
 
         @staticmethod
         def traits_and_effects_effectiveness_mod(worker, log):
@@ -98,7 +102,7 @@ init -5 python:
             handles penalties in case of wrong job
             """
             name = set_font_color(choice([worker.fullname, worker.name, worker.nickname]), "pink")
-            if "Maid" in worker.traits or "Knight" in worker.traits:
+            if cls.willing_work(worker):
                 log.append(choice(["%s is working as a wrangler." % name,
                                    "%s gets busy with horses." % name,
                                    "%s is working in the stable!" % name, 

@@ -1,19 +1,23 @@
 init -5 python:
     class StripJob(Job):
         id = "Stripper"
+        desc = "Strippers dance half-naked on the stage, keeping customers hard and ready to hire more whores"
         type = "SIW"
 
         per_client_payout = 8
 
-        # Traits/Job-types associated with this job:
-        occupations = ["SIW"] # General Strings likes SIW, Combatant, Server...
-        occupation_traits = ["Stripper"] # Corresponding trait, later replaced by the corresponding instance
         aeq_purpose = "Striptease"
 
         base_skills = {"strip": 100, "dancing": 40, "sex": 5}
         base_stats = {"charisma": 70, "agility": 30}
 
-        desc = "Strippers dance half-naked on the stage, keeping customers hard and ready to hire more whores"
+        @staticmethod
+        def want_work(worker):
+            return any(t.id == "Stripper" for t in worker.basetraits) 
+
+        @staticmethod
+        def willing_work(worker):
+            return any("SIW" in t.occupations for t in worker.basetraits)
 
         @staticmethod
         def traits_and_effects_effectiveness_mod(worker, log):
@@ -167,7 +171,12 @@ init -5 python:
             """
             # Formerly check_occupation
             name = set_font_color(choice([worker.fullname, worker.name, worker.nickname]), "pink")
-            if not("Stripper" in worker.traits) and worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
+            if cls.willing_work(worker):
+                log.append(choice(["%s is doing %s shift as a stripper.",
+                                   "%s entertains customers with %s body on the stage.",
+                                   "%s begins %s striptease performance!",
+                                   "%s shows %s goods to clients."]) % (name, worker.pp))
+            else:
                 sub = check_submissivity(worker)
                 if worker.status != 'slave':
                     if sub < 0:
@@ -216,11 +225,6 @@ init -5 python:
                     else:
                         worker.logws("joy", -randint(2, 4))
                         worker.logws('vitality', -randint(2, 6))
-            else:
-                log.append(choice(["%s is doing %s shift as a stripper.",
-                                   "%s entertains customers with %s body on the stage.",
-                                   "%s begins %s striptease performance!",
-                                   "%s shows %s goods to clients."]) % (name, worker.pp))
 
         @classmethod
         def log_work(cls, worker, clients, effectiveness, log):

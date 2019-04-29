@@ -1,11 +1,9 @@
 init -5 python:
     class GuardJob(Job):
         id = "Guard"
+        desc = "Protects your business and girls from rivals and aggressive customers"
         type = "Combat"
 
-        # Traits/Job-types associated with this job:
-        occupations = ["Combatant"] # General Strings likes SIW, Combatant, Server...
-        occupation_traits = ["Warrior", "Mage", "Knight", "Shooter", "Healer"] # Corresponding traits, later replaced by the corresponding instances
         aeq_purpose = "Fighting"
 
         # Relevant skills and stats:
@@ -13,9 +11,13 @@ init -5 python:
                            "agility": 20, "magic": 20}
         base_skills = {"security": 100}
 
-        desc = "Protects your business and girls from rivals and aggressive customers"
+        @staticmethod
+        def want_work(worker):
+            return any(t.id in ["Warrior", "Knight", "Mage"] for t in worker.basetraits)
 
-        allowed_status = ["free"]
+        @staticmethod
+        def willing_work(worker):
+            return any("Combatant" in t.occupations for t in worker.basetraits)
 
         @staticmethod
         def traits_and_effects_effectiveness_mod(worker, log):
@@ -139,7 +141,7 @@ init -5 python:
                 log(set_font_color("Your guards are starting their shift!", "cadetblue"))
 
             for worker in workers:
-                if "Combatant" in worker.gen_occs:
+                if cls.willing_work(worker):
                     continue
                 sub = check_submissivity(worker)
                 name = set_font_color(choice([worker.fullname, worker.name, worker.nickname]), "pink")

@@ -162,18 +162,14 @@ init -10 python:
         """Baseclass for jobs and tasks.
         """
         id = "Undefined"
+        desc = "Add Description." # String we can use to describe the Job.
         type = None # job group to use in the report
 
         # Payout per single client, this is passed to Economy class and modified if needs be.
         per_client_payout = 5
 
         # Traits/Job-types associated with this job:
-        occupations = list() # General Strings likes SIW, Combatant, Server...
-        occupation_traits = list() # Corresponding traits...
         aeq_purpose = "Casual"
-
-        # Status we allow (workers):
-        allowed_status = ["free", "slave"]
 
         event_type = "jobreport"
 
@@ -181,8 +177,6 @@ init -10 python:
         base_skills = dict()
         base_stats = dict()
         # Where key: value are stat/skill: weight!
-
-        desc = "Add Description." # String we can use to describe the Job.
 
         @classmethod
         def auto_equip(cls, worker):
@@ -205,11 +199,6 @@ init -10 python:
 
             # Otherwise, let us AEQ:
             worker.equip_for(purpose)
-
-        @classmethod
-        def all_occs(cls):
-            # All Occupations:
-            return set(cls.occupations + cls.occupation_traits)
 
         @staticmethod
         def calculate_disposition_level(worker):
@@ -252,16 +241,13 @@ init -10 python:
             100 is considered a score where worker does the task with acceptable performance.
             min = 0 and max is 200
             """
-            matched_gen_occ = len(worker.occupations.intersection(cls.occupations))
-            matched_base_traits = len(worker.basetraits.intersection(cls.occupation_traits))
-
             # Class traits and Occs (Part 1)
-            bt_bonus = 0
-            if matched_base_traits:
-                bt_bonus += 35
-                if len(worker.basetraits) == 2 and matched_base_traits == 1:
-                    bt_bonus *= .5
-            bt_bonus += matched_gen_occ*15
+            if cls.want_work(worker):
+                bt_bonus = 50
+            elif cls.willing_work(worker):
+                bt_bonus = 15
+            else:
+                bt_bonus = 0
 
             # Tiers:
             diff = worker.tier - difficulty

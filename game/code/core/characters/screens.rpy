@@ -31,7 +31,7 @@ screen set_action_dropdown(char, pos=()):
                         Hide("set_action_dropdown"), With(Dissolve(0.1))]
                 tooltip "Call your worker back from the Academy."
         elif char.action in [RestTask, AutoRestTask]:
-            $ jobs = char.workplace.get_valid_jobs(char)
+            $ jobs = char.get_valid_jobs()
             for i in jobs:
                 textbutton "[i.id]":
                     action [Function(char.set_job, i),
@@ -46,8 +46,8 @@ screen set_action_dropdown(char, pos=()):
                 action [Function(char.set_task, None),
                         Hide("set_action_dropdown"), With(Dissolve(0.1))]
                 tooltip "Call your worker back from resting."
-        elif isinstance(char.workplace, Building):
-            $ jobs = char.workplace.get_valid_jobs(char)
+        else:
+            $ jobs = char.get_valid_jobs()
             for i in jobs:
                 textbutton "[i.id]":
                     action [Function(char.set_job, i),

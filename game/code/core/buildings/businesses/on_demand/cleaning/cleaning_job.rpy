@@ -1,17 +1,22 @@
 init -5 python:
     class CleaningJob(Job):
         id = "Cleaner"
+        desc = "Keeps the building clean and neat"
         type = "Service"
 
-        # Traits/Job-types associated with this job:
-        occupations = ["Server"] # General Strings likes SIW, Combatant, Server...
-        occupation_traits = ["Maid", "Cleaner"] # Corresponding traits, later replaced by the corresponding instances
         aeq_purpose = "Service"
-        desc = "Keeps the building clean and neat"
 
         # Relevant skills and stats:
         base_skills = {"cleaning": 100, "service": 50}
         base_stats = {"agility": 25, "constitution": 50}
+
+        @staticmethod
+        def want_work(worker):
+            return any(t.id in ["Cleaner", "Maid"] for t in worker.basetraits)
+
+        @staticmethod
+        def willing_work(worker):
+            return any("Server" in t.occupations for t in worker.basetraits)
 
         @staticmethod
         def traits_and_effects_effectiveness_mod(worker, log):
@@ -126,7 +131,7 @@ init -5 python:
                 log(set_font_color("Your cleaners are starting their shift!", "cadetblue"))
 
             for worker in cleaners:
-                if "Server" in worker.gen_occs:
+                if cls.willing_work(worker):
                     continue
                 sub = check_submissivity(worker)
                 name = set_font_color(choice([worker.fullname, worker.name, worker.nickname]), "pink")

@@ -248,23 +248,6 @@ init -9 python:
                 allowed.update(t.occupations)
             return allowed
 
-        def can_work(self, job):
-            """Returns True if char is willing to do the job else False.
-
-            elif worker.status in ("free", "various"): ~==various==~ was added by pico to handle groups!
-            """
-            if self.status not in job.allowed_status:
-                return False
-
-            # if worker.get_stat("disposition") >= self.calculate_disposition_level(worker):
-            #     return True
-            # Considering the next check, this is more or less useless.
-            if set(job.occupation_traits).intersection(self.traits):
-                return True
-            if set(job.occupations).intersection(self.gen_occs):
-                return True
-            return False
-
         @property
         def action(self):
             return self._task if self._task is not None else self._job
@@ -326,6 +309,16 @@ init -9 python:
             if isinstance(value, HabitableLocation):
                 value.add_inhabitant(self)
             self._home = value
+
+        def get_valid_jobs(self):
+            """Returns a list of jobs available at the current workplace that the character might be willing to do.
+
+            Returns an empty list if no jobs is available for the character.
+            """
+            workplace = self._workplace
+            if not isinstance(workplace, Building):
+                return []
+            return [job for job in workplace.jobs if job.willing_work(self)]
 
         def settle_effects(self, key, value):
             if hasattr(self, "effects"):

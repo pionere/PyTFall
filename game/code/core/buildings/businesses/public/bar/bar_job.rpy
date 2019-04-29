@@ -1,20 +1,24 @@
 init -5 python:
     class BarJob(Job):
         id = "Bartender"
+        desc = "Barmaids serve drinks from the bar and occasionally chat with customers"
         type = "Service"
 
         per_client_payout = 6
 
-        # Traits/Job-types associated with this job:
-        occupations = ["Server"] # General Strings likes SIW, Combatant, Server...
-        occupation_traits = ["Maid", "Barmaid"] # Corresponding traits, later replaced by the corresponding instances
         aeq_purpose = "Bartender"
 
         # Relevant skills and stats:
         base_skills = {"service": 50, "bartending": 100}
         base_stats = {"intelligence": 50, "character": 50}
 
-        desc = "Barmaids serve drinks from the bar and occasionally chat with customers"
+        @staticmethod
+        def want_work(worker):
+            return any(t.id in ["Maid", "Barmaid"] for t in worker.basetraits)
+
+        @staticmethod
+        def willing_work(worker):
+            return any("Server" in t.occupations for t in worker.basetraits)
 
         @staticmethod
         def traits_and_effects_effectiveness_mod(worker, log):
@@ -159,7 +163,7 @@ init -5 python:
             handles penalties in case of wrong job
             """
             name = set_font_color(choice([worker.fullname, worker.name, worker.nickname]), "pink")
-            if "Server" in worker.gen_occs:
+            if cls.willing_work(worker):
                 log.append(choice(["%s is doing %s shift as a barmaid." % (name, worker.pp),
                                    "%s gets busy with clients." % name,
                                    "%s is working the bar!" % name, 

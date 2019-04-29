@@ -4,18 +4,21 @@ init -5 python:
         pass # obsolete
     class ManagerJob(Job):
         id = "Manager"
+        desc = "Manages your business, helping workers in various ways and improving their performance."
         type = "Management"
 
-        # Traits/Job-types associated with this job:
-        occupations = ["Specialist"] # General Strings likes SIW, Combatant, Server...
-        occupation_traits = ["Manager"] # Corresponding trait, later replaced by the corresponding instance
         aeq_purpose = 'Manager'
-        desc = "Manages your business, helping workers in various ways and improving their performance."
 
         base_skills = {"management": 80, "refinement": 20}
         base_stats = {"character": 40, "intelligence": 60}
 
-        allowed_status = ["free"]
+        @staticmethod
+        def want_work(worker):
+            return any(t.id == "Manager" for t in worker.basetraits)
+
+        @staticmethod
+        def willing_work(worker):
+            return any(t.id == "Manager" for t in worker.basetraits)
 
     def manager_pre_nd(building):
         if not building.needs_manager:

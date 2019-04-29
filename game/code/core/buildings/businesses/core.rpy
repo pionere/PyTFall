@@ -229,8 +229,8 @@ init -12 python:
             # This may be a poor way of doing it because different upgrades could have workers with the same job assigned to them.
             # Basically what is needed is to allow setting a business to a worker as well as the general building if required...
             # And this doesn't work? workers are never populated???
-            occs = self.all_occs()
-            return [i for i in self.building.available_workers if occs & i.occupations]
+            job = self.jobs[0] # FIXME one job per business
+            return [i for i in self.building.available_workers if job.willing_work(i)]
 
         def get_workers(self, job, amount=None, rule="normal", client=None):
             """Tries to find workers for the given job.
@@ -260,9 +260,9 @@ init -12 python:
                 if r == "strict":
                     workers = [i for i in workers if i.action == job] 
                 elif r == "normal":
-                    workers = [i for i in workers if i.traits.basetraits.intersection(job.occupation_traits)]
+                    workers = [i for i in workers if job.want_work(i)]
                 else: # r == loose
-                    workers = [i for i in workers if i.occupations.intersection(job.occupations)]
+                    workers = [i for i in workers if job.willing_work(i)]
                 workers = [w for w in workers if w not in checked_workers]
                 checked_workers.extend(workers)
 
@@ -326,7 +326,7 @@ init -12 python:
                 self.log(set_font_color(temp, "cadetblue"))
                 return False
 
-            if not worker.can_work(job):
+            if not job.willing_work(worker):
                 if DSNBR:
                     temp = 'Debug: {} worker (Occupations: {}) with action: {} refuses to do {}.'.format(
                             worker.nickname, ", ".join(list(str(t) for t in worker.occupations)),
@@ -350,12 +350,6 @@ init -12 python:
         def post_nd(self):
             # Resets all flags and variables after next day calculations are finished.
             return
-
-        def all_occs(self):
-            s = set()
-            for j in self.jobs:
-                s = s | j.all_occs()
-            return s
 
         def log_income(self, amount, reason=None):
             # Plainly logs income to the main building finances.
@@ -389,8 +383,8 @@ init -12 python:
             self.time = 10 # Same
 
         def has_workers(self):
-            occs =  self.all_occs()
-            return any((occs & i.occupations) for i in self.building.available_workers)
+            job = self.jobs[0] # FIXME one job per business
+            return any(job.willing_work(i) for i in self.building.available_workers)
 
         def business_control(self):
             while 1:
@@ -553,7 +547,7 @@ init -12 python:
                         temp += " {} Workers are currently on duty in {}!".format(
                                 set_font_color(len(self.active_workers), "blue"),
                                 self.name)
-                        siw_workers = len([w for w in building.available_workers if set(w.gen_occs).intersection(self.all_occs())])
+                        siw_workers = len([w for w in building.available_workers if job.willing_work(w)])
                         temp += " {} (gen_occ) workers are available in the Building for the job!".format(
                                 set_font_color(siw_workers, "green"))
                         self.log(temp, True)

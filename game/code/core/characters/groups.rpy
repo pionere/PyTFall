@@ -191,7 +191,7 @@ init -8 python:
                 ".autocontrol{}": [], ".sex_acts{}": [], ".miscblock": [],
                 ".flag()": False, ".has_flag()": False, ".is_available": False,
                 ".allowed_to_define_autobuy": False, ".allowed_to_define_autoequip": False,
-                ".allowed_to_view_personal_finances": False, ".can_work()": False,
+                ".allowed_to_view_personal_finances": False,
                 "flatten": [".traits", ".attack_skills", ".magic_skills"]
             }
             super(PytGroup, self).__init__(l=chars, remedy=remedy, at="")
@@ -224,10 +224,16 @@ init -8 python:
         def gen_occs(self):
             chars = list(self.lst)
             occs = set(chars[0].gen_occs)
-            rest = chars[1:]
-            for c in rest:
+            for c in chars:
                 occs = occs.intersection(c.gen_occs)
-            return occs
+            return list(occs)
+
+        def get_valid_jobs(self):
+            chars = list(self.lst)
+            jobs = set(chars[0].get_valid_jobs())
+            for c in chars:
+                jobs = jobs.intersection(c.get_valid_jobs())
+            return list(jobs)
 
         @property
         def name(self):
