@@ -418,16 +418,17 @@ init -11 python:
             return
 
         container = []
-        limit_tier = min(((char.tier/2)+1), 4)
+        limit_tier = min(((char.tier/2)+1), 5)
         for i in range(limit_tier):
             container.extend(store.tiered_items[i]) # MAX_ITEM_TIER
 
-        slots = {slot: 1 for slot in EQUIP_SLOTS}
         if give_civilian_items:
+            slots = {slot: 1 for slot in EQUIP_SLOTS}
             char.auto_buy(slots=slots, equip=not give_bt_items, check_money=False, limit_tier=False, container=container,
                           purpose="Slave" if char.status == "slave" else "Casual",
                           smart_ownership_limit=False)
         if give_bt_items:
+            slots = {slot: 1 for slot in EQUIP_SLOTS}
             char.auto_buy(slots=slots, equip=True, check_money=False, limit_tier=False, container=container,
                           smart_ownership_limit=give_civilian_items, purpose=None)
 

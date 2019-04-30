@@ -274,7 +274,7 @@ init -9 python:
             clear_logs = True will clear all previous logs from the quest.
             """
             if not self.active: pytfall.world_quests.activate_quest(self)
-            if kwargs.get("clear_logs"):
+            if clear_logs:
                 self.prompts = list()
 
             self.prompts.append(prompt)
