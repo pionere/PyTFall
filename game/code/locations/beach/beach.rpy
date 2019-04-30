@@ -291,9 +291,6 @@ screen diving_hidden_area(items=()):
             unhovered SetField(config, "mouse", None)
 
 label mc_action_city_beach_diving_checks:
-    if not global_flags.has_flag('vitality_bonus_from_diving_at_beach'):
-        $ global_flags.set_flag("vitality_bonus_from_diving_at_beach", value=0)
-         
     if not global_flags.flag('diving_city_beach'):
         $ global_flags.set_flag('diving_city_beach')
         "With high enough swimming skill you can try diving. The amount of oxygen is based on your swimming skill."
@@ -322,6 +319,7 @@ label mc_action_city_beach_diving_checks:
         $ j = 60
     $ loots = [[item, item.chance] for item in items.values() if "Diving" in item.locations]
     $ vitality = hero.get_stat("vitality")
+    $ renpy.start_predict("content/gfx/images/fishy.png", "content/gfx/interface/icons/net.png")
     show screen diving_progress_bar(i, i)
     while vitality > 10:
         if not renpy.get_screen("diving_progress_bar"):
@@ -362,7 +360,8 @@ label mc_action_city_beach_diving_checks:
     hide screen diving_progress_bar
     "You're too tired to continue!"
     $ hero.mod_stat("vitality", -randint(10, 15))
-    if locked_dice(hero.get_skill("swimming")) and global_flags.flag("vitality_bonus_from_diving_at_beach") <= 100:
+    $ hero.gfx_mod_skill("swimming", 0, randrange(2))
+    if locked_dice(hero.get_skill("swimming")) and global_flags.get_flag("vitality_bonus_from_diving_at_beach", 0) < 100:
         $ hero.stats.lvl_max["vitality"] += 1
         $ hero.stats.max["vitality"] += 1
         $ hero.mod_stat("vitality", 1)
@@ -370,5 +369,6 @@ label mc_action_city_beach_diving_checks:
         "You feel more endurant than before {color=green}(max vitality +1){/color}."
 
 label mc_action_city_beach_diving_exit:
+    $ renpy.stop_predict("content/gfx/images/fishy.png", "content/gfx/interface/icons/net.png")
     $ del i, j, loots, vitality
     jump city_beach

@@ -386,7 +386,9 @@ label mc_action_beach_start_fishing:
                     jump city_beach_left
 
         $ hero.take_ap(1)
-
+        $ renpy.start_predict("content/gfx/images/fishy.png", "content/gfx/interface/icons/fishing_hook.png", "content/gfx/animations/bubbles_webm/movie.webm", "content/gfx/animations/bubbles_webm/mask.webm")
+        image fishing_circles_webm = Transform(Movie(channel="main_gfx_attacks", play="content/gfx/animations/bubbles_webm/movie.webm", mask="content/gfx/animations/bubbles_webm/mask.webm"), zoom=.4, alpha=.4)
+        image fishing_circles_webm_alpha = Transform(Movie(channel="main_gfx_attacks", play="content/gfx/animations/bubbles_webm/movie.webm", mask="content/gfx/animations/bubbles_webm/mask.webm"), zoom=.8, alpha=1.0)
         while fishing_attempts > 0:
             $ fishing_attempts -= 1
                 
@@ -433,6 +435,7 @@ label mc_action_beach_start_fishing:
                 hero.gfx_mod_skill("fishing", 0, temp)
 
 label end_fishing:
+    $ renpy.stop_predict("content/gfx/images/fishy.png", "content/gfx/interface/icons/fishing_hook.png", "content/gfx/animations/bubbles_webm/movie.webm", "content/gfx/animations/bubbles_webm/mask.webm")
     $ hero.say(getattr(store, "exit_string", "This is all for now."))
     # safe(r) cleanup:
     python hide:
@@ -445,9 +448,6 @@ label end_fishing:
                 delattr(store, i)
     $ global_flags.set_flag("keep_playing_music")
     jump city_beach_left
-
-image fishing_circles_webm = Transform(Movie(channel="main_gfx_attacks", play="content/gfx/animations/bubbles_webm/movie.webm", mask="content/gfx/animations/bubbles_webm/mask.webm"), zoom=.4, alpha=.4)
-image fishing_circles_webm_alpha = Transform(Movie(channel="main_gfx_attacks", play="content/gfx/animations/bubbles_webm/movie.webm", mask="content/gfx/animations/bubbles_webm/mask.webm"), zoom=.8, alpha=1.0)
 
 screen fishing_area(num_fish):
     hbox:

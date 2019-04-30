@@ -333,9 +333,9 @@ init -11 python:
             base_traits = list(gen_occ_basetraits[bt_go_base])
             selection = [choice(base_traits)]
             dist = random.random()
-            if dist > .5:
+            if dist > .7:
                 # multiclass
-                if dist > .8 or len(base_traits) == 1:
+                if dist > .9 or len(base_traits) == 1:
                     # choose an occ from other occ-group
                     curr_occ = bt_go_base
                     if rg.status == "slave":

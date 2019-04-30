@@ -30,7 +30,7 @@ init python:
                         tier = hero.tier + uniform(.1, 1.0)
                     char = build_rc(bt_go_base=k,
                                     set_locations=True,
-                                    tier=tier, tier_kwargs=None,
+                                    tier=tier,
                                     give_civilian_items=True,
                                     give_bt_items=True)
                     for occ in char.gen_occs:
