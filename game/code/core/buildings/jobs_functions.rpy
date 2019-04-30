@@ -51,7 +51,7 @@ init -10 python:
                 log.append(temp)
         elif effectiveness <= 150:
             temp = ("are", "pay") if is_plural else ("is", "pays")
-            temp = "%s %s very happy with %s's service and %s the full price." % (client_name_c, temp[0], temp[1], worker.name)
+            temp = "%s %s very happy with %s's service and %s the full price." % (client_name_c, temp[0], worker.name, temp[1])
             log.append(temp)
         else:
             temp = "are" if is_plural else "is"

@@ -16,7 +16,7 @@ init python:
     effect_descs["Pessimist"] = "Joy decreases over time, unless it's already low enough. Grants immunity to Depression."
     effect_descs["Composure"] = "Over time joy decreases if it's too high and increases if it's too low."
     effect_descs["Kleptomaniac"] = "With some luck, gold might 'appear' in the wallet."
-    effect_descs["Drowsy"] = "Rest restores more vitality than usual if unspent APs left."
+    effect_descs["Drowsy"] = "Resting recovers vitality slower than usual."
     effect_descs["Loyal"] = "Harder to decrease disposition."
     effect_descs["Lactation"] = "Her breasts produce milk. If she's your slave or lover, you will get a free sample every day."
     effect_descs["Vigorous"] = "If vitality is too low, it slowly increases over time."
