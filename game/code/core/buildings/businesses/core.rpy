@@ -512,7 +512,7 @@ init -12 python:
                 self.building.available_workers.remove(w)
                 self.env.process(self.worker_control(w))
             else:
-                temp = "Could not find an available %s worker" % job
+                temp = "Could not find an available %s." % job.id
                 self.log(set_font_color(temp, "red"))
             simpy_debug("Exiting PublicBusiness(%s).add_worker at %s", self.name, self.env.now)
 
