@@ -588,7 +588,14 @@ screen building_management_leftframe_businesses_mode:
             padding 12, 12
             has vbox spacing 1
 
-            text "To Expand:"
+            hbox:
+                xfill True
+                text "To Expand:" xalign .0
+                $ duration = bm_mid_frame_mode.exp_cap_duration
+                if duration is not None:
+                    $ duration = duration[0]
+                    if duration != 0:
+                        text ("%d %s"%(duration, plural("day", duration))) xalign 1.0
 
             $ cost, materials, in_slots, ex_slots = bm_mid_frame_mode.get_expansion_cost()
             $ can_build = not any(icu[0] == "capacity" for icu in bm_mid_frame_mode.in_construction_upgrades)
