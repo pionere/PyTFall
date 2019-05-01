@@ -1325,7 +1325,7 @@
     "slot": "consumable",
     "type": "alcohol",
     "mod": {"mp": 10, "joy": 10},
-    "locations": ["Tavern", "Exploration", "Diving"],
+    "locations": ["Tavern", "Exploration"],
     "pref_class":["Any"]
     },
     {
@@ -1342,7 +1342,7 @@
     "slot": "consumable",
     "type": "alcohol",
     "mod": {"mp": 8, "joy": 8},
-    "locations": ["Tavern", "Exploration", "Diving"],
+    "locations": ["Tavern", "Exploration"],
     "pref_class":["Any"]
     },
     {

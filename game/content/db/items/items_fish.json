@@ -230,6 +230,46 @@
     "locations": ["Diving"]
     },
     {
+    "id": "Velvet Crab",
+    "desc": "A star-shaped creature from deep-sea floor.",
+    "icon": "content/items/fish/velvet_crab.png",
+    "price": 40,
+    "chance": 60,
+    "slot": "loot",
+    "type": "fish",
+    "locations": ["Diving"]
+    },
+    {
+    "id": "Lobster",
+    "desc": "A star-shaped creature from deep-sea floor.",
+    "icon": "content/items/fish/lobster.png",
+    "price": 50,
+    "chance": 40,
+    "slot": "loot",
+    "type": "fish",
+    "locations": ["Diving"]
+    },
+    {
+    "id": "Squid",
+    "desc": "A star-shaped creature from deep-sea floor.",
+    "icon": "content/items/fish/squid.png",
+    "price": 50,
+    "chance": 40,
+    "slot": "loot",
+    "type": "fish",
+    "locations": ["Diving"]
+    },
+    {
+    "id": "Turtle",
+    "desc": "A star-shaped creature from deep-sea floor.",
+    "icon": "content/items/fish/sea_turtle.png",
+    "price": 150,
+    "chance": 50,
+    "slot": "loot",
+    "type": "fish",
+    "locations": ["Diving"]
+    },
+    {
     "id": "Fishing Pole",
     "desc": "A long, flexible rod used to catch fish.",
     "icon": "content/items/fish/fishing_pole.png",
