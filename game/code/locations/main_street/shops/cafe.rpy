@@ -29,17 +29,39 @@ label cafe:
     $ del w
     $ inviting_character = hero
 
-    if dice(50) and len(hero.team)>1 and not hero.has_flag("dnd_ate_in_cafe"): # the chance for a member of MC team to invite team
-        python:
+    if len(hero.team) > 1 and not hero.has_flag("dnd_ate_in_cafe"):
+        python hide:
+            global inviting_character
             members = [] # all chars willing to invite will be in this list
             for member in hero.team:
                 if member != hero:
                     if member.status == "free" and member.gold >= locked_random("randint", 500, 1000) and (member.get_stat("disposition") >= 200 or member.get_stat("affection") >= 200) and member.get_stat("joy") >= 30:
-                        members.append(member)
+                        # the chance for a member of MC team to invite team
+                        if "Imouto" in member.traits:
+                            chance = 60
+                        elif "Kamidere" in member.traits:
+                            chance = 55
+                        elif "Yandere" in member.traits:
+                            chance = 50
+                        elif "Ane" in member.traits:
+                            chance = 45
+                        elif "Bokukko" in member.traits:
+                            chance = 40
+                        elif "Tsundere" in member.traits:
+                            chance = 30
+                        elif "Kuudere" in member.traits:
+                            chance = 20
+                        elif "Dandere" in member.traits:
+                            chance = 10
+                        elif "Impersonal" in member.traits:
+                            chance = 5
+                        else:
+                            chance = 35
+                        if dice(chance):
+                            members.append(member)
             if members:
                 inviting_character = random.choice(members)
                 interactions_eating_propose(inviting_character)
-            del member, members
 
     if inviting_character != hero:
         menu:
