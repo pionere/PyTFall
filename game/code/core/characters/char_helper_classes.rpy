@@ -1079,7 +1079,7 @@ init -10 python:
             return iter(self.stats)
 
         def get_max(self, key):
-            return min(self.max[key], self.lvl_max[key])
+            return max(self.min[key], min(self.max[key], self.lvl_max[key]))
 
         def mod_exp(self, value):
             # Assumes input from setattr of self.instance:
