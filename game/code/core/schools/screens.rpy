@@ -377,7 +377,10 @@ screen school_training():
                                         break
                             text "[temp]":
                                 style_suffix "value_text"
-                                hover_color "green" size 14
+                                if temp == "Active!":
+                                    color "orange"
+                                else:
+                                    hover_color "green" size 14
                                 xalign .99 yoffset -1
 
                     python:
