@@ -1018,7 +1018,10 @@ init -10 python:
             client_name = set_font_color(client.name, "beige")
 
             # Register the fact that client arrived at the building:
-            temp = "%s arrives at the %s." % (client_name, self.name)
+            temp = choice(["%s arrives at the building.",
+                           "%s steps through the door.",
+                           "%s shows up.",
+                           "%s visits your place."]) % client_name
             self.log(temp, True)
 
             if self.dirt >= 800: # FIXME maxdirt?
@@ -1108,7 +1111,10 @@ init -10 python:
                     yield request
                     yield self.env.process(business.client_control(client))
 
-            temp = "%s is leaving the %s." % (client_name, self.name)
+            temp = choice(["%s is leaving the building.",
+                           "%s is off for today.",
+                           "%s hurries away.",
+                           "%s is departing.",]) % client_name
             if DSNBR:
                 temp += ".. after visiting %d business." % visited
             self.log(temp, True)
