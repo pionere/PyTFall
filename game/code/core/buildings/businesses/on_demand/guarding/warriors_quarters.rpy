@@ -54,7 +54,7 @@ init -5 python:
 
                     if not make_nd_report_at:
                         wlen = len(workers)
-                        make_nd_report_at = min(now+25, 100)
+                        make_nd_report_at = min(now+25, 105) # MAX_DU
                         if wlen:
                             temp = "%s Workers have started to guard %s!" % (set_font_color(wlen, "red"), building.name)
                             self.log(temp, True)
@@ -99,6 +99,8 @@ init -5 python:
                     else:
                         use_SQ = False
                     self.write_nd_report(strict_workers, defenders, log, -threat_cleared, use_SQ)
+                    if now >= 105: # MAX_DU
+                        self.env.exit()
                     make_nd_report_at = 0
                     threat_cleared = 0
                     defenders = set()

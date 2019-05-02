@@ -53,7 +53,7 @@ init -5 python:
 
                     if not make_nd_report_at:
                         wlen = len(workers)
-                        make_nd_report_at = min(now+25, 105) # FIXME MAX_DU
+                        make_nd_report_at = min(now+25, 105) # MAX_DU
                         if wlen:
                             temp = "%s Workers have started to clean %s!" % (set_font_color(wlen, wlen_color), building.name)
                             self.log(temp, True)
@@ -82,6 +82,8 @@ init -5 python:
                         self.log("DEBUG! WRITING CLEANING REPORT!", True)
 
                     self.write_nd_report(strict_workers, cleaners, log, -dirt_cleaned)
+                    if now >= 105: # MAX_DU
+                        self.env.exit()
                     make_nd_report_at = 0
                     dirt_cleaned = 0
                     cleaners = set()
