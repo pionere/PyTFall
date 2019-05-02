@@ -297,7 +297,7 @@ label mc_action_city_beach_diving_checks:
         "You need vitality to pick up items. Vitality is not consumed, but the more vitality you have in general, the more items you can pick up."
         "The goal is to find invisible items hidden on the seabed."
         "You can leave the sea anytime by clicking the right mouse button, and you will lose some health if you don't leave before the oxygen is over."
-    if hero.get_stat("vitality") < 20:
+    if hero.get_stat("vitality") < 30:
         "You're too tired at the moment."
         jump city_beach
     elif hero.get_stat("health") < hero.get_max("health")/2:
@@ -359,9 +359,9 @@ label mc_action_city_beach_diving_checks:
 
     hide screen diving_progress_bar
     "You're too tired to continue!"
-    $ hero.mod_stat("vitality", -randint(10, 15))
-    $ hero.gfx_mod_skill("swimming", 0, randrange(2))
-    if locked_dice(hero.get_skill("swimming")) and global_flags.get_flag("vitality_bonus_from_diving_at_beach", 0) < 100:
+    $ hero.mod_stat("vitality", -randint(15, 25))
+    $ hero.gfx_mod_skill("swimming", 0, randrange(1))
+    if locked_dice(100 - global_flags.get_flag("vitality_bonus_from_diving_at_beach", 0)*2): # MAX 50
         $ hero.stats.lvl_max["vitality"] += 1
         $ hero.stats.max["vitality"] += 1
         $ hero.mod_stat("vitality", 1)

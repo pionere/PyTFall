@@ -239,8 +239,8 @@ label fishing_logic_mor_quest_bring:
     $ hero.add_money(price, reason="Quests")
     m "Magnificent. Take your reward, [price] coins, and these baits. It's much more than any city merchant can give you, trust me."
     if dice(20):
-        $ hero.add_item("Magic Bait", 3)
-        "You've obtained 3 Magic Baits!"
+        $ hero.add_item("Magic Bait", 4)
+        "You've obtained 4 Magic Baits!"
     elif dice(40):
         $ hero.add_item("Good Bait", 6)
         "You've obtained 6 Good Baits!"
@@ -270,6 +270,7 @@ label fishing_logic_mor_dialogue:
             jump Mor_dialogue_usual
         "Ask about fishing":
             m "Oh, it's very simple. You only need a fishing rod and good eyes."
+            m "And as my father used to say: 'The fastest fish are not always the best'... Or something along the lines..."
             m "Of course, you also can try diving to find something good in the water, but trust me, it won't be easy."
             jump Mor_dialogue_usual
         "Ask about fishing skill":

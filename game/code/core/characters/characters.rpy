@@ -2365,6 +2365,10 @@ init -9 python:
                 value = self.get_skill(skill)/100
                 if value >= 1 and dice(value):
                     self.stats.mod_full_skill(skill, -1)
+            if self.get_stat("joy") > 60:
+                self.mod_stat("joy", -1)
+            elif self.get_stat("joy") < 40:
+                self.mod_stat("joy", 1)
 
             txt = self.txt
             flag_red = False
