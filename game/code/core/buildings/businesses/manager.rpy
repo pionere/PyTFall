@@ -20,6 +20,83 @@ init -5 python:
         def willing_work(worker):
             return any(t.id == "Manager" for t in worker.basetraits)
 
+        @staticmethod
+        def traits_and_effects_effectiveness_mod(worker, log):
+            effectiveness = 0
+
+            name = worker.name
+            effects = worker.effects
+            if 'Exhausted' in effects:
+                log.append("%s is exhausted and is in need of some rest." % name)
+                effectiveness -= 75
+            elif 'Drunk' in effects:
+                log.append("Being drunk, %s is totally incapable to fulfill %s job." % (name, worker.pp))
+                effectiveness -= 70
+            elif 'Food Poisoning' in effects:
+                log.append("%s suffers from Food Poisoning, and is very far from %s top shape." % (name, worker.pp))
+                effectiveness -= 50
+            elif 'Down with Cold' in effects:
+                log.append("%s is not feeling well due to colds..." % name)
+                effectiveness -= 15
+
+            # traits don't always work, even with high amount of traits
+            # there are normal days when performance is not affected
+            if locked_dice(65):
+                traits = {"Exhibitionist", "Frigid", "Serious", "Peaceful", "Clumsy", "Shy",
+                          "Nerd", "Elegant", "Natural Leader", "Natural Follower", "Aggressive", 
+                          "Psychic", "Always Hungry", "Well-mannered", "Ill-mannered"}
+                traits = list(i.id for i in worker.traits if i.id in traits)
+
+                if traits:
+                    trait = choice(traits)
+                else:
+                    return effectiveness
+
+                if trait == "Natural Leader":
+                    log.append("Every guesture of %s calls for action. %s was born for this job." % (name, worker.pC))
+                    effectiveness += 25
+                elif trait == "Psychic":
+                    log.append("%s knows how to convince the workers to do their job." % name)
+                    effectiveness += 20
+                elif trait == "Well-mannered":
+                    log.append("%s expresses %s wishes in a perfect way. The workers are happy to comply." % (name, worker.pp))
+                    effectiveness += 10
+                elif trait == "Frigid":
+                    log.append("%s focus is always on the job, which makes %s a great manager." % (name, worker.pp))
+                    effectiveness += 10
+                elif trait == "Serious":
+                    log.append("%s means business. The workers follow %s orders promptly." % (name, worker.pp))
+                    effectiveness += 10
+                elif trait == "Peaceful":
+                    log.append("%s does not let arguments spiral out of control. Makes it easy to handle the difficulties on the job." % name)
+                    effectiveness += 10
+                elif trait == "Elegant":
+                    log.append("The perfect dress of %s indicates professionalism." % name)
+                    effectiveness += 10
+                elif trait == "Clumsy":
+                    log.append("The footsteps of %s are marked with mistakes. %s subordinates wish for a better lead." % (name, worker.ppC))
+                    effectiveness -= 10
+                elif trait == "Nerd":
+                    log.append("The workers find it hard to communicate with %s." % name)
+                    effectiveness -= 10
+                elif trait == "Always Hungry":
+                    log.append("It is hard to give orders while your stomach is empty and your mouth is full. %s should find a more appropriate job." % name)
+                    effectiveness -= 10
+                elif trait == "Ill-mannered" or trait == "Aggressive":
+                    log.append("The rude behaviour of %s makes %s co-worker unwilling to follow %s orders." % (name, worker.pp, worker.pp))
+                    effectiveness -= 10
+                elif trait == "Exhibitionist":
+                    log.append("The way %s dresses distracts the worker around %s." % (name, worker.pp))
+                    effectiveness -= 20
+                elif trait == "Natural Follower":
+                    log.append("%s would rather take than give orders. This is really not a job for %s." % (name, worker.pp))
+                    effectiveness -= 25
+                elif trait == "Shy":
+                    log.append("The commands of %s are easily suppressed by the workers wishes. %s feels out of place at %s job." % (name, worker.pC, worker.pp))
+                    effectiveness -= 30
+
+            return effectiveness
+
     def manager_pre_nd(building):
         if not building.needs_manager:
             return

@@ -45,10 +45,10 @@ init -5 python:
             # traits don't always work, even with high amount of traits
             # there are normal days when performance is not affected
             if locked_dice(65):
-                traits = ["Great Arse", "Bad Eyesight", "Curious", "Indifferent", "Nerd",
+                traits = {"Great Arse", "Bad Eyesight", "Curious", "Indifferent", "Sexy Air",
                         "Heavy Drinker", "Ill-mannered", "Psychic", "Shy", "Neat", "Messy",
-                        "Natural Follower", "Virtuous", "Natural Leader", "Clumsy", "Manly",
-                        "Stupid", "Abnormally Large Boobs", "Big Boobs", "Scars", "Vicious"]
+                        "Natural Follower", "Virtuous", "Natural Leader", "Clumsy", "Manly", "Nerd",
+                        "Stupid", "Abnormally Large Boobs", "Big Boobs", "Scars", "Vicious"}
                 traits = list(i.id for i in worker.traits if i.id in traits)
 
                 if worker.height == "short" and "Lolita" in worker.traits:
@@ -59,61 +59,31 @@ init -5 python:
                 else:
                     return effectiveness
 
-                if trait == "Great Arse":
-                    log.append("The customers kept ordering drinks from the bottom shelf just to watch %s bend over. What a view!" % name)
-                    effectiveness += 25
-                elif trait == "Lolita":
-                    log.append("Poor %s has a hard time with the top shelves of the bar due to %s height." % (name, worker.pp))
-                    effectiveness -= 20
-                elif trait == "Bad Eyesight":
-                    log.append("Occasionally %s serves the wrong drinks, making customers unhappy." % name)
-                    effectiveness -= 15
-                elif trait == "Curious":
-                    log.append("Curious %s can listen to customers complaints about their lives for hours, making a great barmaid." % name)
-                    effectiveness += 10
-                elif trait == "Indifferent":
-                    log.append("%s provides some really bland service. The customers aren't even sure %s is paying attention." % (name, worker.p))
-                    effectiveness -= 10
-                elif trait == "Neat":
-                    log.append("%s keeps the bar and all the glasses perfect clean, making a good impression on customers." % name)
-                    effectiveness += 20
-                elif trait == "Messy":
-                    log.append("It's not unusual for %s to serve drinks without cleaning glasses first. That does not add to %s popularity as a barmaid." % (name, worker.pp))
-                    effectiveness -= 20
-                elif trait == "Heavy Drinker":
+                if trait == "Heavy Drinker":
                     if dice(50):
                         log.append("%s's deep knowledge of alcohol helps to serve the best possible drink." % name)
                         effectiveness += 10
                     else:
                         log.append("The customers all passed out in no time. %s has no idea why - drinks don't seem that strong to %s." % (name, worker.op))
                         effectiveness -= 10
-                elif trait == "Ill-mannered":
-                    log.append("Unfortunately %s's rudeness scares away customers, affecting the business." % name)
-                    effectiveness -= 20
                 elif trait == "Psychic":
                     log.append("People marvel at how %s usually already has the drink ready before the customer comes up to the bar." % name)
                     effectiveness += 25
-                elif trait == "Shy":
-                    log.append("It's difficult for %s to serve drinks and maintain a conversation at the same time. %s's too afraid of making mistakes." % (name, worker.pC))
-                    effectiveness -= 25
-                elif trait == "Nerd":
-                    log.append("%s is a bit awkward as a bartender, always more interested in %s little hobby than on tending to the customers." % (name, worker.pp))
-                    effectiveness -= 10
-                elif trait == "Natural Follower" or trait == "Virtuous":
-                    log.append("Customers keep asking %s for a discount and %s keeps accepting. Maybe it's not the best job for %s." % (name, worker.p, worker.op))
-                    effectiveness -= 15
+                if trait == "Great Arse":
+                    log.append("The customers kept ordering drinks from the bottom shelf just to watch %s bend over. What a view!" % name)
+                    effectiveness += 25
+                elif trait == "Neat":
+                    log.append("%s keeps the bar and all the glasses perfect clean, making a good impression on customers." % name)
+                    effectiveness += 20
                 elif trait == "Natural Leader":
                     log.append("%s has a real way with words. Customers like to talk to %s about anything just to hear %s voice." % (name, worker.op, worker.pp))
                     effectiveness += 15
-                elif trait == "Clumsy":
-                    log.append("The sound of breaking glass filled the building once %s began %s shift. Sigh..." % (name, worker.pp))
-                    effectiveness -= 15
-                elif trait == "Stupid":
-                    log.append("%s has to ask for help all the time because %s can't remember how to make anything." % (name, worker.p))
-                    effectiveness -= 20
                 elif trait == "Abnormally Large Boobs" or trait == "Big Boobs":
                     log.append("People keep asking her to make cocktails just to watch her boobs quake.")
                     effectiveness += 15
+                elif trait == "Curious":
+                    log.append("Curious %s can listen to customers complaints about their lives for hours, making a great barmaid." % name)
+                    effectiveness += 10
                 elif trait == "Scars":
                     log.append("%s scars give %s a tough look that makes %s cool as a bartender." % (worker.ppC, worker.op, worker.op))
                     effectiveness += 10
@@ -123,6 +93,36 @@ init -5 python:
                 elif trait == "Vicious":
                     log.append("It's nice to have %s working as a bartender. %s doesn't let the customers build up a tab no matter how pitiable they are." % (name, worker.pC))
                     effectiveness += 10
+                elif trait == "Indifferent":
+                    log.append("%s provides some really bland service. The customers aren't even sure %s is paying attention." % (name, worker.p))
+                    effectiveness -= 10
+                elif trait == "Nerd":
+                    log.append("%s is a bit awkward as a bartender, always more interested in %s little hobby than on tending to the customers." % (name, worker.pp))
+                    effectiveness -= 10
+                elif trait == "Natural Follower" or trait == "Virtuous":
+                    log.append("Customers keep asking %s for a discount and %s keeps accepting. Maybe it's not the best job for %s." % (name, worker.p, worker.op))
+                    effectiveness -= 15
+                elif trait == "Clumsy":
+                    log.append("The sound of breaking glass filled the building once %s began %s shift. Sigh..." % (name, worker.pp))
+                    effectiveness -= 15
+                elif trait == "Bad Eyesight":
+                    log.append("Occasionally %s serves the wrong drinks, making customers unhappy." % name)
+                    effectiveness -= 15
+                elif trait == "Messy":
+                    log.append("It's not unusual for %s to serve drinks without cleaning glasses first. That does not add to %s popularity as a barmaid." % (name, worker.pp))
+                    effectiveness -= 20
+                elif trait == "Ill-mannered":
+                    log.append("Unfortunately %s's rudeness scares away customers, affecting the business." % name)
+                    effectiveness -= 20
+                elif trait == "Lolita":
+                    log.append("Poor %s has a hard time with the top shelves of the bar due to %s height." % (name, worker.pp))
+                    effectiveness -= 20
+                elif trait == "Stupid":
+                    log.append("%s has to ask for help all the time because %s can't remember how to make anything." % (name, worker.p))
+                    effectiveness -= 20
+                elif trait == "Shy":
+                    log.append("It's difficult for %s to serve drinks and maintain a conversation at the same time. %s's too afraid of making mistakes." % (name, worker.pC))
+                    effectiveness -= 25
 
             return effectiveness
 

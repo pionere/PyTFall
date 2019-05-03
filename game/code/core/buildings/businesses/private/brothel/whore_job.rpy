@@ -48,9 +48,9 @@ init -5 python:
                 effectiveness += 15
 
             if locked_dice(65): # traits don't always work, even with high amount of traits there are normal days when performance is not affected
-                traits = ["Ill-mannered", "Always Hungry", "Heavy Drinker", "Neat", "Messy",
+                traits = {"Ill-mannered", "Always Hungry", "Heavy Drinker", "Neat", "Messy",
                           "Indifferent", "Open Minded", "Dawdler", "Energetic", "Lactation",
-                          "Frigid", "Nymphomaniac", "Psychic", "Flexible", "Sexy Air", "Homebody"]
+                          "Frigid", "Nymphomaniac", "Psychic", "Flexible", "Sexy Air", "Homebody"}
                 traits = list(i.id for i in worker.traits if i.id in traits)
 
                 if traits:
@@ -58,10 +58,7 @@ init -5 python:
                 else:
                     return effectiveness
 
-                if trait == "Ill-mannered":
-                    log.append("%s is pretty rude today, but fortunately in bed %s bad manners makes customers harder." % (name, worker.pp))
-                    effectiveness += 15
-                elif trait == "Always Hungry":
+                if trait == "Always Hungry":
                     if locked_dice(50):
                         log.append("Sperm is a good source of protein, and today %s intends to get all protein available!" % name)
                         effectiveness += 25
@@ -76,34 +73,6 @@ init -5 python:
                     else:
                         log.append("Slightly drunk %s sexually assaults customers all the day, they don't complain." % name)
                         effectiveness += 20
-                elif trait == "Neat":
-                    log.append("Unfortunately %s is too focused on keeping %s freshly laundered clothes clean instead of satisfying %s partners..." % (name, worker.pp, worker.pp))
-                    effectiveness -= 20
-                elif trait == "Messy":
-                    log.append("Today %s wants it really sloppy and messy, attracting customers with similar tastes." % name)
-                    log.logloc("dirt", randint(1, 2))
-                    effectiveness += 20
-                elif trait == "Homebody":
-                    log.append("%s really enjoys %s job, having warm food and soft bed nearby all the time. Nice to see someone dedicated to their work." % (name, worker.pp))
-                    effectiveness += 15
-                elif trait == "Indifferent":
-                    log.append("Somehow %s doesn't care much about being fucked today, and most customers don't appreciate it." % name)
-                    effectiveness -= 15
-                elif trait == "Open Minded":
-                    log.append("%s has no problems trying different things sexually, making a perfect partner for customers with unusual tastes." % name)
-                    effectiveness += 25
-                elif trait == "Dawdler":
-                    log.append("%s's slow movements find favor among oversensitive customers who'd came too soon otherwise." % name)
-                    effectiveness += 20
-                elif trait == "Energetic":
-                    log.append("%s's moves too fast for %s own good today, rushing too much to the displeasure of %s partners." % (name, worker.pp, worker.pp))
-                    effectiveness -= 20
-                elif trait == "Sexy Air":
-                    log.append("%s's sexiness gives customers more fuel, resulting in better satisfaction." % name)
-                    effectiveness += 15
-                elif trait == "Frigid":
-                    log.append("For %s sex is just a boring job, and many customers don't appreciate it." % name)
-                    effectiveness -= 40
                 elif trait == "Nymphomaniac":
                     log.append("%s is always glad to engage in sex, and this job is just perfect for %s." % (name, worker.op))
                     effectiveness += 40
@@ -113,6 +82,37 @@ init -5 python:
                 elif trait == "Lactation":
                     log.append("%s is lactating! Sometimes customers crave whitish liquids as much as working girls." % name)
                     effectiveness += 25
+                elif trait == "Open Minded":
+                    log.append("%s has no problems trying different things sexually, making a perfect partner for customers with unusual tastes." % name)
+                    effectiveness += 25
+                elif trait == "Dawdler":
+                    log.append("%s's slow movements find favor among oversensitive customers who'd came too soon otherwise." % name)
+                    effectiveness += 20
+                elif trait == "Messy":
+                    log.append("Today %s wants it really sloppy and messy, attracting customers with similar tastes." % name)
+                    log.logloc("dirt", randint(1, 2))
+                    effectiveness += 20
+                elif trait == "Ill-mannered":
+                    log.append("%s is pretty rude today, but fortunately in bed %s bad manners makes customers harder." % (name, worker.pp))
+                    effectiveness += 15
+                elif trait == "Homebody":
+                    log.append("%s really enjoys %s job, having warm food and soft bed nearby all the time. Nice to see someone dedicated to their work." % (name, worker.pp))
+                    effectiveness += 15
+                elif trait == "Sexy Air":
+                    log.append("%s's sexiness gives customers more fuel, resulting in better satisfaction." % name)
+                    effectiveness += 15
+                elif trait == "Indifferent":
+                    log.append("Somehow %s doesn't care much about being fucked today, and most customers don't appreciate it." % name)
+                    effectiveness -= 15
+                elif trait == "Neat":
+                    log.append("Unfortunately %s is too focused on keeping %s freshly laundered clothes clean instead of satisfying %s partners..." % (name, worker.pp, worker.pp))
+                    effectiveness -= 20
+                elif trait == "Energetic":
+                    log.append("%s's moves too fast for %s own good today, rushing too much to the displeasure of %s partners." % (name, worker.pp, worker.pp))
+                    effectiveness -= 20
+                elif trait == "Frigid":
+                    log.append("For %s sex is just a boring job, and many customers don't appreciate it." % name)
+                    effectiveness -= 40
             return effectiveness
 
         @staticmethod

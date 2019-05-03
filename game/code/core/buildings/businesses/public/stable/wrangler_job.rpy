@@ -45,9 +45,9 @@ init -5 python:
                 effectiveness -= 15
 
             if locked_dice(65): # traits don't always work, even with high amount of traits there are normal days when performance is not affected
-                traits = ["Abnormally Large Boobs", "Aggressive", "Coward", "Neat", "Clumsy",
+                traits = {"Abnormally Large Boobs", "Aggressive", "Coward", "Neat", "Clumsy",
                           "Natural Leader", "Scars",
-                          "Courageous", "Manly", "Sadist", "Peaceful", "Psychic"]
+                          "Courageous", "Manly", "Sadist", "Peaceful", "Psychic"}
                 traits = list(i.id for i in worker.traits if i.id in traits)
 
                 if worker.height == "short":
@@ -58,25 +58,7 @@ init -5 python:
                 else:
                     return effectiveness
 
-                if trait == "Sadist":
-                    log.append("%s gladly beats the horses just out of spite. Obviously the horses do not tolerate %s long." % (name, worker.op))
-                    effectiveness -= 35
-                elif trait == "Aggressive":
-                    log.append("%s keeps disturbing the horses who aren't doing anything wrong." % name)
-                    effectiveness -= 25
-                elif trait == "Coward":
-                    log.append("%s is too afraid to get close to the animals. Maybe it's not the best job for %s." % (name, worker.op))
-                    effectiveness -= 20
-                elif trait == "Neat":
-                    log.append("%s refuses to dirty %s hands on some of the muddier animals." % (name, worker.pp))
-                    effectiveness -= 15
-                elif trait == "Scars":
-                    log.append("Even some of the animals are startled by the scars of %s." % name)
-                    effectiveness -= 10
-                elif trait == "Abnormally Large Boobs":
-                    log.append("Her massive tits get in the way and keep her off balance as %s tries to ride a horse." % name)
-                    effectiveness -= 10
-                elif trait == "Psychic":
+                if trait == "Psychic":
                     log.append("%s knows how to control the horses." % name)
                     effectiveness += 30
                 elif trait == "Lolita":
@@ -94,6 +76,24 @@ init -5 python:
                 elif trait == "Peaceful":
                     log.append("The calmness of %s helps %s to tend to the horses." % (name, worker.op))
                     effectiveness += 10
+                elif trait == "Scars":
+                    log.append("Even some of the animals are startled by the scars of %s." % name)
+                    effectiveness -= 10
+                elif trait == "Abnormally Large Boobs":
+                    log.append("Her massive tits get in the way and keep her off balance as %s tries to ride a horse." % name)
+                    effectiveness -= 10
+                elif trait == "Neat":
+                    log.append("%s refuses to dirty %s hands on some of the muddier animals." % (name, worker.pp))
+                    effectiveness -= 15
+                elif trait == "Coward":
+                    log.append("%s is too afraid to get close to the animals. Maybe it's not the best job for %s." % (name, worker.op))
+                    effectiveness -= 20
+                elif trait == "Aggressive":
+                    log.append("%s keeps disturbing the horses who aren't doing anything wrong." % name)
+                    effectiveness -= 25
+                elif trait == "Sadist":
+                    log.append("%s gladly beats the horses just out of spite. Obviously the horses do not tolerate %s long." % (name, worker.op))
+                    effectiveness -= 35
             return effectiveness
 
         @classmethod

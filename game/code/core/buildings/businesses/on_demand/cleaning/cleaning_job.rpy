@@ -46,8 +46,8 @@ init -5 python:
                 effectiveness -= 15
 
             if locked_dice(65): # traits don't always work, even with high amount of traits there are normal days when performance is not affected
-                traits = ["Adventurous", "Homebody", "Neat", "Messy", "Shy", "Curious", "Indifferent",
-                          "Energetic", "Smart", "Clumsy", "Vicious", "Virtuous", "Abnormally Large Boobs"]
+                traits = {"Adventurous", "Homebody", "Neat", "Messy", "Shy", "Curious", "Indifferent",
+                          "Energetic", "Smart", "Clumsy", "Vicious", "Virtuous", "Abnormally Large Boobs"}
                 traits = list(i.id for i in worker.traits if i.id in traits)
 
                 if traits:
@@ -55,36 +55,36 @@ init -5 python:
                 else:
                     return effectiveness
 
-                if trait == "Adventurous":
-                    log.append("%s got a little sad whenever %s cleaned a window because %s wanted to go out and explore, not clean." % (name, worker.p, worker.p))
-                    effectiveness -= 25
+                if trait == "Neat":
+                    log.append("%s rearranged rooms to look a little more presentable on top of %s cleaning duties." % (name, worker.pp))
+                    effectiveness += 40
                 elif trait == "Homebody" or trait == "Indifferent":
                     log.append("%s really enjoys the simple and predictable cleaning task." % name)
                     effectiveness += 25
-                elif trait == "Neat":
-                    log.append("%s rearranged rooms to look a little more presentable on top of %s cleaning duties." % (name, worker.pp))
-                    effectiveness += 40
-                elif trait == "Smart":
-                    log.append("%s constantly finds new, more effective ways to tidy up the place." % name)
-                    effectiveness += 10
-                elif trait == "Messy":
-                    log.append("%s reluctantly does %s job, preferring to hide the dirt instead of cleaning it properly." % (name, worker.pp))
-                    effectiveness -= 40
                 elif trait == "Shy":
                     log.append("%s took comfort in the fact that %s doesn't have to work too closely with people on the cleaning job." % (name, worker.p))
                     effectiveness += 15
+                elif trait == "Smart":
+                    log.append("%s constantly finds new, more effective ways to tidy up the place." % name)
+                    effectiveness += 10
+                elif trait == "Virtuous":
+                    log.append("%s was happy to be useful regardless of the job." % name)
+                    effectiveness += 10
+                elif trait == "Vicious":
+                    log.append("After cleaning %s set it up so that the next person to walk into the room would get a bucket of nasty stuff on their head..." % name)
+                    effectiveness -= 10
                 elif trait == "Curious" or trait == "Energetic":
                     log.append("%s finds the cleaning duties too boring and repetitive to perform them properly." % name)
                     effectiveness -= 15
                 elif trait == "Clumsy":
                     log.append("%s spilled a full bucket of freshener. At least it'll smell extra nice, if you can get past the eye-watering chemicals." % name)
                     effectiveness -= 20
-                elif trait == "Vicious":
-                    log.append("After cleaning %s set it up so that the next person to walk into the room would get a bucket of nasty stuff on their head..." % name)
-                    effectiveness -= 10
-                elif trait == "Virtuous":
-                    log.append("%s was happy to be useful regardless of the job." % name)
-                    effectiveness += 10
+                elif trait == "Adventurous":
+                    log.append("%s got a little sad whenever %s cleaned a window because %s wanted to go out and explore, not clean." % (name, worker.p, worker.p))
+                    effectiveness -= 25
+                elif trait == "Messy":
+                    log.append("%s reluctantly does %s job, preferring to hide the dirt instead of cleaning it properly." % (name, worker.pp))
+                    effectiveness -= 40
                 elif trait == "Abnormally Large Boobs":
                     log.append("Her boobs get in the way so much that she may as well scrub down the walls with them instead...")
                     effectiveness -= 50

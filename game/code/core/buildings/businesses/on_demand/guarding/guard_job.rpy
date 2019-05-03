@@ -54,9 +54,9 @@ init -5 python:
                     effectiveness += 10
 
             if locked_dice(65): # traits don't always work, even with high amount of traits there are normal days when performance is not affected
-                traits = ["Abnormally Large Boobs", "Aggressive", "Coward", "Stupid", "Neat",
+                traits = {"Abnormally Large Boobs", "Aggressive", "Coward", "Stupid", "Neat",
                           "Natural Leader", "Scars", "Artificial Body", "Sexy Air", "Adventurous",
-                        "Courageous", "Manly", "Sadist", "Nerd", "Smart", "Peaceful", "Psychic"]
+                        "Courageous", "Manly", "Sadist", "Nerd", "Smart", "Peaceful", "Psychic"}
                 traits = list(i.id for i in worker.traits if i.id in traits)
 
                 if worker.height == "short" and "Lolita" in worker.traits:
@@ -67,64 +67,64 @@ init -5 python:
                 else:
                     return effectiveness
 
-                if trait == "Abnormally Large Boobs":
-                    log.append("Her massive tits get in the way and keep her off balance as %s tries to work security." % name)
-                    effectiveness -= 25
-                elif trait == "Aggressive":
+                if trait == "Aggressive":
                     if dice(50):
                         log.append("%s keeps disturbing customers who aren't doing anything wrong. Maybe it's not the best job for %s." % (name, worker.op))
                         effectiveness -= 35
                     else:
                         log.append("Looking for a good fight, %s patrols the area, scaring away the rough customers." % name)
                         effectiveness += 50
-                elif trait == "Lolita":
-                    log.append("%s is too small to be taken seriously. Some of the problematic customers just laugh at %s." % (name, worker.op))
-                    effectiveness -= 50
-                elif trait == "Coward":
-                    log.append("%s keeps asking for backup every single time an incident arises." % name)
-                    effectiveness -= 25
-                elif trait == "Stupid":
-                    log.append("%s has trouble adapting to the constantly evolving world of crime prevention." % name)
-                    effectiveness -= 15
-                elif trait == "Smart":
-                    log.append("%s keeps learning new ways to prevent violence before it happens." % name)
-                    effectiveness += 15
-                elif trait == "Neat":
-                    log.append("%s refuses to dirty %s hands on some of the uglier looking criminals." % (name, worker.pp))
-                    effectiveness -= 15
-                elif trait == "Psychic":
-                    log.append("%s knows when customers are going to start something, and prevents it easily." % name)
-                    effectiveness += 30
-                elif trait == "Adventurous":
-                    log.append("%s experience fighting bandits as an adventurer makes working security relatively easier." % worker.ppC)
-                    effectiveness += 25
                 elif trait == "Natural Leader":
                     log.append("%s often manages to talk customers out of starting an incident." % name)
                     effectiveness += 50
-                elif trait == "Scars":
-                    log.append("One look at %s scars is enough to tell the violators that %s means business." % (worker.pp, name))
-                    effectiveness += 20
-                elif trait == "Artificial Body":
-                    log.append("%s makes no effort to hide the fact that %s was a construct, intimidating would-be violators." % (name, worker.p))
-                    effectiveness += 25
-                elif trait == "Sexy Air":
-                    log.append("People around %s back %s up just because of %s sexiness." % (name, worker.op, worker.pp))
-                    effectiveness += 15
-                elif trait == "Courageous":
-                    log.append("%s refuses to back down no matter the odds, making a great guard." % name)
-                    effectiveness += 25
                 elif trait == "Manly":
                     log.append("%s is bigger than usual, %s prevents a lot of trouble just by being there." % (name, worker.p))
                     effectiveness += 35
+                elif trait == "Psychic":
+                    log.append("%s knows when customers are going to start something, and prevents it easily." % name)
+                    effectiveness += 30
+                elif trait == "Artificial Body":
+                    log.append("%s makes no effort to hide the fact that %s was a construct, intimidating would-be violators." % (name, worker.p))
+                    effectiveness += 25
+                elif trait == "Courageous":
+                    log.append("%s refuses to back down no matter the odds, making a great guard." % name)
+                    effectiveness += 25
+                elif trait == "Adventurous":
+                    log.append("%s experience fighting bandits as an adventurer makes working security relatively easier." % worker.ppC)
+                    effectiveness += 25
+                elif trait == "Scars":
+                    log.append("One look at %s scars is enough to tell the violators that %s means business." % (worker.pp, name))
+                    effectiveness += 20
+                elif trait == "Smart":
+                    log.append("%s keeps learning new ways to prevent violence before it happens." % name)
+                    effectiveness += 15
+                elif trait == "Sexy Air":
+                    log.append("People around %s back %s up just because of %s sexiness." % (name, worker.op, worker.pp))
+                    effectiveness += 15
                 elif trait == "Sadist":
                     log.append("%s gladly beats it out of any violators. Everyone deserves to be punished." % name)
                     effectiveness += 15
                 elif trait == "Nerd":
                     log.append("%s feels like a super hero while protecting your workers." % name)
                     effectiveness += 15
+                elif trait == "Neat":
+                    log.append("%s refuses to dirty %s hands on some of the uglier looking criminals." % (name, worker.pp))
+                    effectiveness -= 15
+                elif trait == "Stupid":
+                    log.append("%s has trouble adapting to the constantly evolving world of crime prevention." % name)
+                    effectiveness -= 15
+                elif trait == "Coward":
+                    log.append("%s keeps asking for backup every single time an incident arises." % name)
+                    effectiveness -= 25
+                elif trait == "Abnormally Large Boobs":
+                    log.append("Her massive tits get in the way and keep her off balance as %s tries to work security." % name)
+                    effectiveness -= 25
                 elif trait == "Peaceful":
                     log.append("%s has to deal with some very unruly patrons that give %s a hard time." % (name, worker.op))
                     effectiveness -= 35
+                elif trait == "Lolita":
+                    log.append("%s is too small to be taken seriously. Some of the problematic customers just laugh at %s." % (name, worker.op))
+                    effectiveness -= 50
             return effectiveness
 
         @classmethod
