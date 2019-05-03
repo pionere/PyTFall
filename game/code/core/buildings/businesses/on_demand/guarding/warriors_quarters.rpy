@@ -56,7 +56,7 @@ init -5 python:
                         wlen = len(workers)
                         make_nd_report_at = min(now+25, 105) # MAX_DU
                         if wlen:
-                            temp = "%s Workers have started to guard %s!" % (set_font_color(wlen, "red"), building.name)
+                            temp = "%s Workers have started to guard %s!" % (set_font_color(wlen, "tomato"), building.name)
                             self.log(temp, True)
 
                 # Actually handle threat:
@@ -126,15 +126,15 @@ init -5 python:
             simpy_debug("Entering WarriorQuarters.write_nd_report at %s", self.env.now)
 
             job, loc = GuardJob, self.building
-            log = NDEvent(job=job, loc=loc, locmod={'threat':threat_cleared}, team=all_workers, business=self)
+            log = NDEvent(type="jobreport", job=job, loc=loc, locmod={'threat':threat_cleared}, team=all_workers, business=self)
 
-            temp = "{} Security Report!\n".format(loc.name)
+            temp = "%s Security Report!\n" % loc.name
             log.append(temp)
 
             simpy_debug("Guards.write_nd_report marker 1")
 
             wlen = len(all_workers)
-            temp = "{} Workers kept your businesses safe today.".format(set_font_color(wlen, "red"))
+            temp = "%s Workers kept your businesses safe today." % set_font_color(wlen, "red")
             log.append(temp)
 
             # add log from preparation
@@ -170,28 +170,28 @@ init -5 python:
 
             simpy_debug("Guards.write_nd_report marker 3")
 
-            temp = "\nA total of {} threat was removed.".format(set_font_color(threat_cleared, "red"))
+            temp = "\nA total of %s threat was removed." % set_font_color(threat_cleared, "red")
             log.append(temp)
 
             if use_SQ:
                 log.append("Your guards managed to sneak in a friendly sparring match between their patrol duties!")
                 for w in workers:
-                    exp_mod = w.get_flag("jobs_points_spent", 0)/1000.0
                     if dice(25):
                         log.logws("security", 1, char=w)
                         log.logws("attack", 1, char=w)
                         log.logws("agility", 1, char=w)
                         log.logws("defence", 1, char=w)
                         log.logws("magic", 1, char=w)
-                        if dice(10):
-                            log.logws("constitution", 1, char=w)
-                        log.logws("exp", exp_reward(w, loc.tier, exp_mod=exp_mod), char=w)
+                    if dice(10):
+                        log.logws("constitution", 1, char=w)
+                    exp_mod = w.get_flag("jobs_points_spent", 0)/1000.0
+                    log.logws("exp", exp_reward(w, loc.tier, exp_mod=exp_mod), char=w)
 
-                        log.logws("vitality", -5, char=w)
-                        if dice(20): # Small chance to get hurt.
-                            log.logws("health", round_int(-w.get_max("health")*.2), char=w)
+                    log.logws("vitality", -5, char=w)
+                    if dice(20): # Small chance to get hurt.
+                        log.logws("health", round_int(-w.get_max("health")*.2), char=w)
 
-            # exp = threat_cleared/wlen -> wlen MUST NOT be 0?
+            difficulty = loc.tier
             for w in workers:
                 ap_used = w.get_flag("jobs_points_spent", 0)/100.0
                 log.logws("vitality", round_int(ap_used*-5), char=w)
@@ -206,7 +206,7 @@ init -5 python:
                     log.logws("agility", 1, char=w)
                 if dice(10):
                     log.logws("constitution", 1, char=w)
-                log.logws("exp", exp_reward(w, loc.tier, exp_mod=ap_used), char=w)
+                log.logws("exp", exp_reward(w, difficulty, exp_mod=ap_used), char=w)
                 w.del_flag("jobs_points_spent")
             for w in extra_workers:
                 ap_used = w.get_flag("jobs_points_spent", 0)/100.0
@@ -222,11 +222,8 @@ init -5 python:
                     log.logws("agility", 1, char=w)
                 if dice(10):
                     log.logws("constitution", 1, char=w)
-                # Same imperfection as with Cleaning.
-                log.logws("exp", exp_reward(w, loc.tier, exp_mod=ap_used*.5), char=w)
+                log.logws("exp", exp_reward(w, difficulty, exp_mod=ap_used*.5), char=w)
                 w.del_flag("jobs_points_spent")
-
-            log.type = "jobreport" # Come up with a new type for team reports?
 
             simpy_debug("Guards.write_nd_report marker 4")
 
@@ -259,7 +256,7 @@ init -5 python:
 
             num_defenders = len(defenders) 
             if num_defenders != 0:
-                temp = "{} Guards and employees are responding!".format(set_font_color(num_defenders, "red"), building.name)
+                temp = "%s Guards and employees are responding!" % set_font_color(num_defenders, "red")
                 self.log(temp)
 
                 # Prepare the teams:
@@ -307,9 +304,7 @@ init -5 python:
                     building.modthreat(-200)
                     building.moddirt(35*enemies)
 
-                    temp = "Interception is a Success!"
-                    temp = set_font_color(temp, "lawngreen")
-                    # temp = temp + set_font_color("....", "crimson")
+                    temp = "{color=lawngreen}Interception is a Success!{/color}"
                     self.log(temp)
                     # self.env.exit(True) # return True
                 else:

@@ -104,17 +104,15 @@ init -5 python:
             simpy_debug("Entering Cleaners.write_nd_report at %s", self.env.now)
 
             job, loc = CleaningJob, self.building
-            log = NDEvent(job=job, loc=loc, locmod={'dirt':dirt_cleaned}, team=all_workers, business=self)
+            log = NDEvent(type="jobreport", job=job, loc=loc, locmod={'dirt':dirt_cleaned}, team=all_workers, business=self)
 
-            extra_workers = all_workers - strict_workers
-
-            temp = "{} Cleaning Report!\n".format(loc.name)
+            temp = "%s Cleaning Report!\n" % loc.name
             log.append(temp)
 
             simpy_debug("Cleaners.write_nd_report marker 1")
 
             wlen = len(all_workers)
-            temp = "{} Workers cleaned the building today.".format(set_font_color(wlen, "red"))
+            temp = "%s Workers cleaned the building today." % set_font_color(wlen, "red")
             log.append(temp)
 
             # add log from preparation
@@ -126,9 +124,11 @@ init -5 python:
             simpy_debug("Cleaners.write_nd_report marker 2")
 
             workers = all_workers
-            if extra_workers:
+            extra_workers = workers - strict_workers
+            xlen = len(extra_workers)
+            if xlen != 0:
                 temp = "Dirt overwhelmed your building so extra staff was called to clean it! "
-                if len(extra_workers) > 1:
+                if xlen > 1:
                     temp += "%s were pulled off their duties to help out..." % (", ".join([w.nickname for w in extra_workers]))
                 else:
                     w = next(iter(extra_workers))
@@ -137,15 +137,21 @@ init -5 python:
 
                 workers -= extra_workers
 
-            temp = "{} worked hard keeping your business clean as it is their direct job!".format(", ".join([w.nickname for w in workers]))
-            log.append(temp)
+            xlen = wlen - xlen
+            if xlen != 0:
+                if xlen > 1:
+                    temp = "%s worked hard keeping your business clean as it is their direct job!" % (", ".join([w.nickname for w in workers]))
+                else:
+                    w = next(iter(workers))
+                    temp = "%s worked hard keeping your business clean as it is %s direct job!" % (w.nickname, w.pp)
+                log.append(temp)
 
             simpy_debug("Cleaners.write_nd_report marker 3")
 
-            temp = "\nA total of {} dirt was cleaned.".format(set_font_color(dirt_cleaned, "red"))
+            temp = "\nA total of %s dirt was cleaned." % set_font_color(dirt_cleaned, "red")
             log.append(temp)
 
-            # exp = dirt_cleaned/wlen -> wlen MUST NOT be 0?
+            difficulty = loc.tier
             for w in workers:
                 ap_used = w.get_flag("jobs_points_spent", 0)/100.0
                 log.logws("vitality", round_int(ap_used*-5), char=w)
@@ -154,7 +160,7 @@ init -5 python:
                     log.logws("agility", 1, char=w)
                 if dice(10):
                     log.logws("constitution", 1, char=w)
-                log.logws("exp", exp_reward(w, loc.tier, exp_mod=ap_used), char=w) # This is imperfect...
+                log.logws("exp", exp_reward(w, difficulty, exp_mod=ap_used), char=w)
                 w.del_flag("jobs_points_spent")
             for w in extra_workers:
                 ap_used = w.get_flag("jobs_points_spent", 0)/100.0
@@ -164,11 +170,8 @@ init -5 python:
                     log.logws("agility", 1, char=w)
                 if dice(10):
                     log.logws("constitution", 1, char=w)
-                # This is imperfect. We need to track partial points spent to get this right...
-                log.logws("exp", exp_reward(w, loc.tier, exp_mod=ap_used*.5), char=w)
+                log.logws("exp", exp_reward(w, difficulty, exp_mod=ap_used*.5), char=w)
                 w.del_flag("jobs_points_spent")
-
-            log.type = "jobreport" # Come up with a new type for team reports?
 
             simpy_debug("Cleaners.write_nd_report marker 4")
 
