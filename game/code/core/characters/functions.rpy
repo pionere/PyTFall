@@ -457,18 +457,19 @@ init -11 python:
         if support_amount is None:
             if traits["Healer"] in char.traits.basetraits:
                 s_amount = max(tier, 2)
-            elif traits["Healer"] in char.traits:
-                s_amount = max(tier, 1)
+            #elif traits["Healer"] in char.traits:
+            #    s_amount = max(tier, 1)
             else:
                 s_amount = 0
         else:
             s_amount = support_amount
 
         if amount is None:
-            if "Caster" in char.gen_occs:
+            gen_occs = char.gen_occs
+            if "Caster" in gen_occs:
                 amount = tier + randint(1, 2)
                 s_amount += 1
-            elif "Combatant" in char.gen_occs:
+            elif "Combatant" in gen_occs:
                 if "neutral" in attributes:
                     amount = randrange(2)
                 else:

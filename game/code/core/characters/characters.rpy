@@ -1321,7 +1321,7 @@ init -9 python:
                 purpose = hint
             elif hint == "Fighting":
                 for t in bt:
-                    if "Combatant" in t.occupations:
+                    if "Combatant" in t.gen_occs:
                         t = t.id
                         if t == "Healer":
                             t = "Mage"

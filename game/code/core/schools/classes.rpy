@@ -116,34 +116,7 @@ init python:
                     char.take_ap(ap_spent)
                     school.students_attended += 1
 
-                    primary_stats = []
-                    secondary_stats = []
-
-                    primary_skills = []
-                    secondary_skills = []
-
-                    for s in self.data["primary"]:
-                        if is_stat(s):
-                            if char.stats.stats[s] < char.get_max(s):
-                                primary_stats.append(s)
-                        elif is_skill(s):
-                            primary_skills.append(s)
-                        else:
-                            raise Exception("%s is not a valid stat/skill for %s course." % (s, self.name))
-
-                    for s in self.data["secondary"]:
-                        if is_stat(s):
-                            if char.stats.stats[s] < char.get_max(s):
-                                secondary_stats.append(s)
-                        elif is_skill(s):
-                            secondary_skills.append(s)
-                        else:
-                            raise Exception("%s is not a valid stat/skill for %s course." % (s, self.name))
-
-                    stats = primary_stats*3 + secondary_stats
-                    skills = primary_skills*3 + secondary_skills
-
-                    # Add stats/skills/exp mods.
+                    # Add exp/stats/skills mods.
                     exp_mod = 1.0
                     points = max(1, self.difficulty-char.tier)
                     if char == best_student:
@@ -180,18 +153,39 @@ init python:
                     exp = exp_reward(char, self.difficulty, exp_mod=ap_spent*exp_mod)
                     char.mod_exp(exp)
 
+                    # Add stats/skills
+                    primary_stats, secondary_stats = [], []
+                    primary_skills, secondary_skills = [], []
+                    for s in self.data["primary"]:
+                        if is_stat(s):
+                            primary_stats.append(s)
+                        elif is_skill(s):
+                            primary_skills.append(s)
+                        else:
+                            raise Exception("%s is not a valid stat/skill for %s course." % (s, self.name))
+
+                    for s in self.data["secondary"]:
+                        if is_stat(s):
+                            secondary_stats.append(s)
+                        elif is_skill(s):
+                            secondary_skills.append(s)
+                        else:
+                            raise Exception("%s is not a valid stat/skill for %s course." % (s, self.name))
+
+                    stats = primary_stats*3 + secondary_stats
+                    skills = primary_skills*3 + secondary_skills
+
+                    #  prepare charmod
                     charmod = defaultdict(int) # Dict of changes of stats and skills for ND
                     charmod["exp"] = exp
                     if stats:
                         for i in xrange(stats_pool):
                             stat = choice(stats)
-                            char.mod_stat(stat, 1)
-                            charmod[stat] += 1
+                            charmod[stat] += char.mod_stat(stat, 1)
                     if skills:
                         for i in xrange(skills_pool):
                             skill = choice(skills)
-                            char.mod_skill(skill, 1, 1)
-                            charmod[skill] += 1
+                            charmod[skill] += char.mod_skill(skill, 1, 1)
 
                 if self.days_remaining <= 0:
                     txt.append("This Course has ended, all students have been sent back home.")
