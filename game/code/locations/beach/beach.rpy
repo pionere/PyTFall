@@ -361,7 +361,7 @@ label mc_action_city_beach_diving_checks:
     "You're too tired to continue!"
     $ hero.mod_stat("vitality", -randint(15, 25))
     $ hero.gfx_mod_skill("swimming", 0, randrange(1))
-    if locked_dice(100 - global_flags.get_flag("vitality_bonus_from_diving_at_beach", 0)*2): # MAX 50
+    if locked_dice(min(100, hero.get_skill("swimming")) - global_flags.get_flag("vitality_bonus_from_diving_at_beach", 0)*2): # MAX 50
         $ hero.stats.lvl_max["vitality"] += 1
         $ hero.stats.max["vitality"] += 1
         $ hero.mod_stat("vitality", 1)
