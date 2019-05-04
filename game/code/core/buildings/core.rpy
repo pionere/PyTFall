@@ -925,7 +925,8 @@ init -10 python:
                     price = self.get_cleaning_price()
                     if hero.take_money(price, "Hired Cleaners"):
                         self.fin.log_logical_expense(price, "Hired Cleaners")
-                        self.log("The building was cleaned by hired professionals!", True)
+                        temp = "The building was cleaned by hired professionals!"
+                        self.log(set_font_color(temp, "orange"), True)
                         self.dirt = 0
 
                 # handle auto-guard
@@ -933,7 +934,8 @@ init -10 python:
                     temp = min(auto_guard, 200)
                     self.threat -= temp
                     auto_guard -= temp
-                    self.log("The hired guards eliminated %d threat." % temp, True)
+                    temp = "The hired guards eliminated %d threat." % temp
+                    self.log(set_font_color(temp, "orange"), True)
 
                 # check the need for police intervention
                 if self.threat >= 900:
@@ -1114,7 +1116,7 @@ init -10 python:
             temp = choice(["%s is leaving the building.",
                            "%s is off for today.",
                            "%s hurries away.",
-                           "%s is departing.",]) % client_name
+                           "%s is departing."]) % client_name
             if DSNBR:
                 temp += ".. after visiting %d business." % visited
             self.log(temp, True)

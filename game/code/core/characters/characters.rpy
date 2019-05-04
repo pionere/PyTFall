@@ -2888,12 +2888,12 @@ init -9 python:
 
                 if txt is None:
                     return
-                temp = choice(("%s bought %sself {color=blue}%s %s{/color}.", 
-                               "%s got %s hands on {color=blue}%s %s{/color}!"))
-                temp = temp % (self.pC, self.op, ", ".join([item.id for item in result]), plural("item", len(result)))
+                temp = set_font_color(", ".join([item.id for item in result]), "cadetblue")
+                temp = choice(("%s bought %sself %s %s.", 
+                               "%s got %s hands on %s %s!")) % (self.pC, self.op, temp, plural("item", len(result)))
                 temp += choice(("This brightened %s mood a bit!" % self.pp, "%s's definitely in better mood because of that!" % self.pC))
 
-                temp = "{color=green}" + temp + "{/color}"
+                temp = set_font_color(temp, "limegreen")
             else:
                 if txt is None:
                     return

@@ -926,7 +926,7 @@ init -10 python:
                     mood = "happy"
                     dismod = max(1, round_int(diff*dismod))
                     joymod = max(1, round_int(diff*joymod))
-                    if DEBUG:
+                    if DEBUG_CHARS:
                         txt.append("Debug: Disposition mod: {}".format(dismod))
                         txt.append("Debug: Joy mod: {}".format(joymod))
                     char.mod_stat("disposition", dismod)
@@ -935,7 +935,7 @@ init -10 python:
                     mood = "angry"
                     dismod = min(-2, round_int(diff*dismod)) * (char.tier or 1)
                     joymod = min(-1, round_int(diff*joymod)) * (char.tier or 1)
-                    if DEBUG:
+                    if DEBUG_CHARS:
                         txt.append("Debug: Disposition mod: {}".format(dismod))
                         txt.append("Debug: Joy mod: {}".format(joymod))
                     char.mod_stat("disposition", dismod)
@@ -952,7 +952,7 @@ init -10 python:
                 joymod = .1
                 dismod = max(1, round_int(diff*dismod))
                 joymod = max(1, round_int(diff*joymod))
-                if DEBUG:
+                if DEBUG_CHARS:
                     txt.append("Debug: Disposition mod: {}".format(dismod))
                     txt.append("Debug: Joy mod: {}".format(joymod))
                 char.mod_stat("disposition", dismod)

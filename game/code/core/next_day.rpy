@@ -1229,10 +1229,10 @@ screen next_day():
                     has vbox xsize 420 xfill True
                     null height 5
                     if isinstance(event.txt, basestring):
-                        text u"{}".format(event.txt) style "TisaOTMolxm" size 18
+                        text event.txt style "TisaOTMol" xalign .5 size 18
                     else:
                         for i in event.txt:
-                            text str(i) style "TisaOTMolxm" xalign .0 size 12
+                            text str(i) style "TisaOTMol" xalign .0 size 13
                 vbar value YScrollValue("nextdaytxt_vp")
 
         mousearea:
