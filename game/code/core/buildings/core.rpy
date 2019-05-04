@@ -1018,12 +1018,10 @@ init -10 python:
             self.log(temp, True)
 
             if self.dirt >= 800: # FIXME maxdirt?
-                yield self.env.timeout(1)
                 temp = "Your building is as clean as a pig stall. %s storms right out." % client_name
                 self.log(temp)
                 self.env.exit()
             if self.threat >= 800: # FIXME maxthreat?
-                yield self.env.timeout(1)
                 temp = "Your building is as safe as a warzone. %s ran away." % client_name
                 self.log(temp)
                 self.env.exit()
@@ -1045,15 +1043,15 @@ init -10 python:
                         self.modthreat(client.threatmod)
                         temp = "%s is pissed because the seemingly running %s is vacated, so %s storms out of the building!" % (client_name, self.name, client.p)
                         self.log(temp)
-                        yield self.env.exit()
+                        self.env.exit()
                     if not businesses:
                         temp = "There is nothing to do at %s, so %s leaves the building!" % (self.name, client_name)
                         self.log(temp)
-                        yield self.env.exit()
+                        self.env.exit()
                     if dice(50):
                         temp = "%s leaves the building because the %s is closed!" % (client_name, fav_business.name)
                         self.log(temp)
-                        yield self.env.exit()
+                        self.env.exit()
                     #fav_business = None
                 else:
                     # business is removed
@@ -1061,7 +1059,7 @@ init -10 python:
                     self.modthreat(client.threatmod*2)
                     temp = "%s storms out of the building pissed off as %s favorite business was removed!" % (client_name, client.pp)
                     self.log(temp)
-                    yield self.env.exit()
+                    self.env.exit()
             else:
                 fav_business = fav_business.pop()
 
