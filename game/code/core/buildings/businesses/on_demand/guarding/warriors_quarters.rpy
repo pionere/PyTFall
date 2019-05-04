@@ -70,7 +70,7 @@ init -5 python:
 
                         # Adjust PP and Remove the worker after running out of action points:
                         w.PP -= 5
-                        w.up_counter("jobs_points_spent", 5)
+                        w.up_counter("jp_guard", 5)
                         if w.PP <= 0:
                             temp = "%s is done guarding for the day!" % w.nickname
                             temp = set_font_color(temp, "cadetblue")
@@ -186,7 +186,7 @@ init -5 python:
                         log.logws("magic", 1, char=w)
                     if dice(10):
                         log.logws("constitution", 1, char=w)
-                    exp_mod = w.get_flag("jobs_points_spent", 0)/1000.0
+                    exp_mod = w.get_flag("jp_guard", 0)/1000.0
                     log.logws("exp", exp_reward(w, loc.tier, exp_mod=exp_mod), char=w)
 
                     log.logws("vitality", -5, char=w)
@@ -195,7 +195,7 @@ init -5 python:
 
             difficulty = loc.tier
             for w in workers:
-                ap_used = w.get_flag("jobs_points_spent", 0)/100.0
+                ap_used = w.get_flag("jp_guard", 0)/100.0
                 log.logws("vitality", round_int(ap_used*-5), char=w)
                 log.logws("security", randint(1, 3), char=w)
                 if dice(30):
@@ -209,9 +209,9 @@ init -5 python:
                 if dice(10):
                     log.logws("constitution", 1, char=w)
                 log.logws("exp", exp_reward(w, difficulty, exp_mod=ap_used), char=w)
-                w.del_flag("jobs_points_spent")
+                w.del_flag("jp_guard")
             for w in extra_workers:
-                ap_used = w.get_flag("jobs_points_spent", 0)/100.0
+                ap_used = w.get_flag("jp_guard", 0)/100.0
                 log.logws("vitality", round_int(ap_used*-6), char=w)
                 log.logws("security", 1, char=w)
                 if dice(10):
@@ -225,7 +225,7 @@ init -5 python:
                 if dice(10):
                     log.logws("constitution", 1, char=w)
                 log.logws("exp", exp_reward(w, difficulty, exp_mod=ap_used*.5), char=w)
-                w.del_flag("jobs_points_spent")
+                w.del_flag("jp_guard")
 
             simpy_debug("Guards.write_nd_report marker 4")
 

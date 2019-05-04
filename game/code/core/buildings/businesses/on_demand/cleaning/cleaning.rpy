@@ -55,7 +55,7 @@ init -5 python:
                         wlen = len(workers)
                         make_nd_report_at = min(now+25, 105) # MAX_DU
                         if wlen:
-                            temp = "%s Workers have started to clean %s!" % (set_font_color(wlen, wlen_color), building.name)
+                            temp = "%s %s started to clean the building!" % (set_font_color(wlen, wlen_color), plural("Worker", wlen))
                             self.log(temp, True)
 
                 # Actually handle dirt cleaning:
@@ -68,7 +68,7 @@ init -5 python:
                         cleaners.add(w)
 
                         w.PP -= 5
-                        w.up_counter("jobs_points_spent", 5)
+                        w.up_counter("jp_clean", 5)
                         if w.PP <= 0:
                             temp = "%s is done cleaning for the day!" % w.nickname
                             temp = set_font_color(temp, "cadetblue")
@@ -155,7 +155,7 @@ init -5 python:
 
             difficulty = loc.tier
             for w in workers:
-                ap_used = w.get_flag("jobs_points_spent", 0)/100.0
+                ap_used = w.get_flag("jp_clean", 0)/100.0
                 log.logws("vitality", round_int(ap_used*-5), char=w)
                 log.logws("cleaning", randint(1, 3), char=w)
                 if dice(30):
@@ -163,9 +163,9 @@ init -5 python:
                 if dice(10):
                     log.logws("constitution", 1, char=w)
                 log.logws("exp", exp_reward(w, difficulty, exp_mod=ap_used), char=w)
-                w.del_flag("jobs_points_spent")
+                w.del_flag("jp_clean")
             for w in extra_workers:
-                ap_used = w.get_flag("jobs_points_spent", 0)/100.0
+                ap_used = w.get_flag("jp_clean", 0)/100.0
                 log.logws("vitality", round_int(ap_used*-6), char=w)
                 log.logws("cleaning", 1, char=w)
                 if dice(10):
@@ -173,7 +173,7 @@ init -5 python:
                 if dice(10):
                     log.logws("constitution", 1, char=w)
                 log.logws("exp", exp_reward(w, difficulty, exp_mod=ap_used*.5), char=w)
-                w.del_flag("jobs_points_spent")
+                w.del_flag("jp_clean")
 
             simpy_debug("Cleaners.write_nd_report marker 4")
 
