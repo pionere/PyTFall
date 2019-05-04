@@ -56,7 +56,7 @@ init -5 python:
                         wlen = len(workers)
                         make_nd_report_at = min(now+25, 105) # MAX_DU
                         if wlen:
-                            temp = "%s Workers have started to guard %s!" % (set_font_color(wlen, "tomato"), building.name)
+                            temp = "%s %s started to guard the building!" % (set_font_color(wlen, "tomato"), plural("Worker", wlen))
                             self.log(temp, True)
 
                 # Actually handle threat:
@@ -272,6 +272,7 @@ init -5 python:
                     enemy = build_client(gender="male", rank=1,
                                      name="Hooligan", last_name=str(e+1),
                                      pattern=["Combatant"], tier=building.tier+2.0)
+                    enemy.init() # TODO temporary solution, run this in build_client if it is necessary somewhere else (e.g. the PP field)
                     enemy.front_row = 1
                     enemy.apply_trait("Fire")
                     enemy.controller = BE_AI(enemy)

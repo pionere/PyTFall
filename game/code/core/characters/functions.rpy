@@ -589,6 +589,9 @@ init -11 python:
 
         client.likes = cl
 
+        # We simply run the init method of parent class for this:
+        #client.init() - skip for the moment, only used in warriors_quarters.intercept
+
         tier_up_to(client, tier)
 
         return client
