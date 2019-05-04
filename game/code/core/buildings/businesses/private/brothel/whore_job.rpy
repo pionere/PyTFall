@@ -217,7 +217,7 @@ init -5 python:
                         worker.logws('vitality', -randint(2, 6))
 
         @classmethod
-        def log_work(cls, worker, client, building, log, effectiveness):
+        def log_work(cls, worker, client, ap_used, effectiveness, log):
             # Pass the flags from occupation_checks:
             # log.append(worker.flag("jobs_whoreintro"))
             log.append("\n")
@@ -766,7 +766,7 @@ init -5 python:
                 log.append("Whore Job\n\nMissed All acts!\n\n")
                 log.img = worker.show("sex", **kwargs)
 
-            tier = building.tier
+            tier = log.loc.tier
             # Charisma mods:
             charisma = cls.normalize_required_stat(worker, "charisma", effectiveness, tier)
             if charisma >= 170:
@@ -809,10 +809,9 @@ init -5 python:
                 log.logloc("reputation", 1)
 
             # Award EXP:
-            if effectiveness >= 90:
-                log.logws("exp", exp_reward(worker, tier))
-            else:
-                log.logws("exp", exp_reward(worker, tier, exp_mod=.5))
+            if effectiveness < 90:
+                ap_used *= .5
+            log.logws("exp", exp_reward(worker, tier, exp_mod=ap_used))
 
             if effectiveness >= 190:
                 log.append("The client was at the girls mercy. She brought him to the heavens and %s remained there, unconscious from sensory overload." % client.p)

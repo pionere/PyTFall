@@ -86,16 +86,16 @@ init -5 python:
 
             job.settle_workers_disposition(worker, log)
 
+            pp_use = job.calc_jp_cost(manager_effectiveness=building.manager_effectiveness, cost=100)
+            worker.PP -= pp_use
+
             difficulty = building.tier
             effectiveness = job.effectiveness(worker, difficulty, log, building.manager_effectiveness)
 
             # Upgrade mods:
             effectiveness += self.job_effectiveness_mod
 
-            effectiveness = job.log_work(worker=worker, client=client, building=building,
-                                             log=log, effectiveness=effectiveness)
-
-            worker.PP -= job.calc_jp_cost(manager_effectiveness=building.manager_effectiveness, cost=100)
+            effectiveness = job.log_work(worker, client, pp_use/100.0, effectiveness, log) # PP_PER_AP
 
             earned = payout(job, effectiveness, difficulty,
                             building, self, worker, client, log)

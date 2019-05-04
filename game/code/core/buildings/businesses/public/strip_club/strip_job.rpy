@@ -227,10 +227,9 @@ init -5 python:
                         worker.logws('vitality', -randint(2, 6))
 
         @classmethod
-        def log_work(cls, worker, clients, effectiveness, log):
+        def log_work(cls, worker, clients, ap_used, effectiveness, log):
             len_clients = len(clients)
-            building = log.loc
-            tier = building.tier
+            tier = log.loc.tier
 
             strip = cls.normalize_required_skill(worker, "strip", effectiveness, tier)
             dancing = cls.normalize_required_skill(worker, "dancing", effectiveness, tier)
@@ -255,12 +254,6 @@ init -5 python:
             else:
                 log.logws("joy", -2)
                 log.append("Customers clearly were unimpressed by %s looks, to say the least. Such a cold reception was not encouraging for the poor fellow at all..." % name)
-
-            # Award EXP:
-            if effectiveness >= 90:
-                log.logws("exp", exp_reward(worker, tier))
-            else:
-                log.logws("exp", exp_reward(worker, tier, exp_mod=.5))
 
             log.append("\n")
             if skill >= 170:
@@ -290,7 +283,14 @@ init -5 python:
                     log.append("%s certainly did not shine as %s clumsily 'danced' on the floor. Neither %s looks nor %s skill could save the performance..." % (worker.pC, worker.p, worker.pp, worker.pp))
                     log.append("\n")
 
-            # Take care of stats mods
+            # Stats Mods
+            # Award EXP:
+            if effectiveness < 90:
+                ap_used *= .5
+            log.logws("exp", exp_reward(worker, tier, exp_mod=ap_used))
+
+            log.logws('vitality', -len_clients/2)
+
             if dice(9):
                 log.logws("agility", 1)
                 learned = True
@@ -303,9 +303,6 @@ init -5 python:
             if dice(35 if "Exhibitionist" in worker.traits else 25):
                 log.logws("strip", 1)
                 learned = True
-
-            log.logws('vitality', -len_clients/2)
-
             if "learned" in locals():
                 log.append("\n%s feels like %s learned something!\n" % (worker.name, worker.p))
                 log.logws("joy", 1)

@@ -588,8 +588,9 @@ init -12 python:
             can_serve = 5 # We consider max of 5
             worker.serving_clients = set() # actively serving these clients
             clients_served = [] # client served during the shift (all of them, for the report)
+            pp_use = worker.PP
 
-            while worker.PP > 0 and du_working > 0:
+            while pp_use > 0 and du_working > 0:
                 simpy_debug("Entering PublicBusiness(%s).worker_control iteration at %s", self.name, self.env.now)
 
                 # Add clients to serve:
@@ -607,18 +608,21 @@ init -12 python:
                 yield self.env.timeout(1)
                 du_working -= 1
 
-                worker.PP -= len(worker.serving_clients)*2 # 2 partial AP per client?
+                pp_use -= len(worker.serving_clients)*2 # 2 partial AP per client?
 
             if clients_served:
                 # wait for the clients to finish
                 while worker.serving_clients:
                     yield self.env.timeout(1)
+                    pp_use -= len(worker.serving_clients)*2 # 2 partial AP per client?
 
                 if DSNBR:
                     temp = "Logging {} for {}!".format(self.name, worker.name)
                     self.log(temp, True)
-                # Weird way to call job method but it may help with debugging somehow.
-                job.log_work(worker, clients_served, effectiveness, log)
+
+                worker.PP, pp_use = pp_use, worker.PP - pp_use
+
+                job.log_work(worker, clients_served, pp_use/100.0, effectiveness, log) # PP_PER_AP
 
                 earned = payout(job, effectiveness, difficulty, building,
                                 self, worker, clients_served, log)

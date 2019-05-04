@@ -217,10 +217,9 @@ init -5 python:
                         worker.logws('vitality', -randint(1, 4))
 
         @classmethod
-        def log_work(cls, worker, clients, effectiveness, log):
+        def log_work(cls, worker, clients, ap_used, effectiveness, log):
             len_clients = len(clients)
-            building = log.loc
-            tier = building.tier
+            tier = log.loc.tier
 
             bartending = cls.normalize_required_skill(worker, "bartending", effectiveness, tier)
             charisma = cls.normalize_required_stat(worker, "charisma", effectiveness, tier)
@@ -267,15 +266,21 @@ init -5 python:
 
             #Stat Mods
             # Award EXP:
-            if effectiveness >= 90:
-                log.logws("exp", exp_reward(worker, tier))
-            else:
-                log.logws("exp", exp_reward(worker, tier, exp_mod=.5))
+            if effectiveness < 90:
+                ap_used *= .5
+            log.logws("exp", exp_reward(worker, tier, exp_mod=ap_used))
 
-            log.logws('bartending', 1 if dice(50) else 2)
+            log.logws('vitality', -(len_clients+1)/2)
+
+            log.logws('bartending', randint(1, 2))
+            if dice(50):
+                log.logws('service', 1)
             if dice(25):
                 log.logws('refinement', 1)
-            log.logws('vitality', -(len_clients+1)/2)
+            if dice(25):
+                log.logws('character', 1)
+            if dice(10):
+                log.logws('intelligence', 1)
 
             if worker.has_image("waitress", exclude=["sex"]):
                 log.img = worker.show("waitress", exclude=["sex"])

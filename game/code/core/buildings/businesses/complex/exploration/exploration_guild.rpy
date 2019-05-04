@@ -177,24 +177,16 @@ init -6 python: # Guild, Tracker and Log.
             self.logs.append(obj)
             return obj
 
-        def logws(self, stat_skill, value=1, char=None):
-            # Similar to JobLogger, but here we need to handle team members and modify the stat directly 
-            if char is None:
-                team = self.team
-            else:
-                team = [char]
-
-            temp = is_stat(stat_skill)
-            for char in team:
-                if stat_skill == "exp":
-                    char.mod_exp(value)
-                    val = value
-                elif temp:
-                    val = char.mod_stat(stat_skill, value)
-                else:
-                    val = char.mod_skill(stat_skill, 0, value)
-                charmod = self.team_charmod[char]
-                charmod[stat_skill] = charmod.get(stat_skill, 0) + val
+        def logws(self, stat_skill, value, char):
+            # Similar to JobsLogger, but here we need to modify the stats as well 
+            if stat_skill == "exp":
+                char.mod_exp(value)
+            elif is_stat(stat_skill):
+                value = char.mod_stat(stat_skill, value)
+            else: # is_skill
+                value = char.mod_skill(stat_skill, 0, value)
+            charmod = self.team_charmod[char]
+            charmod[stat_skill] = charmod.get(stat_skill, 0) + value
 
         def finish_exploring(self):
             """
@@ -261,10 +253,10 @@ init -6 python: # Guild, Tracker and Log.
                         self.log(temp)
                         self.green_flag = True
 
+                mod = self.days * self.risk / 100.0 # MAX_RISK
                 for char in team:
-                    #char.PP -= round_int(char.setPP*ratio)
-                    #if char.PP < 0:
-                    #    char.PP = 0
+                    self.logws("exp", exp_reward(char, area.tier, exp_mod=mod*char.setPP/100.0), char) # PP_PER_AP
+                    self.logws("constitution", randrange(int(mod)), char)
                     char.set_flag("dnd_back_from_track")
                 charmod = self.team_charmod
 
@@ -896,7 +888,8 @@ init -6 python: # Guild, Tracker and Log.
                         for key, value in area.unlocks.items():
                             if value <= ep and not fg_areas[key].unlocked:
                                 tracker.found_areas.add(key)
-                    tracker.logws("exploration")
+                    for char in team:
+                        tracker.logws("exploration", 1, char)
 
                 # Hazzard:
                 if area.hazard:
@@ -1151,20 +1144,20 @@ init -6 python: # Guild, Tracker and Log.
                     tracker.mobs_defeated[mob.id] += 1
 
                 log.suffix = set_font_color("Victory", "lawngreen")
-                for w in team:
-                    if w in battle.corpses:
+                for char in team:
+                    if char in battle.corpses:
                         continue
                     if dice(10):
-                        tracker.logws("attack", char=w)
+                        tracker.logws("attack", 1, char)
                     if dice(10):
-                        tracker.logws("defence", char=w)
+                        tracker.logws("defence", 1, char)
                     if dice(10):
-                        tracker.logws("magic", char=w)
+                        tracker.logws("magic", 1, char)
                     if dice(10):
-                        tracker.logws("agility", char=w)
+                        tracker.logws("agility", 1, char)
                     if dice(10):
-                        tracker.logws("constitution", char=w)
-                    tracker.logws("exp", exp_reward(w, enemy_team), char=w)
+                        tracker.logws("constitution", 1, char)
+                    tracker.logws("exp", exp_reward(char, enemy_team), char)
 
                 log.add(set_font_color("Your team won!!", "lawngreen"))
 
