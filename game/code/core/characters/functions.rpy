@@ -594,6 +594,11 @@ init -11 python:
 
         tier_up_to(client, tier)
 
+        # meta info TODO might not belong here
+        client.dirtmod = get_linear_value_of(rank, 1, 1.0, 7, .5) # MAX_RANK = 7, MIN_RANK = 1
+        client.threatmod = get_linear_value_of(rank, 1, 1.0, 7, .5) # MAX_RANK = 7, MIN_RANK = 1
+        if "Aggressive" in client.traits:
+            client.threatmod *= 4
         return client
 
     def copy_char(char):

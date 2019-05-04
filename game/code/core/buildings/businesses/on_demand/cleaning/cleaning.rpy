@@ -103,6 +103,8 @@ init -5 python:
         def write_nd_report(self, strict_workers, all_workers, pre_log, dirt_cleaned):
             simpy_debug("Entering Cleaners.write_nd_report at %s", self.env.now)
 
+            dirt_cleaned = int(dirt_cleaned)
+
             job, loc = CleaningJob, self.building
             log = NDEvent(type="jobreport", job=job, loc=loc, locmod={'dirt':dirt_cleaned}, team=all_workers, business=self)
 

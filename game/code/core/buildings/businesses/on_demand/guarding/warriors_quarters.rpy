@@ -125,6 +125,8 @@ init -5 python:
         def write_nd_report(self, strict_workers, all_workers, pre_log, threat_cleared, use_SQ):
             simpy_debug("Entering WarriorQuarters.write_nd_report at %s", self.env.now)
 
+            threat_cleared = int(threat_cleared)
+
             job, loc = GuardJob, self.building
             log = NDEvent(type="jobreport", job=job, loc=loc, locmod={'threat':threat_cleared}, team=all_workers, business=self)
 

@@ -19,17 +19,15 @@ init -5 python:
                 worker = self.get_workers(job, amount=1, client=client)
                 if not worker:
                     yield self.env.timeout(1)
+                    client.up_counter("business_waited")
                     result += 1
                     if result >= 5:
                         self.building.modfame(-randint(1, 2))
-                        self.building.moddirt(randint(3, 6))
 
                         temp = "%s lost %s patience to wait for someone to satisfy %s needs, so %s leaves the %s cursing..." % (client_name, client.pp, client.pp, client.p, self.name)
                         self.log(temp, True)
                         return
                     if self.env.now + self.time > 100: # MAX_DU
-                        self.building.moddirt(randint(3, 6))
-
                         temp = "There is not much for %s to do before closing, so %s leaves the %s." % (client_name, client.p, self.name)
                         self.log(temp, True)
                         return
@@ -43,6 +41,8 @@ init -5 python:
             worker_name = set_font_color(worker.name, "pink")
 
             # All is well and the client enters:
+            client.up_counter("business_used", 2)
+
             result = random.random()
             if result < .5:
                 temp = "%s and %s enter the room." 
@@ -99,9 +99,6 @@ init -5 python:
 
             earned = payout(job, effectiveness, difficulty,
                             building, self, worker, client, log)
-
-            # Dirt:
-            building.moddirt(randint(3, 6))
 
             # Log everything:
             log.after_job()

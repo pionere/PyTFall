@@ -814,15 +814,8 @@ label after_load:
                     del b.blocked_upgrades
                 if not hasattr(b, "rooms"):
                     b.rooms = 0
-                if not hasattr(b, "threat_mod"):
-                    if b.location == "Flee Bottom":
-                        b.threat_mod = 5
-                    elif b.location == "Midtown":
-                        b.threat_mod = 2
-                    elif b.location == "Richford":
-                        b.threat_mod = 0
-                    else:
-                        raise Exception("{} Building with an unknown location detected!".format(str(b)))
+                if hasattr(b, "threat_mod"):
+                    del b.threat_mod
                 if not hasattr(b, "auto_guard"):
                     b.auto_guard = 0
                 if b.businesses and not b.allowed_businesses:
@@ -1428,6 +1421,12 @@ label after_load:
         for b in chain(hero.buildings, buildings.itervalues()):
             if not hasattr(b, "in_construction_upgrades"):
                 b.in_construction_upgrades = []
+            for c in getattr(b, "all_clients", []):
+                if not hasattr(c, "modthreat"):
+                    c.dirtmod = get_linear_value_of(c.rank, 1, 1.0, 7, .5) # MAX_RANK = 7, MIN_RANK = 1
+                    c.threatmod = get_linear_value_of(c.rank, 1, 1.0, 7, .5) # MAX_RANK = 7, MIN_RANK = 1
+                    if "Aggressive" in c.traits:
+                        c.threatmod *= 4
             jobs_changed = False
             for u in b.allowed_businesses:
                 if hasattr(u, "intro_string"):

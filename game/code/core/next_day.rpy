@@ -1201,7 +1201,7 @@ screen next_day():
                                                     if key == "reputation":
                                                         hkey = "Rep"
                                             text (u"%s:" % hkey.capitalize()) align .02, .5
-                                            label "[value]" text_color (pos_color if value > 0 else neg_color) align .98, .5
+                                            label ("%d" % value) text_color (pos_color if value > 0 else neg_color) align .98, .5
 
         # Text Frame + Stats Reports Mousearea:
         # frame:

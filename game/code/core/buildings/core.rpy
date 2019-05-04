@@ -250,7 +250,6 @@ init -10 python:
             self.maxthreat = 1000
             self.threat = 0
             self.auto_guard = 0   # amount of money spent on guards (per day)
-            #self.threat_mod = 5 initialized later
 
             # Fame/Reputation
             self.minfame = 0 # The minimum amount of fame the building can have.
@@ -293,15 +292,6 @@ init -10 python:
                 self.clients_regen_day = 0 # The day when the clients are regenerated
                 
             self.normalize_jobs()
-
-            if not hasattr(self, "threat_mod"):
-                if self.location == "Flee Bottom":
-                    mod = 5
-                elif self.location == "Midtown":
-                    mod = 2
-                else: # if self.location == "Richford":
-                    mod = 0
-                self.threat_mod = mod
 
             if hasattr(self, "inventory"):
                 if bool(self.inventory):
@@ -742,10 +732,10 @@ init -10 python:
             if self.nd_ups or client_businesses:
                 # Building Stats:
                 txt.append("")
-                txt.append("Reputation: {}%".format(self.get_rep_percentage()))
-                txt.append("Fame: {}%".format(self.get_fame_percentage()))
-                txt.append("Dirt: {}%".format(self.get_dirt_percentage()))
-                txt.append("Threat: {}%".format(self.get_threat_percentage()))
+                txt.append("Reputation: %d %%" % self.get_rep_percentage())
+                txt.append("Fame: %d %%" % self.get_fame_percentage())
+                txt.append("Dirt: %d %%" % self.get_dirt_percentage())
+                txt.append("Threat: %d %%" % self.get_threat_percentage())
                 txt.append("")
                 
                 # All workers and workable businesses:
@@ -773,10 +763,10 @@ init -10 python:
                 txt.append(set_font_color("Ending the workday.", "green"))
 
                 # Building Stats:
-                txt.append("Reputation: {}%".format(self.get_rep_percentage()))
-                txt.append("Fame: {}%".format(self.get_fame_percentage()))
-                txt.append("Dirt: {}%".format(self.get_dirt_percentage()))
-                txt.append("Threat: {}%".format(self.get_threat_percentage()))
+                txt.append("Reputation: %d %%" % self.get_rep_percentage())
+                txt.append("Fame: %d %%" % self.get_fame_percentage())
+                txt.append("Dirt: %d %%" % self.get_dirt_percentage())
+                txt.append("Threat: %d %%" % self.get_threat_percentage())
 
                 income = self.fin.get_logical_income()
                 if income > 0:
@@ -907,11 +897,11 @@ init -10 python:
                 if hero.take_money(auto_guard, "Hired Guards"):
                     self.fin.log_logical_expense(auto_guard, "Hired Guards")
                     self.log("Hired guards are protecting the building.")
-                    auto_guard /= 2
+                    auto_guard /= (self.tier or 1) * 2
+                    next_guard = 0
                 else:
                     self.log("You could not pay the hired guards so they left the building.")
                     auto_guard = 0
-            threatmod = self.threat_mod * max(1, min(self.fame - self.rep - self.threat, 50))
 
             while (1):
                 if not env.now % 20:
@@ -930,17 +920,18 @@ init -10 python:
                         self.dirt = 0
 
                 # handle auto-guard
-                if auto_guard > 0 and self.threat > 200:
-                    temp = min(auto_guard, 200)
+                if auto_guard > 0 and self.threat > 300 and next_guard < env.now:
+                    temp = min(auto_guard/3, self.threat - 200)
                     self.threat -= temp
                     auto_guard -= temp
                     temp = "The hired guards eliminated %d threat." % temp
                     self.log(set_font_color(temp, "orange"), True)
+                    next_guard = env.now + 20
 
                 # check the need for police intervention
                 if self.threat >= 900:
                     temp = "{color=red}Police{/color} arrived at %s!" % self.name
-                    price = 500*self.get_max_client_capacity()*(self.tier or 1)
+                    price = 250*self.get_max_client_capacity()*(self.tier + 2)
                     if hero.take_money(price, "Police"):
                         temp += " You paid %d in penalty fees for allowing things to get this out of hand." % price
                     else:
@@ -957,7 +948,6 @@ init -10 python:
                 # add default mods of the building
                 if not env.now % 25:
                     self.moddirt(5) # 5 dirt each 25 turns even if nothing is happening.
-                    self.modthreat(threatmod)
 
                     if self.has_garden and dice(25):
                         for w in self.all_workers:
@@ -1012,6 +1002,7 @@ init -10 python:
             - Picks a business
             - Tries other businesses if the original choice fails
             - Kicks the client if all fails
+            - Adds dirt and threat based on the client
 
             So this basically sends the client into the businesses within this building or keeps them waiting/rotating.
             Once in, client is handled and managed by the Business itself until control is returned here!
@@ -1036,13 +1027,6 @@ init -10 python:
                 temp = "Your building is as safe as a warzone. %s ran away." % client_name
                 self.log(temp)
                 self.env.exit()
-
-            # Client threat mod:
-            if "Aggressive" in client.traits:
-                self.modthreat(2 if self.has_garden else 3)
-
-            # Visit counter:
-            #client.up_counter("visited_building" + str(self.id))
 
             # Prepare data:
             businesses = [b for b in self.nd_ups if b.expects_clients]
@@ -1100,6 +1084,7 @@ init -10 python:
                     # the actual waiting
                     for i in range(5):
                         yield self.env.timeout(1)
+                        client.up_counter("business_waited")
                         if business.res.count < business.capacity:
                             break # a free spot -> jump
                     else: # timeout -> skip
@@ -1113,12 +1098,26 @@ init -10 python:
                     yield request
                     yield self.env.process(business.client_control(client))
 
+            # Client dirt/threat mods:
+            used = client.get_flag("business_used", 0)
+            client.del_flag("business_used")
+            waited = client.get_flag("business_waited", 0)
+            client.del_flag("business_waited")
+
+            dirt = random.random() * ((4*used + waited) * client.dirtmod)
+            self.moddirt(dirt)
+
+            threat = random.random() * (waited * client.threatmod)
+            if self.has_garden:
+                threat /= 1.5
+            self.modthreat(threat)
+
             temp = choice(["%s is leaving the building.",
                            "%s is off for today.",
                            "%s hurries away.",
                            "%s is departing."]) % client_name
             if DSNBR:
-                temp += ".. after visiting %d business." % visited
+                temp += ".. after using %d business, while waited %d. Leaving dirt: %s, threat: %s." % (used, waited, dirt, threat)
             self.log(temp, True)
             self.env.exit()
 

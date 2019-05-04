@@ -437,7 +437,6 @@ init -12 python:
 
         def client_control(self, client):
             """Handles the client after a spot is reserved...
-            We add dirt here.
             """
             temp = "%s enters the %s." % (set_font_color(client.name, "beige"), self.name)
             self.log(temp, True)
@@ -446,7 +445,7 @@ init -12 python:
 
             tier = self.building.tier or 1
             du_to_spend_here = self.time
-            dirt = du_spent_here = du_without_service = 0
+            du_spent_here = du_without_service = 0
 
             while 1:
                 simpy_debug("Entering PublicBusiness(%s).client_control iteration at %s", self.name, self.env.now)
@@ -456,13 +455,14 @@ init -12 python:
                     simpy_debug("Client %s is waiting to be served.", client.name)
                     du_spent_here += 1
                     du_without_service += 1
+                    client.up_counter("business_waited")
                 else:
                     simpy_debug("Client %s is about to be served.", client.name)
                     yield self.env.timeout(3)
 
                     du_spent_here += 3
-                    dirt += 3
                     du_without_service = 0
+                    client.up_counter("business_used")
 
                     # Tips:
                     (worker, effectiveness), client.served_by = client.served_by, None
@@ -490,11 +490,7 @@ init -12 python:
                     # We need a worker ASAP:
                     self.send_in_worker = True
 
-            dirt = randint(0, dirt)
-            self.building.moddirt(dirt) # Move to business_control?)
-
-            temp = "%s exits the %s leaving %s dirt behind." % (
-                                    set_font_color(client.name, "beige"), self.name, dirt)
+            temp = "%s exits the %s." % (set_font_color(client.name, "beige"), self.name)
             self.log(temp, True)
 
             #self.clients_being_served.discard(client)
@@ -709,7 +705,7 @@ init -12 python:
                         devlog.info("{} Effectiveness: {}: {}".format(job.id,
                                             w.nickname, effectiveness))
 
-                    value = -round_int(effectiveness / 20.0)
+                    value = -effectiveness/20.0
                     w.set_flag(power_flag_name, value)
 
                     # Remove from active workers:

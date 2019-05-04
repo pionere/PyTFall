@@ -469,14 +469,14 @@ screen building_management_leftframe_building_mode:
                 $ tmp = bm_building.get_dirt_percentage()
                 $ temp = ("Immaculate", "Sterile", "Spotless", "Clean", "Tidy",
                           "Messy", "Dirty", "Grimy", "Filthy", "Disgusting")
-                $ temp = temp[min(9, tmp/10)]
+                $ temp = temp[min(9, round_int(tmp/10))]
                 text "%s (%d %%)" % (temp, tmp) xalign .98 style_suffix "value_text" yoffset 4
         # Threat
         if bm_building.maxthreat != 0:
             frame:
                 xysize (296, 27)
                 text "Threat:" xalign .02 color "crimson"
-                text "%s %%" % bm_building.get_threat_percentage():
+                text "%d %%" % bm_building.get_threat_percentage():
                     xalign .98
                     style_suffix "value_text"
                     yoffset 4
