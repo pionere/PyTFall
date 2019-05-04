@@ -1032,32 +1032,44 @@ init -10 python:
             businesses = [b for b in self.nd_ups if b.expects_clients]
             shuffle(businesses)
 
-            fav_business = client.likes.intersection(self.businesses)
+            fav_business = client.likes.intersection(businesses)
 
-            # Case where clients fav business was removed from the building, client to react appropriately.
+            # Case where clients fav business is inactive/removed, client to react appropriately.
             if not fav_business:
-                self.all_clients.remove(client)
-                temp = "%s storms out of the building pissed off as %s favorite business was removed!" % (client_name, client.pp)
-                self.log(temp)
-                self.env.exit()
+                fav_business = client.likes.intersection(self.businesses)
+                if fav_business:
+                    fav_business = fav_business.pop()
+                    # business temporary out of order:
+                    if fav_business.active:
+                        # nothing indicates that the business is not available
+                        self.modthreat(client.threatmod)
+                        temp = "%s is pissed because the seemingly running %s is vacated, so %s storms out of the building!" % (client_name, self.name, client.p)
+                        self.log(temp)
+                        yield self.env.exit()
+                    if not businesses:
+                        temp = "There is nothing to do at %s, so %s leaves the building!" % (self.name, client_name)
+                        self.log(temp)
+                        yield self.env.exit()
+                    if dice(50):
+                        temp = "%s leaves the building because the %s is closed!" % (client_name, fav_business.name)
+                        self.log(temp)
+                        yield self.env.exit()
+                    #fav_business = None
+                else:
+                    # business is removed
+                    self.all_clients.remove(client)
+                    self.modthreat(client.threatmod*2)
+                    temp = "%s storms out of the building pissed off as %s favorite business was removed!" % (client_name, client.pp)
+                    self.log(temp)
+                    yield self.env.exit()
             else:
                 fav_business = fav_business.pop()
 
-            visited = 0 # Amount of businesses client has successfully visited.
             while businesses:
-                # Here we pick an upgrade if a client has one in preferences:
-                if not visited:
-                    # On the first run we'd want to pick the clients fav.
-                    if fav_business in businesses:
-                        business = fav_business
-                        businesses.remove(business)
-                    else:
-                        if dice(50):
-                            temp = "%s storms out of the building pissed off as %s favorite business is closed!" % (client_name, client.pp)
-                            self.log(temp)
-                            self.env.exit()
-
-                        business = businesses.pop()
+                # On the first run we'd want to pick the clients fav.
+                if fav_business in businesses:
+                    business = fav_business
+                    businesses.remove(business)
                 else:
                     business = businesses.pop()
 
@@ -1093,7 +1105,6 @@ init -10 python:
                         continue
 
                 # We bind the process to a flag and wait until it is interrupted:
-                visited += 1
                 with business.res.request() as request:
                     yield request
                     yield self.env.process(business.client_control(client))
