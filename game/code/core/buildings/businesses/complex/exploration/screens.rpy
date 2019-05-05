@@ -485,15 +485,27 @@ screen building_management_midframe_exploration_guild_mode:
                             padding 12, 4
                             margin 0, 0
                             align .5, 1.2
-                            action Return(["fg_team", "rename", t])
-                            tooltip "Rename the team"
-                            text t.name align .5, .5 color "orange" hover_color "red" text_align .5
+                            action NullAction()
+                            text t.name align .5, .5 color "orange" text_align .5
+                        # Configure the team:
+                        $ img = im.Scale("content/gfx/interface/buttons/preference.png", 20, 20)
+                        button:
+                            background img
+                            hover_background im.MatrixColor(img, im.matrix.brightness(.15))
+                            insensitive_background im.Sepia(img)
+                            padding 0, 0
+                            margin 0, 0
+                            align 0.0, 0.0 offset -8, -8
+                            xysize 20, 20
+                            sensitive idle_t
+                            action Show("exploration_team", None, t)
+                            tooltip "Configure"
                         # Dissolve the team:
                         $ img = im.Scale("content/gfx/interface/buttons/close4.png", 20, 20)
                         button:
                             background img
                             hover_background im.MatrixColor(img, im.matrix.brightness(.15))
-                            insensitive_background  im.Sepia(img)
+                            insensitive_background im.Sepia(img)
                             padding 0, 0
                             margin 0, 0
                             align 1.0, 0.0 offset 3, -8
@@ -506,7 +518,7 @@ screen building_management_midframe_exploration_guild_mode:
                         button:
                             background img
                             hover_background im.MatrixColor(img, im.matrix.brightness(.15))
-                            insensitive_background  im.Sepia(img)
+                            insensitive_background im.Sepia(img)
                             padding 0, 0
                             margin 0, 0
                             align 1.0, 1.0 offset 3, -10
@@ -936,7 +948,7 @@ screen fg_area(area):
                     label (u"Enemies") text_size 23 text_color "ivory" align .5, .5
                 viewport:
                     style_prefix "proper_stats"
-                    xysize (300, 290)
+                    xysize (300, 265)
                     mousewheel True
                     draggable True
                     ypos 50
@@ -988,7 +1000,7 @@ screen fg_area(area):
                     style_prefix "proper_stats"
                     mousewheel True
                     draggable True
-                    xysize (300, 290)
+                    xysize (300, 265)
                     ypos 50
                     xalign .5
                     has vbox spacing 3
@@ -1018,6 +1030,149 @@ screen fg_area(area):
                                 xysize 60, 60
                                 align .99, .5
                                 add ProportionalScale(i.icon, 57, 57) align .5, .5
+
+screen exploration_team(team):
+    zorder 1
+    modal True
+
+    add Transform("content/gfx/images/bg_gradient2.webp", alpha=.3)
+
+    # Hero team ====================================>
+    frame:
+        style_prefix "proper_stats"
+        align .58, .4
+        background Frame(Transform(im.Twocolor("content/gfx/frame/ink_box.png", "white", "black"), alpha=.7), 5, 5)
+        padding 10, 5
+        has vbox spacing 10
+
+        # Name of the Team / Close
+        hbox:
+            xminimum (300*len(team))
+            hbox:
+                spacing 2
+                xalign .5
+                label "[team.name]" xalign .5 text_color "#CDAD00" text_size 30
+                imagebutton:
+                    idle im.Scale("content/gfx/interface/buttons/edit.png", 24, 30)
+                    hover im.Scale("content/gfx/interface/buttons/edit_h.png", 24, 30)
+                    action Return(["rename_team", "set_name"]), With(dissolve)
+                    tooltip "Rename the team"
+
+            imagebutton:
+                align (1.0, .0)
+                idle im.Scale("content/gfx/interface/buttons/close2.png", 35, 35)
+                hover im.Scale("content/gfx/interface/buttons/close2_h.png", 35, 35)
+                action Hide("exploration_team"), With(dissolve)
+                keysym "mousedown_3"
+                tooltip "Close team screen"
+
+        # Members
+        hbox:
+            spacing 10
+            xalign .5
+            for member in team:
+                #spacing 7
+                # Portrait/Button:
+                fixed:
+                    align .5, .5
+                    xysize 120, 120
+                    $ img = member.show("portrait", resize=(120, 120), cache=True)
+                    imagebutton:
+                        padding 1, 1
+                        align .5, .5
+                        style "basic_choice2_button"
+                        idle img
+                        hover img
+                        selected_idle Transform(img, alpha=1.05)
+                        action None
+
+                    $ img = ProportionalScale("content/gfx/interface/buttons/row_switch.png", 40, 20)
+                    if not member.front_row:
+                        $ img = im.Flip(img, horizontal=True)
+
+                    imagebutton:
+                        align (0, 1.0)
+                        idle Transform(img, alpha=.9)
+                        hover Transform(img, alpha=1.05)
+                        insensitive im.Sepia(img)
+                        action ToggleField(member, "front_row", true_value=1, false_value=0)
+                        tooltip "Toggle between rows in battle, currently character fights from the %s row" % ("front" if member.front_row else "back")
+
+                    if member != hero:
+                        $ img = "content/gfx/interface/buttons/Profile.png"
+                        imagebutton:
+                            align (1.0, 1.0)
+                            idle Transform(img, alpha=.9)
+                            hover Transform(img, alpha=1.0)
+                            insensitive im.Sepia(img)
+                            action [Hide("exploration_team"), SetVariable("came_to_equip_from", last_label), SetVariable("char", member),
+                                    SetVariable("eqtarget", member), SetVariable("equip_girls", team._members), Jump("char_equip")]
+                            tooltip "Check equipment"
+
+                # Name/Status:
+                frame:
+                    xsize 162
+                    padding 10, 5
+                    background Frame(Transform("content/gfx/frame/P_frame2.png", alpha=.6), 5, 5)
+                    has vbox spacing 4 xfill True
+                    fixed:
+                        xysize 158, 25
+                        xalign .5
+                        text "{=TisaOTMolxm}[member.name]" xalign .06
+                        if not member == hero:
+                            imagebutton:
+                                xalign .92
+                                idle ProportionalScale("content/gfx/interface/buttons/close4.png", 24, 30)
+                                hover ProportionalScale("content/gfx/interface/buttons/close4_h.png", 24, 30)
+                                action Return(["fg_team", "remove", team, member])
+                                tooltip "Remove %s from %s"%(member.nickname, team.name)
+
+                    # HP:
+                    fixed:
+                        ysize 25
+                        $ temp, tmp = member.get_stat("health"), member.get_max("health")
+                        bar:
+                            left_bar ProportionalScale("content/gfx/interface/bars/hp1.png", 150, 20)
+                            right_bar ProportionalScale("content/gfx/interface/bars/empty_bar1.png", 150, 20)
+                            value temp
+                            range tmp
+                            thumb None
+                            xysize (150, 20)
+                        text "HP" size 14 color "#F5F5DC" bold True xpos 8
+                        $ tmb = "red" if temp <= tmp*.3 else "#F5F5DC"
+                        text "[temp]" size 14 color tmb bold True style_suffix "value_text" xpos 125 yoffset -8
+
+                    # MP:
+                    fixed:
+                        ysize 25
+                        $ temp, tmp = member.get_stat("mp"), member.get_max("mp")
+                        bar:
+                            left_bar ProportionalScale("content/gfx/interface/bars/mp1.png", 150, 20)
+                            right_bar ProportionalScale("content/gfx/interface/bars/empty_bar1.png", 150, 20)
+                            value temp
+                            range tmp
+                            thumb None
+                            xysize (150, 20)
+                        text "MP" size 14 color "#F5F5DC" bold True xpos 8
+                        $ tmb = "red" if temp <= tmp*.3 else "#F5F5DC"
+                        text "[temp]" size 14 color tmb bold True style_suffix "value_text" xpos 125 yoffset -8
+
+                    # VP
+                    fixed:
+                        ysize 25
+                        $ temp, tmp = member.get_stat("vitality"), member.get_max("vitality")
+                        bar:
+                            left_bar ProportionalScale("content/gfx/interface/bars/vitality1.png", 150, 20)
+                            right_bar ProportionalScale("content/gfx/interface/bars/empty_bar1.png", 150, 20)
+                            value temp
+                            range tmp
+                            thumb None
+                            xysize (150, 20)
+                        text "VP" size 14 color "#F5F5DC" bold True xpos 8
+                        $ tmb = "red" if temp <= tmp*.3 else "#F5F5DC"
+                        text "[temp]" size 14 color tmb bold True style_suffix "value_text" xpos 125 yoffset -8
+
+        null height 5
 
 screen se_debugger():
     zorder 200

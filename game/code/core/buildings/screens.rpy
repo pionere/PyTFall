@@ -62,6 +62,10 @@ label building_management:
                         for i in team:
                             workers.add(i)
                         del team.members[:]
+                    elif action == "remove":
+                        char = result[3]
+                        workers.add(char)
+                        team.remove(char)
                     elif action == "dissolve":
                         for i in team:
                             workers.add(i)
