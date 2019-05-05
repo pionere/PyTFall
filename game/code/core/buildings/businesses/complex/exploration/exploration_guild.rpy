@@ -124,6 +124,9 @@ init -6 python: # Guild, Tracker and Log.
                 self.exploration_items.extend([[item.id, item.chance] for item in store.items.values() if
                                           "Exploration" in item.locations and limit >= item.price])
 
+            if guild.has_extension(CartographyLab):
+                self.cartography = True
+
             # We assume that it's never right outside of the city walls:
             self.base_distance = max(area.travel_time, 6)
             self.used_horses = None
@@ -561,27 +564,34 @@ init -6 python: # Guild, Tracker and Log.
         def travel_to(self, tracker):
             # Env func that handles the travel to routine.
             team_name = tracker.team.name
-            area_name = tracker.area.name
-
             if DEBUG_SE:
-                msg = "{} is traveling to {}.".format(team_name, area_name)
+                msg = "{} is traveling to {}.".format(team_name, tracker.area.name)
                 se_debug(msg)
 
             # Figure out how far we can travel in steps of 5 DU:
             # Understanding here is that any team can travel 20 KM per day on average.
+            time_to_travel = 100 # FIXME MAX_DU
             if tracker.traveled is None:
                 # Starting day
                 ExplorationTask.settle_workers_disposition(tracker.team, tracker.log)
 
-                # setup the distance.
-                tracker.distance = self.travel_distance(tracker)
-
-                temp = "{color=green}%s{/color} is en route to {color=lightgreen}%s{/color}." % (team_name, area_name)
+                # check the members
+                injured, time_mod = False, 1
                 for char in tracker.team:
                     if "Injured" in char.effects:
-                        tracker.distance *= 2
-                        temp += " The progression of the team is slowed due to injuries."
-                        break
+                        injured = True
+                    if char.PP != char.setPP:
+                        char_mod = char.PP / float(char.setPP)
+                        time_mod = min(time_mod, char_mod)
+
+                time_to_travel *= time_mod
+
+                # setup the distance.
+                tracker.distance = self.travel_distance(tracker)
+                temp = "{color=green}%s{/color} is en route to {color=lightgreen}%s{/color}." % (team_name, tracker.area.name)
+                if injured:
+                    tracker.distance *= 2
+                    temp += " The progression of the team is slowed due to injuries."
                 tracker.log(temp)
 
                 tracker.traveled = 0
@@ -594,7 +604,7 @@ init -6 python: # Guild, Tracker and Log.
                 # Team arrived:
                 if tracker.traveled >= tracker.distance:
                     if DEBUG_SE:
-                        msg = "{} arrived at {} ({}).".format(team_name, area_name, tracker.area.id)
+                        msg = "{} arrived at {} ({}).".format(team_name, tracker.area.name, tracker.area.id)
                         se_debug(msg)
 
                     temp = "{color=green}%s{/color} arrived at its destination!" % team_name
@@ -605,7 +615,7 @@ init -6 python: # Guild, Tracker and Log.
                     tracker.log(temp, name="Arrival")
                     self.env.exit("arrived")
 
-                if self.env.now >= 99: # FIXME MAX_DU We couldn't make it there before the days end...
+                if self.env.now >= time_to_travel: # We couldn't make it there before the days end...
                     temp = "Your team spent the entire day traveling."
                     tracker.log(temp)
                     if DEBUG_SE:
@@ -881,8 +891,8 @@ init -6 python: # Guild, Tracker and Log.
                 if dice(5):
                     if area.explored < area.maxexplored:
                         mod = randint(8, 12)
-                        if tracker.guild.has_extension(CartographyLab):
-                            mod = mod * 3 / 2 
+                        if getattr(tracker, "cartography", False):
+                            mod = mod * 3 / 2
                         area.explored = min(area.maxexplored, area.explored + mod)
                         ep = area.get_explored_percentage()
                         for key, value in area.unlocks.items():

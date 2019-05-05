@@ -451,9 +451,9 @@ init -9 python:
             if self.gold < base:
                 self.gold += int(random.uniform(.2, .3) * base)
             elif self.gold < 2*base:
-                self.gold += int(random.uniform(.1, .15)* base)
+                self.gold += int(random.uniform(.1, .15) * base)
             else:
-                self.gold -= int(random.uniform(.3, .6) * base)
+                self.gold = int(random.uniform(.6, .8) * self.gold)
 
     class GeneralStore(ItemShop):
         '''General Store (sells basic items) FIXME obsolete

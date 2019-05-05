@@ -812,26 +812,24 @@ init -11 python:
         # Difficulty modifier:
         # Completed task oh higher difficulty:
         char_tier = char.tier
-        if difficulty >= char_tier:
-            diff = difficulty - char_tier
-            diff = min(2, diff)
-            mod = 1+diff/2.0 # max bonus mod possible is 2x the EXP.
-        else: # Difficulty was lower
-            diff = char_tier - difficulty
-            diff = min(2, diff)
+        diff = difficulty - char_tier
+        if diff >= 0:
             if diff > 2:
-                diff = 2
-            mod = 1-diff/2.0
+                diff = 2 # max bonus mod possible is 2x the EXP.
+        else: # Difficulty was lower
+            if diff <= -2:
+                return 0
+        mod = 1+diff/2.0
+
         # add tier modifier to limit the value
         mod *= 1 - float(char_tier)/MAX_TIER
         value = DAILY_EXP_CORE * exp_mod * mod
 
-        if hasattr(char, "effects"):
-            effects = char.effects
-            if "Slow Learner" in effects:
-                value *= .9
-            if "Fast Learner" in effects:
-                value *= 1.1
+        effects = char.effects
+        if "Slow Learner" in effects:
+            value *= .9
+        if "Fast Learner" in effects:
+            value *= 1.1
 
         return round_int(value)
 

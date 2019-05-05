@@ -405,9 +405,9 @@ screen char_equip():
             xysize (710, 296)
             use char_equip_item_info(item=focusitem, size=(703, 287))
 
-    use char_equip_left_frame(stats_display)
+    #use char_equip_left_frame(stats_display)
 
-screen char_equip_left_frame(stats_display):
+#screen char_equip_left_frame(stats_display):
     # Left Frame: =====================================>
     fixed:
         pos (0, 2)

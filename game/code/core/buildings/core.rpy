@@ -1041,7 +1041,7 @@ init -10 python:
                     if fav_business.active:
                         # nothing indicates that the business is not available
                         self.modthreat(client.threatmod)
-                        temp = "%s is pissed because the seemingly running %s is vacated, so %s storms out of the building!" % (client_name, self.name, client.p)
+                        temp = "%s is pissed because the seemingly running %s is vacated, so %s storms out of the building!" % (client_name, fav_business.name, client.p)
                         self.log(temp)
                         self.env.exit()
                     if not businesses:
