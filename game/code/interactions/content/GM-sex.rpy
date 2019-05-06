@@ -470,7 +470,7 @@ label mc_action_scene_finish_sex:
         if char.has_image("profile", loc_tag, exclude=excluded):
             $ gm.set_img("profile", loc_tag, "happy", exclude=excluded, type="reduce")
         else:
-            $ gm.set_img("girlmeets", "happy", loc_tag, exclude=excluded, type="reduce")
+            $ gm.set_img("girlmeets", loc_tag, "happy", exclude=excluded, type="reduce")
 
         if not char.has_flag("raped_by_player"):
             $ char.gfx_mod_stat("disposition", randint(50, 100))
@@ -495,18 +495,18 @@ label mc_action_scene_finish_sex:
             $ excluded.extend(["beach", "urban"])
 
         if char.has_image("profile", loc_tag, exclude=excluded):
-            $ gm.set_img("profile", loc_tag, "angry", exclude=excluded)
+            $ gm.set_img("profile", loc_tag, "angry", exclude=excluded, type="reduce")
         else:
-            $ gm.set_img("girlmeets", "angry", loc_tag, exclude=excluded, type="reduce")
+            $ gm.set_img("girlmeets", loc_tag, "angry", exclude=excluded, type="reduce")
 
-            if not char.has_flag("raped_by_player"):
-                $ char.gfx_mod_stat("disposition", -randint(15, 35))
-                $ char.gfx_mod_stat("affection", -randint(8,12))
-                $ char.gfx_mod_stat("joy", -randint(2, 5))
-                call interactions_girl_never_come from _call_interactions_girl_never_come
-            else:
-                "She quickly dresses up and leaves."
-            $ char.mod_stat("vitality", -randint(5, 10))
+        if not char.has_flag("raped_by_player"):
+            $ char.gfx_mod_stat("disposition", -randint(15, 35))
+            $ char.gfx_mod_stat("affection", -randint(8,12))
+            $ char.gfx_mod_stat("joy", -randint(2, 5))
+            call interactions_girl_never_come from _call_interactions_girl_never_come
+        else:
+            "She quickly dresses up and leaves."
+        $ char.mod_stat("vitality", -randint(5, 10))
     elif girl_count > 0 and guy_count < 1 and cum_count < 1 and sex_count > 0:
         $ excluded = ["happy", "scared", "in pain", "ecstatic", "suggestive"]
         $ loc_tag = sex_scene_location
@@ -522,9 +522,9 @@ label mc_action_scene_finish_sex:
             $ excluded.extend(["beach", "urban"])
 
         if char.has_image("profile", loc_tag, exclude=excluded):
-            $ gm.set_img("profile", loc_tag, "sad", exclude=excluded)
+            $ gm.set_img("profile", loc_tag, "sad", exclude=excluded, type="reduce")
         else:
-            $ gm.set_img("girlmeets", "sad", loc_tag, exclude=excluded, type="reduce")
+            $ gm.set_img("girlmeets", loc_tag, "sad", exclude=excluded, type="reduce")
 
         if not char.has_flag("raped_by_player"):
             $ char.gfx_mod_stat("disposition", randint(15, 30))
@@ -552,7 +552,7 @@ label mc_action_scene_finish_sex:
         if char.has_image("profile", loc_tag, exclude=excluded):
             $ gm.set_img("profile", loc_tag, "shy", exclude=excluded, type="reduce")
         else:
-            $ gm.set_img("girlmeets", "shy", loc_tag, exclude=excluded, type="reduce")
+            $ gm.set_img("girlmeets", loc_tag, "shy", exclude=excluded, type="reduce")
 
         if not char.has_flag("raped_by_player"):
             $ char.gfx_mod_stat("disposition", randint(25, 50))
@@ -576,9 +576,9 @@ label mc_action_scene_finish_sex:
             $ excluded.extend(["beach", "urban"])
 
         if char.has_image("profile", loc_tag, exclude=excluded):
-            $ gm.set_img("profile", loc_tag, "angry", exclude=excluded)
+            $ gm.set_img("profile", loc_tag, "angry", exclude=excluded, type="reduce")
         else:
-            $ gm.set_img("girlmeets", "angry", loc_tag, exclude=excluded, type="reduce")
+            $ gm.set_img("girlmeets", loc_tag, "angry", exclude=excluded, type="reduce")
         if char.status == "slave":
             "She is puzzled and confused by the fact that you didn't do anything. She quickly leaves, probably thinking that you teased her."
         else:
@@ -604,7 +604,7 @@ label mc_action_scene_finish_sex:
         if char.has_image("profile", loc_tag, exclude=excluded):
             $ gm.set_img("profile", loc_tag, "shy", exclude=excluded, type="reduce")
         else:
-            $ gm.set_img("girlmeets", "shy", loc_tag, exclude=excluded, type="reduce")
+            $ gm.set_img("girlmeets", loc_tag, "shy", exclude=excluded, type="reduce")
 
         "She did nothing but masturbated in front of you. Be prepared for rumors about your impotence or orientation."
         if not char.has_flag("raped_by_player"):
@@ -629,7 +629,7 @@ label mc_action_scene_finish_sex:
         if char.has_image("profile", loc_tag, exclude=excluded):
             $ gm.set_img("profile", loc_tag, "happy", exclude=excluded, type="reduce")
         else:
-            $ gm.set_img("girlmeets", "happy", loc_tag, exclude=excluded, type="reduce")
+            $ gm.set_img("girlmeets", loc_tag, "happy", exclude=excluded, type="reduce")
 
         if not char.has_flag("raped_by_player"):
             $ char.gfx_mod_stat("disposition", randint(30, 60))
