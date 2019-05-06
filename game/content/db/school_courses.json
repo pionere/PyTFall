@@ -18,18 +18,26 @@
         "secondary": [
         ]
     },
-    "BDSM": {
-        "desc": "This course focuses on training constitution. May also improve general sex skill.",
-        "image": "BDSM/",
+    "Taiji": {
+        "desc": "This course focuses on training constitution. May also improve character and refinement skill.",
+        "image": "Combat/",
+        "imageMode": "any",
         "imageTags": [
-            "bdsm",
-            "bdsm restrained"
+            "ninja",
+            "battle",
+            "exercising"
+        ],
+        "noImageTags": [
+            "sex",
+            "nude",
+            "rest"
         ],
         "primary": [
             "constitution"
         ],
         "secondary": [
-            "sex"
+            "refinement",
+            "character"
         ]
     },
     "Dance": {
@@ -253,7 +261,6 @@
             "constitution"
         ]
     },
-
     "Oral Sex": {
         "desc": "This course focuses on training oral sex skills. May also improve general sex skill.",
         "image": "Oral/",
@@ -320,6 +327,21 @@
         ],
         "primary": [
             "vaginal"
+        ],
+        "secondary": [
+            "sex"
+        ]
+    },
+    "BDSM": {
+        "desc": "This course focuses on training constitution. May also improve general sex skill.",
+        "image": "BDSM/",
+        "type": "xxx",
+        "imageTags": [
+            "bdsm",
+            "bdsm restrained"
+        ],
+        "primary": [
+            "constitution"
         ],
         "secondary": [
             "sex"
