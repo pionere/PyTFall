@@ -90,7 +90,7 @@ init -5 python:
                     log.append("%s refuses to back down no matter the odds, making a great guard." % name)
                     effectiveness += 25
                 elif trait == "Adventurous":
-                    log.append("%s experience fighting bandits as an adventurer makes working security relatively easier." % worker.ppC)
+                    log.append("%s fought bandits as an adventurer. This makes working security relatively easy." % name)
                     effectiveness += 25
                 elif trait == "Scars":
                     log.append("One look at %s scars is enough to tell the violators that %s means business." % (worker.pp, name))

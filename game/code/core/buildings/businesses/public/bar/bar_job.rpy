@@ -69,7 +69,7 @@ init -5 python:
                 elif trait == "Psychic":
                     log.append("People marvel at how %s usually already has the drink ready before the customer comes up to the bar." % name)
                     effectiveness += 25
-                if trait == "Great Arse":
+                elif trait == "Great Arse":
                     log.append("The customers kept ordering drinks from the bottom shelf just to watch %s bend over. What a view!" % name)
                     effectiveness += 25
                 elif trait == "Neat":

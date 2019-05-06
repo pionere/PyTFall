@@ -255,7 +255,7 @@ init -10 python:
 
             # Class traits and Occs (Part 2)
             if diff < 0: # Tier lower than the Building (difficulty)
-                bt_bonus /= 1+abs(diff)
+                bt_bonus /= 1-diff
             elif diff > 0:
                 bt_bonus += tier_bonus*2
 
@@ -277,7 +277,7 @@ init -10 python:
                     sp_required = worker.get_max_skill(skill, tier=difficulty)
                     # if not sp_required:
                     #     raise Exception("Zero Dev #4 (%s)", skill)
-                    total_skills += min(sp*max_p/sp_required, max_p*1.1)
+                    total_skills += max_p * min(float(sp)/sp_required, 1.1)
 
             stats = cls.base_stats
             if not stats:
@@ -295,7 +295,7 @@ init -10 python:
                     sp_required = worker.get_max_stat(stat, tier=difficulty)
                     if sp_required == 0:
                         raise Exception("Zero Dev #6 (%s)", stat)
-                    total_stats += min(sp*max_p/sp_required, max_p*1.1)
+                    total_stats += max_p * min(float(sp)/sp_required, 1.1)
 
             # Bonuses:
             traits_bonus = cls.traits_and_effects_effectiveness_mod(worker, log)
@@ -311,8 +311,7 @@ init -10 python:
                 else:
                     manager_bonus = 0
 
-            total = sum([bt_bonus, tier_bonus, manager_bonus,
-                         traits_bonus, total_skills, total_stats])
+            total = bt_bonus + tier_bonus + total_skills + total_stats + traits_bonus + manager_bonus
 
             # Disposition Bonus (Percentage bonus):
             disposition_multiplier = worker.get_stat("disposition")*.0001 + 1.0
@@ -330,8 +329,8 @@ init -10 python:
                     temp[stat] = worker.get_stat(stat)
                 devlog.info("Calculating Jobs Relative Ability, Char/Job: {}/{}:".format(worker.name, self.id))
                 devlog.info("Stats: {}:".format(temp))
-                args = (bt_bonus, tier_bonus, traits_bonus, total_skills, total_stats, disposition_multiplier, total)
-                devlog.info("Gen Occ/BT: {}, Tier: {}, Traits: {}, Skills: {}, Stats: {}, Disposition Multiplier {} ==>> {}".format(*args))
+                args = (bt_bonus, tier_bonus, traits_bonus, total_skills, total_stats, manager_bonus, disposition_multiplier, total)
+                devlog.info("Gen Occ/BT: {}, Tier: {}, Traits: {}, Skills: {}, Stats: {}, Mgr: {}, Disposition Multiplier {} ==>> {}".format(*args))
 
             return total
 
