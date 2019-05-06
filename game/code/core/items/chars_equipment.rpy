@@ -414,39 +414,44 @@ screen char_equip():
         xysize (220,724)
         style_group "content"
 
-        # NAME =====================================>
-        text (u"[eqtarget.name]") color "#ecc88a" font "fonts/TisaOTM.otf" size 28 outlines [(1, "#3a3a3a", 0, 0)] xalign .53 ypos 126
-        hbox:
-            button:
-                xysize (32, 32)
-                background Null()
-                if equip_girls:
+        # PORTRAIT + Prev/Next buttons ================>
+        fixed:
+            xysize (220, 100)
+            if equip_girls:
+                imagebutton:
+                    xysize (39, 50)
+                    pos (13, 14)
                     action Return(['control', 'left'])
-                    foreground "content/gfx/interface/buttons/small_button_wood_left_idle.png" pos (10, 14)
-                    hover_foreground "content/gfx/interface/buttons/small_button_wood_left_hover.png"
+                    idle "content/gfx/interface/buttons/small_button_wood_left_idle.png"
+                    hover "content/gfx/interface/buttons/small_button_wood_left_hover.png"
                     tooltip "Previous Character"
-            # PORTRAIT ============================>
+                    focus_mask True
+
             frame:
                 xysize (100, 100)
-                pos (32, 11)
-                background Frame("content/gfx/frame/mes12.jpg", 5, 5)
-                add eqtarget.show("portrait", resize=(90, 90), cache=True) align .5, .5
-            button:
-                xysize (32, 32)
+                pos (64, 11)
                 background Null()
-                if equip_girls:
+                add eqtarget.show("portrait", resize=(100, 100), cache=True) align .5, .5
+            if equip_girls:
+                imagebutton:
+                    xysize (39, 50)
+                    pos (175, 14)
                     action Return(['control', 'right'])
-                    foreground "content/gfx/interface/buttons/small_button_wood_right_idle.png" pos (45, 14)
-                    hover_foreground "content/gfx/interface/buttons/small_button_wood_right_hover.png"
+                    idle "content/gfx/interface/buttons/small_button_wood_right_idle.png"
+                    hover "content/gfx/interface/buttons/small_button_wood_right_hover.png"
                     tooltip "Next Character"
+                    focus_mask True
 
-        # LVL ============================>
+        # NAME ========================================>
+        text (u"[eqtarget.name]") color "#ecc88a" font "fonts/TisaOTM.otf" size 28 outlines [(1, "#3a3a3a", 0, 0)] xalign .53 ypos 126
+
+        # LVL =========================================>
         hbox:
             xsize 220
             ypos 173
             label "Lvl [eqtarget.level]" text_color "#CDAD00" text_font "fonts/Rubius.ttf" text_size 16 text_outlines [(1, "#3a3a3a", 0, 0)] xalign .53
 
-        # Left Frame Buttons: =====================================>
+        # Left Frame Buttons: =========================>
         hbox:
             xsize 220
             style_group "pb"
