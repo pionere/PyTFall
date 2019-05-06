@@ -1074,7 +1074,44 @@ screen next_day():
                                 $ xpos += csize + border
 
         # Stat Frames:
-        $ show_stat_frame = event.charmod or event.team_charmod or event.locmod
+        python:
+            # prepare teammod/charmod
+            teammod = event.team_charmod
+            if teammod:
+                if len(teammod) == 1:
+                    char, charmod = next(teammod.iteritems())
+                    teammod = None
+            else:
+                char = None
+                charmod = event.charmod
+            # filter the values
+            if teammod:
+                tmp = {}
+                for w, charmod in teammod.iteritems():
+                    temp = {}
+                    for key, value in charmod.iteritems():
+                        if value != 0:
+                            temp[key] = value
+                    tmp[w] = temp
+                teammod = tmp
+                charmod = None
+            elif charmod:
+                temp = {}
+                for key, value in charmod.iteritems():
+                    if value != 0:
+                        temp[key] = value
+                charmod = temp
+            
+            # prepare locmod
+            locmod = event.locmod
+            if locmod:
+                temp = {}
+                for key, value in locmod.iteritems():
+                    value = int(value) # get rid of the fractions
+                    if value != 0:
+                        temp[key] = value
+                locmod = temp
+        $ show_stat_frame = teammod or charmod or locmod
         showif show_stat_frame and report_stats:
             # Chars/Teams Stats Frame:
             frame:
@@ -1083,15 +1120,7 @@ screen next_day():
                 background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
                 pos (690, -2)
                 has fixed xysize 136, 400
-                python:
-                    if event.team_charmod:
-                        charmod = event.team_charmod
-                        if len(charmod) == 1:
-                            char, charmod = next(charmod.iteritems())
-                    else:
-                        char = None
-                        charmod = event.charmod
-                if charmod:
+                if teammod or charmod:
                     frame:
                         style_group "content"
                         xalign .5
@@ -1101,9 +1130,9 @@ screen next_day():
                         label (u"Stat Changes:") text_size 18 text_color "ivory" align (.5, .5)
 
                     # team report with multiple members
-                    if charmod == event.team_charmod:
+                    if teammod:
                         # use a slideshow thing for teams:
-                        $ num_char = len(charmod)
+                        $ num_char = len(teammod)
                         $ xsize, ysize = num_char*136, 355
                         viewport:
                             xalign .5
@@ -1121,7 +1150,7 @@ screen next_day():
                                     #    at mm_clouds(0, -xsize, num_char*4)
                                     at scroll_around(num_char*4)
                                     $ xpos = 0
-                                    for w, mod in charmod.iteritems():
+                                    for w, charmod in teammod.iteritems():
                                         vbox:
                                             style_group "proper_stats"
                                             xsize 136
@@ -1134,13 +1163,12 @@ screen next_day():
                                                     if len(w.nickname) > 20:
                                                         size 16
                                             null height 4
-                                            for key, value in mod.items():
-                                                if value != 0:
-                                                    frame:
-                                                        xalign .5
-                                                        xysize 130, 25
-                                                        text ("%s:" % key.capitalize()) align .02, .5
-                                                        label "[value]" text_color ("lawngreen" if value > 0 else "red") align .98, .5
+                                            for key, value in charmod.items():
+                                                frame:
+                                                    xalign .5
+                                                    xysize 130, 25
+                                                    text ("%s:" % key.capitalize()) align .02, .5
+                                                    label "[value]" text_color ("lawngreen" if value > 0 else "red") align .98, .5
                                         $ xpos += 136
                     # one worker report(team or not):
                     else:
@@ -1171,7 +1199,7 @@ screen next_day():
                 pos (690, 406)
                 viewport id "nextdaybsf_vp":
                     xysize (136, 305)
-                    if event.locmod:
+                    if locmod:
                         vbox:
                             null height 5
                             frame:
@@ -1185,23 +1213,22 @@ screen next_day():
                                 style_group "proper_stats"
                                 xsize 136
                                 spacing 1
-                                for key, value in event.locmod.items():
-                                    if value != 0:
-                                        frame:
-                                            xalign .5
-                                            xysize 130, 25
-                                            python: # Special considerations:
-                                                hkey = key
-                                                if key in ["dirt", "threat"]:
-                                                    neg_color = "lawngreen"
-                                                    pos_color = "red"
-                                                else:
-                                                    neg_color = "red"
-                                                    pos_color = "lawngreen"
-                                                    if key == "reputation":
-                                                        hkey = "Rep"
-                                            text (u"%s:" % hkey.capitalize()) align .02, .5
-                                            label ("%d" % value) text_color (pos_color if value > 0 else neg_color) align .98, .5
+                                for key, value in locmod.items():
+                                    frame:
+                                        xalign .5
+                                        xysize 130, 25
+                                        python: # Special considerations:
+                                            hkey = key
+                                            if key in ["dirt", "threat"]:
+                                                neg_color = "lawngreen"
+                                                pos_color = "red"
+                                            else:
+                                                neg_color = "red"
+                                                pos_color = "lawngreen"
+                                                if key == "reputation":
+                                                    hkey = "Rep"
+                                        text ("%s:" % hkey.capitalize()) align .02, .5
+                                        label "[value]" text_color (pos_color if value > 0 else neg_color) align .98, .5
 
         # Text Frame + Stats Reports Mousearea:
         # frame:
