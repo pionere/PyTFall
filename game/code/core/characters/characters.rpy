@@ -1944,6 +1944,9 @@ init -9 python:
             self.log_stats()
 
             # Next day morning --------------------------------------->
+            #  Resets and Counters:
+            self.item_counter()
+            #  Effects
             self.nd_effects()
 
         def auto_training(self, kind):
@@ -2406,9 +2409,6 @@ init -9 python:
             # Finances related ---->
             self.fin.next_day()
 
-            # ------------->
-            self.item_counter()
-
             # ------------>
             self.nd_log_report(txt, 'profile', flag_red, type='mcndreport')
             self.txt = list()
@@ -2706,8 +2706,6 @@ init -9 python:
                         self.add_money(wage, reason="Wages")
 
                 #self.nd_rest()
-                self.item_counter()
-
                 # Adding joy mods:
                 if self.get_stat("joy") < self.get_max("joy"):
                     self.mod_stat("joy", 5)
@@ -2758,6 +2756,8 @@ init -9 python:
 
                 # Settle wages:
                 mood = self.fin.settle_wage(txt, mood)
+
+                self.log_stats() # hide stats changes
             else:
                 # normal employee
                 self.up_counter("daysemployed")
@@ -2850,11 +2850,8 @@ init -9 python:
                 if (flag_red is False or self in hero.chars) and self.nd_sleep(txt):
                     flag_red = True
 
-            # Finances related:
-            self.fin.next_day()
-
-            # Resets and Counters:
-            self.item_counter()
+                # Finances related:
+                self.fin.next_day()
 
             img = 'profile' if mood is None else self.show("profile", mood)
 
