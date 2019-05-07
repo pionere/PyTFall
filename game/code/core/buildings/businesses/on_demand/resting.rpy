@@ -28,8 +28,11 @@ init -5 python:
 
             # the real rest 
             log = NDEvent(job=cls, char=char, loc=char.home)
-            cls.rest(char, log)
-            log.after_job()
+            if cls.rest(char, log):
+                log.after_job()
+                cls.after_rest(char, log.txt)
+            else:
+                log.after_job()
             NextDayEvents.append(log)
 
         @classmethod
@@ -155,40 +158,50 @@ init -5 python:
 
             ratio = float(jp)/(init_jp or 300)
 
-            # maximum restoration:
-            health = worker.get_max("health")*.33*ratio # BATTLE_STATS
-            vit = worker.get_max("vitality")*.33*ratio
-            mp = worker.get_max("mp")*.2*ratio
-
-            # Effects malus:
-            if 'Drowsy' in worker.effects:
-                vit *= .5
-
             # We do it in three steps to try and save some JP if possible:
             jp /= 3
-            health = round_int(health/3)
-            vit = round_int(vit/3)
-            mp = round_int(mp/3)
+            ratio /= 3
+
+            mods = []
+            for stat in ("health", "vitality", "mp"): # BATTLE_STATS
+                max_stat = worker.get_max(stat)
+                curr_stat = worker.get_stat(stat)
+                if curr_stat == max_stat:
+                    continue
+                if stat == "mp":
+                    mod = .2
+                elif stat == "vitality" and "Drowsy" in worker.effects:
+                    mod = .33 * .5
+                else:
+                    mod = .33
+                mod = round_int(max_stat*mod*ratio)
+                mods.append([stat, mod, curr_stat, max_stat])
 
             for i in range(3):
                 worker.PP -= jp
-
-                log.logws('health', health)
-                log.logws('vitality', vit)
-                log.logws('mp', mp)
+                for data in mods:
+                    # stat, mod, curr_value, max_value
+                    mod = data[1]
+                    data[2] += mod
+                    log.logws(data[0], mod)
 
                 if jp > 5:
-                    log.logws('joy', randrange(2))
+                    log.logws("joy", randrange(2))
 
-                if cls.is_rested(worker):
-                    cls.after_rest(worker, log)
-                    break
+                if cls.is_rested(worker, mods):
+                    return True
+            return False
 
         @staticmethod
-        def is_rested(worker):
-            for stat in ("vitality", "health", "mp"): # BATTLE_STATS
-                if worker.get_stat(stat) < worker.get_max(stat):
-                    return False
+        def is_rested(worker, mods=None):
+            if mods is None:
+                for stat in ("health", "vitality", "mp"): # BATTLE_STATS
+                    if worker.get_stat(stat) < worker.get_max(stat):
+                        return False
+            else:
+                for data in mods:
+                    if data[2] < data[3]:
+                        return False
             if "Exhausted" in worker.effects:
                 return False
             if 'Food Poisoning' in worker.effects:
@@ -210,10 +223,15 @@ init -5 python:
         desc = "Autorest is a type of rest which automatically return character to previous job after resting is no longer needed"
 
         @staticmethod
-        def is_rested(worker):
-            for stat in ("vitality", "health"): # BATTLE_STATS - mp
-                if worker.get_stat(stat) < worker.get_max(stat)*.95:
-                    return False
+        def is_rested(worker, mods=None):
+            if mods is None:
+                for stat in ("health", "vitality"): # BATTLE_STATS - mp
+                    if worker.get_stat(stat) < worker.get_max(stat)*.95:
+                        return False
+            else:
+                for data in mods:
+                    if data[2] < data[3]*.95 and data[0] != "mp":
+                        return False
             if "Exhausted" in worker.effects:
                 return False
             if 'Food Poisoning' in worker.effects:
