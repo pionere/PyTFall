@@ -2815,9 +2815,9 @@ init -9 python:
                         if isinstance(self.workplace, Building):
                             self.workplace.fin.log_logical_expense(tips, "Tips")
 
-                        self.mod_stat("disposition", 1 + round_int(tips*.05))
+                        self.mod_stat("disposition", 1 + tips/20)
                         self.mod_stat("affection", affection_reward(self, .1, stat="gold"))
-                        self.mod_stat("joy", 1 + round_int(tips*.025))
+                        self.mod_stat("joy", 1 + tips/40)
                     else:
                         temp = choice(["You take all of %s tips for yourself." % self.pp,
                                        "You keep all of it."])

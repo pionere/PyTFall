@@ -212,8 +212,20 @@ init -6 python: # Guild, Tracker and Log.
                 found_items = collections.Counter(self.found_items)
                 cash_earned = sum(self.cash)
                 if cash_earned:
-                    hero.add_money(cash_earned, reason="Exploration Guild")
-                    building.fin.log_logical_income(cash_earned, "Exploration Guild")
+                    reason = "Exploration Guild"
+                    share = cash_earned/4
+                    if share:
+                        for char in team:
+                            if char.autocontrol["Tips"]:
+                                char.add_money(share, reason=reason)
+                                cash_earned -= share
+
+                                char.mod_stat("disposition", 1 + share/20)
+                                char.mod_stat("affection", affection_reward(char, .1, stat="gold"))
+                                char.mod_stat("joy", 1 + share/40)
+
+                    hero.add_money(cash_earned, reason=reason)
+                    building.fin.log_logical_income(cash_earned, reason)
                 inv = getattr(building, "inventory", hero.inventory)
                 for i, a in found_items.items():
                     item = items[i]

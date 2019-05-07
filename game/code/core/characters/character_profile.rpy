@@ -763,7 +763,7 @@ screen char_control():
                 xysize 150, 33
                 align .5, .05
                 action ToggleDict(char.autocontrol, "Tips")
-                tooltip "Does %s keep %s tips?" % (char.nickname, char.pp)
+                tooltip "Does %s keep %s tips, 25%% of the loot from exploration?" % (char.nickname, char.pp)
                 text "Tips:" align .0, .5
                 if isinstance(char.autocontrol["Tips"], list):
                     add cb_some_checked align 1.0, .5
