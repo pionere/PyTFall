@@ -1241,7 +1241,15 @@ init -10 python:
 
             # call the functions for these only once
             char = self.instance
-            _stats_mul_curr_max = {stat: [value, self._get_stat(stat), self.get_max(stat)] for stat, value in target_stats.iteritems()}
+            _stats_mul_curr_max = {}
+            for stat, value in target_stats.iteritems():
+                if stat == "exp":
+                    value = [value*(1 - float(char.tier)/MAX_TIER), None, None]
+                elif stat == "gold":
+                    value = [float(value)/max(char.gold, 100), None, None]
+                else:
+                    value = [value, self._get_stat(stat), self.get_max(stat)]
+                _stats_mul_curr_max[stat] = value
             _skills_mul_curr = {skill: [value, self.get_skill(skill)] for skill, value in target_skills.iteritems()}
             elements = set([e.id.lower() for e in char.elements])
             gender = char.gender
@@ -1312,31 +1320,33 @@ init -10 python:
                     if mcm is None:
                         continue
                     # a new max may have to be considered
-                    new_max = min(self.max[stat] + item.max[stat], self.lvl_max[stat]) if stat in item.max else mcm[2]
+                    new_max = mcm[2]
+                    if new_max is None:
+                        # exp/gold
+                        weights.append(mcm[0]*value)
+                        continue
+                        
+                    if stat in item.max:
+                        new_max = min(self.max[stat] + item.max[stat], self.lvl_max[stat])
                     if not new_max:
                         aeq_debug("Ignoring item %s because of strange stat-max behavior of %s.", item.id, stat)
                         continue # Some weird exception?
 
                     # Get the resulting value:
                     new_stat = max(min(self.stats[stat] + self.imod[stat] + value, new_max), self.min[stat])
-                    curr_stat = mcm[1]
-                    if curr_stat == new_stat:
+                    change = new_stat - mcm[1] # curr_stat
+                    if change == 0:
+                        if value < 0:
+                            # does not help, but does not hurt much either -> skip
+                            continue
                         # the item could help, but not now
-                        weights.append(min(25, value*mcm[0]/2))
-                        continue
-                    elif curr_stat > new_stat:
-                        # Item lowers the stat for the character
-                        change = curr_stat - new_stat
-                        # proceed if it does not take off more than 20% of our stat...
-                        if change > curr_stat/5:
-                            # We want nothing to do with this item.
-                            weights = None
-                            break
+                        change = value*.5
+                    elif change > 0:
+                        value *= .5 # it is worth at least as much as if it would not help now 
+                        if change < value:
+                            change = value
                     # add the fraction increase/decrease
-                    weights.append(mcm[0]*100*(new_stat - curr_stat)/float(new_max))
-
-                if weights is None:
-                    continue # Loop did not finish -> skip
+                    weights.append(mcm[0]*100*change/float(new_max))
 
                 # Max Stats:
                 for stat, value in item.max.iteritems():
@@ -1344,22 +1354,11 @@ init -10 python:
                     if mcm is None:
                         continue
                     new_max = min(self.max[stat] + value, self.lvl_max[stat])
-                    curr_max = mcm[2]
-                    if curr_max == new_max:
+                    change = new_max - mcm[2] # curr_max
+                    if change == 0:
                         continue
-                    elif curr_max > new_max:
-                        # Item lowers max of this stat for the character:
-                        change = curr_max - new_max
-                        # proceed if it does not take off more than 20% of our stat...
-                        if change > curr_max/5:
-                            # We want nothing to do with this item.
-                            weights = None
-                            break
                     # add the increase/decrease
-                    weights.append(mcm[0]*(new_max - curr_max))
-
-                if weights is None:
-                    continue # Loop did not finish -> skip
+                    weights.append(mcm[0]*change)
 
                 # Skills:
                 for skill, effect in item.mod_skills.iteritems():
@@ -1381,23 +1380,11 @@ init -10 python:
                     if mod_training > 5000: # SKILLS_MAX
                         mod_training = 5000 # SKILLS_MAX
                     new_skill = mod_training*max(min(mod_skill_multiplier, 2.5), .5)
-                    curr_skill = smc[1]
-                    if curr_skill == new_skill:
+                    change = new_skill - smc[1] # curr_skill
+                    if change == 0:
                         continue
-                    elif curr_skill > new_skill:
-                        # Item lowers skill of the character:
-                        change = curr_skill - new_skill
-                        # proceed if it does not take off more than 20% of our skill...
-                        if change > curr_skill/5:
-                            # We want nothing to do with this item.
-                            weights = None
-                            break
-
                     # add the fraction increase/decrease
-                    weights.append(smc[0]*100*(new_skill - curr_skill)/5000.0) # SKILLS_MAX
-
-                if weights is None:
-                    continue # Loop did not finish -> skip
+                    weights.append(smc[0]*100*change/5000.0) # SKILLS_MAX
 
                 # Spells:
                 for battle_skill in item.add_be_spells:
