@@ -95,9 +95,9 @@ init -10 python:
                 if key == "exp":
                     char.mod_exp(value)
                 elif is_stat(key):
-                    char.mod_stat(key, value)
+                    data[key] = char.mod_stat(key, value)
                 elif is_skill(key):
-                    char.mod_skill(key, 0, value)
+                    data[key] = char.mod_skill(key, 0, value)
 
         def log_tips(self, worker):
             # logically logs tips as income of this business.
