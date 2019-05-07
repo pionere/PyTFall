@@ -379,7 +379,7 @@ screen char_equip():
     default stats_display = "stats"
 
     # BASE FRAME 2 "bottom layer" ====================================>
-    add "content/gfx/frame/equipment2.webp"
+    add "content/gfx/frame/equipment3.webp"
 
     # Equipment slots:
     frame:
@@ -389,7 +389,7 @@ screen char_equip():
         use eqdoll(active_mode=True, char=eqtarget, frame_size=[70, 70], scr_align=(.98, 1.0), return_value=['item', "unequip"], txt_size=17, fx_size=(455, 400))
 
     # BASE FRAME 3 "mid layer" ====================================>
-    add "content/gfx/frame/equipment.webp"
+    add "content/gfx/frame/equipment1.webp"
 
     # Item Info (Mid-Bottom Frame): ====================================>
     hbox:
