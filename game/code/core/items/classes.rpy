@@ -5,7 +5,7 @@ init -9 python:
         AEQ_PURPOSES = dict()           # - Initialized at startup by load_aeq_purposes()
         TRAIT_TO_AEQ_PURPOSE = dict()   # /
         NOT_USABLE = set(["gift", "quest", "loot", "resources"])
-        NOT_TRANSFERABLE = set(["gift", "quest", "resources"])
+        NOT_TRANSFERABLE = set(["gift", "quest"])
         NOT_SELLABLE = set(["quest"])
         CONS_AND_MISC = set(["consumable", "misc"])
 

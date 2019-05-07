@@ -1055,7 +1055,7 @@ screen exploration_team(team):
                 imagebutton:
                     idle im.Scale("content/gfx/interface/buttons/edit.png", 24, 30)
                     hover im.Scale("content/gfx/interface/buttons/edit_h.png", 24, 30)
-                    action Return(["rename_team", "set_name"]), With(dissolve)
+                    action Return(["fg_team", "rename", team])
                     tooltip "Rename the team"
 
             imagebutton:

@@ -73,12 +73,8 @@ label building_management:
                         guild_teams.remove(team)
         elif result[0] == "building":
             if result[1] == 'items_transfer':
-                python:
-                    it_members = list(result[2])
-                    it_members.sort(key=attrgetter("name"))
                 hide screen building_management
-                $ items_transfer(it_members)
-                $ del it_members
+                $ items_transfer(result[2])
                 show screen building_management
             elif result[1] == "sign" or result[1] == "celeb":
                 python hide:
@@ -235,12 +231,15 @@ screen building_management_rightframe_building_mode:
                 sensitive len(bm_building.adverts) != 0
                 tooltip 'Advertise this building to attract more and better customers'
                 text "Advertise"
-            $ bm_building_chars = set(bm_building.inhabitants)
-            if hasattr(bm_building, "all_workers"):
-                $ bm_building_chars.update(bm_building.all_workers)
-            if hasattr(bm_building, "inventory"):
-                $ bm_building_chars.add(bm_building)
-            $ bm_building_chars.add(hero)
+            python:
+                bm_building_chars = set(bm_building.inhabitants)
+                if hasattr(bm_building, "all_workers"):
+                    bm_building_chars.update(bm_building.all_workers)
+                bm_building_chars = list(bm_building_chars)
+                bm_building_chars.sort(key=attrgetter("name"))
+                bm_building_chars.insert(0, hero)
+                if hasattr(bm_building, "inventory"):
+                    bm_building_chars.insert(0, bm_building)
             button:
                 xysize (135, 40)
                 action Return(['building', "items_transfer", bm_building_chars])
