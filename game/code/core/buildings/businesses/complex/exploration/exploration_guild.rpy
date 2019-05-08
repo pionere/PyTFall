@@ -489,12 +489,17 @@ init -6 python: # Guild, Tracker and Log.
                     tracker.state = None
             elif tracker.state == "traveling back":
                 if tracker.traveled is None and tracker.died:
-                    died = []
+                    died, injured = [], []
                     for d in tracker.died:
                         if dice(tracker.risk) and not dice(d.get_stat("luck")):
                             died.append(d)
                         else:
+                            injured.append(d)
                             d.enable_effect("Injured", duration=randint(6, 12))
+                    if injured:
+                        temp = "The wounds of {color=red}%s{/color} were not fatal, but they require further medical care." % ", ".join([d.fullname for d in injured])
+                        tracker.log(temp)
+
                     if died:
                         temp = "{color=red}%s{/color} did not make it through the night. RIP." % ", ".join([d.fullname for d in died])
                         tracker.log(temp)

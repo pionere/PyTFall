@@ -106,7 +106,7 @@ screen hero_profile():
 
     # BASE FRAME 2 "bottom layer" and portrait ====================================>
     add hero.show("portrait", "everyday", type="reduce", resize=(100, 100)) pos (64, 8) # portrait should be between "Base Frame 2" and "Base Frame 1" :Gismo
-    add "content/gfx/frame/h_profile.webp"
+    add "content/gfx/frame/h_profile1.webp"
 
     # BATTLE STATS ====================================>
     fixed:
