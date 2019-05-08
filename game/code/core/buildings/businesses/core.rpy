@@ -201,9 +201,9 @@ init -12 python:
             else:
                 cost, materials, in_slots, ex_slots = u.get_cost()
             self.in_slots -= in_slots
-            building.in_slots -= in_slots
+            self.building.in_slots -= in_slots
             self.ex_slots -= ex_slots
-            building.ex_slots -= ex_slots
+            self.building.ex_slots -= ex_slots
 
         def get_client_count(self):
             """Returns amount of clients we expect to come here.
@@ -525,12 +525,9 @@ init -12 python:
                 if self.send_in_worker: # Sends in workers when needed!
                     new_workers_required = (4+len(self.clients_waiting))/5
                     if DSNBR:
-                        temp = "Adding {} workers to {}!".format(
-                                set_font_color(new_workers_required, "green"),
-                                self.name)
-                        temp += " ~ self.send_in_worker == {}".format(
-                                    set_font_color(self.send_in_worker, "red"))
-                        self.log(temp, True)
+                        temp = "Adding {} workers to {}! (send_in:{}, queue:{})".format(
+                                new_workers_required, self.name, self.send_in_worker, len(self.clients_waiting))
+                        self.log(set_font_color(temp, "red"), True)
                     for i in range(new_workers_required):
                         self.add_worker(job)
                     self.send_in_worker = False

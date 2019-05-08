@@ -1069,7 +1069,6 @@ init -9 python:
 
             self.stats.eval_inventory(inv, weighted,
                                       target_stats, target_skills,
-                                      chance_func=self.equip_chance,
                                       upto_skill_limit=upto_skill_limit,
                                       base_purpose=base_purpose,
                                       smart_ownership_limit=False)
@@ -1226,7 +1225,6 @@ init -9 python:
             target_skills = {}
             self.stats.eval_inventory(inv, weighted,
                                       target_stats, target_skills,
-                                      chance_func=self.equip_chance,
                                       upto_skill_limit=upto_skill_limit,
                                       base_purpose=base_purpose,
                                       smart_ownership_limit=False)
@@ -1404,7 +1402,7 @@ init -9 python:
             kwargs = STATIC_ITEM.AEQ_PURPOSES[purpose]
 
             upto_skill_limit = False
-            self.stats.eval_inventory(container, weighted, chance_func=self.equip_chance,
+            self.stats.eval_inventory(container, weighted,
                                       upto_skill_limit=upto_skill_limit,
                                       check_money=check_money, limit_tier=limit_tier,
                                       smart_ownership_limit=smart_ownership_limit,
@@ -1884,7 +1882,7 @@ init -9 python:
             elif joy > 30:
                 self.del_flag("depression_counter")
             else:
-                if not "Pessimist" in self.traits and joy <= randint(15, 20):
+                if joy <= randint(15, 20) and not "Pessimist" in self.traits:
                     self.up_counter("depression_counter", 1)
                 if self.get_flag("depression_counter", 0) >= 3:
                     self.enable_effect("Depression")

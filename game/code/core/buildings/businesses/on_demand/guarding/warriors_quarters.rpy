@@ -98,7 +98,7 @@ init -5 python:
                         SparringQuarters_active = False # run only once per day
                     else:
                         use_SQ = False
-                    self.write_nd_report(strict_workers, defenders, log, -threat_cleared, use_SQ)
+                    self.write_nd_report(strict_workers, defenders, log, threat_cleared, use_SQ)
                     if now >= 105: # MAX_DU
                         self.env.exit()
                     make_nd_report_at = 0
@@ -136,7 +136,7 @@ init -5 python:
             simpy_debug("Guards.write_nd_report marker 1")
 
             wlen = len(all_workers)
-            temp = "%s Workers kept your businesses safe today." % set_font_color(wlen, "red")
+            temp = "%s %s kept your businesses safe today." % (set_font_color(wlen, "tomato"), plural("Worker", wlen))
             log.append(temp)
 
             # add log from preparation
@@ -172,7 +172,7 @@ init -5 python:
 
             simpy_debug("Guards.write_nd_report marker 3")
 
-            temp = "\nA total of %s threat was removed." % set_font_color(threat_cleared, "red")
+            temp = "\nA total of %s threat was removed." % set_font_color(-threat_cleared, "tomato")
             log.append(temp)
 
             if use_SQ:

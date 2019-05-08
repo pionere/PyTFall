@@ -1218,7 +1218,6 @@ init -10 python:
 
         def eval_inventory(self, inventory, weighted, target_stats, target_skills,
                            base_purpose, limit_tier=False,
-                           chance_func=None,
                            upto_skill_limit=False,
                            check_money=False,
                            smart_ownership_limit=True):
@@ -1231,7 +1230,6 @@ init -10 python:
             target_skills: similarly, a dict of skill-weight pairs
             base_purpose: set of strings to match against item.pref_class
             limit_tier: filter the result by the tier of the items
-            chance_func(): function that takes the item and returns a chance, between 0 and 100
             upto_skill_limit: whether or not to calculate bonus beyond training exactly
 
             # Auto-buy related.
@@ -1306,13 +1304,10 @@ init -10 python:
                     aeq_debug("Ignoring item %s on purpose.", item.id)
                     continue
 
-                if chance_func:
-                    weights = chance_func(item)
-                    if weights is None:
-                        aeq_debug("Ignoring item %s on weights.", item.id)
-                        continue
-                else:
-                    weights = [item.eqchance]
+                weights = char.equip_chance(item)
+                if weights is None:
+                    aeq_debug("Ignoring item %s on weights.", item.id)
+                    continue
 
                 # Stats:
                 for stat, value in item.mod.iteritems():

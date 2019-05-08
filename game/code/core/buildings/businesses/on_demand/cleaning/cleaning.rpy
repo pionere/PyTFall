@@ -81,7 +81,7 @@ init -5 python:
                     if DSNBR:
                         self.log("DEBUG! WRITING CLEANING REPORT!", True)
 
-                    self.write_nd_report(strict_workers, cleaners, log, -dirt_cleaned)
+                    self.write_nd_report(strict_workers, cleaners, log, dirt_cleaned)
                     if now >= 105: # MAX_DU
                         self.env.exit()
                     make_nd_report_at = 0
@@ -114,7 +114,7 @@ init -5 python:
             simpy_debug("Cleaners.write_nd_report marker 1")
 
             wlen = len(all_workers)
-            temp = "%s Workers cleaned the building today." % set_font_color(wlen, "red")
+            temp = "%s %s cleaned the building today." % (set_font_color(wlen, "tomato"), plural("Worker", wlen))
             log.append(temp)
 
             # add log from preparation
@@ -150,7 +150,7 @@ init -5 python:
 
             simpy_debug("Cleaners.write_nd_report marker 3")
 
-            temp = "\nA total of %s dirt was cleaned." % set_font_color(dirt_cleaned, "red")
+            temp = "\nA total of %s dirt was cleaned." % set_font_color(-dirt_cleaned, "tomato")
             log.append(temp)
 
             difficulty = loc.tier

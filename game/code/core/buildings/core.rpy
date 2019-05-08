@@ -376,6 +376,11 @@ init -10 python:
             """
             self.businesses.remove(business)
 
+            # stop work in construction
+            for icu in business.in_construction_upgrades[:]:
+                business.cancel_construction(icu)
+
+            # pay the price
             cost, materials, in_slots, ex_slots = business.get_cost()
 
             self.in_slots -= in_slots
