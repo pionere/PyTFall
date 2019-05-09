@@ -239,21 +239,31 @@ init -1 python: # Core classes:
 
         """Main BE attrs, data and the loop!
         """
-        def __init__(self, bg=None, music=None, row_pos=None, start_sfx=None,
-                     end_bg=None, end_sfx=None, logical=False, quotes=False,
-                     max_skill_lvl=float("inf"), max_turns=1000, give_up=None,
-                     use_items=False):
+        def __init__(self, logical=False,
+                     max_skill_lvl=float("inf"), max_turns=1000,
+                     use_items=False, give_up=None,
+                     bg=None, start_sfx=None, end_bg=None, end_sfx=None,
+                     music=None, quotes=False):
             """Creates an instance of BE scenario.
-
-            logical: Just the calculations, without pause/gfx/sfx.
+            :param logical: Just the calculations, without pause/gfx/sfx.
+            :param max_skill_lvl: limit the allowed skills (for e.g. indoor battles)
+            :param max_turns: limit the number of turns to prevent too long battles (due to resistances/immunities/lowPP)
+            :param give_up: allows to avoid battle in one way or another
+            :param use_items: allows use of items during combat.
+            --- non-logical parameters ---
+            :param bg: the background of the battle
+            :param start_sfx: the transition from the current-bg to the battle-bg
+            :param end_bg: the background after the battle
+            :param end_sfx: the transition from the battle-bg to the end_bg
+            :param music: the track to play, or "random" to choose a random battle track
+            :param quotes: Decide if we run quotes at the start of the battle.
             """
-            self.teams = list() # Each team represents a faction on the battlefield. 0 index for left team and 1 index for right team.
-            self.queue = list() # List of events in BE..
-            self.give_up = give_up # allows to avoid battle in one way or another
-            self.use_items = use_items # allows use of items during combat.
-            self.combat_status = None # general status of the battle, used to run away from BF atm.
-
-            self.max_turn = max_turns
+            self.max_skill_lvl = max_skill_lvl
+            self.max_turns = max_turns
+            self.give_up = give_up
+            self.use_items = use_items
+            self.logical = logical
+            self.logical_counter = 0
 
             if not logical:
                 # Background we'll use.
@@ -275,11 +285,14 @@ init -1 python: # Core classes:
                 self.end_sfx = end_sfx
                 self.music = get_random_battle_track() if music == "random" else music
 
-                self.quotes = quotes # Decide if we run quotes at the start of the battle.
+                self.quotes = quotes
 
+            self.row_pos = self.BDP
+
+            self.teams = list() # Each team represents a faction on the battlefield. 0 index for left team and 1 index for right team.
+            self.queue = list() # List of events in BE..
+            self.combat_status = None # general status of the battle, used to run away from BF atm.
             self.corpses = set() # Anyone died in the BE.
-
-            self.row_pos = row_pos if row_pos else self.BDP
 
             # Whatever controls the current queue of the loop is the controller.
             self.controller = None # The current character (player or AI combatant)
@@ -294,11 +307,6 @@ init -1 python: # Core classes:
             self.mid_turn_events = list() # Events to execute after controller was set.
             self.end_turn_events = list() # Events we execute on the end of the turn.
             self.terminate = False
-
-            self.logical = logical
-            self.logical_counter = 0
-
-            self.max_skill_lvl = max_skill_lvl
 
         @staticmethod
         def init():
@@ -801,7 +809,7 @@ init -1 python: # Core classes:
                 self.win = False
                 self.winner = self.teams[1]
                 return True
-            if self.logical and self.logical_counter >= self.max_turn:
+            if self.logical and self.logical_counter >= self.max_turns:
                 self.win = False
                 self.winner = self.teams[1]
                 self.log("Battle went on for far too long! %s is considered the winner!" % self.winner.name)

@@ -90,9 +90,7 @@ init 1000 python:
 
             global battle
             battle = BE_Core(logical=True, max_turns=max_turns)
-            battle.teams.append(off_team)
-            battle.teams.append(def_team)
-
+            battle.teams = [off_team, def_team]
             battle.start_battle()
 
             # Reset Controller:
@@ -119,7 +117,7 @@ init 1000 python:
                 if len(def_team) < 3:
                     def_team.add(mob)
                     continue
-                battle = new_style_conflict_resolver(off_team, def_team, simple_ai)
+                battle = run_auto_be(off_team, def_team, simple_ai)
                 off_team = None
 
         @staticmethod

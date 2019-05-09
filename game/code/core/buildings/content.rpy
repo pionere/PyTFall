@@ -549,7 +549,7 @@ init -9 python:
             off_team = Team(name="Runner", maxsize=1)
             off_team.add(char)
 
-            battle = new_style_conflict_resolver(off_team, def_team)
+            battle = run_auto_be(off_team, def_team)
             if battle.winner == off_team:
                 char.mod_exp(exp_reward(char, def_team, exp_mod=10))
                 char.mod_stat("joy", randint(2, 6))

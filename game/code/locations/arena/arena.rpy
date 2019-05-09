@@ -837,7 +837,7 @@ init -9 python:
             """
             Bridge to battle engine + rewards/penalties.
             """
-            team = self.cf_mob
+            enemy_team = self.cf_mob
 
             member_aps = []
             for member in hero.team:
@@ -846,20 +846,23 @@ init -9 python:
             renpy.music.stop(channel="world")
             global battle
             if auto is True:
-                battle = new_style_conflict_resolver(hero.team, team, simple_ai=False)
+                battle = run_auto_be(hero.team, enemy_team, simple_ai=False)
             else:
                 renpy.play(choice(["content/sfx/sound/world/arena/prepare.mp3", "content/sfx/sound/world/arena/new_opp.mp3"]))
                 track = get_random_battle_track()
                 renpy.pause(1.3)
                 renpy.music.play(track, fadein=1.5)
 
-                for mob in team:
+                for mob in enemy_team:
                     mob.controller = Complex_BE_AI(mob)
 
-                battle = BE_Core(ImageReference("chainfights"), start_sfx=get_random_image_dissolve(1.5), give_up="surrender", end_bg="battle_arena_1")
-                battle.teams.append(hero.team)
-                battle.teams.append(team)
+                battle = BE_Core(bg=ImageReference("chainfights"), start_sfx=get_random_image_dissolve(1.5), give_up="surrender", end_bg="battle_arena_1")
+                battle.teams = [hero.team, enemy_team]
                 battle.start_battle()
+
+                # Reset the controllers:
+                #hero.team.reset_controller()
+                enemy_team.reset_controller()
 
                 renpy.music.stop(fadeout=1.0)
 
@@ -868,7 +871,7 @@ init -9 python:
                     # Awards:
                     if member not in battle.corpses:
                         aps = (aps - member.PP)/100.0 # PP_PER_AP = 100
-                        rew_xp = exp_reward(member, team, exp_mod=aps*.15)
+                        rew_xp = exp_reward(member, enemy_team, exp_mod=aps*.15)
                         rew_rep = max(int(self.mob_power*.2), 1) # only little bit of reputation
                         #rew_gold = 0 # no gold for mobs, because they give items, unlike all other modes
                         member.mod_exp(rew_xp)
@@ -878,7 +881,7 @@ init -9 python:
                     else:
                         member.combat_stats = "K.O."
 
-                for member in team:
+                for member in enemy_team:
                     defeated_mobs.add(member.id)
                     member.combat_stats = "K.O."
 
@@ -901,9 +904,9 @@ init -9 python:
                     self.cf_setup = None
                     self.cf_count = 0
                     renpy.play("win_screen.mp3", channel="world")
-                    renpy.show_screen("arena_finished_chainfight", hero.team, team, rewards)
+                    renpy.show_screen("arena_finished_chainfight", hero.team, enemy_team, rewards)
                 else:
-                    renpy.show_screen("arena_aftermatch", hero.team, team, False)
+                    renpy.show_screen("arena_aftermatch", hero.team, enemy_team, False)
             else: # Player lost -->
                 self.cf_mob = None
                 self.cf_setup = None
@@ -960,7 +963,7 @@ init -9 python:
 
         def auto_resolve_combat(self, off_team, def_team, type="dog_fight"):
 
-            battle = new_style_conflict_resolver(off_team, def_team, simple_ai=True)
+            battle = run_auto_be(off_team, def_team, simple_ai=True)
 
             winner = battle.winner
             loser = off_team if winner == def_team else def_team
@@ -989,8 +992,6 @@ init -9 python:
             '''
             Bridge to battle engine + rewards/penalties
             '''
-            global battle
-
             renpy.music.stop(channel="world")
             renpy.play(choice(["content/sfx/sound/world/arena/prepare.mp3",
                                "content/sfx/sound/world/arena/new_opp.mp3"]))
@@ -1008,11 +1009,15 @@ init -9 python:
                 member.controller = Complex_BE_AI(member)
                 member_aps[member] = member.PP
 
+            global battle
             battle = BE_Core(bg="battle_dogfights_1", start_sfx=get_random_image_dissolve(1.5),
                              end_bg="battle_arena_1", end_sfx=dissolve, give_up="surrender")
-            battle.teams.append(hero.team)
-            battle.teams.append(enemy_team)
+            battle.teams = [hero.team, enemy_team]
             battle.start_battle()
+
+            # Reset the controllers:
+            #hero.team.reset_controller()
+            enemy_team.reset_controller()
 
             renpy.music.stop(fadeout=1.0)
 
@@ -1112,9 +1117,12 @@ init -9 python:
             global battle
             battle = BE_Core(bg="battle_arena_1", start_sfx=get_random_image_dissolve(1.5),
                              end_bg="battle_arena_1", end_sfx=dissolve, give_up="surrender")
-            battle.teams.append(hero.team)
-            battle.teams.append(enemy_team)
+            battle.teams = [hero.team, enemy_team]
             battle.start_battle()
+
+            # Reset the controllers:
+            #hero.team.reset_controller()
+            enemy_team.reset_controller()
 
             renpy.music.stop(fadeout=1.0)
 

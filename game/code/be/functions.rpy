@@ -15,7 +15,7 @@ init -11 python:
         for index, t in enumerate(targets):
             renpy.hide("enemy__"+str(index))
 
-    def new_style_conflict_resolver(off_team, def_team, simple_ai=True):
+    def run_auto_be(off_team, def_team, simple_ai=True):
         for fighter in chain(off_team, def_team):
             # dress for fight - not needed at the moment
             #if fighter.last_known_aeq_purpose not in FIGHTING_AEQ_PURPOSES and fighter.autoequip and fighter != hero:
@@ -95,7 +95,7 @@ init -11 python:
         pre_aps = [member.PP for member in your_team]
 
         global battle
-        battle = BE_Core(background, start_sfx=get_random_image_dissolve(1.5),
+        battle = BE_Core(bg=background, start_sfx=get_random_image_dissolve(1.5),
                     end_bg=end_background, end_sfx=dissolve,
                     music=track, quotes=prebattle,
                     max_skill_lvl=skill_lvl, give_up=give_up,
