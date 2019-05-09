@@ -1135,25 +1135,14 @@ init -6 python: # Guild, Tracker and Log.
             lvl = (tracker.area.tier+1)*20
             for i in xrange(enemy_team_size):
                 temp = build_mob(id=mob, level=lvl)
-                temp.controller = BE_AI(temp)
                 enemy_team.add(temp)
 
-            for i in team:
-                i.controller = BE_AI(i)
 
             # Logical battle scenario:
-            battle = BE_Core(logical=True)
-            store.battle = battle # Making battle global... I need to make sure this is not needed.
-            battle.teams.append(team)
-            battle.teams.append(enemy_team)
-            battle.start_battle()
+            battle = run_auto_be(team, enemy_team)
 
             # Add the battle report to log!:
             log.battle_log = list(reversed(battle.combat_log))
-
-            # Reset the controllers:
-            team.reset_controller()
-            enemy_team.reset_controller()
 
             # No death below risk 40:
             if tracker.risk > 40 and dice(tracker.risk):
