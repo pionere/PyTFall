@@ -445,26 +445,24 @@ init -11 python:
         else:
             return random.sample(patterns, 1)
 
-    def give_tiered_magic_skills(char, amount=None, support_amount=None):
-        """Gives spells based on tier and class of the character.
-        *We assume that is called on a char that actually needs it.
+    def give_tiered_magic_skills(char, amount=None):
+        """Gives spells to the character.
 
-        amount: Amount of skills to give. "auto" will get it from occupations and tiers.
-        support_amount: healing and status spells (forced).
+        amount: Amount of skills to give (normal, support).
+         *normal: attack spells
+         *support: healing and status spells
+         If not set, the char will get it based on occupations and tiers.
         """
         tier = min(((char.tier/2)+1), 4) # MAX_MAGIC_TIER = 4
         attributes = set([t.id.lower() for t in char.elements])
-        if support_amount is None:
+        if amount is None:
             if traits["Healer"] in char.traits.basetraits:
                 s_amount = max(tier, 2)
             #elif traits["Healer"] in char.traits:
             #    s_amount = max(tier, 1)
             else:
                 s_amount = 0
-        else:
-            s_amount = support_amount
 
-        if amount is None:
             gen_occs = char.gen_occs
             if "Caster" in gen_occs:
                 amount = tier + randint(1, 2)
@@ -476,6 +474,8 @@ init -11 python:
                     amount = randrange(3)
             else:
                 amount = 0
+        else:
+            amount, s_amount = amount
 
         if amount <= 0 and s_amount <= 0:
             return

@@ -123,9 +123,9 @@ label mc_setup_end:
                         hero.buildings.append(ap)
                         hero.home = ap
                 elif temp == "magic_skills":
-                    give_tiered_magic_skills(hero, amount=randint(2, 3))
+                    give_tiered_magic_skills(hero, amount=[randint(2, 3), 0])
                 elif temp == "magic_skill":
-                    give_tiered_magic_skills(hero, amount=1)
+                    give_tiered_magic_skills(hero, amount=[1, 0])
                 elif temp == "ap":
                     hero.basePP += 100 # PP_PER_AP
                 elif isinstance(temp, list) and len(temp) > 1:
