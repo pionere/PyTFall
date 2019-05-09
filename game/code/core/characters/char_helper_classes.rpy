@@ -1224,17 +1224,17 @@ init -10 python:
             """
             weigh items in inventory based on stats.
 
-            inventory: the inventory to evaluate items from
-            weighted: weights per item will be added to this
-            target_stats: a dict of stat-weight pairs to consider for items
-            target_skills: similarly, a dict of skill-weight pairs
-            base_purpose: set of strings to match against item.pref_class
-            limit_tier: filter the result by the tier of the items
-            upto_skill_limit: whether or not to calculate bonus beyond training exactly
+            :param inventory: the inventory to evaluate items from
+            :param weighted: weights per item will be added to this
+            :param target_stats: a dict of stat-weight pairs to consider for items
+            :param target_skills: similarly, a dict of skill-weight pairs
+            :param base_purpose: set of strings to match against item.pref_class
+            :param limit_tier: filter the result by the tier of the items
+            :param upto_skill_limit: whether or not to calculate bonus beyond training exactly
 
             # Auto-buy related.
-            check_money: check is char has enough cash to buy the items.
-            smart_ownership_limit: prevent to hoard items by checking the char's inventory
+            :param check_money: check is char has enough cash to buy the items.
+            :param smart_ownership_limit: prevent to hoard items by checking the char's inventory
             """
 
             # call the functions for these only once
@@ -1381,9 +1381,23 @@ init -10 python:
                     # add the fraction increase/decrease
                     weights.append(smc[0]*100*change/5000.0) # SKILLS_MAX
 
+                # Attacks:
+                if item.attacks is not None:
+                    mcm = _stats_mul_curr_max.get("attack", None)
+                    if mcm is not None:
+                        attack = mcm[1]
+                        if attack != 0: # prevent div-by-zero
+                            mcm = mcm[0]
+                            for battle_skill in item.attacks:
+                                battle_skill = battle_skills[battle_skill]
+                                power = (battle_skill.effect + attack) * battle_skill.multiplier
+
+                                # add the fraction increase/decrease TODO cost/crit?
+                                weights.append(mcm*100*power/attack)
+
                 # Spells:
                 for battle_skill in item.add_be_spells:
-                    battle_skill = store.battle_skills[battle_skill]
+                    battle_skill = battle_skills[battle_skill]
                     if battle_skill not in char.magic_skills:
                         value = (battle_skill.tier or 0)+1
                         if elements.isdisjoint(battle_skill.attributes):
