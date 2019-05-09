@@ -1032,10 +1032,6 @@ init -9 python:
             # Prepare data:
             inv = self.inventory
 
-            # preserve current stat in case we need to restore battle_stats
-            last_battle_stats = {s: self.get_stat(s) for s in ("health", "mp", "vitality")} # BATTLE_STATS
-            last_equipment = sorted(self.eqslots.items())
-
             weighted = {}
             # Go over all slots and unequip items:
             for s in EQUIP_SLOTS:
@@ -1162,16 +1158,6 @@ init -9 python:
                         self.equip(item, remove=False, aeq_mode=True)
                         aeq_debug("     --> %s equipped %s to %s.", item.id, self.name, item.slot)
                         returns.append(item.id)
-
-            # restore battle_stats in case the equipment is not changed and nothing was consumed
-            current_equipment = sorted(self.eqslots.items())
-            for prev_item, new_item in zip(last_equipment, current_equipment):
-                if prev_item != new_item:
-                    break
-            else:
-                # all the same -> restore battle_stats
-                for stat, value in last_battle_stats.iteritems():
-                    self.set_stat(stat, value)
 
             return returns
 
@@ -1515,40 +1501,44 @@ init -9 python:
                 func(battle_skill, False)
 
             # Taking care of stats: -------------------------------------------------->
+            slot = item.slot
+            type = item.type
+            traits = self.traits
+
             # Max Stats:
             for stat, value in item.max.items():
                 if stat == "defence":
-                    if value < 0 and "Elven Ranger" in self.traits and item.type in ["bow", "crossbow", "throwing"]:
+                    if value < 0 and "Elven Ranger" in traits and type in ["bow", "crossbow", "throwing"]:
                         continue
-                    if item.type == "armor" and "Knightly Stance" in self.traits:
+                    if type == "armor" and "Knightly Stance" in traits:
                         value *= 1.3
-                    if "Berserk" in self.traits:
+                    if "Berserk" in traits:
                         value *= .5
                 elif stat == "attack":
-                    if "Berserk" in self.traits:
+                    if "Berserk" in traits:
                         value *= 2
                 elif stat == "agility":
-                    if value < 0 and "Hollow Bones" in self.traits:
+                    if value < 0 and "Hollow Bones" in traits:
                         continue
 
-                if item.slot == "smallweapon":
-                    if "Left-Handed" in self.traits:
+                if slot == "smallweapon":
+                    if "Left-Handed" in traits:
                         value *= 2
-                elif item.slot == "weapon":
-                    if "Left-Handed" in self.traits:
+                elif slot == "weapon":
+                    if "Left-Handed" in traits:
                         value *= .5
 
-                if item.type == "sword":
-                    if "Sword Master" in self.traits:
+                if type == "sword":
+                    if "Sword Master" in traits:
                         value *= 1.3
-                elif item.type == "shield":
-                    if "Shield Master" in self.traits:
+                elif type == "shield":
+                    if "Shield Master" in traits:
                         value *= 1.3
-                elif item.type == "dagger":
-                    if "Dagger Master" in self.traits:
+                elif type == "dagger":
+                    if "Dagger Master" in traits:
                         value *= 1.3
-                elif item.type == "bow":
-                    if "Bow Master" in self.traits:
+                elif type == "bow":
+                    if "Bow Master" in traits:
                         value *= 1.3
 
                 # Reverse the value if appropriate:
@@ -1559,37 +1549,37 @@ init -9 python:
             # Min Stats:
             for stat, value in item.min.items():
                 if stat == "defence":
-                    if value < 0 and "Elven Ranger" in self.traits and item.type in ["bow", "crossbow", "throwing"]:
+                    if value < 0 and "Elven Ranger" in traits and type in ["bow", "crossbow", "throwing"]:
                         continue
-                    if item.type == "armor" and "Knightly Stance" in self.traits:
+                    if type == "armor" and "Knightly Stance" in traits:
                         value *= 1.3
-                    if "Berserk" in self.traits:
+                    if "Berserk" in traits:
                         value *= .5
                 elif stat == "attack":
-                    if "Berserk" in self.traits:
+                    if "Berserk" in traits:
                         value *= 2
                 elif stat == "agility":
-                    if value < 0 and "Hollow Bones" in self.traits:
+                    if value < 0 and "Hollow Bones" in traits:
                         continue
 
-                if item.slot == "smallweapon":
-                    if "Left-Handed" in self.traits:
+                if slot == "smallweapon":
+                    if "Left-Handed" in traits:
                         value *= 2
-                elif item.slot == "weapon":
-                    if "Left-Handed" in self.traits:
+                elif slot == "weapon":
+                    if "Left-Handed" in traits:
                         value *= .5
 
-                if item.type == "sword":
-                    if "Sword Master" in self.traits:
+                if type == "sword":
+                    if "Sword Master" in traits:
                         value *= 1.3
-                elif item.type == "shield":
-                    if "Shield Master" in self.traits:
+                elif type == "shield":
+                    if "Shield Master" in traits:
                         value *= 1.3
-                elif item.type == "dagger":
-                    if "Dagger Master" in self.traits:
+                elif type == "dagger":
+                    if "Dagger Master" in traits:
                         value *= 1.3
-                elif item.type == "bow":
-                    if "Bow Master" in self.traits:
+                elif type == "bow":
+                    if "Bow Master" in traits:
                         value *= 1.3
 
                 # Reverse the value if appropriate:
@@ -1618,25 +1608,24 @@ init -9 python:
                         temp.add_money(value, reason="Items")
                 elif stat == "exp":
                     self.mod_exp(exp_reward(self, self, exp_mod=float(value)/DAILY_EXP_CORE))
-                #                BATTLE_STATS ?
-                elif stat in ['health', 'mp', 'vitality', 'joy'] or (item.slot in ['consumable', 'misc'] and not (item.slot == 'consumable' and item.ctemp)):
-                    if item.type == "food" and 'Fast Metabolism' in self.effects:
+                elif (slot == "misc" or (slot == "consumable" and not item.ctemp)):
+                    if type == "food" and 'Fast Metabolism' in self.effects:
                         value *= 2
                     if original_value > 0:
                         if stat == "health":
-                            if "Summer Eternality" in self.traits:
+                            if "Summer Eternality" in traits:
                                 value *= .35
                         elif stat == "mp":
-                            if "Winter Eternality" in self.traits:
+                            if "Winter Eternality" in traits:
                                 value *= .35
-                            if "Magical Kin" in self.traits:
-                                if item.type == "alcohol":
+                            if "Magical Kin" in traits:
+                                if type == "alcohol":
                                     value *= 2
                                 else:
                                     value *= 1.5
                         elif stat == "vitality":
-                            if "Effective Metabolism" in self.traits:
-                                if item.type == "food":
+                            if "Effective Metabolism" in traits:
+                                if type == "food":
                                     value *= 2
                                 else:
                                     value *= 1.5
@@ -1644,37 +1633,37 @@ init -9 python:
                     self.mod_stat(stat, int(value))
                 else:
                     if stat == "defence":
-                        if original_value < 0 and "Elven Ranger" in self.traits and item.type in ["bow", "crossbow", "throwing"]:
+                        if original_value < 0 and "Elven Ranger" in traits and type in ["bow", "crossbow", "throwing"]:
                             continue
-                        if item.type == "armor" and "Knightly Stance" in self.traits:
+                        if type == "armor" and "Knightly Stance" in traits:
                             value *= 1.3
-                        if "Berserk" in self.traits:
+                        if "Berserk" in traits:
                             value *= .5
                     elif stat == "attack":
-                        if "Berserk" in self.traits:
+                        if "Berserk" in traits:
                             value *= 2
                     elif stat == "agility":
-                        if original_value < 0 and "Hollow Bones" in self.traits:
+                        if original_value < 0 and "Hollow Bones" in traits:
                             continue
 
-                    if item.slot == "smallweapon":
-                        if "Left-Handed" in self.traits:
+                    if slot == "smallweapon":
+                        if "Left-Handed" in traits:
                             value *= 2
-                    elif item.slot == "weapon":
-                        if "Left-Handed" in self.traits:
+                    elif slot == "weapon":
+                        if "Left-Handed" in traits:
                             value *= .5
 
-                    if item.type == "sword":
-                        if "Sword Master" in self.traits:
+                    if type == "sword":
+                        if "Sword Master" in traits:
                             value *= 1.3
-                    elif item.type == "shield":
-                        if "Shield Master" in self.traits:
+                    elif type == "shield":
+                        if "Shield Master" in traits:
                             value *= 1.3
-                    elif item.type == "dagger":
-                        if "Dagger Master" in self.traits:
+                    elif type == "dagger":
+                        if "Dagger Master" in traits:
                             value *= 1.3
-                    elif item.type == "bow":
-                        if "Bow Master" in self.traits:
+                    elif type == "bow":
+                        if "Bow Master" in traits:
                             value *= 1.3
 
                     try:
@@ -1684,24 +1673,24 @@ init -9 python:
 
             # Special modifiers based off traits:
             temp = ["smallweapon", "weapon", "body", "cape", "feet", "wrist", "head"]
-            if "Royal Assassin" in self.traits and item.slot in temp:
-                value = int((item.price if direction else -item.price)*.01)
+            if "Royal Assassin" in traits and slot in temp:
+                value = (item.price if direction else -item.price)/100
                 self.stats.max["attack"] += value
-                self.mod_stat("attack", value)
-            elif "Armor Expert" in self.traits and item.slot in temp:
-                value = int((item.price if direction else -item.price)*.01)
+                self.stats.imod["attack"] += int(value)
+            elif "Armor Expert" in traits and slot in temp:
+                value = (item.price if direction else -item.price)/100
                 self.stats.max["defence"] += value
-                self.mod_stat("defence", value)
-            elif "Arcane Archer" in self.traits and item.type in ["bow", "crossbow", "throwing"]:
-                max_val = int(item.max.get("attack", 0)*.5)
-                imod_val = int(item.mod.get("attack", 0)*.5)
+                self.stats.imod["defence"] += int(value)
+            elif "Arcane Archer" in traits and type in ["bow", "crossbow", "throwing"]:
+                max_val = item.max.get("attack", 0)/2
+                imod_val = item.mod.get("attack", 0)/2
                 if not direction:
                     max_val = -max_val
                     imod_val = -imod_val
                 self.stats.max["magic"] += max_val
                 self.stats.imod["magic"] += imod_val
-            if item.slot == 'consumable' and "Recharging" in self.traits \
-                and not item.ctemp and not("mp" in item.mod) and direction:
+            if slot == 'consumable' and "Recharging" in traits \
+                and not item.ctemp and "mp" not in item.mod:
                 self.mod_stat("mp", 10)
 
             # Skills:
@@ -1720,7 +1709,7 @@ init -9 python:
 
             # Traits:
             for trait in itertools.chain(item.removetraits, item.addtraits):
-                if item.slot == "misc" or (item.slot == "consumable" and not item.ctemp):
+                if slot == "misc" or (slot == "consumable" and not item.ctemp):
                     truetrait = True
                 else:
                     truetrait = False
@@ -1733,13 +1722,13 @@ init -9 python:
 
             # Effects:
             if hasattr(self, "effects"):
-                if item.slot == 'consumable' and direction:
-                    if item.type == 'food':
+                if slot == 'consumable' and direction:
+                    if type == 'food':
                         self.up_counter("dnd_food_poison_counter", 1)
                         if self.get_flag("dnd_food_poison_counter", 0) >= 7:
                             self.enable_effect('Food Poisoning')
 
-                    elif item.type == 'alcohol':
+                    elif type == 'alcohol':
                         self.up_counter("dnd_drunk_counter", item.mod["joy"])
                         if self.get_flag("dnd_drunk_counter", 0) >= 35:
                             self.enable_effect('Drunk')
