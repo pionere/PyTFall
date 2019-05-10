@@ -328,7 +328,7 @@ init -1 python: # Core classes:
 
             # DAMAGE TYPE TO COLOR MAP
             type_to_color_map = {e.id.lower(): e.font_color for e in tgs.elemental}
-            type_to_color_map["poison"] = "green"
+            type_to_color_map["poison"] = "forestgreen"
             type_to_color_map["healing"] = "lightgreen"
 
             BE_Core.TYPE_TO_COLOR_MAP.clear()
@@ -824,12 +824,12 @@ init -1 python: # Core classes:
             if team0 == 0:
                 self.winner = self.teams[1]
                 self.win = False
-                self.log("%s is victorious!" % self.winner.name)
+                self.log("{color=green}%s{/color} is victorious!" % self.winner.name)
                 return True
             if team1 == 0:
                 self.winner = self.teams[0]
                 self.win = True
-                self.log("%s is victorious!" % self.winner.name)
+                self.log("{color=green}%s{/color} is victorious!" % self.winner.name)
                 return True
 
         def get_all_events(self):

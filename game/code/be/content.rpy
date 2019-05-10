@@ -172,7 +172,7 @@ init python:
                 temp = min(temp, source.maxvit - source.vitality)
                 if temp != 0:
                     source.vitality += temp
-                    msg += " {color=green}+%d VP{/color}" % temp
+                    msg += " {color=lawngreen}+%d VP{/color}" % temp
 
                 # Restoring mp:
                 temp = round_int(source.maxmp * uniform(.03, .06))
@@ -263,7 +263,7 @@ init python:
                 t = self.target
 
                 t.status_overlay.remove(self.icon)
-                msg = "{color=teal}Poison effect on %s has ran its course...{/color}" % (t.name)
+                msg = "{color=forestgreen}Poison effect on %s has ran its course...{/color}" % (t.name)
                 battle.log(msg)
                 return True
 
@@ -291,7 +291,7 @@ init python:
 
             if t.health > damage:
                 t.health -= damage
-                msg = "%s is poisoned! {color=green}☠: %d{/color}" % (t.name, damage)
+                msg = "%s is poisoned! {color=forestgreen}☠: %d{/color}" % (t.name, damage)
                 battle.log(msg)
             else:
                 t.health = 1
@@ -336,7 +336,7 @@ init python:
                 t = self.target
 
                 t.status_overlay.remove(self.icon)
-                msg = "{color=teal}Defence Buff on %s has worn out!{/color}" % (t.name)
+                msg = "{color=skyblue}Defence Buff on %s has worn out!{/color}" % (t.name)
                 battle.log(msg)
                 return True
 
@@ -713,10 +713,10 @@ init python:
                 restore = round_int(BE_Core.damage_modifier(source, t, base_restore, "healing"))
                 effects.append(("healing", restore))
 
-                t.dmg_font = "lawngreen" # Color the battle bounce green!
+                t.dmg_font = "lightgreen" # Color the battle bounce green!
 
                 # String for the log:
-                temp = "%s used %s to heal %s!" % (source.nickname, self.name, t.name)
+                temp = "{color=teal}%s{/color} used %s to heal %s!" % (source.nickname, self.name, t.name)
                 self.log_to_battle(effects, restore, source, t, message=temp)
 
         def apply_effects(self, targets):
@@ -747,8 +747,8 @@ init python:
                 t.beeffects = [revive]
 
                 # String for the log:
-                s = ("{color=green}%s revives %s!{/color}" % (char.nickname, t.name))
-                t.dmg_font = "lawngreen" # Color the battle bounce green!
+                s = ("{color=palegreen}%s revives %s!{/color}" % (char.nickname, t.name))
+                t.dmg_font = "lightgreen" # Color the battle bounce green!
 
                 battle.log(s)
 
@@ -793,17 +793,17 @@ init python:
                     # Check if event is in play already:
                     for event in store.battle.mid_turn_events:
                         if t == event.target and event.group == group:
-                            battle.log("%s is already buffed by %ss spell!" % (t.nickname, event.source.name))
+                            battle.log("{color=skyblue}%s is already buffed by %ss spell!{/color}" % (t.nickname, event.source.name))
                             break
                     else:
                         temp = self.event_class(source, t, randint(*self.event_duration),
                                                 self.defence_bonus, self.defence_multiplier,
                                                 self.buff_icon, group, self.defence_gfx)
                         battle.mid_turn_events.append(temp)
-                        temp = "%s buffs %ss defence!" % (source.nickname, t.name)
+                        temp = "{color=skyblue}%s buffs %ss defence!{/color}" % (source.nickname, t.name)
                         self.log_to_battle(effects, effect, source, t, message=temp)
                 else:
-                    temp = "%s resisted the defence buff!" % (t.name)
+                    temp = "{color=skyblue}%s resisted the defence buff!{/color}" % (t.name)
                     self.log_to_battle(effects, effect, source, t, message=temp)
 
         def apply_effects(self, targets):
@@ -841,7 +841,7 @@ init python:
                 temp = "%sself" % source.char.op
             else:
                 temp = target.name
-            battle.log("%s uses a %s on %s!" % (source.nickname, self.item.id, temp))
+            battle.log("{color=teal}%s{/color} uses a %s on %s!" % (source.nickname, self.item.id, temp))
 
         def apply_effects(self, targets):
             global equipment_safe_mode
