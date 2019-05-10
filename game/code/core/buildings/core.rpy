@@ -1103,7 +1103,7 @@ init -10 python:
                         if business.res.count < business.capacity:
                             break # a free spot -> jump
                     else: # timeout -> skip
-                        temp = "%s could no wait any longer and decided to skip the %s." % (client_name, fav_business.name)
+                        temp = "%s could not wait any longer and decided to skip the %s." % (client_name, fav_business.name)
                         self.log(temp)
                         continue
 

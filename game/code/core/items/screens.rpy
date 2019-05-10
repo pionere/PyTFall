@@ -23,10 +23,7 @@ screen eqdoll(active_mode=True, char=None, frame_size=[55, 55], scr_align=(.23, 
     # active_mode = Allows equipped item to be focused if true, otherwise just dispayes a picture of an item (when equipped).
     # char = source of equipment slots.
     # Slots and the doll ------------------------------------------------------------>
-    if char == hero:
-        # add Transform(hero.show("sprofile", resize=(400, 720)), alpha=.8) align(.5, 1.0)
-        add im.Scale("content/gfx/interface/images/doll_male.png", 286, 400) align (.5, .5)
-    elif not isinstance(char, dict):
+    if not isinstance(char, dict):
         #f rame:
             # align (.5, .5)
             # background Frame("content/gfx/frame/MC_bg3.png", 10, 10)

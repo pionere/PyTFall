@@ -1,5 +1,13 @@
 init 1000 python:
     class TestSuite(_object):
+        mode = "devlog"
+
+        @staticmethod
+        def reportError(msg):
+            if TestSuite.mode == "devlog":
+                devlog.error(msg)
+            else:
+                raise Exception(msg)
 
         @staticmethod
         def testAll():
@@ -40,15 +48,16 @@ init 1000 python:
                 mob = build_mob(id=m, level=10)
                 
                 if not isinstance(mob, Mob):
-                    raise Exception("Creating mob %s does not result a Mob instance" % m)
+                    TestSuite.reportError("Creating mob %s does not result a Mob instance" % m)
+                    continue
                 if mob.level < 10:
-                    raise Exception("Creating mob %s with at least level 10 results a mob level %d" % (m, mob.level))
+                    TestSuite.reportError("Creating mob %s with at least level 10 results a mob level %d" % (m, mob.level))
                 if not isinstance(mob.race, Trait):
-                    raise Exception("The entity of mob %s does not have a race, or it is not a Trait instance %s" % (m, mob.race))
+                    TestSuite.reportError("The entity of mob %s does not have a race, or it is not a Trait instance %s" % (m, mob.race))
                 if not isinstance(mob.full_race, basestring):
-                    raise Exception("The entity of mob %s does not have a full_race, or it is not a basestring instance %s" % (m, mob.full_race))
+                    TestSuite.reportError("The entity of mob %s does not have a full_race, or it is not a basestring instance %s" % (m, mob.full_race))
                 if mob.front_row is not 0 and mob.front_row is not 1:
-                    raise Exception("The entity of mob %s does not have a valid front_row attribute. It is set to %s, but it should be 0 or 1" % (m, mob.front_row))
+                    TestSuite.reportError("The entity of mob %s does not have a valid front_row attribute. It is set to %s, but it should be 0 or 1" % (m, mob.front_row))
 
         @staticmethod
         def testTagDB():
@@ -99,9 +108,9 @@ init 1000 python:
 
             rv = battle.combat_status
             if isinstance(rv, basestring):
-                raise Exception("Battle result is %s, but it should not be a string." % rv)
+                TestSuite.reportError("Battle result is %s, but it should not be a string." % rv)
             if battle.winner != off_team:
-                raise Exception("The weaker team won, but they should not since they are much weaker!")
+                TestSuite.reportError("The weaker team won, but they should not since they are much weaker!")
 
         @staticmethod
         def testBEConflictR(simple_ai=True):
@@ -123,68 +132,69 @@ init 1000 python:
         @staticmethod
         def checkChar(c, context):
             if c.gender not in ["female", "male"]:
-                raise Exception("The entity (%s) %s does not have a valid gender %s" % (context, c.fullname, c.gender))
+                TestSuite.reportError("The entity (%s) %s does not have a valid gender %s" % (context, c.fullname, c.gender))
             temp = getattr(c, "race", None)
             if not isinstance(temp, Trait):
-                raise Exception("The entity (%s) %s does not have a race, or it is not a Trait instance %s" % (context, c.fullname, temp))
-            if temp not in c.traits:
-                raise Exception("The entity (%s) %s's race traits is not listed in its traits" % (context, c.fullname))
+                TestSuite.reportError("The entity (%s) %s does not have a race, or it is not a Trait instance %s" % (context, c.fullname, temp))
+            elif temp not in c.traits:
+                TestSuite.reportError("The entity (%s) %s's race traits is not listed in its traits" % (context, c.fullname))
             temp = getattr(c, "personality", None)
             if not isinstance(temp, Trait):
-                raise Exception("The entity (%s) %s does not have a personality, or it is not a Trait instance %s" % (context, c.fullname, temp))
-            if temp not in c.traits:
-                raise Exception("The entity (%s) %s's personality trait is not listed in its traits" % (context, c.fullname))
+                TestSuite.reportError("The entity (%s) %s does not have a personality, or it is not a Trait instance %s" % (context, c.fullname, temp))
+            elif temp not in c.traits:
+                TestSuite.reportError("The entity (%s) %s's personality trait is not listed in its traits" % (context, c.fullname))
             temp = getattr(c, "gents", None)
             if not isinstance(temp, Trait):
-                raise Exception("The entity (%s) %s does not have a gents-trait, or it is not a Trait instance %s" % (context, c.fullname, temp))
-            if temp not in c.traits:
-                raise Exception("The entity (%s) %s's gents-trait is not listed in its traits" % (context, c.fullname))
+                TestSuite.reportError("The entity (%s) %s does not have a gents-trait, or it is not a Trait instance %s" % (context, c.fullname, temp))
+            elif temp not in c.traits:
+                TestSuite.reportError("The entity (%s) %s's gents-trait is not listed in its traits" % (context, c.fullname))
             temp = getattr(c, "body", None)
             if not isinstance(temp, Trait):
-                raise Exception("The entity (%s) %s does not have a body-trait, or it is not a Trait instance %s" % (context, c.fullname, temp))
-            if temp not in c.traits:
-                raise Exception("The entity (%s) %s's body-trait is not listed in its traits" % (context, c.fullname))
+                TestSuite.reportError("The entity (%s) %s does not have a body-trait, or it is not a Trait instance %s" % (context, c.fullname, temp))
+            elif temp not in c.traits:
+                TestSuite.reportError("The entity (%s) %s's body-trait is not listed in its traits" % (context, c.fullname))
             if not c.elements:
-                raise Exception("The entity (%s) %s does not have an elemental trait" % (context, c.fullname))
+                TestSuite.reportError("The entity (%s) %s does not have an elemental trait" % (context, c.fullname))
             for item in c.inventory:
                 if item.id not in items:
-                    raise Exception("The entity (%s) %s's inventory has an unknown item %s" % (context, c.fullname, item.id))
+                    TestSuite.reportError("The entity (%s) %s's inventory has an unknown item %s" % (context, c.fullname, item.id))
 
             if c.front_row is not 0 and c.front_row is not 1:
-                raise Exception("The entity (%s) %s's front_row attribute is set to %s, but it should be 0 or 1" % (context, c.fullname, c.front_row))
+                TestSuite.reportError("The entity (%s) %s's front_row attribute is set to %s, but it should be 0 or 1" % (context, c.fullname, c.front_row))
 
             for k, v in c.magic_skills.items.items():
                 if v == 0:
-                    raise Exception("The entity (%s) %s's magic_skills is not properly cleaned (%s:%d)" % (context, c.fullname, k, v))
+                    TestSuite.reportError("The entity (%s) %s's magic_skills is not properly cleaned (%s:%d)" % (context, c.fullname, k, v))
             for k, v in c.attack_skills.items.items():
                 if v == 0:
-                    raise Exception("The entity (%s) %s's attack_skills is not properly cleaned (%s:%d)" % (context, c.fullname, k, v))
+                    TestSuite.reportError("The entity (%s) %s's attack_skills is not properly cleaned (%s:%d)" % (context, c.fullname, k, v))
 
             for t in c.traits:
                 if not isinstance(t, Trait):
-                    raise Exception("The entity (%s) %s's traits contains an invalid entry %s" % (context, c.fullname, t))
+                    TestSuite.reportError("The entity (%s) %s's traits contains an invalid entry %s" % (context, c.fullname, t))
                 if getattr(t, "gender", c.gender) != c.gender:
-                    raise Exception("The entity (%s) %s's traits contains a gender mismatching entry %s (%s vs. %s)" % (context, c.fullname, t, t.gender, c.gender))
+                    TestSuite.reportError("The entity (%s) %s's traits contains a gender mismatching entry %s (%s vs. %s)" % (context, c.fullname, t, t.gender, c.gender))
                 
             for t in c.traits.blocked_traits:
                 if not isinstance(t, Trait):
-                    raise Exception("The entity (%s) %s's blocked_traits contains an invalid entry %s" % (context, c.fullname, t))
+                    TestSuite.reportError("The entity (%s) %s's blocked_traits contains an invalid entry %s" % (context, c.fullname, t))
 
             for t in c.traits.ab_traits:
                 if not isinstance(t, Trait):
-                    raise Exception("The entity (%s) %s's ab_traits contains an invalid entry %s" % (context, c.fullname, t))
+                    TestSuite.reportError("The entity (%s) %s's ab_traits contains an invalid entry %s" % (context, c.fullname, t))
 
             for k, e in c.effects.items():
                 if not isinstance(e, CharEffect):
-                    raise Exception("The entity (%s) %s has an invalid effect %s with key %s" % (context, c.fullname, e, k))
+                    TestSuite.reportError("The entity (%s) %s has an invalid effect %s with key %s" % (context, c.fullname, e, k))
+                    continue
                 if e.name != k:
-                    raise Exception("The entity (%s) %s's effect %s is registered with wrong key %s" % (context, c.fullname, e, k))
+                    TestSuite.reportError("The entity (%s) %s's effect %s is registered with wrong key %s" % (context, c.fullname, e, k))
                 if e.duration is not None and e.days_active > e.duration:
-                    raise Exception("The entity (%s) %s's effect %s run longer (%d) than expected (%d)" % (context, c.fullname, e.name, e.days_active, e.duration))
+                    TestSuite.reportError("The entity (%s) %s's effect %s run longer (%d) than expected (%d)" % (context, c.fullname, e.name, e.days_active, e.duration))
 
             for k, v in c.eqslots.items():
                 if v and getattr(v, "gender", c.gender) != c.gender:
-                    raise Exception("The entity (%s) %s has a gender mismatching equipment (%s vs %s) in slot %s" % (context, c.fullname, v.gender, c.gender, k))
+                    TestSuite.reportError("The entity (%s) %s has a gender mismatching equipment (%s vs %s) in slot %s" % (context, c.fullname, v.gender, c.gender, k))
 
         @staticmethod
         def testRChars():
@@ -196,7 +206,7 @@ init 1000 python:
                              give_civilian_items=True, give_bt_items=False,
                              spells_to_tier=True)
                 if c.fullname != "alpha beta":
-                    raise Exception("Ignored name presets while creating a random char (result: %s)" % c.fullname)
+                    TestSuite.reportError("Ignored name presets while creating a random char (result: %s)" % c.fullname)
                 TestSuite.checkChar(c, "rchar/freeSpecialist")
 
             for i in range(100):
@@ -248,64 +258,65 @@ init 1000 python:
         @staticmethod
         def gameHero():
             if hero.front_row is not 0 and hero.front_row is not 1:
-                raise Exception("Hero(%s)'s front_row attribute is set to %s, but it should be 0 or 1" % (hero.fullname, hero.front_row))
+                TestSuite.reportError("Hero(%s)'s front_row attribute is set to %s, but it should be 0 or 1" % (hero.fullname, hero.front_row))
 
             for k, v in hero.magic_skills.items.items():
                 if v == 0:
-                    raise Exception("Hero(%s)'s magic_skills is not properly cleaned (%s:%d)" % (hero.fullname, k, v))
+                    TestSuite.reportError("Hero(%s)'s magic_skills is not properly cleaned (%s:%d)" % (hero.fullname, k, v))
             for k, v in hero.attack_skills.items.items():
                 if v == 0:
-                    raise Exception("Hero(%s)'s attack_skills is not properly cleaned (%s:%d)" % (hero.fullname, k, v))
+                    TestSuite.reportError("Hero(%s)'s attack_skills is not properly cleaned (%s:%d)" % (hero.fullname, k, v))
 
             for t in hero.traits:
                 if not isinstance(t, Trait):
-                    raise Exception("Hero(%s)'s traits contains an invalid entry %s" % (hero.fullname, t))
+                    TestSuite.reportError("Hero(%s)'s traits contains an invalid entry %s" % (hero.fullname, t))
                 if getattr(t, "gender", hero.gender) != hero.gender:
-                    raise Exception("Hero(%s)'s traits contains a gender mismatching entry %s (%s vs. %s)" % (hero.fullname, t, t.gender, hero.gender))
+                    TestSuite.reportError("Hero(%s)'s traits contains a gender mismatching entry %s (%s vs. %s)" % (hero.fullname, t, t.gender, hero.gender))
                 
             for t in hero.traits.blocked_traits:
                 if not isinstance(t, Trait):
-                    raise Exception("Hero(%s)'s blocked_traits contains an invalid entry %s" % (hero.fullname, t))
+                    TestSuite.reportError("Hero(%s)'s blocked_traits contains an invalid entry %s" % (hero.fullname, t))
 
             for t in hero.traits.ab_traits:
                 if not isinstance(t, Trait):
-                    raise Exception("Hero(%s)'s ab_traits contains an invalid entry %s" % (hero.fullname, t))
+                    TestSuite.reportError("Hero(%s)'s ab_traits contains an invalid entry %s" % (hero.fullname, t))
 
             for k, e in hero.effects.items():
                 if not isinstance(e, CharEffect):
-                    raise Exception("The entity (%s) %s has an invalid effect %s with key %s" % (hero.fullname, e, k))
+                    TestSuite.reportError("The entity (%s) %s has an invalid effect %s with key %s" % (hero.fullname, e, k))
+                    continue
                 if e.name != k:
-                    raise Exception("The entity (%s) %s's effect %s is registered with wrong key %s" % (hero.fullname, e, k))
+                    TestSuite.reportError("The entity (%s) %s's effect %s is registered with wrong key %s" % (hero.fullname, e, k))
                 if e.days_active > e.duration:
-                    raise Exception("Hero(%s)'s effect %s run longer (%d) than expected (%d)" % (hero.fullname, e.days_active, e.duration))
+                    TestSuite.reportError("Hero(%s)'s effect %s run longer (%d) than expected (%d)" % (hero.fullname, e.days_active, e.duration))
 
             for k, v in hero.eqslots.items():
                 if v and getattr(v, "gender", hero.gender) != hero.gender:
-                    raise Exception("Hero (%s) has a gender mismatching equipment (%s vs %s) in slot %s" % (hero.fullname, v.gender, hero.gender, k))
+                    TestSuite.reportError("Hero (%s) has a gender mismatching equipment (%s vs %s) in slot %s" % (hero.fullname, v.gender, hero.gender, k))
 
             # Teams:
             if hero.team not in hero.teams:
-                raise Exception("Hero(%s)'s current team %s is not listed in their teams" % (hero.fullname, hero.team.name))
+                TestSuite.reportError("Hero(%s)'s current team %s is not listed in their teams" % (hero.fullname, hero.team.name))
 
             for team in hero.teams:
                 if team.members[0] != hero:
-                    raise Exception("Hero(%s)'s team %s does not have hero as its first member." % (hero.fullname, team.name))
+                    TestSuite.reportError("Hero(%s)'s team %s does not have hero as its first member." % (hero.fullname, team.name))
                 for member in team:
                     if member != hero and member not in hero.chars:
-                        raise Exception("Hero(%s)'s team-member %s is not under hero's controll (not listed in hero.chars)." % (hero.fullname, member.name))
+                        TestSuite.reportError("Hero(%s)'s team-member %s is not under hero's controll (not listed in hero.chars)." % (hero.fullname, member.name))
 
             # chars:
             all_chars = chars.values()
             for char in hero.chars:
                 if char not in all_chars:
-                    raise Exception("Hero(%s)'s char %s is no longer in the global chars." % (hero.fullname, char.name))
+                    TestSuite.reportError("Hero(%s)'s char %s is no longer in the global chars." % (hero.fullname, char.name))
 
             for cf in hero.friends:
                 if cf not in all_chars:
-                    raise Exception("Friend of Hero, named %s is not registered." % cf.fullname)
+                    TestSuite.reportError("Friend of Hero, named %s is not registered." % cf.fullname)
             for cl in hero.lovers:
                 if cl not in all_chars:
-                    raise Exception("Lover of Hero, named %s is not registered." % cl.fullname)
+                    TestSuite.reportError("Lover of Hero, named %s is not registered." % cl.fullname)
 
         @staticmethod
         def gameChars():
@@ -314,196 +325,212 @@ init 1000 python:
                 TestSuite.checkChar(c, "game-char")
                 for cf in c.friends:
                     if cf != hero and cf not in chars:
-                        raise Exception("Friend of Char %s, named %s is not registered." % (c.fullname, cf.fullname))
+                        TestSuite.reportError("Friend of Char %s, named %s is not registered." % (c.fullname, cf.fullname))
                 for cl in c.lovers:
                     if cl != hero and cl not in chars:
-                        raise Exception("Lover of Char %s, named %s is not registered." % (c.fullname, cl.fullname))
+                        TestSuite.reportError("Lover of Char %s, named %s is not registered." % (c.fullname, cl.fullname))
                 if isinstance(c, rChar):
                     if not c.has_flag("from_day_in_game"):
-                        raise Exception("Rchar %s does not have 'from_day_in_game' flag" % c.fullname)
+                        TestSuite.reportError("Rchar %s does not have 'from_day_in_game' flag" % c.fullname)
 
             # check Slave Market
             for c in pytfall.sm.inhabitants:
                 if c not in all_chars:
-                    raise Exception("Char %s is not registered, but inhabitant of the slave market" % c.fullname)
+                    TestSuite.reportError("Char %s is not registered, but inhabitant of the slave market" % c.fullname)
 
             for c in pytfall.sm.chars_list:
                 if c not in all_chars:
-                    raise Exception("Char %s is not registered, but on sale in the slave market" % c.fullname)
+                    TestSuite.reportError("Char %s is not registered, but on sale in the slave market" % c.fullname)
 
             # TODO blue_slaves ?
 
             # check Jail
             for c in pytfall.jail.slaves:
                 if c not in all_chars:
-                    raise Exception("Char %s is not registered, but she/he is in jail as a runaway slave" % c.fullname)
+                    TestSuite.reportError("Char %s is not registered, but she/he is in jail as a runaway slave" % c.fullname)
                 if c.status != "slave":
-                    raise Exception("Non-slave char %s listed as runaway slave" % c.fullname)
+                    TestSuite.reportError("Non-slave char %s listed as runaway slave" % c.fullname)
 
             for c in pytfall.jail.captures:
                 if c not in all_chars:
-                    raise Exception("Char %s is not registered, but listed as captured in the jail" % c.fullname)
+                    TestSuite.reportError("Char %s is not registered, but listed as captured in the jail" % c.fullname)
 
             for c in pytfall.jail.cells:
                 if c not in all_chars:
-                    raise Exception("Char %s is not registered, but she/he is in the jail" % c.fullname)
+                    TestSuite.reportError("Char %s is not registered, but she/he is in the jail" % c.fullname)
                 if c.status != "free":
-                    raise Exception("Non-free char %s listed as civilian prisoner" % c.fullname)
+                    TestSuite.reportError("Non-free char %s listed as civilian prisoner" % c.fullname)
 
             # check Employment Agency
             for v in employment_agency_chars.itervalues():
                 for c in v:
                     if c not in all_chars:
-                        raise Exception("Char %s is not registered, but she/he available at the EA" % c.fullname)
+                        TestSuite.reportError("Char %s is not registered, but she/he available at the EA" % c.fullname)
                     if c.status != "free":
-                        raise Exception("Non-free char %s listed to be hired at EA" % c.fullname)
+                        TestSuite.reportError("Non-free char %s listed to be hired at EA" % c.fullname)
 
         @staticmethod
         def gameTraits():
             for key, trait in traits.items():
                 if trait.id != key:
-                    raise Exception("Bad Trait Entry %s for trait %s" % (key, trait.id))
+                    TestSuite.reportError("Bad Trait Entry %s for trait %s" % (key, trait.id))
                 if not isinstance(trait, Trait):
-                    raise Exception("Invalid entry %s for key %s (not a Trait instance)!" % (str(trait), key))
+                    TestSuite.reportError("Invalid entry %s for key %s (not a Trait instance)!" % (str(trait), key))
+                    continue
                 if getattr(trait, "gender", "female") not in ["female", "male"]:
-                    raise Exception("Invalid gender %s for trait %s (not 'female' or 'male')!" % (trait.gender, key))
+                    TestSuite.reportError("Invalid gender %s for trait %s (not 'female' or 'male')!" % (trait.gender, key))
                 for t in trait.blocks:
                     if not isinstance(t, Trait):
-                        raise Exception("Invalid blocked trait %s for trait %s (not a Trait instance)!" % (str(t), key))
+                        TestSuite.reportError("Invalid blocked trait %s for trait %s (not a Trait instance)!" % (str(t), key))
 
         @staticmethod
         def gameItems():
             valid_pref_classes = ["Any", "Casual", "Warrior", "Mage", "Shooter", "Manager", "Bartender", "Whore", "Stripper", "SIW", "Service", "Slave"]
             for key, item in items.items():
                 if item.id != key:
-                    raise Exception("Bad Item Entry %s for item %s" % (key, item.id))
+                    TestSuite.reportError("Bad Item Entry %s for item %s" % (key, item.id))
                 if not isinstance(item, Item):
-                    raise Exception("Invalid entry %s for key %s (not an Item instance)!" % (str(item), key))
+                    TestSuite.reportError("Invalid entry %s for key %s (not an Item instance)!" % (str(item), key))
+                    continue
                 if getattr(item, "gender", "female") not in ["female", "male"]:
-                    raise Exception("Invalid gender %s for item %s (not 'female' or 'male')!" % (item.gender, key))
+                    TestSuite.reportError("Invalid gender %s for item %s (not 'female' or 'male')!" % (item.gender, key))
                 for p in item.pref_class:
                     if p not in valid_pref_classes:
-                        raise Exception("Invalid pref_class %s for item %s (not in %s)!" % (p, key, ", ".join(valid_pref_classes)))
+                        TestSuite.reportError("Invalid pref_class %s for item %s (not in %s)!" % (p, key, ", ".join(valid_pref_classes)))
+                #if item.slot != "misc" and (item.slot != "consumable" or item.ctemp):
+                #    for stat, value in item.mod.items():
+                #        if stat in ["health", "vitality", "mp", "joy"]:
+                #            TestSuite.reportError("Item %s has a permanent modifier to %s stat!" % (key, stat))
 
         @staticmethod
         def gameAreas():
             for key, area in fg_areas.items():
                 if area.id != key:
-                    raise Exception("Bad Area Entry %s for area %s" % (key, area.id))
+                    TestSuite.reportError("Bad Area Entry %s for area %s" % (key, area.id))
                 if not isinstance(area, FG_Area):
-                    raise Exception("Invalid entry %s for key %s (not an FG_Area instance)!" % (key, str(area)))
+                    TestSuite.reportError("Invalid entry %s for key %s (not an FG_Area instance)!" % (key, str(area)))
+                    continue
                 if area.area is None:
                     continue # just a main area -> skip
                 if not isinstance(area.maxexplored, (int, float)) or area.maxexplored <= 0:
-                    raise Exception("Area %s has an invalid maxexplored setting %s (should be a greater than zero number)!" % (key, str(area.maxexplored)))
+                    TestSuite.reportError("Area %s has an invalid maxexplored setting %s (should be a greater than zero number)!" % (key, str(area.maxexplored)))
                 for item in area.items:
                     if item not in items:
-                        raise Exception("Area %s has an invalid item to be found: %s!" % (key, item))
+                        TestSuite.reportError("Area %s has an invalid item to be found: %s!" % (key, item))
 
         @staticmethod
         def gameBuildings():
             for b in chain(hero.buildings, buildings.itervalues()):
                 if b.needs_manager and b not in hero.buildings and any([b.clients, b.all_clients, b.regular_clients]):
-                    raise Exception("Building %s has active clients while it is for sale!" % b.name)
+                    TestSuite.reportError("Building %s has active clients while it is for sale!" % b.name)
 
                 if not hasattr(b, "threat_mod"):
                     locs = ["Flee Bottom", "Midtown", "Richford"]
                     if b.location not in locs:
-                        raise Exception("Building %s has an invalid location field! It must be one of the followings : %s.(Or threat_mod must be configured manually)" % (b.name, ", ".join(locs))) # threat_mod setting depends on this
+                        TestSuite.reportError("Building %s has an invalid location field! It must be one of the followings : %s.(Or threat_mod must be configured manually)" % (b.name, ", ".join(locs))) # threat_mod setting depends on this
 
                 for a in b.adverts:
                     if "name" not in a:
-                        raise Exception("An Advert in Building %s missing its name field." % b.name)
+                        TestSuite.reportError("An Advert in Building %s missing its name field." % b.name)
                     if not isinstance(a.get("upkeep", 0), int):
-                        raise Exception("Advert %s in Building %s has an invalid 'upkeep' field! It must be an integer." % (a["name"], b.name))
+                        TestSuite.reportError("Advert %s in Building %s has an invalid 'upkeep' field! It must be an integer." % (a["name"], b.name))
                     if not isinstance(a.get("client", 0), int):
-                        raise Exception("Advert %s in Building %s has an invalid 'client' field! It must be an integer." % (a["name"], b.name))
+                        TestSuite.reportError("Advert %s in Building %s has an invalid 'client' field! It must be an integer." % (a["name"], b.name))
                     if "fame" in a:
                         mod = a["fame"]
                         if not isinstance(mod, list) or len(mod) != 2:
-                            raise Exception("Advert %s in Building %s has an invalid 'fame' field! It must be a list(2)." % (a["name"], b.name))
-                        if not (isinstance(mod[0], int) and isinstance(mod[1], int)):
-                            raise Exception("Advert %s in Building %s has an invalid 'fame' field! The values must be integers." % (a["name"], b.name))
+                            TestSuite.reportError("Advert %s in Building %s has an invalid 'fame' field! It must be a list(2)." % (a["name"], b.name))
+                        elif not (isinstance(mod[0], int) and isinstance(mod[1], int)):
+                            TestSuite.reportError("Advert %s in Building %s has an invalid 'fame' field! The values must be integers." % (a["name"], b.name))
                     if "reputation" in a:
                         mod = a["reputation"]
                         if not isinstance(mod, list) or len(mod) != 2:
-                            raise Exception("Advert %s in Building %s has an invalid 'reputation' field! It must be a list(2)." % (a["name"], b.name))
-                        if not (isinstance(mod[0], int) and isinstance(mod[1], int)):
-                            raise Exception("Advert %s in Building %s has an invalid 'reputation' field! The values must be integers." % (a["name"], b.name))
+                            TestSuite.reportError("Advert %s in Building %s has an invalid 'reputation' field! It must be a list(2)." % (a["name"], b.name))
+                        elif not (isinstance(mod[0], int) and isinstance(mod[1], int)):
+                            TestSuite.reportError("Advert %s in Building %s has an invalid 'reputation' field! The values must be integers." % (a["name"], b.name))
 
                 for u in b.upgrades:
                     if u not in b.allowed_upgrades:
-                        raise Exception("Built-Upgrade %s in Building %s is not allowed!" % (u.name, b.name))
-                    if not isinstance(getattr(u, "materials", None), dict):
-                        raise Exception("Upgrade %s in Building %s has an invalid 'materials' field! It must be a dict/map." % (u.name, b.name))
-                    for m in u.materials:
-                        if m not in items:
-                            raise Exception("Upgrade %s in Building %s requires an invalid item: %s!" % (u.name, b.name, m))
+                        TestSuite.reportError("Built-Upgrade %s in Building %s is not allowed!" % (u.name, b.name))
+                    temp = getattr(u, "materials", None)
+                    if not isinstance(temp, dict):
+                        TestSuite.reportError("Upgrade %s in Building %s has an invalid 'materials' field! It must be a dict/map." % (u.name, b.name))
+                    else:
+                        for m in temp:
+                            if m not in items:
+                                TestSuite.reportError("Upgrade %s in Building %s requires an invalid item: %s!" % (u.name, b.name, m))
                     if u.expands_capacity:
-                        raise Exception("Upgrade %s in Building %s is expandable, but it should not be!" % (u.name, b.name))
+                        TestSuite.reportError("Upgrade %s in Building %s is expandable, but it should not be!" % (u.name, b.name))
                     if u.duration is not None:
                         if not isinstance(u.duration, list) or len(u.duration) != 2:
-                            raise Exception("Upgrade %s in Building %s has an invalid 'duration' field! It must be a list(2)." % (u.name, b.name))
-                        if not (isinstance(u.duration[0], int) and isinstance(u.duration[1], int)):
-                            raise Exception("Upgrade %s in Building %s has an invalid 'duration' field! The values must be integers." % (u.name, b.name))
+                            TestSuite.reportError("Upgrade %s in Building %s has an invalid 'duration' field! It must be a list(2)." % (u.name, b.name))
+                        elif not (isinstance(u.duration[0], int) and isinstance(u.duration[1], int)):
+                            TestSuite.reportError("Upgrade %s in Building %s has an invalid 'duration' field! The values must be integers." % (u.name, b.name))
 
                 for bs in b.businesses:
                     if bs not in b.allowed_businesses:
-                        raise Exception("Built-Business %s in Building %s is not allowed!" % (bs.name, b.name))
+                        TestSuite.reportError("Built-Business %s in Building %s is not allowed!" % (bs.name, b.name))
 
                     if bs.habitable and bs.workable:
-                        raise Exception("Business %s in Building %s is both habitable and workable, but these are exclusive settings!" % (bs.name, b.name)) # capacity calculation depends on this
+                        TestSuite.reportError("Business %s in Building %s is both habitable and workable, but these are exclusive settings!" % (bs.name, b.name)) # capacity calculation depends on this
 
                     if bs.expects_clients and not bs.workable:
-                        raise Exception("Business %s in Building %s expects clients, but not workable!" % (bs.name, b.name))
+                        TestSuite.reportError("Business %s in Building %s expects clients, but not workable!" % (bs.name, b.name))
 
                     for u in b.upgrades:
                         if u not in bs.allowed_upgrades:
-                            raise Exception("Business-Upgrade %s of %s in Building %s is not allowed!" % (u.name, bs.name, b.name))
-                        if not isinstance(getattr(u, "materials", None), dict):
-                            raise Exception("Business-Upgrade %s of %s in Building %s has an invalid 'materials' field! It must be a dict/map." % (u.name, bs.name, b.name))
-                        for m in u.materials:
-                            if m not in items:
-                                raise Exception("Business-Upgrade %s of %s in Building %s requires an invalid item: %s!" % (u.name, bs.name, b.name, m))
+                            TestSuite.reportError("Business-Upgrade %s of %s in Building %s is not allowed!" % (u.name, bs.name, b.name))
+                        
+                        temp = getattr(u, "materials", None)
+                        if not isinstance(temp, dict):
+                            TestSuite.reportError("Business-Upgrade %s of %s in Building %s has an invalid 'materials' field! It must be a dict/map." % (u.name, bs.name, b.name))
+                        else:
+                            for m in temp:
+                                if m not in items:
+                                    TestSuite.reportError("Business-Upgrade %s of %s in Building %s requires an invalid item: %s!" % (u.name, bs.name, b.name, m))
                         if u.expands_capacity:
-                            raise Exception("Business-Upgrade %s of %s in Building %s is expandable, but it should not be!" % (u.name, bs.name, b.name))
+                            TestSuite.reportError("Business-Upgrade %s of %s in Building %s is expandable, but it should not be!" % (u.name, bs.name, b.name))
                         if u.duration is not None:
                             if not isinstance(u.duration, list) or len(u.duration) != 2:
-                                raise Exception("Business-Upgrade %s of %s in Building %s has an invalid 'duration' field! It must be a list(2)." % (u.name, bs.name, b.name))
-                            if not (isinstance(u.duration[0], int) and isinstance(u.duration[1], int)):
-                                raise Exception("Business-Upgrade %s of %s in Building %s has an invalid 'duration' field! The values must be integers." % (u.name, bs.name, b.name))
+                                TestSuite.reportError("Business-Upgrade %s of %s in Building %s has an invalid 'duration' field! It must be a list(2)." % (u.name, bs.name, b.name))
+                            elif not (isinstance(u.duration[0], int) and isinstance(u.duration[1], int)):
+                                TestSuite.reportError("Business-Upgrade %s of %s in Building %s has an invalid 'duration' field! The values must be integers." % (u.name, bs.name, b.name))
 
                     if not isinstance(getattr(bs, "materials", None), dict):
-                        raise Exception("Business %s in Building %s has an invalid 'materials' field! It must be a dict/map." % (bs.name, b.name))
+                        TestSuite.reportError("Business %s in Building %s has an invalid 'materials' field! It must be a dict/map." % (bs.name, b.name))
+                        continue
                     for m in bs.materials:
                         if m not in items:
-                            raise Exception("Business %s in Building %s requires an invalid item: %s!" % (bs.name, b.name, m))
+                            TestSuite.reportError("Business %s in Building %s requires an invalid item: %s!" % (bs.name, b.name, m))
                     if bs.duration is not None:
                         if not isinstance(bs.duration, list) or len(bs.duration) != 2:
-                            raise Exception("Business %s in Building %s has an invalid 'duration' field! It must be a list(2)." % (bs.name, b.name))
-                        if not (isinstance(bs.duration[0], int) and isinstance(bs.duration[1], int)):
-                            raise Exception("Business %s in Building %s has an invalid 'duration' field! The values must be integers." % (bs.name, b.name))
+                            TestSuite.reportError("Business %s in Building %s has an invalid 'duration' field! It must be a list(2)." % (bs.name, b.name))
+                        elif not (isinstance(bs.duration[0], int) and isinstance(bs.duration[1], int)):
+                            TestSuite.reportError("Business %s in Building %s has an invalid 'duration' field! The values must be integers." % (bs.name, b.name))
                     ec_fields = ["exp_cap_in_slots", "exp_cap_ex_slots", "exp_cap_cost", "exp_cap_materials", "exp_cap_duration"]
                     if bs.expands_capacity:
                         for f in ec_fields:
                             if not hasattr(bs, f):
-                                raise Exception("Business %s in Building %s is expandable, but missing expansion-related field %s!" % (bs.name, b.name, f))
+                                TestSuite.reportError("Business %s in Building %s is expandable, but missing expansion-related field %s!" % (bs.name, b.name, f))
 
-                        if bs.exp_cap_duration is not None:
-                            if not isinstance(bs.exp_cap_duration, list) or len(bs.exp_cap_duration) != 2:
-                                raise Exception("Business %s in Building %s has an invalid 'exp_cap_duration' field! It must be a list(2)." % (bs.name, b.name))
-                            if not (isinstance(bs.exp_cap_duration[0], int) and isinstance(bs.exp_cap_duration[1], int)):
-                                raise Exception("Business %s in Building %s has an invalid 'exp_cap_duration' field! The values must be integers." % (bs.name, b.name))
+                        temp = getattr(bs, "exp_cap_duration", None)
+                        if temp is not None:
+                            if not isinstance(temp, list) or len(temp) != 2:
+                                TestSuite.reportError("Business %s in Building %s has an invalid 'exp_cap_duration' field! It must be a list(2)." % (bs.name, b.name))
+                            elif not (isinstance(bs.exp_cap_duration[0], int) and isinstance(bs.exp_cap_duration[1], int)):
+                                TestSuite.reportError("Business %s in Building %s has an invalid 'exp_cap_duration' field! The values must be integers." % (bs.name, b.name))
 
-                        if not isinstance(getattr(bs, "exp_cap_materials", None), dict):
-                            raise Exception("Business %s in Building %s has an invalid 'exp_cap_materials' field! It must be a dict/map." % (bs.name, b.name))
-                        for m in bs.exp_cap_materials:
+                        temp = getattr(bs, "exp_cap_materials", dict())
+                        if not isinstance(temp, dict):
+                            TestSuite.reportError("Business %s in Building %s has an invalid 'exp_cap_materials' field! It must be a dict/map." % (bs.name, b.name))
+                            continue
+                        for m in temp:
                             if m not in items:
-                                raise Exception("Business %s in Building %s requires an invalid item (%s) to expand its capacity!" % (bs.name, b.name, m))
+                                TestSuite.reportError("Business %s in Building %s requires an invalid item (%s) to expand its capacity!" % (bs.name, b.name, m))
                     else:
                         for f in ec_fields:
                             if hasattr(bs, f):
-                                raise Exception("Business %s in Building %s is not expandable, but has expansion-related field %s!" % (bs.name, b.name, f))
+                                TestSuite.reportError("Business %s in Building %s is not expandable, but has expansion-related field %s!" % (bs.name, b.name, f))
 
         @staticmethod
         def performanceTest():

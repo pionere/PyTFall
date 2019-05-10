@@ -300,25 +300,27 @@ init: # MC Setup Screens:
                 action [SetScreenVariable("index", (index + 1) % len(sprites)),
                         SetScreenVariable("left_index", (left_index + 1) % len(sprites)),
                         SetScreenVariable("right_index", (right_index + 1) % len(sprites))]
+        $ temp = Frame("content/gfx/frame/MC_bg3.png", 40, 40)
         frame:
             align .328, .53
             xysize (160, 220)
-            background Frame("content/gfx/frame/MC_bg3.png", 40, 40)
-            add im.Sepia(sprites[left_index].show("battle_sprite", resize=(140, 190))) align .5, .4
+            background temp
+            add im.Sepia(sprites[left_index].show("battle_sprite", resize=(140, 200))) align .5, .5
         frame:
             align .586, .53
             xysize (160, 220)
-            background Frame("content/gfx/frame/MC_bg3.png", 40, 40)
-            add im.Sepia(sprites[right_index].show("battle_sprite", resize=(140, 190))) align .5, .4
+            background temp
+            add im.Sepia(sprites[right_index].show("battle_sprite", resize=(140, 200))) align .5, .5
         frame:
-            align .457, .36
+            align .457, .356
             xysize (160, 220)
-            background Frame("content/gfx/frame/MC_bg3.png", 40, 40)
-            add sprites[index].show("battle_sprite", resize=(150, 200)) align .5, .4
+            background temp
+            add sprites[index].show("battle_sprite", resize=(140, 200)) align .5, .5
         frame:
             pos 713, 37
+            xysize (110, 110)
             background Frame("content/gfx/frame/MC_bg.png", 10, 10)
-            add sprites[index].show("portrait", resize=(100, 100))
+            add sprites[index].show("portrait", resize=(100, 100)) align .5, .5
 
         ### Background Story ###
         add "content/gfx/interface/images/story1.png" align (.002, .09)
