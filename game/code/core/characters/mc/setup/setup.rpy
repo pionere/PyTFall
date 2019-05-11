@@ -55,11 +55,15 @@ label mc_setup_end:
         mc_story: Defender
         mc_substory: Sword
         """
-        # We build the MC here. First we get the classes player picked in the choices screen and add those to MC:
+        # cleanup of the fighters:
         if hero.gender == "male":
             del male_fighters[fighter.id]
         else:
             del female_fighters[fighter.id]
+        for char in chain(male_fighters.values(), female_fighters.values()):
+            char.clear_img_cache()
+
+        # We build the MC here. First we get the classes player picked in the choices screen and add those to MC:
         hero._path_to_imgfolder = fighter._path_to_imgfolder
         hero.id = fighter.id
 
@@ -236,7 +240,7 @@ init: # MC Setup Screens:
                 action [Stop("music"), Return(["control", "build_mc", sprites[index]])]
         vbox:
             # align (.37, .10)
-            pos (365, 48)
+            pos (365, 30)
             hbox:
                 textbutton "Gender:" text_color "goldenrod" text_font "fonts/TisaOTM.otf" text_size 20:
                     background Transform(Frame("content/gfx/interface/images/story12.png", 5, 5), alpha=.8)
@@ -259,6 +263,19 @@ init: # MC Setup Screens:
                     hover_background Transform(Frame("content/gfx/interface/images/story12.png", 1, 1), alpha=.8)
                     action ac_list + [Function(setattr, hero, "gender", temp), SetScreenVariable("sprites", ss)]
                     tooltip "Click to change gender"
+                    xpadding 12
+                    ypadding 8
+            hbox:
+                textbutton "Height:" text_color "goldenrod" text_font "fonts/TisaOTM.otf" text_size 20:
+                    background Transform(Frame("content/gfx/interface/images/story12.png", 5, 5), alpha=.8)
+                    xpadding 12
+                    ypadding 8
+                $ heights = ["short", "average", "tall"]
+                textbutton hero.height.capitalize() text_color "white" text_hover_color "red" text_font "fonts/TisaOTM.otf" text_size 20:
+                    background Transform(Frame("content/gfx/interface/images/story12.png", 5, 5), alpha=.8)
+                    hover_background Transform(Frame(im.MatrixColor("content/gfx/interface/images/story12.png", im.matrix.brightness(.15)), 5, 5), alpha=1)
+                    action SetField(hero, "height", heights[(heights.index(hero.height)+1)%len(heights)])
+                    tooltip "Click to change height"
                     xpadding 12
                     ypadding 8
             hbox:
@@ -305,22 +322,22 @@ init: # MC Setup Screens:
             align .328, .53
             xysize (160, 220)
             background temp
-            add im.Sepia(sprites[left_index].show("battle_sprite", resize=(140, 200))) align .5, .5
+            add im.Sepia(sprites[left_index].show("battle_sprite", resize=(140, 200), cache=True)) align .5, .5
         frame:
             align .586, .53
             xysize (160, 220)
             background temp
-            add im.Sepia(sprites[right_index].show("battle_sprite", resize=(140, 200))) align .5, .5
+            add im.Sepia(sprites[right_index].show("battle_sprite", resize=(140, 200), cache=True)) align .5, .5
         frame:
             align .457, .356
             xysize (160, 220)
             background temp
-            add sprites[index].show("battle_sprite", resize=(140, 200)) align .5, .5
+            add sprites[index].show("battle_sprite", resize=(140, 200), cache=True) align .5, .5
         frame:
             pos 713, 37
             xysize (110, 110)
             background Frame("content/gfx/frame/MC_bg.png", 10, 10)
-            add sprites[index].show("portrait", resize=(100, 100)) align .5, .5
+            add sprites[index].show("portrait", resize=(100, 100), cache=True) align .5, .5
 
         ### Background Story ###
         add "content/gfx/interface/images/story1.png" align (.002, .09)
