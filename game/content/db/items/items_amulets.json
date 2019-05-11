@@ -197,7 +197,7 @@
     "mod_skills": {"refinement": [0.1, 0.1, 0.1, 0, 0], "management": [0.05, 0.05, 0.05, 0, 0]},
     "tier": 3,
     "locations": ["General Store"],
-    "pref_class":["SIW", "Manager", "Casual"]
+    "pref_class":["SIW", "Bartender", "Manager", "Casual"]
     },
     {
     "id": "Minor Reflector",

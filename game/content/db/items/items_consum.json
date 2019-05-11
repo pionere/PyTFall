@@ -1179,7 +1179,7 @@
     "desc": "A small rare talisman capable to bestow good luck.",
     "icon": "content/items/cons/gl.png",
     "price": 500,
-    "chance": 10,
+    "chance": 5,
     "badness": 10,
     "eqchance": 90,
     "tier": 2,

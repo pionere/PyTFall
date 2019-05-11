@@ -67,8 +67,8 @@ init -5 python:
                         dirt_cleaned += value
                         cleaners.add(w)
 
-                        w.PP -= 5
-                        w.up_counter("jp_clean", 5)
+                        w.PP -= 10
+                        w.up_counter("jp_clean", 10)
                         if w.PP <= 0:
                             temp = "%s is done cleaning for the day!" % w.nickname
                             temp = set_font_color(temp, "cadetblue")

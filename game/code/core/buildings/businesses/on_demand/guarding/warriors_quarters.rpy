@@ -69,8 +69,8 @@ init -5 python:
                         defenders.add(w)
 
                         # Adjust PP and Remove the worker after running out of action points:
-                        w.PP -= 5
-                        w.up_counter("jp_guard", 5)
+                        w.PP -= 10
+                        w.up_counter("jp_guard", 10)
                         if w.PP <= 0:
                             temp = "%s is done guarding for the day!" % w.nickname
                             temp = set_font_color(temp, "cadetblue")
