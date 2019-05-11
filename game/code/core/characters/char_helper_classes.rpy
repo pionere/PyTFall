@@ -1217,10 +1217,9 @@ init -10 python:
             self._mod_raw_skill(skill, 1, value/3.0)
 
         def eval_inventory(self, inventory, weighted, target_stats, target_skills,
-                           base_purpose, limit_tier=False,
+                           base_purpose,
                            upto_skill_limit=False,
-                           check_money=False,
-                           smart_ownership_limit=True):
+                           check_money=False):
             """
             weigh items in inventory based on stats.
 
@@ -1229,12 +1228,10 @@ init -10 python:
             :param target_stats: a dict of stat-weight pairs to consider for items
             :param target_skills: similarly, a dict of skill-weight pairs
             :param base_purpose: set of strings to match against item.pref_class
-            :param limit_tier: filter the result by the tier of the items
             :param upto_skill_limit: whether or not to calculate bonus beyond training exactly
 
             # Auto-buy related.
             :param check_money: check is char has enough cash to buy the items.
-            :param smart_ownership_limit: prevent to hoard items by checking the char's inventory
             """
 
             # call the functions for these only once
@@ -1249,6 +1246,27 @@ init -10 python:
                     value = [value, self._get_stat(stat), self.get_max(stat)]
                 _stats_mul_curr_max[stat] = value
             _skills_mul_curr = {skill: [value, self.get_skill(skill)] for skill, value in target_skills.iteritems()}
+            # prepare delivery information TODO bind this to BE_Core?
+            delivery_bonus, delivery_multiplier = defaultdict(int), defaultdict(int)
+            level = char.level
+            for trait in char.traits:
+                temp = getattr(trait, "delivery_bonus", None)
+                if temp is not None:
+                    for delivery, bonus in temp.iteritems():
+                        # Reference: (minv, maxv, lvl)
+                        minv, maxv, lvl = bonus
+                        if lvl > level:
+                            maxv = max(minv, float(level)*maxv/lvl)
+                        delivery_bonus[delivery] += maxv
+
+                temp = getattr(trait, "delivery_multiplier", None)
+                if temp is not None:
+                    for delivery, mpl in temp.iteritems():
+                        delivery_multiplier[delivery] += mpl
+                temp = getattr(trait, "el_damage", None)
+                if temp is not None:
+                    for delivery, mpl in temp.iteritems():
+                        delivery_multiplier[delivery] += mpl
             elements = set([e.id.lower() for e in char.elements])
             gender = char.gender
 
@@ -1256,35 +1274,11 @@ init -10 python:
             # if an item has less than the most weights the remaining are imputed with 50 weights
             # Nor sure why????
             # most_weights = {slot: 0 for slot in weighted}
-            if smart_ownership_limit is True:
-                owned_items = dict(char.inventory.items)
-                for item in char.eqslots.values():
-                    if item:
-                        owned_items[item] = owned_items.get(item, 0) + 1
-            else:
-                owned_items = None
 
             for item in inventory:
                 slot = item.slot
-                if owned_items is not None:
-                    owned = owned_items.get(item, 0) #count_owned_items(char, item)
-                    if slot == "ring":
-                        if owned >= 3:
-                            continue
-                    elif slot == "consumable":
-                        if owned >= 5:
-                            continue
-                    elif owned >= 1:
-                        continue
-                    elif slot == "misc" and item in char.miscblock:
-                        continue
-
                 if slot not in weighted:
                     aeq_debug("Ignoring item %s on slot", item.id)
-                    continue
-
-                if limit_tier is not False and item.tier > limit_tier:
-                    aeq_debug("Ignoring item %s on tier.", item.id)
                     continue
 
                 # Gender:
@@ -1387,24 +1381,33 @@ init -10 python:
                     if mcm is not None:
                         attack = mcm[1]
                         if attack != 0: # prevent div-by-zero
-                            mcm = mcm[0]
+                            best = 0
+                            # check the skills power TODO bind this to BE_Core?
+                            ch = getattr(item, "ch_multiplier", 0)
                             for battle_skill in item.attacks:
                                 battle_skill = battle_skills[battle_skill]
+                                # base power
                                 power = (battle_skill.effect + attack) * battle_skill.multiplier
-
-                                # add the fraction increase/decrease TODO cost/crit?
-                                weights.append(mcm*100*power/attack)
+                                delivery = battle_skill.delivery
+                                # delivery          bonus                   multiplier 
+                                power = (power + delivery_bonus[delivery]) * (1 + delivery_multiplier[delivery])
+                                # critical hit
+                                if ch != 0:
+                                    power *= 1 + ch*3
+                                if power > best:
+                                    best = power
+                            if best != 0:
+                                # add the fraction increase/decrease TODO cost?
+                                weights.append(mcm[0]*100*best/attack)
 
                 # Spells:
                 for battle_skill in item.add_be_spells:
                     battle_skill = battle_skills[battle_skill]
-                    if battle_skill not in char.magic_skills:
-                        value = (battle_skill.tier or 0)+1
-                        if elements.isdisjoint(battle_skill.attributes):
-                            value *= 5
-                        else:
-                            value *= 20
-                        weights.append(value)
+                    #assert(battle_skill not in char.magic_skills)
+                    value = ((battle_skill.tier or 0)+1) * 100
+                    for attr in battle_skill.attributes:
+                        value *= 1 + delivery_multiplier[attr]
+                    weights.append(value)
 
                 weighted[slot].append([weights, item])
 

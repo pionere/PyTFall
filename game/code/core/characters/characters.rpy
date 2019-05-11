@@ -867,9 +867,7 @@ init -9 python:
                 curr_item = self.eqslots['misc']
                 if curr_item: # Unequip if equipped.
                     self.inventory.append(curr_item)
-                    del(self.miscitems[curr_item])
                 self.eqslots['misc'] = item
-                self.miscitems[item] = item.mtemp
                 if remove:
                     self.inventory.remove(item)
             elif item.slot == "ring":
@@ -925,9 +923,7 @@ init -9 python:
             if not aeq_mode:
                 self.last_known_aeq_purpose = None
 
-            if slot == "misc":
-                del self.miscitems[item]
-            else:
+            if slot != "misc":
                 self.apply_item_effects(item, direction=False)
 
             self.eqslots[slot] = None
@@ -1066,16 +1062,15 @@ init -9 python:
             self.stats.eval_inventory(inv, weighted,
                                       target_stats, target_skills,
                                       upto_skill_limit=upto_skill_limit,
-                                      base_purpose=base_purpose,
-                                      smart_ownership_limit=False)
+                                      base_purpose=base_purpose)
 
             returns = list() # We return this list with all items used during the method.
 
             if DEBUG_AUTO_ITEM:
                 for slot, picks in weighted.iteritems():
                     for _weight, item in picks:
-                        aeq_debug("(A-Eq=> %s) Slot: %s Item: %s ==> Weights: %s",
-                                        self.name, item.slot, item.id, str(_weight))
+                        aeq_debug("(A-Eq=> %s) Slot: %s Item: %s Weight: %s ==> Weights: %s",
+                                        self.name, item.slot, item.id, sum(_weight), str(_weight))
 
             # Actually equip the items on per-slot basis:
             for slot, picks in weighted.iteritems():
@@ -1212,8 +1207,7 @@ init -9 python:
             self.stats.eval_inventory(inv, weighted,
                                       target_stats, target_skills,
                                       upto_skill_limit=upto_skill_limit,
-                                      base_purpose=base_purpose,
-                                      smart_ownership_limit=False)
+                                      base_purpose=base_purpose)
 
             returns = list() # We return this list with all items used during the method.
 
@@ -1338,7 +1332,7 @@ init -9 python:
 
         def auto_buy(self, amount=1, slots=None, purpose=None,
                      equip=False, container=None, check_money=True,
-                     limit_tier=False, smart_ownership_limit=True):
+                     smart_ownership_limit=True):
             """Gives items a char, usually by 'buying' those,
             from the container that host all items that can be
             sold in PyTFall.
@@ -1357,7 +1351,7 @@ init -9 python:
                     3 of the same rings max.
                     1 per any eq_slot.
                     5 cons items max.
-                item will not be concidered for purchase.
+                item will not be considered for purchase.
 
             Simplify!
 
@@ -1380,28 +1374,66 @@ init -9 python:
                 return []
 
             # Create dict gather data, we gather slot: ([30, 50], item) types:
-            weighted = {s: [] for s in slots}
+            weighted = {}
+            curr_equipped_items = self.eqslots.copy()
+            # Go over all slots and unequip items:
+            for s in slots:
+                if s == "ring":
+                    for r in ["ring", "ring1", "ring2"]:
+                        self.unequip(slot=r, aeq_mode=True)
+                else:
+                    self.unequip(slot=s, aeq_mode=True)
+                weighted[s] = []
 
             if purpose is None: # Let's see if we can get a purpose from last known auto equip purpose:
                 purpose = self.guess_aeq_purpose(self.last_known_aeq_purpose)
 
             kwargs = STATIC_ITEM.AEQ_PURPOSES[purpose]
 
-            upto_skill_limit = False
-            self.stats.eval_inventory(container, weighted,
-                                      upto_skill_limit=upto_skill_limit,
-                                      check_money=check_money, limit_tier=limit_tier,
-                                      smart_ownership_limit=smart_ownership_limit,
-                                      **kwargs)
+            self.stats.eval_inventory(container, weighted, check_money=check_money, **kwargs)
 
-            rv = [] # List of items we return in case we need to report
-            # what happened in this method to player.
+            # List of items we return in case we need to report what happened in this method to player.
+            rv = []
+
+            # filter the weighted items
+            ignore_items = set()
+            slot_limit = dict()
+            if smart_ownership_limit is True:
+                owned_weighted = {s: [] for s in slots if s not in ["ring", "misc", "consumable"]}
+                self.stats.eval_inventory(self.inventory, owned_weighted, **kwargs)
+
+                for slot, picks in owned_weighted.iteritems():
+                    limit = 0
+                    best_item = None
+                    for _weight, item in picks:
+                        _weight = sum(_weight)
+                        if _weight > limit:
+                            best_item = item
+                    if best_item is not None:
+                        slot_limit[slot] = best_item # TODO might want to add a multiplier like 80%
+
+                for item, count in self.inventory.items.iteritems():
+                    slot = item.slot
+                    if slot == "consumable":
+                        if count < 5:
+                            continue
+                    elif slot == "ring":
+                        if count < 3:
+                            continue
+                    ignore_items.add(item)
+
             selected = []
             for slot, picks in weighted.iteritems():
+                limit = slot_limit.get(slot, 0)
                 for _weight, item in picks:
+                    if item in ignore_items:
+                        continue
+
                     _weight = sum(_weight)
-                    if _weight > 0:
+                    if _weight > limit:
                         selected.append([_weight, slot, item])
+
+            # sort and select the best
             selected.sort(key=itemgetter(0), reverse=True)
             do_equip = False
             for w, slot, item in selected:
@@ -1422,6 +1454,15 @@ init -9 python:
 
             if equip and do_equip:
                 self.equip_for(purpose)
+            else:
+                # Re-equip the original items:
+                self.eqslots = curr_equipped_items
+                for slot, item in curr_equipped_items.iteritems():
+                    if not item:
+                        continue
+                    if slot != "misc":
+                        self.apply_item_effects(item) # Apply item effects
+                    self.inventory.remove(item) # Remove item from the inventory
 
             return rv
 
@@ -1772,40 +1813,38 @@ init -9 python:
                 del self.constemp[item]
 
             # Counter to apply misc item effects and settle misc items conditions:
-            drops = []
-            for item, value in self.miscitems.iteritems():
-                value -= 1
-                if value <= 0:
-                    # Figure out if we can pay the piper:
-                    for stat, val in item.mod.items():
-                        if val < 0:
-                            if stat == "exp":
-                                pass
-                            elif stat == "gold":
-                                if self.status == "slave":
-                                    temp = hero
-                                else:
-                                    temp = self
-                                if temp.gold + val < 0:
-                                    break
+            item = self.eqslots["misc"]
+            if item:
+                # Figure out if we can pay the piper:
+                for stat, val in item.mod.items():
+                    if val < 0:
+                        if stat == "exp":
+                            pass
+                        elif stat == "gold":
+                            if self.status == "slave":
+                                temp = hero
                             else:
-                                if self.get_stat(stat) + val < self.stats.min[stat]:
-                                    break
-                    else:
+                                temp = self
+                            if temp.gold + val < 0:
+                                break
+                        else:
+                            if self.get_stat(stat) + val < self.stats.min[stat]:
+                                break
+                else:
+                    value = self.miscitems.get(item, 0) + 1
+                    if value >= item.mtemp:
                         self.apply_item_effects(item, misc_mode=True)
 
                         # collect self-destruct or not reusable items
                         if (not item.mreusable) or item.mdestruct:
-                            drops.append(item)
-                            continue
-                    value = item.mtemp
-                self.miscitems[item] = value
-            for item in drops:
-                if not item.mreusable:
-                    self.miscblock.append(item)
-                self.unequip(item)
-                if item.mdestruct:
-                    self.inventory.remove(item)
+                            if not item.mreusable:
+                                self.miscblock.append(item)
+                            self.unequip(item)
+                            if item.mdestruct:
+                                self.inventory.remove(item)
+                        self.miscitems.pop(item, None)
+                    else:
+                        self.miscitems[item] = value
 
         # Trait methods *now for all characters:
         # Traits methods
