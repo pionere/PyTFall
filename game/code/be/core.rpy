@@ -26,6 +26,8 @@ init -1 python: # Core classes:
         def load_char(self, char):
             self.char = char
 
+            self.front_row = char.front_row
+
             # most commonly used variables during the battle
             self.name = char.name
             self.nickname = char.nickname
@@ -45,7 +47,6 @@ init -1 python: # Core classes:
             self.delayedvit = self.vitality
             self.maxvit = char.get_max("vitality")
 
-            self.grimreaper = "Grim Reaper" in char.traits
             self.is_mob = isinstance(char, Mob)
 
             self.controller = char.controller
@@ -60,54 +61,63 @@ init -1 python: # Core classes:
             self.resist = char.resist
 
             # cached item bonuses
-            items = char.eq_items()
-
             critical_hit_chance = 0
 
-            self.item_damage_multiplier = 0
-            self.item_delivery_bonus = {}
-            self.item_delivery_multiplier = {}
-            self.item_evasion_bonus = 0
-            self.item_defence_bonus = {}
-            self.item_defence_multiplier = {}
-            for i in items:
-                self.item_damage_multiplier += getattr(i, "damage_multiplier", 0)
+            item_damage_multiplier = 0
+            item_delivery_bonus = {}
+            item_delivery_multiplier = {}
+            item_evasion_bonus = 0
+            item_defence_bonus = {}
+            item_defence_multiplier = {}
+            for i in char.eq_items():
+                item_damage_multiplier += getattr(i, "damage_multiplier", 0)
                 critical_hit_chance += getattr(i, "ch_multiplier", 0)
 
                 if hasattr(i, "delivery_bonus"):
                     for delivery, bonus in i.delivery_bonus.iteritems():
-                        bonus += self.item_delivery_bonus.get(delivery, 0)
-                        self.item_delivery_bonus[delivery] = bonus
+                        bonus += item_delivery_bonus.get(delivery, 0)
+                        item_delivery_bonus[delivery] = bonus
 
                 if hasattr(i, "delivery_multiplier"):
                     for delivery, mpl in i.delivery_multiplier.iteritems():
-                        mpl += self.item_delivery_multiplier.get(delivery, 0)
-                        self.item_delivery_multiplier[delivery] = mpl
+                        mpl += item_delivery_multiplier.get(delivery, 0)
+                        item_delivery_multiplier[delivery] = mpl
 
-                self.item_evasion_bonus += getattr(i, "evasion_bonus", 0)
+                item_evasion_bonus += getattr(i, "evasion_bonus", 0)
 
                 if hasattr(i, "defence_bonus"):
                     for delivery, bonus in i.defence_bonus.iteritems():
-                        bonus += self.item_defence_bonus.get(delivery, 0)
-                        self.item_defence_bonus[delivery] = bonus
+                        bonus += item_defence_bonus.get(delivery, 0)
+                        item_defence_bonus[delivery] = bonus
 
                 if hasattr(i, "defence_multiplier"):
                     for delivery, mpl in i.defence_multiplier.iteritems():
-                        mpl += self.item_defence_multiplier.get(delivery, 0)
-                        self.item_defence_multiplier[delivery] = mpl
+                        mpl += item_defence_multiplier.get(delivery, 0)
+                        item_defence_multiplier[delivery] = mpl
+
+            self.item_damage_multiplier = item_damage_multiplier
+            self.item_delivery_bonus = item_delivery_bonus
+            self.item_delivery_multiplier = item_delivery_multiplier
+            self.item_evasion_bonus = item_evasion_bonus
+            self.item_defence_bonus = item_defence_bonus
+            self.item_defence_multiplier = item_defence_multiplier
 
             # cached trait bonuses
-            self.damage_multiplier = 0
-            self.delivery_bonus = {}
-            self.delivery_multiplier = {}
-            self.el_dmg = {}
-            self.el_def = {}
-            self.evasion_bonus = 0
-            self.absorbs = {}
-            self.defence_bonus = {}
-            self.defence_multiplier = {}
+            damage_multiplier = 0
+            delivery_bonus = {}
+            delivery_multiplier = {}
+            el_dmg = {}
+            el_def = {}
+            evasion_bonus = 0
+            absorbs = {}
+            defence_bonus = {}
+            defence_multiplier = {}
+            level = char.level
             for trait in char.traits:
-                self.damage_multiplier += getattr(trait, "damage_multiplier", 0)
+                if trait.id == "Grim Reaper":
+                    self.grimreaper = True
+
+                damage_multiplier += getattr(trait, "damage_multiplier", 0)
                 critical_hit_chance += getattr(trait, "ch_multiplier", 0)
 
                 temp = getattr(trait, "delivery_bonus", None)
@@ -115,70 +125,78 @@ init -1 python: # Core classes:
                     for delivery, bonus in temp.iteritems():
                         # Reference: (minv, maxv, lvl)
                         minv, maxv, lvl = bonus
-                        if lvl > char.level:
-                            maxv = max(minv, float(char.level)*maxv/lvl)
-                        maxv += self.delivery_bonus.get(delivery, 0)
-                        self.delivery_bonus[delivery] = maxv
+                        if lvl > level:
+                            maxv = max(minv, float(level)*maxv/lvl)
+                        maxv += delivery_bonus.get(delivery, 0)
+                        delivery_bonus[delivery] = maxv
 
                 temp = getattr(trait, "delivery_multiplier", None)
                 if temp is not None:
                     for delivery, mpl in temp.iteritems():
-                        mpl += self.delivery_multiplier.get(delivery, 0)
-                        self.delivery_multiplier[delivery] = mpl
+                        mpl += delivery_multiplier.get(delivery, 0)
+                        delivery_multiplier[delivery] = mpl
 
                 temp = getattr(trait, "el_damage", None)
                 if temp is not None:
                     for type, val in temp.iteritems():
-                        val += self.el_dmg.get(type, 0)
-                        self.el_dmg[type] = val
+                        val += el_dmg.get(type, 0)
+                        el_dmg[type] = val
 
                 temp = getattr(trait, "el_defence", None)
                 if temp is not None:
                     for type, val in temp.iteritems():
-                        val += self.el_def.get(type, 0)
-                        self.el_def[type] = val
+                        val += el_def.get(type, 0)
+                        el_def[type] = val
 
                 temp = getattr(trait, "evasion_bonus", None)
                 if temp is not None:
                     # Reference: (minv, maxv, lvl)
                     minv, maxv, lvl = temp
-                    if lvl > char.level:
-                        maxv = max(minv, float(char.level)*maxv/lvl)
-                    self.evasion_bonus += maxv
+                    if lvl > level:
+                        maxv = max(minv, float(level)*maxv/lvl)
+                    evasion_bonus += maxv
 
                 # Get all absorption capable traits:
                 temp = getattr(trait, "el_absorbs", None)
                 if temp is not None:
                     for type, val in temp.iteritems():
-                        absorbs = self.absorbs.get(type, [])
-                        absorbs.append(val)
-                        self.absorbs[type] = absorbs
+                        absorb = absorbs.get(type, [])
+                        absorb.append(val)
+                        absorbs[type] = absorb
 
                 temp = getattr(trait, "defence_bonus", None)
                 if temp is not None:
                     for delivery, bonus in temp.iteritems():
                         # Reference: (minv, maxv, lvl)
                         minv, maxv, lvl = bonus
-                        if lvl > char.level:
-                            maxv = max(minv, float(char.level)*maxv/lvl)
-                        maxv += self.defence_bonus.get(delivery, 0)
-                        self.defence_bonus[delivery] = maxv
+                        if lvl > level:
+                            maxv = max(minv, float(level)*maxv/lvl)
+                        maxv += defence_bonus.get(delivery, 0)
+                        defence_bonus[delivery] = maxv
 
                 temp = getattr(trait, "defence_multiplier", None)
                 if temp is not None:
                     for delivery, mpl in temp.iteritems():
-                        mpl += self.defence_multiplier.get(delivery, 0)
-                        self.defence_multiplier[delivery] = mpl
+                        mpl += defence_multiplier.get(delivery, 0)
+                        defence_multiplier[delivery] = mpl
 
             # prepare base critical hit chance: (Items bonuses + Traits bonuses)
             self.base_ch = 100.0*critical_hit_chance
 
             # Convert absorptions to ratios:
-            for type, val in self.absorbs.iteritems():
+            for type, val in absorbs.iteritems():
                 val = sum(val) / len(val)
-                self.absorbs[type] = val
+                absorbs[type] = val
 
-            self.front_row = char.front_row
+            self.damage_multiplier = damage_multiplier
+            self.delivery_bonus = delivery_bonus
+            self.delivery_multiplier = delivery_multiplier
+            self.el_dmg = el_dmg
+            self.el_def = el_def
+            self.evasion_bonus = evasion_bonus
+            self.absorbs = absorbs
+            self.defence_bonus = defence_bonus
+            self.defence_multiplier = defence_multiplier
 
         def set_besprite(self, besprite):
             self.besprite = besprite
@@ -660,7 +678,7 @@ init -1 python: # Core classes:
             # Supplied to the show method.
             member.betag = str(random.random())
             # First, lets get correct sprites:
-            if member.grimreaper:
+            if getattr(member, "grimreaper", False):
                 sprite = Image("content/gfx/images/reaper.png")
             else:
                 char = member.char
