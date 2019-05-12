@@ -1469,6 +1469,44 @@ label after_load:
             if jobs_changed:
                 b.normalize_jobs()
 
+        for b in hero.get_guild_businesses():
+            for t in b.explorers:
+                for l in t.logs:
+                    if hasattr(l, "item"):
+                        item = l.item
+                        if item is not None:
+                            l.event_object = item
+                            l.suffix = item.type
+                        del l.item
+                    if hasattr(l, "battle_log"):
+                        log = l.battle_log
+                        if log is not None:
+                            l.event_object = log
+                        del l.battle_log
+                    if not hasattr(l, "event_object"):
+                        l.event_object = None
+                    if hasattr(l, "found_items"):
+                        del l.found_items
+        for a in fg_areas.values():
+            if not hasattr(a, "logs"):
+                continue
+            for l in a.logs:
+                if hasattr(l, "battle_log"):
+                    log = l.battle_log
+                    if log is not None:
+                        l.event_object = log
+                    del l.battle_log
+                if hasattr(l, "item"):
+                    item = l.item
+                    if item is not None:
+                        l.event_object = item
+                        l.suffix = item.type
+                    del l.item
+                if not hasattr(l, "event_object"):
+                    l.event_object = None
+                if hasattr(l, "found_items"):
+                    del l.found_items
+
         for e in pytfall.world_events.events:
             for i, c in enumerate(e.simple_conditions):
                 if ".magic" in c:

@@ -273,11 +273,7 @@ screen building_management_midframe_exploration_guild_mode:
                         ysize 18
                         action SetScreenVariable("focused_log", l)
                         text str(l.name) size 12 xalign .02 yoffset 1
-                        # Resolve the suffix:
-                        if l.item:
-                            text "[l.item.type]" size 12 align (1.0, .5)
-                        else: # Suffix:
-                            text str(l.suffix) size 12 align (1.0, .5)
+                        text str(l.suffix) size 12 align (1.0, .5)
 
             # Information (Story)
             frame:
@@ -297,14 +293,22 @@ screen building_management_midframe_exploration_guild_mode:
                     background Frame("content/gfx/frame/ink_box.png", 10, 10)
                     has viewport draggable 1 mousewheel 1
                     if focused_log:
-                        if focused_log.battle_log:
-                            text "\n".join(focused_log.battle_log) style "stats_value_text" size 14 color "ivory"
-                        elif focused_log.item:
-                            $ item = focused_log.item
+                        $ obj = focused_log.event_object
+                        if isinstance(obj, Item):
                             vbox:
-                                spacing 10 xfill 1
-                                add ProportionalScale(item.icon, 100, 100) xalign .5
-                                text item.desc xalign .5 style "stats_value_text" size 14 color "ivory"
+                                spacing 10
+                                xfill True
+                                add ProportionalScale(obj.icon, 100, 100) xalign .5
+                                text obj.desc xalign .5 style "stats_value_text" size 14 color "ivory"
+                        elif isinstance(obj, Char):
+                            vbox:
+                                spacing 10
+                                xfill True
+                                add obj.show("portrait", resize=(100, 100), cache=True) xalign .5
+                                text obj.name xalign .5 style "stats_value_text" size 18 color "ivory"
+                        elif isinstance(obj, list):
+                            # battle_log
+                            text "\n".join(obj) style "stats_value_text" size 14 color "ivory"
         else:
             # bm_selected_log_area is None
             frame: # Image

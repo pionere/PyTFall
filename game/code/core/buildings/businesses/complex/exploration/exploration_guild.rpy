@@ -170,13 +170,13 @@ init -6 python: # Guild, Tracker and Log.
                 self.log(l)
             return ability
 
-        def log(self, txt, name="", nd_log=True, ui_log=False, **kwargs):
+        def log(self, txt, name="", suffix="", nd_log=True, ui_log=False, event_object=None):
             if DEBUG_SE:
                 msg = "{}: {} at {}\n    {}".format(self.area.name,
                                     self.team.name, self.guild.env.now, txt)
                 se_debug(msg)
 
-            obj = ExplorationLog(name, txt, nd_log, ui_log, **kwargs)
+            obj = ExplorationLog(name, suffix, txt, nd_log, ui_log, event_object)
             self.logs.append(obj)
             return obj
 
@@ -335,18 +335,16 @@ init -6 python: # Guild, Tracker and Log.
                           red_flag=self.flag_red)
             NextDayEvents.append(evt)
 
-    class ExplorationLog(Action):
+    class ExplorationLog(_object):
         """Stores resulting text and data for SE.
-
-        Also functions as a screen action for future buttons. Maybe...
         """
-        def __init__(self, name="", txt="", nd_log=True, ui_log=False, item=None):
+        def __init__(self, name, suffix, txt, nd_log, ui_log, event_object):
             """
             nd_log: Printed in next day report upon arrival.
             ui_log: Only reports worth of ui interface in FG.
             """
             self.name = name # Name of the event, to be used as a name of a button in gui. (maybe...)
-            self.suffix = "" # If there is no special condition in the screen, we add this to the right side of the event button!
+            self.suffix = suffix # If there is no special condition in the screen, we add this to the right side of the event button!
 
             self.nd_log = nd_log
             self.ui_log = ui_log
@@ -354,21 +352,11 @@ init -6 python: # Guild, Tracker and Log.
             if txt:
                 self.txt.append(txt)
 
-            self.battle_log = [] # Used to log the event.
-            self.found_items = []
-            self.item = item # Item object for the UI log if one was found!
+            self.event_object = event_object # battle_log/Item/Char
 
         def add(self, text):
             # Adds a text to the log.
             self.txt.append(text)
-
-        def __call__(self):
-            renpy.show_screen("...") # Whatever the pop-up screen with info in gui is gonna be.
-
-        def is_sensitive(self):
-            # Check if the button has an action.
-            return self.battle_log or self.found_items
-
 
     class ExplorationGuild(TaskBusiness):
 
@@ -981,21 +969,19 @@ init -6 python: # Guild, Tracker and Log.
                         if special_items:
                             item = special_items.pop()
                             del area.special_items[item]
-                            temp = "Found a special item %s!" % item
+                            temp = "Found %s (special item)!" % aoran(item)
                             temp = set_font_color(temp, "orange")
-                            tracker.log(temp, "Item", ui_log=True, item=store.items[item])
-                            if DEBUG_SE:
-                                msg = "{} Found a special item {}!".format(team.name, item)
-                                se_debug(msg)
                         else:
                             item = tracker.chosen_items.pop()
                             temp = "Found %s (item)!" % aoran(item)
                             temp = set_font_color(temp, "lawngreen")
-                            tracker.log(temp, "Item", ui_log=True, item=store.items[item])
-                            if DEBUG_SE:
-                                msg = "{} Found an item {}!".format(team.name, item)
-                                se_debug(msg)
+
                         items.append(item)
+                        item = store.items[item]
+                        tracker.log(temp, "Item", ui_log=True, suffix=item.type, event_object=item)
+                        if DEBUG_SE:
+                            msg = "{} Found item {}!".format(team.name, item.id)
+                            se_debug(msg)
 
                 # Cash:
                 if tracker.max_cash > tracker.daily_cash and dice(tracker.risk/5):
@@ -1020,7 +1006,7 @@ init -6 python: # Guild, Tracker and Log.
 
                             temp = "Your team has captured a 'special' character: %s!" % char.name
                             temp = set_font_color(temp, "orange")
-                            tracker.log(temp)
+                            tracker.log(temp, "Capture", ui_log=True, suffix=char.name, event_object=char)
                             if DEBUG_SE:
                                 msg = "{} has finished an exploration scenario. (Captured a special char {})".format(team.name, char.id)
                                 se_debug(msg)
@@ -1037,7 +1023,7 @@ init -6 python: # Guild, Tracker and Log.
                             tracker.captured_chars.append((char, data))
                             temp = "Your team has captured {color=pink}%s{/color}!" % char.name
                             temp = set_font_color(temp, "lawngreen")
-                            tracker.log(temp)
+                            tracker.log(temp, "Capture", ui_log=True, suffix=char.name, event_object=char)
                             if DEBUG_SE:
                                 msg = "{} has finished an exploration scenario. (Captured a uChar {})".format(team.name, char.id)
                                 se_debug(msg)
@@ -1059,7 +1045,7 @@ init -6 python: # Guild, Tracker and Log.
                             tracker.captured_chars.append((char, data))
                             temp = "Your team has captured %s!" % char.name
                             temp = set_font_color(temp, "lawngreen")
-                            tracker.log(temp)
+                            tracker.log(temp, "Capture", ui_log=True, suffix=char.race, event_object=char)
                             if DEBUG_SE:
                                 msg = "{} has finished an exploration scenario. (Captured an rChar {})".format(team.name, char.id)
                                 se_debug(msg)
@@ -1142,7 +1128,7 @@ init -6 python: # Guild, Tracker and Log.
             battle = run_auto_be(team, enemy_team)
 
             # Add the battle report to log!:
-            log.battle_log = list(reversed(battle.combat_log))
+            log.event_object = list(battle.combat_log)
 
             # No death below risk 40:
             if tracker.risk > 40 and dice(tracker.risk):
