@@ -1296,9 +1296,9 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                                 $ temp += '*Decreases power of ranged skills.\n'
                         if "status" in item.delivery_multiplier.keys():
                             if item.delivery_multiplier["status"] > 0:
-                                $ temp += '*Multiplies status of ranged skills.\n'
+                                $ temp += '*Multiplies power of status skills.\n'
                             else:
-                                $ temp += '*Decreases status of ranged skills.\n'
+                                $ temp += '*Decreases power of status skills.\n'
 
                     text '{color=#ecc88a}[item.desc]{/color}{color=#daa520}[temp]{/color}' font "fonts/TisaOTM.otf" size 15 outlines [(1, "#3a3a3a", 0, 0)]
 
