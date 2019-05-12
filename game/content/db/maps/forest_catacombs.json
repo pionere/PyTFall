@@ -3,13 +3,13 @@
         "name": "Forest Catacombs",
         "unlocked": false,
         "stage": 2,
-        "img": "content/gfx/bg/locations/burial_2.webp",
+        "img": "content/maps/burial_2.webp",
         "allowed_objects": []
     },
     {
         "name": "Ancient Tombs",
         "area": "Forest Catacombs",
-        "img": "content/gfx/bg/locations/burial_2.webp",
+        "img": "content/maps/burial_2.webp",
         "desc": "Ancient races built these massive underground tombs many centuries ago. Creatures of death and darkness populate it now.",
         "stage": 1,
         "tier": 3.5,

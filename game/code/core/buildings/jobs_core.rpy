@@ -327,7 +327,7 @@ init -10 python:
                 temp = {}
                 for stat in cls.base_stats:
                     temp[stat] = worker.get_stat(stat)
-                devlog.info("Calculating Jobs Relative Ability, Char/Job: {}/{}:".format(worker.name, self.id))
+                devlog.info("Calculating Jobs Relative Ability, Char/Job: {}/{}:".format(worker.name, cls.id))
                 devlog.info("Stats: {}:".format(temp))
                 args = (bt_bonus, tier_bonus, traits_bonus, total_skills, total_stats, manager_bonus, disposition_multiplier, total)
                 devlog.info("Gen Occ/BT: {}, Tier: {}, Traits: {}, Skills: {}, Stats: {}, Mgr: {}, Disposition Multiplier {} ==>> {}".format(*args))
