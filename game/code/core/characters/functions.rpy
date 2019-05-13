@@ -103,48 +103,63 @@ init -11 python:
         #else: # string result of PytGroup
         return result
 
-    def elements_calculator(char):
-        elements = {}
+    def trait_info_calculator(char_or_trait):
+        if isinstance(char_or_trait, PytCharacter):
+            traits = char.traits
+            trait_info = Trait()
+        else:
+            traits = [char_or_trait]
+            trait_info = char_or_trait
 
-        for trait in char.traits:
+        # merged info of elemental modifiers:
+        elementals = defaultdict(dict)
+        for trait in traits:
             temp = getattr(trait, "el_damage", None)
             if temp is not None:
                 for element, value in temp.iteritems():
-                    if not element in elements:
-                        elements[element] = {}
-
-                    elements[element]["attack"] = elements[element].get("attack", 0) + int(value*100)
+                    elementals[element]["attack"] = elementals[element].get("attack", 0) + int(value*100)
 
             temp = getattr(trait, "el_defence", None)
             if temp is not None:
                 for element, value in temp.iteritems():
-                    if not element in elements:
-                        elements[element] = {}
-
-                    elements[element]["defence"] = elements[element].get("defence", 0) + int(value*100)
+                    elementals[element]["defence"] = elementals[element].get("defence", 0) + int(value*100)
 
             for i in trait.resist:
-                if not i in elements.keys():
-                    elements[i] = {}
-
-                elements[i]["resist"] = True
+                elementals[i]["resist"] = True
 
             temp = getattr(trait, "el_absorbs", None)
             if temp is not None:
                 for element, value in temp.iteritems():
-                    if not element in elements:
-                        elements[element] = {}
+                    elementals[element]["abs"] = elementals[element].get("abs", 0) + int(value*100)
 
-                    elements[element]["abs"] = elements[element].get("abs", 0) + int(value*100)
+        for i in elementals:
+            if not "defence" in elementals[i].keys():
+                elementals[i]["defence"] = 0
 
-        for i in elements:
-            if not "defence" in elements[i].keys():
-                elements[i]["defence"] = 0
+            if not "attack" in elementals[i].keys():
+                elementals[i]["attack"] = 0
 
-            if not "attack" in elements[i].keys():
-                elements[i]["attack"] = 0
+        # merged info of defence bonus:
+        defence_bonus = {}
+        for type, value in getattr(trait_info, "defence_bonus", {}).iteritems():
+            defence_bonus[type] = [value, 0]
+        for type, value in getattr(trait_info, "defence_multiplier", {}).iteritems():
+            if type in defence_bonus:
+                defence_bonus[type][1] = value
+            else:
+                defence_bonus[type] = [None, value]
 
-        return elements
+        # merged info of delivery bonus:
+        delivery_bonus = {}
+        for type, value in getattr(trait_info, "delivery_bonus", {}).iteritems():
+            delivery_bonus[type] = [value, 0]
+        for type, value in getattr(trait_info, "delivery_multiplier", {}).iteritems():
+            if type in delivery_bonus:
+                delivery_bonus[type][1] = value
+            else:
+                delivery_bonus[type] = [None, value]
+
+        return trait_info, elementals, defence_bonus, delivery_bonus
 
     # GUI helpers:
     def controlled_char(char):

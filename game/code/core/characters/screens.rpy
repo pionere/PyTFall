@@ -437,7 +437,7 @@ screen race_and_elements(align=(.5, .99), char=None):
                 align (.5, .5)
                 xysize (95, 95)
                 background img
-                action Show("show_trait_info", trait=trait.id, place="race_trait")
+                action Show("show_trait_info", trait=trait)
                 hover_background im.MatrixColor(img, im.matrix.brightness(.10))
                 tooltip "Race:\n   {}".format(char.full_race)
 
@@ -463,7 +463,7 @@ screen race_and_elements(align=(.5, .99), char=None):
             button:
                 xysize 90, 90
                 align .5, .5 offset -1, -1
-                action Show("show_trait_info", trait=char, elemental_mode=True, place="ele_trait")
+                action Show("show_trait_info", trait=char)
                 background f
                 hover_background f_a
                 tooltip "Elements:\n   {}".format(ele)
@@ -511,22 +511,23 @@ screen trait_info(trait, xsize, ysize, idle_color="ivory", strikethrough=False):
         button:
             background Null()
             xysize (xsize, ysize)
-            action Show("show_trait_info", trait=trait.id)
+            action Show("show_trait_info", trait=trait)
             text trait.id idle_color idle_color align .5, .5 hover_color "crimson" text_align .5 size font_size layout "nobreak" strikethrough strikethrough
             tooltip "%s" % trait.desc
             hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
 
-screen show_trait_info(trait=None, place="girl_trait", elemental_mode=False):
+# TODO keep in sync or even merge with show_item_info
+screen show_trait_info(trait=None):
     modal True
     $ pos = renpy.get_mouse_pos()
     mousearea:
         area(pos[0], pos[1], 1, 1)
-        hovered Show("show_trait_info_content", transition=dissolve, trait=trait, place=place, elemental_mode=elemental_mode)
+        hovered Show("show_trait_info_content", transition=None, trait=trait)
         unhovered Hide("show_trait_info_content"), Hide("show_trait_info")
 
     #key "mousedown_3" action Hide("show_trait_info_content"), Hide("show_trait_info")
 
-screen show_trait_info_content(trait=None, place="girl_trait", elemental_mode=False):
+screen show_trait_info_content(trait):
     default pos = renpy.get_mouse_pos()
     python:
         x, y = pos
@@ -544,167 +545,230 @@ screen show_trait_info_content(trait=None, place="girl_trait", elemental_mode=Fa
         else:
             yval = .5
 
-    if not elemental_mode:
-        $ trait_info = traits[trait]
-        fixed:
-            pos x, y
-            anchor xval, yval
-            fit_first True
-            frame:
-                background Frame("content/gfx/frame/p_frame52.webp", 10, 10)
-                padding 10, 10
-                has vbox style_prefix "proper_stats" spacing 1
+    $ trait_info, elementals, defence_bonus, delivery_bonus = trait_info_calculator(trait)
+    fixed:
+        pos x, y
+        anchor xval, yval
+        fit_first True
+        frame:
+            background Frame("content/gfx/frame/p_frame52.webp", 10, 10)
+            padding 10, 10
+            has vbox style_prefix "proper_stats" spacing 1
 
-                if any([trait_info.min, trait_info.max, trait_info.mod_stats, trait_info.effects,
-                        trait_info.mod_skills, trait_info.mod_ap, hasattr(trait_info, "evasion_bonus")]):
-                    if trait_info.max:
-                        label (u"Max:") text_size 20 text_color "goldenrod" text_bold True xalign .45
-                        for stat, value in trait_info.max.iteritems():
-                            frame:
-                                xysize 170, 20
-                                if value < 0:
-                                    text stat.title() size 15 color "red" align .0, .5 outlines [(1, "black", 0, 0)]
-                                    label str(value) text_size 15 text_color "red" align 1.0, .5 text_outlines [(1, "black", 0, 0)]
-                                else:
-                                    text stat.title() size 15 color "lime" align .0, .5 outlines [(1, "black", 0, 0)]
-                                    label "+" + str(value) text_size 15 text_color "lime" align 1.0, .5 text_outlines [(1, "black", 0, 0)]
-                    if trait_info.min:
-                        label (u"Min:") text_size 20 text_color "goldenrod" text_bold True xalign .45
-                        for stat, value in trait_info.min.iteritems():
-                            frame:
-                                xysize 170, 20
-                                if value < 0:
-                                    text stat.title() size 15 color "red" align .0, .5 outlines [(1, "black", 0, 0)]
-                                    label str(value) text_size 15 text_color "red" align 1.0, .5 text_outlines [(1, "black", 0, 0)]
-                                else:
-                                    text stat.title() size 15 color "lime" align .0, .5 outlines [(1, "black", 0, 0)]
-                                    label "+" + str(value) text_size 15 text_color "lime" align 1.0, .5 text_outlines [(1, "black", 0, 0)]
-                    if trait_info.mod_stats:
-                        label (u"Bonus:") text_size 20 text_color "goldenrod" text_bold True xalign .45
-                        for i in trait_info.mod_stats:
-                            frame:
-                                xysize 170, 20
-                                if str(i) not in ["disposition", "upkeep"]:
-                                    if (trait_info.mod_stats[i])[0] < 0:
-                                        text (str(i).title() + ": " + str((trait_info.mod_stats[i])[0]) + " every " + str((trait_info.mod_stats[i])[1]) + " lvl") align .5, .5 size 15 color "red" text_align .5 outlines [(1, "black", 0, 0)]
-                                    else:
-                                        text (str(i).title() + ": +" + str((trait_info.mod_stats[i])[0]) + " every " + str((trait_info.mod_stats[i])[1]) + " lvl") align .5, .5 size 15 color "lime" text_align .5 outlines [(1, "black", 0, 0)]
-                                else:
-                                    if str(i) == "disposition":
-                                        if (trait_info.mod_stats[i])[0] < 0:
-                                            text (str(i).title() + ": " + str((trait_info.mod_stats[i])[0])) align .5, .5 size 15 color "red" text_align .5 outlines [(1, "black", 0, 0)]
-                                        else:
-                                            text (str(i).title() + ": +" + str((trait_info.mod_stats[i])[0])) align .5, .5 size 15 color "lime" text_align .5 outlines [(1, "black", 0, 0)]
-                                    else:
-                                        if (trait_info.mod_stats[i])[0] < 0:
-                                            text (str(i).title() + ": " + str((trait_info.mod_stats[i])[0])) align .5, .5 size 15 color "lime" text_align .5 outlines [(1, "black", 0, 0)]
-                                        else:
-                                            text (str(i).title() + ": +" + str((trait_info.mod_stats[i])[0])) align .5, .5 size 15 color "red" text_align .5 outlines [(1, "black", 0, 0)]
-                    if trait_info.effects:
-                        label (u"Effects:") text_size 20 text_color "goldenrod" text_bold True xalign .45
-                        for i in trait_info.effects:
-                            frame:
-                                xysize 170, 20
-                                text (str(i).title()) size 15 color "yellow" align .5, .5 text_align .5 outlines [(1, "black", 0, 0)]
+            $ any_mod = False
+            if trait_info.mod_stats:
+                $ any_mod = True
+                label (u"Stats:") text_size 20 text_color "goldenrod" text_bold True xalign .45
+                for stat, mod in trait_info.mod_stats.iteritems():
+                    frame:
+                        xysize 200, 20
+                        text stat.title() size 15 color "#79CDCD" align .0, .5 outlines [(1, "black", 0, 0)]
+                        $ value = mod[0]
+                        if stat == "disposition":
+                            $ txt_color = "red" if value < 0 else "lime"
+                            label "%+g" % value text_size 15 text_color txt_color align 1.0, .5 text_outlines [(1, "black", 0, 0)]
+                        elif stat == "upkeep":
+                            $ txt_color = "lime" if value < 0 else "red"
+                            label "%+g" % value text_size 15 text_color txt_color align 1.0, .5 text_outlines [(1, "black", 0, 0)]
+                        else:
+                            $ txt_color = "red" if value < 0 else "lime"
+                            text "%+g every %d lvl" % (value, mod[1]) align 1.0, .5 size 15 color txt_color outlines [(1, "black", 0, 0)]
+            if trait_info.max:
+                $ any_mod = True
+                label (u"Max:") text_size 20 text_color "goldenrod" text_bold True xalign .45
+                for stat, value in trait_info.max.iteritems():
+                    frame:
+                        xysize 200, 20
+                        $ txt_color = "red" if value < 0 else "lime"
+                        text stat.title() size 15 color "#79CDCD" align .0, .5 outlines [(1, "black", 0, 0)]
+                        label "%+g" % value text_size 15 text_color txt_color align 1.0, .5 text_outlines [(1, "black", 0, 0)]
+            if trait_info.min:
+                $ any_mod = True
+                label (u"Min:") text_size 20 text_color "goldenrod" text_bold True xalign .45
+                for stat, value in trait_info.min.iteritems():
+                    frame:
+                        xysize 200, 20
+                        $ txt_color = "red" if value < 0 else "lime"
+                        text stat.title() size 15 color "#79CDCD" align .0, .5 outlines [(1, "black", 0, 0)]
+                        label "%+g" % value text_size 15 text_color txt_color align 1.0, .5 text_outlines [(1, "black", 0, 0)]
 
-                    if trait_info.mod_skills:
-                        label (u"Skills:") text_size 20 text_color "goldenrod" text_bold True xalign .45
-                        for skill, data in trait_info.mod_skills.iteritems():
-                            frame:
-                                xysize 170, 20
-                                text str(skill).title() size 15 color "yellowgreen" align .0, .5 outlines [(1, "black", 0, 0)]
+            if trait_info.effects:
+                $ any_mod = True
+                label (u"Effects:") text_size 20 text_color "goldenrod" text_bold True xalign .45
+                for effect in trait_info.effects:
+                    frame:
+                        xysize 200, 20
+                        text effect.title() size 15 color "yellow" align .5, .5 text_align .5 outlines [(1, "black", 0, 0)]
 
-                                $ img_path = "content/gfx/interface/icons/skills_icons/"
-                                default PS = ProportionalScale
-                                button:
-                                    style "default"
-                                    xysize 20, 18
-                                    action NullAction()
-                                    align .99, .5
-                                    if data[0] > 0:
-                                        add PS(img_path + "left_green.png", 20, 20)
-                                    elif data[0] < 0:
-                                        add PS(img_path + "left_red.png", 20, 20)
-                                    if data[1] > 0:
-                                        add PS(img_path + "right_green.png", 20, 20)
-                                    elif data[1] < 0:
-                                        add PS(img_path + "right_red.png", 20, 20)
-                                    if data[2] > 0:
-                                        add PS(img_path + "top_green.png", 20, 20)
-                                    elif data[2] < 0:
-                                        add PS(img_path + "top_red.png", 20, 20)
-                    if trait_info.mod_ap or hasattr(trait_info, "evasion_bonus") or hasattr(trait_info, "delivery_multiplier"):
-                        label (u"Other:") text_size 20 text_color "goldenrod" text_bold True xalign .45
-                        if trait_info.mod_ap:
-                            frame:
-                                xysize 170, 20
-                                $ output = "AP %+d" % trait_info.mod_ap
-                                text (output) align .5, .5 size 15 color "yellowgreen" text_align .5 outlines [(1, "black", 0, 0)]
+            if trait_info.mod_skills:
+                $ any_mod = True
+                label (u"Skills:") text_size 20 text_color "goldenrod" text_bold True xalign .45
+                for skill, data in trait_info.mod_skills.iteritems():
+                    frame:
+                        xysize 200, 20
+                        text skill.title() size 15 color "yellowgreen" align .0, .5 outlines [(1, "black", 0, 0)]
 
-                        if hasattr(trait_info, "evasion_bonus"):
-                            frame:
-                                xysize 170, 20
-                                if trait_info.evasion_bonus[1] < 0:
-                                    text ("Evasion -") size 15 color "yellowgreen" align .5, .5 text_align .5 outlines [(1, "black", 0, 0)]
-                                elif trait_info.evasion_bonus[1] > 0:
-                                    text ("Evasion +") size 15 color "yellowgreen" align .5, .5 text_align .5 outlines [(1, "black", 0, 0)]
-                        if hasattr(trait_info, "delivery_multiplier"):
-                            for i in trait_info.delivery_multiplier:
-                                frame:
-                                    xysize 170, 20
-                                    $ output = str(i).title() + " damage "
-                                    if trait_info.delivery_multiplier.get(str(i)) > 0:
-                                        $ output += "+"
-                                    else:
-                                        $ output += "-"
-                                    text (output) align .5, .5 size 15 color "yellowgreen" text_align .5 outlines [(1, "black", 0, 0)]
-                else:
-                    label ("-no direct effects-") text_size 15 text_color "goldenrod" text_bold True xalign .45 text_outlines [(1, "black", 0, 0)]
+                        $ img_path = "content/gfx/interface/icons/skills_icons/"
+                        default PS = ProportionalScale
+                        button:
+                            style "default"
+                            xysize 20, 18
+                            action NullAction()
+                            align .99, .5
+                            if data[0] > 0:
+                                add PS(img_path + "left_green.png", 20, 20)
+                            elif data[0] < 0:
+                                add PS(img_path + "left_red.png", 20, 20)
+                            if data[1] > 0:
+                                add PS(img_path + "right_green.png", 20, 20)
+                            elif data[1] < 0:
+                                add PS(img_path + "right_red.png", 20, 20)
+                            if data[2] > 0:
+                                add PS(img_path + "top_green.png", 20, 20)
+                            elif data[2] < 0:
+                                add PS(img_path + "top_red.png", 20, 20)
 
-    else:
-        $ elems = elements_calculator(trait)
-        fixed:
-            pos x, y
-            anchor xval, yval
-            fit_first True
-            frame:
-                background Frame("content/gfx/frame/p_frame52.webp", 10, 10)
-                padding 10, 5
-                has vbox style_prefix "proper_stats" spacing 1
-                if not elems:
-                    label ("-elements neutralized each other-") text_size 14 text_color "goldenrod" text_bold True xalign .45
-                else:
+            if elementals:
+                $ any_mod = True
+                label (u"Elemental:") text_size 20 text_color "goldenrod" text_bold True xalign .45
+                hbox:
+                    frame:
+                        xysize 80, 20
+                        # "element"
+                    frame:
+                        xysize 60, 20
+                        text "damage" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
+                    frame:
+                        xysize 60, 20
+                        text "defence" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
+                for elem, values in elementals.iteritems():
                     hbox:
                         frame:
                             xysize 80, 20
-                            # "element"
+                            text elem size 15 color "goldenrod" align .5, .5 outlines [(1, "black", 0, 0)]
                         frame:
                             xysize 60, 20
-                            text "damage" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
-                        frame:
-                            xysize 60, 20
-                            text "defence" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
-                    for elem, values in elems.items():
-                        hbox:
-                            frame:
-                                xysize 80, 20
-                                text elem size 15 color "goldenrod" align .5, .5 outlines [(1, "black", 0, 0)]
+                            $ val = values["attack"]
+                            text "[val] %" size 15 color ("lime" if val >= 0 else "red") align 1.0, .5 outlines [(1, "black", 0, 0)]
+                        if "abs" in values.keys():
                             frame:
                                 xysize 60, 20
-                                $ val = values["attack"]
+                                $ val = values["abs"]
+                                text "+[val] %" size 15 color "white" align 1.0, .5 outlines [(1, "black", 0, 0)]
+                        elif "resist" in values.keys():
+                            frame:
+                                xysize 60, 20
+                                text "res." size 15 color "lime" align 1.0, .5 outlines [(1, "black", 0, 0)]
+                        else:
+                            frame:
+                                xysize 60, 20
+                                $ val = values["defence"]
                                 text "[val] %" size 15 color ("lime" if val >= 0 else "red") align 1.0, .5 outlines [(1, "black", 0, 0)]
-                            if "abs" in values.keys():
-                                frame:
-                                    xysize 60, 20
-                                    $ val = values["abs"]
-                                    text "+[val] %" size 15 color "white" align 1.0, .5 outlines [(1, "black", 0, 0)]
-                            elif "resist" in values.keys():
-                                frame:
-                                    xysize 60, 20
-                                    text "res." size 15 color "lime" align 1.0, .5 outlines [(1, "black", 0, 0)]
-                            else:
-                                frame:
-                                    xysize 60, 20
-                                    $ val = values["defence"]
-                                    text "[val] %" size 15 color ("lime" if val >= 0 else "red") align 1.0, .5 outlines [(1, "black", 0, 0)]
 
+            if defence_bonus or hasattr(trait_info, "evasion_bonus"):
+                $ any_mod = True
+                label (u"Defensive:") text_size 20 text_color "goldenrod" text_bold True xalign .45
+                
+                if defence_bonus:
+                    hbox:
+                        frame:
+                            xysize 50, 20
+                            # "type"
+                        frame:
+                            xysize 80, 20
+                            text "bonus" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
+                        frame:
+                            xysize 70, 20
+                            text "multiplier" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
+                    for type, value in defence_bonus.iteritems():
+                        hbox:
+                            frame:
+                                xysize 50, 20
+                                text type size 15 color "goldenrod" align .5, .5 outlines [(1, "black", 0, 0)]
+                            frame:
+                                xysize 80, 20
+                                $ val = value[0]
+                                if val:
+                                    $ min, max, lvl = val
+                                    $ txt_color = "red" if max < 0 else "lime"
+                                    if min == max:
+                                        text "%g" % max size 15 color txt_color align .5, .5 outlines [(1, "black", 0, 0)]
+                                    else:
+                                        text "%g..%g" % (min, max) size 15 color txt_color align .5, .5 outlines [(1, "black", 0, 0)]
+                            frame:
+                                xysize 70, 20
+                                $ val = int(value[1]*100)
+                                if val:
+                                    text "%g %%" % val size 15 color ("lime" if val > 0 else "red") align 1.0, .5 outlines [(1, "black", 0, 0)]
+
+                if hasattr(trait_info, "evasion_bonus"):
+                    frame:
+                        xysize 200, 20
+                        $ min, max, lvl = trait_info.evasion_bonus
+                        $ txt_color = "red" if max < 0 else "lime"
+                        text "Evasion" size 15 color "yellowgreen" align .0, .5 outlines [(1, "black", 0, 0)]
+                        if min == max:
+                            label "%+g" % max text_size 15 text_color txt_color align 1.0, .5 text_outlines [(1, "black", 0, 0)]
+                        else:
+                            text "%g .. %g at lvl %d" % (min, max, lvl) align 1.0, .5 size 15 color txt_color outlines [(1, "black", 0, 0)]
+
+            if delivery_bonus or hasattr(trait_info, "damage_multiplier") or hasattr(trait_info, "ch_multiplier"):
+                $ any_mod = True
+                label (u"Offensive:") text_size 20 text_color "goldenrod" text_bold True xalign .45
+
+                if delivery_bonus:
+                    hbox:
+                        frame:
+                            xysize 50, 20
+                            # "type"
+                        frame:
+                            xysize 80, 20
+                            text "bonus" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
+                        frame:
+                            xysize 70, 20
+                            text "multiplier" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
+                    for type, value in delivery_bonus.iteritems():
+                        hbox:
+                            frame:
+                                xysize 50, 20
+                                text type size 15 color "goldenrod" align .5, .5 outlines [(1, "black", 0, 0)]
+                            frame:
+                                xysize 80, 20
+                                $ val = value[0]
+                                if val:
+                                    $ min, max, lvl = val
+                                    $ txt_color = "red" if max < 0 else "lime"
+                                    if min == max:
+                                        text "%g" % max size 15 color txt_color align .5, .5 outlines [(1, "black", 0, 0)]
+                                    else:
+                                        text "%g..%g" % (min, max) size 15 color txt_color align .5, .5 outlines [(1, "black", 0, 0)]
+                            frame:
+                                xysize 70, 20
+                                $ val = int(value[1]*100)
+                                if val:
+                                    text "%+g %%" % val size 15 color ("lime" if val > 0 else "red") align 1.0, .5 outlines [(1, "black", 0, 0)]
+
+                if hasattr(trait_info, "damage_multiplier"):
+                    frame:
+                        xysize 200, 20
+                        $ value = int(trait_info.damage_multiplier*100)
+                        $ txt_color = "red" if value < 0 else "lime"
+                        text "Damage multiplier %+g %%" % value size 15 color txt_color align .5, .5 text_align .5 outlines [(1, "black", 0, 0)]
+
+                if hasattr(trait_info, "ch_multiplier"):
+                    frame:
+                        xysize 200, 20
+                        $ value = int(trait_info.ch_multiplier*100)
+                        $ txt_color = "red" if value < 0 else "lime"
+                        text "Critical hit %+g %%" % value size 15 color txt_color align .5, .5 text_align .5 outlines [(1, "black", 0, 0)]
+
+            if trait_info.mod_ap:
+                $ any_mod = True
+                label (u"Other:") text_size 20 text_color "goldenrod" text_bold True xalign .45
+                frame:
+                    xysize 200, 20
+                    $ output = "AP %+d" % trait_info.mod_ap
+                    text (output) align .5, .5 size 15 color "lime" text_align .5 outlines [(1, "black", 0, 0)]
+
+            if not any_mod:
+                label ("- no direct effects -") text_size 15 text_color "goldenrod" text_bold True xalign .45 text_outlines [(1, "black", 0, 0)]

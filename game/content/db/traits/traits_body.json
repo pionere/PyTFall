@@ -7,7 +7,7 @@
     "max": {"charisma": 40, "agility": -20},
     "mod_stats": {"charisma": [1, 2], "agility": [-1, 2]},
     "mod_skills": {"strip": [-0.1, 0, 0.25], "dancing": [-0.1, 0, 0.1]},
-    "evasion_bonus": [-10, -10, 1],
+    "evasion_bonus": [-10, -10, 0],
     "gents": true,
     "market": true
     },
@@ -19,7 +19,7 @@
     "max": {"charisma": 20, "agility": -15},
     "mod_stats": {"charisma": [1, 5], "agility": [-1, 5]},
     "mod_skills": {"strip": [-0.05, 0, 0.1]},
-    "evasion_bonus": [-5, -5, 1],
+    "evasion_bonus": [-5, -5, 0],
     "gents": true,
     "market": true
     },
@@ -51,7 +51,7 @@
     "max": {"charisma": 40, "agility": -20},
     "mod_stats": {"charisma": [1, 2], "agility": [-1, 2]},
     "mod_skills": {"strip": [-0.1, 0, 0.25], "dancing": [-0.1, 0, 0.1]},
-    "evasion_bonus": [-10, -10, 1],
+    "evasion_bonus": [-10, -10, 0],
     "gents": true,
     "market": true
     },
@@ -63,7 +63,7 @@
     "max": {"charisma": 20, "agility": -15},
     "mod_stats": {"charisma": [1, 5], "agility": [-1, 5]},
     "mod_skills": {"strip": [-0.05, 0, 0.1]},
-    "evasion_bonus": [-5, -5, 1],
+    "evasion_bonus": [-5, -5, 0],
     "gents": true,
     "market": true
     },
@@ -138,7 +138,7 @@
     "mod_ap": 1,
     "body": true,
     "delivery_multiplier": {"melee": -0.5},
-    "evasion_bonus": [2, 2, 1],
+    "evasion_bonus": [2, 2, 0],
     "market": true
     },
     {
@@ -155,7 +155,7 @@
     "mod_stats": {"constitution": [1, 4], "agility": [-1, 4]},
     "max": {"health": 25},
     "body": true,
-    "evasion_bonus": [-5, -5, 1],
+    "evasion_bonus": [-5, -5, 0],
     "market": true
     },
     {
@@ -165,7 +165,7 @@
     "mod_stats": {"constitution": [1, 5], "agility": [1, 5]},
     "max": {"health": 25, "vitality": 50},
     "body": true,
-    "evasion_bonus": [4, 4, 1],
+    "evasion_bonus": [4, 4, 0],
     "market": true
     },
    {
@@ -177,12 +177,12 @@
     "mod_skills": {"service": [-0.02, 0, -0.03], "strip": [0, 0, -0.06], "waiting": [-0.01, 0, -0.02]},
     "delivery_multiplier": {"melee": 0.25},
     "body": true,
-    "evasion_bonus": [-5, -5, 1],
+    "evasion_bonus": [-5, -5, 0],
     "market": true
     },
     {
     "id": "Artificial Body",
-    "desc": "A body of a machine or has been created with magic (healing spells and poisons are less effective).",
+    "desc": "A body of a machine or has been created with magic.",
     "mod_stats": {"upkeep": [15, 1]},
     "min": {"constitution": 5, "defence": 15},
     "max": {"constitution": 10, "defence": 15, "health": 25, "vitality": 25},
@@ -212,7 +212,7 @@
     },
    {
     "id": "Alien",
-    "desc": "They have come from a distant dimension with very different laws of physics, magic, and society (+magic and status defence).",
+    "desc": "They have come from a distant dimension with very different laws of physics, magic, and society.",
     "mod_stats": {"magic": [-1, 5], "constitution": [-1, 5], "upkeep": [10, 1]},
     "max": {"magic": 25, "attack": 15, "defence": 15, "constitution": 15},
     "mod_skills": {"refinement": [-0.05, -0.05, 0.1], "service": [0, -0.05, -0.05]},

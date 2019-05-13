@@ -243,18 +243,12 @@ screen char_profile():
             style_group "content"
             # # Base frame ====================================>
             # # Prof-Classes ==================================>
-            python:
-                classes = list(t.id for t in char.traits.basetraits)
-                classes.sort()
-                classes = ", ".join(classes)
-
-                trait = char.personality
-                img = ProportionalScale("".join(["content/gfx/interface/images/personality/", trait.id.lower(), ".png"]), 120, 120)
-
             fixed:
                 xoffset 4
                 align .0, .0
                 xysize 330, 126
+                $ trait = char.personality
+                $ img = ProportionalScale("".join(["content/gfx/interface/images/personality/", trait.id.lower(), ".png"]), 120, 120)
                 imagebutton:
                     at pers_effect()
                     focus_mask True
@@ -262,23 +256,11 @@ screen char_profile():
                     ycenter 65
                     idle img
                     hover img
-                    action Show("show_trait_info", trait=trait.id, place="main_trait")
+                    action Show("show_trait_info", trait=trait)
                     tooltip "{}".format("\n".join([trait.id, trait.desc]))
 
                 add Transform("content/gfx/frame/base_frame.webp", alpha=.9, size=(330, 126)):
                     xoffset -5
-
-                label "[classes]":
-                    text_color "gold"
-                    if len(classes) < 18:
-                        text_size 17
-                        pos 113, 100
-                    else:
-                        text_size 15
-                        pos 113, 98
-                    text_outlines [(2, "#3a3a3a", 0, 0)]
-                    pos 113, 100
-                    anchor 0, 1.0
 
                 textbutton "[char.name]":
                     background Null()
@@ -301,6 +283,24 @@ screen char_profile():
                     text_outlines [(2, "#3a3a3a", 0, 0)]
                     pos 113, 76
                     anchor 0, 1.0
+
+                $ classes = list(t.id for t in char.traits.basetraits)
+                $ classes.sort()
+                hbox:
+                    pos 113, 100
+                    anchor 0, 1.0
+                    spacing 0
+                    for idx, trait in enumerate(classes):
+                        $ trait = traits[trait]
+                        if idx != 0:
+                            text ", " color "gold" align .0, .5 size 18 outlines [(2, "#3a3a3a", 0, 0)]
+                        button:
+                            background Null()
+                            padding 0, 0
+                            margin 0, 0
+                            action Show("show_trait_info", trait=trait)
+                            text trait.id idle_color "gold" align .5, .5 hover_color "crimson" size 18 outlines [(2, "#3a3a3a", 0, 0)]
+                            tooltip "%s" % trait.desc
 
                 if check_lovers(char, hero):
                     imagebutton:
