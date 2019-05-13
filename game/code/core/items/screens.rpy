@@ -162,7 +162,12 @@ screen itemstats(item=None, size=(635, 380), style_group="content", mc_mode=Fals
                         yalign .5
                         background Frame("content/gfx/frame/frame_it2.png", 5, 5)
                         xysize (130, 130)
-                        add (ProportionalScale(item.icon, 110, 110)) align .5, .5
+                        $ temp = ProportionalScale(item.icon, 110, 110)
+                        imagebutton:
+                            align .5, .5
+                            idle temp
+                            hover im.MatrixColor(temp, im.matrix.brightness(.15))
+                            action Show("show_item_info", item=item)
                     frame:
                         background Frame("content/gfx/frame/p_frame4.png", 10, 10)
                         padding 15, 15
@@ -243,11 +248,16 @@ screen itemstats(item=None, size=(635, 380), style_group="content", mc_mode=Fals
                                 for trait in temp:
                                     use trait_info(trait, 153, 20)
                                 null height 2
-                            if item.add_be_spells:
+                            if item.add_be_spells or item.attacks:
                                 label ('Adds Skills:') text_size 16 text_color "gold" xpos 10
-                                for skill in item.add_be_spells:
-                                    $ skill = battle_skills[skill]
-                                    use skill_info(skill, 153, 20)
+                                if item.add_be_spells:
+                                    for skill in item.add_be_spells:
+                                        $ skill = battle_skills[skill]
+                                        use skill_info(skill, 153, 20)
+                                if item.attacks:
+                                    for skill in item.attacks:
+                                        $ skill = battle_skills[skill]
+                                        use skill_info(skill, 153, 20)
                                 null height 2
                             if item.addeffects:
                                 label ('Adds Effects:') text_size 16 text_color "gold" xpos 10
@@ -261,44 +271,6 @@ screen itemstats(item=None, size=(635, 380), style_group="content", mc_mode=Fals
                                     $ effect = CharEffect(effect)
                                     use effect_info(effect, 153, 20)
                                 null height 2
-                            if hasattr(item, 'mtemp'):
-                                if item.mtemp:
-                                    label ('Frequency:') text_size 16 text_color "gold" xpos 10
-                                    frame:
-                                        xysize 153, 20
-                                        if item.mreusable:
-                                            if item.mtemp > 1:
-                                                text "Every [item.mtemp] days" color "ivory" size 16 align (.02, .5)
-                                            else:
-                                                text "Every day" color "ivory" size 16 align (.02, .5)
-                                        else:
-                                            if item.mtemp > 1:
-                                                text "After [item.mtemp] days" color "ivory" size 16 align (.02, .5)
-                                            else:
-                                                text "After one day" color "ivory" size 16 align (.02, .5)
-                                    if hasattr(item, 'mdestruct'):
-                                        if item.mdestruct:
-                                            frame:
-                                                xysize 153, 20
-                                                text "Disposable" color "ivory" size 16 align (.02, .5)
-                                    if hasattr(item, 'mreusable'):
-                                        if item.mreusable:
-                                            frame:
-                                                xysize 153, 20
-                                                text "Reusable" color "ivory" size 16 align (.02, .5)
-                                    if hasattr(item, 'statmax'):
-                                        if item.statmax:
-                                            frame:
-                                                xysize 153, 20
-                                                text "Stat limit" color "ivory" size 16 align (.02, .5)
-                                                label (u'{size=-4}%d'%item.statmax) align (.98, .5)
-                            if hasattr(item, 'ctemp'):
-                                if item.ctemp:
-                                    label ('Duration:') text_size 16 text_color "gold" xpos 10
-                                    frame:
-                                        xysize 153, 20
-                                        text "Days" color "ivory" size 16 align (.02, .5)
-                                        label u'{size=-4}[item.ctemp]' align (.98, .5)
                 label ('{color=#ecc88a}----------------------------------------') xalign .5
                 frame:
                     xalign .5

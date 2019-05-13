@@ -1053,7 +1053,12 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                     align (.5, .5)
                     background Frame("content/gfx/frame/frame_it2.png", 5, 5)
                     xysize (120, 120)
-                    add (ProportionalScale(item.icon, 100, 100)) align(.5, .5)
+                    $ temp = ProportionalScale(item.icon, 100, 100)
+                    imagebutton:
+                        align .5, .5
+                        idle temp
+                        hover im.MatrixColor(temp, im.matrix.brightness(.15))
+                        action Show("show_item_info", item=item)
 
                 if item_direction == 'unequip':
                     $ temp = "Unequip"
@@ -1071,10 +1076,9 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                     xysize (80, 45)
                     tooltip temp_msg
                     action SensitiveIf(focusitem), Return(['item', 'equip/unequip'])
-                    if item_direction == 'equip' and not can_equip(focusitem, eqtarget):
-                        text "[temp]" style "pb_button_text" align (.5, .5) color "red" strikethrough True
-                    else:
-                        text "[temp]" style "pb_button_text" align (.5, .5)
+                    text "[temp]" style "pb_button_text" align (.5, .5):
+                        if item_direction == 'equip' and not can_equip(focusitem, eqtarget):
+                            color "red" strikethrough True
 
                 # Right items info (Stats):
                 frame:
@@ -1118,43 +1122,6 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                                         xysize (172, 18)
                                         text stat.capitalize() color "#F5F5DC" size 15 xalign .02 yoffset -2
                                         label (u'{color=#F5F5DC}{size=-4}%d'%value) align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
-                        if getattr(item, 'mtemp', False):
-                                label ('Frequency:') text_size 14 text_color "gold" xpos 30
-                                vbox:
-                                    frame:
-                                        xysize (172, 18)
-                                        if hasattr(item, 'mreusable'):
-                                            if item.mreusable:
-                                                if item.mtemp > 1:
-                                                    text (u'Every %d days'%item.mtemp) color "#F5F5DC" size 15 xalign .02 yoffset -2
-                                                else:
-                                                    text (u'Every day') color "#F5F5DC" size 15 xalign .02 yoffset -2
-                                            else:
-                                                if item.mtemp > 1:
-                                                    text (u'After %d days'%item.mtemp) color "#F5F5DC" size 15 xalign .02 yoffset -2
-                                                else:
-                                                    text (u'After one day') color "#F5F5DC" size 15 xalign .02 yoffset -2
-                                    if getattr(item, 'mdestruct', False):
-                                            frame:
-                                                xysize (172, 18)
-                                                text (u'Disposable') color "#F5F5DC" size 15 xalign .02 yoffset -2
-                                    if getattr(item, 'mreusable', False):
-                                            frame:
-                                                xysize (172, 18)
-                                                text (u'Reusable') color "#F5F5DC" size 15 xalign .02 yoffset -2
-                                    if getattr(item, 'statmax', False):
-                                            frame:
-                                                xysize (172, 18)
-                                                text (u'Stat limit') color "#F5F5DC" size 15 xalign .02 yoffset -2
-                                                label (u'{color=#F5F5DC}{size=-4}%d'%item.statmax) align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
-                        if getattr(item, 'ctemp', False):
-                                label ('Duration:') text_size 14 text_color "gold" xpos 30
-                                frame:
-                                    xysize (172, 18)
-                                    if item.ctemp > 1:
-                                        text (u'%d days'%item.ctemp) color "#F5F5DC" size 15 xalign .02 yoffset -2
-                                    else:
-                                        text (u'One day') color "#F5F5DC" size 15 xalign .02 yoffset -2
 
             # Bottom HBox: Desc/Traits/Effects/Skills:
             hbox:
@@ -1200,107 +1167,7 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                     padding 10, 5
                     background Transform(Frame(im.MatrixColor("content/gfx/frame/p_frame5.png", im.matrix.brightness(-0.1)), 5, 5), alpha=.9)
                     has viewport draggable True mousewheel True
-                    $ temp = "\n"
-                    if item.be:
-                        $ temp += '*Can be used in combat!\n'
-                    if hasattr(item, "evasion_bonus"):
-                        if item.evasion_bonus > 0:
-                            $ temp += '*Increases evasion chance.\n'
-                        elif item.evasion_bonus < 0:
-                            $ temp += '*Decreases evasion chance.\n'
-                    if hasattr(item, "ch_multiplier"):
-                        if item.ch_multiplier > 0:
-                            $ temp += '*Increases chance of critical hit.\n'
-                        elif item.ch_multiplier < 0:
-                            $ temp += '*Decreases chance of critical hit.\n'
-                    if hasattr(item, "damage_multiplier"):
-                        if item.damage_multiplier > 0:
-                            $ temp += '*Increases all outgoing damage.\n'
-                        elif item.damage_multiplier < 0:
-                            $ temp += '*Decreases all outgoing damage.\n'
-                    if hasattr(item, "defence_bonus"):
-                        if "magic" in item.defence_bonus.keys():
-                            if item.defence_bonus["magic"] > 0:
-                                $ temp += '*Magic defence bonus.\n'
-                            else:
-                                $ temp += '*Magic defence penalty.\n'
-                        if "melee" in item.defence_bonus.keys():
-                            if item.defence_bonus["melee"] > 0:
-                                $ temp += '*Melee defence bonus.\n'
-                            else:
-                                $ temp += '*Melee defence penalty.\n'
-                        if "ranged" in item.defence_bonus.keys():
-                            if item.defence_bonus["ranged"] > 0:
-                                $ temp += '*Ranged defence bonus.\n'
-                            else:
-                                $ temp += '*Ranged defence penalty.\n'
-                    if hasattr(item, "defence_multiplier"):
-                        if "magic" in item.defence_multiplier.keys():
-                            if item.defence_multiplier["magic"] > 0:
-                                $ temp += '*Multiplies magic defence.\n'
-                            else:
-                                $ temp += '*Reduces magic defence.'
-                        if "melee" in item.defence_multiplier.keys():
-                            if item.defence_multiplier["melee"] > 0:
-                                $ temp += '*Multiplies melee defence.\n'
-                            else:
-                                $ temp += '*Reduces melee defence.'
-                        if "ranged" in item.defence_multiplier.keys():
-                            if item.defence_multiplier["ranged"] > 0:
-                                $ temp += '*Multiplies ranged defence.\n'
-                            else:
-                                $ temp += '*Reduces ranged defence.'
-                        if "status" in item.defence_multiplier.keys():
-                            if item.defence_multiplier["status"] > 0:
-                                $ temp += '*Multiplies status defence.\n'
-                            else:
-                                $ temp += '*Reduces status defence.\n'
-
-                    if hasattr(item, "delivery_bonus"):
-                        if "magic" in item.delivery_bonus.keys():
-                            if item.delivery_bonus["magic"] > 0:
-                                $ temp += '*Bonus to power of magic skills.\n'
-                            else:
-                                $ temp += '*Penalty to power of magic skills.\n'
-                        if "melee" in item.delivery_bonus.keys():
-                            if item.delivery_bonus["melee"] > 0:
-                                $ temp += '*Bonus to power of melee skills.\n'
-                            else:
-                                $ temp += '*Penalty to power of melee skills.\n'
-                        if "ranged" in item.delivery_bonus.keys():
-                            if item.delivery_bonus["ranged"] > 0:
-                                $ temp += '*Bonus to power of ranged skills.\n'
-                            else:
-                                $ temp += '*Penalty to power of ranged skills.\n'
-                        if "status" in item.delivery_bonus.keys():
-                            if item.delivery_bonus["status"] > 0:
-                                $ temp += '*Bonus to power of status skills.\n'
-                            else:
-                                $ temp += '*Penalty to power of status skills.\n'
-
-                    if hasattr(item, "delivery_multiplier"):
-                        if "magic" in item.delivery_multiplier.keys():
-                            if item.delivery_multiplier["magic"] > 0:
-                                $ temp += '*Multiplies power of magic skills.\n'
-                            else:
-                                $ temp += '*Decreases power of magic skills.\n'
-                        if "melee" in item.delivery_multiplier.keys():
-                            if item.delivery_multiplier["melee"] > 0:
-                                $ temp += '*Multiplies power of melee skills.\n'
-                            else:
-                                $ temp += '*Decreases power of melee skills.\n'
-                        if "ranged" in item.delivery_multiplier.keys():
-                            if item.delivery_multiplier["ranged"] > 0:
-                                $ temp += '*Multiplies power of ranged skills.\n'
-                            else:
-                                $ temp += '*Decreases power of ranged skills.\n'
-                        if "status" in item.delivery_multiplier.keys():
-                            if item.delivery_multiplier["status"] > 0:
-                                $ temp += '*Multiplies power of status skills.\n'
-                            else:
-                                $ temp += '*Decreases power of status skills.\n'
-
-                    text '{color=#ecc88a}[item.desc]{/color}{color=#daa520}[temp]{/color}' font "fonts/TisaOTM.otf" size 15 outlines [(1, "#3a3a3a", 0, 0)]
+                    text '{color=#ecc88a}[item.desc]{/color}' font "fonts/TisaOTM.otf" size 15 outlines [(1, "#3a3a3a", 0, 0)]
 
 
                 frame:
@@ -1308,15 +1175,21 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                     xysize 158, 104
                     padding 2, 3
                     has viewport draggable True mousewheel True
-                    vbox:
-                        xsize 154
-                        style_group "proper_stats"
-                        if item.add_be_spells:
+                    if item.add_be_spells or item.attacks:
+                        vbox:
+                            xsize 154
+                            style_group "proper_stats"
                             label ('Adds Skills:') text_size 14 text_color "gold" xpos 10
-                            for skill in item.add_be_spells:
-                                $ skill = battle_skills[skill]
-                                use skill_info(skill, 146, 20)
-                            #null height 2
+                            if item.add_be_spells:
+                                for skill in item.add_be_spells:
+                                    $ skill = battle_skills[skill]
+                                    use skill_info(skill, 146, 20)
+                                null height 2
+                            if item.attacks:
+                                for skill in item.attacks:
+                                    $ skill = battle_skills[skill]
+                                    use skill_info(skill, 146, 20)
+                                #null height 2
 
     else: # equipment saves
         frame:
@@ -1392,6 +1265,283 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                                     action SensitiveIf(any(eqtarget.eqslots.values())), SetDict(eqsave, len(eqtarget.eqsave), True), Return(["outfit", "create"]), With(dissolve)
                                     tooltip "Create a new outfit based on the current equipment"
                                     text "..." style "pb_button_text"
+
+# TODO keep in sync or even merge with show_trait_info
+screen show_item_info(item=None):
+    modal True
+    $ pos = renpy.get_mouse_pos()
+    mousearea:
+        area(pos[0], pos[1], 1, 1)
+        hovered Show("show_item_info_content", transition=None, item=item)
+        unhovered Hide("show_item_info_content"), Hide("show_item_info")
+
+    #key "mousedown_3" action Hide("show_trait_info_content"), Hide("show_trait_info")
+
+screen show_item_info_content(item):
+    default pos = renpy.get_mouse_pos()
+    python:
+        x, y = pos
+        if x > config.screen_width/2:
+            x -= 20
+            xval = 1.0
+        else:
+            x += 20
+            xval = .0
+        temp = config.screen_height/3
+        if y < temp:
+            yval = .0
+        elif y > config.screen_height-temp:
+            yval = 1.0
+        else:
+            yval = .5
+
+    $ item_info = item
+    $ defence_bonus, delivery_bonus = item_info_calculator(item)
+    fixed:
+        pos x, y
+        anchor xval, yval
+        fit_first True
+        frame:
+            background Frame("content/gfx/frame/p_frame52.webp", 10, 10)
+            padding 10, 10
+            has vbox style_prefix "proper_stats" spacing 1
+
+            $ any_mod = False
+            if item_info.mod:
+                $ any_mod = True
+                label (u"Stats:") text_size 20 text_color "goldenrod" text_bold True xalign .45
+                for stat, value in item_info.mod.iteritems():
+                    frame:
+                        xysize 200, 20
+                        text stat.title() size 15 color "#79CDCD" align .0, .5 outlines [(1, "black", 0, 0)]
+                        $ txt_color = "red" if value < 0 else "lime"
+                        label "%+g" % value text_size 15 text_color txt_color align 1.0, .5 text_outlines [(1, "black", 0, 0)]
+            if item_info.max:
+                $ any_mod = True
+                label (u"Max:") text_size 20 text_color "goldenrod" text_bold True xalign .45
+                for stat, value in item_info.max.iteritems():
+                    frame:
+                        xysize 200, 20
+                        $ txt_color = "red" if value < 0 else "lime"
+                        text stat.title() size 15 color "#79CDCD" align .0, .5 outlines [(1, "black", 0, 0)]
+                        label "%+g" % value text_size 15 text_color txt_color align 1.0, .5 text_outlines [(1, "black", 0, 0)]
+            if item_info.min:
+                $ any_mod = True
+                label (u"Min:") text_size 20 text_color "goldenrod" text_bold True xalign .45
+                for stat, value in item_info.min.iteritems():
+                    frame:
+                        xysize 200, 20
+                        $ txt_color = "red" if value < 0 else "lime"
+                        text stat.title() size 15 color "#79CDCD" align .0, .5 outlines [(1, "black", 0, 0)]
+                        label "%+g" % value text_size 15 text_color txt_color align 1.0, .5 text_outlines [(1, "black", 0, 0)]
+            if getattr(item_info, 'mtemp', False):
+                label (u"Frequency:") text_size 20 text_color "goldenrod" text_bold True xalign .45
+                vbox:
+                    frame:
+                        xysize (200, 20)
+                        if hasattr(item_info, 'mreusable'):
+                            if item_info.mreusable:
+                                if item_info.mtemp > 1:
+                                    text (u'Every %d days'%item_info.mtemp) color "#F5F5DC" size 15 xalign .02
+                                else:
+                                    text (u'Every day') color "#F5F5DC" size 15 xalign .02 yoffset -2
+                            else:
+                                if item_info.mtemp > 1:
+                                    text (u'After %d days'%item_info.mtemp) color "#F5F5DC" size 15 xalign .02
+                                else:
+                                    text (u'After one day') color "#F5F5DC" size 15 xalign .02
+                        if getattr(item_info, 'mdestruct', False):
+                                text (u'Disposable') color "#F5F5DC" size 15 xalign 1.0
+                        if getattr(item_info, 'mreusable', False):
+                                text (u'Reusable') color "#F5F5DC" size 15 xalign 1.0
+                    if getattr(item_info, 'statmax', False):
+                        frame:
+                            xysize (200, 20)
+                            text (u'Stat limit') color "#F5F5DC" size 15 xalign .02
+                            label (u'{color=#F5F5DC}{size=-4}%d'%item_info.statmax) align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
+            if getattr(item_info, 'ctemp', False):
+                    label ('Duration:') text_size 14 text_color "gold" xpos 30
+                    frame:
+                        xysize (172, 18)
+                        if item_info.ctemp > 1:
+                            text (u'%d days'%item_info.ctemp) color "#F5F5DC" size 15 xalign .02
+                        else:
+                            text (u'One day') color "#F5F5DC" size 15 xalign .02 yoffset -2
+
+            $ temp = [t.id for t in [traits[trait] for trait in item_info.addtraits] if not t.hidden]
+            $ tmp = [t.id for t in [traits[trait] for trait in item_info.removetraits] if not t.hidden]
+            if temp or tmp:
+                $ any_mod = True
+                label (u"Traits:") text_size 20 text_color "goldenrod" text_bold True xalign .45
+                for trait in temp:
+                    frame:
+                        xysize 200, 20
+                        text trait.title() size 15 color "lime" align .5, .5 text_align .5 outlines [(1, "black", 0, 0)]
+                for trait in tmp:
+                    frame:
+                        xysize 200, 20
+                        text trait.title() size 15 color "red" align .5, .5 text_align .5 outlines [(1, "black", 0, 0)]
+
+            if item_info.addeffects or item_info.removeeffects:
+                $ any_mod = True
+                label (u"Effects:") text_size 20 text_color "goldenrod" text_bold True xalign .45
+                for effect in item_info.addeffects:
+                    frame:
+                        xysize 200, 20
+                        text effect.title() size 15 color "lime" align .5, .5 text_align .5 outlines [(1, "black", 0, 0)]
+                for effect in item_info.removeeffects:
+                    frame:
+                        xysize 200, 20
+                        text effect.title() size 15 color "red" align .5, .5 text_align .5 outlines [(1, "black", 0, 0)]
+
+            if item_info.mod_skills or item_info.add_be_spells or item_info.attacks:
+                $ any_mod = True
+                label (u"Skills:") text_size 20 text_color "goldenrod" text_bold True xalign .45
+                for skill, data in item_info.mod_skills.iteritems():
+                    frame:
+                        xysize 200, 20
+                        text skill.title() size 15 color "yellowgreen" align .0, .5 outlines [(1, "black", 0, 0)]
+
+                        $ img_path = "content/gfx/interface/icons/skills_icons/"
+                        default PS = ProportionalScale
+                        button:
+                            style "default"
+                            xysize 20, 18
+                            action NullAction()
+                            align .99, .5
+                            if data[0] > 0:
+                                add PS(img_path + "left_green.png", 20, 20)
+                            elif data[0] < 0:
+                                add PS(img_path + "left_red.png", 20, 20)
+                            if data[1] > 0:
+                                add PS(img_path + "right_green.png", 20, 20)
+                            elif data[1] < 0:
+                                add PS(img_path + "right_red.png", 20, 20)
+                            if data[2] > 0:
+                                add PS(img_path + "top_green.png", 20, 20)
+                            elif data[2] < 0:
+                                add PS(img_path + "top_red.png", 20, 20)
+
+                        $ temp = ""
+                        $ value = data[3]
+                        if value:
+                            $ txt_color = "red" if value < 0 else "lime"
+                            $ temp += set_font_color("%+g" % value, txt_color)
+                        $ value = data[4]
+                        if value:
+                            if temp:
+                                $ temp += ", "
+                            $ txt_color = "red" if value < 0 else "lime"
+                            $ temp += set_font_color("%+g" % value, txt_color)
+                        if temp:
+                            label temp text_size 15 align 1.0, .5 text_outlines [(1, "black", 0, 0)]
+
+                if item_info.add_be_spells or item.attacks:
+                    for skill in item_info.add_be_spells:
+                        frame:
+                            xysize 200, 20
+                            text skill.title() size 15 color "yellow" align .5, .5 outlines [(1, "black", 0, 0)]
+                if item_info.attacks:
+                    for skill in item_info.attacks:
+                        frame:
+                            xysize 200, 20
+                            text skill.title() size 15 color "yellow" align .5, .5 outlines [(1, "black", 0, 0)]
+
+            if defence_bonus or hasattr(item_info, "evasion_bonus"):
+                $ any_mod = True
+                label (u"Defensive:") text_size 20 text_color "goldenrod" text_bold True xalign .45
+
+                if defence_bonus:
+                    hbox:
+                        frame:
+                            xysize 50, 20
+                            # "type"
+                        frame:
+                            xysize 80, 20
+                            text "bonus" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
+                        frame:
+                            xysize 70, 20
+                            text "multiplier" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
+                    for type, value in defence_bonus.iteritems():
+                        hbox:
+                            frame:
+                                xysize 50, 20
+                                text type size 15 color "goldenrod" align .5, .5 outlines [(1, "black", 0, 0)]
+                            frame:
+                                xysize 80, 20
+                                $ val = value[0]
+                                if val:
+                                    $ txt_color = "red" if val < 0 else "lime"
+                                    text "%g" % val size 15 color txt_color align .5, .5 outlines [(1, "black", 0, 0)]
+                            frame:
+                                xysize 70, 20
+                                $ val = int(value[1]*100)
+                                if val:
+                                    text "%g %%" % val size 15 color ("lime" if val > 0 else "red") align 1.0, .5 outlines [(1, "black", 0, 0)]
+
+                if hasattr(item_info, "evasion_bonus"):
+                    frame:
+                        xysize 200, 20
+                        $ value = item_info.evasion_bonus
+                        $ txt_color = "red" if value < 0 else "lime"
+                        text "Evasion" size 15 color "yellowgreen" align .0, .5 outlines [(1, "black", 0, 0)]
+                        label "%+g" % value text_size 15 text_color txt_color align 1.0, .5 text_outlines [(1, "black", 0, 0)]
+
+            if delivery_bonus or hasattr(item_info, "damage_multiplier") or hasattr(item_info, "ch_multiplier"):
+                $ any_mod = True
+                label (u"Offensive:") text_size 20 text_color "goldenrod" text_bold True xalign .45
+
+                if delivery_bonus:
+                    hbox:
+                        frame:
+                            xysize 50, 20
+                            # "type"
+                        frame:
+                            xysize 80, 20
+                            text "bonus" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
+                        frame:
+                            xysize 70, 20
+                            text "multiplier" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
+                    for type, value in delivery_bonus.iteritems():
+                        hbox:
+                            frame:
+                                xysize 50, 20
+                                text type size 15 color "goldenrod" align .5, .5 outlines [(1, "black", 0, 0)]
+                            frame:
+                                xysize 80, 20
+                                $ val = value[0]
+                                if val:
+                                    $ txt_color = "red" if val < 0 else "lime"
+                                    text "%g" % val size 15 color txt_color align .5, .5 outlines [(1, "black", 0, 0)]
+                            frame:
+                                xysize 70, 20
+                                $ val = int(value[1]*100)
+                                if val:
+                                    text "%+g %%" % val size 15 color ("lime" if val > 0 else "red") align 1.0, .5 outlines [(1, "black", 0, 0)]
+
+                if hasattr(item_info, "damage_multiplier"):
+                    frame:
+                        xysize 200, 20
+                        $ value = int(item_info.damage_multiplier*100)
+                        $ txt_color = "red" if value < 0 else "lime"
+                        text "Damage multiplier %+g %%" % value size 15 color txt_color align .5, .5 text_align .5 outlines [(1, "black", 0, 0)]
+
+                if hasattr(item_info, "ch_multiplier"):
+                    frame:
+                        xysize 200, 20
+                        $ value = int(item_info.ch_multiplier*100)
+                        $ txt_color = "red" if value < 0 else "lime"
+                        text "Critical hit %+g %%" % value size 15 color txt_color align .5, .5 text_align .5 outlines [(1, "black", 0, 0)]
+
+            if item_info.be:
+                $ any_mod = True
+                label (u"Other:") text_size 20 text_color "goldenrod" text_bold True xalign .45
+                frame:
+                    xysize 200, 20
+                    text "Can be used in combat!" align .5, .5 size 15 color "yellowgreen" text_align .5 outlines [(1, "black", 0, 0)]
+
+            if not any_mod:
+                label ("- no direct effects -") text_size 15 text_color "goldenrod" text_bold True xalign .45 text_outlines [(1, "black", 0, 0)]
 
 screen diff_item_effects(char, dummy):
     zorder 10
