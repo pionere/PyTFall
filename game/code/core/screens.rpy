@@ -1177,17 +1177,22 @@ screen tutorial(level=1):
         xysize (1280, 720)
         action Hide("tutorial")
 
-screen stars(value, max_value, num_stars=5):
-    $ step = max_value / (num_stars * 2)
+screen stars(value, max_value, num_stars=5, func=None, **kwargs):
+    python:
+        step = max_value / (num_stars * 2)
+        images = ["content/gfx/interface/icons/stars/star2a.png", "content/gfx/interface/icons/stars/star3a.png", "content/gfx/interface/icons/stars/star1a.png"]
+        if func is not None:
+            images = [func(i, **kwargs) for i in images]
     for i in range(5):
         if (2*step) <= value:
-            add Transform("content/gfx/interface/icons/stars/star2.png", size=(18, 18))
+            $ i = 0 # full
             $ value -= 2*step
         elif step <= value:
-            add Transform("content/gfx/interface/icons/stars/star3.png", size=(18, 18))
+            $ i = 1 # half
             $ value -= step
         else:
-            add Transform("content/gfx/interface/icons/stars/star1.png", size=(18, 18))
+            $ i = 2 # empty
+        add Transform(images[i], size=(18, 18))
 
 screen digital_keyboard(line=""):
     default current_number = "0"

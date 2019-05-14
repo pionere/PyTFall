@@ -377,6 +377,7 @@ screen char_equip():
     key "mousedown_6" action Return(['con', 'return'])
 
     default stats_display = "stats"
+    default skill_display = "combat"
 
     # BASE FRAME 2 "bottom layer" ====================================>
     add "content/gfx/frame/equipment3.webp"
@@ -416,7 +417,7 @@ screen char_equip():
 
         # PORTRAIT + Prev/Next buttons ================>
         fixed:
-            xysize (220, 100)
+            xysize (220, 110)
             if equip_girls:
                 imagebutton:
                     xysize (39, 50)
@@ -429,7 +430,7 @@ screen char_equip():
 
             frame:
                 xysize (100, 100)
-                pos (64, 11)
+                pos (64, 8)
                 background Null()
                 add eqtarget.show("portrait", resize=(100, 100), cache=True) align .5, .5
             if equip_girls:
@@ -448,33 +449,57 @@ screen char_equip():
         # LVL =========================================>
         hbox:
             xsize 220
-            ypos 173
+            ypos 168
             label "Lvl [eqtarget.level]" text_color "#CDAD00" text_font "fonts/Rubius.ttf" text_size 16 text_outlines [(1, "#3a3a3a", 0, 0)] xalign .53
 
         # Left Frame Buttons: =========================>
-        hbox:
+        vbox:
             xsize 220
-            style_group "pb"
-            xpos 5
-            ypos 198
+            ypos 185
+            style_prefix "pb"
             spacing 1
-            button:
-                xsize 70
-                action SetScreenVariable("stats_display", "stats"), With(dissolve)
-                text "Stats" style "pb_button_text" yoffset 2
-            button:
-                xsize 70
-                action SetScreenVariable("stats_display", "skills"), With(dissolve)
-                text "Skills" style "pb_button_text" yoffset 2
-            button:
-                xsize 70
-                action SetScreenVariable("stats_display", "traits"), With(dissolve)
-                text "Traits" style "pb_button_text" yoffset 2
+            hbox:
+                xalign .5
+                spacing 1
+                button:
+                    xsize 70
+                    action SetScreenVariable("stats_display", "stats"), With(dissolve)
+                    text "Stats" style "pb_button_text" yoffset 2
+                button:
+                    xsize 70
+                    action SetScreenVariable("stats_display", "traits"), With(dissolve)
+                    text "Traits" style "pb_button_text" yoffset 2
+
+            fixed:
+                xsize 220
+                button:
+                    xalign .5
+                    xsize 70
+                    action SetScreenVariable("stats_display", "skills"), With(dissolve)
+                    text "Skills" style "pb_button_text" yoffset 2
+                if stats_display == "skills":
+                    python:
+                        if skill_display == "combat":
+                            group_icon = "content/gfx/interface/icons/combat.webp"
+                            group_tt = "Combat skills are shown!"
+                            next_group = "other"
+                        else:
+                            group_icon = "content/gfx/interface/images/student.png"
+                            group_tt = "Non-combat skills are shown!"
+                            next_group = "combat"
+                        img = ProportionalScale(group_icon, 20, 20)
+                    imagebutton:
+                        xalign .75#, .5
+                        yoffset 4
+                        idle img
+                        hover im.MatrixColor(img, im.matrix.brightness(0.15))
+                        action SetScreenVariable("skill_display", next_group)
+                        tooltip group_tt
 
         # Stats/Skills:
         vbox:
             yfill True
-            yoffset 195
+            yoffset 200
             spacing 2
             xmaximum 218
 
@@ -542,7 +567,7 @@ screen char_equip():
                                 $ temp = build_str_for_eq(eqtarget, dummy, stat, tempc)
                                 text temp style_suffix "value_text" xalign .98 yoffset 3
 
-            elif stats_display == "skills":
+            elif stats_display == "skills" and skill_display == "combat":
                 vbox:
                     spacing 5
                     pos (4, 40)
@@ -634,6 +659,66 @@ screen char_equip():
                                 if skill not in temp:
                                     use skill_info(skill, xsize, ysize, idle_color="#F5F5DC")
 
+            elif stats_display == "skills": # and skill_display == "other":
+                vbox:
+                    spacing 5
+                    pos (4, 40)
+                    frame:
+                        background Transform(Frame(im.MatrixColor("content/gfx/frame/p_frame5.png", im.matrix.brightness(-0.1)), 5, 5), alpha=.7)
+                        xsize 218
+                        padding 6, 6
+                        margin 0, 0
+                        style_prefix "proper_stats"
+                        has viewport xysize (218, 454) draggable True mousewheel True child_size (218, 1000)
+                        vbox:
+                            spacing 1
+                            $ base_ss = eqtarget.stats.get_base_ss()
+                            for skill in eqtarget.stats.skills:
+                                $ skill_limit = int(eqtarget.get_max_skill(skill))
+                                #$ skill_old = min(skill_limit, int(eqtarget.get_skill(skill)))
+                                $ skill_old = int(eqtarget.get_skill(skill))
+                                if getattr(store, "dummy", None) is not None:
+                                    #$ skill_new = min(skill_limit, int(dummy.get_skill(skill)))
+                                    $ skill_new = int(dummy.get_skill(skill))
+                                else:
+                                    $ skill_new = skill_old
+                                # We don't care about the skill if it's less than 10% of limit:
+                                if skill in base_ss or skill_old > skill_limit/10 or skill_new > skill_limit/10:
+                                    frame:
+                                        xysize (208, 27)
+                                        xpadding 2
+                                        text skill.capitalize() color "gold" size 18 xoffset 10 # style_suffix "value_text" 
+                                        if skill in base_ss:
+                                            button:
+                                                xysize 16, 16
+                                                xoffset -3
+                                                background ProportionalScale("content/gfx/interface/icons/stars/legendary.png", 16, 16)
+                                                action NullAction()
+                                                tooltip "This is a Class Skill!"
+                                        if skill_old == skill_new:
+                                            hbox:
+                                                xalign 1.0
+                                                yoffset 4
+                                                use stars(skill_old, skill_limit)
+                                        elif skill_old > skill_new:
+                                            hbox:
+                                                xalign 1.0
+                                                yoffset 4
+                                                use stars(skill_old, skill_limit, func=im.MatrixColor, matrix=im.matrix.tint(1, .25, .25))
+                                            hbox:
+                                                xalign 1.0
+                                                yoffset 4
+                                                use stars(skill_new, skill_limit)
+                                        else: # skill_old < skill_new
+                                            hbox:
+                                                xalign 1.0
+                                                yoffset 4
+                                                use stars(skill_new, skill_limit, func=im.MatrixColor, matrix=im.matrix.tint(.25, 1, .25))
+                                            hbox:
+                                                xalign 1.0
+                                                yoffset 4
+                                                use stars(skill_old, skill_limit)
+
             elif stats_display == "traits":
                 vbox:
                     spacing 5
@@ -648,10 +733,10 @@ screen char_equip():
 
                         label (u"Traits:") text_size 18 text_color "#CDCDC1" text_bold True xalign .49
 
-                        $ t_cur = [t for t in eqtarget.traits if not any([t.basetrait, t.personality, t.race, t.elemental])]
+                        $ t_cur = [t for t in eqtarget.traits if not any([t.basetrait, t.personality, t.race, t.hidden])]
                         if getattr(store, "dummy", None) is not None:
                             $ t_old = set(t_cur)
-                            $ t_new = set(t for t in dummy.traits if not any([t.basetrait, t.personality, t.race, t.elemental]))
+                            $ t_new = set(t for t in dummy.traits if not any([t.basetrait, t.personality, t.race, t.hidden]))
 
                             $ temp = t_new.difference(t_old)
                             $ t_old = t_old.difference(t_new)
@@ -760,16 +845,16 @@ screen char_equip_right_frame():
             xalign .5
             spacing 2
             button:
-                xysize 110, 30
+                xsize 110
                 action If(eqtarget != hero, true=[SetVariable("inv_source", hero),
                                                   Function(hero.inventory.apply_filter, eqtarget.inventory.slot_filter),
                                                   Return(['con', 'return']),
                                                   With(dissolve)])
                 tooltip "Equip from {}'s Inventory".format(hero.nickname)
                 selected eqtarget == hero or inv_source == hero
-                text "Hero" style "pb_button_text"
+                text "Hero" style "pb_button_text" yoffset 2
             button:
-                xysize 110, 30
+                xsize 110
                 action If(eqtarget != hero, true=[SetVariable("inv_source", eqtarget),
                                                   Function(eqtarget.inventory.apply_filter, hero.inventory.slot_filter),
                                                   Return(['con', 'return']),
@@ -777,7 +862,7 @@ screen char_equip_right_frame():
                 selected inv_source != hero
                 sensitive eqtarget != hero
                 tooltip "Equip from {}'s Inventory".format(eqtarget.nickname)
-                text "Girl" style "pb_button_text"
+                text "Girl" style "pb_button_text" yoffset 2
 
     # "Final" Filters (id/price/etc.)
     hbox:
@@ -787,46 +872,46 @@ screen char_equip_right_frame():
         hbox:
             style_prefix "pb"
             button:
-                xysize 110, 30
+                xsize 110
                 action Return(["equip_for"])
-                text "Equip For" style "pb_button_text"
+                text "Equip For" style "pb_button_text" yoffset 2
             button:
-                xysize 110, 30
+                xsize 110
                 action Return(["unequip_all"])
-                text "Unequip all" style "pb_button_text"
+                text "Unequip all" style "pb_button_text" yoffset 2
             button:
-                xysize 110, 30
+                xsize 110
                 action If(eqtarget != hero, true=Return(["jump", "item_transfer"]))
-                text "Exchange" style "pb_button_text"
+                text "Exchange" style "pb_button_text" yoffset 2
 
     # Auto-Equip/Item Transfer Buttons and Paging: ================>
     frame:
         background Transform(Frame(im.MatrixColor("content/gfx/frame/p_frame5.png", im.matrix.brightness(-0.1)), 5, 5), alpha=.7)
         pos (931, 184)
         xysize (345, 80)
-        has vbox spacing 1 xalign .5
+        has vbox spacing 2 xalign .5
         hbox:
             spacing 1
             style_prefix "pb"
             button:
-                xysize 110, 30
+                xsize 110
                 action Function(inv_source.inventory.update_sorting, ("id", False))
-                text "Name" style "pb_button_text"
+                text "Name" style "pb_button_text" yoffset 2
                 selected inv_source.inventory.final_sort_filter[0] == "id"
                 tooltip "Sort items by the Name!"
             button:
-                xysize 110, 30
+                xsize 110
                 action Function(inv_source.inventory.update_sorting, ("price", True))
-                text "Price" style "pb_button_text"
+                text "Price" style "pb_button_text" yoffset 2
                 selected inv_source.inventory.final_sort_filter[0] == "price"
                 tooltip "Sort items by the Price!"
             button:
-                xysize 110, 30
+                xsize 110
                 action Function(inv_source.inventory.update_sorting, ("amount", True))
-                text "Amount" style "pb_button_text"
+                text "Amount" style "pb_button_text" yoffset 2
                 selected inv_source.inventory.final_sort_filter[0] == "amount"
                 tooltip "Sort items by the Amount owned!"
-        use paging(ref=inv_source.inventory, use_filter=False, xysize=(250, 20), align=(.5, .5))
+        use paging(ref=inv_source.inventory, use_filter=False, xysize=(240, 30), align=(.5, .5))
 
     # Gender filter
     default item_genders = ["any", "male", "female"]
@@ -841,7 +926,7 @@ screen char_equip_right_frame():
         next_gender = item_genders[(index + 1) % len(item_genders)]
 
     button:
-        pos 935, 260 anchor .0, 1.0
+        pos 935, 260 anchor -.1, 1.0
         xysize 40, 40
         style "pb_button"
         add pscale(gender_icons[index], 30, 30) align .5, .5
