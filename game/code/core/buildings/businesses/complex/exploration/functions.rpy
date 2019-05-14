@@ -9,4 +9,4 @@ init python:
         for fg in hero.get_guild_businesses():
             idle_explorers.update(fg.idle_explorers())
 
-        return [w for w in bm_building.all_workers if w != hero and w.status == "free" and w not in idle_explorers]
+        return [w for w in bm_building.all_workers if w != hero and w.status == "free" and w.is_available and w not in idle_explorers]
