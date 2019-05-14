@@ -77,7 +77,7 @@ screen eqdoll(active_mode=True, char=None, frame_size=[55, 55], scr_align=(.23, 
                 xysize (frame_size[0], frame_size[1])
                 if active_mode and equipment:
                     if not isinstance(char, dict):
-                        use r_lightbutton(img=ProportionalScale(img, frame_size[0]*.78, frame_size[1]*.78), return_value=return_value+equipment)
+                        use r_lightbutton(img=ProportionalScale(img, frame_size[0]*.78, frame_size[1]*.78), return_value=return_value+equipment, align=(.5, .5))
                     else:
                         add ProportionalScale(img, frame_size[0]*.71, frame_size[1]*.71) align (.5, .5)
                 else:

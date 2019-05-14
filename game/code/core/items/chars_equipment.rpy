@@ -546,61 +546,6 @@ screen char_equip():
                 vbox:
                     spacing 5
                     pos (4, 40)
-                    $ c0 = focusitem and getattr(focusitem, "mod_skills", None)
-                    if c0:
-                        frame:
-                            background Transform(Frame(im.MatrixColor("content/gfx/frame/p_frame5.png", im.matrix.brightness(-0.1)), 5, 5), alpha=.7)
-                            xsize 218
-                            padding 6, 6
-                            margin 0, 0
-                            style_group "proper_stats"
-
-                            $ img_path = "content/gfx/interface/icons/skills_icons/"
-                            viewport:
-                                xysize (218, 90)
-                                edgescroll (40, 40)
-                                draggable True
-                                mousewheel True
-                                child_size (218, 1000) # should not be necessary...
-                                has vbox spacing 1 xfill True
-                                for skill, data in getattr(focusitem, "mod_skills").iteritems():
-                                    frame:
-                                        xysize 208, 22
-                                        text str(skill).title() size 16 color "yellowgreen" align .0, .5
-                                        hbox:
-                                            align .99, .5
-                                            spacing 2
-                                            if any((data[0], data[1], data[2])):
-                                                button:
-                                                    style "default"
-                                                    xysize 20, 18
-                                                    action NullAction()
-                                                    tooltip "Icon represents skills modifier changes. Green means bonus, red means penalty. Left one is action counter, right one is training counter, top one is resulting value."
-                                                    if data[0] > 0:
-                                                        add pscale(img_path + "left_green.png", 20, 20)
-                                                    elif data[0] < 0:
-                                                        add pscale(img_path + "left_red.png", 20, 20)
-                                                    if data[1] > 0:
-                                                        add pscale(img_path + "right_green.png", 20, 20)
-                                                    elif data[1] < 0:
-                                                        add pscale(img_path + "right_red.png", 20, 20)
-                                                    if data[2] > 0:
-                                                        add pscale(img_path + "top_green.png", 20, 20)
-                                                    elif data[2] < 0:
-                                                        add pscale(img_path + "top_red.png", 20, 20)
-                                            if data[3]:
-                                                button:
-                                                    style "default"
-                                                    action NullAction()
-                                                    tooltip "Direct bonus to action skill values."
-                                                    label "A: " + str(data[3]) text_size 15
-                                            if data[4]:
-                                                button:
-                                                    style "default"
-                                                    action NullAction()
-                                                    tooltip "Direct bonus to knowledge skill values."
-                                                    label "K: " + str(data[4]) text_size 15
-
                     frame:
                         background Transform(Frame(im.MatrixColor("content/gfx/frame/p_frame5.png", im.matrix.brightness(-0.1)), 5, 5), alpha=.7)
                         xsize 218
@@ -624,7 +569,7 @@ screen char_equip():
                             $ t_old = t_new = []
 
                         viewport:
-                            xysize (218, 100 if c0 else 200)
+                            xysize (218, 200)
                             edgescroll (40, 40)
                             draggable True
                             mousewheel True
