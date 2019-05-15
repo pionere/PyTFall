@@ -75,7 +75,7 @@
     "mod": {"charisma": 20},
     "locations": ["Witches Hut"],
     "tier": 0,
-    "pref_class":["Whore", "Stripper"]
+    "pref_class":["SIW"]
     },
     {
     "id": "Ring of Pleasure",
@@ -131,7 +131,7 @@
     "mod": {"charisma": 30},
     "locations": ["Witches Hut", "Fishing"],
     "tier": 1,
-    "pref_class":["Whore", "Stripper", "Manager", "Casual"]
+    "pref_class":["SIW", "Manager", "Casual"]
     },
     {
     "id": "Ring of Charisma",
@@ -150,7 +150,7 @@
     "mod": {"charisma": 60},
     "locations": ["Exploration", "Arena"],
     "tier": 2,
-    "pref_class":["Whore", "Stripper", "Manager", "Casual"]
+    "pref_class":["SIW", "Manager", "Casual"]
     },
     {
     "id": "Aquamarine Eye",
@@ -169,7 +169,7 @@
     "mod": {"charisma": 90},
     "locations": ["Exploration", "Arena"],
     "tier": 3,
-    "pref_class":["Whore", "Stripper", "Casual"]
+    "pref_class":["SIW", "Casual"]
     },
     {
     "id": "Minor Ring of Refinement",
@@ -223,7 +223,7 @@
     "mod": {"charisma": 15},
     "locations": ["Exploration", "Arena"],
     "tier": 3,
-    "pref_class":["Whore", "Stripper", "Bartender", "Manager", "Casual"]
+    "pref_class":["SIW", "Bartender", "Manager", "Casual"]
     },
     {
     "id": "Minor Ring of the Horndog",
@@ -275,7 +275,7 @@
     "mod": {"constitution": 20},
     "locations": ["Ninja Shop", "Fishing"],
     "tier": 1,
-    "pref_class":["Warrior", "Mage", "Shooter", "Whore", "Bartender", "Service"]
+    "pref_class":["Warrior", "Mage", "Shooter", "SIW", "Service"]
     },
     {
     "id": "Ring of Physique",
@@ -293,7 +293,7 @@
     "mod": {"constitution": 30},
     "locations": ["Ninja Shop", "Exploration"],
     "tier": 2,
-    "pref_class":["Warrior", "Mage", "Shooter", "Whore", "Bartender", "Service"]
+    "pref_class":["Warrior", "Mage", "Shooter", "SIW", "Service"]
     },
     {
     "id": "Rogue's Ring",

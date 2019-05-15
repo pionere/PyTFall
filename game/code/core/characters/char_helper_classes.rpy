@@ -1216,26 +1216,17 @@ init -10 python:
             self._mod_raw_skill(skill, 0, value/1.5)
             self._mod_raw_skill(skill, 1, value/3.0)
 
-        def eval_inventory(self, inventory, weighted, target_stats, target_skills,
-                           base_purpose,
-                           upto_skill_limit=False,
-                           check_money=False):
+        def weight_items(self, items, target_stats, target_skills, upto_skill_limit=False):
             """
-            weigh items in inventory based on stats.
+            weights the list of items based on stats.
 
-            :param inventory: the inventory to evaluate items from
-            :param weighted: weights per item will be added to this
+            :param items: the list of items to weight
             :param target_stats: a dict of stat-weight pairs to consider for items
             :param target_skills: similarly, a dict of skill-weight pairs
-            :param base_purpose: set of strings to match against item.pref_class
             :param upto_skill_limit: whether or not to calculate bonus beyond training exactly
-
-            # Auto-buy related.
-            :param check_money: check is char has enough cash to buy the items.
             """
-
-            # call the functions for these only once
             char = self.instance
+
             _stats_mul_curr_max = {}
             for stat, value in target_stats.iteritems():
                 if stat == "exp":
@@ -1248,8 +1239,10 @@ init -10 python:
             _skills_mul_curr = {skill: [value, self.get_skill(skill)] for skill, value in target_skills.iteritems()}
             # prepare delivery information TODO bind this to BE_Core?
             delivery_bonus, delivery_multiplier = defaultdict(int), defaultdict(int)
-            level = char.level
-            for trait in char.traits:
+            tier, level = char.level, char.tier
+            is_kamidere, is_tsundere, is_bokukko = False, False, False
+            char_traits = char.traits
+            for trait in char_traits:
                 temp = getattr(trait, "delivery_bonus", None)
                 if temp is not None:
                     for delivery, bonus in temp.iteritems():
@@ -1267,41 +1260,48 @@ init -10 python:
                 if temp is not None:
                     for delivery, mpl in temp.iteritems():
                         delivery_multiplier[delivery] += mpl
-            elements = set([e.id.lower() for e in char.elements])
-            gender = char.gender
+                # Other traits:
+                trait = trait.id # never compare trait entity with trait str, it is SLOW
+                if trait == "Kamidere":
+                    is_kamidere = True
+                elif trait == "Tsundere":
+                    is_tsundere = True
+                elif trait == "Bokukko":
+                    is_bokukko = True
 
-            # per item the nr of weighting criteria may vary. At the end all of them are averaged.
-            # if an item has less than the most weights the remaining are imputed with 50 weights
-            # Nor sure why????
-            # most_weights = {slot: 0 for slot in weighted}
-
-            for item in inventory:
-                slot = item.slot
-                if slot not in weighted:
-                    aeq_debug("Ignoring item %s on slot", item.id)
-                    continue
-
-                # Gender:
-                if getattr(item, "gender", gender) != gender:
-                    aeq_debug("Ignoring item %s on gender.", item.id)
-                    continue
-
-                # Money (conditioned):
-                if check_money is True:
-                    if char.gold < item.price:
-                        aeq_debug("Ignoring item %s on money.", item.id)
-                        continue
-
-                # Handle purposes:
-                if base_purpose.isdisjoint(item.pref_class):
-                    # If no purpose is valid for the item, we want nothing to do with it.
-                    aeq_debug("Ignoring item %s on purpose.", item.id)
-                    continue
-
-                weights = char.equip_chance(item)
+            result = []
+            for item in items:
+                weights = []
+                for trait in item.badtraits:
+                    if trait in char_traits:
+                        weights = None
+                        break
                 if weights is None:
-                    aeq_debug("Ignoring item %s on weights.", item.id)
+                    aeq_debug("Ignoring item %s on badtraits.", item)
                     continue
+
+                for trait in item.goodtraits:
+                    if trait in char_traits:
+                        weights.append(100)
+
+                # Other traits:
+                if is_kamidere is True: # Vanity: wants pricy, uncommon items
+                    weights.append((100 - item.chance + min(item.price/10, 100))/2)
+                elif is_tsundere is True: # stubborn: what s|he won't buy, s|he won't wear.
+                    weights.append(100 - item.badness)
+                elif is_bokukko is True: # what the farmer don't know, s|he won't eat.
+                    weights.append(item.chance)
+
+                # tier bonus if it's reasonable.
+                tier_bonus = item.tier
+                if tier_bonus:
+                    tier_bonus = 2*tier_bonus - tier
+                    if tier_bonus > 0:
+                        weights.append(tier_bonus*50)
+    
+                weights.append(item.eqchance)
+                if item.badness:
+                    weights.append(-item.badness/2)
 
                 # Stats:
                 for stat, value in item.mod.iteritems():
@@ -1318,7 +1318,7 @@ init -10 python:
                     if stat in item.max:
                         new_max = min(self.max[stat] + item.max[stat], self.lvl_max[stat])
                     if not new_max:
-                        aeq_debug("Ignoring item %s because of strange stat-max behavior of %s.", item.id, stat)
+                        aeq_debug("Ignoring item %s because of strange stat-max behavior of %s.", item, stat)
                         continue # Some weird exception?
 
                     # Get the resulting value:
@@ -1409,7 +1409,8 @@ init -10 python:
                         value *= 1 + delivery_multiplier[attr]
                     weights.append(value)
 
-                weighted[slot].append([weights, item])
+                result.append([weights, item])
+            return result
 
 
     class Pronouns(_object):

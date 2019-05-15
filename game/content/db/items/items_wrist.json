@@ -153,8 +153,7 @@
     "mod": {"character": -15, "agility": -5, "defence": -5},
     "locations": ["Work Shop", "Look around"],
     "tier": 0,
-    "goodtraits": ["Masochist"],
-    "pref_class":["Slave"]
+    "goodtraits": ["Masochist"]
     },
     {
     "id": "Cleaning Gloves",
@@ -163,8 +162,8 @@
     "price": 140,
     "gender": "female",
     "chance": 100,
-    "badness": 100,
-    "eqchance": 0,
+    "badness": 90,
+    "eqchance": 10,
     "hidden": false,
     "infinite": false,
     "slot": "wrist",
@@ -173,7 +172,7 @@
     "mod_skills": {"service": [0.05, 0, 0.05, 0, 0], "refinement": [-0.05, 0, 0, 0, 0]},
     "tier": 1,
     "locations": ["General Store", "Look around"],
-    "pref_class":["Service"]
+    "pref_class":["Cleaning"]
     },
     {
     "id": "Bracer of Toughness",
@@ -291,7 +290,7 @@
     "mod": {"defence": -100, "charisma": 60},
     "tier": 2,
     "locations": ["Exploration"],
-    "pref_class":["Whore", "Stripper"]
+    "pref_class":["SIW"]
     },
     {
     "id": "Wristbands of Power",
@@ -318,7 +317,7 @@
     "price": 1300,
     "gender": "female",
     "chance": 5,
-    "badness": 100,
+    "badness": 90,
     "eqchance": 40,
     "hidden": true,
     "infinite": false,
@@ -350,7 +349,7 @@
     "mod": {"charisma": 5},
     "tier": 0,
     "locations": ["Tailor Store"],
-    "pref_class":["Whore", "Stripper", "Casual"]
+    "pref_class":["SIW", "Casual"]
     },
     {
     "id": "Velvet Gloves",
@@ -370,7 +369,7 @@
     "mod_skills": {"refinement": [0, 0, 0.01, 0, 0]},
     "tier": 0,
     "locations": ["Tailor Store"],
-    "pref_class":["Whore", "Stripper", "Manager", "Bartender", "Casual"]
+    "pref_class":["SIW", "Manager", "Bartender", "Casual"]
     },
     {
     "id": "Black Leather Gloves",
@@ -390,7 +389,7 @@
     "tier": 1,
     "mod_skills": {"refinement": [0, 0, 0.05, 0, 0], "strip": [0, 0, 0.05, 0, 0]},
     "locations": ["Tailor Store"],
-    "pref_class":["Whore", "Stripper", "Manager", "Bartender", "Casual"]
+    "pref_class":["SIW", "Manager", "Bartender", "Casual"]
     },
     {
     "id": "Silken Gloves",
@@ -410,7 +409,7 @@
     "mod_skills": {"refinement": [0, 0, 0.05, 0, 0], "service": [0, 0, 0.05, 0, 0]},
     "tier": 2,
     "locations": ["Tailor Store"],
-    "pref_class":["Whore", "Stripper", "Manager", "Bartender", "Service", "Casual"]
+    "pref_class":["SIW", "Manager", "Service", "Casual"]
     },
     {
     "id": "Tiger Gloves",
@@ -429,7 +428,7 @@
     "mod": {"charisma": 5, "agility": 5},
     "tier": 3,
     "locations": ["Tailor Store"],
-    "pref_class":["Whore", "Stripper", "Casual"]
+    "pref_class":["SIW", "Casual"]
     },
     {
     "id": "Satin Gloves",
@@ -449,7 +448,7 @@
     "tier": 4,
     "mod_skills": {"refinement": [0, 0, 0.05, 0, 0], "service": [0, 0, 0.05, 0, 0]},
     "locations": ["Tailor Store"],
-    "pref_class":["Whore", "Stripper", "Manager", "Bartender", "Service", "Casual"]
+    "pref_class":["SIW", "Manager", "Service", "Casual"]
     },
     {
     "id": "Maid Gloves",
@@ -470,7 +469,7 @@
     "locations": ["Tailor Store"],
     "tier": 4,
     "goodtraits": ["Neat"],
-    "pref_class":["Whore", "Stripper", "Service", "Casual"]
+    "pref_class":["SIW", "Service", "Casual"]
     },
     {
     "id": "Elven Gloves",

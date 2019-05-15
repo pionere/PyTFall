@@ -54,7 +54,7 @@
     "mod": {"charisma": 10},
     "locations": ["Tailor Store"],
     "tier": 1,
-    "pref_class":["Whore", "Stripper", "Casual"]
+    "pref_class":["SIW", "Bartender", "Casual"]
     },
     {
     "id": "Running Boots",
@@ -75,7 +75,7 @@
     "locations": ["Tailor Store", "Ninja Shop"],
     "goodtraits": ["Athletic"],
     "tier": 1,
-    "pref_class":["Warrior", "Bartender", "Service", "Casual"]
+    "pref_class":["Warrior", "Service", "Casual"]
     },
     {
     "id": "Female Work Boots",
@@ -156,8 +156,7 @@
     "mod_skills": {"refinement": [0, 0, -0.1, 0, 0]},
     "locations": ["Work Shop", "Diving"],
     "goodtraits": ["Masochist"],
-    "tier": 0,
-    "pref_class":["Slave"]
+    "tier": 0
     },
     {
     "id": "Kung Fu Shoes",
@@ -264,7 +263,7 @@
     "addtraits": ["Optimist"],
     "locations": ["Fishing"],
     "tier": 3,
-    "pref_class":["Whore", "Stripper"]
+    "pref_class":["SIW"]
     },
     {
     "id": "Designer Pumps",
@@ -326,7 +325,7 @@
     "locations": ["Tailor Store"],
     "goodtraits": ["Neat"],
     "tier": 4,
-    "pref_class":["Service", "Whore"]
+    "pref_class":["Cleaning", "Whore"]
     },
     {
     "id": "Leather Boots",
@@ -678,7 +677,7 @@
     "mod_skills": {"security": [0.05, 0.05, 0.05, 0, 0]},
     "locations": ["Work Shop", "Arena"],
     "tier": 2,
-    "pref_class":["Warrior", "Whore", "Stripper", "Service", "Bartender"]
+    "pref_class":["Warrior", "SIW", "Service"]
     },
     {
     "id": "Flippers",

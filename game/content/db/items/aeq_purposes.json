@@ -87,7 +87,7 @@
      "id": "Service",
      "target_stats": {"agility": 25, "constitution": 50, "vitality":10, "luck":1, "exp":0.1},
      "target_skills": {"service":50, "cleaning":100},
-     "base_purpose": ["Service", "Any"],
+     "base_purpose": ["Cleaning", "Service", "Any"],
      "weapons": false,
      "traits": ["Maid", "Cleaner"]
     },

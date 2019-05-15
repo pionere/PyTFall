@@ -35,8 +35,7 @@
     "mod": {"attack": -20, "defence": -20, "character": -20},
     "locations": ["General Store"],
     "tier": 0,
-    "goodtraits": ["Masochist"],
-    "pref_class":["Slave"]
+    "goodtraits": ["Masochist"]
     },
     {
     "id": "Necklace of Pain Reversal",
@@ -116,8 +115,7 @@
     "mod": {"character": -15},
     "locations": ["General Store", "Look around"],
     "tier": 0,
-    "goodtraits": ["Masochist"],
-    "pref_class":["Slave"]
+    "goodtraits": ["Masochist"]
     },
     {
     "id": "Silver Necklace",
@@ -571,7 +569,6 @@
     "locations": ["Witches Hut", "General Store"],
     "mod_skills": {"vaginal": [-0.2, -0.2, -0.2, 0, 0]},
     "tier": 2,
-    "addeffects": ["Chastity"],
-    "pref_class":["Whore"]
+    "addeffects": ["Chastity"]
     }
   ]

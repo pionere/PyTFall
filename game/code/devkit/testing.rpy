@@ -394,9 +394,20 @@ init 1000 python:
                     continue
                 if getattr(item, "gender", "female") not in ["female", "male"]:
                     TestSuite.reportError("Invalid gender %s for item %s (not 'female' or 'male')!" % (item.gender, key))
-                for p in item.pref_class:
-                    if p not in valid_pref_classes:
-                        TestSuite.reportError("Invalid pref_class %s for item %s (not in %s)!" % (p, key, ", ".join(valid_pref_classes)))
+                if item.pref_class:
+                    for p in item.pref_class:
+                        if p not in valid_pref_classes:
+                            TestSuite.reportError("Invalid pref_class %s for item %s (not in %s)!" % (p, key, ", ".join(valid_pref_classes)))
+                    if item.type == "permanent":
+                        TestSuite.reportError("Invalid pref_class %s for item %s (permanent items are not permitted to have a pref_class)!" % (p, key))
+                    if item.jump_to_label:
+                        TestSuite.reportError("Invalid pref_class %s for item %s (jump_to_label items are not permitted to have a pref_class)!" % (p, key))
+                    if item.badness >= 100:
+                        TestSuite.reportError("Invalid pref_class %s for item %s (items with higher than 100 badness are not permitted to have a pref_class)!" % (p, key))
+                    if not item.usable:
+                        TestSuite.reportError("Invalid pref_class %s for item %s (non-usable items are not permitted to have a pref_class)!" % (p, key))
+                    if not item.eqchance:
+                        TestSuite.reportError("Invalid pref_class %s for item %s (items with no eqchance are not permitted to have a pref_class)!" % (p, key))
                 #if item.slot != "misc" and (item.slot != "consumable" or item.ctemp):
                 #    for stat, value in item.mod.items():
                 #        if stat in ["health", "vitality", "mp", "joy"]:

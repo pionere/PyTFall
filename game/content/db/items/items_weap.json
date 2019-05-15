@@ -1081,7 +1081,7 @@
     "mod_skills": {"refinement": [0.05, 0, 0.05, 0, 0], "management": [0.05, 0, 0.05, 0, 0]},
     "locations": ["Tailor Store"],
     "tier": 0,
-    "pref_class":["Whore", "Stripper", "Manager", "Casual"]
+    "pref_class":["SIW", "Bartender", "Manager", "Casual"]
     },
     {
     "id": "Fancy Hand Fan",
@@ -1101,7 +1101,7 @@
     "mod_skills": {"refinement": [0.05, 0, 0.05, 0, 0], "management": [0.05, 0, 0.05, 0, 0], "dancing": [0, 0, 0.05, 0, 0]},
     "locations": ["Tailor Store"],
     "tier": 1,
-    "pref_class":["Whore", "Stripper", "Manager", "Casual"]
+    "pref_class":["SIW", "Bartender", "Manager", "Casual"]
     },
     {
     "id": "Big Umbrella",
@@ -1121,7 +1121,7 @@
     "mod_skills": {"refinement": [0.05, 0, 0, 0, 0], "security": [0.05, 0, 0, 0, 0]},
     "locations": ["Tailor Store"],
     "tier": 0,
-    "pref_class":["Whore", "Stripper", "Manager", "Casual"]
+    "pref_class":["SIW", "Manager", "Casual"]
     },
     {
     "id": "Silver Plate",
@@ -1159,6 +1159,6 @@
     "max": {"magic": 10, "agility": 5, "constitution": 5},
     "mod": {"magic": -5, "attack": 5, "charisma": -5, "character": -5},
     "locations": ["Witches Hut"],
-    "pref_class":["Service", "Mage"]
+    "pref_class":["Cleaning", "Mage"]
     }
   ]

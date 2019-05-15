@@ -332,7 +332,7 @@
     "max": {"charisma": 10},
     "locations": ["General Store", "Look around"],
     "badtraits": ["Bokukko", "Impersonal"],
-    "pref_class":["Stripper", "Whore", "Bartender"]
+    "pref_class":["SIW", "Bartender"]
     },
     {
     "id": "Quality Makeup",
@@ -354,7 +354,7 @@
     "max": {"charisma": 40},
     "locations": ["General Store"],
     "badtraits": ["Bokukko", "Impersonal"],
-    "pref_class":["Stripper", "Whore", "Bartender"]
+    "pref_class":["SIW", "Bartender"]
     },
     {
     "id": "Magic Makeup",
@@ -376,7 +376,7 @@
     "max": {"charisma": 80},
     "locations": ["Witches Hut"],
     "badtraits": ["Bokukko", "Impersonal"],
-    "pref_class":["Stripper", "Whore", "Bartender"]
+    "pref_class":["SIW", "Bartender"]
     },
     {
     "id": "Booty Lube",
@@ -441,7 +441,7 @@
     "mod": {"charisma": 5},
     "mod_skills": {"refinement": [0.02, 0, 0.02, 0, 0]},
     "locations": ["General Store", "Look around"],
-    "pref_class":["Stripper", "Whore", "Bartender"]
+    "pref_class":["SIW", "Bartender"]
     },
     {
     "id": "Enchanting Perfume",
@@ -465,7 +465,7 @@
     "locations": ["General Store"],
     "goodtraits": ["Nymphomaniac"],
     "badtraits": ["Frigid"],
-    "pref_class":["Stripper", "Whore", "Bartender"]
+    "pref_class":["SIW", "Bartender"]
     },
     {
     "id": "Quality Perfume",
@@ -487,7 +487,7 @@
     "max": {"charisma": 20},
     "mod_skills": {"refinement": [0.02, 0, 0.03, 0, 0]},
     "locations": ["General Store"],
-    "pref_class":["Stripper", "Whore", "Bartender"]
+    "pref_class":["SIW", "Bartender"]
     },
     {
     "id": "Fancy Breath Mints",
@@ -506,7 +506,7 @@
     "cblock": 1,
     "mod": {"charisma": 1, "joy": 1},
     "locations": ["Cafe", "Look around"],
-    "pref_class":["Stripper", "Whore", "Bartender", "Manager"]
+    "pref_class":["SIW", "Bartender", "Manager"]
     },
     {
     "id": "Succubus Milk",
@@ -587,8 +587,7 @@
     "type": "upgrade",
     "mod": {"joy": 20},
     "cblock": 5,
-    "locations": ["Witches Hut"],
-    "pref_class":["Any"]
+    "locations": ["Witches Hut"]
     },
     {
     "id": "Elixir of Ultimate Regeneration",
@@ -738,8 +737,7 @@
     "type": "permanent",
     "max": {"attack": 25, "defence": -10, "charisma": -10, "character": 10},
     "mod": {"attack": 25, "defence": -10, "charisma": -10, "character": 10},
-    "locations": ["Witches Hut", "Arena"],
-    "pref_class":["Warrior", "Shooter"]
+    "locations": ["Witches Hut", "Arena"]
     },
     {
     "id": "Elixir of Abstinence",
@@ -829,8 +827,7 @@
     "slot": "consumable",
     "type": "permanent",
     "max": {"health": -20, "mp": 50, "magic": 50, "constitution": -20, "vitality": -20},
-    "locations": ["Exploration", "Arena"],
-    "pref_class":["Mage"]
+    "locations": ["Exploration", "Arena"]
     },
     {
     "id": "Expensive Chocolates",

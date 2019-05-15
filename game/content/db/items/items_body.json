@@ -96,7 +96,7 @@
     "mod_skills": {"refinement": [0, 0, 0.05, 0, 0], "sex": [0, 0, 0.05, 0, 0], "service": [0, 0, 0.05, 0, 0]},
     "locations": ["Tailor Store"],
     "tier": 1,
-    "pref_class":["Whore", "Stripper", "Service", "Casual"]
+    "pref_class":["SIW", "Service", "Casual"]
     },
     {
     "id": "Velvet Dress",
@@ -136,7 +136,7 @@
     "mod_skills": {"refinement": [0.05, 0.05, 0.1, 0, 0], "dancing": [0.05, 0.05, 0.1, 0, 0], "management": [0.05, 0.05, 0.1, 0, 0]},
     "locations": ["Ninja Shop"],
     "tier": 2,
-    "pref_class":["SIW", "Casual", "Stripper", "Manager"]
+    "pref_class":["SIW", "Casual", "Manager"]
     },
     {
     "id": "Short Foreign Dress",
@@ -158,7 +158,7 @@
     "evasion_bonus": 10,
     "locations": ["Ninja Shop"],
     "tier": 3,
-    "pref_class":["SIW", "Casual", "Stripper"]
+    "pref_class":["SIW", "Casual"]
     },
     {
     "id": "Brothel Gown",
@@ -200,7 +200,7 @@
     "mod_skills": {"refinement": [0.1, 0.1, 0.1, 0, 0], "management": [0.1, 0.1, 0.2, 0, 0], "strip": [0, 0, 0.05, 0, 0]},
     "locations": ["Tailor Store"],
     "tier": 3,
-    "pref_class":["Whore", "Stripper", "Manager", "Casual"]
+    "pref_class":["SIW", "Manager", "Casual"]
     },
     {
     "id": "Noble Gown",
@@ -220,7 +220,7 @@
     "mod_skills": {"refinement": [0.2, 0.2, 0.2, 0, 0], "management": [0.1, 0.1, 0.1, 0, 0], "strip": [0.1, 0.1, 0.1, 0, 0]},
     "locations": ["Tailor Store"],
     "tier": 4,
-    "pref_class":["Whore", "Stripper", "Manager", "Casual"]
+    "pref_class":["SIW", "Manager", "Casual"]
     },
     {
     "id": "Gemstone Dress",
@@ -260,7 +260,7 @@
     "mod_skills": {"dancing": [0.05, 0.05, 0.1, 0, 0], "strip": [0.05, 0.05, 0.05, 0, 0]},
     "locations": ["Tailor Store"],
     "tier": 1,
-    "pref_class":["Stripper", "Whore"]
+    "pref_class":["SIW"]
     },
     {
     "id": "Maid Uniform",
@@ -282,7 +282,7 @@
     "locations": ["Tailor Store"],
     "goodtraits": ["Neat"],
     "tier": 4,
-    "pref_class":["Service"]
+    "pref_class":["Cleaning"]
     },
     {
     "id": "Viny-patterned Corset",
@@ -302,7 +302,7 @@
     "mod_skills": {"refinement": [0.05, 0.05, 0.1, 0, 0], "strip": [0.05, 0.05, 0.1, 0, 0]},
     "locations": ["Tailor Store"],
     "tier": 2,
-    "pref_class":["Whore", "Stripper"]
+    "pref_class":["SIW"]
     },
     {
     "id": "Snow-knit Gown",
@@ -500,7 +500,7 @@
     "gender": "female",
     "chance": 25,
     "badness": 24,
-    "eqchance": 91,
+    "eqchance": 90,
     "hidden": false,
     "infinite": false,
     "slot": "body",
@@ -514,7 +514,7 @@
     "locations": ["Ninja Shop"],
     "badtraits": ["Shy"],
     "tier": 3,
-    "pref_class":["Whore", "Stripper", "Bartender", "Service"]
+    "pref_class":["SIW", "Service"]
     },
     {
     "id": "Elven Armor",
@@ -549,7 +549,7 @@
     "price": 2500,
     "gender": "male",
     "chance": 5,
-    "badness": 100,
+    "badness": 45,
     "eqchance": 75,
     "hidden": true,
     "infinite": false,
@@ -758,7 +758,7 @@
     "goodtraits": ["Nymphomaniac", "Sexy Air", "Exhibitionist"],
     "badtraits": ["Frigid", "Shy"],
     "tier": 2,
-    "pref_class":["Whore", "Stripper"]
+    "pref_class":["SIW"]
     },
     {
     "id": "Summer Clothes",
@@ -964,7 +964,7 @@
     "price": 90,
     "gender": "male",
     "chance": 90,
-    "badness": 100,
+    "badness": 80,
     "eqchance": 10,
     "hidden": false,
     "infinite": false,
@@ -984,7 +984,7 @@
     "price": 90,
     "gender": "male",
     "chance": 0,
-    "badness": 100,
+    "badness": 70,
     "eqchance": 15,
     "hidden": false,
     "infinite": false,
@@ -1003,7 +1003,7 @@
     "price": 500,
     "gender": "male",
     "chance": 60,
-    "badness": 100,
+    "badness": 60,
     "eqchance": 20,
     "hidden": false,
     "infinite": false,
@@ -1023,7 +1023,7 @@
     "price": 500,
     "gender": "male",
     "chance": 25,
-    "badness": 100,
+    "badness": 50,
     "eqchance": 25,
     "hidden": false,
     "infinite": false,
@@ -1043,7 +1043,7 @@
     "price": 1300,
     "gender": "male",
     "chance": 40,
-    "badness": 100,
+    "badness": 50,
     "eqchance": 40,
     "hidden": false,
     "infinite": false,
@@ -1064,7 +1064,7 @@
     "price": 1300,
     "gender": "male",
     "chance": 0,
-    "badness": 100,
+    "badness": 40,
     "eqchance": 45,
     "hidden": false,
     "infinite": false,
@@ -1084,7 +1084,7 @@
     "price": 2000,
     "gender": "male",
     "chance": 30,
-    "badness": 100,
+    "badness": 30,
     "eqchance": 60,
     "hidden": false,
     "infinite": false,
@@ -1106,7 +1106,7 @@
     "price": 2000,
     "gender": "male",
     "chance": 0,
-    "badness": 100,
+    "badness": 10,
     "eqchance": 65,
     "hidden": false,
     "infinite": false,
@@ -1127,7 +1127,7 @@
     "price": 500,
     "gender": "male",
     "chance": 70,
-    "badness": 100,
+    "badness": 90,
     "eqchance": 5,
     "hidden": false,
     "infinite": false,
@@ -1146,7 +1146,7 @@
     "price": 280,
     "gender": "male",
     "chance": 80,
-    "badness": 90,
+    "badness": 80,
     "eqchance": 10,
     "hidden": false,
     "infinite": false,
@@ -1166,7 +1166,7 @@
     "price": 20,
     "gender": "female",
     "chance": 90,
-    "badness": 100,
+    "badness": 85,
     "eqchance": 5,
     "hidden": false,
     "infinite": false,

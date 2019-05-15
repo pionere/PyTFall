@@ -142,6 +142,90 @@ init -11 python:
                 return
         return True
 
+    def eval_inventory(char, inventory, slots, base_purpose):
+        """
+        picks items from an inventory for the current character.
+        incorporates most of the can_equip function
+
+        :param inventory: the inventory to evaluate items from
+        :param slots: a list/tuple/set/dict of slots to be considered
+        :param base_purpose: set of strings to match against item.pref_class
+        """
+
+        # call the functions for these only once
+        gold = char.gold
+        gender = char.gender
+        is_slave = char.status == "slave"
+        miscblock = char.miscblock
+        magic_skills = char.magic_skills
+
+        # per item the nr of weighting criteria may vary. At the end all of them are averaged.
+        # if an item has less than the most weights the remaining are imputed with 50 weights
+        # Nor sure why????
+        # most_weights = {slot: 0 for slot in weighted}
+        picks = []
+        for item in inventory:
+            slot = item.slot
+            if slot not in slots:
+                aeq_debug("Ignoring item %s on slot", item)
+                continue
+
+            # Gender:
+            if getattr(item, "gender", gender) != gender:
+                aeq_debug("Ignoring item %s on gender.", item)
+                continue
+
+            # Handle purposes:
+            if base_purpose.isdisjoint(item.pref_class):
+                # If no purpose is valid for the item, we want nothing to do with it.
+                aeq_debug("Ignoring item %s on purpose.", item)
+                continue
+
+            #if not item.eqchance or item.badness >= 100: pref_class filter!
+            #    aeq_debug("Ignoring item %s on eqchance (%s)/badness (%s).", item, item.eqchance, item.badness)
+            #    continue
+            #if not item.usable: # pref_class filter!
+            #    aeq_debug("Ignoring unusable item %s.", item)
+            #    continue
+            #if item.jump_to_label: # Never pick jump_to_label? pref_class filter!
+            #    aeq_debug("Ignoring special item %s with jump to label.", item)
+            #    continue
+            # no need to check, because uniques can be hold only by their owner
+            #if item.unique and item.unique != char.id:
+            #    aeq_debug("Ignoring unique item %s which does not belong to char.", item)
+            #    continue
+            if slot == 'misc' and item in miscblock:
+                aeq_debug("Ignoring misc item %s on block", item)
+                continue
+
+            type = item.type
+            #if type == "permanent": # Never pick permanent? pref_class filter!
+            #    aeq_debug("Ignoring item %s because it is permanent.", item)
+            #    continue
+            if type == "scroll" and magic_skills: # prevents using scroll if it gives already known spell
+                battle_skill = store.battle_skills[item.add_be_spells[0]]
+                if battle_skill in magic_skills:
+                    aeq_debug("Ignoring scroll item %s because it is already known.", item)
+                    continue
+
+            #if item.type == "food" and 'Food Poisoning' in character.effects:
+            #    aeq_debug("Ignoring food item %s.", item)
+            #    continue
+            if is_slave is True:
+                if slot == "weapon" and type != "tool":
+                    aeq_debug("Ignoring weapon item %s because char is a slave.", item)
+                    continue
+                elif type == "armor":
+                    aeq_debug("Ignoring armor item %s because char is a slave.", item)
+                    continue
+                elif type == "shield":
+                    aeq_debug("Ignoring shield item %s because char is a slave.", item)
+                    continue
+
+            picks.append(item)
+
+        return picks
+
     def can_transfer(source, target, item, amount=1, silent=True, force=False):
         """Checks if it is legal for a character to transfer the item.
 
