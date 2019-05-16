@@ -949,19 +949,18 @@ screen char_control():
 screen aeq_button(char):
     style_prefix "basic"
 
-    default cb_checked = im.Scale('content/gfx/interface/icons/checkbox_checked.png', 25, 25)
-    default cd_unchecked = im.Scale('content/gfx/interface/icons/checkbox_unchecked.png', 25, 25)
-    default cb_some_checked = im.Scale('content/gfx/interface/icons/checkbox_some_checked.png', 25, 25)
+    $ cb_autoequip = char.autoequip
+    if cb_autoequip is True:
+        $ cb_autoequip = 'content/gfx/interface/icons/checkbox_checked.png'
+    elif cb_autoequip is False:
+        $ cb_autoequip = 'content/gfx/interface/icons/checkbox_unchecked.png'
+    else:
+        $ cb_autoequip = 'content/gfx/interface/icons/checkbox_some_checked.png'
 
     button:
         xysize (200, 32)
-        sensitive char.allowed_to_define_autoequip
+        sensitive char == hero or char.allowed_to_define_autoequip
         action ToggleField(char, "autoequip")
         tooltip "Try to equip items favorable for the job automatically (results may vary)."
         text "Auto Equip" align (.0, .5)
-        if isinstance(char.autoequip, list):
-            add cb_some_checked align (1.0, .5)
-        elif char.autoequip:
-            add cb_checked align (1.0, .5)
-        else:
-            add cd_unchecked align (1.0, .5)
+        add im.Scale(cb_autoequip, 25, 25) align (1.0, .5)

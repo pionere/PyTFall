@@ -72,9 +72,10 @@ label char_equip:
             equip_girls = None
 
         inv_source = eqtarget
-        if not "last_inv_filter" in globals():
-            last_inv_filter = "all"
-        inv_source.inventory.apply_filter(last_inv_filter)
+        # feature turned off, because it is more usable this way (allows the player to track the inventory changes)
+        #if not "last_inv_filter" in globals():
+        #    last_inv_filter = "all"
+        #inv_source.inventory.apply_filter(last_inv_filter)
 
     scene bg gallery3
 
@@ -314,23 +315,29 @@ screen equip_for(pos=()):
         else:
             yval = .0
 
-        specializations = []
-        eq_slave = eqtarget.status == "slave"
+        specializations = OrderedDict()
         eq_free = eqtarget.status == "free"
+        eq_slave = eqtarget.status == "slave"
 
+        specializations["Casual"] = True
         if eq_slave:
-            specializations.append("Slave")
-        specializations.append("Casual")
-        if eq_free and "Specialist" in eqtarget.gen_occs:
-            specializations.extend(["Manager"])
-        if eq_free and "Combatant" in eqtarget.gen_occs:
-            specializations.extend(["Barbarian", "Shooter"])
-        if eq_free and "Caster" in eqtarget.gen_occs:
-            specializations.extend(["Battle Mage", "Mage"])
-        if eq_slave or (eq_free and "SIW" in eqtarget.gen_occs):
-            specializations.extend(["Sex", "Striptease"])
-        if eq_slave or (eq_free and "Server" in eqtarget.gen_occs):
-            specializations.extend(["Service", "Bartender"])
+            # slaves
+            specializations["Slave"] = True
+            jobs = [ManagerJob, WhoreJob, StripJob, CleaningJob, BarJob, WranglerJob]
+        else:
+            if eq_free:
+                # free workers
+                if "Combatant" in eqtarget.gen_occs:
+                    specializations["Barbarian"] = True
+                    specializations["Shooter"] = True
+                if "Caster" in eqtarget.gen_occs:
+                    specializations["Battle Mage"] = True
+                    specializations["Mage"] = True
+            #else: mixed groups
+            jobs = eqtarget.get_willing_jobs()
+        target_jobs = eqtarget.get_wanted_jobs()
+        for job in jobs:
+            specializations[job.aeq_purpose] = eqtarget == hero or (job in target_jobs and specializations.get(job.aeq_purpose, True))
 
     frame:
         style_group "dropdown_gm"
@@ -340,17 +347,18 @@ screen equip_for(pos=()):
             text "Equip For:" xalign 0 style "della_respira" color "ivory"
             null height 5
 
-            for t in specializations:
-                textbutton "[t]":
+            for purpose, want in specializations.items():
+                textbutton "%s%s" % (purpose, "" if want else "*"):
                     xminimum 200
-                    action [Function(eqtarget.equip_for, t), Hide("equip_for"), With(dissolve)]
-
-            if isinstance(eqtarget, Char):
-                null height 5
-                use aeq_button(eqtarget)
+                    action [Function(eqtarget.equip_for, purpose), Hide("equip_for"), With(dissolve)]
+                    if not want:
+                        tooltip "%s does not want to work in this." % eqtarget.name
+                    text_underline purpose == eqtarget.last_known_aeq_purpose
 
             null height 5
+            use aeq_button(eqtarget)
 
+            null height 5
             textbutton "Close":
                 action Hide("equip_for"), With(dissolve)
                 keysym "mousedown_3"
@@ -961,8 +969,8 @@ screen char_equip_right_frame():
                     selected_idle img_selected
                     selected_hover Transform(img_selected, alpha=1.15)
                     action [Function(inv_source.inventory.apply_filter, filter),
-                            SelectedIf(filter == inv_source.inventory.slot_filter),
-                            SetVariable("last_inv_filter", filter)]
+                            SelectedIf(filter == inv_source.inventory.slot_filter)],
+                            #SetVariable("last_inv_filter", filter)]
                     focus_mask True
                     tooltip "{}".format(filter.capitalize())
 

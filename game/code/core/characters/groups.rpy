@@ -189,11 +189,11 @@ init -8 python:
             remedy = {
                 ".eqslots{}": self._ordered_on_abundance, ".equip_for()": self._list_for_caller, ".home": "various",
                 ".status": "various", ".location": "various", ".workplace": "various", ".action": "Several actions",
-                ".autobuy": [], ".front_row": [], ".autoequip": [], ".job": "Several jobs", ".pp": "their", ".op": "them",
+                ".autobuy": [], ".front_row": [], ".autoequip": "various", ".job": "Several jobs", ".pp": "their", ".op": "them",
                 ".autocontrol{}": [], ".sex_acts{}": [], ".miscblock": [],
                 ".flag()": False, ".has_flag()": False, ".is_available": False,
                 ".allowed_to_define_autobuy": False, ".allowed_to_define_autoequip": False,
-                ".allowed_to_view_personal_finances": False,
+                ".allowed_to_view_personal_finances": False, ".last_known_aeq_purpose": "various",
                 "flatten": [".traits", ".attack_skills", ".magic_skills"]
             }
             super(PytGroup, self).__init__(l=chars, remedy=remedy, at="")
@@ -235,6 +235,20 @@ init -8 python:
             jobs = set(chars[0].get_valid_jobs())
             for c in chars:
                 jobs = jobs.intersection(c.get_valid_jobs())
+            return list(jobs)
+
+        def get_wanted_jobs(self):
+            chars = list(self.lst)
+            jobs = set(chars[0].get_wanted_jobs())
+            for c in chars:
+                jobs = jobs.intersection(c.get_wanted_jobs())
+            return list(jobs)
+
+        def get_willing_jobs(self):
+            chars = list(self.lst)
+            jobs = set(chars[0].get_willing_jobs())
+            for c in chars:
+                jobs = jobs.intersection(c.get_willing_jobs())
             return list(jobs)
 
         @property

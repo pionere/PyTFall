@@ -320,6 +320,16 @@ init -9 python:
                 return []
             return [job for job in workplace.jobs if job.willing_work(self)]
 
+        def get_willing_jobs(self):
+            """Returns a list of jobs the character is willing to do.
+            """
+            return [job for job in simple_jobs if hasattr(job, "willing_work") and job.willing_work(self)]
+
+        def get_wanted_jobs(self):
+            """Returns a list of jobs the character want to do.
+            """
+            return [job for job in simple_jobs if hasattr(job, "want_work") and job.want_work(self)]
+
         def settle_effects(self, key, value):
             if hasattr(self, "effects"):
                 effects = self.effects
@@ -1158,15 +1168,14 @@ init -9 python:
              'Service' (Maid)
              """
 
-            occs = self.gen_occs
+            if hint in STATIC_ITEM.AEQ_PURPOSES:
+                return hint
+
             bt = self.traits.basetraits
             purpose = None # Needs to be defaulted to something.
-
-            if hint in STATIC_ITEM.AEQ_PURPOSES:
-                purpose = hint
-            elif hint == "Fighting":
+            if hint == "Fighting":
                 for t in bt:
-                    if "Combatant" in t.gen_occs:
+                    if "Combatant" in t.occupations:
                         t = t.id
                         if t == "Healer":
                             t = "Mage"
