@@ -60,6 +60,13 @@
      "traits": ["Healer", "Mage"]
     },
     {
+     "id": "Guard",
+     "target_stats": {"attack":20, "defence":20, "agility":20, "magic":20, "luck":1, "exp":0.1},
+     "target_skills": {"security": 100},
+     "base_purpose": ["Shooter", "Mage", "Warrior", "Any"],
+     "weapons": true
+    },
+    {
      "id": "Striptease",
      "target_stats": {"charisma":70, "agility":30, "constitution":10, "vitality":10, "luck":1, "exp":0.1},
      "target_skills": {"strip": 100, "dancing": 40, "sex": 5},

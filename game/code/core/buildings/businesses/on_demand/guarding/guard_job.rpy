@@ -4,7 +4,7 @@ init -5 python:
         desc = "Protects your business and girls from rivals and aggressive customers"
         type = "Combat"
 
-        aeq_purpose = "Fighting"
+        aeq_purpose = "Guard"
 
         # Relevant skills and stats:
         base_stats = {"attack": 20, "defence": 20,
