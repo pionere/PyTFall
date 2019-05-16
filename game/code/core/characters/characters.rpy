@@ -998,12 +998,13 @@ init -9 python:
                 if DEBUG_AUTO_ITEM:
                     for _weight, item in weighted:
                         aeq_debug("(A-Eq=> %s) Slot: %s Item: %s Weight: %s ==> Weights: %s",
-                                        self.name, item.slot, item.id, sum(_weight), str(_weight))
+                                        #self.name, item.slot, item.id, sum(_weight), str(_weight))
+                                        self.name, item.slot, item.id, _weight, _weight)
 
                 # Select the best item
                 best, limit = None, 0
                 for _weight, item in weighted:
-                    _weight = sum(_weight)
+                    #_weight = sum(_weight)
                     if _weight > limit:
                         best = item
                         limit = _weight
@@ -1087,33 +1088,39 @@ init -9 python:
 
                 drunk = 'Drunk' in self.effects
                 if 'Food Poisoning' in self.effects:
-                    food_poisoned = True
+                    appetite = -1
                 else:
                     appetite = base_appetite - self.get_flag("dnd_food_poison_counter", 0) * 8
                 for pick in weighted:
                     item = pick[1]
                     if item in self.constemp or item in self.consblock:
-                        pick[0] = [-1]
+                        #pick[0] = [-1]
+                        pick[0] = -1
                     elif item.type == "alcohol":
                         if drunk:
-                            pick[0] = [-1]
+                            #pick[0] = [-1]
+                            pick[0] = -1
                         elif depressed:
-                            pick[0].append(30 + when_drunk)
+                            #pick[0].append(30 + when_drunk)
+                            pick[0] += 30 + when_drunk
                     elif item.type == "food":
-                        if food_poisoned:
-                            pick[0] = [-1]
+                        if appetite < 0:
+                            #pick[0] = [-1]
+                            pick[0] = -1
                         else:
-                            pick[0].append(appetite)
+                            #pick[0].append(appetite)
+                            pick[0] += appetite
 
                 if DEBUG_AUTO_ITEM:
                     for _weight, item in weighted:
-                        aeq_debug("(A-Eq=> %s) Slot: %s Item: %s ==> Weights: %s",
-                                        self.name, item.slot, item.id, str(_weight))
+                        aeq_debug("(A-Eq=> %s) Slot: %s Item: %s Weight: %s ==> Weights: %s",
+                                        #self.name, item.slot, item.id, sum(_weight), str(_weight))
+                                        self.name, item.slot, item.id, _weight, _weight)
 
                 # Select the best item
                 best, limit = None, 0
                 for _weight, item in weighted:
-                    _weight = sum(_weight)
+                    #_weight = sum(_weight)
                     if _weight > limit:
                         best = item
                         limit = _weight
@@ -1263,7 +1270,7 @@ init -9 python:
                 owned_picks = self.stats.weight_items(owned_picks, target_stats, target_skills)
 
                 for _weight, item in owned_picks:
-                    _weight = sum(_weight)
+                    #_weight = sum(_weight)
                     slot = item.slot
                     if _weight > slot_limit.get(slot, 0):
                         limit = _weight
@@ -1284,7 +1291,7 @@ init -9 python:
                 if item in ignore_items:
                     continue
 
-                _weight = sum(_weight)
+                #_weight = sum(_weight)
                 slot = item.slot
                 if _weight > slot_limit.get(slot, 0):
                     selected.append([_weight, slot, item])

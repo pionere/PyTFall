@@ -289,45 +289,16 @@ label continue_with_start:
 
 label sort_items_for_gameplay:
     python:
-        # Items sorting for AutoBuy:
-        shop_items = [i for i in items.values() if (set(pytfall.shops) & set(i.locations))]
-        all_auto_buy_items = [i for i in shop_items if i.usable and not i.jump_to_label]
-        del shop_items
-
-        #trait_selections = {"goodtraits": {}, "badtraits": {}}
-        #auto_buy_items = {k: [] for k in ("body", "restore", "food", "dress", "rest", "warrior", "scroll")}
-
-        #for item in all_auto_buy_items:
-        #    for k in ("goodtraits", "badtraits"):
-        #        if hasattr(item, k):
-        #            for t in getattr(item, k):
-        #                # same item may occur multiple times for different traits.
-        #                trait_selections[k].setdefault(t, []).append(item)
-
-        #    if item.type != "permanent":
-        #        if item.type == "armor" or item.slot == "weapon":
-        #            auto_buy_items["warrior"].append(item)
-        #        else:
-        #            if item.slot == "body":
-        #                auto_buy_items["body"].append(item)
-        #            if item.type in ("restore", "food", "scroll", "dress"):
-        #                auto_buy_items[item.type].append(item)
-        #            else:
-        #                auto_buy_items["rest"].append(item)
-
-        #for k in trait_selections:
-        #    for v in trait_selections[k].values():
-        #        v = sorted(v, key=lambda i: i.price)
-
-        #for k in ("body", "restore", "food", "dress", "rest", "warrior", "scroll"):
-        #    auto_buy_items[k] = [(i.price, i) for i in auto_buy_items[k]]
-        #    auto_buy_items[k].sort()
-
-        # Items sorting per Tier:
+        # AutoBuy + Items sorting per Tier:
+        auto_shops = set(pytfall.shops)
+        all_auto_buy_items = []
         tiered_items = [[],[],[],[],[]] # MAX_ITEM_TIER = 4
         for i in items.values():
-            tiered_items[i.tier or 0].append(i)
-        del i
+            if i.pref_class: # i.usable and not i.jump_to_label and i.type != "permanent"
+                tiered_items[i.tier or 0].append(i)
+                if not auto_shops.isdisjoint(i.locations):
+                    all_auto_buy_items.append(i)
+        del auto_shops, i
     return
 
 label sort_traits_for_gameplay:

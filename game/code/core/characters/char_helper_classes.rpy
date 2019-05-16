@@ -1234,9 +1234,13 @@ init -10 python:
                 elif stat == "gold":
                     value = [float(value)/max(char.gold, 100), None, None]
                 else:
-                    value = [value, self._get_stat(stat), self.get_max(stat)]
+                    value = [value, self._get_stat(stat), self.get_max(stat), self.stats[stat], self.imod[stat], self.max[stat], self.lvl_max[stat], self.min[stat]]
+                    
                 _stats_mul_curr_max[stat] = value
-            _skills_mul_curr = {skill: [value, self.get_skill(skill)] for skill, value in target_skills.iteritems()}
+            _skills_mul_curr = {skill:
+                                  [value, self.get_skill(skill), self.skills_multipliers[skill][2], self.skills[skill][0], self.skills[skill][1]]
+                                for skill, value in target_skills.iteritems()}
+
             # prepare delivery information TODO bind this to BE_Core?
             delivery_bonus, delivery_multiplier = defaultdict(int), defaultdict(int)
             tier, level = char.level, char.tier
@@ -1271,7 +1275,8 @@ init -10 python:
 
             result = []
             for item in items:
-                weights = []
+                #weights = []
+                weights = 0
                 for trait in item.badtraits:
                     if trait in char_traits:
                         weights = None
@@ -1282,26 +1287,33 @@ init -10 python:
 
                 for trait in item.goodtraits:
                     if trait in char_traits:
-                        weights.append(100)
+                        #weights.append(100)
+                        weights += 100
 
                 # Other traits:
                 if is_kamidere is True: # Vanity: wants pricy, uncommon items
-                    weights.append((100 - item.chance + min(item.price/10, 100))/2)
+                    #weights.append((100 - item.chance + min(item.price/10, 100))/2)
+                    weights += (100 - item.chance + min(item.price/10, 100))/2
                 elif is_tsundere is True: # stubborn: what s|he won't buy, s|he won't wear.
-                    weights.append(100 - item.badness)
+                    #weights.append(100 - item.badness)
+                    weights += 100 - item.badness
                 elif is_bokukko is True: # what the farmer don't know, s|he won't eat.
-                    weights.append(item.chance)
+                    #weights.append(item.chance)
+                    weights += item.chance
 
                 # tier bonus if it's reasonable.
                 tier_bonus = item.tier
                 if tier_bonus:
                     tier_bonus = 2*tier_bonus - tier
                     if tier_bonus > 0:
-                        weights.append(tier_bonus*50)
+                        #weights.append(tier_bonus*50)
+                        weights += tier_bonus*50
     
-                weights.append(item.eqchance)
-                if item.badness:
-                    weights.append(-item.badness/2)
+                #weights.append(item.eqchance)
+                weights += item.eqchance
+                #if item.badness:
+                #    weights.append(-item.badness/2)
+                weights -= item.badness/2
 
                 # Stats:
                 for stat, value in item.mod.iteritems():
@@ -1312,17 +1324,16 @@ init -10 python:
                     new_max = mcm[2]
                     if new_max is None:
                         # exp/gold
-                        weights.append(mcm[0]*value)
+                        #weights.append(mcm[0]*value)
+                        weights += mcm[0]*value
                         continue
                         
                     if stat in item.max:
-                        new_max = min(self.max[stat] + item.max[stat], self.lvl_max[stat])
-                    if not new_max:
-                        aeq_debug("Ignoring item %s because of strange stat-max behavior of %s.", item, stat)
-                        continue # Some weird exception?
+                        #             s_max                    l_max
+                        new_max = min(mcm[5] + item.max[stat], mcm[6])
 
-                    # Get the resulting value:
-                    new_stat = max(min(self.stats[stat] + self.imod[stat] + value, new_max), self.min[stat])
+                    # Resulting value: s_curr   i_curr                    s_min
+                    new_stat = max(min(mcm[3] + mcm[4] + value, new_max), mcm[7])
                     change = new_stat - mcm[1] # curr_stat
                     if change == 0:
                         if value < 0:
@@ -1334,31 +1345,42 @@ init -10 python:
                         value *= .5 # it is worth at least as much as if it would not help now 
                         if change < value:
                             change = value
+                    if new_max <= 0:
+                        # new max is negative or zero, change must be negative -> make sure the result is negative
+                        new_max = 1 
                     # add the fraction increase/decrease
-                    weights.append(mcm[0]*100*change/float(new_max))
+                    #weights.append(mcm[0]*100*change/float(new_max))
+                    weights += mcm[0]*100*change/float(new_max)
 
                 # Max Stats:
                 for stat, value in item.max.iteritems():
                     mcm = _stats_mul_curr_max.get(stat, None)
                     if mcm is None:
                         continue
-                    new_max = min(self.max[stat] + value, self.lvl_max[stat])
+                    #              s_max          l_max
+                    new_max = min(mcm[5] + value, mcm[6])
                     change = new_max - mcm[2] # curr_max
                     if change == 0:
                         continue
-                    # add the increase/decrease
-                    weights.append(mcm[0]*change)
+                    if stat not in item.mod:
+                        #                      s_curr   i_curr  curr_stat
+                        change += min(new_max, mcm[3] + mcm[4]) - mcm[1]
+                    if new_max <= 0:
+                        # new max is negative or zero, change must be negative -> make sure the result is negative
+                        new_max = 1 
+                    # add the fraction increase/decrease
+                    #weights.append(mcm[0]*100*change/float(new_max))
+                    weights += mcm[0]*100*change/float(new_max)
 
                 # Skills:
                 for skill, effect in item.mod_skills.iteritems():
                     smc = _skills_mul_curr.get(skill, None)
                     if smc is None:
                         continue
-
                     # calculate skill with mods applied, as in apply_item_effects() and get_skill()
-                    mod_action = self.skills[skill][0] + effect[3]
-                    mod_training = self.skills[skill][1] + effect[4]
-                    mod_skill_multiplier = self.skills_multipliers[skill][2] + effect[2]
+                    mod_skill_multiplier = smc[2] + effect[2] # curr_multiplier + mod_multiplier
+                    mod_action = smc[3] + effect[3]           # curr_action + mod_action
+                    mod_training = smc[4] + effect[4]         # curr_training + mod_training
 
                     if upto_skill_limit: # more precise calculation of skill limits
                         beyond_training = mod_action - (mod_training * 3)
@@ -1373,7 +1395,8 @@ init -10 python:
                     if change == 0:
                         continue
                     # add the fraction increase/decrease
-                    weights.append(smc[0]*100*change/5000.0) # SKILLS_MAX
+                    #weights.append(smc[0]*100*change/5000.0) # SKILLS_MAX
+                    weights += smc[0]*100*change/5000.0 # SKILLS_MAX
 
                 # Attacks:
                 if item.attacks is not None:
@@ -1398,7 +1421,8 @@ init -10 python:
                                     best = power
                             if best != 0:
                                 # add the fraction increase/decrease TODO cost?
-                                weights.append(mcm[0]*100*best/attack)
+                                #weights.append(mcm[0]*100*best/attack)
+                                weights += mcm[0]*100*best/attack
 
                 # Spells:
                 for battle_skill in item.add_be_spells:
@@ -1407,7 +1431,8 @@ init -10 python:
                     value = ((battle_skill.tier or 0)+1) * 100
                     for attr in battle_skill.attributes:
                         value *= 1 + delivery_multiplier[attr]
-                    weights.append(value)
+                    #weights.append(value)
+                    weights += value
 
                 result.append([weights, item])
             return result
