@@ -551,7 +551,7 @@ init 1000 python:
                 i.gold = 100000
                 i.autobuy = True
                 i.auto_buy(amount=3, smart_ownership_limit=False)
-                i.equip_for("Combat")
+                i.auto_equip("Combat")
             tl.end(msg)
             tl.start("Create Chars")
             for i in range(1000):

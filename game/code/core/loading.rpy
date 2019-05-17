@@ -761,7 +761,7 @@ init -11 python:
         for entry in data:
             id = entry.pop("id")
 
-            if entry.pop("weapons", False):
+            if entry.get("fighting", False):
                 STATIC_ITEM.FIGHTING_AEQ_PURPOSES.add(id)
             traits = entry.pop("traits", [])
             for t in traits:
@@ -771,7 +771,7 @@ init -11 python:
 
             # validate the entry
             for t in entry:
-                if t not in ["target_stats", "target_skills", "base_purpose"]:
+                if t not in ["target_stats", "target_skills", "base_purpose", "fighting"]:
                     raise Exception("Unknown field %s in AEQ_PURPOSE %s." % (t, id))
 
             # convert or initialize these fields to sets

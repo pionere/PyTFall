@@ -198,7 +198,7 @@ init -10 python:
                     return
 
             # Otherwise, let us AEQ:
-            worker.equip_for(purpose)
+            worker.auto_equip(purpose)
 
         @staticmethod
         def calculate_disposition_level(worker):

@@ -704,7 +704,7 @@ init -6 python: # Guild, Tracker and Log.
                             cl.extend(explorer.auto_consume(l, inv=c.inventory))
                         if cl:
                             temp = "%s used: {color=lawngreen}%s %s{/color} to recover!" % (explorer.nickname, ", ".join(cl), plural("item", len(cl)))
-                            self.log(temp)
+                            tracker.log(temp)
                     auto_equip_counter += 1
 
                 for c in team:

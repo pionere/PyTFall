@@ -4,14 +4,14 @@
      "target_stats": {"health":70, "mp":20, "attack":100, "magic":20, "defence":80, "agility":50, "luck":1, "exp":0.1},
      "target_skills": {},
      "base_purpose": ["Warrior", "Any"],
-     "weapons": true
+     "fighting": true
     },
     {
      "id": "Manager",
      "target_stats": {"character":80, "intelligence":100, "constitution":10, "vitality":10, "luck":1, "exp":0.1},
      "target_skills": {"management":80, "refinement":20},
      "base_purpose": ["Manager", "Casual", "Any"],
-     "weapons": false,
+     "fighting": false,
      "traits": ["Manager"]
     },
     {
@@ -19,21 +19,21 @@
      "target_stats": {"charisma":30, "constitution":30, "agility":30, "luck":10, "exp":0.5},
      "target_skills": {},
      "base_purpose": ["Casual", "Any"],
-     "weapons": false
+     "fighting": false
     },
     {
      "id": "Slave",
      "target_stats": {"charisma":40, "constitution":30, "agility":30, "luck":10, "exp":0.1},
      "target_skills": {},
      "base_purpose": ["Slave", "Casual", "Any"],
-     "weapons": false
+     "fighting": false
     },
     {
      "id": "Barbarian",
      "target_stats": {"health":70, "attack":100, "defence":80, "constitution":20, "agility":50, "luck":5, "exp":0.1},
      "target_skills": {},
      "base_purpose": ["Warrior", "Any"],
-     "weapons": true,
+     "fighting": true,
      "traits": ["Assassin", "Knight", "Warrior"]
     },
     {
@@ -41,7 +41,7 @@
      "target_stats": {"agility":80, "attack":100, "defence":50, "luck":10, "exp":0.1},
      "target_skills": {},
      "base_purpose": ["Shooter", "Warrior", "Any"],
-     "weapons": true,
+     "fighting": true,
      "traits": ["Shooter"]
     },
     {
@@ -49,14 +49,14 @@
      "target_stats": {"health":80, "mp":50, "attack":70, "magic":70, "luck":5, "exp":0.1},
      "target_skills": {},
      "base_purpose": ["Warrior", "Mage", "Any"],
-     "weapons": true
+     "fighting": true
     },
     {
      "id": "Mage",
      "target_stats": {"mp":60, "magic":100, "intelligence":80, "luck":5, "exp":0.1},
      "target_skills": {},
      "base_purpose": ["Mage", "Warrior", "Any"],
-     "weapons": true,
+     "fighting": true,
      "traits": ["Healer", "Mage"]
     },
     {
@@ -64,14 +64,14 @@
      "target_stats": {"attack":20, "defence":20, "agility":20, "magic":20, "luck":1, "exp":0.1},
      "target_skills": {"security": 100},
      "base_purpose": ["Shooter", "Mage", "Warrior", "Any"],
-     "weapons": true
+     "fighting": true
     },
     {
      "id": "Striptease",
      "target_stats": {"charisma":70, "agility":30, "constitution":10, "vitality":10, "luck":1, "exp":0.1},
      "target_skills": {"strip": 100, "dancing": 40, "sex": 5},
      "base_purpose": ["Stripper", "SIW", "Any"],
-     "weapons": false,
+     "fighting": false,
      "traits": ["Stripper"]
     },
     {
@@ -79,7 +79,7 @@
      "target_stats": {"charisma":100, "constitution":10, "vitality":10, "luck":1, "exp":0.1},
      "target_skills": {"sex": 60, "vaginal": 40, "anal": 40, "oral": 40},
      "base_purpose": ["Whore", "SIW", "Any"],
-     "weapons": false,
+     "fighting": false,
      "traits": ["Prostitute"]
     },
     {
@@ -87,7 +87,7 @@
      "target_stats": {"intelligence":50, "character":50, "charisma":20, "constitution":10, "vitality":10, "luck":1, "exp":0.1},
      "target_skills": {"service": 50, "bartending": 100},
      "base_purpose": ["Bartender", "Service", "Any"],
-     "weapons": false,
+     "fighting": false,
      "traits": ["Barmaid"]
     },
     {
@@ -95,7 +95,7 @@
      "target_stats": {"agility": 25, "constitution": 50, "vitality":10, "luck":1, "exp":0.1},
      "target_skills": {"service":50, "cleaning":100},
      "base_purpose": ["Cleaning", "Service", "Any"],
-     "weapons": false,
+     "fighting": false,
      "traits": ["Maid", "Cleaner"]
     },
     {
@@ -103,6 +103,6 @@
      "target_stats": {"agility": 50, "constitution": 50, "vitality":10, "luck":1, "exp":0.1},
      "target_skills": {"service":50, "riding":100},
      "base_purpose": ["Service", "Any"],
-     "weapons": false
+     "fighting": false
     }
 ]

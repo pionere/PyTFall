@@ -19,7 +19,7 @@ init -11 python:
         for fighter in chain(off_team, def_team):
             # dress for fight - not needed at the moment
             #if fighter.last_known_aeq_purpose not in FIGHTING_AEQ_PURPOSES and fighter.autoequip and fighter != hero:
-            #    fighter.equip_for("Fighting")
+            #    fighter.auto_equip("Fighting")
             # create AI-controller
             fighter.controller = BE_AI(fighter) if simple_ai else Complex_BE_AI(fighter)
 

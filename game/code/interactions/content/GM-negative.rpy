@@ -53,7 +53,7 @@ label interactions_harrasment_after_battle: # after MC provoked a free character
                         reequip = True
                     transfer_items(char, hero, temp, amount=1, silent=True, force=True)
                     if reequip:
-                        char.equip_for(char.last_known_aeq_purpose)
+                        char.auto_equip(char.last_known_aeq_purpose)
                     char.gfx_mod_stat("disposition", -randint(20, 45))
                     char.gfx_mod_stat("affection", -randint(3,5))
                 else:

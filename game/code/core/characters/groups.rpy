@@ -187,7 +187,7 @@ init -8 python:
     class PytGroup(Delegator):
         def __init__(self, chars):
             remedy = {
-                ".eqslots{}": self._ordered_on_abundance, ".equip_for()": self._list_for_caller, ".home": "various",
+                ".eqslots{}": self._ordered_on_abundance, ".auto_equip()": self._list_for_caller, ".home": "various",
                 ".status": "various", ".location": "various", ".workplace": "various", ".action": "Several actions",
                 ".autobuy": [], ".front_row": [], ".autoequip": "various", ".job": "Several jobs", ".pp": "their", ".op": "them",
                 ".autocontrol{}": [], ".sex_acts{}": [], ".miscblock": [],

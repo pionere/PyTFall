@@ -888,7 +888,7 @@ init -9 python:
                 elif not self.eqslots["ring2"]:
                     self.eqslots["ring2"] = item
                 else:
-                    self.apply_item_effects(self.eqslots["ring"], direction=False)
+                    self.apply_item_effects(self.eqslots["ring"], False)
                     self.inventory.append(self.eqslots["ring"])
                     self.eqslots["ring"] = self.eqslots["ring1"]
                     self.eqslots["ring1"] = self.eqslots["ring2"]
@@ -900,7 +900,7 @@ init -9 python:
                 # Any other slot:
                 curr_item = self.eqslots[item.slot]
                 if curr_item: # If there is any item equipped:
-                    self.apply_item_effects(curr_item, direction=False) # Remove equipped item effects
+                    self.apply_item_effects(curr_item, False) # Remove equipped item effects
                     self.inventory.append(curr_item) # Add unequipped item back to inventory
                 self.eqslots[item.slot] = item # Assign new item to the slot
                 self.apply_item_effects(item) # Apply item effects
@@ -934,37 +934,20 @@ init -9 python:
                 self.last_known_aeq_purpose = None
 
             if slot != "misc":
-                self.apply_item_effects(item, direction=False)
+                self.apply_item_effects(item, False)
 
             self.eqslots[slot] = None
             self.inventory.append(item)
 
-        def equip_for(self, purpose):
+        def auto_equip(self, purpose):
             """
             This method will try to auto-equip items for some purpose!
+            :param purpose: the purpose to equip for
             """
             purpose = self.guess_aeq_purpose(purpose)
-
-            self.last_known_aeq_purpose = purpose
-
-            kwargs = STATIC_ITEM.AEQ_PURPOSES[purpose]
             if DEBUG_AUTO_ITEM:
                 aeq_debug("Auto Equipping for -- {}".format(purpose))
-            return self.auto_equip(**kwargs)
-
-        def auto_equip(self, target_stats, target_skills, base_purpose):
-            """
-            target_stats: a dict of stat-weight pairs to consider for items
-            target_skills: similarly, a dict of skill-weight pairs
-            base_purpose: What we're equipping for, used to check vs item.pref_class (set)
-
-            So basically the way this works ATM is like this:
-            We create a dict (weighted) of slot: [].
-
-            In the list of values of weighted we add lists of weight values
-            which we gather and item we gather them for. That is done in Stats.eval_inventory
-            and pytChar.equip_chance methods. Later we come back here and sort out the results
-            """
+            self.last_known_aeq_purpose = purpose
 
             # Prepare data:
             inv = self.inventory
@@ -976,6 +959,13 @@ init -9 python:
                         self.unequip(slot=r, aeq_mode=True)
                 else:
                     self.unequip(slot=s, aeq_mode=True)
+
+            # select relevant items from the inventory
+            base_purpose = STATIC_ITEM.AEQ_PURPOSES[purpose]
+            fighting = base_purpose.get("fighting")
+            target_stats = base_purpose.get("target_stats")
+            target_skills = base_purpose.get("target_skills")
+            base_purpose = base_purpose.get("base_purpose")
 
             picks = eval_inventory(self, inv, EQUIP_SLOTS, base_purpose)
 
@@ -1003,13 +993,7 @@ init -9 python:
 
             rings_to_equip = 3
             while 1:
-                weighted = self.stats.weight_items(picks, target_stats, target_skills, upto_skill_limit)
-
-                if DEBUG_AUTO_ITEM:
-                    for _weight, item in weighted:
-                        aeq_debug("(A-Eq=> %s) Slot: %s Item: %s Weight: %s ==> Weights: %s",
-                                        #self.name, item.slot, item.id, sum(_weight), str(_weight))
-                                        self.name, item.slot, item.id, _weight, _weight)
+                weighted = self.stats.weight_items(picks, target_stats, target_skills, fighting, upto_skill_limit)
 
                 # Select the best item
                 best, limit = None, 0
@@ -1039,19 +1023,8 @@ init -9 python:
 
         def auto_consume(self, target_stats, inv=None):
             """
-            target_stats: expects a list of stats to pick the item
-            *default: All Stats - targetstats
-            slots: a list of slots, contains just consumables by default
-            inv: inventory to draw from.
-            base_purpose: What we're equipping for, used to check vs item.pref_class (set)
-                If not set, items with char.basetraits, occupations or 'Any' will be considered.
-
-            So basically the way this works ATM is like this:
-            We create a dict (weighted) of slot: [].
-
-            In the list of values of weighted we add lists of weight values
-            which we gather and item we gather them for. That is done in Stats.eval_inventory
-            and pytChar.equip_chance methods. Later we come back here and sort out the results
+            :param target_stats: expects a list of stats to pick the item
+            :param inv: inventory to draw from.
             """
 
             # Prepare data:
@@ -1066,76 +1039,35 @@ init -9 python:
             picks = eval_inventory(self, inv, ["consumable"], base_purpose)
 
             # traits that may influence the item selection process
-            upto_skill_limit = False
-            base_appetite = 50
+            intelligence = 80
             for trait in self.traits:
                 trait = trait.id
                 # a clumsy or bad eyesighted person may cause select items not in target stat/skill
                 if trait == "Bad Eyesight" or trait == "Clumsy":
-                    t = choice(self.stats.stats.keys())
-                    if t not in target_stats:
-                        target_stats.append(t)
+                    intelligence = 50
                 # a stupid person may also select items regardless of target stats
                 elif trait == "Stupid":
-                    target_stats = self.stats.stats.keys()
-                elif trait == "Smart":
-                    upto_skill_limit = True
-                elif trait == "Slim":
-                    base_appetite -= 10
-                elif trait == "Always Hungry":
-                    base_appetite += 20
-            depressed = 'Depression' in self.effects
-
-            # convert the lists to dicts
-            target_stats = {s:50 for s in target_stats}
-            target_skills = {}
+                    intelligence = 10
+                elif traits == "Smart":
+                    intelligence = 100
 
             returns = list() # We return this list with all items used during the method.
             while 1:
-                weighted = self.stats.weight_items(picks, target_stats, target_skills, upto_skill_limit)
+                weighted = self.stats.weight_for_consume(picks, target_stats)
                 if not weighted:
                     break
 
-                drunk = 'Drunk' in self.effects
-                if 'Food Poisoning' in self.effects:
-                    appetite = -1
-                else:
-                    appetite = base_appetite - self.get_flag("dnd_food_poison_counter", 0) * 8
-                for pick in weighted:
-                    item = pick[1]
-                    if item in self.constemp or item in self.consblock:
-                        #pick[0] = [-1]
-                        pick[0] = -1
-                    elif item.type == "alcohol":
-                        if drunk:
-                            #pick[0] = [-1]
-                            pick[0] = -1
-                        elif depressed:
-                            #pick[0].append(30 + when_drunk)
-                            pick[0] += 30 + when_drunk
-                    elif item.type == "food":
-                        if appetite < 0:
-                            #pick[0] = [-1]
-                            pick[0] = -1
-                        else:
-                            #pick[0].append(appetite)
-                            pick[0] += appetite
-
-                if DEBUG_AUTO_ITEM:
+                if dice(intelligence):
+                    # Select the best item
+                    best, limit = None, 0
                     for _weight, item in weighted:
-                        aeq_debug("(A-Eq=> %s) Slot: %s Item: %s Weight: %s ==> Weights: %s",
-                                        #self.name, item.slot, item.id, sum(_weight), str(_weight))
-                                        self.name, item.slot, item.id, _weight, _weight)
-
-                # Select the best item
-                best, limit = None, 0
-                for _weight, item in weighted:
-                    #_weight = sum(_weight)
-                    if _weight > limit:
-                        best = item
-                        limit = _weight
-                if best is None:
-                    break
+                        #_weight = sum(_weight)
+                        if _weight > limit:
+                            best = item
+                            limit = _weight
+                else:
+                    # select randomly
+                    best = choice(weighted)[1]
 
                 # Actually consume the item
                 inv.remove(best)
@@ -1263,12 +1195,13 @@ init -9 python:
                 purpose = self.guess_aeq_purpose(self.last_known_aeq_purpose)
 
             base_purpose = STATIC_ITEM.AEQ_PURPOSES[purpose]
+            fighting = base_purpose.get("fighting")
             target_stats = base_purpose.get("target_stats")
             target_skills = base_purpose.get("target_skills")
             base_purpose = base_purpose.get("base_purpose")
 
             picks = eval_inventory(self, container, slots, base_purpose)
-            picks = self.stats.weight_items(picks, target_stats, target_skills)
+            picks = self.stats.weight_items(picks, target_stats, target_skills, fighting, False)
 
             # filter the weighted items
             ignore_items = set()
@@ -1276,7 +1209,7 @@ init -9 python:
             if smart_ownership_limit is True:
                 owned_slots = {s for s in slots if s not in ["ring", "misc", "consumable"]}
                 owned_picks = eval_inventory(self, self.inventory, owned_slots, base_purpose)
-                owned_picks = self.stats.weight_items(owned_picks, target_stats, target_skills)
+                owned_picks = self.stats.weight_items(owned_picks, target_stats, target_skills, fighting, False)
 
                 for _weight, item in owned_picks:
                     #_weight = sum(_weight)
@@ -1327,7 +1260,7 @@ init -9 python:
                         break
 
             if equip and do_equip:
-                self.equip_for(purpose)
+                self.auto_equip(purpose)
             else:
                 # Re-equip the original items:
                 self.eqslots = curr_equipped_items
@@ -1386,13 +1319,18 @@ init -9 python:
                         equip_item(item=desired_item, char=self, silent=silent)
 
         # Applies Item Effects:
-        def apply_item_effects(self, item, direction=True, misc_mode=False):
+        def apply_item_effects(self, item, direction=True):
             """Deals with applying items effects on characters.
 
-            directions:
+            :param item: the effects of the item to be applied
+            :param direction:
             - True: Apply Effects
             - False: Remove Effects
             """
+            slot = item.slot
+            # check if the effects are permanent
+            true_add = slot == "misc" or (slot == "consumable" and not item.ctemp)
+
             # Attacks/Magic -------------------------------------------------->
             # Attack Skills:
             if item.attacks is not None:
@@ -1400,7 +1338,7 @@ init -9 python:
                 for battle_skill in item.attacks:
                     battle_skill = store.battle_skills[battle_skill]
                     if direction:
-                        attack_skills.append(battle_skill, False)
+                        attack_skills.append(battle_skill, true_add)
                     else:
                         attack_skills.remove(battle_skill, False)
 
@@ -1416,12 +1354,11 @@ init -9 python:
             for battle_skill in item.add_be_spells:
                 battle_skill = store.battle_skills[battle_skill]
                 if direction:
-                    self.magic_skills.append(battle_skill, False)
+                    self.magic_skills.append(battle_skill, true_add)
                 else:
                     self.magic_skills.remove(battle_skill, False)
 
             # Taking care of stats: -------------------------------------------------->
-            slot = item.slot
             type = item.type
             traits = self.traits
 
@@ -1517,40 +1454,41 @@ init -9 python:
                 if not direction:
                     value = -value
 
-                if stat == "gold":
-                    if misc_mode and self.status == "slave" and self in hero.chars:
-                        temp = hero
+                if true_add:
+                    if stat == "gold":
+                        if self.status == "slave" and self in hero.chars:
+                            temp = hero
+                        else:
+                            temp = self
+                        if value < 0:
+                            temp.take_money(-value, reason="Upkeep")
+                        else:
+                            temp.add_money(value, reason="Items")
+                    elif stat == "exp":
+                        self.mod_exp(exp_reward(self, self, exp_mod=float(value)/DAILY_EXP_CORE))
                     else:
-                        temp = self
-                    if value < 0:
-                        temp.take_money(-value, reason="Upkeep")
-                    else:
-                        temp.add_money(value, reason="Items")
-                elif stat == "exp":
-                    self.mod_exp(exp_reward(self, self, exp_mod=float(value)/DAILY_EXP_CORE))
-                elif (slot == "misc" or (slot == "consumable" and not item.ctemp)):
-                    if type == "food" and 'Fast Metabolism' in self.effects:
-                        value *= 2
-                    if original_value > 0:
-                        if stat == "health":
-                            if "Summer Eternality" in traits:
-                                value *= .35
-                        elif stat == "mp":
-                            if "Winter Eternality" in traits:
-                                value *= .35
-                            if "Magical Kin" in traits:
-                                if type == "alcohol":
-                                    value *= 2
-                                else:
-                                    value *= 1.5
-                        elif stat == "vitality":
-                            if "Effective Metabolism" in traits:
-                                if type == "food":
-                                    value *= 2
-                                else:
-                                    value *= 1.5
+                        if type == "food" and 'Fast Metabolism' in self.effects:
+                            value *= 2
+                        if original_value > 0:
+                            if stat == "health":
+                                if "Summer Eternality" in traits:
+                                    value *= .35
+                            elif stat == "mp":
+                                if "Winter Eternality" in traits:
+                                    value *= .35
+                                if "Magical Kin" in traits:
+                                    if type == "alcohol":
+                                        value *= 2
+                                    else:
+                                        value *= 1.5
+                            elif stat == "vitality":
+                                if "Effective Metabolism" in traits:
+                                    if type == "food":
+                                        value *= 2
+                                    else:
+                                        value *= 1.5
 
-                    self.mod_stat(stat, int(value))
+                        self.mod_stat(stat, int(value))
                 else:
                     if stat == "defence":
                         if original_value < 0 and "Elven Ranger" in traits and type in ["bow", "crossbow", "throwing"]:
@@ -1628,17 +1566,19 @@ init -9 python:
                     s[1] += data[4]
 
             # Traits:
-            for trait in itertools.chain(item.removetraits, item.addtraits):
-                if slot == "misc" or (slot == "consumable" and not item.ctemp):
-                    truetrait = True
+            for trait in item.removetraits:
+                trait = store.traits[trait]
+                if direction:
+                    self.remove_trait(trait, true_add)
                 else:
-                    truetrait = False
+                    self.apply_trait(trait, False)
 
-                if trait in item.addtraits:
-                    func = self.apply_trait if direction else self.remove_trait
+            for trait in item.addtraits:
+                trait = store.traits[trait]
+                if direction:
+                    self.apply_trait(trait, true_add)
                 else:
-                    func = self.remove_trait if direction else self.apply_trait
-                func(store.traits[trait], truetrait)
+                    self.remove_trait(trait, False)
 
             # Effects:
             if hasattr(self, "effects"):
@@ -1684,7 +1624,7 @@ init -9 python:
             for item, value in self.constemp.iteritems():
                 value -= 1
                 if value <= 0:
-                    self.apply_item_effects(item, direction=False)
+                    self.apply_item_effects(item, False)
                     drops.append(item)
                     continue
                 self.constemp[item] = value
@@ -1712,7 +1652,7 @@ init -9 python:
                 else:
                     value = self.miscitems.get(item, 0) + 1
                     if value >= item.mtemp:
-                        self.apply_item_effects(item, misc_mode=True)
+                        self.apply_item_effects(item)
 
                         # collect self-destruct or not reusable items
                         if (not item.mreusable) or item.mdestruct:

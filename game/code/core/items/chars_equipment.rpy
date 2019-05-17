@@ -350,7 +350,7 @@ screen equip_for(pos=()):
             for purpose, want in specializations.items():
                 textbutton "%s%s" % (purpose, "" if want else "*"):
                     xminimum 200
-                    action [Function(eqtarget.equip_for, purpose), Hide("equip_for"), With(dissolve)]
+                    action [Function(eqtarget.auto_equip, purpose), Hide("equip_for"), With(dissolve)]
                     if not want:
                         tooltip "%s does not want to work in this." % eqtarget.name
                     text_underline purpose == eqtarget.last_known_aeq_purpose

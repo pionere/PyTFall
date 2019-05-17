@@ -244,15 +244,13 @@ init -5 python:
             action = worker.job
 
             if log is not None:
-                if action:
+                if action is not None:
                     log.append("%s is now both well rested and goes back to work as %s!" % (worker.name, action))
                 else:
                     log.append("%s is now both well rested and healthy!" % worker.name)
 
-            if worker.autoequip:
-                aeq_purpose = getattr(action, "aeq_purpose", None)
-                if aeq_purpose and worker.last_known_aeq_purpose != aeq_purpose:
-                    worker.equip_for(aeq_purpose)
+            if action is not None:
+                action.auto_equip(worker)
 
     ####################### Training Job  #############################
     class StudyingJob(Job):
