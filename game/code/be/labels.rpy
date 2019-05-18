@@ -59,7 +59,7 @@ label test_be_logical:
             mob = build_mob(id="Goblin Shaman", level=120)
             mob.controller = BE_AI(mob)
             mob.front_row = 1
-            mob.apply_trait("Fire")
+            mob.apply_trait(traits["Fire"])
             enemy_team.add(mob)
         if len(enemy_team) != 3:
             mob = build_mob(id="Goblin Archer", level=100)
@@ -72,7 +72,7 @@ label test_be_logical:
             mob.controller = BE_AI(mob)
             mob.front_row = 0
             mob.attack_skills.append("Bow Shot")
-            mob.apply_trait("Air")
+            mob.apply_trait(traits["Air"])
             enemy_team.add(mob)
 
         h = chars["Hinata"]
@@ -84,7 +84,7 @@ label test_be_logical:
         n = chars["Sakura"]
         if len(hero.team) != 3 and n not in hero.team:
             n.status = "free"
-            n.apply_trait("Air")
+            n.apply_trait(traits["Air"])
             initial_levelup(n, 50, True)
             n.front_row = 1
             hero.team.add(n)

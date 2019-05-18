@@ -96,7 +96,7 @@ init -10 python:
                             weight_ratio = float(weight)/total_weight_points
                             max_p = default_points*weight_ratio
 
-                            sp = self.stats.stats[stat]
+                            sp = self.stats.stats[stat] # STAT_STAT
                             sp_required = self.get_relative_max_stat(stat, target_tier)
 
                             stat_bonus += min(float(sp)/sp_required, 1.1)*max_p
@@ -513,8 +513,8 @@ init -10 python:
             Truetraits basically means that the trait is not applied thought items (Jobs, GameStart, Events and etc.)
             """
             # If we got a string with a traits name. Let the game throw an error otherwise.
-            if not isinstance(trait, Trait):
-                trait = store.traits[trait]
+            if isinstance(trait, basestring):
+                trait = traits[trait]
             char = self.instance
 
             # All the checks required to make sure we can even apply this trait: ======================>>
@@ -563,32 +563,43 @@ init -10 python:
             if trait in self.basetraits:
                 for k, v in trait.init_lvlmax.iteritems(): # Mod value setting
                     v *= 2
-                    stats.lvl_max[k] = max(v, stats.lvl_max[k])
+                    if v > stats.lvl_max[k]: # STAT_LVL_MAX
+                        stats.lvl_max[k] = v # STAT_LVL_MAX
 
                 for k, v in trait.init_max.iteritems(): # Mod value setting
                     v *= 2
-                    stats.max[k] = max(v, stats.max[k]) 
+                    if v > stats.max[k]: # STAT_MAX
+                        stats.max[k] = v # STAT_MAX 
 
                 for k, v in trait.init_mod.iteritems(): # Mod value setting
                     v *= 2
-                    stats.stats[k] = max(v, stats.stats[k])
+                    if v > stats.stats[k]: # STAT_STAT
+                        stats.stats[k] = v # STAT_STAT
 
                 for k, v in trait.init_skills.iteritems(): # Mod value setting
                     value = v[0]*2
-                    stats.skills[k][0] = max(value, stats.skills[k][0])
+                    k = stats.skills[k]
+                    if value > k[0]:
+                        k[0] = value
                     value =  v[1]*2
-                    stats.skills[k][1] = max(value, stats.skills[k][1]) 
+                    if value > k[1]:
+                        k[1] = value 
 
             # Only for body traits:
             if trait.body:
                 if trait.mod_ap:
                     char.basePP += trait.mod_ap * 100 # PP_PER_AP
 
-            for key, value in trait.max.iteritems():
-                stats.max[key] += value
-
-            for key, value in trait.min.iteritems():
-                stats.min[key] += value
+            if truetrait:
+                for key, value in trait.max.iteritems():
+                    stats.max[key] += value # STAT_MAX
+                for key, value in trait.min.iteritems():
+                    stats.min[key] += value # STAT_MIN
+            else:
+                for key, value in trait.max.iteritems():
+                    stats.imax[key] += value # STAT_IMAX
+                for key, value in trait.min.iteritems():
+                    stats.imin[key] += value # STAT_IMIN
 
             for entry in trait.blocks:
                 self.blocked_traits.add(entry)
@@ -598,32 +609,34 @@ init -10 python:
                 for entry in trait.effects:
                     char.enable_effect(entry)
 
-            if trait.mod_stats:
-                temp = trait.mod_stats.get("upkeep", None)
-                if temp is not None:
-                    char.upkeep += temp[0]
-                temp = trait.mod_stats.get("disposition", None)
-                if temp is not None:
-                    char.mod_stat("disposition", temp[0])
-                temp = trait.mod_stats.get("affection", None)
-                if temp is not None:
-                    char.mod_stat("affection", temp[0])
-                char.stats.apply_trait_statsmod(trait, 0, char.level)
-
             for key, mod in trait.mod_skills.iteritems():
                 sm = stats.skills_multipliers[key] # skillz muplties
                 sm[0] += mod[0]
                 sm[1] += mod[1]
                 sm[2] += mod[2]
 
+            mod_stats = trait.mod_stats
+            if mod_stats:
+                temp = mod_stats.get("upkeep", None)
+                if temp is not None:
+                    char.upkeep += temp[0]
+                temp = mod_stats.get("disposition", None)
+                if temp is not None:
+                    stats._mod_base_stat("disposition", temp[0])
+                temp = mod_stats.get("affection", None)
+                if temp is not None:
+                    stats._mod_base_stat("affection", temp[0])
+                stats.apply_trait_statsmod(mod_stats, 0, char.level, truetrait)
+
             # Adding resisting elements and attacks:
             for i in trait.resist:
                 char.resist.append(i, truetrait)
 
             # NEVER ALLOW NEUTRAL ELEMENT WITH ANOTHER ELEMENT!
-            if trait.elemental:
-                if trait.id != "Neutral" and traits["Neutral"] in self:
-                    self.remove(traits["Neutral"])
+            if trait.elemental and trait.id != "Neutral":
+                trait = traits["Neutral"]
+                if trait in self:
+                    self.remove(trait)
 
         def remove(self, trait, truetrait=True):
             """
@@ -631,8 +644,8 @@ init -10 python:
             Truetraits basially means that the trait is not applied throught items (Jobs, GameStart, Events and etc.)
             """
             # If we got a string with a traits name. Let the game throw an error otherwise.
-            if not isinstance(trait, Trait):
-                trait = store.traits[trait]
+            if isinstance(trait, basestring):
+                trait = traits[trait]
             char = self.instance
 
             temp = char.gender
@@ -651,11 +664,18 @@ init -10 python:
                 return
 
             stats = char.stats
-            for key, value in trait.max.iteritems():
-                stats.max[key] -= value
+            if truetrait:
+                for key, value in trait.max.iteritems():
+                    stats.max[key] -= value # STAT_MAX
 
-            for key, value in trait.min.iteritems():
-                stats.min[key] -= value
+                for key, value in trait.min.iteritems():
+                    stats.min[key] -= value # STAT_MIN
+            else:
+                for key, value in trait.max.iteritems():
+                    stats.imax[key] -= value # STAT_IMAX
+
+                for key, value in trait.min.iteritems():
+                    stats.imin[key] -= value # STAT_IMIN
 
             if trait.blocks:
                 # Update blocked traits
@@ -669,23 +689,24 @@ init -10 python:
                 for entry in trait.effects:
                     char.disable_effect(entry)
 
-            if trait.mod_stats:
-                temp = trait.mod_stats.get("upkeep", None)
-                if temp is not None:
-                    char.upkeep -= temp[0]
-                temp = trait.mod_stats.get("disposition", None)
-                if temp is not None:
-                    char.mod_stat("disposition", -temp[0])
-                temp = trait.mod_stats.get("affection", None)
-                if temp is not None:
-                    char.mod_stat("affection", -temp[0])
-                char.stats.apply_trait_statsmod(trait, char.level, 0)
-
             for key, mod in trait.mod_skills.iteritems():
                 sm = stats.skills_multipliers[key] # skillz muplties
                 sm[0] -= mod[0]
                 sm[1] -= mod[1]
                 sm[2] -= mod[2]
+
+            mod_stats = trait.mod_stats
+            if mod_stats:
+                temp = mod_stats.get("upkeep", None)
+                if temp is not None:
+                    char.upkeep -= temp[0]
+                temp = mod_stats.get("disposition", None)
+                if temp is not None:
+                    stats._mod_base_stat("disposition", -temp[0])
+                temp = mod_stats.get("affection", None)
+                if temp is not None:
+                    stats._mod_base_stat("affection", -temp[0])
+                stats.apply_trait_statsmod(mod_stats, char.level, 0, truetrait)
 
             # Remove resisting elements and attacks:
             for i in trait.resist:
@@ -693,7 +714,7 @@ init -10 python:
 
             # We add the Neutral element if there are no elements left at all...
             if trait.elemental and not char.elements:
-                self.apply("Neutral")
+                self.apply(traits["Neutral"])
 
     class Finances(_object):
         """Helper class that handles finance related matters in order to reduce
@@ -987,36 +1008,30 @@ init -10 python:
         DEVNOTE: Be VERY careful when accessing this class directly!
         Some of it's methods assume input from self.instance__setattr__ and do extra calculations!
         """
-        def __init__(self, *args, **kwargs):
+        def __init__(self, instance, stats):
             """
-            instance = reference to Character object
-            Expects a dict with statname as key and a list of:
-            [stat, min, max, lvl_max] as value.
+            :param instance: reference to Character object
+            :param stats: Expects a dict with statname as key and a list of:
+            [stat, min, max, lvl_max, imod, imin, imax] as value.
             Added skills to this class... (Maybe move to a separate class if they get complex?).
-            DevNote: Training skills have a capital letter in them, action skills do not.
-                This should be done thought the class of the character and NEVER using self.mod_skill directly!
             """
-            self.instance = args[0]
-            self.stats, self.imod, self.min, self.max, self.lvl_max = dict(), dict(), dict(), dict(), dict()
+            self.instance = instance
+            self.stats, self.min, self.max, self.lvl_max, self.imod, self.imin, self.imax = dict(), dict(), dict(), dict(), dict(), dict(), dict()
 
             # Load the stat values:
-            for stat, values in kwargs.get("stats", {}).iteritems():
+            for stat, values in stats.iteritems():
                 self.stats[stat] = values[0]
-                self.imod[stat] = 0
                 self.min[stat] = values[1]
                 self.max[stat] = values[2]
                 self.lvl_max[stat] = values[3]
+                self.imod[stat] = values[4]
+                self.imin[stat] = values[5]
+                self.imax[stat] = values[6]
 
             # [action_value, training_value]
-            self.skills = dict()
-            for s in STATIC_CHAR.SKILLS:
-                self.skills[s] = [0, 0]
-            # {k: [0, 0] for k in STATIC_CHAR.SKILLS}
+            self.skills = {s: [0, 0] for s in STATIC_CHAR.SKILLS}
             # [actions_multi, training_multi, value_multi]
-            # self.skills_multipliers = {k: [1, 1, 1] for k in self.skills}
-            self.skills_multipliers = dict()
-            for s in self.skills:
-                self.skills_multipliers[s] = [1, 1, 1]
+            self.skills_multipliers = {s: [1, 1, 1] for s in STATIC_CHAR.SKILLS}
 
             # Leveling system assets:
             self.goal = 1000
@@ -1036,21 +1051,15 @@ init -10 python:
         def get_base_ss(self):
             return self.get_base_stats().union(self.get_base_skills())
 
-        def _action_skill(self, key):
-            """Raw Skills:
-            [action_value, training_value]
-            """
-            return self.skills[key][0]
-
         def _get_stat(self, key):
-            maxval = self.get_max(key)
-            minval = self.min[key]
-            val = self.stats[key] + self.imod[key]
+            maxval = min(self.max[key] + self.imax[key], self.lvl_max[key]) # STAT_MAX, STAT_IMAX, STAT_LVL_MAX
+            minval = self.min[key] + self.imin[key] # STAT_MIN + STAT_IMIN
+            val = self.stats[key] + self.imod[key]  # STAT_STAT + STAT_IMOD
 
             # Normalization:
             if val > maxval:
                 val = maxval
-            elif val < minval:
+            if val < minval:
                 val = minval
 
             return val
@@ -1060,8 +1069,7 @@ init -10 python:
             Returns adjusted skill.
             'Action' skill points become less useful as they exceed training points * 3.
             """
-            action = self.skills[skill][0]
-            training = self.skills[skill][1]
+            action, training = self.skills[skill]
 
             beyond_training = action - (training * 3)
             if beyond_training >= 0:
@@ -1076,10 +1084,10 @@ init -10 python:
             return self._get_stat(key)
 
         def __iter__(self):
-            return iter(self.stats)
+            return iter(self.stats) # STAT_STAT
 
         def get_max(self, key):
-            return max(self.min[key], min(self.max[key], self.lvl_max[key]))
+            return max(self.min[key] + self.imin[key], min(self.max[key] + self.imax[key], self.lvl_max[key])) # STAT_MIN STAT_IMIN, STAT_MAX STAT_IMAX, STAT_LVL_MAX
 
         def mod_exp(self, value):
             # Assumes input from setattr of self.instance:
@@ -1088,73 +1096,80 @@ init -10 python:
             value += self.exp
             self.exp = value
 
-            if self.exp >= self.goal:
-                num_lvl = (self.exp - self.goal)/self.goal_increase + 1
-                self.goal += num_lvl * self.goal_increase
+            if self.exp < self.goal:
+                return
 
-                # Normal Max stat Bonuses:
-                for stat in self.stats:
-                    if stat not in STATIC_CHAR.FIXED_MAX:
-                        self.lvl_max[stat] += 5 * num_lvl
-                        self.max[stat] += 2 * num_lvl
+            num_lvl = (self.exp - self.goal)/self.goal_increase + 1
+            self.goal += num_lvl * self.goal_increase
 
-                        # Chance to increase max stats permanently based on level
-                        chance = (2*self.level + num_lvl)*num_lvl/ 40.0
-                        value = min(random.expovariate(100.0/chance), num_lvl)
-                        val = int(value)
-                        if val != 0:
-                            self.lvl_max[stat] += val
-                            self.max[stat] += val
-                            value -= val
-                        value *= 100
-                        if dice(value):
-                            self.lvl_max[stat] += 1
-                        if dice(value):
-                            self.max[stat] += 1
+            # Normal Max stat Bonuses:
+            for stat in self.stats:
+                if stat not in STATIC_CHAR.FIXED_MAX:
+                    self.lvl_max[stat] += 5 * num_lvl # STAT_LVL_MAX
+                    self.max[stat] += 2 * num_lvl     # STAT_MAX
 
-                        #if self.level >= 20:
-                        #    val = self.level / 20.0
-                        #    if dice(val):
-                        #        self.lvl_max[stat] +=1
-                        #    if dice(val):
-                        #        self.max[stat] +=1
+                    # Chance to increase max stats permanently based on level
+                    chance = (2*self.level + num_lvl)*num_lvl/ 40.0
+                    value = min(random.expovariate(100.0/chance), num_lvl)
+                    val = int(value)
+                    if val != 0:
+                        self.lvl_max[stat] += val     # STAT_LVL_MAX
+                        self.max[stat] += val         # STAT_MAX
+                        value -= val
+                    value *= 100
+                    if dice(value):
+                        self.lvl_max[stat] += 1       # STAT_LVL_MAX
+                    if dice(value):
+                        self.max[stat] += 1           # STAT_MAX
 
-                # Super Bonuses from Base Traits:
-                traits = char.traits.basetraits
-                multiplier = 2 if len(traits) == 1 else 1
-                multiplier *= num_lvl
-                for trait in traits:
-                    # Super Stat Bonuses:
-                    for stat, value in trait.leveling_stats.iteritems():
-                        self.lvl_max[stat] += value[0] * multiplier
-                        self.max[stat] += value[1] * multiplier
+                    #if self.level >= 20:
+                    #    val = self.level / 20.0
+                    #    if dice(val):
+                    #        self.lvl_max[stat] +=1
+                    #    if dice(val):
+                    #        self.max[stat] +=1
 
-                    # Super Skill Bonuses:
-                    for skill in trait.init_skills:
-                        self.mod_full_skill(skill, 20*num_lvl)
+            # Super Bonuses from Base Traits:
+            traits = char.traits.basetraits
+            multiplier = 2 if len(traits) == 1 else 1
+            multiplier *= num_lvl
+            for trait in traits:
+                # Super Stat Bonuses:
+                for stat, value in trait.leveling_stats.iteritems():
+                    self.lvl_max[stat] += value[0] * multiplier    # STAT_LVL_MAX
+                    self.max[stat] += value[1] * multiplier        # STAT_MAX
 
-                self.level += num_lvl
+                # Super Skill Bonuses:
+                for skill in trait.init_skills:
+                    self.mod_full_skill(skill, 20*num_lvl)
 
-                # Bonuses from traits:
-                for trait in char.traits:
-                    self.apply_trait_statsmod(trait, self.level-num_lvl, self.level)
+            curr_lvl = self.level
+            new_lvl = curr_lvl + num_lvl
+            self.level = new_lvl
 
-                for stat in ("health", "mp", "vitality"):
-                    self.stats[stat] = self.get_max(stat) # BATTLE_STATS
+            # Bonuses from traits:
+            traits = char.traits
+            for trait in traits:
+                mod_stats = trait.mod_stats
+                if mod_stats:
+                    self.apply_trait_statsmod(mod_stats, curr_lvl, new_lvl, trait in traits.normal)
 
-                self.instance.update_tier_info()
+            for stat in ("health", "mp", "vitality"): # BATTLE_STATS
+                self.stats[stat] = max(self.max[stat], self.min[stat]) # STAT_STAT STAT_MAX, STAT_MIN
 
-        def apply_trait_statsmod(self, trait, from_lvl, to_lvl):
+            self.instance.update_tier_info()
+
+        def apply_trait_statsmod(self, mod_stats, from_lvl, to_lvl, truetrait):
             """Applies "stats_mod" field on characters.
                A mod_stats entry is a pair of integers (x, y), which means the character
                gains x points every y level.
             """
             delta_lvl = to_lvl - from_lvl
             temp = ["disposition", "affection", "upkeep"]
-            for key in trait.mod_stats:
+            for key, value in mod_stats.iteritems():
                 if key in temp:
                     continue
-                mod = trait.mod_stats[key][1]
+                mod = value[1]
                 delta = delta_lvl / mod
                 rem = delta_lvl % mod
                 if rem != 0:
@@ -1164,12 +1179,20 @@ init -10 python:
                     elif rem < 0:
                         delta -= 1
                 if delta != 0:
-                    self._mod_base_stat(key, delta * trait.mod_stats[key][0])
+                    delta *= value[0]
+                    if truetrait:
+                        self._mod_base_stat(key, delta)
+                    else:
+                        self.imod[key] += delta # STAT_IMOD
 
         def _mod_base_stat(self, key, value):
-            # Modifies the first layer of stats (self.stats)
-            # As different character types may come with different stats.
-            curr_value = self.stats[key]
+            """
+            :param key: the stat to modify
+            :param value: the value to modify the stat with
+            Modifies the first layer of stats (self.stats)
+            A stat (with its imod added) is kept between min and (lvl)max.
+            """
+            curr_value = self.stats[key]                   # STAT_STAT
             value += curr_value
 
             if value <= 0 and key == 'health':
@@ -1181,14 +1204,15 @@ init -10 python:
                 #    kill_char(char)
                 #    return
 
-            maxval = self.get_max(key)
-            minval = self.min[key]
+            # keep the normal stat value between min and max/lvl_max
+            maxval = min(self.lvl_max[key], self.max[key]) # STAT_LVL_MAX, STAT_MAX
+            minval = self.min[key]                         # STAT_MIN
 
-            if value >= maxval:
+            if value > maxval:
                 value = maxval
-            elif value <= minval:
+            if value < minval:
                 value = minval
-            self.stats[key] = value
+            self.stats[key] = value                        # STAT_STAT
             return value - curr_value # return the real delta
 
         def _mod_raw_skill(self, key, at, value):
@@ -1234,8 +1258,8 @@ init -10 python:
                     value = [value*(1 - float(char.tier)/MAX_TIER), None, None]
                 elif stat == "gold":
                     value = [float(value)/max(char.gold, 100), None, None]
-                else:
-                    value = [value, self._get_stat(stat), self.get_max(stat), self.stats[stat], self.imod[stat], self.max[stat], self.lvl_max[stat], self.min[stat]]
+                else: #                                                              STAT_STAT + STAT_IMOD              STAT_MAX + STAT_IMAX         STAT_LVL_MAX            STAT_MIN  + STAT_IMIN
+                    value = [value, self._get_stat(stat), self.get_max(stat), self.stats[stat] + self.imod[stat], self.max[stat] + self.imax[stat], self.lvl_max[stat], self.min[stat] + self.imin[stat]]
                     
                 _stats_mul_curr_max[stat] = value
             _skills_mul_curr = {skill:
@@ -1301,10 +1325,10 @@ init -10 python:
                         
                     if stat in item.max:
                         #             s_max                    l_max
-                        new_max = min(mcm[5] + item.max[stat], mcm[6])
+                        new_max = min(mcm[4] + item.max[stat], mcm[5])
 
-                    # Resulting value: s_curr   i_curr                    s_min
-                    new_stat = max(min(mcm[3] + mcm[4] + value, new_max), mcm[7])
+                    # Result:         si_curr                   s_min
+                    new_stat = max(min(mcm[3] + value, new_max), mcm[6])
                     change = new_stat - mcm[1] # curr_stat
                     if change == 0:
                         if value < 0:
@@ -1328,14 +1352,14 @@ init -10 python:
                     mcm = _stats_mul_curr_max.get(stat, None)
                     if mcm is None:
                         continue
-                    #              s_max          l_max
-                    new_max = min(mcm[5] + value, mcm[6])
+                    #             s_max          l_max
+                    new_max = min(mcm[4] + value, mcm[5])
                     change = new_max - mcm[2] # curr_max
                     if change == 0:
                         continue
                     if stat not in item.mod:
-                        #                      s_curr   i_curr  curr_stat
-                        change += min(new_max, mcm[3] + mcm[4]) - mcm[1]
+                        #                     si_curr  curr_stat
+                        change += min(new_max, mcm[3]) - mcm[1]
                     if new_max <= 0:
                         # new max is negative or zero, change must be negative -> make sure the result is negative
                         new_max = 1 
@@ -1453,8 +1477,8 @@ init -10 python:
                     value = [(1 - float(char.tier)/MAX_TIER), None, None]
                 elif stat == "gold":
                     value = [1.0/max(char.gold, 100), None, None]
-                else:
-                    value = [1, self._get_stat(stat), self.get_max(stat), self.stats[stat], self.imod[stat], self.max[stat], self.lvl_max[stat], self.min[stat]]
+                else: #                                                          STAT_STAT + STAT_IMOD              STAT_MAX + STAT_IMAX        STAT_LVL_MAX              STAT_MIN + STAT_IMIN
+                    value = [1, self._get_stat(stat), self.get_max(stat), self.stats[stat] + self.imod[stat], self.max[stat] + self.imax[stat], self.lvl_max[stat], self.min[stat] + self.imin[stat]]
                     
                 _stats_mul_curr_max[stat] = value
 
@@ -1507,10 +1531,11 @@ init -10 python:
                             elif stat == "gold":
                                 if char.gold >= value*-10:
                                     continue
-                            elif self.stats[stat] >= value*-10:
+                            elif self.stats[stat] >= value*-10: # STAT_STAT
                                 continue 
                             weights = None
                             break
+                        weights -= value # add waste
                         continue
                     if value < 0:
                         weights = None
@@ -1525,10 +1550,10 @@ init -10 python:
 
                     if stat in item.max:
                         #             s_max                    l_max
-                        new_max = min(mcm[5] + item.max[stat], mcm[6])
+                        new_max = min(mcm[4] + item.max[stat], mcm[5])
 
-                    # Resulting value: s_curr   i_curr                    s_min
-                    new_stat = max(min(mcm[3] + mcm[4] + value, new_max), mcm[7])
+                    # Result:         si_curr                    s_min
+                    new_stat = max(min(mcm[3] + value, new_max), mcm[6])
                     change = new_stat - mcm[1] # curr_stat
                     # add the gain-waste
                     #weights.append(mcm[0]*100*change/float(new_max))
@@ -1543,20 +1568,21 @@ init -10 python:
                     mcm = _stats_mul_curr_max.get(stat, None)
                     if mcm is None:
                         if value < 0:
-                            if self.stats[stat] >= value*-10:
+                            if self.stats[stat] >= value*-10: # STAT_STAT
                                 continue 
                             weights = None
                             break
+                        weights -= value # add waste
                         continue
                     if value < 0:
                         weights = None
                         break
                     #              s_max          l_max
-                    new_max = min(mcm[5] + value, mcm[6])
+                    new_max = min(mcm[4] + value, mcm[5])
                     change = new_max - mcm[2] # curr_max
                     if stat not in item.mod:
-                        #                      s_curr   i_curr  curr_stat
-                        change += min(new_max, mcm[3] + mcm[4]) - mcm[1]
+                        #                     si_curr  curr_stat
+                        change += min(new_max, mcm[3]) - mcm[1]
                     # add the gain-waste
                     #weights.append(mcm[0]*100*change/float(new_max))
                     weights += mcm[0]*(2*change-value)

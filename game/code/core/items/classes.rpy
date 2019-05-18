@@ -148,24 +148,6 @@ init -9 python:
             if self.jump_to_label and self.pref_class:
                 raise Exception("Invalid pref_class/jump_to_label settings (%s/%s) for item %s (these fields are exclusive)!" % (", ".join(self.pref_class), self.jump_to_label, self.id))
 
-        def get_stat_eq_bonus(self, char_stats, stat):
-            """Simple method that tries to get the real bonus an item can offer for the stat.
-
-            This method assumes that item can offer a bonus to the stat!
-            Presently used in auto_equip method.
-            Does not take traits into consideration, just max/lvl_max and stats.
-            """
-            if stat in self.max:
-                new_max = char_stats.max[stat] + self.max[stat]
-                new_max = min(new_max, char_stats.lvl_max[stat])
-            else:
-                new_max = char_stats.get_max(stat)
-            new_stat = char_stats.stats[stat] + char_stats.imod[stat] + self.mod.get(stat, 0)
-            if new_stat > new_max:
-                new_stat = new_max
-            return new_stat - char_stats._get_stat(stat)
-
-
         def __str__(self):
             return str(self.id)
 

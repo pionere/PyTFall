@@ -191,7 +191,7 @@ label clone_character(character, add_to_hero=True):
         char = copy_char(character)
         store.chars[char.id + str(global_flags.get_flag("clone_id", 0))] = char
         char.init() # Normalize.
-        char.apply_trait("Temporal Clone")
+        char.apply_trait(traits["Temporal Clone"])
         if add_to_hero:
             store.hero.add_char(char)
         global_flags.up_counter("clone_id")

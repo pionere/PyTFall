@@ -128,28 +128,28 @@ init -9 python:
 
             # Stat support Dicts:
             stats = {
-                'charisma': [5, 0, 50, 60],           # means [stat, min, max, lvl_max]
-                'constitution': [5, 0, 50, 60],
-                'joy': [50, 0, 100, 200],             # FIXED_MAX
-                'character': [5, 0, 50, 60],
-                'reputation': [0, 0, 100, 100],
-                'health': [100, 0, 100, 200],
-                'fame': [0, 0, 100, 100],
-                'mood': [0, 0, 1000, 1000],           # FIXED_MAX not used...
-                'disposition': [0, -1000, 1000, 1000],# FIXED_MAX
-                'affection': [0, -1000, 1000, 1000],  # FIXED_MAX
-                'vitality': [100, 0, 100, 200],       # FIXED_MAX
-                'intelligence': [5, 0, 50, 60],
+                'charisma': [5, 0, 50, 60, 0, 0, 0],           # means [stat, min, max, lvl_max, imod, imin, imax]
+                'constitution': [5, 0, 50, 60, 0, 0, 0],
+                'joy': [50, 0, 100, 200, 0, 0, 0],             # FIXED_MAX
+                'character': [5, 0, 50, 60, 0, 0, 0],
+                'reputation': [0, 0, 100, 100, 0, 0, 0],
+                'health': [100, 0, 100, 200, 0, 0, 0],
+                'fame': [0, 0, 100, 100, 0, 0, 0],
+                'mood': [0, 0, 1000, 1000, 0, 0, 0],           # FIXED_MAX not used...
+                'disposition': [0, -1000, 1000, 1000, 0, 0, 0],# FIXED_MAX
+                'affection': [0, -1000, 1000, 1000, 0, 0, 0],  # FIXED_MAX
+                'vitality': [100, 0, 100, 200, 0, 0, 0],       # FIXED_MAX
+                'intelligence': [5, 0, 50, 60, 0, 0, 0],
 
-                'luck': [0, -50, 50, 50],             # FIXED_MAX
+                'luck': [0, -50, 50, 50, 0, 0, 0],             # FIXED_MAX
 
-                'attack': [5, 0, 50, 60],
-                'magic': [5, 0, 50, 60],
-                'defence': [5, 0, 50, 60],
-                'agility': [5, 0, 50, 60],
-                'mp': [30, 0, 30, 50]
+                'attack': [5, 0, 50, 60, 0, 0, 0],
+                'magic': [5, 0, 50, 60, 0, 0, 0],
+                'defence': [5, 0, 50, 60, 0, 0, 0],
+                'agility': [5, 0, 50, 60, 0, 0, 0],
+                'mp': [30, 0, 30, 50, 0, 0, 0]
             }
-            self.stats = Stats(self, stats=stats)
+            self.stats = Stats(self, stats)
 
             if effects:
                 # Effects assets:
@@ -1361,6 +1361,7 @@ init -9 python:
             # Taking care of stats: -------------------------------------------------->
             type = item.type
             traits = self.traits
+            stats = self.stats
 
             # Max Stats:
             for stat, value in item.max.items():
@@ -1401,7 +1402,10 @@ init -9 python:
                 # Reverse the value if appropriate:
                 if not direction:
                     value = -value
-                self.stats.max[stat] += int(value)
+                if true_add:
+                    stats.max[stat] += int(value) # STAT_MAX
+                else:
+                    stats.imax[stat] += int(value) # STAT_IMAX
 
             # Min Stats:
             for stat, value in item.min.items():
@@ -1442,11 +1446,14 @@ init -9 python:
                 # Reverse the value if appropriate:
                 if not direction:
                     value = -value
-                self.stats.min[stat] += int(value)
+                if true_add:
+                    stats.min[stat] += int(value) # STAT_MIN
+                else:
+                    stats.imin[stat] += int(value) # STAT_IMIN
 
             # Items Stats:
             for stat, value in item.mod.items():
-                if item.statmax and self.get_stat(stat) >= item.statmax and value > 0:
+                if item.statmax and stats.stats[stat] >= item.statmax: # STAT_STAT
                     continue
 
                 # Reverse the value if appropriate:
@@ -1488,7 +1495,7 @@ init -9 python:
                                     else:
                                         value *= 1.5
 
-                        self.mod_stat(stat, int(value))
+                        stats._mod_base_stat(stat, int(value))
                 else:
                     if stat == "defence":
                         if original_value < 0 and "Elven Ranger" in traits and type in ["bow", "crossbow", "throwing"]:
@@ -1525,7 +1532,7 @@ init -9 python:
                             value *= 1.3
 
                     try:
-                        self.stats.imod[stat] += int(value)
+                        stats.imod[stat] += int(value) # STAT_IMOD
                     except:
                         raise Exception(item.id, stat)
 
@@ -1533,37 +1540,47 @@ init -9 python:
             temp = ["smallweapon", "weapon", "body", "cape", "feet", "wrist", "head"]
             if "Royal Assassin" in traits and slot in temp:
                 value = (item.price if direction else -item.price)/100
-                self.stats.max["attack"] += value
-                self.stats.imod["attack"] += int(value)
+                stats.max["attack"] += value         # STAT_MAX
+                stats.imod["attack"] += int(value)   # STAT_IMOD
             elif "Armor Expert" in traits and slot in temp:
                 value = (item.price if direction else -item.price)/100
-                self.stats.max["defence"] += value
-                self.stats.imod["defence"] += int(value)
+                stats.max["defence"] += value        # STAT_MAX
+                stats.imod["defence"] += int(value)  # STAT_IMOD
             elif "Arcane Archer" in traits and type in ["bow", "crossbow", "throwing"]:
                 max_val = item.max.get("attack", 0)/2
                 imod_val = item.mod.get("attack", 0)/2
                 if not direction:
                     max_val = -max_val
                     imod_val = -imod_val
-                self.stats.max["magic"] += max_val
-                self.stats.imod["magic"] += imod_val
+                stats.max["magic"] += max_val        # STAT_MAX
+                stats.imod["magic"] += imod_val      # STAT_IMOD
             if slot == 'consumable' and "Recharging" in traits \
                 and not item.ctemp and "mp" not in item.mod:
-                self.mod_stat("mp", 10)
+                stats._mod_base_stat("mp", 10)
 
             # Skills:
             for skill, data in item.mod_skills.items():
-                if not direction:
-                    data = [-i for i in data]
+                s = stats.skills[skill] # skillz
+                if item.skillmax:
+                    if data[3] != 0 and s[0] >= item.skillmax:
+                        continue
+                    if data[4] != 0 and s[1] >= item.skillmax:
+                        continue
+                    # FIXME what about the multipliers?
 
-                if not item.skillmax or (self.get_skill(skill) < item.skillmax): # Multi messes this up a bit.
-                    s = self.stats.skills[skill] # skillz
-                    sm = self.stats.skills_multipliers[skill] # skillz muplties
+                sm = stats.skills_multipliers[skill] # skillz muplties
+                if direction:
                     sm[0] += data[0]
                     sm[1] += data[1]
                     sm[2] += data[2]
                     s[0] += data[3]
                     s[1] += data[4]
+                else:
+                    sm[0] -= data[0]
+                    sm[1] -= data[1]
+                    sm[2] -= data[2]
+                    s[0] -= data[3]
+                    s[1] -= data[4]
 
             # Traits:
             for trait in item.removetraits:
@@ -1635,6 +1652,8 @@ init -9 python:
             item = self.eqslots["misc"]
             if item:
                 # Figure out if we can pay the piper:
+                # FIXME why check if we do not pay?
+                #  do we pay only at the end of the 'session', or daily till the end?
                 for stat, val in item.mod.items():
                     if val < 0:
                         if stat == "exp":
@@ -1647,7 +1666,7 @@ init -9 python:
                             if temp.gold + val < 0:
                                 break
                         else:
-                            if self.get_stat(stat) + val < self.stats.min[stat]:
+                            if self.stats.stats[stat] + val < self.stats.min[stat]:  # STAT_STAT + val < STAT_MIN
                                 break
                 else:
                     value = self.miscitems.get(item, 0) + 1

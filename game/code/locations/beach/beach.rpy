@@ -164,8 +164,8 @@ label mc_action_hero_ocean_skill_checks:
                 "Swim away":
                     $ narrator ("You quickly increase the distance between you and the monsters {color=green}(max agility +1){/color}.")
                     $ hero.gfx_mod_skill("swimming", 0, randint(2, 4))
-                    $ hero.stats.lvl_max["agility"] += 1
-                    $ hero.stats.max["agility"] += 1
+                    $ hero.stats.lvl_max["agility"] += 1 # STAT_LVL_MAX
+                    $ hero.stats.max["agility"] += 1     # STAT_MAX
                     $ hero.gfx_mod_stat("agility", 1)
                 "Fight":
                     jump city_beach_monsters_fight
@@ -206,8 +206,8 @@ label mc_action_hero_ocean_skill_checks:
     $ del swim_act, swim_vit
 
     if locked_dice(temp) and global_flags.flag("constitution_bonus_from_swimming_at_beach") <= 30:
-        $ hero.stats.lvl_max["constitution"] += 1
-        $ hero.stats.max["constitution"] += 1
+        $ hero.stats.lvl_max["constitution"] += 1  # STAT_LVL_MAX
+        $ hero.stats.max["constitution"] += 1      # STAT_MAX
         $ hero.gfx_mod_stat("constitution", 1)
         $ global_flags.up_counter("constitution_bonus_from_swimming_at_beach")
         $ narrator ("You feel more endurant than before {color=green}(max constitution +1){/color}.")
@@ -362,8 +362,8 @@ label mc_action_city_beach_diving_checks:
     $ hero.mod_stat("vitality", -randint(15, 25))
     $ hero.gfx_mod_skill("swimming", 0, randrange(1))
     if locked_dice(min(100, hero.get_skill("swimming")) - global_flags.get_flag("vitality_bonus_from_diving_at_beach", 0)*2): # MAX 50
-        $ hero.stats.lvl_max["vitality"] += 1
-        $ hero.stats.max["vitality"] += 1
+        $ hero.stats.lvl_max["vitality"] += 1  # STAT_LVL_MAX
+        $ hero.stats.max["vitality"] += 1      # STAT_MAX
         $ hero.mod_stat("vitality", 1)
         $ global_flags.up_counter("vitality_bonus_from_diving_at_beach")
         "You feel more endurant than before {color=green}(max vitality +1){/color}."

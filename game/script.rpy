@@ -664,6 +664,8 @@ label after_load:
             clearCharacters = True
         if "riding" not in hero.stats.skills:
             clearCharacters = True
+        if not hasattr(hero.stats, "imin"):
+            clearCharacters = True
         if hero.front_row.__class__ != int:
             clearCharacters = True
         if hasattr(hero, "baseAP"):
@@ -1140,6 +1142,12 @@ label after_load:
                 if "riding" not in char.stats.skills:
                     char.stats.skills["riding"] = [0, 0]
                     char.stats.skills_multipliers["riding"] = [1, 1, 1]
+                if not hasattr(char.stats, "imin"):
+                    char.stats.imin = dict()
+                    char.stats.imax = dict()
+                    for stat in char.stats:
+                        char.stats.imin[stat] = 0
+                        char.stats.imax[stat] = 0
                 if hasattr(char, "price"):
                     del char.price
                 if hasattr(char, "days_depressed"):

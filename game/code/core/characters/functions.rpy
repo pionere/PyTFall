@@ -217,7 +217,7 @@ init -11 python:
             mob.apply_trait(trait)
 
         for trait in data["traits"]:
-            mob.apply_trait(trait)
+            mob.apply_trait(traits[trait])
 
         if "default_attack_skill" in data:
             skill = data["default_attack_skill"]
@@ -238,11 +238,11 @@ init -11 python:
             if stat != "vitality":
                 stats._mod_base_stat(stat, value)
             else:
-                if stats.max[stat] < value:
-                    stats.max[stat] = value
-                if stats.lvl_max[stat] < value:
-                    stats.lvl_max[stat] = value
-                stats.stats[stat] = value
+                if stats.max[stat] < value:      # STAT_MAX
+                    stats.max[stat] = value      # STAT_MAX
+                if stats.lvl_max[stat] < value:  # STAT_LVL_MAX
+                    stats.lvl_max[stat] = value  # STAT_LVL_MAX
+                stats.stats[stat] = value        # STAT_STAT
 
         return mob
 
@@ -580,7 +580,7 @@ init -11 python:
             client.apply_trait(t)
 
         if dice(20):
-            client.apply_trait("Aggressive")
+            client.apply_trait(traits["Aggressive"])
 
         # Likes:
         # Add some traits from trait groups:

@@ -333,7 +333,7 @@ screen girl_interactions():
             bar_invert True
             top_gutter 12
             bottom_gutter 0
-            value AnimatedValue(value=max(-temp, 0), range=-char.stats.min["disposition"], delay=4.0)
+            value AnimatedValue(value=max(-temp, 0), range=-char.stats.min["disposition"], delay=4.0)  # STAT_MIN
             bottom_bar im.Flip("content/gfx/interface/bars/progress_bar_1.png", vertical=True)
             top_bar "content/gfx/interface/bars/bar_mine.png"
             thumb None
@@ -357,7 +357,7 @@ screen girl_interactions():
             bar_invert True
             top_gutter 12
             bottom_gutter 0
-            value AnimatedValue(value=max(-temp, 0), range=-char.stats.min["affection"], delay=4.0)
+            value AnimatedValue(value=max(-temp, 0), range=-char.stats.min["affection"], delay=4.0)  # STAT_MIN
             bottom_bar im.Flip("content/gfx/interface/bars/progress_bar_1.png", vertical=True)
             top_bar im.Flip("content/gfx/interface/bars/progress_bar_full1.png", vertical=True)
             thumb None
