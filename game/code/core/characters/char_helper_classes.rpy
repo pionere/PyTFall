@@ -1042,6 +1042,7 @@ init -10 python:
             # Statslog:
             self.log = dict()
 
+        # TODO move these to Traits?
         def get_base_stats(self):
             return set(s for t in self.instance.traits.basetraits for s in t.base_stats)
 
@@ -1086,8 +1087,21 @@ init -10 python:
         def __iter__(self):
             return iter(self.stats) # STAT_STAT
 
+        def get_stat_max(self, key):
+            return min(self.max[key], self.lvl_max[key])
+
+        def get_stat_min(self, key):
+            return self.min[key]
+
+        def mod_raw_max(self, key, value):
+            self.lvl_max[key] += value  # STAT_LVL_MAX
+            self.max[key] += value      # STAT_MAX
+
         def get_max(self, key):
             return max(self.min[key] + self.imin[key], min(self.max[key] + self.imax[key], self.lvl_max[key])) # STAT_MIN STAT_IMIN, STAT_MAX STAT_IMAX, STAT_LVL_MAX
+
+        def get_min(self, key):
+            return self.min[key] + self.imin[key]
 
         def mod_exp(self, value):
             # Assumes input from setattr of self.instance:
@@ -1155,7 +1169,7 @@ init -10 python:
                     self.apply_trait_statsmod(mod_stats, curr_lvl, new_lvl, trait in traits.normal)
 
             for stat in ("health", "mp", "vitality"): # BATTLE_STATS
-                self.stats[stat] = max(self.max[stat], self.min[stat]) # STAT_STAT STAT_MAX, STAT_MIN
+                char.set_stat(stat, self.get_max(stat)) # TODO better solution? 
 
             self.instance.update_tier_info()
 
@@ -1185,35 +1199,290 @@ init -10 python:
                     else:
                         self.imod[key] += delta # STAT_IMOD
 
+        def apply_item_effects(self, item, direction, true_add):
+            char = self.instance
+            traits = char.traits
+            type = item.type
+            slot = item.slot
+
+            # Max Stats:
+            for stat, value in item.max.items():
+                if stat == "defence":
+                    if value < 0 and "Elven Ranger" in traits and type in ["bow", "crossbow", "throwing"]:
+                        continue
+                    if type == "armor" and "Knightly Stance" in traits:
+                        value *= 1.3
+                    if "Berserk" in traits:
+                        value *= .5
+                elif stat == "attack":
+                    if "Berserk" in traits:
+                        value *= 2
+                elif stat == "agility":
+                    if value < 0 and "Hollow Bones" in traits:
+                        continue
+
+                if slot == "smallweapon":
+                    if "Left-Handed" in traits:
+                        value *= 2
+                elif slot == "weapon":
+                    if "Left-Handed" in traits:
+                        value *= .5
+
+                if type == "sword":
+                    if "Sword Master" in traits:
+                        value *= 1.3
+                elif type == "shield":
+                    if "Shield Master" in traits:
+                        value *= 1.3
+                elif type == "dagger":
+                    if "Dagger Master" in traits:
+                        value *= 1.3
+                elif type == "bow":
+                    if "Bow Master" in traits:
+                        value *= 1.3
+
+                # Reverse the value if appropriate:
+                if not direction:
+                    value = -value
+                if true_add:
+                    self.max[stat] += int(value) # STAT_MAX
+                else:
+                    self.imax[stat] += int(value) # STAT_IMAX
+
+            # Min Stats:
+            for stat, value in item.min.items():
+                if stat == "defence":
+                    if value < 0 and "Elven Ranger" in traits and type in ["bow", "crossbow", "throwing"]:
+                        continue
+                    if type == "armor" and "Knightly Stance" in traits:
+                        value *= 1.3
+                    if "Berserk" in traits:
+                        value *= .5
+                elif stat == "attack":
+                    if "Berserk" in traits:
+                        value *= 2
+                elif stat == "agility":
+                    if value < 0 and "Hollow Bones" in traits:
+                        continue
+
+                if slot == "smallweapon":
+                    if "Left-Handed" in traits:
+                        value *= 2
+                elif slot == "weapon":
+                    if "Left-Handed" in traits:
+                        value *= .5
+
+                if type == "sword":
+                    if "Sword Master" in traits:
+                        value *= 1.3
+                elif type == "shield":
+                    if "Shield Master" in traits:
+                        value *= 1.3
+                elif type == "dagger":
+                    if "Dagger Master" in traits:
+                        value *= 1.3
+                elif type == "bow":
+                    if "Bow Master" in traits:
+                        value *= 1.3
+
+                # Reverse the value if appropriate:
+                if not direction:
+                    value = -value
+                if true_add:
+                    self.min[stat] += int(value) # STAT_MIN
+                else:
+                    self.imin[stat] += int(value) # STAT_IMIN
+
+            # Items Stats:
+            for stat, value in item.mod.items():
+                if item.statmax and self.stats[stat] >= item.statmax: # STAT_STAT
+                    continue
+
+                # Reverse the value if appropriate:
+                original_value = value
+                if not direction:
+                    value = -value
+
+                if true_add:
+                    if stat == "gold":
+                        if char.status == "slave" and char in hero.chars:
+                            temp = hero
+                        else:
+                            temp = char
+                        if value < 0:
+                            temp.take_money(-value, reason="Upkeep")
+                        else:
+                            temp.add_money(value, reason="Items")
+                    elif stat == "exp":
+                        self.mod_exp(exp_reward(char, char, exp_mod=float(value)/DAILY_EXP_CORE))
+                    else:
+                        if type == "food" and 'Fast Metabolism' in char.effects:
+                            value *= 2
+                        if original_value > 0:
+                            if stat == "health":
+                                if "Summer Eternality" in traits:
+                                    value *= .35
+                            elif stat == "mp":
+                                if "Winter Eternality" in traits:
+                                    value *= .35
+                                if "Magical Kin" in traits:
+                                    if type == "alcohol":
+                                        value *= 2
+                                    else:
+                                        value *= 1.5
+                            elif stat == "vitality":
+                                if "Effective Metabolism" in traits:
+                                    if type == "food":
+                                        value *= 2
+                                    else:
+                                        value *= 1.5
+
+                        self._mod_base_stat(stat, int(value))
+                else:
+                    if stat == "defence":
+                        if original_value < 0 and "Elven Ranger" in traits and type in ["bow", "crossbow", "throwing"]:
+                            continue
+                        if type == "armor" and "Knightly Stance" in traits:
+                            value *= 1.3
+                        if "Berserk" in traits:
+                            value *= .5
+                    elif stat == "attack":
+                        if "Berserk" in traits:
+                            value *= 2
+                    elif stat == "agility":
+                        if original_value < 0 and "Hollow Bones" in traits:
+                            continue
+
+                    if slot == "smallweapon":
+                        if "Left-Handed" in traits:
+                            value *= 2
+                    elif slot == "weapon":
+                        if "Left-Handed" in traits:
+                            value *= .5
+
+                    if type == "sword":
+                        if "Sword Master" in traits:
+                            value *= 1.3
+                    elif type == "shield":
+                        if "Shield Master" in traits:
+                            value *= 1.3
+                    elif type == "dagger":
+                        if "Dagger Master" in traits:
+                            value *= 1.3
+                    elif type == "bow":
+                        if "Bow Master" in traits:
+                            value *= 1.3
+
+                    self.imod[stat] += int(value) # STAT_IMOD
+
+            if true_add:
+                if slot != 'misc' and "Recharging" in traits and "mp" not in item.mod:
+                    self._mod_base_stat("mp", 10)
+            else:
+                # Special modifiers based off traits:
+                if "Royal Assassin" in traits and slot not in ["ring", "amulet"]:
+                    value = (item.price if direction else -item.price)/100
+                    self.imax["attack"] += value        # STAT_IMAX
+                    self.imod["attack"] += value        # STAT_IMOD
+                elif "Armor Expert" in traits and slot not in ["ring", "amulet"]:
+                    value = (item.price if direction else -item.price)/100
+                    self.imax["defence"] += value       # STAT_IMAX
+                    self.imod["defence"] += value       # STAT_IMOD
+                elif "Arcane Archer" in traits and type in ["bow", "crossbow", "throwing"]:
+                    max_val = item.max.get("attack", 0)/2
+                    mod_val = item.mod.get("attack", 0)/2
+                    if not direction:
+                        max_val = -max_val
+                        mod_val = -mod_val
+                    self.imax["magic"] += max_val       # STAT_IMAX
+                    self.imod["magic"] += mod_val       # STAT_IMOD
+
+            # Skills:
+            for skill, data in item.mod_skills.items():
+                s = self.skills[skill] # skillz
+                if item.skillmax:
+                    if data[3] != 0 and s[0] >= item.skillmax:
+                        continue
+                    if data[4] != 0 and s[1] >= item.skillmax:
+                        continue
+                    # FIXME what about the multipliers?
+
+                sm = self.skills_multipliers[skill] # skillz muplties
+                if direction:
+                    sm[0] += data[0]
+                    sm[1] += data[1]
+                    sm[2] += data[2]
+                    s[0] += data[3]
+                    s[1] += data[4]
+                else:
+                    sm[0] -= data[0]
+                    sm[1] -= data[1]
+                    sm[2] -= data[2]
+                    s[0] -= data[3]
+                    s[1] -= data[4]
+
+        def set_base_stat(self, key, value):
+            if self.max[key] < value:      # STAT_MAX
+                self.max[key] = value      # STAT_MAX
+            if self.lvl_max[key] < value:  # STAT_LVL_MAX
+                self.lvl_max[key] = value  # STAT_LVL_MAX
+            self.stats[key] = value        # STAT_STAT
+
         def _mod_base_stat(self, key, value):
             """
             :param key: the stat to modify
             :param value: the value to modify the stat with
             Modifies the first layer of stats (self.stats)
-            A stat (with its imod added) is kept between min and (lvl)max.
+            A stat can be raised till lvl_max except with negative imod values
+            to preserve the interval of possible stat-values (real world example:
+            excersicing with extra weights)
+            When a stat is decremented, the current limits of the min/max values
+            are applied first, then the actual value is applied.
+            :returns: the apparent change of the stat
+            Check TestSuite.testStats for more details on the expected behaviour.
             """
-            curr_value = self.stats[key]                   # STAT_STAT
-            value += curr_value
+            curr_value = self._get_stat(key)
+            if value >= 0:
+                maxval = self.lvl_max[key]
+                imod = self.imod[key]
+                if imod < 0:
+                    maxval -= imod
+                stat_value = self.stats[key]                   # STAT_STAT
+                value += stat_value
+                if value > maxval:
+                    if stat_value > maxval:
+                        return 0 # do not 'maim' if the value is positive
+                    value = maxval
 
-            if value <= 0 and key == 'health':
-                value = 1 # use kill_char if you want to remove a char from the game
-                #char = self.instance
-                #if isinstance(char, Player):
-                #    jump("game_over")
-                #elif isinstance(char, Char):
-                #    kill_char(char)
-                #    return
+            else:
+                # decrement
+                imod = self.imod[key]
+                stat_value = self.stats[key]                   # STAT_STAT
+                maxval = curr_value - imod
+                if maxval < stat_value:
+                    stat_value = maxval
 
-            # keep the normal stat value between min and max/lvl_max
-            maxval = min(self.lvl_max[key], self.max[key]) # STAT_LVL_MAX, STAT_MAX
-            minval = self.min[key]                         # STAT_MIN
+                value += stat_value
 
-            if value > maxval:
-                value = maxval
-            if value < minval:
-                value = minval
+                if value + imod <= 0 and key == "health":
+                    value = 1 - imod # use kill_char if you want to remove a char from the game
+                    #char = self.instance
+                    #if isinstance(char, Player):
+                    #    jump("game_over")
+                    #elif isinstance(char, Char):
+                    #    kill_char(char)
+                    #    return
+
+                minval = self.min[key] # TODO use get_min ?
+                if value < minval:
+                    if stat_value < minval:
+                        return 0 # do not 'heal' if the value is negative
+                    value = minval
+
             self.stats[key] = value                        # STAT_STAT
-            return value - curr_value # return the real delta
+
+            # return the apparent delta
+            return self._get_stat(key) - curr_value
 
         def _mod_raw_skill(self, key, at, value):
             """Modifies a skill.

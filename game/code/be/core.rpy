@@ -37,27 +37,26 @@ init -1 python: # Core classes:
 
             self.PP = char.PP
 
-            self.health = char.get_stat("health")
-            self.delayedhp = self.health
-            self.maxhp = char.get_max("health")
-            self.mp = char.get_stat("mp")
-            self.delayedmp = self.mp
-            self.maxmp = char.get_max("mp")
-            self.vitality = char.get_stat("vitality")
-            self.delayedvit = self.vitality
-            self.maxvit = char.get_max("vitality")
+            stats = char.stats
+            self.health = self.delayedhp = stats._get_stat("health")
+            self.maxhp = stats.get_max("health")
+            #self.minhp = stats.get_min("health")
+            self.mp = self.delayedmp = stats._get_stat("mp")
+            self.maxmp = stats.get_max("mp")
+            self.minmp = stats.get_min("mp")
+            self.vitality = self.delayedvit = stats._get_stat("vitality")
+            self.maxvit = stats.get_max("vitality")
+            self.minvit = stats.get_min("vitality")
 
-            self.is_mob = isinstance(char, Mob)
+            self.attack = stats._get_stat("attack")
+            self.agility = stats._get_stat("agility")
+            self.luck = stats._get_stat("luck")
+            self.defence = stats._get_stat("defence")
+            self.constitution = stats._get_stat("constitution")
+            self.magic = stats._get_stat("magic")
+            self.intelligence = stats._get_stat("intelligence")
 
             self.controller = char.controller
-            self.attack = char.get_stat("attack")
-            self.agility = char.get_stat("agility")
-            self.luck = char.get_stat("luck")
-            self.defence = char.get_stat("defence")
-            self.constitution = char.get_stat("constitution")
-            self.magic = char.get_stat("magic")
-            self.intelligence = char.get_stat("intelligence")
-
             self.resist = char.resist
 
             # cached item bonuses
@@ -114,9 +113,6 @@ init -1 python: # Core classes:
             defence_multiplier = {}
             level = char.level
             for trait in char.traits:
-                if trait.id == "Grim Reaper":
-                    self.grimreaper = True
-
                 damage_multiplier += getattr(trait, "damage_multiplier", 0)
                 critical_hit_chance += getattr(trait, "ch_multiplier", 0)
 
@@ -200,8 +196,10 @@ init -1 python: # Core classes:
 
         def set_besprite(self, besprite):
             self.besprite = besprite
-            if self.is_mob:
-                webm_spites = mobs[self.char.id].get("be_webm_sprites", None)
+
+            char = self.char
+            if isinstance(char, Mob):
+                webm_spites = mobs[char.id].get("be_webm_sprites", None)
                 if webm_spites:
                     self.besprite_size =  webm_spites["idle"][1]
                     return
@@ -678,24 +676,25 @@ init -1 python: # Core classes:
             # Supplied to the show method.
             member.betag = str(random.random())
             # First, lets get correct sprites:
-            if getattr(member, "grimreaper", False):
+            char = member.char
+            if "Grim Reaper" in char.traits:
                 sprite = Image("content/gfx/images/reaper.png")
             else:
-                char = member.char
                 sprite = char.show("battle_sprite", resize=char.get_sprite_size("battle_sprite"))
 
             # We'll assign "indexes" from 0 to 3 from left to right [0, 1, 3, 4] to help calculating attack ranges.
             team_index = team.position
             char_index = member.beinx
             # Sprite Flips:
+            is_mob = isinstance(char, Mob)
             if team_index == "r":
-                if not member.is_mob:
+                if not is_mob:
                     if isinstance(sprite, ProportionalScale):
                         sprite = im.Flip(sprite, horizontal=True)
                     else:
                         sprite = Transform(sprite, xzoom=-1)
             else:
-                if member.is_mob:
+                if is_mob:
                     if isinstance(sprite, ProportionalScale):
                         sprite = im.Flip(sprite, horizontal=True)
                     else:
@@ -1373,19 +1372,28 @@ init -1 python: # Core classes:
             source.take_pp()
 
             cost = self.mp_cost
-            if not(isinstance(cost, int)):
-                cost = int(source.maxmp*cost)
-            source.mp -= cost
+            if cost:
+                if not(isinstance(cost, int)):
+                    cost = int(source.maxmp*cost)
+                source.mp -= cost
+                if source.mp < source.minmp:
+                    source.mp = source.minmp
 
             cost = self.health_cost
-            if not(isinstance(cost, int)):
-                cost = int(source.maxhp*cost)
-            source.health -= cost
+            if cost:
+                if not(isinstance(cost, int)):
+                    cost = int(source.maxhp*cost)
+                source.health -= cost
+                #if source.health < source.minhp:
+                #    source.health = source.minhp
 
             cost = self.vitality_cost
-            if not(isinstance(cost, int)):
-                cost = int(source.maxvit*cost)
-            source.vitality -= cost
+            if cost:
+                if not(isinstance(cost, int)):
+                    cost = int(source.maxvit*cost)
+                source.vitality -= cost
+                if source.vitality < source.minvit:
+                    source.vitality = source.minvit
 
             if not battle.logical:
                 source.update_delayed()

@@ -318,12 +318,12 @@ screen girl_interactions():
     # Disposition bar
     vbox:
         align (.95, .31)
-
-        $ temp = char.get_stat("disposition")
+        $ stats = char.stats
+        $ temp = stats._get_stat("disposition")
         vbar:
             top_gutter 13
             bottom_gutter 0
-            value AnimatedValue(value=max(temp, 0), range=char.get_max("disposition"), delay=4.0)
+            value AnimatedValue(value=max(temp, 0), range=stats.get_stat_max("disposition"), delay=4.0)
             bottom_bar "content/gfx/interface/bars/progress_bar_full1.png"
             top_bar "content/gfx/interface/bars/progress_bar_1.png"
             thumb None
@@ -333,7 +333,7 @@ screen girl_interactions():
             bar_invert True
             top_gutter 12
             bottom_gutter 0
-            value AnimatedValue(value=max(-temp, 0), range=-char.stats.min["disposition"], delay=4.0)  # STAT_MIN
+            value AnimatedValue(value=max(-temp, 0), range=-stats.get_stat_min("disposition"), delay=4.0)
             bottom_bar im.Flip("content/gfx/interface/bars/progress_bar_1.png", vertical=True)
             top_bar "content/gfx/interface/bars/bar_mine.png"
             thumb None
@@ -343,11 +343,11 @@ screen girl_interactions():
     vbox:
         align (.97, .31)
 
-        $ temp = char.get_stat("affection")
+        $ temp = stats._get_stat("affection")
         vbar:
             top_gutter 13
             bottom_gutter 0
-            value AnimatedValue(value=max(temp, 0), range=char.get_max("affection"), delay=4.0)
+            value AnimatedValue(value=max(temp, 0), range=stats.get_stat_max("affection"), delay=4.0)
             bottom_bar im.Flip("content/gfx/interface/bars/bar_mine.png", vertical=True)
             top_bar "content/gfx/interface/bars/progress_bar_1.png"
             thumb None
@@ -357,7 +357,7 @@ screen girl_interactions():
             bar_invert True
             top_gutter 12
             bottom_gutter 0
-            value AnimatedValue(value=max(-temp, 0), range=-char.stats.min["affection"], delay=4.0)  # STAT_MIN
+            value AnimatedValue(value=max(-temp, 0), range=-stats.get_stat_min("affection"), delay=4.0)
             bottom_bar im.Flip("content/gfx/interface/bars/progress_bar_1.png", vertical=True)
             top_bar im.Flip("content/gfx/interface/bars/progress_bar_full1.png", vertical=True)
             thumb None

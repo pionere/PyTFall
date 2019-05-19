@@ -130,6 +130,409 @@ init 1000 python:
                 off_team = None
 
         @staticmethod
+        def checkStat(msg, result, expected, stats, expected_stats):
+            if result != expected:
+                TestSuite.reportError("%s failed! result:%s, expected: %s" % (msg, result, expected))
+            if isinstance(stats, Stats):
+                stats = [stats.stats["stat"], stats.min["stat"], stats.max["stat"], stats.lvl_max["stat"], stats.imod["stat"], stats.imin["stat"], stats.imax["stat"]]
+                idx = 0
+                for value, expected_value in zip(stats, expected_stats):
+                    if value != expected_value:
+                        TestSuite.reportError("%s failed at idx %d! result:%s, expected: %s" % (msg, idx, value, expected_value))
+                    idx += 1
+            else:
+                if stats != expected_stats:
+                    TestSuite.reportError("Secondary check of %s failed! result:%s, expected: %s" % (msg, stats, expected_stats))
+
+        @staticmethod
+        def testStats():
+            # stat entry means [stat, min, max, lvl_max, imod, imin, imax]
+
+            # CHECK STATS WITH MAX, LEVEL_MAX
+            # current stat+
+            stats = Stats("dummy", {'stat': [5, 0, 50, 60, 0, 0, 0] })
+            TestSuite.checkStat("Stat+", stats.get_max("stat"), 50, stats._get_stat("stat"), 5)
+
+            # current stat++
+            stats = Stats("dummy", {'stat': [55, 0, 50, 60, 0, 0, 0] })
+            TestSuite.checkStat("Max limited stat++", stats.get_max("stat"), 50, stats._get_stat("stat"), 50)
+
+            # current stat+ lvl_max limited
+            stats = Stats("dummy", {'stat': [5, 0, 70, 60, 0, 0, 0] })
+            TestSuite.checkStat("Level-Max limited stat+", stats.get_max("stat"), 60, stats._get_stat("stat"), 5)
+
+            # current stat++ lvl_max limited
+            stats = Stats("dummy", {'stat': [65, 0, 70, 60, 0, 0, 0] })
+            TestSuite.checkStat("Level-Max limited stat++", stats.get_max("stat"), 60, stats._get_stat("stat"), 60)
+
+            # CHECK STATS WITH MAX, LEVEL_MAX, MIN
+            # current stat+
+            stats = Stats("dummy", {'stat': [15, 10, 50, 60, 0, 0, 0] })
+            TestSuite.checkStat("Stat+ with min", stats.get_max("stat"), 50, stats._get_stat("stat"), 15)
+
+            # current stat-
+            stats = Stats("dummy", {'stat': [5, 10, 50, 60, 0, 0, 0] })
+            TestSuite.checkStat("Stat- min", stats.get_max("stat"), 50, stats._get_stat("stat"), 10)
+
+            # current stat- max-
+            stats = Stats("dummy", {'stat': [5, 55, 50, 60, 0, 0, 0] })
+            TestSuite.checkStat("Stat- max- min", stats.get_max("stat"), 55, stats._get_stat("stat"), 55)
+
+            # current stat- max- lvl_max-
+            stats = Stats("dummy", {'stat': [5, 65, 50, 60, 0, 0, 0] })
+            TestSuite.checkStat("Stat- max- lvl_max- min", stats.get_max("stat"), 65, stats._get_stat("stat"), 65)
+
+            # CHECK STATS WITH MAX, LEVEL_MAX, IMAX
+            # current stat+ max limited because of imax+
+            stats = Stats("dummy", {'stat': [5, 0, 50, 60, 0, 0, 5] })
+            TestSuite.checkStat("Level-Max limited stat+ due imax+", stats.get_max("stat"), 55, stats._get_stat("stat"), 5)
+
+            # current stat++ max limited because of imax+
+            stats = Stats("dummy", {'stat': [65, 0, 50, 60, 0, 0, 5] })
+            TestSuite.checkStat("Level-Max limited stat++ due imax+", stats.get_max("stat"), 55, stats._get_stat("stat"), 55)
+
+            # current stat+ lvl_max limited because of imax+
+            stats = Stats("dummy", {'stat': [5, 0, 50, 60, 0, 0, 20] })
+            TestSuite.checkStat("Level-Max limited stat+ due imax++", stats.get_max("stat"), 60, stats._get_stat("stat"), 5)
+
+            # current stat++ lvl_max limited because of imax+
+            stats = Stats("dummy", {'stat': [65, 0, 50, 60, 0, 0, 20] })
+            TestSuite.checkStat("Level-Max limited stat++ due imax++", stats.get_max("stat"), 60, stats._get_stat("stat"), 60)
+
+            # current stat+ lvl_max limited because of imax-
+            stats = Stats("dummy", {'stat': [5, 0, 70, 60, 0, 0, -5] })
+            TestSuite.checkStat("Level-Max limited stat+ due imax-", stats.get_max("stat"), 60, stats._get_stat("stat"), 5)
+
+            # current stat++ max limited because of imax-
+            stats = Stats("dummy", {'stat': [75, 0, 70, 60, 0, 0, -5] })
+            TestSuite.checkStat("Level-Max limited stat++ due imax-", stats.get_max("stat"), 60, stats._get_stat("stat"), 60)
+
+            # current stat+ max limited because of imax--
+            stats = Stats("dummy", {'stat': [5, 0, 70, 60, 0, 0, -20] })
+            TestSuite.checkStat("Max limited stat+ due imax--", stats.get_max("stat"), 50, stats._get_stat("stat"), 5)
+
+            # current stat++ lvl_max limited because of imax--
+            stats = Stats("dummy", {'stat': [75, 0, 70, 60, 0, 0, -20] })
+            TestSuite.checkStat("Max limited stat++ due imax--", stats.get_max("stat"), 50, stats._get_stat("stat"), 50)
+
+            # CHECK STATS WITH MAX, LEVEL_MAX, IMOD
+            # current stat+ with imod+
+            stats = Stats("dummy", {'stat': [5, 0, 50, 60, 15, 0, 0] })
+            TestSuite.checkStat("Stat+ with imod+", stats.get_max("stat"), 50, stats._get_stat("stat"), 20)
+
+            # current stat+ with imod+ max limited
+            stats = Stats("dummy", {'stat': [15, 0, 50, 60, 40, 0, 0] })
+            TestSuite.checkStat("Max limited stat+ with imod+", stats.get_max("stat"), 50, stats._get_stat("stat"), 50)
+
+            # current stat+ with imod+ lvl_max limited
+            stats = Stats("dummy", {'stat': [15, 0, 70, 60, 50, 0, 0] })
+            TestSuite.checkStat("Level-Max limited stat+ with imod+", stats.get_max("stat"), 60, stats._get_stat("stat"), 60)
+
+            # current stat++ with imod- max limited
+            stats = Stats("dummy", {'stat': [65, 0, 50, 60, -10, 0, 0] })
+            TestSuite.checkStat("Max limited stat++ with imod-", stats.get_max("stat"), 50, stats._get_stat("stat"), 50)
+
+            # current stat++ with imod--
+            stats = Stats("dummy", {'stat': [65, 0, 50, 60, -20, 0, 0] })
+            TestSuite.checkStat("Stat++ with imod--", stats.get_max("stat"), 50, stats._get_stat("stat"), 45)
+
+            # current stat++ with imod---
+            stats = Stats("dummy", {'stat': [65, 0, 50, 60, -100, 0, 0] })
+            TestSuite.checkStat("Stat++ with imod---", stats.get_max("stat"), 50, stats._get_stat("stat"), 0)
+
+            # current stat++ with imod- lvl_max limited
+            stats = Stats("dummy", {'stat': [65, 0, 60, 50, -10, 0, 0] })
+            TestSuite.checkStat("Level-Max limited stat++ with imod-", stats.get_max("stat"), 50, stats._get_stat("stat"), 50)
+
+            # current stat++ with imod--
+            stats = Stats("dummy", {'stat': [65, 0, 60, 50, -20, 0, 0] })
+            TestSuite.checkStat("Stat++ with imod-- with lvl_max", stats.get_max("stat"), 50, stats._get_stat("stat"), 45)
+
+            # current stat++ with imod---
+            stats = Stats("dummy", {'stat': [65, 0, 60, 50, -100, 0, 0] })
+            TestSuite.checkStat("Stat++ with imod--- with lvl_max", stats.get_max("stat"), 50, stats._get_stat("stat"), 0)
+
+            # CHECK STATS WITH MAX, LEVEL_MAX, IMOD, IMAX
+
+            # TODO
+
+            # CHECK STAT INCREMENTS
+            # stat raised
+            stats = Stats("dummy", {'stat': [5, 0, 50, 60, 0, 0, 0] })
+            result = stats._mod_base_stat("stat", 40)
+            TestSuite.checkStat("Stat raised", result, 40, stats, [45, 0, 50, 60, 0, 0, 0])
+
+            # stat raised++ max limited
+            stats = Stats("dummy", {'stat': [5, 0, 50, 60, 0, 0, 0] })
+            result = stats._mod_base_stat("stat", 100)
+            TestSuite.checkStat("Max limited Stat raised++", result, 45, stats, [60, 0, 50, 60, 0, 0, 0])
+
+            # stat raised++ lvl_max limited
+            stats = Stats("dummy", {'stat': [5, 0, 70, 60, 0, 0, 0] })
+            result = stats._mod_base_stat("stat", 100)
+            TestSuite.checkStat("Level-Max limited Stat raised++", result, 55, stats, [60, 0, 70, 60, 0, 0, 0])
+
+            # stat+ raised max limited
+            stats = Stats("dummy", {'stat': [55, 0, 50, 60, 0, 0, 0] })
+            result = stats._mod_base_stat("stat", 2)
+            TestSuite.checkStat("Max limited Stat+ raised", result, 0, stats, [57, 0, 50, 60, 0, 0, 0])
+
+            # stat+ raised++ max limited
+            stats = Stats("dummy", {'stat': [55, 0, 50, 60, 0, 0, 0] })
+            result = stats._mod_base_stat("stat", 100)
+            TestSuite.checkStat("Max limited Stat+ raised++", result, 0, stats, [60, 0, 50, 60, 0, 0, 0])
+
+            # stat++ raised++ max limited
+            stats = Stats("dummy", {'stat': [65, 0, 50, 60, 0, 0, 0] })
+            result = stats._mod_base_stat("stat", 100)
+            TestSuite.checkStat("Max limited Stat++ raised++", result, 0, stats, [65, 0, 50, 60, 0, 0, 0])
+
+            # stat+ raised++ lvl_max limited
+            stats = Stats("dummy", {'stat': [65, 0, 70, 60, 0, 0, 0] })
+            result = stats._mod_base_stat("stat", 100)
+            TestSuite.checkStat("Level-Max limited Stat+ raised++", result, 0, stats, [65, 0, 70, 60, 0, 0, 0])
+
+            # Remark: the behaviour of the stat- cases are inconsistent.
+            #         the result of the method does not match the apparent change,
+            # stat- raised
+            stats = Stats("dummy", {'stat': [-10, 0, 50, 60, 0, 0, 0] })
+            result = stats._mod_base_stat("stat", 5)
+            TestSuite.checkStat("Stat raised", result, 0, stats, [-5, 0, 50, 60, 0, 0, 0])
+
+            # stat- raised++
+            stats = Stats("dummy", {'stat': [-10, 0, 50, 60, 0, 0, 0] })
+            result = stats._mod_base_stat("stat", 20)
+            TestSuite.checkStat("Stat raised", result, 10, stats, [10, 0, 50, 60, 0, 0, 0])
+
+            # stat- raised++ max_limited
+            stats = Stats("dummy", {'stat': [-20, 0, 50, 60, 0, 0, 0] })
+            result = stats._mod_base_stat("stat", 100)
+            TestSuite.checkStat("Max limited Stat raised++", result, 50, stats, [60, 0, 50, 60, 0, 0, 0])
+
+            # stat- raised++ lvl_max limited
+            stats = Stats("dummy", {'stat': [-10, 0, 80, 60, 0, 0, 0] })
+            result = stats._mod_base_stat("stat", 100)
+            TestSuite.checkStat("Level-Max limited Stat raised++", result, 60, stats, [60, 0, 80, 60, 0, 0, 0])
+
+            # CHECK STAT INCREMENTS WITH IMOD
+            # stat raised+ with imod+
+            stats = Stats("dummy", {'stat': [5, 0, 50, 60, 20, 0, 0] })
+            result = stats._mod_base_stat("stat", 10)
+            TestSuite.checkStat("Stat raised+ with imod+", result, 10, stats, [15, 0, 50, 60, 20, 0, 0])
+
+            # stat raised++ with imod+
+            stats = Stats("dummy", {'stat': [5, 0, 50, 60, 20, 0, 0] })
+            result = stats._mod_base_stat("stat", 100)
+            TestSuite.checkStat("Stat raised++", result, 25, stats, [60, 0, 50, 60, 20, 0, 0])
+
+            # stat raised++ imod-
+            stats = Stats("dummy", {'stat': [15, 0, 50, 60, -10, 0, 0] })
+            result = stats._mod_base_stat("stat", 100)
+            TestSuite.checkStat("Stat raised++ imod-", result, 45, stats, [70, 0, 50, 60, -10, 0, 0])
+
+            # stat raised++ imod--
+            stats = Stats("dummy", {'stat': [5, 0, 50, 60, -20, 0, 0] })
+            result = stats._mod_base_stat("stat", 100)
+            TestSuite.checkStat("Stat raised++ imod--", result, 50, stats, [80, 0, 50, 60, -20, 0, 0])
+
+            # stat++ raised++ imod-
+            stats = Stats("dummy", {'stat': [65, 0, 50, 60, -10, 0, 0] })
+            result = stats._mod_base_stat("stat", 100)
+            TestSuite.checkStat("Stat++ raised++ imod-", result, 0, stats, [70, 0, 50, 60, -10, 0, 0])
+
+            # stat+++ raised++ imod-
+            stats = Stats("dummy", {'stat': [75, 0, 50, 60, -10, 0, 0] })
+            result = stats._mod_base_stat("stat", 100)
+            TestSuite.checkStat("Stat+++ raised++ imod-", result, 0, stats, [75, 0, 50, 60, -10, 0, 0])
+
+            # CHECK STAT INCREMENTS WITH IMAX
+            # stat raised++ imax+
+            stats = Stats("dummy", {'stat': [5, 0, 60, 70, 0, 0, 4] })
+            result = stats._mod_base_stat("stat", 100)
+            TestSuite.checkStat("Max limited Stat raised++ imax+", result, 59, stats, [70, 0, 60, 70, 0, 0, 4])
+
+            # stat raised++ lvl_max limited due imax++
+            stats = Stats("dummy", {'stat': [5, 0, 50, 60, 0, 0, 40] })
+            result = stats._mod_base_stat("stat", 100)
+            TestSuite.checkStat("Stat raised++ imax++", result, 55, stats, [60, 0, 50, 60, 0, 0, 40])
+
+            # stat raised++ imax-
+            stats = Stats("dummy", {'stat': [5, 0, 80, 70, 0, 0, -20] })
+            result = stats._mod_base_stat("stat", 100)
+            TestSuite.checkStat("Level-Max limited Stat raised++ imax-", result, 55, stats, [70, 0, 80, 70, 0, 0, -20])
+
+            # stat raised++ imax--
+            stats = Stats("dummy", {'stat': [5, 0, 80, 70, 0, 0, -100] })
+            result = stats._mod_base_stat("stat", 100)
+            TestSuite.checkStat("Level-Max limited Stat raised++ imax--", result, 0, stats, [70, 0, 80, 70, 0, 0, -100])
+
+            # CHECK STAT INCREMENTS WITH IMAX, IMOD
+
+            # TODO
+
+            # CHECK STAT DECREMENTS
+            # stat lowered
+            stats = Stats("dummy", {'stat': [45, 0, 50, 60, 0, 0, 0] })
+            result = stats._mod_base_stat("stat", -40)
+            TestSuite.checkStat("Stat lowered", result, -40, stats, [5, 0, 50, 60, 0, 0, 0])
+
+            # stat lowered-- min limited
+            stats = Stats("dummy", {'stat': [45, 0, 50, 60, 0, 0, 0] })
+            result = stats._mod_base_stat("stat", -100)
+            TestSuite.checkStat("Min limited Stat lowered--", result, -45, stats, [0, 0, 50, 60, 0, 0, 0])
+
+            # stat+ lowered- max limited
+            stats = Stats("dummy", {'stat': [55, 0, 50, 60, 0, 0, 0] })
+            result = stats._mod_base_stat("stat", -2)
+            TestSuite.checkStat("Max limited Stat+ lowered-", result, -2, stats, [48, 0, 50, 60, 0, 0, 0])
+
+            # stat+ lowered- lvl_max limited
+            stats = Stats("dummy", {'stat': [55, 0, 60, 50, 0, 0, 0] })
+            result = stats._mod_base_stat("stat", -2)
+            TestSuite.checkStat("Level-Max limited Stat+ lowered-", result, -2, stats, [48, 0, 60, 50, 0, 0, 0])
+
+            # stat+ lowered-- max limited
+            stats = Stats("dummy", {'stat': [65, 0, 50, 60, 0, 0, 0] })
+            result = stats._mod_base_stat("stat", -100)
+            TestSuite.checkStat("Max limited Stat++ lowered--", result, -50, stats, [0, 0, 50, 60, 0, 0, 0])
+
+            # stat+ lowered-- lvl_max limited
+            stats = Stats("dummy", {'stat': [65, 0, 70, 60, 0, 0, 0] })
+            result = stats._mod_base_stat("stat", -100)
+            TestSuite.checkStat("Level-Max limited Stat+ lowered--", result, -60, stats, [0, 0, 70, 60, 0, 0, 0])
+
+            # stat- lowered
+            stats = Stats("dummy", {'stat': [-5, 0, 50, 60, 0, 0, 0] })
+            result = stats._mod_base_stat("stat", -10)
+            TestSuite.checkStat("Stat- lowered", result, 0, stats, [-5, 0, 50, 60, 0, 0, 0])
+
+            # CHECK STAT DECREMENTS WITH IMOD
+            # stat lowered- with imod
+            stats = Stats("dummy", {'stat': [20, 0, 50, 60, 15, 0, 0] })
+            result = stats._mod_base_stat("stat", -10)
+            TestSuite.checkStat("Stat lowered with imod", result, -10, stats, [10, 0, 50, 60, 15, 0, 0])
+
+            # stat lowered- with imod
+            stats = Stats("dummy", {'stat': [20, 0, 50, 60, 15, 0, 0] })
+            result = stats._mod_base_stat("stat", -30)
+            TestSuite.checkStat("Stat lowered- with imod", result, -20, stats, [0, 0, 50, 60, 15, 0, 0])
+
+            # stat+ lowered- with imod
+            stats = Stats("dummy", {'stat': [40, 0, 50, 60, 15, 0, 0] })
+            result = stats._mod_base_stat("stat", -10)
+            TestSuite.checkStat("Stat lowered with imod", result, -10, stats, [25, 0, 50, 60, 15, 0, 0])
+
+            # max limited stat++ lowered- with imod
+            stats = Stats("dummy", {'stat': [55, 0, 50, 60, 15, 0, 0] })
+            result = stats._mod_base_stat("stat", -30)
+            TestSuite.checkStat("Max limited Stat++ lowered- with imod", result, -30, stats, [5, 0, 50, 60, 15, 0, 0])
+
+            # lvl_max limited stat++ lowered- with imod
+            stats = Stats("dummy", {'stat': [65, 0, 70, 60, 15, 0, 0] })
+            result = stats._mod_base_stat("stat", -30)
+            TestSuite.checkStat("Level-Max limited Stat++ lowered- with imod", result, -30, stats, [15, 0, 70, 60, 15, 0, 0])
+
+            # lvl_max limited stat++ lowered- with imod, imax
+            stats = Stats("dummy", {'stat': [65, 0, 50, 60, 15, 0, 20] })
+            result = stats._mod_base_stat("stat", -30)
+            TestSuite.checkStat("Level-Max limited Stat++ lowered- with imod, imax", result, -30, stats, [15, 0, 50, 60, 15, 0, 20])
+
+            # stat lowered- with imod-
+            stats = Stats("dummy", {'stat': [20, 0, 50, 60, -15, 0, 0] })
+            result = stats._mod_base_stat("stat", -10)
+            TestSuite.checkStat("Stat lowered with imod-", result, -5, stats, [10, 0, 50, 60, -15, 0, 0])
+
+            # stat lowered- with imod-
+            stats = Stats("dummy", {'stat': [20, 0, 50, 60, -15, 0, 0] })
+            result = stats._mod_base_stat("stat", -30)
+            TestSuite.checkStat("Stat lowered- with imod-", result, -5, stats, [0, 0, 50, 60, -15, 0, 0])
+
+            # (max) limited stat++ lowered- with imod-
+            stats = Stats("dummy", {'stat': [55, 0, 50, 60, -15, 0, 0] })
+            result = stats._mod_base_stat("stat", -30)
+            TestSuite.checkStat("(Max) limited Stat++ lowered- with imod-", result, -30, stats, [25, 0, 50, 60, -15, 0, 0])
+
+            # (max) limited stat++ lowered-- with imod-
+            stats = Stats("dummy", {'stat': [55, 0, 50, 60, -15, 0, 0] })
+            result = stats._mod_base_stat("stat", -100)
+            TestSuite.checkStat("(Max) limited Stat++ lowered-- with imod-", result, -40, stats, [0, 0, 50, 60, -15, 0, 0])
+
+            # (lvl_max) limited stat++ lowered-- with imod-
+            stats = Stats("dummy", {'stat': [65, 0, 70, 60, -15, 0, 0] })
+            result = stats._mod_base_stat("stat", -100)
+            TestSuite.checkStat("(Level-Max limited) Stat++ lowered-- with imod-", result, -50, stats, [0, 0, 70, 60, -15, 0, 0])
+
+            # (lvl_max limited) stat++ lowered-- with imod--, imax
+            stats = Stats("dummy", {'stat': [65, 0, 50, 60, -15, 0, 20] })
+            result = stats._mod_base_stat("stat", -100)
+            TestSuite.checkStat("(Level-Max limited) Stat++ lowered-- with imod-, imax", result, -50, stats, [0, 0, 50, 60, -15, 0, 20])
+
+            # max limited stat++ lowered- with imod
+            stats = Stats("dummy", {'stat': [75, 0, 50, 60, -15, 0, 0] })
+            result = stats._mod_base_stat("stat", -30)
+            TestSuite.checkStat("Max limited Stat++ lowered- with imod", result, -30, stats, [35, 0, 50, 60, -15, 0, 0])
+
+            # lvl_max limited stat++ lowered- with imod
+            stats = Stats("dummy", {'stat': [85, 0, 70, 60, -15, 0, 0] })
+            result = stats._mod_base_stat("stat", -30)
+            TestSuite.checkStat("Level-Max limited Stat++ lowered- with imod", result, -30, stats, [45, 0, 70, 60, -15, 0, 0])
+            
+            # lvl_max limited stat++ lowered- with imod, imax
+            stats = Stats("dummy", {'stat': [85, 0, 50, 60, -15, 0, 20] })
+            result = stats._mod_base_stat("stat", -30)
+            TestSuite.checkStat("Level-Max limited Stat++ lowered- with imod, imax", result, -30, stats, [45, 0, 50, 60, -15, 0, 20])
+
+            # max limited stat++ lowered-- with imod
+            stats = Stats("dummy", {'stat': [75, 0, 50, 60, -15, 0, 0] })
+            result = stats._mod_base_stat("stat", -100)
+            TestSuite.checkStat("Max limited Stat++ lowered-- with imod", result, -50, stats, [0, 0, 50, 60, -15, 0, 0])
+
+            # lvl_max limited stat++ lowered-- with imod
+            stats = Stats("dummy", {'stat': [85, 0, 70, 60, -15, 0, 0] })
+            result = stats._mod_base_stat("stat", -100)
+            TestSuite.checkStat("Level-Max limited Stat++ lowered-- with imod", result, -60, stats, [0, 0, 70, 60, -15, 0, 0])
+            
+            # lvl_max limited stat++ lowered-- with imod, imax
+            stats = Stats("dummy", {'stat': [85, 0, 50, 60, -15, 0, 20] })
+            result = stats._mod_base_stat("stat", -100)
+            TestSuite.checkStat("Level-Max limited Stat++ lowered-- with imod, imax", result, -60, stats, [0, 0, 50, 60, -15, 0, 20])
+
+            # CHECK STAT DECREMENTS WITH IMAX
+            # CHECK STAT DECREMENTS WITH IMAX, IMOD
+            # TODO
+
+            # CHECK STAT DECREMENTS WITH IMIN
+            # stat lowered imin limited
+            stats = Stats("dummy", {'stat': [45, 0, 50, 60, 0, 10, 0] })
+            result = stats._mod_base_stat("stat", -40)
+            TestSuite.checkStat("IMin limited Stat lowered-", result, -35, stats, [5, 0, 50, 60, 0, 10, 0])
+
+            # stat lowered-- imin limited
+            stats = Stats("dummy", {'stat': [45, 0, 50, 60, 0, 10, 0] })
+            result = stats._mod_base_stat("stat", -100)
+            TestSuite.checkStat("IMin limited Stat lowered--", result, -35, stats, [0, 0, 50, 60, 0, 10, 0])
+
+            # stat+ lowered- max to imin limited
+            stats = Stats("dummy", {'stat': [55, 0, 50, 60, 0, 10, 0] })
+            result = stats._mod_base_stat("stat", -48)
+            TestSuite.checkStat("Max-IMin limited Stat+ lowered-", result, -40, stats, [2, 0, 50, 60, 0, 10, 0])
+
+            # stat+ lowered- lvl_max to imin limited
+            stats = Stats("dummy", {'stat': [55, 0, 60, 50, 0, 10, 0] })
+            result = stats._mod_base_stat("stat", -48)
+            TestSuite.checkStat("Level-Max-IMin limited Stat+ lowered-", result, -40, stats, [2, 0, 60, 50, 0, 10, 0])
+
+            # stat+ lowered-- max to imin limited
+            stats = Stats("dummy", {'stat': [65, 0, 50, 60, 0, 10, 0] })
+            result = stats._mod_base_stat("stat", -100)
+            TestSuite.checkStat("Max-IMin limited Stat++ lowered--", result, -40, stats, [0, 0, 50, 60, 0, 10, 0])
+
+            # stat+ lowered-- lvl_max to imin limited
+            stats = Stats("dummy", {'stat': [65, 0, 70, 60, 0, 10, 0] })
+            result = stats._mod_base_stat("stat", -100)
+            TestSuite.checkStat("Level-Max-IMin limited Stat+ lowered--", result, -50, stats, [0, 0, 70, 60, 0, 10, 0])
+
+        @staticmethod
         def checkChar(c, context):
             if c.gender not in ["female", "male"]:
                 TestSuite.reportError("The entity (%s) %s does not have a valid gender %s" % (context, c.fullname, c.gender))

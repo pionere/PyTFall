@@ -888,7 +888,7 @@ init -9 python:
                 elif not self.eqslots["ring2"]:
                     self.eqslots["ring2"] = item
                 else:
-                    self.apply_item_effects(self.eqslots["ring"], False)
+                    self.remove_item_effects(self.eqslots["ring"])
                     self.inventory.append(self.eqslots["ring"])
                     self.eqslots["ring"] = self.eqslots["ring1"]
                     self.eqslots["ring1"] = self.eqslots["ring2"]
@@ -900,7 +900,7 @@ init -9 python:
                 # Any other slot:
                 curr_item = self.eqslots[item.slot]
                 if curr_item: # If there is any item equipped:
-                    self.apply_item_effects(curr_item, False) # Remove equipped item effects
+                    self.remove_item_effects(curr_item) # Remove equipped item effects
                     self.inventory.append(curr_item) # Add unequipped item back to inventory
                 self.eqslots[item.slot] = item # Assign new item to the slot
                 self.apply_item_effects(item) # Apply item effects
@@ -934,7 +934,7 @@ init -9 python:
                 self.last_known_aeq_purpose = None
 
             if slot != "misc":
-                self.apply_item_effects(item, False)
+                self.remove_item_effects(item)
 
             self.eqslots[slot] = None
             self.inventory.append(item)
@@ -1267,9 +1267,12 @@ init -9 python:
                 for slot, item in curr_equipped_items.iteritems():
                     if not item:
                         continue
-                    if slot != "misc":
-                        self.apply_item_effects(item) # Apply item effects
-                    self.inventory.remove(item) # Remove item from the inventory
+                    if slot.startswith("ring"):
+                        slot = "ring"
+                    if slot in slots:
+                        if slot != "misc":
+                            self.apply_item_effects(item) # Apply item effects
+                        self.inventory.remove(item) # Remove item from the inventory
 
             return rv
 
@@ -1319,13 +1322,10 @@ init -9 python:
                         equip_item(item=desired_item, char=self, silent=silent)
 
         # Applies Item Effects:
-        def apply_item_effects(self, item, direction=True):
+        def apply_item_effects(self, item):
             """Deals with applying items effects on characters.
 
             :param item: the effects of the item to be applied
-            :param direction:
-            - True: Apply Effects
-            - False: Remove Effects
             """
             slot = item.slot
             # check if the effects are permanent
@@ -1337,269 +1337,32 @@ init -9 python:
                 attack_skills = self.attack_skills
                 for battle_skill in item.attacks:
                     battle_skill = store.battle_skills[battle_skill]
-                    if direction:
-                        attack_skills.append(battle_skill, true_add)
-                    else:
-                        attack_skills.remove(battle_skill, False)
+                    attack_skills.append(battle_skill, true_add)
 
                 # Settle the default attack skill:
                 default = self.default_attack_skill
-                num_skills = len(attack_skills)
-                if num_skills == 0:
-                    attack_skills.append(default)
-                elif num_skills > 1 and default in attack_skills:
+                if len(attack_skills) > 1 and default in attack_skills:
                     attack_skills.remove(default)
 
             # Combat Spells:
             for battle_skill in item.add_be_spells:
                 battle_skill = store.battle_skills[battle_skill]
-                if direction:
-                    self.magic_skills.append(battle_skill, true_add)
-                else:
-                    self.magic_skills.remove(battle_skill, False)
+                self.magic_skills.append(battle_skill, true_add)
 
-            # Taking care of stats: -------------------------------------------------->
-            type = item.type
-            traits = self.traits
-            stats = self.stats
+            # Taking care of stats/skills: ----------------------------------->
+            self.stats.apply_item_effects(item, True, true_add)
 
-            # Max Stats:
-            for stat, value in item.max.items():
-                if stat == "defence":
-                    if value < 0 and "Elven Ranger" in traits and type in ["bow", "crossbow", "throwing"]:
-                        continue
-                    if type == "armor" and "Knightly Stance" in traits:
-                        value *= 1.3
-                    if "Berserk" in traits:
-                        value *= .5
-                elif stat == "attack":
-                    if "Berserk" in traits:
-                        value *= 2
-                elif stat == "agility":
-                    if value < 0 and "Hollow Bones" in traits:
-                        continue
-
-                if slot == "smallweapon":
-                    if "Left-Handed" in traits:
-                        value *= 2
-                elif slot == "weapon":
-                    if "Left-Handed" in traits:
-                        value *= .5
-
-                if type == "sword":
-                    if "Sword Master" in traits:
-                        value *= 1.3
-                elif type == "shield":
-                    if "Shield Master" in traits:
-                        value *= 1.3
-                elif type == "dagger":
-                    if "Dagger Master" in traits:
-                        value *= 1.3
-                elif type == "bow":
-                    if "Bow Master" in traits:
-                        value *= 1.3
-
-                # Reverse the value if appropriate:
-                if not direction:
-                    value = -value
-                if true_add:
-                    stats.max[stat] += int(value) # STAT_MAX
-                else:
-                    stats.imax[stat] += int(value) # STAT_IMAX
-
-            # Min Stats:
-            for stat, value in item.min.items():
-                if stat == "defence":
-                    if value < 0 and "Elven Ranger" in traits and type in ["bow", "crossbow", "throwing"]:
-                        continue
-                    if type == "armor" and "Knightly Stance" in traits:
-                        value *= 1.3
-                    if "Berserk" in traits:
-                        value *= .5
-                elif stat == "attack":
-                    if "Berserk" in traits:
-                        value *= 2
-                elif stat == "agility":
-                    if value < 0 and "Hollow Bones" in traits:
-                        continue
-
-                if slot == "smallweapon":
-                    if "Left-Handed" in traits:
-                        value *= 2
-                elif slot == "weapon":
-                    if "Left-Handed" in traits:
-                        value *= .5
-
-                if type == "sword":
-                    if "Sword Master" in traits:
-                        value *= 1.3
-                elif type == "shield":
-                    if "Shield Master" in traits:
-                        value *= 1.3
-                elif type == "dagger":
-                    if "Dagger Master" in traits:
-                        value *= 1.3
-                elif type == "bow":
-                    if "Bow Master" in traits:
-                        value *= 1.3
-
-                # Reverse the value if appropriate:
-                if not direction:
-                    value = -value
-                if true_add:
-                    stats.min[stat] += int(value) # STAT_MIN
-                else:
-                    stats.imin[stat] += int(value) # STAT_IMIN
-
-            # Items Stats:
-            for stat, value in item.mod.items():
-                if item.statmax and stats.stats[stat] >= item.statmax: # STAT_STAT
-                    continue
-
-                # Reverse the value if appropriate:
-                original_value = value
-                if not direction:
-                    value = -value
-
-                if true_add:
-                    if stat == "gold":
-                        if self.status == "slave" and self in hero.chars:
-                            temp = hero
-                        else:
-                            temp = self
-                        if value < 0:
-                            temp.take_money(-value, reason="Upkeep")
-                        else:
-                            temp.add_money(value, reason="Items")
-                    elif stat == "exp":
-                        self.mod_exp(exp_reward(self, self, exp_mod=float(value)/DAILY_EXP_CORE))
-                    else:
-                        if type == "food" and 'Fast Metabolism' in self.effects:
-                            value *= 2
-                        if original_value > 0:
-                            if stat == "health":
-                                if "Summer Eternality" in traits:
-                                    value *= .35
-                            elif stat == "mp":
-                                if "Winter Eternality" in traits:
-                                    value *= .35
-                                if "Magical Kin" in traits:
-                                    if type == "alcohol":
-                                        value *= 2
-                                    else:
-                                        value *= 1.5
-                            elif stat == "vitality":
-                                if "Effective Metabolism" in traits:
-                                    if type == "food":
-                                        value *= 2
-                                    else:
-                                        value *= 1.5
-
-                        stats._mod_base_stat(stat, int(value))
-                else:
-                    if stat == "defence":
-                        if original_value < 0 and "Elven Ranger" in traits and type in ["bow", "crossbow", "throwing"]:
-                            continue
-                        if type == "armor" and "Knightly Stance" in traits:
-                            value *= 1.3
-                        if "Berserk" in traits:
-                            value *= .5
-                    elif stat == "attack":
-                        if "Berserk" in traits:
-                            value *= 2
-                    elif stat == "agility":
-                        if original_value < 0 and "Hollow Bones" in traits:
-                            continue
-
-                    if slot == "smallweapon":
-                        if "Left-Handed" in traits:
-                            value *= 2
-                    elif slot == "weapon":
-                        if "Left-Handed" in traits:
-                            value *= .5
-
-                    if type == "sword":
-                        if "Sword Master" in traits:
-                            value *= 1.3
-                    elif type == "shield":
-                        if "Shield Master" in traits:
-                            value *= 1.3
-                    elif type == "dagger":
-                        if "Dagger Master" in traits:
-                            value *= 1.3
-                    elif type == "bow":
-                        if "Bow Master" in traits:
-                            value *= 1.3
-
-                    try:
-                        stats.imod[stat] += int(value) # STAT_IMOD
-                    except:
-                        raise Exception(item.id, stat)
-
-            # Special modifiers based off traits:
-            temp = ["smallweapon", "weapon", "body", "cape", "feet", "wrist", "head"]
-            if "Royal Assassin" in traits and slot in temp:
-                value = (item.price if direction else -item.price)/100
-                stats.max["attack"] += value         # STAT_MAX
-                stats.imod["attack"] += int(value)   # STAT_IMOD
-            elif "Armor Expert" in traits and slot in temp:
-                value = (item.price if direction else -item.price)/100
-                stats.max["defence"] += value        # STAT_MAX
-                stats.imod["defence"] += int(value)  # STAT_IMOD
-            elif "Arcane Archer" in traits and type in ["bow", "crossbow", "throwing"]:
-                max_val = item.max.get("attack", 0)/2
-                imod_val = item.mod.get("attack", 0)/2
-                if not direction:
-                    max_val = -max_val
-                    imod_val = -imod_val
-                stats.max["magic"] += max_val        # STAT_MAX
-                stats.imod["magic"] += imod_val      # STAT_IMOD
-            if slot == 'consumable' and "Recharging" in traits \
-                and not item.ctemp and "mp" not in item.mod:
-                stats._mod_base_stat("mp", 10)
-
-            # Skills:
-            for skill, data in item.mod_skills.items():
-                s = stats.skills[skill] # skillz
-                if item.skillmax:
-                    if data[3] != 0 and s[0] >= item.skillmax:
-                        continue
-                    if data[4] != 0 and s[1] >= item.skillmax:
-                        continue
-                    # FIXME what about the multipliers?
-
-                sm = stats.skills_multipliers[skill] # skillz muplties
-                if direction:
-                    sm[0] += data[0]
-                    sm[1] += data[1]
-                    sm[2] += data[2]
-                    s[0] += data[3]
-                    s[1] += data[4]
-                else:
-                    sm[0] -= data[0]
-                    sm[1] -= data[1]
-                    sm[2] -= data[2]
-                    s[0] -= data[3]
-                    s[1] -= data[4]
-
-            # Traits:
+            # Traits: -------------------------------------------------------->
             for trait in item.removetraits:
-                trait = store.traits[trait]
-                if direction:
-                    self.remove_trait(trait, true_add)
-                else:
-                    self.apply_trait(trait, False)
+                self.remove_trait(traits[trait], true_add)
 
             for trait in item.addtraits:
-                trait = store.traits[trait]
-                if direction:
-                    self.apply_trait(trait, true_add)
-                else:
-                    self.remove_trait(trait, False)
+                self.apply_trait(traits[trait], true_add)
 
-            # Effects:
+            # Effects: ------------------------------------------------------->
             if hasattr(self, "effects"):
-                if slot == 'consumable' and direction:
+                if slot == 'consumable':
+                    type = item.type
                     if type == 'food':
                         self.up_counter("dnd_food_poison_counter", 1)
                         if self.get_flag("dnd_food_poison_counter", 0) >= 7:
@@ -1614,15 +1377,49 @@ init -9 python:
                         self.disable_effect(effect)
 
                 for effect in item.addeffects:
-                    if direction:
-                        self.enable_effect(effect)
-                    else:
-                        self.disable_effect(effect)
+                    self.enable_effect(effect)
 
             # Jump away from equipment screen if appropriate:
             if item.jump_to_label and getattr(store, "eqtarget", None) is self:
                 renpy.scene(layer="screens") # hides all screens
                 jump(item.jump_to_label)
+
+        def remove_item_effects(self, item):
+            """Deals with removing items effects on characters.
+
+            :param item: the effects of the item to be removed
+            """
+            # Attacks/Magic -------------------------------------------------->
+            # Attack Skills:
+            if item.attacks is not None:
+                attack_skills = self.attack_skills
+                for battle_skill in item.attacks:
+                    battle_skill = store.battle_skills[battle_skill]
+                    attack_skills.remove(battle_skill, False)
+
+                # Settle the default attack skill:
+                if len(attack_skills) == 0:
+                    attack_skills.append(self.default_attack_skill)
+
+            # Combat Spells:
+            for battle_skill in item.add_be_spells:
+                battle_skill = store.battle_skills[battle_skill]
+                self.magic_skills.remove(battle_skill, False)
+
+            # Taking care of stats/skills: ----------------------------------->
+            self.stats.apply_item_effects(item, False, False)
+
+            # Traits: -------------------------------------------------------->
+            for trait in item.removetraits:
+                self.apply_trait(traits[trait], False)
+
+            for trait in item.addtraits:
+                self.remove_trait(traits[trait], False)
+
+            # Effects: ------------------------------------------------------->
+            if hasattr(self, "effects"):
+                for effect in item.addeffects:
+                    self.disable_effect(effect)
 
         def item_counter(self):
             # Timer to clear consumable blocks
@@ -1641,7 +1438,7 @@ init -9 python:
             for item, value in self.constemp.iteritems():
                 value -= 1
                 if value <= 0:
-                    self.apply_item_effects(item, False)
+                    self.remove_item_effects(item)
                     drops.append(item)
                     continue
                 self.constemp[item] = value
@@ -1659,14 +1456,14 @@ init -9 python:
                         if stat == "exp":
                             pass
                         elif stat == "gold":
-                            if self.status == "slave":
+                            if self.status == "slave" and self in hero.chars:
                                 temp = hero
                             else:
                                 temp = self
                             if temp.gold + val < 0:
                                 break
                         else:
-                            if self.stats.stats[stat] + val < self.stats.min[stat]:  # STAT_STAT + val < STAT_MIN
+                            if self.get_stat(stat) + val < self.stats.get_stat_min(stat):
                                 break
                 else:
                     value = self.miscitems.get(item, 0) + 1

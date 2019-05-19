@@ -178,14 +178,12 @@ label mc_action_cafe_eat_alone_cafe_invitation:
                 $ hero.gfx_mod_stat("joy", randint(3, 6))
                 $ hero.gfx_mod_exp(exp_reward(hero, hero))
                 if hero.flag("health_bonus_from_eating_in_cafe") <= 25 and locked_dice(75):
-                    $ hero.stats.lvl_max["health"] += 2  # STAT_LVL_MAX
-                    $ hero.stats.max["health"] += 2      # STAT_MAX
+                    $ hero.stats.mod_raw_max("health", 2)
                     $ hero.gfx_mod_stat("health", 2)
                     $ hero.up_counter("health_bonus_from_eating_in_cafe", 2)
                     extend "{color=goldenrod} +2 Max Health{/color}"
                 elif hero.flag("health_bonus_from_eating_in_cafe") <= 50 and locked_dice(10): # after 50 successful attempts bonus no longer applies
-                    $ hero.stats.lvl_max["health"] += 1  # STAT_LVL_MAX
-                    $ hero.stats.max["health"] += 1      # STAT_MAX
+                    $ hero.stats.mod_raw_max("health", 1)
                     $ hero.gfx_mod_stat("health", 1)
                     $ hero.up_counter("health_bonus_from_eating_in_cafe", 1)
                     extend "{color=goldenrod} +1 Max Health{/color}"

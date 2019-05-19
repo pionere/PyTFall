@@ -238,11 +238,7 @@ init -11 python:
             if stat != "vitality":
                 stats._mod_base_stat(stat, value)
             else:
-                if stats.max[stat] < value:      # STAT_MAX
-                    stats.max[stat] = value      # STAT_MAX
-                if stats.lvl_max[stat] < value:  # STAT_LVL_MAX
-                    stats.lvl_max[stat] = value  # STAT_LVL_MAX
-                stats.stats[stat] = value        # STAT_STAT
+                stats.set_base_stat(stat, value)
 
         return mob
 

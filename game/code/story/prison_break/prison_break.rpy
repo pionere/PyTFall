@@ -184,11 +184,9 @@ label storyi_bossroom:
     python:
         enemy_team = Team(name="Enemy Team", max_size=3)
         mob = build_mob(id="Blazing Star", level=25)
-        mob.stats.lvl_max["health"] += 500  # STAT_LVL_MAX
-        mob.stats.max["health"] += 500      # STAT_MAX
+        mob.stats.mod_raw_max("health", 500)
         mob.mod_stat("health", 500)
-        mob.stats.lvl_max["mp"] += 100      # STAT_LVL_MAX
-        mob.stats.max["mp"] += 100          # STAT_MAX
+        mob.stats.mod_raw_max("mp", 100)
         mob.mod_stat("mp", 100)
         enemy_team.add(mob)
         del mob

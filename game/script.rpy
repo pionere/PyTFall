@@ -1148,6 +1148,34 @@ label after_load:
                     for stat in char.stats:
                         char.stats.imin[stat] = 0
                         char.stats.imax[stat] = 0
+                    curr_equipped_items = char.eqslots.copy()
+                    # Go over all slots and unequip items:
+                    for s in store.EQUIP_SLOTS:
+                        if s == "ring":
+                            for r in ["ring", "ring1", "ring2"]:
+                                char.unequip(slot=r, aeq_mode=True)
+                        elif s != "consumable":
+                            char.unequip(slot=s, aeq_mode=True)
+                    for stat, value in char.stats.imin.iteritems():
+                        if value != 0:
+                            char.stats.min[stat] += value
+                            char.stats.imin[stat] = 0
+                    for stat, value in char.stats.imax.iteritems():
+                        if value != 0:
+                            char.stats.max[stat] += value
+                            char.stats.imax[stat] = 0
+                    for stat, value in char.stats.imod.iteritems():
+                        if value != 0:
+                            char.stats.stats[stat] += value
+                            char.stats.imod[stat] = 0
+                    # Re-equip the original items:
+                    char.eqslots = curr_equipped_items
+                    for slot, item in curr_equipped_items.iteritems():
+                        if not item:
+                            continue
+                        if slot != "misc":
+                            char.apply_item_effects(item) # Apply item effects
+                        char.inventory.remove(item) # Remove item from the inventory
                 if hasattr(char, "price"):
                     del char.price
                 if hasattr(char, "days_depressed"):
