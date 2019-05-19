@@ -219,18 +219,21 @@ screen pick_skill(char):
             d = OrderedDict()
             #ne = []
             me = []
+            me_elements = []
 
             for e in tgs.elemental:
                 d[e] = []
 
             for skill in magic:
                 e = skill.get_element()
-                if e in d:
-                    d[e].append(skill)
+                if len(e) == 1:
+                    d[e[0]].append(skill)
                 else:
                     me.append(skill)
+                    me_elements.extend(e)
                 # else:
                     # ne.append(skill)
+            me_elements = list(OrderedDict.fromkeys(me_elements).keys())
 
             for ss in d.values():
                 ss.sort(key=attrgetter("menu_pos"))
@@ -253,8 +256,12 @@ screen pick_skill(char):
                             xysize 140, 330
                             vbox:
                                 if e.icon:
-                                    $ img = ProportionalScale(e.icon, 70, 70)
-                                    add img align .5, .1
+                                    imagebutton:
+                                        idle ProportionalScale(e.icon, 70, 70)
+                                        align .5, .1
+                                        action NullAction()
+                                        tooltip e.id
+                                        focus_mask True
                                 for skill in d[e]:
                                     button:
                                         xsize 138
@@ -269,9 +276,15 @@ screen pick_skill(char):
                         padding 1, 3
                         xalign .5
                         xysize 140, 330
-                        default me_icon = build_multi_elemental_icon()
+                        default me_icon = build_multi_elemental_icon(me_elements)
                         vbox:
-                            add ProportionalScale("content/gfx/interface/images/elements/multi.png", 70, 70) align (.5, .1) # xcenter 230 ycenter 58
+                            #add ProportionalScale("content/gfx/interface/images/elements/multi.png", 70, 70) align (.5, .1)
+                            imagebutton:
+                                idle me_icon
+                                align .5, .1
+                                action NullAction()
+                                tooltip ", ".join([e.id for e in me_elements])
+                                focus_mask True
                             for skill in me:
                                 button:
                                     xsize 138

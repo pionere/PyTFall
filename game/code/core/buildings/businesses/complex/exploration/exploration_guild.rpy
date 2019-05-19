@@ -254,9 +254,7 @@ init -6 python: # Guild, Tracker and Log.
                                    "The team took some time off to visit the Onsen on their way back"])
                     self.log(temp)
                     for char in team:
-                        mod_by_max("health", .25) # BATTLE_STATS
-                        mod_by_max("mp", .25)
-                        mod_by_max("vitality", .25)
+                        mod_battle_stats(char, .25)
 
                 for key in self.found_areas:
                     a = fg_areas[key]
@@ -707,13 +705,13 @@ init -6 python: # Guild, Tracker and Log.
                             tracker.log(temp)
                     auto_equip_counter += 1
 
-                for c in team:
-                    if c.get_stat("health") <= c.get_max("health")*.9: # BATTLE_STATS
-                        break
-                    if c.get_stat("mp") <= c.get_max("mp")*.9:
-                        break
-                    if c.get_stat("vitality") <= c.get_max("vitality")*.8:
-                        break
+                for stat in ("health", "mp", "vitality"): # BATTLE_STATS
+                    for c in team:
+                        if c.get_stat(stat) <= c.get_max(stat)*.9:
+                            break
+                    else:
+                        continue
+                    break
                 else:
                     tracker.days_in_camp = 0
                     temp = "Your team is now rested and ready for more action!"
@@ -831,16 +829,14 @@ init -6 python: # Guild, Tracker and Log.
                                 capt_multiplier[i] *= mod
                     for (c, data), mod in zip(tracker.captured_chars, capt_multiplier):
                         mod -= 1.15 - tracker.area.daily_modifier
-                        for stat in ("health", "mp", "vitality"): # BATTLE_STATS
-                            mod_by_max(c, stat, mod)
+                        mod_battle_stats(c, mod)
                         if mod < 0:
                             rv = "go2guild"
             else:
                 multiplier *= .5
 
             for c in team:
-                for stat in ("health", "mp", "vitality"): # BATTLE_STATS
-                    mod_by_max(c, stat, multiplier)
+                mod_battle_stats(c, multiplier)
 
             return rv
 
@@ -1088,8 +1084,8 @@ init -6 python: # Guild, Tracker and Log.
                         self.env.exit("back2camp") # too much risk -> back to camp
 
                     temp = .8 - (tracker.risk/200.0)
-                    for c in team: # BATTLE_STATS
-                        for stat in ("health", "mp", "vitality"):
+                    for stat in ("health", "mp", "vitality"): # BATTLE_STATS
+                        for c in team:
                             if c.get_stat(stat) < c.get_max(stat)*temp:
                                 break
                         else:

@@ -164,18 +164,14 @@ init -5 python:
             # Special direct bonus to tired/sad characters
             #c1 = not env.now % 5
             if building.cheering_up and manager.PP > 10 and dice(effectiveness-50):
-                workers = [w for w in building.available_workers if
-                           w != manager and
-                           w not in cheered_up_workers and
-                           (check_stat_perc(w, "joy", .5) or
-                           check_stat_perc(w, "vitality", .3))]
+                workers = [wjv for wjv in ((w, w.get_stat("joy") < w.get_max("joy")/2, w.get_stat("vitality") < w.get_max("vitality")/3)
+                                      for w in building.available_workers if w != manager and w not in cheered_up_workers)
+                            if wjv[1] or wjv[2]]
 
                 if workers:
-                    worker = choice(workers)
+                    worker, give_joy, give_vit = choice(workers)
                     cheered_up_workers.add(worker)
 
-                    give_joy = check_stat_perc(worker, "joy", .5)
-                    give_vit = check_stat_perc(worker, "vitality", .3)
                     if give_joy:
                         handle = "sad"
                     else:

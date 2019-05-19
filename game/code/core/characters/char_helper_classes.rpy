@@ -1168,8 +1168,7 @@ init -10 python:
                 if mod_stats:
                     self.apply_trait_statsmod(mod_stats, curr_lvl, new_lvl, trait in traits.normal)
 
-            for stat in ("health", "mp", "vitality"): # BATTLE_STATS
-                char.set_stat(stat, self.get_max(stat)) # TODO better solution? 
+            restore_battle_stats(char)
 
             self.instance.update_tier_info()
 

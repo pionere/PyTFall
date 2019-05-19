@@ -2054,8 +2054,7 @@ init -9 python:
                     flag_red = True
                     txt.append("{color=red}You should find some shelter for the night... it's not healthy to sleep outside.{/color}")
 
-                for stat in ("health", "mp", "vitality"): # BATTLE_STATS
-                    mod_by_max(self, stat, mod)
+                mod_battle_stats(self, mod)
 
             # Taxes:
             if calendar.weekday() == "Monday" and day != 1:
@@ -2187,8 +2186,7 @@ init -9 python:
                 self.preferences = {p: random.random() for p in STATIC_CHAR.PREFS}
 
             # Second round of stats normalization:
-            for stat in ["health", "mp", "vitality", "joy"]: # BATTLE_STATS ?
-                self.set_stat(stat, self.get_max(stat))
+            restore_battle_stats(self)
 
             # Battle and Magic skills:
             if not self.attack_skills:
@@ -2331,8 +2329,7 @@ init -9 python:
                 txt.append("{color=red}It's not a comfortable or healthy place to sleep in.{/color}")
                 txt.append("{color=red}Try finding better accommodations for your worker!{/color}")
 
-            for stat in ("health", "mp", "vitality"): # BATTLE_STATS
-                mod_by_max(self, stat, mod)
+            mod_battle_stats(self, mod)
             return flag_red
 
 
@@ -2354,8 +2351,7 @@ init -9 python:
                 # Home location nd mods:
                 #loc = self.home
                 #mod = loc.get_daily_modifier()
-                for stat in ("health", "mp", "vitality"): # BATTLE_STATS
-                    self.set_stat(stat, self.get_max(stat))
+                restore_battle_stats(self)
 
                 # earn some money
                 if self.location != pytfall.jail:
@@ -2399,9 +2395,7 @@ init -9 python:
                     txt.append("{color=red}%s location is still unknown. You might want to increase your efforts to find %s, otherwise %s will be gone forever.{/color}" % (self.ppC, self.pp, self.p))
                 else:
                     # your worker is in jail TODO might want to do this in the ND of the jail
-                    mod = pytfall.jail.get_daily_modifier()
-                    for stat in ("health", "mp", "vitality"): # BATTLE_STATS
-                        mod_by_max(self, stat, mod)
+                    mod_battle_stats(self, pytfall.jail.get_daily_modifier())
 
                     txt.append("{color=red}%s is spending the night in the jail!{/color}" % self.pC)
                 flag_red = True

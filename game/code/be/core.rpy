@@ -1402,17 +1402,12 @@ init -1 python: # Core classes:
         def get_element(self):
             # This may have to be expanded if we permit multi-elemental attacks in the future.
             # Returns first (if any) an element bound to spell or attack:
-            elem = None
+            result = []
             for a in self.attributes:
                 if a in tgs.el_names:
-                    if elem is None:
-                        elem = a
-                    else:
-                        return "me"
+                    result.append(traits[a.capitalize()])
 
-            for t in tgs.elemental:
-                if t.id.lower() == elem:
-                    return t
+            return result
 
         # GFX/SFX:
         def queue_call(self, at, func, *args):

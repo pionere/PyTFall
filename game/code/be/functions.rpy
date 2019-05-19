@@ -15,6 +15,37 @@ init -11 python:
         for index, t in enumerate(targets):
             renpy.hide("enemy__"+str(index))
 
+    def build_multi_elemental_icon(elements=None, size=70):
+        if elements is None: # Everything except "Neutral"
+            elements = [e for e in tgs.elemental if e.id != "Neutral"]
+
+        fixed = Fixed(xysize=(size, size))
+        angle = len(elements)
+        if angle == 0:
+            return fixed
+        angle = 360.0/angle
+
+        sqrt2 = math.sqrt(2)
+
+        csize = size*sqrt2
+        crop = (0, 0, csize/2, csize)
+        rota_shift = (int((1 - sqrt2)*size/2), int((1 - sqrt2)*size/2))
+        for index, e in enumerate(elements):
+            icon = Transform(e.icon, rotate=180, size=(size, size))
+            icon = Transform(icon, crop=crop, subpixel=True) #, align=(0, 0)
+            icon = Transform(icon, subpixel=True, pos=rota_shift)
+            fx = Fixed(xysize=(size, size))
+            fx.add(icon)
+            icon = Transform(fx, rotate=180-angle, subpixel=True)
+            icon = Transform(icon, crop=crop, subpixel=True) #, align=(0, 0)
+            icon = Transform(icon, subpixel=True, pos=rota_shift)
+            fx = Fixed(xysize=(size, size))
+            fx.add(icon)
+            icon = Transform(fx, rotate=(index*angle), subpixel=True)
+            icon = Transform(icon, subpixel=True, pos=rota_shift)
+            fixed.add(icon)
+        return fixed
+
     def run_auto_be(off_team, def_team, simple_ai=True):
         for fighter in chain(off_team, def_team):
             # dress for fight - not needed at the moment

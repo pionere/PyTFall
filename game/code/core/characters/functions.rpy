@@ -49,24 +49,6 @@ init -11 python:
             if c.workplace == b:
                 c.mod_workplace(None)
 
-    def check_stat_perc(char, stat, value, dir="lower"):
-        """Checks if stat/skill is higher/lower (or eq) than given percentage of the max.
-
-        value should be a float to check against. (.1 = 10%, .34 = 34% and etc.)
-        """
-        if is_stat(stat):
-            max_value = char.get_max(stat)
-            val = char.get_stat(stat)
-            if dir == "lower":
-                if val <= max_value*value:
-                    return True
-            elif dir == "higher":
-                if val >= max_value*value:
-                    return True
-            return False
-        elif is_skill(stat):
-            raise NotImplementedError("Skills are not yet implemented in this function.")
-
     def mod_by_max(char, stat, value):
         """Modifies a stat by a float multiplier (value) based of it's max value.
         """
@@ -76,21 +58,9 @@ init -11 python:
     def restore_battle_stats(char):
         for stat in ("health", "mp", "vitality"): # BATTLE_STATS
             char.set_stat(stat, char.get_max(stat))
-
-    def build_multi_elemental_icon(size=70, elements=None):
-        if elements is None: # Everything except "Neutral"
-            icons = [Transform(e.icon, size=(size, size)) for e in tgs.elemental if e.id != "Neutral"]
-        else:
-            icons = [Transform(e.icon, size=(size, size)) for e in elements]
-
-        xcsize = round_int(float(size)/(len(icons)))
-        fixed = Fixed(xysize=(size, size))
-        for index, icon in enumerate(icons):
-            crop = (absolute(index*xcsize), absolute(0), xcsize, size)
-            xpos = absolute(index*xcsize)
-            i = Transform(icon, crop=crop, subpixel=True, xpos=xpos)
-            fixed.add(i)
-        return fixed
+    def mod_battle_stats(char, mod):
+        for stat in ("health", "mp", "vitality"): # BATTLE_STATS
+            mod_by_max(char, stat, mod)
 
     def action_str(char):
         result = char.action
