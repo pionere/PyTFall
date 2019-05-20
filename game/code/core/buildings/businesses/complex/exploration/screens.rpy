@@ -912,7 +912,13 @@ screen fg_area(area):
                             hbox:
                                 xalign .5
                                 xsize 280
-                                text "[tracker.team.name]" align (.02, .5)
+                                fixed:
+                                    align (.02, .5)
+                                    xysize 200, 20
+                                    text "[tracker.team.name]" yalign .5
+                                if tracker.used_horses:
+                                    $ img = im.MatrixColor("content/gfx/interface/icons/horse.webp", im.matrix.brightness(.30))
+                                    add ProportionalScale(img, 20, 20) yalign .5 
                                 text "%d (%d)" % (tracker.day-1, tracker.days) align (.98, .5)
             else:
                 frame:

@@ -290,6 +290,7 @@ screen items_transfer(it_members):
                             xysize (80, 80)
                             $ img = ProportionalScale(item.icon, 60, 60)
                             imagebutton:
+                                align (.4, .5)
                                 idle img
                                 hover im.MatrixColor(img, im.matrix.brightness(.10))
                                 action Function(it_item_click, selection, None, item)

@@ -580,7 +580,10 @@ screen building_management_leftframe_businesses_mode:
             frame:
                 xysize (296, 27)
                 text "Capacity:" xalign .02 color "ivory"
-                text "[bm_mid_frame_mode.capacity]"  xalign .98 style_suffix "value_text"
+                $ cap = bm_mid_frame_mode.capacity
+                if getattr(bm_mid_frame_mode, "reserved_capacity", False):
+                    $ cap = "%d/%d" % (cap-bm_mid_frame_mode.reserved_capacity, cap)
+                text str(cap)  xalign .98 style_suffix "value_text"
 
     if getattr(bm_mid_frame_mode, "expands_capacity", False):
         null height 5
