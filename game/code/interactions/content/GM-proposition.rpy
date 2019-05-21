@@ -75,9 +75,7 @@ label interactions_sparring: # sparring with MC, for Combatant occupations only
 
         your_team = Team(name="Your Team")
         your_team.add(hero)
-        result = run_default_be(enemy_team, your_team=your_team,
-                                background=back, give_up="surrender",
-                                use_items=True)
+        result = run_default_be(enemy_team, your_team=your_team, background=back, give_up="surrender")
 
         if result is True:
             char.gfx_mod_stat("disposition", randint(15, 30))

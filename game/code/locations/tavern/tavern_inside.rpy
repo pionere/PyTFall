@@ -273,8 +273,8 @@ label city_tavern_thugs_fight: # fight with random thugs in the brawl mode
             mob.front_row = 1
             enemy_team.add(mob)
         back = interactions_pick_background_for_fight("tavern")
-        result = run_default_be(enemy_team, skill_lvl=3, use_items=True,
-                                background=back, end_background="tavern_inside")
+        result = run_default_be(enemy_team, background=back, end_background="tavern_inside", skill_lvl=3,
+                                slaves=False, prebattle=True)
 
         if result is not True:
             hero.set_flag("dnd_fought_in_tavern")

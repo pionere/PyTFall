@@ -98,7 +98,8 @@ label interactions_escalation: # character was provoked to attack MC
         your_team = Team(name="Your Team")
         your_team.add(hero)
         result = interactions_pick_background_for_fight(gm.label_cache)
-        result = run_default_be(enemy_team, your_team=your_team, background=result, end_background=gm.bg_cache, give_up="surrender", use_items=True)
+        result = run_default_be(enemy_team, your_team=your_team, background=result,
+                                end_background=gm.bg_cache, give_up="surrender")
 
     if result is True:
         python hide:

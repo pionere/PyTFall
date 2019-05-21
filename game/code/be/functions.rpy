@@ -94,11 +94,10 @@ init -11 python:
             mod_by_max(i, "vitality", -.3)
             mod_by_max(i, "mp", -.3)
 
-    def run_default_be(enemy_team, slaves=False, your_team=None,
-                       background="battle_arena_1",
-                       end_background=None,
-                       track="random", prebattle=True, death=False,
-                       skill_lvl=float("inf"), give_up=None, use_items=False):
+    def run_default_be(enemy_team, your_team=None,
+                       background="battle_arena_1", end_background=None,
+                       track="random", skill_lvl=float("inf"), give_up=None,
+                       slaves=True, prebattle=False, use_items=True, death=False):
         """
         Launches BE with MC team vs provided enemy team, returns True if MC won and vice versa
         - if slaves == True, slaves in MC team will be inside BE with passive AI, otherwise they won't be there

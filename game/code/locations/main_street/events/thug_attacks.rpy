@@ -39,7 +39,7 @@ label city_events_thugs_robbery:
                     for i in xrange(3):
                         mob = build_mob("Thug", level=randint(min_lvl, min_lvl+20))
                         enemy_team.add(mob)
-                    result = run_default_be(enemy_team, slaves=True, background=back, end_background="street_alley")
+                    result = run_default_be(enemy_team, background=back, end_background="street_alley", prebattle=True)
                     if result is True:
                         renpy.jump("city_events_thugs_robbery_win")
                     else:
@@ -80,7 +80,7 @@ label city_events_thugs_robbery_attack:
         for i in xrange(3):
             mob = build_mob("Thug", level=randint(min_lvl, min_lvl+10))
             enemy_team.add(mob)
-        result = run_default_be(enemy_team, slaves=True, background=back, end_background=scr)
+        result = run_default_be(enemy_team, background=back, end_background=scr, prebattle=True)
 
         if result is True:
             # win

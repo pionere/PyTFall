@@ -190,11 +190,9 @@ label storyi_bossroom:
         mob.mod_stat("mp", 100)
         enemy_team.add(mob)
         del mob
-        result = run_default_be(enemy_team,
-                                background="content/gfx/bg/story/p_b.webp",
-                                end_background="content/gfx/bg/story/p_b.webp",
-                                slaves=True, track="content/sfx/music/be/battle (5)b.ogg",
-                                prebattle=False, death=True, use_items=True)
+        result = "content/gfx/bg/story/p_b.webp"
+        result = run_default_be(enemy_team, background="content/gfx/bg/story/p_b.webp", end_background=result,
+                                track="content/sfx/music/be/battle (5)b.ogg", death=True)
 
     if result is True:
         show bg story p4 with sflash
@@ -243,12 +241,9 @@ label storyi_randomfight:  # initiates fight with random enemy team
             mob.controller = Complex_BE_AI(mob)
             enemy_team.add(mob)
         del mobs, mob, j
-        result = run_default_be(enemy_team,
-                                background="content/gfx/bg/be/b_dungeon_1.webp",
-                                end_background=storyi_loc_map[storyi_prison_location]["img"],
-                                slaves=True, prebattle=False,
-                                death=False, skill_lvl=4, give_up="escape",
-                                use_items=True)
+        result = storyi_loc_map[storyi_prison_location]["img"]
+        result = run_default_be(enemy_team, background="content/gfx/bg/be/b_dungeon_1.webp",
+                                end_background=result, skill_lvl=4, give_up="escape")
 
     if result is True:
         play world "Theme2.ogg" fadein 2.0 loop

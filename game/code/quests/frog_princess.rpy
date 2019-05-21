@@ -264,9 +264,7 @@ label frog_deathfight:
             mob = build_mob("Goblin Archer", level=20)
             enemy_team.add(mob)
 
-        result = run_default_be(enemy_team, slaves=True, prebattle=False,
-                              background="battle_arena_1", end_background="arena_outside",
-                              death=False, use_items=True)
+        result = run_default_be(enemy_team, background="battle_arena_1", end_background="arena_outside")
 
         if result is not True:
             jump("game_over")

@@ -199,9 +199,7 @@ label city_dark_forest_hideout_fight:
             enemy_team.add(mob)
 
     $ result = interactions_pick_background_for_fight("forest")
-    $ result = run_default_be(enemy_team, slaves=True, prebattle=False,
-                              background=result, end_background=forest_location,
-                              death=False, give_up="escape", use_items=True)
+    $ result = run_default_be(enemy_team, background=result, end_background=forest_location, give_up="escape")
     if result is True:
         $ del result, enemy_team
     elif result == "escape":
@@ -262,9 +260,7 @@ label city_dark_forest_fight:
         narrator(msg)
 
     $ result = interactions_pick_background_for_fight("forest")
-    $ result = run_default_be(enemy_team, slaves=True, prebattle=False,
-                              background=result, end_background=forest_location,
-                              death=False, give_up="escape", use_items=True)
+    $ result = run_default_be(enemy_team, background=result, end_background=forest_location, give_up="escape")
 
     if result is True:
         $ give_to_mc_item_reward(["treasure", "scrolls", "consumables",

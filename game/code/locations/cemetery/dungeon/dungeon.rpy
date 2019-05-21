@@ -222,10 +222,7 @@ init -1 python:
                 mob = build_mob(id=mob_id, level=randint(min_lvl, min_lvl+10))
                 enemy_team.add(mob)
 
-            result = run_default_be(enemy_team,
-                                    background="content/gfx/bg/be/b_dungeon_1.webp",
-                                    slaves=False, prebattle=False,
-                                    death=True, use_items=True) # TODO: maybe make escape working here too?
+            result = run_default_be(enemy_team, background="content/gfx/bg/be/b_dungeon_1.webp", death=True) # TODO: maybe make escape working here too?
 
             if result is not True:
                 jump("game_over")

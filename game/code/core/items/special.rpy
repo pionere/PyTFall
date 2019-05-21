@@ -66,11 +66,8 @@ label special_items_slime_bottle:
                 $ new_slime.front_row = 1
                 $ enemy_team = Team(name="Enemy Team", max_size=3)
                 $ enemy_team.add(new_slime)
-                $ result = run_default_be(enemy_team, slaves=True,
-                                          background="b_dungeon_1",
-                                          end_background="h_profile",
-                                          track="random", prebattle=True, death=False,
-                                          use_items=True)
+                $ result = run_default_be(enemy_team, background="b_dungeon_1", end_background="h_profile",
+                                          track="random", prebattle=True)
 
                 if result is True:
                     "You managed to beat her. Her liquid body quickly decays. It looks like she spent way too long in captivity and lost her mind..."
