@@ -1474,9 +1474,11 @@ init -9 python:
                         if (not item.mreusable) or item.mdestruct:
                             if not item.mreusable:
                                 self.miscblock.append(item)
-                            self.unequip(item)
+                            self.unequip(item, "misc", True)
                             if item.mdestruct:
                                 self.inventory.remove(item)
+                            if self.autoequip:
+                                self.auto_equip(self.last_known_aeq_purpose)
                         self.miscitems.pop(item, None)
                     else:
                         self.miscitems[item] = value

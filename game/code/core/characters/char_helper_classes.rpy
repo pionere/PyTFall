@@ -1526,8 +1526,15 @@ init -10 python:
                     value = [value*(1 - float(char.tier)/MAX_TIER), None, None]
                 elif stat == "gold":
                     value = [float(value)/max(char.gold, 100), None, None]
-                else: #                                                              STAT_STAT + STAT_IMOD              STAT_MAX + STAT_IMAX         STAT_LVL_MAX            STAT_MIN  + STAT_IMIN
-                    value = [value, self._get_stat(stat), self.get_max(stat), self.stats[stat] + self.imod[stat], self.max[stat] + self.imax[stat], self.lvl_max[stat], self.min[stat] + self.imin[stat]]
+                else:            
+                    value = [value,
+                             self._get_stat(stat),
+                             self.get_max(stat),
+                             self.stats[stat] + self.imod[stat],   # STAT_STAT + STAT_IMOD
+                             self.max[stat] + self.imax[stat],     # STAT_MAX + STAT_IMAX
+                             self.lvl_max[stat],                   # STAT_LVL_MAX
+                             self.min[stat] + self.imin[stat],     # STAT_MIN  + STAT_IMIN
+                             stat in ("health", "vitality", "mp")] # BATTLE_STATS
                     
                 _stats_mul_curr_max[stat] = value
             _skills_mul_curr = {skill:
@@ -1602,9 +1609,10 @@ init -10 python:
                         if value < 0:
                             # does not help, but does not hurt much either -> skip
                             continue
-                        # the item could help, but not now
-                        change = value*.5
-                    elif change > 0:
+                        # the item could help, but not now (except for lvl_max)
+                        if new_max != mcm[5] or mcm[7]: # l_max or BATTLE_STATS
+                            change = value*.5 #     l_max    BATTLE_STATS
+                    elif change > 0 and (new_max != mcm[5] or mcm[7]):
                         value *= .5 # it is worth at least as much as if it would not help now 
                         if change < value:
                             change = value
