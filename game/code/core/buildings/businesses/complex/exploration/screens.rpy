@@ -1,5 +1,328 @@
 screen building_management_leftframe_exploration_guild_mode:
-    if bm_exploration_view_mode == "log":
+    if bm_exploration_view_mode == "upgrades":
+        use building_management_leftframe_businesses_mode
+    elif bm_exploration_view_mode == "team":
+        # Filters:
+        frame:
+            background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
+            style_group "proper_stats"
+            xsize 316
+            xalign .5
+            padding 10, 10
+            has vbox spacing 1
+            label "Filters:" xalign .5
+            vbox:
+                style_prefix "basic"
+                xalign .5
+                textbutton "Reset":
+                    xsize 296
+                    action Function(fg_filters.clear)
+                textbutton "Warriors":
+                    xsize 296
+                    action ModFilterSet(fg_filters, "occ_filters", "Combatant")
+                textbutton "Idle":
+                    xsize 296
+                    action ModFilterSet(fg_filters, "action_filters", None)
+
+        # Sorting:
+        frame:
+            background Frame(Transform("content/gfx/frame/MC_bg.png", alpha=.55), 10 ,10)
+            style_group "proper_stats"
+            xysize (316, 50)
+            xalign .5
+            padding 10, 10
+            has hbox spacing 10 align .5, .5
+            label "Sort:":
+                yalign .5 
+
+            $ options = OrderedDict([("level", "Level"), ("name", "Name"), (None, "-")])
+            $ temp = fg_filters.sorting_order
+            use dropdown_box(options, max_rows=6, row_size=(160, 30), pos=(89, 200), value=temp, field=(fg_filters, "sorting_order"), action=Function(fg_filters.filter))
+
+            button:
+                xysize (25, 25)
+                align 1.0, 0.5 #offset 9, -2
+                background Frame(Transform("content/gfx/frame/MC_bg2.png", alpha=.55), 5, 5)
+                action ToggleField(fg_filters, "sorting_desc"), Function(fg_filters.filter)
+                if fg_filters.sorting_desc:
+                    add(im.Scale('content/gfx/interface/icons/checkbox_checked.png', 20, 20)) align .5, .5
+                else:
+                    add(im.Scale('content/gfx/interface/icons/checkbox_unchecked.png', 20, 20)) align .5, .5
+                tooltip 'Descending order'
+    elif bm_exploration_view_mode == "explore":
+        fixed: # making sure we can align stuff...
+            xysize 320, 665
+            frame:
+                style_group "content"
+                xalign .5 ypos 3
+                xysize (200, 50)
+                background Frame("content/gfx/frame/namebox5.png", 10, 10)
+                label (u"Maps") text_size 23 text_color "ivory" align (.5, .8)
+
+            viewport:
+                xysize 224, 600
+                xalign .5 ypos 57
+                mousewheel True
+                has vbox spacing 4
+                $ temp = sorted([a for a in fg_areas.values() if a.area is None and a.unlocked], key=attrgetter("name"))
+                if temp and not bm_selected_exp_area:
+                    $ mid_frame_focus = temp[0]
+
+                for area in temp:
+                    $ img = area.img
+                    frame:
+                        background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.9), 10, 10)
+                        padding 2, 2
+                        margin 0, 0
+                        button:
+                            align .5, .5
+                            xysize 220, 130
+                            background Frame(img)
+                            if bm_selected_exp_area == area:
+                                action NullAction()
+                                $ name_bg = "content/gfx/frame/frame_bg.png"
+                                $ hcolor = "gold"
+                            else:
+                                hover_background Frame(im.MatrixColor(img, im.matrix.brightness(.05)))
+                                action SetVariable("bm_selected_exp_area", area)
+                                $ name_bg = "content/gfx/frame/ink_box.png"
+                                $ hcolor = "red"
+                            frame:
+                                align .5, .0
+                                padding 20, 2
+                                background Frame(Transform(name_bg, alpha=.5), 5, 5)
+                                text area.name:
+                                    color "gold"
+                                    hover_color hcolor
+                                    style "interactions_text"
+                                    size 18 outlines [(1, "#3a3a3a", 0, 0)]
+                                    align .5, .5
+    elif bm_exploration_view_mode == "area":
+        $ area = bm_selected_exp_area_sub
+        # Left frame with Area controls
+        python:
+            can_use_horses = False
+            teams = bm_mid_frame_mode.teams_to_launch()
+            if teams:
+                if bm_mid_frame_mode.team_to_launch_index >= len(teams):
+                    bm_mid_frame_mode.team_to_launch_index = 0
+                focus_team = teams[bm_mid_frame_mode.team_to_launch_index]
+
+                for u in bm_mid_frame_mode.building.businesses:
+                    if u.__class__ == StableBusiness:
+                        num = len(focus_team)
+                        reserved = u.reserved_capacity + num
+                        if u.capacity >= reserved:
+                            can_use_horses = True
+        # The idea is to add special icons for as many features as possible in the future to make Areas cool:
+        # Simple buttons are temp for dev versions/beta.
+        style_prefix "basic"
+        button:
+            xalign .5
+            xysize 300, 30
+            if len(area.camp_queue) != 0:
+                action ToggleField(area, "building_camp")
+                tooltip "Activate if you want the team to spend its time on building the camp."
+            text "Build the camp" xalign .5
+        null height 2
+        button:
+            xalign .5
+            xysize 300, 30
+            action ToggleField(area, "capture_chars")
+            text "Capture Chars" xalign .5
+        null height 2
+        button:
+            xalign .5
+            xysize 300, 30
+            if can_use_horses:
+                action ToggleField(area, "use_horses")
+                tooltip "Activate if you want the team to borrow horses from the Stable. Allows to travel twice as fast!"
+            text "Use horses" xalign .5
+
+        null height 5
+        $ distance = round_int(area.travel_time / 20.0)
+        frame:
+            background Frame(Transform("content/gfx/frame/Namebox.png", alpha=.9), 10, 10)
+            xalign .5
+            xysize 300, 30
+            margin 0, 0
+            padding 3, 2
+            style_group "proper_stats"
+            hbox:
+                xsize 300
+                if distance > 1:
+                    text "Travel time is about %d days" % distance xpos 5
+                elif distance == 1:
+                    text "Travel time is about a day" xpos 5
+                else:
+                    text "Travel time is less than one day" xpos 5
+        frame:
+            background Frame(Transform("content/gfx/frame/Namebox.png", alpha=.9), 10, 10)
+            xalign .5
+            xysize 300, 30
+            margin 0, 0
+            padding 3, 2
+            style_group "proper_stats"
+            hbox:
+                xsize 300
+                text "Days Exploring:" xpos 5
+                text "[area.days]" xalign .9
+        hbox:
+            xalign .5
+            spacing 10
+            imagebutton:
+                yalign .5
+                idle 'content/gfx/interface/buttons/prev.png'
+                hover im.MatrixColor('content/gfx/interface/buttons/prev.png', im.matrix.brightness(.15))
+                action SetField(area, "days", max(3, area.days-1))
+            bar:
+                align .5, .5
+                value FieldValue(area, 'days', area.maxdays-3, max_is_zero=False, style='scrollbar', offset=3, step=1)
+                xmaximum 150
+                thumb 'content/gfx/interface/icons/move15.png'
+                tooltip "Adjust the number of days to spend on site."
+            imagebutton:
+                yalign .5
+                idle 'content/gfx/interface/buttons/next.png'
+                hover im.MatrixColor('content/gfx/interface/buttons/next.png', im.matrix.brightness(.15))
+                action SetField(area, "days", min(15, area.days+1))
+
+        null height 5
+        frame:
+            background Frame(Transform("content/gfx/frame/Namebox.png", alpha=.9), 10, 10)
+            xalign .5
+            xysize 300, 30
+            margin 0, 0
+            padding 3, 2
+            style_group "proper_stats"
+            hbox:
+                xsize 300
+                text "Risk:" xpos 5
+                text "[area.risk]" xalign .9
+        hbox:
+            xalign .5
+            spacing 10
+            imagebutton:
+                yalign .5
+                idle 'content/gfx/interface/buttons/prev.png'
+                hover im.MatrixColor('content/gfx/interface/buttons/prev.png', im.matrix.brightness(.15))
+                action SetField(area, "risk", max(0, area.risk-1))
+            bar:
+                align .5, .5
+                value FieldValue(area, 'risk', 100, max_is_zero=False, style='scrollbar', offset=0, step=1)
+                xmaximum 150
+                thumb 'content/gfx/interface/icons/move15.png'
+                tooltip ("Adjust the risk your team takes while exploring. Higher risk gives higher reward, " +
+                         "but your team may not even return if you push this too far!")
+            imagebutton:
+                yalign .5
+                idle 'content/gfx/interface/buttons/next.png'
+                hover (im.MatrixColor('content/gfx/interface/buttons/next.png', im.matrix.brightness(.15)))
+                action SetField(area, "risk", min(100, area.risk+1))
+
+        null height 5
+        hbox:
+            spacing 10
+            xalign .5
+            button:
+                style "paging_green_button_left"
+                yalign .5
+                action Function(bm_mid_frame_mode.prev_team_to_launch)
+                tooltip "Previous Team"
+                sensitive len(teams) > 1
+            button:
+                style "marble_button"
+                padding 10, 10
+                if teams:
+                    action Function(bm_mid_frame_mode.launch_team, focus_team, area), With(fade)
+                    tooltip "Send %s on %s days long exploration run!" % (focus_team.name, area.days)
+                    vbox:
+                        xminimum 150
+                        spacing -30
+                        text "Launch" style "basic_button_text" xalign .5
+                        text "\n[focus_team.name]" style "basic_button_text" xalign .5
+                else:
+                    action NullAction()
+                    text "No Teams Available!" style "basic_button_text" align .5, .5
+
+            button:
+                style "paging_green_button_right"
+                yalign .5
+                action Function(bm_mid_frame_mode.next_team_to_launch)
+                tooltip "Next Team"
+                sensitive len(teams) > 1
+
+        default objects_mode = "allowed"
+        null height 10
+        frame:
+            align .5, .02
+            xsize 330
+            background None
+            $ builders = any(t.building_camp for t in area.trackers)
+            if objects_mode == "allowed":
+                button:
+                    xalign .5
+                    xsize 300
+                    text "To build" color "ivory" align (.0, .5) size 17 outlines [(1, "#424242", 0, 0)]
+                    background im.Scale("content/gfx/interface/buttons/tablefts.webp", 300, 30)
+                    action NullAction()
+                    focus_mask True
+                button:
+                    xalign .5
+                    xsize 300
+                    text "In queue" color "ivory" align (1.0, .5) size 16
+                    background im.Scale("content/gfx/interface/buttons/tabright.webp", 300, 30)
+                    action SetScreenVariable("objects_mode", "queue")
+                    tooltip "View Objects In Queue"
+                    focus_mask True
+                vbox:
+                    ypos 40
+                    xalign .5
+                    xsize 330 #, 150
+                    $ temp = set([u.type for u in area.camp_queue])
+                    for u in area.allowed_objects:
+                        if u.type not in temp:
+                            $ temp.add(u.type)
+                            button:
+                                xalign .5
+                                xysize 300, 25
+                                style "pb_button"
+                                text "[u.name]" align (.5, .5) color "ivory"
+                                action Function(area.queue, u)
+                                sensitive (not builders)
+                                tooltip u.desc
+            else:
+                button:
+                    xalign .5
+                    xsize 300
+                    text "To build" color "ivory" align (.0, .5) size 16
+                    background im.Scale("content/gfx/interface/buttons/tableft.webp", 300, 30)
+                    action SetScreenVariable("objects_mode", "allowed")
+                    tooltip "View Objects To Build"
+                    focus_mask True
+                button:
+                    xalign .5
+                    xsize 300
+                    text "In queue" color "ivory" align (1.0, .5) size 17 outlines [(1, "#424242", 0, 0)]
+                    background im.Scale("content/gfx/interface/buttons/tabrights.webp", 300, 30)
+                    action NullAction()
+                    focus_mask True
+
+                vbox:
+                    ypos 40
+                    xalign .5 #, .2
+                    xsize 330 #, 150
+                    for u in area.camp_queue:
+                        button:
+                            xalign .5
+                            xysize 300, 25
+                            style "pb_button"
+                            text "[u.name]" align (.5, .5) color "ivory"
+                            action Function(area.dequeue, u)
+                            sensitive (not builders)
+                            tooltip u.desc
+
+    elif bm_exploration_view_mode == "log":
         default focused_area_index = 0
 
         $ temp = sorted([a for a in fg_areas.values() if a.area is None and a.unlocked], key=attrgetter("stage"))
@@ -135,220 +458,9 @@ screen building_management_leftframe_exploration_guild_mode:
                     text "[main_area.chars_captured]":
                         style_suffix "value_text"
                         color "ivory"
-    elif bm_exploration_view_mode == "upgrades":
-        use building_management_leftframe_businesses_mode
-    elif bm_exploration_view_mode == "team":
-        # Filters:
-        frame:
-            background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
-            style_group "proper_stats"
-            xsize 316
-            xalign .5
-            padding 10, 10
-            has vbox spacing 1
-            label "Filters:" xalign .5
-            vbox:
-                style_prefix "basic"
-                xalign .5
-                textbutton "Reset":
-                    xsize 296
-                    action Function(fg_filters.clear)
-                textbutton "Warriors":
-                    xsize 296
-                    action ModFilterSet(fg_filters, "occ_filters", "Combatant")
-                textbutton "Idle":
-                    xsize 296
-                    action ModFilterSet(fg_filters, "action_filters", None)
-
-        # Sorting:
-        frame:
-            background Frame(Transform("content/gfx/frame/MC_bg.png", alpha=.55), 10 ,10)
-            style_group "proper_stats"
-            xysize (316, 50)
-            xalign .5
-            padding 10, 10
-            has hbox spacing 10 align .5, .5
-            label "Sort:":
-                yalign .5 
-
-            $ options = OrderedDict([("level", "Level"), ("name", "Name"), (None, "-")])
-            $ temp = fg_filters.sorting_order
-            use dropdown_box(options, max_rows=6, row_size=(160, 30), pos=(89, 200), value=temp, field=(fg_filters, "sorting_order"), action=Function(fg_filters.filter))
-
-            button:
-                xysize (25, 25)
-                align 1.0, 0.5 #offset 9, -2
-                background Frame(Transform("content/gfx/frame/MC_bg2.png", alpha=.55), 5, 5)
-                action ToggleField(fg_filters, "sorting_desc"), Function(fg_filters.filter)
-                if fg_filters.sorting_desc:
-                    add(im.Scale('content/gfx/interface/icons/checkbox_checked.png', 20, 20)) align .5, .5
-                else:
-                    add(im.Scale('content/gfx/interface/icons/checkbox_unchecked.png', 20, 20)) align .5, .5
-                tooltip 'Descending order'
-    elif bm_exploration_view_mode == "explore":
-        fixed: # making sure we can align stuff...
-            xysize 320, 665
-            frame:
-                style_group "content"
-                xalign .5 ypos 3
-                xysize (200, 50)
-                background Frame("content/gfx/frame/namebox5.png", 10, 10)
-                label (u"Maps") text_size 23 text_color "ivory" align (.5, .8)
-
-            viewport:
-                xysize 224, 600
-                xalign .5 ypos 57
-                mousewheel True
-                has vbox spacing 4
-                $ temp = sorted([a for a in fg_areas.values() if a.area is None and a.unlocked], key=attrgetter("name"))
-                if temp and not bm_selected_exp_area:
-                    $ mid_frame_focus = temp[0]
-
-                for area in temp:
-                    $ img = area.img
-                    frame:
-                        background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.9), 10, 10)
-                        padding 2, 2
-                        margin 0, 0
-                        button:
-                            align .5, .5
-                            xysize 220, 130
-                            background Frame(img)
-                            if bm_selected_exp_area == area:
-                                action NullAction()
-                                $ name_bg = "content/gfx/frame/frame_bg.png"
-                                $ hcolor = "gold"
-                            else:
-                                hover_background Frame(im.MatrixColor(img, im.matrix.brightness(.05)))
-                                action SetVariable("bm_selected_exp_area", area)
-                                $ name_bg = "content/gfx/frame/ink_box.png"
-                                $ hcolor = "red"
-                            frame:
-                                align .5, .0
-                                padding 20, 2
-                                background Frame(Transform(name_bg, alpha=.5), 5, 5)
-                                text area.name:
-                                    color "gold"
-                                    hover_color hcolor
-                                    style "interactions_text"
-                                    size 18 outlines [(1, "#3a3a3a", 0, 0)]
-                                    align .5, .5
 
 screen building_management_midframe_exploration_guild_mode:
-    if bm_exploration_view_mode == "log":
-        if isinstance(bm_selected_log_area, FG_Area):
-            default focused_log = None
-            $ area = bm_selected_log_area
-
-            frame:
-                background Transform(Frame("content/gfx/frame/mes11.webp", 10, 10), alpha=.9)
-                xysize (620, 90)
-                xalign .5
-                ymargin 1
-                ypadding 1
-                text area.name color "gold" style "interactions_text" size 35 outlines [(1, "#3a3a3a", 0, 0)] align (.5, .3)
-                hbox:
-                    align (.5, .9)
-                    # Get the correct stars:
-                    use stars(area.explored, area.maxexplored)
-
-            # Buttons with logs (Events):
-            frame:
-                background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
-                style_prefix "dropdown_gm2"
-                ypos 100 xalign .0
-                ysize 550
-                padding 10, 10
-                has vbox xsize 230 spacing 1
-                frame:
-                    style_group "content"
-                    xalign .5
-                    padding 15, 5
-                    background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.6), 10, 10)
-                    label "Events" text_size 20 text_color "ivory" align .5, .5
-
-                for l in area.logs:
-                    button:
-                        xalign .5
-                        ysize 18
-                        action SetScreenVariable("focused_log", l)
-                        text str(l.name) size 12 xalign .02 yoffset 1
-                        text str(l.suffix) size 12 align (1.0, .5)
-
-            # Information (Story)
-            frame:
-                background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6, yzoom=-1), 10, 10)
-                ysize 550
-                padding 10, 10
-                ypos 100 xalign 1.0
-                has vbox xsize 350 spacing 1
-                frame:
-                    style_group "content"
-                    xalign .5
-                    padding 15, 5
-                    background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.6), 10, 10)
-                    label "Story" text_size 20 text_color "ivory" align .5, .5
-
-                frame:
-                    background Frame("content/gfx/frame/ink_box.png", 10, 10)
-                    has viewport draggable 1 mousewheel 1
-                    if focused_log:
-                        $ obj = focused_log.event_object
-                        if isinstance(obj, Item):
-                            vbox:
-                                spacing 10
-                                xfill True
-                                add ProportionalScale(obj.icon, 100, 100) xalign .5
-                                text obj.desc xalign .5 style "stats_value_text" size 14 color "ivory"
-                        elif isinstance(obj, Char):
-                            vbox:
-                                spacing 10
-                                xfill True
-                                add obj.show("portrait", resize=(100, 100), cache=True) xalign .5
-                                text obj.name xalign .5 style "stats_value_text" size 18 color "ivory"
-                        elif isinstance(obj, list):
-                            # battle_log
-                            text "\n".join(obj) style "stats_value_text" size 14 color "ivory"
-        else:
-            # bm_selected_log_area is None
-            frame: # Image
-                xalign .5
-                padding 5, 5
-                background Frame("content/gfx/frame/MC_bg3.png", 10 ,10)
-                add im.Scale("content/gfx/bg/buildings/log.webp", 600, 390)
-    elif bm_exploration_view_mode == "explore":
-        vbox:
-            xalign .5
-            frame: # Image
-                xalign .5
-                padding 5, 5
-                background Frame("content/gfx/frame/MC_bg3.png", 10 ,10)
-                add im.Scale("content/gfx/bg/buildings/Exploration.webp", 600, 390)
-
-            hbox:
-                box_wrap 1
-                spacing 2
-                xalign .5
-                if isinstance(bm_selected_exp_area, FG_Area):
-                    $ temp = sorted([a for a in fg_areas.values() if a.area == bm_selected_exp_area.id], key=attrgetter("stage"))
-                    for area in temp:
-                        button:
-                            background Transform(Frame("content/gfx/frame/mes12.jpg", 10, 10), alpha=.9)
-                            hover_background Transform(Frame(im.MatrixColor("content/gfx/frame/mes11.webp", im.matrix.brightness(.10)), 10, 10), alpha=.9)
-                            xysize (150, 90)
-                            ymargin 1
-                            ypadding 1
-                            if area.unlocked:
-                                $ temp = area.name
-                                action Show("fg_area", dissolve, area)
-                            else:
-                                $ temp = "?????????"
-                                action NullAction()
-                            text temp color "gold" style "interactions_text" size 14 outlines [(1, "#3a3a3a", 0, 0)] align (.5, .3)
-                            hbox:
-                                align (.5, .9)
-                                use stars(area.explored, area.maxexplored)
-    elif bm_exploration_view_mode == "upgrades":
+    if bm_exploration_view_mode == "upgrades":
         use building_management_midframe_businesses_mode
     elif bm_exploration_view_mode == "team":
         # Backgrounds:
@@ -544,305 +656,40 @@ screen building_management_midframe_exploration_guild_mode:
                     add w.show("portrait", resize=(74, 74), cache=True)
                     hovered Function(setattr, config, "mouse", mouse_drag)
                     unhovered Function(setattr, config, "mouse", mouse_cursor)
-
-screen building_management_rightframe_exploration_guild_mode:
-    frame:
-        xalign .5
-        xysize 260, 40
-        background Frame("content/gfx/frame/namebox5.png", 10, 10)
-        label str(bm_mid_frame_mode.name) text_size 18 text_color "ivory" align .5, .6
-
-    frame:
-        background Null()
-        xfill True yfill True
-        frame:
-            background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
-            align .5, .95
-            padding 10, 10
-            vbox:
-                style_group "wood"
-                align .5, .5
-                spacing 10
-                if False:
-                    button:
-                        xysize (150, 40)
-                        yalign .5
-                        action NullAction()
-                        tooltip "All the meetings and conversations are held in this Hall. On the noticeboard, you can take job that available for your rank. Sometimes guild members or the master himself and his Council, can offer you a rare job."
-                        text "Main Hall" size 15
-                button:
-                    xysize (150, 40)
-                    yalign .5
-                    action SetVariable("bm_exploration_view_mode", "upgrades")
-                    tooltip "Expand your Guild"
-                    text "Upgrades" size 15
-                button:
-                    xysize (150, 40)
-                    yalign .5
-                    action SetVariable("bm_exploration_view_mode", "team")
-                    tooltip "You can customize your teams here or hire Guild members."
-                    text "Teams" size 15
-                button:
-                    xysize (150, 40)
-                    yalign .5
-                    action SetVariable("bm_exploration_view_mode", "explore")
-                    tooltip ("On this screen you can organize the expedition. Also, there is a "+
-                             "possibility to see all available information on the various places, enemies and items drop.")
-                    text "Exploration" size 15
-                button:
-                    xysize (150, 40)
-                    yalign .5
-                    action SetVariable("bm_exploration_view_mode", "log")
-                    tooltip "For each of your teams, recorded one last adventure, which you can see here in detail."
-                    text "Log" size 15
-                button:
-                    xysize 150, 40
-                    yalign .5
-                    action Return(["bm_mid_frame_mode", None])
-                    tooltip ("Back to the main overview of the building.")
-                    text "Back" size 15
-
-# Customized screens for specific businesses:
-screen fg_area(area):
-    modal True
-    zorder 1
-
-    add Transform("content/gfx/images/bg_gradient2.webp", alpha=.5)
-
-    style_prefix "basic"
-
-    # Left frame with Area controls
-    python:
-        can_use_horses = False
-        teams = bm_mid_frame_mode.teams_to_launch()
-        if teams:
-            if bm_mid_frame_mode.team_to_launch_index >= len(teams):
-                bm_mid_frame_mode.team_to_launch_index = 0
-            focus_team = teams[bm_mid_frame_mode.team_to_launch_index]
-
-            for u in bm_mid_frame_mode.building.businesses:
-                if u.__class__ == StableBusiness:
-                    num = len(focus_team)
-                    reserved = u.reserved_capacity + num
-                    if u.capacity >= reserved:
-                        can_use_horses = True
-    frame:
-        background Frame("content/gfx/frame/p_frame5.png", 10, 10)
-        xysize 330, 680
-        ypos 40
-        has vbox xsize 326 spacing 2 xalign .5
-        # The idea is to add special icons for as many features as possible in the future to make Areas cool:
-        # Simple buttons are temp for dev versions/beta.
-        button:
+    elif bm_exploration_view_mode == "explore":
+        vbox:
             xalign .5
-            xysize 300, 30
-            if len(area.camp_queue) != 0:
-                action ToggleField(area, "building_camp")
-                tooltip "Activate if you want the team to spend its time on building the camp."
-            text "Build the camp" xalign .5
-        button:
-            xalign .5
-            xysize 300, 30
-            action ToggleField(area, "capture_chars")
-            text "Capture Chars" xalign .5
-        button:
-            xalign .5
-            xysize 300, 30
-            if can_use_horses:
-                action ToggleField(area, "use_horses")
-                tooltip "Activate if you want the team to borrow horses from the Stable. Allows to travel twice as fast!"
-            text "Use horses" xalign .5
+            frame: # Image
+                xalign .5
+                padding 5, 5
+                background Frame("content/gfx/frame/MC_bg3.png", 10 ,10)
+                add im.Scale("content/gfx/bg/buildings/Exploration.webp", 600, 390)
 
-        null height 5
-        $ distance = round_int(area.travel_time / 20.0)
-        frame:
-            background Frame(Transform("content/gfx/frame/Namebox.png", alpha=.9), 10, 10)
-            xalign .5
-            xysize 300, 30
-            margin 0, 0
-            padding 3, 2
-            style_group "proper_stats"
             hbox:
-                xsize 300
-                if distance > 1:
-                    text "Travel time is about %d days" % distance xpos 5
-                elif distance == 1:
-                    text "Travel time is about a day" xpos 5
-                else:
-                    text "Travel time is less than one day" xpos 5
-        frame:
-            background Frame(Transform("content/gfx/frame/Namebox.png", alpha=.9), 10, 10)
-            xalign .5
-            xysize 300, 30
-            margin 0, 0
-            padding 3, 2
-            style_group "proper_stats"
-            hbox:
-                xsize 300
-                text "Days Exploring:" xpos 5
-                text "[area.days]" xalign .9
-        hbox:
-            xalign .5
-            spacing 10
-            imagebutton:
-                yalign .5
-                idle 'content/gfx/interface/buttons/prev.png'
-                hover im.MatrixColor('content/gfx/interface/buttons/prev.png', im.matrix.brightness(.15))
-                action SetField(area, "days", max(3, area.days-1))
-            bar:
-                align .5, .5
-                value FieldValue(area, 'days', area.maxdays-3, max_is_zero=False, style='scrollbar', offset=3, step=1)
-                xmaximum 150
-                thumb 'content/gfx/interface/icons/move15.png'
-                tooltip "Adjust the number of days to spend on site."
-            imagebutton:
-                yalign .5
-                idle 'content/gfx/interface/buttons/next.png'
-                hover im.MatrixColor('content/gfx/interface/buttons/next.png', im.matrix.brightness(.15))
-                action SetField(area, "days", min(15, area.days+1))
-
-        null height 5
-        frame:
-            background Frame(Transform("content/gfx/frame/Namebox.png", alpha=.9), 10, 10)
-            xalign .5
-            xysize 300, 30
-            margin 0, 0
-            padding 3, 2
-            style_group "proper_stats"
-            hbox:
-                xsize 300
-                text "Risk:" xpos 5
-                text "[area.risk]" xalign .9
-        hbox:
-            xalign .5
-            spacing 10
-            imagebutton:
-                yalign .5
-                idle 'content/gfx/interface/buttons/prev.png'
-                hover im.MatrixColor('content/gfx/interface/buttons/prev.png', im.matrix.brightness(.15))
-                action SetField(area, "risk", max(0, area.risk-1))
-            bar:
-                align .5, .5
-                value FieldValue(area, 'risk', 100, max_is_zero=False, style='scrollbar', offset=0, step=1)
-                xmaximum 150
-                thumb 'content/gfx/interface/icons/move15.png'
-                tooltip ("Adjust the risk your team takes while exploring. Higher risk gives higher reward, " +
-                         "but your team may not even return if you push this too far!")
-            imagebutton:
-                yalign .5
-                idle 'content/gfx/interface/buttons/next.png'
-                hover (im.MatrixColor('content/gfx/interface/buttons/next.png', im.matrix.brightness(.15)))
-                action SetField(area, "risk", min(100, area.risk+1))
-
-        null height 5
-        hbox:
-            spacing 10
-            xalign .5
-            button:
-                style "paging_green_button_left"
-                yalign .5
-                action Function(bm_mid_frame_mode.prev_team_to_launch)
-                tooltip "Previous Team"
-                sensitive len(teams) > 1
-            button:
-                style "marble_button"
-                padding 10, 10
-                if teams:
-                    action Function(bm_mid_frame_mode.launch_team, focus_team, area), With(fade)
-                    tooltip "Send %s on %s days long exploration run!" % (focus_team.name, area.days)
-                    vbox:
-                        xminimum 150
-                        spacing -30
-                        text "Launch" style "basic_button_text" xalign .5
-                        text "\n[focus_team.name]" style "basic_button_text" xalign .5
-                else:
-                    action NullAction()
-                    text "No Teams Available!" style "basic_button_text" align .5, .5
-
-            button:
-                style "paging_green_button_right"
-                yalign .5
-                action Function(bm_mid_frame_mode.next_team_to_launch)
-                tooltip "Next Team"
-                sensitive len(teams) > 1
-
-        default objects_mode = "allowed"
-        null height 10
-        frame:
-            align .5, .02
-            xsize 330
-            background None
-            $ builders = any(t.building_camp for t in area.trackers)
-            if objects_mode == "allowed":
-                button:
-                    xalign .5
-                    xsize 300
-                    text "To build" color "ivory" align (.0, .5) size 17 outlines [(1, "#424242", 0, 0)]
-                    background im.Scale("content/gfx/interface/buttons/tablefts.webp", 300, 30)
-                    action NullAction()
-                    focus_mask True
-                button:
-                    xalign .5
-                    xsize 300
-                    text "In queue" color "ivory" align (1.0, .5) size 16
-                    background im.Scale("content/gfx/interface/buttons/tabright.webp", 300, 30)
-                    action SetScreenVariable("objects_mode", "queue")
-                    tooltip "View Objects In Queue"
-                    focus_mask True
-                vbox:
-                    ypos 40
-                    xalign .5
-                    xsize 330 #, 150
-                    $ temp = set([u.type for u in area.camp_queue])
-                    for u in area.allowed_objects:
-                        if u.type not in temp:
-                            $ temp.add(u.type)
-                            button:
-                                xalign .5
-                                xysize 300, 25
-                                style "pb_button"
-                                text "[u.name]" align (.5, .5) color "ivory"
-                                action Function(area.queue, u)
-                                sensitive (not builders)
-                                tooltip u.desc
-            else:
-                button:
-                    xalign .5
-                    xsize 300
-                    text "To build" color "ivory" align (.0, .5) size 16
-                    background im.Scale("content/gfx/interface/buttons/tableft.webp", 300, 30)
-                    action SetScreenVariable("objects_mode", "allowed")
-                    tooltip "View Objects To Build"
-                    focus_mask True
-                button:
-                    xalign .5
-                    xsize 300
-                    text "In queue" color "ivory" align (1.0, .5) size 17 outlines [(1, "#424242", 0, 0)]
-                    background im.Scale("content/gfx/interface/buttons/tabrights.webp", 300, 30)
-                    action NullAction()
-                    focus_mask True
-
-                vbox:
-                    ypos 40
-                    xalign .5 #, .2
-                    xsize 330 #, 150
-                    for u in area.camp_queue:
+                box_wrap 1
+                spacing 2
+                xalign .5
+                if isinstance(bm_selected_exp_area, FG_Area):
+                    $ temp = sorted([a for a in fg_areas.values() if a.area == bm_selected_exp_area.id], key=attrgetter("stage"))
+                    for area in temp:
                         button:
-                            xalign .5
-                            xysize 300, 25
-                            style "pb_button"
-                            text "[u.name]" align (.5, .5) color "ivory"
-                            action Function(area.dequeue, u)
-                            sensitive (not builders)
-                            tooltip u.desc
-
-    # Mid-Frame:
-    frame:
-        ypos 40
-        xalign .5
-        background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
-        style_prefix "content"
-        xysize (630, 680)
+                            background Transform(Frame("content/gfx/frame/mes12.jpg", 10, 10), alpha=.9)
+                            hover_background Transform(Frame(im.MatrixColor("content/gfx/frame/mes11.webp", im.matrix.brightness(.10)), 10, 10), alpha=.9)
+                            xysize (150, 90)
+                            ymargin 1
+                            ypadding 1
+                            if area.unlocked:
+                                $ temp = area.name
+                                action [SetVariable("bm_selected_exp_area_sub", area), SetVariable("bm_exploration_view_mode", "area")]
+                            else:
+                                $ temp = "?????????"
+                                action NullAction()
+                            text temp color "gold" style "interactions_text" size 14 outlines [(1, "#3a3a3a", 0, 0)] align (.5, .3)
+                            hbox:
+                                align (.5, .9)
+                                use stars(area.explored, area.maxexplored)
+    elif bm_exploration_view_mode == "area":
+        $ area = bm_selected_exp_area_sub
         # Area-Name
         frame:
             background Transform(Frame("content/gfx/frame/mes11.webp", 10, 10), alpha=.9)
@@ -932,20 +779,96 @@ screen fg_area(area):
             align .5, .99
             button:
                 style_group "basic"
-                action Hide("fg_area"), With(dissolve)
+                action SetVariable("bm_exploration_view_mode", "explore")
                 minimum (50, 30)
                 text "Back"
                 keysym "mousedown_3"
 
-    ## Right frame:
-    frame:
-        xysize (330, 680)
-        ypos 40
-        xalign 1.0
-        background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
-        vbox:
-            spacing -1
-            align .5, .5
+    elif bm_exploration_view_mode == "log":
+        if isinstance(bm_selected_log_area, FG_Area):
+            default focused_log = None
+            $ area = bm_selected_log_area
+
+            frame:
+                background Transform(Frame("content/gfx/frame/mes11.webp", 10, 10), alpha=.9)
+                xysize (620, 90)
+                xalign .5
+                ymargin 1
+                ypadding 1
+                text area.name color "gold" style "interactions_text" size 35 outlines [(1, "#3a3a3a", 0, 0)] align (.5, .3)
+                hbox:
+                    align (.5, .9)
+                    # Get the correct stars:
+                    use stars(area.explored, area.maxexplored)
+
+            # Buttons with logs (Events):
+            frame:
+                background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
+                style_prefix "dropdown_gm2"
+                ypos 100 xalign .0
+                ysize 550
+                padding 10, 10
+                has vbox xsize 230 spacing 1
+                frame:
+                    style_group "content"
+                    xalign .5
+                    padding 15, 5
+                    background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.6), 10, 10)
+                    label "Events" text_size 20 text_color "ivory" align .5, .5
+
+                for l in area.logs:
+                    button:
+                        xalign .5
+                        ysize 18
+                        action SetScreenVariable("focused_log", l)
+                        text str(l.name) size 12 xalign .02 yoffset 1
+                        text str(l.suffix) size 12 align (1.0, .5)
+
+            # Information (Story)
+            frame:
+                background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6, yzoom=-1), 10, 10)
+                ysize 550
+                padding 10, 10
+                ypos 100 xalign 1.0
+                has vbox xsize 350 spacing 1
+                frame:
+                    style_group "content"
+                    xalign .5
+                    padding 15, 5
+                    background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.6), 10, 10)
+                    label "Story" text_size 20 text_color "ivory" align .5, .5
+
+                frame:
+                    background Frame("content/gfx/frame/ink_box.png", 10, 10)
+                    has viewport draggable 1 mousewheel 1
+                    if focused_log:
+                        $ obj = focused_log.event_object
+                        if isinstance(obj, Item):
+                            vbox:
+                                spacing 10
+                                xfill True
+                                add ProportionalScale(obj.icon, 100, 100) xalign .5
+                                text obj.desc xalign .5 style "stats_value_text" size 14 color "ivory"
+                        elif isinstance(obj, Char):
+                            vbox:
+                                spacing 10
+                                xfill True
+                                add obj.show("portrait", resize=(100, 100), cache=True) xalign .5
+                                text obj.name xalign .5 style "stats_value_text" size 18 color "ivory"
+                        elif isinstance(obj, list):
+                            # battle_log
+                            text "\n".join(obj) style "stats_value_text" size 14 color "ivory"
+        else:
+            # bm_selected_log_area is None
+            frame: # Image
+                xalign .5
+                padding 5, 5
+                background Frame("content/gfx/frame/MC_bg3.png", 10 ,10)
+                add im.Scale("content/gfx/bg/buildings/log.webp", 600, 390)
+
+screen building_management_rightframe_exploration_guild_mode:
+    if bm_exploration_view_mode == "area":
+            $ area = bm_selected_exp_area_sub
             frame:
                 background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
                 xysize (310, 335)
@@ -994,7 +917,7 @@ screen fg_area(area):
                                     align .5, .5
                                     idle img
                                     hover (im.MatrixColor(img, im.matrix.brightness(.15)))
-                                    action Hide("fg_area"), Show("arena_bestiary", dissolve, m, return_button_action=Show("fg_area", dissolve, area))
+                                    action Show("arena_bestiary", dissolve, m, return_button_action=[Function(SetVariable, "bm_mid_frame_mode", bm_mid_frame_mode), Function(SetVariable, "bm_exploration_view_mode", "area")])
 
             frame:
                 background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
@@ -1039,7 +962,69 @@ screen fg_area(area):
                                 padding 3, 3
                                 xysize 60, 60
                                 align .99, .5
-                                add ProportionalScale(i.icon, 57, 57) align .5, .5
+                                $ temp = ProportionalScale(i.icon, 57, 57)
+                                imagebutton:
+                                    align .5, .5
+                                    idle temp
+                                    hover im.MatrixColor(temp, im.matrix.brightness(.15))
+                                    action Show("show_item_info", item=i)
+
+    else:
+        frame:
+            xalign .5
+            xysize 260, 40
+            background Frame("content/gfx/frame/namebox5.png", 10, 10)
+            label str(bm_mid_frame_mode.name) text_size 18 text_color "ivory" align .5, .6
+
+        frame:
+            background Null()
+            xfill True yfill True
+            frame:
+                background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
+                align .5, .95
+                padding 10, 10
+                vbox:
+                    style_group "wood"
+                    align .5, .5
+                    spacing 10
+                    if False:
+                        button:
+                            xysize (150, 40)
+                            yalign .5
+                            action NullAction()
+                            tooltip "All the meetings and conversations are held in this Hall. On the noticeboard, you can take job that available for your rank. Sometimes guild members or the master himself and his Council, can offer you a rare job."
+                            text "Main Hall" size 15
+                    button:
+                        xysize (150, 40)
+                        yalign .5
+                        action SetVariable("bm_exploration_view_mode", "upgrades")
+                        tooltip "Expand your Guild"
+                        text "Upgrades" size 15
+                    button:
+                        xysize (150, 40)
+                        yalign .5
+                        action SetVariable("bm_exploration_view_mode", "team")
+                        tooltip "You can customize your teams here or hire Guild members."
+                        text "Teams" size 15
+                    button:
+                        xysize (150, 40)
+                        yalign .5
+                        action SetVariable("bm_exploration_view_mode", "explore")
+                        tooltip ("On this screen you can organize the expedition. Also, there is a "+
+                                 "possibility to see all available information on the various places, enemies and items drop.")
+                        text "Exploration" size 15
+                    button:
+                        xysize (150, 40)
+                        yalign .5
+                        action SetVariable("bm_exploration_view_mode", "log")
+                        tooltip "For each of your teams, recorded one last adventure, which you can see here in detail."
+                        text "Log" size 15
+                    button:
+                        xysize 150, 40
+                        yalign .5
+                        action Return(["bm_mid_frame_mode", None])
+                        tooltip ("Back to the main overview of the building.")
+                        text "Back" size 15
 
 screen exploration_team(team):
     zorder 1

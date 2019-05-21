@@ -428,7 +428,7 @@ init -6 python: # Guild, Tracker and Log.
             self.explorers.append(tracker)
 
             guild_teams.remove(team)
-
+            renpy.restart_interaction()
             renpy.show_screen("message_screen", "The team is going to explore this area for %d days!" % area.days)
 
         # SimPy methods:

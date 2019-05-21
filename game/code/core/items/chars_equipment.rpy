@@ -1306,7 +1306,7 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
 
 # TODO keep in sync or even merge with show_trait_info
 screen show_item_info(item=None):
-    modal True
+    #modal True
     $ pos = renpy.get_mouse_pos()
     mousearea:
         area(pos[0], pos[1], 1, 1)
