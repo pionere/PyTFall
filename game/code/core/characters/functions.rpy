@@ -437,29 +437,23 @@ init -11 python:
         tier = min(((char.tier/2)+1), 4) # MAX_MAGIC_TIER = 4
         attributes = set([t.id.lower() for t in char.elements])
         if amount is None:
-            if traits["Healer"] in char.traits.basetraits:
-                s_amount = max(tier, 2)
-            #elif traits["Healer"] in char.traits:
-            #    s_amount = max(tier, 1)
-            else:
-                s_amount = 0
-
             gen_occs = char.gen_occs
+            if "Combatant" not in gen_occs:
+                return
             if "Caster" in gen_occs:
-                amount = tier + randint(1, 2)
-                s_amount += 1
-            elif "Combatant" in gen_occs:
-                if "neutral" in attributes:
-                    amount = randrange(2)
+                amount = tier + randrange(2)
+                if traits["Healer"] in char.traits.basetraits:
+                    s_amount = tier + randrange(2)
                 else:
-                    amount = randrange(3)
+                    s_amount = randrange(2)
             else:
-                amount = 0
+                if "neutral" in attributes:
+                    amount = 0
+                else:
+                    amount = randrange(tier+1)
+                s_amount = randrange(2)
         else:
             amount, s_amount = amount
-
-        if amount <= 0 and s_amount <= 0:
-            return
 
         for _ in reversed(range(tier+1)):
             if amount > 0:
