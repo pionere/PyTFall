@@ -107,10 +107,11 @@ screen new_style_tooltip_content(tooltip):
                         if not isinstance(value, int):
                             $ value = "%d %%" % int(value * 100)
                         text "VP: %s"%str(value) color "green"
-                    if (combat_skill.type=="all_enemies" and combat_skill.piercing) or combat_skill.type=="all_allies":
-                        $ value = "All"
-                    elif combat_skill.type=="all_enemies":
-                        $ value = "First Row"
+                    if combat_skill.type.startswith("all"):
+                        if combat_skill.piercing:
+                            $ value = "All"
+                        else:
+                            $ value = "First Row"
                     elif combat_skill.piercing:
                         $ value = "Any"
                     else:

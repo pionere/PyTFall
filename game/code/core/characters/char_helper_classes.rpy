@@ -1508,6 +1508,64 @@ init -10 python:
             self._mod_raw_skill(skill, 0, value/1.5)
             self._mod_raw_skill(skill, 1, value/3.0)
 
+        @staticmethod
+        def weight_battle_skill(battle_skill, bmpc, _bs_mod_curr, _bs_stats):
+            # TODO bind this to BE_Core?
+            #                            base_power
+            power = (battle_skill.effect + bmpc[1]) * battle_skill.multiplier
+            # delivery           
+            delivery = battle_skill.delivery
+            #                     bonus                                multiplier
+            power = (power + _bs_mod_curr[2].get(delivery, 0)) * (1 + _bs_mod_curr[3].get(delivery, 0))
+            # elemental bonus
+            num = float(len(battle_skill.damage))
+            for attr in battle_skill.damage:
+                #          el_dmg
+                mpl = _bs_mod_curr[4].get(attr, 0)
+                if mpl != 0:
+                    power *= 1 + mpl/num
+            #           damage_multiplier
+            power *= 1 + _bs_mod_curr[1]
+            #              critical hit
+            power *= 1 + _bs_mod_curr[0]*(1.1 + battle_skill.critpower)
+            # target(s)
+            if battle_skill.type.startswith("all"):
+                # "all_enemies", "all_allies"
+                if battle_skill.piercing:
+                    power *= 1.5 # All
+                else:
+                    power *= 1.15 # First Row
+            elif battle_skill.piercing:
+                power *= 1.05 # "Any"
+            # cost
+            cost = battle_skill.health_cost
+            if cost != 0:
+                if isinstance(cost, int):
+                    cost = float(cost)/_bs_stats[0] # max_hp
+                    if cost > 1:
+                        cost = 1
+                if cost > .05:
+                    power *= max(0.1, (1 - cost*10))
+            cost = battle_skill.mp_cost
+            if cost != 0:
+                if isinstance(cost, int):
+                    cost = float(cost)/_bs_stats[1] # max_mp
+                    if cost > 1:
+                        cost = 1
+                if cost > .1:
+                    power *= max(0.1, (1 - cost*5))
+            cost = battle_skill.vitality_cost
+            if cost != 0:
+                if isinstance(cost, int):
+                    cost = float(cost)/_bs_stats[2] # max_vitality
+                    if cost > 1:
+                        cost = 1
+                if cost > .1:
+                    power *= max(0.1, (1 - cost*5))
+            #temp = ", ".join([str(delivery_multiplier[m]) for m in battle_skill.attributes])
+            #devlog.warn("Battle-skill: %s - power: %s ... (base_power:%s, bonus:%s, multiplier:%s, dms:%s target:%s)" % (battle_skill.name, power, bmpc[1], bmpc[3], bmpc[4], temp, battle_skill.type))
+            return power
+
         def weight_items(self, items, target_stats, target_skills, fighting, upto_skill_limit):
             """
             weights the list of items based on stats for current or future use.
@@ -1541,29 +1599,9 @@ init -10 python:
                                   [value, self.get_skill(skill), self.skills_multipliers[skill][2], self.skills[skill][0], self.skills[skill][1]]
                                 for skill, value in target_skills.iteritems()}
 
-            # prepare delivery information TODO bind this to BE_Core?
-            delivery_bonus, delivery_multiplier = defaultdict(int), defaultdict(int)
-            level = char.level
             is_kamidere, is_tsundere, is_bokukko = False, False, False
-            char_traits = char.traits
+            level, char_traits = char.level, char.traits
             for trait in char_traits:
-                temp = getattr(trait, "delivery_bonus", None)
-                if temp is not None:
-                    for delivery, bonus in temp.iteritems():
-                        # Reference: (minv, maxv, lvl)
-                        minv, maxv, lvl = bonus
-                        if lvl > level:
-                            maxv = max(minv, float(level)*maxv/lvl)
-                        delivery_bonus[delivery] += maxv
-
-                temp = getattr(trait, "delivery_multiplier", None)
-                if temp is not None:
-                    for delivery, mpl in temp.iteritems():
-                        delivery_multiplier[delivery] += mpl
-                temp = getattr(trait, "el_damage", None)
-                if temp is not None:
-                    for delivery, mpl in temp.iteritems():
-                        delivery_multiplier[delivery] += mpl
                 # Other traits:
                 trait = trait.id # never compare trait entity with trait str, it is SLOW
                 if trait == "Kamidere":
@@ -1572,6 +1610,34 @@ init -10 python:
                     is_tsundere = True
                 elif trait == "Bokukko":
                     is_bokukko = True
+            if fighting is True:
+                # critical_hit_chance, damage_multiplier, delivery_bonus, delivery_multiplier, el_dmg, el_def, absorbs, defence_bonus, defence_multiplier, evasion_bonus
+                _bs_mod_curr = BE_Core.get_trait_modifiers(char_traits, level)
+                # critical_hit_chance, damage_multiplier, delivery_bonus, delivery_multiplier, el_dmg, el_def, absorbs, defence_bonus, defence_multiplier, evasion_bonus
+                _bs_item_curr = BE_Core.get_item_modifiers(char.eqslots.itervalues())
+                BE_Core.merge_modifiers(_bs_mod_curr, _bs_item_curr)
+
+                # TODO bind this to BE_Core ?
+                attack = char.get_stat("attack")
+                agility = char.get_stat("agility")
+                magic = char.get_stat("magic")
+                intelligence = char.get_stat("intelligence")
+                attack_value = target_stats.get("attack", 0)
+                agility_value = target_stats.get("agility", 0)
+                magic_value = target_stats.get("magic", 0)
+                intelligence_value = target_stats.get("intelligence", 0)
+                _bs_mul_power_curr = {"melee": [attack_value*.7 + agility_value*.3, attack*.7 + agility*.3, 0, None],
+                                      "ranged": [agility_value*.7 + attack_value*.3, agility*.7 + attack*.3, 0, None],
+                                      "magic": [magic_value*.7 + intelligence_value*.3, magic*.7 + intelligence*.3, 0, None],
+                                      "status": [intelligence_value*.7 + agility_value*.3, intelligence*.7 + agility*.3, 0, None]}
+
+                _bs_stats = [max(1, char.get_max(stat)) for stat in ("health", "mp", "vitality")] # BATTLE_STATS
+                for battle_skill in itertools.chain(char.attack_skills, char.magic_skills, [char.default_attack_skill]):
+                    bmpc = _bs_mul_power_curr[battle_skill.delivery]
+                    power = Stats.weight_battle_skill(battle_skill, bmpc, _bs_mod_curr, _bs_stats)
+                    if power > bmpc[2]: # best power
+                        bmpc[2] = power
+                        bmpc[3] = battle_skill
 
             result = []
             for item in items:
@@ -1582,10 +1648,11 @@ init -10 python:
                         weights = None
                         break
                 if weights is None:
-                    aeq_debug("Ignoring item %s on badtraits.", item)
+                    #aeq_debug("Ignoring item %s on badtraits.", item)
                     continue
 
                 # Stats:
+                slot = item.slot
                 for stat, value in item.mod.iteritems():
                     mcm = _stats_mul_curr_max.get(stat, None)
                     if mcm is None:
@@ -1602,26 +1669,48 @@ init -10 python:
                         #             s_max                    l_max
                         new_max = min(mcm[4] + item.max[stat], mcm[5])
 
-                    # Result:         si_curr                   s_min
-                    new_stat = max(min(mcm[3] + value, new_max), mcm[6])
-                    change = new_stat - mcm[1] # curr_stat
-                    if change == 0:
-                        if value < 0:
-                            # does not help, but does not hurt much either -> skip
-                            continue
-                        # the item could help, but not now (except for lvl_max)
-                        if new_max != mcm[5] or mcm[7]: # l_max or BATTLE_STATS
-                            change = value*.5 #     l_max    BATTLE_STATS
-                    elif change > 0 and (new_max != mcm[5] or mcm[7]):
-                        value *= .5 # it is worth at least as much as if it would not help now 
-                        if change < value:
-                            change = value
+                    if slot == "consumable" and mcm[7]:
+                        # one-time restore item -> add value limited by max - s_min
+                        change = min(value, new_max - mcm[6])
+                    else:
+                        # normal item -> check gain
+                        # Result:         si_curr                   s_min
+                        new_stat = max(min(mcm[3] + value, new_max), mcm[6])
+                        change = new_stat - mcm[1] # curr_stat
+                        if change != value:
+                            # max/min alters the effect of the item -> check for partial gain
+                            if change == 0:
+                                if value < 0:
+                                    # does not help, but does not hurt much either -> skip
+                                    continue
+                                if slot == "misc" and not item.mreusable:
+                                    #weights.append(-100*value)
+                                    weights -= 100 * value # add waste TODO should be applied only for equip
+                                    #devlog.warn("Waste for Stat-Weight:%s - 0 - %s" % (stat, value))
+                                    continue
+                                # the item could help, but not now (except for lvl_max)
+                                value *= .5 #       l_max        BATTLE_STATS             restore items?
+                                if (mcm[3]+value) > mcm[5] and not (mcm[7] and slot == "misc" and item.mreusable):
+                                    continue
+                                change = value
+                            elif change > 0:
+                                if item.slot == "misc" and not item.mreusable:
+                                    #weights.append(-100*(value - change))
+                                    weights -= 100 * (value - change) # add waste TODO should be applied only for equip
+                                    #devlog.warn("Waste for Stat-Weight:%s - %s  - %s" % (stat, change, value))
+                                    continue
+                                # it is worth at least as much as if it would not help now
+                                value *= .5
+                                if change < value and ((mcm[3] + value) <= mcm[5] or # si_curr + value <= lvl_max
+                                         (mcm[7] and slot == "misc")):               # BATTLE_STATS and restore items?
+                                    change = value
                     if new_max <= 0:
                         # new max is negative or zero, change must be negative -> make sure the result is negative
                         new_max = 1 
                     # add the fraction increase/decrease
                     #weights.append(mcm[0]*100*change/float(new_max))
-                    weights += mcm[0]*100*change/float(new_max)
+                    #weights += mcm[0]*100*change/float(new_max)
+                    weights += mcm[0]*change/float(new_max)
 
                 # Max Stats:
                 for stat, value in item.max.iteritems():
@@ -1641,7 +1730,8 @@ init -10 python:
                         new_max = 1 
                     # add the fraction increase/decrease
                     #weights.append(mcm[0]*100*change/float(new_max))
-                    weights += mcm[0]*100*change/float(new_max)
+                    #weights += mcm[0]*100*change/float(new_max)
+                    weights += mcm[0]*change/float(new_max)
 
                 # Skills:
                 for skill, effect in item.mod_skills.iteritems():
@@ -1667,66 +1757,90 @@ init -10 python:
                         continue
                     # add the fraction increase/decrease
                     #weights.append(smc[0]*100*change/5000.0) # SKILLS_MAX
-                    weights += smc[0]*100*change/5000.0 # SKILLS_MAX
+                    #weights += smc[0]*100*change/5000.0 # SKILLS_MAX
+                    weights += smc[0]*change/5000.0 # SKILLS_MAX
 
                 if fighting is True:
+                    # gain on current skills
+                    _bs_mod_new = BE_Core.get_item_modifiers((item, ))
+                    _bs_trait_new = BE_Core.get_trait_modifiers([traits[t] for t in item.addtraits if t not in char_traits], level)
+                    # FIXME remove traits? 
+                    BE_Core.merge_modifiers(_bs_mod_new, _bs_trait_new)
+                    BE_Core.merge_modifiers(_bs_mod_new, _bs_mod_curr)
+                    for delivery, bmpc in _bs_mul_power_curr.iteritems():
+                        curr_power = bmpc[2]
+                        if curr_power == 0:
+                            continue
+                        #                              battle_skill
+                        power = Stats.weight_battle_skill(bmpc[3], bmpc, _bs_mod_new, _bs_stats)
+
+                        #weights.append(bmpc[0]*change/curr_power)
+                        weights += bmpc[0]*(power-curr_power/2)/float(curr_power)
+
+                    # gain from new skills
                     # Attacks:
                     if item.attacks is not None:
-                        mcm = _stats_mul_curr_max.get("attack", None)
-                        if mcm is not None:
-                            attack = mcm[1]
-                            if attack != 0: # prevent div-by-zero
-                                best = 0
-                                # check the skills power TODO bind this to BE_Core?
-                                ch = getattr(item, "ch_multiplier", 0)
-                                for battle_skill in item.attacks:
-                                    battle_skill = battle_skills[battle_skill]
-                                    # base power
-                                    power = (battle_skill.effect + attack) * battle_skill.multiplier
-                                    delivery = battle_skill.delivery
-                                    # delivery          bonus                   multiplier 
-                                    power = (power + delivery_bonus[delivery]) * (1 + delivery_multiplier[delivery])
-                                    # critical hit
-                                    if ch != 0:
-                                        power *= 1 + ch*3
-                                    if power > best:
-                                        best = power
-                                if best != 0:
-                                    # add the fraction increase/decrease TODO cost?
-                                    #weights.append(mcm[0]*100*best/attack)
-                                    weights += mcm[0]*100*best/attack
+                        best = {}
+
+                        # check the skills power TODO bind this to BE_Core?
+                        for battle_skill in item.attacks:
+                            battle_skill = battle_skills[battle_skill]
+                            delivery = battle_skill.delivery
+                            bmpc = _bs_mul_power_curr[delivery]
+                            power = Stats.weight_battle_skill(battle_skill, bmpc, _bs_mod_new, _bs_stats)
+                            if power > best.get(delivery, 0): # best
+                                best[delivery] = power
+                                if bmpc[2] == 0:
+                                    temp = bmpc[0]+power
+                                else:
+                                    temp = bmpc[0]*(power-bmpc[2]/2)/float(bmpc[2])
+                        for delivery, power in best.iteritems():
+                            bmpc = _bs_mul_power_curr[delivery]
+                            # add the fraction increase/decrease TODO cost?
+                            curr_best = bmpc[2]
+                            if curr_best == 0:
+                                #weights.append(2*bmpc[0])
+                                weights += bmpc[0]+power
+                            else:
+                                #weights.append(bmpc[0]*power/curr_best)
+                                weights += bmpc[0]*(power-curr_best/2)/float(curr_best)
 
                     # Spells:
                     for battle_skill in item.add_be_spells:
                         battle_skill = battle_skills[battle_skill]
-                        #assert(battle_skill not in char.magic_skills)
-                        value = ((battle_skill.tier or 0)+1) * 100
-                        for attr in battle_skill.attributes:
-                            value *= 1 + delivery_multiplier[attr]
-                        #weights.append(value)
-                        weights += value
+                        if battle_skill in char.magic_skills:
+                            continue
+                        bmpc = _bs_mul_power_curr[battle_skill.delivery]
+                        power = Stats.weight_battle_skill(battle_skill, bmpc, _bs_mod_new, _bs_stats)
+                        curr_best = bmpc[2] # TODO how to differentiate between poison and buff spells?
+                        if curr_best == 0:
+                            weights += bmpc[0]+power
+                        else:
+                            # FIXME right now there is only a single battle_skill per item, might change in the future 
+                            #weights.append(bmpc[0]*power/curr_best)
+                            weights += bmpc[0]*float(power-curr_best/2)/curr_best
 
                 # Other traits and modifiers:
                 for trait in item.goodtraits:
                     if trait in char_traits:
                         #weights.append(100)
-                        weights += 100
+                        weights *= 2
 
                 if is_kamidere is True: # Vanity: wants pricy, uncommon items
                     #weights.append((100 - item.chance + min(item.price/10, 100))/2)
-                    weights += min(item.price/10, 100) - item.chance
+                    weights *= (100 - item.chance)/100.0
                 elif is_tsundere is True: # stubborn: what s|he won't buy, s|he won't wear.
                     #weights.append(100 - item.badness)
-                    weights -= item.badness
+                    weights *= (100 - item.badness)/100.0
                 elif is_bokukko is True: # what the farmer don't know, s|he won't eat.
                     #weights.append(item.chance)
-                    weights += item.chance
+                    weights *= (100 + item.chance)/100.0
 
                 #weights.append(item.eqchance)
-                weights += item.eqchance
+                #weights += item.eqchance
                 #if item.badness:
                 #    weights.append(-item.badness)
-                weights -= item.badness
+                #weights -= item.badness
 
                 result.append([weights, item])
 
@@ -1762,29 +1876,29 @@ init -10 python:
             char_traits = char.traits
 
             # traits that may influence the item selection process
-            appetite = 50
-            addiction = 30
+            appetite = 3
+            addiction = 2
             for trait in char_traits:
                 trait = trait.id # never compare trait entity with trait str, it is SLOW
                 # a clumsy or bad eyesighted person may cause select items not in target stat/skill
                 # a stupid person may also select items regardless of target stats
                 if trait == "Slim":
-                    appetite -= 10
+                    appetite -= 1
                 elif trait == "Always Hungry":
-                    appetite += 20
+                    appetite += 1
                 elif traits == "Heavy Drinker":
-                    addiction = 60
+                    addiction *= 2
             depressed = 'Depression' in char.effects
             drunk = 'Drunk' in char.effects
             if 'Food Poisoning' in char.effects:
                 appetite = -1
             else:
-                appetite -= char.get_flag("dnd_food_poison_counter", 0) * 9
+                appetite -= char.get_flag("dnd_food_poison_counter", 0)/2
 
             result = []
             for item in items:
                 if item in char.constemp or item in char.consblock:
-                    aeq_debug("Ignoring item %s on blocks.", item)
+                    #aeq_debug("Ignoring item %s on blocks.", item)
                     continue
 
                 #weights = []
@@ -1794,7 +1908,7 @@ init -10 python:
                         weights = None
                         break
                 if weights is None:
-                    aeq_debug("Ignoring item %s on badtraits.", item)
+                    #aeq_debug("Ignoring item %s on badtraits.", item)
                     continue
 
                 # Stats:
@@ -1836,7 +1950,7 @@ init -10 python:
                     weights += mcm[0] * (2*change-value)
 
                 if weights is None:
-                    aeq_debug("Ignoring item %s on stat mods.", item)
+                    #aeq_debug("Ignoring item %s on stat mods.", item)
                     continue
 
                 # Max Stats:
@@ -1870,7 +1984,7 @@ init -10 python:
                         break
 
                 if weights is None or weights <= 0:
-                    aeq_debug("Ignoring item %s on gain.", item)
+                    #aeq_debug("Ignoring item %s on gain.", item)
                     continue # we need gain NOW, but there isn't any -> skip
 
                 # Other traits and modifiers:
@@ -1878,20 +1992,20 @@ init -10 python:
                     if drunk:
                         continue
                     if depressed:
-                        weights += 30 + addiction
+                        weights *= addiction
                 elif item.type == "food":
                     if appetite < 0:
                         continue
-                    weights += appetite
+                    weights *= appetite
 
                 #weights.append(item.eqchance)
-                weights += item.eqchance
+                #weights += item.eqchance
                 #if item.badness:
                 #    weights.append(-item.badness)
-                weights -= item.badness
+                #weights -= item.badness
 
                 if weights <= 0:
-                    aeq_debug("Ignoring item %s on fitness.", item)
+                    #aeq_debug("Ignoring item %s on fitness.", item)
                     continue
 
                 result.append([weights, item])

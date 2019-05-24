@@ -30,7 +30,7 @@
     },
     {
      "id": "Barbarian",
-     "target_stats": {"health":70, "attack":100, "defence":80, "constitution":20, "vitality":10, "agility":50, "luck":5, "exp":0.1},
+     "target_stats": {"health":70, "attack":100, "agility":50, "defence":80, "constitution":20, "vitality":10, "luck":5, "exp":0.1},
      "target_skills": {},
      "base_purpose": ["Warrior", "Any"],
      "fighting": true,
@@ -38,7 +38,7 @@
     },
     {
      "id": "Shooter",
-     "target_stats": {"agility":80, "attack":100, "defence":50, "vitality":5, "luck":10, "exp":0.1},
+     "target_stats": {"health":10, "agility":100, "attack":50, "defence":30, "constitution":10, "vitality":5, "luck":10, "exp":0.1},
      "target_skills": {},
      "base_purpose": ["Shooter", "Warrior", "Any"],
      "fighting": true,
@@ -46,14 +46,14 @@
     },
     {
      "id": "Battle Mage",
-     "target_stats": {"health":80, "mp":10, "vitality": 10, "attack":70, "magic":70, "intelligence":50, "luck":5, "exp":0.1},
+     "target_stats": {"health":50, "attack":70, "magic":70, "intelligence":50, "defence":60, "constitution":20, "mp":10, "vitality": 10, "luck":5, "exp":0.1},
      "target_skills": {},
      "base_purpose": ["Warrior", "Mage", "Any"],
      "fighting": true
     },
     {
      "id": "Mage",
-     "target_stats": {"mp":20, "magic":100, "intelligence":80, "luck":5, "exp":0.1},
+     "target_stats": {"health":10, "magic":100, "intelligence":50, "defence":40, "constitution":10, "mp":20, "luck":5, "exp":0.1},
      "target_skills": {},
      "base_purpose": ["Mage", "Warrior", "Any"],
      "fighting": true,

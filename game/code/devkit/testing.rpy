@@ -947,6 +947,83 @@ init 1000 python:
                                 TestSuite.reportError("Business %s in Building %s is not expandable, but has expansion-related field %s!" % (bs.name, b.name, f))
 
         @staticmethod
+        def aeqTest():
+            base_traits, other_traits, purpose = ["Mage"], ["Impersonal", "Fire"], "Mage"
+            #base_traits, other_traits, purpose = ["Shooter"], ["Yandere"], "Shooter"
+            #base_traits, other_traits, purpose = ["Knight"], ["Kuudere"], "Barbarian"
+            #base_traits, other_traits, purpose = ["Assassin"], ["Kuudere"], "Barbarian"
+
+            tier = 10
+            stats_perc = .9
+
+            char = rChar()
+            char.name = "dummy"
+
+            # Status next:
+            char.status = "free"
+
+            # BASE TRAITS:
+            basetraits = set()
+            for t in base_traits:
+                other_traits.insert(0, t)
+                t = traits[t]
+                basetraits.add(t)
+            char.traits.basetraits = basetraits
+
+            for t in other_traits:
+                char.apply_trait(traits[t])
+
+            # Normalizing new character:
+            char.init()
+
+            # And at last, leveling up and stats/skills applications:
+            tier_up_to(char, tier, level_bios=(1, 1), skill_bios=(1, 1), stat_bios=(1, 1))
+
+            for stat in char.stats:
+                #char.set_stat(stat, char.get_max(stat)*stats_perc)
+                value = char.stats.lvl_max[stat]
+                if stat not in STATIC_CHAR.FIXED_MAX:
+                    value *= stats_perc
+                    value = int(value)
+                char.stats.stats[stat] = value
+                char.stats.max[stat] = value
+
+            #char.apply_item_effects(store.items["Cataclysm Scroll"])
+            #char.apply_item_effects(store.items["Fist of Bethel Scroll"])
+            #char.apply_item_effects(store.items["Transmutation Scroll"])
+            #for item in ("Cataclysm Scroll", "Assassin Dagger", "Rune Staff", "Fiery Charm", "Ring of Recklessness", "Mantle of the Keeper", "Ring of Recklessness"):
+            for item in ("Cataclysm Scroll", "Mysterious Gray Ring"):
+            #for item in ("Demonic Blade", "Mysterious Gray Ring", "Ring of Recklessness", "Ring of Recklessness", "Spray with Acid", "Devil Arms", "Elven Boots"):
+                char.equip(store.items[item], remove=False, aeq_mode=True) # Equips the item
+
+            items = []
+            limit_tier = min(((char.tier/2)+1), 5)
+            for i in range(limit_tier):
+                items.extend(store.tiered_items[i]) # MAX_ITEM_TIER
+
+            base_purpose = STATIC_ITEM.AEQ_PURPOSES[purpose]
+            fighting = base_purpose.get("fighting")
+            target_stats = base_purpose.get("target_stats")
+            target_skills = base_purpose.get("target_skills")
+            base_purpose = base_purpose.get("base_purpose")
+
+            slots = store.EQUIP_SLOTS.keys()
+            slots.append("consumable")
+
+            picks = eval_inventory(char, items, slots, base_purpose)
+
+            #picks = [p for p in picks if p.id == "Manual of Health"]
+            result = char.stats.weight_items(picks, target_stats, target_skills, fighting, upto_skill_limit=False)
+
+            result.sort(key=lambda x: (x[1].slot, x[0]))
+
+            temp = "A-Eq=> %s: stats@%s" % (char.name, stats_perc)
+            for _weight, item in result:
+                temp += "\n Slot: %s Item: %s ==> Weight: %s" % (item.slot, item.id, _weight)
+            temp += "\n----------------------------------------------------------------------------------------"
+            TestSuite.reportError(temp)
+
+        @staticmethod
         def performanceTest():
             msg = "Attempt to auto-buy 3 items for {} girls!".format(len(chars))
             tl.start(msg)
