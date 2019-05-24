@@ -551,14 +551,15 @@ screen building_management_leftframe_building_mode:
                                 action Return(["bm_mid_frame_mode", u])
 
                         if u.can_close():
+                            $ temp = ProportionalScale("content/gfx/interface/buttons/close4.png", 20, 24)
                             imagebutton:
                                 align 1.0, 0 offset 2, -2
-                                idle ProportionalScale("content/gfx/interface/buttons/close4.png", 20, 24)
-                                hover ProportionalScale("content/gfx/interface/buttons/close4_h.png", 20, 24)
+                                idle temp
+                                hover im.MatrixColor(temp, im.matrix.brightness(.15))
                                 action Show("yesno_prompt",
-                                            message="Are you sure you wish to close this %s for %d Gold?" % (u.name, u.get_cost()[0]),
+                                            message="Are you sure you wish to remove the %s for %d Gold?" % (u.name, u.get_cost()[0]),
                                             yes_action=[Function(bm_building.close_business, u), Hide("yesno_prompt")], no_action=Hide("yesno_prompt"))
-                                tooltip "Close the business"
+                                tooltip "Remove the business"
 
 screen building_management_leftframe_businesses_mode:
     frame:
@@ -701,7 +702,7 @@ screen building_management_leftframe_businesses_mode:
                     tooltip "Add more space to the building!"
                 else:
                     action NullAction()
-                    tooltip "The only remaining option is to close the business!"
+                    tooltip "The only remaining option is to remove the business!"
 
     if bm_mid_frame_mode.upgrades or bm_mid_frame_mode.in_construction_upgrades:
         null height 5

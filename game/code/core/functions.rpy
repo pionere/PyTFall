@@ -20,6 +20,13 @@ init -11 python:
                 new[key] = new.get(key, 0) + value
         return new
 
+    def merge_dicts(target_dict, other_dict):
+        """Adds (number) values of the other dict to the target dict.
+        This is the same as add_dicts, but does not create a new dict.
+        """
+        for key, value in other_dict.iteritems():
+            target_dict[key] = target_dict.get(key, 0) + value
+
     def gold_text(money):
         if money >= 10**12:
             return str(round(float(money)/10**12, 2)) + "T"

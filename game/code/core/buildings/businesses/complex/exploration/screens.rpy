@@ -746,6 +746,7 @@ screen building_management_midframe_exploration_guild_mode:
                     xalign .5
                     cols 2
                     xysize 610, 130
+                    yminimum 130
                     scrollbars "vertical"
                     mousewheel True
                     xspacing 10
@@ -968,6 +969,16 @@ screen building_management_rightframe_exploration_guild_mode:
                                     idle temp
                                     hover im.MatrixColor(temp, im.matrix.brightness(.15))
                                     action Show("show_item_info", item=i)
+                                $ temp = ProportionalScale("content/gfx/interface/buttons/close4.png", 16, 16)
+                                imagebutton:
+                                    #align 1.0, 0
+                                    align 1.0, 0 offset 2, -2
+                                    #yoffset -4
+                                    idle temp
+                                    #hover ProportionalScale("content/gfx/interface/buttons/close4_h.png", 20, 24)
+                                    hover im.MatrixColor(temp, im.matrix.brightness(.15))
+                                    action Function(area.found_items.pop, i.id)
+                                    tooltip "Remove item from the list\n(resets its counter as well)"
 
     else:
         frame:

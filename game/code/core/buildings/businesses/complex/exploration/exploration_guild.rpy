@@ -236,14 +236,14 @@ init -6 python: # Guild, Tracker and Log.
                 chars_captured = len(self.captured_chars)
 
                 # Main and Sub Area Stuff:
-                area.mobs_defeated = add_dicts(area.mobs_defeated, self.mobs_defeated)
-                area.found_items = add_dicts(area.found_items, found_items)
+                merge_dicts(area.mobs_defeated, self.mobs_defeated)
+                merge_dicts(area.found_items, found_items)
                 area.cash_earned += cash_earned
                 area.chars_captured += chars_captured
 
                 main_area = fg_areas[area.area]
-                main_area.mobs_defeated = add_dicts(main_area.mobs_defeated, self.mobs_defeated)
-                main_area.found_items = add_dicts(main_area.found_items, found_items)
+                merge_dicts(main_area.mobs_defeated, self.mobs_defeated)
+                merge_dicts(main_area.found_items, found_items)
                 main_area.cash_earned += cash_earned
                 main_area.chars_captured += chars_captured
 
@@ -428,7 +428,7 @@ init -6 python: # Guild, Tracker and Log.
             self.explorers.append(tracker)
 
             guild_teams.remove(team)
-            renpy.restart_interaction()
+
             renpy.show_screen("message_screen", "The team is going to explore this area for %d days!" % area.days)
 
         # SimPy methods:
