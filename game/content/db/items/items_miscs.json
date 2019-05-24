@@ -17,8 +17,8 @@
     "tier": 0,
     "mod": {"constitution": 2, "vitality": -10},
     "locations": ["Work Shop"],
-    "badtraits": ["Athletic", "Artificial Body"],
-    "goodtraits": ["Bokukko"],
+    "badtraits": ["Womanly", "Artificial Body"],
+    "goodtraits": ["Bokukko", "Manly"],
     "pref_class":["Warrior", "Mage", "Shooter", "Whore", "Service"]
     },
     {
@@ -40,6 +40,7 @@
     "mod": {"attack": 1, "vitality": -10},
     "locations": ["Ninja Shop", "Exploration"],
     "goodtraits": [],
+    "badtraits": ["Womanly"],
     "pref_class":["Warrior", "Shooter"]
     },
     {
@@ -81,7 +82,7 @@
     "mod": {"charisma": 1, "vitality": 1, "gold": -15},
     "mod_skills": {"service": [0, 0, 0, 5, 5]},
     "locations": ["Witches Hut", "Exploration"],
-    "goodtraits": ["Neat"],
+    "goodtraits": ["Neat", "Womanly"],
     "pref_class":["SIW", "Bartender"]
     },
     {
@@ -494,7 +495,7 @@
     "mod": {"constitution": 1, "vitality": -10},
     "locations": ["General Store"],
     "goodtraits": ["Manly"],
-    "badtraits": ["Lolita"],
+    "badtraits": ["Lolita", "Womanly"],
     "pref_class":["Warrior", "Mage", "Shooter", "Whore", "Service"]
     },
     {

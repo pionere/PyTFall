@@ -180,6 +180,17 @@
     "evasion_bonus": [-5, -5, 0],
     "market": true
     },
+   {
+    "id": "Womanly",
+    "desc": "Very feminine. Perhaps even too feminine.",
+    "mod_stats": {"constitution": [-2, 5], "charisma": [1, 5], "agility": [1, 5]},
+    "max": {"health": -20, "charisma": 20, "attack": -25, "defence": -25, "agility": 20},
+    "mod_skills": {"service": [0, 0, 0.05], "strip": [0, 0, 0.1], "waiting": [0, 0, 0.05], "security": [0, 0, -0.1]},
+    "delivery_multiplier": {"melee": -0.25},
+    "body": true,
+    "evasion_bonus": [5, 5, 0],
+    "market": true
+    },
     {
     "id": "Artificial Body",
     "desc": "A body of a machine or has been created with magic.",

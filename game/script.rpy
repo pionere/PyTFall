@@ -352,6 +352,29 @@ label after_load:
                     setattr(obj_dest, attr, v2)
 
     # Updating Databases:
+    # Traits:
+    python hide:
+        last_modified_traits = global_flags.get_flag("last_modified_traits", 0)
+        last_modified = os.path.getmtime(content_path('db/traits'))
+        if last_modified_traits < last_modified:
+            tl.start("Updating traits")
+            updated_traits = load_traits()
+            for id, trait in updated_traits.iteritems():
+                curr_trait = store.traits.get(id, None)
+                if curr_trait is None:
+                    # Add new trait
+                    store.traits[id] = trait
+                    if DEBUG_LOG:
+                        devlog.info("New Trait: {}".format(id))
+                else:
+                    # Update the existing trait
+                    update_object(curr_trait, trait, "Trait")
+
+            del updated_traits
+            tl.end("Updating traits")
+            global_flags.set_flag("last_modified_traits", last_modified) 
+            renpy.call("sort_traits_for_gameplay")
+
     # Items:
     python hide:
         last_modified_items = global_flags.get_flag("last_modified_items", 0)
@@ -375,29 +398,6 @@ label after_load:
             tl.end("Updating items")
             global_flags.set_flag("last_modified_items", last_modified)
             renpy.call("sort_items_for_gameplay")
-
-    # Traits:
-    python hide:
-        last_modified_traits = global_flags.get_flag("last_modified_traits", 0)
-        last_modified = os.path.getmtime(content_path('db/traits'))
-        if last_modified_traits < last_modified:
-            tl.start("Updating traits")
-            updated_traits = load_traits()
-            for id, trait in updated_traits.iteritems():
-                curr_trait = store.traits.get(id, None)
-                if curr_trait is None:
-                    # Add new trait
-                    store.traits[id] = trait
-                    if DEBUG_LOG:
-                        devlog.info("New Trait: {}".format(id))
-                else:
-                    # Update the existing trait
-                    update_object(curr_trait, trait, "Trait")
-
-            del updated_traits
-            tl.end("Updating traits")
-            global_flags.set_flag("last_modified_traits", last_modified) 
-            renpy.call("sort_traits_for_gameplay")
 
     # All kinds of chars:
     python hide:
