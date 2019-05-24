@@ -24,7 +24,7 @@ init -9 python:
         TRAININGS = {"Abby Training": "Abby the Witch",
                      "Aine Training": "Aine",
                      "Xeona Training": "Xeona"}
-        FIXED_MAX = {"joy":200, "mood":1000, "disposition":1000, "affection":1000, "vitality":200, "luck":50}
+        FIXED_MAX = {"joy":200, "mood":1000, "disposition":1000, "affection":1000, "vitality":200, "luck":50, "fame":100, "reputation":100}
         DEGRADING_STATS = ["constitution", "fame", "reputation", "intelligence", "attack", "magic", "defence", "agility"]
         SEX_SKILLS = {"vaginal", "anal", "oral", "sex", "group", "bdsm"}
         PREFS = {"gold", "fame", "reputation", "arena_rep", "charisma", "constitution", # "character",
@@ -96,18 +96,18 @@ init -9 python:
             if inventory:
                 self.inventory = Inventory(15)
                 eqslots = {
-                    "head": False,
-                    "body": False,
-                    "cape": False,
-                    "feet": False,
-                    "amulet": False,
-                    "wrist": False,
-                    "weapon": False,
-                    "smallweapon": False,
-                    "ring": False,
-                    "ring1": False,
-                    "ring2": False,
-                    "misc": False,
+                    "head": None,
+                    "body": None,
+                    "cape": None,
+                    "feet": None,
+                    "amulet": None,
+                    "wrist": None,
+                    "weapon": None,
+                    "smallweapon": None,
+                    "ring": None,
+                    "ring1": None,
+                    "ring2": None,
+                    "misc": None,
                     "consumable": None,
                 }
                 self.eqslots = eqslots
@@ -132,9 +132,9 @@ init -9 python:
                 'constitution': [5, 0, 50, 60, 0, 0, 0],
                 'joy': [50, 0, 100, 200, 0, 0, 0],             # FIXED_MAX
                 'character': [5, 0, 50, 60, 0, 0, 0],
-                'reputation': [0, 0, 100, 100, 0, 0, 0],
+                'reputation': [0, 0, 100, 100, 0, 0, 0],       # FIXED_MAX
                 'health': [100, 0, 100, 200, 0, 0, 0],
-                'fame': [0, 0, 100, 100, 0, 0, 0],
+                'fame': [0, 0, 100, 100, 0, 0, 0],             # FIXED_MAX
                 'mood': [0, 0, 1000, 1000, 0, 0, 0],           # FIXED_MAX not used...
                 'disposition': [0, -1000, 1000, 1000, 0, 0, 0],# FIXED_MAX
                 'affection': [0, -1000, 1000, 1000, 0, 0, 0],  # FIXED_MAX
@@ -838,16 +838,6 @@ init -9 python:
                     self.equip(it, remove, aeq_mode)
                 return
 
-            if item.slot not in self.eqslots:
-                raise Exception("A character attempted to equip on a wrong slot for a character. \
-                                   Character: %s/%s, Item:%s/%s" % self.id, self.__class__, item.id, item.slot)
-
-            # AEQ considerations:
-            # Basically we manually mess with inventory and have
-            # no way of knowing what was done to it.
-            if not aeq_mode and item.slot != 'consumable':
-                self.last_known_aeq_purpose = None
-
             # This is a temporary check, to make sure nothing goes wrong:
             # Code checks during the equip method should make sure that the unique items never make it this far:
             if item.unique and item.unique != self.id:
@@ -859,7 +849,13 @@ init -9 python:
                 raise Exception("A character attempted to equip an item that was not meant for him/her gender. \
                                    Character: %s/%s/%s, Item:%s/%s" % self.id, self.__class__, temp, item.id, item.gender)
 
-            if item.slot == 'consumable':
+            slot = item.slot
+            eqslots = self.eqslots
+            if slot not in eqslots:
+                raise Exception("A character attempted to equip on a wrong slot for a character. \
+                                   Character: %s/%s, Item:%s/%s" % self.id, self.__class__, item.id, slot)
+
+            if slot == 'consumable':
                 if item in self.consblock:
                     return
 
@@ -870,42 +866,46 @@ init -9 python:
                 if remove: # Needs to be infront of effect application for jumping items.
                     self.inventory.remove(item)
                 self.apply_item_effects(item)
-            elif item.slot == 'misc':
+                return
+            # AEQ considerations:
+            # Basically we manually mess with inventory and have
+            #  no way of knowing what was done to it.
+            if not aeq_mode:
+                self.last_known_aeq_purpose = None
+
+            if slot == 'misc':
                 if item in self.miscblock:
                     return
 
-                curr_item = self.eqslots['misc']
+                curr_item = eqslots['misc']
                 if curr_item: # Unequip if equipped.
                     self.inventory.append(curr_item)
-                self.eqslots['misc'] = item
-                if remove:
-                    self.inventory.remove(item)
-            elif item.slot == "ring":
-                if not self.eqslots["ring"]:
-                    self.eqslots["ring"] = item
-                elif not self.eqslots["ring1"]:
-                    self.eqslots["ring1"] = item
-                elif not self.eqslots["ring2"]:
-                    self.eqslots["ring2"] = item
+            elif slot == "ring":
+                if not eqslots["ring"]:
+                    slot = "ring"
+                elif not eqslots["ring1"]:
+                    slot = "ring1"
+                elif not eqslots["ring2"]:
+                    slot = "ring2"
                 else:
-                    self.remove_item_effects(self.eqslots["ring"])
-                    self.inventory.append(self.eqslots["ring"])
-                    self.eqslots["ring"] = self.eqslots["ring1"]
-                    self.eqslots["ring1"] = self.eqslots["ring2"]
-                    self.eqslots["ring2"] = item
+                    self.remove_item_effects(eqslots["ring"])
+                    self.inventory.append(eqslots["ring"])
+                    eqslots["ring"] = eqslots["ring1"]
+                    eqslots["ring1"] = eqslots["ring2"]
+                    slot = "ring2"
                 self.apply_item_effects(item)
-                if remove:
-                    self.inventory.remove(item)
             else:
                 # Any other slot:
-                curr_item = self.eqslots[item.slot]
+                curr_item = eqslots[slot]
                 if curr_item: # If there is any item equipped:
                     self.remove_item_effects(curr_item) # Remove equipped item effects
                     self.inventory.append(curr_item) # Add unequipped item back to inventory
-                self.eqslots[item.slot] = item # Assign new item to the slot
                 self.apply_item_effects(item) # Apply item effects
-                if remove:
-                    self.inventory.remove(item) # Remove item from the inventory
+            # Assign new item to the slot
+            eqslots[slot] = item
+            # Remove item from the inventory
+            if remove:
+                self.inventory.remove(item)
 
         def unequip(self, item=None, slot=None, aeq_mode=False):
             '''
@@ -1251,7 +1251,12 @@ init -9 python:
 
                     self.inventory.append(item)
 
-                    if slot != "consumable":
+                    if slot == "consumable":
+                        if equip and item.type == "scroll":
+                            # TODO check for self.autoequip?
+                            self.equip(item, True)
+                        #else: TODO extend with other items which should be consumed right away (e.g. Leprechaun Pills)
+                    else:
                         do_equip = True
 
                     slots[slot] -= 1
