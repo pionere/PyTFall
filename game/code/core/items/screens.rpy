@@ -236,13 +236,13 @@ screen itemstats(item=None, size=(635, 380), style_group="content", mc_mode=Fals
                                         text stat.capitalize() color "ivory" size 16 align (.02, .5)
                                         label (u'{size=-4}%d'%value) align (.98, .5)
                                 null height 2
-                            $ temp = [t for t in [traits[trait] for trait in item.addtraits] if not t.hidden]
+                            $ temp = [t for t in item.addtraits if not t.hidden]
                             if temp:
                                 label ('Adds Traits:') text_size 16 text_color "gold" xpos 10
                                 for trait in temp:
                                     use trait_info(trait, 153, 20)
                                 null height 2
-                            $ temp = [t for t in [traits[trait] for trait in item.removetraits] if not t.hidden]
+                            $ temp = [t for t in item.removetraits if not t.hidden]
                             if temp:
                                 label ('Removes Traits:') text_size 16 text_color "gold" xpos 10
                                 for trait in temp:
@@ -252,11 +252,9 @@ screen itemstats(item=None, size=(635, 380), style_group="content", mc_mode=Fals
                                 label ('Adds Skills:') text_size 16 text_color "gold" xpos 10
                                 if item.add_be_spells:
                                     for skill in item.add_be_spells:
-                                        $ skill = battle_skills[skill]
                                         use skill_info(skill, 153, 20)
                                 if item.attacks:
                                     for skill in item.attacks:
-                                        $ skill = battle_skills[skill]
                                         use skill_info(skill, 153, 20)
                                 null height 2
                             if item.addeffects:

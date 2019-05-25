@@ -1,19 +1,19 @@
 init -9 python:
     class STATIC_ITEM():
-        __slots__ = ("FIGHTING_AEQ_PURPOSES", "AEQ_PURPOSES", "TRAIT_TO_AEQ_PURPOSE", "NOT_USABLE", "NOT_TRANSFERABLE", "NOT_SELLABLE", "CONS_AND_MISC")
+        __slots__ = ("FIGHTING_AEQ_PURPOSES", "AEQ_PURPOSES", "TRAIT_TO_AEQ_PURPOSE", "NOT_USABLE", "NOT_TRANSFERABLE", "NOT_SELLABLE")
         FIGHTING_AEQ_PURPOSES = set()   # \
         AEQ_PURPOSES = dict()           # - Initialized at startup by load_aeq_purposes()
         TRAIT_TO_AEQ_PURPOSE = dict()   # /
         NOT_USABLE = set(["gift", "quest", "loot", "resources"])
         NOT_TRANSFERABLE = set(["gift", "quest"])
         NOT_SELLABLE = set(["quest"])
-        CONS_AND_MISC = set(["consumable", "misc"])
 
     ####### Equipment Classes ########
     class Item(_object):
         def __init__(self):
             self.desc = ""
             self.slot = "consumable"
+            self.type = None
             self.mod = {}
             self.mod_skills = {}
             self.max = {}
@@ -47,8 +47,9 @@ init -9 python:
             self.locations = []
             self.chance = 50
             self.badness = 0
+            self.eqchance = 0 # equip chance
 
-            self.tier = None # Tier of an item to match class tier, 0 - 4 is the range.
+            self.tier = 0     # Tier of an item to match class tier, 0 - 4 is the range.
             # self.level = 0 We're using tiers for now.
             # Level is how an item compares to it's relatives
             # I'd like this to be set for all items one days
@@ -60,6 +61,7 @@ init -9 python:
             # is valued in the game on scale from 0 - 10.
 
             # BE attributes:
+            self.be_modifiers = None
             # self.evasion_bonus = 0 # Needs a int, will be used a percentage (1 = 1%)
             # self.ch_multiplier = 0 # Chance of critical hit multi...
             # self.damage_multiplier = 0
@@ -73,10 +75,6 @@ init -9 python:
         def init(self):
             if not hasattr(self, "id"):
                 raise Exception("Missing id of an item!")
-
-            # make sure tier is always set
-            if self.tier is None:
-                self.tier = 0
 
             # Rules:
             if self.usable is None:
@@ -97,10 +95,7 @@ init -9 python:
                 else:
                     self.sellable = True
 
-            if not hasattr(self, "eqchance"):
-                self.eqchance = self.badness
-
-            if not hasattr(self, 'type'):
+            if self.type is None:
                 self.type = self.slot
 
             if self.slot == 'consumable':
@@ -113,40 +108,64 @@ init -9 python:
                 if self.ctemp:
                     self.skillmax = False
                     self.statmax = False
-
-            if self.slot == 'misc':
+            elif self.slot == 'misc':
                 if not hasattr(self, 'mtemp'):
                     self.mtemp = 10
                 if not hasattr(self, 'mdestruct'):
                     self.mdestruct = False
                 if not hasattr(self, 'mreusable'):
                     self.mreusable = False
-
-            # Ensures normal behavior:
-            if (self.statmax or self.skillmax) and self.slot not in STATIC_ITEM.CONS_AND_MISC:
+            else:
+                # Ensures normal behavior:
                 self.statmax = False
                 self.skillmax = False
 
-            # validate references so we do not have to check runtime
+            # validate and link references so we do not have to check runtime
             for skill in self.mod_skills:
                 if not is_skill(skill):
                     raise Exception("Invalid mod skill '%s' for item %s!" % (skill, self.id))
 
-            for trait in itertools.chain(self.removetraits, self.addtraits):
-                if trait not in store.traits:
-                    raise Exception("Invalid trait '%s' for item %s!" % (trait, self.id))
+            if self.removetraits:
+                try:
+                    self.removetraits = [traits[t] for t in self.removetraits]
+                except:
+                    raise Exception("Invalid trait to remove '%s' for item %s!" % (t, self.id))
+            if self.addtraits:
+                try:
+                    self.addtraits = [traits[t] for t in self.addtraits]
+                except:
+                    raise Exception("Invalid trait to add '%s' for item %s!" % (t, self.id))
 
-            for battle_skill in self.add_be_spells:
-                if battle_skill not in store.battle_skills:
-                    raise Exception("Invalid battle skill '%s' added by item %s!" % (battle_skill, self.id))
+            if self.goodtraits:
+                try:
+                    self.goodtraits = set(traits[t] for t in self.goodtraits)
+                except:
+                    raise Exception("Invalid good-trait '%s' for item %s!" % (t, self.id))
+            if self.badtraits:
+                try:
+                    self.badtraits = set(traits[t] for t in self.badtraits)
+                except:
+                    raise Exception("Invalid bad-trait '%s' for item %s!" % (t, self.id))
 
+            if self.add_be_spells:
+                try:
+                    self.add_be_spells = [battle_skills[s] for s in self.add_be_spells]
+                except:
+                    raise Exception("Invalid battle skill '%s' added by item %s!" % (s, self.id))
             if self.attacks is not None:
-                for battle_skill in self.attacks:
-                    if battle_skill not in store.battle_skills:
-                        raise Exception("Invalid attack skill '%s' for item %s!" % (battle_skill, self.id))
+                try:
+                    self.attacks = [battle_skills[s] for s in self.attacks]
+                except:
+                    raise Exception("Invalid attack skill '%s' added by item %s!" % (s, self.id))
 
             if self.jump_to_label and self.pref_class:
                 raise Exception("Invalid pref_class/jump_to_label settings (%s/%s) for item %s (these fields are exclusive)!" % (", ".join(self.pref_class), self.jump_to_label, self.id))
+
+            # merge be modifiers into a single field
+            for field in BE_Modifiers.FIELDS:
+                if hasattr(self, field):
+                    self.be_modifiers = BE_Modifiers(self)
+                    break
 
         def __str__(self):
             return str(self.id)

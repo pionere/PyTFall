@@ -236,7 +236,6 @@
     "mod": {"defence": 40, "magic": 35},
     "defence_bonus": {"magic": 100, "ranged": 35},
     "locations": ["Exploration", "General Store"],
-    "goodtraits": [],
     "tier": 3,
     "pref_class":["Mage"]
     },
@@ -297,7 +296,6 @@
     "max": {"mp": 20, "defence": 10, "magic": 20, "attack": -30},
     "mod": {"defence": 10, "magic": 20},
     "locations": ["General Store"],
-    "goodtraits": [],
     "tier": 2,
     "pref_class":["Mage"]
     },

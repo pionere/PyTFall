@@ -663,7 +663,6 @@
     "addeffects": ["Revealing Clothes"],
     "defence_multiplier": {"status": 0.25, "ranged": 0.15, "melee": 0.1},
     "delivery_multiplier": {"status": 0.35},
-    "goodtraits": [],
     "badtraits": ["Frigid"],
     "tier": 4,
     "pref_class":["Any"]

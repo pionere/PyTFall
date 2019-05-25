@@ -116,7 +116,6 @@
     "evasion_bonus": -5,
     "ch_multiplier": 0.08,
     "locations": ["Ninja Shop", "Exploration", "Arena"],
-    "goodtraits": [],
     "tier": 4,
     "pref_class":["Warrior"]
     },
@@ -343,7 +342,6 @@
     "max": {"attack": 20, "defence": -10, "agility": 15},
     "mod": {"attack": 20, "agility": 15},
     "locations": ["Ninja Shop", "Exploration", "Arena"],
-    "goodtraits": [],
     "tier": 2,
     "pref_class":["Warrior", "Shooter"]
     },

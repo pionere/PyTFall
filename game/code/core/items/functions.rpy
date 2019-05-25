@@ -114,7 +114,7 @@ init -11 python:
                 renpy.show_screen("message_screen", "This unique item cannot be equipped on %s." % character.name)
             return
         elif item.type == "scroll": # prevents using scroll if it gives already known spell
-            battle_skill = store.battle_skills[item.add_be_spells[0]]
+            battle_skill = item.add_be_spells[0]
             if battle_skill in character.magic_skills:
                 if not silent:
                     renpy.show_screen('message_screen', "%s already knows this spell." % character.name)
@@ -203,7 +203,7 @@ init -11 python:
             #    aeq_debug("Ignoring item %s because it is permanent.", item)
             #    continue
             if type == "scroll" and magic_skills: # prevents using scroll if it gives already known spell
-                battle_skill = store.battle_skills[item.add_be_spells[0]]
+                battle_skill = item.add_be_spells[0]
                 if battle_skill in magic_skills:
                     aeq_debug("Ignoring scroll item %s because it is already known.", item)
                     continue
@@ -374,25 +374,26 @@ init -11 python:
         return True
 
     def item_info_calculator(item):
-        # merged info of defence bonus:
+        # merged infos:
         defence_bonus = {}
-        for type, value in getattr(item, "defence_bonus", {}).iteritems():
-            defence_bonus[type] = [value, 0]
-        for type, value in getattr(item, "defence_multiplier", {}).iteritems():
-            if type in defence_bonus:
-                defence_bonus[type][1] = value
-            else:
-                defence_bonus[type] = [None, value]
-
-        # merged info of delivery bonus:
         delivery_bonus = {}
-        for type, value in getattr(item, "delivery_bonus", {}).iteritems():
-            delivery_bonus[type] = [value, 0]
-        for type, value in getattr(item, "delivery_multiplier", {}).iteritems():
-            if type in delivery_bonus:
-                delivery_bonus[type][1] = value
-            else:
-                delivery_bonus[type] = [None, value]
+        bem = item.be_modifiers
+        if bem is not None:
+            for type, value in bem.defence_bonus.iteritems():
+                defence_bonus[type] = [value, 0]
+            for type, value in bem.defence_multiplier.iteritems():
+                if type in defence_bonus:
+                    defence_bonus[type][1] = value
+                else:
+                    defence_bonus[type] = [None, value]
+
+            for type, value in bem.delivery_bonus.iteritems():
+                delivery_bonus[type] = [value, 0]
+            for type, value in bem.delivery_multiplier.iteritems():
+                if type in delivery_bonus:
+                    delivery_bonus[type][1] = value
+                else:
+                    delivery_bonus[type] = [None, value]
 
         return defence_bonus, delivery_bonus
 

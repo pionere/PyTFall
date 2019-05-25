@@ -788,7 +788,7 @@ init 1000 python:
 
         @staticmethod
         def gameItems():
-            valid_pref_classes = ["Any", "Casual", "Warrior", "Mage", "Shooter", "Manager", "Bartender", "Whore", "Stripper", "SIW", "Service", "Slave"]
+            valid_pref_classes = ["Any", "Casual", "Warrior", "Mage", "Shooter", "Manager", "Whore", "Stripper", "SIW", "Cleaning", "Bartender", "Service", "Slave"]
             for key, item in items.items():
                 if item.id != key:
                     TestSuite.reportError("Bad Item Entry %s for item %s" % (key, item.id))
@@ -811,6 +811,10 @@ init 1000 python:
                         TestSuite.reportError("Invalid pref_class %s for item %s (non-usable items are not permitted to have a pref_class)!" % (p, key))
                     if not item.eqchance:
                         TestSuite.reportError("Invalid pref_class %s for item %s (items with no eqchance are not permitted to have a pref_class)!" % (p, key))
+                if not isinstance(item.goodtraits, set):
+                    TestSuite.reportError("Invalid goodtraits for item %s (not a set)!" % key)
+                if not isinstance(item.badtraits, set):
+                    TestSuite.reportError("Invalid badtraits for item %s (not a set)!" % key)
                 #if item.slot != "misc" and (item.slot != "consumable" or item.ctemp):
                 #    for stat, value in item.mod.items():
                 #        if stat in ["health", "vitality", "mp", "joy"]:

@@ -197,7 +197,6 @@
     "mod": {"charisma": 10, "agility": -5, "defence": -5},
     "mod_skills": {"refinement": [0.1, 0, 0.1, 0, 0], "dancing": [-0.1, 0, -0.1, 0, 0]},
     "locations": ["Tailor Store"],
-    "badtraits": [],
     "tier": 2,
     "pref_class":["Whore", "Casual"]
     },

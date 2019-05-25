@@ -1175,13 +1175,13 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                     vbox:
                         style_group "proper_stats"
                         xsize 154
-                        $ temp = [t for t in [traits[trait] for trait in item.addtraits] if not t.hidden]
+                        $ temp = [t for t in item.addtraits if not t.hidden]
                         if temp:
                             label ('Adds Traits:') text_size 14 text_color "gold" xpos 10
                             for trait in temp:
                                 use trait_info(trait, 146, 20)
                             null height 2
-                        $ temp = [t for t in [traits[trait] for trait in item.removetraits] if not t.hidden]
+                        $ temp = [t for t in item.removetraits if not t.hidden]
                         if temp:
                             label ('Removes Traits:') text_size 14 text_color "gold" xpos 10
                             for trait in temp:
@@ -1220,12 +1220,10 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                             label ('Adds Skills:') text_size 14 text_color "gold" xpos 10
                             if item.add_be_spells:
                                 for skill in item.add_be_spells:
-                                    $ skill = battle_skills[skill]
                                     use skill_info(skill, 146, 20)
                                 null height 2
                             if item.attacks:
                                 for skill in item.attacks:
-                                    $ skill = battle_skills[skill]
                                     use skill_info(skill, 146, 20)
                                 #null height 2
 
@@ -1334,7 +1332,6 @@ screen show_item_info_content(item):
             yval = .5
 
     $ item_info = item
-    $ defence_bonus, delivery_bonus = item_info_calculator(item)
     fixed:
         pos x, y
         anchor xval, yval
@@ -1406,8 +1403,8 @@ screen show_item_info_content(item):
                         else:
                             text (u'One day') color "#F5F5DC" size 15 xalign .02 yoffset -2
 
-            $ temp = [t.id for t in [traits[trait] for trait in item_info.addtraits] if not t.hidden]
-            $ tmp = [t.id for t in [traits[trait] for trait in item_info.removetraits] if not t.hidden]
+            $ temp = [t.id for t in item_info.addtraits if not t.hidden]
+            $ tmp = [t.id for t in item_info.removetraits if not t.hidden]
             if temp or tmp:
                 $ any_mod = True
                 label (u"Traits:") text_size 20 text_color "goldenrod" text_bold True xalign .45
@@ -1478,98 +1475,101 @@ screen show_item_info_content(item):
                     for skill in item_info.add_be_spells:
                         frame:
                             xysize 200, 20
-                            text skill.title() size 15 color "yellow" align .5, .5 outlines [(1, "black", 0, 0)]
+                            text skill.name size 15 color "yellow" align .5, .5 outlines [(1, "black", 0, 0)]
                 if item_info.attacks:
                     for skill in item_info.attacks:
                         frame:
                             xysize 200, 20
-                            text skill.title() size 15 color "yellow" align .5, .5 outlines [(1, "black", 0, 0)]
+                            text skill.name size 15 color "yellow" align .5, .5 outlines [(1, "black", 0, 0)]
 
-            if defence_bonus or hasattr(item_info, "evasion_bonus"):
-                $ any_mod = True
-                label (u"Defensive:") text_size 20 text_color "goldenrod" text_bold True xalign .45
+            $ bem = item_info.be_modifiers
+            if bem:
+                $ defence_bonus, delivery_bonus = item_info_calculator(item)
+                if defence_bonus or bem.evasion_bonus:
+                    $ any_mod = True
+                    label (u"Defensive:") text_size 20 text_color "goldenrod" text_bold True xalign .45
 
-                if defence_bonus:
-                    hbox:
-                        frame:
-                            xysize 50, 20
-                            # "type"
-                        frame:
-                            xysize 80, 20
-                            text "bonus" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
-                        frame:
-                            xysize 70, 20
-                            text "multiplier" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
-                    for type, value in defence_bonus.iteritems():
+                    if defence_bonus:
                         hbox:
                             frame:
                                 xysize 50, 20
-                                text type size 15 color "goldenrod" align .5, .5 outlines [(1, "black", 0, 0)]
+                                # "type"
                             frame:
                                 xysize 80, 20
-                                $ val = value[0]
-                                if val:
-                                    $ txt_color = "red" if val < 0 else "lime"
-                                    text "%g" % val size 15 color txt_color align .5, .5 outlines [(1, "black", 0, 0)]
+                                text "bonus" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
                             frame:
                                 xysize 70, 20
-                                $ val = int(value[1]*100)
-                                if val:
-                                    text "%g %%" % val size 15 color ("lime" if val > 0 else "red") align 1.0, .5 outlines [(1, "black", 0, 0)]
+                                text "multiplier" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
+                        for type, value in defence_bonus.iteritems():
+                            hbox:
+                                frame:
+                                    xysize 50, 20
+                                    text type size 15 color "goldenrod" align .5, .5 outlines [(1, "black", 0, 0)]
+                                frame:
+                                    xysize 80, 20
+                                    $ val = value[0]
+                                    if val:
+                                        $ txt_color = "red" if val < 0 else "lime"
+                                        text "%g" % val size 15 color txt_color align .5, .5 outlines [(1, "black", 0, 0)]
+                                frame:
+                                    xysize 70, 20
+                                    $ val = int(value[1]*100)
+                                    if val:
+                                        text "%g %%" % val size 15 color ("lime" if val > 0 else "red") align 1.0, .5 outlines [(1, "black", 0, 0)]
 
-                if hasattr(item_info, "evasion_bonus"):
-                    frame:
-                        xysize 200, 20
-                        $ value = item_info.evasion_bonus
-                        $ txt_color = "red" if value < 0 else "lime"
-                        text "Evasion" size 15 color "yellowgreen" align .0, .5 outlines [(1, "black", 0, 0)]
-                        label "%+g" % value text_size 15 text_color txt_color align 1.0, .5 text_outlines [(1, "black", 0, 0)]
+                    if bem.evasion_bonus:
+                        frame:
+                            xysize 200, 20
+                            $ value = bem.evasion_bonus
+                            $ txt_color = "red" if value < 0 else "lime"
+                            text "Evasion" size 15 color "yellowgreen" align .0, .5 outlines [(1, "black", 0, 0)]
+                            label "%+g" % value text_size 15 text_color txt_color align 1.0, .5 text_outlines [(1, "black", 0, 0)]
 
-            if delivery_bonus or hasattr(item_info, "damage_multiplier") or hasattr(item_info, "ch_multiplier"):
-                $ any_mod = True
-                label (u"Offensive:") text_size 20 text_color "goldenrod" text_bold True xalign .45
+                if delivery_bonus or bem.damage_multiplier or bem.ch_multiplier:
+                    $ any_mod = True
+                    label (u"Offensive:") text_size 20 text_color "goldenrod" text_bold True xalign .45
 
-                if delivery_bonus:
-                    hbox:
-                        frame:
-                            xysize 50, 20
-                            # "type"
-                        frame:
-                            xysize 80, 20
-                            text "bonus" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
-                        frame:
-                            xysize 70, 20
-                            text "multiplier" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
-                    for type, value in delivery_bonus.iteritems():
+                    if delivery_bonus:
                         hbox:
                             frame:
                                 xysize 50, 20
-                                text type size 15 color "goldenrod" align .5, .5 outlines [(1, "black", 0, 0)]
+                                # "type"
                             frame:
                                 xysize 80, 20
-                                $ val = value[0]
-                                if val:
-                                    $ txt_color = "red" if val < 0 else "lime"
-                                    text "%g" % val size 15 color txt_color align .5, .5 outlines [(1, "black", 0, 0)]
+                                text "bonus" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
                             frame:
                                 xysize 70, 20
-                                $ val = int(value[1]*100)
-                                if val:
-                                    text "%+g %%" % val size 15 color ("lime" if val > 0 else "red") align 1.0, .5 outlines [(1, "black", 0, 0)]
+                                text "multiplier" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
+                        for type, value in delivery_bonus.iteritems():
+                            hbox:
+                                frame:
+                                    xysize 50, 20
+                                    text type size 15 color "goldenrod" align .5, .5 outlines [(1, "black", 0, 0)]
+                                frame:
+                                    xysize 80, 20
+                                    $ val = value[0]
+                                    if val:
+                                        $ txt_color = "red" if val < 0 else "lime"
+                                        text "%g" % val size 15 color txt_color align .5, .5 outlines [(1, "black", 0, 0)]
+                                frame:
+                                    xysize 70, 20
+                                    $ val = int(value[1]*100)
+                                    if val:
+                                        text "%+g %%" % val size 15 color ("lime" if val > 0 else "red") align 1.0, .5 outlines [(1, "black", 0, 0)]
 
-                if hasattr(item_info, "damage_multiplier"):
-                    frame:
-                        xysize 200, 20
-                        $ value = int(item_info.damage_multiplier*100)
-                        $ txt_color = "red" if value < 0 else "lime"
-                        text "Damage multiplier %+g %%" % value size 15 color txt_color align .5, .5 text_align .5 outlines [(1, "black", 0, 0)]
+                    if bem.damage_multiplier:
+                        frame:
+                            xysize 200, 20
+                            $ value = int(bem.damage_multiplier*100)
+                            $ txt_color = "red" if value < 0 else "lime"
+                            text "Damage multiplier %+g %%" % value size 15 color txt_color align .5, .5 text_align .5 outlines [(1, "black", 0, 0)]
 
-                if hasattr(item_info, "ch_multiplier"):
-                    frame:
-                        xysize 200, 20
-                        $ value = int(item_info.ch_multiplier*100)
-                        $ txt_color = "red" if value < 0 else "lime"
-                        text "Critical hit %+g %%" % value size 15 color txt_color align .5, .5 text_align .5 outlines [(1, "black", 0, 0)]
+                    if bem.ch_multiplier:
+                        frame:
+                            xysize 200, 20
+                            $ value = int(bem.ch_multiplier*100)
+                            $ txt_color = "red" if value < 0 else "lime"
+                            text "Critical hit %+g %%" % value size 15 color txt_color align .5, .5 text_align .5 outlines [(1, "black", 0, 0)]
 
             if item_info.be:
                 $ any_mod = True

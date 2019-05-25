@@ -437,6 +437,12 @@ init -10 python:
             self.client = False
             self.market = False
 
+            # Base mods on init:
+            self.init_mod = dict() # Mod value setting
+            self.init_lvlmax = dict() # Mod value setting
+            self.init_max = dict() # Mod value setting
+            self.init_skills = dict() # {skill: [actions, training]}
+
             # Elemental:
             self.font_color = None
             self.resist = list()
@@ -444,13 +450,8 @@ init -10 python:
             #self.el_damage = dict()
             #self.el_defence = dict()
 
-            # Base mods on init:
-            self.init_mod = dict() # Mod value setting
-            self.init_lvlmax = dict() # Mod value setting
-            self.init_max = dict() # Mod value setting
-            self.init_skills = dict() # {skill: [actions, training]}
-
             # Special BE Fields:
+            self.be_modifiers = None # 'all' be related fields are merged into this (TODO except for the resist...)
             # self.evasion_bonus = () # Bonuses in traits work differently from item bonuses, a tuple of (min_value, max_value, max_value_level) is expected (as a value in dict below) instead!
             # self.ch_multiplier = 0 # Chance of critical hit multi...
             # self.damage_multiplier = 0
@@ -469,7 +470,6 @@ init -10 python:
 
         def __str__(self):
             return str(self.id)
-
 
     class Traits(SmartTracker):
         def __init__(self, *args, **kwargs):
@@ -1632,7 +1632,7 @@ init -10 python:
                                       "status": [intelligence_value*.7 + agility_value*.3, intelligence*.7 + agility*.3, 0, None]}
 
                 _bs_stats = [max(1, char.get_max(stat)) for stat in ("health", "mp", "vitality")] # BATTLE_STATS
-                for battle_skill in itertools.chain(char.attack_skills, char.magic_skills, [char.default_attack_skill]):
+                for battle_skill in itertools.chain(char.attack_skills, char.magic_skills):
                     bmpc = _bs_mul_power_curr[battle_skill.delivery]
                     power = Stats.weight_battle_skill(battle_skill, bmpc, _bs_mod_curr, _bs_stats)
                     if power > bmpc[2]: # best power
@@ -1762,20 +1762,37 @@ init -10 python:
 
                 if fighting is True:
                     # gain on current skills
-                    _bs_mod_new = BE_Core.get_item_modifiers((item, ))
-                    _bs_trait_new = BE_Core.get_trait_modifiers([traits[t] for t in item.addtraits if t not in char_traits], level)
-                    # FIXME remove traits? 
-                    BE_Core.merge_modifiers(_bs_mod_new, _bs_trait_new)
-                    BE_Core.merge_modifiers(_bs_mod_new, _bs_mod_curr)
-                    for delivery, bmpc in _bs_mul_power_curr.iteritems():
-                        curr_power = bmpc[2]
-                        if curr_power == 0:
+                    if item.be_modifiers is None:
+                        _bs_mod_new = _bs_mod_curr
+                    else:
+                        _bs_mod_new = BE_Core.get_item_modifiers((item, ))
+                        BE_Core.merge_modifiers(_bs_mod_new, _bs_mod_curr)
+                    for t in item.addtraits:
+                        if t.be_modifiers is None or t in char_traits:
                             continue
-                        #                              battle_skill
-                        power = Stats.weight_battle_skill(bmpc[3], bmpc, _bs_mod_new, _bs_stats)
-
-                        #weights.append(bmpc[0]*change/curr_power)
-                        weights += bmpc[0]*(power-curr_power/2)/float(curr_power)
+                        _bs_trait_new = BE_Core.get_trait_modifiers((t, ), level)
+                        if _bs_mod_new is _bs_mod_curr:
+                            _bs_mod_new = _bs_trait_new
+                        else:
+                            BE_Core.merge_modifiers(_bs_mod_new, _bs_trait_new)
+                    # FIXME remove traits? 
+                    if _bs_mod_new is not _bs_mod_curr:
+                        off_mod = any((_bs_mod_new[i] != _bs_mod_curr[i] for i in xrange(6)))
+                        if off_mod is True:
+                            for delivery, bmpc in _bs_mul_power_curr.iteritems():
+                                curr_power = bmpc[2]
+                                if curr_power == 0:
+                                    continue
+                                #                              battle_skill
+                                power = Stats.weight_battle_skill(bmpc[3], bmpc, _bs_mod_new, _bs_stats)
+                                power -= curr_power
+                                if power == 0:
+                                    continue
+                                #weights.append(bmpc[0]*change/curr_power)
+                                weights += bmpc[0]*power/float(curr_power)
+                                #devlog.warn("Gain on Current Skill: %s" % (bmpc[0]*float(power-curr_power)/curr_power))
+                        # FIXME weight defensive modifiers
+                        #def_mod = not off_mod or any((_bs_mod_new[i] != _bs_mod_curr[i] for i in xrange(5, 10)))
 
                     # gain from new skills
                     # Attacks:
@@ -1784,7 +1801,6 @@ init -10 python:
 
                         # check the skills power TODO bind this to BE_Core?
                         for battle_skill in item.attacks:
-                            battle_skill = battle_skills[battle_skill]
                             delivery = battle_skill.delivery
                             bmpc = _bs_mul_power_curr[delivery]
                             power = Stats.weight_battle_skill(battle_skill, bmpc, _bs_mod_new, _bs_stats)
@@ -1807,7 +1823,6 @@ init -10 python:
 
                     # Spells:
                     for battle_skill in item.add_be_spells:
-                        battle_skill = battle_skills[battle_skill]
                         if battle_skill in char.magic_skills:
                             continue
                         bmpc = _bs_mul_power_curr[battle_skill.delivery]

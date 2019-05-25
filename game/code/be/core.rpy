@@ -3,6 +3,44 @@ init -1 python: # Core classes:
     This is our version of turn based BattleEngine.
     I think that we can use zorders on master layer instead of messing with multiple layers.
     """
+    class BE_Modifiers(_object):
+        FIELDS = ["ch_multiplier", "damage_multiplier", "delivery_bonus", "delivery_multiplier", "el_damage", "el_defence", "el_absorbs", "defence_bonus", "defence_multiplier", "evasion_bonus"]
+        def __init__(self, source):
+            self.ch_multiplier = 0
+            self.damage_multiplier = 0
+            self.delivery_bonus = {}
+            self.delivery_multiplier = {}
+            self.el_damage = {}
+            self.el_defence = {}
+            self.el_absorbs = {}
+            self.defence_bonus = {}
+            self.defence_multiplier = {}
+            self.evasion_bonus = 0 if isinstance(source, Item) else [0, 0, 0]
+
+            for field in self.FIELDS:
+                value = getattr(source, field, None)
+                if value is not None:
+                    setattr(self, field, value)
+                    delattr(source, field)
+
+        def __eq__(self, other):
+            """
+            Checks for equality with the given argument.
+            other = The object to check against.
+            """
+            if not isinstance(other, BE_Modifiers): return False
+            for field in self.FIELDS:
+                if getattr(self, field) != getattr(other, field):
+                    return False
+            return True
+
+        def __ne__(self, other):
+            """
+            Checks for inequality with the given argument.
+            other = The object to check against.
+            """
+            return not self.__eq__(other)
+
     class BE_Combatant(_object):
         def __init__(self, char):
             # BE assets:
@@ -276,30 +314,31 @@ init -1 python: # Core classes:
                 for i in items:
                     if i is None:
                         continue
-                    damage_multiplier += getattr(i, "damage_multiplier", 0)
-                    critical_hit_chance += getattr(i, "ch_multiplier", 0)
+                    bem = i.be_modifiers
+                    if bem is None:
+                        continue
 
-                    if hasattr(i, "delivery_bonus"):
-                        for delivery, bonus in i.delivery_bonus.iteritems():
-                            bonus += delivery_bonus.get(delivery, 0)
-                            delivery_bonus[delivery] = bonus
+                    damage_multiplier += bem.damage_multiplier
+                    critical_hit_chance += bem.ch_multiplier
 
-                    if hasattr(i, "delivery_multiplier"):
-                        for delivery, mpl in i.delivery_multiplier.iteritems():
-                            mpl += delivery_multiplier.get(delivery, 0)
-                            delivery_multiplier[delivery] = mpl
+                    for delivery, bonus in bem.delivery_bonus.iteritems():
+                        bonus += delivery_bonus.get(delivery, 0)
+                        delivery_bonus[delivery] = bonus
 
-                    evasion_bonus += getattr(i, "evasion_bonus", 0)
+                    for delivery, mpl in bem.delivery_multiplier.iteritems():
+                        mpl += delivery_multiplier.get(delivery, 0)
+                        delivery_multiplier[delivery] = mpl
 
-                    if hasattr(i, "defence_bonus"):
-                        for delivery, bonus in i.defence_bonus.iteritems():
-                            bonus += defence_bonus.get(delivery, 0)
-                            defence_bonus[delivery] = bonus
+                    evasion_bonus += bem.evasion_bonus
 
-                    if hasattr(i, "defence_multiplier"):
-                        for delivery, mpl in i.defence_multiplier.iteritems():
-                            mpl += defence_multiplier.get(delivery, 0)
-                            defence_multiplier[delivery] = mpl
+                    for delivery, bonus in bem.defence_bonus.iteritems():
+                        bonus += defence_bonus.get(delivery, 0)
+                        defence_bonus[delivery] = bonus
+
+                    for delivery, mpl in bem.defence_multiplier.iteritems():
+                        mpl += defence_multiplier.get(delivery, 0)
+                        defence_multiplier[delivery] = mpl
+
             return [critical_hit_chance, damage_multiplier, delivery_bonus, delivery_multiplier, el_dmg, el_def, absorbs, defence_bonus, defence_multiplier, evasion_bonus]
 
         @staticmethod
@@ -315,73 +354,55 @@ init -1 python: # Core classes:
             defence_multiplier = {}
             evasion_bonus = 0
             for trait in traits:
-                damage_multiplier += getattr(trait, "damage_multiplier", 0)
-                critical_hit_chance += getattr(trait, "ch_multiplier", 0)
+                bem = trait.be_modifiers
+                if bem is None:
+                    continue
 
-                temp = getattr(trait, "delivery_bonus", None)
-                if temp is not None:
-                    for delivery, bonus in temp.iteritems():
-                        # Reference: (minv, maxv, lvl)
-                        minv, maxv, lvl = bonus
-                        if lvl > level:
-                            maxv = max(minv, level*maxv/float(lvl))
-                        maxv += delivery_bonus.get(delivery, 0)
-                        delivery_bonus[delivery] = maxv
+                damage_multiplier += bem.damage_multiplier
+                critical_hit_chance += bem.ch_multiplier
 
-                temp = getattr(trait, "delivery_multiplier", None)
-                if temp is not None:
-                    for delivery, mpl in temp.iteritems():
-                        mpl += delivery_multiplier.get(delivery, 0)
-                        delivery_multiplier[delivery] = mpl
-
-                temp = getattr(trait, "el_damage", None)
-                if temp is not None:
-                    for type, val in temp.iteritems():
-                        val += el_dmg.get(type, 0)
-                        el_dmg[type] = val
-
-                temp = getattr(trait, "el_defence", None)
-                if temp is not None:
-                    for type, val in temp.iteritems():
-                        val += el_def.get(type, 0)
-                        el_def[type] = val
-
-                temp = getattr(trait, "evasion_bonus", None)
-                if temp is not None:
+                for delivery, bonus in bem.delivery_bonus.iteritems():
                     # Reference: (minv, maxv, lvl)
-                    minv, maxv, lvl = temp
+                    minv, maxv, lvl = bonus
                     if lvl > level:
-                        maxv = max(minv, level*maxv/float(lvl))
-                    evasion_bonus += maxv
+                        maxv = minv + (maxv-minv)*level/float(lvl)
+                    maxv += delivery_bonus.get(delivery, 0)
+                    delivery_bonus[delivery] = maxv
+
+                for delivery, mpl in bem.delivery_multiplier.iteritems():
+                    mpl += delivery_multiplier.get(delivery, 0)
+                    delivery_multiplier[delivery] = mpl
+
+                for type, val in bem.el_damage.iteritems():
+                    val += el_dmg.get(type, 0)
+                    el_dmg[type] = val
+
+                for type, val in bem.el_defence.iteritems():
+                    val += el_def.get(type, 0)
+                    el_def[type] = val
+
+                # Reference: (minv, maxv, lvl)
+                minv, maxv, lvl = bem.evasion_bonus
+                if lvl > level:
+                    maxv = minv + (maxv-minv)*level/float(lvl)
+                evasion_bonus += maxv
 
                 # Get all absorption capable traits:
-                temp = getattr(trait, "el_absorbs", None)
-                if temp is not None:
-                    for type, val in temp.iteritems():
-                        absorb = absorbs.get(type, [])
-                        absorb.append(val)
-                        absorbs[type] = absorb
+                for type, val in bem.el_absorbs.iteritems():
+                    val += absorbs.get(type, 0)
+                    absorbs[type] = val
 
-                temp = getattr(trait, "defence_bonus", None)
-                if temp is not None:
-                    for delivery, bonus in temp.iteritems():
-                        # Reference: (minv, maxv, lvl)
-                        minv, maxv, lvl = bonus
-                        if lvl > level:
-                            maxv = max(minv, level*maxv/float(lvl))
-                        maxv += defence_bonus.get(delivery, 0)
-                        defence_bonus[delivery] = maxv
+                for delivery, bonus in bem.defence_bonus.iteritems():
+                    # Reference: (minv, maxv, lvl)
+                    minv, maxv, lvl = bonus
+                    if lvl > level:
+                        maxv = minv + (maxv-minv)*level/float(lvl)
+                    maxv += defence_bonus.get(delivery, 0)
+                    defence_bonus[delivery] = maxv
 
-                temp = getattr(trait, "defence_multiplier", None)
-                if temp is not None:
-                    for delivery, mpl in temp.iteritems():
-                        mpl += defence_multiplier.get(delivery, 0)
-                        defence_multiplier[delivery] = mpl
-
-            # Convert absorptions to ratios:
-            for type, val in absorbs.iteritems():
-                val = sum(val) / len(val)
-                absorbs[type] = val
+                for delivery, mpl in bem.defence_multiplier.iteritems():
+                    mpl += defence_multiplier.get(delivery, 0)
+                    defence_multiplier[delivery] = mpl
 
             return [critical_hit_chance, damage_multiplier, delivery_bonus, delivery_multiplier, el_dmg, el_def, absorbs, defence_bonus, defence_multiplier, evasion_bonus]
 

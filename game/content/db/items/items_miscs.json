@@ -39,7 +39,6 @@
     "tier": 1,
     "mod": {"attack": 1, "vitality": -10},
     "locations": ["Ninja Shop", "Exploration"],
-    "goodtraits": [],
     "badtraits": ["Womanly"],
     "pref_class":["Warrior", "Shooter"]
     },

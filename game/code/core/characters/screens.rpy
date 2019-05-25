@@ -665,102 +665,104 @@ screen show_trait_info_content(trait):
                                 $ val = values["defence"]
                                 text "[val] %" size 15 color ("lime" if val >= 0 else "red") align 1.0, .5 outlines [(1, "black", 0, 0)]
 
-            if defence_bonus or hasattr(trait_info, "evasion_bonus"):
-                $ any_mod = True
-                label (u"Defensive:") text_size 20 text_color "goldenrod" text_bold True xalign .45
-                
-                if defence_bonus:
-                    hbox:
-                        frame:
-                            xysize 50, 20
-                            # "type"
-                        frame:
-                            xysize 80, 20
-                            text "bonus" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
-                        frame:
-                            xysize 70, 20
-                            text "multiplier" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
-                    for type, value in defence_bonus.iteritems():
+            $ bem = trait_info.be_modifiers
+            if bem:
+                if defence_bonus or bem.evasion_bonus:
+                    $ any_mod = True
+                    label (u"Defensive:") text_size 20 text_color "goldenrod" text_bold True xalign .45
+
+                    if defence_bonus:
                         hbox:
                             frame:
                                 xysize 50, 20
-                                text type size 15 color "goldenrod" align .5, .5 outlines [(1, "black", 0, 0)]
+                                # "type"
                             frame:
                                 xysize 80, 20
-                                $ val = value[0]
-                                if val:
-                                    $ min, max, lvl = val
-                                    $ txt_color = "red" if max < 0 else "lime"
-                                    if min == max:
-                                        text "%g" % max size 15 color txt_color align .5, .5 outlines [(1, "black", 0, 0)]
-                                    else:
-                                        text "%g..%g" % (min, max) size 15 color txt_color align .5, .5 outlines [(1, "black", 0, 0)]
+                                text "bonus" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
                             frame:
                                 xysize 70, 20
-                                $ val = int(value[1]*100)
-                                if val:
-                                    text "%g %%" % val size 15 color ("lime" if val > 0 else "red") align 1.0, .5 outlines [(1, "black", 0, 0)]
+                                text "multiplier" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
+                        for type, value in defence_bonus.iteritems():
+                            hbox:
+                                frame:
+                                    xysize 50, 20
+                                    text type size 15 color "goldenrod" align .5, .5 outlines [(1, "black", 0, 0)]
+                                frame:
+                                    xysize 80, 20
+                                    $ val = value[0]
+                                    if val:
+                                        $ min, max, lvl = val
+                                        $ txt_color = "red" if max < 0 else "lime"
+                                        if min == max:
+                                            text "%g" % max size 15 color txt_color align .5, .5 outlines [(1, "black", 0, 0)]
+                                        else:
+                                            text "%g..%g" % (min, max) size 15 color txt_color align .5, .5 outlines [(1, "black", 0, 0)]
+                                frame:
+                                    xysize 70, 20
+                                    $ val = int(value[1]*100)
+                                    if val:
+                                        text "%g %%" % val size 15 color ("lime" if val > 0 else "red") align 1.0, .5 outlines [(1, "black", 0, 0)]
 
-                if hasattr(trait_info, "evasion_bonus"):
-                    frame:
-                        xysize 200, 20
-                        $ min, max, lvl = trait_info.evasion_bonus
-                        $ txt_color = "red" if max < 0 else "lime"
-                        text "Evasion" size 15 color "yellowgreen" align .0, .5 outlines [(1, "black", 0, 0)]
-                        if min == max:
-                            label "%+g" % max text_size 15 text_color txt_color align 1.0, .5 text_outlines [(1, "black", 0, 0)]
-                        else:
-                            text "%g .. %g at lvl %d" % (min, max, lvl) align 1.0, .5 size 15 color txt_color outlines [(1, "black", 0, 0)]
+                    if bem.evasion_bonus:
+                        frame:
+                            xysize 200, 20
+                            $ min, max, lvl = bem.evasion_bonus
+                            $ txt_color = "red" if max < 0 else "lime"
+                            text "Evasion" size 15 color "yellowgreen" align .0, .5 outlines [(1, "black", 0, 0)]
+                            if min == max:
+                                label "%+g" % max text_size 15 text_color txt_color align 1.0, .5 text_outlines [(1, "black", 0, 0)]
+                            else:
+                                text "%g .. %g at lvl %d" % (min, max, lvl) align 1.0, .5 size 15 color txt_color outlines [(1, "black", 0, 0)]
 
-            if delivery_bonus or hasattr(trait_info, "damage_multiplier") or hasattr(trait_info, "ch_multiplier"):
-                $ any_mod = True
-                label (u"Offensive:") text_size 20 text_color "goldenrod" text_bold True xalign .45
+                if delivery_bonus or bem.damage_multiplier or bem.ch_multiplier:
+                    $ any_mod = True
+                    label (u"Offensive:") text_size 20 text_color "goldenrod" text_bold True xalign .45
 
-                if delivery_bonus:
-                    hbox:
-                        frame:
-                            xysize 50, 20
-                            # "type"
-                        frame:
-                            xysize 80, 20
-                            text "bonus" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
-                        frame:
-                            xysize 70, 20
-                            text "multiplier" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
-                    for type, value in delivery_bonus.iteritems():
+                    if delivery_bonus:
                         hbox:
                             frame:
                                 xysize 50, 20
-                                text type size 15 color "goldenrod" align .5, .5 outlines [(1, "black", 0, 0)]
+                                # "type"
                             frame:
                                 xysize 80, 20
-                                $ val = value[0]
-                                if val:
-                                    $ min, max, lvl = val
-                                    $ txt_color = "red" if max < 0 else "lime"
-                                    if min == max:
-                                        text "%g" % max size 15 color txt_color align .5, .5 outlines [(1, "black", 0, 0)]
-                                    else:
-                                        text "%g..%g" % (min, max) size 15 color txt_color align .5, .5 outlines [(1, "black", 0, 0)]
+                                text "bonus" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
                             frame:
                                 xysize 70, 20
-                                $ val = int(value[1]*100)
-                                if val:
-                                    text "%+g %%" % val size 15 color ("lime" if val > 0 else "red") align 1.0, .5 outlines [(1, "black", 0, 0)]
+                                text "multiplier" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
+                        for type, value in delivery_bonus.iteritems():
+                            hbox:
+                                frame:
+                                    xysize 50, 20
+                                    text type size 15 color "goldenrod" align .5, .5 outlines [(1, "black", 0, 0)]
+                                frame:
+                                    xysize 80, 20
+                                    $ val = value[0]
+                                    if val:
+                                        $ min, max, lvl = val
+                                        $ txt_color = "red" if max < 0 else "lime"
+                                        if min == max:
+                                            text "%g" % max size 15 color txt_color align .5, .5 outlines [(1, "black", 0, 0)]
+                                        else:
+                                            text "%g..%g" % (min, max) size 15 color txt_color align .5, .5 outlines [(1, "black", 0, 0)]
+                                frame:
+                                    xysize 70, 20
+                                    $ val = int(value[1]*100)
+                                    if val:
+                                        text "%+g %%" % val size 15 color ("lime" if val > 0 else "red") align 1.0, .5 outlines [(1, "black", 0, 0)]
 
-                if hasattr(trait_info, "damage_multiplier"):
-                    frame:
-                        xysize 200, 20
-                        $ value = int(trait_info.damage_multiplier*100)
-                        $ txt_color = "red" if value < 0 else "lime"
-                        text "Damage multiplier %+g %%" % value size 15 color txt_color align .5, .5 text_align .5 outlines [(1, "black", 0, 0)]
+                    if bem.damage_multiplier:
+                        frame:
+                            xysize 200, 20
+                            $ value = int(bem.damage_multiplier*100)
+                            $ txt_color = "red" if value < 0 else "lime"
+                            text "Damage multiplier %+g %%" % value size 15 color txt_color align .5, .5 text_align .5 outlines [(1, "black", 0, 0)]
 
-                if hasattr(trait_info, "ch_multiplier"):
-                    frame:
-                        xysize 200, 20
-                        $ value = int(trait_info.ch_multiplier*100)
-                        $ txt_color = "red" if value < 0 else "lime"
-                        text "Critical hit %+g %%" % value size 15 color txt_color align .5, .5 text_align .5 outlines [(1, "black", 0, 0)]
+                    if bem.ch_multiplier:
+                        frame:
+                            xysize 200, 20
+                            $ value = int(bem.ch_multiplier*100)
+                            $ txt_color = "red" if value < 0 else "lime"
+                            text "Critical hit %+g %%" % value size 15 color txt_color align .5, .5 text_align .5 outlines [(1, "black", 0, 0)]
 
             if trait_info.mod_ap:
                 $ any_mod = True

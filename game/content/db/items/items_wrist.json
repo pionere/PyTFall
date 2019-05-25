@@ -248,7 +248,6 @@
     "delivery_multiplier": {"magic": 0.05},
     "locations": ["Exploration", "General Store", "Arena"],
     "tier": 2,
-    "goodtraits": [],
     "pref_class":["Mage"]
     },
     {

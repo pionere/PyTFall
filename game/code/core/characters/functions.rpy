@@ -81,26 +81,51 @@ init -11 python:
             traits = [char_or_trait]
             trait_info = char_or_trait
 
-        # merged info of elemental modifiers:
+        # merged infos:
         elementals = defaultdict(dict)
+        defence_bonus = {}
+        delivery_bonus = {}
         for trait in traits:
-            temp = getattr(trait, "el_damage", None)
-            if temp is not None:
-                for element, value in temp.iteritems():
-                    elementals[element]["attack"] = elementals[element].get("attack", 0) + int(value*100)
-
-            temp = getattr(trait, "el_defence", None)
-            if temp is not None:
-                for element, value in temp.iteritems():
-                    elementals[element]["defence"] = elementals[element].get("defence", 0) + int(value*100)
-
             for i in trait.resist:
                 elementals[i]["resist"] = True
 
-            temp = getattr(trait, "el_absorbs", None)
-            if temp is not None:
-                for element, value in temp.iteritems():
-                    elementals[element]["abs"] = elementals[element].get("abs", 0) + int(value*100)
+            bem = trait.be_modifiers
+            if bem is None:
+                continue
+
+            # elemental modifiers:
+            for element, value in bem.el_damage.iteritems():
+                elementals[element]["attack"] = elementals[element].get("attack", 0) + int(value*100)
+
+            for element, value in bem.el_defence.iteritems():
+                elementals[element]["defence"] = elementals[element].get("defence", 0) + int(value*100)
+
+            for element, value in bem.el_absorbs.iteritems():
+                elementals[element]["abs"] = elementals[element].get("abs", 0) + int(value*100)
+
+            # defence bonus:
+            for type, value in bem.defence_bonus.iteritems():
+                if type in defence_bonus:
+                    defence_bonus[type][0] += value
+                else:
+                    defence_bonus[type] = [value, 0]
+            for type, value in bem.defence_multiplier.iteritems():
+                if type in defence_bonus:
+                    defence_bonus[type][1] += value
+                else:
+                    defence_bonus[type] = [None, value]
+
+            # delivery bonus:
+            for type, value in bem.delivery_bonus.iteritems():
+                if type in delivery_bonus:
+                    delivery_bonus[type][0] += value
+                else:
+                    delivery_bonus[type] = [value, 0]
+            for type, value in bem.delivery_multiplier.iteritems():
+                if type in delivery_bonus:
+                    delivery_bonus[type][1] += value
+                else:
+                    delivery_bonus[type] = [None, value]
 
         for i in elementals:
             if not "defence" in elementals[i].keys():
@@ -108,26 +133,6 @@ init -11 python:
 
             if not "attack" in elementals[i].keys():
                 elementals[i]["attack"] = 0
-
-        # merged info of defence bonus:
-        defence_bonus = {}
-        for type, value in getattr(trait_info, "defence_bonus", {}).iteritems():
-            defence_bonus[type] = [value, 0]
-        for type, value in getattr(trait_info, "defence_multiplier", {}).iteritems():
-            if type in defence_bonus:
-                defence_bonus[type][1] = value
-            else:
-                defence_bonus[type] = [None, value]
-
-        # merged info of delivery bonus:
-        delivery_bonus = {}
-        for type, value in getattr(trait_info, "delivery_bonus", {}).iteritems():
-            delivery_bonus[type] = [value, 0]
-        for type, value in getattr(trait_info, "delivery_multiplier", {}).iteritems():
-            if type in delivery_bonus:
-                delivery_bonus[type][1] = value
-            else:
-                delivery_bonus[type] = [None, value]
 
         return trait_info, elementals, defence_bonus, delivery_bonus
 

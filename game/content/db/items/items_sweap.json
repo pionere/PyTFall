@@ -242,7 +242,6 @@
     "max": {"magic": 60},
     "mod": {"magic": 60},
     "locations": ["Exploration", "Arena"],
-    "goodtraits": [],
     "tier": 3,
     "pref_class":["Mage"]
     },

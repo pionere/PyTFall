@@ -1013,6 +1013,12 @@ label after_load:
                             if not "name" in o:
                                 o["name"] = "Outfit %d" % (len(char.eqsave)+1)
                             char.eqsave.append(o)
+                        for k, i in o.iteritems():
+                            if i is False:
+                                o[k] = None
+                    for k, i in char.eqslots.iteritems():
+                        if i is False:
+                            char.eqslots[k] = None
                     if char.last_known_aeq_purpose == "":
                         char.last_known_aeq_purpose = None
                 if not hasattr(char, "PP"):

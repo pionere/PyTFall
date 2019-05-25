@@ -598,7 +598,7 @@ init -11 python:
             t = Trait()
             for attr in trait:
                 setattr(t, attr, trait[attr])
-            # validate traits so we do not have to do that runtime
+            # validate traits so we do not have to do that runtime TODO create init method?
             temp = getattr(t, "leveling_stats", None)
             if temp is not None:
                 for k in temp:
@@ -644,7 +644,13 @@ init -11 python:
                 for k in temp:
                     if not is_skill(k):
                         raise Exception("Invalid mod skill %s in trait %s." % (k, t.id))
-            
+
+            # merge be modifiers into a single field
+            for field in BE_Modifiers.FIELDS:
+                if hasattr(t, field):
+                    t.be_modifiers = BE_Modifiers(t)
+                    break
+
             traits[t.id] = t
 
         # final checks
@@ -810,11 +816,7 @@ init -11 python:
         for item in items:
             iteminst = Item()
             for k, v in item.items():
-                # We prolly want to convert to objects in case of traits:
-                if k in ("badtraits", "goodtraits"):
-                    setattr(iteminst, k, set(traits[i] for i in v)) # More convinient to have these as sets...
-                else:
-                    setattr(iteminst, k, v)
+                setattr(iteminst, k, v)
             iteminst.init()
             content[iteminst.id] = iteminst
         for item in gifts:

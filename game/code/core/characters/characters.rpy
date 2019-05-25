@@ -1341,7 +1341,6 @@ init -9 python:
             if item.attacks is not None:
                 attack_skills = self.attack_skills
                 for battle_skill in item.attacks:
-                    battle_skill = store.battle_skills[battle_skill]
                     attack_skills.append(battle_skill, true_add)
 
                 # Settle the default attack skill:
@@ -1351,7 +1350,6 @@ init -9 python:
 
             # Combat Spells:
             for battle_skill in item.add_be_spells:
-                battle_skill = store.battle_skills[battle_skill]
                 self.magic_skills.append(battle_skill, true_add)
 
             # Taking care of stats/skills: ----------------------------------->
@@ -1359,10 +1357,10 @@ init -9 python:
 
             # Traits: -------------------------------------------------------->
             for trait in item.removetraits:
-                self.remove_trait(traits[trait], true_add)
+                self.remove_trait(trait, true_add)
 
             for trait in item.addtraits:
-                self.apply_trait(traits[trait], true_add)
+                self.apply_trait(trait, true_add)
 
             # Effects: ------------------------------------------------------->
             if hasattr(self, "effects"):
@@ -1399,7 +1397,6 @@ init -9 python:
             if item.attacks is not None:
                 attack_skills = self.attack_skills
                 for battle_skill in item.attacks:
-                    battle_skill = store.battle_skills[battle_skill]
                     attack_skills.remove(battle_skill, False)
 
                 # Settle the default attack skill:
@@ -1408,7 +1405,6 @@ init -9 python:
 
             # Combat Spells:
             for battle_skill in item.add_be_spells:
-                battle_skill = store.battle_skills[battle_skill]
                 self.magic_skills.remove(battle_skill, False)
 
             # Taking care of stats/skills: ----------------------------------->
@@ -1416,10 +1412,10 @@ init -9 python:
 
             # Traits: -------------------------------------------------------->
             for trait in item.removetraits:
-                self.apply_trait(traits[trait], False)
+                self.apply_trait(trait, False)
 
             for trait in item.addtraits:
-                self.remove_trait(traits[trait], False)
+                self.remove_trait(trait, False)
 
             # Effects: ------------------------------------------------------->
             if hasattr(self, "effects"):
