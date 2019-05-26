@@ -30,7 +30,7 @@ label city_beach_right:
                         if not tags:
                             # giveup
                             tags = ["girlmeets", "swimsuit"]
-                gm.start_gm(char, img=char.show(*tags, type="reduce", label_cache=True, resize=(300, 400), gm_mode=True))
+                gm.start_gm(char, img=char.show(*tags, type="reduce", label_cache=True, gm_mode=True))
 
         elif result[0] == 'control':
             if result[1] == 'return':

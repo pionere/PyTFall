@@ -21,7 +21,7 @@ label graveyard_town:
         $ result = ui.interact()
 
         if result[0] == 'jump':
-            $ gm.start_gm(result[1], img=result[1].show('girlmeets', type="first_default", label_cache=True, resize=(300, 400),
+            $ gm.start_gm(result[1], img=result[1].show('girlmeets', type="first_default", label_cache=True,
                         exclude=["swimsuit", "wildness", "beach", "pool", "urban", "stage", "onsen", "indoors", "indoor"]))
 
         elif result[0] == 'control':

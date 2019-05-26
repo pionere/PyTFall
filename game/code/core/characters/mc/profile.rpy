@@ -93,7 +93,7 @@ label hero_profile:
                 else:
                     bg = "city_park"
 
-                gm.start_gm(char, exit="hero_profile", img=char.show("girlmeets", tag, label_cache=True, resize=(300, 400), type="reduce"), bg=bg)
+                gm.start_gm(char, exit="hero_profile", img=char.show("girlmeets", tag, label_cache=True, type="reduce"), bg=bg)
 
 # Screens:
 screen hero_profile():

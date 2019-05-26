@@ -124,7 +124,7 @@ init -1 python:
         # List of modes to use the girl_interactions label with.
         # USE_GI = ["girl_meets", "girl_interactions", "girl_trainings"]
         USE_GI = ["girl_meets", "girl_interactions"]
-
+        IMG_SIZE = (600, 515) # Img size we automatically use for girlsmeets.
         def __init__(self):
             """
             Creates a new GirlsMeets.
@@ -132,7 +132,6 @@ init -1 python:
             """
             # Mode and caches
             self.mode = None
-            self.img_size = (600, 515) # Img size we automatically use for girlsmeets.
             self.label_cache = ""
             self.bg_cache = ""
             self.jump_cache = ""
@@ -184,7 +183,6 @@ init -1 python:
         def set_img(self, *args, **kwargs):
             """Sets the image, leaving the image cache untouched.
             """
-            kwargs["resize"] = kwargs.get("resize", self.img_size)
             self.img = self.char.show(*args, **kwargs)
 
         def restore_img(self):
@@ -278,7 +276,7 @@ init -1 python:
             if img is None:
                 img = char.get_img_from_cache(str(last_label))
                 if not img:
-                    img = char.show("profile", resize=self.img_size, exclude=["nude", "bikini", "swimsuit", "beach", "angry", "scared", "ecstatic"])
+                    img = char.show("profile", exclude=["nude", "bikini", "swimsuit", "beach", "angry", "scared", "ecstatic"])
             self.img = img
             self.img_cache = img
 

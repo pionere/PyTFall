@@ -22,14 +22,13 @@ init python:
         char = girls[index]
 
         if (check_lovers(char, hero) or "Exhibitionist" in char.traits) and dice(30):
-            img = char.show('profile', "nude", "revealing", resize=(590, 600), label_cache=True)
+            img = char.show('profile', "nude", "revealing", label_cache=True)
         elif check_friends(hero, char):
-            img = char.show('profile', resize=(590, 600), exclude=["nude"], label_cache=True)
+            img = char.show('profile', exclude=["nude"], label_cache=True)
         else:
-            img = char.show('profile', resize=(590, 600),
-                            exclude=["nude", "revealing", "lingerie", "swimsuit"], label_cache=True)
+            img = char.show('profile', exclude=["nude", "revealing", "lingerie", "swimsuit"], label_cache=True)
 
-        image_tags = img.get_image_tags()
+        image_tags = TagDatabase.get_image_tags(img)
         if "no bg" in image_tags:
             frame_image = "content/gfx/frame/MC_bg3_white.png"
         else:
@@ -38,16 +37,15 @@ init python:
         hbg = Frame(im.MatrixColor(frame_image, im.matrix.brightness(.1)), 10, 10)
 
         if "Exhibitionist" in char.traits and dice(40):
-            gm_img = char.show("girlmeets", "nude", "revealing", resize=gm.img_size)
+            gm_img = char.show("girlmeets", "nude", "revealing")
         elif check_friends(hero, char) or check_lovers(char, hero):
-            gm_img = char.show("girlmeets", exclude=["nude"], resize=gm.img_size)
+            gm_img = char.show("girlmeets", exclude=["nude"])
         else:
             gm_img = char.show("girlmeets",
                                exclude=["nude",
                                         "revealing",
                                         "lingerie",
-                                        "swimsuit"],
-                               resize=gm.img_size)
+                                        "swimsuit"])
 
         return char
 
@@ -203,7 +201,7 @@ screen char_profile():
                 action Hide("char_profile"), With(dissolve), Function(gm.start_int, char, img=gm_img)
                 sensitive char_is_controlled
                 tooltip "Click to interact with %s!\n%s" % (char.nickname, char.desc)
-                add store.img
+                add ProportionalScale(store.img, 590, 600)
                 alternate Return(['control', 'return']) # keep in sync with mousedown_3
 
         # Mid-Bottom Frame: Level, experience ====================================>

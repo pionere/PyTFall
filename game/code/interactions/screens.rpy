@@ -303,7 +303,7 @@ label interactions_control:
                 # Girls Meets
                 if result[1] == "GM":
                     # Include img as coming from int and tr prevents the "img from last location" from working
-                    gm.start_gm(char, img=char.show("profile", resize=gm.img_size, exclude=["nude", "bikini", "swimsuit", "beach", "angry", "scared", "ecstatic"]))
+                    gm.start_gm(char, img=char.show("profile", exclude=["nude", "bikini", "swimsuit", "beach", "angry", "scared", "ecstatic"]))
                 # Interactions
                 elif result[1] == "GI":
                     gm.start_int(char)
@@ -373,7 +373,7 @@ screen girl_interactions():
             background Frame("content/gfx/frame/MC_bg.png", 10, 10)
             # basestring assumes that image is coming from cache, so it simply a path.
             if isinstance(gm.img, basestring):
-                add ProportionalScale(gm.img, gm.img_size[0], gm.img_size[1])
+                add ProportionalScale(gm.img, gm.IMG_SIZE[0], gm.IMG_SIZE[1])
             else:
                 add gm.img
 

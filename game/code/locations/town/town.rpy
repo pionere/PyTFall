@@ -31,7 +31,7 @@ label village_town:
     while 1:
         $ result = ui.interact()
         if result[0] == 'jump':
-            $ gm.start_gm(result[1], img=result[1].show("girlmeets", "suburb", exclude=["beach", "winter", "night", "formal", "indoors", "swimsuit"], type="first_default", label_cache=True, resize=(300, 400), gm_mode=True))
+            $ gm.start_gm(result[1], img=result[1].show("girlmeets", "suburb", exclude=["beach", "winter", "night", "formal", "indoors", "swimsuit"], type="first_default", label_cache=True, gm_mode=True))
 
         elif result[0] == 'control':
             if result[1] == 'return':
