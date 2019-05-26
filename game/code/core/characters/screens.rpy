@@ -444,6 +444,7 @@ screen race_and_elements(align=(.5, .99), char=None):
         # Elements icon:
         $ elements = char.elements
         $ img = build_multi_elemental_icon(elements, size=90)
+        $ img_h = build_multi_elemental_icon(elements, size=90, mc=im.matrix.brightness(.10))
         frame:
             xysize (100, 100)
             background Frame(Transform("content/gfx/frame/frame_it1.png", alpha=.6, size=(100, 100)), 10, 10)
