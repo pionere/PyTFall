@@ -62,6 +62,7 @@ init -11 python:
         for stat in ("health", "mp", "vitality"): # BATTLE_STATS
             mod_by_max(char, stat, mod)
 
+    # GUI helpers:
     def action_str(char):
         result = char.action
         if result is None:
@@ -73,70 +74,97 @@ init -11 python:
         #else: # string result of PytGroup
         return result
 
-    def trait_info_calculator(char_or_trait):
-        if isinstance(char_or_trait, PytCharacter):
-            traits = char.traits
-            trait_info = Trait()
+    def modifiers_calculator(entity):
+        if isinstance(entity, PytCharacter):
+            bem = None
+            entities = []
+            for trait in entity.traits:
+                entities.append(trait)
+                temp = trait.be_modifiers
+                if temp is None:
+                    continue
+                temp = temp.get_flat_modifier(char.level)
+                if bem is None:
+                    bem = temp
+                else:
+                    bem.merge(temp)
+            for item in entity.eqslots.itervalues():
+                if item is None:
+                    continue
+                entities.append(item)
+                temp = item.be_modifiers
+                if temp is None:
+                    continue
+                if bem is None:
+                    bem = deepcopy(temp)
+                else:
+                    bem.merge(temp)
+        elif isinstance(entity, list):
+            bem = None
+            entities = entity
+            for trait in entities:
+                temp = trait.be_modifiers
+                if temp is None:
+                    continue
+                temp = temp.get_flat_modifier(char.level)
+                if bem is None:
+                    bem = temp
+                else:
+                    bem.merge(temp)
         else:
-            traits = [char_or_trait]
-            trait_info = char_or_trait
+            bem = entity.be_modifiers
+            entities = [entity]
+            if bem is not None:
+                bem = deepcopy(bem)
 
         # merged infos:
-        elementals = defaultdict(dict)
-        defence_bonus = {}
-        delivery_bonus = {}
-        for trait in traits:
-            for i in trait.resist:
-                elementals[i]["resist"] = True
+        elemental_modifier = defaultdict(dict)
+        defence_modifier = {}
+        delivery_modifier = {}
+        for e in entities:
+            for i in getattr(e, "resist", []):
+                elemental_modifier[i]["resist"] = True
 
-            bem = trait.be_modifiers
-            if bem is None:
-                continue
-
+        if bem is None:
+            bem = BE_Modifiers(None)
+        else:
             # elemental modifiers:
             for element, value in bem.el_damage.iteritems():
-                elementals[element]["attack"] = elementals[element].get("attack", 0) + int(value*100)
+                elemental_modifier[element]["damage"] = elemental_modifier[element].get("damage", 0) + value
 
             for element, value in bem.el_defence.iteritems():
-                elementals[element]["defence"] = elementals[element].get("defence", 0) + int(value*100)
+                elemental_modifier[element]["defence"] = elemental_modifier[element].get("defence", 0) + value
 
             for element, value in bem.el_absorbs.iteritems():
-                elementals[element]["abs"] = elementals[element].get("abs", 0) + int(value*100)
+                elemental_modifier[element]["absorbs"] = elemental_modifier[element].get("absorbs", 0) + value
 
             # defence bonus:
-            for type, value in bem.defence_bonus.iteritems():
-                if type in defence_bonus:
-                    defence_bonus[type][0] += value
-                else:
-                    defence_bonus[type] = [value, 0]
+            defence_modifier = {type: [value, 0] for type, value in bem.defence_bonus.iteritems()}
             for type, value in bem.defence_multiplier.iteritems():
-                if type in defence_bonus:
-                    defence_bonus[type][1] += value
+                if type in defence_modifier:
+                    defence_modifier[type][1] = value
                 else:
-                    defence_bonus[type] = [None, value]
+                    defence_modifier[type] = [None, value]
 
             # delivery bonus:
-            for type, value in bem.delivery_bonus.iteritems():
-                if type in delivery_bonus:
-                    delivery_bonus[type][0] += value
-                else:
-                    delivery_bonus[type] = [value, 0]
+            delivery_modifier = {type: [value, 0] for type, value in bem.delivery_bonus.iteritems()}
             for type, value in bem.delivery_multiplier.iteritems():
-                if type in delivery_bonus:
-                    delivery_bonus[type][1] += value
+                if type in delivery_modifier:
+                    delivery_modifier[type][1] = value
                 else:
-                    delivery_bonus[type] = [None, value]
+                    delivery_modifier[type] = [None, value]
 
-        for i in elementals:
-            if not "defence" in elementals[i].keys():
-                elementals[i]["defence"] = 0
+        for i in elemental_modifier.itervalues():
+            if "damage" not in i:
+                i["damage"] = 0
+            if "defence" not in i:
+                i["defence"] = 0
 
-            if not "attack" in elementals[i].keys():
-                elementals[i]["attack"] = 0
+        bem.elemental_modifier = elemental_modifier
+        bem.defence_modifier = defence_modifier
+        bem.delivery_modifier = delivery_modifier
+        return bem
 
-        return trait_info, elementals, defence_bonus, delivery_bonus
-
-    # GUI helpers:
     def controlled_char(char):
         # used in chars profile, most user interface options disabled if this returns False.
         return char in hero.chars and char.is_available

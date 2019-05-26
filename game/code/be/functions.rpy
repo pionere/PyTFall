@@ -15,13 +15,19 @@ init -11 python:
         for index, t in enumerate(targets):
             renpy.hide("enemy__"+str(index))
 
-    def build_multi_elemental_icon(elements=None, size=70):
+    def build_multi_elemental_icon(elements=None, size=70, mc=None):
         if elements is None: # Everything except "Neutral"
             elements = [e for e in tgs.elemental if e.id != "Neutral"]
 
         fixed = Fixed(xysize=(size, size))
         angle = len(elements)
-        if angle == 0:
+        if angle <= 1:
+            if angle == 1:
+                icon = elements[0].icon
+                if mc is not None:
+                    icon = im.MatrixColor(icon, mc)
+                icon = Transform(icon, size=(size, size))
+                fixed.add(icon)
             return fixed
         angle = 360.0/angle
 
@@ -31,7 +37,10 @@ init -11 python:
         crop = (0, 0, csize/2, csize)
         rota_shift = (int((1 - sqrt2)*size/2), int((1 - sqrt2)*size/2))
         for index, e in enumerate(elements):
-            icon = Transform(e.icon, rotate=180, size=(size, size))
+            icon = e.icon
+            if mc is not None:
+                icon = im.MatrixColor(icon, mc)
+            icon = Transform(icon, rotate=180, size=(size, size))
             icon = Transform(icon, crop=crop, subpixel=True) #, align=(0, 0)
             icon = Transform(icon, subpixel=True, pos=rota_shift)
             fx = Fixed(xysize=(size, size))

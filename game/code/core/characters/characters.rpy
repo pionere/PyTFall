@@ -385,7 +385,7 @@ init -9 python:
 
         @property
         def elements(self):
-            return _list(e for e in self.traits if e.elemental)
+            return [e for e in self.traits if e.elemental]
 
         @property
         def exp(self):

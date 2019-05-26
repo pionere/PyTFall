@@ -442,31 +442,20 @@ screen race_and_elements(align=(.5, .99), char=None):
                 tooltip "Race:\n   {}".format(char.full_race)
 
         # Elements icon:
-        $ els = [Transform(e.icon, size=(90, 90)) for e in char.elements]
-        $ els_a = [Transform(im.MatrixColor(e.icon, im.matrix.brightness(.10)), size=(90, 90)) for e in char.elements]
+        $ elements = char.elements
+        $ img = build_multi_elemental_icon(elements, size=90)
         frame:
             xysize (100, 100)
             background Frame(Transform("content/gfx/frame/frame_it1.png", alpha=.6, size=(100, 100)), 10, 10)
             add ProportionalScale("content/gfx/interface/images/elements/hover.png", 98, 98) align (.5, .5)
-            $ x = 0
-            $ els = [Transform(i, crop=(90/len(els)*els.index(i), 0, 90/len(els), 90), subpixel=True, xpos=(x + 90/len(els)*els.index(i))) for i in els]
-            $ els_a = [Transform(i, crop=(90/len(els_a)*els_a.index(i), 0, 90/len(els_a), 90), subpixel=True, xpos=(x + 90/len(els_a)*els_a.index(i))) for i in els_a]
-            $ f = Fixed(*els, xysize=(90, 90))
-            $ f_a = Fixed(*els_a, xysize=(90, 90))
-            if len(char.elements) > 1:
-                $ ele = ""
-                for e in char.elements:
-                    $ ele += e.id + ", "
-                $ ele = ele[:-2]
-            else:
-                $ ele = char.elements[0].id
+            $ ele = ", ".join([e.id for e in elements])
             button:
                 xysize 90, 90
                 align .5, .5 offset -1, -1
-                action Show("show_trait_info", trait=char)
-                background f
-                hover_background f_a
-                tooltip "Elements:\n   {}".format(ele)
+                action Show("show_trait_info", trait=elements)
+                background img
+                hover_background img_h
+                tooltip "Elements:\n   %s" % ele
 
 screen effect_info(effect, xsize, ysize, idle_color="ivory", strikethrough=False):
     python:
@@ -545,7 +534,11 @@ screen show_trait_info_content(trait):
         else:
             yval = .5
 
-    $ trait_info, elementals, defence_bonus, delivery_bonus = trait_info_calculator(trait)
+    python:
+        if isinstance(trait, Trait):
+            trait_info = trait
+        else:
+            trait_info = Trait() 
     fixed:
         pos x, y
         anchor xval, yval
@@ -628,141 +621,10 @@ screen show_trait_info_content(trait):
                             elif data[2] < 0:
                                 add PS(img_path + "top_red.png", 20, 20)
 
-            if elementals:
+            $ bem = modifiers_calculator(trait)
+            if any((bem.elemental_modifier, bem.defence_modifier, bem.evasion_bonus, bem.delivery_modifier, bem.damage_multiplier, bem.ch_multiplier)):
                 $ any_mod = True
-                label (u"Elemental:") text_size 20 text_color "goldenrod" text_bold True xalign .45
-                hbox:
-                    frame:
-                        xysize 80, 20
-                        # "element"
-                    frame:
-                        xysize 60, 20
-                        text "damage" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
-                    frame:
-                        xysize 60, 20
-                        text "defence" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
-                for elem, values in elementals.iteritems():
-                    hbox:
-                        frame:
-                            xysize 80, 20
-                            text elem size 15 color "goldenrod" align .5, .5 outlines [(1, "black", 0, 0)]
-                        frame:
-                            xysize 60, 20
-                            $ val = values["attack"]
-                            text "[val] %" size 15 color ("lime" if val >= 0 else "red") align 1.0, .5 outlines [(1, "black", 0, 0)]
-                        if "abs" in values.keys():
-                            frame:
-                                xysize 60, 20
-                                $ val = values["abs"]
-                                text "+[val] %" size 15 color "white" align 1.0, .5 outlines [(1, "black", 0, 0)]
-                        elif "resist" in values.keys():
-                            frame:
-                                xysize 60, 20
-                                text "res." size 15 color "lime" align 1.0, .5 outlines [(1, "black", 0, 0)]
-                        else:
-                            frame:
-                                xysize 60, 20
-                                $ val = values["defence"]
-                                text "[val] %" size 15 color ("lime" if val >= 0 else "red") align 1.0, .5 outlines [(1, "black", 0, 0)]
-
-            $ bem = trait_info.be_modifiers
-            if bem:
-                if defence_bonus or bem.evasion_bonus:
-                    $ any_mod = True
-                    label (u"Defensive:") text_size 20 text_color "goldenrod" text_bold True xalign .45
-
-                    if defence_bonus:
-                        hbox:
-                            frame:
-                                xysize 50, 20
-                                # "type"
-                            frame:
-                                xysize 80, 20
-                                text "bonus" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
-                            frame:
-                                xysize 70, 20
-                                text "multiplier" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
-                        for type, value in defence_bonus.iteritems():
-                            hbox:
-                                frame:
-                                    xysize 50, 20
-                                    text type size 15 color "goldenrod" align .5, .5 outlines [(1, "black", 0, 0)]
-                                frame:
-                                    xysize 80, 20
-                                    $ val = value[0]
-                                    if val:
-                                        $ min, max, lvl = val
-                                        $ txt_color = "red" if max < 0 else "lime"
-                                        if min == max:
-                                            text "%g" % max size 15 color txt_color align .5, .5 outlines [(1, "black", 0, 0)]
-                                        else:
-                                            text "%g..%g" % (min, max) size 15 color txt_color align .5, .5 outlines [(1, "black", 0, 0)]
-                                frame:
-                                    xysize 70, 20
-                                    $ val = int(value[1]*100)
-                                    if val:
-                                        text "%g %%" % val size 15 color ("lime" if val > 0 else "red") align 1.0, .5 outlines [(1, "black", 0, 0)]
-
-                    if bem.evasion_bonus:
-                        frame:
-                            xysize 200, 20
-                            $ min, max, lvl = bem.evasion_bonus
-                            $ txt_color = "red" if max < 0 else "lime"
-                            text "Evasion" size 15 color "yellowgreen" align .0, .5 outlines [(1, "black", 0, 0)]
-                            if min == max:
-                                label "%+g" % max text_size 15 text_color txt_color align 1.0, .5 text_outlines [(1, "black", 0, 0)]
-                            else:
-                                text "%g .. %g at lvl %d" % (min, max, lvl) align 1.0, .5 size 15 color txt_color outlines [(1, "black", 0, 0)]
-
-                if delivery_bonus or bem.damage_multiplier or bem.ch_multiplier:
-                    $ any_mod = True
-                    label (u"Offensive:") text_size 20 text_color "goldenrod" text_bold True xalign .45
-
-                    if delivery_bonus:
-                        hbox:
-                            frame:
-                                xysize 50, 20
-                                # "type"
-                            frame:
-                                xysize 80, 20
-                                text "bonus" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
-                            frame:
-                                xysize 70, 20
-                                text "multiplier" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
-                        for type, value in delivery_bonus.iteritems():
-                            hbox:
-                                frame:
-                                    xysize 50, 20
-                                    text type size 15 color "goldenrod" align .5, .5 outlines [(1, "black", 0, 0)]
-                                frame:
-                                    xysize 80, 20
-                                    $ val = value[0]
-                                    if val:
-                                        $ min, max, lvl = val
-                                        $ txt_color = "red" if max < 0 else "lime"
-                                        if min == max:
-                                            text "%g" % max size 15 color txt_color align .5, .5 outlines [(1, "black", 0, 0)]
-                                        else:
-                                            text "%g..%g" % (min, max) size 15 color txt_color align .5, .5 outlines [(1, "black", 0, 0)]
-                                frame:
-                                    xysize 70, 20
-                                    $ val = int(value[1]*100)
-                                    if val:
-                                        text "%+g %%" % val size 15 color ("lime" if val > 0 else "red") align 1.0, .5 outlines [(1, "black", 0, 0)]
-
-                    if bem.damage_multiplier:
-                        frame:
-                            xysize 200, 20
-                            $ value = int(bem.damage_multiplier*100)
-                            $ txt_color = "red" if value < 0 else "lime"
-                            text "Damage multiplier %+g %%" % value size 15 color txt_color align .5, .5 text_align .5 outlines [(1, "black", 0, 0)]
-
-                    if bem.ch_multiplier:
-                        frame:
-                            xysize 200, 20
-                            $ value = int(bem.ch_multiplier*100)
-                            $ txt_color = "red" if value < 0 else "lime"
-                            text "Critical hit %+g %%" % value size 15 color txt_color align .5, .5 text_align .5 outlines [(1, "black", 0, 0)]
+                use list_be_modifiers(bem)
 
             if trait_info.mod_ap:
                 $ any_mod = True
@@ -774,3 +636,149 @@ screen show_trait_info_content(trait):
 
             if not any_mod:
                 label ("- no direct effects -") text_size 15 text_color "goldenrod" text_bold True xalign .45 text_outlines [(1, "black", 0, 0)]
+
+screen list_be_modifiers(bem):
+    if bem.elemental_modifier:
+        #$ any_mod = True
+        label (u"Elemental:") text_size 20 text_color "goldenrod" text_bold True xalign .45
+        hbox:
+            frame:
+                xysize 80, 20
+                # "element"
+            frame:
+                xysize 60, 20
+                text "damage" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
+            frame:
+                xysize 60, 20
+                text "defence" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
+        for elem, values in bem.elemental_modifier.iteritems():
+            hbox:
+                frame:
+                    xysize 80, 20
+                    text elem size 15 color "goldenrod" align .5, .5 outlines [(1, "black", 0, 0)]
+                frame:
+                    xysize 60, 20
+                    $ val = values["damage"]*100
+                    text "%d %%" % val size 15 color ("lime" if val >= 0 else "red") align 1.0, .5 outlines [(1, "black", 0, 0)]
+                if "absorbs" in values:
+                    frame:
+                        xysize 60, 20
+                        $ val = values["absorbs"]*100
+                        text "%+d %%" % val size 15 color "white" align 1.0, .5 outlines [(1, "black", 0, 0)]
+                elif "resist" in values:
+                    frame:
+                        xysize 60, 20
+                        text "res." size 15 color "lime" align 1.0, .5 outlines [(1, "black", 0, 0)]
+                else:
+                    frame:
+                        xysize 60, 20
+                        $ val = values["defence"]*100
+                        text "%d %%" % val size 15 color ("lime" if val >= 0 else "red") align 1.0, .5 outlines [(1, "black", 0, 0)]
+
+    if bem.defence_modifier or bem.evasion_bonus:
+        #$ any_mod = True
+        label (u"Defensive:") text_size 20 text_color "goldenrod" text_bold True xalign .45
+
+        if bem.defence_modifier:
+            hbox:
+                frame:
+                    xysize 50, 20
+                    # "type"
+                frame:
+                    xysize 80, 20
+                    text "bonus" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
+                frame:
+                    xysize 70, 20
+                    text "multiplier" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
+            for type, value in bem.defence_modifier.iteritems():
+                hbox:
+                    frame:
+                        xysize 50, 20
+                        text type size 15 color "goldenrod" align .5, .5 outlines [(1, "black", 0, 0)]
+                    frame:
+                        xysize 80, 20
+                        $ val = value[0]
+                        if val:
+                            if isinstance(val, (list, tuple)):
+                                $ min, max, lvl = val
+                            else:
+                                $ min = max = val
+                            $ txt_color = "red" if max < 0 else "lime"
+                            if min == max:
+                                text "%d" % max size 15 color txt_color align .5, .5 outlines [(1, "black", 0, 0)]
+                            else:
+                                text "%d..%d" % (min, max) size 15 color txt_color align .5, .5 outlines [(1, "black", 0, 0)]
+                    frame:
+                        xysize 70, 20
+                        $ val = value[1]*100
+                        if val:
+                            text "%d %%" % val size 15 color ("lime" if val > 0 else "red") align 1.0, .5 outlines [(1, "black", 0, 0)]
+
+        $ val = bem.evasion_bonus
+        if val:
+            if isinstance(val, (list, tuple)):
+                $ min, max, lvl = val
+            else:
+                $ min = max = val
+            frame:
+                xysize 200, 20
+                $ txt_color = "red" if max < 0 else "lime"
+                text "Evasion" size 15 color "yellowgreen" align .0, .5 outlines [(1, "black", 0, 0)]
+                if min == max:
+                    label "%+d" % max text_size 15 text_color txt_color align 1.0, .5 text_outlines [(1, "black", 0, 0)]
+                else:
+                    text "%d .. %d at lvl %d" % (min, max, lvl) align 1.0, .5 size 15 color txt_color outlines [(1, "black", 0, 0)]
+
+    if bem.delivery_modifier or bem.damage_multiplier or bem.ch_multiplier:
+        #$ any_mod = True
+        label (u"Offensive:") text_size 20 text_color "goldenrod" text_bold True xalign .45
+
+        if bem.delivery_modifier:
+            hbox:
+                frame:
+                    xysize 50, 20
+                    # "type"
+                frame:
+                    xysize 80, 20
+                    text "bonus" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
+                frame:
+                    xysize 70, 20
+                    text "multiplier" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
+            for type, value in bem.delivery_modifier.iteritems():
+                hbox:
+                    frame:
+                        xysize 50, 20
+                        text type size 15 color "goldenrod" align .5, .5 outlines [(1, "black", 0, 0)]
+                    frame:
+                        xysize 80, 20
+                        $ val = value[0]
+                        if val:
+                            if isinstance(val, (list, tuple)):
+                                $ min, max, lvl = val
+                            else:
+                                $ min = max = val
+                            $ txt_color = "red" if max < 0 else "lime"
+                            if min == max:
+                                text "%d" % max size 15 color txt_color align .5, .5 outlines [(1, "black", 0, 0)]
+                            else:
+                                text "%d..%d" % (min, max) size 15 color txt_color align .5, .5 outlines [(1, "black", 0, 0)]
+                    frame:
+                        xysize 70, 20
+                        $ val = value[1]*100
+                        if val:
+                            text "%+d %%" % val size 15 color ("lime" if val > 0 else "red") align 1.0, .5 outlines [(1, "black", 0, 0)]
+
+        if bem.damage_multiplier:
+            frame:
+                xysize 200, 20
+                $ value = bem.damage_multiplier*100
+                $ txt_color = "red" if value < 0 else "lime"
+                text "Damage multiplier %+d %%" % value size 15 color txt_color align .5, .5 text_align .5 outlines [(1, "black", 0, 0)]
+
+        if bem.ch_multiplier:
+            frame:
+                xysize 200, 20
+                $ value = bem.ch_multiplier*100
+                $ txt_color = "red" if value < 0 else "lime"
+                text "Critical hit %+d %%" % value size 15 color txt_color align .5, .5 text_align .5 outlines [(1, "black", 0, 0)]
+

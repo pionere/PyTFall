@@ -373,30 +373,6 @@ init -11 python:
 
         return True
 
-    def item_info_calculator(item):
-        # merged infos:
-        defence_bonus = {}
-        delivery_bonus = {}
-        bem = item.be_modifiers
-        if bem is not None:
-            for type, value in bem.defence_bonus.iteritems():
-                defence_bonus[type] = [value, 0]
-            for type, value in bem.defence_multiplier.iteritems():
-                if type in defence_bonus:
-                    defence_bonus[type][1] = value
-                else:
-                    defence_bonus[type] = [None, value]
-
-            for type, value in bem.delivery_bonus.iteritems():
-                delivery_bonus[type] = [value, 0]
-            for type, value in bem.delivery_multiplier.iteritems():
-                if type in delivery_bonus:
-                    delivery_bonus[type][1] = value
-                else:
-                    delivery_bonus[type] = [None, value]
-
-        return defence_bonus, delivery_bonus
-
     def give_to_mc_item_reward(types, price=None, tier=None, locations=["Exploration"]):
         if tier is None:
             tier = hero.tier

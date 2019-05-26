@@ -15,7 +15,7 @@ init -1 python: # Core classes:
             self.el_absorbs = {}
             self.defence_bonus = {}
             self.defence_multiplier = {}
-            self.evasion_bonus = 0 if isinstance(source, Item) else [0, 0, 0]
+            self.evasion_bonus = 0
 
             for field in self.FIELDS:
                 value = getattr(source, field, None)
@@ -40,6 +40,52 @@ init -1 python: # Core classes:
             other = The object to check against.
             """
             return not self.__eq__(other)
+
+        def merge(self, other):
+            """Merge two flat(!) BE_Modifiers into one.
+            """
+            self.ch_multiplier += other.ch_multiplier
+            self.damage_multiplier += other.damage_multiplier
+            merge_dicts(self.delivery_bonus, other.delivery_bonus) 
+            merge_dicts(self.delivery_multiplier, other.delivery_multiplier)
+            merge_dicts(self.el_damage, other.el_damage)
+            merge_dicts(self.el_defence, other.el_defence)
+            merge_dicts(self.el_absorbs, other.el_absorbs)
+            merge_dicts(self.defence_bonus, other.defence_bonus)
+            merge_dicts(self.defence_multiplier, other.defence_multiplier)
+            self.evasion_bonus += other.evasion_bonus
+
+        def get_flat_modifier(self, level):
+            """Get a flat version of a non-flat BE_Modifiers
+            """
+            result = deepcopy(self)
+            delivery_bonus = {}
+            for delivery, bonus in self.delivery_bonus.iteritems():
+                # Reference: (minv, maxv, lvl)
+                minv, maxv, lvl = bonus
+                if lvl > level:
+                    maxv = minv + (maxv-minv)*level/float(lvl)
+                maxv += delivery_bonus.get(delivery, 0)
+                delivery_bonus[delivery] = maxv
+            result.delivery_bonus = delivery_bonus
+
+            # Reference: (minv, maxv, lvl)
+            if self.evasion_bonus:
+                minv, maxv, lvl = self.evasion_bonus
+                if lvl > level:
+                    maxv = minv + (maxv-minv)*level/float(lvl)
+                result.evasion_bonus = maxv
+
+            defence_bonus = {}
+            for delivery, bonus in self.defence_bonus.iteritems():
+                # Reference: (minv, maxv, lvl)
+                minv, maxv, lvl = bonus
+                if lvl > level:
+                    maxv = minv + (maxv-minv)*level/float(lvl)
+                maxv += defence_bonus.get(delivery, 0)
+                defence_bonus[delivery] = maxv
+            result.defence_bonus = defence_bonus
+            return result
 
     class BE_Combatant(_object):
         def __init__(self, char):
@@ -382,10 +428,11 @@ init -1 python: # Core classes:
                     el_def[type] = val
 
                 # Reference: (minv, maxv, lvl)
-                minv, maxv, lvl = bem.evasion_bonus
-                if lvl > level:
-                    maxv = minv + (maxv-minv)*level/float(lvl)
-                evasion_bonus += maxv
+                if bem.evasion_bonus:
+                    minv, maxv, lvl = bem.evasion_bonus
+                    if lvl > level:
+                        maxv = minv + (maxv-minv)*level/float(lvl)
+                    evasion_bonus += maxv
 
                 # Get all absorption capable traits:
                 for type, val in bem.el_absorbs.iteritems():

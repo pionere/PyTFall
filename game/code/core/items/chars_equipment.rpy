@@ -436,11 +436,16 @@ screen char_equip():
                     tooltip "Previous Character"
                     focus_mask True
 
-            frame:
+            $ img = eqtarget.show("portrait", resize=(100, 100), cache=True)
+            imagebutton:
                 xysize (100, 100)
                 pos (64, 8)
                 background Null()
-                add eqtarget.show("portrait", resize=(100, 100), cache=True) align .5, .5
+                idle img
+                hover im.MatrixColor(img, im.matrix.brightness(0.15))
+                action Show("show_trait_info", trait=eqtarget)
+                focus_mask True
+
             if equip_girls:
                 imagebutton:
                     xysize (39, 50)
@@ -1331,7 +1336,6 @@ screen show_item_info_content(item):
         else:
             yval = .5
 
-    $ item_info = item
     fixed:
         pos x, y
         anchor xval, yval
@@ -1342,69 +1346,69 @@ screen show_item_info_content(item):
             has vbox style_prefix "proper_stats" spacing 1
 
             $ any_mod = False
-            if item_info.mod:
+            if item.mod:
                 $ any_mod = True
                 label (u"Stats:") text_size 20 text_color "goldenrod" text_bold True xalign .45
-                for stat, value in item_info.mod.iteritems():
+                for stat, value in item.mod.iteritems():
                     frame:
                         xysize 200, 20
                         text stat.title() size 15 color "#79CDCD" align .0, .5 outlines [(1, "black", 0, 0)]
                         $ txt_color = "red" if value < 0 else "lime"
                         label "%+g" % value text_size 15 text_color txt_color align 1.0, .5 text_outlines [(1, "black", 0, 0)]
-            if item_info.max:
+            if item.max:
                 $ any_mod = True
                 label (u"Max:") text_size 20 text_color "goldenrod" text_bold True xalign .45
-                for stat, value in item_info.max.iteritems():
+                for stat, value in item.max.iteritems():
                     frame:
                         xysize 200, 20
                         $ txt_color = "red" if value < 0 else "lime"
                         text stat.title() size 15 color "#79CDCD" align .0, .5 outlines [(1, "black", 0, 0)]
                         label "%+g" % value text_size 15 text_color txt_color align 1.0, .5 text_outlines [(1, "black", 0, 0)]
-            if item_info.min:
+            if item.min:
                 $ any_mod = True
                 label (u"Min:") text_size 20 text_color "goldenrod" text_bold True xalign .45
-                for stat, value in item_info.min.iteritems():
+                for stat, value in item.min.iteritems():
                     frame:
                         xysize 200, 20
                         $ txt_color = "red" if value < 0 else "lime"
                         text stat.title() size 15 color "#79CDCD" align .0, .5 outlines [(1, "black", 0, 0)]
                         label "%+g" % value text_size 15 text_color txt_color align 1.0, .5 text_outlines [(1, "black", 0, 0)]
-            if getattr(item_info, 'mtemp', False):
+            if getattr(item, 'mtemp', False):
                 label (u"Frequency:") text_size 20 text_color "goldenrod" text_bold True xalign .45
                 vbox:
                     frame:
                         xysize (200, 20)
-                        if hasattr(item_info, 'mreusable'):
-                            if item_info.mreusable:
-                                if item_info.mtemp > 1:
-                                    text (u'Every %d days'%item_info.mtemp) color "#F5F5DC" size 15 xalign .02
+                        if hasattr(item, 'mreusable'):
+                            if item.mreusable:
+                                if item.mtemp > 1:
+                                    text (u'Every %d days'%item.mtemp) color "#F5F5DC" size 15 xalign .02
                                 else:
                                     text (u'Every day') color "#F5F5DC" size 15 xalign .02 yoffset -2
                             else:
-                                if item_info.mtemp > 1:
-                                    text (u'After %d days'%item_info.mtemp) color "#F5F5DC" size 15 xalign .02
+                                if item.mtemp > 1:
+                                    text (u'After %d days'%item.mtemp) color "#F5F5DC" size 15 xalign .02
                                 else:
                                     text (u'After one day') color "#F5F5DC" size 15 xalign .02
-                        if getattr(item_info, 'mdestruct', False):
+                        if getattr(item, 'mdestruct', False):
                                 text (u'Disposable') color "#F5F5DC" size 15 xalign 1.0
-                        if getattr(item_info, 'mreusable', False):
+                        if getattr(item, 'mreusable', False):
                                 text (u'Reusable') color "#F5F5DC" size 15 xalign 1.0
-                    if getattr(item_info, 'statmax', False):
+                    if getattr(item, 'statmax', False):
                         frame:
                             xysize (200, 20)
                             text (u'Stat limit') color "#F5F5DC" size 15 xalign .02
-                            label (u'{color=#F5F5DC}{size=-4}%d'%item_info.statmax) align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
-            if getattr(item_info, 'ctemp', False):
-                    label ('Duration:') text_size 14 text_color "gold" xpos 30
-                    frame:
-                        xysize (172, 18)
-                        if item_info.ctemp > 1:
-                            text (u'%d days'%item_info.ctemp) color "#F5F5DC" size 15 xalign .02
-                        else:
-                            text (u'One day') color "#F5F5DC" size 15 xalign .02 yoffset -2
+                            label (u'{color=#F5F5DC}{size=-4}%d'%item.statmax) align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
+            if getattr(item, 'ctemp', False):
+                label (u"Duration:") text_size 14 text_color "gold" xpos 30
+                frame:
+                    xysize (172, 18)
+                    if item.ctemp > 1:
+                        text (u'%d days'%item.ctemp) color "#F5F5DC" size 15 xalign .02
+                    else:
+                        text (u'One day') color "#F5F5DC" size 15 xalign .02 yoffset -2
 
-            $ temp = [t.id for t in item_info.addtraits if not t.hidden]
-            $ tmp = [t.id for t in item_info.removetraits if not t.hidden]
+            $ temp = [t.id for t in item.addtraits if not t.hidden]
+            $ tmp = [t.id for t in item.removetraits if not t.hidden]
             if temp or tmp:
                 $ any_mod = True
                 label (u"Traits:") text_size 20 text_color "goldenrod" text_bold True xalign .45
@@ -1417,22 +1421,22 @@ screen show_item_info_content(item):
                         xysize 200, 20
                         text trait.title() size 15 color "red" align .5, .5 text_align .5 outlines [(1, "black", 0, 0)]
 
-            if item_info.addeffects or item_info.removeeffects:
+            if item.addeffects or item.removeeffects:
                 $ any_mod = True
                 label (u"Effects:") text_size 20 text_color "goldenrod" text_bold True xalign .45
-                for effect in item_info.addeffects:
+                for effect in item.addeffects:
                     frame:
                         xysize 200, 20
                         text effect.title() size 15 color "lime" align .5, .5 text_align .5 outlines [(1, "black", 0, 0)]
-                for effect in item_info.removeeffects:
+                for effect in item.removeeffects:
                     frame:
                         xysize 200, 20
                         text effect.title() size 15 color "red" align .5, .5 text_align .5 outlines [(1, "black", 0, 0)]
 
-            if item_info.mod_skills or item_info.add_be_spells or item_info.attacks:
+            if item.mod_skills or item.add_be_spells or item.attacks:
                 $ any_mod = True
                 label (u"Skills:") text_size 20 text_color "goldenrod" text_bold True xalign .45
-                for skill, data in item_info.mod_skills.iteritems():
+                for skill, data in item.mod_skills.iteritems():
                     frame:
                         xysize 200, 20
                         text skill.title() size 15 color "yellowgreen" align .0, .5 outlines [(1, "black", 0, 0)]
@@ -1471,107 +1475,23 @@ screen show_item_info_content(item):
                         if temp:
                             label temp text_size 15 align 1.0, .5 text_outlines [(1, "black", 0, 0)]
 
-                if item_info.add_be_spells or item.attacks:
-                    for skill in item_info.add_be_spells:
+                if item.add_be_spells:
+                    for skill in item.add_be_spells:
                         frame:
                             xysize 200, 20
                             text skill.name size 15 color "yellow" align .5, .5 outlines [(1, "black", 0, 0)]
-                if item_info.attacks:
-                    for skill in item_info.attacks:
+                if item.attacks:
+                    for skill in item.attacks:
                         frame:
                             xysize 200, 20
                             text skill.name size 15 color "yellow" align .5, .5 outlines [(1, "black", 0, 0)]
 
-            $ bem = item_info.be_modifiers
-            if bem:
-                $ defence_bonus, delivery_bonus = item_info_calculator(item)
-                if defence_bonus or bem.evasion_bonus:
-                    $ any_mod = True
-                    label (u"Defensive:") text_size 20 text_color "goldenrod" text_bold True xalign .45
+            $ bem = modifiers_calculator(item)
+            if any((bem.elemental_modifier, bem.defence_modifier, bem.evasion_bonus, bem.delivery_modifier, bem.damage_multiplier, bem.ch_multiplier)):
+                $ any_mod = True
+                use list_be_modifiers(bem)
 
-                    if defence_bonus:
-                        hbox:
-                            frame:
-                                xysize 50, 20
-                                # "type"
-                            frame:
-                                xysize 80, 20
-                                text "bonus" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
-                            frame:
-                                xysize 70, 20
-                                text "multiplier" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
-                        for type, value in defence_bonus.iteritems():
-                            hbox:
-                                frame:
-                                    xysize 50, 20
-                                    text type size 15 color "goldenrod" align .5, .5 outlines [(1, "black", 0, 0)]
-                                frame:
-                                    xysize 80, 20
-                                    $ val = value[0]
-                                    if val:
-                                        $ txt_color = "red" if val < 0 else "lime"
-                                        text "%g" % val size 15 color txt_color align .5, .5 outlines [(1, "black", 0, 0)]
-                                frame:
-                                    xysize 70, 20
-                                    $ val = int(value[1]*100)
-                                    if val:
-                                        text "%g %%" % val size 15 color ("lime" if val > 0 else "red") align 1.0, .5 outlines [(1, "black", 0, 0)]
-
-                    if bem.evasion_bonus:
-                        frame:
-                            xysize 200, 20
-                            $ value = bem.evasion_bonus
-                            $ txt_color = "red" if value < 0 else "lime"
-                            text "Evasion" size 15 color "yellowgreen" align .0, .5 outlines [(1, "black", 0, 0)]
-                            label "%+g" % value text_size 15 text_color txt_color align 1.0, .5 text_outlines [(1, "black", 0, 0)]
-
-                if delivery_bonus or bem.damage_multiplier or bem.ch_multiplier:
-                    $ any_mod = True
-                    label (u"Offensive:") text_size 20 text_color "goldenrod" text_bold True xalign .45
-
-                    if delivery_bonus:
-                        hbox:
-                            frame:
-                                xysize 50, 20
-                                # "type"
-                            frame:
-                                xysize 80, 20
-                                text "bonus" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
-                            frame:
-                                xysize 70, 20
-                                text "multiplier" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
-                        for type, value in delivery_bonus.iteritems():
-                            hbox:
-                                frame:
-                                    xysize 50, 20
-                                    text type size 15 color "goldenrod" align .5, .5 outlines [(1, "black", 0, 0)]
-                                frame:
-                                    xysize 80, 20
-                                    $ val = value[0]
-                                    if val:
-                                        $ txt_color = "red" if val < 0 else "lime"
-                                        text "%g" % val size 15 color txt_color align .5, .5 outlines [(1, "black", 0, 0)]
-                                frame:
-                                    xysize 70, 20
-                                    $ val = int(value[1]*100)
-                                    if val:
-                                        text "%+g %%" % val size 15 color ("lime" if val > 0 else "red") align 1.0, .5 outlines [(1, "black", 0, 0)]
-
-                    if bem.damage_multiplier:
-                        frame:
-                            xysize 200, 20
-                            $ value = int(bem.damage_multiplier*100)
-                            $ txt_color = "red" if value < 0 else "lime"
-                            text "Damage multiplier %+g %%" % value size 15 color txt_color align .5, .5 text_align .5 outlines [(1, "black", 0, 0)]
-
-                    if bem.ch_multiplier:
-                        frame:
-                            xysize 200, 20
-                            $ value = int(bem.ch_multiplier*100)
-                            $ txt_color = "red" if value < 0 else "lime"
-                            text "Critical hit %+g %%" % value size 15 color txt_color align .5, .5 text_align .5 outlines [(1, "black", 0, 0)]
-
-            if item_info.be:
+            if item.be:
                 $ any_mod = True
                 label (u"Other:") text_size 20 text_color "goldenrod" text_bold True xalign .45
                 frame:
