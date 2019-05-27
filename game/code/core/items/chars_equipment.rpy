@@ -518,8 +518,9 @@ screen char_equip():
 
             if stats_display == "stats":
                 vbox:
-                    spacing 5
+                    spacing 3
                     pos (4, 40)
+                    # STATS ===================================>
                     frame:
                         background Transform(Frame(im.MatrixColor("content/gfx/frame/p_frame5.png", im.matrix.brightness(-0.1)), 5, 5), alpha=.7)
                         xsize 218
@@ -527,33 +528,33 @@ screen char_equip():
                         margin 0, 0
                         style_group "proper_stats"
                         has vbox spacing 1
-                        # STATS ============================>
-                        $ stats = ["constitution", "charisma", "intelligence", "joy"] if eqtarget == hero else ["constitution", "charisma", "intelligence", "character", "joy", "disposition", "affection"]
+                        python:
+                            stats = ["constitution", "charisma", "intelligence", "joy"] if eqtarget == hero else ["constitution", "charisma", "intelligence", "character", "joy", "disposition", "affection"]
+                            stats = [[stat, "#79CDCD"] for stat in stats] # stat_color
+                            stats = [["health", "#CD4F39"], ["vitality", "#43CD80"]] + stats
+                            for stat in stats:
+                                stat.append("#F5F5DC") # value_color
 
-                        # Health:
-                        frame:
-                            xysize 204, 25
-                            text "Health" xalign .02 color "#CD4F39"
-                            $ temp, tmp = eqtarget.get_stat("health"), eqtarget.get_max("health")
-                            $ tempc = "red" if temp <= tmp*.3 else "#F5F5DC"
-                            $ temp = build_str_for_eq(eqtarget, dummy, "health", tempc)
-                            text temp style_suffix "value_text" xalign .98 yoffset 3
+                        fixed:
+                            xysize 204, 28 
+                            label (u"Stats:") text_size 18 text_color "#CDCDC1" text_bold True xalign .5
+                            $ img = ProportionalScale("content/gfx/interface/icons/info.webp", 12, 12)
+                            imagebutton:
+                                align (.98, 0.1)
+                                focus_mask True
+                                idle img
+                                hover im.MatrixColor(img, im.matrix.brightness(0.15))
+                                action Show("show_stat_info", char=eqtarget, stats=stats)
 
-                        # Vitality:
-                        frame:
-                            xysize 204, 25
-                            text "Vitality" xalign .02 color "#43CD80"
-                            $ temp, tmp = eqtarget.get_stat("vitality"), eqtarget.get_max("vitality")
-                            $ tempc = "red" if temp <= tmp*.3 else "#F5F5DC"
-                            $ temp = build_str_for_eq(eqtarget, dummy, "vitality", tempc)
-                            text temp style_suffix "value_text" xalign .98 yoffset 3
-
-                        # Rest of stats:
-                        for stat in stats:
+                        for stat, stat_color, value_color in stats:
                             frame:
                                 xysize 204, 25
-                                text stat.capitalize() xalign .02 color "#79CDCD"
-                                $ temp = build_str_for_eq(eqtarget, dummy, stat, "#F5F5DC")
+                                text stat.capitalize() xalign .02 color stat_color
+                                if stat in ["health", "vitality"]:
+                                    $ tempc = "red" if eqtarget.get_stat(stat) <= eqtarget.get_max(stat)*.3 else value_color
+                                else:
+                                    $ tempc = value_color
+                                $ temp = build_str_for_eq(eqtarget, dummy, stat, tempc)
                                 text temp style_suffix "value_text" xalign .98 yoffset 3
 
                     # BATTLE STATS ============================>
@@ -561,22 +562,34 @@ screen char_equip():
                         background Transform(Frame(im.MatrixColor("content/gfx/frame/p_frame5.png", im.matrix.brightness(-0.1)), 5, 5), alpha=.7)
                         xsize 218
                         padding 6, 6
+                        margin 0, 0
                         style_group "proper_stats"
                         has vbox spacing 1
 
-                        label (u"Battle Stats:") text_size 18 text_color "#CDCDC1" text_bold True xalign .49
+                        python:
+                            stats = [["attack", "#CD4F39"], ["defence", "#dc762c"], ["magic", "#8470FF"], ["mp", "#009ACD"], ["agility", "#1E90FF"], ["luck", "#00FA9A"]]
+                            for stat in stats:
+                                stat.append(stat[1])
 
-                        $ stats = [("attack", "#CD4F39"), ("defence", "#dc762c"), ("magic", "#8470FF"), ("mp", "#009ACD"), ("agility", "#1E90FF"), ("luck", "#00FA9A")]
-                        null height 1
+                        fixed:
+                            xysize 204, 28
+                            label (u"Battle Stats:") text_size 18 text_color "#CDCDC1" text_bold True xalign .5
+                            $ img = ProportionalScale("content/gfx/interface/icons/info.webp", 12, 12)
+                            imagebutton:
+                                align (.98, 0.1)
+                                focus_mask True
+                                idle img
+                                hover im.MatrixColor(img, im.matrix.brightness(0.15))
+                                action Show("show_stat_info", char=eqtarget, stats=stats)
 
-                        for stat, color in stats:
+                        for stat, stat_color, value_color in stats:
                             frame:
                                 xysize 204, 25
-                                text stat.capitalize() color color
+                                text stat.capitalize() color stat_color
                                 if stat == "mp":
-                                    $ tempc = "red" if eqtarget.get_stat("mp") <= eqtarget.get_max("mp")*.3 else color
+                                    $ tempc = "red" if eqtarget.get_stat(stat) <= eqtarget.get_max(stat)*.3 else value_color
                                 else:
-                                    $ tempc = color
+                                    $ tempc = value_color
                                 $ temp = build_str_for_eq(eqtarget, dummy, stat, tempc)
                                 text temp style_suffix "value_text" xalign .98 yoffset 3
 
@@ -688,10 +701,8 @@ screen char_equip():
                             $ base_ss = eqtarget.stats.get_base_ss()
                             for skill in eqtarget.stats.skills:
                                 $ skill_limit = int(eqtarget.get_max_skill(skill))
-                                #$ skill_old = min(skill_limit, int(eqtarget.get_skill(skill)))
                                 $ skill_old = int(eqtarget.get_skill(skill))
                                 if getattr(store, "dummy", None) is not None:
-                                    #$ skill_new = min(skill_limit, int(dummy.get_skill(skill)))
                                     $ skill_new = int(dummy.get_skill(skill))
                                 else:
                                     $ skill_new = skill_old
@@ -1500,6 +1511,65 @@ screen show_item_info_content(item):
 
             if not any_mod:
                 label ("- no direct effects -") text_size 15 text_color "goldenrod" text_bold True xalign .45 text_outlines [(1, "black", 0, 0)]
+
+screen show_stat_info(char, stats):
+    $ pos = renpy.get_mouse_pos()
+    mousearea:
+        area(pos[0], pos[1], 1, 1)
+        hovered Show("show_stat_info_content", transition=None, char=char, stats=stats)
+        unhovered Hide("show_stat_info_content"), Hide("show_stat_info")
+
+screen show_stat_info_content(char, stats):
+    default pos = renpy.get_mouse_pos()
+    python:
+        x, y = pos
+        if x > config.screen_width/2:
+            x -= 20
+            xval = 1.0
+        else:
+            x += 20
+            xval = .0
+        temp = config.screen_height/3
+        if y < temp:
+            yval = .0
+        elif y > config.screen_height-temp:
+            yval = 1.0
+        else:
+            yval = .5
+
+    fixed:
+        pos x, y
+        anchor xval, yval
+        fit_first True
+        frame:
+            background Frame("content/gfx/frame/p_frame52.webp", 10, 10)
+            padding 10, 10
+            has vbox style_prefix "proper_stats" spacing 1
+            
+            hbox:
+                frame:
+                    xysize 80, 20
+                    # "stat"
+                frame:
+                    xysize 50, 20
+                    text "min" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
+                frame:
+                    xysize 70, 20
+                    text "level-max" size 15 color "grey" bold True align .5, .5 outlines [(1, "black", 0, 0)]
+
+            for stat, stat_color, value_color in stats:
+                hbox:
+                    frame:
+                        xysize 80, 20
+                        text stat.capitalize() size 15 color stat_color align 0.02, .5 outlines [(1, "black", 0, 0)]
+                    frame:
+                        xysize 50, 20
+                        $ val = char.stats.get_min(stat)
+                        if val:
+                            text "%d" % val size 15 color value_color align 0.5, .5 outlines [(1, "black", 0, 0)]
+                    frame:
+                        xysize 70, 20
+                        text "%d" % char.stats.lvl_max[stat] size 15 color value_color align 0.5, .5 outlines [(1, "black", 0, 0)]
 
 screen diff_item_effects(char, dummy):
     zorder 10
