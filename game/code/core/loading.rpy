@@ -77,267 +77,251 @@ init -11 python:
             rn = json.load(f)
         return random.sample(rn, amount)
 
-    def load_characters(path, cls):
+    def load_characters(path, cls=None):
         """Loads a Full character from JSON file.
 
         path: Path to main folder.
         class: Class to use in creating the character.
+               If not provided, the JSON data is returned
 
         This will walk through folders inside of a folder where the path leads, looking for JSONs and reading image tags off file names.
         """
         dir = content_path(path)
-        dirlist = os.listdir(dir)
         content = dict()
 
-        exist = set(getattr(store, "chars", {}).keys())
-        exist.update(getattr(store, "npcs", {}))
+        if cls is not None:
+            exist = set(getattr(store, "chars", {}).keys())
+            exist.update(getattr(store, "npcs", {}))
 
         # Get to a folder with unique girl datafiles and imagefolders:
         for packfolder in os.walk(os.path.join(dir,'.')).next()[1]:
-                # Load data files one after another.
-                for file in os.walk(os.path.join(dir, packfolder, '.')).next()[2]:
-                    if file.startswith("data") and file.endswith(".json"):
-                        # Load the file:
-                        in_file = os.sep.join([dir, packfolder, file])
-                        char_debug("Loading from %s!"%str(in_file)) # Str call to avoid unicode
-                        with open(in_file) as f:
-                            ugirls = json.load(f)
-
-                        # Apply the content of the file to the character:
-                        for gd in ugirls: # We go over each dict one mainaining correct order of application:
-                            if "id" not in gd:
-                                # Only time we throw an error instead of writing to log.
-                                raise Exception("No id was specified in %s JSON Datafile!" % str(in_file))
-
-                            folder = id = gd["id"]
-                            _path = os.sep.join([dir, packfolder, folder])
-                            if os.path.isdir(_path):
-                                # We load the new tags!:
-                                load_tags_folder(folder, _path)
-
-                            if id in exist:
-                                continue
-
-                            char = cls()
-                            char.id = id
-                            # We set the path to the character
-                            # so we know where to draw images from:
-                            setattr(char, "_path_to_imgfolder",
-                                    "/".join(["content/{}".format(path),
-                                              packfolder, folder]))
-
-                            # Check if there is a gender:
-                            if "gender" in gd:
-                                char.gender = gd["gender"]
-
-                            # @Review: We make sure all traits get applied first!
-                            for key in ("blocked_traits", "ab_traits"):
-                                if key in gd:
-                                    _traits  = set()
-                                    for t in gd[key]:
-                                        if t in store.traits:
-                                            _traits.add(store.traits[t])
-                                        else:
-                                            char_debug("%s trait is unknown for %s (In %s)!" % (t, gd["id"], key))
-                                    setattr(char.traits, key, _traits)
-
-                            # Get and normalize basetraits:
-                            if "basetraits" in gd:
-                                basetraits = set()
-                                if gd["basetraits"]:
-                                    for trait in gd["basetraits"]:
-                                        if trait in traits:
-                                            basetraits.add(traits[trait])
-                                        else:
-                                            char_debug("%s besetrait is unknown for %s!" % (trait, gd["id"]))
-
-                                if len(basetraits) > 2:
-                                    while len(basetraits) > 2:
-                                        basetraits.pop()
-
-                                # In case that we have basetraits:
-                                if basetraits:
-                                    char.traits.basetraits = basetraits
-
-                                for trait in char.traits.basetraits:
-                                    char.apply_trait(trait)
-
-                            for key in ("personality", "breasts", "body", "race"):
-                                if key in gd:
-                                    trait = gd[key]
-                                    if trait in traits:
-                                        char.apply_trait(traits[trait])
-                                    else:
-                                        char_debug("%s %s is unknown for %s!" % (trait, key, gd["id"]))
-
-                            if "elements" in gd:
-                                for trait in gd["elements"]:
-                                    if trait in traits:
-                                        char.apply_trait(traits[trait])
-                                    else:
-                                        char_debug("%s element is unknown for %s!" % (trait, gd["id"]))
-
-                            if "traits" in gd:
-                                for trait in gd["traits"]:
-                                    if trait in traits:
-                                        char.apply_trait(traits[trait])
-                                    else:
-                                        char_debug("%s trait is unknown for %s!" % (trait, gd["id"]))
-
-                            # if "stats" in gd:
-                            #     for stat in gd["stats"]:
-                            #         if stat in STATIC_CHAR.STATS:
-                            #             value = gd["stats"][stat]
-                            #             if stat != "luck":
-                            #                 value = int(round(float(value)*char.get_max(stat))/100)
-                            #             char.mod_stat(stat, value)
-                            #         else:
-                            #             devlog.warning("%s stat is unknown for %s!" % (stat, gd["id"]))
-                            #     del gd["stats"]
-                            #
-                            # if "skills" in gd:
-                            #     for skill, value in gd["skills"].items():
-                            #         if is_skill(skill):
-                            #             char.stats.mod_full_skill(skill, value)
-                            #         else:
-                            #             devlog.warning("%s skill is unknown for %s!" % (skill, gd["id"]))
-                            #     del gd["skills"]
-
-                            if "default_attack_skill" in gd:
-                                skill = gd["default_attack_skill"]
-                                if skill in store.battle_skills:
-                                    char.default_attack_skill = store.battle_skills[skill]
-                                else:
-                                    char_debug("%s JSON Loading func tried to apply unknown default attack skill: %s!" % (gd["id"], skill))
-
-                            if "magic_skills" in gd:
-                                skills = gd["magic_skills"]
-                                for skill in skills:
-                                    if skill in store.battle_skills:
-                                        skill = store.battle_skills[skill]
-                                        char.magic_skills.append(skill)
-                                    else:
-                                        char_debug("%s JSON Loading func tried to apply unknown battle skill: %s!" % (gd["id"], skill))
-
-                            for key in ("color", "what_color"):
-                                if key in gd:
-                                    try:
-                                        color = Color(gd[key])
-                                    except:
-                                        debug_str = "{} color supplied to {} is invalid!".format(gd[key], gd["id"])
-                                        char_debug(debug_str)
-                                        color = "ivory"
-                                    char.say_style[key] = color
-
-                            # Note: Location is later normalized in init method.
-                            for key in ("name", "nickname", "fullname", "origin", "gold", "desc", "status", "location", "height", "full_race"):
-                                if key in ["name", "nickname", "fullname"] and key in gd:
-                                    if len(gd[key]) > 20:
-                                        temp = gd[key][0:20]
-                                        setattr(char, key, gd[key][0:20])
-                                    else:
-                                        setattr(char, key, gd[key])
-                                elif key in gd:
-                                    setattr(char, key, gd[key])
-
-                            char.init() # Normalize!
-
-                            # Tearing up:
-                            # if "level" in gd:
-                            #     initial_levelup(char, gd["level"])
-                            #     del gd["level"]
-                            if "tier" in gd:
-                                tier = gd["tier"]
-                                if isinstance(tier, dict):
-                                    tier_up_to(char, **tier)
-                                else:
-                                    tier_up_to(char, tier)
-                            else:
-                                tier = uniform(.1, .4)
-                                tier_up_to(char, tier)
-
-                            item_up = gd.get("item_up", "auto")
-                            if item_up == "auto":
-                                if char.status == "slave":
-                                    give_tiered_items(char,
-                                                    give_civilian_items=True,
-                                                    give_bt_items=False)
-                                else:
-                                    give_tiered_items(char,
-                                                    give_civilian_items=True,
-                                                    give_bt_items=True)
-                            elif item_up:
-                                give_tiered_items(char,
-                                                give_civilian_items=True,
-                                                give_bt_items=True)
-
-                            char.log_stats()
-
-                            content[char.id] = char
-
-        return content
-
-    def load_random_characters():
-        dir = content_path('rchars')
-        dirlist = os.listdir(dir)
-        content = dict()
-
-        #exist = getattr(store, "rchars", {}).keys()
-
-        # Loading all rgirls into the game:
-        for packfolder in os.walk(os.path.join(dir,'.')).next()[1]:
+            # Load data files one after another.
             for file in os.walk(os.path.join(dir, packfolder, '.')).next()[2]:
-                if file.startswith('data') and file.endswith('.json'):
-                    # Load the file:
-                    in_file = os.path.join(dir, packfolder, file)
-                    char_debug("Loading from %s!"%str(in_file)) # Str call to avoid unicode
-                    with open(in_file) as f:
-                        rgirls = json.load(f)
+                if not (file.startswith("data") and file.endswith(".json")):
+                    continue
 
-                    for gd in rgirls:
-                        # @Review: We will return dictionaries instead of blank instances of rGirl from now on!
-                        # rg = rChar()
-                        if "id" not in gd:
-                            # Only time we throw an error instead of writing to log.
-                            raise Exception("No id was specified in %s JSON Datafile!" % str(in_file))
+                # Load the file:
+                in_file = os.path.join(dir, packfolder, file)
+                char_debug("Loading from %s!"%str(in_file)) # Str call to avoid unicode
+                with open(in_file) as f:
+                    ugirls = json.load(f)
 
-                        folder = id = gd["id"]
+                # Apply the content of the file to the character:
+                for gd in ugirls: # We go over each dict one mainaining correct order of application:
+                    if "id" not in gd:
+                        # Only time we throw an error instead of writing to log.
+                        raise Exception("No id was specified in %s JSON Datafile!" % str(in_file))
 
+                    folder = id = gd["id"]
+                    _path = os.path.join(dir, packfolder, folder)
+                    if os.path.isdir(_path):
                         # We load the new tags!:
-                        _path = os.path.join(dir, packfolder, folder)
-                        if os.path.isdir(_path):
-                            load_tags_folder(folder, _path)
+                        load_tags_folder(folder, _path)
 
-                        #if id in exist:
-                        #    continue
-
+                    if cls is None:
+                        # JSON Data only
                         # Set the path to the folder:
-                        gd["_path_to_imgfolder"] = os.path.join("content", "rchars", packfolder, folder)
+                        gd["_path_to_imgfolder"] = _path
 
                         # validate data so we do not have to to it in runtime
                         if "default_attack_skill" in gd:
                             skill = gd["default_attack_skill"]
                             if skill not in store.battle_skills:
-                                raise Exception("%s JSON Loading func tried to apply unknown default attack skill: %s!" % (gd["id"], skill))
+                                char_debug("%s JSON Loading func tried to apply unknown default attack skill: %s!" % (gd["id"], skill))
+                                gd.pop("default_attack_skill")
 
                         for key in ("blocked_traits", "ab_traits"):
-                            if key in gd:
-                                for t in gd[key]:
+                            b_traits = gd.get(key, None)
+                            if b_traits is not None:
+                                drops = []
+                                for t in b_traits:
                                     trait = store.traits.get(t, None)
                                     if trait is None:
-                                        raise Exception("Unknown trait: %s for random girl: %s in %s!" % (t, gd["id"], key))
+                                        char_debug("Unknown trait: %s for random girl: %s in %s!" % (t, gd["id"], key))
                                     elif trait.basetrait:
-                                        raise Exception("Trait: %s for random girl: %s is a basetrait which can not be blocked (%s)!" % (t, gd["id"], key))
+                                        char_debug("Trait: %s for random girl: %s is a basetrait which can not be blocked (%s)!" % (t, gd["id"], key))
+                                    else:
+                                        continue
+                                    drops.append(t)
+                                for t in drops:
+                                    b_traits.remove(t)
 
-                        if "random_traits" in gd:
-                            for (t, c) in gd["random_traits"]:
-                                trait = store.traits.get(t, None)
+                        b_traits = gd.get("random_traits", None)
+                        if b_traits is not None:
+                            drops = []
+                            for t in b_traits:
+                                trait = store.traits.get(t[0], None)
                                 if trait is None:
-                                    raise Exception("Unknown trait: %s for random girl: %s as 'random_traits'!" % (t, gd["id"]))
+                                    char_debug("Unknown trait: %s for random girl: %s as 'random_traits'!" % (t[0], gd["id"]))
                                 elif trait.basetrait:
-                                    raise Exception("Trait: %s for random girl: %s is a basetrait which can not set as 'random_traits'!" % (t, gd["id"]))
+                                    char_debug("Trait: %s for random girl: %s is a basetrait which can not set as 'random_traits'!" % (t[0], gd["id"]))
+                                else:
+                                    continue
+                                drops.append(t)
+                            for t in drops:
+                                b_traits.remove(t)
 
                         content[id] = gd
+                        continue
+
+                    # Char with a specific class
+                    if id in exist:
+                        continue
+
+                    char = cls()
+                    char.id = id
+                    # We set the path to the character
+                    # so we know where to draw images from:
+                    char._path_to_imgfolder = _path
+
+                    # Check if there is a gender:
+                    if "gender" in gd:
+                        char.gender = gd["gender"]
+
+                    # @Review: We make sure all traits get applied first!
+                    for key in ("blocked_traits", "ab_traits"):
+                        if key in gd:
+                            b_traits  = set()
+                            for t in gd[key]:
+                                if t in traits:
+                                    b_traits.add(traits[t])
+                                else:
+                                    char_debug("%s trait is unknown for %s (In %s)!" % (t, id, key))
+                            setattr(char.traits, key, b_traits)
+
+                    # Get and normalize basetraits:
+                    if "basetraits" in gd:
+                        basetraits = set()
+                        if gd["basetraits"]:
+                            for trait in gd["basetraits"]:
+                                if trait in traits:
+                                    basetraits.add(traits[trait])
+                                else:
+                                    char_debug("%s besetrait is unknown for %s!" % (trait, id))
+
+                        if len(basetraits) > 2:
+                            while len(basetraits) > 2:
+                                basetraits.pop()
+
+                        # In case that we have basetraits:
+                        if basetraits:
+                            char.traits.basetraits = basetraits
+
+                            for trait in basetraits:
+                                char.apply_trait(trait)
+
+                    for key in ("personality", "breasts", "body", "race"):
+                        if key in gd:
+                            trait = gd[key]
+                            if trait in traits:
+                                char.apply_trait(traits[trait])
+                            else:
+                                char_debug("%s %s is unknown for %s!" % (trait, key, id))
+
+                    if "elements" in gd:
+                        for trait in gd["elements"]:
+                            if trait in traits:
+                                char.apply_trait(traits[trait])
+                            else:
+                                char_debug("%s element is unknown for %s!" % (trait, id))
+
+                    if "traits" in gd:
+                        for trait in gd["traits"]:
+                            if trait in traits:
+                                char.apply_trait(traits[trait])
+                            else:
+                                char_debug("%s trait is unknown for %s!" % (trait, id))
+
+                    # if "stats" in gd:
+                    #     for stat in gd["stats"]:
+                    #         if stat in STATIC_CHAR.STATS:
+                    #             value = gd["stats"][stat]
+                    #             if stat != "luck":
+                    #                 value = int(round(float(value)*char.get_max(stat))/100)
+                    #             char.mod_stat(stat, value)
+                    #         else:
+                    #             devlog.warning("%s stat is unknown for %s!" % (stat, gd["id"]))
+                    #     del gd["stats"]
+                    #
+                    # if "skills" in gd:
+                    #     for skill, value in gd["skills"].items():
+                    #         if is_skill(skill):
+                    #             char.stats.mod_full_skill(skill, value)
+                    #         else:
+                    #             devlog.warning("%s skill is unknown for %s!" % (skill, gd["id"]))
+                    #     del gd["skills"]
+
+                    if "default_attack_skill" in gd:
+                        skill = gd["default_attack_skill"]
+                        if skill in store.battle_skills:
+                            char.default_attack_skill = store.battle_skills[skill]
+                        else:
+                            char_debug("%s JSON Loading func tried to apply unknown default attack skill: %s!" % (id, skill))
+
+                    if "magic_skills" in gd:
+                        skills = gd["magic_skills"]
+                        for skill in skills:
+                            if skill in store.battle_skills:
+                                skill = store.battle_skills[skill]
+                                char.magic_skills.append(skill)
+                            else:
+                                char_debug("%s JSON Loading func tried to apply unknown battle skill: %s!" % (id, skill))
+
+                    for key in ("color", "what_color"):
+                        if key in gd:
+                            try:
+                                color = Color(gd[key])
+                            except:
+                                debug_str = "%s color supplied to %s is invalid!" % (gd[key], id)
+                                char_debug(debug_str)
+                                color = "ivory"
+                            char.say_style[key] = color
+
+                    # Note: Location is later normalized in init method.
+                    for key in ("name", "nickname", "fullname", "origin", "gold", "desc", "status", "location", "height", "full_race"):
+                        if key in ["name", "nickname", "fullname"] and key in gd:
+                            if len(gd[key]) > 20:
+                                temp = gd[key][0:20]
+                                setattr(char, key, gd[key][0:20])
+                            else:
+                                setattr(char, key, gd[key])
+                        elif key in gd:
+                            setattr(char, key, gd[key])
+
+                    char.init() # Normalize!
+
+                    # Tearing up:
+                    # if "level" in gd:
+                    #     initial_levelup(char, gd["level"])
+                    #     del gd["level"]
+                    if "tier" in gd:
+                        tier = gd["tier"]
+                        if isinstance(tier, dict):
+                            tier_up_to(char, **tier)
+                        else:
+                            tier_up_to(char, tier)
+                    else:
+                        tier = uniform(.1, .4)
+                        tier_up_to(char, tier)
+
+                    item_up = gd.get("item_up", "auto")
+                    if item_up == "auto":
+                        if char.status == "slave":
+                            give_tiered_items(char,
+                                            give_civilian_items=True,
+                                            give_bt_items=False)
+                        else:
+                            give_tiered_items(char,
+                                            give_civilian_items=True,
+                                            give_bt_items=True)
+                    elif item_up:
+                        give_tiered_items(char,
+                                        give_civilian_items=True,
+                                        give_bt_items=True)
+
+                    char.log_stats()
+
+                    content[char.id] = char
 
         return content
 
@@ -374,11 +358,11 @@ init -11 python:
         }
         for gender, base_folder in genders.iteritems():
             for group, trait in groups.iteritems():
-                group_path = os.sep.join([dir, base_folder, group])
+                group_path = os.path.join(dir, base_folder, group)
                 if not os.path.isdir(group_path):
                     continue
                 for folder in os.listdir(group_path):
-                    _path = os.sep.join([group_path, folder])
+                    _path = os.path.join(group_path, folder)
                     if os.path.isdir(_path):
                         load_tags_folder(folder, _path)
 
@@ -386,7 +370,7 @@ init -11 python:
                     if folder in exist:
                         continue
                     id = folder
-                    path = os.sep.join(["content", "fighters", base_folder, group, folder])
+                    path = os.path.join("content", "fighters", base_folder, group, folder)
 
                     elements = None
                     

@@ -137,7 +137,7 @@ label start:
         #global_flags.set_flag("last_modified_chars", os.path.getmtime(content_path('chars')))
         npcs = load_characters("npc", NPC)
         #global_flags.set_flag("last_modified_npcs", os.path.getmtime(content_path('npc')))
-        rchars = load_random_characters()
+        rchars = load_characters("rchars")
         #global_flags.set_flag("last_modified_rchars", os.path.getmtime(content_path('rchars')))
         tl.end("Loading: All Characters!")
         if DEBUG_LOG:
@@ -444,12 +444,12 @@ label after_load:
         #    global_flags.set_flag("last_modified_npcs", last_modified)
 
         # rChars:
-        # always run till tagdb is not separated from load_random_characters
+        # always run till tagdb is not separated from load_characters
         # last_modified_rchars = global_flags.get_flag("last_modified_rchars", 0)
         # last_modified = os.path.getmtime(content_path('rchars'))
         if True: #last_modified_rchars < last_modified:
         #    tl.start("Updating rchars")
-            store.rchars = load_random_characters()
+            store.rchars = load_characters("rchars")
         #    tl.end("Updating rchars")
         #    global_flags.set_flag("last_modified_rchars", last_modified)
 
