@@ -1,4 +1,10 @@
 label gallery:
+    python:
+        if getattr(getattr(store, "gallery", None), "girl", None) != char:
+            tl.start("Loading Gallery")
+            gallery = PytGallery(char)
+            tl.end("Loading Gallery")
+
     scene bg gallery
     show screen gallery
     with dissolve
@@ -11,66 +17,43 @@ label gallery:
     jump char_profile
 
 screen gallery():
-
     default black_bg = True
+    default td_mode = "full"
 
     # Tags + Image:
-    vbox:
-        style_group "content"
-        # Tags:
+    style_group "content"
+    frame:
+        background Frame("content/gfx/frame/p_frame5.png", 20, 20)
+        xysize (984, 722)
+        $ backimg = "content/gfx/frame/MC_bg3.png"
+        if not black_bg:
+            $ backimg = im.Twocolor(backimg, "white", "white")
         frame:
-            background Frame("content/gfx/frame/p_frame7.webp", 10, 10)
-            align (.5, .5)
-            xysize (980, 40)
-            text "Tags: [gallery.tags]" align(.5, .5) color "ivory"
-        # Img:
-        frame:
-            xysize (980, 680)
-            background Frame("content/gfx/frame/p_frame7.webp", 10, 10)
-            xpadding 0
-            ypadding 0
-            xmargin 0
-            ymargin 0
-            frame:
-                align(.5, .5)
-                xpadding 7
-                ypadding 7
-                xmargin 0
-                ymargin 0
-                if black_bg:
-                    background Frame("content/gfx/frame/MC_bg3.png", 10 ,10)
-                else:
-                    background Frame(im.Twocolor("content/gfx/frame/MC_bg3.png", "white", "white"), 10 ,10)
-                add gallery.image align (.5, .5)
-            if config.developer:
-                button:
-                    if black_bg:
-                        background Solid("white", xysize=(30, 30))
-                    else:
-                        background Solid("black", xysize=(30, 30))
-                    xysize (30, 30)
-                    action SetScreenVariable("black_bg", not black_bg)
-                    align (1.0, 0)
+            align(.5, .5)
+            background Frame(backimg, 10 ,10)
+            imagebutton:
+                align (.5, .5)
+                idle gallery.image
+                action SetScreenVariable("black_bg", not black_bg)
+                tooltip "Tags: %s" % gallery.tags
 
     # Tags Buttons and controls:
     vbox:
         align (1.0, 0)
         # Tags:
         frame:
-            background Frame("content/gfx/frame/p_frame5.png", 15, 15)
+            background Frame("content/gfx/frame/p_frame5.png", 10, 10)
             xysize (300, 570)
-            has vbox xalign .5
-            if config.developer:
-                $ img = ProportionalScale("content/gfx/interface/logos/logo9.png", 280, 60)
-                button:
-                    xalign .5
-                    xysize (280, 60)
-                    insensitive_background im.Sepia(img)
-                    idle_background img
-                    hover_background im.MatrixColor(img, im.matrix.brightness(.15))
-                    action If(gallery.td_mode == "dev", true=Return(["change_dict", "full"]), false=Return(["change_dict", "dev"]))
-            else:
-                add ProportionalScale("content/gfx/interface/logos/logo9.png", 280, 60) xalign .5
+            has vbox xfill True #xalign .5
+            $ img = ProportionalScale("content/gfx/interface/logos/logo9.png", 280, 60)
+            imagebutton:
+                xalign .5
+                idle img
+                if config.developer:
+                    hover im.MatrixColor(img, im.matrix.brightness(.15))
+                    action SetScreenVariable("td_mode", "full" if td_mode == "dev" else "dev")
+                else:
+                    action NullAction()
             null height 2
             frame:
                 background Frame(Transform("content/gfx/frame/mc_bg.png", alpha=.5), 5, 5)
@@ -84,28 +67,34 @@ screen gallery():
                         draggable True
                         mousewheel True
                         vbox:
-                            $ gallery.tagsdict = OrderedDict(sorted(gallery.tagsdict.items(), key=itemgetter(1), reverse=True))
-                            for key in gallery.tagsdict:
-                                hbox:
-                                    $ name = key.capitalize()
-                                    $ amount = gallery.tagsdict[key]
-                                    if key == gallery.girl.id:
-                                        $ name = "All Images"
-                                    button:
-                                        xysize (240, 30)
-                                        action Return(["tag", key])
-                                        fixed:
-                                            xysize (230, 28)
-                                            text "[name]" xalign 0
-                                            text "{color=blue}[amount]" xalign .93
+                            $ tagsdict = gallery.tagsdict
+                            if td_mode == "dev":
+                                python:
+                                    filtereddict = OrderedDict()
+                                    for k, value in tagsdict.iteritems():
+                                        if k in ("portrait", "vnsprite", "battle_sprite"):
+                                            filtereddict[k] = value
+                                    tagsdict = filtereddict
+                            for key, amount in tagsdict.iteritems():
+                                $ name = key.capitalize()
+                                if key == gallery.girl.id:
+                                    $ name = "All Images"
+                                button:
+                                    xalign .5
+                                    xysize (260, 30)
+                                    action Return(["tag", key])
+                                    fixed:
+                                        xysize (250, 28)
+                                        text "[name]" xalign 0
+                                        text "{color=blue}[amount]" xalign .93
                     vbar value YScrollValue("g_buttons_vp")
 
         # Buttons:
         frame:
-            yoffset -3
+            yoffset -5
             background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
             style_group "basic"
-            xysize (300, 155)
+            xysize (300, 157)
             has vbox xalign .5 spacing 5
             textbutton "SlideShow":
                 xalign .5
@@ -114,13 +103,12 @@ screen gallery():
                 xalign .5
                 spacing 10
                 use r_lightbutton(img=im.Scale("content/gfx/interface/buttons/blue_arrow_left.png", 60, 60), return_value =['image', 'previous'])
-                null width 10
                 use exit_button(size=(45, 45), align=(.5, .5))
                 use r_lightbutton(img=im.Scale("content/gfx/interface/buttons/blue_arrow_right.png", 60, 60),return_value =['image', 'next'])
-            if config.developer:
-                textbutton "Lets Jig with this girl! :)":
-                    xalign .5
-                    action Jump("jigsaw_puzzle_start")
+
+            textbutton "Lets Jig with this girl! :)":
+                xalign .5
+                action Jump("jigsaw_puzzle_start")
 
 screen gallery_trans():
     zorder 5000

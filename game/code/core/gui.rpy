@@ -35,15 +35,12 @@ init -1 python:
         """
         def __init__(self, char):
             self.girl = char
-            self.default_imgsize = (960, 660)
-            self.imgsize = self.default_imgsize
+            self.default_imgsize = (940, 680)
             self.tag = "profile"
-            self.tagsdict = tagdb.get_tags_per_character(self.girl)
-            self.td_mode = "full" # Tagsdict Mode (full or dev)
+            tagsdict = tagdb.get_tags_per_character(self.girl)
+            self.tagsdict = OrderedDict(sorted(tagsdict.items(), key=itemgetter(1), reverse=True))
             self.pathlist = list(tagdb.get_imgset_with_all_tags([char.id, "profile"]))
-            self.imagepath = self.pathlist[0]
-            self._image = self.pathlist[0]
-            self.tags = " | ".join([i for i in tagdb.get_tags_per_path(self.imagepath)])
+            self.set_img(self.pathlist[0])
 
         def screen_loop(self):
             while 1:
@@ -52,48 +49,32 @@ init -1 python:
                 if result[0] == "image":
                     index = self.pathlist.index(self.imagepath)
                     if result[1] == "next":
-                        index = (index + 1) % len(self.pathlist)
-                        self.imagepath = self.pathlist[index]
-                        self.set_img()
+                        index += 1
                     elif result[1] == "previous":
-                        index = (index - 1) % len(self.pathlist)
-                        self.imagepath = self.pathlist[index]
-                        self.set_img()
+                        index -= 1 
+                    self.set_img(self.pathlist[index % len(self.pathlist)])
                 elif result[0] == "tag":
                     self.tag = result[1]
                     self.pathlist = list(tagdb.get_imgset_with_all_tags([self.girl.id, result[1]]))
-                    self.imagepath = self.pathlist[0]
-                    self.set_img()
+                    self.set_img(self.pathlist[0])
                 elif result[0] == "view_trans":
                     gallery.trans_view()
-                # This is for the testing option (only in dev mode):
-                elif result[0] == "change_dict":
-                    if result[1] == "full":
-                        self.td_mode = "full"
-                        self.tagsdict = tagdb.get_tags_per_character(self.girl)
-                    elif result[1] == "dev":
-                        self.td_mode = "dev"
-                        d = tagdb.get_tags_per_character(self.girl)
-                        self.tagsdict = OrderedDict()
-                        for i in d:
-                            if i in ["portrait", "vnsprite", "battle_sprite"]:
-                                self.tagsdict[i] = d[i]
                 elif result[0] == "control":
                     if result[1] == 'return':
                         break
 
         @property
         def image(self):
-            return ProportionalScale("/".join([self.girl.path_to_imgfolder, self._image]), self.imgsize[0], self.imgsize[1])
+            return ProportionalScale("/".join([self.girl.path_to_imgfolder, self.imagepath]), self.imgsize[0], self.imgsize[1])
 
-        def set_img(self):
+        def set_img(self, path):
+            self.imagepath = path
             if self.tag in ("vnsprite", "battle_sprite"):
                 self.imgsize = self.girl.get_sprite_size(self.tag)
             else:
-                self.imgsize = self.imgsize
+                self.imgsize = self.default_imgsize
 
-            self._image = self.imagepath
-            self.tags = " | ".join([i for i in tagdb.get_tags_per_path(self.imagepath)])
+            self.tags = " | ".join([i for i in tagdb.get_image_tags(path)])
 
         def trans_view(self):
             """
@@ -334,14 +315,14 @@ init -1 python:
     def dragged(drags, drop):
         # Simple func we use to manage drag and drop in team setups and maybe more in the future.
         drag = drags[0]
-        item = drag.drag_name
         x, y = drag.old_position[0], drag.old_position[1]
-        src_container = item.get_flag("dnd_drag_container")
 
         if not drop:
             drag.snap(x, y, delay=.2)
             return
 
+        item = drag.drag_name
+        src_container = item.get_flag("dnd_drag_container")
         dest_container = drop.drag_name
         if dest_container == src_container:
             drag.snap(x, y, delay=.2)

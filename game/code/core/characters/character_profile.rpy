@@ -76,9 +76,6 @@ label char_profile:
             elif char.location == pytfall.ra:
                 if result[0] == "girl":
                     if result[1] == "gallery":
-                        $ tl.start("Loading Gallery")
-                        $ gallery = PytGallery(char)
-                        $ tl.end("Loading Gallery")
                         jump gallery
                     elif result[1] == "get_rid":
                         if renpy.call_screen("yesno_prompt", message="Are you sure you wish to stop looking for %s?"%char.name, yes_action=Return(True), no_action=Return(False)):
@@ -114,9 +111,6 @@ label char_profile:
                             renpy.show_screen("set_action_dropdown", result[2], pos=renpy.get_mouse_pos())
                 elif result[0] == "girl":
                     if result[1] == "gallery":
-                        $ tl.start("Loading Gallery")
-                        $ gallery = PytGallery(char)
-                        $ tl.end("Loading Gallery")
                         jump gallery
                     elif result[1] == "get_rid":
                         if char.status == "slave":

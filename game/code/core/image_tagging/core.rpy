@@ -130,13 +130,10 @@ init -9 python:
             4 Post-@ code review: Is this a stupid way of doing it? ==> It was...
             """
             tags = defaultdict(int)
-            all_tags = self.all_tags.copy()
-            all_tags.add(character.id)
             images = self.get_imgset_with_tag(character.id)
             for img in images:
-                tags_per_path = self.get_tags_per_path(img)
-                chars_tags = all_tags.intersection(tags_per_path)
-                for tag in chars_tags:
+                tags_per_path = self.get_image_tags(img)
+                for tag in tags_per_path:
                     tags[tag] += 1
             return tags
 

@@ -7,181 +7,155 @@
 #
 #
 #####################################################################################################
-
 init python:
-
     def piece_dragged(drags, drop):
-
+        drag = drags[0]
+        x, y = drag.old_position[0], drag.old_position[1]
         if not drop:
+            #drag.snap(x, y, delay=.2)
             return
 
-        p_x = drags[0].drag_name[0]
-        p_y = drags[0].drag_name[1]
-        t_x = drop.drag_name[0]
-        t_y = drop.drag_name[1]
+        piece = drag.drag_name
+        piece = piece[:-6]
 
+        dest = drop.drag_name
+
+        if piece != dest:
+            #drag.snap(x, y, delay=.2)
+            return
+
+        p_x, p_y = piece.split(",")
+        p_x, p_y = int(p_x), int(p_y)
+        
         a = []
         a.append(drop.drag_joined)
-        a.append((drags[0], 3, 3))
+        a.append((drag, 3, 3))
         drop.drag_joined(a)
 
-        if p_x == t_x and p_y == t_y:
-            renpy.music.play("content/sfx/sound/jp/Pat.mp3", channel="sound")
-            my_x = int(int(p_x)*active_area_size*x_scale_index)-int(grip_size*x_scale_index)+puzzle_field_offset
-            my_y = int(int(p_y)*active_area_size*y_scale_index)-int(grip_size*y_scale_index)+puzzle_field_offset
-            drags[0].snap(my_x,my_y, delay=.1)
-            drags[0].draggable = False
-            placedlist[int(p_x),int(p_y)] = True
+        renpy.music.play("content/sfx/sound/jp/Pat.mp3", channel="sound")
 
-            for i in range(0, grid_width):
-                for j in range(0, grid_height):
-                    if not placedlist[i, j]:
-                        return
-            return True
-        return
+        my_x = int(p_x*axsize+field_offset_x)
+        my_y = int(p_y*aysize+field_offset_y)
 
+        drag.snap(my_x, my_y, delay=.1)
+        drag.draggable = False
+        placedlist[p_x][p_y] = True
+
+        for i in xrange(grid_width):
+            for j in xrange(grid_height):
+                if not placedlist[i][j]:
+                    return
+        return True
 
 label jigsaw_puzzle_start:
     hide screen gallery
     scene bg jigsaw
     with dissolve
 
-    $ grid_width = 3       # default value
-    $ grid_height = 3       # default value
+    $ grid_width = grid_height = 3  # default values
     $ puzzle_field_size = 655       # should be less then minimal of config.screen_width and config.screen_height values
-    $ puzzle_field_offset = 50       # the offset from top left corner
-    $ puzzle_piece_size = 450       # the size of stencil images that are used to create puzzle piece
-    $ grip_size = 75       # see "_how_to_make_a_tile.png" file
-    $ active_area_size = puzzle_piece_size - (grip_size * 2)
-
-    $ img_to_play  = ProportionalScale("/".join([gallery.girl.path_to_imgfolder, gallery.imagepath]), puzzle_field_size, puzzle_field_size)
-    $ img_width, img_height = img_to_play.true_size()
+    $ img_to_play = ProportionalScale(os.sep.join([gallery.girl.path_to_imgfolder, gallery.imagepath]), puzzle_field_size, puzzle_field_size)
     $ renpy.call_screen("control_scr", img_to_play)
-    # $ chosen_img = jigsaw_img
 
     python:
+        img_width, img_height = img_to_play.true_size()
+        puzzle_piece_size = 450       # the size of stencil images that are used to create puzzle piece
+        grip_size = 75       # see "_how_to_make_a_tile.png" file
+        active_area_size = puzzle_piece_size - (grip_size * 2)
 
-        # img_width, img_height = renpy.image_size(chosen_img)
-#
-        # # scales down an image to fit the puzzle_field_size
-        # if img_width >= img_height and img_width > puzzle_field_size:
-            # img_scale_down_index = round( (1.00 * puzzle_field_size / img_width), 6)
-            # img_to_play = im.FactorScale(chosen_img, img_scale_down_index)
-            # img_width = int(img_width * img_scale_down_index)
-            # img_height = int(img_height * img_scale_down_index)
-#
-        # elif img_height >= img_width and img_height > puzzle_field_size:
-            # img_scale_down_index = round( (1.00 * puzzle_field_size / img_height), 6)
-            # img_to_play = im.FactorScale(chosen_img, img_scale_down_index)
-            # img_width = int(img_width * img_scale_down_index)
-            # img_height = int(img_height * img_scale_down_index)
-#
-        # else:
-            # img_to_play = chosen_img
-#
-        x_scale_index = round( (1.00 * (img_width/grid_width)/active_area_size), 6)
-        y_scale_index = round( (1.00 * (img_height/grid_height)/active_area_size), 6)
+        axsize = float(img_width)/grid_width   # active size of a piece
+        aysize = float(img_height)/grid_height
 
-        # mainimage = im.Composite((int(img_width+(grip_size*2)*x_scale_index), int(img_height+(grip_size*2)*y_scale_index)),(int(grip_size*x_scale_index), int(grip_size*y_scale_index)), img_to_play)
-        mainimage = im.Composite((int(img_width+(grip_size*2)*x_scale_index), int(img_height+(grip_size*2)*y_scale_index)),(int(grip_size*x_scale_index), int(grip_size*y_scale_index)), img_to_play)
-        # some calculations
-        top_row = []
-        for i in range (0, grid_width):
-            top_row.append(i)
+        x_scale_index = axsize/active_area_size
+        y_scale_index = aysize/active_area_size
 
-        bottom_row = []
-        for i in range (0, grid_width):
-            bottom_row.append(grid_width*(grid_height-1)+i)
+        grip_size_x = grip_size*x_scale_index
+        grip_size_y = grip_size*y_scale_index
 
-        left_column = []
-        for i in range (0, grid_height):
-            left_column.append(grid_width*i)
+        img_size_x = int(img_width+2*grip_size_x)
+        img_size_y = int(img_height+2*grip_size_y)
+        mainimage = im.Composite((img_size_x, img_size_y),
+                                 (int(grip_size_x), int(grip_size_y)), img_to_play)
 
-        right_column = []
-        for i in range (0, grid_height):
-            right_column.append(grid_width*i + (grid_width-1) )
+        xsize = int(axsize + 2*grip_size_x)    # a size of a piece with its grip
+        ysize = int(aysize + 2*grip_size_y)
 
-        # randomly makes the shape of each puzzle piece
-        # (starts from top row, fills it in from left to right, then - next row)
-        jigsaw_grid = []
-        for i in range(0,grid_height):
-            for j in range (0,grid_width):
-                jigsaw_grid.append([9,9,9,9])   # [top, right, bottom, left]
+        field_offset_x = (config.screen_width - img_width)/2 - grip_size_x    # the offset from top left corner
+        field_offset_y = (config.screen_height - img_height)/2 - grip_size_y  # the offset from top left corner
 
-        for i in range(0,grid_height):
-            for j in range (0,grid_width):
-                if grid_width*i+j not in top_row:
-                    if jigsaw_grid[grid_width*(i-1)+j][2] == 1:
-                        jigsaw_grid[grid_width*i+j][0] = 2
+        jigsaw_grid = [[None] * grid_height for i in xrange(grid_width)] 
+        for i in xrange(grid_width):
+            for j in xrange(grid_height):
+                entry = [0, 0, 0, 0] # [top, right, bottom, left]
+                jigsaw_grid[i][j] = entry
+                # top
+                if j != 0:
+                    if jigsaw_grid[i][j-1][2] == 1:
+                        entry[0] = 2
                     else:
-                        jigsaw_grid[grid_width*i+j][0] = 1
-                else:
-                    jigsaw_grid[grid_width*i+j][0] = 0
+                        entry[0] = 1
 
-                if grid_width*i+j not in right_column:
-                    jigsaw_grid[grid_width*i+j][1] = randint(1,2)
-                else:
-                    jigsaw_grid[grid_width*i+j][1] = 0
+                # right
+                if (i+1) != grid_width: # not in right_column:
+                    entry[1] = randint(1,2)
 
-                if grid_width*i+j not in bottom_row:
-                    jigsaw_grid[grid_width*i+j][2] = randint(1,2)
-                else:
-                    jigsaw_grid[grid_width*i+j][2] = 0
+                # bottom
+                if (j+1) != grid_height: # not in bottom_row:
+                    entry[2] = randint(1,2)
 
-                if grid_width*i+j not in left_column:
-                    if jigsaw_grid[grid_width*i+j-1][1] == 1:
-                        jigsaw_grid[grid_width*i+j][3] = 2
+                # left
+                if i != 0:
+                    if jigsaw_grid[i-1][j][1] == 1:
+                        entry[3] = 2
                     else:
-                        jigsaw_grid[grid_width*i+j][3] = 1
-                else:
-                    jigsaw_grid[grid_width*i+j][3] = 0
+                        entry[3] = 1
 
 
         # makes description for each puzzle piece
-        piecelist = dict()
-        imagelist = dict()
-        placedlist = dict()
-        testlist = dict()
+        piecelist = [[None] * grid_height for i in xrange(grid_width)]
+        imagelist = [[None] * grid_height for i in xrange(grid_width)]
+        placedlist = [[False] * grid_height for i in xrange(grid_width)]
 
-        for i in range(0,grid_width):
-            for j in range (0,grid_height):
-                piecelist[i,j] = [int(randint(0, (config.screen_width * .9 - puzzle_field_size))+puzzle_field_size), int(randint(0, (config.screen_height * .8)))]
+        free_x = config.screen_width - (img_size_x + axsize)
+        free_y = config.screen_height - aysize
+        for i in xrange(grid_width):
+            for j in xrange(grid_height):
+                # set the location of the piece
+                piece_x = randrange(free_x)
+                piece_y = randrange(free_y) + int(aysize/2)
+                if piece_x > free_x/2:
+                    piece_x += int(img_size_x + axsize/2)
+                piecelist[i][j] = [piece_x, piece_y]
 
-                temp_img = im.Crop(mainimage, int(i*active_area_size*x_scale_index), int(j*active_area_size*y_scale_index), int(puzzle_piece_size*x_scale_index), int(puzzle_piece_size*y_scale_index))
+                #devlog.warn("Piece %s,%s at %s:%s" % (i, j, piece_x, piece_y))
 
                 # makes puzzle piece image using its shape description and tile pieces
                 # (will rotate them to form top, right, bottom and left sides of puzzle piece)
-                xsize = round_int(puzzle_piece_size*x_scale_index)
-                ysize = round_int(puzzle_piece_size*y_scale_index)
-                fixed = Fixed(xysize=(xsize, ysize))
 
-                d = Transform("content/gfx/interface/images/jp/_00%s.png"%(jigsaw_grid[grid_width*j+i][0]), rotate=0, rotate_pad=False, zoom=1.0)
-                d = Transform(d, size=(xsize, ysize))
-                fixed.add(AlphaMask(temp_img, d))
-                d = Transform("content/gfx/interface/images/jp/_00%s.png"%(jigsaw_grid[grid_width*j+i][1]), rotate=270, rotate_pad=False, zoom=1.0)
-                d = Transform(d, size=(xsize, ysize))
-                fixed.add(AlphaMask(temp_img, d))
-                d = Transform("content/gfx/interface/images/jp/_00%s.png"%(jigsaw_grid[grid_width*j+i][2]), rotate=180, rotate_pad=False, zoom=1.0)
-                d = Transform(d, size=(xsize, ysize))
-                fixed.add(AlphaMask(temp_img, d))
-                d = Transform("content/gfx/interface/images/jp/_00%s.png"%(jigsaw_grid[grid_width*j+i][3]), rotate=90, rotate_pad=False, zoom=1.0)
-                d = Transform(d, size=(xsize, ysize))
-                fixed.add(AlphaMask(temp_img, d))
-                imagelist[i, j] = fixed
-                placedlist[i, j] = False
+                # create the mask
+                d = Fixed(xysize=(xsize, ysize))
+                d.add(Transform("content/gfx/interface/images/jp/_00%s.png"%(jigsaw_grid[i][j][0]), rotate=0, rotate_pad=False, size=(xsize, ysize)))
+                d.add(Transform("content/gfx/interface/images/jp/_00%s.png"%(jigsaw_grid[i][j][1]), rotate=90, rotate_pad=False, size=(xsize, ysize)))
+                d.add(Transform("content/gfx/interface/images/jp/_00%s.png"%(jigsaw_grid[i][j][2]), rotate=180, rotate_pad=False, size=(xsize, ysize)))
+                d.add(Transform("content/gfx/interface/images/jp/_00%s.png"%(jigsaw_grid[i][j][3]), rotate=270, rotate_pad=False, size=(xsize, ysize)))
+                # create the piece using the mask
+                fixed = Fixed(xysize=(xsize, ysize))
+                fixed.add(AlphaMask(im.Crop(mainimage, int(i*axsize), int(j*aysize), xsize, ysize), d))
+
+                # add an almost transparent layer, so the player can grab it FIXME should not be necessary with a fixed RenPy
+                fixed.add(Transform(im.Scale("content/gfx/interface/images/jp/_puzzle_field.webp", xsize-2*grip_size_x, ysize-2*grip_size_y), pos=((int(grip_size_x), int(grip_size_y)))))
+                imagelist[i][j] = fixed
 
     jump puzzle
 
 label puzzle:
     scene bg gallery
     call screen jigsaw
-    with dissolve
-    jump win
+    #with dissolve
 
-label win:
-    scene bg gallery
+    #scene bg gallery
     show expression img_to_play at Position(xalign=.5,yalign=.5)
-    with dissolve
+    #with dissolve
 
     "Congratulations!"
     menu:
@@ -191,40 +165,46 @@ label win:
             jump jigsaw_puzzle_start
 
         "No":
-            jump gallery
+            pass
 
+label puzzle_end:
+    # cleanup
+    python hide:
+        cleanup = ["grid_width", "grid_height", "puzzle_field_size", "img_to_play",
+                  "img_width", "img_height", "puzzle_piece_size", "grip_size", "active_area_size",
+                  "axsize", "aysize", "x_scale_index", "y_scale_index",
+                  "grip_size_x", "grip_size_y",
+                  "img_size_x", "img_size_y", "mainimage",
+                  "xsize", "ysize", "field_offset_x", "field_offset_y",
+                  "jigsaw_grid", "i", "j", "entry",
+                  "piecelist", "imagelist", "placedlist",
+                  "free_x", "free_y",
+                  "piece_x", "piece_y", "fixed", "d"]
+        for i in cleanup:
+            if hasattr(store, i):
+                delattr(store, i)
+    jump gallery
 
 screen control_scr(preview):
-
-    # if img_width>600 or img_height>600:
-        # if img_width > img_height:
-            # $ preview_scale = 600.00 / img_width
-        # else:
-            # $ preview_scale = 600.00 / img_height
-    # else:
-        # $ preview_scale = 1
-
-    # $ preview = im.FactorScale(current_file, preview_scale)
-
-    add preview xpos 450 ypos 100
+    add preview align .5, .4
 
     vbox:
         style_group "basic"
-        pos (390, 100)
+        align .1, .4
         spacing 20
         for i in range (2, 11):
             textbutton "[i]" action [SetVariable("grid_height", i), renpy.restart_interaction]
 
     hbox:
         style_group "basic"
-        pos (450, 60)
+        align .5, .05
         spacing 15
         for i in range (2, 11):
             textbutton "[i]" action [SetVariable("grid_width", i), renpy.restart_interaction]
 
     $ number_of_pieces = (grid_width*grid_height)
     frame:
-        align (.01, .01)
+        align (.01, .98)
         xpadding 20
         ypadding 20
         style_group "content"
@@ -235,47 +215,39 @@ screen control_scr(preview):
         xysize (100, 40)
         style_group "basic"
         text "Done" size 35
-        # action If(current_file != 0, Return(current_file))
         action Return()
         align (.5, .98)
 
-    imagebutton:
-        align (1.0, .0)
-        idle (im.Scale("content/gfx/interface/buttons/close.png", 60, 60))
-        hover (im.MatrixColor(im.Scale("content/gfx/interface/buttons/close.png", 60, 60), im.matrix.brightness(.15)))
-        action Jump("gallery")
+    use exit_button(size=(60, 60), align=(1.0, .0), action=Jump("puzzle_end"))
 
 screen jigsaw():
-
-    key "rollback" action NullAction()
-    key "rollforward" action NullAction()
-
-    add im.Scale("content/gfx/frame/_puzzle_field.webp", img_width, img_height) pos (puzzle_field_offset, puzzle_field_offset)
+    #key "rollback" action NullAction()
+    #key "rollforward" action NullAction()
+    add im.Scale("content/gfx/frame/MC_bg3.png", img_width, img_height) align .5, .5
 
     draggroup:
-        for i in xrange(0, grid_width):
-            for j in xrange(0, grid_height):
-                $ name = "%s%s"%(i, j)
-                $ my_x = i*int(active_area_size*x_scale_index)+puzzle_field_offset
-                $ my_y = j*int(active_area_size*y_scale_index)+puzzle_field_offset
+        id "jigsaw"
+        for i in xrange(grid_width):
+            for j in xrange(grid_height):
+                $ name = "%s,%s"%(i, j)
+                $ my_x = int(i*axsize+field_offset_x)
+                $ my_y = int(j*aysize+field_offset_y)
                 drag:
                     drag_name name
-                    child im.Scale("content/gfx/frame/_blank_space.webp", int(active_area_size*x_scale_index), int(active_area_size*y_scale_index) )
                     draggable False
-                    xpos my_x ypos my_y
+                    droppable True
+                    pos (my_x, my_y)
+                    add im.Scale("content/gfx/frame/_blank_space.webp", axsize, aysize)
 
-        for i in range(0, grid_width):
-            for j in range(0, grid_height):
-                $ name = "%s%s piece"%(i, j)
+        for i in xrange(grid_width):
+            for j in xrange(grid_height):
+                $ name = "%s,%s piece"%(i, j)
                 drag:
-                    drag_name name
-                    child imagelist[i,j]
-                    #droppable False
                     dragged piece_dragged
-                    xpos piecelist[i, j][0] ypos piecelist[i, j][1]
+                    droppable 0
+                    #tooltip "%s" % name
+                    drag_name name
+                    pos piecelist[i][j]
+                    add imagelist[i][j]
 
-    imagebutton:
-        align(1.0, .0)
-        idle (im.Scale("content/gfx/interface/buttons/close.png", 60, 60))
-        hover (im.MatrixColor(im.Scale("content/gfx/interface/buttons/close.png", 60, 60), im.matrix.brightness(.15)))
-        action Jump("gallery")
+    use exit_button(size=(60, 60), align=(1.0, .0), action=Jump("puzzle_end"))
