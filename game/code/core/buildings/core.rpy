@@ -433,8 +433,23 @@ init -10 python:
             self.upgrades.append(upgrade)
             self.upgrades.sort(key=attrgetter("ID"), reverse=True)
 
-            if hasattr(upgrade, "daily_modifier_mod"):
-                self.daily_modifier *= u.daily_modifier_mod
+            mod = getattr(upgrade, "daily_modifier_mod", 0)
+            if mod != 0:
+                self.daily_modifier *= mod
+
+        def remove_upgrade(self, upgrade):
+            renpy.play("content/sfx/sound/world/purchase_1.ogg")
+
+            cost, materials, in_slots, ex_slots = upgrade.get_cost()
+            self.in_slots -= in_slots
+            self.ex_slots -= ex_slots
+
+            self.pay_for_extension(cost, None)
+
+            self.upgrades.remove(upgrade)
+            mod = getattr(upgrade, "daily_modifier_mod", 0)
+            if mod != 0:
+                self.daily_modifier /= mod
 
         def cancel_construction(self, icu):
             self.in_construction_upgrades.remove(icu)
