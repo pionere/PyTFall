@@ -97,7 +97,7 @@ label interactions_sparring: # sparring with MC, for Combatant occupations only
     show screen girl_interactions
 
     if gm.mode == "girl_interactions":
-        scene expression select_girl_room(char, gm.img)
+        scene expression select_girl_room(char)
     else:
         show expression gm.bg_cache
 

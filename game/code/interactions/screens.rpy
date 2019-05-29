@@ -18,7 +18,7 @@ label girl_interactions:
         gm.show_menu_givegift = False
 
     if gm.mode == "girl_interactions":
-        scene expression select_girl_room(char, gm.img)
+        scene expression select_girl_room(char)
     else:
         scene expression gm.bg_cache
 

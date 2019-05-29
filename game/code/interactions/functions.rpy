@@ -1,6 +1,6 @@
 init -11 python:
-    def select_girl_room(char, image): # selects room background for interactions, will be based on tiers too eventually
-        image_tags = image.get_image_tags()
+    def select_girl_room(char): # selects room background for interactions, will be based on tiers too eventually
+        image_tags = gm.get_image_tags()
         if "no bg" in image_tags or "simple bg" in image_tags or "living" in image_tags:
             if char.status == "slave":
                 if check_friends(hero, char) or check_lovers(char, hero):

@@ -6,43 +6,6 @@ init -9 python:
         sample entry of self.tagmap:
         tag : set([relative path to image 1, relative path to image 2, ...])
         '''
-        @classmethod # Not Used:
-        def from_json(cls, filepaths=[]):
-            '''Returns a new TagDatabase instance with data from JSON files.
-
-            If filepaths is empty, an empty TagDatabase instance is returned.
-            '''
-            tdb = TagDatabase()
-
-            if not filepaths:
-                return tdb
-            else:
-                for entry in filepaths:
-                    for fp in entry:
-                        if len(fp.split("game%s" % os.sep)[1].split(os.sep)) == 4:
-                            # deserialize JSON file into a python dict
-                            with open(fp, "r") as f:
-                                imgmap = json.load(f)
-                            # add the images and their tags to the database
-                            for imgpath in imgmap:
-                                taglist = imgmap[imgpath]
-                                tdb.add_image(imgpath, taglist)
-                        else:     # New style tags from tagger software
-                            # deserialize JSON file into a python dict
-                            with open(fp, "r") as f:
-                                imgmap = json.load(f)
-                            # add the images and their tags to the database
-                            # adjusting path and adding girl id to tags as required for tags to function in PyTFall
-                            path = fp.split("game%s" % os.sep)[1][:-9]
-                            for imgpath in imgmap[2]:
-                                # ID
-                                imgmap[2][imgpath].append(fp.split(os.sep)[-2])
-                                taglist = imgmap[2][imgpath]
-                                # Path
-                                imgpath = "".join([path,  imgpath])
-                                tdb.add_image(imgpath, taglist)
-                return tdb
-
         @staticmethod
         def get_image_tags(image_path):
             """Returns a list of tags bound to the image.
@@ -54,8 +17,10 @@ init -9 python:
 
         def __init__(self):
             # maps image tags to sets of image paths
-            self.all_tags = set(tags_dict.values())
-            self.tagmap = {}
+            all_tags = tags_dict.values()
+
+            self.all_tags = set(all_tags)
+            self.tagmap = {tag: set() for tag in all_tags}
 
             # stores relative paths to untagged images
             self.untagged = set()

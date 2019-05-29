@@ -190,6 +190,12 @@ init -1 python:
             """
             self.img = self.img_cache
 
+        def get_image_tags(self):
+            if isinstance(self.img, basestring):
+                return TagDatabase.get_image_tags(self.img)
+            else:
+                return self.img.get_image_tags()
+
         # Interactions/GM Flow Controls:
         def jump(self, label, free=False, allow_unique=True, **kwargs):
             """Jumps to a GMIT label with the most specific name.

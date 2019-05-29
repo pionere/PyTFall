@@ -878,7 +878,7 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
 
     elif current_action == "fingervag":
         $ get_single_sex_picture(char, act="2c vaginalfingering", location=sex_scene_location, hidden_partner=True)
-        $ image_tags = gm.img.get_image_tags()
+        $ image_tags = gm.get_image_tags()
         $ char_skill_for_checking = 2 * char.get_skill("sex")
         if interactions_gender_mismatch(char):
             $ char_skill_for_checking *= .8
@@ -906,7 +906,7 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
 
     elif current_action == "lickvag":
         $ get_single_sex_picture(char, act="2c lickpussy", location=sex_scene_location, hidden_partner=True)
-        $ image_tags = gm.img.get_image_tags()
+        $ image_tags = gm.get_image_tags()
         $ char_skill_for_checking = 2 * char.get_skill("sex")
         if interactions_gender_mismatch(char):
             $ char_skill_for_checking *= .8
@@ -935,7 +935,7 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
     elif current_action == "blow":
         $ temp = "bc blowjob" if hero.gender == "male" else "bc lickpussy"
         $ get_single_sex_picture(char, act=temp, location=sex_scene_location, hidden_partner=True)
-        $ image_tags = gm.img.get_image_tags()
+        $ image_tags = gm.get_image_tags()
 
         $ skill_for_checking = char.get_skill("oral") + char.get_skill("sex")
         if interactions_gender_mismatch(char):
@@ -993,7 +993,7 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
 
     elif current_action == "tits":
         $ get_single_sex_picture(char, act="bc titsjob", location=sex_scene_location, hidden_partner=True)
-        $ image_tags = gm.img.get_image_tags()
+        $ image_tags = gm.get_image_tags()
 
         $ skill_for_checking = char.get_skill("oral") + char.get_skill("sex")
         if interactions_gender_mismatch(char):
@@ -1037,7 +1037,7 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
     elif current_action == "hand":
         $ temp = "bc handjob" if hero.gender == "male" else "bc vaginalhandjob"
         $ get_single_sex_picture(char, act=temp, location=sex_scene_location, hidden_partner=True)
-        $ image_tags = gm.img.get_image_tags()
+        $ image_tags = gm.get_image_tags()
 
         $ skill_for_checking = char.get_skill("oral") + char.get_skill("sex")
         if interactions_gender_mismatch(char):
@@ -1070,7 +1070,7 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
     elif current_action == "foot":
         $ temp = "bc footjob" if hero.gender == "male" else "bc vaginalfootjob"
         $ get_single_sex_picture(char, act="bc footjob", location=sex_scene_location, hidden_partner=True)
-        $ image_tags = gm.img.get_image_tags()
+        $ image_tags = gm.get_image_tags()
 
         $ skill_for_checking = char.get_skill("refinement") + char.get_skill("sex")
         if interactions_gender_mismatch(char):
@@ -1122,7 +1122,7 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
 
     elif current_action == "vag":
         $ get_single_sex_picture(char, act="2c vaginal", location=sex_scene_location, hidden_partner=True)
-        $ image_tags = gm.img.get_image_tags()
+        $ image_tags = gm.get_image_tags()
 
         $ skill_for_checking = char.get_skill("vaginal") + char.get_skill("sex")
         if interactions_gender_mismatch(char):
@@ -1208,7 +1208,7 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
 
     elif current_action == "anal":
         $ get_single_sex_picture(char, act="2c anal", location=sex_scene_location, hidden_partner=True)
-        $ image_tags = gm.img.get_image_tags()
+        $ image_tags = gm.get_image_tags()
 
         $ skill_for_checking = char.get_skill("anal") + char.get_skill("sex")
         if interactions_gender_mismatch(char):

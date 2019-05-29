@@ -2,8 +2,6 @@ init 100 python:
     pyp = PyTFallopedia()
 
     tagdb = TagDatabase()
-    for tag in tags_dict.values():
-        tagdb.tagmap[tag] = set()
 
     tl.start("Loading: Mobs")
     mobs = load_mobs()

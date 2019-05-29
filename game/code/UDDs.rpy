@@ -41,7 +41,7 @@ init -960 python:
             if getattr(skill, "kind", None) != "assault":
                 return
 
-            if attacker.is_mob:
+            if isinstance(attacker, Mob):
                 simpe_taunts = ["(Makes threatening noises)",
                                 "(Looks murderous)",
                                 "Urgggg!",
@@ -136,12 +136,9 @@ init -960 python:
             frame = Transform("content/gfx/frame/p_frame.png", size=(70, 70))
             fi.add(frame)
 
-            if value > 0:
-                portrait = char.show("portrait", "happy", resize=(65, 65), cache=True)
-                portrait = Transform(portrait, align=(.5, .5))
-            else:
-                portrait = char.show("portrait", "sad", resize=(65, 65), cache=True)
-                portrait = Transform(portrait, align=(.5, .5))
+            portrait = "sad" if value < 0 else "happy"
+            portrait = char.show("portrait", portrait, resize=(65, 65), cache=True)
+            portrait = Transform(portrait, align=(.5, .5))
             fi.add(portrait)
 
             fixed = Fixed(xysize=(160, 36))
@@ -156,13 +153,9 @@ init -960 python:
                 fixed.add(Text(stat.capitalize(), size=25,
                                style="proper_stats_text", color="#79CDCD",
                                align=(.5, .5)))
-            if value < 0:
-                sign = "-"
-                color = "red"
-            else:
-                sign = "+"
-                color = "green"
-            fixed.add(Text(sign+str(value), style="proper_stats_value_text", color=color,
+
+            color = "red" if value < 0 else "green"
+            fixed.add(Text("%+g" % value, style="proper_stats_value_text", color=color,
                            size=40, align=(.9, .5), yoffset=25))
 
             time_offset = self.get_time_offset()
@@ -197,14 +190,9 @@ init -960 python:
                                style="proper_stats_text",
                                color="#79CDCD",
                                align=(.5, .5)))
-            if value < 0:
-                sign = "-"
-                color = "red"
-            else:
-                sign = "+"
-                color = "green"
-            fixed.add(Text(sign+str(value),
-                           style="proper_stats_value_text", color=color,
+
+            color = "red" if value < 0 else "green"
+            fixed.add(Text("%+g" % value, style="proper_stats_value_text", color=color,
                            size=40, align=(.9, .5), yoffset=25))
 
             time_offset = self.get_time_offset()
@@ -222,8 +210,8 @@ init -960 python:
             kwargs = dict()
             time_offset = self.get_time_offset()
 
+            fixed = Fixed(xysize=(130, 130))
             if value > 0:
-                fixed = Fixed(xysize=(130, 130))
                 d = Transform("hearts_flow", size=(130, 130), align=(.5, .5))
                 fixed.add(d)
                 d = Text(str(value), font="fonts/rubius.ttf", color="deeppink",
@@ -233,7 +221,6 @@ init -960 python:
                 kwargs["yoffset"] = randint(-300, -250)
                 self.add_sfx("content/sfx/sound/female/uhm.mp3", .3+time_offset)
             else:
-                fixed = Fixed(xysize=(130, 130))
                 d = Transform("shy_blush", size=(130, 130), align=(.5, .5))
                 fixed.add(d)
                 d = Text(str(value), font="fonts/rubius.ttf", color="blue",
