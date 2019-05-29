@@ -57,7 +57,7 @@ init -5 python hide:
     # disabling rollback as not being compatible with games nature
     config.rollback_enabled = False
     config.hard_rollback_limit = 0
-    config.rollback_length = -1
+    config.rollback_length = 0
 
     # Game may bug out on saving, in such case, comment should be removed
     # config.use_cpickle = False
@@ -164,7 +164,7 @@ init -5 python hide:
         ## The background of the game menu. This can be a color
         ## beginning with '#', or an image filename. The latter
         ## should take up the full height and width of the screen.
-        gm_root = "content/gfx/bg/gallery.webp",
+        # gm_root = "content/gfx/bg/gallery.webp",
 
         ## If this is True, the in-game window is rounded. If False,
         ## the in-game window is square.

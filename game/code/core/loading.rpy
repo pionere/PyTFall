@@ -850,3 +850,68 @@ init -11 python:
                 content[s.name] = s
 
         return content
+
+    def start_image_predicition():
+        """
+        main_menu_predict = ["content/gfx/bg/main.webp",
+                             "content/gfx/animations/main_menu/cloud1.webp",
+                             "content/gfx/animations/main_menu/fire1.webp",
+                             "content/gfx/animations/main_menu/fog1.webp",
+                             "content/gfx/interface/icons/credits/dark_hole_idle.png",
+                             "content/gfx/interface/icons/credits/dark_hole_hover.png",
+                             "content/gfx/interface/icons/credits/x_hole_idle.png",
+                             "content/gfx/interface/icons/credits/x_hole_hover.png",
+                             "content/gfx/interface/icons/credits/patreonlogoorange.png",
+                             "content/gfx/interface/buttons/main1.png",
+                             "content/gfx/interface/buttons/flashing2.png",
+                             "content/gfx/animations/main_menu/eyes/eyes*.webp",
+                             "content/gfx/animations/main_menu/anim_logo/logo*.webp"]
+        renpy.start_predict(*main_menu_predict)
+
+        game_prefs_predict = ["content/gfx/interface/buttons/s_menu2.png",
+                              "content/gfx/interface/buttons/s_menu2h.png"]
+        renpy.start_predict(*game_prefs_predict)
+        """        
+        #main_img_predict = [item for sl in (("".join(["content/gfx/bg/locations/map_buttons/gismo/", key, ".webp"]),
+        #                    "".join(["content/gfx/bg/locations/map_buttons/gismo/", key, "_hover.webp"]),
+        #                    "".join(["content/gfx/interface/buttons/locations/", key, ".png"]))
+        #                      for key in (i["id"] for i in pytfall.maps("pytfall")))
+        #                    for item in sl]
+        main_img_predict = ("bg gallery",
+                            "bg pytfall",
+                            "hearts_flow",
+                            "shy_blush",
+                            "hearts_rise",
+                            "music_note",
+                            "content/gfx/frame/h2.webp",
+                            "content/gfx/frame/p_frame.png",
+                            "content/gfx/frame/rank_frame.png",
+                            "content/gfx/frame/frame_ap.webp",
+                            "content/gfx/frame/window_frame2.webp",
+                            "content/gfx/images/m_1.webp",
+                            "content/gfx/images/m_2.webp",
+                            #"content/gfx/images/fishy.png",
+                            "content/gfx/interface/icons/exp.webp",
+                            "content/gfx/interface/icons/gold.png",
+                            "content/gfx/interface/icons/win_icon.png",
+                            "content/gfx/interface/images/work.webp",
+                            "content/gfx/interface/images/money_bag3.png",
+                            "content/gfx/interface/buttons/compass.png",
+                            "content/gfx/interface/buttons/IT2.png",
+                            "content/gfx/interface/buttons/sl_idle.png",
+                            "content/gfx/interface/buttons/journal1.png",
+                            "content/gfx/interface/buttons/MS.png",
+                            "content/gfx/interface/buttons/profile.png",
+                            "content/gfx/interface/buttons/preference.png",
+                            "content/gfx/interface/buttons/save.png",
+                            "content/gfx/interface/buttons/load.png",
+                            "content/gfx/interface/buttons/blue3.png",
+                            "content/gfx/interface/buttons/locations/*.png",
+                            "content/gfx/bg/locations/map_buttons/gismo/*.webp")
+
+        # for i in store.items.values():
+        #     main_img_predict.append(i.icon)
+        renpy.start_predict(*main_img_predict)
+
+        for scr in ("city_screen", "chars_list", "top_stripe"):
+            renpy.start_predict_screen(scr)

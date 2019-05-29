@@ -1024,10 +1024,11 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
             hbox:
                 align .5, .0
                 xsize xs-10
+                $ temp = ProportionalScale("content/gfx/interface/buttons/discard.png", 22, 22)
                 imagebutton:
-                    xalign 0
-                    idle ("content/gfx/interface/buttons/discard.png")
-                    hover ("content/gfx/interface/buttons/discard_h.png")
+                    align 0, .5
+                    idle temp
+                    hover im.MatrixColor(temp, im.matrix.brightness(0.15))
                     action Return(["item", "discard"])
                     tooltip "Discard item"
                 frame:
@@ -1035,10 +1036,11 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                     xysize (439, 35)
                     background Transform(Frame(im.MatrixColor("content/gfx/frame/p_frame5.png", im.matrix.brightness(-0.05)), 10, 10), alpha=.9)
                     label ('[item.id]') text_color "gold" align .5, .5 text_size 19 text_outlines [(1, "black", 0, 0)] text_style "interactions_text"
+                $ temp = ProportionalScale("content/gfx/interface/buttons/close4.png", 20, 20)
                 imagebutton:
-                    xalign 1.0
-                    idle ("content/gfx/interface/buttons/close3.png")
-                    hover ("content/gfx/interface/buttons/close3_h.png")
+                    align .98, .5
+                    idle temp
+                    hover im.MatrixColor(temp, im.matrix.brightness(0.15))
                     action Return(['con', 'return'])
                     tooltip "Close item info"
 
@@ -1270,10 +1272,11 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                                         tooltip "Show the outfit"
                                         
                                     text str(v["name"]) underline (focusoutfit == v) style "pb_button_text"
+                                $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 16, 16)
                                 imagebutton:
                                     align (.0, .0)
-                                    idle im.Scale("content/gfx/interface/buttons/edit.png", 16, 20)
-                                    hover im.Scale("content/gfx/interface/buttons/edit_h.png", 16, 20)
+                                    idle temp
+                                    hover im.MatrixColor(temp, im.matrix.brightness(.15))
                                     focus_mask True
                                     action Return(["outfit", "rename", v])
                                     tooltip "Rename the outfit"

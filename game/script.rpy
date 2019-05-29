@@ -15,6 +15,8 @@ init 100 python:
 
     load_aeq_purposes()
 
+    start_image_predicition()
+
 default defeated_mobs = set()
 default gazette = Gazette()
 

@@ -15,32 +15,6 @@ label mainscreen:
     # Prediction Helpers:
     # TODO lt: Stop predictions when we've moved to far away from the images!
     python hide:
-        main_img_predict = [item for sl in (("".join(["content/gfx/bg/locations/map_buttons/gismo/", key, ".webp"]),
-                            "".join(["content/gfx/bg/locations/map_buttons/gismo/", key, "_hover.webp"]),
-                            "".join(["content/gfx/interface/buttons/locations/", key, ".png"]))
-                              for key in (i["id"] for i in pytfall.maps("pytfall")))
-                            for item in sl]
-        main_img_predict.extend(("bg gallery",
-                                 "content/gfx/frame/h2.webp",
-                                 "content/gfx/frame/p_frame.png",
-                                 "content/gfx/frame/rank_frame.png",
-                                 "content/gfx/images/m_1.webp",
-                                 "content/gfx/images/m_2.webp",
-                                 "content/gfx/images/fishy.png",
-                                 "content/gfx/interface/buttons/compass.png",
-                                 #"content/gfx/interface/buttons/IT2.png",
-                                 "content/gfx/interface/buttons/sl_idle.png",
-                                 "content/gfx/interface/icons/exp.webp",
-                                 "content/gfx/interface/icons/gold.png",
-                                 "content/gfx/interface/images/work.webp"))
-        # for i in store.items.values():
-        #     main_img_predict.append(i.icon)
-        renpy.start_predict(*main_img_predict)
-
-        main_scr_predict = ["city_screen", "chars_list"]
-        for scr in main_scr_predict:
-            renpy.start_predict_screen(scr)
-
         pytfall.world_quests.run_quests("auto") # Run active quests
         pytfall.world_events.run_events("auto") # Run current events
 

@@ -285,15 +285,16 @@ screen chars_list():
 
                     # Add to Group Button:
                     if available:
+                        if c in chars_list_state.the_chosen:
+                            $ img = "content/gfx/interface/icons/checkbox_checked.png"
+                        else:
+                            $ img = "content/gfx/interface/icons/checkbox_unchecked.png"
                         button:
                             style_group "basic"
                             xysize (25, 25)
                             align 1.0, 1.0 offset 9, -2
                             action ToggleSetMembership(chars_list_state.the_chosen, c)
-                            if c in chars_list_state.the_chosen:
-                                add(im.Scale('content/gfx/interface/icons/checkbox_checked.png', 25, 25)) align .5, .5
-                            else:
-                                add(im.Scale('content/gfx/interface/icons/checkbox_unchecked.png', 25, 25)) align .5, .5
+                            add im.Scale(img, 25, 25) align .5, .5
                             tooltip 'Select the character'
 
         # Paging:

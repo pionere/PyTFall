@@ -247,8 +247,12 @@ init -1 python: # Core classes:
             self.logical_counter = 0
 
             if not logical:
+                self.predict = []
                 # Background we'll use.
                 if bg:
+                    self.predict.append(bg)
+                    renpy.start_predict(bg)
+
                     if isinstance(bg, basestring):
                         if check_image_extension(bg):
                             bg = Image(bg)
@@ -612,10 +616,10 @@ init -1 python: # Core classes:
             self.end_battle()
 
         def start_battle(self):
-
             self.prepare_teams()
 
             if not self.logical:
+                self.predict_battle_skills()
 
                 renpy.maximum_framerate(60)
 
@@ -632,7 +636,7 @@ init -1 python: # Core classes:
                     for member in team:
                         member.portrait = member.char.show('portrait', resize=(112, 112), cache=True)
                         member.angry_portrait = member.char.show("portrait", "angry", resize=(65, 65), type='reduce', cache=True)
-                        self.show_char(member, at_list=[Transform(pos=self.get_icp(team, member))])
+                        self.show_char(member, at_list=[Transform(pos=self.set_icp(team, member))])
 
                 renpy.show("bg", what=self.bg)
                 renpy.show_screen("battle_overlay", self)
@@ -704,6 +708,8 @@ init -1 python: # Core classes:
                                "outlines": [(1, "cyan", 0, 0)]}
                     gfx_overlay.notify("You Lose!", tkwargs=tkwargs)
 
+                renpy.stop_predict(*self.predict)
+
                 renpy.pause(1.0*persistent.battle_speed) # Small pause before terminating the engine.
 
                 renpy.scene(layer='screens')
@@ -752,8 +758,8 @@ init -1 python: # Core classes:
                 self.queue = l
             return self.queue.pop()
 
-        def get_icp(self, team, member):
-            """Get Initial Character Position
+        def set_icp(self, team, member):
+            """Set Initial Character Position
 
             Basically this is what sets the characters up at the start of the battle-round.
             Returns initial position of the character based on row/team!
@@ -787,6 +793,9 @@ init -1 python: # Core classes:
                         sprite = im.Flip(sprite, horizontal=True)
                     else:
                         sprite = Transform(sprite, xzoom=-1)
+
+            renpy.start_predict(sprite)
+            self.predict.append(sprite)
 
             member.set_besprite(sprite)
 
@@ -940,6 +949,43 @@ init -1 python: # Core classes:
         def get_all_events(self):
             return itertools.chain(self.start_turn_events, self.mid_turn_events, self.end_turn_events)
 
+        def predict_battle_skills(self):
+            # Auto-Prediction:
+            skills = set()
+            for team in self.teams:
+                for fighter in team:
+                    for skill in chain(fighter.attack_skills, fighter.magic_skills):
+                        skills.add(skill)
+
+
+            force_predict = set()
+            for skill in skills:
+                gfx = skill.main_effect.get("gfx", None)
+                force_predict.add(gfx)
+                gfx = skill.main_effect.get("predict", [])
+                for i in gfx:
+                    force_predict.add(i)
+                gfx = skill.target_sprite_damage_effect.get("gfx", None)
+                force_predict.add(gfx)
+                gfx = skill.attacker_effects.get("gfx", None)
+                force_predict.add(gfx)
+                gfx = getattr(skill, "projectile_effects", {}).get("gfx", None)
+                force_predict.add(gfx)
+                gfx = getattr(skill, "firing_effects", {}).get("gfx", None)
+                force_predict.add(gfx)
+                #gfx = skill.attacker_action.get("gfx", None)
+                #gfx = skill.dodge_effect.get("gfx", None)
+                #gfx = skill.target_damage_effect.get("gfx", None)
+                #gfx = skill.target_death_effect.get("gfx", None)
+                #gfx = skill.bg_main_effect.get("gfx", None)
+                # PoisonEvent."poison_2", "content/gfx/be/poison1.webp"
+                # DefenceBuffSpell.defence_gfx, buff_icon
+            force_predict.discard(None)
+            force_predict.discard("")
+            force_predict = list(force_predict)
+
+            renpy.start_predict(*force_predict)
+            self.predict.extend(force_predict)
 
     class BE_Event(_object):
         """
@@ -1513,12 +1559,6 @@ init -1 python: # Core classes:
 
             Through complex system currently in design we handle showing gfx/hiding gfx and managing sfx (also here).
             """
-            # Try to predict the images:
-            if self.attacker_effects["gfx"]:
-                renpy.start_predict(self.get_attackers_first_effect_gfx())
-            if self.main_effect["gfx"]:
-                renpy.start_predict(self.get_main_gfx())
-
             # Simple effects for the magic attack:
             attacker = self.source
             battle = store.battle
@@ -1592,11 +1632,6 @@ init -1 python: # Core classes:
                 # devlog.info("Leaving iteration at: {}".format(round(time.time()-st, 2)))
 
             self.timestamps = {}
-            # Try to predict the images:
-            if self.attacker_effects["gfx"]:
-                renpy.stop_predict(self.get_attackers_first_effect_gfx())
-            if self.main_effect["gfx"]:
-                renpy.stop_predict(self.get_main_gfx())
 
         def time_attackers_first_action(self, battle, attacker):
             # Lets start with the very first part (attacker_action):

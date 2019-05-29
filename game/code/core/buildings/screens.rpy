@@ -551,7 +551,7 @@ screen building_management_leftframe_building_mode:
                                 action Return(["bm_mid_frame_mode", u])
 
                         if u.can_close():
-                            $ temp = ProportionalScale("content/gfx/interface/buttons/close4.png", 20, 24)
+                            $ temp = ProportionalScale("content/gfx/interface/buttons/close4.png", 20, 20)
                             imagebutton:
                                 align 1.0, 0 offset 2, -2
                                 idle temp

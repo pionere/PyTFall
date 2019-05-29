@@ -617,7 +617,7 @@ screen building_management_midframe_exploration_guild_mode:
                             action Show("exploration_team", None, t)
                             tooltip "Configure"
                         # Dissolve the team:
-                        $ img = im.Scale("content/gfx/interface/buttons/close4.png", 20, 20)
+                        $ img = ProportionalScale("content/gfx/interface/buttons/close4.png", 20, 20)
                         button:
                             background img
                             hover_background im.MatrixColor(img, im.matrix.brightness(.15))
@@ -971,11 +971,8 @@ screen building_management_rightframe_exploration_guild_mode:
                                     action Show("show_item_info", item=i)
                                 $ temp = ProportionalScale("content/gfx/interface/buttons/close4.png", 16, 16)
                                 imagebutton:
-                                    #align 1.0, 0
                                     align 1.0, 0 offset 2, -2
-                                    #yoffset -4
                                     idle temp
-                                    #hover ProportionalScale("content/gfx/interface/buttons/close4_h.png", 20, 24)
                                     hover im.MatrixColor(temp, im.matrix.brightness(.15))
                                     action Function(area.found_items.pop, i.id)
                                     tooltip "Remove item from the list\n(resets its counter as well)"
@@ -1057,10 +1054,12 @@ screen exploration_team(team):
             hbox:
                 spacing 2
                 xalign .5
-                label "[team.name]" xalign .5 text_color "#CDAD00" text_size 30
+                label "[team.name]" align .5, .5 text_color "#CDAD00" text_size 30
+                $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 24, 24)
                 imagebutton:
-                    idle im.Scale("content/gfx/interface/buttons/edit.png", 24, 30)
-                    hover im.Scale("content/gfx/interface/buttons/edit_h.png", 24, 30)
+                    align .6, .05
+                    idle temp
+                    hover im.MatrixColor(temp, im.matrix.brightness(.15))
                     action Return(["fg_team", "rename", team])
                     tooltip "Rename the team"
 
@@ -1088,8 +1087,6 @@ screen exploration_team(team):
                         align .5, .5
                         style "basic_choice2_button"
                         idle img
-                        hover img
-                        selected_idle Transform(img, alpha=1.05)
                         action None
 
                     $ img = ProportionalScale("content/gfx/interface/buttons/row_switch.png", 40, 20)
@@ -1100,7 +1097,6 @@ screen exploration_team(team):
                         align (0, 1.0)
                         idle Transform(img, alpha=.9)
                         hover Transform(img, alpha=1.05)
-                        insensitive im.Sepia(img)
                         action ToggleField(member, "front_row", true_value=1, false_value=0)
                         tooltip "Toggle between rows in battle, currently character fights from the %s row" % ("front" if member.front_row else "back")
 
@@ -1110,7 +1106,6 @@ screen exploration_team(team):
                             align (1.0, 1.0)
                             idle Transform(img, alpha=.9)
                             hover Transform(img, alpha=1.0)
-                            insensitive im.Sepia(img)
                             action [Hide("exploration_team"), SetVariable("came_to_equip_from", last_label), SetVariable("char", member),
                                     SetVariable("eqtarget", member), SetVariable("equip_girls", team._members), Jump("char_equip")]
                             tooltip "Check equipment"
@@ -1125,13 +1120,13 @@ screen exploration_team(team):
                         xysize 158, 25
                         xalign .5
                         text "{=TisaOTMolxm}[member.name]" xalign .06
-                        if not member == hero:
-                            imagebutton:
-                                xalign .92
-                                idle ProportionalScale("content/gfx/interface/buttons/close4.png", 24, 30)
-                                hover ProportionalScale("content/gfx/interface/buttons/close4_h.png", 24, 30)
-                                action Return(["fg_team", "remove", team, member])
-                                tooltip "Remove %s from %s"%(member.nickname, team.name)
+                        $ temp = ProportionalScale("content/gfx/interface/buttons/close4.png", 20, 20)
+                        imagebutton:
+                            xalign .92
+                            idle temp
+                            hover im.MatrixColor(temp, im.matrix.brightness(.15))
+                            action Return(["fg_team", "remove", team, member])
+                            tooltip "Remove %s from %s" % (member.nickname, team.name)
 
                     # HP:
                     fixed:

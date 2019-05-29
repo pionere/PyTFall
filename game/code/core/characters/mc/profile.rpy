@@ -502,9 +502,10 @@ screen hero_team():
                 spacing 2
                 xalign .5
                 label "[hero.team.name]" xalign .5 text_color "#CDAD00" text_size 30
+                $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 24, 24)
                 imagebutton:
-                    idle im.Scale("content/gfx/interface/buttons/edit.png", 24, 30)
-                    hover im.Scale("content/gfx/interface/buttons/edit_h.png", 24, 30)
+                    idle temp
+                    hover im.MatrixColor(temp, im.matrix.brightness(.15))
                     action Return(["rename_team", "set_name"]), With(dissolve)
                     tooltip "Rename the team"
 
@@ -531,8 +532,6 @@ screen hero_team():
                         align .5, .5
                         style "basic_choice2_button"
                         idle img
-                        hover img
-                        selected_idle Transform(img, alpha=1.05)
                         action None
 
                     $ img = ProportionalScale("content/gfx/interface/buttons/row_switch.png", 40, 20)
@@ -543,7 +542,6 @@ screen hero_team():
                         align (0, 1.0)
                         idle Transform(img, alpha=.9)
                         hover Transform(img, alpha=1.05)
-                        insensitive im.Sepia(img)
                         action ToggleField(member, "front_row", true_value=1, false_value=0)
                         tooltip "Toggle between rows in battle, currently character fights from the %s row" % ("front" if member.front_row else "back")
 
@@ -553,7 +551,6 @@ screen hero_team():
                             align (1.0, 1.0)
                             idle Transform(img, alpha=.9)
                             hover Transform(img, alpha=1.0)
-                            insensitive im.Sepia(img)
                             action If(member.is_available, true=[Hide("hero_profile"),
                                                                       Hide("hero_team"),
                                                                       SetVariable("girls", [member]),
@@ -574,10 +571,11 @@ screen hero_team():
                         xalign .5
                         text "{=TisaOTMolxm}[member.name]" xalign .06
                         if not member == hero:
+                            $ temp = ProportionalScale("content/gfx/interface/buttons/close4.png", 20, 20)
                             imagebutton:
                                 xalign .92
-                                idle ProportionalScale("content/gfx/interface/buttons/close4.png", 24, 30)
-                                hover ProportionalScale("content/gfx/interface/buttons/close4_h.png", 24, 30)
+                                idle temp
+                                hover im.MatrixColor(temp, im.matrix.brightness(.15))
                                 action Return(["remove_from_team", member])
                                 tooltip "Remove %s from %s"%(member.nickname, hero.team.name)
 

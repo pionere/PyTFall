@@ -195,10 +195,11 @@ screen quest_notifications(q, type, align=None, autohide=2.5):
             align .5, .5
             text q align .5, .5 style "TisaOTM" size 25
 
+            $ temp = ProportionalScale("content/gfx/interface/buttons/close4.png", 22, 22)
             imagebutton:
                 align 1.005, -.03
-                idle "content/gfx/interface/buttons/close3.png"
-                hover "content/gfx/interface/buttons/close3_h.png"
+                idle temp
+                hover im.MatrixColor(temp, im.matrix.brightness(0.15))
                 action Hide("quest_notifications"), With(dissolve)
 
         add ProportionalScale("content/gfx/interface/images/quest.png", 170, 120) pos (100, 0)

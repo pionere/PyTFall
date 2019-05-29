@@ -1,7 +1,7 @@
 init python:
     def appearing_for_city_map(mode="hide"):
         for key in pytfall.maps("pytfall"):
-            if not key.get("hidden", False) and key.get("appearing", False):
+            if key.get("appearing", False) and not key.get("hidden", False):
                 idle_img = "".join(["content/gfx/bg/locations/map_buttons/gismo/", key["id"], ".webp"])
                 if mode == "show":
                     appearing_img = Appearing(idle_img, 50, 200, start_alpha=.1)
@@ -21,7 +21,6 @@ label city:
     with dissolve
 
     while 1:
-
         $ result = ui.interact()
 
         if result[0] == 'control':
@@ -45,6 +44,7 @@ screen city_screen():
     # Keybind as we don't use the topstripe here anymore:
     key "mousedown_3" action Return(['control', 'return'])
 
+    default maps = pytfall.maps("pytfall")
     default loc_list = ["main_street", "arena_outside", "slave_market", "city_jail", "tavern_town",
                         "city_parkgates", "academy_town", "mages_tower", "village_town",
                         "graveyard_town", "city_beach", "forest_entrance", "hiddenvillage_entrance"]
@@ -52,15 +52,17 @@ screen city_screen():
 
     add "content/gfx/images/m_1.webp" align (1.0, .0)
 
-    for key in pytfall.maps("pytfall"):
+    $ prefix = "content/gfx/bg/locations/map_buttons/gismo/"
+    for key in maps:
         if not key.get("hidden", False):
+            $ keyid = key["id"]
             # Resolve images + Add Appearing where appropriate:
-            $ idle_img = "".join(["content/gfx/bg/locations/map_buttons/gismo/", key["id"], ".webp"])
+            $ idle_img = "".join([prefix, keyid, ".webp"])
             if key.get("appearing", False):
                 $ hover_img = im.MatrixColor(idle_img, im.matrix.brightness(.08))
                 $ idle_img = Transform(idle_img, alpha=.01)
             else:
-                $ hover_img = "".join(["content/gfx/bg/locations/map_buttons/gismo/", key["id"], "_hover.webp"])
+                $ hover_img = "".join([prefix, keyid, "_hover.webp"])
             if "pos" in key:
                 $ pos = key["pos"]
             else:
@@ -70,9 +72,11 @@ screen city_screen():
                 pos pos
                 idle_background idle_img
                 hover_background hover_img
+                selected selected == keyid
+                selected_background hover_img
                 focus_mask True
                 tooltip key["name"]
-                action Return(['location', key["id"]])
+                action Return(['location', keyid])
                 alternate Return(['control', 'return'])
 
     add "content/gfx/frame/h2.webp"
@@ -87,29 +91,34 @@ screen city_screen():
     hbox:
         pos (979, 4)
         spacing 4
+        $ img = im.Scale("content/gfx/interface/buttons/journal1.png", 36, 40)
         imagebutton:
-            idle im.Scale("content/gfx/interface/buttons/journal1.png", 36, 40)
-            hover im.MatrixColor(im.Scale("content/gfx/interface/buttons/journal1.png", 36, 40), im.matrix.brightness(.15))
+            idle img
+            hover im.MatrixColor(img, im.matrix.brightness(.15))
             tooltip "Quest Journal"
             action ShowMenu("quest_log")
+        $ img = im.Scale("content/gfx/interface/buttons/MS.png", 38, 37)
         imagebutton:
-            idle im.Scale("content/gfx/interface/buttons/MS.png", 38, 37)
-            hover im.MatrixColor(im.Scale("content/gfx/interface/buttons/MS.png", 38, 37), im.matrix.brightness(.15))
+            idle img
+            hover im.MatrixColor(img, im.matrix.brightness(.15))
             action Return(["control", "return"])
             tooltip "Return to Main Screen"
+        $ img = im.Scale("content/gfx/interface/buttons/profile.png", 35, 40)
         imagebutton:
-            idle im.Scale("content/gfx/interface/buttons/profile.png", 35, 40)
-            hover im.MatrixColor(im.Scale("content/gfx/interface/buttons/profile.png", 35, 40), im.matrix.brightness(.15))
+            idle img
+            hover im.MatrixColor(img, im.matrix.brightness(.15))
             action [SetField(pytfall.hp, "came_from", last_label), Hide(renpy.current_screen().tag), Jump("hero_profile")]
             tooltip "View Hero Profile"
+        $ img = im.Scale("content/gfx/interface/buttons/save.png", 40, 40)
         imagebutton:
-            idle im.Scale("content/gfx/interface/buttons/save.png", 40, 40)
-            hover im.MatrixColor(im.Scale("content/gfx/interface/buttons/save.png", 40, 40), im.matrix.brightness(.15))
+            idle img
+            hover im.MatrixColor(img, im.matrix.brightness(.15))
             tooltip "QuickSave"
             action QuickSave()
+        $ img = im.Scale("content/gfx/interface/buttons/load.png", 38, 40)
         imagebutton:
-            idle im.Scale("content/gfx/interface/buttons/load.png", 38, 40)
-            hover im.MatrixColor(im.Scale("content/gfx/interface/buttons/load.png", 38, 40), im.matrix.brightness(.15))
+            idle img
+            hover im.MatrixColor(img, im.matrix.brightness(.15))
             tooltip "QuickLoad"
             action QuickLoad()
 
@@ -147,15 +156,17 @@ screen city_screen():
             child_size (170, 1000)
             has vbox style_group "dropdown_gm2" spacing 2
             $ prefix = "content/gfx/interface/buttons/locations/"
-            for loc in pytfall.maps("pytfall"):
-                if loc["id"] in loc_list and not key.get("hidden", False):
-                    button:
+            for key in maps:
+                $ keyid = key["id"]
+                if keyid in loc_list and not key.get("hidden", False):
+                    imagebutton:
                         xysize (160, 28)
-                        idle_background Frame(im.MatrixColor(prefix + loc["id"] + ".png", im.matrix.brightness(.10)), 5, 5)
-                        hover_background Frame(im.MatrixColor(prefix + loc["id"] + "_hover.png", im.matrix.brightness(.15)), 5, 5)
-                        hovered SetScreenVariable("selected", loc["id"])
+                        background Frame("".join([prefix, keyid, ".png"]), 5, 5)
+                        idle Null()
+                        hover Frame("content/gfx/interface/buttons/f1.png", -8, -8)
+                        hovered SetScreenVariable("selected", keyid)
                         unhovered SetScreenVariable("selected", None)
-                        action Return(['location', loc["id"]])
-                        tooltip loc['name']
+                        action Return(['location', keyid])
+                        #tooltip key['name']
 
         vbar value YScrollValue("locations")
