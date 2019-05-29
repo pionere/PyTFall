@@ -745,12 +745,24 @@ screen building_management_leftframe_businesses_mode:
                         frame:
                             align .5, .5
                             background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.95), 10, 10)
-                            imagebutton:
+                            fixed:
                                 xysize entry_size
-                                idle img
-                                hover (im.MatrixColor(img, im.matrix.brightness(.15)))
-                                action NullAction()
-                                tooltip desc
+                                imagebutton:
+                                    #xysize entry_size
+                                    idle img
+                                    hover (im.MatrixColor(img, im.matrix.brightness(.15)))
+                                    action NullAction()
+                                    tooltip desc
+                                $ temp = ProportionalScale("content/gfx/interface/buttons/close4.png", 16, 16)
+                                imagebutton:
+                                    align 1.0, 0 offset 2, -2
+                                    idle temp
+                                    hover im.MatrixColor(temp, im.matrix.brightness(.15))
+                                    action Show("yesno_prompt",
+                                                message="Are you sure you wish to remove the %s for %d Gold?" % (u.name, u.get_cost()[0]),
+                                                yes_action=[Function(bm_mid_frame_mode.remove_upgrade, u), Hide("yesno_prompt")], no_action=Hide("yesno_prompt"))
+                                    tooltip "Remove upgrade"
+
                 # Under construction
                 $ uc_img = im.Scale("content/gfx/images/under_construction.webp", 60, 40)
                 for icu in bm_mid_frame_mode.in_construction_upgrades:

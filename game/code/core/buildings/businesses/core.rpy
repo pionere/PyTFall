@@ -104,9 +104,9 @@ init -12 python:
 
         # Business MainUpgrade related:
         def build_upgrade(self, upgrade):
+            cost, materials, in_slots, ex_slots = upgrade.get_cost()
             building = self.building
 
-            cost, materials, in_slots, ex_slots = upgrade.get_cost()
             self.in_slots += in_slots
             building.in_slots += in_slots
             self.ex_slots += ex_slots
@@ -123,10 +123,26 @@ init -12 python:
 
         def add_upgrade(self, upgrade):
             upgrade.building = self.building
-            upgrade.business = self
+            #upgrade.business = self
             self.upgrades.append(upgrade)
             self.upgrades.sort(key=attrgetter("ID"), reverse=True)
             self.job_effectiveness_mod += getattr(upgrade, "job_effectiveness_mod", 0)
+
+        def remove_upgrade(self, upgrade):
+            renpy.play("content/sfx/sound/world/purchase_1.ogg")
+
+            cost, materials, in_slots, ex_slots = upgrade.get_cost()
+            building = self.building
+
+            self.in_slots -= in_slots
+            building.in_slots -= in_slots
+            self.ex_slots -= ex_slots
+            building.ex_slots -= ex_slots
+
+            building.pay_for_extension(cost, None)
+
+            self.upgrades.remove(upgrade)
+            self.job_effectiveness_mod -= getattr(upgrade, "job_effectiveness_mod", 0)
 
         def all_possible_extensions(self):
             # Named this was to conform to GUI (same as for Buildings)
