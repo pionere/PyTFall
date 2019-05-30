@@ -13,7 +13,7 @@ label interactions_kiss:
                 $ hero.gfx_mod_stat("joy", -randint(0, 1))
         else:
             $ del m
-            call interactions_lesbian_refuse_because_of_gender from _call_interactions_lesbian_refuse_because_of_gender
+            call interactions_refuse_because_of_gender from _call_interactions_refuse_because_of_gender
         jump girl_interactions
 
     $ n = 2 + interactions_set_repeating_lines_limit(char)

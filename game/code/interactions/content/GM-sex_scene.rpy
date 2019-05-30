@@ -193,4 +193,3 @@ init python:
         if not(result):
             result=choice(skills)
         return result
-

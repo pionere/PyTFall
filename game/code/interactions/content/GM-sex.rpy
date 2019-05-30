@@ -161,7 +161,7 @@ label interactions_sex: # we go to this label from GM menu propose sex
 
     if interactions_gender_mismatch(char):
         if char.status != "slave":
-            call interactions_lesbian_refuse_because_of_gender from _call_interactions_lesbian_refuse_because_of_gender_2 # you can hire them, but they will never do it for free with wrong orientation
+            call interactions_refuse_because_of_gender from _call_interactions_refuse_because_of_gender_2 # you can hire them, but they will never do it for free with wrong orientation
             jump girl_interactions
         $ gender_disagreement = True
     else:

@@ -489,8 +489,9 @@ label interactions_after_virginity_was_taken: # right after removing virgin trai
     $ char.restore_portrait()
     return
 
-label interactions_lesbian_refuse_because_of_gender: # for lesbians, when they refuse lover or sex propositions
-        $ char.override_portrait("portrait", "indifferent") # obviously will be needed alternative for female MC
+label interactions_refuse_because_of_gender:
+    $ char.override_portrait("portrait", "indifferent") # obviously will be needed alternative for female MC
+    if hero.gender == "male":
         if ct("Impersonal"):
             $ rc("Opposite sex... Dismissed.", "You are a male. Denied.")
         elif ct("Shy"):
@@ -513,8 +514,32 @@ label interactions_lesbian_refuse_because_of_gender: # for lesbians, when they r
             $ rc("I have no interest in men.", "Eww. I prefer girls, is it clear?", "Because you're a guy, no.")
         else:
             $ rc("Sorry. I'm weird, so... I'm not into guys.", "Well, I kinda prefer girls... If you know what I mean.", "If you were a girl... it'd be alright, but...")
-        $ char.restore_portrait()
-        return
+    else:
+        if ct("Impersonal"):
+            $ rc("Opposite sex... Dismissed.", "You are a female. Denied.")
+        elif ct("Shy"):
+            $ rc("Ah, I'm sorry, I can't do that with a girl...", "Um, I-I like boys... Sorry!")
+        elif ct("Imouto"):
+            $ rc("If you were a boy...it'd be alright, but...", "I don't really like girls... So no.")
+        elif ct("Dandere"):
+            $ rc("Gals are...not for me.", "Wrong gender. Consider changing it.", "I turn down anyone who's not a boy.")
+        elif ct("Kuudere"):
+            $ rc("Women for me are...well...", "I'm afraid women are not attractive to me.", "Doing that with a woman is... a bit...")
+        elif ct("Tsundere"):
+            $ rc("Hmph. And that's why I don't like women.", "Ugh, not again... I like boys, understood?", "Huh? You're a gal, so no way!")
+        elif ct("Bokukko"):
+            $ rc("Ew, don't wanna. You're a gal.", "Nah, I'm not interested in girls. Do you have a brother, by the way?", "Aah, I'm straight, y'know.")
+        elif ct("Ane"):
+            $ rc("My apologies, I'm straight.", "I'm terribly sorry, but... I can't do that with a woman.")
+        elif ct("Yandere"):
+            $ rc("Sorry, I only like boys.", "I dislike women, nothing personal.", "I... I can't do women.")
+        elif ct("Kamidere"):
+            $ rc("I have no interest in women.", "Eww. I prefer boys, is it clear?", "Because you're a gal, no.")
+        else:
+            $ rc("Sorry. I'm weird, so... I'm not into gals.", "Well, I kinda prefer boys... If you know what I mean.", "If you were a boy... it'd be alright, but...")
+
+    $ char.restore_portrait()
+    return
 
 label interactions_refused_because_tired: # a universal answer for tired characters, when they don't want to do something
     $ char.override_portrait("portrait", "tired")

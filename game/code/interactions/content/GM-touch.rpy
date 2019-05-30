@@ -134,7 +134,7 @@ label interactions_grabbutt:
                 $ hero.gfx_mod_stat("joy", -randint(0, 1))
         else:
             $ del m
-            call interactions_lesbian_refuse_because_of_gender from _call_interactions_lesbian_refuse_because_of_gender_3
+            call interactions_refuse_because_of_gender from _call_interactions_refuse_because_of_gender_3
         jump girl_interactions
 
     $ n = 2 + interactions_set_repeating_lines_limit(char)
@@ -274,7 +274,7 @@ label interactions_grabbreasts:
                 $ hero.gfx_mod_stat("joy", -randint(0, 1))
         else:
             $ del m
-            call interactions_lesbian_refuse_because_of_gender from _call_interactions_lesbian_refuse_because_of_gender_4
+            call interactions_refuse_because_of_gender from _call_interactions_refuse_because_of_gender_4
         jump girl_interactions
 
     $ n = 2 + interactions_set_repeating_lines_limit(char)

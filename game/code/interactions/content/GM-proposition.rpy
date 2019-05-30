@@ -168,7 +168,7 @@ label interactions_girlfriend:
         jump girl_interactions
     $ del m
     if interactions_gender_mismatch(char, just_sex=False):
-        call interactions_lesbian_refuse_because_of_gender from _call_interactions_lesbian_refuse_because_of_gender_1
+        call interactions_refuse_because_of_gender from _call_interactions_refuse_because_of_gender_1
         jump girl_interactions
     $ l_ch = 0
     if ct("Shy"):
