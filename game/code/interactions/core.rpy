@@ -192,7 +192,7 @@ init -1 python:
 
         def get_image_tags(self):
             if isinstance(self.img, basestring):
-                return TagDatabase.get_image_tags(self.img)
+                return tagdb.get_image_tags(self.img)
             else:
                 return self.img.get_image_tags()
 

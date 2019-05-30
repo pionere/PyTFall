@@ -6,68 +6,54 @@ init -9 python:
         sample entry of self.tagmap:
         tag : set([relative path to image 1, relative path to image 2, ...])
         '''
-        @staticmethod
-        def get_image_tags(image_path):
-            """Returns a list of tags bound to the image.
-            """
-            image_name = image_path.split(os.sep)[-1]
-            image_name_base = image_name.split(".")[0]
-            obfuscated_tags = image_name_base.split("-")[1:]
-            return [tags_dict[tag] for tag in obfuscated_tags]
-
         def __init__(self):
             # maps image tags to sets of image paths
+            tags_dict = load_db_json("image_tags.json")
+            tags_dict = {k:v for g in [group["tags"] for group in tags_dict.values()] for k, v in g.iteritems()}
+            #all_tags = [v for g in [group["tags"] for group in tags_dict.values()] for v in g.values()]
             all_tags = tags_dict.values()
 
+            self.tags_dict = tags_dict
             self.all_tags = set(all_tags)
             self.tagmap = {tag: set() for tag in all_tags}
 
             # stores relative paths to untagged images
             self.untagged = set()
 
-        # add images with or without tags to the database
-        #-----------------------------------
-        def add_image(self, relpath, tags=[]): # Not Used:
-            '''Adds the image at relpath to the database.
+        def load_tags_folder(self, folder, path):
+            img_set = set()
+            tags_dict = self.tags_dict
+            tagmap = self.tagmap
+            for fn in os.listdir(path):
+                if not check_image_extension(fn):
+                    continue
+                # Add filename to girls id:
+                img_set.add(fn)
 
-            If tags is defined, it must be an iterable containing strings.
-            If tags is not defined, the image will be added to the set of
-            untagged images.
-            '''
-            assert isinstance(relpath, basestring) or isinstance(relpath, unicode)
-            if tags is []:
-                self.untagged.add(relpath)
-            else:
-                for t in tags:
-                    self.add_tag(t, relpath)
-
-        def add_tag(self, tag, relpath): # Not Used:
-            '''Stores the tag for the image at relpath in the database.
-            '''
-            assert isinstance(tag, basestring) or isinstance(tag, unicode)
-            try:
-                imgpathset = self.tagmap[tag]
-            except KeyError:
-                self.tagmap[tag] = set()
-                imgpathset = self.tagmap[tag]
-            imgpathset.add(relpath)
+                # Add filename to the recognized tags:
+                try:
+                    tags = fn.split("-")[1:]
+                    tags[-1] = tags[-1].split(".")[0]
+                    for tag in tags:
+                        tn = tags_dict.get(tag, None)
+                        if tn is not None:
+                            tagmap[tn].add(fn)
+                        else:
+                            char_debug("Unknown image tag: %s, fn: %s, path: %s" % (tag, fn, path))
+                except IndexError:
+                    char_debug("Invalid file path for image: %s in folder %s" % (fn, path))
+            tagmap[folder] = img_set
 
         # access the database
         #-----------------------------------
-        def has_tag(self, tag): # Not Used:
-            '''Returns True if the database contains images tagged with this tag.
-            '''
-            return tag in self.tagmap
-
-        def get_tags(self): # Not Used:
-            '''Returns a set of all tags in this database.
-            '''
-            return set(self.tagmap.keys())
-
-        def get_imgset_without_tags(self): # Not Used:
-            '''Returns a set of paths to all untagged images.
-            '''
-            return self.untagged.copy()
+        def get_image_tags(self, image_path):
+            """Returns a list of tags bound to the image.
+            """
+            image_name = image_path.split(os.sep)[-1]
+            image_name_base = image_name.split(".")[0]
+            obfuscated_tags = image_name_base.split("-")[1:]
+            tags_dict = self.tags_dict
+            return [t for t in (tags_dict.get(tag, None) for tag in obfuscated_tags) if t is not None]
 
         def get_imgset_with_tag(self, tag):
             '''Returns a set of paths to images, all of which are tagged
@@ -119,14 +105,13 @@ init -9 python:
             '''Returns a dict of image path keys and sets of tags as values.
             '''
             imgmap = {}
-            for tag in self.tagmap:
-                imgpaths = self.tagmap[tag]
+            for tag, imgpaths in self.tagmap.iteritems():
                 for p in imgpaths:
                     try:
                         tagset = imgmap[p]
                     except KeyError:
-                        imgmap[p] = set([])
-                        tagset = imgmap[p]
+                        tagset = set()
+                        imgmap[p] = tagset
                     tagset.add(tag)
             return imgmap
 
@@ -175,20 +160,172 @@ init -9 python:
                 tagsfile = open(t, "w")
                 json.dump(imgmap, tagsfile, indent=4, sort_keys=True)
 
-        # get metadata
-        #-----------------------------------
-        def count_images(self):
-            '''Returns the number of images in the database.
-            '''
-            images = self.get_all_images()
-            return len(images)
 
-        def get_all_images(self):
-            imgsets = self.tagmap.values()
-            allimages = set([])
-            for i in imgsets:
-                allimages = allimages.union(i)
-            return allimages
+    class Tagger(_object):
+        '''Backend supporting the in-game tagger
+        '''
+        def __init__(self):
+            self.pagesize = 30
+
+            self.tagsmap = {v:k for k, v in tagdb.tags_dict.iteritems()}
+
+            self.tag_groups = load_db_json("image_tags.json")
+            self.selected_groups = list()
+            self.tag_options = list()
+
+            self.load_tag_chars("chars")
+
+            char = next(iter(self.all_chars.values()))
+            self.select_char(char)
+
+        def load_tag_chars(self, group):
+            """load characters from the game context or from the json files
+            :param group: one of 'rchars', 'chars', 'npc'
+            """
+            global battle_skills, traits
+            all_chars = getattr(store, group, None)
+            if all_chars is None:
+                battle_skills = traits = {}
+                all_chars = load_characters(group)
+            elif group == "rchars":
+                pass
+            elif group == "chars":
+                all_chars = {k:{"id": v.id, "_path_to_imgfolder": v._path_to_imgfolder} for k, v in all_chars.iteritems() if v.__class__ == Char}
+            else: # group == NPC
+                all_chars = {k:{"id": v.id, "_path_to_imgfolder": v._path_to_imgfolder} for k, v in all_chars.iteritems()}
+
+            self.all_chars = all_chars
+            self.char_group = group
+
+        def select_char(self, char):
+            self.char = char
+            self.images = sorted(tagdb.get_imgset_with_tag(char["id"]))
+            #images = [images[i:i+30] for i in range(0, len(images), 30)]
+            self.imagespage = 0
+            self.path_to_pic = char["_path_to_imgfolder"]
+            self.pic = self.tagz = self.oldtagz = None
+
+        def select_image(self, image):
+            self.pic = image
+            self.tagz = tagdb.get_image_tags(image)
+            self.oldtagz = self.tagz[:]
+
+        def save_image(self, pic=None):
+            if pic is None:
+                pic = self.pic
+                tagz = self.tagz
+                update_tagger = True
+            else:
+                tagz = tagdb.get_image_tags(pic)
+                update_tagger = False
+
+            n = pic.split(".")[0].split("-")[0] + "-"      # ID-
+            n += "-".join([self.tagsmap[k] for k in tagz]) # tagz
+            n += "." + pic.split(".")[-1]                  # .extension
+
+            self.rename_tag_file(pic, n, update_tagger)
+            return n
+
+        def next_page(self):
+            self.imagespage += 1
+            self.imagespage %= ((len(self.images)-1) / self.pagesize) + 1
+
+        def previous_page(self):
+            self.imagespage -= 1
+            self.imagespage %= ((len(self.images)-1) / self.pagesize) + 1
+
+        def page_images(self):
+            return self.images[self.imagespage*self.pagesize:(self.imagespage+1)*self.pagesize]
+
+        def select_tag_group(self, group):
+            self.selected_groups.append(group)
+            tags = self.tag_groups[group]["tags"]
+            self.tag_options.extend(tags.itervalues())
+
+        def remove_tag_group(self, group):
+            self.selected_groups.remove(group)
+            tags = self.tag_groups[group]["tags"]
+            for tag in tags.itervalues():
+                self.tag_options.remove(tag)
+
+        def tag_group_all(self):
+            groups = self.selected_groups
+            if groups:
+                for g in self.selected_groups[:]:
+                    self.remove_tag_group(g)
+            else:
+                for g in self.tag_groups:
+                    self.select_tag_group(g)
+
+        def sort_tags(self):
+            self.tag_options.sort()
+
+        @staticmethod
+        def is_valid(image_path):
+            tagz = len(tagdb.get_image_tags(image_path))
+            alltagz = image_path.split(os.sep)[-1].split(".")[0].split("-")
+            return tagz != 0 and tagz == len(alltagz) - 1
+
+        def generate_ids(self, repair):
+            # generate ID prefix for all files in the chars folder
+            images = self.images[:]
+            # sort images by the length of its name to prevent collision
+            images.sort(key=lambda x: len(x), reverse=True)
+
+            num = len(images)
+            num = max(4, int(math.log(num, 16)) + 1)
+            num = "{:0>%d}" % num
+
+            result = []
+            for idx, img in enumerate(images):
+                n = num.format(hex(idx)[2:].upper())
+                n += "-" + img
+
+                self.rename_tag_file(img, n, False)
+                result.append(n)
+
+            if repair:
+                temp = result
+                result = []
+                for img in temp:
+                    result.append(self.save_image(img))
+
+            # update tagger
+            self.images = result
+            self.imagespage = 0
+            self.pic = self.tagz = self.oldtagz = None
+
+        def rename_tag_file(self, curr_file, new_file, update_tagger=True):
+            oldf = os.path.join(self.path_to_pic, curr_file)
+            newf = os.path.join(self.path_to_pic, new_file)
+            try:
+                os.rename(oldf, newf)
+
+                # update tagdb
+                charid = self.char["id"]
+                oldtagz = tagdb.get_image_tags(curr_file)
+                oldtagz.append(charid)
+                tagz = tagdb.get_image_tags(new_file)
+                tagz.append(charid)
+                for tag in oldtagz:
+                    tagdb.tagmap[tag].remove(curr_file)
+                for tag in tagz:
+                    tagdb.tagmap[tag].add(new_file)
+
+                # update tagger
+                if update_tagger:
+                    tagz.pop() # charid
+
+                    # select image
+                    self.tagz = tagz
+                    self.oldtagz = tagz[:]
+                    self.pic = new_file
+
+                    self.images[self.images.index(curr_file)] = new_file
+            except Exception as e:
+                e = unicode(str(e), errors='replace')
+                e = e.replace("[", "[[")#.replace("]", "]]")
+                renpy.show_screen("message_screen", u"Failed to rename the file!\n current file: %s\n new file: %s\n reason: %s" % (curr_file, new_file, e))
 
     # enable logging
     if DEBUG_LOG:

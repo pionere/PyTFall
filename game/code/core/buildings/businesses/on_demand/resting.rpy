@@ -88,7 +88,7 @@ init -5 python:
 
                 image_tags = worker.show(choice(image_tags), **kwargs)
                 log.img = image_tags
-                image_tags = TagDatabase.get_image_tags(image_tags)
+                image_tags = tagdb.get_image_tags(image_tags)
                 if "sleeping" in image_tags:
                     if "living" in image_tags:
                         log.append("%s is enjoying additional bedtime in %s room." % (name, worker.pp))

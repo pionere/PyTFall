@@ -33,30 +33,12 @@ init -11 python:
     # ---------------------- Loading game data:
     def load_json(path):
         file = renpy.file(path)
-        data = json.load(file)
+        data = json.load(file, object_pairs_hook=OrderedDict)
         return data
 
     def load_db_json(fn):
         path = "content/db/" + fn
         return load_json(path)
-
-    def load_tags_folder(folder, path):
-        img_set = set()
-        for fn in os.listdir(path):
-            if check_image_extension(fn):
-                tags = fn.split("-")
-                try:
-                    del tags[0]
-                    tags[-1] = tags[-1].split(".")[0]
-                except IndexError:
-                    raise Exception("Invalid file path for image: %s in folder %s" % (fn, path))
-                for tag in tags:
-                    if tag not in tags_dict:
-                        raise Exception("Unknown image tag: %s, fn: %s, path: %s" % (tag, fn, path))
-                    tagdb.tagmap[tags_dict[tag]].add(fn)
-                # Adding filenames to girls id:
-                img_set.add(fn)
-        tagdb.tagmap[folder] = img_set
 
     def load_team_names(amount):
         rn = load_db_json("names/team_names.json")
@@ -102,7 +84,7 @@ init -11 python:
 
                 # Load the file:
                 in_file = os.path.join(dir, packfolder, file)
-                char_debug("Loading from %s!"%str(in_file)) # Str call to avoid unicode
+                char_debug("Loading from %s!" % str(in_file)) # Str call to avoid unicode
                 with open(in_file) as f:
                     ugirls = json.load(f)
 
@@ -116,7 +98,7 @@ init -11 python:
                     _path = os.path.join(dir, packfolder, folder)
                     if os.path.isdir(_path):
                         # We load the new tags!:
-                        load_tags_folder(folder, _path)
+                        tagdb.load_tags_folder(folder, _path)
 
                     if cls is None:
                         # JSON Data only
@@ -338,9 +320,6 @@ init -11 python:
         for i in json_data_raw:
             json_data[i["name"]] = i["basetraits"]
 
-        tagdb = store.tagdb
-        tags_dict = store.tags_dict
-
         random_traits = tuple(traits[t] for t in ["Courageous", "Aggressive", "Vicious"])
         all_elements = tuple(traits[i.id] for i in tgs.elemental)
 
@@ -364,7 +343,7 @@ init -11 python:
                 for folder in os.listdir(group_path):
                     _path = os.path.join(group_path, folder)
                     if os.path.isdir(_path):
-                        load_tags_folder(folder, _path)
+                        tagdb.load_tags_folder(folder, _path)
 
                     # Allow database to be rebuilt but go no further.
                     if folder in exist:

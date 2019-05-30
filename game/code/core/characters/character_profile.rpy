@@ -28,7 +28,7 @@ init python:
         else:
             img = char.show('profile', exclude=["nude", "revealing", "lingerie", "swimsuit"], label_cache=True)
 
-        image_tags = TagDatabase.get_image_tags(img)
+        image_tags = tagdb.get_image_tags(img)
         if "no bg" in image_tags:
             frame_image = "content/gfx/frame/MC_bg3_white.png"
         else:

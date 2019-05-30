@@ -115,23 +115,7 @@ label start:
         pytfall.school.add_courses()
         tl.end("Loading: School")
 
-    # python: # Picked Tags and maps (afk atm):
-    #     maps = xml_to_dict(content_path('db/map.xml'))
-    #
-    #     import cPickle as pickle
-    #     tl.start("Loading: Binary Tag Database")
-    #     # pickle.dump(tagdb.tagmap, open(config.gamedir + "/save.p", "wb"))
-    #     tagdb = TagDatabase()
-    #     tagdb.tagmap = pickle.load(open(config.gamedir + "/save.p", "rb"))
-    #     tagslog.info("loaded %d images from binary files" % tagdb.count_images())
-    #     tl.end("Loading: Binary Tag Database")
-
     python: # Tags/Loading Chars/Mobs/Quests.first_day
-        # Loading characters:
-        # tagdb = TagDatabase()
-        # for tag in tags_dict.values():
-        #     tagdb.tagmap[tag] = set()
-
         tl.start("Loading: All Characters!")
         chars = load_characters("chars", Char)
         #global_flags.set_flag("last_modified_chars", os.path.getmtime(content_path('chars')))
@@ -140,8 +124,6 @@ label start:
         rchars = load_characters("rchars")
         #global_flags.set_flag("last_modified_rchars", os.path.getmtime(content_path('rchars')))
         tl.end("Loading: All Characters!")
-        if DEBUG_LOG:
-            devlog.info("Loaded %d images from filenames!" % tagdb.count_images())
 
         # Start auto-quests
         pytfall.world_quests.first_day()
@@ -1626,6 +1608,12 @@ label after_load:
             del store.gm_fight_bg
         if hasattr(store, "stored_random_seed"):
             del store.stored_random_seed
+        if hasattr(store, "sex_action_tags"):
+            del store.sex_action_tags
+        if hasattr(store, "loc_tags"):
+            del store.loc_tags
+        if hasattr(store, "tags_dict"):
+            del store.tags_dict
         if hasattr(store, "heard_about_arena"):
             if store.heard_about_arena:
                 global_flags.set_flag("heard_about_arena")

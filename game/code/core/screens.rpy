@@ -645,7 +645,7 @@ screen s_menu(s_menu="Settings", main_menu=False):
                                 # sv2=1.0, ev2=.0, t2=.5)
         background Frame(Transform("content/gfx/frame/frame_gp2.webp", alpha=.8), 10, 10)
         align (.315, .5)
-        xysize (690, 414)
+        xysize (690, 444)
         style_group "smenu"
         has hbox align (.5, .5) xfill True
 
@@ -1040,7 +1040,7 @@ screen s_menu(s_menu="Settings", main_menu=False):
     frame:
         background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.9), 10, 10)
         align (.765, .505)
-        xysize (150, 409)
+        xysize (150, 439)
         style_group "smenu"
         xpadding 8
         has vbox spacing 5 align (.5, .5)
@@ -1065,6 +1065,10 @@ screen s_menu(s_menu="Settings", main_menu=False):
             yalign .5
             action SelectedIf(s_menu == "Settings"), Hide("s_menu"), Show("s_menu", s_menu="Settings", main_menu=main_menu), With(dissolve) # SetScreenVariable("s_menu", "Settings")
             text "Settings" size 18 align (.5, .5) # style "mmenu_button_text"
+        button:
+            yalign .5
+            action Hide("s_menu"), With(dissolve), Jump("tagger")
+            text "Tagger" size 18 align (.5, .5) # style "mmenu_button_text"
         button:
             yalign .5
             action SelectedIf(s_menu == "Game"), Hide("s_menu"), Show("s_menu", s_menu="Game", main_menu=main_menu), With(dissolve)

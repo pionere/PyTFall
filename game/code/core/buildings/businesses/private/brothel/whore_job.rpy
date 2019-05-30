@@ -257,7 +257,7 @@ init -5 python:
                     image_tags = worker.show("after sex", **kwargs)
 
                 log.img = image_tags
-                image_tags = TagDatabase.get_image_tags(image_tags)
+                image_tags = tagdb.get_image_tags(image_tags)
                 if "ontop" in image_tags:
                     log.append("He invited her to 'sit' on his lap as he unsheathed his cock. They've continued along the same lines in 'girl-on-top' position. \n")
                 elif "doggy" in image_tags:
@@ -298,7 +298,7 @@ init -5 python:
                     image_tags = worker.show("after sex", **kwargs)
 
                 log.img = image_tags
-                image_tags = TagDatabase.get_image_tags(image_tags)
+                image_tags = tagdb.get_image_tags(image_tags)
                 if "ontop" in image_tags:
                     log.append("He invited her to 'sit' on his lap as he unsheathed his cock. They've continued along the same lines in 'girl on top' position. \n")
                 elif "doggy" in image_tags:
