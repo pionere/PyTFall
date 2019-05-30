@@ -1,6 +1,6 @@
 {
     "Main Tags": {
-    	"color": ["ivory", "black"],
+    	"color": ["olivedrab", "black"],
     	"tags": {
 			"nn": "sfw",
 			"nd": "nude",
@@ -11,7 +11,7 @@
 		}
 	},
     "Nude/SFW Subtags":{
-    	"color": ["aliceblue", "black"],
+    	"color": ["skyblue", "black"],
     	"tags": {
             "pr": "profile",
             "pa": "girlmeets",
@@ -41,7 +41,7 @@
 		}
 	},
     "Locations":{
-    	"color": ["beige", "black"],
+    	"color": ["yellowgreen", "black"],
     	"tags": {
             "l1": "no bg",
             "l2": "simple bg",
@@ -98,7 +98,7 @@
 		}
 	},
     "Actions":{
-    	"color": ["lavender", "black"],
+    	"color": ["sandybrown", "black"],
     	"tags": {
             "a1": "stripping",
             "a3": "cleaning",

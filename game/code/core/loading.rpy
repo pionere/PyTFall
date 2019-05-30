@@ -86,7 +86,7 @@ init -11 python:
                 in_file = os.path.join(dir, packfolder, file)
                 char_debug("Loading from %s!" % str(in_file)) # Str call to avoid unicode
                 with open(in_file) as f:
-                    ugirls = json.load(f)
+                    ugirls = json.load(f, object_pairs_hook=OrderedDict)
 
                 # Apply the content of the file to the character:
                 for gd in ugirls: # We go over each dict one mainaining correct order of application:

@@ -167,9 +167,11 @@ init -9 python:
         def __init__(self):
             self.pagesize = 30
 
-            self.tagsmap = {v:k for k, v in tagdb.tags_dict.iteritems()}
+            tag_groups = load_db_json("image_tags.json")
+            self.tag_groups = tag_groups
+            # map of tag to (tag-key, color) pairs
+            self.tagsmap = {v:(k, color) for g, color in [(group["tags"], group["color"]) for group in tag_groups.values()] for k, v in g.iteritems()}
 
-            self.tag_groups = load_db_json("image_tags.json")
             self.selected_groups = list()
             self.tag_options = list()
 
@@ -178,9 +180,15 @@ init -9 python:
             char = next(iter(self.all_chars.values()))
             self.select_char(char)
 
+            if "pytfall" in globals():
+                self.return_action = [Show("s_menu", main_menu=True), With(dissolve)]
+            else:
+                self.return_action = Return(None)
+
         def load_tag_chars(self, group):
             """load characters from the game context or from the json files
             :param group: one of 'rchars', 'chars', 'npc'
+            """
             """
             global battle_skills, traits
             all_chars = getattr(store, group, None)
@@ -193,6 +201,11 @@ init -9 python:
                 all_chars = {k:{"id": v.id, "_path_to_imgfolder": v._path_to_imgfolder} for k, v in all_chars.iteritems() if v.__class__ == Char}
             else: # group == NPC
                 all_chars = {k:{"id": v.id, "_path_to_imgfolder": v._path_to_imgfolder} for k, v in all_chars.iteritems()}
+            """
+            if "traits" not in globals():
+                store.traits = load_traits()
+                store.battle_skills = load_battle_skills()
+            all_chars = load_characters(group)
 
             self.all_chars = all_chars
             self.char_group = group
@@ -219,9 +232,9 @@ init -9 python:
                 tagz = tagdb.get_image_tags(pic)
                 update_tagger = False
 
-            n = pic.split(".")[0].split("-")[0] + "-"      # ID-
-            n += "-".join([self.tagsmap[k] for k in tagz]) # tagz
-            n += "." + pic.split(".")[-1]                  # .extension
+            n = pic.split(".")[0].split("-")[0] + "-"         # ID-
+            n += "-".join([self.tagsmap[k][0] for k in tagz]) # tagz
+            n += "." + pic.split(".")[-1]                     # .extension
 
             self.rename_tag_file(pic, n, update_tagger)
             return n
@@ -326,6 +339,19 @@ init -9 python:
                 e = unicode(str(e), errors='replace')
                 e = e.replace("[", "[[")#.replace("]", "]]")
                 renpy.show_screen("message_screen", u"Failed to rename the file!\n current file: %s\n new file: %s\n reason: %s" % (curr_file, new_file, e))
+
+        def save_json(self):
+            json_data = self.char_edit
+            path = json_data.pop("_path_to_imgfolder")
+            path = path.split(os.sep)
+            folder = path[-1]
+            path[-1] = "data_" + folder + ".json"
+            path = os.sep.join(path) 
+            with open(path, 'w') as outfile:
+                json.dump(json_data, outfile, indent=4)
+
+            self.char = json_data
+            self.char_edit = None
 
     # enable logging
     if DEBUG_LOG:

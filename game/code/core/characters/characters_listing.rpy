@@ -528,11 +528,11 @@ screen dropdown_box(options, max_rows, row_size, pos, value=None, field=None, ac
 
 screen dropdown_content(options, max_rows, row_size, pos, value=None, field=None, action=None):
     # Trying to create a drop down screen with choices of actions:
-    zorder 3
+    zorder 10
     modal True
 
-    key "mousedown_4" action NullAction()
-    key "mousedown_5" action NullAction()
+    #key "mousedown_4" action NullAction()
+    #key "mousedown_5" action NullAction()
 
     # Get mouse coords:
     python:
@@ -550,32 +550,43 @@ screen dropdown_content(options, max_rows, row_size, pos, value=None, field=None
         xmargin 0
         padding 5, 5
         pos (x, y)
-        xsize xsize+10
-        ymaximum ysize * max_rows
-        style_group "proper_stats"
         yanchor yval
-        has vbox
-        for key, option in options.items():
+        xsize xsize+10
+        ymaximum (ysize*max_rows + 10)
+        style_group "proper_stats"
+        viewport:
+            xsize xsize
+            ymaximum ysize*max_rows
+            mousewheel True
+            has vbox
+            for key, option in options.items():
+                python:
+                    btn_action = []
+                    if field is None:
+                        btn_action.append(Return(key))
+                    else:
+                        btn_action.append(SetField(field[0], field[1], key))
+                        if action is not None:
+                            if not isinstance(action, list):
+                                action = [action] 
+                            btn_action.extend(action)
+                    btn_action.extend([Hide("dropdown_content"), With(Dissolve(0.1))])
+                button:
+                    background Null()
+                    xysize (xsize, ysize)
+                    selected key == value
+                    action btn_action
+                    text option idle_color "beige" hover_color "crimson" selected_color "aqua" align .5, .5 size min(ysize-5, int(3*xsize/max(1, 2*len(option))))
+                    hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
             python:
-                btn_action = []
-                if field is not None:
-                    btn_action.append(SetField(field[0], field[1], key))
-                if action is not None:
-                    if not isinstance(action, list):
-                        action = [action] 
-                    btn_action.extend(action)
-                btn_action.extend([Hide("dropdown_content"), With(Dissolve(0.1))])
+                rtn_action = []
+                if field is None:
+                    rtn_action.append(Return(value))
+                rtn_action.extend([Hide("dropdown_content"), With(Dissolve(0.1))])
             button:
                 background Null()
                 xysize (xsize, ysize)
-                selected key == value
-                action btn_action
-                text option idle_color "beige" hover_color "crimson" selected_color "aqua" align .5, .5 size min(ysize-5, int(3*xsize/max(1, 2*len(option))))
+                action rtn_action
+                text "Close" idle_color "brown" align .5, .5 hover_color "crimson" 
                 hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
-        button:
-            background Null()
-            xysize (xsize, ysize)
-            action Hide("dropdown_content"), With(Dissolve(0.1))
-            text "Close" idle_color "brown" align .5, .5 hover_color "crimson" 
-            hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
-            keysym "mousedown_3", "K_ESCAPE"
+                keysym "mousedown_3", "K_ESCAPE"
