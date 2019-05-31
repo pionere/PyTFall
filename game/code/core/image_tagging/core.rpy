@@ -189,19 +189,6 @@ init -9 python:
             """load characters from the game context or from the json files
             :param group: one of 'rchars', 'chars', 'npc'
             """
-            """
-            global battle_skills, traits
-            all_chars = getattr(store, group, None)
-            if all_chars is None:
-                battle_skills = traits = {}
-                all_chars = load_characters(group)
-            elif group == "rchars":
-                pass
-            elif group == "chars":
-                all_chars = {k:{"id": v.id, "_path_to_imgfolder": v._path_to_imgfolder} for k, v in all_chars.iteritems() if v.__class__ == Char}
-            else: # group == NPC
-                all_chars = {k:{"id": v.id, "_path_to_imgfolder": v._path_to_imgfolder} for k, v in all_chars.iteritems()}
-            """
             if "traits" not in globals():
                 store.traits = load_traits()
                 store.battle_skills = load_battle_skills()
@@ -209,6 +196,67 @@ init -9 python:
 
             self.all_chars = all_chars
             self.char_group = group
+
+        def group_fields(self):
+            if self.char_group == "rchars":
+                return (("id", "text"),
+                        ("desc", "text"),
+                        ("origin", "text"),
+                        ("race", "Unknown"),
+                        ("full_race", "text"),
+                        ("color", "text"),
+                        ("what_color", "text"),
+                        ("height", "average"),
+                        ("gender", "female"),
+                        ("gold", "number"),
+                        #("basetraits", "list"),
+                        ("personality", "Deredere"),
+                        ("breasts", "Average Boobs"),
+                        ("penis", "Average Dick"),
+                        ("body", "text"),
+                        #("blocked_traits", "list"),
+                        #("ab_traits", "list"),
+                        #("elements", "list"),
+                        #("traits", "list"),
+                        ("random_traits", "list"),
+                        ("default_attack_skill", "Fist Attack"),
+                        #("magic_skills", "list"),
+                        #("status", "text"),
+                        #("location", "text"),
+                        #("tier", "number"),
+                        #("item_up", "auto"),
+                        )
+            else:
+                return (("id", "text"),
+                        ("name", "text"),
+                        ("nickname", "text"),
+                        ("fullname", "text"),
+                        ("desc", "text"),
+                        ("origin", "text"),
+                        ("race", "Unknown"),
+                        ("full_race", "text"),
+                        ("color", "text"),
+                        ("what_color", "text"),
+                        ("height", "average"),
+                        ("gender", "female"),
+                        ("gold", "number"),
+                        ("basetraits", "list"),
+                        ("personality", "Deredere"),
+                        ("breasts", "Average Boobs"),
+                        ("penis", "Average Dick"),
+                        ("body", "text"),
+                        #("blocked_traits", "list"),
+                        #("ab_traits", "list"),
+                        ("elements", "list"),
+                        ("traits", "list"),
+                        #("random_traits", "list"),
+                        ("default_attack_skill", "Fist Attack"),
+                        ("magic_skills", "list"),
+                        ("status", "free"),
+                        ("location", "text"),
+                        ("tier", "number"),
+                        ("item_up", "auto"),
+                        )
 
         def select_char(self, char):
             self.char = char
@@ -342,6 +390,18 @@ init -9 python:
 
         def save_json(self):
             json_data = self.char_edit
+            fields = self.group_fields()
+            for field, type in fields:
+                value = json_data.get(field, None)
+                if type == "list":
+                    if not value:
+                        json_data.pop(field)
+                elif type in ["text", "number"]:
+                    if value == "":
+                        json_data.pop(field)
+                else:
+                    if value == type:
+                        json_data.pop(field)
             path = json_data.pop("_path_to_imgfolder")
             path = path.split(os.sep)
             folder = path[-1]

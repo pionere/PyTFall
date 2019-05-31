@@ -383,6 +383,12 @@ init -11 python:
                 setattr(rg.traits, key, _traits)
 
         # Traits next:
+        for key in ("personality", "breasts", "penis", "body", "race"):
+            if key in data:
+                trait = data[key]
+                trait = traits[trait]
+                rg.apply_trait(trait)
+
         if "random_traits" in data:
             for item in data["random_traits"]:
                 trait, chance = item

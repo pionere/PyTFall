@@ -109,7 +109,7 @@ init -11 python:
                         if "default_attack_skill" in gd:
                             skill = gd["default_attack_skill"]
                             if skill not in store.battle_skills:
-                                char_debug("%s JSON Loading func tried to apply unknown default attack skill: %s!" % (gd["id"], skill))
+                                char_debug("%s JSON Loading func tried to apply unknown default attack skill: %s!" % (id, skill))
                                 gd.pop("default_attack_skill")
 
                         for key in ("blocked_traits", "ab_traits"):
@@ -119,14 +119,27 @@ init -11 python:
                                 for t in b_traits:
                                     trait = store.traits.get(t, None)
                                     if trait is None:
-                                        char_debug("Unknown trait: %s for random girl: %s in %s!" % (t, gd["id"], key))
+                                        char_debug("Unknown trait: %s for random girl: %s in %s!" % (t, id, key))
                                     elif trait.basetrait:
-                                        char_debug("Trait: %s for random girl: %s is a basetrait which can not be blocked (%s)!" % (t, gd["id"], key))
+                                        char_debug("Trait: %s for random girl: %s is a basetrait which can not be blocked (%s)!" % (t, id, key))
                                     else:
                                         continue
                                     drops.append(t)
                                 for t in drops:
                                     b_traits.remove(t)
+
+                        for key in ("personality", "breasts", "penis", "body", "race"):
+                            t = gd.get(key, None)
+                            if t is not None:
+                                field = "gents" if key in ["breasts", "penis"] else key
+                                trait = store.traits.get(t, None)
+                                if trait is None:
+                                    char_debug("Unknown trait: %s for random girl: %s as %s!" % (t, id, key))
+                                elif not getattr(trait, field, False):
+                                    char_debug("Trait: %s for random girl: %s as %s is invalid (%s of the trait is not True)!" % (t, id, key, field))
+                                else:
+                                    continue
+                                gd.pop(key)
 
                         b_traits = gd.get("random_traits", None)
                         if b_traits is not None:
@@ -134,9 +147,9 @@ init -11 python:
                             for t in b_traits:
                                 trait = store.traits.get(t[0], None)
                                 if trait is None:
-                                    char_debug("Unknown trait: %s for random girl: %s as 'random_traits'!" % (t[0], gd["id"]))
+                                    char_debug("Unknown trait: %s for random girl: %s as 'random_traits'!" % (t[0], id))
                                 elif trait.basetrait:
-                                    char_debug("Trait: %s for random girl: %s is a basetrait which can not set as 'random_traits'!" % (t[0], gd["id"]))
+                                    char_debug("Trait: %s for random girl: %s is a basetrait which can not set as 'random_traits'!" % (t[0], id))
                                 else:
                                     continue
                                 drops.append(t)
@@ -174,12 +187,14 @@ init -11 python:
                     # Get and normalize basetraits:
                     if "basetraits" in gd:
                         basetraits = set()
-                        if gd["basetraits"]:
-                            for trait in gd["basetraits"]:
-                                if trait in traits:
-                                    basetraits.add(traits[trait])
-                                else:
-                                    char_debug("%s besetrait is unknown for %s!" % (trait, id))
+                        for t in gd["basetraits"]:
+                            trait = traits.get(t, None)
+                            if trait is None:
+                                char_debug("%s basetrait is unknown for %s!" % (t, id))
+                            elif trait.basetrait:
+                                basetraits.add(trait)
+                            else:
+                                char_debug("%s is not a basetrait for %s!" % (t, id))
 
                         if len(basetraits) > 2:
                             while len(basetraits) > 2:
@@ -192,27 +207,35 @@ init -11 python:
                             for trait in basetraits:
                                 char.apply_trait(trait)
 
-                    for key in ("personality", "breasts", "body", "race"):
-                        if key in gd:
-                            trait = gd[key]
-                            if trait in traits:
-                                char.apply_trait(traits[trait])
+                    for key in ("personality", "breasts", "penis", "body", "race"):
+                        t = gd.get(key, None)
+                        if t is not None:
+                            field = "gents" if key in ["breasts", "penis"] else key
+                            trait = traits.get(t, None)
+                            if trait is None:
+                                char_debug("%s %s is unknown for %s!" % (t, key, id))
+                            elif not getattr(trait, field, False):
+                                char_debug("Trait: %s for %s as %s is invalid (%s of the trait is not True)!" % (t, id, key, field))
                             else:
-                                char_debug("%s %s is unknown for %s!" % (trait, key, id))
+                                char.apply_trait(trait)
 
                     if "elements" in gd:
-                        for trait in gd["elements"]:
-                            if trait in traits:
-                                char.apply_trait(traits[trait])
+                        for t in gd["elements"]:
+                            trait = traits.get(t, None)
+                            if trait is None:
+                                char_debug("%s element is unknown for %s!" % (t, id))
+                            elif trait.elemental:
+                                char.apply_trait(trait)
                             else:
-                                char_debug("%s element is unknown for %s!" % (trait, id))
+                                char_debug("%s is not an elemental trait for %s!" % (t, id))
 
                     if "traits" in gd:
-                        for trait in gd["traits"]:
-                            if trait in traits:
-                                char.apply_trait(traits[trait])
+                        for t in gd["traits"]:
+                            trait = traits.get(t, None)
+                            if trait is None:
+                                char_debug("%s trait is unknown for %s!" % (t, id))
                             else:
-                                char_debug("%s trait is unknown for %s!" % (trait, id))
+                                char.apply_trait(trait)
 
                     # if "stats" in gd:
                     #     for stat in gd["stats"]:
@@ -261,14 +284,11 @@ init -11 python:
 
                     # Note: Location is later normalized in init method.
                     for key in ("name", "nickname", "fullname", "origin", "gold", "desc", "status", "location", "height", "full_race"):
-                        if key in ["name", "nickname", "fullname"] and key in gd:
-                            if len(gd[key]) > 20:
-                                temp = gd[key][0:20]
-                                setattr(char, key, gd[key][0:20])
-                            else:
-                                setattr(char, key, gd[key])
-                        elif key in gd:
-                            setattr(char, key, gd[key])
+                        if key in gd:
+                            temp = gd[key]
+                            if key in ["name", "nickname", "fullname"] and len(temp) > 20:
+                                temp = temp[0:20]
+                            setattr(char, key, temp)
 
                     char.init() # Normalize!
 
