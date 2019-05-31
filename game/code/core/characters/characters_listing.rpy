@@ -184,7 +184,7 @@ screen chars_list():
                     frame:
                         xpos 120
                         xysize (335, 115)
-                        background Frame(Transform("content/gfx/frame/P_frame2.png", alpha=.6), 10, 10)
+                        background Frame(Transform("content/gfx/frame/p_frame2.png", alpha=.6), 10, 10)
                         vbox:
                             xpos 10
 

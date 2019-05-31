@@ -564,7 +564,7 @@ screen hero_team():
                 frame:
                     xsize 162
                     padding 10, 5
-                    background Frame(Transform("content/gfx/frame/P_frame2.png", alpha=.6), 5, 5)
+                    background Frame(Transform("content/gfx/frame/p_frame2.png", alpha=.6), 5, 5)
                     has vbox spacing 4 xfill True
                     fixed:
                         xysize 158, 25
@@ -875,16 +875,13 @@ screen mc_friends_list:
                     top_padding 10
                     bottom_padding 3
                     xpadding 5
-                    xmargin 0
-                    ymargin 0
+                    margin 0, 0
                     xminimum 180
                     align (.5, .5)
                     has vbox spacing 1 xalign .5
                     button:
-                        ypadding 1
-                        xpadding 1
-                        xmargin 0
-                        ymargin 0
+                        padding 1, 1
+                        margin 0, 0
                         align (.5, .5)
                         style "basic_choice2_button"
                         add char.show("portrait", resize=(120, 120), cache=True) align (.5, .5)
