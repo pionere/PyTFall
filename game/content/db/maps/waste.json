@@ -1,8 +1,8 @@
 [
     {
         "name": "Wastelands",
-        "unlocked": false,
-        "stage": 5,
+        "unlocked": true,
+        "stage": 8,
         "img": "content/maps/waste_1.webp",
         "allowed_objects": []
     },

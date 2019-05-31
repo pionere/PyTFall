@@ -2,7 +2,7 @@
     {
         "name": "Frozen Caverns",
         "unlocked": false,
-        "stage": 8,
+        "stage": 5,
         "img": "content/maps/frozen_1.webp",
         "allowed_objects": []
     },

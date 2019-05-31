@@ -2,7 +2,7 @@
     {
         "name": "Burial Grounds",
         "unlocked": false,
-        "stage": 6,
+        "stage": 4,
         "img": "content/maps/burial_1.webp",
         "allowed_objects": []
     },

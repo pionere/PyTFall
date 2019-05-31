@@ -2,7 +2,7 @@
     {
         "name": "Elven Forest",
         "unlocked": false,
-        "stage": 7,
+        "stage": 6,
         "img": "content/gfx/bg/locations/forest_1.webp",
         "allowed_objects" : []
     },

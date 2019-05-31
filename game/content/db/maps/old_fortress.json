@@ -2,7 +2,7 @@
     {
         "name": "Old Fortress",
         "unlocked": false,
-        "stage": 6,
+        "stage": 9,
         "img": "content/maps/dw_fortress.webp",
         "allowed_objects": []
     },

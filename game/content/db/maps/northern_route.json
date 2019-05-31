@@ -2,7 +2,7 @@
     {
         "name": "Northern Route",
         "unlocked": true,
-        "stage": 5,
+        "stage": 3,
         "img": "content/maps/northern.webp",
         "allowed_objects": []
     },
