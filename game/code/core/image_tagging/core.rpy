@@ -357,30 +357,52 @@ init -9 python:
 
         def generate_ids(self, repair):
             # generate ID prefix for all files in the chars folder
-            images = self.images[:]
-            # sort images by the length of its name to prevent collision
-            images.sort(key=lambda x: len(x), reverse=True)
+            images = self.images
 
             num = len(images)
             num = max(4, int(math.log(num, 16)) + 1)
-            num = "{:0>%d}" % num
 
-            result = []
-            for idx, img in enumerate(images):
+            reserved = set()
+            badimages = []
+            for img in images:
+                prefix = img.split("-")[0]
+                if len(prefix) == num:
+                    try:
+                        idx = int(prefix, 16)
+                        if idx not in reserved:
+                            reserved.add(idx)
+                            continue
+                    except:
+                        pass
+                badimages.append(img)
+
+            images = badimages
+
+            # sort images by the length of its name to prevent collision
+            images.sort(key=lambda x: len(x), reverse=True)
+
+            result = dict()
+            idx = 0
+            num = "{:0>%d}" % num
+            for img in images:
+                while idx in reserved:
+                    idx += 1
                 n = num.format(hex(idx)[2:].upper())
                 n += "-" + img
 
                 self.rename_tag_file(img, n, False)
-                result.append(n)
+                result[img] = n
+                idx += 1
 
             if repair:
-                temp = result
-                result = []
-                for img in temp:
-                    result.append(self.save_image(img))
+                for img, n in result.iteritems():
+                    result[img] = self.save_image(n)
 
             # update tagger
-            self.images = result
+            images = self.images
+            for img, n in result.iteritems():
+                images[images.index(img)] = n
+            images.sort()
             self.imagespage = 0
             self.pic = self.tagz = self.oldtagz = None
 

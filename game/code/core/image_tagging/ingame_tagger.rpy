@@ -36,7 +36,7 @@ label tagger:
                 if tagr.tagz == tagr.oldtagz or renpy.call_screen("yesno_prompt", message="Discard your changes?", yes_action=Return(True), no_action=Return(False)):
                     if tagr.tagz is not None:
                         tagr.tagz = tagr.oldtagz[:]
-                    if renpy.call_screen("yesno_prompt", message="This will prefix all images of the char with a generated ID.\nProceed?", yes_action=Return(True), no_action=Return(False)):
+                    if renpy.call_screen("yesno_prompt", message="This will prefix all images of the char with a generated ID.\n(Existing IDs with matching length are preserved)\nProceed?", yes_action=Return(True), no_action=Return(False)):
                         repair = renpy.call_screen("yesno_prompt", message="Remove invalid tags?", yes_action=Return(True), no_action=Return(False))
                         tagr.generate_ids(repair)
 
@@ -57,7 +57,7 @@ label tagger:
                 if result[1] == "text":
                     field = result[2]
                     length = result[3]
-                    n = renpy.call_screen("pyt_input", tagr.char_edit[field], "Enter Name", length=length, size=(12*length, 150))
+                    n = renpy.call_screen("pyt_input", tagr.char_edit[field], "Enter Text", length=length, size=(12*length, 150))
                     tagr.char_edit[field] = n
                 elif result[1] == "int":
                     field = result[2]
@@ -141,6 +141,10 @@ label tagger:
                             n = int(n)
                         except:
                             n = ""
+                        field[idx] = n
+                    elif result[4] == "text":
+                        length = result[5]
+                        n = renpy.call_screen("pyt_input", field[idx], "Enter Text", length=length, size=(12*length, 150))
                         field[idx] = n
                 elif result[1] == "remove":
                     field = result[2]
@@ -439,12 +443,17 @@ screen tagger_char_json_config(char):
                                 temp += "*"
                         hbox:
                             xalign 1.0
-                            text temp yalign .5 color color
+                            textbutton temp:
+                                yalign .5
+                                text_color color
+                                background Null()
+                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                                action Return(["json", "select", "race", tmp])
                             $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
                             imagebutton:
                                 idle temp
                                 hover im.MatrixColor(temp, im.matrix.brightness(.15))
-                                action Return(["json", "select", "race", tmp])
+                                action Return(["json", "text", "race", 30])
                                 tooltip "Edit"
                 if "status" in char:
                     # "average",
@@ -461,12 +470,17 @@ screen tagger_char_json_config(char):
                                 temp += "*"
                         hbox:
                             xalign 1.0
-                            text temp yalign .5 color color
+                            textbutton temp:
+                                yalign .5
+                                text_color color
+                                background Null()
+                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                                action Return(["json", "select", "status", tmp])
                             $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
                             imagebutton:
                                 idle temp
                                 hover im.MatrixColor(temp, im.matrix.brightness(.15))
-                                action Return(["json", "select", "status", tmp])
+                                action Return(["json", "text", "status", 30])
                                 tooltip "Edit"
                 if "gender" in char:
                     # "average",
@@ -483,12 +497,17 @@ screen tagger_char_json_config(char):
                                 temp += "*"
                         hbox:
                             xalign 1.0
-                            text temp yalign .5 color color
+                            textbutton temp:
+                                yalign .5
+                                text_color color
+                                background Null()
+                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                                action Return(["json", "select", "gender", tmp])
                             $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
                             imagebutton:
                                 idle temp
                                 hover im.MatrixColor(temp, im.matrix.brightness(.15))
-                                action Return(["json", "select", "gender", tmp])
+                                action Return(["json", "text", "gender", 30])
                                 tooltip "Edit"
                 if "height" in char:
                     # "average",
@@ -505,12 +524,17 @@ screen tagger_char_json_config(char):
                                 temp += "*"
                         hbox:
                             xalign 1.0
-                            text temp yalign .5 color color
+                            textbutton temp:
+                                yalign .5
+                                text_color color
+                                background Null()
+                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                                action Return(["json", "select", "height", tmp])
                             $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
                             imagebutton:
                                 idle temp
                                 hover im.MatrixColor(temp, im.matrix.brightness(.15))
-                                action Return(["json", "select", "height", tmp])
+                                action Return(["json", "text", "height", 30])
                                 tooltip "Edit"
                 if "color" in char:
                     # "seagreen",
@@ -532,12 +556,17 @@ screen tagger_char_json_config(char):
                                 temp += "*"
                         hbox:
                             xalign 1.0
-                            text temp yalign .5 color color
+                            textbutton temp:
+                                yalign .5
+                                text_color color
+                                background Null()
+                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                                action Return(["json", "select", "color", tmp])
                             $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
                             imagebutton:
                                 idle temp
                                 hover im.MatrixColor(temp, im.matrix.brightness(.15))
-                                action Return(["json", "select", "color", tmp])
+                                action Return(["json", "text", "color", 30])
                                 tooltip "Edit"
                 if "what_color" in char:
                     # "seagreen",
@@ -559,12 +588,17 @@ screen tagger_char_json_config(char):
                                 temp += "*"
                         hbox:
                             xalign 1.0
-                            text temp yalign .5 color color
+                            textbutton temp:
+                                yalign .5
+                                text_color color
+                                background Null()
+                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                                action Return(["json", "select", "what_color", tmp])
                             $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
                             imagebutton:
                                 idle temp
                                 hover im.MatrixColor(temp, im.matrix.brightness(.15))
-                                action Return(["json", "select", "what_color", tmp])
+                                action Return(["json", "text", "what_color", 30])
                                 tooltip "Edit"
                 if "location" in char:
                     # "city"
@@ -586,12 +620,17 @@ screen tagger_char_json_config(char):
                                 temp += "*"
                         hbox:
                             xalign 1.0
-                            text temp yalign .5 color color
+                            textbutton temp:
+                                yalign .5
+                                text_color color
+                                background Null()
+                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                                action Return(["json", "select", "location", tmp])
                             $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
                             imagebutton:
                                 idle temp
                                 hover im.MatrixColor(temp, im.matrix.brightness(.15))
-                                action Return(["json", "select", "location", tmp])
+                                action Return(["json", "text", "location", 30])
                                 tooltip "Edit"
                 if "tier" in char:
                     # 2.5
@@ -653,12 +692,17 @@ screen tagger_char_json_config(char):
                                 temp += "*"
                         hbox:
                             xalign 1.0
-                            text temp yalign .5 color color
+                            textbutton temp:
+                                yalign .5
+                                text_color color
+                                background Null()
+                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                                action Return(["json", "select", "item_up", tmp])
                             $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
                             imagebutton:
                                 idle temp
                                 hover im.MatrixColor(temp, im.matrix.brightness(.15))
-                                action Return(["json", "select", "item_up", tmp])
+                                action Return(["json", "text", "item_up", 30])
                                 tooltip "Edit"
                 if "arena_willing" in char:
                     # boolean
@@ -689,12 +733,17 @@ screen tagger_char_json_config(char):
                                 temp += "*"
                         hbox:
                             xalign 1.0
-                            text temp yalign .5 color color
+                            textbutton temp:
+                                yalign .5
+                                text_color color
+                                background Null()
+                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                                action Return(["json", "select", "body", tmp])
                             $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
                             imagebutton:
                                 idle temp
                                 hover im.MatrixColor(temp, im.matrix.brightness(.15))
-                                action Return(["json", "select", "body", tmp])
+                                action Return(["json", "text", "body", 30])
                                 tooltip "Edit"
                 if "breasts" in char and char.get("gender", "female") == "female":
                     # "Average Boobs"
@@ -714,12 +763,17 @@ screen tagger_char_json_config(char):
                                 temp += "*"
                         hbox:
                             xalign 1.0
-                            text temp yalign .5 color color
+                            textbutton temp:
+                                yalign .5
+                                text_color color
+                                background Null()
+                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                                action Return(["json", "select", "breasts", tmp])
                             $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
                             imagebutton:
                                 idle temp
                                 hover im.MatrixColor(temp, im.matrix.brightness(.15))
-                                action Return(["json", "select", "breasts", tmp])
+                                action Return(["json", "text", "breasts", 30])
                                 tooltip "Edit"
                 if "penis" in char and char.get("gender", "male") == "male":
                     # "Average Dick"
@@ -739,12 +793,17 @@ screen tagger_char_json_config(char):
                                 temp += "*"
                         hbox:
                             xalign 1.0
-                            text temp yalign .5 color color
+                            textbutton temp:
+                                yalign .5
+                                text_color color
+                                background Null()
+                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                                action Return(["json", "select", "penis", tmp])
                             $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
                             imagebutton:
                                 idle temp
                                 hover im.MatrixColor(temp, im.matrix.brightness(.15))
-                                action Return(["json", "select", "penis", tmp])
+                                action Return(["json", "text", "penis", 30])
                                 tooltip "Edit"
                 if "personality" in char:
                     # "Yandere"
@@ -769,17 +828,22 @@ screen tagger_char_json_config(char):
                                 temp += "*"
                         hbox:
                             xalign 1.0
-                            text temp yalign .5 color color
+                            textbutton temp:
+                                yalign .5
+                                text_color color
+                                background Null()
+                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                                action Return(["json", "select", "personality", tmp])
                             $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
                             imagebutton:
                                 idle temp
                                 hover im.MatrixColor(temp, im.matrix.brightness(.15))
-                                action Return(["json", "select", "personality", tmp])
+                                action Return(["json", "text", "personality", 30])
                                 tooltip "Edit"
                 if "basetraits" in char:
                     # "Healer"
                     hbox:
-                        label u"Base-traits:" align .0, .5
+                        label u"Base-traits:" align .0, .0
                         vbox:
                             xfill True
                             python:
@@ -810,7 +874,7 @@ screen tagger_char_json_config(char):
                 if "elements" in char:
                     # "Fire"
                     hbox:
-                        label u"Elements:" align .0, .5
+                        label u"Elements:" align .0, .0
                         vbox:
                             xfill True
                             python:
@@ -841,7 +905,7 @@ screen tagger_char_json_config(char):
                 if "traits" in char:
                     # "Fire"
                     hbox:
-                        label u"Traits:" align .0, .5
+                        label u"Traits:" align .0, .0
                         vbox:
                             xfill True
                             python:
@@ -861,7 +925,7 @@ screen tagger_char_json_config(char):
                                         continue
                                     if getattr(v, "mob_only", False):
                                         continue
-                                    if getattr(v, "MC_only_trait", False):
+                                    if getattr(v, "MC_trait", False):
                                         continue
                                     std_traits.append(k)
                                 std_traits.sort()
@@ -887,7 +951,7 @@ screen tagger_char_json_config(char):
                 if "random_traits" in char:
                     # ["Long Legs", 20], ...
                     hbox:
-                        label u"Random traits:" align .0, .5
+                        label u"Random traits:" align .0, .0
                         vbox:
                             xfill True
                             python:
@@ -902,7 +966,7 @@ screen tagger_char_json_config(char):
                                         continue
                                     if getattr(v, "mob_only", False):
                                         continue
-                                    if getattr(v, "MC_only_trait", False):
+                                    if getattr(v, "MC_trait", False):
                                         continue
                                     if getattr(v, "gender", gender) != gender:
                                         continue
@@ -921,17 +985,32 @@ screen tagger_char_json_config(char):
                                 tmp = OrderedDict([(k, k) for k, t in rnd_traits])
                             for t in char["random_traits"]:
                                 $ trait, chance = t
-                                $ color = "ivory" if (trait in tmp and (not chance or isinstance(chance, int))) else "red"
+                                $ trait_color = "ivory" if trait in tmp else "red"
+                                $ chance_color = "ivory" if not chance or isinstance(chance, int) else "red"
                                 hbox:
                                     xalign 1.0
-                                    text ("%s:" % trait) yalign .5 color color
+                                    textbutton trait:
+                                        yalign .5
+                                        text_color trait_color
+                                        background Null()
+                                        hover_background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                                        action Return(["json", "edit", t, 0, "select", tmp])
                                     $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
                                     imagebutton:
                                         idle temp
                                         hover im.MatrixColor(temp, im.matrix.brightness(.15))
-                                        action Return(["json", "edit", t, 0, "select", tmp])
+                                        action Return(["json", "edit", t, 0, "text", 30])
                                         tooltip "Edit"
-                                    text str(chance) yalign .5 color color
+                                    text ":" color "ivory" yalign .5
+                                    textbutton str(chance):
+                                        yalign .5
+                                        xminimum 40
+                                        margin 0, 0
+                                        padding 0, 0
+                                        text_color chance_color
+                                        text_align 1.0, .5
+                                        background Null()
+                                        action NullAction()
                                     $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
                                     imagebutton:
                                         idle temp
@@ -976,17 +1055,22 @@ screen tagger_char_json_config(char):
                             color = "ivory" if temp in tmp else "red"
                         hbox:
                             xalign 1.0
-                            text temp yalign .5 color color
+                            textbutton temp:
+                                yalign .5
+                                text_color color
+                                background Null()
+                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                                action Return(["json", "select", "default_attack_skill", tmp])
                             $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
                             imagebutton:
                                 idle temp
                                 hover im.MatrixColor(temp, im.matrix.brightness(.15))
-                                action Return(["json", "select", "default_attack_skill", tmp])
+                                action Return(["json", "text", "default_attack_skill", 30])
                                 tooltip "Edit"
                 if "magic_skills" in char:
                     # "city"
                     hbox:
-                        label u"Magic skills:" align .0, .5
+                        label u"Magic skills:" align .0, .0
                         vbox:
                             xfill True
                             python:
@@ -1155,7 +1239,7 @@ screen tagger():
                             text_outlines [(2, outlines, 0, 0)]
                         text_hover_color "crimson"
                         background Null()
-                        hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
+                        hover_background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
 
         # Tagz:
         frame:
@@ -1191,7 +1275,7 @@ screen tagger():
                     text_layout "nobreak"
                     text_hover_color "crimson"
                     background Null()
-                    hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
+                    hover_background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
 
         if show_tags & 2:
             # Tag Groups
@@ -1224,8 +1308,8 @@ screen tagger():
                         text_hover_color "crimson"
                         background Null()
                         selected tg in tagr.selected_groups
-                        selected_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
-                        hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2.png", im.matrix.brightness(.10)), 5, 5)
+                        selected_background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                        hover_background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
                 null height 5
                 textbutton ("Deselect All" if tagr.selected_groups else "Select All"):
                     xysize (150, 30)
