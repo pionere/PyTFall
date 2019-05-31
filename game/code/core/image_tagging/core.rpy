@@ -177,7 +177,7 @@ init -9 python:
 
             self.load_tag_chars("chars")
 
-            char = next(iter(self.all_chars.values()))
+            char = next(iter(self.all_chars.itervalues()))
             self.select_char(char)
 
             if "pytfall" in globals():
@@ -195,7 +195,7 @@ init -9 python:
             all_chars = load_characters(group)
 
             self.all_chars = all_chars
-            self.char_group = group
+            self.list_group = group
 
         def group_fields(self):
             if self.char_group == "rchars":
@@ -260,11 +260,39 @@ init -9 python:
 
         def select_char(self, char):
             self.char = char
+            self.char_group = self.list_group
             self.images = sorted(tagdb.get_imgset_with_tag(char["id"]))
             #images = [images[i:i+30] for i in range(0, len(images), 30)]
             self.imagespage = 0
             self.path_to_pic = char["_path_to_imgfolder"]
             self.pic = self.tagz = self.oldtagz = None
+
+        def create_char(self, folder, id):
+            folder = os.path.normpath(folder)
+            id = os.path.normpath(id)
+            if os.sep in id or os.sep in folder:
+                return "Subfolders are not supported!"
+            if id in self.all_chars:
+                return "ID Already Exists!"
+            dir = content_path(self.list_group)
+            dir = os.path.join(dir, folder)
+            # create base folder
+            try:
+                os.mkdir(dir)
+            except:
+                pass
+            dir = os.path.join(dir, id)
+            # create json
+            self.char_edit = OrderedDict([("id", id), ("_path_to_imgfolder", dir)])
+            self.save_json()
+            # create folder
+            try:
+                os.mkdir(dir)
+            except:
+                # existing folder -> load the files
+                self.load_tag_chars(self.list_group)
+            # select the new char
+            self.select_char(self.char)
 
         def select_image(self, image):
             self.pic = image
@@ -395,21 +423,23 @@ init -9 python:
                 value = json_data.get(field, None)
                 if type == "list":
                     if not value:
-                        json_data.pop(field)
+                        json_data.pop(field, None)
                 elif type in ["text", "number"]:
                     if value == "":
-                        json_data.pop(field)
+                        json_data.pop(field, None)
                 else:
                     if value == type:
-                        json_data.pop(field)
+                        json_data.pop(field, None)
             path = json_data.pop("_path_to_imgfolder")
-            path = path.split(os.sep)
-            folder = path[-1]
-            path[-1] = "data_" + folder + ".json"
-            path = os.sep.join(path) 
-            with open(path, 'w') as outfile:
-                json.dump(json_data, outfile, indent=4)
+            _path = path.split(os.sep)
+            folder = _path[-1]
+            _path[-1] = "data_" + folder + ".json"
+            _path = os.sep.join(_path) 
+            with open(_path, 'w') as outfile:
+                json.dump([json_data], outfile, indent=4)
 
+            # restore path-to-imgfolder
+            json_data["_path_to_imgfolder"] = path
             self.char = json_data
             self.char_edit = None
 

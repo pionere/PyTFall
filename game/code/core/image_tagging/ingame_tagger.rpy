@@ -22,10 +22,15 @@ label tagger:
                 # rename file from input
                 n = renpy.call_screen("pyt_input", tagr.pic, "Enter Name", length=100, size=(1200, 150))
                 if len(n) and n != tagr.pic:
+                    n = os.path.normpath(n)
                     if os.sep in n:
                         renpy.show_screen("message_screen", "Moving to different folder is not supported!")
                     else:
                         tagr.rename_tag_file(tagr.pic, n)
+
+            elif result[0] == "refresh":
+                tagr.load_tag_chars(tagr.char_group)
+                tagr.select_char(tagr.char)
 
             elif result[0] == "generate_ids":
                 if tagr.tagz == tagr.oldtagz or renpy.call_screen("yesno_prompt", message="Discard your changes?", yes_action=Return(True), no_action=Return(False)):
@@ -144,7 +149,17 @@ label tagger:
                 if result[1] == "pick":
                     if tagr.tagz == tagr.oldtagz or renpy.call_screen("yesno_prompt", message="Discard your changes?", yes_action=Return(True), no_action=Return(False)):
                         tagr.select_char(result[2])
-
+                elif result[1] == "new":
+                    folder = result[2]
+                    n = result[3]
+                    if len(n) and len(folder):
+                        msg = tagr.create_char(folder, n)
+                        if not msg:
+                            renpy.hide_screen("tagger_create_tagchar")
+                    else:
+                        msg = "Both fields are mandatory!"
+                    if msg:
+                        renpy.show_screen("message_screen", msg)
             elif result[0] == "control":
                 if result[1] == "return":
                     break
@@ -157,9 +172,6 @@ screen tagger_pick_tagchar:
     zorder 3
     modal True
 
-    #key "mousedown_4" action NullAction()
-    #key "mousedown_5" action NullAction()
-
     frame:
         background Frame("content/gfx/frame/MC_bg3.png", 10, 10)
         align .5, .5
@@ -168,13 +180,13 @@ screen tagger_pick_tagchar:
             spacing 10
             hbox:
                 textbutton "Chars":
-                    sensitive tagr.char_group != "chars"
+                    sensitive tagr.list_group != "chars"
                     action Function(tagr.load_tag_chars, "chars")
                 textbutton "RChars":
-                    sensitive tagr.char_group != "rchars"
+                    sensitive tagr.list_group != "rchars"
                     action Function(tagr.load_tag_chars, "rchars")
                 textbutton "NPCs":
-                    sensitive tagr.char_group != "npc"
+                    sensitive tagr.list_group != "npc"
                     action Function(tagr.load_tag_chars, "npc")
             vbox:
                 box_wrap True
@@ -186,17 +198,97 @@ screen tagger_pick_tagchar:
                         xsize 100
                         action [Hide("tagger_pick_tagchar"), Return(["tagchar", "pick", g])]
                         tooltip g.get("name", ch_id)
-            textbutton "Close":
-                xalign 0.5
-                action Hide("tagger_pick_tagchar")
-                keysym "mousedown_3", "K_ESCAPE"
+            hbox:
+                xminimum 235
+                xalign .5
+                textbutton "Close":
+                    xalign 0.1
+                    action Hide("tagger_pick_tagchar")
+                    keysym "mousedown_3", "K_ESCAPE"
+                textbutton "New":
+                    xalign 0.9
+                    action [Hide("tagger_pick_tagchar"), Show("tagger_create_tagchar")]
+                    tooltip "Create new character in the current group"
+
+screen tagger_create_tagchar:
+    zorder 3
+    modal True
+    default char_id = ""
+    default folder = "random" if tagr.list_group == "rchars" else ("Naruto" if tagr.list_group == "chars" else "thugs")
+    default mode = "id"
+
+    frame:
+        background Frame("content/gfx/frame/MC_bg3.png", 10, 10)
+        align .5, .5
+        xysize (600, 200)
+        style_prefix "basic"
+        vbox:
+            spacing 10
+            hbox:
+                xfill True
+                vbox:
+                    xalign .0
+                    label u"ID:" yalign .5
+                    label u"Folder:" yalign .5
+                vbox:
+                    xfill True
+                    if mode == "id":
+                        input:
+                            id "id_input"
+                            default char_id
+                            length 50
+                            xalign .97
+                            style "TisaOTM"
+                            size 20
+                            color "ivory"
+                            changed dummy_interaction_restart
+                        text folder color "ivory" id "folder_input" xalign .97
+                    else:
+                        text char_id color "ivory" id "id_input" xalign .97
+                        input:
+                            id "folder_input"
+                            default folder
+                            length 50
+                            xalign .97
+                            style "TisaOTM"
+                            size 20
+                            color "ivory"
+                            changed dummy_interaction_restart
+                vbox:
+                    xalign 1.0
+                    xsize 20
+                    xoffset -16
+                    $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
+                    if mode == "folder":
+                        imagebutton:
+                            idle temp
+                            hover im.MatrixColor(temp, im.matrix.brightness(.15))
+                            action [SetScreenVariable("folder", renpy.get_widget("tagger_create_tagchar", "folder_input").content), SetScreenVariable("mode", "id")]
+                            tooltip "Edit ID"
+                    else:
+                        null height 30
+                        imagebutton:
+                            idle temp
+                            hover im.MatrixColor(temp, im.matrix.brightness(.15))
+                            action [SetScreenVariable("char_id", renpy.get_widget("tagger_create_tagchar", "id_input").content), SetScreenVariable("mode", "folder")]
+                            tooltip "Edit Folder"
+
+            hbox:
+                xfill True
+                textbutton "Cancel":
+                    xalign 0.1
+                    action [Hide("tagger_create_tagchar"), Show("tagger_pick_tagchar")]
+                    keysym "mousedown_3", "K_ESCAPE"
+                textbutton "Create":
+                    xalign 0.9
+                    action Return(["tagchar", "new",
+                                   folder if mode == "id" else renpy.get_widget("tagger_create_tagchar", "folder_input").content,
+                                   char_id if mode == "folder" else renpy.get_widget("tagger_create_tagchar", "id_input").content])
+                    tooltip "Create new character in the current group"
 
 screen tagger_char_json_config(char):
     zorder 2
     modal True
-
-    #key "mousedown_4" action NullAction()
-    #key "mousedown_5" action NullAction()
 
     viewport:
         ypos 30
@@ -426,18 +518,18 @@ screen tagger_char_json_config(char):
                         xfill True
                         label u"Color:" align .0, .5
                         python:
-                            temp = char["color"]
-                            if temp in _COLORS_:
-                                color = temp
-                            else:
-                                color = "red"
-                                temp += "*"
                             colors = _COLORS_.keys()
                             colors.sort()
                             tmp = OrderedDict()
                             tmp[""] = "None"
                             for k in colors:
                                 tmp[k] = k
+                            temp = char["color"]
+                            if temp in tmp:
+                                color = temp or "ivory"
+                            else:
+                                color = "red"
+                                temp += "*"
                         hbox:
                             xalign 1.0
                             text temp yalign .5 color color
@@ -453,18 +545,18 @@ screen tagger_char_json_config(char):
                         xfill True
                         label u"What color:" align .0, .5
                         python:
-                            temp = char["what_color"]
-                            if temp in _COLORS_:
-                                color = temp
-                            else:
-                                color = "red"
-                                temp += "*"
                             colors = _COLORS_.keys()
                             colors.sort()
                             tmp = OrderedDict()
                             tmp[""] = "None"
                             for k in colors:
                                 tmp[k] = k
+                            temp = char["what_color"]
+                            if temp in tmp:
+                                color = temp or "ivory"
+                            else:
+                                color = "red"
+                                temp += "*"
                         hbox:
                             xalign 1.0
                             text temp yalign .5 color color
@@ -967,7 +1059,16 @@ screen tagger():
             action Function(tagr.previous_page)
             sensitive len(tagr.images) > tagr.pagesize
             tooltip "Previous Page"
-        text ("%d." % tagr.imagespage) style "agrevue" color "cadetblue" xalign 0.5 ypos 35 size 12 #outlines [(1, "ivory", 0, 0)]
+        textbutton ("%d." % tagr.imagespage):
+            xysize 32, 16
+            background Frame("content/gfx/frame/MC_bg3.png", 10, 10)
+            text_color "cadetblue"
+            xalign .5
+            ypos 25
+            text_size 12
+            text_align .5, .5
+            action Return(["refresh"])
+            tooltip "Click to refresh the list"
         $ img = im.Scale("content/gfx/interface/buttons/blue_arrow_right.png", 30, 14)
         imagebutton:
             xalign .9
