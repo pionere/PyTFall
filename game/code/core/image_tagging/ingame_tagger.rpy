@@ -14,9 +14,15 @@ label tagger:
             if not isinstance(result, list):
                 continue
 
-            if result[0] == "select_pic":
-                if tagr.tagz == tagr.oldtagz or renpy.call_screen("yesno_prompt", message="Discard your changes?", yes_action=Return(True), no_action=Return(False)):
-                    tagr.select_image(result[1])
+            if result[0] == "select_image":
+                next_image = result[1]
+                if tagr.tagz != tagr.oldtagz:
+                    choice = renpy.call_screen("tagger_navigation_prompt")
+                    if choice == "cancel":
+                        continue
+                    if choice == "save":
+                        tagr.save_image()
+                tagr.select_image(next_image)
 
             elif result[0] == "rename":
                 # rename file from input
@@ -29,16 +35,27 @@ label tagger:
                         tagr.rename_tag_file(tagr.pic, n)
 
             elif result[0] == "refresh":
+                if tagr.tagz != tagr.oldtagz:
+                    choice = renpy.call_screen("tagger_navigation_prompt")
+                    if choice == "cancel":
+                        continue
+                    if choice == "save":
+                        tagr.save_image()
                 tagr.load_tag_chars(tagr.char_group)
                 tagr.select_char(tagr.char)
 
             elif result[0] == "generate_ids":
-                if tagr.tagz == tagr.oldtagz or renpy.call_screen("yesno_prompt", message="Discard your changes?", yes_action=Return(True), no_action=Return(False)):
-                    if tagr.tagz is not None:
+                if tagr.tagz != tagr.oldtagz:
+                    choice = renpy.call_screen("tagger_navigation_prompt")
+                    if choice == "cancel":
+                        continue
+                    if choice == "save":
+                        tagr.save_image()
+                    else:
                         tagr.tagz = tagr.oldtagz[:]
-                    if renpy.call_screen("yesno_prompt", message="This will prefix all images of the char with a generated ID.\n(Existing IDs with matching length are preserved)\nProceed?", yes_action=Return(True), no_action=Return(False)):
-                        repair = renpy.call_screen("yesno_prompt", message="Remove invalid tags?", yes_action=Return(True), no_action=Return(False))
-                        tagr.generate_ids(repair)
+                if renpy.call_screen("yesno_prompt", message="This will prefix all images of the char with a generated ID.\n(Existing IDs with matching length are preserved)\nProceed?", yes_action=Return(True), no_action=Return(False)):
+                    repair = renpy.call_screen("yesno_prompt", message="Remove invalid tags?", yes_action=Return(True), no_action=Return(False))
+                    tagr.generate_ids(repair)
 
             elif result[0] == "edit_json":
                 temp = deepcopy(tagr.char)
@@ -151,8 +168,14 @@ label tagger:
                     tagr.char_edit[field].remove(result[3])
             elif result[0] == "tagchar":
                 if result[1] == "pick":
-                    if tagr.tagz == tagr.oldtagz or renpy.call_screen("yesno_prompt", message="Discard your changes?", yes_action=Return(True), no_action=Return(False)):
-                        tagr.select_char(result[2])
+                    next_char = result[2]
+                    if tagr.tagz != tagr.oldtagz:
+                        choice = renpy.call_screen("tagger_navigation_prompt")
+                        if choice == "cancel":
+                            continue
+                        if choice == "save":
+                            tagr.save_image()
+                    tagr.select_char(next_char)
                 elif result[1] == "new":
                     folder = result[2]
                     n = result[3]
@@ -171,6 +194,50 @@ label tagger:
     hide screen tagger
     with dissolve
     jump mainscreen
+
+screen tagger_navigation_prompt:
+    zorder 3
+    modal True
+
+    # Get mouse coords:
+    python:
+        x, y = renpy.get_mouse_pos()
+        if y > config.screen_height/2:
+            yval = 1.0
+        else:
+            #y += row_size[1]
+            yval = .0
+        #xsize, ysize = row_size
+
+    frame:
+        background Frame("content/gfx/frame/MC_bg3.png", 10, 10)
+        xmargin 0
+        padding 5, 5
+        pos (x, y)
+        yanchor yval
+        style_prefix "basic"
+        vbox:
+            spacing 10
+            text u"The image has been modified. What do you want to do?" color "ivory"
+            hbox:
+                xalign .5
+                xsize 200
+                spacing 10
+                textbutton "Cancel":
+                    text_size 16
+                    style "basic_choice2_button"
+                    action Return("cancel")
+                    keysym "mousedown_3", "K_ESCAPE"
+                textbutton "Discard changes":
+                    text_layout "nobreak"
+                    text_size 16
+                    style "basic_choice2_button"
+                    action Return("discard")
+                textbutton "Save changes":
+                    text_layout "nobreak"
+                    text_size 16
+                    style "basic_choice2_button"
+                    action Return("save")
 
 screen tagger_pick_tagchar:
     zorder 3
@@ -446,8 +513,8 @@ screen tagger_char_json_config(char):
                             textbutton temp:
                                 yalign .5
                                 text_color color
-                                background Null()
-                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                                background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
                                 action Return(["json", "select", "race", tmp])
                             $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
                             imagebutton:
@@ -473,8 +540,8 @@ screen tagger_char_json_config(char):
                             textbutton temp:
                                 yalign .5
                                 text_color color
-                                background Null()
-                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                                background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
                                 action Return(["json", "select", "status", tmp])
                             $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
                             imagebutton:
@@ -500,8 +567,8 @@ screen tagger_char_json_config(char):
                             textbutton temp:
                                 yalign .5
                                 text_color color
-                                background Null()
-                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                                background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
                                 action Return(["json", "select", "gender", tmp])
                             $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
                             imagebutton:
@@ -527,8 +594,8 @@ screen tagger_char_json_config(char):
                             textbutton temp:
                                 yalign .5
                                 text_color color
-                                background Null()
-                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                                background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
                                 action Return(["json", "select", "height", tmp])
                             $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
                             imagebutton:
@@ -559,8 +626,8 @@ screen tagger_char_json_config(char):
                             textbutton temp:
                                 yalign .5
                                 text_color color
-                                background Null()
-                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                                background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
                                 action Return(["json", "select", "color", tmp])
                             $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
                             imagebutton:
@@ -591,8 +658,8 @@ screen tagger_char_json_config(char):
                             textbutton temp:
                                 yalign .5
                                 text_color color
-                                background Null()
-                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                                background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
                                 action Return(["json", "select", "what_color", tmp])
                             $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
                             imagebutton:
@@ -623,8 +690,8 @@ screen tagger_char_json_config(char):
                             textbutton temp:
                                 yalign .5
                                 text_color color
-                                background Null()
-                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                                background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
                                 action Return(["json", "select", "location", tmp])
                             $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
                             imagebutton:
@@ -683,7 +750,7 @@ screen tagger_char_json_config(char):
                         label u"Initial Items:" align .0, .5
                         python:
                             temp = char["item_up"]
-                            tmp = OrderedDict([(True, "True"), (False, "False"), ("auto", "auto")])
+                            tmp = OrderedDict([(True, "True"), (False, "False"), ("", "None")])
                             if temp in tmp:
                                 color = "ivory"
                                 temp = str(temp)
@@ -695,8 +762,8 @@ screen tagger_char_json_config(char):
                             textbutton temp:
                                 yalign .5
                                 text_color color
-                                background Null()
-                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                                background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
                                 action Return(["json", "select", "item_up", tmp])
                             $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
                             imagebutton:
@@ -709,11 +776,29 @@ screen tagger_char_json_config(char):
                     hbox:
                         xfill True
                         label u"Arena willing:" align .0, .5
+                        python:
+                            temp = char["arena_willing"]
+                            tmp = OrderedDict([(True, "True"), (False, "False"), ("", "None")])
+                            if temp in tmp:
+                                color = "ivory"
+                                temp = str(temp)
+                            else:
+                                color = "red"
+                                temp += "*"
                         hbox:
                             xalign 1.0
-                            textbutton str(char["arena_willing"]):
+                            textbutton temp:
                                 yalign .5
-                                action Return(["json", "bool", "arena_willing"])
+                                text_color color
+                                background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
+                                action Return(["json", "select", "arena_willing", tmp])
+                            $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
+                            imagebutton:
+                                idle temp
+                                hover im.MatrixColor(temp, im.matrix.brightness(.15))
+                                action Return(["json", "text", "arena_willing", 30])
+                                tooltip "Edit"
                 if "body" in char:
                     # "Athletic"
                     hbox:
@@ -736,8 +821,8 @@ screen tagger_char_json_config(char):
                             textbutton temp:
                                 yalign .5
                                 text_color color
-                                background Null()
-                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                                background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
                                 action Return(["json", "select", "body", tmp])
                             $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
                             imagebutton:
@@ -766,8 +851,8 @@ screen tagger_char_json_config(char):
                             textbutton temp:
                                 yalign .5
                                 text_color color
-                                background Null()
-                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                                background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
                                 action Return(["json", "select", "breasts", tmp])
                             $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
                             imagebutton:
@@ -796,8 +881,8 @@ screen tagger_char_json_config(char):
                             textbutton temp:
                                 yalign .5
                                 text_color color
-                                background Null()
-                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                                background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
                                 action Return(["json", "select", "penis", tmp])
                             $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
                             imagebutton:
@@ -831,8 +916,8 @@ screen tagger_char_json_config(char):
                             textbutton temp:
                                 yalign .5
                                 text_color color
-                                background Null()
-                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                                background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
                                 action Return(["json", "select", "personality", tmp])
                             $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
                             imagebutton:
@@ -1058,8 +1143,8 @@ screen tagger_char_json_config(char):
                             textbutton temp:
                                 yalign .5
                                 text_color color
-                                background Null()
-                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                                background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
                                 action Return(["json", "select", "default_attack_skill", tmp])
                             $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
                             imagebutton:
@@ -1122,41 +1207,49 @@ screen tagger():
 
     # char + pager:
     fixed:
-        xysize (150, 40)
-        style_prefix "basic"
-        $ temp = "Pick Char" if tagr.char is None else tagr.char["id"]
-        button:
-            xysize (150, 25)
-            xalign .5
-            text temp size 16 color "black" hover_color "crimson" align .5, .5:
+        xysize (150, 50)
+        python:
+            tmp = "{i}Click to select another character{/i}"
+            if tagr.char is None:
+                temp = "Pick Char"
+            else:
+                temp = tagr.char["id"]
+                tmp = "{b}%s{/b}\nImage folder: {a}%s{/a}\n%s" % (temp, tagr.char["_path_to_imgfolder"], tmp)
                 if len(temp) > 14:
-                    size 12
+                    temp = temp[0:12] + "..."
+        textbutton temp:
+            xysize (150, 30)
+            xalign .5
+            text_size 18
+            text_align .5, .5
             action Show("tagger_pick_tagchar")
-            tooltip "%sClick to select another character" % ("" if tagr.char is None else (temp + "\n"))
+            style "main_screen_3_button"
+            tooltip tmp
 
-        $ img = im.Scale("content/gfx/interface/buttons/blue_arrow_left.png", 30, 14)
+        $ img = im.Scale("content/gfx/interface/buttons/blue_arrow_left.png", 30, 18)
         imagebutton:
             xalign 0.1
-            ypos 25
+            ypos 35
             idle img
             hover im.MatrixColor(img, im.matrix.brightness(0.15))
             action Function(tagr.previous_page)
             sensitive len(tagr.images) > tagr.pagesize
             tooltip "Previous Page"
-        textbutton ("%d." % tagr.imagespage):
-            xysize 32, 16
-            background Frame("content/gfx/frame/MC_bg3.png", 10, 10)
+        textbutton str(tagr.imagespage):
+            xysize 32, 22
+            background Frame("content/gfx/frame/mes11.webp", 1, 1)
+            hover_background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
             text_color "cadetblue"
             xalign .5
-            ypos 25
-            text_size 12
-            text_align .5, .5
+            ypos 33
+            text_size 16
+            text_offset 0, 2
             action Return(["refresh"])
-            tooltip "Click to refresh the list"
-        $ img = im.Scale("content/gfx/interface/buttons/blue_arrow_right.png", 30, 14)
+            tooltip "{i}Click to refresh the list{/i}"
+        $ img = im.Scale("content/gfx/interface/buttons/blue_arrow_right.png", 30, 18)
         imagebutton:
             xalign .9
-            ypos 25
+            ypos 35
             idle img
             hover im.MatrixColor(img, im.matrix.brightness(0.15))
             action Function(tagr.next_page)
@@ -1165,11 +1258,11 @@ screen tagger():
 
     # images:
     viewport:
-        ypos 40
-        xysize (150, config.screen_height - 40)
+        ypos 60
+        xysize (150, config.screen_height - 85)
         mousewheel True
         style_prefix "basic"
-        has vbox xfill True
+        has vbox xfill True spacing 1
         if tagr.images:
             $ curr_images = tagr.page_images()
             $ temp = tagr.pic
@@ -1180,27 +1273,40 @@ screen tagger():
                     if not tagr.is_valid(fn):
                         fn_id += "*"
                 textbutton fn_id:
-                    xysize (145, 22)
+                    xysize (145, 20)
                     xalign .5
                     text_size 14
                     text_hover_color "crimson"
-                    text_align .5, .5
+                    hover_background Frame("content/gfx/frame/frame_gp.webp", 1, 1)
                     if temp == img:
-                        text_color "gray"
+                        background Frame("content/gfx/frame/mes12.jpg", 1, 1)
+                        text_color "orange"
                         action Return(["rename"])
-                        tooltip fn + "\nClick to rename"
+                        tooltip fn + "\n{i}Click to rename{/i}"
                     else:
-                        text_color "black"
-                        action Return(["select_pic", img])
+                        background Frame("content/gfx/frame/mes11.webp", 1, 1)
+                        text_color "ivory"
+                        action Return(["select_image", img])
                         tooltip fn
+
+    # generate ids
+    fixed:
+        ypos (config.screen_height - 25)
+        textbutton "Generate IDs":
+            xysize (150, 25)
+            text_size 16
+            sensitive tagr.images
+            background Null()
+            hover_background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
+            text_color "tomato"
+            action Return(["generate_ids"])
+            tooltip "Generate IDs for the images of the character"
 
     if tagr.pic:
         # Picture:
         fixed:
             xpos 152
             xysize (config.screen_width - 152, config.screen_height)
-            #add ProportionalScale(os.path.join(path_to_pic, pic), config.screen_width - 150, config.screen_height) align .5, .5
-            #add os.path.join(path_to_pic, pic) align .5, .5
             frame:
                 align (.5, .5)
                 background Null()
@@ -1329,16 +1435,16 @@ screen tagger():
         python:
             if show_tags == 0:
                 temp = "-"
-                tmp = "Click to Show Tags"
+                tmp = "{i}Click to Show Tags{/i}"
             elif show_tags == 1:
                 temp = "Tags"
-                tmp = "Click to Show Groups"
+                tmp = "{i}Click to Show Groups{/i}"
             elif show_tags == 2:
                 temp = "Groups"
-                tmp = "Click to Show Tags&Groups"
+                tmp = "{i}Click to Show Tags&Groups{/i}"
             else:
                 temp = "Tags&Groups"
-                tmp = "Click to Hide Tags&Groups"
+                tmp = "{i}Click to Hide Tags&Groups{/i}"
         textbutton temp:
             xysize (150, 30)
             sensitive tagr.pic is not None
@@ -1348,14 +1454,10 @@ screen tagger():
             xysize (150, 30)
             sensitive tagr.pic is not None and (tagr.tagz != tagr.oldtagz or not tagr.is_valid(tagr.pic))
             action Function(tagr.save_image)
-        textbutton "Generate IDs":
-            xysize (150, 30)
-            sensitive tagr.images
-            action Return(["generate_ids"])
         textbutton "JSON":
             xysize (150, 30)
             action Return(["edit_json"])
             tooltip "Show JSON config of the character"
 
-    use exit_button(size=(20, 20), action=tagr.return_action)
+    use exit_button(size=(24, 24), action=tagr.return_action)
     key "K_ESCAPE" action tagr.return_action

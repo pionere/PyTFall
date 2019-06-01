@@ -283,7 +283,7 @@ init -11 python:
                             char.say_style[key] = color
 
                     # Note: Location is later normalized in init method.
-                    for key in ("name", "nickname", "fullname", "origin", "gold", "desc", "status", "location", "height", "full_race"):
+                    for key in ("name", "nickname", "fullname", "origin", "gold", "desc", "status", "location", "height", "full_race", "arena_willing"):
                         if key in gd:
                             temp = gd[key]
                             if key in ["name", "nickname", "fullname"] and len(temp) > 20:

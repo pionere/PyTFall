@@ -2196,7 +2196,7 @@ init -9 python:
                 self.attack_skills.append(self.default_attack_skill)
 
             # Arena:
-            if self.arena_willing is None:
+            if not isinstance(self.arena_willing, bool):
                 self.arena_willing = self.status == "free" and "Combatant" in self.gen_occs
 
             # add ADVCharacter:

@@ -224,7 +224,8 @@ init -9 python:
                         #("status", "text"),
                         #("location", "text"),
                         #("tier", "number"),
-                        #("item_up", "auto"),
+                        #("item_up", "text"),
+                        #("arena_willing", "text"),
                         )
             else:
                 return (("id", "text"),
@@ -255,7 +256,8 @@ init -9 python:
                         ("status", "free"),
                         ("location", "text"),
                         ("tier", "number"),
-                        ("item_up", "auto"),
+                        ("item_up", "text"),
+                        ("arena_willing", "text"),
                         )
 
         def select_char(self, char):
@@ -356,7 +358,7 @@ init -9 python:
             return tagz != 0 and tagz == len(alltagz) - 1
 
         def generate_ids(self, repair):
-            # generate ID prefix for all files in the chars folder
+            # generate ID prefix for files without one in the chars folder
             images = self.images
 
             num = len(images)
@@ -377,9 +379,6 @@ init -9 python:
                 badimages.append(img)
 
             images = badimages
-
-            # sort images by the length of its name to prevent collision
-            images.sort(key=lambda x: len(x), reverse=True)
 
             result = dict()
             idx = 0
