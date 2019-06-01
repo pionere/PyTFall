@@ -2,7 +2,7 @@
     {
         "name": "Gardens of Eden",
         "unlocked": false,
-        "stage": 11,
+        "stage": 7,
         "img": "content/maps/eden.webp",
         "allowed_objects": []
     },

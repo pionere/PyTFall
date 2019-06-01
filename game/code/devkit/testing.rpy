@@ -21,6 +21,7 @@ init 1000 python:
             TestSuite.testTagDB()
             TestSuite.testBE()
             TestSuite.testChars()
+            TestSuite.testAreas()
 
         @staticmethod
         def testChars():
@@ -657,6 +658,154 @@ init 1000 python:
         @staticmethod
         def testFighters():
             pass
+
+        @staticmethod
+        def get_area_children(key, children, ac):
+            cc = children.get(key, None)
+            if cc is None:
+                return
+            for c in cc:
+                if c in ac:
+                    continue
+                ac.add(c)
+                TestSuite.get_area_children(c, children, ac)
+
+        @staticmethod
+        def testAreas():
+            fg_areas = load_fg_areas()
+
+            names = set()
+            parents = dict()
+            for key, area in fg_areas.iteritems():
+                if area.id != key:
+                    TestSuite.reportError("Bad Area Entry %s for area %s" % (key, area.id))
+                if not isinstance(key, int) or key < 0:
+                    TestSuite.reportError("Bad Area Key %s" % key)
+                if not isinstance(area, FG_Area):
+                    TestSuite.reportError("Invalid entry %s for key %s (not an FG_Area instance)!" % (key, str(area)))
+                    continue
+                name = getattr(area, "name", None)
+                if name is None:
+                    TestSuite.reportError("Area %s does not have a 'name' parameter!" % key)
+                    name = str(key)
+                else:
+                    if name in names:
+                        TestSuite.reportError("Area %s does not have a unique name!" % name)
+                    else:
+                        names.add(name)
+                    name = "'%s' (%s)" % (name, key)
+                if not hasattr(area, "stage"):
+                    TestSuite.reportError("Area %s does not have a 'stage' parameter!" % name)
+                if not hasattr(area, "img"):
+                    TestSuite.reportError("Area %s does not have an 'img' parameter!" % name)
+                if area.area is None:
+                    continue # main area -> skip the rest
+                if not isinstance(area.maxexplored, (int, float)) or area.maxexplored <= 0:
+                    TestSuite.reportError("Area %s has an invalid maxexplored setting %s (should be a greater than zero number)!" % (name, str(area.maxexplored)))
+                for item in area.items:
+                    if item not in items:
+                        TestSuite.reportError("Area %s has an invalid item to be found: %s!" % (name, item))
+                for k in getattr(area, "unlocks", []):
+                    if k == key or k not in fg_areas:
+                        TestSuite.reportError("Area %s unlocks an invalid area: %s!" % (name, k))
+                        continue
+                    entry = parents.get(k, None)
+                    if entry is None:
+                        parents[k] = key
+                    elif isinstance(entry, list):
+                        entry.append(key)
+                    else:
+                        parents[k] = [entry, key]
+                    try:
+                        uarea = fg_areas[k]
+                        parea = area.area
+                        uparea = uarea.area
+                        if uparea != parea:
+                            stage = fg_areas[parea].stage
+                            if uparea is None:
+                                ustage = uarea.stage
+                            else:
+                                ustage = fg_areas[uparea].stage
+                        else:
+                            stage = area.stage
+                            ustage = uarea.stage
+                        if stage >= ustage:
+                            uname = "'%s' (%s)" % (getattr(uarea, "name", ""), k)
+                            TestSuite.reportError("Area '%s' unlocks an area '%s' with lower or equal stage (%s vs. %s)!" % (name, uname, stage, ustage))
+                    except:
+                        pass
+
+            for k, v in parents.iteritems():
+                area = fg_areas[k]
+                if getattr(area, "unlocked", False):
+                    msg = "Unlocked Area %s is also unlocked by %s!"
+                    if not isinstance(v, list):
+                        v = [v]
+                elif not isinstance(v, list):
+                    continue
+                else:
+                    msg = "Area %s is unlocked by multiple areas: %s!"
+                name = "'%s' (%s)" % (getattr(area, "name", ""), k)
+                uname = ", ".join(["'%s' (%s)" % (getattr(fg_areas[k], "name", ""), k) for k in v])
+                TestSuite.reportError(msg % (name, uname))
+
+            base_areas = []
+            for key, area in fg_areas.iteritems():
+                entry = parents.get(key, None)
+                if getattr(area, "unlocked", False):
+                    parent = area.area
+                    if parent is None:
+                        base_areas.append(area)
+                        continue
+                    if entry is None:
+                        parents[key] = parent
+                    elif isinstance(entry, list):
+                        entry.append(parent)
+                    else:
+                        parents[key] = [entry, parent]
+                    continue
+                if entry is None:
+                    name = "'%s' (%s)" % (getattr(area, "name", ""), key)
+                    TestSuite.reportError("Area %s is inaccessible!" % name)
+
+            children = dict()
+            for k, v in parents.iteritems():
+                if not isinstance(v, list):
+                    v = [v]
+                for c in v:
+                    entry = children.get(c, None)
+                    if entry is None:
+                        children[c] = [k]
+                    elif isinstance(entry, list):
+                        entry.append(k)
+
+            base_areas.sort(key=lambda x: getattr(area, "stage", 0))
+            intervals = []
+            for area in base_areas:
+                key = area.id
+                ac = set()
+                TestSuite.get_area_children(key, children, ac)
+                if not ac:
+                    name = "'%s' (%s)" % (getattr(area, "name", ""), key)
+                    TestSuite.reportError("Base Area %s does not have a sub-area!" % name)
+                k_min = k_max = area.stage
+                for a in ac:
+                    try:
+                        a = fg_areas[a]
+                        if a.area is None:
+                            a = a.stage
+                            if a > k_max:
+                                k_max = a
+                    except:
+                        pass
+                intervals.append((k_min, k_max))
+            for i0, i1 in intervals:
+                #devlog.warn("Interval %s - %s" % (i0, i1))
+                for i0_, i1_ in intervals:
+                    if i0 < i0_ and i1 > i0_:
+                        name0 = "'%s' (%s)" % (getattr(fg_areas[i0], "name", ""), i0)
+                        name1 = "'%s' (%s)" % (getattr(fg_areas[i1], "name", ""), i1)
+                        TestSuite.reportError("Area %s and area %s have overlapping stage intervals [(%s;%s) - (%s;%s)]!" % (name0, name1, i0, i1, i0_, i1_))
 
         @staticmethod
         def gameHero():

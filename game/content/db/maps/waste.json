@@ -13,7 +13,7 @@
         "stage": 1,
         "tier": 0.5,
         "desc": "A large barren area. Most animals and monsters avoid it, only slimes and occasional bandits can be encountered here.",
-        "unlocked": false,
+        "unlocked": true,
         "travel_time": 0.2,
         "maxexplored": 500,
         "mobs": ["Slime", "Alkaline Slime", "Acid Slime", "Thug", "Malicious Stone"],
