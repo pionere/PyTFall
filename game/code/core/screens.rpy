@@ -17,16 +17,16 @@ screen new_style_tooltip():
     layer "tooltips"
     $ tooltip = GetTooltip()
 
-    use new_style_tooltip_content(tooltip)
+    if tooltip and persistent.tooltips:
+#        use new_style_tooltip_content(tooltip)
+#
+#screen new_style_tooltip_content(tooltip):
+        # Get mouse coords:
+        python:
+            x, y = renpy.get_mouse_pos()
+            xval = 1.0 if x > config.screen_width/2 else .0
+            yval = 1.0 if y > config.screen_height/2 else .0
 
-screen new_style_tooltip_content(tooltip):
-    # Get mouse coords:
-    python:
-        x, y = renpy.get_mouse_pos()
-        xval = 1.0 if x > config.screen_width/2 else .0
-        yval = 1.0 if y > config.screen_height/2 else .0
-
-    if persistent.tooltips and tooltip:
         if isinstance(tooltip, basestring):
             frame:
                 style_prefix "new_style_tooltip"

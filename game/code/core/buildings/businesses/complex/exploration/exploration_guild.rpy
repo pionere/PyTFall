@@ -24,9 +24,9 @@ init -9 python:
             self.cash_earned = 0
 
         def init(self):
+            self.stage = getattr(self, "stage", 0) # For Sorting.
             if self.area:
                 # add required field for sub-areas
-                self.stage = getattr(self, "stage", 0) # For Sorting.
                 self.tier = getattr(self, "tier", 0)   # Difficulty
                 self.daily_modifier = getattr(self, "daily_modifier", 0.1) # modifer when spending the night on the site
                 self.maxdays = getattr(self, "maxdays", 15) # maximum number of days to spend on site
