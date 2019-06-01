@@ -79,10 +79,8 @@ label start:
         tl.start("Loading/Sorting: Traits")
         traits = load_traits()
         global_flags.set_flag("last_modified_traits", os.path.getmtime(content_path('db/traits')))
-
-    call sort_traits_for_gameplay from _call_sort_traits_for_gameplay
-
-    $ tl.end("Loading/Sorting: Traits")
+        load_traits_context()
+        tl.end("Loading/Sorting: Traits")
 
     python: # Items/Shops: must be after traits and battle skills
         tl.start("Loading/Sorting: Items")
@@ -283,32 +281,6 @@ label sort_items_for_gameplay:
         del auto_shops, i
     return
 
-label sort_traits_for_gameplay:
-    python:
-        # This should be reorganized later:
-        tgs = object() # TraitGoups!
-        tgs.gents = [i for i in traits.values() if i.gents]
-        tgs.body = [i for i in traits.values() if i.body]
-        tgs.base = [i for i in traits.values() if i.basetrait and not i.mob_only]
-        tgs.elemental = [i for i in traits.values() if i.elemental]
-        tgs.el_names = set([i.id.lower() for i in tgs.elemental])
-        tgs.ct = [i for i in traits.values() if i.character_trait]
-        tgs.sexual = [i for i in traits.values() if i.sexual] # This is a subset of character traits!
-        tgs.race = [i for i in traits.values() if i.race]
-        tgs.client = [i for i in traits.values() if i.client]
-
-        # Base classes such as: {"SIW": [Prostitute, Stripper]}
-        gen_occ_basetraits = defaultdict(set)
-        for t in tgs.base:
-            for occ in t.occupations:
-                gen_occ_basetraits[occ].add(t)
-        del i, t, occ
-        gen_occ_basetraits = dict(gen_occ_basetraits)
-        
-        # initialize static data of BE_Core (might not be the best place, but requires tgs...)
-        BE_Core.init()
-    return
-
 label after_load:
     if hasattr(store, "stored_random_seed"):
         $ renpy.random.setstate(stored_random_seed)
@@ -353,9 +325,9 @@ label after_load:
                     update_object(curr_trait, trait, "Trait")
 
             del updated_traits
+            load_traits_context() 
             tl.end("Updating traits")
-            global_flags.set_flag("last_modified_traits", last_modified) 
-            renpy.call("sort_traits_for_gameplay")
+            global_flags.set_flag("last_modified_traits", last_modified)
 
     # Items:
     python hide:

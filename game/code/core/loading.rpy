@@ -327,24 +327,29 @@ init -11 python:
 
         return content
 
-    def load_special_arena_fighters():
-        females = getattr(store, "female_fighters", {})
-        males = getattr(store, "male_fighters", {})
-        exist = set(females.keys())
-        exist.update(males)
-        h = getattr(store, "hero")
-        if h:
-            exist.add(h.id)
-        json_data_raw = load_db_json("arena_fighters.json")
-        json_data = {}
-        for i in json_data_raw:
-            json_data[i["name"]] = i["basetraits"]
+    def load_special_arena_fighters(gender=None):
+        if gender is None:
+            females = getattr(store, "female_fighters", {})
+            males = getattr(store, "male_fighters", {})
+            exist = set(females.keys())
+            exist.update(males)
+            h = getattr(store, "hero")
+            if h:
+                exist.add(h.id)
+            genders = { "female": "females", "male": "males" }
+        else:
+            # tagger -> request for json_data only
+            females = males = {}
+            genders = { gender: gender + "s" }
+            
+        json_data = load_db_json("arena_fighters.json")
+        json_data = {i["name"]: i["basetraits"] for i in json_data}
 
         random_traits = tuple(traits[t] for t in ["Courageous", "Aggressive", "Vicious"])
         all_elements = tuple(traits[i.id] for i in tgs.elemental)
 
         dir = content_path("fighters")
-        genders = { "female": "females", "male": "males" }
+
         groups = {
             "assassins": traits["Assassin"],
             "healers": traits["Healer"],
@@ -365,14 +370,22 @@ init -11 python:
                     if os.path.isdir(_path):
                         tagdb.load_tags_folder(folder, _path)
 
+                    id = folder
+                    if females is males:
+                        # tagger -> prepare json data
+                        data = OrderedDict()
+                        if trait is None and id in json_data:
+                            # JSON adjusted
+                            data["basetraits"] = json_data[id]
+                        data["id"] = id
+                        data["_path_to_imgfolder"] = _path
+                        females[id] = data
+                        continue
                     # Allow database to be rebuilt but go no further.
                     if folder in exist:
                         continue
-                    id = folder
-                    path = os.path.join("content", "fighters", base_folder, group, folder)
 
                     elements = None
-                    
                     if trait is None: # JSON
                         base = []
                         if id in json_data:
@@ -413,7 +426,7 @@ init -11 python:
                             
                     # Create the fighter entity
                     fighter = NPC()
-                    fighter._path_to_imgfolder = path
+                    fighter._path_to_imgfolder = _path
                     fighter.id = id
                     fighter.gender = gender
                     if '_' in id:
@@ -645,6 +658,31 @@ init -11 python:
                         raise Exception("Invalid trait (%s) to block by %s trait." % (k, t.id))
                 t.blocks = [traits[k] for k in temp] # store the references of traits instead of their names
         return traits
+
+    def load_traits_context():
+        # This should be reorganized later:
+        traits = store.traits
+        tgs = object() # TraitGoups!
+        tgs.gents = [i for i in traits.itervalues() if i.gents]
+        tgs.body = [i for i in traits.itervalues() if i.body]
+        tgs.base = [i for i in traits.itervalues() if i.basetrait and not i.mob_only]
+        tgs.elemental = [i for i in traits.itervalues() if i.elemental]
+        tgs.el_names = set([i.id.lower() for i in tgs.elemental])
+        tgs.ct = [i for i in traits.itervalues() if i.character_trait]
+        tgs.sexual = [i for i in traits.itervalues() if i.sexual] # This is a subset of character traits!
+        tgs.race = [i for i in traits.itervalues() if i.race]
+        tgs.client = [i for i in traits.itervalues() if i.client]
+        store.tgs = tgs
+
+        # Base classes such as: {"SIW": [Prostitute, Stripper]}
+        gen_occ_basetraits = defaultdict(set)
+        for t in tgs.base:
+            for occ in t.occupations:
+                gen_occ_basetraits[occ].add(t)
+        store.gen_occ_basetraits = dict(gen_occ_basetraits)
+
+        # initialize static data of BE_Core (might not be the best place, but requires tgs...)
+        BE_Core.init()
 
     def load_fg_areas():
         content = list()

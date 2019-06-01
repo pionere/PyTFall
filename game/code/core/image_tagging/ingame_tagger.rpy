@@ -207,7 +207,6 @@ screen tagger_navigation_prompt:
         else:
             #y += row_size[1]
             yval = .0
-        #xsize, ysize = row_size
 
     frame:
         background Frame("content/gfx/frame/MC_bg3.png", 10, 10)
@@ -248,8 +247,8 @@ screen tagger_pick_tagchar:
         align .5, .5
         style_prefix "basic"
         vbox:
-            spacing 10
             hbox:
+                xalign .5
                 textbutton "Chars":
                     sensitive tagr.list_group != "chars"
                     action Function(tagr.load_tag_chars, "chars")
@@ -259,16 +258,33 @@ screen tagger_pick_tagchar:
                 textbutton "NPCs":
                     sensitive tagr.list_group != "npc"
                     action Function(tagr.load_tag_chars, "npc")
-            vbox:
-                box_wrap True
-                # text "Equip For:" style "black_serpent"
-                for g in tagr.all_chars.values():
-                    $ ch_id = g["id"]
-                    textbutton "{size=10}%s" % ch_id:
-                        xalign 0.5
-                        xsize 100
-                        action [Hide("tagger_pick_tagchar"), Return(["tagchar", "pick", g])]
-                        tooltip g.get("name", ch_id)
+            hbox:
+                xalign .5
+                textbutton "Female fighters":
+                    sensitive tagr.list_group != "female"
+                    action Function(tagr.load_tag_chars, "female")
+                textbutton "Male fighters":
+                    sensitive tagr.list_group != "male"
+                    action Function(tagr.load_tag_chars, "male")
+            null height 10
+            vpgrid:
+                rows 25
+                xalign .5
+                mousewheel True
+                for char in tagr.all_chars.values():
+                    python:
+                        temp = str(char["id"])
+                        if len(temp) > 16:
+                            tmp = temp[0:14] + "..."
+                        else:
+                            tmp = temp
+                    textbutton tmp:
+                        xsize 120
+                        text_size 12
+                        text_layout "nobreak"
+                        action [Hide("tagger_pick_tagchar"), Return(["tagchar", "pick", char])]
+                        tooltip char.get("name", temp)
+            null height 10
             hbox:
                 xminimum 235
                 xalign .5
@@ -285,7 +301,7 @@ screen tagger_create_tagchar:
     zorder 3
     modal True
     default char_id = ""
-    default folder = "random" if tagr.list_group == "rchars" else ("Naruto" if tagr.list_group == "chars" else "thugs")
+    default folder = tagr.base_folder()
     default mode = "id"
 
     frame:
@@ -357,6 +373,38 @@ screen tagger_create_tagchar:
                                    char_id if mode == "folder" else renpy.get_widget("tagger_create_tagchar", "id_input").content])
                     tooltip "Create new character in the current group"
 
+screen tagger_json_dropdown(char, field, options, label=None):
+    python:
+        value = char[field]
+        if value in options:
+            if field in ["color", "what_color"] and value:
+                color = value
+            else:
+                color = "ivory" 
+            value = str(value)
+        else:
+            color = "red"
+            value = "%s*" % value
+        if label is None:
+            label = u"%s:" % field.capitalize()
+    hbox:
+        xfill True
+        label label align .0, .5
+        hbox:
+            xalign 1.0
+            textbutton value:
+                yalign .5
+                text_color color
+                background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+                hover_background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
+                action Return(["json", "select", field, options])
+            $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
+            imagebutton:
+                idle temp
+                hover im.MatrixColor(temp, im.matrix.brightness(.15))
+                action Return(["json", "text", field, 30])
+                tooltip "Edit"
+
 screen tagger_char_json_config(char):
     zorder 2
     modal True
@@ -378,7 +426,7 @@ screen tagger_char_json_config(char):
                     label u"ID:" align .0, .5
                     text char["id"] align 1.0, .5
                 if "name" in char:
-                    # "An ordinary local girl.",
+                    # "Da Name",
                     hbox:
                         xfill True
                         $ temp = char["name"]
@@ -386,11 +434,11 @@ screen tagger_char_json_config(char):
                         hbox:
                             xalign 1.0
                             python:
-                                if len(temp) <= 20:
+                                if isinstance(temp, basestring) and len(temp) <= 20:
                                     color = "ivory"
                                 else:
                                     color = "red"
-                                    temp += "*"
+                                    temp = "%s*" % temp
                             text temp yalign .5 color color:
                                 if len(temp) > 50:
                                     size 12
@@ -401,7 +449,7 @@ screen tagger_char_json_config(char):
                                 action Return(["json", "text", "name", 100])
                                 tooltip "Edit"
                 if "nickname" in char:
-                    # "An ordinary local girl.",
+                    # "von Name",
                     hbox:
                         xfill True
                         $ temp = char["nickname"]
@@ -409,11 +457,11 @@ screen tagger_char_json_config(char):
                         hbox:
                             xalign 1.0
                             python:
-                                if len(temp) <= 20:
+                                if isinstance(temp, basestring) and len(temp) <= 20:
                                     color = "ivory"
                                 else:
                                     color = "red"
-                                    temp += "*"
+                                    temp = "%s*" % temp
                             text temp yalign .5 color color:
                                 if len(temp) > 50:
                                     size 12
@@ -424,7 +472,7 @@ screen tagger_char_json_config(char):
                                 action Return(["json", "text", "nickname", 100])
                                 tooltip "Edit"
                 if "fullname" in char:
-                    # "An ordinary local girl.",
+                    # "of Name",
                     hbox:
                         xfill True
                         $ temp = char["fullname"]
@@ -432,11 +480,11 @@ screen tagger_char_json_config(char):
                         hbox:
                             xalign 1.0
                             python:
-                                if len(temp) <= 20:
+                                if isinstance(temp, basestring) and len(temp) <= 20:
                                     color = "ivory"
                                 else:
                                     color = "red"
-                                    temp += "*"
+                                    temp = "%s*" % temp
                             text temp yalign .5 color color:
                                 if len(temp) > 50:
                                     size 12
@@ -493,212 +541,57 @@ screen tagger_char_json_config(char):
                                 tooltip "Edit"
                 if "race" in char:
                     # "Human"
-                    hbox:
-                        xfill True
-                        label u"Race:" align .0, .5
-                        python:
-                            temp = char["race"]
-                            tmp = OrderedDict()
-                            tmp[""] = "None"
-                            for k, v in traits.iteritems():
-                                if getattr(v, "race", False):
-                                    tmp[k] = k
-                            if temp in tmp:
-                                color = "ivory"
-                            else:
-                                color = "red"
-                                temp += "*"
-                        hbox:
-                            xalign 1.0
-                            textbutton temp:
-                                yalign .5
-                                text_color color
-                                background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
-                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
-                                action Return(["json", "select", "race", tmp])
-                            $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
-                            imagebutton:
-                                idle temp
-                                hover im.MatrixColor(temp, im.matrix.brightness(.15))
-                                action Return(["json", "text", "race", 30])
-                                tooltip "Edit"
+                    python:
+                        tmp = OrderedDict()
+                        tmp[""] = "None"
+                        for k, v in traits.iteritems():
+                            if getattr(v, "race", False):
+                                tmp[k] = k
+                    use tagger_json_dropdown(char, "race", tmp)
                 if "status" in char:
-                    # "average",
-                    hbox:
-                        xfill True
-                        label u"Status:" align .0, .5
-                        python:
-                            temp = char["status"]
-                            tmp = OrderedDict([(k, k) for k in STATIC_CHAR.STATUS])
-                            if temp in tmp:
-                                color = "ivory"
-                            else:
-                                color = "red"
-                                temp += "*"
-                        hbox:
-                            xalign 1.0
-                            textbutton temp:
-                                yalign .5
-                                text_color color
-                                background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
-                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
-                                action Return(["json", "select", "status", tmp])
-                            $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
-                            imagebutton:
-                                idle temp
-                                hover im.MatrixColor(temp, im.matrix.brightness(.15))
-                                action Return(["json", "text", "status", 30])
-                                tooltip "Edit"
+                    # "free",
+                    $ tmp = OrderedDict([(k, k) for k in STATIC_CHAR.STATUS])
+                    use tagger_json_dropdown(char, "status", tmp)
                 if "gender" in char:
-                    # "average",
-                    hbox:
-                        xfill True
-                        label u"Gender:" align .0, .5
-                        python:
-                            temp = char["gender"]
-                            tmp = OrderedDict([("male", "male"), ("female", "female")])
-                            if temp in tmp:
-                                color = "ivory"
-                            else:
-                                color = "red"
-                                temp += "*"
-                        hbox:
-                            xalign 1.0
-                            textbutton temp:
-                                yalign .5
-                                text_color color
-                                background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
-                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
-                                action Return(["json", "select", "gender", tmp])
-                            $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
-                            imagebutton:
-                                idle temp
-                                hover im.MatrixColor(temp, im.matrix.brightness(.15))
-                                action Return(["json", "text", "gender", 30])
-                                tooltip "Edit"
+                    # "female",
+                    $ tmp = OrderedDict([("male", "male"), ("female", "female")])
+                    use tagger_json_dropdown(char, "gender", tmp)
                 if "height" in char:
                     # "average",
-                    hbox:
-                        xfill True
-                        label u"Height:" align .0, .5
-                        python:
-                            temp = char["height"]
-                            tmp = OrderedDict([("short", "short"), ("average", "average"), ("tall", "tall")])
-                            if temp in tmp:
-                                color = "ivory"
-                            else:
-                                color = "red"
-                                temp += "*"
-                        hbox:
-                            xalign 1.0
-                            textbutton temp:
-                                yalign .5
-                                text_color color
-                                background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
-                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
-                                action Return(["json", "select", "height", tmp])
-                            $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
-                            imagebutton:
-                                idle temp
-                                hover im.MatrixColor(temp, im.matrix.brightness(.15))
-                                action Return(["json", "text", "height", 30])
-                                tooltip "Edit"
+                    $ tmp = OrderedDict([("short", "short"), ("average", "average"), ("tall", "tall")])
+                    use tagger_json_dropdown(char, "height", tmp)
+                $ colors = None
                 if "color" in char:
                     # "seagreen",
-                    hbox:
-                        xfill True
-                        label u"Color:" align .0, .5
-                        python:
-                            colors = _COLORS_.keys()
-                            colors.sort()
-                            tmp = OrderedDict()
-                            tmp[""] = "None"
-                            for k in colors:
-                                tmp[k] = k
-                            temp = char["color"]
-                            if temp in tmp:
-                                color = temp or "ivory"
-                            else:
-                                color = "red"
-                                temp += "*"
-                        hbox:
-                            xalign 1.0
-                            textbutton temp:
-                                yalign .5
-                                text_color color
-                                background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
-                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
-                                action Return(["json", "select", "color", tmp])
-                            $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
-                            imagebutton:
-                                idle temp
-                                hover im.MatrixColor(temp, im.matrix.brightness(.15))
-                                action Return(["json", "text", "color", 30])
-                                tooltip "Edit"
+                    python:
+                        colors = _COLORS_.keys()
+                        colors.sort()
+                        tmp = OrderedDict()
+                        tmp[""] = "None"
+                        for k in colors:
+                            tmp[k] = k
+                    use tagger_json_dropdown(char, "color", tmp)
                 if "what_color" in char:
                     # "seagreen",
-                    hbox:
-                        xfill True
-                        label u"What color:" align .0, .5
-                        python:
+                    python:
+                        if colors is None:
                             colors = _COLORS_.keys()
                             colors.sort()
                             tmp = OrderedDict()
                             tmp[""] = "None"
                             for k in colors:
                                 tmp[k] = k
-                            temp = char["what_color"]
-                            if temp in tmp:
-                                color = temp or "ivory"
-                            else:
-                                color = "red"
-                                temp += "*"
-                        hbox:
-                            xalign 1.0
-                            textbutton temp:
-                                yalign .5
-                                text_color color
-                                background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
-                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
-                                action Return(["json", "select", "what_color", tmp])
-                            $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
-                            imagebutton:
-                                idle temp
-                                hover im.MatrixColor(temp, im.matrix.brightness(.15))
-                                action Return(["json", "text", "what_color", 30])
-                                tooltip "Edit"
+                    use tagger_json_dropdown(char, "what_color", tmp)
                 if "location" in char:
                     # "city"
-                    hbox:
-                        xfill True
-                        label u"Location:" align .0, .5
-                        python:
-                            temp = char["location"]
-                            locs = [k["id"] for k in OnScreenMap()("pytfall")]
-                            locs.sort()
-                            tmp = OrderedDict()
-                            tmp[""] = "None"
-                            for k in locs:
-                                tmp[k] = k
-                            if temp in tmp:
-                                color = "ivory"
-                            else:
-                                color = "red"
-                                temp += "*"
-                        hbox:
-                            xalign 1.0
-                            textbutton temp:
-                                yalign .5
-                                text_color color
-                                background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
-                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
-                                action Return(["json", "select", "location", tmp])
-                            $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
-                            imagebutton:
-                                idle temp
-                                hover im.MatrixColor(temp, im.matrix.brightness(.15))
-                                action Return(["json", "text", "location", 30])
-                                tooltip "Edit"
+                    python:
+                        locs = [k["id"] for k in OnScreenMap()("pytfall")]
+                        locs.sort()
+                        tmp = OrderedDict()
+                        tmp[""] = "None"
+                        for k in locs:
+                            tmp[k] = k
+                    use tagger_json_dropdown(char, "location", tmp)
                 if "tier" in char:
                     # 2.5
                     hbox:
@@ -744,187 +637,51 @@ screen tagger_char_json_config(char):
                                 action Return(["json", "int", "gold"])
                                 tooltip "Edit"
                 if "item_up" in char:
-                    # "average",
-                    hbox:
-                        xfill True
-                        label u"Initial Items:" align .0, .5
-                        python:
-                            temp = char["item_up"]
-                            tmp = OrderedDict([(True, "True"), (False, "False"), ("", "None")])
-                            if temp in tmp:
-                                color = "ivory"
-                                temp = str(temp)
-                            else:
-                                color = "red"
-                                temp += "*"
-                        hbox:
-                            xalign 1.0
-                            textbutton temp:
-                                yalign .5
-                                text_color color
-                                background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
-                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
-                                action Return(["json", "select", "item_up", tmp])
-                            $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
-                            imagebutton:
-                                idle temp
-                                hover im.MatrixColor(temp, im.matrix.brightness(.15))
-                                action Return(["json", "text", "item_up", 30])
-                                tooltip "Edit"
+                    # boolean,
+                    $ tmp = OrderedDict([(True, "True"), (False, "False"), ("", "None")])
+                    use tagger_json_dropdown(char, "item_up", tmp, "Initial Items:")
                 if "arena_willing" in char:
                     # boolean
-                    hbox:
-                        xfill True
-                        label u"Arena willing:" align .0, .5
-                        python:
-                            temp = char["arena_willing"]
-                            tmp = OrderedDict([(True, "True"), (False, "False"), ("", "None")])
-                            if temp in tmp:
-                                color = "ivory"
-                                temp = str(temp)
-                            else:
-                                color = "red"
-                                temp += "*"
-                        hbox:
-                            xalign 1.0
-                            textbutton temp:
-                                yalign .5
-                                text_color color
-                                background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
-                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
-                                action Return(["json", "select", "arena_willing", tmp])
-                            $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
-                            imagebutton:
-                                idle temp
-                                hover im.MatrixColor(temp, im.matrix.brightness(.15))
-                                action Return(["json", "text", "arena_willing", 30])
-                                tooltip "Edit"
+                    $ tmp = OrderedDict([(True, "True"), (False, "False"), ("", "None")])
+                    use tagger_json_dropdown(char, "arena_willing", tmp)
                 if "body" in char:
                     # "Athletic"
-                    hbox:
-                        xfill True
-                        label u"Body:" align .0, .5
-                        python:
-                            temp = char["body"]
-                            tmp = OrderedDict()
-                            tmp[""] = "None"
-                            for k, v in traits.iteritems():
-                                if getattr(v, "body", False):
-                                    tmp[k] = k
-                            if temp in tmp:
-                                color = "ivory"
-                            else:
-                                color = "red"
-                                temp += "*"
-                        hbox:
-                            xalign 1.0
-                            textbutton temp:
-                                yalign .5
-                                text_color color
-                                background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
-                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
-                                action Return(["json", "select", "body", tmp])
-                            $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
-                            imagebutton:
-                                idle temp
-                                hover im.MatrixColor(temp, im.matrix.brightness(.15))
-                                action Return(["json", "text", "body", 30])
-                                tooltip "Edit"
+                    python:
+                        tmp = OrderedDict()
+                        tmp[""] = "None"
+                        for k, v in traits.iteritems():
+                            if getattr(v, "body", False):
+                                tmp[k] = k
+                    use tagger_json_dropdown(char, "body", tmp)
                 if "breasts" in char and char.get("gender", "female") == "female":
                     # "Average Boobs"
-                    hbox:
-                        xfill True
-                        label u"Breasts:" align .0, .5
-                        python:
-                            temp = char["breasts"]
-                            tmp = OrderedDict()
-                            for k, v in traits.iteritems():
-                                if getattr(v, "gents", False) and getattr(v, "gender", "female") == "female":
-                                    tmp[k] = k
-                            if temp in tmp:
-                                color = "ivory"
-                            else:
-                                color = "red"
-                                temp += "*"
-                        hbox:
-                            xalign 1.0
-                            textbutton temp:
-                                yalign .5
-                                text_color color
-                                background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
-                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
-                                action Return(["json", "select", "breasts", tmp])
-                            $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
-                            imagebutton:
-                                idle temp
-                                hover im.MatrixColor(temp, im.matrix.brightness(.15))
-                                action Return(["json", "text", "breasts", 30])
-                                tooltip "Edit"
+                    python:
+                        tmp = OrderedDict()
+                        for k, v in traits.iteritems():
+                            if getattr(v, "gents", False) and getattr(v, "gender", "female") == "female":
+                                tmp[k] = k
+                    use tagger_json_dropdown(char, "breasts", tmp)
                 if "penis" in char and char.get("gender", "male") == "male":
                     # "Average Dick"
-                    hbox:
-                        xfill True
-                        label u"Penis:" align .0, .5
-                        python:
-                            temp = char["penis"]
-                            tmp = OrderedDict()
-                            for k, v in traits.iteritems():
-                                if getattr(v, "gents", False) and getattr(v, "gender", "male") == "male":
-                                    tmp[k] = k
-                            if temp in tmp:
-                                color = "ivory"
-                            else:
-                                color = "red"
-                                temp += "*"
-                        hbox:
-                            xalign 1.0
-                            textbutton temp:
-                                yalign .5
-                                text_color color
-                                background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
-                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
-                                action Return(["json", "select", "penis", tmp])
-                            $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
-                            imagebutton:
-                                idle temp
-                                hover im.MatrixColor(temp, im.matrix.brightness(.15))
-                                action Return(["json", "text", "penis", 30])
-                                tooltip "Edit"
+                    python:
+                        tmp = OrderedDict()
+                        for k, v in traits.iteritems():
+                            if getattr(v, "gents", False) and getattr(v, "gender", "male") == "male":
+                                tmp[k] = k
+                    use tagger_json_dropdown(char, "penis", tmp)
                 if "personality" in char:
                     # "Yandere"
-                    hbox:
-                        xfill True
-                        label u"Personality:" align .0, .5
-                        python:
-                            temp = char["personality"]
-                            personalities = []
-                            for k, v in traits.iteritems():
-                                if getattr(v, "personality", False):
-                                    personalities.append(k)
-                            personalities.sort()
-                            tmp = OrderedDict()
-                            tmp[""] = "None"
-                            for k in personalities:
-                                tmp[k] = k
-                            if temp in tmp:
-                                color = "ivory"
-                            else:
-                                color = "red"
-                                temp += "*"
-                        hbox:
-                            xalign 1.0
-                            textbutton temp:
-                                yalign .5
-                                text_color color
-                                background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
-                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
-                                action Return(["json", "select", "personality", tmp])
-                            $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
-                            imagebutton:
-                                idle temp
-                                hover im.MatrixColor(temp, im.matrix.brightness(.15))
-                                action Return(["json", "text", "personality", 30])
-                                tooltip "Edit"
+                    python:
+                        personalities = []
+                        for k, v in traits.iteritems():
+                            if getattr(v, "personality", False):
+                                personalities.append(k)
+                        personalities.sort()
+                        tmp = OrderedDict()
+                        tmp[""] = "None"
+                        for k in personalities:
+                            tmp[k] = k
+                    use tagger_json_dropdown(char, "personality", tmp)
                 if "basetraits" in char:
                     # "Healer"
                     hbox:
@@ -1118,40 +875,22 @@ screen tagger_char_json_config(char):
 
                 if "default_attack_skill" in char:
                     # "Fist Attack"
-                    hbox:
-                        xfill True
-                        label u"Default Attack:" align .0, .5
-                        python:
-                            temp = char["default_attack_skill"]
-                            tmp = OrderedDict()
-                            tmp[""] = "None"
-                            attacks = []
-                            for k, s in battle_skills.iteritems():
-                                if getattr(s, "mob_only", False):
-                                    continue
-                                if s.delivery == "status" or "healing" in s.attributes or s.kind == "revival":
-                                    continue
-                                elif s.delivery == "magic":
-                                    continue
-                                attacks.append(k)
-                            attacks.sort()
-                            for k in attacks:
-                                tmp[k] = k
-                            color = "ivory" if temp in tmp else "red"
-                        hbox:
-                            xalign 1.0
-                            textbutton temp:
-                                yalign .5
-                                text_color color
-                                background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
-                                hover_background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
-                                action Return(["json", "select", "default_attack_skill", tmp])
-                            $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
-                            imagebutton:
-                                idle temp
-                                hover im.MatrixColor(temp, im.matrix.brightness(.15))
-                                action Return(["json", "text", "default_attack_skill", 30])
-                                tooltip "Edit"
+                    python:
+                        tmp = OrderedDict()
+                        tmp[""] = "None"
+                        attacks = []
+                        for k, s in battle_skills.iteritems():
+                            if getattr(s, "mob_only", False):
+                                continue
+                            if s.delivery == "status" or "healing" in s.attributes or s.kind == "revival":
+                                continue
+                            elif s.delivery == "magic":
+                                continue
+                            attacks.append(k)
+                        attacks.sort()
+                        for k in attacks:
+                            tmp[k] = k
+                    use tagger_json_dropdown(char, "default_attack_skill", tmp, "Default Attack:")
                 if "magic_skills" in char:
                     # "city"
                     hbox:
@@ -1215,13 +954,14 @@ screen tagger():
             else:
                 temp = tagr.char["id"]
                 tmp = "{b}%s{/b}\nImage folder: {a}%s{/a}\n%s" % (temp, tagr.char["_path_to_imgfolder"], tmp)
-                if len(temp) > 14:
-                    temp = temp[0:12] + "..."
+                if len(temp) > 12:
+                    temp = temp[0:10] + "..."
         textbutton temp:
             xysize (150, 30)
             xalign .5
             text_size 18
             text_align .5, .5
+            text_layout "nobreak"
             action Show("tagger_pick_tagchar")
             style "main_screen_3_button"
             tooltip tmp
@@ -1456,6 +1196,7 @@ screen tagger():
             action Function(tagr.save_image)
         textbutton "JSON":
             xysize (150, 30)
+            sensitive (tagr.char_group not in ["female", "male"] or "basetraits" in tagr.char)
             action Return(["edit_json"])
             tooltip "Show JSON config of the character"
 
