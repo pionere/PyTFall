@@ -445,11 +445,11 @@ screen race_and_elements(align=(.5, .99), char=None):
         $ elements = char.elements
         $ img = build_multi_elemental_icon(elements, size=90)
         $ img_h = build_multi_elemental_icon(elements, size=90, mc=im.matrix.brightness(.10))
+        $ ele = ", ".join([e.id for e in elements])
         frame:
             xysize (100, 100)
             background Frame(Transform("content/gfx/frame/frame_it1.png", alpha=.6, size=(100, 100)), 10, 10)
             add ProportionalScale("content/gfx/interface/images/elements/hover.png", 98, 98) align (.5, .5)
-            $ ele = ", ".join([e.id for e in elements])
             button:
                 xysize 90, 90
                 align .5, .5 offset -1, -1

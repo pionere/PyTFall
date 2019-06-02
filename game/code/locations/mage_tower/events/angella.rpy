@@ -84,8 +84,8 @@ label angelica_add_alignment:
         a "Ok then."
         jump angelica_menu
 
-    $ elements = list(el for el in traits.values() if el.elemental and el != traits["Neutral"] and el not in character.traits)
-    if len(elements) <= 0:
+    $ elements = list(el for el in tgs.real_elemental if el not in character.traits)
+    if not elements:
         a "Oh. It looks like you already have them all. It's not wise. Maybe you should remove a few?"
     else:
         call screen alignment_choice(character)
@@ -94,7 +94,7 @@ label angelica_add_alignment:
             if "Neutral" in character.traits:
                 $ price = 10000
             else:
-                $ price = 10000 + len([e for e in character.traits if e.elemental])*5000
+                $ price = 10000 + len(character.elements)*5000
             if global_flags.flag("angelica_free_alignment") or hero.take_money(price, reason="Element Purchase"):
                 a "There! All done!"
                 a "Don't let these new powers go into your head and use them responsibly!"
@@ -124,11 +124,11 @@ label angelica_remove_alignment:
         $ alignment = _return
         if alignment:
             if alignment == "clear_all":
-                $ price = 50000 * len(list(el for el in character.traits if el.elemental))
+                $ price = 50000 * len(character.elements)
                 if hero.take_money(price, reason="Element Purchase"):
                     a "There! All elements were removed."
                     python:
-                        for el in list(el for el in character.traits if el.elemental):
+                        for el in character.elements:
                             character.remove_trait(el)
                 else:
                     a "You don't have enough money. It will be [price] gold."
@@ -159,7 +159,8 @@ screen alignment_choice(character):
             text "Finish" size 15
 
     python:
-        elements = list(el for el in traits.values() if el.elemental and el != traits["Neutral"] and el not in character.traits)
+        char_elements = character.elements
+        elements = [el for el in tgs.real_elemental if el not in char_elements]
         step = 360 / len(elements)
         var = 0
 
@@ -177,8 +178,9 @@ screen alignment_choice(character):
     vbox:
         align .5, .65
         # Elements icon:
-        $ els = [Transform(e.icon, size=(90, 90)) for e in character.elements]
-        $ els_a = [Transform(im.MatrixColor(e.icon, im.matrix.brightness(.10)), size=(90, 90)) for e in character.elements]
+        $ img = build_multi_elemental_icon(char_elements, size=90)
+        $ img_h = build_multi_elemental_icon(char_elements, size=90, mc=im.matrix.brightness(.10))
+        $ ele = ", ".join([e.id for e in char_elements])
         frame:
             xalign .0
             yfill True
@@ -190,18 +192,13 @@ screen alignment_choice(character):
             xysize (100, 100)
             background Frame(Transform("content/gfx/frame/frame_it1.png", alpha=.6, size=(100, 100)), 10, 10)
             add ProportionalScale("content/gfx/interface/images/elements/hover.png", 98, 98) align (.5, .5)
-            $ x = 0
-            $ els = [Transform(i, crop=(90/len(els)*els.index(i), 0, 90/len(els), 90), subpixel=True, xpos=(x + 90/len(els)*els.index(i))) for i in els]
-            $ els_a = [Transform(i, crop=(90/len(els_a)*els_a.index(i), 0, 90/len(els_a), 90), subpixel=True, xpos=(x + 90/len(els_a)*els_a.index(i))) for i in els_a]
-            $ f = Fixed(*els, xysize=(90, 90))
-            $ f_a = Fixed(*els_a, xysize=(90, 90))
-
             button:
-                align .5, .5
-                xysize (90, 90)
+                xysize 90, 90
+                align .5, .5 offset -1, -1
                 action NullAction()
-                background Transform(f, align=(.5, .5))
-                hover_background Transform(f_a, align=(.5, .5))
+                background img
+                hover_background img_h
+                tooltip "Elements:\n   %s" % ele
 
 screen alignment_removal_choice(character):
     key "mousedown_3" action Return("")
@@ -216,7 +213,7 @@ screen alignment_removal_choice(character):
             text "Finish" size 15
 
     python:
-        elements = list(el for el in character.traits if el.elemental)
+        elements = character.elements
         step = 360 / len(elements)
         var = 0
 

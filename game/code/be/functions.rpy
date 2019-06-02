@@ -17,7 +17,7 @@ init -11 python:
 
     def build_multi_elemental_icon(elements=None, size=70, mc=None):
         if elements is None: # Everything except "Neutral"
-            elements = [e for e in tgs.elemental if e.id != "Neutral"]
+            elements = tgs.real_elemental
 
         fixed = Fixed(xysize=(size, size))
         angle = len(elements)

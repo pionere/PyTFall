@@ -675,6 +675,7 @@ init -11 python:
         tgs.body = [i for i in traits.itervalues() if i.body]
         tgs.base = [i for i in traits.itervalues() if i.basetrait and not i.mob_only]
         tgs.elemental = [i for i in traits.itervalues() if i.elemental]
+        tgs.real_elemental = [i for i in tgs.elemental if i.id != "Neutral"]
         tgs.el_names = set([i.id.lower() for i in tgs.elemental])
         tgs.ct = [i for i in traits.itervalues() if i.character_trait]
         tgs.sexual = [i for i in traits.itervalues() if i.sexual] # This is a subset of character traits!

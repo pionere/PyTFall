@@ -2204,6 +2204,10 @@ init -9 python:
             if not hasattr(self, "body"):
                 self.apply_trait(traits["Slim"])
 
+            # make sure mages and healers have a set element
+            if "Caster" in self.gen_occs and not self.elements:
+                self.apply_trait(random.choice(tgs.real_elemental))
+
             # generate random preferences if none provided
             if not hasattr(self, "preferences"):
                 self.preferences = {p: random.random() for p in STATIC_CHAR.PREFS}
