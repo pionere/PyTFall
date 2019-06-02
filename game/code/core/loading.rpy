@@ -116,11 +116,11 @@ init -11 python:
                             if b_traits is not None:
                                 drops = []
                                 for t in b_traits:
-                                    trait = store.traits.get(t, None)
+                                    trait = traits.get(t, None)
                                     if trait is None:
                                         char_debug("Unknown trait: %s for random girl: %s in %s!" % (t, id, key))
                                     elif trait.basetrait:
-                                        char_debug("Trait: %s for random girl: %s is a basetrait which can not be blocked (%s)!" % (t, id, key))
+                                        char_debug("Trait: %s for random character: %s is a basetrait which can not be blocked (%s)!" % (t, id, key))
                                     else:
                                         continue
                                     drops.append(t)
@@ -131,11 +131,11 @@ init -11 python:
                             t = gd.get(key, None)
                             if t is not None:
                                 field = "gents" if key in ["breasts", "penis"] else key
-                                trait = store.traits.get(t, None)
+                                trait = traits.get(t, None)
                                 if trait is None:
                                     char_debug("Unknown trait: %s for random girl: %s as %s!" % (t, id, key))
                                 elif not getattr(trait, field, False):
-                                    char_debug("Trait: %s for random girl: %s as %s is invalid (%s of the trait is not True)!" % (t, id, key, field))
+                                    char_debug("Trait: %s for random character: %s as %s is invalid (%s of the trait is not True)!" % (t, id, key, field))
                                 else:
                                     continue
                                 gd.pop(key)
@@ -144,11 +144,11 @@ init -11 python:
                         if b_traits is not None:
                             drops = []
                             for t in b_traits:
-                                trait = store.traits.get(t[0], None)
+                                trait = traits.get(t[0], None)
                                 if trait is None:
                                     char_debug("Unknown trait: %s for random girl: %s as 'random_traits'!" % (t[0], id))
                                 elif trait.basetrait:
-                                    char_debug("Trait: %s for random girl: %s is a basetrait which can not set as 'random_traits'!" % (t[0], id))
+                                    char_debug("Trait: %s for random character: %s as random_traits is invalid (is a basetrait)!" % (t[0], id))
                                 else:
                                     continue
                                 drops.append(t)
@@ -242,13 +242,15 @@ init -11 python:
                             else:
                                 char_debug("%s is not an elemental trait for %s!" % (t, id))
 
-                    temp = gd.get("traits", None)
+                    temp = gd.get("random_traits", None)
                     if temp is not None:
                         for t in temp:
-                            trait = traits.get(t, None)
+                            trait = traits.get(t[0], None)
                             if trait is None:
-                                char_debug("%s trait is unknown for %s!" % (t, id))
-                            else:
+                                char_debug("% random trait is unknown for %s!" % (t[0], id))
+                            elif trait.basetrait:
+                                char_debug("Random trait %s for %s is invalid (is a basetrait)!" % (t[0], id))
+                            elif dice(t[1]):
                                 char.apply_trait(trait)
 
                     # if "stats" in gd:
@@ -274,7 +276,7 @@ init -11 python:
                     if t is not None:
                         skill = battle_skills.get(t, None)
                         if skill is None:
-                            char_debug("%s JSON Loading func tried to apply unknown default attack skill: %s!" % (id, t))
+                            char_debug("%s default attack skill is unknown for %s!" % (t, id))
                         else:
                             char.default_attack_skill = skill
 
@@ -283,7 +285,7 @@ init -11 python:
                         for t in temp:
                             skill = battle_skills.get(t, None)
                             if skill is None:
-                                char_debug("%s JSON Loading func tried to apply unknown battle skill: %s!" % (id, t))
+                                char_debug("%s magic skill is unknown for %s!" % (t, id))
                             else:
                                 char.magic_skills.append(skill)
 

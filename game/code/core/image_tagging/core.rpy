@@ -260,9 +260,9 @@ init -9 python:
                         ("body", "text"),
                         #("blocked_traits", "list"),
                         #("ab_traits", "list"),
-                        ("elements", "list"),
-                        ("traits", "list"),
-                        #("random_traits", "list"),
+                        #("elements", "list"),
+                        #("traits", "list"),
+                        ("random_traits", "list"),
                         ("default_attack_skill", "Fist Attack"),
                         ("magic_skills", "list"),
                         ("status", "free"),
@@ -271,18 +271,11 @@ init -9 python:
                         ("item_up", "text"),
                         ("arena_willing", "text"),
                         )
-            #else: # "female"/"male" _fighters
-            #    return (("id", "text"),
-            #            ("basetraits", "list"),
-            #            ("gender", "female"),
-            #            )
-                
 
         def select_char(self, char):
             self.char = char
             self.char_group = self.list_group
             self.images = sorted(tagdb.get_imgset_with_tag(char["id"]))
-            #images = [images[i:i+30] for i in range(0, len(images), 30)]
             self.imagespage = 0
             self.path_to_pic = char["_path_to_imgfolder"]
             self.pic = self.tagz = self.oldtagz = None

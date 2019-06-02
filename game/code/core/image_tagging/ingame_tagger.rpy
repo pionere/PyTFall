@@ -242,9 +242,15 @@ screen tagger_pick_tagchar:
     zorder 3
     modal True
 
+    default gender = None
+    default genders = [None, "male", "female"]
+    default gender_icons = ["content/gfx/interface/icons/both.png",
+                            "content/gfx/interface/icons/male.png",
+                            "content/gfx/interface/icons/female.png"]
     frame:
         background Frame("content/gfx/frame/MC_bg3.png", 10, 10)
-        align .5, .5
+        xalign .5
+        ypos 20
         style_prefix "basic"
         vbox:
             hbox:
@@ -258,17 +264,33 @@ screen tagger_pick_tagchar:
                 textbutton "NPCs":
                     sensitive tagr.list_group != "npcs"
                     action Function(tagr.load_tag_chars, "npcs")
-            hbox:
-                xalign .5
                 textbutton "Fighters":
                     sensitive tagr.list_group != "female"
                     action Function(tagr.load_tag_chars, "fighters")
+            null height 5
+            hbox:
+                xminimum 235
+                xalign .5
+                # Gender filter
+                python:
+                    index = genders.index(gender)
+                    next_gender = genders[(index + 1) % len(genders)]
+                    img = ProportionalScale(gender_icons[index], 30, 30)
+                imagebutton:
+                    xalign .5
+                    action SetScreenVariable("gender", next_gender)
+                    idle img
+                    hover im.MatrixColor(img, im.matrix.brightness(.15))
             null height 10
+            $ all_chars = tagr.all_chars.values()
+            if gender is not None:
+                $ all_chars = [c for c in all_chars if c.get("gender", gender) == gender]
+            $ all_chars.sort(key=lambda x: x.get("name", x["id"]))
             vpgrid:
                 rows 25
                 xalign .5
                 mousewheel True
-                for char in tagr.all_chars.values():
+                for char in all_chars:
                     python:
                         temp = str(char["id"])
                         if len(temp) > 16:
