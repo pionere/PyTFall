@@ -117,7 +117,7 @@ label start:
         tl.start("Loading: All Characters!")
         chars = load_characters("chars", Char)
         #global_flags.set_flag("last_modified_chars", os.path.getmtime(content_path('chars')))
-        npcs = load_characters("npc", NPC)
+        npcs = load_characters("npcs", NPC)
         #global_flags.set_flag("last_modified_npcs", os.path.getmtime(content_path('npc')))
         rchars = load_characters("rchars")
         #global_flags.set_flag("last_modified_rchars", os.path.getmtime(content_path('rchars')))
@@ -198,9 +198,9 @@ label dev_testing_menu_and_load_mc:
                 # We're fucked if this is the case somehow :(
                 raise Exception("Something went horribly wrong with MC setup!")
 
-            male_fighters, female_fighters = load_special_arena_fighters()
-            af = choice(male_fighters.values())
-            del male_fighters[af.id]
+            fighters = load_characters("fighters", NPC)
+            af = choice(fighters.values())
+            del fighters[af.id]
 
             hero._path_to_imgfolder = af._path_to_imgfolder
             hero.id = af.id
@@ -382,18 +382,18 @@ label after_load:
         #last_modified = os.path.getmtime(content_path('npc'))
         if True: #last_modified_npcs < last_modified:
         #    tl.start("Updating NPCs")
-            updated_npcs = load_characters("npc", NPC)
+            updated_npcs = load_characters("npcs", NPC)
+            current_npcs = store.npcs
             for id, npc in updated_npcs.items():
-                curr_npc = store.npcs.get(id, None)
+                curr_npc = current_npcs.get(id, None)
                 if curr_npc is None:
                     # Add new NPC
-                    store.npcs[id] = npc
+                    current_npcs[id] = npc
         #            devlog.info("New NPC: {}".format(id))
         #        else:
         #            # Update the existing npc
         #            update_object(curr_npc, npc, "NPC")
 
-        #    del updated_npcs
         #    tl.end("Updating NPCs")
         #    global_flags.set_flag("last_modified_npcs", last_modified)
 
@@ -407,8 +407,75 @@ label after_load:
         #    tl.end("Updating rchars")
         #    global_flags.set_flag("last_modified_rchars", last_modified)
 
-        # Arena Chars (We need this for databases it would seem...):
-        load_special_arena_fighters()
+        # Arena Chars:
+        # always run till tagdb is not separated from load_characters
+        # last_modified_fighters = global_flags.get_flag("last_modified_fighters", 0)
+        # last_modified = os.path.getmtime(content_path('fighters'))
+        if True: #last_modified_rchars < last_modified:
+        #    tl.start("Updating Fighters")
+            current_fighters = getattr(store, "fighters", None)
+            if current_fighters is None:
+                # FIXME Save-Load Compatibility -> remove this part!
+                for pre_folder, new_folder in [("npc/shopkeepers", "npcs/shopkeepers"), ("npc/animals", "npcs/animals"), ("npc/thugs", "npcs/thugs"), ("npc/guards", "npcs/guards")]: 
+                    pre_folder = os.path.normpath(pre_folder)
+                    new_folder = os.path.normpath(new_folder)
+                    for npc in store.npcs.itervalues():
+                        npc._path_to_imgfolder = os.path.normpath(npc._path_to_imgfolder).replace(pre_folder, new_folder)
+
+                for npc in store.npcs.itervalues():
+                    npc.clear_img_cache()
+
+                current_fighters = dict()
+                if hasattr(store, "json_fighters"):
+                    folders = [("npc/arena_males", "fighters/males"), ("npc/arena_females", "fighters"), ("npc/arena_json_adjusted", "fighters/json_adjusted")]
+                    for id, fighter in store.json_fighters.iteritems():
+                        current_fighters[id] = fighter
+                    del store.json_fighters
+                else:
+                    folders = [("fighters/males/warriors", "fighters/males"), ("fighters/females", "fighters")]
+                    for id, fighter in store.female_fighters.iteritems():
+                        current_fighters[id] = fighter
+                    for id, fighter in store.male_fighters.iteritems():
+                        current_fighters[id] = fighter
+                    del store.male_fighters
+                    del store.female_fighters
+
+                arena = pytfall.arena
+                for pre_folder, new_folder in folders:
+                    pre_folder = os.path.normpath(pre_folder)
+                    new_folder = os.path.normpath(new_folder)
+                    hero._path_to_imgfolder = os.path.normpath(hero._path_to_imgfolder).replace(pre_folder, new_folder)
+
+                    for fighter in current_fighters.itervalues():
+                        fighter._path_to_imgfolder = os.path.normpath(fighter._path_to_imgfolder).replace(pre_folder, new_folder)
+
+                    for fighter in itertools.chain(arena.ladder, arena.arena_fighters.itervalues()):
+                        if fighter.__class__ == rChar:
+                            continue
+                        fighter._path_to_imgfolder = os.path.normpath(fighter._path_to_imgfolder).replace(pre_folder, new_folder)
+
+                    for team in itertools.chain(arena.teams_2v2, arena.teams_3v3,\
+                         arena.dogfights_1v1, arena.dogfights_2v2, arena.dogfights_3v3,\
+                         arena.lineup_1v1, arena.lineup_2v2, arena.lineup_3v3):
+
+                            for fighter in team:
+                                if fighter.__class__ == rChar:
+                                    continue
+                                fighter._path_to_imgfolder = os.path.normpath(fighter._path_to_imgfolder).replace(pre_folder, new_folder)
+
+                hero.clear_img_cache()
+                hero.update_sayer()
+                store.fighters = current_fighters
+
+            updated_fighters = load_characters("fighters", NPC)
+            updated_fighters.pop(hero.id, None)
+            for id, fighter in updated_fighters.items():
+                curr_fighter = current_fighters.get(id, None)
+                if curr_fighter is None:
+                    # Add new fighter
+                    current_fighters[id] = fighter
+        #    tl.end("Updating Fighters")
+        #    global_flags.set_flag("last_modified_fighters", last_modified)
 
         # lazy init BE_Core (might not be the best solution...)
         if not BE_Core.BDP:
@@ -1228,25 +1295,6 @@ label after_load:
                             fighter.stats.lvl_max["affection"] = 1000
 
     python hide:
-        if hasattr(store, "json_fighters"):
-            hero._path_to_imgfolder = hero._path_to_imgfolder.replace("npc/arena_males", "fighters/males/warriors")
-            hero.update_sayer()
-
-            for fighter in store.male_fighters.values():
-                fighter._path_to_imgfolder = fighter._path_to_imgfolder.replace("npc/arena_males", "fighters/males/warriors")
-            for fighter in store.female_fighters.values():
-                fighter._path_to_imgfolder = fighter._path_to_imgfolder.replace("npc/arena_females", "fighters/females")
-
-            for id, fighter in store.json_fighters.iteritems():
-                if fighter.gender == "male":
-                    store.male_fighters[id] = fighter
-                    fighter._path_to_imgfolder = fighter._path_to_imgfolder.replace("npc/arena_json_adjusted", "fighters/males/json_adjusted")
-                else:
-                    store.female_fighters[id] = fighter
-                    fighter._path_to_imgfolder = fighter._path_to_imgfolder.replace("npc/arena_json_adjusted", "fighters/females/json_adjusted")
-
-            del store.json_fighters
-
         for obj in pytfall.__dict__.values():
             if isinstance(obj, ItemShop) and not hasattr(obj, "total_items_price"):
                 obj.total_items_price = 0

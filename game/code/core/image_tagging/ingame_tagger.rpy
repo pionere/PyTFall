@@ -256,16 +256,13 @@ screen tagger_pick_tagchar:
                     sensitive tagr.list_group != "rchars"
                     action Function(tagr.load_tag_chars, "rchars")
                 textbutton "NPCs":
-                    sensitive tagr.list_group != "npc"
-                    action Function(tagr.load_tag_chars, "npc")
+                    sensitive tagr.list_group != "npcs"
+                    action Function(tagr.load_tag_chars, "npcs")
             hbox:
                 xalign .5
-                textbutton "Female fighters":
+                textbutton "Fighters":
                     sensitive tagr.list_group != "female"
-                    action Function(tagr.load_tag_chars, "female")
-                textbutton "Male fighters":
-                    sensitive tagr.list_group != "male"
-                    action Function(tagr.load_tag_chars, "male")
+                    action Function(tagr.load_tag_chars, "fighters")
             null height 10
             vpgrid:
                 rows 25
@@ -1196,7 +1193,6 @@ screen tagger():
             action Function(tagr.save_image)
         textbutton "JSON":
             xysize (150, 30)
-            sensitive (tagr.char_group not in ["female", "male"] or "basetraits" in tagr.char)
             action Return(["edit_json"])
             tooltip "Show JSON config of the character"
 

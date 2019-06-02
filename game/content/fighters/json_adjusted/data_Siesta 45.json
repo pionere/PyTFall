@@ -1,9 +1,10 @@
 [
     {
+        "id": "Siesta 45",
+        "name": "Siesta 45", 
         "basetraits": [
             "Healer"
         ], 
-        "id": "Siesta 45", 
         "gender": "female"
     }
 ]

@@ -559,7 +559,7 @@ init -9 python:
             return chain_fights
 
         def load_special_team_presets(self):
-            female_fighters = store.female_fighters
+            fighters = store.fighters
             teams = json.load(renpy.file("content/db/arena_teams.json"))
             team_members = set() # collect the fighters which are already added to teams
             for team in teams:
@@ -594,7 +594,7 @@ init -9 python:
                             if member in team_members:
                                 if member in chars:
                                     msg = "Unique character %s is added to teams twice!" % member.name
-                                else: # member in (female_fighters + male_fighters):
+                                else: # member in fighters:
                                     msg = "Arena Fighter %s is added to teams twice!" % member.name
                                 raise Exception(msg)
                             team_members.add(member)
@@ -604,10 +604,8 @@ init -9 python:
                                 raise Exception("Only free citizens can participate in arena fighting. A slave called '%s' added to arena teams." % member.name)
                             #if member in hero.chars:
                             #    hero.remove_char(member)
-                        elif member in female_fighters:
-                            member = female_fighters[member]
-                        elif member in male_fighters:
-                            member = male_fighters[member]
+                        elif member in fighters:
+                            member = fighters[member]
                         else:
                             break
                         self.arena_fighters[member.id] = member
@@ -669,8 +667,7 @@ init -9 python:
             """
             # Team formations!!!: -------------------------------------------------------------->
             self.load_special_team_presets()
-            self.arena_fighters.update(store.male_fighters)
-            self.arena_fighters.update(store.female_fighters)
+            self.arena_fighters.update(store.fighters)
 
             # Loading rest of Arena Combatants:
             candidates = self.get_arena_candidates()

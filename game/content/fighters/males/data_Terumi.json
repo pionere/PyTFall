@@ -1,6 +1,10 @@
 [
     {
-        "id": "Terumi", 
-        "gender": "male"
+        "id": "Terumi",
+        "name": "Terumi",
+        "gender": "male",
+        "basetraits": [
+            "Warrior"
+        ]
     }
 ]

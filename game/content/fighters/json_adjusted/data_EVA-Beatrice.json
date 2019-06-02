@@ -1,9 +1,10 @@
 [
     {
+        "id": "EVA-Beatrice",
+        "name": "EVA-Beatrice",
         "basetraits": [
             "Mage"
         ], 
-        "id": "EVA-Beatrice", 
         "gender": "female"
     }
 ]

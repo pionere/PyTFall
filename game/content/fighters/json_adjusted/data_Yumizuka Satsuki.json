@@ -1,9 +1,10 @@
 [
     {
+        "id": "Yumizuka Satsuki", 
+        "name": "Yumizuka Satsuki", 
         "basetraits": [
             "Mage"
         ], 
-        "id": "Yumizuka Satsuki", 
         "gender": "female"
     }
 ]

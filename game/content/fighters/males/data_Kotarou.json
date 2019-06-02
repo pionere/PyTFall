@@ -1,6 +1,10 @@
 [
     {
-        "id": "Kotarou", 
-        "gender": "male"
+        "id": "Kotarou",
+        "name": "Kotarou",
+        "gender": "male",
+        "basetraits": [
+            "Warrior"
+        ]
     }
 ]

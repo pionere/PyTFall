@@ -1,6 +1,10 @@
 [
     {
-        "id": "Reiji", 
-        "gender": "male"
+        "id": "Reiji",
+        "name": "Reiji",
+        "gender": "male",
+        "basetraits": [
+            "Warrior"
+        ]
     }
 ]

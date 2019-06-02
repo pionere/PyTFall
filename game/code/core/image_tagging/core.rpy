@@ -187,17 +187,13 @@ init -9 python:
 
         def load_tag_chars(self, group):
             """load characters from the game context or from the json files
-            :param group: one of 'rchars', 'chars', 'npc'
+            :param group: one of 'rchars', 'chars', 'npcs', 'fighters'
             """
             if "traits" not in globals():
                 store.traits = load_traits()
                 store.battle_skills = load_battle_skills()
                 load_traits_context()
-            if group in ("female", "male"):
-                # *_fighters
-                all_chars, all_chars = load_special_arena_fighters(group)
-            else:
-                all_chars = load_characters(group)
+            all_chars = load_characters(group)
 
             self.all_chars = all_chars
             self.list_group = group
@@ -208,9 +204,9 @@ init -9 python:
                 return "random"
             if group == "chars":
                 return "Naruto"
-            if group == "npc":
+            if group == "npcs":
                 return "thugs"
-            # "female"/"male"_fighters
+            # fighters
             return "json_adjusted"
 
         def group_fields(self):
@@ -243,7 +239,7 @@ init -9 python:
                         #("item_up", "text"),
                         #("arena_willing", "text"),
                         )
-            elif self.char_group in ("chars", "npc"):
+            else: #if self.char_group in ("chars", "npcs"):
                 return (("id", "text"),
                         ("name", "text"),
                         ("nickname", "text"),
@@ -275,10 +271,11 @@ init -9 python:
                         ("item_up", "text"),
                         ("arena_willing", "text"),
                         )
-            else: # "female"/"male" _fighters
-                return (("id", "text"),
-                        ("basetraits", "list"),
-                        )
+            #else: # "female"/"male" _fighters
+            #    return (("id", "text"),
+            #            ("basetraits", "list"),
+            #            ("gender", "female"),
+            #            )
                 
 
         def select_char(self, char):
@@ -299,8 +296,6 @@ init -9 python:
                 return "ID Already Exists!"
             group = self.list_group
             dir = group
-            if dir in ("female", "male"):
-                dir = os.path.join("fighters", dir + "s")
             dir = content_path(dir)
             dir = os.path.join(dir, folder)
             # create base folder
@@ -311,16 +306,9 @@ init -9 python:
             dir = os.path.join(dir, id)
             # create json
             char = OrderedDict([("id", id), ("_path_to_imgfolder", dir)])
-            if group in ("female", "male"):
-                if folder == "json_adjusted":
-                    char["basetraits"] = []
-                    self.char_edit = char
-                    self.char_group = group
-                    self.save_json()
-            else:
-                self.char_edit = char
-                self.char_group = group
-                self.save_json()
+            self.char_edit = char
+            self.char_group = group
+            self.save_json()
             # create folder
             try:
                 os.mkdir(dir)
@@ -474,42 +462,26 @@ init -9 python:
 
         def save_json(self):
             json_data = self.char_edit
-            path = json_data.pop("_path_to_imgfolder")
-            if self.char_group in ("female", "male"):
-                # "female"/"male" _fighters
-                file_data = load_db_json("arena_fighters.json")
-                id = json_data["id"]
-                base = json_data["basetraits"]
-                for i in file_data:
-                    if i["name"] == id:
-                        i["basetraits"] = base
-                        break
+            fields = self.group_fields()
+            for field, type in fields:
+                value = json_data.get(field, None)
+                if type == "list":
+                    if not value:
+                        json_data.pop(field, None)
+                elif type in ["text", "number"]:
+                    if value == "":
+                        json_data.pop(field, None)
                 else:
-                    data = OrderedDict([("name", id), ("basetraits", base)])
-                    file_data.append(data)
-                _path = content_path(os.path.join("db", "arena_fighters.json"))
-            else:
-                # standard charactters
-                fields = self.group_fields()
-                for field, type in fields:
-                    value = json_data.get(field, None)
-                    if type == "list":
-                        if not value:
-                            json_data.pop(field, None)
-                    elif type in ["text", "number"]:
-                        if value == "":
-                            json_data.pop(field, None)
-                    else:
-                        if value == type:
-                            json_data.pop(field, None)
+                    if value == type:
+                        json_data.pop(field, None)
 
-                _path = path.split(os.sep)
-                folder = _path[-1]
-                _path[-1] = "data_" + folder + ".json"
-                _path = os.sep.join(_path)
-                file_data = [json_data]
+            path = json_data.pop("_path_to_imgfolder")
+            _path = path.split(os.sep)
+            folder = _path[-1]
+            _path[-1] = "data_" + folder + ".json"
+            _path = os.sep.join(_path)
             with open(_path, 'w') as outfile:
-                json.dump(file_data, outfile, indent=4)
+                json.dump([json_data], outfile, indent=4)
 
             # restore path-to-imgfolder
             json_data["_path_to_imgfolder"] = path

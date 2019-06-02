@@ -1,6 +1,10 @@
 [
     {
-        "id": "Kiritsugu", 
-        "gender": "male"
+        "id": "Kiritsugu",
+        "name": "Kiritsugu",
+        "gender": "male",
+        "basetraits": [
+            "Warrior"
+        ]
     }
 ]

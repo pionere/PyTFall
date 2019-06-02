@@ -1,9 +1,10 @@
 [
     {
+        "id": "Maria Custard",
+        "name": "Maria Custard", 
         "basetraits": [
             "Shooter"
         ], 
-        "id": "Maria Custard", 
         "gender": "female"
     }
 ]

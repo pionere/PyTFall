@@ -1,9 +1,10 @@
 [
     {
+        "id": "Shishio Makoto",
+        "name": "Shishio Makoto", 
         "basetraits": [
             "Assassin"
         ], 
-        "id": "Shishio Makoto", 
         "gender": "female"
     }
 ]

@@ -1,9 +1,10 @@
 [
     {
+        "id": "Siesta 410",
+        "name": "Siesta 410", 
         "basetraits": [
             "Mage"
         ], 
-        "id": "Siesta 410", 
         "gender": "female"
     }
 ]

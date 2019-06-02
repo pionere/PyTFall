@@ -1,9 +1,10 @@
 [
     {
+        "id": "Masou Shizuka",
+        "name": "Masou Shizuka", 
         "basetraits": [
             "Mage"
         ], 
-        "id": "Masou Shizuka", 
         "gender": "female"
     }
 ]

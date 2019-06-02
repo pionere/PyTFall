@@ -1,10 +1,11 @@
 [
     {
+        "id": "Riesbyfe Stridberg",
+        "name": "Riesbyfe Stridberg", 
         "basetraits": [
             "Knight", 
             "Warrior"
         ], 
-        "id": "Riesbyfe Stridberg", 
         "gender": "female"
     }
 ]

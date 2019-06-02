@@ -1,6 +1,14 @@
 label mc_setup:
     $ persistent.intro = True
-    $ male_fighters, female_fighters = load_special_arena_fighters()
+    $ fighters = load_characters("fighters", NPC)
+    python:
+        male_sprites = []
+        female_sprites = []
+        for fighter in fighters.itervalues():
+            if fighter.gender == "male":
+                male_sprites.append(fighter)
+            else:
+                female_sprites.append(fighter)
     $ mc_stories = load_db_json("mc_stories.json")
 
     $ main_story = None # Fathers occupation
@@ -56,11 +64,8 @@ label mc_setup_end:
         mc_substory: Sword
         """
         # cleanup of the fighters:
-        if hero.gender == "male":
-            del male_fighters[fighter.id]
-        else:
-            del female_fighters[fighter.id]
-        for char in chain(male_fighters.values(), female_fighters.values()):
+        del fighters[fighter.id]
+        for char in fighters.itervalues():
             char.clear_img_cache()
 
         # We build the MC here. First we get the classes player picked in the choices screen and add those to MC:
@@ -214,6 +219,8 @@ label mc_setup_end:
 
     python:
         del fighter
+        del female_sprites
+        del male_sprites
         del mc_stories
         del mc_substory
         del mc_story
@@ -224,8 +231,6 @@ label mc_setup_end:
 
 init: # MC Setup Screens:
     screen mc_setup():
-        default male_sprites = male_fighters.values()
-        default female_sprites = female_fighters.values()
         default sprites = male_sprites if hero.gender == "male" else female_sprites
         default index = 0
         default left_index = -1

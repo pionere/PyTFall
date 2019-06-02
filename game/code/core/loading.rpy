@@ -72,8 +72,7 @@ init -11 python:
         content = dict()
 
         if cls is not None:
-            exist = set(getattr(store, "chars", {}).keys())
-            exist.update(getattr(store, "npcs", {}))
+            exist = set(getattr(store, path, {}).keys())
 
         # Get to a folder with unique girl datafiles and imagefolders:
         for packfolder in os.walk(os.path.join(dir,'.')).next()[1]:
@@ -169,25 +168,40 @@ init -11 python:
                     # so we know where to draw images from:
                     char._path_to_imgfolder = _path
 
-                    # Check if there is a gender:
-                    if "gender" in gd:
-                        char.gender = gd["gender"]
+                    # Note: Location is later normalized in init method.
+                    for key in ("name", "nickname", "fullname"):
+                        temp = gd.get(key, None)
+                        if temp is not None:
+                            if len(temp) > 20:
+                                temp = temp[0:20]
+                            setattr(char, key, temp)
+                    for key in ("gender", "origin", "gold", "desc", "status", "location", "height", "full_race", "arena_willing"):
+                        temp = gd.get(key, None)
+                        if temp is not None:
+                            setattr(char, key, temp)
+                    if not char.name:
+                        name = get_first_name(char.gender)
+                        char.name = name
+                        char.fullname = " ".join([name, get_last_name()])
 
                     # @Review: We make sure all traits get applied first!
                     for key in ("blocked_traits", "ab_traits"):
-                        if key in gd:
+                        temp = gd.get(key, None)
+                        if temp is not None:
                             b_traits  = set()
-                            for t in gd[key]:
-                                if t in traits:
-                                    b_traits.add(traits[t])
-                                else:
+                            for t in temp:
+                                trait = traits.get(t, None)
+                                if trait is None:
                                     char_debug("%s trait is unknown for %s (In %s)!" % (t, id, key))
+                                else:
+                                    b_traits.add(trait)
                             setattr(char.traits, key, b_traits)
 
                     # Get and normalize basetraits:
-                    if "basetraits" in gd:
+                    temp = gd.get("basetraits", None)
+                    if temp is not None:
                         basetraits = set()
-                        for t in gd["basetraits"]:
+                        for t in temp:
                             trait = traits.get(t, None)
                             if trait is None:
                                 char_debug("%s basetrait is unknown for %s!" % (t, id))
@@ -197,15 +211,13 @@ init -11 python:
                                 char_debug("%s is not a basetrait for %s!" % (t, id))
 
                         if len(basetraits) > 2:
-                            while len(basetraits) > 2:
-                                basetraits.pop()
+                            basetraits = set(random.sample(tuple(basetraits), 2))
 
                         # In case that we have basetraits:
-                        if basetraits:
-                            char.traits.basetraits = basetraits
+                        char.traits.basetraits = basetraits
 
-                            for trait in basetraits:
-                                char.apply_trait(trait)
+                        for trait in basetraits:
+                            char.apply_trait(trait)
 
                     for key in ("personality", "breasts", "penis", "body", "race"):
                         t = gd.get(key, None)
@@ -219,8 +231,9 @@ init -11 python:
                             else:
                                 char.apply_trait(trait)
 
-                    if "elements" in gd:
-                        for t in gd["elements"]:
+                    temp = gd.get("elements", None)
+                    if temp is not None:
+                        for t in temp:
                             trait = traits.get(t, None)
                             if trait is None:
                                 char_debug("%s element is unknown for %s!" % (t, id))
@@ -229,8 +242,9 @@ init -11 python:
                             else:
                                 char_debug("%s is not an elemental trait for %s!" % (t, id))
 
-                    if "traits" in gd:
-                        for t in gd["traits"]:
+                    temp = gd.get("traits", None)
+                    if temp is not None:
+                        for t in temp:
                             trait = traits.get(t, None)
                             if trait is None:
                                 char_debug("%s trait is unknown for %s!" % (t, id))
@@ -256,39 +270,33 @@ init -11 python:
                     #             devlog.warning("%s skill is unknown for %s!" % (skill, gd["id"]))
                     #     del gd["skills"]
 
-                    if "default_attack_skill" in gd:
-                        skill = gd["default_attack_skill"]
-                        if skill in store.battle_skills:
-                            char.default_attack_skill = store.battle_skills[skill]
+                    t = gd.get("default_attack_skill", None)
+                    if t is not None:
+                        skill = battle_skills.get(t, None)
+                        if skill is None:
+                            char_debug("%s JSON Loading func tried to apply unknown default attack skill: %s!" % (id, t))
                         else:
-                            char_debug("%s JSON Loading func tried to apply unknown default attack skill: %s!" % (id, skill))
+                            char.default_attack_skill = skill
 
-                    if "magic_skills" in gd:
-                        skills = gd["magic_skills"]
-                        for skill in skills:
-                            if skill in store.battle_skills:
-                                skill = store.battle_skills[skill]
-                                char.magic_skills.append(skill)
+                    temp = gd.get("magic_skills", None)
+                    if temp is not None:
+                        for t in temp:
+                            skill = battle_skills.get(t, None)
+                            if skill is None:
+                                char_debug("%s JSON Loading func tried to apply unknown battle skill: %s!" % (id, t))
                             else:
-                                char_debug("%s JSON Loading func tried to apply unknown battle skill: %s!" % (id, skill))
+                                char.magic_skills.append(skill)
 
                     for key in ("color", "what_color"):
-                        if key in gd:
+                        t = gd.get(key, None)
+                        if t is not None:
                             try:
-                                color = Color(gd[key])
+                                color = Color(t)
                             except:
-                                debug_str = "%s color supplied to %s is invalid!" % (gd[key], id)
+                                debug_str = "%s color supplied to %s is invalid!" % (t, id)
                                 char_debug(debug_str)
                                 color = "ivory"
                             char.say_style[key] = color
-
-                    # Note: Location is later normalized in init method.
-                    for key in ("name", "nickname", "fullname", "origin", "gold", "desc", "status", "location", "height", "full_race", "arena_willing"):
-                        if key in gd:
-                            temp = gd[key]
-                            if key in ["name", "nickname", "fullname"] and len(temp) > 20:
-                                temp = temp[0:20]
-                            setattr(char, key, temp)
 
                     char.init() # Normalize!
 
@@ -296,18 +304,18 @@ init -11 python:
                     # if "level" in gd:
                     #     initial_levelup(char, gd["level"])
                     #     del gd["level"]
-                    if "tier" in gd:
-                        tier = gd["tier"]
-                        if isinstance(tier, dict):
-                            tier_up_to(char, **tier)
-                        else:
-                            tier_up_to(char, tier)
-                    else:
+                    temp = gd.get("tier", None)
+                    if temp is None:
                         tier = uniform(.1, .4)
                         tier_up_to(char, tier)
+                    else:
+                        if isinstance(temp, dict):
+                            tier_up_to(char, **temp)
+                        else:
+                            tier_up_to(char, temp)
 
-                    item_up = gd.get("item_up", "auto")
-                    if item_up == "auto":
+                    temp = gd.get("item_up", "auto")
+                    if temp == "auto":
                         if char.status == "slave":
                             give_tiered_items(char,
                                             give_civilian_items=True,
@@ -316,7 +324,7 @@ init -11 python:
                             give_tiered_items(char,
                                             give_civilian_items=True,
                                             give_bt_items=True)
-                    elif item_up:
+                    elif temp:
                         give_tiered_items(char,
                                         give_civilian_items=True,
                                         give_bt_items=True)

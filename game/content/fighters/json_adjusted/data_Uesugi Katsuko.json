@@ -1,9 +1,10 @@
 [
     {
+        "id": "Uesugi Katsuko",
+        "name": "Uesugi Katsuko", 
         "basetraits": [
             "Warrior"
         ], 
-        "id": "Uesugi Katsuko", 
         "gender": "female"
     }
 ]

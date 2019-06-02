@@ -1,9 +1,10 @@
 [
     {
+        "id": "Uesugi Kenshin",
+        "name": "Uesugi Kenshin", 
         "basetraits": [
             "Knight"
         ], 
-        "id": "Uesugi Kenshin", 
         "gender": "female"
     }
 ]

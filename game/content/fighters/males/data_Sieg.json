@@ -1,6 +1,10 @@
 [
     {
-        "id": "Sieg", 
-        "gender": "male"
+        "id": "Sieg",
+        "name": "Sieg",
+        "gender": "male",
+        "basetraits": [
+            "Warrior"
+        ]
     }
 ]

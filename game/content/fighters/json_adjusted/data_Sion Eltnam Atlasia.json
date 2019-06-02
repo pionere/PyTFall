@@ -1,9 +1,10 @@
 [
     {
+        "id": "Sion Eltnam Atlasia",
+        "name": "Sion Eltnam Atlasia",
         "basetraits": [
             "Mage"
         ], 
-        "id": "Sion Eltnam Atlasia", 
         "gender": "female"
     }
 ]

@@ -6,12 +6,12 @@ init -9 python:
 #just a small introduction
 label maria_tulip_1_event(event):
     scene bg arena_outside
-    $ m = store.female_fighters["Maria Custard"].say
-    $ s = store.female_fighters["Masou Shizuka"].say
+    $ m = store.fighters["Maria Custard"].say
+    $ s = store.fighters["Masou Shizuka"].say
 
     "You walked around the arena quarters when you saw a girl with an unusual weapon."
     "She was going in your direction, so you decided to approach her and satisfy your curiosity."
-    show expression store.female_fighters["Maria Custard"].get_vnsprite() as npc
+    show expression store.fighters["Maria Custard"].get_vnsprite() as npc
     with dissolve
     m "Hi!"
 

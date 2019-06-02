@@ -1,10 +1,11 @@
 [
     {
+        "id": "Uesugi Torako",
+        "name": "Uesugi Torako", 
         "basetraits": [
             "Assassin", 
             "Mage"
         ], 
-        "id": "Uesugi Torako", 
         "gender": "female"
     }
 ]
