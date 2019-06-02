@@ -1,0 +1,9 @@
+[
+    {
+        "id": "blonde_mage_1", 
+        "gender": "female", 
+        "basetraits": [
+            "Mage"
+        ]
+    }
+]

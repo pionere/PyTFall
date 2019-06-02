@@ -1,0 +1,9 @@
+[
+    {
+        "id": "green_warrior_3", 
+        "gender": "female", 
+        "basetraits": [
+            "Warrior"
+        ]
+    }
+]

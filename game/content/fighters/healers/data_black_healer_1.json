@@ -1,0 +1,9 @@
+[
+    {
+        "id": "black_healer_1", 
+        "gender": "female", 
+        "basetraits": [
+            "Healer"
+        ]
+    }
+]

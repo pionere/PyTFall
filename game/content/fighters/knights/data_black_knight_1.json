@@ -1,0 +1,9 @@
+[
+    {
+        "id": "black_knight_1", 
+        "gender": "female", 
+        "basetraits": [
+            "Knight"
+        ]
+    }
+]

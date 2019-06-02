@@ -1,0 +1,9 @@
+[
+    {
+        "id": "pink_mage_4", 
+        "gender": "female", 
+        "basetraits": [
+            "Mage"
+        ]
+    }
+]
