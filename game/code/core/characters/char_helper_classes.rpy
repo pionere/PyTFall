@@ -533,22 +533,22 @@ init -10 python:
 
             # Unique Traits:
             if trait.personality:
-                if getattr(char, "personality", False):
+                if hasattr(char, "personality"):
                     return
                 else:
                     char.personality = trait
             if trait.race:
-                if getattr(char, "race", False):
+                if hasattr(char, "race"):
                     return
                 else:
                     char.race = trait
             if trait.gents:
-                if getattr(char, "gents", False):
+                if hasattr(char, "gents"):
                     return
                 else:
                     char.gents = trait
             if trait.body:
-                if getattr(char, "body", False):
+                if hasattr(char, "body"):
                     return
                 else:
                     char.body = trait

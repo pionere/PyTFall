@@ -35,7 +35,7 @@ init -9 python:
     class PytCharacter(Flags, Tier, JobsLogger, Pronouns):
         """Base Character class for PyTFall.
         """
-        def __init__(self, arena=False, inventory=False, effects=False, is_worker=True):
+        def __init__(self, details):
             super(PytCharacter, self).__init__()
             self.img = None
             self.portrait = None
@@ -50,29 +50,42 @@ init -9 python:
             self.gender = "female"
             self.origin = None
             self.status = "free"
-            self.race = None
-            self.full_race = None
+            #self.personality = None
+            #self.race = None
+            #self.gents = None
+            #self.body = None
+            #self.full_race = None
 
             self.basePP = 300   # PP_PER_AP
             #self.setPP = 1     # This is set to the PP calculated for that day.
             #self.PP = 0        # Remaining PP (partial AP) for the day (100PP == 1AP) PP_PER_AP - initialized later
 
-            # Locations and actions, most are properties with setters and getters.
-            #                    Home        Workplace         Job  Action  Task        Location 
-            #    -    "fighter"  city            -               -            -             -    
-            #   char   "free"    city            -               -            -        [loc/jail]
-            #   char   "slave"    sm             -               -            -         [ra/jail]
-            # hero:            b/streets         b               j            -          [jail]  
-            #   char - "free"   b/city           b               j       [r/ar/s/x]      [jail]  
-            #   char - "slave" b/streets         b               j       [r/ar/s/x]     [ra/jail]
-            #                                                                        
-            #      *loc: a place in the city      *b: building      *ra: runaway     
-            #      *r: rest    *ar: auto rest    *s: study    *x: exploration
-            self.location = None   # Present Location.
-            self._workplace = None # Place of work.
-            self._home = None      # Living location.
-            self._job = None       # Permanent job to work in a building
-            self._task = None      # Temporary task (Rest/Study/Exploration)
+            Tier.__init__(self)
+
+            # Stat support Dicts:
+            stats = {
+                'charisma': [5, 0, 50, 60, 0, 0, 0],           # means [stat, min, max, lvl_max, imod, imin, imax]
+                'constitution': [5, 0, 50, 60, 0, 0, 0],
+                'joy': [50, 0, 100, 200, 0, 0, 0],             # FIXED_MAX
+                'character': [5, 0, 50, 60, 0, 0, 0],
+                'reputation': [0, 0, 100, 100, 0, 0, 0],       # FIXED_MAX
+                'health': [100, 0, 100, 200, 0, 0, 0],
+                'fame': [0, 0, 100, 100, 0, 0, 0],             # FIXED_MAX
+                'mood': [0, 0, 1000, 1000, 0, 0, 0],           # FIXED_MAX not used...
+                'disposition': [0, -1000, 1000, 1000, 0, 0, 0],# FIXED_MAX
+                'affection': [0, -1000, 1000, 1000, 0, 0, 0],  # FIXED_MAX
+                'vitality': [100, 0, 100, 200, 0, 0, 0],       # FIXED_MAX
+                'intelligence': [5, 0, 50, 60, 0, 0, 0],
+
+                'luck': [0, -50, 50, 50, 0, 0, 0],             # FIXED_MAX
+
+                'attack': [5, 0, 50, 60, 0, 0, 0],
+                'magic': [5, 0, 50, 60, 0, 0, 0],
+                'defence': [5, 0, 50, 60, 0, 0, 0],
+                'agility': [5, 0, 50, 60, 0, 0, 0],
+                'mp': [30, 0, 30, 50, 0, 0, 0]
+            }
+            self.stats = Stats(self, stats)
 
             # Traits:
             self.upkeep = 0 # Required for some traits...
@@ -80,20 +93,36 @@ init -9 python:
             self.traits = Traits(self)
             self.resist = SmartTracker(self, be_skill=False)  # A set of any effects this character resists. Usually it's stuff like poison and other status effects.
 
-            # Relationships:
-            self.friends = set()
-            self.lovers = set()
+            if details:
+                # Locations and actions, most are properties with setters and getters.
+                #                    Home        Workplace         Job  Action  Task        Location 
+                #    -    "fighter"  city            -               -            -             -    
+                #   char   "free"    city            -               -            -        [loc/jail]
+                #   char   "slave"    sm             -               -            -         [ra/jail]
+                # hero:            b/streets         b               j            -          [jail]  
+                #   char - "free"   b/city           b               j       [r/ar/s/x]      [jail]  
+                #   char - "slave" b/streets         b               j       [r/ar/s/x]     [ra/jail]
+                #                                                                        
+                #      *loc: a place in the city      *b: building      *ra: runaway     
+                #      *r: rest    *ar: auto rest    *s: study    *x: exploration
+                self.location = None   # Present Location.
+                self._workplace = None # Place of work.
+                self._home = None      # Living location.
+                self._job = None       # Permanent job to work in a building
+                self._task = None      # Temporary task (Rest/Study/Exploration)
 
-            # Arena related:
-            if arena:
+                # Relationships:
+                self.friends = set()
+                self.lovers = set()
+
+                # Arena related:
                 self.fighting_days = list() # Days of fights taking place
                 self.arena_willing = None # Indicates the desire to fight in the Arena
                 self.arena_permit = False # Has a permit to fight in main events of the arena.
                 self.arena_active = False # Indicates that character fights at Arena at the time.
                 self.arena_rep = 0 # Arena reputation
 
-            # Items
-            if inventory:
+                # Items
                 self.inventory = Inventory(15)
                 eqslots = {
                     "head": None,
@@ -121,40 +150,20 @@ init -9 python:
                 # consumables that failed to activate on cmax **We are not using this or at least I can't find this in code!
                 # self.maxouts = list()
 
-            # For workers (like we may not want to run this for mobs :) )
-            if is_worker:
-                Tier.__init__(self)
+                # For workers (like we may not want to run this for mobs :) )
                 JobsLogger.__init__(self)
 
-            # Stat support Dicts:
-            stats = {
-                'charisma': [5, 0, 50, 60, 0, 0, 0],           # means [stat, min, max, lvl_max, imod, imin, imax]
-                'constitution': [5, 0, 50, 60, 0, 0, 0],
-                'joy': [50, 0, 100, 200, 0, 0, 0],             # FIXED_MAX
-                'character': [5, 0, 50, 60, 0, 0, 0],
-                'reputation': [0, 0, 100, 100, 0, 0, 0],       # FIXED_MAX
-                'health': [100, 0, 100, 200, 0, 0, 0],
-                'fame': [0, 0, 100, 100, 0, 0, 0],             # FIXED_MAX
-                'mood': [0, 0, 1000, 1000, 0, 0, 0],           # FIXED_MAX not used...
-                'disposition': [0, -1000, 1000, 1000, 0, 0, 0],# FIXED_MAX
-                'affection': [0, -1000, 1000, 1000, 0, 0, 0],  # FIXED_MAX
-                'vitality': [100, 0, 100, 200, 0, 0, 0],       # FIXED_MAX
-                'intelligence': [5, 0, 50, 60, 0, 0, 0],
-
-                'luck': [0, -50, 50, 50, 0, 0, 0],             # FIXED_MAX
-
-                'attack': [5, 0, 50, 60, 0, 0, 0],
-                'magic': [5, 0, 50, 60, 0, 0, 0],
-                'defence': [5, 0, 50, 60, 0, 0, 0],
-                'agility': [5, 0, 50, 60, 0, 0, 0],
-                'mp': [30, 0, 30, 50, 0, 0, 0]
-            }
-            self.stats = Stats(self, stats)
-
-            if effects:
                 # Effects assets:
                 self.effects = _dict()
 
+                # Image cache
+                self.clear_img_cache()
+
+                # Say style properties:
+                self.say_style = {"color": "ivory"}
+                self.say = None # Speaker...
+
+            # BE fields
             self.controller = None # by default the player is in control in BE
             self.front_row = 1 # 1 for front row and 0 for back row.
 
@@ -162,15 +171,8 @@ init -9 python:
             self.magic_skills = SmartTracker(self)  # Magic Skills
             self.default_attack_skill = battle_skills["Fist Attack"] # This can be overwritten on character creation!
 
-            self.clear_img_cache()
-
-            # Say style properties:
-            self.say_style = {"color": "ivory"}
-
             # We add Neutral element here to all classes to be replaced later:
-            self.apply_trait(traits["Neutral"])
-
-            self.say = None # Speaker...
+            #self.apply_trait(traits["Neutral"])
 
         # Post init
         def init(self):
@@ -181,19 +183,25 @@ init -9 python:
                 self.fullname = self.name
             if not self.nickname:
                 self.nickname = self.name
+            # make sure there is at least one elemental trait
+            self.apply_trait(traits["Neutral"])
+
             # Dark's Full Race Flag:
-            if not self.full_race:
+            if hasattr(self, "race") and not hasattr(self, "full_race"):
                 self.full_race = str(self.race)
 
-            # AP restore:
-            self.restore_ap()
+            # Always init the tiers:
+            #self.recalculate_tier()
 
             # add Character:
-            if not self.say:
-                self.update_sayer()
+            #if not self.say:
+            #    self.update_sayer()
 
             if not self.origin:
                 self.origin = choice(STATIC_CHAR.ORIGIN)
+
+            # AP restore:
+            self.restore_ap()
 
         # Money:
         def take_money(self, value, reason="Other"):
@@ -213,7 +221,9 @@ init -9 python:
                 self.gold += value
 
         def update_sayer(self):
-            self.say = Character(self.nickname, show_two_window=True, show_side_image=self.show("portrait", resize=(120, 120)), **self.say_style)
+            self.say = Character(self.nickname, show_two_window=True, show_side_image=self, **self.say_style)
+            self.say_screen_portrait = DynamicDisplayable(self._portrait)
+            self.say_screen_portrait_overlay_mode = None
 
         # Properties:
         @property
@@ -1692,7 +1702,7 @@ init -9 python:
         I will use ArenaFighter for this until there is a reason not to...
         """
         def __init__(self):
-            super(Mob, self).__init__(arena=True)
+            super(Mob, self).__init__(False)
 
             # Basic Images:
             self.battle_sprite = ""
@@ -1703,12 +1713,13 @@ init -9 python:
             # Normalize character
             # If there are no basetraits, we add Warrior by default:
             if not self.traits.basetraits:
-                self.traits.basetraits.add(traits["Warrior"])
-                self.apply_trait(traits["Warrior"])
+                bt = traits["Warrior"]
+                self.traits.basetraits.add(bt)
+                self.apply_trait(bt)
 
-            self.arena_willing = True # Indicates the desire to fight in the Arena
-            self.arena_permit = True # Has a permit to fight in main events of the arena.
-            self.arena_active = True # Indicates that character fights at Arena at the time.
+            #self.arena_willing = True # Indicates the desire to fight in the Arena
+            #self.arena_permit = True # Has a permit to fight in main events of the arena.
+            #self.arena_active = True # Indicates that character fights at Arena at the time.
 
             if not self.portrait:
                 self.portrait = self.battle_sprite
@@ -1747,7 +1758,7 @@ init -9 python:
 
     class Player(PytCharacter):
         def __init__(self):
-            super(Player, self).__init__(arena=True, inventory=True, effects=True)
+            super(Player, self).__init__(True)
 
             self.img_db = None
             self.id = "mc" # Added for unique items methods.
@@ -1770,6 +1781,18 @@ init -9 python:
             self.team = Team(implicit=[self])
             self.team.name = "Player Team"
             self.teams = [self.team]
+
+        def init(self):
+            # Set Human trait for the MC: (We may want to customize this in the future)
+            if not hasattr(self, "race"):
+                self.apply_trait(traits["Human"])
+
+            self.update_sayer()
+
+            super(Player, self).init()
+
+        def update_sayer(self):
+            self.say = Character(self.nickname, show_two_window=True, show_side_image=self.show("portrait", resize=(120, 120)), **self.say_style)
 
         # Girls/Brothels/Buildings Ownership
         @property
@@ -2105,10 +2128,10 @@ init -9 python:
             # }
         #RANKS = {}
         def __init__(self):
-            super(Char, self).__init__(arena=True, inventory=True, effects=True)
+            super(Char, self).__init__(True)
             # Game mechanics assets
             self.desc = ""
-            self.location = "slavemarket"
+            self.location = None
 
             self.rank = 1
 
@@ -2172,16 +2195,13 @@ init -9 python:
             self.autoequip = True
 
             # FOUR BASE TRAITS THAT EVERY GIRL SHOULD HAVE AT LEAST ONE OF:
-            if all(not t.personality for t in self.traits):
+            if not hasattr(self, "personality"):
                 self.apply_trait(traits["Deredere"])
-            if all(not t.race for t in self.traits):
+            if not hasattr(self, "race"):
                 self.apply_trait(traits["Unknown"])
-            if all(not t.gents for t in self.traits):
-                if self.gender == "female":
-                    self.apply_trait(traits["Average Boobs"])
-                else:
-                    self.apply_trait(traits["Average Dick"])
-            if all(not t.body for t in self.traits):
+            if not hasattr(self, "gents"):
+                self.apply_trait(traits["Average Boobs" if self.gender == "female" else "Average Dick"])
+            if not hasattr(self, "body"):
                 self.apply_trait(traits["Slim"])
 
             # generate random preferences if none provided
@@ -2201,17 +2221,12 @@ init -9 python:
 
             # add ADVCharacter:
             self.update_sayer()
-            self.say_screen_portrait = DynamicDisplayable(self._portrait)
-            self.say_screen_portrait_overlay_mode = None
 
             # Calculate wage and upkeep. (TODO call update_tier_info?)
             self.calc_expected_wage()
             self.calc_upkeep()
 
             super(Char, self).init()
-
-        def update_sayer(self):
-            self.say = Character(self.nickname, show_two_window=True, show_side_image=self, **self.say_style)
 
         # Logic assists:
         @property
@@ -2622,7 +2637,7 @@ init -9 python:
 
     class Customer(PytCharacter):
         def __init__(self, gender="male", rank=1):
-            super(Customer, self).__init__()
+            super(Customer, self).__init__(False)
 
             # Using direct access instead of a flag, looks better in code:
             self.served_by = None

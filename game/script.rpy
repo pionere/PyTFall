@@ -204,9 +204,7 @@ label dev_testing_menu_and_load_mc:
 
             hero._path_to_imgfolder = af._path_to_imgfolder
             hero.id = af.id
-            hero.say = Character(hero.nickname, color="ivory", show_two_window=True, show_side_image=hero.show("portrait", resize=(120, 120)))
-            hero.restore_ap()
-            hero.log_stats()
+            hero.init()
 
             if DEBUG and not hero.home:
                 # Find the most expensive building with rooms
@@ -221,12 +219,6 @@ label dev_testing_menu_and_load_mc:
                     hero.home = ap
                 del ap, b
             del af
-
-    # Set Human trait for the MC: (We may want to customize this in the future)
-    python:
-        if not isinstance(hero.race, Trait):
-            hero.apply_trait(traits["Human"])
-            hero.full_race = "Human"
 
     jump continue_with_start
 
