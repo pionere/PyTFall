@@ -330,7 +330,6 @@
     "max": {"defence": 25},
     "mod": {"defence": 25},
     "locations": ["Exploration", "Ninja Shop"],
-    "goodtraits": ["Adventurous"],
     "tier": 1,
     "pref_class":["Warrior", "Mage", "Shooter"]
     },

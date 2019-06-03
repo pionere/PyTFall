@@ -213,7 +213,6 @@
     "mod": {"defence": 15},
     "locations": ["Work Shop"],
     "tier": 1,
-    "goodtraits": ["Adventurous"],
     "pref_class":["Warrior", "Shooter", "Mage"]
     },
     {
