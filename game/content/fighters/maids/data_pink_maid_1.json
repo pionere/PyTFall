@@ -1,10 +1,32 @@
 [
     {
-        "id": "pink_maid_1", 
-        "gender": "female", 
+        "id": "pink_maid_1",
+        "race": "Human", 
         "basetraits": [
             "Maid", 
             "Warrior"
+        ], 
+        "random_trait_groups": [
+            [
+                [
+                    0, 
+                    1
+                ], 
+                [
+                    [
+                        "Courageous", 
+                        50
+                    ], 
+                    [
+                        "Vicious", 
+                        30
+                    ], 
+                    [
+                        "Aggressive", 
+                        30
+                    ]
+                ]
+            ]
         ]
     }
 ]
