@@ -2,19 +2,16 @@ label mc_setup:
     $ persistent.intro = True
     $ fighters = load_characters("fighters", NPC)
     python:
-        male_sprites = []
-        female_sprites = []
+        figher_sprites = {"female": defaultdict(list), "male": defaultdict(list)}
         for fighter in fighters.itervalues():
-            if fighter.gender == "male":
-                male_sprites.append(fighter)
-            else:
-                female_sprites.append(fighter)
+            figher_sprites[fighter.gender][fighter.race].append(fighter)
     $ mc_stories = load_db_json("mc_stories.json")
 
     $ main_story = None # Fathers occupation
     $ sub_story = None # Father specific occupation
     $ mc_story = None # MCs mother
     $ mc_substory = None # MCs heritage
+    $ mc_race = next(iter(figher_sprites[hero.gender])) #traits["Human"]
 
     scene bg mc_setup
     show screen mc_setup
@@ -71,6 +68,7 @@ label mc_setup_end:
         # We build the MC here. First we get the classes player picked in the choices screen and add those to MC:
         hero._path_to_imgfolder = fighter._path_to_imgfolder
         hero.id = fighter.id
+        hero.apply_trait(mc_race)
 
         temp = set()
         for story in [mc_substory, mc_story, sub_story, main_story]:
@@ -219,8 +217,8 @@ label mc_setup_end:
 
     python:
         del fighter
-        del female_sprites
-        del male_sprites
+        del figher_sprites
+        del mc_race
         del mc_stories
         del mc_substory
         del mc_story
@@ -231,10 +229,12 @@ label mc_setup_end:
 
 init: # MC Setup Screens:
     screen mc_setup():
-        default sprites = male_sprites if hero.gender == "male" else female_sprites
         default index = 0
-        default left_index = -1
-        default right_index = 1
+        $ sprites = figher_sprites[hero.gender][mc_race]
+        $ temp = len(sprites)
+        $ index = index % temp
+        $ left_index = (index - 1) % temp
+        $ right_index = (index + 1) % temp
 
         # Rename and Start buttons + Classes are now here as well!!!:
         if getattr(store, "mc_substory", None):
@@ -246,69 +246,84 @@ init: # MC Setup Screens:
         vbox:
             # align (.37, .10)
             pos (365, 30)
-            hbox:
-                textbutton "Gender:" text_color "goldenrod" text_font "fonts/TisaOTM.otf" text_size 20:
-                    background Transform(Frame("content/gfx/interface/images/story12.png", 5, 5), alpha=.8)
-                    xpadding 12
-                    ypadding 8
-                $ ac_list = [Hide("mc_stories"), Hide("mc_sub_stories"), Hide("mc_sub_texts"),
-                     SetVariable("sub_story", None), SetVariable("mc_story", None),
-                     SetVariable("mc_substory", None), SetVariable("main_story", None)]
-                if hero.gender == "male":
-                    $ img = ProportionalScale("content/gfx/interface/icons/male.png", 30, 30)
-                    $ temp = "female"
-                    $ ss = female_sprites
-                else:
-                    $ img = ProportionalScale("content/gfx/interface/icons/female.png", 30, 30)
-                    $ temp = "male"
-                    $ ss = male_sprites
-                imagebutton:
-                    idle img
-                    hover im.MatrixColor(img, im.matrix.brightness(.20))
-                    hover_background Transform(Frame("content/gfx/interface/images/story12.png", 1, 1), alpha=.8)
-                    action ac_list + [Function(setattr, hero, "gender", temp), SetScreenVariable("sprites", ss)]
-                    tooltip "Click to change gender"
-                    xpadding 12
-                    ypadding 8
-            hbox:
-                textbutton "Height:" text_color "goldenrod" text_font "fonts/TisaOTM.otf" text_size 20:
-                    background Transform(Frame("content/gfx/interface/images/story12.png", 5, 5), alpha=.8)
-                    xpadding 12
-                    ypadding 8
-                $ heights = ["short", "average", "tall"]
-                textbutton hero.height.capitalize() text_color "white" text_hover_color "red" text_font "fonts/TisaOTM.otf" text_size 20:
-                    background Transform(Frame("content/gfx/interface/images/story12.png", 5, 5), alpha=.8)
-                    hover_background Transform(Frame(im.MatrixColor("content/gfx/interface/images/story12.png", im.matrix.brightness(.15)), 5, 5), alpha=1)
-                    action SetField(hero, "height", heights[(heights.index(hero.height)+1)%len(heights)])
-                    tooltip "Click to change height"
-                    xpadding 12
-                    ypadding 8
-            hbox:
-                textbutton "Name:" text_color "goldenrod" text_font "fonts/TisaOTM.otf" text_size 20:
-                    background Transform(Frame("content/gfx/interface/images/story12.png", 5, 5), alpha=.8)
-                    xpadding 12
-                    ypadding 8
-                textbutton str(hero.name) text_color "white" text_hover_color "red" text_font "fonts/TisaOTM.otf" text_size 20:
-                    background Transform(Frame("content/gfx/interface/images/story12.png", 5, 5), alpha=.8)
-                    hover_background Transform(Frame(im.MatrixColor("content/gfx/interface/images/story12.png", im.matrix.brightness(.15)), 5, 5), alpha=1)
-                    action Show("char_rename", char=hero)
-                    tooltip "Click to change name"
-                    xpadding 12
-                    ypadding 8
+            textbutton "Name:" text_color "goldenrod" text_font "fonts/TisaOTM.otf" text_size 20:
+                background Transform(Frame("content/gfx/interface/images/story12.png", 5, 5), alpha=.8)
+                xpadding 12
+                ypadding 8
+
+            textbutton "Gender:" text_color "goldenrod" text_font "fonts/TisaOTM.otf" text_size 20:
+                background Transform(Frame("content/gfx/interface/images/story12.png", 5, 5), alpha=.8)
+                xpadding 12
+                ypadding 8
+
+            textbutton "Race:" text_color "goldenrod" text_font "fonts/TisaOTM.otf" text_size 20:
+                background Transform(Frame("content/gfx/interface/images/story12.png", 5, 5), alpha=.8)
+                xpadding 12
+                ypadding 8
+
+            textbutton "Height:" text_color "goldenrod" text_font "fonts/TisaOTM.otf" text_size 20:
+                background Transform(Frame("content/gfx/interface/images/story12.png", 5, 5), alpha=.8)
+                xpadding 12
+                ypadding 8
+        vbox:
+            # align (.37, .10)
+            pos (455, 30)
+            textbutton str(hero.name) text_color "white" text_hover_color "red" text_font "fonts/TisaOTM.otf" text_size 20:
+                background Transform(Frame("content/gfx/interface/images/story12.png", 5, 5), alpha=.8)
+                hover_background Transform(Frame(im.MatrixColor("content/gfx/interface/images/story12.png", im.matrix.brightness(.15)), 5, 5), alpha=1)
+                action Show("char_rename", char=hero)
+                tooltip "Click to change name"
+                xpadding 12
+                ypadding 8
+
+            $ ac_list = [Hide("mc_stories"), Hide("mc_sub_stories"), Hide("mc_sub_texts"),
+                 SetVariable("sub_story", None), SetVariable("mc_story", None),
+                 SetVariable("mc_substory", None), SetVariable("main_story", None)]
+            if hero.gender == "male":
+                $ temp = "female"
+            else:
+                $ temp = "male"
+            $ tmp = next(iter(figher_sprites[temp]))
+            $ genders = ["female", "male"]
+            textbutton hero.gender.capitalize() text_color "white" text_hover_color "red" text_font "fonts/TisaOTM.otf" text_size 20:
+                background Transform(Frame("content/gfx/interface/images/story12.png", 5, 5), alpha=.8)
+                hover_background Transform(Frame(im.MatrixColor("content/gfx/interface/images/story12.png", im.matrix.brightness(.15)), 5, 5), alpha=1)
+                action ac_list + [Function(setattr, hero, "gender", temp), Function(SetVariable("mc_race", tmp))]
+                tooltip "Click to change gender"
+                xpadding 12
+                ypadding 8
+
+            $ races = figher_sprites[hero.gender].keys()
+            textbutton mc_race.id text_color "white" text_hover_color "red" text_font "fonts/TisaOTM.otf" text_size 20:
+                background Transform(Frame("content/gfx/interface/images/story12.png", 5, 5), alpha=.8)
+                hover_background Transform(Frame(im.MatrixColor("content/gfx/interface/images/story12.png", im.matrix.brightness(.15)), 5, 5), alpha=1)
+                action SetVariable("mc_race", races[(races.index(mc_race)+1)%len(races)])
+                tooltip "Click to change race"
+                sensitive len(races) > 1
+                xpadding 12
+                ypadding 8
+
+            $ heights = ["short", "average", "tall"]
+            textbutton hero.height.capitalize() text_color "white" text_hover_color "red" text_font "fonts/TisaOTM.otf" text_size 20:
+                background Transform(Frame("content/gfx/interface/images/story12.png", 5, 5), alpha=.8)
+                hover_background Transform(Frame(im.MatrixColor("content/gfx/interface/images/story12.png", im.matrix.brightness(.15)), 5, 5), alpha=1)
+                action SetField(hero, "height", heights[(heights.index(hero.height)+1)%len(heights)])
+                tooltip "Click to change height"
+                xpadding 12
+                ypadding 8
+
 
         # MC Sprites:
         hbox:
             spacing 10
-            align (.463, .75)
+            align (.463, .85)
             $ img = ProportionalScale("content/gfx/interface/buttons/blue_arrow_left.png", 40, 40)
             imagebutton:
                 yalign .5
                 idle img
                 hover im.MatrixColor(img, im.matrix.brightness(.20))
                 activate_sound "content/sfx/sound/sys/hover_2.wav"
-                action [SetScreenVariable("index", (index - 1) % len(sprites)),
-                        SetScreenVariable("left_index", (left_index - 1) % len(sprites)),
-                        SetScreenVariable("right_index", (right_index - 1) % len(sprites))]
+                action SetScreenVariable("index", index - 1)
             frame:
                 background Frame(Transform("content/gfx/interface/images/story12.png", alpha=.8), 10, 10)
                 padding 15, 10
@@ -319,22 +334,20 @@ init: # MC Setup Screens:
                 idle img
                 hover im.MatrixColor(img, im.matrix.brightness(.20))
                 activate_sound "content/sfx/sound/sys/hover_2.wav"
-                action [SetScreenVariable("index", (index + 1) % len(sprites)),
-                        SetScreenVariable("left_index", (left_index + 1) % len(sprites)),
-                        SetScreenVariable("right_index", (right_index + 1) % len(sprites))]
+                action SetScreenVariable("index", index + 1)
         $ temp = Frame("content/gfx/frame/MC_bg3.png", 40, 40)
         frame:
-            align .328, .53
+            align .328, .63
             xysize (160, 220)
             background temp
             add im.Sepia(sprites[left_index].show("battle_sprite", resize=(140, 200), cache=True)) align .5, .5
         frame:
-            align .586, .53
+            align .586, .63
             xysize (160, 220)
             background temp
             add im.Sepia(sprites[right_index].show("battle_sprite", resize=(140, 200), cache=True)) align .5, .5
         frame:
-            align .457, .356
+            align .457, .46
             xysize (160, 220)
             background temp
             add sprites[index].show("battle_sprite", resize=(140, 200), cache=True) align .5, .5
