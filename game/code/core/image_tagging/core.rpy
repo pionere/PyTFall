@@ -239,6 +239,7 @@ init -9 python:
                         #("tier", "number"),
                         #("item_up", "text"),
                         #("arena_willing", "text"),
+                        #("front_row", 1),
                         )
             else: #if self.char_group in ("chars", "npcs"):
                 return (("id", "text"),
@@ -272,6 +273,7 @@ init -9 python:
                         ("tier", "number"),
                         ("item_up", "text"),
                         ("arena_willing", "text"),
+                        ("front_row", 1),
                         )
 
         def select_char(self, char):

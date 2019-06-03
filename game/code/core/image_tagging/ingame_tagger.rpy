@@ -410,8 +410,8 @@ screen tagger_json_dropdown(char, field, options, label=None):
             if field in ["color", "what_color"] and value:
                 color = value
             else:
-                color = "ivory" 
-            value = str(value)
+                color = "ivory"
+                value = str(value)
         else:
             color = "red"
             value = "%s*" % value
@@ -675,6 +675,10 @@ screen tagger_char_json_config(char):
                     # boolean
                     $ tmp = OrderedDict([(True, "True"), (False, "False"), ("", "None")])
                     use tagger_json_dropdown(char, "arena_willing", tmp)
+                if "front_row" in char:
+                    # boolean
+                    $ tmp = OrderedDict([(1, "True"), (0, "False"), ("", "None")])
+                    use tagger_json_dropdown(char, "front_row", tmp)
                 if "body" in char:
                     # "Athletic"
                     python:

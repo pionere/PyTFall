@@ -367,6 +367,20 @@ init -11 python:
         for t in basetraits:
             rg.apply_trait(t)
 
+        temp = data.get("front_row", None)
+        if temp is None:
+            for t in basetraits:
+                if t.id not in ("Shooter", "Mage"):
+                    continue
+                for tt in basetraits:
+                    if tt != t and tt.id in ("Warrior", "Knight"):
+                        break
+                else:
+                    rg.front_row = 0
+                break
+        else:
+            rg.front_row = temp
+
         # Blocking traits:
         for key in ("blocked_traits", "ab_traits"):
             temp = data.get(key, None)

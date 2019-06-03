@@ -140,6 +140,37 @@ init -11 python:
                                     char_debug("Invalid %s: %s for random character: %s!" % (key, t, id))
                                     gd.pop(key)
 
+                        temp = gd.get("gender", None)
+                        if temp is not None:
+                            if temp not in ["female", "male"]:
+                                char_debug("Invalid gender: %s for random character: %s! (must be 'female' or 'male')" % (temp, id))
+                                gd.pop("gender")
+                        temp = gd.get("gold", None)
+                        if temp is not None:
+                            if not isinstance(temp, int):
+                                char_debug("Invalid amount of gold: %s for random character: %s!" % (temp, id))
+                                gd.pop("gold")
+                        temp = gd.get("status", None)
+                        if temp is not None:
+                            if temp not in ["free", "slave"]:
+                                char_debug("Invalid status: %s for random character: %s! (must be 'free' or 'slave')" % (temp, id))
+                                gd.pop("status")
+                        temp = gd.get("height", None)
+                        if temp is not None:
+                            if temp not in ["short", "average", "tall"]:
+                                char_debug("Invalid height: %s for random character: %s! (must be 'short', 'average' or 'tall')" % (temp, id))
+                                gd.pop("height")
+                        temp = gd.get("arena_willing", None)
+                        if temp is not None:
+                            if not isinstance(temp, bool):
+                                char_debug("Invalid arena_willing setting: %s for random character: %s! (must be true or false)" % (temp, id))
+                                gd.pop("arena_willing")
+                        temp = gd.get("front_row", None)
+                        if temp is not None:
+                            if temp not in [0, 1]:
+                                char_debug("Invalid front_row setting: %s for random character: %s! (must be 0 or 1)" % (temp, id))
+                                gd.pop("front_row")
+
                         for key in ("personality", "breasts", "penis", "body", "race"):
                             t = gd.get(key, None)
                             if t is not None:
@@ -199,7 +230,7 @@ init -11 python:
                             if len(temp) > 20:
                                 temp = temp[0:20]
                             setattr(char, key, temp)
-                    for key in ("gender", "origin", "gold", "desc", "status", "location", "height", "full_race", "arena_willing"):
+                    for key in ("gender", "origin", "gold", "desc", "status", "location", "height", "full_race", "arena_willing", "front_row"):
                         temp = gd.get(key, None)
                         if temp is not None:
                             setattr(char, key, temp)
