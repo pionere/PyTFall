@@ -56,7 +56,6 @@
             "mp": 5,
             "vitality": 5
         },
-        "unlocks": {},
         "cash_limit": 150,
         "items_price_limit": 750,
         "items": {"Vampire Cape": 20}

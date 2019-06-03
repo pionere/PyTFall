@@ -33,7 +33,6 @@
         "unlocked": false,
         "rchars": {"Rena_Elsword": [50, 15]},
         "mobs": ["Forest Fairy", "Wild Dryad", "Royal Mantis", "Satyress"],
-        "unlocks": {},
         "cash_limit": 100,
         "items_price_limit": 900,
         "hazard": {
@@ -59,7 +58,6 @@
         "unlocked": false,
         "rchars": {"Ranger_Elf": [50, 10], "Noble_Elf": [90, 5]},
         "mobs": ["Feonix", "Wild Dryad", "Flytrap", "Poison Ivy", "Gazer", "Beargirl"],
-        "unlocks": {},
         "cash_limit": 200,
         "items_price_limit": 1500,
         "items": {

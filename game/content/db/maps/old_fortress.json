@@ -47,8 +47,6 @@
         "travel_time": 0.28,
         "maxexplored": 2000,
         "mobs": ["Mimicess", "Treasure Slime", "Earth Elemental", "Ogress"],
-        "unlocks": {
-        },
         "cash_limit": 200,
         "items_price_limit": 500,
         "items": {"Fireproof Cape": 25}
@@ -79,7 +77,6 @@
         "unlocked": false,
         "travel_time": 0.35,
         "mobs": ["King Slime", "Undine", "Energized Undine", "Stoner", "Stone Eater", "Thunderous Cloud", "Thunderous Shadow"],
-        "unlocks": {},
         "cash_limit": 400,
         "items_price_limit": 600,
         "items": {"Grounded Cape": 25}

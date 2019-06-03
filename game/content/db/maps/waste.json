@@ -50,7 +50,6 @@
         "unlocked": false,
         "travel_time": 1.0,
         "mobs": ["Lava Elemental", "Fire Spirit", "Giant Scorpion", "Lava Elemental", "Fire Spirit", "Ifrit", "Flame Spirit"],
-        "unlocks": {},
         "cash_limit": 200,
         "items_price_limit": 700,
         "hazard": {
@@ -69,7 +68,6 @@
         "unlocked": false,
         "travel_time": 2.0,
         "mobs": ["Undead Unicorn", "Chimera", "Quick Silver", "Flaming Fox", "Vortex"],
-        "unlocks": {},
         "cash_limit": 300,
         "items_price_limit": 1000,
         "hazard": {

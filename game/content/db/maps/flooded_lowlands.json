@@ -48,8 +48,6 @@
         "travel_time": 0.7,
         "maxexplored": 400,
         "mobs": ["Cetus", "Shy Rabber", "Angry Rabber", "Naiad", "Aqueous Spirit"],
-        "unlocks": {
-        },
         "cash_limit": 1000,
         "items_price_limit": 1000,
         "items": {"Godward Shell": 20}

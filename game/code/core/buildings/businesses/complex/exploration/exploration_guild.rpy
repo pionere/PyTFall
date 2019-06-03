@@ -38,10 +38,11 @@ init -9 python:
                 # This may be offset through traits and stats/skills.
                 self.travel_time = round_int(getattr(self, "travel_time", 0) * 20)
 
-                self.hazard = getattr(self, "hazard", dict()) # possible hazads on site
-                self.items = getattr(self, "items", dict())   # possible items to be found
-                self.mobs = getattr(self, "mobs", dict())     # possible mobs to encounter
-                #self.allowed_objects = ...                   # possible camp objects, set at loading time
+                self.unlocks = getattr(self, "unlocks", dict())# maps which are unlocked from this map
+                self.hazard = getattr(self, "hazard", dict())  # possible hazads on site
+                self.items = getattr(self, "items", dict())    # possible items to be found
+                self.mobs = getattr(self, "mobs", dict())      # possible mobs to encounter
+                #self.allowed_objects = ...                    # possible camp objects, set at loading time
                 # Special fields for quests, keys are chars or items and values are
                 # exploration progress required to get them. Later we might add
                 # some complex conditions instead, like fighting mobs.
@@ -49,8 +50,8 @@ init -9 python:
                 self.special_chars = getattr(self, "special_chars", dict())
 
                 # Chars capture:
-                self.chars = getattr(self, "chars", dict()) # id: [explored, chance_per_day]
-                self.rchars = getattr(self, "rchars", dict()) # id can be 'any' here, meaning any rChar.
+                self.chars = getattr(self, "chars", dict())    # id: [explored, chance_per_day]
+                self.rchars = getattr(self, "rchars", dict())  # id can be 'any' here, meaning any rChar.
 
                 # the initial state of the area
                 self.explored = 0         # the counter to keep track of the exploration

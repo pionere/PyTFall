@@ -103,7 +103,6 @@
         "unlocked": false,
         "rchars": {"Dark_Elf": [1, 25]},
         "mobs": ["Dark Elf Archer", "Undead Unicorn", "Giant Spider"],
-        "unlocks": {},
         "cash_limit": 500,
         "items_price_limit": 900,
         "items": {"Organic Lingerie": 30}

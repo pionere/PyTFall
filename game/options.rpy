@@ -51,6 +51,10 @@ init -5 python hide:
     # ----------------------------- Moved from initialization.rpy -------------------------------------->>>
     config.quit_action = Quit()
     config.keymap['game_menu'] = ["K_ESCAPE"]
+    config.keymap['dismiss'].append("mousedown_3") # Dismiss with right click
+    config.keymap["hide_windows"] = None           # Stop middle click hide menus
+    config.keymap["accessibility"] = None          # kill the new accessibility menu
+
     # Fixing path:
     config.reject_backslash = False
 
@@ -91,9 +95,6 @@ init -5 python hide:
             except:
                 pass
     config.save_json_callbacks = [simple_save_dict]
-
-    # Stop middle click hide menus
-    config.keymap["hide_windows"] = None
 
     BLOCKED_LABELS = ["after_load", "save_screen",
                       "sort_items_for_gameplay",

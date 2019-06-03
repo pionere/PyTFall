@@ -33,8 +33,7 @@
         "mobs": ["Archangel", "Oni"],
         "unlocks": {"Place of Judgment": 80},
         "cash_limit": 1500,
-        "items_price_limit": 2500,
-        "items": {}
+        "items_price_limit": 2500
     },
     {
         "name": "Infinite Tower",
@@ -46,10 +45,8 @@
         "unlocked": false,
         "travel_time": 1.8,
         "mobs": ["Mare", "Seraph", "Night Mare", "Lust", "Chaos"],
-        "unlocks": {},
         "cash_limit": 2000,
-        "items_price_limit": 2500,
-        "items": {}
+        "items_price_limit": 2500
     },
     {
         "name": "Place of Judgment",
@@ -61,7 +58,6 @@
         "unlocked": false,
         "travel_time": 1.5,
         "mobs": ["Devil Rat", "Heaven Guardian", "Lilith", "Horny Succubus"],
-        "unlocks": {},
         "cash_limit": 2000,
         "items_price_limit": 2500,
         "items": {"Succubus' Wardress": 30, "Demonic Cloak": 20}

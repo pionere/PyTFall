@@ -66,7 +66,6 @@
             "mp": 5,
             "vitality": 10
         },
-        "unlocks": {},
         "cash_limit": 100,
         "items_price_limit": 1000,
         "items": {
