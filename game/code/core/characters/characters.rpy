@@ -1024,6 +1024,8 @@ init -9 python:
 
                 slot = best.slot
                 if slot == "ring":
+                    if best not in inv:
+                        picks.remove(best)
                     rings_to_equip -= 1
                     if rings_to_equip != 0:
                         continue
@@ -1148,7 +1150,7 @@ init -9 python:
                             purpose = "Battle Mage"
             return purpose
 
-        def auto_buy(self, amount=1, slots=None, purpose=None,
+        def auto_buy(self, amount=-1, slots=None, purpose=None,
                      equip=False, container=None, check_money=True):
             """Gives items a char, usually by 'buying' those,
             from the container that host all items that can be
@@ -1170,14 +1172,11 @@ init -9 python:
                 container = store.all_auto_buy_items
             if slots is None:
                 # add slots with reasonable limits
-                slots = {s: 2 for s in store.EQUIP_SLOTS}
-                slots["ring"] = 5
-                slots["consumable"] = 20
-            else:
-                amount = 0
-                for a in slots.values():
-                    amount += a
-
+                slots = {s: 1 for s in store.EQUIP_SLOTS}
+                slots["ring"] = 3
+                slots["consumable"] = 5
+            if amount == -1:
+                amount = sum(slots.itervalues())
             if amount == 0:
                 return []
 

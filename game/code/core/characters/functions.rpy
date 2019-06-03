@@ -438,12 +438,10 @@ init -11 python:
             container.extend(store.tiered_items[i]) # MAX_ITEM_TIER
 
         if give_civilian_items:
-            slots = {slot: 1 for slot in EQUIP_SLOTS}
-            char.auto_buy(slots=slots, equip=not give_bt_items, check_money=False, container=container,
+            char.auto_buy(equip=not give_bt_items, check_money=False, container=container,
                           purpose="Slave" if char.status == "slave" else "Casual")
         if give_bt_items:
-            slots = {slot: 1 for slot in EQUIP_SLOTS}
-            char.auto_buy(slots=slots, equip=True, check_money=False, container=container,
+            char.auto_buy(equip=True, check_money=False, container=container,
                           purpose=None)
 
     def create_traits_base(patterns):
