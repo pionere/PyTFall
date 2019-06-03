@@ -29,6 +29,7 @@
                 ]
             ]
         ], 
-        "height": "short"
+        "height": "short",
+        "front_row": 0
     }
 ]
