@@ -197,6 +197,7 @@ init -9 python:
 
             self.all_chars = all_chars
             self.list_group = group
+            self.list_gender = None
 
         def base_folder(self):
             group = tagr.list_group
@@ -225,11 +226,11 @@ init -9 python:
                         ("personality", "Deredere"),
                         ("breasts", "Average Boobs"),
                         ("penis", "Average Dick"),
-                        ("body", "text"),
+                        ("body", "Lean"),
                         #("blocked_traits", "list"),
                         #("ab_traits", "list"),
                         #("elements", "list"),
-                        #("traits", "list"),
+                        ("traits", "list"),
                         ("random_traits", "list"),
                         ("default_attack_skill", "Fist Attack"),
                         #("magic_skills", "list"),
@@ -257,11 +258,12 @@ init -9 python:
                         ("personality", "Deredere"),
                         ("breasts", "Average Boobs"),
                         ("penis", "Average Dick"),
-                        ("body", "text"),
+                        ("body", "Lean"),
                         #("blocked_traits", "list"),
                         #("ab_traits", "list"),
                         #("elements", "list"),
-                        #("traits", "list"),
+                        ("traits", "list"),
+                        ("random_trait_groups", "list"),
                         ("random_traits", "list"),
                         ("default_attack_skill", "Fist Attack"),
                         ("magic_skills", "list"),

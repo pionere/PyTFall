@@ -74,6 +74,9 @@ init -11 python:
         if cls is not None:
             exist = set(getattr(store, path, {}).keys())
 
+        battle_skills = store.battle_skills
+        traits = store.traits
+
         # Get to a folder with unique girl datafiles and imagefolders:
         for packfolder in os.walk(os.path.join(dir,'.')).next()[1]:
             # Load data files one after another.
@@ -105,10 +108,10 @@ init -11 python:
                         gd["_path_to_imgfolder"] = _path
 
                         # validate data so we do not have to to it in runtime
-                        if "default_attack_skill" in gd:
-                            skill = gd["default_attack_skill"]
-                            if skill not in store.battle_skills:
-                                char_debug("%s JSON Loading func tried to apply unknown default attack skill: %s!" % (id, skill))
+                        temp = gd.get("default_attack_skill", None)
+                        if temp is not None:
+                            if temp not in battle_skills:
+                                char_debug("%s default attack skill is unknown for %s" % (temp, id))
                                 gd.pop("default_attack_skill")
 
                         for key in ("blocked_traits", "ab_traits"):
@@ -127,6 +130,16 @@ init -11 python:
                                 for t in drops:
                                     b_traits.remove(t)
 
+                        # Colors in say screen:
+                        for key in ("color", "what_color"):
+                            t = gd.get(key, None)
+                            if t is not None:
+                                try:
+                                    color = Color(t)
+                                except:
+                                    char_debug("Invalid %s: %s for random character: %s!" % (key, t, id))
+                                    gd.pop(key)
+
                         for key in ("personality", "breasts", "penis", "body", "race"):
                             t = gd.get(key, None)
                             if t is not None:
@@ -139,6 +152,17 @@ init -11 python:
                                 else:
                                     continue
                                 gd.pop(key)
+
+                        temp = gd.get("traits", None)
+                        if temp is not None:
+                            drops = []
+                            for t in temp:
+                                trait = traits.get(t, None)
+                                if trait is None:
+                                    char_debug("Unknown trait: %s for random girl: %s!" % (t, id))
+                                    drops.append(t)
+                            for t in drops:
+                                temp.remove(t)
 
                         b_traits = gd.get("random_traits", None)
                         if b_traits is not None:
@@ -242,6 +266,31 @@ init -11 python:
                             else:
                                 char_debug("%s is not an elemental trait for %s!" % (t, id))
 
+                    temp = gd.get("traits", None)
+                    if temp is not None:
+                        for t in temp:
+                            trait = traits.get(t, None)
+                            if trait is None:
+                                char_debug("%s trait is unknown for %s!" % (t, id))
+                            else:
+                                char.apply_trait(trait)
+
+                    temp = gd.get("random_trait_groups", None)
+                    if temp is not None:
+                        for rtg in temp:
+                            rtg = weighted_sample(rtg[1], random.randint(*rtg[0]))
+                            for t in rtg:
+                                trait = traits.get(t, None)
+                                if trait is None:
+                                    char_debug("% random trait in a trait group is unknown for %s!" % (t, id))
+                                else:
+                                    if trait.basetrait:
+                                        basetraits = char.traits.basetraits
+                                        if len(basetraits) >= 2:
+                                            continue
+                                        basetraits.add(trait)
+                                    char.apply_trait(trait)
+
                     temp = gd.get("random_traits", None)
                     if temp is not None:
                         for t in temp:
@@ -337,136 +386,6 @@ init -11 python:
 
         return content
 
-    def load_special_arena_fighters(gender=None):
-        if gender is None:
-            females = getattr(store, "female_fighters", {})
-            males = getattr(store, "male_fighters", {})
-            exist = set(females.keys())
-            exist.update(males)
-            h = getattr(store, "hero")
-            if h:
-                exist.add(h.id)
-            genders = { "female": "females", "male": "males" }
-        else:
-            # tagger -> request for json_data only
-            females = males = {}
-            genders = { gender: gender + "s" }
-            
-        json_data = load_db_json("arena_fighters.json")
-        json_data = {i["name"]: i["basetraits"] for i in json_data}
-
-        random_traits = tuple(traits[t] for t in ["Courageous", "Aggressive", "Vicious"])
-        all_elements = tuple(traits[i.id] for i in tgs.elemental)
-
-        dir = content_path("fighters")
-
-        groups = {
-            "assassins": traits["Assassin"],
-            "healers": traits["Healer"],
-            "knights": traits["Knight"],
-            "mages": traits["Mage"],
-            "maids": traits["Maid"],
-            "shooters": traits["Shooter"],
-            "warriors": traits["Warrior"],
-            "json_adjusted": None,
-        }
-        for gender, base_folder in genders.iteritems():
-            for group, trait in groups.iteritems():
-                group_path = os.path.join(dir, base_folder, group)
-                if not os.path.isdir(group_path):
-                    continue
-                for folder in os.listdir(group_path):
-                    _path = os.path.join(group_path, folder)
-                    if os.path.isdir(_path):
-                        tagdb.load_tags_folder(folder, _path)
-
-                    id = folder
-                    if females is males:
-                        # tagger -> prepare json data
-                        data = OrderedDict()
-                        if trait is None and id in json_data:
-                            # JSON adjusted
-                            data["basetraits"] = json_data[id]
-                        data["id"] = id
-                        data["_path_to_imgfolder"] = _path
-                        females[id] = data
-                        continue
-                    # Allow database to be rebuilt but go no further.
-                    if folder in exist:
-                        continue
-
-                    elements = None
-                    if trait is None: # JSON
-                        base = []
-                        if id in json_data:
-                            for t in json_data[id]:
-                                if t in traits:
-                                    base.append(traits[t])
-                                else:
-                                    char_debug("%s basetrait is unknown for %s!" % (t, id))
-                    elif group == "assassins":
-                        base = [trait]
-                    elif group == "healers":
-                        base = [trait, traits["Mage"]]
-                        elements = [traits["Light"]]
-                        if dice(50):
-                            elements.append(traits["Water"])
-                        if dice(50):
-                            elements.append(traits["Air"])
-                    elif group == "knights":
-                        base = [trait]
-                        if dice(50):
-                            base.append(traits["Assassin"] if dice(50) else traits["Mage"])
-                    elif group == "mages":
-                        base = [trait]
-                    elif group == "maids":
-                        base = [trait, traits["Warrior"]]
-                    elif group == "shooters":
-                        base = [trait]
-                        if dice(50):
-                            base.append(traits["Assassin"] if dice(50) else traits["Mage"])
-                    else: # group == "warriors":
-                        base = [trait]
-
-                    if elements is None:
-                        if traits["Mage"] in base:
-                            elements = [random.choice(all_elements)]
-                        else:
-                            elements = [traits["Neutral"]]
-                            
-                    # Create the fighter entity
-                    fighter = NPC()
-                    fighter._path_to_imgfolder = _path
-                    fighter.id = id
-                    fighter.gender = gender
-                    if '_' in id:
-                        fighter.name = get_first_name(gender)
-                        fighter.fullname = " ".join([fighter.name, get_last_name()])
-                    else:
-                        fighter.name = id
-                        fighter.full_name = id
-                    fighter.nickname = fighter.name
-
-                    for t in random.sample(base, min(2, len(base))):
-                        fighter.traits.basetraits.add(t)
-                        fighter.apply_trait(t)
-
-                    for e in random.sample(elements, max(1, len(elements)-randrange(8))):
-                        fighter.apply_trait(e)
-
-                    for e in random.sample(random_traits, randint(1, len(random_traits))):
-                        fighter.apply_trait(e)
-
-                    fighter.init()
-
-                    # register the fighter in the corresponding set
-                    if gender == "female":
-                        females[id] = fighter
-                    else: # gender == "male":
-                        males[id] = fighter
-
-        return males, females
-                            
     def load_mobs():
         content = load_db_json("mobs.json")
         mobs = dict()

@@ -1,11 +1,34 @@
 [
     {
-        "id": "Uesugi Torako",
+        "id": "Uesugi Torako", 
         "name": "Uesugi Torako", 
         "basetraits": [
             "Assassin", 
             "Mage"
         ], 
-        "gender": "female"
+        "race": "Human", 
+        "random_trait_groups": [
+            [
+                [
+                    1, 
+                    1
+                ], 
+                [
+                    [
+                        "Courageous", 
+                        50
+                    ], 
+                    [
+                        "Vicious", 
+                        50
+                    ], 
+                    [
+                        "Aggressive", 
+                        50
+                    ]
+                ]
+            ]
+        ], 
+        "height": "short"
     }
 ]

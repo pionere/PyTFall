@@ -5,6 +5,28 @@
         "basetraits": [
             "Shooter"
         ], 
-        "gender": "female"
+        "race": "Human", 
+        "random_trait_groups": [
+            [
+                [
+                    1, 
+                    2
+                ], 
+                [
+                    [
+                        "Courageous", 
+                        40
+                    ], 
+                    [
+                        "Vicious", 
+                        60
+                    ], 
+                    [
+                        "Aggressive", 
+                        30
+                    ]
+                ]
+            ]
+        ]
     }
 ]

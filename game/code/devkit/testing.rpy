@@ -1183,7 +1183,7 @@ init 1000 python:
             for i in chars.values():
                 i.gold = 100000
                 i.autobuy = True
-                i.auto_buy(amount=3, smart_ownership_limit=False)
+                i.auto_buy(amount=3) #, smart_ownership_limit=False)
                 i.auto_equip("Combat")
             tl.end(msg)
             tl.start("Create Chars")

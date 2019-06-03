@@ -1,9 +1,31 @@
 [
     {
         "id": "blonde_warrior_e_1", 
-        "gender": "female", 
         "basetraits": [
             "Warrior"
+        ], 
+        "race": "Human", 
+        "random_trait_groups": [
+            [
+                [
+                    1, 
+                    3
+                ], 
+                [
+                    [
+                        "Courageous", 
+                        50
+                    ], 
+                    [
+                        "Vicious", 
+                        50
+                    ], 
+                    [
+                        "Aggressive", 
+                        50
+                    ]
+                ]
+            ]
         ]
     }
 ]

@@ -1,10 +1,35 @@
 [
     {
-        "id": "Shishio Makoto",
+        "id": "Shishio Makoto", 
         "name": "Shishio Makoto", 
         "basetraits": [
             "Assassin"
         ], 
-        "gender": "female"
+        "race": "Human", 
+        "random_trait_groups": [
+            [
+                [
+                    1, 
+                    3
+                ], 
+                [
+                    [
+                        "Courageous", 
+                        50
+                    ], 
+                    [
+                        "Vicious", 
+                        50
+                    ], 
+                    [
+                        "Aggressive", 
+                        50
+                    ]
+                ]
+            ]
+        ], 
+        "traits": [
+            "Scars"
+        ]
     }
 ]

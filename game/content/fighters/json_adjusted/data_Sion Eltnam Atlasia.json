@@ -1,10 +1,32 @@
 [
     {
         "id": "Sion Eltnam Atlasia",
-        "name": "Sion Eltnam Atlasia",
+        "name": "Sion Eltnam Atlasia", 
         "basetraits": [
             "Mage"
         ], 
-        "gender": "female"
+        "race": "Human", 
+        "random_trait_groups": [
+            [
+                [
+                    1, 
+                    2
+                ], 
+                [
+                    [
+                        "Courageous", 
+                        30
+                    ], 
+                    [
+                        "Vicious", 
+                        50
+                    ], 
+                    [
+                        "Aggressive", 
+                        50
+                    ]
+                ]
+            ]
+        ]
     }
 ]

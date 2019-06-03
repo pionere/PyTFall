@@ -1,9 +1,31 @@
 [
     {
         "id": "blonde_mage_b_2", 
-        "gender": "female", 
         "basetraits": [
             "Mage"
+        ], 
+        "race": "Human", 
+        "random_trait_groups": [
+            [
+                [
+                    1, 
+                    2
+                ], 
+                [
+                    [
+                        "Courageous", 
+                        30
+                    ], 
+                    [
+                        "Vicious", 
+                        50
+                    ], 
+                    [
+                        "Aggressive", 
+                        30
+                    ]
+                ]
+            ]
         ]
     }
 ]

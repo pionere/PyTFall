@@ -1,9 +1,33 @@
 [
     {
         "id": "black_healer_1", 
-        "gender": "female", 
         "basetraits": [
-            "Healer"
+            "Healer", 
+            "Mage"
+        ], 
+        "race": "Human", 
+        "body": "Lolita", 
+        "random_trait_groups": [
+            [
+                [
+                    1, 
+                    3
+                ], 
+                [
+                    [
+                        "Light", 
+                        50
+                    ], 
+                    [
+                        "Water", 
+                        25
+                    ], 
+                    [
+                        "Air", 
+                        25
+                    ]
+                ]
+            ]
         ]
     }
 ]

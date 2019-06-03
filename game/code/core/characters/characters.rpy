@@ -1149,8 +1149,7 @@ init -9 python:
             return purpose
 
         def auto_buy(self, amount=1, slots=None, purpose=None,
-                     equip=False, container=None, check_money=True,
-                     smart_ownership_limit=True):
+                     equip=False, container=None, check_money=True):
             """Gives items a char, usually by 'buying' those,
             from the container that host all items that can be
             sold in PyTFall.
@@ -1164,17 +1163,8 @@ init -9 python:
                 for that purpose.
             container: Container with items or Inventory to shop from. If None
                 we use.
-            smart_ownership_limit: Limit the total amount of item char can buy.
-                if char has this amount or more of that item:
-                    3 of the same rings max.
-                    1 per any eq_slot.
-                    5 cons items max.
-                item will not be considered for purchase.
 
             Simplify!
-
-            - Add items class_prefs and Casual.
-            - Maybe merge with give_tiered_items somehow!
             """
             if container is None: # Pick the container we usually shop from:
                 container = store.all_auto_buy_items
@@ -1216,27 +1206,27 @@ init -9 python:
             # filter the weighted items
             ignore_items = set()
             slot_limit = dict()
-            if smart_ownership_limit is True:
-                owned_slots = {s for s in slots if s not in ["ring", "misc", "consumable"]}
-                owned_picks = eval_inventory(self, self.inventory, owned_slots, base_purpose)
-                owned_picks = self.stats.weight_items(owned_picks, target_stats, target_skills, fighting, False)
+            # smart_ownership_limit
+            owned_slots = {s for s in slots if s not in ["ring", "misc", "consumable"]}
+            owned_picks = eval_inventory(self, self.inventory, owned_slots, base_purpose)
+            owned_picks = self.stats.weight_items(owned_picks, target_stats, target_skills, fighting, False)
 
-                for _weight, item in owned_picks:
-                    #_weight = sum(_weight)
-                    slot = item.slot
-                    if _weight > slot_limit.get(slot, 0):
-                        limit = _weight
-                        slot_limit[slot] = limit # TODO might want to add a multiplier like 80%
+            for _weight, item in owned_picks:
+                #_weight = sum(_weight)
+                slot = item.slot
+                if _weight > slot_limit.get(slot, 0):
+                    limit = _weight
+                    slot_limit[slot] = limit # TODO might want to add a multiplier like 80%
 
-                for item, count in self.inventory.items.iteritems():
-                    slot = item.slot
-                    if slot == "consumable" and item.type != "scroll":
-                        if count < 5:
-                            continue
-                    elif slot == "ring":
-                        if count < 3:
-                            continue
-                    ignore_items.add(item)
+            for item, count in self.inventory.items.iteritems():
+                slot = item.slot
+                if slot == "consumable" and item.type != "scroll":
+                    if count < 5:
+                        continue
+                elif slot == "ring":
+                    if count < 3:
+                        continue
+                ignore_items.add(item)
 
             selected = []
             for _weight, item in picks:
@@ -2202,7 +2192,7 @@ init -9 python:
             if not hasattr(self, "gents"):
                 self.apply_trait(traits["Average Boobs" if self.gender == "female" else "Average Dick"])
             if not hasattr(self, "body"):
-                self.apply_trait(traits["Slim"])
+                self.apply_trait(traits["Lean"])
 
             # make sure mages and healers have a set element
             if "Caster" in self.gen_occs and not self.elements:

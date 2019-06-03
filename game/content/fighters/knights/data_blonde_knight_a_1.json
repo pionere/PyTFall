@@ -1,9 +1,47 @@
 [
     {
         "id": "blonde_knight_a_1", 
-        "gender": "female", 
         "basetraits": [
             "Knight"
+        ], 
+        "race": "Human", 
+        "random_trait_groups": [
+            [
+                [
+                    0, 
+                    1
+                ], 
+                [
+                    [
+                        "Assassin", 
+                        50
+                    ], 
+                    [
+                        "Mage", 
+                        50
+                    ]
+                ]
+            ], 
+            [
+                [
+                    1, 
+                    2
+                ], 
+                [
+                    [
+                        "Courageous", 
+                        50
+                    ], 
+                    [
+                        "Vicious", 
+                        30
+                    ], 
+                    [
+                        "Aggressive", 
+                        30
+                    ]
+                ]
+            ]
         ]
     }
 ]

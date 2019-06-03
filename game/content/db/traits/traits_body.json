@@ -134,7 +134,7 @@
     "desc": "Looks very young and small.",
     "min": {"agility": 5},
     "max": {"vitality": -50, "health": -50},
-    "mod_stats": {"constitution": [-1, 4], "agility": [1, 4]},
+    "mod_stats": {"constitution": [-2, 4], "agility": [1, 4]},
     "mod_ap": 1,
     "body": true,
     "delivery_multiplier": {"melee": -0.5},
@@ -146,6 +146,12 @@
     "desc": "A slender, slim figure.",
     "mod_stats": {"constitution": [-1, 5], "charisma": [1, 5]},
     "max": {"vitality": -25, "charisma": 15},
+    "body": true,
+    "market": true
+    },
+    {
+    "id": "Lean",
+    "desc": "A naturally lean, even body type.",
     "body": true,
     "market": true
     },

@@ -1037,7 +1037,7 @@ init -6 python: # Guild, Tracker and Log.
 
                             if id == "any":
                                 id = None
-                            char = build_rc(id=id, tier=tier, set_status="slave", set_locations=pytfall.streets)
+                            char = build_rc(id=id, tier=tier, set_status="slave", set_locations=pytfall.streets, give_civilian_items=True)
                             tracker.captured_chars.append((char, data))
                             temp = "Your team has captured %s!" % char.name
                             temp = set_font_color(temp, "lawngreen")

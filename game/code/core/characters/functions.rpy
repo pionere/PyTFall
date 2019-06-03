@@ -324,14 +324,9 @@ init -11 python:
 
         # Colors in say screen:
         for key in ("color", "what_color"):
-            if key in data:
-                color = data[key]
-                try:
-                    color = Color(color)
-                except:
-                    char_debug("Invalid %s: %s for random character: %s!" % (key, data[key], id))
-                    color = "ivory"
-                rg.say_style[key] = color
+            temp = data.get(key, None)
+            if temp is not None:
+                rg.say_style[key] = Color(temp)
 
         # BASE TRAITS:
         selection = None
@@ -374,33 +369,36 @@ init -11 python:
 
         # Blocking traits:
         for key in ("blocked_traits", "ab_traits"):
-            if key in data:
-                _traits  = set()
-                for trait in data[key]:
-                    trait = traits[trait]
+            temp = data.get(key, None)
+            if temp is not None:
+                _traits = set()
+                for trait in temp:
                     # assert(trait is not None and not trait.basetrait)
-                    _traits.add(trait)
+                    _traits.add(traits[trait])
                 setattr(rg.traits, key, _traits)
 
         # Traits next:
         for key in ("personality", "breasts", "penis", "body", "race"):
-            if key in data:
-                trait = data[key]
-                trait = traits[trait]
-                rg.apply_trait(trait)
+            trait = data.get(key, None) 
+            if trait is not None:
+                rg.apply_trait(traits[trait])
 
-        if "random_traits" in data:
-            for item in data["random_traits"]:
-                trait, chance = item
-                if dice(chance):
-                    trait = traits[trait]
+        temp = data.get("traits", None)
+        if temp is not None:
+            for trait in temp:
+                rg.apply_trait(traits[trait])
+
+        temp = data.get("random_traits", None)
+        if temp is not None:
+            for t in temp:
+                if dice(t[1]):
                     # assert(trait is not None and not trait.basetrait)
-                    rg.apply_trait(trait)
+                    rg.apply_trait(traits[t[0]])
 
         # Battle and Magic skills:
-        if "default_attack_skill" in data:
-            skill = data["default_attack_skill"]
-            rg.default_attack_skill = store.battle_skills[skill]
+        temp = data.get("default_attack_skill", None)
+        if temp is not None:
+            rg.default_attack_skill = battle_skills[temp]
 
         # Normalizing new character:
         # We simply run the init method of parent class for this:
@@ -434,9 +432,6 @@ init -11 python:
 
         Usually ran right after we created the said character.
         """
-        if (not give_civilian_items) and (not give_bt_items):
-            return
-
         container = []
         limit_tier = min(((char.tier/2)+1), 5)
         for i in range(limit_tier):
@@ -445,12 +440,11 @@ init -11 python:
         if give_civilian_items:
             slots = {slot: 1 for slot in EQUIP_SLOTS}
             char.auto_buy(slots=slots, equip=not give_bt_items, check_money=False, container=container,
-                          purpose="Slave" if char.status == "slave" else "Casual",
-                          smart_ownership_limit=False)
+                          purpose="Slave" if char.status == "slave" else "Casual")
         if give_bt_items:
             slots = {slot: 1 for slot in EQUIP_SLOTS}
             char.auto_buy(slots=slots, equip=True, check_money=False, container=container,
-                          smart_ownership_limit=give_civilian_items, purpose=None)
+                          purpose=None)
 
     def create_traits_base(patterns):
         """Create a pattern with one or two base traits for a character.

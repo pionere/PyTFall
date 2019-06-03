@@ -1,9 +1,47 @@
 [
     {
         "id": "blue_shooter_2", 
-        "gender": "female", 
         "basetraits": [
             "Shooter"
+        ], 
+        "race": "Human", 
+        "random_trait_groups": [
+            [
+                [
+                    0, 
+                    1
+                ], 
+                [
+                    [
+                        "Assassin", 
+                        50
+                    ], 
+                    [
+                        "Mage", 
+                        50
+                    ]
+                ]
+            ],
+            [
+                [
+                    1, 
+                    2
+                ], 
+                [
+                    [
+                        "Courageous", 
+                        40
+                    ], 
+                    [
+                        "Vicious", 
+                        60
+                    ], 
+                    [
+                        "Aggressive", 
+                        30
+                    ]
+                ]
+            ]
         ]
     }
 ]

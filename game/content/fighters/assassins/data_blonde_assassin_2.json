@@ -1,9 +1,31 @@
 [
     {
         "id": "blonde_assassin_2", 
-        "gender": "female", 
         "basetraits": [
             "Assassin"
+        ], 
+        "race": "Human", 
+        "random_trait_groups": [
+            [
+                [
+                    1, 
+                    1
+                ], 
+                [
+                    [
+                        "Courageous", 
+                        50
+                    ], 
+                    [
+                        "Vicious", 
+                        50
+                    ], 
+                    [
+                        "Aggressive", 
+                        50
+                    ]
+                ]
+            ]
         ]
     }
 ]

@@ -5,6 +5,28 @@
         "basetraits": [
             "Knight"
         ], 
-        "gender": "female"
+        "race": "Human", 
+        "random_trait_groups": [
+            [
+                [
+                    1, 
+                    2
+                ], 
+                [
+                    [
+                        "Courageous", 
+                        50
+                    ], 
+                    [
+                        "Vicious", 
+                        30
+                    ], 
+                    [
+                        "Aggressive", 
+                        30
+                    ]
+                ]
+            ]
+        ]
     }
 ]
