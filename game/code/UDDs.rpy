@@ -132,23 +132,24 @@ init -960 python:
             kwargs = dict()
 
             # Portrait:
-            fi = Fixed(xysize=(70, 70), pos=(10, -60))
-            frame = Transform("content/gfx/frame/p_frame.png", size=(70, 70))
+            fi = Fixed(xysize=(70, 70))
+            frame = Frame("content/gfx/frame/MC_bg.png", 5, 5)
             fi.add(frame)
 
             portrait = "sad" if value < 0 else "happy"
-            portrait = char.show("portrait", portrait, resize=(65, 65), cache=True)
+            portrait = char.show("portrait", portrait, resize=(65, 65), type="reduce", cache=True)
             portrait = Transform(portrait, align=(.5, .5))
             fi.add(portrait)
 
             fixed = Fixed(xysize=(160, 36))
-            fixed.add(fi)
             if stat == "exp":
-                t = Transform("content/gfx/interface/icons/exp.webp")
-                fixed.add(t)
+                fixed.add(Transform(fi, pos=(5, -15)))
+                frame = "content/gfx/interface/icons/exp.webp"
+                fixed.add(frame)
             else:
+                fixed.add(Transform(fi, pos=(10, -60)))
                 frame = "content/gfx/interface/buttons/sl_idle.png"
-                fixed.add(Transform(frame, size=(160, 36)))
+                fixed.add(frame)
 
                 fixed.add(Text(stat.capitalize(), size=25,
                                style="proper_stats_text", color="#79CDCD",
@@ -156,7 +157,7 @@ init -960 python:
 
             color = "red" if value < 0 else "green"
             fixed.add(Text("%+g" % value, style="proper_stats_value_text", color=color,
-                           size=40, align=(.9, .5), yoffset=25))
+                           size=40, pos=(155, 10)))
 
             time_offset = self.get_time_offset()
             kwargs["pos"] = absolute(randint(150, 900)), absolute(720)
@@ -543,7 +544,7 @@ init -960 python:
             bg = Frame("content/gfx/frame/MC_bg3.png", 10, 10,
                        xysize=(102, 102), align=(.5, .5))
             portrait.add(bg)
-            profile_img = char.show('portrait', resize=(98, 98), cache=True)
+            profile_img = char.show("portrait", resize=(98, 98), cache=True)
             portrait.add(Transform(profile_img, align=(.5, .5)))
             fixed.add(portrait)
 
