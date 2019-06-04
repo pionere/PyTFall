@@ -50,6 +50,30 @@ init -11 python:
     def round_int(value):
         return int(round(value))
 
+    def roman_num(value):
+        roman = OrderedDict([(1000, "M"),
+                             (900, "CM"),
+                             (500, "D"),
+                             (400, "CD"),
+                             (100, "C"),
+                             (90, "XC"),
+                             (50, "L"),
+                             (40, "XL"),
+                             (10, "X"),
+                             (9, "IX"),
+                             (5, "V"),
+                             (4, "IV"),
+                             (1, "I")])
+        result = []
+        for r, v in roman.iteritems():
+            n = value / r
+            if n != 0:
+                result.extend(v*n)
+                value -= n * r
+                if value <= 0:
+                    break
+        return "".join(result)
+
     # ---------------------- Game related:
     # Assists:
     # Function are not named according to PEP8 because we'll be using the living shit out of them in the game:

@@ -18,20 +18,32 @@ label school_training:
                 if any((s not in course.students) for s in students):
                     # add students to the course
                     course_type = course.data.get("type", None)
+                    tier_low = course.difficulty - 2
+                    tier_high = course.difficulty + 1
                     for s in students:
                         # Blocks bad matches between student and course:
-                        # Slaves can't do combat:
-                        if course_type == "combat" and s.status == "slave":
-                            renpy.notify("Slaves cannot take combat courses")
+                        if s.tier > tier_high:
+                            renpy.notify("The course is useless if tier is higher than %s" % tier_high)
                             continue
 
-                        # Free girls without naughty basetraits won't do xxx
-                        c0 = course_type == "xxx"
-                        c1 = s.status == "free"
-                        c2 = "SIW" not in s.gen_occs
-                        if all([c0, c1, c2]):
-                            renpy.notify("Free non whores won't take XXX courses")
+                        if s.tier < tier_low:
+                            renpy.notify("The course requires at least tier %s" % tier_low)
                             continue
+
+                        # Slaves can't do combat:
+                        if course_type == "combat":
+                            if s.status == "slave":
+                                renpy.notify("Slaves cannot take combat courses")
+                                continue
+                            if "Combatant" not in s.gen_occs:
+                                renpy.notify("Free non combatants won't take Combat courses")
+                                continue
+
+                        # Free girls without naughty basetraits won't do xxx
+                        elif course_type == "xxx":
+                            if s.status == "free" and "SIW" not in s.gen_occs:
+                                renpy.notify("Free non whores won't take XXX courses")
+                                continue
 
                         curr_course = school.get_course(s)
                         if curr_course != course:
@@ -94,9 +106,9 @@ screen school_training():
     frame:
         style_prefix "content"
         background Frame("content/gfx/frame/mes12.jpg", 10, 10)
-        pos 8, 48
+        pos 6, 44
         padding 10, 10
-        xysize (500, 666)
+        xysize (520, 670)
         has vbox
         null height 3
         label ("[school.name]") xalign .5 text_color "ivory" text_size 25
@@ -122,28 +134,28 @@ screen school_training():
                 tooltip "View active students."
             null height 3
             viewport:
-                xsize 480
+                xsize 500
                 draggable True
                 mousewheel True
                 scrollbars "vertical"
-                vbox:
-                    xsize 460
-                    for s in extra_students:
-                        hbox:
-                            xsize 460
-                            button:
-                                xsize 20
-                                background None
-                                text "+" color "yellow" align (.5, .5)
-                                #tooltip "%s is currently in your group." % s.name
-                                action NullAction()
+                has vbox xfill True
+                for s in extra_students:
+                    hbox:
+                        xfill True
+                        button:
+                            xsize 20
+                            background None
+                            text "+" color "yellow" align (.5, .5)
+                            #tooltip "%s is currently in your group." % s.name
+                            action NullAction()
 
-                            button:
-                                xalign -1.0
-                                background None
-                                text ("[s.fullname]") color "lawngreen" hover_color "red" xalign .0
-                                action Return(["toggle_student", s])
-                                tooltip "Remove %s from your group." % s.name
+                        $ temp = "%s (%s.)" % (s.fullname, roman_num(s.tier))
+                        button:
+                            xalign -1.0
+                            background None
+                            text temp color "lawngreen" hover_color "red" xalign .0
+                            action Return(["toggle_student", s])
+                            tooltip "Remove %s from your group." % s.name
         else:
             $ selected_list = "courses"
             button:
@@ -157,91 +169,123 @@ screen school_training():
                     tooltip "View students in your group who are not taking courses."
             null height 3
             viewport:
-                xsize 480
+                xsize 500
                 draggable True
                 mousewheel True
                 scrollbars "vertical"
-                vbox:
-                    xsize 460
-                    spacing 10
-                    for c in school.courses:
-                        if c.students:
-                            vbox:
-                                xsize 460
-                                hbox:
-                                    xsize 460
-                                    button:
-                                        xsize 20
-                                        background None
-                                        if c in hidden_courses:
-                                            text ">" color "yellow" align (.5, .5)
-                                            tooltip "Show course members."
-                                            action Function(hidden_courses.discard, c)
-                                        else:
-                                            text "v" color "yellow" align (.5, .5)
-                                            tooltip "Hide course members."
-                                            action Function(hidden_courses.add, c)
-    
-                                    $ temp = any(s in students for s in c.students)
-                                    button:
-                                        xalign -1.02
-                                        background None
-                                        text "[c.name] Course:" color "goldenrod" hover_color "red"
-                                        if temp:
-                                            action Return(["toggle_course", c, "remove"])
-                                            tooltip "Remove course members from your group."
-                                        else:
-                                            action Return(["toggle_course", c, "add"])
-                                            tooltip "Add course members to your group."
+                has vbox xfill True spacing 10
+                for c in school.courses:
+                    if c.students:
+                        vbox:
+                            xfill True
+                            hbox:
+                                xfill True
+                                button:
+                                    xsize 20
+                                    background None
+                                    if c in hidden_courses:
+                                        text ">" color "yellow" align (.5, .5)
+                                        tooltip "Show course members."
+                                        action Function(hidden_courses.discard, c)
+                                    else:
+                                        text "v" color "yellow" align (.5, .5)
+                                        tooltip "Hide course members."
+                                        action Function(hidden_courses.add, c)
 
-                                if c not in hidden_courses:
-                                    for s in c.students:
-                                        hbox:
-                                            xsize 460
+                                $ temp = any(s in students for s in c.students)
+                                $ tmp = "%s Course (%s.):" % (c.name, roman_num(c.difficulty))
+                                button:
+                                    xalign -1.02
+                                    background None
+                                    text tmp color "goldenrod" hover_color "red"
+                                    if temp:
+                                        action Return(["toggle_course", c, "remove"])
+                                        tooltip "Remove course members from your group."
+                                    else:
+                                        action Return(["toggle_course", c, "add"])
+                                        tooltip "Add course members to your group."
+
+                            if c not in hidden_courses:
+                                for s in c.students:
+                                    hbox:
+                                        xfill True
+                                        if s in students:
+                                            button:
+                                                xsize 20
+                                                background None
+                                                text "+" color "yellow" align (.5, .5)
+                                                #tooltip "%s is currently in your group." % s.name
+                                                action NullAction()
+                                        else:
+                                            null width 20
+
+                                        $ temp = "%s (%s.)" % (s.fullname, roman_num(s.tier))
+                                        button:
+                                            xalign -1.0
+                                            background None
+                                            text temp color "lawngreen" hover_color "red" xalign .0
+                                            action Return(["toggle_student", s])
                                             if s in students:
-                                                button:
-                                                    xsize 20
-                                                    background None
-                                                    text "+" color "yellow" align (.5, .5)
-                                                    #tooltip "%s is currently in your group." % s.name
-                                                    action NullAction()
+                                                tooltip "Remove %s from your group." % s.name
                                             else:
-                                                null width 20
-
-                                            button:
-                                                xalign -1.0
-                                                background None
-                                                text ("[s.fullname]") color "lawngreen" hover_color "red" xalign .0
-                                                action Return(["toggle_student", s])
-                                                if s in students:
-                                                    tooltip "Remove %s from your group." % s.name
+                                                tooltip "Add %s to your group." % s.name
+                                        button:
+                                            xalign .9
+                                            background None
+                                            if s in c.completed:
+                                                text "(Completed)" color "goldenrod" hover_color "red"
+                                            else:
+                                                $ days_left = c.days_to_complete - c.students_progress.get(s, 0)
+                                                $ can_complete = c.days_remaining >= days_left
+                                                if can_complete:
+                                                    text "([days_left] days to complete)" color "ivory" hover_color "red"
                                                 else:
-                                                    tooltip "Add %s to your group." % s.name
-                                            button:
-                                                xalign .9
-                                                background None
-                                                if s in c.completed:
-                                                    text "(Completed)" color "goldenrod" hover_color "red"
-                                                else:
-                                                    $ days_left = c.days_to_complete - c.students_progress.get(s, 0)
-                                                    $ can_complete = c.days_remaining >= days_left
-                                                    if can_complete:
-                                                        text "([days_left] days to complete)" color "ivory" hover_color "red"
-                                                    else:
-                                                        text "(can't complete)" color "ivory" hover_color "red"
-                                                action Return(["stop_student", s])
-                                                tooltip "Stop %s from taking the course." % s.name
+                                                    text "(can't complete)" color "ivory" hover_color "red"
+                                            action Return(["stop_student", s])
+                                            tooltip "Stop %s from taking the course." % s.name
 
     frame:
         style_prefix "content"
         background Frame("content/gfx/frame/mes11.webp", 10, 10)
-        xpos 1280-8 xanchor 1.0 ypos 48
         padding 10, 10
-        xysize (760, 666)
-        has viewport draggable 1 mousewheel 1 scrollbars "vertical"
+        xysize (746, 670)
+        pos 529, 44
+        has vbox spacing 1
+        python:
+            tier_filter = school.tier_filter
+            type_filter = school.type_filter
+            courses = [c for c in school.courses if c.difficulty == tier_filter and c.data.get("type", None) in type_filter]
+
+        # filters
+        #  tier
         hbox:
-            xsize 720 box_wrap 1
-            for course in school.courses:
+            xalign .5
+            for i in xrange(MAX_TIER+1):
+                textbutton "%s." % roman_num(i):
+                    xysize (60, 40)
+                    style "smenu1_button"
+                    action SetField(school, "tier_filter", i)
+                    selected tier_filter == i
+
+        #  type
+        hbox:
+            xalign .5
+            for c in (("xxx", "XXX"), ("combat", "Combat"), (None, "Any")):
+                textbutton c[1]:
+                    xysize (100, 30)
+                    style "mmenu1_button"
+                    text_size 16
+                    action Function(school.toggle_type_filter, c[0])
+                    selected c[0] in type_filter
+
+        # cards of the courses:
+        vpgrid:
+            draggable True
+            mousewheel True
+            scrollbars "vertical"
+            xysize (740, 610)
+            cols 4
+            for course in courses:
                 button:
                     style "mmenu1_button"
                     margin 2, 2

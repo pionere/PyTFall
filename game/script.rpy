@@ -1305,6 +1305,9 @@ label after_load:
             if not hasattr(pytfall.school, "students"):
                 pytfall.school.students = {}
             del store.schools
+        if not hasattr(pytfall.school, "tier_filter"):
+            pytfall.school.tier_filter = hero.tier
+            pytfall.school.type_filter = {"xxx", "combat", None}
 
         if not hasattr(pytfall, "city"):
             pytfall.city = store.locations["City Apartments"]

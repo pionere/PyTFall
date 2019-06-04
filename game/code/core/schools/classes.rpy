@@ -79,15 +79,39 @@ init python:
 
         def next_day(self):
             self.days_remaining -= 1
-
-            school = pytfall.school
-
-            if len(self.students) >= 3 and dice(25):
-                best_student = choice(self.students)
+            students = self.students
+            if len(students) == 0:
+                return
+            if len(students) >= 3 and dice(25):
+                best_student = choice(students)
             else:
                 best_student = None
 
-            for char in self.students[:]:
+            primary_stats, secondary_stats = [], []
+            primary_skills, secondary_skills = [], []
+            for s in self.data["primary"]:
+                if is_stat(s):
+                    primary_stats.append(s)
+                elif is_skill(s):
+                    primary_skills.append(s)
+                else:
+                    raise Exception("%s is not a valid stat/skill for %s course." % (s, self.name))
+
+            for s in self.data["secondary"]:
+                if is_stat(s):
+                    secondary_stats.append(s)
+                elif is_skill(s):
+                    secondary_skills.append(s)
+                else:
+                    raise Exception("%s is not a valid stat/skill for %s course." % (s, self.name))
+            stats = primary_stats*3 + secondary_stats
+            skills = primary_skills*3 + secondary_skills
+
+            school = pytfall.school
+            difficulty = self.difficulty
+            price = self.price
+            effectiveness = self.effectiveness/100.0
+            for char in students[:]:
                 txt = [] # Append all events we want to relay to the player.
                 flag_green = False
                 charmod = None
@@ -96,13 +120,13 @@ init python:
                 txt.append(temp)
 
                 # Pay for the class:
-                if hero.take_money(self.price, reason="-PyTFall Educators-"):
-                    char.fin.log_logical_expense(self.price, "-PyTFall Educators-")
-                    temp = "You've covered a fee of {color=gold}%s Gold{/color}!" % self.price
+                if hero.take_money(price, reason="-PyTFall Educators-"):
+                    char.fin.log_logical_expense(price, "-PyTFall Educators-")
+                    temp = "You've covered a fee of {color=gold}%s Gold{/color}!" % price
                     txt.append(temp)
                 else:
                     char.set_task(None)
-                    temp = "\nYou failed to cover the fee of {color=gold}%d Gold{/color}!" % self.price
+                    temp = "\nYou failed to cover the fee of {color=gold}%d Gold{/color}!" % price
                     temp += " The student has been kicked from the class!"
                     txt.append(temp)
 
@@ -116,73 +140,47 @@ init python:
                     char.take_ap(ap_spent)
                     school.students_attended += 1
 
+                    # Effectiveness mod (simple)
+                    mod = ap_spent * effectiveness
+
                     # Add exp/stats/skills mods.
-                    exp_mod = 1.0
-                    points = max(1, self.difficulty-char.tier)
                     if char == best_student:
                         temp = "%s has been a perfect student today and went every extra mile %s could." % (char.name, char.p)
                         temp += " {color=lawngreen}+50% Stats/Skills/EXP Bonus!{/color}"
                         flag_green = True
                         txt.append(temp)
-                        points *= 1.5
-                        exp_mod = 1.5
+                        mod *= 1.5
 
                     if char in self.completed:
-                        points *= .8
-                        exp_mod *= .8
+                        mod *= .8
                         temp = "%s has already finished this course!" % char.nickname
                         temp += " {color=red}-20% Stats/Skills/EXP Bonus!{/color}"
                         txt.append(temp)
                     elif completed:
                         school.successfully_completed += 1
                         self.completed.add(char)
-                        points *= 2
-                        exp_mod *= 2
+                        mod *= 2
                         temp = "%s has completed the course today!" % char.nickname
                         temp += " {color=lawngreen}+100% Stats/Skills/EXP Bonus!{/color}"
                         flag_green = True
                         txt.append(temp)
 
-                    # Effectiveness mod (simple)
-                    effectiveness = self.effectiveness/100.0
-                    points *= effectiveness
-
-                    stats_pool = round_int(points*ap_spent)
-                    skills_pool = 2*stats_pool
-
-                    exp = exp_reward(char, self.difficulty, exp_mod=ap_spent*exp_mod)
+                    # Add Exp:
+                    exp = exp_reward(char, difficulty, exp_mod=mod)
                     char.mod_exp(exp)
 
-                    # Add stats/skills
-                    primary_stats, secondary_stats = [], []
-                    primary_skills, secondary_skills = [], []
-                    for s in self.data["primary"]:
-                        if is_stat(s):
-                            primary_stats.append(s)
-                        elif is_skill(s):
-                            primary_skills.append(s)
-                        else:
-                            raise Exception("%s is not a valid stat/skill for %s course." % (s, self.name))
-
-                    for s in self.data["secondary"]:
-                        if is_stat(s):
-                            secondary_stats.append(s)
-                        elif is_skill(s):
-                            secondary_skills.append(s)
-                        else:
-                            raise Exception("%s is not a valid stat/skill for %s course." % (s, self.name))
-
-                    stats = primary_stats*3 + secondary_stats
-                    skills = primary_skills*3 + secondary_skills
-
+                    # Add Stats/Skills:
+                    points = (difficulty-char.tier+2) * mod
                     #  prepare charmod
                     charmod = defaultdict(int) # Dict of changes of stats and skills for ND
                     charmod["exp"] = exp
                     if stats:
+                        stats_pool = round_int(points*.5)
                         for i in xrange(stats_pool):
                             stat = choice(stats)
                             charmod[stat] += char.mod_stat(stat, 1)
                     if skills:
+                        skills_pool = round_int(points)
                         for i in xrange(skills_pool):
                             skill = choice(skills)
                             charmod[skill] += char.mod_skill(skill, 1, 1)
@@ -231,36 +229,42 @@ init python:
             super(School, self).__init__(id=id, name=id)
             self.img = renpy.displayable(img)
             self.courses = []
-            self.students = {} # cached map of student:course pairs to faster access
+            self.students = {} # cached map of student:course pairs for faster access
+
+            # gui
+            self.tier_filter = 0
+            self.type_filter = {"xxx", "combat", None}
+
+        def toggle_type_filter(self, type):
+            type_filter = self.type_filter
+            if type in type_filter:
+                type_filter.remove(type)
+            else:
+                type_filter.add(type)
 
         def add_courses(self):
-            forced = max(0, 12-len(self.courses))
-            for i in range(forced):
-                self.create_course()
+            courses = self.courses
+            keys = school_courses.keys()
+            num_courses = len(keys)*MAX_TIER/2
+            num_courses += randint(0, num_courses/2)
+            num_courses -= len(courses)
+            if num_courses > 0:
+                self.new_courses_created = True
+                for i in range(num_courses):
+                    # create course
+                    id = choice(keys)
 
-            if dice(50) and len(self.courses) < 20:
-                self.create_course()
+                    difficulty = randint(0, MAX_TIER)
 
-            if dice(10) and len(self.courses) < 30:
-                self.create_course()
+                    duration = 7 * randint(3, 6)
+                    days_to_complete = round_int(duration*random.uniform(.5, .75))
+                    effectiveness = randint(60, 100)
+                    data = school_courses[id]
 
-        def create_course(self):
-            id = choice(school_courses.keys())
-
-            v0 = max(0, hero.tier - 1)
-            v1 = min(MAX_TIER, hero.tier + 3)
-            difficulty = randint(v0, v1)
-
-            duration = randint(20, 40)
-            days_to_complete = round_int(duration*random.uniform(.5, .75))
-            effectiveness = randint(60, 100)
-            data = school_courses[id]
-
-            course = SchoolCourse(id, difficulty, duration,
-                                  days_to_complete, effectiveness,
-                                  data)
-            self.new_courses_created = True
-            self.courses.insert(0, course)
+                    course = SchoolCourse(id, difficulty, duration,
+                                          days_to_complete, effectiveness,
+                                          data)
+                    courses.insert(0, course)
 
         def get_course(self, student):
             return self.students.get(student, None)
@@ -285,7 +289,8 @@ init python:
 
             self.courses = [c for c in self.courses if c.days_remaining > 0]
 
-            self.add_courses()
+            if calendar.weekday() == "Monday":
+                self.add_courses()
             self.build_nd_report()
 
         def build_nd_report(self):
