@@ -314,22 +314,13 @@ init -950 python:
         # Same as above, only using locked seed...
         return locked_random("random") * 100 <= percent_chance
 
-    # "wrapper" around the notify
-    def notify(message, style=False):
-        if config.developer:
-            if style:
-                msg = "{=%s}%s"%(style, str(message))
-                renpy.notify(u"%s"%msg)
-            else:
-                renpy.notify(u"{size=+10}%s"%str(message))
-
     # Safe jump, if label doesn't exists, game will notify about it
     def jump(labelname):
         if renpy.has_label(labelname):
-            notify("jump %s" % labelname)
+            gui_debug("jump %s" % labelname)
             renpy.jump(labelname)
         else:
-            notify(u"Label '%s' does not exist." % labelname)
+            gui_debug(u"Label '%s' does not exist." % labelname)
 
     # Useful methods for path
     def listdir(dir):

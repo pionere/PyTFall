@@ -38,8 +38,6 @@ label slave_market:
             "You should not be so hard on those poor creatures":
                 g "DON'T TELL ME HOW TO DO MY JOB YOU @$$#^*!!!"
                 extend " ... but I guess that since you had to witness that, I'll let this slide."
-            "Omg stfu I just need to test something!" if config.developer:
-                jump slave_market_controls
         g "Everyone calls me Blue. Original isn't it?"
 
         $ g = npcs["Blue_slavemarket"].say

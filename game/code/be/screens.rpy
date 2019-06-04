@@ -150,15 +150,15 @@ screen pick_skill(char):
             textbutton "Items":
                 if not char.has_pp():
                     text_color "dimgrey"
-                    action Function(notify, "No AP left to use items!")
+                    action Function(renpy.notify, "No AP left to use items!")
                 elif battle.use_items and bool(be_items):
                     action SetScreenVariable("menu_mode", "items")
                 elif bool(be_items):
                     text_color "dimgrey"
-                    action Function(notify, "You can't use items in this battle!")
+                    action Function(renpy.notify, "You can't use items in this battle!")
                 else:
                     text_color "dimgrey"
-                    action Function(notify, "You don't have items usable in battle!")
+                    action Function(renpy.notify, "You don't have items usable in battle!")
             textbutton "Skip":
                 action Return(BESkip())
             if battle.give_up:

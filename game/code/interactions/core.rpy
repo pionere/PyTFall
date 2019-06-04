@@ -238,7 +238,7 @@ init -1 python:
                     l = label
                 else:
                     # Notify and stop:
-                    notify("Unable to find GM label {}.".format(label))
+                    gui_debug("Unable to find GM label %s." % label)
                     self.jump_cache = ""
                     return
 

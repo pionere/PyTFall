@@ -18,7 +18,6 @@ label gallery:
 
 screen gallery():
     default black_bg = True
-    default td_mode = "full"
 
     # Tags + Image:
     style_group "content"
@@ -49,11 +48,7 @@ screen gallery():
             imagebutton:
                 xalign .5
                 idle img
-                if config.developer:
-                    hover im.MatrixColor(img, im.matrix.brightness(.15))
-                    action SetScreenVariable("td_mode", "full" if td_mode == "dev" else "dev")
-                else:
-                    action NullAction()
+                action NullAction()
             null height 2
             frame:
                 background Frame(Transform("content/gfx/frame/mc_bg.png", alpha=.5), 5, 5)
@@ -67,15 +62,7 @@ screen gallery():
                         draggable True
                         mousewheel True
                         vbox:
-                            $ tagsdict = gallery.tagsdict
-                            if td_mode == "dev":
-                                python:
-                                    filtereddict = OrderedDict()
-                                    for k, value in tagsdict.iteritems():
-                                        if k in ("portrait", "vnsprite", "battle_sprite"):
-                                            filtereddict[k] = value
-                                    tagsdict = filtereddict
-                            for key, amount in tagsdict.iteritems():
+                            for key, amount in gallery.tagsdict.iteritems():
                                 $ name = key.capitalize()
                                 if key == gallery.girl.id:
                                     $ name = "All Images"

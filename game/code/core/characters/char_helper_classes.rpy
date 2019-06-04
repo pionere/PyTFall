@@ -236,10 +236,10 @@ init -10 python:
 
         def add(self, member):
             if member in self:
-                notify("Impossible to join the same team twice")
+                renpy.notify("Impossible to join the same team twice")
 
             if len(self._members) >= self.max_size:
-                notify("{} team cannot have more than {} members!".format(self.name, self.max_size))
+                renpy.notify("Team %s cannot have more than %s members!" % (self.name, self.max_size))
             else:
                 if not self.free and not self.leader:
                     self._leader = member
@@ -249,14 +249,16 @@ init -10 python:
                 return True
 
         def remove(self, member):
-            if member in self.implicit or member not in self._members:
-                notify("%s is not a member of this team or an implicit member of this team!"%member.name)
+            if member in self.implicit:
+                renpy.notify("%s is an implicit member of this team!" % member.name)
+            elif member not in self._members:
+                renpy.notify("%s is not a member of this team!" % member.name)
             else:
                 self._members.remove(member)
 
         def set_leader(self, member):
             if member not in self._members:
-                notify("%s is not a member of this team!"%member.name)
+                renpy.notify("%s is not a member of this team!" % member.name)
                 return
             if self.leader:
                 self.implicit.remove(self.leader)

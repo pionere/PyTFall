@@ -413,9 +413,9 @@ label enter_dungeon_r:
             shown = []
             hotspots = []
 
-            if config.developer and dungeon.show_map == "teleport":
-                hotspots.append({'spot': [3, 43, len(dungeon._map[0])*6, len(dungeon._map)*6],
-                                 'actions': [{ "function": "teleport", "arguments": [] }] })
+            #if config.developer and dungeon.show_map == "teleport":
+            #    hotspots.append({'spot': [3, 43, len(dungeon._map[0])*6, len(dungeon._map)*6],
+            #                     'actions': [{ "function": "teleport", "arguments": [] }] })
 
             renpy.show(dungeon.background % dungeon.light)
 
