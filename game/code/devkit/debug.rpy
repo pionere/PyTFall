@@ -11,6 +11,13 @@ init -999 python:
     DEBUG_PROFILING = False # Loading time of various game elements.
     DEBUG_INTERACTIONS = False
 
+    # GUI
+    DEBUG_GUI = False
+    def gui_debug(msg):
+        if DEBUG_GUI:
+            renpy.notify("{size=+10}%s" % msg)
+
+    # Chars
     DEBUG_CHARS = False
     def char_debug(msg, mode="warning"):
         if DEBUG_CHARS:

@@ -705,6 +705,15 @@ init 1000 python:
                 for item in area.items:
                     if item not in items:
                         TestSuite.reportError("Area %s has an invalid item to be found: %s!" % (name, item))
+                for mob in area.mobs:
+                    if mob not in store.mobs:
+                        TestSuite.reportError("Area %s has an invalid mob to encounter: %s!" % (name, mob))
+                for id, data in area.chars.items():
+                    if id not in store.chars:
+                        TestSuite.reportError("Area %s has an invalid char to be captured: %s!" % (name, id))
+                for id, data in area.rchars.items():
+                    if id not in store.rchars:
+                        TestSuite.reportError("Area %s has an invalid rchar to be captured: %s!" % (name, id))
                 for k in getattr(area, "unlocks", []):
                     if k == key or k not in fg_areas:
                         TestSuite.reportError("Area %s unlocks an invalid area: %s!" % (name, k))

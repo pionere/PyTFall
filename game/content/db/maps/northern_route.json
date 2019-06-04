@@ -93,6 +93,7 @@
         "unlocked": false,
         "travel_time": 2,
         "maxexplored": 1250,
+        "rchars": {"Leafa": [80, 15]},
         "mobs": ["Yeti", "Wadding", "Cannon Turtle", "Malicious Stone", "Vixen"],
         "hazard": {
             "health": 5,

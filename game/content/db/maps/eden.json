@@ -30,6 +30,7 @@
         "desc": "A small city built by celestials. Not much is known about it due to highly aggressive guards.",
         "unlocked": false,
         "travel_time": 1.5,
+        "rchars": {"Angel": [70, 5]},
         "mobs": ["Archangel", "Oni"],
         "unlocks": {"Place of Judgment": 80},
         "cash_limit": 1500,

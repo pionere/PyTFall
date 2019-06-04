@@ -46,6 +46,7 @@
         "unlocked": false,
         "travel_time": 0.28,
         "maxexplored": 2000,
+        "rchars": {"2k_tan": [50, 8]},
         "mobs": ["Mimicess", "Treasure Slime", "Earth Elemental", "Ogress"],
         "cash_limit": 200,
         "items_price_limit": 500,
