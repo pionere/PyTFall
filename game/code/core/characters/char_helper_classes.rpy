@@ -1635,7 +1635,8 @@ init -10 python:
 
                 _bs_stats = [max(1, char.get_max(stat)) for stat in ("health", "mp", "vitality")] # BATTLE_STATS
                 front_row = char.front_row == 1
-                for battle_skill in itertools.chain(char.attack_skills, char.magic_skills):
+                char_magics = char.magic_skills
+                for battle_skill in itertools.chain(char.attack_skills, char_magics):
                     if front_row is False and battle_skill.range == 1:
                         continue
                     bmpc = _bs_mul_power_curr[battle_skill.delivery]
@@ -1832,7 +1833,7 @@ init -10 python:
                     for battle_skill in item.add_be_spells:
                         #if front_row is False and battle_skill.range == 1:
                         #    continue
-                        if battle_skill in char.magic_skills:
+                        if battle_skill in char_magics:
                             continue
                         bmpc = _bs_mul_power_curr[battle_skill.delivery]
                         power = Stats.weight_battle_skill(battle_skill, bmpc, _bs_mod_new, _bs_stats)

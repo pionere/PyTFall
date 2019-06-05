@@ -249,8 +249,7 @@ init -11 python:
                  bt_group=None, bt_list=None,
                  set_status="free", set_locations=True,
                  tier=0, tier_kwargs=None, add_to_gameworld=True,
-                 give_civilian_items=False, give_bt_items=False,
-                 spells_to_tier=True):
+                 give_civilian_items=False, give_bt_items=False):
         """Creates a random character!
         :param id: id to choose from the rchars dictionary that holds rGirl loading data.
             from JSON files, will be chosen at random if not set.
@@ -267,7 +266,6 @@ init -11 python:
             be True unless character is created not to participate in the game world...
         :param give_civilian_items: Give/Equip items based on status without paying.
         :param give_bt_items: Give/Equip items based on profession without paying.
-        :param spells_to_tier: Award spells to the char based on its tier
         """
         if tier_kwargs is None:
             tier_kwargs = {}
@@ -387,8 +385,7 @@ init -11 python:
         tier_up_to(rg, tier, **tier_kwargs)
 
         # Spells to Tier:
-        if spells_to_tier:
-            give_tiered_magic_skills(rg)
+        give_tiered_magic_skills(rg)
 
         # Items, give and/or autoequip:
         give_tiered_items(rg, give_civilian_items, give_bt_items)
@@ -417,10 +414,14 @@ init -11 python:
             container.extend(store.tiered_items[i]) # MAX_ITEM_TIER
 
         if give_civilian_items:
-            char.auto_buy(equip=not give_bt_items, check_money=False, container=container,
+            slots = {s: 1 for s in store.EQUIP_SLOTS} # FULL_EQUIPMENT, but no consumables to skip scrolls
+            slots["ring"] = 3
+            char.auto_buy(slots=slots, equip=not give_bt_items, check_money=False, container=container,
                           purpose="Slave" if char.status == "slave" else "Casual")
         if give_bt_items:
-            char.auto_buy(equip=True, check_money=False, container=container,
+            slots = {s: 1 for s in store.EQUIP_SLOTS} # FULL_EQUIPMENT, but no consumables to skip scrolls
+            slots["ring"] = 3
+            char.auto_buy(slots=slots, equip=True, check_money=False, container=container,
                           purpose=None)
 
     def create_base_traits(bt_group, bt_list, status):

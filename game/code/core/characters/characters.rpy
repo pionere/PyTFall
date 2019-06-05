@@ -1171,7 +1171,7 @@ init -9 python:
             if container is None: # Pick the container we usually shop from:
                 container = store.all_auto_buy_items
             if slots is None:
-                # add slots with reasonable limits
+                # add slots with reasonable limits FULL_EQUIPMENT
                 slots = {s: 1 for s in store.EQUIP_SLOTS}
                 slots["ring"] = 3
                 slots["consumable"] = 5
