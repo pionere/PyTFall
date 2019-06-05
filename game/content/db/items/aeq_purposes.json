@@ -40,7 +40,7 @@
      "id": "Shooter",
      "target_stats": {"health":10, "agility":100, "attack":50, "defence":30, "constitution":10, "vitality":5, "luck":10, "exp":0.1},
      "target_skills": {},
-     "base_purpose": ["Shooter", "Warrior", "Any"],
+     "base_purpose": ["Shooter", "Any"],
      "fighting": true,
      "traits": ["Shooter"]
     },
@@ -55,7 +55,7 @@
      "id": "Mage",
      "target_stats": {"health":10, "magic":100, "intelligence":50, "defence":40, "constitution":10, "mp":20, "luck":5, "exp":0.1},
      "target_skills": {},
-     "base_purpose": ["Mage", "Warrior", "Any"],
+     "base_purpose": ["Mage", "Any"],
      "fighting": true,
      "traits": ["Healer", "Mage"]
     },

@@ -68,7 +68,7 @@ label start:
         for s in battle_skills.values():
             if getattr(s, "mob_only", False) or getattr(s, "item_only", False):
                 continue
-            if s.delivery == "status" or "healing" in s.attributes or s.kind == "revival":
+            if s.kind in ("healing", "buff", "revival"):
                 tiered_healing_skills[s.tier or 0].append(s)
             elif s.delivery == "magic":
                 tiered_magic_skills[s.tier or 0].append(s)
@@ -621,7 +621,7 @@ label after_load:
             for s in store.battle_skills.values():
                 if getattr(s, "mob_only", False) or getattr(s, "item_only", False):
                     continue
-                if s.delivery == "status" or "healing" in s.attributes or s.kind == "revival":
+                if s.kind in ("healing", "buff", "revival"):
                     store.tiered_healing_skills[s.tier or 0].append(s)
                 elif s.delivery == "magic":
                     store.tiered_magic_skills[s.tier or 0].append(s)

@@ -1634,7 +1634,10 @@ init -10 python:
                                       "status": [intelligence_value*.7 + agility_value*.3, intelligence*.7 + agility*.3, 0, None]}
 
                 _bs_stats = [max(1, char.get_max(stat)) for stat in ("health", "mp", "vitality")] # BATTLE_STATS
+                front_row = char.front_row == 1
                 for battle_skill in itertools.chain(char.attack_skills, char.magic_skills):
+                    if front_row is False and battle_skill.range == 1:
+                        continue
                     bmpc = _bs_mul_power_curr[battle_skill.delivery]
                     power = Stats.weight_battle_skill(battle_skill, bmpc, _bs_mod_curr, _bs_stats)
                     if power > bmpc[2]: # best power
@@ -1803,6 +1806,8 @@ init -10 python:
 
                         # check the skills power TODO bind this to BE_Core?
                         for battle_skill in item.attacks:
+                            if front_row is False and battle_skill.range == 1:
+                                continue
                             delivery = battle_skill.delivery
                             bmpc = _bs_mul_power_curr[delivery]
                             power = Stats.weight_battle_skill(battle_skill, bmpc, _bs_mod_new, _bs_stats)
@@ -1825,6 +1830,8 @@ init -10 python:
 
                     # Spells:
                     for battle_skill in item.add_be_spells:
+                        #if front_row is False and battle_skill.range == 1:
+                        #    continue
                         if battle_skill in char.magic_skills:
                             continue
                         bmpc = _bs_mul_power_curr[battle_skill.delivery]
