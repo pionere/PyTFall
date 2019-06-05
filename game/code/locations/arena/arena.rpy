@@ -765,8 +765,11 @@ init -9 python:
                         f.arena_rep = int(f.level * 500 * random.uniform(.9, 1.1))
                     team.add(f)
 
-            # Populate the reputation ladder:
-            self.update_ladder()
+            self.update_ladder() # Populate the reputation ladder:
+            self.update_matches()
+            self.update_teams()
+            self.find_opfor()
+            self.update_dogfights()
 
         # -------------------------- ChainFights vs Mobs ------------------------>
         def check_before_chainfight(self):

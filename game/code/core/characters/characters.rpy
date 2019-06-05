@@ -1869,6 +1869,7 @@ init -9 python:
             self._chars.append(char)
 
             char.basePP -= 100 # reduce available AP (the char spends it on shopping, self-time, etc...) - PP_PER_AP
+            char.restore_ap()  # update setPP, PP as well
 
         def remove_char(self, char):
             try:
@@ -2163,7 +2164,7 @@ init -9 python:
                 basetraits = set(create_base_traits(None, None, self.status))
                 self.traits.basetraits = basetraits
                 for t in basetraits:
-                    self.apply_trait(i)
+                    self.apply_trait(t)
 
             # Location + Home
             if self.status == "free":

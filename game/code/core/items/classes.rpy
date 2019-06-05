@@ -442,7 +442,7 @@ init -9 python:
         def next_day(self):
             '''Basic counter to be activated on next day
             '''
-            if self.restockday == day:
+            if day >= self.restockday:
                 self.restock()
                 if self.total_items_price > 0:
                     self.gold += self.total_items_price /4

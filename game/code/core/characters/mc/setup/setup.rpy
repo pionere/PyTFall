@@ -1,6 +1,5 @@
 label mc_setup:
     $ persistent.intro = True
-    $ fighters = load_characters("fighters", NPC)
     python:
         figher_sprites = {"female": defaultdict(list), "male": defaultdict(list)}
         for fighter in fighters.itervalues():

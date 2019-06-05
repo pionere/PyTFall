@@ -34,7 +34,8 @@ init -9 python:
             self.arena = Arena()
             self.jail = CityJail()
             self.sm = SlaveMarket()
-            self.ra = RunawayManager() 
+            self.ra = RunawayManager()
+            self.ea = EmploymentAgency() 
             self.school = School()
 
             self.city = HabitableLocation(id="City Apartments", daily_modifier=.2, desc="Girls apartments somewhere in the city")
@@ -78,13 +79,6 @@ init -9 python:
             self.peevish_shop = ItemShop("Peevish Shop", gold=5000, visible=False, sells=["scroll"], sell_margin=1, buy_margin=5.0)
             self.aine_shop = ItemShop("Aine Shop", gold=5000, visible=False, sells=["scroll"], sell_margin=1, buy_margin=5.0)
             self.angelica_shop = ItemShop("Angelica Shop", gold=5000, visible=False, sells=["scroll"], sell_margin=1, buy_margin=5.0)
-
-        def init_arena(self):
-            self.arena.setup_arena()
-            self.arena.update_matches()
-            self.arena.update_teams()
-            self.arena.find_opfor()
-            self.arena.update_dogfights()
 
         # World AI ----------------------------->
         def populate_world(self, tier_offset=.0):
@@ -200,7 +194,7 @@ init -9 python:
 
             # Employment Agency:
             tl.start("EmploymentAgency ND")
-            populate_ea()
+            self.ea.next_day()
             tl.end("EmploymentAgency ND")
 
             # Runaways:

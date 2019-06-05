@@ -970,7 +970,7 @@ init 1000 python:
                     TestSuite.reportError("Non-free char %s listed as civilian prisoner" % c.fullname)
 
             # check Employment Agency
-            for v in employment_agency_chars.itervalues():
+            for v in pytfall.ea.chars.itervalues():
                 for c in v:
                     if c not in all_chars:
                         TestSuite.reportError("Char %s is not registered, but she/he available at the EA" % c.fullname)

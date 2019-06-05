@@ -5,7 +5,7 @@ init -9 python:
     #
     class SlaveMarket(HabitableLocation):
         """
-        Class for populating and running of the slave market.
+        Class for populating and running the slave market.
         """
         def __init__(self):
             """
@@ -693,3 +693,64 @@ init -9 python:
             #status *= girl_training_trait_mult(girl, "Restrained")
             status *= .75 # if char.status == "slave" - only slaves can run away at the moment
             return status
+
+    class EmploymentAgency(_object):
+        """
+        Class for populating and running the employment agency.
+        """
+        def __init__(self):
+            """
+            Creates a new EmploymentAgency.
+            """
+            self.chars = {
+                "SIW": [],
+                "Specialist": [],
+                "Combatant": [],
+                "Server": [],
+                "Caster": []}
+
+            self.restock_day = 0
+
+        @staticmethod
+        def calc_hire_price(char):
+            return round_int(char.expected_wage*30)
+
+        def populate_chars_list(self):
+            """
+            Populates the list of characters that are available.
+            """
+            if day >= self.restock_day:
+                self.restock_day += locked_random("randint", 7, 14)
+                chars = self.chars
+                for v in chars.itervalues():
+                    v[:] = []
+
+                base_tier = hero.tier
+                for k in chars.iterkeys():
+                    if k == "Caster":
+                        k = "Combatant"
+                    for i in range(randint(2, 4)):
+                        if dice(1): # Super char!
+                            tier = base_tier + uniform(2.5, 4.0)
+                        elif dice(20): # Decent char.
+                            tier = base_tier + uniform(1.0, 2.5)
+                        else: # Ok char...
+                            tier = base_tier + uniform(.1, 1.0)
+                        char = build_rc(bt_group=k, bt_list="any",
+                                        set_locations=True,
+                                        tier=tier,
+                                        give_civilian_items=True,
+                                        give_bt_items=True)
+                        for occ in char.gen_occs:
+                            chars[occ].append(char)
+    
+                for char in chars["Caster"]:
+                    chars["Combatant"].remove(char)
+
+                # Gazette:
+                c = npcs["Charla_ea"]
+                temp = "%s informs all Business People of PyTFall that new workers are available for hire!" % c.fullname
+                gazette.other.append(temp)
+
+        def next_day(self):
+            self.populate_chars_list()

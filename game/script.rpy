@@ -119,6 +119,8 @@ label start:
         #global_flags.set_flag("last_modified_chars", os.path.getmtime(content_path('chars')))
         npcs = load_characters("npcs", NPC)
         #global_flags.set_flag("last_modified_npcs", os.path.getmtime(content_path('npc')))
+        fighters = load_characters("fighters", NPC)
+        #global_flags.set_flag("last_modified_fighters", os.path.getmtime(content_path('fighters')))
         rchars = load_characters("rchars")
         #global_flags.set_flag("last_modified_rchars", os.path.getmtime(content_path('rchars')))
         tl.end("Loading: All Characters!")
@@ -135,14 +137,6 @@ label start:
         # pytfall.forest_1 = Exploration()
         fg_areas = load_fg_areas()
         tl.end("Loading: Exploration Areas")
-
-    python: # Move to a World AI method:
-        tl.start("Loading: Populating World with RChars")
-        pytfall.populate_world()
-        tl.end("Loading: Populating World with RChars")
-        tl.start("Loading: Populating EmploymentAgency")
-        populate_ea()
-        tl.end("Loading: Populating EmploymentAgency")
 
     python: # Girlsmeets:
         tl.start("Loading: GirlsMeets")
@@ -198,7 +192,6 @@ label dev_testing_menu_and_load_mc:
                 # We're fucked if this is the case somehow :(
                 raise Exception("Something went horribly wrong with MC setup!")
 
-            fighters = load_characters("fighters", NPC)
             af = choice(fighters.values())
             del fighters[af.id]
 
@@ -220,12 +213,11 @@ label dev_testing_menu_and_load_mc:
                 del ap, b
             del af
 
-    jump continue_with_start
-
-label continue_with_start:
+#    jump continue_with_start
+#label continue_with_start:
     python: # Load Arena
         tl.start("Loading: Arena!")
-        pytfall.init_arena()
+        pytfall.arena.setup_arena()
         tl.end("Loading: Arena!")
 
     # Call girls starting labels:
@@ -242,6 +234,13 @@ label continue_with_start:
             if hasattr(store, i):
                 delattr(store, i)
 
+    python: # Move to a World AI method:
+        tl.start("Loading: Populating World with RChars")
+        pytfall.populate_world()
+        tl.end("Loading: Populating World with RChars")
+        tl.start("Loading: Populating EmploymentAgency")
+        pytfall.ea.populate_chars_list()
+        tl.end("Loading: Populating EmploymentAgency")
         tl.start("Loading: Populating SlaveMarket And Jail")
         pytfall.sm.populate_chars_list()
         pytfall.jail.populate_chars_list()
@@ -486,17 +485,24 @@ label after_load:
         if isinstance(store.defeated_mobs, dict):
             store.defeated_mobs = set(store.defeated_mobs.keys())
 
-        if "Caster" not in employment_agency_chars:
-            temp = [c for cl in employment_agency_chars.values() for c in cl]
-            del employment_agency_chars["Healer"]
-            for v in employment_agency_chars.itervalues():
-                v[:] = []
-            employment_agency_chars["Caster"] = []
-            for c in temp:
-                for occ in c.gen_occs:
-                    employment_agency_chars[occ].append(c)
-            store.pytfall.rc_free_pop_distr["Caster"] = store.pytfall.rc_free_pop_distr["Healer"]
-            del store.pytfall.rc_free_pop_distr["Healer"]
+        if hasattr(store, "employment_agency_chars"):
+            eachars = store.employment_agency_chars
+            if "Caster" not in eachars:
+                temp = [c for cl in eachars.values() for c in cl]
+                del eachars["Healer"]
+                for v in eachars.itervalues():
+                    v[:] = []
+                eachars["Caster"] = []
+                for c in temp:
+                    for occ in c.gen_occs:
+                        eachars[occ].append(c)
+                store.pytfall.rc_free_pop_distr["Caster"] = store.pytfall.rc_free_pop_distr["Healer"]
+                del store.pytfall.rc_free_pop_distr["Healer"]
+            ea = EmploymentAgency()
+            ea.chars = eachars
+            ea.restock_day = store.employment_agency_reroll_day
+            pytfall.ea = ea
+            del store.employment_agency_reroll_day, store.employment_agency_chars
 
         for d in store.dungeons.values():
             event = getattr(d, "event", {})

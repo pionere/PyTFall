@@ -1033,7 +1033,7 @@ screen tagger_char_json_config(char):
                         for k, s in battle_skills.iteritems():
                             if getattr(s, "mob_only", False):
                                 continue
-                            if s.delivery == "status" or "healing" in s.attributes or s.kind == "revival":
+                            if s.kind in ("healing", "buff", "revival"):
                                 continue
                             elif s.delivery == "magic":
                                 continue
@@ -1055,7 +1055,7 @@ screen tagger_char_json_config(char):
                                 for k, s in battle_skills.iteritems():
                                     if getattr(s, "mob_only", False) or getattr(s, "item_only", False):
                                         continue
-                                    if s.delivery == "status" or "healing" in s.attributes or s.kind == "revival":
+                                    if s.kind in ("healing", "buff", "revival"):
                                         pass
                                     elif s.delivery == "magic":
                                         pass

@@ -1,46 +1,3 @@
-default employment_agency_chars = {
-        "SIW": [],
-        "Specialist": [],
-        "Combatant": [],
-        "Server": [],
-        "Caster": []}
-
-default employment_agency_reroll_day = 0
-
-init python:
-    def calc_hire_price_for_ea(char):
-        return round_int(char.expected_wage*30)
-
-    def populate_ea():
-        global employment_agency_reroll_day
-        global employment_agency_chars
-
-        if day >= employment_agency_reroll_day:
-            employment_agency_reroll_day += randint(7, 14)
-            for v in employment_agency_chars.itervalues():
-                v[:] = []
-
-            for k in employment_agency_chars.iterkeys():
-                for i in range(randint(2, 4)):
-                    if dice(1): # Super char!
-                        tier = hero.tier + uniform(2.5, 4.0)
-                    elif dice(20): # Decent char.
-                        tier = hero.tier + uniform(1.0, 2.5)
-                    else: # Ok char...
-                        tier = hero.tier + uniform(.1, 1.0)
-                    char = build_rc(bt_group=k, bt_list="any",
-                                    set_locations=True,
-                                    tier=tier,
-                                    give_civilian_items=True,
-                                    give_bt_items=True)
-                    for occ in char.gen_occs:
-                        employment_agency_chars[occ].append(char)
-
-            # Gazette:
-            c = npcs["Charla_ea"]
-            temp = "{} informs all Business People of PyTFall that new workers are available for hire!".format(c.fullname)
-            gazette.other.append(temp)
-
 label employment_agency:
     # Music related:
     if not global_flags.has_flag("keep_playing_music"):
@@ -72,7 +29,7 @@ label employment_agency:
 
         if result[0] == 'hire':
             $ char = result[1]
-            $ cost = calc_hire_price_for_ea(char) # Two month of wages to hire.
+            $ cost = EmploymentAgency.calc_hire_price(char) # Two month of wages to hire.
             $ block_say = True
             if hero.gold >= cost:
                 menu:
@@ -81,9 +38,11 @@ label employment_agency:
                         python hide:
                             renpy.play("content/sfx/sound/world/purchase_1.ogg")
                             hero.take_money(cost, reason="Hiring Workers")
-                            hero.chars.append(char)
+                            hero.add_char(char)
+                            eachars = pytfall.ea.chars
                             for occ in char.gen_occs:
-                                employment_agency_chars[occ].remove(char)
+                                if char in eachars[occ]:
+                                    eachars[occ].remove(char)
                     "No":
                         "Would you like to pick someone else?"
             else:
@@ -110,7 +69,7 @@ screen employment_agency():
     vbox:
         spacing 5
         yalign .5
-        for k, v in sorted(employment_agency_chars.items(), key=itemgetter(0)):
+        for k, v in sorted(pytfall.ea.chars.iteritems(), key=itemgetter(0)):
             $ v = [w for w in v if not w.arena_active] # prevent arena active workers to be hired
             if v:
                 hbox:
@@ -143,7 +102,7 @@ screen employment_agency():
                                 label "Tier [entry.tier]" xalign .5 text_color "#DAA520"
                                 if entry.location != pytfall.jail:
                                     action Return(['hire', entry, v])
-                                    tooltip "Hire {}.\nFee: {}G".format(entry.fullname, calc_hire_price_for_ea(entry))
+                                    tooltip "Hire {}.\nFee: {}G".format(entry.fullname, EmploymentAgency.calc_hire_price(entry))
                                 else:
                                     action NullAction()
                                     tooltip "Currently in jail"
