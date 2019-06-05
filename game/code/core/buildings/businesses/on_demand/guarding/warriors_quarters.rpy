@@ -273,7 +273,7 @@ init -5 python:
                     # Tier + 2.0 cause we don't give them any items so it's a brawl!
                     enemy = build_client(gender="male", rank=1,
                                      name="Hooligan", last_name=str(e+1),
-                                     pattern=["Combatant"], tier=building.tier+2.0)
+                                     bt_group="Combatant", tier=building.tier+2.0)
                     enemy.init() # TODO temporary solution, run this in build_client if it is necessary somewhere else (e.g. the PP field)
                     enemy.front_row = 1
                     enemy.apply_trait("Fire")

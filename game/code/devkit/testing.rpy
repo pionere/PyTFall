@@ -602,9 +602,9 @@ init 1000 python:
 
         @staticmethod
         def testRChars():
-            for i in range(100):
+            for i in range(10):
                 c = build_rc(name="alpha", last_name="beta",
-                             bt_go_patterns="Specialist",
+                             bt_group="Specialist",
                              set_status="free", set_locations=True,
                              tier=4, add_to_gameworld=False,
                              give_civilian_items=True, give_bt_items=False,
@@ -613,8 +613,8 @@ init 1000 python:
                     TestSuite.reportError("Ignored name presets while creating a random char (result: %s)" % c.fullname)
                 TestSuite.checkChar(c, "rchar/freeSpecialist")
 
-            for i in range(100):
-                c = build_rc(bt_go_base="Server",
+            for i in range(10):
+                c = build_rc(bt_group="Server",
                              set_status="free", set_locations=True,
                              tier=7, add_to_gameworld=False,
                              give_civilian_items=True, give_bt_items=False,
@@ -622,8 +622,8 @@ init 1000 python:
 
                 TestSuite.checkChar(c, "rchar/freeServer")
 
-            for i in range(100):
-                c = build_rc(bt_go_patterns="Combatant",
+            for i in range(10):
+                c = build_rc(bt_group="Combatant",
                              set_status="free", set_locations=True,
                              tier=MAX_TIER, add_to_gameworld=False,
                              give_civilian_items=True, give_bt_items=True,
@@ -631,8 +631,8 @@ init 1000 python:
 
                 TestSuite.checkChar(c, "rchar/freeCombatant")
 
-            for i in range(100):
-                c = build_rc(bt_go_patterns="SIW",
+            for i in range(10):
+                c = build_rc(bt_group="SIW",
                              set_status="slave", set_locations=True,
                              tier=4, add_to_gameworld=False,
                              give_civilian_items=False, give_bt_items=False,
@@ -640,8 +640,55 @@ init 1000 python:
 
                 TestSuite.checkChar(c, "rchar/slaveSIW")
 
-            for i in range(100):
-                c = build_rc(bt_go_base="Server",
+            for i in range(10):
+                c = build_rc(bt_group="Server",
+                             set_status="slave", set_locations=True,
+                             tier=2, add_to_gameworld=False,
+                             give_civilian_items=True, give_bt_items=False,
+                             spells_to_tier=True)
+
+                TestSuite.checkChar(c, "rchar/slaveServer")
+
+            for i in range(10):
+                c = build_rc(name="alpha", last_name="beta",
+                             bt_group="Specialist", bt_list="any",
+                             set_status="free", set_locations=True,
+                             tier=4, add_to_gameworld=False,
+                             give_civilian_items=True, give_bt_items=False,
+                             spells_to_tier=True)
+                if c.fullname != "alpha beta":
+                    TestSuite.reportError("Ignored name presets while creating a random char (result: %s)" % c.fullname)
+                TestSuite.checkChar(c, "rchar/freeSpecialist")
+
+            for i in range(10):
+                c = build_rc(bt_group="Server", bt_list="any",
+                             set_status="free", set_locations=True,
+                             tier=7, add_to_gameworld=False,
+                             give_civilian_items=True, give_bt_items=False,
+                             spells_to_tier=True)
+
+                TestSuite.checkChar(c, "rchar/freeServer")
+
+            for i in range(10):
+                c = build_rc(bt_group="Combatant", bt_list="any",
+                             set_status="free", set_locations=True,
+                             tier=MAX_TIER, add_to_gameworld=False,
+                             give_civilian_items=True, give_bt_items=True,
+                             spells_to_tier=True)
+
+                TestSuite.checkChar(c, "rchar/freeCombatant")
+
+            for i in range(10):
+                c = build_rc(bt_group="SIW", bt_list="any",
+                             set_status="slave", set_locations=True,
+                             tier=4, add_to_gameworld=False,
+                             give_civilian_items=False, give_bt_items=False,
+                             spells_to_tier=True)
+
+                TestSuite.checkChar(c, "rchar/slaveSIW")
+
+            for i in range(10):
+                c = build_rc(bt_group="Server", bt_list="any",
                              set_status="slave", set_locations=True,
                              tier=2, add_to_gameworld=False,
                              give_civilian_items=True, give_bt_items=False,

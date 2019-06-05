@@ -246,37 +246,35 @@ init -11 python:
         return mob
 
     def build_rc(id=None, name=None, last_name=None,
-                 bt_go_patterns=None, bt_go_base=None,
+                 bt_group=None, bt_list=None,
                  set_status="free", set_locations=True,
                  tier=0, tier_kwargs=None, add_to_gameworld=True,
                  give_civilian_items=False, give_bt_items=False,
                  spells_to_tier=True):
-        '''Creates a random character!
-        id: id to choose from the rchars dictionary that holds rGirl loading data.
-            from JSON files, will be chosen at random if none available.
-        name: (String) Name for the character to use. If None one will be chosen from randomNames file!
-        last_name: Same thing only for last name :)
-        bt_go_patterns: General occupation patterns to use when creating the character!
-            Expects general occupation or list of the same.
-            Use create_traits_base function to build basetraits.
-            Input could be ["Combatant", "Specialist"] for example, we will pick from all
-            Combatant and Specialist bts in the game randomly.
-        bt_go_base: a gen.occupation as a base to select the first basetrait. Occasionally a secondary random basetrait is added.
-        tier: Tier of the character... floats are allowed.
-        add_to_gameworld: Adds to characters dictionary, should always
+        """Creates a random character!
+        :param id: id to choose from the rchars dictionary that holds rGirl loading data.
+            from JSON files, will be chosen at random if not set.
+        :param name: (String) Name for the character to use. Randomized if not set.
+        :param last_name: Same thing only for last name :)
+        :param bt_group: General occupation (string) to use when selecting a basetrait (e.g. "Combatant", "SIW")
+        :param bt_list: basetrait(s) to choose from. (e.g. "Mage", "any", None) 
+            The create_base_traits function is used to build basetraits.
+        :param set_status: the status of the character (e.g. "slave", False)
+        :param set_locations: the initial location of the character (e.g. "hiddenvillage", True)
+        :param tier: Tier of the character. (int or float)
+        :param tier_kwargs: params to use when updating the tier of the char
+        :param add_to_gameworld: Adds to characters dictionary, should always
             be True unless character is created not to participate in the game world...
-
-        give_civilian_items // give_bt_items:
-            *Note: bt_ ==> base_traits* (award items for profession)
-            Give/Equip item sets using auto_buy without paying cash.
-        spells_to_tier: Award spells to the char
-        '''
+        :param give_civilian_items: Give/Equip items based on status without paying.
+        :param give_bt_items: Give/Equip items based on profession without paying.
+        :param spells_to_tier: Award spells to the char based on its tier
+        """
         if tier_kwargs is None:
             tier_kwargs = {}
 
         rg = rChar()
 
-        if not id:
+        if id is None:
             id = choice(rchars.keys())
         elif id not in rchars:
             raise Exception("Unknown id %s when creating a random character!" % id)
@@ -284,11 +282,11 @@ init -11 python:
         rg.id = id
 
         # Names/Origin:
-        if not name:
+        if name is None:
             name = get_first_name()
         rg.name = rg.nickname = name
 
-        if not last_name:
+        if last_name is None:
             last_name = get_last_name()
         rg.fullname = " ".join([name, last_name])
 
@@ -313,7 +311,7 @@ init -11 python:
         elif set_locations is not True:
             rg.home = set_locations
             set_location(rg, None)
-        elif set_locations:
+        else:
             rg.home = pytfall.sm if rg.status == "slave" else pytfall.city
             set_location(rg, None)
 
@@ -329,40 +327,7 @@ init -11 python:
                 rg.say_style[key] = Color(temp)
 
         # BASE TRAITS:
-        selection = None
-        if bt_go_patterns:
-            selection = create_traits_base(bt_go_patterns)
-        else:
-            if bt_go_base is None:
-                if rg.status == "slave":
-                    bt_go_base = STATIC_CHAR.SLAVE_GEN_OCCS
-                else:
-                    bt_go_base = STATIC_CHAR.GEN_OCCS
-                bt_go_base = choice(bt_go_base)
-            base_traits = list(gen_occ_basetraits[bt_go_base])
-            selection = [choice(base_traits)]
-            dist = random.random()
-            if dist > .7:
-                # multiclass
-                if dist > .9 or len(base_traits) == 1:
-                    # choose an occ from other occ-group
-                    curr_occ = bt_go_base
-                    if rg.status == "slave":
-                        bt_go_base = STATIC_CHAR.SLAVE_GEN_OCCS
-                    else:
-                        bt_go_base = STATIC_CHAR.GEN_OCCS
-                    bt_go_base = [t for t in bt_go_base if bt_go_base != curr_occ]
-                    base_traits = tuple(gen_occ_basetraits[choice(bt_go_base)])
-                else:
-                    # select another occ from the same occ-group
-                    base_traits.remove(selection[0])
-                selection.append(choice(base_traits))
-
-        basetraits = set()
-        for t in selection:
-            if isinstance(t, basestring):
-                t = traits[t]
-            basetraits.add(t)
+        basetraits = set(create_base_traits(bt_group, bt_list, rg.status))
         rg.traits.basetraits = basetraits
         for t in basetraits:
             rg.apply_trait(t)
@@ -458,18 +423,54 @@ init -11 python:
             char.auto_buy(equip=True, check_money=False, container=container,
                           purpose=None)
 
-    def create_traits_base(patterns):
-        """Create a pattern with one or two base traits for a character.
-
-        patterns: Single general occupation or list of the same to build a specific pattern from.
+    def create_base_traits(bt_group, bt_list, status):
         """
-        if isinstance(patterns, basestring):
-            patterns = [patterns]
-        patterns = list(chain.from_iterable(gen_occ_basetraits[p] for p in patterns))
-        if len(patterns) > 1 and dice(50):
-            return random.sample(patterns, 2)
-        else:
-            return random.sample(patterns, 1)
+        Selects basetraits based on the input. The result is a list of basetraits most of the cases only one, but occasionally two.
+           If both parameters are None, the result is random.
+           If the bt_list is set but the bt_group is None, the result is the bt_list (converted to traits list, limited to two traits)
+           If the bt_group is set but the bt_list is None, the result is a list of basetraits from the specified group
+           Otherwise the first basetrait is selected from the group, then a random second trait might be selected.  
+        :param bt_group: General occupation (string) to use when selecting a basetrait (e.g. "Combatant")
+        :param bt_list: basetrait(s) to choose from. Might be a string to select a specific one
+        """
+        global traits, gen_occ_basetraits
+        fixed_group = False
+        if bt_group is None:
+            if bt_list is None:
+                # no restriction
+                bt_group = STATIC_CHAR.SLAVE_GEN_OCCS if status == "slave" else STATIC_CHAR.GEN_OCCS
+                bt_group = choice(bt_group)
+            else:
+                # fixed basetrait (list)
+                if isinstance(bt_list, basestring):
+                    return [traits[bt_list]]
+
+                if len(bt_list) > 2:
+                    bt_list = random.sample(bt_list, 2)
+                return [traits[t] for t in bt_list]
+        elif bt_list is None:
+            # fixed basetrait(s) from a group
+            fixed_group = True
+        #else:
+        #    # one basetrait from a group (+ random) 
+
+        base_traits = list(gen_occ_basetraits[bt_group])
+        selection = [choice(base_traits)]
+        dist = random.random()
+        if dist > .7:
+            # multiclass
+            if fixed_group is False and (dist > .9 or len(base_traits) == 1):
+                # choose an occ from other occ-group
+                curr_occ = bt_group
+                bt_group = STATIC_CHAR.SLAVE_GEN_OCCS if status == "slave" else STATIC_CHAR.GEN_OCCS
+                bt_group = [t for t in bt_group if t != curr_occ]
+                base_traits = tuple(gen_occ_basetraits[choice(bt_group)])
+            else:
+                # select another occ from the same occ-group
+                base_traits.remove(selection[0])
+            selection.append(choice(base_traits))
+
+        return selection
 
     def give_tiered_magic_skills(char, amount=None):
         """Gives spells to the character.
@@ -549,35 +550,40 @@ init -11 python:
 
     def build_client(id=None, gender="male", rank=1,
                      name=None, last_name=None,
-                     pattern=None, likes=None, tier=1):
+                     bt_group=None, likes=None, tier=1):
         """
         This function creates Customers to be used in the jobs.
         Some things are initiated in __init__ and funcs/methods that call this.
 
-        - pattern: Pattern (string) to be supplied to the create_traits_base function.
-        - likes: Expects a list/set/tuple of anything a client may find attractive in a worker/building/upgrade, will be added to other likes (mostly traits), usually adds a building...
+        :param id: the id of the client. Randomized if not set.
+        :param gender: the gender of the client ("male" or "female")
+        :param rank: the rank of the client. (index in the CLIENT_CASTES list)
+        :param tier: the tier of the client. (int or float)
+        :param name: predefined name for the client. Randomized if not set.
+        :param last_name: predefined last_name for the client. Randomized if not set.
+        :param bt_group: Group (string) to be supplied to the create_base_traits function.
+        :param likes: A list/set/tuple of anything a client may find attractive in a worker/building/upgrade,
+                      will be added to other likes (mostly traits), usually adds a building...
         """
         client = Customer(gender, rank)
 
-        if not id:
+        if id is None:
             id = "Client" + str(random.random())
         client.id = id
 
         # Names:
-        if not name:
+        if name is None:
             name = get_first_name(gender)
-        if not last_name:
+        if last_name is None:
             last_name = get_last_name()
         client.name = name
         client.fullname = client.nickname = " ".join([name, last_name])
 
         # Patterns:
-        if pattern is None:
-            pattern = STATIC_CHAR.GEN_OCCS
-        pattern = create_traits_base(pattern)
-        for i in pattern:
-            client.traits.basetraits.add(i)
-            client.apply_trait(i)
+        basetraits = set(create_base_traits(bt_group, None, "free"))
+        client.traits.basetraits = basetraits
+        for t in basetraits:
+            client.apply_trait(t)
 
         # Add a couple of client traits: <=== This may not be useful...
         trts = random.sample(tgs.client, randint(2, 5))

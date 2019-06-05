@@ -667,10 +667,7 @@ init -10 python:
             tier = uniform(float(max(tier-2, .1)), float(tier + 1))
 
             # create random customer
-            customer = build_client(gender=gender, rank=rank,
-                                    tier=tier,
-                                    likes=likes)
-            return customer
+            return build_client(gender=gender, rank=rank, tier=tier, likes=likes)
 
         # SimPy/Working the building related:
         def run_nd(self):

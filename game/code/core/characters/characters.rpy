@@ -2160,9 +2160,9 @@ init -9 python:
 
             # Base Class | Status normalization:
             if not self.traits.basetraits:
-                pattern = create_traits_base(STATIC_CHAR.GEN_OCCS)
-                for i in pattern:
-                    self.traits.basetraits.add(i)
+                basetraits = set(create_base_traits(None, None, self.status))
+                self.traits.basetraits = basetraits
+                for t in basetraits:
                     self.apply_trait(i)
 
             # Location + Home

@@ -581,12 +581,12 @@ init -9 python:
                 for index, member in enumerate(members):
                     tier = tiers[index]
                     if member == "random_char":
-                        member = build_rc(bt_go_patterns=["Combatant"],
+                        member = build_rc(bt_group="Combatant",
                                           tier=tier,
                                           give_bt_items=True)
                     elif member in rchars:
                         member = build_rc(id=member,
-                                          bt_go_patterns=["Combatant"],
+                                          bt_group="Combatant",
                                           tier=tier,
                                           give_bt_items=True)
                     else:
@@ -684,7 +684,7 @@ init -9 python:
                     give_tiered_magic_skills(char)
                     give_tiered_items(char, False, True)
                 else:
-                    char = build_rc(bt_go_patterns=["Combatant"], tier=7,
+                    char = build_rc(bt_group="Combatant", tier=7,
                                     tier_kwargs=tier_kwargs, give_bt_items=True)
 
                 char.arena_active = True
@@ -708,8 +708,7 @@ init -9 python:
                 if tier is None:
                     break
                 if fighter is None:
-                    fighter = build_rc(bt_go_patterns=["Combatant"], tier=tier,
-                           give_bt_items=True)
+                    fighter = build_rc(bt_group="Combatant", tier=tier, give_bt_items=True)
                     # print("Created Arena RG: {}".format(fighter.name))
                     new_candidates.append(fighter)
                 else:

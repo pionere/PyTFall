@@ -155,7 +155,7 @@ init -9 python:
 
             # We are done with distibution, now tiers:
             give_bt_items = status == "free"
-            for bt_go_base, amount in distibution.items():
+            for bt_group, amount in distibution.items():
                 for i in range(amount):
                     tier = hero.tier + tier_offset
                     if dice(1): # Super char!
@@ -165,7 +165,7 @@ init -9 python:
                     else: # Ok char...
                         tier += uniform(.1, 1.0)
 
-                    build_rc(bt_go_base=bt_go_base,
+                    build_rc(bt_group=bt_group, bt_list="any",
                              set_status=status,
                              tier=tier, tier_kwargs=None,
                              give_civilian_items=True,

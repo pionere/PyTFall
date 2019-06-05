@@ -28,7 +28,7 @@ init python:
                         tier = hero.tier + uniform(1.0, 2.5)
                     else: # Ok char...
                         tier = hero.tier + uniform(.1, 1.0)
-                    char = build_rc(bt_go_base=k,
+                    char = build_rc(bt_group=k, bt_list="any",
                                     set_locations=True,
                                     tier=tier,
                                     give_civilian_items=True,
