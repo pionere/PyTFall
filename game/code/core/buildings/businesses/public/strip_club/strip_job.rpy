@@ -11,6 +11,10 @@ init -5 python:
         base_skills = {"strip": 100, "dancing": 40, "sex": 5}
         base_stats = {"charisma": 70, "agility": 30}
 
+        traits = {"Abnormally Large Boobs", "Small Boobs", "Scars", "Not Human", "Flat Ass", "Exhibitionist",
+                  "Sexy Air", "Clumsy", "Flexible", "Psychic", "Manly", "Artificial Body", "Strange Eyes",
+                  "Lesbian", "Shy", "Aggressive", "Big Boobs", "Great Arse", "Long Legs", "Natural Follower"}
+
         @staticmethod
         def want_work(worker):
             return any(t.id == "Stripper" for t in worker.basetraits) 
@@ -53,15 +57,13 @@ init -5 python:
 
             if locked_dice(65): # traits don't always work, even with high amount of traits there are normal days when performance is not affected
                 # This cannot work comparing strings to trait objects:
-                traits = {"Abnormally Large Boobs", "Small Boobs", "Scars", "Not Human", "Flat Ass", "Exhibitionist",
-                        "Sexy Air", "Clumsy", "Flexible", "Psychic", "Manly", "Artificial Body", "Strange Eyes",
-                        "Lesbian", "Shy", "Aggressive", "Big Boobs", "Great Arse", "Long Legs", "Natural Follower"}
-                traits = list(i.id for i in worker.traits if i.id in traits)
+                traits = StripJob.traits
+                traits = list(i for i in worker.traits if i.id in traits)
 
-                if traits:
-                    trait = choice(traits)
-                else:
+                if not traits:
                     return effectiveness
+                trait = choice(traits)
+                trait = trait.id
 
                 if trait == "Abnormally Large Boobs":
                     if dice(65):
@@ -164,14 +166,14 @@ init -5 python:
                 disposition += 50
             return disposition
 
-        @classmethod
-        def settle_workers_disposition(cls, worker, log):
+        @staticmethod
+        def settle_workers_disposition(worker, log):
             """
             Handles penalties in case of wrong job
             """
             # Formerly check_occupation
             name = set_font_color(choice([worker.fullname, worker.name, worker.nickname]), "pink")
-            if cls.willing_work(worker):
+            if StripJob.want_work(worker):
                 log.append(choice(["%s is doing %s shift as a stripper.",
                                    "%s entertains customers with %s body on the stage.",
                                    "%s begins %s striptease performance!",
@@ -180,45 +182,43 @@ init -5 python:
                 sub = check_submissivity(worker)
                 if worker.status != 'slave':
                     if sub < 0:
-                        if dice(15):
-                            log.logws('character', 1)
                         log.append("%s is not very happy with %s current job as a stripper, but %s will get the job done." % (name, worker.pp, worker.p))
+                        sub = 15
                     elif sub == 0:
-                        if dice(25):
-                            log.logws('character', 1)
                         log.append("%s shows %s goods to customers, but %s would prefer to do something else." % (name, worker.pp, worker.p))
+                        sub = 25
                     else:
-                        if dice(35):
-                            log.logws('character', 1)
                         log.append("%s makes it clear that %s wants another job before going to the stage." % (name, worker.p))
+                        sub = 35
+                    if dice(sub):
+                        log.logws('character', 1)
                     worker.logws("joy", -randint(1, 10))
                     worker.logws("disposition", -randint(10, 15))
                     worker.logws('vitality', -randint(5, 10))
                 else:
-                    sub = check_submissivity(worker)
-                    if sub< 0:
-                        if worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
+                    dispo = worker.get_stat("disposition")
+                    dispo_req = StripJob.calculate_disposition_level(worker)
+                    if sub < 0:
+                        if dispo < dispo_req:
                             log.append("%s is a slave so no one really cares, but being forced to work as a stripper, %s's quite upset." % (name, worker.p))
                         else:
                             log.append("%s will do as %s is told, but doesn't mean that %s'll be happy about showing %s body to strangers." % (name, worker.p, worker.p, worker.pp))
-                        if dice(25):
-                            log.logws('character', 1)
+                        sub = 25
                     elif sub == 0:
-                        if worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
+                        if dispo < dispo_req:
                             log.append("%s will do as you command, but %s will hate every second of %s stripper shift..." % (name, worker.p, worker.pp))
                         else:
                             log.append("%s was very displeased by %s order to work as a stripper, but didn't dare to refuse." % (name, worker.pp))
-                        if dice(35):
-                            log.logws('character', 1)
+                        sub = 35
                     else:
-                        if worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
+                        if dispo < dispo_req:
                             log.append("%s was very displeased by %s order to work as a stripper, and makes it clear for everyone before going to the stage." % (name, worker.pp))
                         else:
                             log.append("%s will do as you command and work as a stripper, but not without a lot of grumbling and complaining." % name)
-                        if dice(45):
-                            log.logws('character', 1)
-
-                    if worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
+                        sub = 45
+                    if dice(sub):
+                        log.logws('character', 1)
+                    if dispo < dispo_req:
                         worker.logws("joy", -randint(5, 10))
                         worker.logws("disposition", -randint(15, 30))
                         worker.logws('vitality', -randint(10, 15))
@@ -226,15 +226,15 @@ init -5 python:
                         worker.logws("joy", -randint(2, 4))
                         worker.logws('vitality', -randint(2, 6))
 
-        @classmethod
-        def log_work(cls, worker, clients, ap_used, effectiveness, log):
+        @staticmethod
+        def log_work(worker, clients, ap_used, effectiveness, log):
             len_clients = len(clients)
             tier = log.loc.tier
 
-            strip = cls.normalize_required_skill(worker, "strip", effectiveness, tier)
-            dancing = cls.normalize_required_skill(worker, "dancing", effectiveness, tier)
+            strip = StripJob.normalize_required_skill(worker, "strip", effectiveness, tier)
+            dancing = StripJob.normalize_required_skill(worker, "dancing", effectiveness, tier)
             skill = (strip*1.3 + dancing)/2
-            charisma = cls.normalize_required_stat(worker, "charisma", effectiveness, tier)
+            charisma = StripJob.normalize_required_stat(worker, "charisma", effectiveness, tier)
 
             name = worker.name
             if charisma >= 170:

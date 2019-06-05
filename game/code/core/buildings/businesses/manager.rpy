@@ -12,6 +12,10 @@ init -5 python:
         base_skills = {"management": 80, "refinement": 20}
         base_stats = {"character": 40, "intelligence": 60}
 
+        traits = {"Exhibitionist", "Frigid", "Serious", "Peaceful", "Clumsy", "Shy",
+                  "Nerd", "Elegant", "Natural Leader", "Natural Follower", "Aggressive", 
+                  "Psychic", "Always Hungry", "Well-mannered", "Ill-mannered"}
+
         @staticmethod
         def want_work(worker):
             return any(t.id == "Manager" for t in worker.basetraits)
@@ -42,15 +46,13 @@ init -5 python:
             # traits don't always work, even with high amount of traits
             # there are normal days when performance is not affected
             if locked_dice(65):
-                traits = {"Exhibitionist", "Frigid", "Serious", "Peaceful", "Clumsy", "Shy",
-                          "Nerd", "Elegant", "Natural Leader", "Natural Follower", "Aggressive", 
-                          "Psychic", "Always Hungry", "Well-mannered", "Ill-mannered"}
-                traits = list(i.id for i in worker.traits if i.id in traits)
+                traits = ManagerJob.traits
+                traits = list(i for i in worker.traits if i.id in traits)
 
-                if traits:
-                    trait = choice(traits)
-                else:
+                if not traits:
                     return effectiveness
+                trait = choice(traits)
+                trait = trait.id
 
                 if trait == "Natural Leader":
                     log.append("Every guesture of %s calls for action. %s was born for this job." % (name, worker.pC))

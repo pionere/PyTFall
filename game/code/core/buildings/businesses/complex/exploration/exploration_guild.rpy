@@ -577,7 +577,7 @@ init -6 python: # Guild, Tracker and Log.
             time_to_travel = 100 # FIXME MAX_DU
             if tracker.traveled is None:
                 # Starting day
-                ExplorationTask.settle_workers_disposition(tracker.team, tracker.log)
+                #ExplorationTask.settle_workers_disposition(tracker.team, tracker.log)
 
                 # check the members
                 injured, time_mod = False, 1

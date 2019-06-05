@@ -10,6 +10,9 @@ init -5 python:
         base_skills = {"cleaning": 100, "service": 50}
         base_stats = {"agility": 25, "constitution": 50}
 
+        traits = {"Adventurous", "Homebody", "Neat", "Messy", "Shy", "Curious", "Indifferent",
+                  "Energetic", "Smart", "Clumsy", "Vicious", "Virtuous", "Abnormally Large Boobs"}
+
         @staticmethod
         def want_work(worker):
             return any(t.id in ["Cleaner", "Maid"] for t in worker.basetraits)
@@ -46,14 +49,13 @@ init -5 python:
                 effectiveness -= 15
 
             if locked_dice(65): # traits don't always work, even with high amount of traits there are normal days when performance is not affected
-                traits = {"Adventurous", "Homebody", "Neat", "Messy", "Shy", "Curious", "Indifferent",
-                          "Energetic", "Smart", "Clumsy", "Vicious", "Virtuous", "Abnormally Large Boobs"}
-                traits = list(i.id for i in worker.traits if i.id in traits)
+                traits = CleaningJob.traits
+                traits = list(i for i in worker.traits if i.id in traits)
 
-                if traits:
-                    trait = choice(traits)
-                else:
+                if not traits:
                     return effectiveness
+                trait = choice(traits)
+                trait = trait.id
 
                 if trait == "Neat":
                     log.append("%s rearranged rooms to look a little more presentable on top of %s cleaning duties." % (name, worker.pp))
@@ -117,8 +119,8 @@ init -5 python:
                 disposition += 100
             return disposition
 
-        @classmethod
-        def settle_workers_disposition(cls, cleaners, business, all_on_deck=False):
+        @staticmethod
+        def settle_workers_disposition(cleaners, business, all_on_deck=False):
             if not isinstance(cleaners, (set, list, tuple)):
                 cleaners = [cleaners]
 
@@ -131,49 +133,49 @@ init -5 python:
                 log(set_font_color("Your cleaners are starting their shift!", "cadetblue"))
 
             for worker in cleaners:
-                if cls.willing_work(worker):
+                if CleaningJob.want_work(worker):
                     continue
                 sub = check_submissivity(worker)
                 name = set_font_color(choice([worker.fullname, worker.name, worker.nickname]), "pink")
                 if worker.status != 'slave':
                     if sub < 0:
-                        if dice(15):
-                            worker.logws('character', 1)
                         log("%s is not very happy with %s current job as a cleaner, but %s will get the job done." % (name, worker.pp, worker.p))
+                        sub = 15
                     elif sub == 0:
-                        if dice(25):
-                            worker.logws('character', 1)
                         log("%s will work as a cleaner, but, truth be told, %s would prefer to do something else." % (name, worker.p))
+                        sub = 25
                     else:
-                        if dice(35):
-                            worker.logws('character', 1)
                         log("%s makes it clear that %s wants another job before beginning the cleaning." % (name, worker.p))
+                        sub = 35
+                    if dice(sub):
+                        worker.logws('character', 1)
                     worker.logws("joy", -randint(3, 5))
                     worker.logws("disposition", -randint(5, 10))
                     worker.logws('vitality', -randint(2, 5)) # a small vitality penalty for wrong job
                 else:
+                    dispo = worker.get_stat("disposition")
+                    dispo_req = CleaningJob.calculate_disposition_level(worker)
                     if sub < 0:
-                        if worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
+                        if dispo < dispo_req:
                             log("%s is a slave so no one really cares, but being forced to work as a cleaner, %s's quite upset." % (name, worker.p))
                         else:
                             log("%s will do as %s is told, but doesn't mean that %s'll be happy about %s cleaning duties." % (name, worker.p, worker.p, worker.pp))
-                        if dice(25):
-                            worker.logws('character', 1)
+                        sub = 25
                     elif sub == 0:
-                        if worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
+                        if dispo < dispo_req:
                             log("%s will do as you command, but %s will hate every second of %s cleaning shift..." % (name, worker.p, worker.pp))
                         else:
                             log("%s was very displeased by %s order to work as a cleaner, but didn't dare to refuse." % (name, worker.pp))
-                        if dice(35):
-                            worker.logws('character', 1)
+                        sub = 35
                     else:
-                        if worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
+                        if dispo < dispo_req:
                             log("%s was very displeased by %s order to work as a cleaner, and makes it clear for everyone before getting busy with clients." % (name, worker.pp))
                         else:
                             log("%s will do as you command and work as a cleaner, but not without a lot of grumbling and complaining." % name)
-                        if dice(45):
-                            worker.logws('character', 1)
-                    if worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
+                        sub = 45
+                    if dice(sub):
+                        worker.logws('character', 1)
+                    if dispo < dispo_req:
                         worker.logws("joy", -randint(4, 8))
                         worker.logws("disposition", -randint(5, 10))
                         worker.logws('vitality', -randint(5, 10))

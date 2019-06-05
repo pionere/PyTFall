@@ -12,6 +12,11 @@ init -5 python:
         base_skills = {"service": 50, "bartending": 100}
         base_stats = {"intelligence": 50, "character": 50}
 
+        traits = {"Great Arse", "Bad Eyesight", "Curious", "Indifferent", "Sexy Air",
+                  "Heavy Drinker", "Ill-mannered", "Psychic", "Shy", "Neat", "Messy",
+                  "Natural Follower", "Virtuous", "Natural Leader", "Clumsy", "Manly", "Nerd",
+                  "Stupid", "Abnormally Large Boobs", "Big Boobs", "Scars", "Vicious"}
+
         @staticmethod
         def want_work(worker):
             return any(t.id in ["Maid", "Barmaid"] for t in worker.basetraits)
@@ -45,19 +50,16 @@ init -5 python:
             # traits don't always work, even with high amount of traits
             # there are normal days when performance is not affected
             if locked_dice(65):
-                traits = {"Great Arse", "Bad Eyesight", "Curious", "Indifferent", "Sexy Air",
-                        "Heavy Drinker", "Ill-mannered", "Psychic", "Shy", "Neat", "Messy",
-                        "Natural Follower", "Virtuous", "Natural Leader", "Clumsy", "Manly", "Nerd",
-                        "Stupid", "Abnormally Large Boobs", "Big Boobs", "Scars", "Vicious"}
-                traits = list(i.id for i in worker.traits if i.id in traits)
+                traits = BarJob.traits
+                traits = list(i for i in worker.traits if i.id in traits)
 
-                if worker.height == "short" and "Lolita" in worker.traits:
-                    traits.append("Lolita")
+                if worker.height == "short":
+                    traits.append(store.traits["Lolita"])
 
-                if traits:
-                    trait = choice(traits)
-                else:
+                if not traits:
                     return effectiveness
+                trait = choice(traits)
+                trait = trait.id
 
                 if trait == "Heavy Drinker":
                     if dice(50):
@@ -157,13 +159,13 @@ init -5 python:
                 disposition += 100
             return disposition
 
-        @classmethod
-        def settle_workers_disposition(cls, worker, log):
+        @staticmethod
+        def settle_workers_disposition(worker, log):
             """
             handles penalties in case of wrong job
             """
             name = set_font_color(choice([worker.fullname, worker.name, worker.nickname]), "pink")
-            if cls.willing_work(worker):
+            if BarJob.want_work(worker):
                 log.append(choice(["%s is doing %s shift as a barmaid." % (name, worker.pp),
                                    "%s gets busy with clients." % name,
                                    "%s is working the bar!" % name, 
@@ -172,43 +174,43 @@ init -5 python:
                 sub = check_submissivity(worker)
                 if worker.status != 'slave':
                     if sub < 0:
-                        if dice(15):
-                            worker.logws('character', 1)
                         log.append("%s is not very happy with %s current job as a barmaid, but %s will get the job done." % (name, worker.pp, worker.p))
+                        sub = 15
                     elif sub == 0:
-                        if dice(25):
-                            worker.logws('character', 1)
                         log.append("%s serves customers as a barmaid, but, truth be told, %s would prefer to do something else." % (name, worker.p))
+                        sub = 25
                     else:
-                        if dice(35):
-                            worker.logws('character', 1)
                         log.append("%s makes it clear that %s wants another job before getting busy with clients." % (name, worker.p))
+                        sub = 35
+                    if dice(sub):
+                        worker.logws('character', 1)
                     worker.logws("joy", -randint(3, 5))
                     worker.logws("disposition", -randint(5, 10))
                     worker.logws('vitality', -randint(2, 5)) # a small vitality penalty for wrong job
                 else:
+                    dispo = worker.get_stat("disposition")
+                    dispo_req = BarJob.calculate_disposition_level(worker)
                     if sub < 0:
-                        if worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
+                        if dispo < dispo_req:
                             log.append("%s is a slave so no one really cares, but being forced to work as a barmaid, %s's quite upset." % (name, worker.p))
                         else:
                             log.append("%s will do as %s is told, but doesn't mean that %s'll be happy about %s bar duties." % (name, worker.p, worker.p, worker.pp))
-                        if dice(25):
-                            worker.logws('character', 1)
+                        sub = 25
                     elif sub == 0:
-                        if worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
+                        if dispo < dispo_req:
                             log.append("%s will do as you command, but %s will hate every second of %s barmaid shift..." % (name, worker.p, worker.pp))
                         else:
                             log.append("%s was very displeased by %s order to work as a barmaid, but didn't dare to refuse." % (name, worker.pp))
-                        if dice(35):
-                            worker.logws('character', 1)
+                        sub = 35
                     else:
-                        if worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
+                        if dispo < dispo_req:
                             log.append("%s was very displeased by %s order to work as a barmaid, and makes it clear for everyone before getting busy with clients." % (name, worker.pp))
                         else:
                             log.append("%s will do as you command and work as a barmaid, but not without a lot of grumbling and complaining." % name)
-                        if dice(45):
-                            worker.logws('character', 1)
-                    if worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
+                        sub = 45
+                    if dice(sub):
+                        worker.logws('character', 1)
+                    if dispo < dispo_req:
                         worker.logws("joy", -randint(5, 10))
                         worker.logws("disposition", -randint(5, 15))
                         worker.logws('vitality', -randint(5, 10))
@@ -216,13 +218,13 @@ init -5 python:
                         worker.logws("joy", -randint(2, 4))
                         worker.logws('vitality', -randint(1, 4))
 
-        @classmethod
-        def log_work(cls, worker, clients, ap_used, effectiveness, log):
+        @staticmethod
+        def log_work(worker, clients, ap_used, effectiveness, log):
             len_clients = len(clients)
             tier = log.loc.tier
 
-            bartending = cls.normalize_required_skill(worker, "bartending", effectiveness, tier)
-            charisma = cls.normalize_required_stat(worker, "charisma", effectiveness, tier)
+            bartending = BarJob.normalize_required_skill(worker, "bartending", effectiveness, tier)
+            charisma = BarJob.normalize_required_stat(worker, "charisma", effectiveness, tier)
 
             if bartending > 150:
                 if dice(70):

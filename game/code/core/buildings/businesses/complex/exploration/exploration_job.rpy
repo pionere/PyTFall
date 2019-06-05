@@ -14,9 +14,13 @@ init -5 python:
                            "agility": 20, "magic": 20}
         base_skills = {"exploration": 100}
 
+        traits = {"Aggressive", "Coward", "Stupid", "Psychic",
+                 "Natural Leader", "Artificial Body", "Adventurous",
+                 "Courageous", "Manly", "Nerd", "Smart", "Peaceful", "Neat"}
+
         @staticmethod
         def want_work(worker):
-            return any(t.id in ["Warrior", "Knight", "Mage", "Shooter"] for t in worker.basetraits)
+            return any("Combatant" in t.occupations for t in worker.basetraits)
 
         @staticmethod
         def willing_work(worker):
@@ -32,34 +36,31 @@ init -5 python:
             """
             effectiveness = 0
             name = worker.name
-            if 'Exhausted' in worker.effects:
+            effects = worker.effects
+            if 'Exhausted' in effects:
                 log.append("%s is exhausted and is in need of some rest." % name)
                 effectiveness -= 75
-            elif 'Injured' in worker.effects:
+            elif 'Injured' in effects:
                 log.append("%s is injured and is in need of some rest." % name)
                 effectiveness -= 70
-            elif 'Food Poisoning' in worker.effects:
+            elif 'Food Poisoning' in effects:
                 log.append("%s suffers from Food Poisoning, and is very far from %s top shape." % (name, worker.pp))
                 effectiveness -= 50
-            elif 'Drunk' in worker.effects:
+            elif 'Drunk' in effects:
                 log.append("%s is drunk, which affects %s coordination. Not the best thing when you need to guard something." % (name, worker.pp))
                 effectiveness -= 20
-            elif 'Down with Cold' in worker.effects:
+            elif 'Down with Cold' in effects:
                 log.append("%s is not feeling well due to colds..." % name)
                 effectiveness -= 15
 
             if locked_dice(65): # traits don't always work, even with high amount of traits there are normal days when performance is not affected
-                traits = {"Abnormally Large Boobs", "Aggressive", "Coward", "Stupid", "Psychic",
-                          "Natural Leader", "Scars", "Artificial Body", "Sexy Air", "Adventurous",
-                          "Courageous", "Manly", "Sadist", "Nerd", "Smart", "Peaceful", "Neat"}
-                traits = list(i.id for i in worker.traits if i.id in traits)
+                traits = ExplorationTask.traits
+                traits = list(i for i in worker.traits if i.id in traits)
 
-                if "Lolita" in worker.traits and worker.height == "short":
-                    traits.append("Lolita")
-                if traits:
-                    trait = choice(traits)
-                else:
+                if not traits:
                     return effectiveness
+                trait = choice(traits)
+                trait = trait.id
 
                 if trait == "Aggressive":
                     if dice(50):
@@ -106,26 +107,27 @@ init -5 python:
                     effectiveness -= 35
             return effectiveness
 
+        """
         @classmethod
         def settle_workers_disposition(cls, workers, log):
             log(set_font_color("Your team is ready for action!", "cadetblue"))
 
             for worker in workers:
-                if cls.willing_work(worker):
+                if cls.want_work(worker):
                     continue
                 sub = check_submissivity(worker)
                 if sub < 0:
-                    if dice(15):
-                        worker.logws('character', 1)
                     log("%s doesn't enjoy going on exploration, but %s will get the job done." % (worker.name, worker.p))
+                    sub = 15
                 elif sub == 0:
-                    if dice(25):
-                        worker.logws('character', 1)
                     log("%s would prefer to do something else." % worker.nickname)
+                    sub = 25
                 else:
-                    if dice(35):
-                        worker.logws('character', 1)
                     log("%s makes it clear that %s wants to do something else." % (worker.name, worker.p))
+                    sub = 35
+                if dice(sub):
+                    worker.logws('character', 1)
                 worker.logws("joy", -randint(3, 5))
                 worker.logws("disposition", -randint(5, 10))
                 worker.logws('vitality', -randint(2, 5)) # a small vitality penalty for wrong job
+        """

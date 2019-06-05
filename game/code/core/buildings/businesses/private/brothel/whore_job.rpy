@@ -11,6 +11,10 @@ init -5 python:
         base_skills = {"sex": 60, "vaginal": 40, "anal": 40, "oral": 40}
         base_stats = {"charisma": 100}
 
+        traits = {"Ill-mannered", "Always Hungry", "Heavy Drinker", "Neat", "Messy",
+                  "Indifferent", "Open Minded", "Dawdler", "Energetic", "Lactation",
+                  "Frigid", "Nymphomaniac", "Psychic", "Flexible", "Sexy Air", "Homebody"}
+
         @staticmethod
         def want_work(worker):
             return any(t.id == "Prostitute" for t in worker.basetraits)
@@ -48,15 +52,13 @@ init -5 python:
                 effectiveness += 15
 
             if locked_dice(65): # traits don't always work, even with high amount of traits there are normal days when performance is not affected
-                traits = {"Ill-mannered", "Always Hungry", "Heavy Drinker", "Neat", "Messy",
-                          "Indifferent", "Open Minded", "Dawdler", "Energetic", "Lactation",
-                          "Frigid", "Nymphomaniac", "Psychic", "Flexible", "Sexy Air", "Homebody"}
-                traits = list(i.id for i in worker.traits if i.id in traits)
+                traits = WhoreJob.traits
+                traits = list(i for i in worker.traits if i.id in traits)
 
-                if traits:
-                    trait = choice(traits)
-                else:
+                if not traits:
                     return effectiveness
+                trait = choice(traits)
+                trait = trait.id
 
                 if trait == "Always Hungry":
                     if locked_dice(50):
@@ -160,11 +162,11 @@ init -5 python:
                 disposition += 50
             return disposition
 
-        @classmethod
-        def settle_workers_disposition(cls, worker, log):
+        @staticmethod
+        def settle_workers_disposition(worker, log):
             # handles penalties in case of wrong job
             name = set_font_color(choice([worker.fullname, worker.name, worker.nickname]), "pink")
-            if cls.willing_work(worker):
+            if WhoreJob.want_work(worker):
                 log.append(choice(["%s is doing %s shift as a harlot." % (name, worker.p),
                                    "%s gets busy with clients." % name,
                                    "%s serves customers as a whore." % name]))
@@ -172,43 +174,43 @@ init -5 python:
                 sub = check_submissivity(worker)
                 if worker.status != 'slave':
                     if sub < 0:
-                        if dice(15):
-                            worker.logws('character', 1)
                         log.append("%s is not very happy with %s current job as a harlot, but %s'll get the job done." % (name, worker.pp, worker.p))
+                        sub = 15
                     elif sub == 0:
-                        if dice(25):
-                            worker.logws('character', 1)
                         log.append("%s serves customers as a whore, but %s would prefer to do something else." % (name, worker.p))
+                        sub = 25
                     else:
-                        if dice(35):
-                            worker.logws('character', 1)
                         log.append("%s makes it clear that %s wants another job before getting busy with clients." % (name, worker.p))
+                        sub = 35
+                    if dice(sub):
+                        worker.logws('character', 1)
                     worker.logws("joy", -randint(3, 6))
                     worker.logws("disposition", -randint(10, 15))
                     worker.logws('vitality', -randint(2, 8)) # a small vitality penalty for wrong job
                 else:
+                    dispo = worker.get_stat("disposition")
+                    dispo_req = WhoreJob.calculate_disposition_level(worker)
                     if sub < 0:
-                        if worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
+                        if dispo < dispo_req:
                             log.append("%s is a slave so no one really cares, but being forced to work as a whore, %s's quite upset." % (name, worker.p))
                         else:
                             log.append("%s will do as %s is told, but doesn't mean that %s'll be happy about doing 'it' with strangers." % (name, worker.p, worker.p))
-                        if dice(25):
-                            worker.logws('character', 1)
+                        sub = 25
                     elif sub == 0:
-                        if worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
+                        if dispo < dispo_req:
                             log.append("%s will do as you command, but %s will hate every second of %s working as a harlot..." % (name, worker.p, worker.pp))
                         else:
                             log.append("%s was very displeased by %s order to work as a whore, but didn't dare to refuse." % (name, worker.pp))
-                        if dice(35):
-                            worker.logws('character', 1)
+                        sub = 35
                     else:
-                        if worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
+                        if dispo < dispo_req:
                             log.append("%s was very displeased by %s order to work as a whore, and makes it clear for everyone before getting busy with clients." % (name, worker.pp))
                         else:
                             log.append("%s will do as you command and work as a harlot, but not without a lot of grumbling and complaining." % name)
-                        if dice(45):
-                            worker.logws('character', 1)
-                    if worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
+                        sub = 45
+                    if dice(sub):
+                        worker.logws('character', 1)
+                    if dispo < dispo_req:
                         worker.logws("joy", -randint(8, 15))
                         worker.logws("disposition", -randint(25, 50))
                         worker.logws('vitality', -randint(10, 15))
@@ -216,8 +218,8 @@ init -5 python:
                         worker.logws("joy", -randint(2, 4))
                         worker.logws('vitality', -randint(2, 6))
 
-        @classmethod
-        def log_work(cls, worker, client, ap_used, effectiveness, log):
+        @staticmethod
+        def log_work(worker, client, ap_used, effectiveness, log):
             # Pass the flags from occupation_checks:
             # log.append(worker.flag("jobs_whoreintro"))
             log.append("\n")
@@ -275,7 +277,7 @@ init -5 python:
                                        'He was in the mood for some pussy pounding. \n',
                                        'He asked for some playtime with her vagina.\n']))
                 # Virgin trait check:
-                cls.take_virginity(worker, log.loc, log)
+                WhoreJob.take_virginity(worker, log.loc, log)
             # Anal Sex Act
             elif act == 'anal':
                 kwargs = dict(exclude=["gay"]+always_exclude, type="reduce", add_mood=False)
@@ -326,7 +328,7 @@ init -5 python:
                         {"tags": ["bc titsjob"], "exclude": always_exclude},
                         {"tags": ["bc blowjob"], "exclude": always_exclude},
                         {"tags": ["after sex"], "exclude": always_exclude, "dice": 20})
-                act = cls.get_act(worker, tags)
+                act = WhoreJob.get_act(worker, tags)
                 if act == tags[0]:
                     log.append(choice(["He shoved his cock all the way into her throat! \n",
                                        "Deepthroat is definitely my style, thought the customer... \n"]))
@@ -440,7 +442,7 @@ init -5 python:
                         {"tags": ["gay", "2c analtoy"], "exclude": always_exclude},
                         {"tags": ["gay", "bc toyanal"], "exclude": always_exclude},
                         {"tags": ["gay", "scissors"], "exclude": always_exclude})
-                act = cls.get_act(worker, tags)
+                act = WhoreJob.get_act(worker, tags)
 
                 # We'll be adding "les" here as Many lesbian pics do not fall in any of the categories and will never be called...
                 if act == tags[0]:
@@ -627,7 +629,7 @@ init -5 python:
                         vaginalmod = 20
                         sexmod = 8
                     log.img = worker.show("gay", "2c vaginal", **kwargs)
-                    cls.take_virginity(worker, log.loc, log)
+                    WhoreJob.take_virginity(worker, log.loc, log)
                 elif act == tags[12]:
                     log.append(choice(["She ordered %s to put on a strapon and fuck her silly with it. \n" % nickname,
                                        "She equipped %s with a strapon and told her that she was 'up' for a good fuck! \n" % nickname]))
@@ -688,7 +690,7 @@ init -5 python:
                         sexmod = 20
                         vaginalmod = 8
                     log.img = worker.show("gay", "2c vaginaltoy", **kwargs)
-                    cls.take_virginity(worker, log.loc, log)
+                    WhoreJob.take_virginity(worker, log.loc, log)
                 elif act == tags[16]:
                     log.append(choice(["Without further ado, %s fucked her with a toy. \n" % nickname,
                                        "She asked your girl to fuck her pussy with a toy. \n"]))
@@ -768,7 +770,7 @@ init -5 python:
 
             tier = log.loc.tier
             # Charisma mods:
-            charisma = cls.normalize_required_stat(worker, "charisma", effectiveness, tier)
+            charisma = WhoreJob.normalize_required_stat(worker, "charisma", effectiveness, tier)
             if charisma >= 170:
                 log.append("Her supernal loveliness made the customer to shed tears of happiness, comparing %s to ancient goddess of love. Be wary of possible cults dedicated to her..." % nickname)
                 log.logws("joy", 1)
@@ -803,7 +805,7 @@ init -5 python:
                     log.logloc("fame", -1)
                 log.append("The customer was unimpressed by %s looks, to say at least. Still, %s preferred fucking her over a harpy. Hearing that from %s however, was not encouraging for the poor girl at all..." % (nickname, client.p, client.op))
 
-            refinement = cls.normalize_required_skill(worker, "refinement", effectiveness, tier)
+            refinement = WhoreJob.normalize_required_skill(worker, "refinement", effectiveness, tier)
             if charisma >= 100 and refinement >= 100 and dice(75):
                 log.append("Her impeccable manners also made a very good impression.")
                 log.logloc("reputation", 1)

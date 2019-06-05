@@ -11,9 +11,13 @@ init -5 python:
                            "agility": 20, "magic": 20}
         base_skills = {"security": 100}
 
+        traits = {"Abnormally Large Boobs", "Aggressive", "Coward", "Stupid", "Neat",
+                  "Natural Leader", "Scars", "Artificial Body", "Sexy Air", "Adventurous",
+                  "Courageous", "Manly", "Sadist", "Nerd", "Smart", "Peaceful", "Psychic"}
+
         @staticmethod
         def want_work(worker):
-            return any(t.id in ["Warrior", "Knight", "Mage"] for t in worker.basetraits)
+            return any(t.id in ["Warrior", "Knight", "Mage", "Assassin"] for t in worker.basetraits)
 
         @staticmethod
         def willing_work(worker):
@@ -54,18 +58,16 @@ init -5 python:
                     effectiveness += 10
 
             if locked_dice(65): # traits don't always work, even with high amount of traits there are normal days when performance is not affected
-                traits = {"Abnormally Large Boobs", "Aggressive", "Coward", "Stupid", "Neat",
-                          "Natural Leader", "Scars", "Artificial Body", "Sexy Air", "Adventurous",
-                        "Courageous", "Manly", "Sadist", "Nerd", "Smart", "Peaceful", "Psychic"}
-                traits = list(i.id for i in worker.traits if i.id in traits)
+                traits = GuardJob.traits
+                traits = list(i for i in worker.traits if i.id in traits)
 
-                if worker.height == "short" and "Lolita" in worker.traits:
-                    traits.append("Lolita")
+                if worker.height == "short":
+                    traits.append(store.traits["Lolita"])
 
-                if traits:
-                    trait = choice(traits)
-                else:
+                if not traits:
                     return effectiveness
+                trait = choice(traits)
+                trait = trait.id
 
                 if trait == "Aggressive":
                     if dice(50):
@@ -127,8 +129,8 @@ init -5 python:
                     effectiveness -= 50
             return effectiveness
 
-        @classmethod
-        def settle_workers_disposition(cls, workers, business, all_on_deck=False):
+        @staticmethod
+        def settle_workers_disposition(workers, business, all_on_deck=False):
             if not isinstance(workers, (set, list, tuple)):
                 workers = [workers]
 
@@ -141,49 +143,49 @@ init -5 python:
                 log(set_font_color("Your guards are starting their shift!", "cadetblue"))
 
             for worker in workers:
-                if cls.willing_work(worker):
+                if GuardJob.want_work(worker):
                     continue
                 sub = check_submissivity(worker)
                 name = set_font_color(choice([worker.fullname, worker.name, worker.nickname]), "pink")
                 if worker.status != 'slave':
                     if sub < 0:
-                        if dice(15):
-                            worker.logws('character', 1)
                         log("%s doesn't enjoy working as guard, but %s will get the job done." % (name, worker.p))
+                        sub = 15
                     elif sub == 0:
-                        if dice(25):
-                            worker.logws('character', 1)
                         log("%s will work as a guard, but %s would prefer to do something else." % (name, worker.p))
+                        sub = 25
                     else:
-                        if dice(35):
-                            worker.logws('character', 1)
                         log("%s makes it clear that %s wants another job." % (name, worker.p))
+                        sub = 35
+                    if dice(sub):
+                        worker.logws('character', 1)
                     worker.logws("joy", -randint(3, 5))
                     worker.logws("disposition", -randint(5, 10))
                     worker.logws('vitality', -randint(2, 5)) # a small vitality penalty for wrong job
                 else:
+                    dispo = worker.get_stat("disposition")
+                    dispo_req = GuardJob.calculate_disposition_level(worker)
                     if sub < 0:
-                        if worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
+                        if dispo < dispo_req:
                             log("%s is a slave so no one really cares, but being forced to work as a guard, %s's quite upset." % (name, worker.p))
                         else:
                             log("%s will do as %s's told, but this doesn't mean that %s'll be happy about %s guarding duties." % (name, worker.p, worker.p, worker.pp))
-                        if dice(25):
-                            worker.logws('character', 1)
+                        sub = 25
                     elif sub == 0:
-                        if worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
+                        if dispo < dispo_req:
                             log("%s will do as you command, but %s will hate every second of being forced to work as a guard..." % (name, worker.p))
                         else:
                             log("%s was very displeased by %s order to work as a guard, but didn't dare to refuse." % (name, worker.pp))
-                        if dice(35):
-                            worker.logws('character', 1)
+                        sub = 35
                     else:
-                        if worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
+                        if dispo < dispo_req:
                             log("%s was very displeased by %s order to work as a guard." % (name, worker.pp))
                         else:
                             log("%s will do as you command and work as a guard, but not without a lot of grumbling and complaining." % name)
-                        if dice(45):
-                            worker.logws('character', 1)
-                    if worker.get_stat("disposition") < cls.calculate_disposition_level(worker):
+                        sub = 45
+                    if dice(sub):
+                        worker.logws('character', 1)
+                    if worker.get_stat("disposition") < dispo_req:
                         worker.logws("joy", -randint(4, 8))
                         worker.logws("disposition", -randint(5, 10))
                         worker.logws('vitality', -randint(5, 10))
