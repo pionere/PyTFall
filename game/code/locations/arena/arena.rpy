@@ -12,33 +12,21 @@ init -9 python:
             # self.teams = list() # Tracking the team fights.
 
             # Team Lineups and Scheduled matches:
-            self.matches_1v1 = list(
-            [Team(max_size=1), Team(max_size=1), 1] for i in xrange(8) # [0]: Team One, [1]: Team Two, [2]: Day
-            )
-            self.matches_2v2 = list(
-            [Team(max_size=2), Team(max_size=2), 1] for i in xrange(5) # [0]: Team One, [1]: Team Two, [2]: Day
-            )
-            self.matches_3v3 = list(
-            [Team(max_size=3), Team(max_size=3), 1] for i in xrange(5) # [0]: Team One, [1]: Team Two, [2]: Day
-            )
-            self.lineup_1v1 = list(
-            Team(max_size=1) for i in xrange(20)
-            )
-            self.lineup_2v2 = list(
-            Team(max_size=2) for i in xrange(10)
-            )
-            self.lineup_3v3 = list(
-            Team(max_size=3) for i in xrange(10)
-            )
-            self.ladder = list(
-            None for i in xrange(100)
-            )
+            #                      Off Team           Def Team      Day
+            self.matches_1v1 = [[Team(max_size=1), Team(max_size=1), 1] for i in xrange(8)]
+            #                      Off Team           Def Team      Day
+            self.matches_2v2 = [[Team(max_size=2), Team(max_size=2), 1] for i in xrange(5)]
+            #                      Off Team           Def Team      Day
+            self.matches_3v3 = [[Team(max_size=3), Team(max_size=3), 1] for i in xrange(5)]
+            self.lineup_1v1 = [Team(max_size=1) for i in xrange(20)]
+            self.lineup_2v2 = [Team(max_size=2) for i in xrange(10)]
+            self.lineup_3v3 = [Team(max_size=3) for i in xrange(10)]
+            self.ladder = [None] * 100
 
             # ----------------------------->
             self.king = None
 
             # A list of Arena Fighters loaded into the game and actively participating in the Arena.
-            self.arena_fighters = {}
             self.teams_2v2 = list()
             self.teams_3v3 = list()
 
@@ -128,7 +116,7 @@ init -9 python:
             Updated to include all Arena Fighters as well!
             Note to self: This REALLY should simply be a list in the Arena namespace...
             '''
-            return [f for f in itertools.chain(chars.values(), self.arena_fighters.values()) if f.arena_active]
+            return [f for f in itertools.chain(chars.itervalues(), fighters.itervalues()) if f.arena_active]
 
         def get_arena_candidates(self):
             '''
@@ -137,7 +125,7 @@ init -9 python:
             '''
             interactions_chars = set(gm.get_all_girls())
             interactions_chars.update(hero.chars)
-            return [c for c in chars.values() if c.arena_willing and c not in interactions_chars] + self.arena_fighters.values()
+            return [c for c in chars.itervalues() if c.arena_willing and c not in interactions_chars] + fighters.values()
 
         # -------------------------- Teams control/checks -------------------------------------->
         def remove_team_from_dogfights(self, fighter):
@@ -522,7 +510,7 @@ init -9 python:
                     team = setup[1]
 
             if len(hero.team) != len(team):
-                return "Make sure that your team has %d members!"%len(team)
+                return "Make sure that your team has %d members!" % len(team)
 
             for member in hero.team:
                 if member.status == "slave":
@@ -539,8 +527,10 @@ init -9 python:
         def update_ladder(self):
             # Update top 100 ladder:
             candidates = self.get_arena_fighters()
-            candidates.append(hero)
+            if hero.arena_rep > 0:
+                candidates.append(hero)
             candidates.sort(reverse=True, key=attrgetter("arena_rep"))
+
             self.ladder = candidates[:len(self.ladder)]
 
         def update_actives(self):
@@ -559,17 +549,15 @@ init -9 python:
             return chain_fights
 
         def load_special_team_presets(self):
-            fighters = store.fighters
             teams = json.load(renpy.file("content/db/arena_teams.json"))
             team_members = set() # collect the fighters which are already added to teams
             for team in teams:
                 members = team["members"]
                 name = team["name"]
                 lineups = team.get("lineups", False)
-                tiers = team.get("tiers", [])
-                if not tiers:
-                    for m in members:
-                        tiers.append(uniform(.8, 1.2))
+                tiers = team.get("tiers", None)
+                if tiers is None:
+                    tiers = [uniform(.8, 1.2) for m in members]
                 teamsize = len(members)
 
                 if teamsize > 3:
@@ -578,8 +566,7 @@ init -9 python:
                     raise Exception("Arena Team %s has no members at all!" % name)
 
                 a_team = Team(name=name, max_size=teamsize)
-                for index, member in enumerate(members):
-                    tier = tiers[index]
+                for member, tier in zip(members, tiers):
                     if member == "random_char":
                         member = build_rc(bt_group="Combatant",
                                           tier=tier,
@@ -608,7 +595,6 @@ init -9 python:
                             member = fighters[member]
                         else:
                             break
-                        self.arena_fighters[member.id] = member
 
                         tier_up_to(member, tier)
                         give_tiered_magic_skills(member)
@@ -667,7 +653,6 @@ init -9 python:
             """
             # Team formations!!!: -------------------------------------------------------------->
             self.load_special_team_presets()
-            self.arena_fighters.update(store.fighters)
 
             # Loading rest of Arena Combatants:
             candidates = self.get_arena_candidates()
@@ -1203,6 +1188,22 @@ init -9 python:
                   ("Team's leader %s got most of the credit!" % match_result[0].leader.name)])
             txt.append(temp)
 
+        @staticmethod
+        def missed_match_result(txt, opfor):
+            # player missed an Arena match -> Rep penalty!
+            rep_penalty = max(500, (opfor.get_rep()/10))
+            hero.arena_rep -= rep_penalty
+
+            if len(opfor) == 1:
+                opfor = opfor.leader
+                temp = "%s missed a 1v1 fight against %s, who entrained the public by boasting of %s prowess " \
+                        "and making funny jabs at %s's cowardliness!" % (hero.name, opfor.name, opfor.pp, hero.name)
+            else:
+                temp = "%s didn't show up for a team combat against %s! The spectators were very displeased!" % (hero.team.name, opfor.name)
+            temp = set_font_color(temp, "red")
+
+            txt.append(temp)
+
         def next_day(self):
             # For the daily report:
             txt = []
@@ -1225,62 +1226,40 @@ init -9 python:
             # Running the matches:
             # Join string method is used here to improve performance over += or + (Note: Same should prolly be done for jobs.)
             for setup in self.matches_1v1:
-                if setup[2] == day and setup[0].leader != hero:
-                    if setup[0] and setup[1]:
-                        match_result = self.auto_resolve_combat(setup[0], setup[1], "match")
-                        self.append_match_result(txt, True, match_result)
-
+                if setup[2] == day:
+                    off_team, def_team = setup[0], setup[1]
+                    if off_team.leader != hero:
+                        if off_team and def_team:
+                            match_result = self.auto_resolve_combat(off_team, def_team, "match")
+                            self.append_match_result(txt, True, match_result)
+                    else:
+                        self.missed_match_result(txt, def_team)
                     setup[0] = Team(max_size=1)
                     setup[1] = Team(max_size=1)
 
             for setup in self.matches_2v2:
-                if setup[2] == day and setup[0].leader != hero:
-                    if setup[0] and setup[1]:
-                        match_result = self.auto_resolve_combat(setup[0], setup[1], "match")
-                        self.append_match_result(txt, False, match_result)
+                if setup[2] == day:
+                    off_team, def_team = setup[0], setup[1]
+                    if off_team.leader != hero:
+                        if off_team and def_team:
+                            match_result = self.auto_resolve_combat(off_team, def_team, "match")
+                            self.append_match_result(txt, False, match_result)
+                    else:
+                        self.missed_match_result(txt, def_team)
                     setup[0] = Team(max_size=2)
                     setup[1] = Team(max_size=2)
 
             for setup in self.matches_3v3:
-                if setup[2] == day and setup[0].leader != hero:
-                    if setup[0] and setup[1]:
-                        match_result = self.auto_resolve_combat(setup[0], setup[1], "match")
-                        self.append_match_result(txt, False, match_result)
+                if setup[2] == day:
+                    off_team, def_team = setup[0], setup[1]
+                    if off_team.leader != hero:
+                        if off_team and def_team:
+                            match_result = self.auto_resolve_combat(off_team, def_team, "match")
+                            self.append_match_result(txt, False, match_result)
+                    else:
+                        self.missed_match_result(txt, def_team)
                     setup[0] = Team(max_size=3)
                     setup[1] = Team(max_size=3)
-
-
-            # Checking if player missed an Arena match:
-            if day in hero.fighting_days:
-                # Locate combat setup:
-                for setup in list(itertools.chain(self.matches_1v1, self.matches_2v2, self.matches_3v3)):
-                    # Needs testing...
-                    if setup[2] == day and setup[0].leader == hero:
-                        penalty_setup = setup
-
-                        # get rid of the failed team setup:
-                        team_size = len(penalty_setup[1])
-                        ladder = getattr(self, "matches_%dv%d" % (team_size, team_size))
-                        index = ladder.index(setup)
-                        ladder[index] = [Team(max_size=team_size), Team(max_size=team_size), 1]
-
-                # Rep penalty!
-                rep_penalty = max(500, (penalty_setup[1].get_rep()/10))
-                hero.arena_rep -= rep_penalty
-
-                if len(penalty_setup[1]) == 1:
-                    opfor = penalty_setup[1].leader
-                    temp = "{} missed a 1v1 fight vs {}, who entrained the public "
-                    temp += "by boasting of {} prowess and making funny jabs at {}'s cowardliness!"
-                    temp = temp.format(hero.name, opfor.name, opfor.pp, hero.name)
-                    temp = set_font_color(temp, "red")
-                else:
-                    temp = "{} didn't show up for a team combat vs {}!".format(hero.team.name,
-                                                                               penalty_setup[1].name)
-                    temp += " The spectators were very displeased!"
-                    temp = set_font_color(temp, "red")
-
-                txt.append(temp)
 
             self.update_matches()
             tl.end("Arena: Matches")

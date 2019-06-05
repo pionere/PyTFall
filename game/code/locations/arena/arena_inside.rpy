@@ -426,7 +426,7 @@ init: # Main Screens:
                                                 frame:
                                                     background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
                                                     padding 2, 2
-                                                    add fighter.show("portrait", resize=(60, 60))
+                                                    add fighter.show("portrait", resize=(60, 60), cache=True)
 
                                 add vs_img yalign .5
 
@@ -453,7 +453,7 @@ init: # Main Screens:
                                             frame:
                                                 background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
                                                 padding 2, 2
-                                                add fighter.show("portrait", resize=(60, 60))
+                                                add fighter.show("portrait", resize=(60, 60), cache=True)
 
                 vbar value YScrollValue("vp_matches")
             button:
@@ -573,7 +573,7 @@ init: # Main Screens:
                                 frame:
                                     background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
                                     padding 2, 2
-                                    add fighter.show("portrait", resize=(40, 40))
+                                    add fighter.show("portrait", resize=(40, 40), cache=True)
                                     yalign .5
                                 frame:
                                     align (.5, .5)
@@ -659,7 +659,7 @@ init: # Main Screens:
                                         frame:
                                             padding 2, 2
                                             background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
-                                            add fighter.show("portrait", resize=(60, 60))
+                                            add fighter.show("portrait", resize=(60, 60), cache=True)
 
                 vbar value YScrollValue("vp_dogfights")
 
@@ -1184,7 +1184,7 @@ init: # ChainFights vs Mobs:
                 size 45
 
             # Opposing Sprites:
-            add hero.show("battle_sprite", resize=(200, 200)) at slide(so1=(-600, 0), t1=.7, eo2=(-1300, 0), t2=.7) align .35, .5
+            add hero.show("battle_sprite", resize=(200, 200), cache=True) at slide(so1=(-600, 0), t1=.7, eo2=(-1300, 0), t2=.7) align .35, .5
             add pytfall.arena.cf_mob.leader.show("battle_sprite", resize=(200, 200)) at slide(so1=(600, 0), t1=.7, eo2=(1300, 0), t2=.7) align .65, .5
 
             # Title Text and Boss name if appropriate:

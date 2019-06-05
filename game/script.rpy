@@ -215,11 +215,6 @@ label dev_testing_menu_and_load_mc:
 
 #    jump continue_with_start
 #label continue_with_start:
-    python: # Load Arena
-        tl.start("Loading: Arena!")
-        pytfall.arena.setup_arena()
-        tl.end("Loading: Arena!")
-
     # Call girls starting labels:
     $ all_chars = chars.values()
     while all_chars:
@@ -235,6 +230,9 @@ label dev_testing_menu_and_load_mc:
                 delattr(store, i)
 
     python: # Move to a World AI method:
+        tl.start("Loading: Populating Arena")
+        pytfall.arena.setup_arena()
+        tl.end("Loading: Populating Arena")
         tl.start("Loading: Populating World with RChars")
         pytfall.populate_world()
         tl.end("Loading: Populating World with RChars")
@@ -643,6 +641,8 @@ label after_load:
             del pytfall.arena.chain_fights
             del pytfall.arena.chain_fights_order
             del pytfall.arena.chain_fights_order_portraits
+        if hasattr(pytfall.arena, "arena_fighters"):
+            del pytfall.arena.arena_fighters
 
         if hasattr(hero, "STATS"):
             for c in itertools.chain(chars.values(), [hero], hero.chars, npcs.values()):
@@ -1005,7 +1005,7 @@ label after_load:
 
             arena = pytfall.arena
             all_live_chars = set([hero] + chars.values() + hero.chars + npcs.values())
-            for fighter in itertools.chain(arena.ladder, arena.arena_fighters.values()):
+            for fighter in itertools.chain(arena.ladder, store.fighters.values()):
                 all_live_chars.add(fighter)
             for team in itertools.chain(arena.teams_2v2, arena.teams_3v3,\
                  arena.dogfights_1v1, arena.dogfights_2v2, arena.dogfights_3v3,\

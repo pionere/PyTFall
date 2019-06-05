@@ -229,7 +229,7 @@ init -9 python:
 
             # Same for Arena Fighters:
             tl.start("Arena-Fighter's ND")
-            for fighter in pytfall.arena.arena_fighters.values():
+            for fighter in fighters.values():
                 fighter.next_day()
             tl.end("Arena-Fighter's ND")
 

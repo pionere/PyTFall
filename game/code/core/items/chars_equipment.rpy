@@ -420,7 +420,7 @@ screen char_equip():
     # Left Frame: =====================================>
     fixed:
         pos (0, 2)
-        xysize (220,724)
+        xysize (220, 724)
         style_group "content"
 
         # PORTRAIT + Prev/Next buttons ================>
@@ -457,7 +457,14 @@ screen char_equip():
                     focus_mask True
 
         # NAME ========================================>
-        text (u"[eqtarget.name]") color "#ecc88a" font "fonts/TisaOTM.otf" size 28 outlines [(1, "#3a3a3a", 0, 0)] xalign .53 ypos 126
+        hbox:
+            xfill True
+            ysize 48
+            ypos 120
+            $ temp = eqtarget.name
+            text temp color "#ecc88a" font "fonts/TisaOTM.otf" size 28 outlines [(1, "#3a3a3a", 0, 0)] align .55, .5:
+                if len(temp) > 12:
+                    size 18
 
         # LVL =========================================>
         hbox:

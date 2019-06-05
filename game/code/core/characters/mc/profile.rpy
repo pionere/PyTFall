@@ -151,35 +151,38 @@ screen hero_profile():
                         tooltip "This is a Class Stat!"
 
     # LEFT FRAME (Stats/Friends/Etc) ====================================>
-    vbox:
-        xsize 217
-        pos (8, 110)
-        style_prefix "proper_stats"
-
         # NAME^   LVL   (ok for 1m lvls) ====================================>
-        textbutton "[hero.name]":
-            background Null()
-            text_style "TisaOTMol"
-            text_size 28
-            text_outlines [(2, "#424242", 0, 0)]
-            xalign .492
-            ypos 5
-            action Show("char_rename", char=hero)
-            tooltip "Click to rename yourself."
-
+    fixed:
+        xsize 217
+        pos (2, 112)
         hbox:
-            xsize 217
-            ypos 11
+            xfill True
+            ysize 48
+            $ temp = hero.name
+            textbutton temp:
+                background Null()
+                text_style "TisaOTMol"
+                text_size (18 if len(temp) > 12 else 28) 
+                text_outlines [(2, "#424242", 0, 0)]
+                align .5, .5
+                action Show("char_rename", char=hero)
+                tooltip "Click to rename yourself."
+        hbox:
+            xfill True
+            ypos 52
             label "Lvl [hero.level]" text_color "#CDAD00" text_font "fonts/Rubius.ttf" text_size 16 text_outlines [(1, "#3a3a3a", 0, 0)] xalign .5
         hbox:
-            xsize 217
-            ypos 21
+            xfill True
+            ypos 70
             label "Tier [hero.tier]" text_color "#CDAD00" text_font "fonts/Rubius.ttf" text_size 16 text_outlines [(1, "#3a3a3a", 0, 0)] xalign .5
 
+    vbox:
+        xsize 217
+        pos (8, 202)
+        style_prefix "proper_stats"
 
         if lframe_display == "status":
             # STATS ====================================>
-            null height 20
             vbox:
                 style_group "proper_stats"
                 spacing 1
@@ -269,7 +272,6 @@ screen hero_profile():
                             size 14
 
         elif lframe_display == "skills":
-            null height 26
             viewport:
                 xysize (217, 500)
                 mousewheel True
