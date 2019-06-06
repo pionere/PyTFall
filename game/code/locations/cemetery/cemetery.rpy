@@ -1,7 +1,7 @@
 label graveyard_town:
     $ gm.enter_location(goodtraits=["Undead", "Divine Creature", "Demonic Creature"],
-                        badtraits=["Elf", "Android", "Monster", "Human", "Furry"],
-                        curious_priority=False, coords=[[.1, .55], [.5, .84], [.92, .45]])
+                        badtraits=["Elf", "Android", "Monster", "Human", "Furry", "Slime"],
+                        coords=[[.1, .55], [.5, .84], [.92, .45]])
     # Music
     if not global_flags.has_flag("keep_playing_music"):
         $ PyTFallStatic.play_music("cemetery", fadein=.5)

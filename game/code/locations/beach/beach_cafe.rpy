@@ -1,6 +1,6 @@
 label city_beach_cafe:
     $ gm.enter_location(goodtraits=["Athletic", "Dawdler", "Always Hungry"], badtraits=["Scars", "Undead", "Furry", "Monster"],
-                        curious_priority=False, coords=[[.2, .75], [.5, .65], [.87, .6]])
+                        coords=[[.2, .75], [.5, .65], [.87, .6]])
     $ global_flags.set_flag("keep_playing_music")
 
     python:

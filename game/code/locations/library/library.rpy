@@ -126,8 +126,8 @@ init python:
         return books
 
 label academy_town:
-    $ gm.enter_location(badtraits=["Adventurous", "Slime", "Monster"], has_tags=["girlmeets", "schoolgirl"],
-                        curious_priority=True, coords=[[.1, .55], [.45, .64], [.86, .65]])
+    $ gm.enter_location(badtraits=["Adventurous", "Slime", "Monster"], goodtraits=["Curious"],
+                        has_tags=["girlmeets", "schoolgirl"], coords=[[.1, .55], [.45, .64], [.86, .65]])
     # Music
     if not global_flags.has_flag("keep_playing_music"):
         $ PyTFallStatic.play_music("library", fadein=.5)

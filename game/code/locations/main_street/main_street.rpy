@@ -1,6 +1,6 @@
 label main_street:
     $ gm.enter_location(goodtraits=["Human", "Kleptomaniac"], badtraits=["Not Human", "Alien", "Strange Eyes"],
-                        curious_priority=False, coords=[[.1, .7], [.57, .54], [.93, .61]])
+                        coords=[[.1, .7], [.57, .54], [.93, .61]])
     # Music related:
     if not global_flags.has_flag("keep_playing_music"):
         $ PyTFallStatic.play_music("main_street")

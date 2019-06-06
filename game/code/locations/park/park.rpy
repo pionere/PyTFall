@@ -1,6 +1,6 @@
 label city_park:
     $ gm.enter_location(goodtraits=["Elf", "Furry"], badtraits=["Aggressive", "Adventurous"],
-                        curious_priority=False, coords=[[.1, .7], [.4, .45], [.74, .73]])
+                        coords=[[.1, .7], [.4, .45], [.74, .73]])
     python:
         # Build the actions
         if pytfall.world_actions.location("city_park"):

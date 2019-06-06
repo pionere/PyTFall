@@ -5,7 +5,7 @@ init -1 python:
         Also responsible for sorting.
         Occupation = condition on which to sort.
         """
-        def __init__(self, name, curious_priority=True, limited_location=False, **kwargs):
+        def __init__(self, name, limited_location=False, **kwargs):
             goodoccupations = kwargs.get("goodoccupations", set())
             badoccupations = kwargs.get("badoccupations", set())
             has_tags = kwargs.get("has_tags", set())
@@ -19,7 +19,6 @@ init -1 python:
                 badtraits = set(traits[t] for t in badtraits)
 
             self.name = name
-            self.curious_priority = curious_priority
             self.termination_day = day + randint(3, 5)
             self.creation_day = day
 
@@ -28,79 +27,60 @@ init -1 python:
             interactive_chars = set(gm.get_all_girls()) | set(hero.chars)
             possible_chars = [c for c in chars.itervalues() if c not in interactive_chars]
 
-            # Get available girls and check stuff:
-            choices = list()
-            for c in possible_chars:
-                if limited_location and c.location != name:
-                    continue
-                if c.home != pytfall.city and str(c.location) != "girl_meets_quest":
-                    continue
-                if c.location == pytfall.jail:
-                    continue
-                if has_tags and not c.has_image(*has_tags, exclude=has_no_tags):
-                    continue
-
-                choices.append(c)
-
-            # We remove all chars with badtraits:
+            # Get available characters and check stuff:
+            #  filter chars out of city or in jail
+            choices = [c for c in possible_chars if c.location != pytfall.jail and (c.home == pytfall.city or str(c.location) == "girl_meets_quest")]
+            #  filter by required tags
+            if has_tags:
+                choices = [c for c in choices if c.has_image(*has_tags, exclude=has_no_tags)]
+            #  filter by location
+            if limited_location:
+                choices = [c for c in choices if c.location == name]
+            #  filter by badtraits:
             if badtraits:
-                choices = list(i for i in choices if not any(trait in badtraits for trait in i.traits))
+                choices = [i for i in choices if not any(trait in badtraits for trait in i.traits)]
+            #  filter by badoccupations
             if badoccupations:
-                choices = list(i for i in choices if not i.occupations.intersection(badoccupations))
-            conditioned_choices = set(choices)
+                choices = [i for i in choices if not i.occupations.intersection(badoccupations)]
 
-            if self.curious_priority:
-                goodtraits.add(traits["Curious"])
+            # Prioritize the choices
+            if goodtraits or goodoccupations:
+                temp = choices
+                choices = []
+                conditioned_choices = []
+                for c in temp:
+                    if c.occupations.intersection(goodoccupations) or any(trait in goodtraits for trait in c.traits):
+                        conditioned_choices.append(c)
+                    else:
+                        choices.append(c)
+            else:
+                conditioned_choices = choices
+                choices = []
 
-            gt = list(i for i in conditioned_choices if any(trait in goodtraits for trait in i.traits)) if goodtraits else list()
-            occs = list(i for i in conditioned_choices if i.occupations.intersection(goodoccupations)) if goodoccupations else list()
-            conditioned_choices = list(conditioned_choices.intersection(gt + occs)) if gt or occs else list(conditioned_choices)
+            # Select the character with the best disposition+affection:
+            if conditioned_choices:
+                conditioned_choices.sort(key=lambda x: x.get_stat("disposition") + x.get_stat("affection"))
+                if conditioned_choices[-1].get_stat("disposition") or conditioned_choices[-1].get_stat("affection"):
+                    cell_chars.append(conditioned_choices.pop())
+            elif choices:
+                choices.sort(key=lambda x: x.get_stat("disposition") + x.get_stat("affection"))
+                if choices[-1].get_stat("disposition") or choices[-1].get_stat("affection"):
+                    cell_chars.append(choices.pop())
+            else:
+                return # no choice at all...
 
-            # Sort the list based on disposition and affection:
-            conditioned_choices.sort(key=lambda x: x.get_stat("disposition") + x.get_stat("affection"))
-            choices.sort(key=lambda x: x.get_stat("disposition") + x.get_stat("affection"))
-
-            # =====================================>>>
-            # We add an absolute overwrite for any character that has the location string set as the name:
-            # Make sure that we do not get the char in two locations on the same day:
-            local_chars = [c for c in possible_chars if c.location == name]
-            shuffle(local_chars)
-            while local_chars:
-                cell_chars.append(local_chars.pop())
+            # the rest is random 
+            shuffle(conditioned_choices)
+            for c in conditioned_choices:
+                cell_chars.append(c)
                 if len(cell_chars) == 3:
                     return
 
-            # Append to the list (1st girl) Best disposition:
-            if conditioned_choices:
-                if conditioned_choices[-1].get_stat("disposition") or conditioned_choices[-1].get_stat("affection"):
-                    c = conditioned_choices.pop()
-                    cell_chars.append(c)
-                    choices.remove(c)
-            elif choices:
-                if choices[-1].get_stat("disposition") or choices[-1].get_stat("affection"):
-                    cell_chars.append(choices.pop())
-            if len(cell_chars) == 3:
-                return
-            
-            # select a unique char if possible
-            shuffle(conditioned_choices)
             shuffle(choices)
-            for c in itertools.chain(conditioned_choices, choices):
-                if c.__class__ == Char:
-                    cell_chars.append(c)
-                    if len(cell_chars) == 3:
-                        return
-                    if c in conditioned_choices:
-                        conditioned_choices.remove(c)
-                    choices.remove(c)
-                    break
-            
-            # fill the rest with random chars
-            for c in itertools.chain(conditioned_choices, choices):
-                if c not in cell_chars:
-                    cell_chars.append(c)
-                    if len(cell_chars) == 3:
-                        return
+            for c in choices:
+                cell_chars.append(c)
+                if len(cell_chars) == 3:
+                    return
 
         # and easy access:
         def __len__(self):

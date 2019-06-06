@@ -1,6 +1,6 @@
 label city_parkgates:
     $ gm.enter_location(goodtraits=["Elf", "Furry", "Human"], badtraits=["Aggressive", "Adventurous"],
-                        curious_priority=False, coords=[[.1, .75], [.4, .67], [.9, .7]])
+                        coords=[[.1, .75], [.4, .67], [.9, .7]])
     # Music related:
     if not global_flags.has_flag("keep_playing_music"):
         $ PyTFallStatic.play_music("park", fadein=.5)

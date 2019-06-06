@@ -1,6 +1,7 @@
 label village_town:
-    $ gm.enter_location(goodtraits=["Scars", "Undead", "Furry", "Monster", "Not Human", "Aggressive", "Vicious", "Sadist"], badtraits=["Sexy Air", "Virtuous", "Optimist", "Peaceful", "Elegant", "Energetic", "Exhibitionist"],
-                        curious_priority=False, coords=[[.2, .7], [.45, .72], [.75, .7]])
+    $ gm.enter_location(goodtraits=["Scars", "Undead", "Furry", "Monster", "Not Human", "Aggressive", "Vicious", "Sadist", "Assassin"],
+                        badtraits=["Sexy Air", "Virtuous", "Optimist", "Peaceful", "Elegant", "Energetic", "Exhibitionist", "Divine Creature", "Healer", "Knight"],
+                        goodoccupations=["SIW"], coords=[[.2, .7], [.45, .72], [.75, .7]])
 
     # Music related:
     if not global_flags.has_flag("keep_playing_music"):

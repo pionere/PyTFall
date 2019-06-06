@@ -1,6 +1,6 @@
 label swimming_pool:
     $ gm.enter_location(has_tags=["girlmeets", "swimsuit"], has_no_tags=["beach", "sleeping"],
-                        curious_priority=False, coords=[[.2, .45], [.42, .6], [.7, .5]])
+                        coords=[[.2, .45], [.42, .6], [.7, .5]])
     # Music
     if not global_flags.has_flag("keep_playing_music"):
         $ PyTFallStatic.play_music("swimming_pool")

@@ -1,5 +1,5 @@
 label hiddenvillage_entrance:
-    $ gm.enter_location(limited_location=True, coords=[[.2, .25], [.55, .2], [.8, .18]])
+    $ gm.enter_location(limited_location=True, goodtraits=["Curious"], coords=[[.2, .25], [.55, .2], [.8, .18]])
     # Music
     if not global_flags.has_flag("keep_playing_music"):
         $ PyTFallStatic.play_music("village", fadein=.5)

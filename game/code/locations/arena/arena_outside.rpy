@@ -27,7 +27,7 @@ label arena_outside:
     $ setup_xeona()
     if not global_flags.has_flag("menu_return"):
         $ gm.enter_location(goodtraits=["Manly", "Courageous", "Aggressive"], badtraits=["Coward", "Nerd", "Homebody"],
-                            goodoccupations=["Combatant"], curious_priority=False, coords=[[.1, .6], [.59, .64], [.98, .61]])
+                            goodoccupations=["Combatant"], coords=[[.1, .6], [.59, .64], [.98, .61]])
         # Music related:
         if not global_flags.has_flag("keep_playing_music"):
             $ PyTFallStatic.play_music("arena_outside")

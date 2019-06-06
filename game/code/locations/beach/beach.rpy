@@ -1,6 +1,6 @@
 label city_beach:
     $ gm.enter_location(goodtraits=["Energetic", "Exhibitionist"], badtraits=["Scars", "Undead", "Furry", "Monster", "Not Human"],
-                        curious_priority=False, coords=[[.14, .65], [.42, .6], [.85, .45]])
+                        coords=[[.14, .65], [.42, .6], [.85, .45]])
 
     # Music related:
     if not global_flags.has_flag("keep_playing_music"):

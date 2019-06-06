@@ -1,8 +1,8 @@
 #Angelica
 
 label mages_tower:
-    $ gm.enter_location(goodtraits=["Psychic"], badtraits=["Indifferent"], goodoccupations=["Caster"], badoccupations=["SIW"],
-                        curious_priority=True, coords=[[.07, .8], [.57, .64], [.93, .61]])
+    $ gm.enter_location(goodtraits=["Psychic", "Curious"], badtraits=["Indifferent"], goodoccupations=["Caster"], badoccupations=["SIW"],
+                        coords=[[.07, .8], [.57, .64], [.93, .61]])
     # Music related:
     if not global_flags.has_flag("keep_playing_music"):
         $ PyTFallStatic.play_music("mages_tower")

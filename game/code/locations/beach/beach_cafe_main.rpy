@@ -1,6 +1,6 @@
 label city_beach_cafe_main:
     $ gm.enter_location(goodtraits=["Athletic", "Dawdler", "Always Hungry"], badtraits=["Scars", "Undead", "Furry", "Monster"],
-                        curious_priority=False, coords=[[.15, .75], [.5, .6], [.9, .8]])
+                        coords=[[.15, .75], [.5, .6], [.9, .8]])
     # Music related:
     if not global_flags.has_flag("keep_playing_music"):
         $ PyTFallStatic.play_music("beach_cafe")

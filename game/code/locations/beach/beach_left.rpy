@@ -1,6 +1,6 @@
 label city_beach_left:
     $ gm.enter_location(goodtraits=["Athletic", "Dawdler"], badtraits=["Scars", "Undead", "Furry", "Monster"],
-                        curious_priority=False, coords=[[.15, .5], [.5, .45], [.7, .8]])
+                        coords=[[.15, .5], [.5, .45], [.7, .8]])
     # Music related:
     if not global_flags.has_flag("keep_playing_music"):
         $ PyTFallStatic.play_music("beach_main")

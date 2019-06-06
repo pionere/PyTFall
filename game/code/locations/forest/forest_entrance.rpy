@@ -1,6 +1,6 @@
 label forest_entrance:
-    $ gm.enter_location(goodtraits=["Furry", "Monster", "Scars", "Adventurous"], badtraits=["Homebody", "Coward", "Exhibitionist", "Human"],
-                        curious_priority=True, coords=[[.1, .7], [.39, .84], [.88, .71]])
+    $ gm.enter_location(goodtraits=["Furry", "Monster", "Scars", "Adventurous", "Curious"], badtraits=["Homebody", "Coward", "Exhibitionist", "Human"],
+                        coords=[[.1, .7], [.39, .84], [.88, .71]])
     # Music related:
     if not global_flags.has_flag("keep_playing_music"):
         $ PyTFallStatic.play_music("forest_entrance")
