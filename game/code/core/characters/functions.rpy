@@ -197,26 +197,27 @@ init -11 python:
         return random_team_names.pop()
 
     def build_mob(id=None, level=1):
-        mob = Mob()
-
         if not id:
             id = choice(mobs.keys())
         elif not id in mobs:
             raise Exception("Unknown id {} when creating a mob!".format(id))
-
         data = mobs[id]
+
+        mob = Mob()
         mob.id = id
 
         for i in ("name", "desc", "battle_sprite", "portrait", "origin", "locations", "full_race", "front_row"):
-            if i in data:
-                setattr(mob, i, data[i])
+            temp = data.get(i, None)
+            if temp is not None:
+                setattr(mob, i, temp)
 
         for skill, value in data["skills"].iteritems():
             mob.stats.mod_full_skill(skill, value)
 
         # Get and normalize basetraits:
-        mob.traits.basetraits = set(traits[t] for t in data["basetraits"])
-        for trait in mob.traits.basetraits:
+        basetraits = set(traits[t] for t in data["basetraits"])
+        mob.traits.basetraits = basetraits
+        for trait in basetraits:
             mob.apply_trait(trait)
 
         for trait in data["traits"]:
@@ -224,11 +225,11 @@ init -11 python:
 
         if "default_attack_skill" in data:
             skill = data["default_attack_skill"]
-            mob.default_attack_skill = store.battle_skills[skill]
+            mob.default_attack_skill = battle_skills[skill]
         for skill in data["attack_skills"]:
-            mob.attack_skills.append(store.battle_skills[skill])
+            mob.attack_skills.append(battle_skills[skill])
         for skill in data["magic_skills"]:
-            mob.magic_skills.append(store.battle_skills[skill])
+            mob.magic_skills.append(battle_skills[skill])
 
         mob.init()
 

@@ -47,7 +47,7 @@ init 1000 python:
         def testMobs():
             for m in mobs:
                 mob = build_mob(id=m, level=10)
-                
+
                 if not isinstance(mob, Mob):
                     TestSuite.reportError("Creating mob %s does not result a Mob instance" % m)
                     continue

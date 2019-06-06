@@ -1119,21 +1119,18 @@ init -9 python:
             purpose = None # Needs to be defaulted to something.
             if hint == "Fighting":
                 for t in bt:
-                    if "Combatant" in t.occupations:
-                        t = t.id
-                        if t == "Healer":
-                            t = "Mage"
-                        elif t not in ["Shooter", "Mage"]:
-                            t = "Barbarian"
-                        if purpose is None:
-                            purpose = t
-                        elif purpose != t:
-                            if t != "Shooter" and purpose != "Shooter":
-                                purpose = "Battle Mage"
-                            else:
-                                purpose = "Shooter"
-                if purpose is None:
-                    purpose = "Barbarian"
+                    t = t.id
+                    if t == "Mage" or t == "Healer":
+                        if self.front_row:
+                            return "Battle Mage"
+                        else:
+                            return "Mage"
+                    if t == "Shooter":
+                        if self.front_row:
+                            return "Battle Shooter"
+                        else:
+                            return "Shooter"
+                return "Barbarian" 
             else: # We just guess...
                 for t in bt:
                     t = STATIC_ITEM.TRAIT_TO_AEQ_PURPOSE[t.id]
