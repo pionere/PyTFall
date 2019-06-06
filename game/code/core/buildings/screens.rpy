@@ -88,7 +88,7 @@ label building_management:
             elif result[1] == "sell":
                 python hide:
                     global bm_building, bm_index
-                    price = int(bm_building.get_price()*.9)
+                    price = int(bm_building.get_market_price()*.9)
 
                     if renpy.call_screen("yesno_prompt",
                                          message="Are you sure you wish to sell %s for %d Gold?" % (bm_building.name, price),

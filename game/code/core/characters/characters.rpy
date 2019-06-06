@@ -1994,7 +1994,7 @@ init -9 python:
                 while all_properties:
                     confiscate = all_properties.pop()
                     if isinstance(confiscate, Building):
-                        price = confiscate.get_price()
+                        price = confiscate.get_market_price()
                         self.remove_building(confiscate)
                     else: # instance(confiscate, Char):
                         price = confiscate.get_price()

@@ -322,18 +322,21 @@ init -10 python:
                 jobs.update(up.jobs)
             self.jobs = jobs
 
+        def get_market_price(self):
+            price = self.get_price() - self.get_cleaning_price()
+            price *= (1.0 - self.get_threat_percentage()/200.0)
+            return price
+
         def get_price(self):
             # Returns our best guess for price of the Building
             # Needed for buying, selling the building or for taxation.
             # **We may want to take reputation and fame into account as well.
-            price = self.price - self.get_cleaning_price()
+            price = self.price
 
             for u in self.upgrades:
                 price += u.get_price()
             for b in self.businesses:
                 price += b.get_price()
-
-            price *= (1.0 - self.get_threat_percentage()/200.0)
             return price
 
         def pay_for_extension(self, cost, materials):
