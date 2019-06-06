@@ -38,35 +38,21 @@ init -11 python:
         if isinstance(item, basestring):
             item = items[item]
 
-        given = amount * len(target) if isinstance(target, PytGroup) else amount
-
-        if not can_transfer(source, target, item, amount=given, silent=silent, force=force):
+        if not can_transfer(source, target, item, amount=amount, silent=silent, force=force):
             return False
 
-        if not source.inventory.remove(item, given):
+        if not source.inventory.remove(item, amount):
             return False
-
-        received = amount * len(source) if isinstance(source, PytGroup) else amount
 
         if not any([item.slot == "consumable", (item.slot == "misc" and item.mdestruct)]):
 
             if isinstance(source, Char) and source.status != "slave":
-                source.given_items[item.id] = source.given_items.get(item.id, 0) - given
-
-            elif isinstance(source, PytGroup):
-                for c in source.lst:
-                    if c.status != "slave":
-                        c.given_items[item.id] = c.given_items.get(item.id, 0) - given
+                source.given_items[item.id] = source.given_items.get(item.id, 0) - amount
 
             if isinstance(target, Char) and target.status != "slave":
-                target.given_items[item.id] = target.given_items.get(item.id, 0) + received
+                target.given_items[item.id] = target.given_items.get(item.id, 0) + amount
 
-            elif isinstance(target, PytGroup):
-                for c in target.lst:
-                    if c.status != "slave":
-                        c.given_items[item.id] = c.given_items.get(item.id, 0) + received
-
-        target.inventory.append(item, received)
+        target.inventory.append(item, amount)
         return True
 
     def can_equip(item, character, silent=True):
@@ -92,18 +78,6 @@ init -11 python:
                     renpy.show_screen("message_screen", "This item has been already used by %s, and cannot be used again." % character.name)
                 return
 
-        if isinstance(character, PytGroup):
-            if item.jump_to_label:
-                return
-
-            # downstream function can trigger a response assuming char is a character
-            global char
-            for char in character.shuffled:
-                if not can_equip(item, char, silent):
-                    char = character
-                    return
-            char = character
-            return True
         temp = character.gender
         if getattr(item, "gender", temp) != temp:
             if not silent:
@@ -232,23 +206,6 @@ init -11 python:
         @param: silent: If False, game will notify the player with a reason why an item cannot be equipped.
         @param: force: Option to forcibly take an item from a character.
         """
-        if isinstance(source, PytGroup):
-            if item.jump_to_label:
-                return
-
-            for c in source.shuffled:
-                if not can_transfer(c, target, item, amount, silent, force):
-                    return
-            return True
-        if isinstance(target, PytGroup):
-            if item.jump_to_label:
-                return
-
-            for c in target.shuffled:
-                if not can_transfer(source, c, item, amount, silent, force):
-                    return
-            return True
-
         if item.unique and (not isinstance(target, Building)) and item.unique != ("mc" if target == hero else target.id):
             if not silent:
                 renpy.show_screen("message_screen", "This unique item cannot be given to {}!".format(target.name))
@@ -264,35 +221,12 @@ init -11 python:
             if all([isinstance(source, Char), source.status != "slave", not(item.price <= interactions_influence(source)*10*(source.tier + 1) and check_lovers(source, hero))]):
                 if any([item.slot == "consumable", (item.slot == "misc" and item.mdestruct), source.given_items.get(item.id, 0) < amount]):
                     if not silent:
-                        source.override_portrait("portrait", "indifferent")
-                        if "Impersonal" in source.traits:
-                            source.say(choice(["Denied. It belongs only to me.", "You are not authorised to dispose of my property."]))
-                        elif "Shy" in source.traits and dice(50):
-                            source.say(choice(["W... what are you doing? It's not yours...", "Um, could you maybe stop touching my things, please?"]))
-                        elif "Dandere" in source.traits:
-                            source.say(choice(["Don't touch my stuff without permission.", "I'm not giving it away."]))
-                        elif "Kuudere" in source.traits:
-                            source.say(choice(["Would you like fries with that?", "Perhaps you would like me to give you the key to my flat where I keep my money as well?"]))
-                        elif "Yandere" in source.traits:
-                            source.say(choice(["Please refrain from touching my property.", "What do you think you doing with my belongings?"]))
-                        elif "Tsundere" in source.traits:
-                            source.say(choice(["Like hell am I giving away!", "Hey, hands off!"]))
-                        elif "Imouto" in source.traits:
-                            source.say(choice(["No way! Go get your own!", "Don't be mean! It's mine!"]))
-                        elif "Bokukko" in source.traits:
-                            source.say(choice(["Hey, why do ya take my stuff?", "Not gonna happen. It's mine alone."]))
-                        elif "Kamidere" in source.traits:
-                            source.say(choice(["And what makes you think I will allow anyone to take my stuff?", "Refrain from disposing of my property unless I say otherwise."]))
-                        elif "Ane" in source.traits:
-                            source.say(choice(["Please, don't touch it. Thanks.", "Excuse me, I do not wish to part with it."]))
-                        else:
-                            source.say(choice(["Hey, I need this too, you know.", "Eh? Can't you just buy your own?"]))
-                        source.restore_portrait()
+                        interactions_items_deny_access(source)
                     return
 
         return True
 
-    def equipment_access(character, item=None, silent=False, unequip=False):
+    def equipment_access(character, item, silent=False, unequip=False):
         # Here we determine if a character would be willing to give MC access to her equipment:
         # Like if MC asked this character to equip or unequip an item.
         # We return True if access is granted!
@@ -302,76 +236,56 @@ init -11 python:
         if character == hero:
             return True # Would be weird if we could not access MCs inventory....
 
-        if isinstance(character, PytGroup):
-            if item and item.jump_to_label:
-                return False
-
-            # get a response from one single individual
-            for c in character.shuffled:
-                if not equipment_access(c, item, silent, unequip):
-                    store.char = c
-                    return False
-            store.char = character
-            return True
-
         # Always the same here as well...
         if character.status == "slave":
             return True
 
         # Always refuse if character hates the player:
         char_dispo = character.get_stat("disposition")
-        if char_dispo <= -500:
+        if char_dispo < 0:
             if not silent:
                 interactions_girl_disp_is_too_low_to_give_money(character) # turns out money lines are perfect here
             return False
 
-        if item:
-            if unequip:
-                if char_dispo >= 900 or check_lovers(character, hero) or check_friends(character, hero):
+        if unequip:
+            if char_dispo >= 900 or check_lovers(character, hero):
+                return True
+
+            if item.eqchance <= 0 or item.badness >= 80:
+                return True
+
+            if not item.badtraits.isdisjoint(character.traits):
+                return True
+        else:
+            # Bad Traits:
+            if not item.badtraits.isdisjoint(character.traits):
+                if not silent:
+                    interactions_items_deny_bad_item(character)
+                return False
+
+            # Good traits:
+            if not item.goodtraits.isdisjoint(character.traits):
+                return True
+
+            if item.eqchance <= 0 or item.badness >= 80:
+                if not silent:
+                    interactions_items_deny_bad_item(character)
+                return False
+
+            if char_dispo >= 900 or check_lovers(character, hero):
+                return True
+
+            if item.type == "alcohol":
+                if 'Drunk' in character.effects or 'Depression' in character.effects: # green light for booze in case of suitable effects
                     return True
 
-                if item.eqchance <= 20 or item.badness >= 80:
-                    return True
+            # Just an awesome item in general:
+            if item.eqchance >= (40 if check_friends(character, hero) else 70):
+                return True
 
-                if not item.badtraits.isdisjoint(character.traits):
-                    return True
-
-            else:
-                # Bad Traits:
-                if not item.badtraits.isdisjoint(character.traits):
-                    if not silent:
-                        interactions_character_doesnt_want_bad_item(character)
-                    return False
-
-                # Always allow restorative items:
-                if item.type == "restore" and item.eqchance > 0:
-                    return True
-
-                if item.type == "alcohol" and item.eqchance > 0:
-                    if 'Drunk' in character.effects or 'Depression' in character.effects or "Heavy Drinker" in character.traits: # green light for booze in case of suitable effects
-                        return True
-
-                if item.type == "food" and "Always Hungry" in character.traits and item.eqchance > 0: # same for food
-                    return True
-
-                # Good traits:
-                if not item.goodtraits.isdisjoint(character.traits):
-                    return True
-
-                # Just an awesome item in general:
-                if item.eqchance >= 70:
-                    return True
-                elif item.eqchance <= 0: # 0 eqchance will make item unavailable, unless there is good trait or slave status
-                    if not silent:
-                        interactions_character_doesnt_want_bad_item(character)
-                    return False
-
-        if char_dispo < 900 and not check_lovers(character, hero):
-            if not silent:
-                interactions_character_doesnt_want_to_equip_item(character)
-            return False
-
-        return True
+        if not silent:
+            interactions_items_deny_equip(character)
+        return False
 
     def give_to_mc_item_reward(types, price=None, tier=None, locations=["Exploration"]):
         if tier is None:

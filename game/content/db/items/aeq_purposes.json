@@ -45,10 +45,10 @@
      "traits": ["Shooter"]
     },
     {
-     "id": "Battle Mage",
-     "target_stats": {"health":50, "attack":70, "magic":70, "intelligence":50, "defence":60, "constitution":20, "mp":10, "vitality": 10, "luck":5, "exp":0.1},
+     "id": "Battle Shooter",
+     "target_stats": {"health":50, "agility":70, "attack":70, "defence":60, "constitution":20, "vitality": 10, "luck":5, "exp":0.1},
      "target_skills": {},
-     "base_purpose": ["Warrior", "Mage", "Any"],
+     "base_purpose": ["Warrior", "Shooter", "Any"],
      "fighting": true
     },
     {
@@ -58,6 +58,13 @@
      "base_purpose": ["Mage", "Any"],
      "fighting": true,
      "traits": ["Healer", "Mage"]
+    },
+    {
+     "id": "Battle Mage",
+     "target_stats": {"health":50, "attack":70, "magic":70, "intelligence":50, "defence":60, "constitution":20, "mp":10, "vitality": 10, "luck":5, "exp":0.1},
+     "target_skills": {},
+     "base_purpose": ["Warrior", "Mage", "Any"],
+     "fighting": true
     },
     {
      "id": "Guard",

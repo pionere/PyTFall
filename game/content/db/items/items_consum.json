@@ -4,8 +4,8 @@
     "icon": "content/items/cons/smp.png",
     "price": 100,
     "chance": 60,
-    "badness": 90,
-    "eqchance": 80,
+    "badness": 75,
+    "eqchance": 65,
     "hidden": false,
     "tier": 0,
     "infinite": true,
@@ -22,8 +22,8 @@
     "icon": "content/items/cons/mp.png",
     "price": 200,
     "chance": 40,
-    "badness": 85,
-    "eqchance": 75,
+    "badness": 70,
+    "eqchance": 60,
     "tier": 1,
     "hidden": false,
     "infinite": false,
@@ -40,9 +40,9 @@
     "icon": "content/items/cons/gmp.png",
     "price": 400,
     "chance": 20,
-    "badness": 80,
+    "badness": 65,
     "tier": 2,
-    "eqchance": 70,
+    "eqchance": 55,
     "hidden": false,
     "infinite": false,
     "slot": "consumable",
@@ -59,8 +59,8 @@
     "price": 1000,
     "chance": 10,
     "tier": 3,
-    "badness": 70,
-    "eqchance": 60,
+    "badness": 80,
+    "eqchance": 70,
     "hidden": true,
     "infinite": false,
     "slot": "consumable",
@@ -77,9 +77,9 @@
     "icon": "content/items/cons/shp.png",
     "price": 150,
     "chance": 55,
-    "badness": 90,
+    "badness": 75,
     "tier": 0,
-    "eqchance": 80,
+    "eqchance": 65,
     "hidden": false,
     "infinite": true,
     "slot": "consumable",
@@ -95,8 +95,8 @@
     "icon": "content/items/cons/hp.png",
     "price": 250,
     "chance": 35,
-    "badness": 85,
-    "eqchance": 75,
+    "badness": 70,
+    "eqchance": 60,
     "tier": 1,
     "hidden": false,
     "infinite": false,
@@ -114,9 +114,9 @@
     "icon": "content/items/cons/ghp.png",
     "price": 450,
     "chance": 15,
-    "badness": 80,
+    "badness": 65,
     "tier": 2,
-    "eqchance": 70,
+    "eqchance": 55,
     "hidden": false,
     "infinite": false,
     "slot": "consumable",
@@ -133,9 +133,9 @@
     "icon": "content/items/cons/uhp.png",
     "price": 1200,
     "chance": 8,
-    "badness": 70,
+    "badness": 0,
     "tier": 3,
-    "eqchance": 60,
+    "eqchance": 100,
     "hidden": true,
     "infinite": false,
     "slot": "consumable",
@@ -153,8 +153,8 @@
     "icon": "content/items/cons/sps.png",
     "price": 200,
     "chance": 40,
-    "badness": 90,
-    "eqchance": 80,
+    "badness": 75,
+    "eqchance": 65,
     "hidden": false,
     "tier": 0,
     "infinite": false,
@@ -172,8 +172,8 @@
     "icon": "content/items/cons/ps.png",
     "price": 400,
     "chance": 20,
-    "badness": 85,
-    "eqchance": 75,
+    "badness": 70,
+    "eqchance": 60,
     "tier": 1,
     "hidden": false,
     "infinite": false,
@@ -191,8 +191,8 @@
     "icon": "content/items/cons/gps.png",
     "price": 800,
     "chance": 10,
-    "badness": 80,
-    "eqchance": 70,
+    "badness": 65,
+    "eqchance": 55,
     "tier": 2,
     "hidden": false,
     "infinite": false,
@@ -844,6 +844,7 @@
     "cblock": 5,
     "mod": {"joy": 15},
     "locations": ["Cafe"],
+    "goodtraits": ["Always Hungry"],
     "pref_class":["Any"]
     },
     {
@@ -861,6 +862,7 @@
     "type": "food",
     "mod": {"joy": 1, "vitality": 4},
     "locations": ["Cafe"],
+    "goodtraits": ["Always Hungry"],
     "pref_class":["Any"]
     },
     {
@@ -878,6 +880,7 @@
     "type": "food",
     "mod": {"vitality": 3, "health": 3},
     "locations": ["Cafe"],
+    "goodtraits": ["Always Hungry"],
     "pref_class":["Any"]
     },
     {
@@ -895,6 +898,7 @@
     "type": "food",
     "mod": {"vitality": 4, "health": 1},
     "locations": ["Cafe"],
+    "goodtraits": ["Always Hungry"],
     "pref_class":["Any"]
     },
     {
@@ -912,6 +916,7 @@
     "type": "food",
     "mod": {"vitality": 5, "joy": -2, "health": 2},
     "locations": ["Cafe"],
+    "goodtraits": ["Always Hungry"],
     "pref_class":["Any"]
     },
     {
@@ -929,6 +934,7 @@
     "type": "food",
     "mod": {"vitality": 1, "health": 8},
     "locations": ["Cafe"],
+    "goodtraits": ["Always Hungry"],
     "pref_class":["Any"]
     },
     {
@@ -946,6 +952,7 @@
     "type": "food",
     "mod": {"joy": 1, "health": 8, "vitality": 8, "mp": -3},
     "locations": ["Cafe"],
+    "goodtraits": ["Always Hungry"],
     "pref_class":["Any"]
     },
     {
@@ -963,6 +970,7 @@
     "type": "food",
     "mod": {"joy": 1, "health": 5, "vitality": 5, "mp": -2},
     "locations": ["Cafe"],
+    "goodtraits": ["Always Hungry"],
     "pref_class":["Any"]
     },
     {
@@ -980,6 +988,7 @@
     "type": "food",
     "mod": {"joy": 1, "health": 6, "vitality": 6, "mp": -2},
     "locations": ["Cafe"],
+    "goodtraits": ["Always Hungry"],
     "pref_class":["Any"]
     },
     {
@@ -997,6 +1006,7 @@
     "type": "food",
     "mod": {"vitality": 2},
     "locations": ["Cafe"],
+    "goodtraits": ["Always Hungry"],
     "pref_class":["Any"]
     },
     {
@@ -1014,6 +1024,7 @@
     "type": "food",
     "mod": {"vitality": 3},
     "locations": ["Cafe"],
+    "goodtraits": ["Always Hungry"],
     "pref_class":["Any"]
     },
     {
@@ -1031,6 +1042,7 @@
     "type": "food",
     "mod": {"joy": 1, "vitality": 2},
     "locations": ["Cafe"],
+    "goodtraits": ["Always Hungry"],
     "pref_class":["Any"]
     },
     {
@@ -1048,6 +1060,7 @@
     "type": "food",
     "mod": {"vitality": 3, "joy": 1},
     "locations": ["Cafe"],
+    "goodtraits": ["Always Hungry"],
     "pref_class":["Any"]
     },
     {
@@ -1066,6 +1079,7 @@
     "type": "food",
     "mod": {"vitality": 2, "character": 1},
     "locations": ["Cafe"],
+    "goodtraits": ["Always Hungry"],
     "pref_class":["Any"]
     },
     {
@@ -1083,6 +1097,7 @@
     "type": "food",
     "mod": {"vitality": 10, "joy": 3},
     "locations": ["Cafe"],
+    "goodtraits": ["Always Hungry"],
     "pref_class":["Any"]
     },
     {
@@ -1101,6 +1116,7 @@
     "cblock": 1,
     "mod": {"exp": 100, "joy": -10},
     "locations": ["Cafe", "Fishing"],
+    "goodtraits": ["Always Hungry"],
     "pref_class":["Any"]
     },
     {
@@ -1119,6 +1135,7 @@
     "cblock": 2,
     "mod": {"exp": 200, "vitality": 20},
     "locations": ["Cafe", "Diving"],
+    "goodtraits": ["Always Hungry"],
     "pref_class":["Any"]
     },
     {
@@ -1320,6 +1337,7 @@
     "slot": "consumable",
     "type": "alcohol",
     "mod": {"mp": 10, "joy": 10},
+    "goodtraits": ["Heavy Drinker"],
     "locations": ["Tavern", "Exploration"],
     "pref_class":["Any"]
     },
@@ -1337,6 +1355,7 @@
     "slot": "consumable",
     "type": "alcohol",
     "mod": {"mp": 8, "joy": 8},
+    "goodtraits": ["Heavy Drinker"],
     "locations": ["Tavern", "Exploration"],
     "pref_class":["Any"]
     },
@@ -1354,6 +1373,7 @@
     "slot": "consumable",
     "type": "alcohol",
     "mod": {"mp": 5, "joy": 5},
+    "goodtraits": ["Heavy Drinker"],
     "locations": ["Tavern", "Exploration"],
     "pref_class":["Any"]
     },
@@ -1371,6 +1391,7 @@
     "slot": "consumable",
     "type": "alcohol",
     "mod": {"joy": 3},
+    "goodtraits": ["Heavy Drinker"],
     "locations": ["Tavern", "Exploration"],
     "pref_class":["Any"]
     },
@@ -1388,6 +1409,7 @@
     "slot": "consumable",
     "type": "alcohol",
     "mod": {"mp": 25, "joy": 25},
+    "goodtraits": ["Heavy Drinker"],
     "locations": ["Tavern"],
     "pref_class":["Any"]
     },
@@ -1405,6 +1427,7 @@
     "slot": "consumable",
     "type": "alcohol",
     "mod": {"mp": 15, "joy": 15},
+    "goodtraits": ["Heavy Drinker"],
     "locations": ["Tavern"],
     "pref_class":["Any"]
     },

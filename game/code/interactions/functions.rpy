@@ -162,31 +162,34 @@ init -11 python:
                 narrator("%s is not feeling well today and not in the mood to do anything." % char.pC)
                 renpy.jump ("girl_interactions")
         elif char.get_stat("vitality") <= char.get_max("vitality")/5 and dice (35):
-            char.override_portrait("portrait", "tired")
-            if "Impersonal" in char.traits:
-                lines = ["I don't have required endurance at the moment. Let's postpone it.", "No. Not enough energy."]
-            elif "Shy" in char.traits and dice(50):
-                lines = ["W-well, I'm a bit tired right now... Maybe some other time...", "Um, I-I don't think I can do it, I'm exhausted. Sorry..."]
-            elif "Imouto" in char.traits:
-                lines = ["Noooo, I'm tired. I want to sleep.", "Z-z-z *she falls asleep on the feet*"]
-            elif "Dandere" in char.traits:
-                lines = ["No. Too tired.", "Not enough strength. I need to rest."]
-            elif "Tsundere" in char.traits:
-                lines = ["I must rest at first. Can't you tell?", "I'm too tired, don't you see?! Honestly, some people..."]
-            elif "Kuudere" in char.traits:
-                lines = ["I'm quite exhausted. Maybe some other time.", "I really could use some rest right now, my body is tired."]
-            elif "Kamidere" in char.traits:
-                lines = ["I'm tired, and have to intentions to do anything but rest.", "I need some rest. Please don't bother me."]
-            elif "Bokukko" in char.traits:
-                lines = ["Naah, don't wanna. Too tired.", "*yawns* I could use a nap first..."]
-            elif "Ane" in char.traits:
-                lines = ["Unfortunately I'm quite tired at the moment. I'd like to rest a bit.", "Sorry, I'm quite sleepy. Let's do it another time."]
-            elif "Yandere" in char.traits:
-                lines = ["Ahh, my whole body aches... I'm way too tired.", "The only thing I can do properly now is to take a good nap..."]
+            char_traits = char_traits
+            if "Impersonal" in char_traits:
+                lines = ("I don't have required endurance at the moment. Let's postpone it.", "No. Not enough energy.")
+            elif "Shy" in char_traits and dice(50):
+                lines = ("W-well, I'm a bit tired right now... Maybe some other time...", "Um, I-I don't think I can do it, I'm exhausted. Sorry...")
+            elif "Imouto" in char_traits:
+                lines = ("Noooo, I'm tired. I want to sleep.", "Z-z-z *she falls asleep on the feet*")
+            elif "Dandere" in char_traits:
+                lines = ("No. Too tired.", "Not enough strength. I need to rest.")
+            elif "Tsundere" in char_traits:
+                lines = ("I must rest at first. Can't you tell?", "I'm too tired, don't you see?! Honestly, some people...")
+            elif "Kuudere" in char_traits:
+                lines = ("I'm quite exhausted. Maybe some other time.", "I really could use some rest right now, my body is tired.")
+            elif "Kamidere" in char_traits:
+                lines = ("I'm tired, and have to intentions to do anything but rest.", "I need some rest. Please don't bother me.")
+            elif "Bokukko" in char_traits:
+                lines = ("Naah, don't wanna. Too tired.", "*yawns* I could use a nap first...")
+            elif "Ane" in char_traits:
+                lines = ("Unfortunately I'm quite tired at the moment. I'd like to rest a bit.", "Sorry, I'm quite sleepy. Let's do it another time.")
+            elif "Yandere" in char_traits:
+                lines = ("Ahh, my whole body aches... I'm way too tired.", "The only thing I can do properly now is to take a good nap...")
             else:
-                lines = ["*sign* I'm soo tired lately, all I can think about is a cozy warm bed...", "I am ready to drop. Some other time perhaps."]
-            rcchar(char, lines)
+                lines = ("*sign* I'm soo tired lately, all I can think about is a cozy warm bed...", "I am ready to drop. Some other time perhaps.")
+            result = random.choice(lines)
+            char.override_portrait("portrait", "tired")
+            char.say(result)
             char.restore_portrait()
+
             char.gfx_mod_stat("disposition", -randint(0, 1))
             char.mod_stat("vitality", -randint(1, 2))
             renpy.jump("girl_interactions")
@@ -224,14 +227,6 @@ init -11 python:
         """
         random choice function
         Wrapper to enable simpler girl_meets choices, returns whatever char_gm is set to along with a random line.
-        """
-        return char.say(choice(list(args)))
-
-    def rcchar(char, *args):
-        """
-        random choice function
-        Wrapper to enable simpler girl_meets choices, returns whatever char_gm is set to along with a random line.
-        Goes with char argument, thus can be used where the game doesn't recognize default "char"
         """
         return char.say(choice(list(args)))
 
@@ -414,104 +409,249 @@ init -11 python:
         """
         Outputs nonrepeatable prebattle lines for provided characters, except hero if s/he was provided.
         """
-        characters = [c for c in characters if c != hero]
-        if characters:
-            said_lines = set()
-            for char in characters:
-                if "Impersonal" in char.traits:
-                    lines = ["Target acquired, initialising battle mode.", "Enemy spotted. Engaging combat.", "Battle phase, initiation. Weapons online.", "Better start running. I'm afraid I can't guarantee your safety.", "Enemy analysis completed. Switching to the combat routine.", "Target locked on. Commencing combat mode."]
-                elif "Imouto" in char.traits:
-                    lines = ["Ahaha, we'll totally beat you up!", "Behold of my amazing combat techniques, [mc_ref]! ♪", "All our enemies will be punished! ♫", "Activate super duper mega ultra assault mode! ♪", "Huh? Don't they know we're too strong for them?"]
-                elif "Dandere" in char.traits:
-                    lines = ["Want to fight? We'll make you regret it.", "Let's end this quickly, [mc_ref]. We have many other things to do.", "Of course we'll win.", "This will be over before you know it.", "If something bad happens to the enemy, don't blame me."]
-                elif "Tsundere" in char.traits:
-                    lines = ["Well-well. It looks like we have some new targets, [mc_ref] ♪", "Hmph! You're about 100 years too early to defeat us!", "We won't go easy on you!", "There's no way you could win!", "[mc_ref], you can stay back if you wish. I'll show you how it's done.", "I won't just defeat you, I'm gonna shatter you!"]
-                elif "Kuudere" in char.traits:
-                    lines = ["Oh, you dare to stand against us?", "Fine, we accept your challenge. Let's go, [mc_ref].", "Don't worry, [mc_ref]. This battle will be over soon enough.", "Are you prepared to know our power?", "You picked a fight with the wrong girl."]
-                elif "Kamidere" in char.traits:
-                    lines = ["Get ready, [mc_ref]. We have some lowlife to crash.", "So you want us to teach you some manners, huh?", "You have made a grave error challenging us. Retreat while you can.", "Time to take out the trash.", "You should leave this place and cower in your home. That is the proper course for one so weak.", "You need to be put back in your place."]
-                elif "Bokukko" in char.traits:
-                    lines = ["Wanna throw hands, huh? Better be ready to catch them!", "I'm gonna beat you silly! Cover me, [mc_ref]!", "You wanna go? Alrighty, eat some of this!", "Time to kick some ass.", "I'm gonna whack you good!", "All right, let's clean this up fast!"]
-                elif "Ane" in char.traits:
-                    lines = ["Don't worry, [mc_ref]. I'll protect you.", "Can't say I approve of this sort of thing, but we are out of options, [mc_ref].", "Don't feel sorry for them, [mc_ref]. They asked for it.", "We mustn't let our guard down, [mc_ref]."]
-                elif "Yandere" in char.traits:
-                    lines = ["Please stand aside, [mc_ref]. Or you'll get blood on you...", "Do not worry. The nothingness is gentle ♪", "Here comes the hurt!", "This could get a little rough... Because I like it rough ♫", "Mind if I go a little nuts, [mc_ref]?"]
-                else:
-                    lines = ["I suppose we have to use force, [mc_ref]. I'll cover you.", "Alright then. If you want a fight, we'll give it to you!", "Ok, let's settle this.", "I'll fight to my last breath!"]
-                result = random.sample(set(lines).difference(said_lines), 1)[0]
-                said_lines.add(result)
-                result = result.replace("[mc_ref]", char.mc_ref)
-                char.override_portrait("portrait", "confident")
-                char.say(result)
-                char.restore_portrait()
+        said_lines = set()
+        for character in characters:
+            if character == hero:
+                continue
+            char_traits = character.traits
+            if "Impersonal" in char_traits:
+                lines = ["Target acquired, initialising battle mode.", "Enemy spotted. Engaging combat.", "Battle phase, initiation. Weapons online.", "Better start running. I'm afraid I can't guarantee your safety.", "Enemy analysis completed. Switching to the combat routine.", "Target locked on. Commencing combat mode."]
+            elif "Imouto" in char_traits:
+                lines = ["Ahaha, we'll totally beat you up!", "Behold of my amazing combat techniques, [mc_ref]! ♪", "All our enemies will be punished! ♫", "Activate super duper mega ultra assault mode! ♪", "Huh? Don't they know we're too strong for them?"]
+            elif "Dandere" in char_traits:
+                lines = ["Want to fight? We'll make you regret it.", "Let's end this quickly, [mc_ref]. We have many other things to do.", "Of course we'll win.", "This will be over before you know it.", "If something bad happens to the enemy, don't blame me."]
+            elif "Tsundere" in char_traits:
+                lines = ["Well-well. It looks like we have some new targets, [mc_ref] ♪", "Hmph! You're about 100 years too early to defeat us!", "We won't go easy on you!", "There's no way you could win!", "[mc_ref], you can stay back if you wish. I'll show you how it's done.", "I won't just defeat you, I'm gonna shatter you!"]
+            elif "Kuudere" in char_traits:
+                lines = ["Oh, you dare to stand against us?", "Fine, we accept your challenge. Let's go, [mc_ref].", "Don't worry, [mc_ref]. This battle will be over soon enough.", "Are you prepared to know our power?", "You picked a fight with the wrong girl."]
+            elif "Kamidere" in char_traits:
+                lines = ["Get ready, [mc_ref]. We have some lowlife to crash.", "So you want us to teach you some manners, huh?", "You have made a grave error challenging us. Retreat while you can.", "Time to take out the trash.", "You should leave this place and cower in your home. That is the proper course for one so weak.", "You need to be put back in your place."]
+            elif "Bokukko" in char_traits:
+                lines = ["Wanna throw hands, huh? Better be ready to catch them!", "I'm gonna beat you silly! Cover me, [mc_ref]!", "You wanna go? Alrighty, eat some of this!", "Time to kick some ass.", "I'm gonna whack you good!", "All right, let's clean this up fast!"]
+            elif "Ane" in char_traits:
+                lines = ["Don't worry, [mc_ref]. I'll protect you.", "Can't say I approve of this sort of thing, but we are out of options, [mc_ref].", "Don't feel sorry for them, [mc_ref]. They asked for it.", "We mustn't let our guard down, [mc_ref]."]
+            elif "Yandere" in char_traits:
+                lines = ["Please stand aside, [mc_ref]. Or you'll get blood on you...", "Do not worry. The nothingness is gentle ♪", "Here comes the hurt!", "This could get a little rough... Because I like it rough ♫", "Mind if I go a little nuts, [mc_ref]?"]
+            else:
+                lines = ["I suppose we have to use force, [mc_ref]. I'll cover you.", "Alright then. If you want a fight, we'll give it to you!", "Ok, let's settle this.", "I'll fight to my last breath!"]
+            result = random.sample(set(lines).difference(said_lines), 1)[0]
+            said_lines.add(result)
+            result = result.replace("[mc_ref]", char.mc_ref)
+            character.override_portrait("portrait", "confident")
+            character.say(result)
+            character.restore_portrait()
 
     def interactions_eating_line(characters):
         """
         Outputs nonrepeatable lines during eating for provided characters, except hero if s/he was provided.
         """
-        characters = [c for c in characters if c != hero]
-        if characters:
-            said_lines = set()
-            for character in characters:
-                if "Impersonal" in character.traits:
-                    lines = ["It's all sticky from the sauce... Nn... *chu* Mm... *slurp*", "Nn... mm... Delicious...", "That looks tasty... *slurp*"]
-                elif "Shy" in character.traits and dice(50):
-                    lines = ["That looks so good! Ah! That one looks good too... Aww, I can't decide...", "Hehe, sweet tea is so calming, isn't it?", "Uhm, w-were you going to eat that? Er... Y-yes, I'll eat it..."]
-                elif "Imouto" in character.traits:
-                    lines = ["Custard here and chocolate here. Looks delicious, doesn't it? ♪", "So many sweets! What should I start with? ♪", "Oh, that looks yummy... Diggin' in! Nom!"]
-                elif "Dandere" in character.traits:
-                    lines = ["*munch munch*... Huh? You want some too? Here.", "Omelette rolls are so sweet and sticky...", "Munch munch... Sugar intake is important.", "Thanks for the food... *munch*"]
-                elif "Tsundere" in character.traits:
-                    lines = ["Ah, I'm tired from eating too much...", "How long do you plan on staring at my lunch? I'm not sharing any.", "Lately, I am worrying quite a bit about calories... But I just can't help myself... ugh..."]
-                elif "Kuudere" in character.traits:
-                    lines = ["Mmm, this is actually pretty good.", "They don't have any teacakes today..? A pity.", "You've got a good appetite. It's refreshing to see.", "I don't need any... Well, if you insist... *aaaah*..."]
-                elif "Kamidere" in character.traits:
-                    lines = ["OK, say ah~n... Yeah right, like I would ever do such a thing.", "Can't you just be quiet and eat? It's improper.", "Don't talk to me when I'm eating."]
-                elif "Bokukko" in character.traits:
-                    lines = ["Hm, which one tastes better... I wonder...", "Nom nom... Mmm, delishus ♪ Back to full health ♪", "Mm, delicious meat. The meatiest of meats. Om nom.", "Let's dig in! Ehehe, egg omelet, egg omelet ♪"]
-                elif "Ane" in character.traits:
-                    lines = ["This kind of food is good for your health, you know? It'll fill you with lots of energy ♪", "You don't get to be picky. Come, say aaa... ♪", "Now, why don't we have an enjoyable meal?"]
-                elif "Yandere" in character.traits:
-                    lines = ["...Here, have this too. I'm finished.", "Mmm... Vanilla milkshakes are the best ♪", "I've been gaining weight, so I'm holding back today... Haah...", "Just go ahead and order whatever. I'll leave it up to you."]
-                else:
-                    lines = ["This place's tea and cake is amazing. The tarts are good, too.", "Ah, that looks yummy ♪", "Let's eaaaat! But, what should I eat first? Hmm..."]
-                result = random.sample(set(lines).difference(said_lines), 1)[0]
-                said_lines.add(result)
-                result = result.replace("[mc_ref]", character.mc_ref)
-                character.override_portrait("portrait", "indifferent")
-                character.say(result)
-                character.restore_portrait()
+        said_lines = set()
+        for character in characters:
+            if character == hero:
+                continue
+            char_traits = character.traits
+            if "Impersonal" in char_traits:
+                lines = ["It's all sticky from the sauce... Nn... *chu* Mm... *slurp*", "Nn... mm... Delicious...", "That looks tasty... *slurp*"]
+            elif "Shy" in char_traits and dice(50):
+                lines = ["That looks so good! Ah! That one looks good too... Aww, I can't decide...", "Hehe, sweet tea is so calming, isn't it?", "Uhm, w-were you going to eat that? Er... Y-yes, I'll eat it..."]
+            elif "Imouto" in char_traits:
+                lines = ["Custard here and chocolate here. Looks delicious, doesn't it? ♪", "So many sweets! What should I start with? ♪", "Oh, that looks yummy... Diggin' in! Nom!"]
+            elif "Dandere" in char_traits:
+                lines = ["*munch munch*... Huh? You want some too? Here.", "Omelette rolls are so sweet and sticky...", "Munch munch... Sugar intake is important.", "Thanks for the food... *munch*"]
+            elif "Tsundere" in char_traits:
+                lines = ["Ah, I'm tired from eating too much...", "How long do you plan on staring at my lunch? I'm not sharing any.", "Lately, I am worrying quite a bit about calories... But I just can't help myself... ugh..."]
+            elif "Kuudere" in char_traits:
+                lines = ["Mmm, this is actually pretty good.", "They don't have any teacakes today..? A pity.", "You've got a good appetite. It's refreshing to see.", "I don't need any... Well, if you insist... *aaaah*..."]
+            elif "Kamidere" in char_traits:
+                lines = ["OK, say ah~n... Yeah right, like I would ever do such a thing.", "Can't you just be quiet and eat? It's improper.", "Don't talk to me when I'm eating."]
+            elif "Bokukko" in char_traits:
+                lines = ["Hm, which one tastes better... I wonder...", "Nom nom... Mmm, delishus ♪ Back to full health ♪", "Mm, delicious meat. The meatiest of meats. Om nom.", "Let's dig in! Ehehe, egg omelet, egg omelet ♪"]
+            elif "Ane" in char_traits:
+                lines = ["This kind of food is good for your health, you know? It'll fill you with lots of energy ♪", "You don't get to be picky. Come, say aaa... ♪", "Now, why don't we have an enjoyable meal?"]
+            elif "Yandere" in char_traits:
+                lines = ["...Here, have this too. I'm finished.", "Mmm... Vanilla milkshakes are the best ♪", "I've been gaining weight, so I'm holding back today... Haah...", "Just go ahead and order whatever. I'll leave it up to you."]
+            else:
+                lines = ["This place's tea and cake is amazing. The tarts are good, too.", "Ah, that looks yummy ♪", "Let's eaaaat! But, what should I eat first? Hmm..."]
+            result = random.sample(set(lines).difference(said_lines), 1)[0]
+            said_lines.add(result)
+            result = result.replace("[mc_ref]", character.mc_ref)
+            character.override_portrait("portrait", "indifferent")
+            character.say(result)
+            character.restore_portrait()
 
     def interactions_eating_propose(character):
         """
         Outputs a line before eating for provided character
         """
-        if "Impersonal" in character.traits:
-            lines = ["Let's have some tea.", "Hey, I was thinking about grabbing a bite.", "How about lunch?"]
-        elif "Shy" in character.traits and dice(50):
-            lines = ["H-hey, how about a cup of tea?", "I was just thinking about eating something...", "It's lunch time... S-so maybe we..."]
-        elif "Imouto" in character.traits:
-            lines = ["I really want some sweets ♪ C'mon!", "My tummy's growling. Wanna grab a bite?", "Woo! Lunch time, lunch time! Hurry!"]
-        elif "Dandere" in character.traits:
-            lines = ["Snack time?", "Want to have a snack?", "Lunch..?"]
-        elif "Tsundere" in character.traits:
-            lines = ["C-come on, invite me for tea or something.", "Hey... Do you want to grab some food? O-Or something?", "Y-you're going to join me for lunch... okay?"]
-        elif "Kuudere" in character.traits:
-            lines = ["Would you like to have some tea together?", "Let's get something to eat.", "Are you hungry? How about lunch?"]
-        elif "Kamidere" in character.traits:
-            lines = ["I think it's time for tea.", "Are you hungry? I was thinking about eating.", "Let's eat, I'm hungry."]
-        elif "Bokukko" in character.traits:
-            lines = ["Hey, let's have a snack, alright?", "Let's eat something! I'm starved!", "It's time to eat! Come on, let's go!"]
-        elif "Ane" in character.traits:
-            lines = ["Shall we sip some drinks and take it easy?", "What would you say to a cup of tea with me?", "Would you like to join me for lunch?"]
-        elif "Yandere" in character.traits:
-            lines = ["Do you want to take a tea break?", "Hey, aren't you hungry? Want to go get something to eat?", "If you'd like, we could have lunch?"]
+        char_traits = character.traits
+        if "Impersonal" in char_traits:
+            lines = ("Let's have some tea.", "Hey, I was thinking about grabbing a bite.", "How about lunch?")
+        elif "Shy" in char_traits and dice(50):
+            lines = ("H-hey, how about a cup of tea?", "I was just thinking about eating something...", "It's lunch time... S-so maybe we...")
+        elif "Imouto" in char_traits:
+            lines = ("I really want some sweets ♪ C'mon!", "My tummy's growling. Wanna grab a bite?", "Woo! Lunch time, lunch time! Hurry!")
+        elif "Dandere" in char_traits:
+            lines = ("Snack time?", "Want to have a snack?", "Lunch..?")
+        elif "Tsundere" in char_traits:
+            lines = ("C-come on, invite me for tea or something.", "Hey... Do you want to grab some food? O-Or something?", "Y-you're going to join me for lunch... okay?")
+        elif "Kuudere" in char_traits:
+            lines = ("Would you like to have some tea together?", "Let's get something to eat.", "Are you hungry? How about lunch?")
+        elif "Kamidere" in char_traits:
+            lines = ("I think it's time for tea.", "Are you hungry? I was thinking about eating.", "Let's eat, I'm hungry.")
+        elif "Bokukko" in char_traits:
+            lines = ("Hey, let's have a snack, alright?", "Let's eat something! I'm starved!", "It's time to eat! Come on, let's go!")
+        elif "Ane" in char_traits:
+            lines = ("Shall we sip some drinks and take it easy?", "What would you say to a cup of tea with me?", "Would you like to join me for lunch?")
+        elif "Yandere" in char_traits:
+            lines = ("Do you want to take a tea break?", "Hey, aren't you hungry? Want to go get something to eat?", "If you'd like, we could have lunch?")
         else:
-            lines = ["Hey, you got some snacks or something? I'm kinda hungry.", "Shall we take a break? I'm hungry.", "Aaah, I'm hungry... What about you?"]
+            lines = ("Hey, you got some snacks or something? I'm kinda hungry.", "Shall we take a break? I'm hungry.", "Aaah, I'm hungry... What about you?")
         result = random.choice(lines)
         character.override_portrait("portrait", "indifferent")
         character.say(result)
         character.restore_portrait()
+
+    def interactions_girl_disp_is_too_low_to_give_money(character):
+        """
+        Output line when a character denies to give money or to access to an item.
+        """
+        global block_say
+        char_traits = character.traits
+        if "Impersonal" in char_traits:
+            lines = ("Denied.", "It won't happen.")
+        elif "Shy" in char_traits and dice(50):
+            lines = ("S-sorry, I can't do it...", "Um, that's... not something I'm willing to do.")
+        elif "Tsundere" in char_traits:
+            lines = ("Yeah, right. Don't even think about it, smartass.", "Not in a thousand years.")
+        elif "Kuudere" in char_traits:
+            lines = ("I don't think so.", "I don't see the point.")
+        elif "Yandere" in char_traits:
+            lines = ("I don't feel like it. Bother someone else.", "Right. As if I'm going to listen you.")
+        elif "Dandere" in char_traits:
+            lines = ("No. Go away.", "I don't want to.")
+        elif "Ane" in char_traits:
+            lines = ("Unfortunately, I must refuse.", "No, I believe it would be highly unwise.")
+        elif "Imouto" in char_traits:
+            lines = ("Whaat?! Why should I do that?!", "No way!")
+        elif "Kamidere" in char_traits:
+            lines = ("I refuse. Get lost.", "Know your place, fool.")
+        elif "Bokukko" in char_traits:
+            lines = ("Not gonna happen.", "Nah, don't wanna.")
+        else:
+            lines = ("I think this is not a good idea.", "Why should I do it?")
+        result = random.choice(lines)
+        block_say = True
+        character.override_portrait("portrait", "indifferent")
+        character.say(result)
+        character.restore_portrait()
+        block_say = False
+
+    def interactions_items_deny_access(character):
+        """
+        Output line when a character denies access to an item.
+        """
+        global block_say
+        char_traits = character.traits
+        if "Impersonal" in char_traits:
+            lines = ("Denied. It belongs only to me.", "You are not authorised to dispose of my property.")
+        elif "Shy" in char_traits and dice(50):
+            lines = ("W... what are you doing? It's not yours...", "Um, could you maybe stop touching my things, please?")
+        elif "Dandere" in char_traits:
+            lines = ("Don't touch my stuff without permission.", "I'm not giving it away.")
+        elif "Kuudere" in char_traits:
+            lines = ("Would you like fries with that?", "Perhaps you would like me to give you the key to my flat where I keep my money as well?")
+        elif "Yandere" in char_traits:
+            lines = ("Please refrain from touching my property.", "What do you think you doing with my belongings?")
+        elif "Tsundere" in char_traits:
+            lines = ("Like hell am I giving away!", "Hey, hands off!")
+        elif "Imouto" in char_traits:
+            lines = ("No way! Go get your own!", "Don't be mean! It's mine!")
+        elif "Bokukko" in char_traits:
+            lines = ("Hey, why do ya take my stuff?", "Not gonna happen. It's mine alone.")
+        elif "Kamidere" in char_traits:
+            lines = ("And what makes you think I will allow anyone to take my stuff?", "Refrain from disposing of my property unless I say otherwise.")
+        elif "Ane" in char_traits:
+            lines = ("Please, don't touch it. Thanks.", "Excuse me, I do not wish to part with it.")
+        else:
+            lines = ("Hey, I need this too, you know.", "Eh? Can't you just buy your own?")
+        result = random.choice(lines)
+        block_say = True
+        character.override_portrait("portrait", "indifferent")
+        character.say(result)
+        character.restore_portrait()
+        block_say = False
+
+    def interactions_items_deny_bad_item(character):
+        """
+        Output line when a character does not want to equip a bad item.
+        """
+        global block_say
+        char_traits = character.traits
+        if "Impersonal" in char_traits:
+            lines = ("I don't need it. It's useless.", "I' afraid I'm incompatible with this thing.")
+        elif "Shy" in char_traits and dice(50):
+            lines = ("It's... for me? Um... I don't really need it...", "It's a... what is this, exactly? ...I see. Sorry, but...")
+        elif "Tsundere" in char_traits:
+            lines = ("Who would want this crap?", "Whaaat? What am I supposed to do with this?!")
+        elif "Kuudere" in char_traits:
+            lines = ("And what should I do with this... thing?", "You know, someone like me has no use for this.")
+        elif "Yandere" in char_traits:
+            lines = ("What were you thinking? This is awful!", "This is absolute junk. I'm offended.")
+        elif "Dandere" in char_traits:
+            lines = ("I don't want it.", "This item gives me a terrible feeling.")
+        elif "Ane" in char_traits:
+            lines = ("Not to be ungrateful, but... I really don't like this.", "This is... interesting choice, but I think I'll pass.")
+        elif "Imouto" in char_traits:
+            lines = ("Hey! I don't want this!", "Yuck, what is this? Looks terrible...")
+        elif "Kamidere" in char_traits:
+            lines = ("This junk isn't useful at all.", "Please refrain from bothering me with this in the future.")
+        elif "Bokukko" in char_traits:
+            lines = ("Hey, is this a joke? What am I supposed to do with this?", "Get this thing away from me.")
+        else:
+            lines = ("Thanks, but I don't like these kinds of things.", "I'm sorry, but I absolutely hate this.")
+        result = random.choice(lines)
+        block_say = True
+        character.override_portrait("portrait", "indifferent")
+        character.show_portrait_overlay("sweat", "reset")
+        character.say(result)
+        character.hide_portrait_overlay()
+        character.restore_portrait()
+        block_say = False
+
+    def interactions_items_deny_equip(character):
+        """
+        Output line when a character does not want to equip an item.
+        """
+        global block_say
+        char_traits = character.traits
+        if "Impersonal" in char_traits:
+            lines = ("Access denied.", "You are not authorised to make such decisions.")
+        elif "Shy" in char_traits:
+            lines = ("M-maybe another time?", "Um... I'll think about it.")
+        elif "Dandere" in char_traits:
+            lines = ("I'm fine as it is.", "I don't feel like it.")
+        elif "Kuudere" in char_traits:
+            lines = ("I'm perfectly fine without your advices, thank you very much.", "I can handle myself without your intervention.")
+        elif "Yandere" in char_traits:
+            lines = ("I don't think we are close enough to even discuss such things.", "It's not for you to decide.")
+        elif "Tsundere" in char_traits:
+            lines = ("I can manage my things without your help!", "Hey, don't just decide something like that on your own!")
+        elif "Imouto" in char_traits:
+            lines = ("You think I'm too stupid to take care of myself?", "Hey! Don't tell me what to do, I'm not a kid!")
+        elif "Bokukko" in char_traits:
+            lines = ("Hey, aren't you too cocky tellin' me what to do?", "Nah, not in the mood for this stuff...")
+        elif "Kamidere" in char_traits:
+            lines = ("You think I just will agree to do anything for you?", "If you wish to control someone's life, get yourself a pretty slave.")
+        elif "Ane" in char_traits:
+            lines = ("Thanks for the proposition, but I'm fine.", "I find this quite inappropriate.")
+        else:
+            lines = ("Sorry, but I don't want to.", "Eh? Don't worry, I think I'm doing great already.")
+        result = random.choice(lines)
+        block_say = True
+        character.override_portrait("portrait", "indifferent")
+        character.say(result)
+        character.restore_portrait()
+        block_say = False
 
     def interactions_pick_background_for_fight(place):
         """

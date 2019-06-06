@@ -6,7 +6,7 @@ init -1 python:
 
 label found_money_event(event):
     python hide:
-        amount = 10 + max(0, hero.get_stat("luck")) + hero.level
+        amount = 50 + hero.get_stat("luck")
         amount = locked_random("randint", amount/2, amount)
         hero.add_money(amount, "Luck")
         gfx_overlay.random_find(amount, 'gold')
@@ -17,7 +17,7 @@ label found_money_event(event):
 label found_item_event(event):
     python hide:
         if locked_dice(60):
-            items_pool = list(item for item in items.values() if "Look around" in item.locations and dice(item.chance))
+            items_pool = list(item for item in items.itervalues() if "Look around" in item.locations and dice(item.chance))
             found_item = choice(items_pool)
         else:
             found_item = items["Rebels Leaflet"]

@@ -5,13 +5,20 @@ init:
         size 9
         color "lawngreen"
 
-    style negative_item_eqeffects_chage:
+    style negative_item_eqeffects_change:
         is positive_item_eqeffects_change
         color "#ff1a1a"
 
-    screen discard_item(eq_sourse, item):
+    screen discard_item(source, item):
         zorder 10
         modal True
+        python:
+            tmp = source.inventory[item]
+            if source != hero:
+                if not can_transfer(source, hero, item, amount=1, silent=True):
+                    tmp = 0
+                elif not can_transfer(source, hero, item, amount=tmp, silent=True):
+                    tmp = 1
 
         add Transform("content/gfx/images/bg_gradient2.webp", alpha=.3)
         frame:
@@ -28,14 +35,15 @@ init:
                 spacing 10
                 textbutton "{size=-1}Yes":
                     xalign .5
-                    action Function(eq_sourse.inventory.remove, item), Hide("discard_item"), With(dissolve)
-                $ amount = eq_sourse.inventory[item]
+                    action Return(1)
+                    sensitive tmp > 0
                 textbutton "{size=-1}Discard All":
                     xalign .5
-                    action SensitiveIf(amount > 1), Function(eq_sourse.inventory.remove, item, amount), Hide("discard_item"), With(dissolve)
+                    action Return(tmp)
+                    sensitive tmp > 1
                 textbutton "{size=-1}No":
                     xalign .5
-                    action Hide("discard_item"), With(dissolve)
+                    action Return(0)
 
 init python:
     def build_str_for_eq(eqtarget, dummy, stat, tempc):
@@ -44,8 +52,8 @@ init python:
         if temp: # Case: Any Change to stat
             # The first is the absolute change, we want it to be colored green if it is positive, and red if it is not.
             tempstr = set_font_color("%d" % dummy.get_stat(stat), "green" if temp > 0 else "red")
-            # Next is the increase:
-            tempstr += ("{=positive_item_eqeffects_change}(+%d){/=}" if temp > 0 else "{=negative_item_eqeffects_chage}(%d){/=}") % temp
+            # Next is the increase: (positive_item_eqeffects_change / negative_item_eqeffects_change)
+            tempstr += "{=%s_item_eqeffects_change}(%+d){/=}" % (("positive" if temp > 0 else "negative"), temp)
         else: # No change at all...
             tempstr = set_font_color("%d" % eqtarget.get_stat(stat), tempc)
 
@@ -54,19 +62,24 @@ init python:
         if tempmax:
             # Absolute change of the max values, same rules as the actual values apply:
             tempstr += set_font_color("%d" % dummy.get_max(stat), "green" if tempmax > 0 else "red")
-            tempstr += ("{=positive_item_eqeffects_change}(+%d){/=}" if tempmax > 0 else "{=negative_item_eqeffects_chage}(%d){/=}") % tempmax
+            # Next is the increase: (positive_item_eqeffects_change / negative_item_eqeffects_change)
+            tempstr += "{=%s_item_eqeffects_change}(%+d){/=}" % (("positive" if tempmax > 0 else "negative"), tempmax)
         else: # No change at all...
             tempstr += set_font_color("%d" % eqtarget.get_max(stat), tempc)
         return tempstr
 
-label char_equip:
-    python:
+    def char_equip_reset_fields():
+        global focusitem, focusoutfit, unequip_slot, item_direction, dummy, eqsave
         focusitem = None
         focusoutfit = None
         unequip_slot = None
         item_direction = None
         dummy = None
         eqsave = [False, False, False]
+
+label char_equip:
+    python:
+        char_equip_reset_fields()
 
         if eqtarget == hero or len(equip_girls) == 1:
             equip_girls = None
@@ -105,84 +118,64 @@ label char_equip_loop:
                     items_transfer([hero] + equip_chars)
                 show screen char_equip
         elif result[0] == "equip_for":
-            python:
-                renpy.show_screen("equip_for", renpy.get_mouse_pos())
-                dummy = None
+            $ renpy.show_screen("equip_for", renpy.get_mouse_pos())
+            $ char_equip_reset_fields()
         elif result[0] == "item":
-            if result[1] == 'equip/unequip':
-                $ dummy = None # Must be set here so the items that jump away to a label work properly.
-                python:
+            if result[1] == "equip/unequip":
                     # Equipping:
-                    if item_direction == 'equip':
+                    if item_direction == "equip":
                         # Common to any eqtarget:
-                        if not can_equip(focusitem, eqtarget, silent=False):
-                            focusitem = None
-                            focusoutfit = None
-                            unequip_slot = None
-                            item_direction = None
-                            jump("char_equip_loop")
-
-                        # See if we can access the equipment first:
-                        if equipment_access(eqtarget, focusitem):
-                            # If we're not equipping from own inventory, check if we can transfer:
-                            if eqtarget != inv_source:
-                                if not transfer_items(inv_source, eqtarget, focusitem):
-                                    # And terminate if we can not...
-                                    jump("char_equip_loop")
+                        if can_equip(focusitem, eqtarget, silent=False) and \
+                           equipment_access(eqtarget, focusitem) and \
+                           (eqtarget == inv_source or transfer_items(inv_source, eqtarget, focusitem)):
 
                             # If we got here, we just equip the item :D
-                            equip_item(focusitem, eqtarget)
-                    elif item_direction == 'unequip':
+                            $ equip_item(focusitem, eqtarget)
+
+                            $ char_equip_reset_fields()
+                    elif item_direction == "unequip":
                         # Check if we are allowed to access inventory and act:
                         if equipment_access(eqtarget, focusitem, unequip=True):
-                            eqtarget.unequip(focusitem, unequip_slot)
+                            $ eqtarget.unequip(focusitem, unequip_slot)
 
                             # We should try to transfer items in case of:
                             # We don't really care if that isn't possible...
                             if inv_source != eqtarget:
-                                transfer_items(eqtarget, inv_source, focusitem, silent=False)
+                                $ transfer_items(eqtarget, inv_source, focusitem, silent=True)
 
-                    focusitem = None
-                    focusoutfit = None
-                    unequip_slot = None
-                    item_direction = None
+                            $ char_equip_reset_fields()
             elif result[1] == "discard":
                 python:
                     # Check if we can access the inventory:
-                    if focusitem.slot == "quest" or focusitem.id in ["Your Pet"]:
+                    if focusitem.slot == "quest" or focusitem.id == "Your Pet":
                         renpy.call_screen('message_screen', "This item cannot be discarded.")
-                    elif equipment_access(inv_source):
-                        renpy.call_screen("discard_item", inv_source, focusitem)
-
-                    focusitem = None
-                    unequip_slot = None
-                    item_direction = None
-                    dummy = None
-                    eqsave = [False, False, False]
-            elif result[1] == "transfer":
-                python:
-                    if inv_source == hero:
-                        transfer_items(hero, eqtarget, focusitem, silent=False)
                     else:
-                        transfer_items(eqtarget, hero, focusitem, silent=False)
-            elif result[1] == 'equip':
+                        num = renpy.call_screen("discard_item", inv_source, focusitem)
+                        if num != 0:
+                            inv_source.inventory.remove(focusitem, num)
+
+                            char_equip_reset_fields()
+                        del num
+            elif result[1] == "transfer":
+                $ transfer_items(result[2], result[3], focusitem, silent=False)
+            elif result[1] == "equip":
                 python:
                     focusitem = result[2]
 
-                    item_direction = 'equip'
+                    item_direction = "equip"
 
                     # # To Calc the effects:
                     dummy = copy_char(eqtarget)
                     equip_item(focusitem, dummy, silent=True)
                     # renpy.show_screen("diff_item_effects", eqtarget, dummy)
-            elif result[1] == 'unequip':
+            elif result[1] == "unequip":
                 python:
                     unequip_slot = result[3]
 
                     dummy = copy_char(eqtarget)
 
                     focusitem = result[2]
-                    item_direction = 'unequip'
+                    item_direction = "unequip"
 
                     if focusitem:
                         # To Calc the effects:
@@ -191,15 +184,15 @@ label char_equip_loop:
                         #renpy.show_screen("diff_item_effects", eqtarget, dummy)
         elif result[0] == "unequip_all":
             python:
-                if equipment_access(eqtarget, silent=False):
-                    for slot in eqtarget.eqslots:
-                        eqtarget.unequip(slot=slot)
-                    del slot
+                for temp in eqtarget.eqslots.itervalues():
+                    if temp and not equipment_access(eqtarget, temp, silent=False, unequip=True):
+                        break
+                else:
+                    for temp in eqtarget.eqslots:
+                        eqtarget.unequip(slot=temp)
 
-                focusitem = None
-                focusoutfit = None
-                unequip_slot = None
-                item_direction = None
+                    char_equip_reset_fields()
+                del temp
         elif result[0] == "outfit":
             if result[1] == "create":
                 python hide:
@@ -243,30 +236,20 @@ label char_equip_loop:
                 # force the copy of the inventory
                 $ dummy.inventory.items = eqtarget.inventory.items.copy()
                 $ dummy.load_equip(focusoutfit, silent=True)
-        elif result[0] == 'con':
-            if result[1] == 'return':
-                python:
-                    focusitem = None
-                    focusoutfit = None
-                    unequip_slot = None
-                    item_direction = None
-                    dummy = None
-                    eqsave = [False, False, False]
-        elif result[0] == 'control':
-            if result[1] == 'return':
+        elif result[0] == "con":
+            if result[1] == "return":
+                $ char_equip_reset_fields()
+        elif result[0] == "control":
+            if result[1] == "return":
                 jump char_equip_finish
             else:
                 python:
-                    focusitem = None
-                    focusoutfit = None
-                    unequip_slot = None
-                    item_direction = None
-                    dummy = None
+                    char_equip_reset_fields()
 
                     index = equip_girls.index(eqtarget)
-                    if result[1] == 'left':
+                    if result[1] == "left":
                         index -= 1
-                    elif result[1] == 'right':
+                    elif result[1] == "right":
                         index += 1
                     char = equip_girls[index % len(equip_girls)]
 
@@ -379,10 +362,10 @@ screen char_equip():
         key "mousedown_2" action Return(["item", "equip/unequip"])
     else:
         key "mousedown_2" action NullAction()
-    key "mousedown_3" action Return(['control', 'return'])
+    key "mousedown_3" action Return(["control", "return"])
     key "mousedown_4" action Function(inv_source.inventory.prev)
     key "mousedown_5" action Function(inv_source.inventory.next)
-    key "mousedown_6" action Return(['con', 'return'])
+    key "mousedown_6" action Return(["con", "return"])
 
     default stats_display = "stats"
     default skill_display = "combat"
@@ -395,7 +378,7 @@ screen char_equip():
         pos (425, 10)
         xysize 298, 410
         background Frame(Transform("content/gfx/frame/Mc_bg3.png", alpha=.3), 10, 10)
-        use eqdoll(active_mode=True, char=eqtarget, frame_size=[70, 70], scr_align=(.98, 1.0), return_value=['item', "unequip"], txt_size=17, fx_size=(455, 400))
+        use eqdoll(active_mode=True, char=eqtarget, frame_size=[70, 70], scr_align=(.98, 1.0), return_value=["item", "unequip"], txt_size=17, fx_size=(455, 400))
 
     # BASE FRAME 3 "mid layer" ====================================>
     add "content/gfx/frame/equipment1.webp"
@@ -430,7 +413,7 @@ screen char_equip():
                 imagebutton:
                     xysize (39, 50)
                     pos (13, 14)
-                    action Return(['control', 'left'])
+                    action Return(["control", "left"])
                     idle "content/gfx/interface/buttons/small_button_wood_left_idle.png"
                     hover "content/gfx/interface/buttons/small_button_wood_left_hover.png"
                     tooltip "Previous Character"
@@ -450,7 +433,7 @@ screen char_equip():
                 imagebutton:
                     xysize (39, 50)
                     pos (175, 14)
-                    action Return(['control', 'right'])
+                    action Return(["control", "right"])
                     idle "content/gfx/interface/buttons/small_button_wood_right_idle.png"
                     hover "content/gfx/interface/buttons/small_button_wood_right_hover.png"
                     tooltip "Next Character"
@@ -879,7 +862,7 @@ screen char_equip_right_frame():
                 xsize 110
                 action If(eqtarget != hero, true=[SetVariable("inv_source", hero),
                                                   Function(hero.inventory.apply_filter, eqtarget.inventory.slot_filter),
-                                                  Return(['con', 'return']),
+                                                  Return(["con", "return"]),
                                                   With(dissolve)])
                 tooltip "Equip from {}'s Inventory".format(hero.nickname)
                 selected eqtarget == hero or inv_source == hero
@@ -888,7 +871,7 @@ screen char_equip_right_frame():
                 xsize 110
                 action If(eqtarget != hero, true=[SetVariable("inv_source", eqtarget),
                                                   Function(eqtarget.inventory.apply_filter, hero.inventory.slot_filter),
-                                                  Return(['con', 'return']),
+                                                  Return(["con", "return"]),
                                                   With(dissolve)])
                 selected inv_source != hero
                 sensitive eqtarget != hero
@@ -1001,7 +984,7 @@ screen char_equip_right_frame():
     frame:
         pos (931, 372)
         background Transform(Frame(im.MatrixColor("content/gfx/frame/p_frame5.png", im.matrix.brightness(-0.1)), 5, 5), alpha=.7)
-        use items_inv(char=inv_source, main_size=(333, 333), frame_size=(80, 80), return_value=['item', 'equip'])
+        use items_inv(char=inv_source, main_size=(333, 333), frame_size=(80, 80), return_value=["item", "equip"])
 
     # BASE FRAME 1 "top layer" ====================================>
     add "content/gfx/frame/h1.webp"
@@ -1010,13 +993,13 @@ screen char_equip_right_frame():
         pos (178, 70)
         idle im.Scale("content/gfx/interface/buttons/close2.png", 35, 35)
         hover im.Scale("content/gfx/interface/buttons/close2_h.png", 35, 35)
-        action Return(['control', 'return'])
+        action Return(["control", "return"])
         tooltip "Return to previous screen!"
-    key "mousedown_3" action Return(['control', 'return'])
+    key "mousedown_3" action Return(["control", "return"])
 
 screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="content", mc_mode=False):
 
-    key "mousedown_3" action Return(['con', 'return'])
+    key "mousedown_3" action Return(["con", "return"])
 
     # One of the most difficult code rewrites I've ever done (How Gismo aligned everything in the first place is a work of (weird and clumsy) art...):
     # Recoding this as three vertically aligned HBoxes...
@@ -1036,7 +1019,9 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                     align 0, .5
                     idle temp
                     hover im.MatrixColor(temp, im.matrix.brightness(0.15))
+                    insensitive im.Sepia(temp)
                     action Return(["item", "discard"])
+                    sensitive inv_source.inventory[item] > 0
                     tooltip "Discard item"
                 frame:
                     align .5, .5
@@ -1048,7 +1033,7 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                     align .98, .5
                     idle temp
                     hover im.MatrixColor(temp, im.matrix.brightness(0.15))
-                    action Return(['con', 'return'])
+                    action Return(["con", "return"])
                     tooltip "Close item info"
 
             # Separation Strip (Outside of alignments):
@@ -1098,19 +1083,20 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                             label ('{size=-4}{color=%s}%s'%(color, temp.capitalize())) align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
 
                 # Buttons and image:
+                if inv_source == hero:
+                    $ temp_source, temp_target = hero, eqtarget
+                else:
+                    $ temp_source, temp_target = eqtarget, hero
                 button:
                     style_group "pb"
                     align (.0, .5)
                     xysize (80, 45)
-                    action SensitiveIf(eqtarget != hero and ((eqtarget.inventory[item] > 0 and inv_source == eqtarget) or (hero.inventory[item] > 0 and inv_source == hero))), Return(['item', 'transfer'])
+                    action SensitiveIf(eqtarget != hero and inv_source.inventory[item] > 0), Return(["item", "transfer", temp_source, temp_target])
                     if eqtarget == hero:
                         text "Transfer" style "pb_button_text" align (.5, .5)
-                    elif inv_source == hero:
-                        tooltip "Transfer {} from {} to {}".format(item.id, hero.nickname, eqtarget.nickname)
-                        text "Give to\n {color=#FFAEB9}[eqtarget.nickname]{/color}" style "pb_button_text" align (.5, .5) line_leading 3
                     else:
-                        text "Give to\n {color=#FFA54F}[hero.nickname]{/color}" style "pb_button_text" align (.5, .5) line_leading 3
-                        tooltip "Transfer {} from {} to {}".format(item.id, eqtarget.nickname, hero.nickname)
+                        tooltip "Transfer %s from %s to %s" % (item.id, temp_source.nickname, temp_target.nickname)
+                        text "Give to\n{color=#FFAEB9}[temp_target.nickname]{/color}" style "pb_button_text" align (.5, .5) line_leading 3
 
                 frame:
                     align (.5, .5)
@@ -1123,10 +1109,10 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                         hover im.MatrixColor(temp, im.matrix.brightness(.15))
                         action Show("show_item_info", item=item)
 
-                if item_direction == 'unequip':
+                if item_direction == "unequip":
                     $ temp = "Unequip"
                     $ temp_msg = "Unequip {}".format(item.id)
-                elif item_direction == 'equip':
+                elif item_direction == "equip":
                     if item.slot == "consumable":
                         $ temp = "Use"
                         $ temp_msg = "Use {}".format(item.id)
@@ -1138,9 +1124,9 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                     align (1.0, .5)
                     xysize (80, 45)
                     tooltip temp_msg
-                    action SensitiveIf(focusitem), Return(['item', 'equip/unequip'])
+                    action SensitiveIf(focusitem), Return(["item", "equip/unequip"])
                     text "[temp]" style "pb_button_text" align (.5, .5):
-                        if item_direction == 'equip' and not can_equip(focusitem, eqtarget):
+                        if item_direction == "equip" and not can_equip(focusitem, eqtarget):
                             color "red" strikethrough True
 
                 # Right items info (Stats):
@@ -1313,7 +1299,7 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                             xysize (234, 246)
                             background Null()
                             if eqsave[i]:
-                                use eqdoll(active_mode=True, char=v, scr_align=(.98, 1.0), return_value=['item', "save"], txt_size=17, fx_size=(304, 266))
+                                use eqdoll(active_mode=True, char=v, scr_align=(.98, 1.0), return_value=["item", "save"], txt_size=17, fx_size=(304, 266))
 
                 if len(eqtarget.eqsave) < 3:
                     vbox:

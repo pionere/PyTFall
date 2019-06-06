@@ -897,7 +897,7 @@
     "gender": "female",
     "chance": 20,
     "badness": 40,
-    "eqchance": 20,
+    "eqchance": 0,
     "hidden": true,
     "infinite": false,
     "slot": "body",
