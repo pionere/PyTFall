@@ -795,10 +795,12 @@ init -10 python:
                 all_expense_data = self.game_main_expense_log.copy()
                 all_expense_data[store.day] = self.todays_main_expense_log
 
-            days = []
-            for d in all_income_data:
-                if all_income_data[d] or all_expense_data[d]:
-                    days.append(d)
+            days = set()
+            for d, v in chain(all_income_data.iteritems(), all_expense_data.iteritems()):
+                if v:
+                    days.add(d)
+            days.discard(-1)
+            days = sorted(days)
             days = days[-7:]
             if days:
                 days.append("All")
@@ -837,13 +839,13 @@ init -10 python:
             return income, expense, total
 
         # Tax related:
-        def get_income_tax(self, days=7, log_finances=False):
+        def get_income_tax(self, days=7):
             # MC's Income Tax
             char = self.instance
             ec = store.pytfall.economy
             tax = 0
             income = 0
-            taxable_buildings = [i for i in char.buildings if hasattr(i, "fin")]
+            taxable_buildings = char.buildings
 
             for b in taxable_buildings:
                 fin_log = b.fin.game_logical_income_log
@@ -857,7 +859,7 @@ init -10 python:
                         tax = round_int(income*mod)
                         break
 
-            if log_finances and tax:
+            if tax:
                 # We have no choice but to do the whole routine again :(
                 # Final value may be off but +/- 1 gold due to rounding
                 # in this simplified code. I may perfect this one day...
@@ -870,29 +872,26 @@ init -10 python:
                             b.fin.log_logical_expense(_tax, "Income Tax")
             return income, tax
 
-        def get_property_tax(self, log_finances=False):
+        def get_property_tax(self):
             char = self.instance
             ec = store.pytfall.economy
-            properties = char.buildings
 
-            slaves = [c for c in char.chars if c.status == "slave"]
-            b_tax = round_int(sum([p.price for p in properties])*ec.property_tax["real_estate"])
-            s_tax = round_int(sum([s.get_price() for s in slaves])*ec.property_tax["slaves"])
-
-            if log_finances:
-                for p in properties:
-                    _tax = round_int(p.price*ec.property_tax["real_estate"])
-                    if hasattr(p, "fin"): # Simpler location do not have fin module
-                        p.fin.log_logical_expense(_tax, "Property Tax")
-                for s in slaves:
-                    _tax = round_int(s.get_price()*ec.property_tax["slaves"])
-                    s.fin.log_logical_expense(_tax, "Property Tax")
+            b_tax = s_tax = 0
+            mod = ec.property_tax["real_estate"]
+            for p in char.buildings:
+                _tax = round_int(p.get_price()*mod)
+                p.fin.log_logical_expense(_tax, "Property Tax")
+                b_tax += _tax
+            mod = ec.property_tax["slaves"]
+            for c in char.chars:
+                if c.status != "slave":
+                    continue
+                _tax = round_int(s.get_price()*mod)
+                s.fin.log_logical_expense(_tax, "Property Tax")
+                s_tax += _tax
 
             tax = b_tax + s_tax
             return b_tax, s_tax, tax
-
-        def get_total_taxes(self, days=7):
-            return self.get_income_tax(days) + self.get_property_tax
 
         # Rest ================================>>>
         def settle_wage(self, txt, mood):
@@ -985,17 +984,18 @@ init -10 python:
 
         def next_day(self):
             # We log total to -1 key...
-            cut_off_day = store.day - 10
+            curr_day = store.day
 
-            self.game_main_income_log[store.day] = self.todays_main_income_log.copy()
-            self.game_main_expense_log[store.day] = self.todays_main_expense_log.copy()
-            self.game_logical_income_log[store.day] = self.todays_logical_income_log.copy()
-            self.game_logical_expense_log[store.day] = self.todays_logical_expense_log.copy()
+            self.game_main_income_log[curr_day] = self.todays_main_income_log
+            self.game_main_expense_log[curr_day] = self.todays_main_expense_log
+            self.game_logical_income_log[curr_day] = self.todays_logical_income_log
+            self.game_logical_expense_log[curr_day] = self.todays_logical_expense_log
 
+            curr_day -= 10
             for log in [self.game_main_income_log, self.game_main_expense_log,
                         self.game_logical_income_log, self.game_logical_expense_log]:
                 for day, info in log.items():
-                    if 0 < day < cut_off_day:
+                    if 0 < day < curr_day:
                         log[-1] = add_dicts([log.get(-1, {}), info])
                         del log[day]
 

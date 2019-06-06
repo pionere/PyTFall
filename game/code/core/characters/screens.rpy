@@ -308,71 +308,91 @@ screen finances(obj, mode="logical"):
                         $ temp = d # All variant...
                     textbutton temp action SetScreenVariable("fin_day", d)
 
+            python:
+                income = all_income_data[fin_day]
+                len_income = len(income)
+                if len_income != 0:
+                    len_income = (len_income + 1) * 28 + 14
+                    total_income = sum(income.values())
+                    income = sorted(income.items(), key=itemgetter(1), reverse=True)
+                else:
+                    len_income = 27 + 4
+                    total_income = 0
             vbox:
                 ypos 40
                 text "Income:" size 40 color "goldenrod"
                 viewport:
                     xysize (398, 350)
+                    child_size 398, len_income
                     draggable True
                     mousewheel True
-                    child_size 398, 1000
                     add Transform(Solid("grey"), alpha=.3)
                     vbox:
                         ypos 2
-                        for reason, value in sorted(all_income_data[fin_day].items(), key=itemgetter(1), reverse=True):
-                            frame:
-                                xoffset 4
-                                xysize (390, 27)
-                                xpadding 7
-                                text reason color "#79CDCD"
-                                text str(value) xalign 1.0 style_suffix "value_text" color "goldenrod"
+                        if income:
+                            for reason, value in income:
+                                frame:
+                                    xoffset 4
+                                    xysize (390, 27)
+                                    xpadding 7
+                                    text reason color "#79CDCD"
+                                    text str(value) xalign 1.0 style_suffix "value_text" color "goldenrod"
 
-                        null height 10
+                            null height 10
                         frame:
                             xoffset 4
                             xysize (390, 27)
                             xpadding 7
                             text "Total" color "#79CDCD"
-                            $ total_income = sum(all_income_data[fin_day].values())
                             text str(total_income) xalign 1.0 style_suffix "value_text" color "lawngreen"
 
+            python:
+                expense = all_expense_data[fin_day]
+                len_expense = len(expense)
+                if len_expense != 0:
+                    len_expense = (len_expense + 1) * 28 + 14
+                    total_expense = sum(expense.values())
+                    expense = sorted(expense.items(), key=itemgetter(1), reverse=True)
+                else:
+                    len_expense = 27 + 4
+                    total_expense = 0
             vbox:
                 ypos 40 xalign 1.0
                 text "Expenses:" size 40 color "goldenrod"
                 viewport:
                     xysize (398, 350)
-                    child_size 398, 1000
+                    child_size 398, len_expense
                     draggable True
                     mousewheel True
                     add Transform(Solid("grey"), alpha=.3)
                     vbox:
                         ypos 2
-                        for reason, value in sorted(all_expense_data[fin_day].items(), key=itemgetter(1), reverse=True):
-                            frame:
-                                xoffset 4
-                                xysize (390, 27)
-                                xpadding 7
-                                text reason color "#79CDCD"
-                                text str(value) xalign 1.0 style_suffix "value_text" color "goldenrod"
+                        if expense:
+                            for reason, value in expense:
+                                frame:
+                                    xoffset 4
+                                    xysize (390, 27)
+                                    xpadding 7
+                                    text reason color "#79CDCD"
+                                    text str(value) xalign 1.0 style_suffix "value_text" color "goldenrod"
 
-                        null height 10
+                            null height 10
                         frame:
                             xoffset 4
                             xysize (390, 27)
                             xpadding 7
                             text "Total" color "#79CDCD"
-                            $ total_expenses = sum(all_expense_data[fin_day].values())
-                            text str(total_expenses) xalign 1.0 style_suffix "value_text" color "red"
+                            text str(total_expense) xalign 1.0 style_suffix "value_text" color "red"
 
             frame:
                 align .5, .9
                 xysize 400, 50
                 xpadding 7
                 background Frame("content/gfx/frame/rank_frame.png", 3, 3)
-                text "Total" size 35 color "goldenrod"
-                $ total = total_income - total_expenses
+                text "Total" size 35 color "goldenrod" yoffset 1
+                $ total = total_income - total_expense
                 $ temp = "red" if total < 0 else "lawngreen"
-                text str(total) xalign 1.0 style_suffix "value_text" color temp size 35
+                text str(total) xalign 1.0 style_suffix "value_text" color temp size 35 yoffset 1#offset -1, 1
 
         # Debt
         if focused.fin.income_tax_debt or focused.fin.property_tax_debt:

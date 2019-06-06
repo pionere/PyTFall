@@ -1650,6 +1650,13 @@ label after_load:
         if hasattr(gazette, "first_view"):
             del gazette.first_view
 
+        if "Garem Charm" in store.items:
+            del store.items["Harem Charm"]
+            hc = store.items["Garem Charm"]
+            del store.items["Garem Charm"]
+            hc.id = "Harem Charm"
+            store.items["Harem Charm"] = hc
+
         if hasattr(pytfall.general_store, "locations"):
             for i in pytfall.__dict__.values():
                 if isinstance(i, ItemShop):

@@ -1912,7 +1912,7 @@ init -9 python:
                 txt.append(temp)
 
             # Income Taxes:
-            income, tax = fin.get_income_tax(log_finances=True)
+            income, tax = fin.get_income_tax()
             temp = "Over the past week your taxable income amounted to: {color=gold}%d Gold{/color}.\n" % income
             txt.append(temp)
 
@@ -1948,7 +1948,7 @@ init -9 python:
                            "\nProperty tax:\n",
                            "\nProperty taxes next!\n"])
             txt.append(temp)
-            b_tax, s_tax, tax = fin.get_property_tax(log_finances=True)
+            b_tax, s_tax, tax = fin.get_property_tax()
             if tax:
                 if b_tax:
                     temp = "Real Estate Tax: {color=gold}%d Gold{/color}." % b_tax
