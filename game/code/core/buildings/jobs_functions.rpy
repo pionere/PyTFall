@@ -129,11 +129,8 @@ init -10 python:
         mult = c.get_stat("character")/float(mult)
         # and traits, they can make mult more or less
         # for example even low character tsundere might be more stubborn than high character dandere
-        traits = ["Impersonal", "Imouto", "Dandere", "Tsundere", "Kamidere", "Bokukko", "Ane",
-                  "Yandere", "Courageous", "Coward", "Shy", "Aggressive", "Natural Leader", "Natural Follower"]
-        traits = list(i.id for i in c.traits if i.id in traits)
-
-        for i in traits:
+        for i in c.traits:
+            i = i.id
             if i == "Impersonal":
                 mult -= .1
             elif i == "Imouto":

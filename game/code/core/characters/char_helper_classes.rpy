@@ -813,20 +813,19 @@ init -10 python:
 
             kind = "all" means any income earned on the day.
             """
-            if day and day >= store.day:
-                raise Exception("Day on income retrieval must be lower than the current day!")
-
-            if not day:
+            if day is None:
                 d = self.todays_logical_income_log
+            elif day >= store.day:
+                raise Exception("Day on income retrieval must be lower than the current day!")
             else:
                 d = self.game_logical_income_log[day]
 
             if kind == "all":
-                return sum(val for val in d.values())
-            elif kind in d:
-                return d[kind]
-            else:
-                raise Exception("Income kind: {} is not valid!".format(kind))
+                return sum(val for val in d.itervalues())
+            d = d.get(kind, None)
+            if d is None:
+                raise Exception("Income kind: %s is not valid!" % kind)
+            return d
 
         def get_game_total(self):
             # Total income over the game (Used in ND screen)...
@@ -900,85 +899,83 @@ init -10 python:
             Called during next day method per each individual worker.
             """
             char = self.instance
-
             real_wagemod = char.wagemod
-            got_paid = False
-
-            if char.status == "slave":
-                temp = choice(["Being a slave, %s doesn't expect to get paid." % char.p,
-                               "Slaves don't get paid."])
-                paid_wage = round_int(char.expected_wage/100.0*real_wagemod) if real_wagemod else 0
-                if paid_wage == 0:
-                    txt.append(temp)
-                    return mood
-                temp += " And yet... you chose to pay %s %d%% of the fair wage (%d Gold)!" % (char.op, real_wagemod, paid_wage)
-                txt.append(temp)
-            else: # Free chars:
-                expected_wage = char.expected_wage
+            expected_wage = char.expected_wage
+            if char.status == "free":
+                # Free chars:
                 temp = choice(["%s expects to be compensated for %s services ({color=gold}%d Gold{/color})." % (char.pC, char.pp, expected_wage),
                                "%s expects to be paid a wage of {color=gold}%d Gold{/color}." % (char.pC, expected_wage)])
-                paid_wage = round_int(expected_wage/100.0*real_wagemod)
-                temp += " You chose to pay %s %d%% of that! ({color=gold}%d Gold{/color})" % (char.pp, real_wagemod, paid_wage)
-                txt.append(temp)
 
-            if not paid_wage: # Free char with 0% wage mod
+                tmp = " You chose to pay %s %d%% of that! ({color=gold}%d Gold{/color})"
+            else:
+                # Slaves:
+                temp = choice(["Being a slave, %s doesn't expect to get paid." % char.p,
+                               "Slaves don't get paid."])
+                if real_wagemod == 0:
+                    txt.append(temp)
+                    return mood
+
+                tmp = " And yet... you chose to pay %s %d%% of the fair wage! ({color=gold}%d Gold{/color})"
+
+            paid_wage = round_int(expected_wage*real_wagemod/100.0)
+            temp += tmp % (char.op, real_wagemod, paid_wage)
+            txt.append(temp)
+
+            if paid_wage == 0: # Free char with 0% wage mod
                 txt.append("You paid %s nothing..." % char.op)
             elif hero.take_money(paid_wage, reason="Wages"):
                 self.add_money(paid_wage, reason="Wages")
                 self.log_logical_expense(paid_wage, "Wages")
                 if isinstance(char.workplace, Building):
                     char.workplace.fin.log_logical_expense(paid_wage, "Wages")
-                got_paid = True
             else:
                 txt.append("You lacked the funds to pay %s the promised wage." % char.pp)
-                if char.status == "slave":
-                    temp += " But being a slave %s will not hold that against you." % char.nickname
-                    return mood
+                paid_wage = real_wagemod = 0
 
             # So... if we got this far, we're either talking slaves that player
             # chose to pay a wage or free chars who expect that.
             if char.status == "free":
-                if got_paid:
-                    diff = real_wagemod - 100 # We expected 100% of the wage at least.
-                else:
-                    diff = -100 # Failing to pay anything at all... huge penalty
-                dismod = .09
-                joymod = .06
-                if diff > 0:
-                    mood = "happy"
-                    dismod = max(1, round_int(diff*dismod))
-                    joymod = max(1, round_int(diff*joymod))
-                    if DEBUG_CHARS:
-                        txt.append("Debug: Disposition mod: {}".format(dismod))
-                        txt.append("Debug: Joy mod: {}".format(joymod))
-                    char.mod_stat("disposition", dismod)
-                    char.mod_stat("joy", joymod)
-                elif diff < 0:
-                    mood = "angry"
-                    dismod = min(-2, round_int(diff*dismod)) * (char.tier or 1)
-                    joymod = min(-1, round_int(diff*joymod)) * (char.tier or 1)
-                    if DEBUG_CHARS:
-                        txt.append("Debug: Disposition mod: {}".format(dismod))
-                        txt.append("Debug: Joy mod: {}".format(joymod))
-                    char.mod_stat("disposition", dismod)
-                    char.mod_stat("affection", affection_reward(char, -1, stat="gold"))
-                    char.mod_stat("joy", joymod)
-                else: # Paying a fair wage
+                if paid_wage == expected_wage:
+                    # Paying a fair wage
                     if dice(10): # just a small way to appreciate that:
                         char.mod_stat("disposition", 1)
                         char.mod_stat("joy", 1)
-            else: # Slave case:
-                mood = "happy"
-                diff = real_wagemod # Slaves just get the raw value.
-                dismod = .1
-                joymod = .1
-                dismod = max(1, round_int(diff*dismod))
-                joymod = max(1, round_int(diff*joymod))
+                    return mood
+
+                diff = real_wagemod - 100 # We expected 100% of the wage at least.
+
+                dismod = round_int(diff*.09)
+                joymod = round_int(diff*.06)
+                if diff > 0:
+                    mood = "happy"
+                    dismod = max(1, dismod)
+                    joymod = max(1, joymod)
+                else: #if diff < 0:
+                    mood = "angry"
+                    mod = check_submissivity(char) + 2 # convert [-1,0,1] to [1,2,3]
+                    dismod = min(-2, dismod) * mod
+                    joymod = min(-1, joymod) * mod
+                    char.mod_stat("affection", affection_reward(char, -1, stat="gold"))
                 if DEBUG_CHARS:
                     txt.append("Debug: Disposition mod: {}".format(dismod))
                     txt.append("Debug: Joy mod: {}".format(joymod))
                 char.mod_stat("disposition", dismod)
                 char.mod_stat("joy", joymod)
+            else: # Slave case:
+                if paid_wage == 0:
+                    txt.append(" But being a slave %s will not hold that against you." % char.nickname)
+                else:
+                    mood = "happy"
+                    diff = real_wagemod # Slaves just get the raw value.
+                    dismod = round_int(diff*.15)
+                    joymod = round_int(diff*.1)
+                    dismod = max(1, dismod)
+                    joymod = max(1, joymod)
+                    if DEBUG_CHARS:
+                        txt.append("Debug: Disposition mod: {}".format(dismod))
+                        txt.append("Debug: Joy mod: {}".format(joymod))
+                    char.mod_stat("disposition", dismod)
+                    char.mod_stat("joy", joymod)
 
             return mood
 
