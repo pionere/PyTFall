@@ -124,6 +124,14 @@ init -2: # Base Styles like Texts and Buttons just with the basic properties.
         selected_hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2s.png", im.matrix.brightness(.1)), 5, 5)
         insensitive_background Frame(im.Sepia("content/gfx/interface/buttons/choice_buttons2.png"), 5, 5)
 
+    style basic_choice2n_button:
+        background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
+        idle_background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
+        hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2s.png", im.matrix.brightness(.1)), 5, 5)
+        selected_background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
+        selected_hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.1)), 5, 5)
+        insensitive_background Frame(im.Sepia("content/gfx/interface/buttons/choice_buttons2.png"), 5, 5)
+
     # Presently used in Main Menu.
     style mmenu1_button:
         take flashing
