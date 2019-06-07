@@ -130,17 +130,12 @@ init -5 python:
             return effectiveness
 
         @staticmethod
-        def settle_workers_disposition(workers, business, all_on_deck=False):
-            if not isinstance(workers, (set, list, tuple)):
-                workers = [workers]
-
-            log = business.log
-
+        def settle_workers_disposition(workers, business, log, all_on_deck=False):
             if all_on_deck:
                 # Make sure we make a note that these are not dedicated guards
-                log(set_font_color("Clients in building got too unruly! All free workers are called to serve as guards!", "red"))
+                log.append(set_font_color("Clients in building got too unruly! All free workers are called to serve as guards!", "red"))
             else:
-                log(set_font_color("Your guards are starting their shift!", "cadetblue"))
+                log.append(set_font_color("Your guards are starting their shift!", "cadetblue"))
 
             for worker in workers:
                 if GuardJob.want_work(worker):
@@ -149,14 +144,15 @@ init -5 python:
                 name = set_font_color(choice([worker.fullname, worker.name, worker.nickname]), "pink")
                 if worker.status != 'slave':
                     if sub < 0:
-                        log("%s doesn't enjoy working as guard, but %s will get the job done." % (name, worker.p))
+                        temp = "%s doesn't enjoy working as guard, but %s will get the job done."
                         sub = 15
                     elif sub == 0:
-                        log("%s will work as a guard, but %s would prefer to do something else." % (name, worker.p))
+                        temp = "%s will work as a guard, but %s would prefer to do something else."
                         sub = 25
                     else:
-                        log("%s makes it clear that %s wants another job." % (name, worker.p))
+                        temp = "%s makes it clear that %s wants another job."
                         sub = 35
+                    log.append(temp % (name, worker.p))
                     if dice(sub):
                         worker.logws('character', 1)
                     worker.logws("joy", -randint(3, 5))
@@ -167,22 +163,23 @@ init -5 python:
                     dispo_req = GuardJob.calculate_disposition_level(worker)
                     if sub < 0:
                         if dispo < dispo_req:
-                            log("%s is a slave so no one really cares, but being forced to work as a guard, %s's quite upset." % (name, worker.p))
+                            temp = "%s is a slave so no one really cares, but being forced to work as a guard, %s's quite upset." % (name, worker.p)
                         else:
-                            log("%s will do as %s's told, but this doesn't mean that %s'll be happy about %s guarding duties." % (name, worker.p, worker.p, worker.pp))
+                            temp = "%s will do as %s's told, but this doesn't mean that %s'll be happy about %s guarding duties." % (name, worker.p, worker.p, worker.pp)
                         sub = 25
                     elif sub == 0:
                         if dispo < dispo_req:
-                            log("%s will do as you command, but %s will hate every second of being forced to work as a guard..." % (name, worker.p))
+                            temp = "%s will do as you command, but %s will hate every second of being forced to work as a guard..." % (name, worker.p)
                         else:
-                            log("%s was very displeased by %s order to work as a guard, but didn't dare to refuse." % (name, worker.pp))
+                            temp = "%s was very displeased by %s order to work as a guard, but didn't dare to refuse." % (name, worker.pp)
                         sub = 35
                     else:
                         if dispo < dispo_req:
-                            log("%s was very displeased by %s order to work as a guard." % (name, worker.pp))
+                            temp = "%s was very displeased by %s order to work as a guard." % (name, worker.pp)
                         else:
-                            log("%s will do as you command and work as a guard, but not without a lot of grumbling and complaining." % name)
+                            temp = "%s will do as you command and work as a guard, but not without a lot of grumbling and complaining." % name
                         sub = 45
+                    log.append(temp)
                     if dice(sub):
                         worker.logws('character', 1)
                     if worker.get_stat("disposition") < dispo_req:

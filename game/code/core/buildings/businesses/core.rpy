@@ -232,10 +232,6 @@ init -12 python:
                 raise Exception("Zero Modulo Division Detected #02")
             return 70*self.capacity/self.time # MAX_DU * 70%
 
-        @property
-        def env(self):
-            return self.building.env
-
         def log(self, item, add_time=False):
             # Logs the text for next day event...
             self.building.log(item, add_time=add_time)
@@ -361,11 +357,11 @@ init -12 python:
         # Runs before ND calcs stats for this building.
         def pre_nd(self):
             # Runs at the very start of execution of SimPy loop during the next day.
-            return
+            self.env = self.building.env
 
         def post_nd(self):
             # Resets all flags and variables after next day calculations are finished.
-            return
+            self.env = None
 
         def log_income(self, amount, reason=None):
             # Plainly logs income to the main building finances.
@@ -420,10 +416,12 @@ init -12 python:
             raise Exception("client_control method/process must be implemented")
 
         def pre_nd(self):
+            super(PrivateBusiness, self).pre_nd()
             self.res = simpy.Resource(self.env, self.capacity)
 
         def post_nd(self):
             self.res = None
+            super(PrivateBusiness, self).post_nd()
 
 
     class PublicBusiness(Business):
@@ -440,16 +438,15 @@ init -12 python:
             self.type = "public_service"
 
             # If this is set to self.env.now in client manager, we send in workers (bc).
-            self.send_in_worker = False
+            #self.send_in_worker = False
 
-            self.active_workers = set() # On duty Workers.
-            self.clients_waiting = set() # Clients waiting to be served.
-            #self.clients_being_served = set() # Clients that we serve.
+            #self.active_workers = set() # On duty Workers.
+            #self.clients_waiting = set() # Clients waiting to be served.
+            #self.has_tap_beer = False # cached result of check for TapBeer upgrade
 
             # SimPy and etc follows (L33t stuff :) ):
-            self.res = None # Restored before every job... Resource Instance that may not be useful here...
+            #self.res = None # Restored before every job... Resource Instance that may not be useful here...
             self.time = 10 # Time for a single shift.
-            self.has_tap_beer = False # cached result of check for TapBeer upgrade
 
         def client_control(self, client):
             """Handles the client after a spot is reserved...
@@ -657,13 +654,17 @@ init -12 python:
 
         def pre_nd(self):
             # Whatever we need to do at start of Next Day calculations.
+            super(PublicBusiness, self).pre_nd()
+
             self.res = simpy.Resource(self.env, self.capacity)
             self.has_tap_beer = self.has_extension(TapBeer)
-
-        def post_nd(self):
-            self.res = None
             self.send_in_worker = False
             self.active_workers = set()
+
+        def post_nd(self):
+            self.res = self.active_workers = None
+            #self.has_tap_beer = self.send_in_worker = False
+            super(PublicBusiness, self).post_nd()
 
     class OnDemandBusiness(Business):
         def __init__(self):
@@ -672,15 +673,12 @@ init -12 python:
             self.type = "on_demand_service"
             self.workable = True
 
-            # SimPy and etc follows:
-            self.expands_capacity = False
-
         def get_strict_workers(self, job, power_flag_name, log):
             workers = set(self.get_workers(job, rule="strict"))
 
             if workers:
                 # Do Disposition checks:
-                job.settle_workers_disposition(workers, self)
+                job.settle_workers_disposition(workers, self, log)
                 # Do Effectiveness calculations:
                 self.calc_job_power(workers, job, power_flag_name, log)
 
@@ -692,7 +690,7 @@ init -12 python:
 
             if new_workers:
                 # Do Disposition checks:
-                job.settle_workers_disposition(new_workers, self, all_on_deck=True)
+                job.settle_workers_disposition(new_workers, self, log, all_on_deck=True)
                 # Do Effectiveness calculations:
                 self.calc_job_power(new_workers, job, power_flag_name, log)
             workers = workers.union(new_workers)

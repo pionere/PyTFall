@@ -17,20 +17,21 @@ init -10 python:
             client_name_c = client_name.capitalize()
         else:
             client_name = client_name_c = set_font_color(clients.name, "beige")
+        worker_name = worker.name
 
         me = building.manager_effectiveness
         if effectiveness <= 33: # Worker sucked so much, client just doesn't pay.
             temp = "are" if is_plural else "is"
-            temp = "%s %s leaving without paying for the inadequate service %s provided." % (client_name_c, temp, worker.name)
+            temp = "%s %s leaving without paying for the inadequate service %s provided." % (client_name_c, temp, worker_name)
             log.append(temp)
             earned = 0
         elif effectiveness <= 90: # Worker sucked but situation may be salvageable by Manager.
             temp = "refuse" if is_plural else "refuses"
-            temp = "Due to inadequate service provided by %s, %s %s to pay the full price." % (worker.name, client_name, temp)
+            temp = "Due to inadequate service provided by %s, %s %s to pay the full price." % (worker_name, client_name, temp)
             log.append(temp)
             if me >= 90 and building.help_ineffective_workers and building._dnd_manager.PP >= 1:
                 manager = building._dnd_manager
-                temp = "%s helped to calm a client down after %s's poor performance and salvaged part of the payment!" % (manager.name, worker.name)
+                temp = "%s helped to calm a client down after %s's poor performance and salvaged part of the payment!" % (manager.name, worker_name)
                 manager._dnd_mlog.append(temp)
                 temp = "Your skilled manager %s intervened and straitened things out." % manager.name
                 manager.PP -= 1
@@ -51,11 +52,11 @@ init -10 python:
                 log.append(temp)
         elif effectiveness <= 150:
             temp = ("are", "pay") if is_plural else ("is", "pays")
-            temp = "%s %s very happy with %s's service and %s the full price." % (client_name_c, temp[0], worker.name, temp[1])
+            temp = "%s %s very happy with %s's service and %s the full price." % (client_name_c, temp[0], worker_name, temp[1])
             log.append(temp)
         else:
             temp = "are" if is_plural else "is"
-            temp = "%s %s ecstatic! %s's service was beyond any expectations. +20%% to payout!" % (client_name_c, temp, worker.name)
+            temp = "%s %s ecstatic! %s's service was beyond any expectations. +20%% to payout!" % (client_name_c, temp, worker_name)
             log.append(temp)
             earned *= 1.2
 

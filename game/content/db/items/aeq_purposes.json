@@ -111,5 +111,12 @@
      "target_skills": {"service":50, "riding":100},
      "base_purpose": ["Service", "Any"],
      "fighting": false
+    },
+    {
+     "id": "Nurse",
+     "target_stats": {"intelligence": 80, "magic": 60, "charisma": 20, "agility": 20, "constitution": 10, "vitality":10, "luck":1, "exp":0.1},
+     "target_skills": {"service":20, "refinement":10},
+     "base_purpose": ["Service", "Any"],
+     "fighting": false
     }
 ]

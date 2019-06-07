@@ -10,6 +10,14 @@ init -5 python:
             self.time = 30
             self.reserved_capacity = 0
 
+        def can_close(self):
+            return self.reserved_capacity == 0
+
+        def can_reduce_capacity(self):
+            if self.capacity <= self.reserved_capacity:
+                return False
+            return super(StableBusiness, self).can_reduce_capacity()
+
         def pre_nd(self):
             super(StableBusiness, self).pre_nd()
 
@@ -18,10 +26,9 @@ init -5 python:
                 self.res.request()
             #self.res._capacity -= self.reserved_capacity
 
-        def post_nd(self):
-            # free the capacity used by the ExplorationGuild
-            #for i in xrange(self.reserved_capacity):
-            #    self.res.release()
-            #self.res._capacity += self.reserved_capacity
-
-            super(StableBusiness, self).post_nd()
+        #def post_nd(self):
+        #    # free the capacity used by the ExplorationGuild
+        #    #for i in xrange(self.reserved_capacity):
+        #    #    self.res.release()
+        #    #self.res._capacity += self.reserved_capacity
+        #    super(StableBusiness, self).post_nd()

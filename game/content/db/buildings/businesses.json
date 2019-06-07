@@ -151,4 +151,26 @@
         "duration": [4, 0],
 
         "allowed_upgrades": ["TheEye", "HealingSprings", "CartographyLab"]
-    }]
+    },
+    {
+        "name": "Clinic",
+        "class": "Clinic",
+        "desc": "Cure patients of PyTFall.",
+        "img": "content/gfx/bg/locations/infirmary.webp",
+        "materials": {"Bricks": 50, "Glass": 20, "Silk": 20, "Velvet": 20},
+
+        "capacity": 2,
+        "cost": 800,
+        "in_slots": 2,
+        "ex_slots": 0,
+
+        "duration": [6, 10],
+
+        "exp_cap_in_slots": 1,
+        "exp_cap_ex_slots": 0,
+        "exp_cap_cost": 800,
+        "exp_cap_materials": {"Bricks": 20, "Silk": 10, "Velvet": 10},
+
+        "exp_cap_duration": [2, 10]
+    }
+]

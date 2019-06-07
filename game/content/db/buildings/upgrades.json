@@ -141,8 +141,8 @@
         "materials": {"Green Marble": 20, "Stone": 10, "Wood": 50},
         "desc": "Even a complete idiot would make the best of maps in this lab!\n(+50% Exploration rate)",
         "cost": 5000,
-        "in_slots": 2,
-        "ex_slots": 10,
+        "in_slots": 6,
+        "ex_slots": 0,
 
         "duration": [10, 10]
     }

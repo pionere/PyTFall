@@ -155,8 +155,6 @@ init -5 python:
                 disposition += 50
             if "Heavy Drinker" in traits:
                 disposition -= 150
-            if "Indifferent" in traits:
-                disposition += 100
             return disposition
 
         @staticmethod

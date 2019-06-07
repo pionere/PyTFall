@@ -42,8 +42,8 @@ init -5 python:
 
                 threat = building.threat
                 if DSNBR and not now % 5:
-                    temp = "{color=red}" + "DEBUG: {0:.2f} Threat to THE BUILDING!".format(threat)
-                    self.log(temp, True)
+                    temp = "DEBUG: {0:.2f} Threat to THE BUILDING!".format(threat)
+                    self.log(set_font_color(temp, "red"), True)
 
                 if threat >= 200:
                     if threat >= 500:

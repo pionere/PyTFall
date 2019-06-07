@@ -37,8 +37,8 @@ init -5 python:
                 simpy_debug("Entering Cleaners.business_control iteration at %s", now)
 
                 if DSNBR and not now % 5:
-                    temp = "{color=red}" + "DEBUG: {0:.2f} DIRT IN THE BUILDING!".format(building.dirt)
-                    self.log(temp, True)
+                    temp = "DEBUG: {0:.2f} DIRT IN THE BUILDING!".format(building.dirt)
+                    self.log(set_font_color(temp, "red"), True)
 
                 dirt = building.dirt
                 if dirt >= 200:

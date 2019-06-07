@@ -100,7 +100,7 @@ label start:
         global simple_jobs, traits
         tl.start("Loading: Jobs")
         # This jobs are usually normal, most common type that we have in PyTFall
-        simple_jobs = [WhoreJob, StripJob, BarJob, ManagerJob, CleaningJob, GuardJob, WranglerJob, ExplorationTask, StudyingTask, RestTask, AutoRestTask]
+        simple_jobs = [WhoreJob, StripJob, BarJob, ManagerJob, CleaningJob, GuardJob, WranglerJob, NurseJob, ExplorationTask, StudyingTask, RestTask, AutoRestTask]
         tl.end("Loading: Jobs")
 
     python: # Ads and Buildings:

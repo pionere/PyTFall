@@ -1267,9 +1267,9 @@ init -10 python:
             self.nd_events_report = list()
 
         def log(self, item, add_time=False):
-            # Logs the item (text) to the Building log...
+            # Logs the item (text) to the Building log... # FIXME similar as log of Clinic
             if add_time:
-                # try to create a timestamp between 18:00 and 23:00 assuming env.now is between 0 and 100
+                # try to create a timestamp between 18:00 and 23:00 assuming env.now is between 0 and 100 MAX_DU
                 now = self.env.now
                 item = "%02d:%02d - %s" % (18+now/20,(now*3)%60, item)
             self.nd_events_report.append(item)

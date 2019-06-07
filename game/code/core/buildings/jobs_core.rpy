@@ -36,7 +36,7 @@ init -10 python:
             self.team = team
             if charmod is None:
                 charmod = {}
-            if team:
+            if team is not None:
                 self.team_charmod = charmod.copy()
                 self.charmod = None
             else:
@@ -119,34 +119,39 @@ init -10 python:
             # Figure out source for finlogs:
             fin_source = getattr(self.job, "id", "Unspecified Job")
 
-            if self.char:
-                self.update_char_data(self.char)
-                self.charmod.update(self.char.stats_skills)
-                self.char.stats_skills = {}
-                self.log_tips(self.char)
-                self.reset_workers_flags(self.char)
-                if self.earned:
-                    self.char.fin.log_logical_income(self.earned, fin_source)
-            elif self.team:
-                if not len(self.team):
-                    raise Exception("Zero Modulo Division Detected #03")
-                earned = round_int(self.earned/float(len(self.team)))
-                for char in self.team:
-                    self.update_char_data(char)
-                    self.team_charmod[char] = char.stats_skills.copy()
-                    self.log_tips(char)
-                    char.stats_skills = {}
-                    self.reset_workers_flags(char)
-                    if earned:
-                        char.fin.log_logical_income(earned, fin_source)
+            char = self.char
+            earned = self.earned
+            if char:
+                self.update_char_data(char)
+                self.charmod.update(char.stats_skills)
+                char.stats_skills = {}
+                self.log_tips(char)
+                self.reset_workers_flags(char)
+                if earned:
+                    char.fin.log_logical_income(earned, fin_source)
+            else:
+                team = self.team
+                if team:
+                    if not len(team):
+                        raise Exception("Zero Modulo Division Detected #03")
+                    char_earned = round_int(earned/float(len(team)))
+                    for char in team:
+                        self.update_char_data(char)
+                        self.team_charmod[char] = char.stats_skills.copy() # FIXME copy necessary?
+                        char.stats_skills = {}
+                        self.log_tips(char)
+                        self.reset_workers_flags(char)
+                        if char_earned:
+                            char.fin.log_logical_income(char_earned, fin_source)
 
             # Location related:
-            if hasattr(self.loc, "fin") and self.earned:
-                self.loc.fin.log_logical_income(self.earned, fin_source)
-            if self.earned:
-                store.hero.add_money(self.earned, str(self.loc))
-                #self.append("{color=gold}A total of %d Gold was earned!{/color}" % self.earned)
-                self.append("You've earned {color=gold}%d Gold{/color}!" % self.earned) # use the line above if there are multiple shifts in one NDEvent
+            if earned:
+                loc = self.loc
+                if hasattr(loc, "fin"):
+                    loc.fin.log_logical_income(earned, fin_source)
+                store.hero.add_money(earned, str(loc))
+                #self.append("{color=gold}A total of %d Gold was earned!{/color}" % earned)
+                self.append("You've earned {color=gold}%d Gold{/color}!" % earned) # use the line above if there are multiple shifts in one NDEvent
             else:
                 self.append("{color=gold}No Gold{/color} was earned!")
             self.txt = self.log

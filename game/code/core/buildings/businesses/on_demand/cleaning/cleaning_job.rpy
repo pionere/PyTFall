@@ -120,17 +120,12 @@ init -5 python:
             return disposition
 
         @staticmethod
-        def settle_workers_disposition(cleaners, business, all_on_deck=False):
-            if not isinstance(cleaners, (set, list, tuple)):
-                cleaners = [cleaners]
-
-            log = business.log
-
+        def settle_workers_disposition(cleaners, business, log, all_on_deck=False):
             if all_on_deck:
                 # Make sure we make a note that these are not dedicated cleaners
-                log(set_font_color("Building got too dirty to work at! All free workers were called on cleaning duty!", "red"))
+                log.append(set_font_color("Building got too dirty to work at! All free workers were called on cleaning duty!", "red"))
             else:
-                log(set_font_color("Your cleaners are starting their shift!", "cadetblue"))
+                log.append(set_font_color("Your cleaners are starting their shift!", "cadetblue"))
 
             for worker in cleaners:
                 if CleaningJob.want_work(worker):
@@ -139,14 +134,15 @@ init -5 python:
                 name = set_font_color(choice([worker.fullname, worker.name, worker.nickname]), "pink")
                 if worker.status != 'slave':
                     if sub < 0:
-                        log("%s is not very happy with %s current job as a cleaner, but %s will get the job done." % (name, worker.pp, worker.p))
+                        temp = "%s doesn't enjoy working as a cleaner, but %s will get the job done."
                         sub = 15
                     elif sub == 0:
-                        log("%s will work as a cleaner, but, truth be told, %s would prefer to do something else." % (name, worker.p))
+                        temp = "%s will work as a cleaner, but, truth be told, %s would prefer to do something else."
                         sub = 25
                     else:
-                        log("%s makes it clear that %s wants another job before beginning the cleaning." % (name, worker.p))
+                        temp = "%s makes it clear that %s wants another job before beginning the cleaning."
                         sub = 35
+                    log.append(temp % (name, worker.p))
                     if dice(sub):
                         worker.logws('character', 1)
                     worker.logws("joy", -randint(3, 5))
@@ -157,22 +153,23 @@ init -5 python:
                     dispo_req = CleaningJob.calculate_disposition_level(worker)
                     if sub < 0:
                         if dispo < dispo_req:
-                            log("%s is a slave so no one really cares, but being forced to work as a cleaner, %s's quite upset." % (name, worker.p))
+                            temp = "%s is a slave so no one really cares, but being forced to work as a cleaner, %s's quite upset." % (name, worker.p)
                         else:
-                            log("%s will do as %s is told, but doesn't mean that %s'll be happy about %s cleaning duties." % (name, worker.p, worker.p, worker.pp))
+                            temp = "%s will do as %s is told, but doesn't mean that %s'll be happy about %s cleaning duties." % (name, worker.p, worker.p, worker.pp)
                         sub = 25
                     elif sub == 0:
                         if dispo < dispo_req:
-                            log("%s will do as you command, but %s will hate every second of %s cleaning shift..." % (name, worker.p, worker.pp))
+                            temp = "%s will do as you command, but %s will hate every second of %s cleaning shift..." % (name, worker.p, worker.pp)
                         else:
-                            log("%s was very displeased by %s order to work as a cleaner, but didn't dare to refuse." % (name, worker.pp))
+                            temp = "%s was very displeased by %s order to work as a cleaner, but didn't dare to refuse." % (name, worker.pp)
                         sub = 35
                     else:
                         if dispo < dispo_req:
-                            log("%s was very displeased by %s order to work as a cleaner, and makes it clear for everyone before getting busy with clients." % (name, worker.pp))
+                            temp = "%s was very displeased by %s order to work as a cleaner, and makes it clear for everyone before getting busy with clients." % (name, worker.pp)
                         else:
-                            log("%s will do as you command and work as a cleaner, but not without a lot of grumbling and complaining." % name)
+                            temp = "%s will do as you command and work as a cleaner, but not without a lot of grumbling and complaining." % name
                         sub = 45
+                    log.append(temp)
                     if dice(sub):
                         worker.logws('character', 1)
                     if dispo < dispo_req:

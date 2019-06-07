@@ -700,9 +700,6 @@ screen building_management_leftframe_businesses_mode:
                 elif bm_mid_frame_mode.can_reduce_capacity():
                     action Function(bm_mid_frame_mode.reduce_capacity)
                     tooltip "Add more space to the building!"
-                else:
-                    action NullAction()
-                    tooltip "The only remaining option is to remove the business!"
 
     if bm_mid_frame_mode.upgrades or bm_mid_frame_mode.in_construction_upgrades:
         null height 5
