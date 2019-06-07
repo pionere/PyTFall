@@ -27,8 +27,6 @@ label mainscreen:
         jump expression result
 
 screen mainscreen():
-    key "mousedown_3" action Show("s_menu", transition=dissolve)
-
     python:
         hero_home = hero.home
         if global_flags.has_flag("game_start"):
@@ -230,5 +228,9 @@ screen mainscreen():
                         null height 10
             if gazette.show == "first_view":
                 timer 6 action ToggleField(gazette, "show")
+
+        key "mousedown_3" action ToggleField(gazette, "show")
+    else:
+        key "mousedown_3" action Show("s_menu", transition=dissolve)
 
     use top_stripe(False)
