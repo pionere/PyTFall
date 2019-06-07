@@ -7,8 +7,8 @@ init -5 python:
         aeq_purpose = "Guard"
 
         # Relevant skills and stats:
-        base_stats = {"attack": 20, "defence": 20,
-                           "agility": 20, "magic": 20}
+        base_stats = {"attack": 25, "defence": 25,
+                           "agility": 25, "magic": 25}
         base_skills = {"security": 100}
 
         traits = {"Abnormally Large Boobs", "Aggressive", "Coward", "Stupid", "Neat",

@@ -265,42 +265,24 @@ init -10 python:
                 bt_bonus += tier_bonus*2
 
             # Skills/Stats:
-            default_points = 25
+            total_skills_stats = 0
             skills = cls.base_skills
-            if not skills:
-                total_skills = default_points*.33
-            else:
-                total_weight_points = sum(skills.values())
-                #if total_weight_points == 0:
-                #    raise Exception("Zero Dev #3 sum")
-                total_skills = 0
-                for skill, weight in skills.items():
-                    weight_ratio = float(weight)/total_weight_points
-                    max_p = default_points*weight_ratio
-
-                    sp = worker.get_skill(skill)
-                    sp_required = worker.get_max_skill(skill, tier=difficulty)
-                    # if not sp_required:
-                    #     raise Exception("Zero Dev #4 (%s)", skill)
-                    total_skills += max_p * min(float(sp)/sp_required, 1.1)
+            for skill, weight in skills.iteritems():
+                sp = worker.get_skill(skill)
+                sp_required = worker.get_max_skill(skill, tier=difficulty)
+                # if not sp_required:
+                #     raise Exception("Zero Dev #4 (%s)", skill)
+                total_skills_stats += weight * min(float(sp)/sp_required, 1.1)
 
             stats = cls.base_stats
-            if not stats:
-                total_stats = default_points*.33
-            else:
-                total_weight_points = sum(stats.values())
-                if total_weight_points == 0:
-                    raise Exception("Zero Dev #5 sum")
-                total_stats = 0
-                for stat, weight in stats.items():
-                    weight_ratio = float(weight)/total_weight_points
-                    max_p = default_points*weight_ratio
+            for stat, weight in stats.iteritems():
+                sp = worker.get_stat(stat)
+                sp_required = worker.get_max_stat(stat, tier=difficulty)
+                if sp_required == 0:
+                    raise Exception("Zero Dev #6 (%s)", stat)
+                total_skills_stats += weight * min(float(sp)/sp_required, 1.1)
 
-                    sp = worker.get_stat(stat)
-                    sp_required = worker.get_max_stat(stat, tier=difficulty)
-                    if sp_required == 0:
-                        raise Exception("Zero Dev #6 (%s)", stat)
-                    total_stats += max_p * min(float(sp)/sp_required, 1.1)
+            total_skills_stats = 50.0 * total_skills_stats / sum(chain(skills.itervalues(), stats.itervalues()))
 
             # Bonuses:
             traits_bonus = cls.traits_and_effects_effectiveness_mod(worker, log)
@@ -316,7 +298,7 @@ init -10 python:
                 else:
                     manager_bonus = 0
 
-            total = bt_bonus + tier_bonus + total_skills + total_stats + traits_bonus + manager_bonus
+            total = bt_bonus + tier_bonus + total_skills_stats + traits_bonus + manager_bonus
 
             # Disposition Bonus (Percentage bonus):
             disposition_multiplier = worker.get_stat("disposition")*.0001 + 1.0
@@ -334,8 +316,8 @@ init -10 python:
                     temp[stat] = worker.get_stat(stat)
                 devlog.info("Calculating Jobs Relative Ability, Char/Job: {}/{}:".format(worker.name, cls.id))
                 devlog.info("Stats: {}:".format(temp))
-                args = (bt_bonus, tier_bonus, traits_bonus, total_skills, total_stats, manager_bonus, disposition_multiplier, total)
-                devlog.info("Gen Occ/BT: {}, Tier: {}, Traits: {}, Skills: {}, Stats: {}, Mgr: {}, Disposition Multiplier {} ==>> {}".format(*args))
+                args = (bt_bonus, tier_bonus, traits_bonus, total_skills_stats, manager_bonus, disposition_multiplier, total)
+                devlog.info("Gen Occ/BT: {}, Tier: {}, Traits: {}, Skills+Stats: {}, Mgr: {}, Disposition Multiplier {} ==>> {}".format(*args))
 
             return total
 

@@ -68,7 +68,7 @@
     },
     {
      "id": "Guard",
-     "target_stats": {"attack":20, "defence":20, "agility":20, "magic":20, "luck":1, "exp":0.1},
+     "target_stats": {"attack":25, "defence":25, "agility":25, "magic":25, "luck":1, "exp":0.1},
      "target_skills": {"security": 100},
      "base_purpose": ["Shooter", "Mage", "Warrior", "Any"],
      "fighting": true
