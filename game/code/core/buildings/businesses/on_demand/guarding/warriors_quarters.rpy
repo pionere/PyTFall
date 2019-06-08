@@ -36,6 +36,14 @@ init -5 python:
             strict_workers = self.get_strict_workers(job, power_flag_name, log=log)
             workers = strict_workers.copy() # workers on active duty
 
+            num_workers = len(strict_workers)
+            if num_workers > 1:
+                temp = set_font_color("Your guards are starting their shift!", "cadetblue")
+                building.log(temp)
+            elif num_workers == 1:
+                temp = set_font_color("Your guard is starting %s shift!" % (next(iter(strict_workers)).pp), "cadetblue")
+                building.log(temp)
+
             while 1:
                 now = self.env.now
                 simpy_debug("Entering WarriorQuarters.business_control at %s", now)
@@ -43,13 +51,15 @@ init -5 python:
                 threat = building.threat
                 if DSNBR and not now % 5:
                     temp = "DEBUG: {0:.2f} Threat to THE BUILDING!".format(threat)
-                    self.log(set_font_color(temp, "red"), True)
+                    building.log(set_font_color(temp, "red"), True)
 
                 if threat >= 200:
                     if threat >= 500:
                         if not using_all_workers:
                             using_all_workers = True
                             workers = self.all_on_deck(workers, job, power_flag_name, log=log)
+                            temp = "Clients in building got too unruly! All free workers are called to serve as guards!"
+                            building.log(set_font_color(temp, "red"), True)
                             SparringQuarters_active = False # no time for sparring in case of emergency
 
                     if not make_nd_report_at:
@@ -57,11 +67,12 @@ init -5 python:
                         make_nd_report_at = min(now+25, 105) # MAX_DU
                         if wlen:
                             temp = "%s %s started to guard the building!" % (set_font_color(wlen, "tomato"), plural("Worker", wlen))
-                            self.log(temp, True)
+                            building.log(temp, True)
 
                 # Actually handle threat:
                 if make_nd_report_at and threat > 0:
-                    for w in workers.copy():
+                    guards_done = []
+                    for w in workers:
                         value = w.flag(power_flag_name)
                         building.modthreat(value)
 
@@ -72,15 +83,16 @@ init -5 python:
                         w.PP -= 10
                         w.up_counter("jp_guard", 10)
                         if w.PP <= 0:
-                            temp = "%s is done guarding for the day!" % w.nickname
-                            temp = set_font_color(temp, "cadetblue")
-                            self.log(temp, True)
-                            workers.remove(w)
+                            guards_done.append(w)
+                    for w in guards_done:
+                        temp = "%s is done guarding for the day!" % w.nickname
+                        building.log(set_font_color(temp, "cadetblue"), True)
+                        workers.remove(w)
 
                     threat = building.threat
 
                 if EnforcedOrder_active is True and now > 50:
-                    self.log("Enforced order is making your civilian workers uneasy...")
+                    building.log("Enforced order is making your civilian workers uneasy...")
                     for w in building.all_workers:
                         if not "Combatant" in w.gen_occs:
                             w.mod_stat("disposition", -randint(2, 5))
@@ -91,7 +103,7 @@ init -5 python:
                 # No point in a report if no workers participated in the guarding.
                 if now >= make_nd_report_at and defenders:
                     if DSNBR:
-                        self.log("DEBUG! WRITING GUARDING REPORT!", True)
+                        building.log("DEBUG! WRITING GUARDING REPORT!", True)
 
                     if SparringQuarters_active and dice(25):
                         use_SQ = True
@@ -175,55 +187,41 @@ init -5 python:
             temp = "\nA total of %s threat was removed." % set_font_color(-threat_cleared, "tomato")
             log.append(temp)
 
+            difficulty = loc.tier
             if use_SQ:
                 log.append("Your guards managed to sneak in a friendly sparring match between their patrol duties!")
                 for w in workers:
-                    if dice(25):
-                        log.logws("security", 1, char=w)
-                        log.logws("attack", 1, char=w)
-                        log.logws("agility", 1, char=w)
-                        log.logws("defence", 1, char=w)
-                        log.logws("magic", 1, char=w)
-                    if dice(10):
-                        log.logws("constitution", 1, char=w)
-                    exp_mod = w.get_flag("jp_guard", 0)/1000.0
-                    log.logws("exp", exp_reward(w, loc.tier, exp_mod=exp_mod), char=w)
-
                     log.logws("vitality", -5, char=w)
+                    log.logws("security", randfloat(.5), char=w)
+                    log.logws("attack", randfloat(.25), char=w)
+                    log.logws("defence", randfloat(.25), char=w)
+                    log.logws("magic", randfloat(.25), char=w)
+                    log.logws("agility", randfloat(.25), char=w)
+                    log.logws("constitution", randfloat(.1), char=w)
+                    log.logws("exp", exp_reward(w, difficulty, exp_mod=.1), char=w)
                     if dice(20): # Small chance to get hurt.
                         log.logws("health", round_int(-w.get_max("health")*.2), char=w)
 
-            difficulty = loc.tier
             for w in workers:
                 ap_used = w.get_flag("jp_guard", 0)/100.0
                 log.logws("vitality", round_int(ap_used*-5), char=w)
-                log.logws("security", randint(1, 3), char=w)
-                if dice(30):
-                    log.logws("attack", 1, char=w)
-                if dice(30):
-                    log.logws("defence", 1, char=w)
-                if dice(30):
-                    log.logws("magic", 1, char=w)
-                if dice(30):
-                    log.logws("agility", 1, char=w)
-                if dice(10):
-                    log.logws("constitution", 1, char=w)
+                log.logws("security", randfloat(ap_used*2), char=w)
+                log.logws("attack", randfloat(ap_used/2), char=w)
+                log.logws("defence", randfloat(ap_used/2), char=w)
+                log.logws("magic", randfloat(ap_used/2), char=w)
+                log.logws("agility", randfloat(ap_used/2), char=w)
+                log.logws("constitution", randfloat(ap_used/4), char=w)
                 log.logws("exp", exp_reward(w, difficulty, exp_mod=ap_used), char=w)
                 w.del_flag("jp_guard")
             for w in extra_workers:
                 ap_used = w.get_flag("jp_guard", 0)/100.0
                 log.logws("vitality", round_int(ap_used*-6), char=w)
-                log.logws("security", 1, char=w)
-                if dice(10):
-                    log.logws("attack", 1, char=w)
-                if dice(10):
-                    log.logws("defence", 1, char=w)
-                if dice(10):
-                    log.logws("magic", 1, char=w)
-                if dice(10):
-                    log.logws("agility", 1, char=w)
-                if dice(10):
-                    log.logws("constitution", 1, char=w)
+                log.logws("security", randfloat(ap_used), char=w)
+                log.logws("attack", randfloat(ap_used/4), char=w)
+                log.logws("defence", randfloat(ap_used/4), char=w)
+                log.logws("magic", randfloat(ap_used/4), char=w)
+                log.logws("agility", randfloat(ap_used/4), char=w)
+                log.logws("constitution", randfloat(ap_used/4), char=w)
                 log.logws("exp", exp_reward(w, difficulty, exp_mod=ap_used*.5), char=w)
                 w.del_flag("jp_guard")
 
@@ -253,13 +251,13 @@ init -5 python:
             # gather the response forces:
             defenders = workers
 
-            temp = "{color=red}A number of clients got completely out of hand!{/color}"
-            self.log(temp, True)
+            temp = "A number of clients got completely out of hand!"
+            building.log(set_font_color(temp, "red"), True)
 
             num_defenders = len(defenders) 
             if num_defenders != 0:
                 temp = "%s Guards and employees are responding!" % set_font_color(num_defenders, "red")
-                self.log(temp)
+                building.log(temp)
 
                 # Prepare the teams:
                 # Enemies:
@@ -298,17 +296,17 @@ init -5 python:
                 enemy_team.reset_controller()
 
                 # decided to add report in debug mode after all :)
-                self.log(set_font_color("Battle Starts!", "crimson"))
+                building.log(set_font_color("Battle Starts!", "crimson"))
                 for entry in battle.combat_log:
-                    self.log(entry)
-                self.log(set_font_color("=== Battle Ends ===", "crimson"))
+                    building.log(entry)
+                building.log(set_font_color("=== Battle Ends ===", "crimson"))
 
                 if battle.winner == defence_team:
                     building.modthreat(-200)
                     building.moddirt(35*enemies)
 
-                    temp = "{color=lawngreen}Interception is a Success!{/color}"
-                    self.log(temp)
+                    temp = "Interception is a Success!"
+                    building.log(set_font_color(temp, "lawngreen"))
                     # self.env.exit(True) # return True
                 else:
                     dirt = 100
@@ -319,7 +317,7 @@ init -5 python:
                     temp = "Interception Failed, your Guards have been defeated!"
                     temp = set_font_color(temp, "crimson")
                     temp += "\n  +%d Dirt and +%d Threat!" % (dirt, threat)
-                    self.log(temp)
+                    building.log(temp)
                     # self.env.exit(False)
             else:
                 # If there are no defenders, we're screwed:
@@ -331,7 +329,7 @@ init -5 python:
                 temp = "No one was available to put them down!"
                 temp = set_font_color(temp, "red")
                 temp += "\n  +%d Dirt and +%d Threat!" % (dirt, threat)
-                self.log(temp)
+                building.log(temp)
                 #self.env.exit(False)
 
             simpy_debug("Exiting WarriorQuarters.intercept at %s", self.env.now)

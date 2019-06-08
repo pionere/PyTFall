@@ -120,13 +120,7 @@ init -5 python:
             return disposition
 
         @staticmethod
-        def settle_workers_disposition(cleaners, business, log, all_on_deck=False):
-            if all_on_deck:
-                # Make sure we make a note that these are not dedicated cleaners
-                log.append(set_font_color("Building got too dirty to work at! All free workers were called on cleaning duty!", "red"))
-            else:
-                log.append(set_font_color("Your cleaners are starting their shift!", "cadetblue"))
-
+        def settle_workers_disposition(cleaners, business, log):
             for worker in cleaners:
                 if CleaningJob.want_work(worker):
                     continue

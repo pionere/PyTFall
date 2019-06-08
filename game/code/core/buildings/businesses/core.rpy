@@ -690,7 +690,7 @@ init -12 python:
 
             if new_workers:
                 # Do Disposition checks:
-                job.settle_workers_disposition(new_workers, self, log, all_on_deck=True)
+                job.settle_workers_disposition(new_workers, self, log)
                 # Do Effectiveness calculations:
                 self.calc_job_power(new_workers, job, power_flag_name, log)
             workers = workers.union(new_workers)

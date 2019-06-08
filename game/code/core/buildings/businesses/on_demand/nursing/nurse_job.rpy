@@ -101,8 +101,6 @@ init -5 python:
 
         @staticmethod
         def settle_workers_disposition(workers, business, log):
-            log.append(set_font_color("Your nurses are starting their shift!", "cadetblue"))
-
             for worker in workers:
                 if NurseJob.want_work(worker):
                     continue

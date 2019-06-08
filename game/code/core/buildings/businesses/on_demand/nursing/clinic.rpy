@@ -55,36 +55,26 @@ init -5 python:
             # release healed patients
             today = day
             difficulty = building.tier
-            for p in curr_patients[:]:
-                if p.release_day == today:
-                    curr_patients.remove(p)
-                    self.reserved_capacity -= 1
-
-                    # TODO manager effectiveness?
-                    earned = pytfall.economy.get_clients_pay(job, difficulty)
-                    earned *= p.num_weeks * 7
-                    temp = ("%s is healed now, and %s is leaving your clinic.",
-                            "The recovery of %s is complete. Now %s is ready to leave.",
-                            "The prescribed treatment for %s is ended. Finally %s can go home.")
-                    temp = choice(temp) % (p.name, p.p)
-                    log.append(temp)
-                    log.earned += earned
-
-            # upset patients leave
-            dirt = building.get_dirt_percentage()
-            if dirt > 70 and curr_patients:
-                p = choice(curr_patients)
+            released_patients = [p for p in curr_patients if p.release_day == today] 
+            for p in released_patients:
                 curr_patients.remove(p)
                 self.reserved_capacity -= 1
-                temp = "%s can't stay any longer in this dirt. %s is leaving prematurely (and without paying a dime)" % (p.name, p.pC)
-                log.append(temp)
 
-            # add possible new patients
-            new_patients = self.capacity * building.get_fame_percentage() * building.get_rep_percentage() * (100 - building.get_dirt_percentage())
-            new_patients /= 1000000.0
-            new_patients = round_int(new_patients)
-            
-            free_capacity = self.capacity - self.reserved_capacity
+                # TODO manager effectiveness?
+                earned = pytfall.economy.get_clients_pay(job, difficulty)
+                earned *= p.num_weeks * 7
+                temp = ("%s is healed now, and %s is leaving your clinic.",
+                        "The recovery of %s is complete. Now %s is ready to leave.",
+                        "The prescribed treatment for %s is ended. Finally %s can go home.")
+                temp = choice(temp) % (p.name, p.p)
+                log.append(temp)
+                log.earned += earned
+
+            log.append(set_font_color("Your nurses are starting their day!", "cadetblue"))
+
+            # add possible new patients (about 1 new patient every 15 days if everyting is perfect)
+            new_patients = building.get_fame_percentage() * building.get_rep_percentage()
+            new_patients /= 3000000.0 # 100 * quality (0-1) / (20 * 15)
 
             while 1:
                 now = self.env.now
@@ -94,28 +84,43 @@ init -5 python:
                     temp = "DEBUG: Number of patients: {}, Number of nurses: {}!".format(len(curr_patients), len(workers))
                     self.log(set_font_color(temp, "red"), now)
 
+                # upset patients leave
+                dirt = building.get_dirt_percentage()
+                if dirt > 70 and curr_patients:
+                    p = choice(curr_patients)
+                    curr_patients.remove(p)
+                    self.reserved_capacity -= 1
+                    temp = "%s can't stay any longer in this dirt. %s is leaving prematurely (and without paying a dime)" % (p.name, p.pC)
+                    self.log(temp, now)
+
                 # Add new patient:
-                if new_patients > 0 and dice(20):
-                    new_patients -= 1
-                    patient = building.create_customer()
+                if dice(new_patients * (100 - dirt)):
+                    p = building.create_customer()
                     temp = "A new patient arrived"
-                    if free_capacity <= 0:
-                        temp += ", but there was no empty bed available. %s left the building." % patient.pC
+                    if self.capacity <= self.reserved_capacity:
+                        temp += ", but there was no empty bed available. %s left the building." % p.pC
                     else:
-                        free_capacity -= 1
+                        curr_patients.append(p)
                         self.reserved_capacity += 1
-                        curr_patients.append(patient)
                         num_weeks = randint(1, 4)
-                        patient.num_weeks = num_weeks
-                        patient.release_day = today + num_weeks * 7
-                        temp += ". %s is going to stay for %d %s." % (patient.pC, num_weeks, plural("week", num_weeks))
+                        p.num_weeks = num_weeks
+                        p.release_day = today + num_weeks * 7
+                        temp += ". %s is going to stay for %d %s." % (p.pC, num_weeks, plural("week", num_weeks))
                     self.log(temp, now)
 
                 # Actually handle the patients:
-                num_patients = len(curr_patients)
-                if num_patients != 0:
+                to_tend = len(curr_patients)
+                if to_tend != 0:
+                    # add dirt and threat
+                    dirt = random.random() * 5 * sum((p.dirtmod for p in curr_patients))
+                    building.moddirt(dirt)
+                    threat = random.random() * sum((p.threatmod for p in curr_patients))
+                    if building.has_garden:
+                        threat /= 1.5
+                    building.modthreat(threat)
+
+                    # tend to the patients
                     shuffle(workers)
-                    to_tend = num_patients
                     nurses_done = []
                     for w in workers:
                         value = w.flag(power_flag_name)
@@ -140,14 +145,13 @@ init -5 python:
                             self.reserved_capacity -= 1
                             temp = "%s is leaving because %s does not feel like %s is being taken care of. And refuses to pay for the non-service." % (p.name, p.p, p.p)
                         else:
-                            temp = "The unattended %s became slightly unruly, but this time the situation did not escalate." % plural("patient", num_patients)
+                            temp = "The unattended %s became slightly unruly, but this time the situation did not escalate." % plural("patient", len(curr_patients))
                         self.log(temp, now)
 
                     # Remove the workers after running out of action points:
                     for w in nurses_done:
                         temp = "%s is done nursing for the day!" % w.nickname
-                        temp = set_font_color(temp, "cadetblue")
-                        self.log(temp, now)
+                        self.log(set_font_color(temp, "cadetblue"), now)
                         workers.remove(w)
 
                 if now >= 100: # MAX_DU
@@ -156,7 +160,7 @@ init -5 python:
                 simpy_debug("Exiting Clinic.business_control at %s", now)
                 yield self.env.timeout(5)
 
-            # Create actual report:
+            # Create the report:
             if DSNBR:
                 self.log("Writing ND-Report at %s", now)
 
@@ -164,14 +168,11 @@ init -5 python:
             for w in nurses:
                 ap_used = w.get_flag("jp_nurse", 0)/100.0
                 log.logws("vitality", round_int(ap_used*-2), char=w)
-                log.logws("service", randint(0, 1), char=w)
-                log.logws("refinement", randint(0, 1), char=w)
-                if dice(30):
-                    log.logws("intelligence", 1, char=w)
-                if dice(20):
-                    log.logws("magic", 1, char=w)
-                if dice(10):
-                    log.logws("agility", 1, char=w)
+                log.logws("service", randfloat(ap_used), char=w)
+                log.logws("refinement", randfloat(ap_used), char=w)
+                log.logws("magic", randfloat(ap_used), char=w)
+                log.logws("intelligence", randfloat(ap_used*2), char=w)
+                log.logws("agility", randfloat(ap_used/2), char=w)
                 log.logws("exp", exp_reward(w, difficulty, exp_mod=ap_used), char=w)
                 w.del_flag("jp_nurse")
 

@@ -130,13 +130,7 @@ init -5 python:
             return effectiveness
 
         @staticmethod
-        def settle_workers_disposition(workers, business, log, all_on_deck=False):
-            if all_on_deck:
-                # Make sure we make a note that these are not dedicated guards
-                log.append(set_font_color("Clients in building got too unruly! All free workers are called to serve as guards!", "red"))
-            else:
-                log.append(set_font_color("Your guards are starting their shift!", "cadetblue"))
-
+        def settle_workers_disposition(workers, business, log):
             for worker in workers:
                 if GuardJob.want_work(worker):
                     continue

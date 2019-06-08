@@ -869,11 +869,6 @@ init -11 python:
         value *= mod * ap_used
         return round_int(value)
 
-    def dice_int(value):
-        if dice((abs(value)*100)%100):
-            value += (1 if value >= 0 else -1)
-        return int(value)
-
     def limited_affection(char, value):
         curr_affection = char.get_stat("affection")
         if value > 0:

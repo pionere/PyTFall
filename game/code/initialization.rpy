@@ -302,17 +302,51 @@ init -950 python:
 
     # unsafe, but faster random generators
     def randrange(a):
+        """ Return a random integer in the range of [0, a) """
         return int(random.random()*a)
     def randint(a, b):
+        """ Return a random integer in the range of [a, b] """
         return a + int(random.random() * (b - a + 1))
+    def randfloat(value):
+        """ Return a random integer in the range of:
+             [0, int(value) + (1 if fraction is not zero)]
+         or  [int(value) - (1 if fraction is not zero), 0] if value is negative
+            the chance to add a 'bonus' depends on the value of the fraction
+            e.g 2.6 returns a number in the range of [0, 3], 60% chance of an added 1
+        """
+        v = int(value)
+        result_int, result_frac = random.random(), random.random()
+        if value > 0:
+            result_int = int(result_int*(v+1))
+            if result_frac < value - v:
+                result_int += 1
+        else:
+            result_int = int(result_int*(v-1))
+            if result_frac < v - value:
+                result_int -= 1
+
+        return result_int
+
+    def dice_int(value):
+        """ Return an integer in the range of:
+             [int(value), int(value) + (1 if fraction is not zero)]
+         or  [int(value) - (1 if fraction is not zero), int(value)] if value is negative
+            the chance to add a 'bonus' depends on the value of the fraction
+            e.g 2.4 returns a number in the range of [2, 3], 40% chance of an added 1
+        """
+        v = int(value)
+        #if dice(abs(value - v)*100):
+        if random.random() < abs(value - v):
+            v += (1 if value >= 0 else -1)
+        return v
 
     def dice(percent_chance):
         """ returns randomly True with given % chance, or False """
-        return random.random() * 100 <= percent_chance
+        return random.random() * 100 < percent_chance
 
     def locked_dice(percent_chance):
         # Same as above, only using locked seed...
-        return locked_random("random") * 100 <= percent_chance
+        return locked_random("random") * 100 < percent_chance
 
     # Safe jump, if label doesn't exists, game will notify about it
     def jump(labelname):

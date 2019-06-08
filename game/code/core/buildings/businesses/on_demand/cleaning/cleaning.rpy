@@ -32,13 +32,19 @@ init -5 python:
             strict_workers = self.get_strict_workers(job, power_flag_name, log=log)
             workers = strict_workers.copy() # cleaners on active duty
 
+            num_workers = len(strict_workers)
+            if num_workers > 1:
+                building.log(set_font_color("Your cleaners are starting their shift!", "cadetblue"))
+            elif num_workers == 1: 
+                building.log(set_font_color("Your cleaner is starting %s shift!" % (next(iter(strict_workers)).pp), "cadetblue"))
+
             while 1:
                 now = self.env.now
                 simpy_debug("Entering Cleaners.business_control iteration at %s", now)
 
                 if DSNBR and not now % 5:
                     temp = "DEBUG: {0:.2f} DIRT IN THE BUILDING!".format(building.dirt)
-                    self.log(set_font_color(temp, "red"), True)
+                    building.log(set_font_color(temp, "red"), True)
 
                 dirt = building.dirt
                 if dirt >= 200:
@@ -50,17 +56,20 @@ init -5 python:
                         if not using_all_workers:
                             using_all_workers = True
                             workers = self.all_on_deck(workers, job, power_flag_name, log=log)
+                            temp = "Building got too dirty to work at! All free workers were called on cleaning duty!"
+                            building.log(set_font_color(temp, "red"), True)
 
                     if not make_nd_report_at:
                         wlen = len(workers)
                         make_nd_report_at = min(now+25, 105) # MAX_DU
                         if wlen:
                             temp = "%s %s started to clean the building!" % (set_font_color(wlen, wlen_color), plural("Worker", wlen))
-                            self.log(temp, True)
+                            building.log(temp, True)
 
                 # Actually handle dirt cleaning:
                 if make_nd_report_at and dirt > 0:
-                    for w in workers.copy():
+                    cleaners_done = []
+                    for w in workers:
                         value = w.flag(power_flag_name)
                         building.moddirt(value)
 
@@ -70,16 +79,17 @@ init -5 python:
                         w.PP -= 10
                         w.up_counter("jp_clean", 10)
                         if w.PP <= 0:
-                            temp = "%s is done cleaning for the day!" % w.nickname
-                            temp = set_font_color(temp, "cadetblue")
-                            self.log(temp, True)
-                            workers.remove(w)
+                            cleaners_done.append(w)
+                    for w in cleaners_done:
+                        temp = "%s is done cleaning for the day!" % w.nickname
+                        building.log(set_font_color(temp, "cadetblue"), True)
+                        workers.remove(w)
 
                 # Create actual report:
                 # No point in a report if no workers worked the cleaning.
                 if now >= make_nd_report_at and cleaners:
                     if DSNBR:
-                        self.log("DEBUG! WRITING CLEANING REPORT!", True)
+                        building.log("DEBUG! WRITING CLEANING REPORT!", True)
 
                     self.write_nd_report(strict_workers, cleaners, log, dirt_cleaned)
                     if now >= 105: # MAX_DU
@@ -157,21 +167,17 @@ init -5 python:
             for w in workers:
                 ap_used = w.get_flag("jp_clean", 0)/100.0
                 log.logws("vitality", round_int(ap_used*-5), char=w)
-                log.logws("cleaning", randint(1, 3), char=w)
-                if dice(30):
-                    log.logws("agility", 1, char=w)
-                if dice(10):
-                    log.logws("constitution", 1, char=w)
+                log.logws("cleaning", randfloat(ap_used*2), char=w)
+                log.logws("agility", randfloat(ap_used), char=w)
+                log.logws("constitution", randfloat(ap_used/2), char=w)
                 log.logws("exp", exp_reward(w, difficulty, exp_mod=ap_used), char=w)
                 w.del_flag("jp_clean")
             for w in extra_workers:
                 ap_used = w.get_flag("jp_clean", 0)/100.0
                 log.logws("vitality", round_int(ap_used*-6), char=w)
-                log.logws("cleaning", 1, char=w)
-                if dice(10):
-                    log.logws("agility", 1, char=w)
-                if dice(10):
-                    log.logws("constitution", 1, char=w)
+                log.logws("cleaning", randfloat(ap_used), char=w)
+                log.logws("agility", randfloat(ap_used/2), char=w)
+                log.logws("constitution", randfloat(ap_used/2), char=w)
                 log.logws("exp", exp_reward(w, difficulty, exp_mod=ap_used*.5), char=w)
                 w.del_flag("jp_clean")
 
