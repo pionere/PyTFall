@@ -172,7 +172,7 @@ init python:
             if check_lovers(hero, char):
                 l += 1
             
-        if cgochar(char, "SIW") and l < 3: # sex workers can't have it less than 3 though
+        if l < 3 and cgochar(char, "SIW"): # sex workers can't have it less than 3 though
             l = 3
             
         if "Virgin" in char.traits: # or 2 if virgins...
@@ -183,13 +183,24 @@ init python:
         return l
         
     def get_character_wishes(char): # for taking action during sex scenes, returns action that character is willing to commit on her own
-        skills = ["sex", "oral", "anal"]
-        if (char.status != "slave" and check_lovers(hero, char)) or "Virgin" not in char.traits:
-            skills.extend(["vaginal"])
-        skills_values=[]
-        for t in skills:
-            skills_values.append([t, char.get_skill(t)])
-        result = weighted_sample(skills_values)
-        if not(result):
-            result=choice(skills)
+        skills = ["sex", "oral"]
+        if hero.gender == "male":
+            skill.append("anal")
+            if char.gender == "female" and ((char.status != "slave" and check_lovers(hero, char)) or "Virgin" not in char.traits):
+                skills.append("vaginal")
+        skills = [[t, char.get_skill(t)] for t in skills]
+        result = weighted_sample(skills)
+        if not result:
+            result = choice(skills)[0]
+
+        # convert skills to acts
+        if result == "sex":
+            result = choice(["hand", "foot"])
+        elif result == "oral":
+            if hero.gender == "male":
+                result = choice(["blow", "tits"])
+            else:
+                result = "blow"
+        elif result == "vaginal":
+            result = "vag"
         return result

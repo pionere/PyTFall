@@ -148,7 +148,7 @@ init -5 python:
             elif check_friends(hero, worker):
                 disposition -= 25
 
-            if cgochar(worker, "SIW"):
+            if StripJob.willing_work(worker, "SIW"):
                 disposition -= 500
 
             traits = worker.traits

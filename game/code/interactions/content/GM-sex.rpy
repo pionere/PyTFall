@@ -303,7 +303,7 @@ label interactions_sex_scene_begins: # here we set initial picture before the sc
     if picture_before_sex:
         $ get_picture_before_sex(char, location=sex_scene_location)
 
-    $ sex_count = guy_count = girl_count = together_count = cum_count = mast_count = 0 # these variable will decide the outcome of sex scene
+    $ sex_count = mc_count = char_count = together_count = cum_count = mast_count = 0 # these variable will decide the outcome of sex scene
     $ sex_prelude = False
     $ max_sex_scene_libido = sex_scene_libido = get_character_libido(char)
     $ char.take_ap(1)
@@ -322,7 +322,7 @@ label interaction_scene_choice: # here we select specific scene, show needed ima
         hide screen int_libido_level
         show screen int_libido_level_zero
 
-    if char.get_stat("vitality") <=10:
+    if char.get_stat("vitality") <= 10:
         jump mc_action_scene_finish_sex
     elif hero.get_stat("vitality") <= 30:
         "You are too tired to continue."
@@ -349,21 +349,16 @@ label interaction_scene_choice: # here we select specific scene, show needed ima
     if not(scene_picked_by_character):
         $ scene_picked_by_character = True
 
-        if dice(sex_scene_libido*10 + 20*sub) and sex_scene_libido > 1  and char.status == "free": # strong willed and/or very horny characters may pick action on their own from time to time
+        if dice(sex_scene_libido*10 + 20*sub) and sex_scene_libido > 1 and char.status == "free": # strong willed and/or very horny characters may pick action on their own from time to time
             $ current_action = get_character_wishes(char)
-            if current_action == "sex":
-                $ current_action = choice(["hand", "foot"])
-            elif current_action == "oral":
-                $ current_action = choice(["blow", "tits"])
-            elif current_action != "anal":
-                $ current_action = "vag"
             if sub < 0:
                 "[char.pC] is so horny that [char.p] cannot control [char.op]self."
             elif sub == 0:
                 "[char.pC] wants to try something else with you."
             else:
                 "[char.pC] wants to do something else with you."
-            if current_action == "vag" and ct("Virgin"):
+            if current_action == "vag":
+                $ del current_action
                 jump interaction_check_for_virginity
             jump interactions_sex_scene_logic_part
 
@@ -412,6 +407,14 @@ label interaction_sex_scene_choice:
             $ current_action = "lickvag"
             jump interactions_sex_scene_logic_part
 
+        "Finger [char.pp] ass":
+            $ current_action = "fingerass"
+            jump interactions_sex_scene_logic_part
+
+        "Lick [char.pp] ass":
+            $ current_action = "lickass"
+            jump interactions_sex_scene_logic_part
+
         "Ask for a blowjob":
             $ current_action = "blow"
             jump interactions_sex_scene_logic_part
@@ -429,11 +432,7 @@ label interaction_sex_scene_choice:
             jump interactions_sex_scene_logic_part
 
         "Ask for sex" if char.gender == "female" and hero.gender == "male":
-            if ct("Virgin"):
-                jump interaction_check_for_virginity
-            else:
-                $ current_action = "vag"
-                jump interactions_sex_scene_logic_part
+            jump interaction_check_for_virginity
 
         "Ask for anal sex" if hero.gender == "male":
             $ current_action = "anal"
@@ -449,11 +448,11 @@ label mc_action_scene_finish_sex:
 
     if sex_scene_libido > 3 and char.get_stat("vitality") >= 50 and ct("Nymphomaniac") and not char.has_flag("raped_by_player"):
         $ get_single_sex_picture(char, act="masturbation", location=sex_scene_location, hidden_partner=True)
-        "[char.name] is not satisfied yet, so she quickly masturbates right in front of you."
+        "[char.name] is not satisfied yet, so [char.p] quickly masturbates right in front of you."
         $ char.gfx_mod_stat("disposition", -round(sex_scene_libido*3))
         $ char.gfx_mod_stat("affection", -1)
 
-    if (together_count > 0 and sex_count >1) or (sex_count >2 and girl_count >=1 and guy_count >= 1):
+    if (together_count > 0 and sex_count > 1) or (sex_count > 2 and char_count > 0 and mc_count > 0):
         $ excluded = ["angry", "sad", "scared", "in pain"]
         $ loc_tag = sex_scene_location
         if sex_scene_location == "room":
@@ -478,9 +477,9 @@ label mc_action_scene_finish_sex:
             $ char.gfx_mod_stat("affection", affection_reward(char, .5))
             call interactions_after_good_sex from _call_interactions_after_good_sex
         else:
-            "She quickly dresses up and leaves."
+            "[char.pC] quickly dresses up and leaves."
         $ char.mod_stat("vitality", -randint(5, 10))
-    elif girl_count < 1 and guy_count > 0:
+    elif char_count < 1 and mc_count > 0:
         $ excluded = ["happy", "scared", "in pain", "ecstatic", "suggestive"]
         $ loc_tag = sex_scene_location
         if sex_scene_location == "room":
@@ -503,11 +502,11 @@ label mc_action_scene_finish_sex:
             $ char.gfx_mod_stat("disposition", -randint(15, 35))
             $ char.gfx_mod_stat("affection", -randint(8,12))
             $ char.gfx_mod_stat("joy", -randint(2, 5))
-            call interactions_girl_never_come from _call_interactions_girl_never_come
+            call interactions_char_never_come from _call_interactions_char_never_come
         else:
-            "She quickly dresses up and leaves."
+            "[char.pC] quickly dresses up and leaves."
         $ char.mod_stat("vitality", -randint(5, 10))
-    elif girl_count > 0 and guy_count < 1 and cum_count < 1 and sex_count > 0:
+    elif char_count > 0 and mc_count < 1 and cum_count < 1 and sex_count > 0:
         $ excluded = ["happy", "scared", "in pain", "ecstatic", "suggestive"]
         $ loc_tag = sex_scene_location
         if sex_scene_location == "room":
@@ -531,11 +530,11 @@ label mc_action_scene_finish_sex:
             $ char.gfx_mod_stat("affection", affection_reward(char, .5, "sex"))
             $ char.gfx_mod_stat("affection", affection_reward(char))
             $ char.gfx_mod_stat("joy", -randint(10, 15))
-            call interactions_guy_never_came from _call_interactions_guy_never_came
+            call interactions_mc_never_came from _call_interactions_mc_never_came
         else:
-            "She quickly dresses up and leaves."
+            "[char.pC] quickly dresses up and leaves."
         $ char.mod_stat("vitality", -randint(5, 15))
-    elif (cum_count >=4) and (cum_count > girl_count):
+    elif cum_count > 3 and cum_count > char_count:
         $ excluded = ["angry", "sad", "scared", "in pain"]
         $ loc_tag = sex_scene_location
         if sex_scene_location == "room":
@@ -557,9 +556,9 @@ label mc_action_scene_finish_sex:
         if not char.has_flag("raped_by_player"):
             $ char.gfx_mod_stat("disposition", randint(25, 50))
             $ char.gfx_mod_stat("affection", affection_reward(char))
-            call interactions_guy_cum_alot from _call_interactions_guy_cum_alot
+            call interactions_mc_cum_alot from _call_interactions_mc_cum_alot
         else:
-            "She quickly dresses up and leaves."
+            "[char.pC] quickly dresses up and leaves."
         $ char.mod_stat("vitality", -randint(5, 10))
     elif sex_count < 1 and mast_count < 1:
         $ excluded = ["happy", "scared", "in pain", "ecstatic", "suggestive"]
@@ -580,14 +579,14 @@ label mc_action_scene_finish_sex:
         else:
             $ gm.set_img("girlmeets", loc_tag, "angry", exclude=excluded, type="reduce")
         if char.status == "slave":
-            "She is puzzled and confused by the fact that you didn't do anything. She quickly leaves, probably thinking that you teased her."
+            "[char.pC] is puzzled and confused by the fact that you didn't do anything. [char.pC] quickly leaves, probably thinking that you teased [char.op]."
         else:
-            "She is quite upset and irritated because you didn't do anything. She quickly leaves, probably thinking that you teased her."
+            "[char.pC] is quite upset and irritated because you didn't do anything. [char.pC] quickly leaves, probably thinking that you teased [char.op]."
             $ char.gfx_mod_stat("disposition", -randint(50, 100))
             $ char.gfx_mod_stat("affection", -randint(8,12))
             $ char.gfx_mod_stat("joy", -randint(15, 30))
             $ char.mod_stat("vitality", -5)
-    elif mast_count > 0 and guy_count < 1 and girl_count < 1:
+    elif mast_count > 0 and mc_count < 1 and char_count < 1:
         $ excluded = ["angry", "sad", "scared", "in pain"]
         $ loc_tag = sex_scene_location
         if sex_scene_location == "room":
@@ -606,7 +605,7 @@ label mc_action_scene_finish_sex:
         else:
             $ gm.set_img("girlmeets", loc_tag, "shy", exclude=excluded, type="reduce")
 
-        "She did nothing but masturbated in front of you. Be prepared for rumors about your impotence or orientation."
+        "[char.pC] did nothing but masturbated in front of you. Be prepared for rumors about your impotence or orientation."
         if not char.has_flag("raped_by_player"):
             $ char.gfx_mod_stat("disposition", -randint(10, 25))
             $ char.gfx_mod_stat("affection", -randint(0,3))
@@ -637,12 +636,12 @@ label mc_action_scene_finish_sex:
             $ char.gfx_mod_stat("affection", affection_reward(char, .4))
             call interactions_after_normal_sex from _call_interactions_after_normal_sex
         else:
-            "She quickly dresses up and leaves."
+            "[char.pC] quickly dresses up and leaves."
         $ char.mod_stat("vitality", -randint(5, 10))
 
     $ gm.restore_img()
 
-    $ del excluded, loc_tag, sub, sex_count, guy_count, girl_count, together_count, cum_count, mast_count, sex_prelude, max_sex_scene_libido, sex_scene_libido, scene_picked_by_character
+    $ del excluded, loc_tag, sub, sex_count, mc_count, char_count, together_count, cum_count, mast_count, sex_prelude, max_sex_scene_libido, sex_scene_libido, scene_picked_by_character
 
     jump girl_interactions_end
 
@@ -810,29 +809,28 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
     elif current_action == "strip":
         $ get_single_sex_picture(char, act="stripping", location=sex_scene_location, hidden_partner=True)
 
-        $ skill_for_checking = char.get_skill("refinement") + char.get_skill("strip")
-        $ male_skill_for_checking = 2 * hero.get_skill("refinement")
+        $ char_skill_for_checking = char.get_skill("refinement") + char.get_skill("strip")
+        $ mc_skill_for_checking = 2 * hero.get_skill("refinement")
         $ temp = randint(1, 5)
-        if (male_skill_for_checking - skill_for_checking) > 250 and dice(75):
+        if (mc_skill_for_checking - char_skill_for_checking) > 250 and dice(75):
             $ temp += randint(1, 5)
         $ char.gfx_mod_skill("strip", 0, temp)
-        $ del temp
         $ char.mod_stat("vitality", -randint(1, 5))
 
-        if skill_for_checking >= 1000:
+        if char_skill_for_checking >= 1000:
             "[char.pC] looks unbearably hot and sexy. After a short time, you cannot withstand it anymore and begin to masturbate, quickly cumming. [char.pC] looks at you with a smile and superiority in [char.pp] eyes."
-        elif skill_for_checking >= 750:
+        elif char_skill_for_checking >= 750:
             "[char.ppC] movements are so fascinating that you cannot look away from [char.op]. [char.pC] looks proud and pleased."
-        elif skill_for_checking >= 500:
+        elif char_skill_for_checking >= 500:
             "Looking at [char.pp] graceful and elegant moves is nice."
-        elif skill_for_checking >= 200:
+        elif char_skill_for_checking >= 200:
             "[char.pC] did [char.pp] best to show you [char.pp] body, but [char.pp] skills could be improved."
-        elif skill_for_checking >= 50:
+        elif char_skill_for_checking >= 50:
             "[char.pC] tried [char.pp] best, but the moves were quite clumsy and unnatural. At least [char.p] learned something new today."
         else:
             "It looks like [char.name] barely knows what [char.p] is doing. Even just standing still without clothes would have made a better impression."
 
-        $ del skill_for_checking, male_skill_for_checking
+        $ del char_skill_for_checking, mc_skill_for_checking, temp
 
     elif current_action == "mast":
         $ get_single_sex_picture(char, act="masturbation", location=sex_scene_location, hidden_partner=True)
@@ -878,132 +876,143 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
 
     elif current_action == "fingervag":
         $ get_single_sex_picture(char, act="2c vaginalfingering", location=sex_scene_location, hidden_partner=True)
-        $ image_tags = gm.get_image_tags()
-        $ char_skill_for_checking = 2 * char.get_skill("sex")
-        if interactions_gender_mismatch(char):
-            $ char_skill_for_checking *= .8
-        $ skill_for_checking = hero.get_skill("refinement") + hero.get_skill("sex")
-        $ temp = randint(1, 5)
-        if (char_skill_for_checking - skill_for_checking) > 250 and dice(75):
-            $ temp += randint(1, 5)
-        $ hero.gfx_mod_skill("refinement", 0, temp)
-        $ del temp
-        $ char.gfx_mod_skill("sex", 0, randint(2, 6))
-        $ hero.gfx_mod_skill("sex", 0, randint(1, 4))
-
-        if sex_scene_libido > 0 and not char.has_flag("raped_by_player"):
-            "[char.name] opens her mouth a bit. Her gaze is filled with anticipation."
-        else:
-            "[char.name] bites her lips and looks away."
-        if not char.has_flag("raped_by_player"):
-            extend " As you touch her lips, they become swollen. A drop of fluid glances at the bottom."  
-        else:
-            extend " Your fingers dig deep into her. You move in and out of her pussy in quick successions." 
 
         call interaction_sex_scene_check_skill_gives from _call_interaction_sex_scene_check_skill_gives
 
-        $ del char_skill_for_checking, skill_for_checking, image_tags
-
     elif current_action == "lickvag":
         $ get_single_sex_picture(char, act="2c lickpussy", location=sex_scene_location, hidden_partner=True)
-        $ image_tags = gm.get_image_tags()
-        $ char_skill_for_checking = 2 * char.get_skill("sex")
-        if interactions_gender_mismatch(char):
-            $ char_skill_for_checking *= .8
-        $ skill_for_checking = hero.get_skill("oral") + hero.get_skill("sex")
-        $ temp = randint(1, 5)
-        if (char_skill_for_checking - skill_for_checking) > 250 and dice(75):
-            $ temp += randint(1, 5)
-        $ hero.gfx_mod_skill("oral", 0, temp)
-        $ del temp
-        $ char.gfx_mod_skill("sex", 0, randint(2, 6))
-        $ hero.gfx_mod_skill("sex", 0, randint(1, 4))
-
-        if sex_scene_libido > 0 and not char.has_flag("raped_by_player"):
-            "[char.name] spreads her legs to let you closer."
-        else:
-            "You have to push her legs apart."
-        if not char.has_flag("raped_by_player"):
-            extend " First your tongue just barely touches her pussy, but soon you reach deeper."
-        else:
-            extend " As you put your tongue inside her, you flex the muscles in your tongue to widen the gap as much as possible."
 
         call interaction_sex_scene_check_skill_gives from _call_interaction_sex_scene_check_skill_gives_1
 
-        $ del char_skill_for_checking, skill_for_checking, image_tags
+    elif current_action == "fingerass":
+        $ get_single_sex_picture(char, act="2c analfingering", location=sex_scene_location, hidden_partner=True)
+
+        call interaction_sex_scene_check_skill_gives from _call_interaction_sex_scene_check_skill_gives_2
+
+    elif current_action == "lickass":
+        $ get_single_sex_picture(char, act="2c lickanus", location=sex_scene_location, hidden_partner=True)
+
+        call interaction_sex_scene_check_skill_gives from _call_interaction_sex_scene_check_skill_gives_3
 
     elif current_action == "blow":
-        $ temp = "bc blowjob" if hero.gender == "male" else "bc lickpussy"
-        $ get_single_sex_picture(char, act=temp, location=sex_scene_location, hidden_partner=True)
-        $ image_tags = gm.get_image_tags()
-
-        $ skill_for_checking = char.get_skill("oral") + char.get_skill("sex")
-        if interactions_gender_mismatch(char):
-            $ skill_for_checking *= .8
-        $ male_skill_for_checking = 2 * hero.get_skill("sex")
-        $ temp = randint(1, 5)
-        if (male_skill_for_checking - skill_for_checking) > 250 and dice(75):
-            $ temp += randint(1, 5)
-        $ char.gfx_mod_skill("oral", 0, temp)
-        $ del temp
-        $ char.gfx_mod_skill("sex", 0, randint(1, 4))
-        $ hero.gfx_mod_skill("sex", 0, randint(2, 6))
-
-        if sub > 0:
-            if sex_scene_libido > 0 and not char.has_flag("raped_by_player"):
-                "[char.name] licks [char.pp] lips, defiantly looking at your crotch."
-            else:
-                "[char.name] joylessly looks at your crotch."
-            if "bc deepthroat" in image_tags:
-                extend " She shoves it all the way into her throat."
-            elif not char.has_flag("raped_by_player"):
-                extend " [char.pC] enthusiastically begins to lick and suck it."
-            else:
-                extend " [char.pC] begins to lick and suck it."
-        elif sub < 0:
-            if sex_scene_libido > 0 and not char.has_flag("raped_by_player"):
-                "Glancing at your crotch, [char.name] is patiently waiting for your orders."
-            else:
-                "[char.name] is waiting for your orders."
-            if hero.gender == "male":
-                if "bc deepthroat" in image_tags:
-                    extend " You told [char.op] to take your dick in [char.op] mouth as deeply as [char.p] can, and [char.p] diligently obeyed."
-                elif not char.has_flag("raped_by_player"):
-                    extend " You told [char.op] to lick and suck your dick, and [char.p] immediately obeyed."
-                else:
-                    extend " You told [char.op] to lick and suck your dick."
-            else:
-                extend " You told [char.op] to lick and suck your pussy."
-        else:
-            if sex_scene_libido > 0 and not char.has_flag("raped_by_player"):
-                "[char.name] quickly approached your crotch."
-            else:
-                "[char.name] slowly approached your crotch."
-            if hero.gender == "male":
-                if "bc deepthroat" in image_tags:
-                    extend " You shove your dick deep into her throat."
-                else:
-                    extend " [char.pC] begins to lick and suck your dick."
-            else:
-                extend " [char.pC] begins to lick and suck your pussy."
+        $ get_single_sex_picture(char, act="bc blowjob" if hero.gender == "male" else "bc lickpussy",
+                                 location=sex_scene_location, hidden_partner=True)
 
         call interaction_sex_scene_check_skill_jobs from _call_interaction_sex_scene_check_skill_jobs
 
-        $ del male_skill_for_checking, skill_for_checking, image_tags
-
     elif current_action == "tits":
         $ get_single_sex_picture(char, act="bc titsjob", location=sex_scene_location, hidden_partner=True)
-        $ image_tags = gm.get_image_tags()
 
-        $ skill_for_checking = char.get_skill("oral") + char.get_skill("sex")
+        call interaction_sex_scene_check_skill_jobs from _call_interaction_sex_scene_check_skill_jobs_1
+
+    elif current_action == "hand":
+        $ get_single_sex_picture(char, act="bc handjob" if hero.gender == "male" else "bc vaginalhandjob",
+                                 location=sex_scene_location, hidden_partner=True)
+
+        call interaction_sex_scene_check_skill_jobs from _call_interaction_sex_scene_check_skill_jobs_2
+
+    elif current_action == "foot":
+        $ get_single_sex_picture(char, act="bc footjob" if hero.gender == "male" else "bc vaginalfootjob",
+                                 location=sex_scene_location, hidden_partner=True)
+
+        call interaction_sex_scene_check_skill_jobs from _call_interaction_sex_scene_check_skill_jobs_3
+
+    elif current_action == "vag":
+        $ get_single_sex_picture(char, act="2c vaginal", location=sex_scene_location, hidden_partner=True)
+
+        call interaction_sex_scene_check_skill_acts from _call_interaction_sex_scene_check_skill_acts
+
+    elif current_action == "anal":
+        $ get_single_sex_picture(char, act="2c anal", location=sex_scene_location, hidden_partner=True)
+
+        call interaction_sex_scene_check_skill_acts from _call_interaction_sex_scene_check_skill_acts_1
+
+    $ sex_scene_libido -= 1
+    jump interaction_scene_choice
+
+label interaction_sex_scene_check_skill_jobs: # skill level check for char side actions
+    $ image_tags = gm.get_image_tags()
+    if current_action == "hand":
+        $ char_skill_for_checking = char.get_skill("oral") + char.get_skill("sex")
         if interactions_gender_mismatch(char):
-            $ skill_for_checking *= .8
-        $ male_skill_for_checking = 2 * hero.get_skill("sex")
+            $ char_skill_for_checking *= .8
+        $ mc_skill_for_checking = 2 * hero.get_skill("sex")
+        $ temp = randint(2, 10)
+        if (mc_skill_for_checking - char_skill_for_checking) > 250 and dice(75):
+            $ temp += randint(2, 10)
+        $ char.gfx_mod_skill("sex", 0, temp)
+        $ hero.gfx_mod_skill("sex", 0, randint(2, 6))
+
+        if hero.gender == "male":
+            if sub > 0:
+                "[char.name] grabs you with [char.pp] soft hands."
+            elif sub < 0:
+                "[char.name] wraps [char.pp] soft hands around your dick."
+            else:
+                "[char.name] takes your dick in [char.pp] soft hands."
+
+            if char_skill_for_checking <= 200:
+                if sub > 0:
+                    $ temp = ("[char.pC] strokes you a bit too quickly, the friction is a bit uncomfortable.", "[char.pC] begins to stroke you very quickly. But because of the speed your cock often slips out of [char.pp] hand.")
+                elif sub < 0:
+                    $ temp = ("[char.pC] strokes you gently. [char.pC] isn't quite sure however what to make of the balls.", "[char.pC] makes up for [char.pp] inexperience with determination, carefully stroking your cock.")
+                else:
+                    $ temp = ("[char.pC] squeezes one of your balls too tightly, but stops when you wince.", "[char.pC] has a firm grip, and [char.p] is not letting go.")
+            elif char_skill_for_checking < 500:
+                if sub > 0:
+                    $ temp = ("[char.ppC] fingers cause tingles as they caress the shaft.", "[char.pC] quickly strokes you, with a very deft pressure.")
+                elif sub < 0:
+                    $ temp = ("[char.pC] gently caresses the shaft, and cups the balls in [char.pp] other hand, giving them a warm massage.", "[char.pC] moves very smoothly, stroking casually and very gently.")
+                else:
+                    $ temp = ("[char.ppC] hands glide smoothly across it.", "[char.pC] moves [char.pp] hands up and down. [char.pC] is a little rough at this, but [char.p] tries [char.pp] best.")
+            else:
+                if sub > 0:
+                    $ temp = ("[char.ppC] movements are masterful, [char.pp] slightest touch starts you twitching.", "[char.ppC] expert strokes will have you boiling over in seconds.")
+                elif sub < 0:
+                    $ temp = ("[char.pC] gently blows across the tip as [char.pp] finger dance along the shaft.", "[char.pC] slowly caresses you in a way that makes your blood boil, then pulls back at the last second.")
+                else:
+                    $ temp = ("[char.pC] knows what to do now, and rubs you with smooth strokes, focusing occasionally on the head.", "You can't tell where [char.pp] hand is at any moment, all you know is that it works.")
+        else:
+            if sub > 0:
+                "[char.name] grabs you with [char.pp] soft hands."
+            elif sub < 0:
+                "[char.name] takes your pussy in [char.pp] palms."
+            else:
+                "[char.name] puts [char.pp] hands on your pussy."
+
+            if char_skill_for_checking <= 200:
+                if sub > 0:
+                    $ temp = ("[char.pC] strokes you a bit too quickly, the friction is a bit uncomfortable.", "[char.pC] begins to stroke you very quickly. But because of the speed your pussy becomes a bit swollen.")
+                elif sub < 0:
+                    $ temp = ("[char.pC] strokes you gently. [char.pC] isn't quite sure however what to make of the lips.", "[char.pC] makes up for [char.pp] inexperience with determination, carefully stroking your pussy.")
+                else:
+                    $ temp = ("[char.pC] squeezes one of your pussy too tightly, but stops when you wince.", "[char.pC] has a firm grip, and [char.p] is not letting go.")
+            elif char_skill_for_checking < 500:
+                if sub > 0:
+                    $ temp = ("[char.ppC] fingers cause tingles as they caress the shaft.", "[char.pC] quickly strokes you, with a very deft pressure.")
+                elif sub < 0:
+                    $ temp = ("[char.pC] gently caresses your pussy and cups your ass in [char.pp] other hand, giving them a warm massage.", "[char.pC] moves very smoothly, stroking casually and very gently.")
+                else:
+                    $ temp = ("[char.ppC] hands glide smoothly across it.", "[char.pC] moves [char.pp] hands up and down. [char.pC] is a little rough at this, but [char.p] tries [char.pp] best.")
+            else:
+                if sub > 0:
+                    $ temp = ("[char.ppC] movements are masterful, [char.pp] slightest touch starts you twitching.", "[char.ppC] expert strokes will have you boiling over in seconds.")
+                elif sub < 0:
+                    $ temp = ("[char.pC] gently blows across the lips as [char.pp] finger dance on your leg.", "[char.pC] slowly caresses you in a way that makes your blood boil, then pulls back at the last second.")
+                else:
+                    $ temp = ("[char.pC] knows what to do now, and rubs you with smooth strokes.", "You can't tell where [char.pp] hand is at any moment, all you know is that it works.")
+        $ narrator(choice(temp))
+        if "after sex" in image_tags:
+            "Soon you generously cover [char.pp] body with your thick liquid."
+    elif current_action == "tits":
+        $ char_skill_for_checking = char.get_skill("oral") + char.get_skill("sex")
+        if interactions_gender_mismatch(char):
+            $ char_skill_for_checking *= .8
+        $ mc_skill_for_checking = 2 * hero.get_skill("sex")
         $ temp = randint(1, 5)
-        if (male_skill_for_checking - skill_for_checking) > 250 and dice(75):
+        if (mc_skill_for_checking - char_skill_for_checking) > 250 and dice(75):
             $ temp += randint(1, 5)
         $ char.gfx_mod_skill("oral", 0, temp)
-        $ del temp
         $ char.gfx_mod_skill("sex", 0, randint(1, 4))
         $ hero.gfx_mod_skill("sex", 0, randint(2, 6))
 
@@ -1030,58 +1039,150 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
         else:
             extend " She squeezes you between her soft breasts."
 
-        call interaction_sex_scene_check_skill_jobs from _call_interaction_sex_scene_check_skill_jobs_1
-
-        $ del male_skill_for_checking, skill_for_checking, image_tags
-
-    elif current_action == "hand":
-        $ temp = "bc handjob" if hero.gender == "male" else "bc vaginalhandjob"
-        $ get_single_sex_picture(char, act=temp, location=sex_scene_location, hidden_partner=True)
-        $ image_tags = gm.get_image_tags()
-
-        $ skill_for_checking = char.get_skill("oral") + char.get_skill("sex")
+        if char_skill_for_checking <= 200:
+            if sub > 0:
+                $ temp = ("She kind of bounces her tits around your cock.", "She tries to quickly slide the cock up and down between her cleavage, but it tends to slide out.")
+            elif sub < 0:
+                $ temp = ("She slides the cock up and down between her cleavage.", "She squeezes her cleavage as tight as she can and rubs up and down.")
+            else:
+                $ temp = ("She sort of squishes her breasts back and forth around your cock.", "She slaps her tits against your dick, bouncing her whole body up and down.")
+        elif char_skill_for_checking < 500:
+            if sub > 0:
+                $ temp = ("She juggles her breasts up and down around your cock.", "She moves her boobs up and down in a fluid rocking motion.")
+            elif sub < 0:
+                $ temp = ("She gently caresses the shaft between her tits.", "She lightly brushes the head with her chin as it pops up between her tits.")
+            else:
+                $ temp = ("Sometimes she pauses to rub her nipples across the shaft.", "She rapidly slides the shaft between her tits")
+        else:
+            if sub > 0:
+                $ temp = ("She rapidly rocks her breasts up and down around your cock, covering them with drool to keep things well lubed.", "In as she strokes faster and faster, she bends down to suck on the head.")
+            elif sub < 0:
+                $ temp = ("In between strokes she gently sucks on the head.", "She drips some spittle down to make sure you're properly lubed.")
+            else:
+                $ temp = ("She licks away at the head every time it pops up between her tits.", "She dancers her nipples across the shaft.")
+        $ narrator(choice(temp))
+        if "after sex" in image_tags:
+            if sub > 0:
+                "At the last moment, she pulls away, covering herself with your thick liquid."
+            elif sub < 0:
+                "At the last moment, you take it away from her chest, covering her body with your thick liquid."
+            else:
+                "At the last moment, she asked you to take it away from her chest to cover her body with your thick liquid."
+    elif current_action == "blow":
+        $ char_skill_for_checking = char.get_skill("oral") + char.get_skill("sex")
         if interactions_gender_mismatch(char):
-            $ skill_for_checking *= .8
-        $ male_skill_for_checking = 2 * hero.get_skill("sex")
-        $ temp = randint(2, 10)
-        if (male_skill_for_checking - skill_for_checking) > 250 and dice(75):
-            $ temp += randint(2, 10)
-        $ char.gfx_mod_skill("sex", 0, temp)
+            $ char_skill_for_checking *= .8
+        $ mc_skill_for_checking = 2 * hero.get_skill("sex")
+        $ temp = randint(1, 5)
+        if (mc_skill_for_checking - char_skill_for_checking) > 250 and dice(75):
+            $ temp += randint(1, 5)
+        $ char.gfx_mod_skill("oral", 0, temp)
+        $ char.gfx_mod_skill("sex", 0, randint(1, 4))
         $ hero.gfx_mod_skill("sex", 0, randint(2, 6))
-        $ del temp
 
         if sub > 0:
-            "[char.name] grabs you with [char.pp] soft hands."
+            if sex_scene_libido > 0 and not char.has_flag("raped_by_player"):
+                "[char.name] licks [char.pp] lips, defiantly looking at your crotch."
+            else:
+                "[char.name] joylessly looks at your crotch."
+            if "bc deepthroat" in image_tags and hero.gender == "male":
+                extend " [char.pC] shoves it all the way into [char.pp] throat."
+            elif not char.has_flag("raped_by_player"):
+                extend " [char.pC] enthusiastically begins to lick and suck it."
+            else:
+                extend " [char.pC] begins to lick and suck it."
         elif sub < 0:
-            if hero.gender == "male":
-                "[char.name] wraps [char.pp] soft hands around your dick."
+            if sex_scene_libido > 0 and not char.has_flag("raped_by_player"):
+                "Glancing at your crotch, [char.name] is patiently waiting for your orders."
             else:
-                "[char.name] takes your pussy in [char.pp] palms."
+                "[char.name] is waiting for your orders."
+            if hero.gender == "male":
+                if "bc deepthroat" in image_tags:
+                    extend " You told [char.op] to take your dick in [char.pp] mouth as deeply as [char.p] can, and [char.p] diligently obeyed."
+                elif not char.has_flag("raped_by_player"):
+                    extend " You told [char.op] to lick and suck your dick, and [char.p] immediately obeyed."
+                else:
+                    extend " You told [char.op] to lick and suck your dick."
+            else:
+                extend " You told [char.op] to lick and suck your pussy."
         else:
-            if hero.gender == "male":
-                "[char.name] takes your dick in [char.pp] soft hands."
+            if sex_scene_libido > 0 and not char.has_flag("raped_by_player"):
+                "[char.name] quickly approached your crotch."
             else:
-                "[char.name] puts [char.pp] hands on your pussy."
+                "[char.name] slowly approached your crotch."
+            if hero.gender == "male":
+                if "bc deepthroat" in image_tags:
+                    extend " You shove your dick deep into [char.pp] throat."
+                else:
+                    extend " [char.pC] begins to lick and suck your dick."
+            else:
+                extend " [char.pC] begins to lick and suck your pussy."
 
-        call interaction_sex_scene_check_skill_jobs from _call_interaction_sex_scene_check_skill_jobs_2
+        if hero.gender == "male":
+            if char_skill_for_checking <= 200:
+                if sub > 0:
+                    $ temp = ("[char.ppC] head bobs rapidly, until [char.p] goes a bit too deep and starts to gag.", "[char.pC] begins to suck very quickly. But because of the speed your cock often pops out of [char.pp] mouth.")
+                elif sub < 0:
+                    $ temp = ("[char.pC] tentatively kisses and licks around the head.", "[char.pC] licks all over your dick, but [char.p] doesn't really have a handle on it.")
+                else:
+                    $ temp = ("[char.pC] bobs quickly on your cock, but clamps down a bit too tight.", "[char.pC] puts the tip in [char.pp] mouth and starts suck in as hard as [char.p] can. [char.pC] is a little rough at this, but at least [char.p] tries [char.pp] best.")
+            elif char_skill_for_checking < 500:
+                if sub > 0:
+                    $ temp = ("[char.pC] licks [char.pp] way down the shaft, and gently teases the balls.", "[char.ppC] mouth envelopes the head, then [char.p] quickly draws it in and draws back with a pop.")
+                elif sub < 0:
+                    $ temp = ("[char.pC] gently caresses the shaft, and cups the balls in [char.pp] other hand, giving them a warm massage.", "[char.pC] moves [char.pp] tongue very smoothly and very gently, keeping [char.pp] teeth well clear, aside from a playful nip.")
+                else:
+                    $ temp = ("[char.pC]'s settled into a gentle licking pace that washes over you like a warm bath.", "[char.pC] licks up and down the shaft. A little rough, but at least [char.p] tries [char.pp] best.")
+            else:
+                if sub > 0:
+                    $ temp = ("[char.pC] rapidly bobs up and down on your cock, a frenzy of motion.", "[char.pC] puts the tip into [char.pp] mouth and [char.pp] tongue swirls rapidly around it.")
+                elif sub < 0:
+                    $ temp = ("[char.pC] gently blows across the head as [char.p] covers your cock in smooth licks.", "[char.pC] moves very smoothly, tongue dancing casually and very gently.")
+                else:
+                    $ temp = ("[char.ppC] deft licks are masterful, your cock twitches with each stroke.", "[char.pC]'s really good at this, alternating between deep suction and gentle licks.")
+            $ narrator(choice(temp))
+            if "after sex" in image_tags:
+                if sub > 0:
+                    "At the last moment, [char.p] pulls it out, covering [char.op]self with your thick liquid."
+                elif sub < 0:
+                    "At the last moment, you pull it out from [char.pp] mouth, covering [char.pp] body with your thick liquid."
+                else:
+                    "[char.pC] asked you to pull it out from [char.pp] mouth at the last moment to cover [char.pp] body with your thick liquid."
+        else: # female hero -> lick pussy
+            if char_skill_for_checking <= 200:
+                if sub > 0:
+                    $ temp = ("[char.ppC] head bobs rapidly.", "[char.pC] begins to suck very quickly. Because of the speed your pussy become reddish.")
+                elif sub < 0:
+                    $ temp = ("[char.pC] tentatively kisses and licks in the valley.", "[char.pC] licks all over your pussy, but [char.p] doesn't really have a handle on it.")
+                else:
+                    $ temp = ("[char.pC] bobs quickly on your pussy, but [char.pp] movements are a bit rough.", "[char.pC] puts [char.pp] mouth on your pussy and starts suck in as hard as [char.p] can. [char.pC] is a little rough at this, but at least [char.p] tries [char.pp] best.")
+            elif char_skill_for_checking < 500:
+                if sub > 0:
+                    $ temp = ("[char.pC] licks [char.pp] way down the valley, and gently teases the anus.", "[char.ppC] mouth envelopes your pussy, then [char.p] quickly draws it in and draws back with a pop.")
+                elif sub < 0:
+                    $ temp = ("[char.pC] gently caresses the lips and cups the ass-cheeks in [char.pp] other hand, giving them a warm massage.", "[char.pC] moves [char.pp] tongue very smoothly and very gently, keeping [char.pp] teeth well clear, aside from a playful nip.")
+                else:
+                    $ temp = ("[char.pC]'s settled into a gentle licking pace that washes over you like a warm bath.", "[char.pC] licks up and down the valley. A little rough, but at least [char.p] tries [char.pp] best.")
+            else:
+                if sub > 0:
+                    $ temp = ("[char.pC] rapidly bobs up and down the valley, a frenzy of motion.", "[char.pC] puts [char.pp] mouth on your pussy and [char.pp] tongue runs up and down rapidly.")
+                elif sub < 0:
+                    $ temp = ("[char.pC] gently blows across the lips as [char.p] covers your pussy in smooth licks.", "[char.pC] moves very smoothly, tongue dancing casually and very gently.")
+                else:
+                    $ temp = ("[char.ppC] deft licks are masterful, your pussy twitches with each stroke.", "[char.pC]'s really good at this, alternating between deep suction and gentle licks.")
+            $ narrator(choice(temp))
 
-        $ del male_skill_for_checking, skill_for_checking, image_tags
-
+        $ char.gfx_mod_stat("affection", affection_reward(char, .5, "oral"))
     elif current_action == "foot":
-        $ temp = "bc footjob" if hero.gender == "male" else "bc vaginalfootjob"
-        $ get_single_sex_picture(char, act="bc footjob", location=sex_scene_location, hidden_partner=True)
-        $ image_tags = gm.get_image_tags()
-
-        $ skill_for_checking = char.get_skill("refinement") + char.get_skill("sex")
+        $ char_skill_for_checking = char.get_skill("refinement") + char.get_skill("sex")
         if interactions_gender_mismatch(char):
-            $ skill_for_checking *= .8
-        $ male_skill_for_checking = 2 * hero.get_skill("sex")
+            $ char_skill_for_checking *= .8
+        $ mc_skill_for_checking = 2 * hero.get_skill("sex")
         $ temp = randint(2, 10)
-        if (male_skill_for_checking - skill_for_checking) > 250 and dice(75):
+        if (mc_skill_for_checking - char_skill_for_checking) > 250 and dice(75):
             $ temp += randint(2, 10)
         $ char.gfx_mod_skill("sex", 0, temp)
         $ hero.gfx_mod_skill("sex", 0, randint(2, 6))
-        $ del temp
 
         if sub > 0:
             if sex_scene_libido > 0 and not char.has_flag("raped_by_player"):
@@ -1095,50 +1196,287 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
         if hero.gender == "male":
             if ct("Athletic"):
                 if ct("Long Legs"):
-                    "[char.pC] squeezes your dick between [char.op] long muscular legs and stimulates it until you cum."
+                    "[char.pC] squeezes your dick between [char.pp] long muscular legs and stimulates it until you cum."
                 else:
-                    "[char.pC] squeezes your dick between [char.op] muscular legs and stimulates it until you cum."
+                    "[char.pC] squeezes your dick between [char.pp] muscular legs and stimulates it until you cum."
             elif ct("Slim"):
                 if ct("Long Legs"):
-                    "[char.pC] squeezes your dick between [char.op] long slim legs and stimulates it until you cum."
+                    "[char.pC] squeezes your dick between [char.pp] long slim legs and stimulates it until you cum."
                 else:
-                    "[char.pC] squeezes your dick between [char.op] slim legs and stimulates it until you cum."
+                    "[char.pC] squeezes your dick between [char.pp] slim legs and stimulates it until you cum."
             elif ct("Lolita"):
                 if ct("Long Legs"):
-                    "[char.pC] squeezes your dick between [char.op] long thin legs and stimulates it until you cum."
+                    "[char.pC] squeezes your dick between [char.pp] long thin legs and stimulates it until you cum."
                 else:
-                    "[char.pC] squeezes your dick between [char.op] thin legs and stimulates it until you cum."
+                    "[char.pC] squeezes your dick between [char.pp] thin legs and stimulates it until you cum."
             else:
                 if ct("Long Legs"):
-                    "[char.pC] squeezes your dick between [char.op] long legs and stimulates it until you cum."
+                    "[char.pC] squeezes your dick between [char.pp] long legs and stimulates it until you cum."
                 else:
-                    "[char.pC] squeezes your dick between [char.op] legs and stimulates it until you cum."
+                    "[char.pC] squeezes your dick between [char.pp] legs and stimulates it until you cum."
             if "after sex" in image_tags:
-                extend " You generously cover [char.op] body with your thick liquid."
+                extend " You generously cover [char.pp] body with your thick liquid."
+    else:
+        $ raise Exception("Char side sexual interaction '%' is not implemented." % current_action)
 
-        call interaction_sex_scene_check_skill_jobs from _call_interaction_sex_scene_check_skill_jobs_3
+    if char_skill_for_checking >= 2000:
+        "[char.pC] was so good that you profusely came after a few seconds. Pretty impressive."
+        $ char.gfx_mod_stat("joy", randint(3, 5))
+        $ hero.mod_stat("joy", randint(4, 6))
+    elif char_skill_for_checking >= 1000:
+        "You barely managed to hold out for half a minute in the face of [char.pp] amazing skills."
+        $ char.gfx_mod_stat("joy", randint(2, 4))
+        $ hero.mod_stat("joy", randint(3, 5))
+    elif char_skill_for_checking >= 500:
+        "It was very fast and very satisfying."
+        $ char.gfx_mod_stat("joy", randint(1, 2))
+        $ hero.mod_stat("joy", randint(2, 4))
+    elif char_skill_for_checking >= 200:
+        "Nothing extraordinary, but it wasn't half bad either."
+        $ char.gfx_mod_stat("joy", randint(0, 1))
+        $ hero.mod_stat("joy", randint(1, 2))
+    elif char_skill_for_checking >= 100:
+        "It took some time and effort on [char.pp] part. [char.ppC] skills could be improved."
+    elif char_skill_for_checking >= 50:
+        "It looks like [char.name] barely knows what [char.p] is doing. Still, [char.p] somewhat managed to get the job done."
+        $ char.mod_stat("vitality", -randint(5, 10))
+    else:
+        $ char.mod_stat("vitality", -randint(10, 15))
+        "[char.ppC] moves were clumsy and untimely. By the time [char.p] finished the moment had passed, bringing you little satisfaction."
+        $ char.gfx_mod_stat("joy", -randint(2, 4))
+        $ hero.mod_stat("joy", -randint(1, 2))
+    if char_skill_for_checking >= 50:
+        $ mc_count +=1
+        $ cum_count += 1
+    $ sex_count += 1
+    $ del mc_skill_for_checking, char_skill_for_checking, image_tags, temp
+    return
 
-        $ del male_skill_for_checking, skill_for_checking, image_tags
-
-    elif current_action == "vag":
-        $ get_single_sex_picture(char, act="2c vaginal", location=sex_scene_location, hidden_partner=True)
-        $ image_tags = gm.get_image_tags()
-
-        $ skill_for_checking = char.get_skill("vaginal") + char.get_skill("sex")
+label interaction_sex_scene_check_skill_gives: # # skill level check for MC side actions
+    if current_action == "lickvag":
+        $ char_skill_for_checking = 2 * char.get_skill("sex")
         if interactions_gender_mismatch(char):
-            $ skill_for_checking *= .8
-        $ male_skill_for_checking = hero.get_skill("vaginal") + hero.get_skill("sex")
+            $ char_skill_for_checking *= .8
+        $ mc_skill_for_checking = hero.get_skill("oral") + hero.get_skill("sex")
+        $ temp = randint(1, 5)
+        if (char_skill_for_checking - mc_skill_for_checking) > 250 and dice(75):
+            $ temp += randint(1, 5)
+        $ hero.gfx_mod_skill("oral", 0, temp)
+        $ char.gfx_mod_skill("sex", 0, randint(2, 6))
+        $ hero.gfx_mod_skill("sex", 0, randint(1, 4))
 
-        if (skill_for_checking - male_skill_for_checking) > 250 and dice(50):
+        if sex_scene_libido > 0 and not char.has_flag("raped_by_player"):
+            "[char.name] spreads her legs to let you closer."
+        else:
+            "You have to push her legs apart."
+        if not char.has_flag("raped_by_player"):
+            extend " First your tongue just barely touches her pussy, but soon you reach deeper."
+        else:
+            extend " As you put your tongue inside her, you flex the muscles in your tongue to widen the gap as much as possible."
+
+        if sex_scene_libido > 0:
+            if mc_skill_for_checking >= 2000:
+                extend " The pleasure from joy went through her body as she reached an orgasm."
+                $ char.gfx_mod_stat("joy", randint(3, 5))
+                $ hero.mod_stat("joy", randint(2, 4))
+            elif mc_skill_for_checking >= 1000:
+                extend " You managed to make her cum multiple times."
+                $ char.gfx_mod_stat("joy", randint(2, 4))
+                $ hero.mod_stat("joy", randint(1, 2))
+            elif mc_skill_for_checking >= 500:
+                extend " Finally you made her cum."
+                $ char.gfx_mod_stat("joy", randint(1, 2))
+                $ hero.mod_stat("joy", randint(0, 1))
+            elif mc_skill_for_checking >= 200:
+                extend " You licked her pussy until she came. It felt good."
+                $ char.gfx_mod_stat("joy", randint(0, 1))
+            elif mc_skill_for_checking >= 100:
+                extend " You licked her pussy until she came."
+                $ hero.mod_stat("vitality", -randint(5, 10))
+            elif mc_skill_for_checking >= 50:
+                extend " You had some difficulties with bringing her to orgasm but managed to overcome them."
+                $ hero.mod_stat("vitality", -randint(10, 15))
+            else:
+                extend " Unfortunately, you didn't have the skill to satisfy her. [char.name] looks disappointed."
+                $ hero.mod_stat("vitality", -randint(10, 15))
+                $ hero.mod_stat("joy", -randint(0, 2))
+            $ char.gfx_mod_stat("affection", affection_reward(char, .5, stat="oral") + affection_reward(char, .5, stat="vaginal"))
+    elif current_action == "fingervag":
+        $ char_skill_for_checking = 2 * char.get_skill("sex")
+        if interactions_gender_mismatch(char):
+            $ char_skill_for_checking *= .8
+        $ mc_skill_for_checking = hero.get_skill("refinement") + hero.get_skill("sex")
+        $ temp = randint(1, 5)
+        if (char_skill_for_checking - mc_skill_for_checking) > 250 and dice(75):
+            $ temp += randint(1, 5)
+        $ hero.gfx_mod_skill("refinement", 0, temp)
+        $ char.gfx_mod_skill("sex", 0, randint(2, 6))
+        $ hero.gfx_mod_skill("sex", 0, randint(1, 4))
+
+        if sex_scene_libido > 0 and not char.has_flag("raped_by_player"):
+            "[char.name] opens her mouth a bit. Her gaze is filled with anticipation."
+        else:
+            "[char.name] bites her lips and looks away."
+        if not char.has_flag("raped_by_player"):
+            extend " As you touch her lips, they become swollen. A drop of fluid glances at the bottom."  
+        else:
+            extend " Your fingers dig deep into her. You move in and out of her pussy in quick successions." 
+
+        if sex_scene_libido > 0:
+            if mc_skill_for_checking >= 2000:
+                extend " The pleasure from joy went through her body as she reached an orgasm."
+                $ char.gfx_mod_stat("joy", randint(3, 5))
+                $ hero.mod_stat("joy", randint(2, 4))
+            elif mc_skill_for_checking >= 1000:
+                extend " You managed to make her cum multiple times."
+                $ char.gfx_mod_stat("joy", randint(2, 4))
+                $ hero.mod_stat("joy", randint(1, 2))
+            elif mc_skill_for_checking >= 500:
+                extend " Finally you made her cum."
+                $ char.gfx_mod_stat("joy", randint(1, 2))
+                $ hero.mod_stat("joy", randint(0, 1))
+            elif mc_skill_for_checking >= 200:
+                extend " You fingered her until she came. It felt good."
+                $ char.gfx_mod_stat("joy", randint(0, 1))
+            elif mc_skill_for_checking >= 100:
+                extend " You fingered her until she came."
+                $ hero.mod_stat("vitality", -randint(5, 10))
+            elif mc_skill_for_checking >= 50:
+                extend " You had some difficulties with bringing her to orgasm but managed to overcome them."
+                $ hero.mod_stat("vitality", -randint(10, 15))
+            else:
+                extend " Unfortunately, you didn't have the skill to satisfy her. [char.name] looks disappointed."
+                $ hero.mod_stat("vitality", -randint(10, 15))
+                $ hero.mod_stat("joy", -randint(0, 2))
+            $ char.gfx_mod_stat("affection", affection_reward(char, .7, stat="vaginal"))
+    elif current_action == "lickass":
+        $ char_skill_for_checking = 2 * char.get_skill("sex")
+        if interactions_gender_mismatch(char):
+            $ char_skill_for_checking *= .8
+        $ mc_skill_for_checking = hero.get_skill("oral") + hero.get_skill("sex")
+        $ temp = randint(1, 5)
+        if (char_skill_for_checking - mc_skill_for_checking) > 250 and dice(75):
+            $ temp += randint(1, 5)
+        $ hero.gfx_mod_skill("oral", 0, temp)
+        $ char.gfx_mod_skill("sex", 0, randint(2, 6))
+        $ hero.gfx_mod_skill("sex", 0, randint(1, 4))
+
+        if sex_scene_libido > 0 and not char.has_flag("raped_by_player"):
+            "[char.name] spreads [char.pp] legs to let you closer."
+        else:
+            "You have to push [char.pp] legs apart."
+        if not char.has_flag("raped_by_player"):
+            extend " First your tongue just barely touches her ass, but soon you reach deeper."
+        else:
+            extend " As you put your tongue inside [char.op], you flex the muscles in your tongue to widen the gap as much as possible."
+
+        if sex_scene_libido > 0:
+            if mc_skill_for_checking >= 2000:
+                extend " The pleasure from joy went through [char.pp] body as [char.p] reached an orgasm."
+                $ char.gfx_mod_stat("joy", randint(3, 5))
+                $ hero.mod_stat("joy", randint(2, 4))
+            elif mc_skill_for_checking >= 1000:
+                extend " You managed to make [char.op] cum multiple times."
+                $ char.gfx_mod_stat("joy", randint(2, 4))
+                $ hero.mod_stat("joy", randint(1, 2))
+            elif mc_skill_for_checking >= 500:
+                extend " Finally you made [char.op] cum."
+                $ char.gfx_mod_stat("joy", randint(1, 2))
+                $ hero.mod_stat("joy", randint(0, 1))
+            elif mc_skill_for_checking >= 200:
+                extend " You licked [char.pp] ass until [char.p] came. It felt good."
+                $ char.gfx_mod_stat("joy", randint(0, 1))
+            elif mc_skill_for_checking >= 100:
+                extend " You licked [char.pp] ass until [char.p] came."
+                $ hero.mod_stat("vitality", -randint(5, 10))
+            elif mc_skill_for_checking >= 50:
+                extend " You had some difficulties with bringing [char.op] to orgasm but managed to overcome them."
+                $ hero.mod_stat("vitality", -randint(10, 15))
+            else:
+                extend " Unfortunately, you didn't have the skill to satisfy [char.op]. [char.name] looks disappointed."
+                $ hero.mod_stat("vitality", -randint(10, 15))
+                $ hero.mod_stat("joy", -randint(0, 2))
+            $ char.gfx_mod_stat("affection", affection_reward(char, .5, stat="oral") + affection_reward(char, .5, stat="anal"))
+    elif current_action == "fingerass":
+        $ char_skill_for_checking = 2 * char.get_skill("sex")
+        if interactions_gender_mismatch(char):
+            $ char_skill_for_checking *= .8
+        $ mc_skill_for_checking = hero.get_skill("refinement") + hero.get_skill("sex")
+        $ temp = randint(1, 5)
+        if (char_skill_for_checking - mc_skill_for_checking) > 250 and dice(75):
+            $ temp += randint(1, 5)
+        $ hero.gfx_mod_skill("refinement", 0, temp)
+        $ char.gfx_mod_skill("sex", 0, randint(2, 6))
+        $ hero.gfx_mod_skill("sex", 0, randint(1, 4))
+
+        if sex_scene_libido > 0 and not char.has_flag("raped_by_player"):
+            "[char.name] opens [char.pp] mouth a bit. [char.ppC] gaze is filled with anticipation."
+        else:
+            "[char.name] bites [char.pp] lips and looks away."
+        if not char.has_flag("raped_by_player"):
+            extend " As you touch [char.pp] rear entrance, it reflexively contracts a bit."  
+        else:
+            extend " Your fingers dig deep into [char.op]. You move in and out of [char.pp] ass in quick successions." 
+
+        if sex_scene_libido > 0:
+            if mc_skill_for_checking >= 2000:
+                extend " The pleasure from joy went through [char.pp] body as [char.p] reached an orgasm."
+                $ char.gfx_mod_stat("joy", randint(3, 5))
+                $ hero.mod_stat("joy", randint(2, 4))
+            elif mc_skill_for_checking >= 1000:
+                extend " You managed to make [char.op] cum multiple times."
+                $ char.gfx_mod_stat("joy", randint(2, 4))
+                $ hero.mod_stat("joy", randint(1, 2))
+            elif mc_skill_for_checking >= 500:
+                extend " Finally you made [char.op] cum."
+                $ char.gfx_mod_stat("joy", randint(1, 2))
+                $ hero.mod_stat("joy", randint(0, 1))
+            elif mc_skill_for_checking >= 200:
+                extend " You fingered [char.pp] ass until [char.p] came. It felt good."
+                $ char.gfx_mod_stat("joy", randint(0, 1))
+            elif mc_skill_for_checking >= 100:
+                extend " You fingered [char.op] until [char.p] came."
+                $ hero.mod_stat("vitality", -randint(5, 10))
+            elif mc_skill_for_checking >= 50:
+                extend " You had some difficulties with bringing [char.op] to orgasm but managed to overcome them."
+                $ hero.mod_stat("vitality", -randint(10, 15))
+            else:
+                extend " Unfortunately, you didn't have the skill to satisfy [char.op]. [char.name] looks disappointed."
+                $ hero.mod_stat("vitality", -randint(10, 15))
+                $ hero.mod_stat("joy", -randint(0, 2))
+            $ char.gfx_mod_stat("affection", affection_reward(char, .7, stat="anal"))
+    else:
+        $ raise Exception("MC side sexual interaction '%' is not implemented." % current_action)
+
+    if sex_scene_libido <= 0:
+        if mc_skill_for_checking >= 1000:
+            extend " You did your best to make [char.op] cum, but it brought more pain than pleasure judging by [char.pp] expression."
+        else:
+            " [char.pC] is not in the mood anymore. Your efforts to make [char.op] cum were in vain."
+
+    if mc_skill_for_checking >= 50:
+        $ char_count += 1
+    $ sex_count += 1
+    $ del mc_skill_for_checking, char_skill_for_checking, temp
+    return
+
+label interaction_sex_scene_check_skill_acts: # skill level check for two sides actions
+    $ image_tags = gm.get_image_tags()
+    if current_action == "vag":
+        $ char_skill_for_checking = char.get_skill("vaginal") + char.get_skill("sex")
+        if interactions_gender_mismatch(char):
+            $ char_skill_for_checking *= .8
+        $ mc_skill_for_checking = hero.get_skill("vaginal") + hero.get_skill("sex")
+
+        if (char_skill_for_checking - mc_skill_for_checking) > 250 and dice(50):
             $ temp = randint(5, 10)
         else:
             $ temp = randint(2, 6)
         $ hero.gfx_mod_skill("vaginal", 0, temp)
         $ temp = randint(1, 5)
-        if (male_skill_for_checking - skill_for_checking) > 250 and dice(75):
+        if (mc_skill_for_checking - char_skill_for_checking) > 250 and dice(75):
             $ temp += randint(1, 5)
         $ char.gfx_mod_skill("vaginal", 0, temp)
-        $ del temp
         $ char.gfx_mod_skill("sex", 0, randint(1, 5))
         $ hero.gfx_mod_skill("sex", 0, randint(2, 6))
 
@@ -1202,28 +1540,49 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
                 extend " She sits on your lap while you prepare your dick for going inside her."
             else:
                 extend " You enter her pussy, and you two begin to move."
-        call interaction_sex_scene_check_skill_acts from _call_interaction_sex_scene_check_skill_acts
 
-        $ del male_skill_for_checking, skill_for_checking, image_tags
-
+        if char_skill_for_checking >= 2000:
+            "Her technique is fantastic, your bodies move in perfect synchronization, and her pussy feels like velvet."
+            $ char.gfx_mod_stat("joy", randint(3, 5))
+            $ hero.mod_stat("joy", randint(3, 5))
+        elif char_skill_for_checking >= 1000:
+            "Her refined skills, rhythmic movements, and wet hot pussy quickly brought you to the finish."
+            $ char.gfx_mod_stat("joy", randint(2, 4))
+            $ hero.mod_stat("joy", randint(2, 4))
+        elif char_skill_for_checking >= 500:
+            "Her pussy felt very good, her movement patterns and amazing skills quickly exhausted your ability to hold back."
+            $ char.gfx_mod_stat("joy", randint(1, 2))
+            $ hero.mod_stat("joy", randint(1, 2))
+        elif char_skill_for_checking >= 200:
+            "Her movements were pretty good. Nothing extraordinary, but it wasn't half bad either."
+            $ char.gfx_mod_stat("joy", randint(0, 1))
+            $ hero.mod_stat("joy", randint(0, 1))
+        elif char_skill_for_checking >= 100:
+            "It took some time and effort on her part. Her pussy could use some training."
+            $ char.mod_stat("vitality", -randint(5, 10))
+        elif char_skill_for_checking >= 50:
+            "It looks like [char.name] barely knows what she's doing. Still, it's difficult to screw up such a simple task, so eventually, she got the job done."
+            $ char.mod_stat("vitality", -randint(10, 15))
+        else:
+            "Her moves were clumsy and untimely, and her pussy was too dry. Sadly, she was unable to satisfy you adequately."
+            $ char.gfx_mod_stat("joy", -randint(2, 4))
+            $ hero.mod_stat("joy", -randint(2, 4))
+            $ char.mod_stat("vitality", -randint(10, 15))
+        $ char.gfx_mod_stat("affection", affection_reward(char, stat="vaginal"))
     elif current_action == "anal":
-        $ get_single_sex_picture(char, act="2c anal", location=sex_scene_location, hidden_partner=True)
-        $ image_tags = gm.get_image_tags()
-
-        $ skill_for_checking = char.get_skill("anal") + char.get_skill("sex")
+        $ char_skill_for_checking = char.get_skill("anal") + char.get_skill("sex")
         if interactions_gender_mismatch(char):
-            $ skill_for_checking *= .8
-        $ male_skill_for_checking = hero.get_skill("anal") + hero.get_skill("sex")
-        if (skill_for_checking - male_skill_for_checking) > 250 and dice(50):
+            $ char_skill_for_checking *= .8
+        $ mc_skill_for_checking = hero.get_skill("anal") + hero.get_skill("sex")
+        if (char_skill_for_checking - mc_skill_for_checking) > 250 and dice(50):
             $ temp = randint(5, 10)
         else:
             $ temp = randint(2, 6)
         $ hero.gfx_mod_skill("anal", 0, temp)
         $ temp = randint(1, 5)
-        if (male_skill_for_checking - skill_for_checking) > 250 and dice(75):
+        if (mc_skill_for_checking - char_skill_for_checking) > 250 and dice(75):
             $ temp += randint(1, 5)
         $ char.gfx_mod_skill("anal", 0, temp)
-        $ del temp
         $ char.gfx_mod_skill("sex", 0, randint(1, 4))
         $ hero.gfx_mod_skill("sex", 0, randint(2, 6))
 
@@ -1287,305 +1646,88 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
                 extend " [char.pC] sits on your lap while you prepare your dick for going inside [char.pp]."
             else:
                 extend " You enter [char.pp] anus, and you two begin to move."
-        call interaction_sex_scene_check_skill_acts from _call_interaction_sex_scene_check_skill_acts_1
 
-        $ del male_skill_for_checking, skill_for_checking, image_tags
-
-    $ sex_scene_libido -= 1
-    jump interaction_scene_choice
-
-label interaction_sex_scene_check_skill_jobs: # skill level check for girl side actions
-    if current_action == "hand":
-        if skill_for_checking <= 200:
-            if sub > 0:
-                $ narrator(choice(["She strokes you a bit too quickly, the friction is a bit uncomfortable.", "She begins to stroke you very quickly. But because of the speed your cock often slips out of her hand."]))
-            elif sub < 0:
-                $ narrator(choice(["She strokes you gently. She isn't quite sure however what to make of the balls.", "She makes up for her inexperience with determination, carefully stroking your cock."]))
-            else:
-                $ narrator(choice(["She squeezes one of your balls too tightly, but stops when you wince.", "She has a firm grip, and she's not letting go."]))
-        elif skill_for_checking < 500:
-            if sub > 0:
-                $ narrator(choice(["Her fingers cause tingles as they caress the shaft.", "She quickly strokes you, with a very deft pressure."]))
-            elif sub < 0:
-                $ narrator(choice(["She gently caresses the shaft, and cups the balls in her other hand, giving them a warm massage.", "She moves very smoothly, stroking casually and very gently."]))
-            else:
-                $ narrator(choice(["Her hands glide smoothly across it.", "She moves her hands up and down. She's a little rough at this, but at she tries her best."]))
-        else:
-            if sub > 0:
-                $ narrator(choice(["Her movements are masterful, her slightest touch starts you twitching.", "Her expert strokes will have you boiling over in seconds."]))
-            elif sub < 0:
-                $ narrator(choice(["She gently blows across the tip as her finger dance along the shaft.", "She slowly caresses you in a way that makes your blood boil, then pulls back at the last second."]))
-            else:
-                $ narrator(choice(["She knows what to do now, and rubs you with smooth strokes, focusing occasionally on the head.", "You can't tell where her hand is at any moment, all you know is that it works."]))
-        if "after sex" in image_tags:
-            "Soon you generously cover her body with your thick liquid."
-    elif current_action == "tits":
-        if skill_for_checking <= 200:
-            if sub > 0:
-                $ narrator(choice(["She kind of bounces her tits around your cock.", "She tries to quickly slide the cock up and down between her cleavage, but it tends to slide out."]))
-            elif sub < 0:
-                $ narrator(choice(["She slides the cock up and down between her cleavage.", "She squeezes her cleavage as tight as she can and rubs up and down."]))
-            else:
-                $ narrator(choice(["She sort of squishes her breasts back and forth around your cock.", "She slaps her tits against your dick, bouncing her whole body up and down."]))
-        elif skill_for_checking < 500:
-            if sub > 0:
-                $ narrator(choice(["She juggles her breasts up and down around your cock.", "She moves her boobs up and down in a fluid rocking motion."]))
-            elif sub < 0:
-                $ narrator(choice(["She gently caresses the shaft between her tits.", "She lightly brushes the head with her chin as it pops up between her tits."]))
-            else:
-                $ narrator(choice(["Sometimes she pauses to rub her nipples across the shaft.", "She rapidly slides the shaft between her tits"]))
-        else:
-            if sub > 0:
-                $ narrator(choice(["She rapidly rocks her breasts up and down around your cock, covering them with drool to keep things well lubed.", "In as she strokes faster and faster, she bends down to suck on the head."]))
-            elif sub < 0:
-                $ narrator(choice(["In between strokes she gently sucks on the head.", "She drips some spittle down to make sure you're properly lubed."]))
-            else:
-                $ narrator(choice(["She licks away at the head every time it pops up between her tits.", "She dancers her nipples across the shaft."]))
-        if "after sex" in image_tags:
-            if sub > 0:
-                "At the last moment, she pulls away, covering herself with your thick liquid."
-            elif sub < 0:
-                "At the last moment, you take it away from her chest, covering her body with your thick liquid."
-            else:
-                "At the last moment, she asked you to take it away from her chest to cover her body with your thick liquid."
-    elif current_action == "blow":
-        if skill_for_checking <= 200:
-            if sub > 0:
-                $ narrator(choice(["Her head bobs rapidly, until she goes a bit too deep and starts to gag.", "She begins to suck very quickly. But because of the speed your cock often pops out of her mouth."]))
-            elif sub < 0:
-                $ narrator(choice(["She tentatively kisses and licks around the head.", "She licks all over your dick, but she doesn't really have a handle on it."]))
-            else:
-                $ narrator(choice(["She bobs quickly on your cock, but clamps down a bit too tight.", "She puts the tip in her mouth and starts suck in as hard as she can. She's a little rough at this, but at least she tries her best."]))
-        elif skill_for_checking < 500:
-            if sub > 0:
-                $ narrator(choice(["She licks her way down the shaft, and gently teases the balls.", "Her mouth envelopes the head, then she quickly draws it in and draws back with a pop."]))
-            elif sub < 0:
-                $ narrator(choice(["She gently caresses the shaft, and cups the balls in her other hand, giving them a warm massage.", "She moves her tongue very smoothly and very gently, keeping her teeth well clear, aside from a playful nip."]))
-            else:
-                $ narrator(choice(["She's settled into a gentle licking pace that washes over you like a warm bath.", "She licks up and down the shaft. A little rough, but at least she tries her best."]))
-        else:
-            if sub > 0:
-                $ narrator(choice(["She rapidly bobs up and down on your cock, a frenzy of motion.", "She puts the tip into her mouth and her tongue swirls rapidly around it."]))
-            elif sub < 0:
-                $ narrator(choice(["She gently blows across the head as she covers your cock in smooth licks.", "She moves very smoothly, tongue dancing casually and very gently."]))
-            else:
-                $ narrator(choice(["Her deft licks are masterful, your cock twitches with each stroke.", "She's really good at this, alternating between deep suction and gentle licks."]))
-        if "after sex" in image_tags:
-            if sub > 0:
-                "At the last moment, she pulls it out, covering herself with your thick liquid."
-            elif sub < 0:
-                "At the last moment, you pull it out from her mouth, covering her body with your thick liquid."
-            else:
-                "She asked you to pull it out from her mouth at the last moment to cover her body with your thick liquid."
-        $ char.gfx_mod_stat("affection", affection_reward(char, .5, "oral"))
-    if skill_for_checking >= 2000:
-        "She was so good that you profusely came after a few seconds. Pretty impressive."
-        $ char.gfx_mod_stat("joy", randint(3, 5))
-        $ hero.mod_stat("joy", randint(4, 6))
-    elif skill_for_checking >= 1000:
-        "You barely managed to hold out for half a minute in the face of her amazing skills."
-        $ char.gfx_mod_stat("joy", randint(2, 4))
-        $ hero.mod_stat("joy", randint(3, 5))
-    elif skill_for_checking >= 500:
-        "It was very fast and very satisfying."
-        $ char.gfx_mod_stat("joy", randint(1, 2))
-        $ hero.mod_stat("joy", randint(2, 4))
-    elif skill_for_checking >= 200:
-        "Nothing extraordinary, but it wasn't half bad either."
-        $ char.gfx_mod_stat("joy", randint(0, 1))
-        $ hero.mod_stat("joy", randint(1, 2))
-    elif skill_for_checking >= 100:
-        "It took some time and effort on her part. Her skills could be improved."
-    elif skill_for_checking >= 50:
-        "It looks like [char.name] barely knows what she's doing. Still, she somewhat managed to get the job done."
-        $ char.mod_stat("vitality", -randint(5, 10))
-    else:
-        $ char.mod_stat("vitality", -randint(10, 15))
-        "Her moves were clumsy and untimely. By the time she finished the moment had passed, bringing you little satisfaction."
-        $ char.gfx_mod_stat("joy", -randint(2, 4))
-        $ hero.mod_stat("joy", -randint(1, 2))
-    $ sex_count += 1
-    if skill_for_checking >= 50:
-        $ guy_count +=1
-        $ cum_count += 1
-    return
-
-label interaction_sex_scene_check_skill_gives: # # skill level check for MC side actions
-    if sex_scene_libido > 0:
-        if current_action == "lickvag":
-            if skill_for_checking >= 2000:
-                extend " The pleasure from joy went through her body as she reached an orgasm."
-                $ char.gfx_mod_stat("joy", randint(3, 5))
-                $ hero.mod_stat("joy", randint(2, 4))
-            elif skill_for_checking >= 1000:
-                extend " You managed to make her cum multiple times."
-                $ char.gfx_mod_stat("joy", randint(2, 4))
-                $ hero.mod_stat("joy", randint(1, 2))
-            elif skill_for_checking >= 500:
-                extend " Finally you made her cum."
-                $ char.gfx_mod_stat("joy", randint(1, 2))
-                $ hero.mod_stat("joy", randint(0, 1))
-            elif skill_for_checking >= 200:
-                extend " You licked her pussy until she came. It felt good."
-                $ char.gfx_mod_stat("joy", randint(0, 1))
-            elif skill_for_checking >= 100:
-                extend " You licked her pussy until she came."
-                $ hero.mod_stat("vitality", -randint(5, 10))
-            elif skill_for_checking >= 50:
-                extend " You had some difficulties with bringing her to orgasm but managed to overcome them."
-                $ hero.mod_stat("vitality", -randint(10, 15))
-            else:
-                extend " Unfortunately, you didn't have the skill to satisfy her as well. [char.name] looks disappointed."
-                $ hero.mod_stat("vitality", -randint(10, 15))
-                $ hero.mod_stat("joy", -randint(0, 2))
-            $ char.gfx_mod_stat("affection", affection_reward(char, .5, stat="oral"))
-            $ char.gfx_mod_stat("affection", affection_reward(char, .5, stat="vaginal"))
-        elif current_action == "fingervag":
-            if skill_for_checking >= 2000:
-                extend " Your bodies merged into a single entity, filling each other with pleasure and satisfaction."
-                $ char.gfx_mod_stat("joy", randint(3, 5))
-                $ hero.mod_stat("joy", randint(2, 4))
-            elif skill_for_checking >= 1000:
-                extend " You managed to make her cum multiple times."
-                $ char.gfx_mod_stat("joy", randint(2, 4))
-                $ hero.mod_stat("joy", randint(1, 2))
-            elif skill_for_checking >= 500:
-                extend " Finally you made her cum."
-                $ char.gfx_mod_stat("joy", randint(1, 2))
-                $ hero.mod_stat("joy", randint(0, 1))
-            elif skill_for_checking >= 200:
-                extend " You fingered her until she came. It felt good."
-                $ char.gfx_mod_stat("joy", randint(0, 1))
-            elif skill_for_checking >= 100:
-                extend " You fingered her until she came."
-                $ hero.mod_stat("vitality", -randint(5, 10))
-            elif skill_for_checking >= 50:
-                extend " You had some difficulties with bringing her to orgasm but managed to overcome them."
-                $ hero.mod_stat("vitality", -randint(10, 15))
-            else:
-                extend " Unfortunately, you didn't have the skill to satisfy her as well. [char.name] looks disappointed."
-                $ hero.mod_stat("vitality", -randint(10, 15))
-                $ hero.mod_stat("joy", -randint(0, 2))
-            $ char.gfx_mod_stat("affection", affection_reward(char, .7, stat="vaginal"))
-    else:
-        if skill_for_checking >= 1000:
-            extend " You did your best to make her cum, but it brought more pain than pleasure judging by her expression."
-        else:
-            " She is not in the mood anymore. Your efforts to make her cum were in vain."
-
-    $ sex_count += 1
-    if skill_for_checking >= 50:
-        $ girl_count += 1
-    return
-
-label interaction_sex_scene_check_skill_acts: # skill level check for two sides actions
-    if current_action == "vag":
-        if skill_for_checking >= 2000:
-            "Her technique is fantastic, your bodies move in perfect synchronization, and her pussy feels like velvet."
+        if char_skill_for_checking >= 2000:
+            "[char.ppC] technique is fantastic, your bodies move in perfect synchronization, and [char.pp] asshole feels nice and tight."
             $ char.gfx_mod_stat("joy", randint(3, 5))
             $ hero.mod_stat("joy", randint(3, 5))
-        elif skill_for_checking >= 1000:
-            "Her refined skills, rhythmic movements, and wet hot pussy quickly brought you to the finish."
+        elif char_skill_for_checking >= 1000:
+            "[char.ppC] refined skills, rhythmic movements, and tight hot ass quickly brought you to the finish."
             $ char.gfx_mod_stat("joy", randint(2, 4))
             $ hero.mod_stat("joy", randint(2, 4))
-        elif skill_for_checking >= 500:
-            "Her pussy felt very good, her movement patterns and amazing skills quickly exhausted your ability to hold back."
+        elif char_skill_for_checking >= 500:
+            "[char.ppC] anus felt very good, [char.pp] movement patterns and amazing skills quickly exhausted your ability to hold back."
             $ char.gfx_mod_stat("joy", randint(1, 2))
             $ hero.mod_stat("joy", randint(1, 2))
-        elif skill_for_checking >= 200:
-            "Her movements were pretty good. Nothing extraordinary, but it wasn't half bad either."
+        elif char_skill_for_checking >= 200:
+            "[char.ppC] movements were pretty good. Nothing extraordinary, but it wasn't half bad either."
             $ char.gfx_mod_stat("joy", randint(0, 1))
             $ hero.mod_stat("joy", randint(0, 1))
-        elif skill_for_checking >= 100:
-            "It took some time and effort on her part. Her pussy could use some training."
+        elif char_skill_for_checking >= 100:
+            "It took some time and effort on [char.pp] part. [char.ppC] anus could use some training."
             $ char.mod_stat("vitality", -randint(5, 10))
-        elif skill_for_checking >= 50:
-            "It looks like [char.name] barely knows what she's doing. Still, it's difficult to screw up such a simple task, so eventually, she got the job done."
+        elif char_skill_for_checking >= 50:
+            "It looks like [char.name] barely knows what [char.p] is doing. Still, it's difficult to screw up such a simple task, so eventually, [char.p] got the job done."
             $ char.mod_stat("vitality", -randint(10, 15))
         else:
-            "Her moves were clumsy and untimely, and her pussy was too dry. Sadly, she was unable to satisfy you adequately."
-            $ char.gfx_mod_stat("joy", -randint(2, 4))
-            $ hero.mod_stat("joy", -randint(2, 4))
-            $ char.mod_stat("vitality", -randint(10, 15))
-        $ char.gfx_mod_stat("affection", affection_reward(char, stat="vaginal"))
-    elif current_action == "anal":
-        if skill_for_checking >= 2000:
-            "Her technique is fantastic, your bodies move in perfect synchronization, and her asshole feels nice and tight."
-            $ char.gfx_mod_stat("joy", randint(3, 5))
-            $ hero.mod_stat("joy", randint(3, 5))
-        elif skill_for_checking >= 1000:
-            "Her refined skills, rhythmic movements, and tight hot ass quickly brought you to the finish."
-            $ char.gfx_mod_stat("joy", randint(2, 4))
-            $ hero.mod_stat("joy", randint(2, 4))
-        elif skill_for_checking >= 500:
-            "Her anus felt very good, her movement patterns and amazing skills quickly exhausted your ability to hold back."
-            $ char.gfx_mod_stat("joy", randint(1, 2))
-            $ hero.mod_stat("joy", randint(1, 2))
-        elif skill_for_checking >= 200:
-            "Her movements were pretty good. Nothing extraordinary, but it wasn't half bad either."
-            $ char.gfx_mod_stat("joy", randint(0, 1))
-            $ hero.mod_stat("joy", randint(0, 1))
-        elif skill_for_checking >= 100:
-            "It took some time and effort on her part. Her anus could use some training."
-            $ char.mod_stat("vitality", -randint(5, 10))
-        elif skill_for_checking >= 50:
-            "It looks like [char.name] barely knows what she's doing. Still, it's difficult to screw up such a simple task, so eventually, she got the job done."
-            $ char.mod_stat("vitality", -randint(10, 15))
-        else:
-            "Her moves were clumsy and untimely, and her anus wasn't quite ready for that. Sadly, she was unable to satisfy you adequately."
+            "[char.ppC] moves were clumsy and untimely, and [char.pp] anus wasn't quite ready for that. Sadly, [char.p] was unable to satisfy you adequately."
             $ char.gfx_mod_stat("joy", -randint(2, 4))
             $ hero.mod_stat("joy", -randint(2, 4))
             $ char.mod_stat("vitality", -randint(10, 15))
         $ char.gfx_mod_stat("affection", affection_reward(char, stat="anal"))
+    else:
+        $ raise Exception("Two sided sexual interaction '%' is not implemented." % current_action)
+
     if sex_scene_libido > 0:
-        if male_skill_for_checking >= 2000:
+        if mc_skill_for_checking >= 2000:
             extend " Your bodies merged into a single entity, filling each other with pleasure and satisfaction."
             $ char.gfx_mod_stat("joy", randint(3, 5))
             $ hero.mod_stat("joy", randint(3, 5))
-        elif male_skill_for_checking >= 1000:
+        elif mc_skill_for_checking >= 1000:
             extend " In the end, you both cum together multiple times."
             $ char.gfx_mod_stat("joy", randint(2, 4))
             $ hero.mod_stat("joy", randint(2, 4))
-        elif male_skill_for_checking >= 500:
+        elif mc_skill_for_checking >= 500:
             extend " In the end, you both cum together."
             $ char.gfx_mod_stat("joy", randint(1, 2))
             $ hero.mod_stat("joy", randint(1, 2))
-        elif male_skill_for_checking >= 200:
-            extend " You fucked her until you both came. It felt good."
+        elif mc_skill_for_checking >= 200:
+            extend " You fucked [char.op] until you both came. It felt good."
             $ char.gfx_mod_stat("joy", randint(0, 1))
             $ hero.mod_stat("joy", randint(0, 1))
-        elif male_skill_for_checking >= 100:
-            extend " You fucked her until you both came."
+        elif mc_skill_for_checking >= 100:
+            extend " You fucked [char.op] until you both came."
             $ hero.mod_stat("vitality", -randint(5, 10))
-        elif male_skill_for_checking >= 50:
-            extend " You had some difficulties with bringing her to orgasm but managed to overcome them."
+        elif mc_skill_for_checking >= 50:
+            extend " You had some difficulties with bringing [char.op] to orgasm but managed to overcome them."
             $ hero.mod_stat("vitality", -randint(10, 15))
         else:
-            extend " Unfortunately, you didn't have the skill to satisfy her as well. [char.name] looks disappointed."
+            extend " Unfortunately, you didn't have the skill to satisfy [char.op] as well. [char.name] looks disappointed."
             $ char.gfx_mod_stat("joy", -randint(0, 1))
             $ hero.mod_stat("joy", -randint(0, 1))
             $ hero.mod_stat("vitality", -randint(10, 15))
     else:
-        if male_skill_for_checking >= 1000:
-            extend " You did your best to make her cum, but it brought more pain than pleasure judging by her expression."
+        if mc_skill_for_checking >= 1000:
+            extend " You did your best to make [char.op] cum, but it brought more pain than pleasure judging by [char.pp] expression."
         else:
-            " She is not in the mood anymore. Your efforts to make her cum were in vain."
+            " [char.pC] is not in the mood anymore. Your efforts to make [char.op] cum were in vain."
 
     if "after sex" in image_tags:
         $ cum_count += 1
         if sub > 0:
-            "At the last moment, she pulls it out, covering herself with your thick liquid."
+            "At the last moment, [char.p] pulls it out, covering [char.op]self with your thick liquid."
         elif sub < 0:
-            "At the last moment, you pull it out of her, covering her body with your thick liquid."
+            "At the last moment, you pull it out of [char.op], covering [char.pp] body with your thick liquid."
         else:
-            "She asked you to pull it out from her at the last moment to cover her body with your thick liquid."
-    if (male_skill_for_checking) >= 1000 and (skill_for_checking >= 1000):
+            "[char.pC] asked you to pull it out from [char.op] at the last moment to cover [char.pp] body with your thick liquid."
+    if (mc_skill_for_checking) >= 1000 and (char_skill_for_checking >= 1000):
         $ together_count += 1
+    if char_skill_for_checking >= 50:
+        $ mc_count += 1
+    if mc_skill_for_checking >= 50:
+        $ char_count += 1
     $ sex_count += 1
-    if male_skill_for_checking >= 50:
-        $ girl_count += 1
-    if skill_for_checking >= 50:
-        $ guy_count += 1
+    $ del mc_skill_for_checking, char_skill_for_checking, image_tags, temp
     if hasattr(store, 'just_lost_virginity'):
         $ del just_lost_virginity
         call interactions_after_virginity_was_taken from _call_interactions_after_virginity_was_taken
@@ -1720,8 +1862,8 @@ label interactions_sex_disagreement_slave: # the character disagrees to do it
     return
 
 label interaction_check_for_virginity: # here we do all checks and actions with virgin trait when needed
-    if ct("Virgin"):
-        if "Illusive" in hero.traits or 'Chastity' in char.effects:
+    if ct("Virgin") and hero.gender == "male" and char.gender == "female":
+        if "Illusive" in hero.traits or "Chastity" in char.effects:
             $ current_action = "vag"
             jump interactions_sex_scene_logic_part
         else:
@@ -1755,6 +1897,234 @@ label interaction_check_for_virginity: # here we do all checks and actions with 
         if "Blood Master" in hero.traits:
             $ char.enable_effect("Blood Connection")
         $ char.mod_stat("health", -10)
+        $ just_lost_virginity = True
     $ current_action = "vag"
-    $ just_lost_virginity = True
     jump interactions_sex_scene_logic_part
+
+label interactions_girl_virgin_line:  # character agrees to get rid of virgin trait
+    $ char.override_portrait("portrait", "shy")
+    if ct("Impersonal"):
+        $ rc("I'm not going to stay a virgin all my life. Please make me an ex-virgin.", "W-would you make me... a woman?", "You can confirm for yourself that I'm a virgin.", "I understand... When you put it in, please tear my hymen apart slowly, okay?", "This is my first time, so I won't be any good... Please help and guide me.", "You're going to break my hymen... Okay.")
+    elif ct("Shy"):
+        $ rc("Um, I'm a virgin! ...Please, umm, take my first time...", "I, um... I've never did it before... So...", "I've never done this before, but... If you'll be gentle, then...", "Eh? H-how would we do that... Eh!? Th-that goes... in here...? Y-yeah! ...Let's do it...", "Pl-please... Be my... first time...", "I'm, uh... still... a virgin, okay? So... you know...")
+    elif ct("Nymphomaniac") and dice(40):
+        $ rc("...T-this is...unexpectedly embarrassing... It is my first time and all.", "Y-you'll have to teach me a few things...")
+    elif ct("Tsundere"):
+        $ rc("F-fine then, let's get to it! I-it's not like this is my first time, okay!?", "H-hmph! Sex is nothing to me! Fine, let's do this!", "I-if you say you want it, I can give you my virginity... If you'd like...?", "O-okay... But! This is my first time, so... be gentle... Y-you got that!?", "I-if you really, really want my ch-chastity... Then I'll give it to you...")
+    elif ct("Dandere"):
+        $ rc("...I don't mind if it's you. Teach me to fuck.", "...If you're alright with me being inexperienced, then let's do it.", "You'll be my first partner.", "Very well. I will give you my chastity.", "It's my.. first time. I'm giving it to you.", "I'm inexperienced, but I hope that you enjoy my performance.")
+    elif ct("Kuudere"):
+        $ rc("I've... never done it before... Okay, then let's do it.", "Take my virginity. It's n-not really a big deal, you don't have to overthink it.", "I-it's my first time... So I want you to do it gently.", "Yeah, my cherry is still right where nature put it... Please pop it gently, okay?", "I feel like I should warn you that... That I'm a v-virgin... So... you know...")
+    elif ct("Imouto"):
+        $ rc("Alright, you're going to be my first.", "I-if you're okay with me... I don't know if I'll be very good at it, ahaha...", "U-Um, well... If you're gentle...â™Ş", "Umm... I-I don't know how it's done! ...Please, take the lead...")
+    elif ct("Ane"):
+        $ rc("Hmhm, I'm still a virgin. Please be gentle with me... I'll be angry if you're not, ok?", "Hmhm, it looks like you'll become my first...", "I'm a virgin but... I want you to make me a woman.", "Hey... This is my first time... Could I entrust that to you?", "I've never done it before, so don't complain, okay?")
+    elif ct("Bokukko"):
+        $ rc("Virgins are a real pain. You okay with that?", "Yeah, okay, take my virginity.", "You know, mine... Mine's new, unbroken seal and everything... no one's been there before...", "A-are you okay with me even if I'm still a virgin? ...V-very well, challenge accepted!")
+    elif ct("Yandere"):
+        $ rc("Yes... My chastity... is yours...", "I've heard how it works, but... I don't have any experience, okay?", "You can't become a 'woman' without having sex right? Well, I want to be a 'woman'...", "I know the idea of it... But I never actually did it before. Is that still okay...?")
+    elif ct("Kamidere"):
+        $ rc("My first time... Will be tested on your body.", "Hmph, you'll do as my first partner.", "I don't really like pain... I'm okay. let's do it.", "Hurry up and do it, or I'll give my virginity away to whoever.", "Right now, an unplucked fruit is standing before you. Hungry?")
+    else:
+        $ rc("I've never done it before, but... I think I could do it with you.", "It's my first, so... Be gentle, alright?", "Hmm... well, it should be fine if it's with you you, first time or not.", "I-it's okay with you if I make you my first partner... Right...?")
+    $ char.restore_portrait()
+    return
+
+label interactions_after_virginity_was_taken: # right after removing virgin trait not via raping
+    $ char.override_portrait("portrait", "shy")
+    if ct("Impersonal"):
+        $ rc("With this, next time I'll be able to feel good, right?", "Hmm, It did hurt, but... I'm happy.", "It was so big that I thought it would hurt a lot... It is all because of your gentleness. Thank you very much.", "Hm... So this makes me an ex-virgin, it seems.")
+    elif ct("Shy"):
+        $ rc("Uh, i-it's ok... I can endure it...", "Kuh... I'm okay... But... I didn't think it would hurt so much...", "I-It's alright. It did hurt a little, but... I'm really happy â™Ş", "I-It's okay... You were very gentle...")
+    elif ct("Tsundere"):
+        $ rc("Uuh... That really hurt... Of-of course you could have helped it!", "Kuh... I had to go through this one day anyway so it's fine!", "Kuh... This pain makes the world so dazzling...", "What's with this...? Why does it hurt so much? Geez...")
+    elif ct("Dandere"):
+        $ rc("I can still feel the pain of it going in... But it only hurt at first, you know? I wonder how it'll feel next time.", "This pain... it's carved into my body and my heart... I'll never forget this.", "...No, I'm okay. It just... hurt a little more than I expected.", "This pain...I am sure it will become an unforgettable memory...")
+    elif ct("Kuudere"):
+        $ rc("Kuh... It hurts and it's not easy to do... Will it really begin to feel good...?", "Tch!... I-it's not... okay... It hurt so much...", "Kuh... This much pain is nothing...", "Ku... So this is the pain of deflowering... I'm jealous that men don't need to suffer the first time...")
+    elif ct("Imouto"):
+        $ rc("Uuh... It was scary, and painful... Sniff... Be a little more gentle next time...", "Aha, now I've become an adult... after that... uhuhu...", "Uuu, it still stings... It's gonna be okay, right...?", "Uu... Should I smear some medicine on it...?", "Fufu, I gave you my first time â™Ş")
+    elif ct("Ane"):
+        $ rc("As I expected, the first time hurt...", "How was my first? Did it make you happy...?", "Ouch... er, n-no, I'm fine... This is another good memory.", "Kuh, I'll need to practice to get used to this, I think... Of course you'll help me, don't you?")
+    elif ct("Bokukko"):
+        $ rc("Does it hurt this bad for everyone? And they still do it?", "Damn! That really freakin' hurt! Buy me something as an apology, kay?", "The time has come! Virginity lost!", "I can still feel you inside me... So this is sex huh...?")
+    elif ct("Yandere"):
+        $ rc("Hmm... Next time it'll feel good right? Hehe, I can't wait.", "Ahhh, it hurts... I-it can't be helped...", "Ugh... That really hurt... I'm glad I will never have to do that again...", "Phew... It really went in there, huh... It did kind of hurt, though...")
+    elif ct("Kamidere"):
+        $ rc("Ugh. Can this really begin to feel good...?", "Haa... Geez, It hurt and it's disgusting, that's the worst...", "Hng... It hurt and I'm tired... Do people really enjoy this sorta thing...?", "Tch... Huhu, I guess, I won't be called a virgin anymore...", "Nnn.... It's my first time, of course it hurts.")
+    else:
+        $ rc( "Khh... That, that hurt a little bit...", "Ouch... I need to get more practice taking it in...", "Aauu... It hurt even more than I expected...", "I'm fine... This pain is something I have to overcome, so...")
+    $ char.restore_portrait()
+    return
+
+label interactions_char_never_come: # due to low sex skill MC was unable to make the character come
+    $ char.override_portrait("portrait", "indifferent")
+    $ char.show_portrait_overlay("angry", "reset")
+    if ct("Impersonal"):
+        $ rc("Doesn't it count as sex only if we've actually both came?", "I'm not sure how to feel about this kind of sex.", "I guess you need to get used to this. Can I count on you to practice with me?")
+    elif ct("Shy"):
+        $ rc("But I'm still not... You're so cruel...", "But I'm... Not yet...", "Is... is it already over? No, that's fine...")
+    elif ct("Tsundere"):
+        $ rc("Uuh... But, but...! I just got so horny!", "Gosh, how could you forget! About what...? About me c-cumming!!", "Hey, can't you even tell whether or not your partner came?")
+    elif ct("Dandere"):
+        $ rc("...What? Done already?", "Did you...do that...on purpose?", "I can't say I really approve of this sort of one-sided sex...", "Hmph, so selfish...")
+    elif ct("Kuudere"):
+        $ rc("I'll forgive you this time, but...be ready for the next.", "Tch, and it was just getting good.", "I know you want to feel good, but you could throw me a bone... It's nothing...", "Really... isn't that kinda unfair?")
+    elif ct("Imouto"):
+        $ rc("Mrrrâ™Ş, I still haven't cum yet!", "Didn't you forgot...the important stuff? I mean... me...", "Huh? Are we already done? But...", "That was fast... whatever it was, it was way too quick!")
+    elif ct("Ane"):
+        $ rc("Hey, you do know what an orgasm is, yes? ...Then you understand, right?", "Come now, there's still something you haven't done, right?", "...What's wrong? You didn't do much...", "I haven't been satisfied yet...", "Don't worry, it'll get better... Next time, let's try to make it so both of us enjoy it.")
+    elif ct("Bokukko"):
+        $ rc("Stopping after you've only satisfied yourself? You're the lowest.", "Hold on, aren't you forgetting something? ...Yeah, that! You know, that...yeah... N-not that!", "Wha-... but we barely did anything!")
+    elif ct("Yandere"):
+        $ rc("What's the meaning of this? I wanted to do it, you know...", "No-no-no, there's no way we can just end it like that...", "Come on, now, you can do better than that...", "Haa... That's unfair...")
+    elif ct("Kamidere"):
+        $ rc("No self-centred sex allowed, you can't skip the important parts!", "I am not pleased. Please figure out the reason on your own.", "I'm still far from being satisfied though...", "You're still a long way from satisfying me... Work on it for next time.")
+    else:
+        $ rc("Hey! I-I didn't came at all!", "I haven't had anywhere near enough yet, you know?", "Th-this happens sometimes, right...? Still...", "Eh, but I only got a little! Geez...", "Wait, I haven't even came yet!")
+    $ char.hide_portrait_overlay()
+    $ char.restore_portrait()
+    return
+
+label interactions_mc_never_came: # due to low sex skill character was unable to make MC come
+    $ char.override_portrait("portrait", "shy")
+    $ char.show_portrait_overlay("scared", "reset")
+    if ct("Impersonal"):
+        $ rc("...Was my technique that bad?", "I'm sorry, I'm just so incompetent...", "I feel like that was all about me... I apologize.")
+    elif ct("Shy"):
+        $ rc("I'm sorry... I wasn't very good...", "Sorry... Because of my weakness...", "I'm very sorry... Y-yes, I made sure to practice...")
+    elif ct("Tsundere"):
+        $ rc("S-sorry... I'll try harder next time, okay...?", "I-if I'm bad at this, j-just say so already...", "Wh-what? Are you trying to say I'm bad at this? ...Kuh, just you wait.")
+    elif ct("Dandere"):
+        $ rc("This was not something I had any control over... Sorry.", "Please forgive me, this is all due to my insufficient knowledge.")
+    elif ct("Kuudere"):
+        $ rc( "I can't even satisfy you... What am I missing?", "Forgive me for having disappointed you... How can I fix things?")
+    elif ct("Imouto"):
+        $ rc("Was it not good for you? ...Sorry", "...My bad. I'm sorry, ok?", "Ah, um... Next time, I'll make you feel good...")
+    elif ct("Ane"):
+        $ rc("I was unable to satisfy you... My apologies...", "I'm so sorry...I couldn't satisfy you...", "I'm bad at this, so...maybe you can teach me how?")
+    elif ct("Bokukko"):
+        $ rc("Jeez, how come you never came!", "Is it cause I'm so bad? ...I'm sorry, okay?")
+    elif ct("Yandere"):
+        $ rc("I'm sorry... I'll do something about it next time, so forgive me, okay?", "Mmm, I need to learn more about your body, huh...")
+    elif ct("Kamidere"):
+        $ rc( "Hmph, if you didn't want it you could've refused, you know?", "It's your own fault for masturbating so much you can't finish.", "W-what's with this face that says '[char.pC] did [char.pp] best...'?!")
+    else:
+        $ rc("Um. I'm sorry! I'll study up for next time.", "Sorry... I'll do some more studying, so...")
+    $ char.restore_portrait()
+    $ char.hide_portrait_overlay()
+    return
+
+label interactions_mc_cum_alot: # mc cum a lot
+    $ char.override_portrait("portrait", "shy")
+    if hero.gender == "male":
+        if ct("Impersonal"):
+            $ rc("Is it normal for someone to be able to cum so much? Are you not a human?", "As a side note, creampies are okay.", "Nn... Your load exceeded my maximum capacity...", "I have all your weak spots memorized.", "Your semen will be my food.")
+        elif ct("Shy"):
+            $ rc("Y-You came so much... You were really saving it up...!", "Snf snf... It smells...", "I-I... what an embarrassing thing to do...", "I-I can't believe I... did that... Aaahhh...", "I made you feel really good, huh... I-I'm glad...")
+        elif ct("Nymphomaniac") and dice(40):
+            $ rc("Hehehe, thanks for the meal â™Ş", "The flavor of semen differs depending on the food you eat and how you're feeling...", "What a perverted scent... ehehe.", "Huhuh... look at me, I'm a dirty girl covered in your spunk.")
+        elif ct("Tsundere"):
+            $ rc("Geez, you got so much on my face that some went up my nose!", "T-That's embarrassing! Geez...", "I'm happy that you came so many times because of me, but... Didn't you cum too much?", "Yes, yes, you did well by cumming so much... Seriously...", "And? I'm great, right? ...Tell me that I am G-R-E-A-T!")
+        elif ct("Dandere"):
+            $ rc("Your semen's still so warm...", "I could get used to this scent...", "You came quite a bit...", "Don't worry, it's not unpleasant. Don't hold back on me next time.", "I became all slimy...", "How was it? My technique is something else, don't you think?", "I love it... when you cum for me.")
+        elif ct("Kuudere"):
+            $ rc("Um, so, are you gonna be okay, cumming that much?", "...Where did this much even come from?", "I know it feels good, but...you came too much.", "My god, are you bottomless...?", "So, what did you think...? I won't let you say that it didn't feel great!")
+        elif ct("Imouto"):
+            $ rc("Hey, lookie lookie! Look how much you came â™Ş", "Hehehe... It feels kinda warm...", "Nnh, hey look â™Ş It's all that semen you shot out â™Ş", "Hey, can't you change the taste? Something that goes down a little easier would be nice.", "You've marked me with your cum, ehehe", "Waa, It's sticky... Did you cum a lot?", "I-I don't have a runny nose! This is semen!")
+        elif ct("Ane"):
+            $ rc("Fuaha... You came so much...â™Ş", "Hehehe, your sweet spots were so easy to find â™Ş", "There's so much of your cum... Hmhm, want me to drink it?", "Mhmhm, you seem to be quite satisfied.", "That was enjoyable in its own way, thank you.", "Are you okay letting that much out... not dehydrated?", "My, such thick semen... It might get stuck in throat if one won't be careful.")
+        elif ct("Bokukko"):
+            $ rc("You really went all out... Is that how good it felt?", "More protein than I should be having... Oh well.", "...You look pretty strung out, hey? Eat up and get a good night's sleep, mkay?", "Ugh, my face is all sticky... But this is how I'm supposed to take it, right?")
+        elif ct("Yandere"):
+            $ rc( "Hehe... What a nice smell... I want to smell it forever...", "I know every inch of your body better than anyone.", "Hmhm, the face you make when you cum is adorable.", "It felt good, right? That's great...", "Uhuhu, it's good to know that I could be of use...")
+        elif ct("Kamidere"):
+            $ rc("Ew, I'm all sticky... Does the smell even come off...?", "Ahh, you're so naughty to cum this much...", "Nha... H-haven't you got anything to wipe with?", "I need to take a shower...", "Geez, to cum just from a little teasing... That's pathetic.", "Heh, should I tie a ribbon on it so you don't cum so fast?", "You REALLY let loose a lot of this stuff, huh...")
+        else:
+            $ rc("Wow, look, look! Look at all of it... How did you even cum this much â™Ş...", "You came so much...", "Are you okay? Want some water? Are you going to be okay without rehydrating yourself?", "If it felt good for you, then that makes me feel good, too.")
+    else:
+        if ct("Impersonal"):
+            $ rc("Is it normal for someone to be able to cum so much? Are you not a human?", "I have all your weak spots memorized.")
+        elif ct("Shy"):
+            $ rc("Y-You came so much... You were really saving it up...!", "Snf snf... It smells...", "I-I... what an embarrassing thing to do...", "I-I can't believe I... did that... Aaahhh...", "I made you feel really good, huh... I-I'm glad...")
+        elif ct("Nymphomaniac") and dice(40):
+            $ rc("Hehehe, thanks for the meal â™Ş", "What a perverted scent... ehehe.", "Huhuh... look at me, I'm a dirty girl covered in your spunk.")
+        elif ct("Tsundere"):
+            $ rc("T-That's embarrassing! Geez...", "I'm happy that you came so many times because of me, but... Didn't you cum too much?", "Yes, yes, you did well by cumming so much... Seriously...", "And? I'm great, right? ...Tell me that I am G-R-E-A-T!")
+        elif ct("Dandere"):
+            $ rc("Your fluids is still so warm...", "I could get used to this scent...", "You came quite a bit...", "Don't worry, it's not unpleasant. Don't hold back on me next time.", "I became all slimy...", "How was it? My technique is something else, don't you think?", "I love it... when you cum for me.")
+        elif ct("Kuudere"):
+            $ rc("Um, so, are you gonna be okay, cumming that much?", "I know it feels good, but...you came too much.", "My god, are you bottomless...?", "So, what did you think...? I won't let you say that it didn't feel great!")
+        elif ct("Imouto"):
+            $ rc("Hey, lookie lookie! Look how much you came â™Ş", "Hehehe... It feels kinda warm...", "You've marked me with your scent, ehehe", "Waa, It's sticky... Did you cum a lot?")
+        elif ct("Ane"):
+            $ rc("Fuaha... You came so much...â™Ş", "Hehehe, your sweet spots were so easy to find â™Ş", "Mhmhm, you seem to be quite satisfied.", "That was enjoyable in its own way, thank you.", "Are you okay letting that much out... not dehydrated?")
+        elif ct("Bokukko"):
+            $ rc("You really went all out... Is that how good it felt?", "More excercise than I should be having... Oh well.", "...You look pretty strung out, hey? Eat up and get a good night's sleep, mkay?")
+        elif ct("Yandere"):
+            $ rc( "Hehe... What a nice smell... I want to smell you forever...", "I know every inch of your body better than anyone.", "Hmhm, the face you make when you cum is adorable.", "It felt good, right? That's great...", "Uhuhu, it's good to know that I could be of use...")
+        elif ct("Kamidere"):
+            $ rc("Ew, I'm all wet... Should I take a shower?", "Ahh, you're so naughty to cum this much...", "Nha... H-haven't you got anything to wipe with?", "I need to take a shower...", "Geez, to cum just from a little teasing... That's pathetic.", "You REALLY let loose quite easily, huh...")
+        else:
+            $ rc("Wow, look, look! How did you even cum this much â™Ş...", "You came so much...", "Are you okay? Want some water? Are you going to be okay without rehydrating yourself?", "If it felt good for you, then that makes me feel good, too.")
+    $ char.restore_portrait()
+    return
+
+label interactions_after_good_sex: # after very good sex
+    $ char.override_portrait("portrait", "happy")
+    if ct("Impersonal"):
+        $ rc("Thanks for your hard work... Let's have fun the next time too.", "When we make direct contact, it feels like we are melting into each other.", "I thought you would break me...", "I came too much...", "I guess it's possible for something to feel too good...")
+    elif ct("Shy") and dice(65):
+        $ rc("Ah, please, don't make me feel so much pleasure... You'll turn me into a bad girl...", "No, please... I can't look you in the eye right now...", "Uuugh... I did such an embarrassing thing... Pl-please forget about it...", "Auh... I'm sorry for being so perverted...")
+    elif ct("Nymphomaniac") and dice(40):
+        $ rc("Hafu... It was totally worth it practising with all those bananas...â™Ş", "That was incredible... I thought I was gonna lose myself there.", "Ah â™Ş, I did it again today... Alright, starting tomorrow I'll control myself!")
+    elif ct("Tsundere"):
+        $ rc("I-I was... C-cute? ...S-Shut up! One more word and I'll kill you!", "You made me cum so many times, it's kind of frustrating...", "Hu-hmph! Don't get a big head just 'cause you did it right once!", "H-hmph! Just because you're a little good doesn't make you the best in the world!", "I-it's not like you've got good technique or anything! Don't get so full of yourself!")
+    elif ct("Dandere"):
+        $ rc("If you do it like that, anyone would go crazy...", "Mn... You did good...", "...It looks like we're a good match.", "We're quite compatible, you and I." "I came way too many times... Haa...", "D-do I also have such a shameful erotic face?", "Whew... I came so much... I surprised myself...")
+    elif ct("Kuudere"):
+        $ rc("You're really good... I came right away...", "...Please don't look at me. At least for now.", "Yeah, I knew you were the type who gets things done.", "Wh-what? Y-you know just where I like it...?", "Uuu... It did feel amazing... but... I thought you were gonna rip me apart...")
+    elif ct("Imouto"):
+        $ rc("You got me off just like that... You're like some kind of pro!", "Ah... I came right away... You're so good at this...", "I felt so good... Huhu, you are pretty good at this.", "Haah, I came so fast... What's wrong with me?")
+    elif ct("Ane"):
+        $ rc("Exhausted? ...But you'll be wanting to do it again soon, right?ă€€Hmhm â™Ş", "You're so good. ...Hmhm.", "Oh my, you've already found all my weak spots.", "Haah... If you make me feel pleasure this intense... I won't be able to live without you â™Ş", "Hauh... ok, that really was going too far... But it did feel really good...", "My goodness, you've really gotten quite skilled at thisâ™Ş")
+    elif ct("Bokukko"):
+        $ rc("Hehe, well? What, you totally looked like you enjoyed that", "Haahâ™Ş... Man, sex feels sooo goodâ™Ş", "Fuwa... I turned into such a pervert... that surprised me...", "Ehehe, thanks for timing it just right...â™Ş")
+    elif ct("Yandere"):
+        $ rc("Nh... I came so much... Heheheâ™Ş" , "That felt incredible... Fufu, thank you!â™Ş", "This kind of sex really leaves my heart satisfied...", "Ehehe... We had sex â™Ş Sex, sex, sex sex sex sexsexsexsehehe â™Ş Ahahahaha â™Ş", "I've got so much love, I think I may go crazy...", "To be violently messed up like this, isn't so bad sometimes... huhu â™Ş")
+    elif ct("Kamidere"):
+        $ rc("There there, that felt pretty damn good, hey?", "Aau... I thought I was going to break...",  "Mmh... I could become addicted to this pleasure.", "Ah... If it's this good, I guess it's ok to do it everyday.", "It just so happened that I got more sensitive all of a sudden, alright?")
+    else:
+        $ rc("Ahh... My hips are all worn out... Ahaha", "It kinda feels like we're one body one mind now â™Ş", "Haah... Well done... Was it good for you...?", "Haah... Your sexual technique is simply admirable...", "Sorry, it felt so good that I didn't want to stop...", "Haa... It looks like the two of us are pretty compatible...", "Ah, I can't even move... That felt too amazing...")
+    $ char.restore_portrait()
+    return
+
+label interactions_after_normal_sex: # after not good and not bad sex, not via raping
+    $ char.override_portrait("portrait", "happy")
+    if ct("Impersonal"):
+        $ rc("I can still feel you between my legs.", "So how was it, sex with me? Are you satisfied?", "Yeah... felt good.", "Haa... Satisfying...", "Please entertain me again sometime.")
+    elif ct("Shy"):
+        $ rc("I... I wonder how good I was... I don't want you to hate me...", "I-I need to reflect... On the things that I've done...", "Aah... I want it like that, again... Maybe I'm a really dirty girl..?", "I'm very happy... Because... you know... huhuh...")
+    elif ct("Nymphomaniac") and dice(40):
+        $ rc("Hehe... It looks like we were naughty, huh...", "Ehehe... I feel like doing it again...", "Um, how about we do it again? Maybe even two or three more times, if you want...")
+    elif ct("Tsundere"):
+        $ rc("Well, that didn't feel too bad.", "Geez, what are you grinning for!? Yes, yes, it felt good, I get it!", "D-did I... make a funny face? Geez, I'm so embarrassed...", "W-what... Of course it felt good! You got a problem with that!?", "Geez, it was standing up so stiffly, I just couldn't stop myself!")
+    elif ct("Dandere"):
+        $ rc("I want to do it again sometime...", "Did I... do well? I see. Thank you so much.", "It still feels like you are inside me.", "*huff* I can't go on... anymore... *puff*", "That felt really good... I'd be happy to do it again with you sometime.")
+    elif ct("Kuudere"):
+        $ rc("Mmmfhh... I really am exhausted... You should take it easy too.", "That was awesome... Huhuh, let's do it again real soon.", "Geez, me doing such a thing... But it does feel really good...", "Well then... Let's do this again sometime, alright?")
+    elif ct("Imouto"):
+        $ rc("Hey, hey, was I sexy or what?", "Ehehe... I'm good in bed, right?", "Hehe, it looks like we've been naughty...", "Haaaa... Sex really is wonderful...", "Huhuh, the sex felt really nice. Thank you â™Ş", "Hey, hey, what'd you think? It felt good, right? Tell me straight â™Ş", "Making love is a wonderful thing, hmhm â™Ş")
+    elif ct("Ane"):
+        $ rc("What did you think? It felt wonderful, right?", "*sigh*... I'm exhausted... Hehe â™Ş", "I didn't expect it to be that good... Good job, hehe.", "Huhu... please keep desiring me as many times as you want.", "You did it very well... Uhuhu, it felt great.", "I'm ready for you any time, okay? â™Ş")
+    elif ct("Bokukko"):
+        $ rc("Hum, thank you for letting me cum...", "Muhuhu... your orgasm face is nice â™Ş", "Geez... You made me feel so too good...", "Weeell, I s'pose you're pretty good. Not as good as me, though.")
+    elif ct("Yandere"):
+        $ rc("How was it? Are you refreshed? ...Fufu, you should thank me.", "That wasn't bad, I guess... I'm sure you'll do even better next time.", "How does my face look when I cum? ...It doesn't go weird, does it?", "Ahaha â™Şă€€It's so floppy â™Ş And warm â™Ş")
+    elif ct("Kamidere"):
+        $ rc("Aaaah, that was great... It was really awesome.", "Kuuh... Y-you're fucking like a cat in heat! There's no way I can continue after this...", "It felt really good. Well done.", "It wasn't bad, I guess... Yeah... I won't turn you down if you ask again.", "I expect next time will be equally enjoyable.")
+    else:
+        $ rc("That felt so good... Let's do it again someday.", "Hey, it felt good, right?", "Well, I'm looking forward to the next time.", "We really, really have to do this again â™Ş", "Ehehe, I'll let you borrow me again sometime.")
+    $ char.restore_portrait()
+    return
+

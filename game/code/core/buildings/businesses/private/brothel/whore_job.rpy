@@ -131,7 +131,7 @@ init -5 python:
                 disposition += 100
             if "Open Minded" in traits: # really powerful trait
                 disposition = disposition // 2
-            if cgochar(worker, "SIW") or "Nymphomaniac" in traits:
+            if WhoreJob.willing_work(worker, "SIW") or "Nymphomaniac" in traits:
                 disposition -= 200
             elif "Frigid" in traits:
                 disposition += 200
