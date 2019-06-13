@@ -277,7 +277,7 @@ init -5 python:
                                        'He was in the mood for some pussy pounding. \n',
                                        'He asked for some playtime with her vagina.\n']))
                 # Virgin trait check:
-                WhoreJob.take_virginity(worker, log.loc, log)
+                WhoreJob.take_virginity(worker, log)
             # Anal Sex Act
             elif act == 'anal':
                 kwargs = dict(exclude=["gay"]+always_exclude, type="reduce", add_mood=False)
@@ -328,8 +328,8 @@ init -5 python:
                         {"tags": ["bc titsjob"], "exclude": always_exclude},
                         {"tags": ["bc blowjob"], "exclude": always_exclude},
                         {"tags": ["after sex"], "exclude": always_exclude, "dice": 20})
-                act = WhoreJob.get_act(worker, tags)
-                if act == tags[0]:
+                act = WhoreJob.get_act_idx(worker, tags)
+                if act == 0:
                     log.append(choice(["He shoved his cock all the way into her throat! \n",
                                        "Deepthroat is definitely my style, thought the customer... \n"]))
                     if "Lesbian" in worker.traits:
@@ -340,7 +340,7 @@ init -5 python:
                         oralmod = 25
                         sexmod = 10
                     log.img = worker.show("bc deepthroat", **kwargs)
-                elif act == tags[1]:
+                elif act == 1:
                     log.append("He told %s to give him a good handjob.\n"%nickname)
                     if "Lesbian" in worker.traits:
                         effectiveness -= 25
@@ -350,7 +350,7 @@ init -5 python:
                         oralmod = 25
                         sexmod = 10
                     log.img = worker.show("bc handjob", **kwargs)
-                elif act == tags[2]:
+                elif act == 2:
                     log.append(choice(["He asked her for a footjob.\n",
                                        "Footjob might be a weird fetish but that's what the customer wanted...\n"]))
                     if "Lesbian" in worker.traits:
@@ -362,7 +362,7 @@ init -5 python:
                         oralmod = 25
                         sexmod = 10
                     log.img = worker.show("bc footjob", **kwargs)
-                elif act == tags[3]:
+                elif act == 3:
                     if "Lesbian" in worker.traits:
                         effectiveness -= 25
                         sexmod = 20
@@ -373,7 +373,7 @@ init -5 python:
                     if "Big Boobs" in worker.traits or "Abnormally Large Boobs" in worker.traits:
                         log.append(choice(["He went straight for her big boobs. \n",
                                            "Seeing her knockers, customer wanted nothing else then to park his dick between them. \n",
-                                           "Lustfully gazing on your girl's burst, he asked for a titsjob. \n",
+                                           "Lustfully gazing on your girl's breasts, he asked for a titsjob. \n",
                                            "He put his manhood between her big tits. \n" ,
                                            "He showed his cock between %s's enormous breasts. \n"%nickname]))
                     elif "Small Boobs" in worker.traits:
@@ -381,23 +381,13 @@ init -5 python:
                             log.append("With a smirk on his face, customer asked for a titsjob. He was having fun from her vain efforts. \n")
                         else:
                             log.append(choice(["He placed his cock between her breasts, clearly enjoining her flat chest. \n",
-                                               "Even when knowing that her breasts are small, he wanted to be caressed by them. \n"]))
+                                               "Even knowing that her breasts are small, he wanted to be caressed by them. \n"]))
                     else:
                         log.append(choice(["He asked for a titsjob. \n",
                                            "He let %s to caress him with her breasts. \n" % nickname,
                                            "He showed his cock between %s's tits. \n" % nickname]))
                     log.img = worker.show("bc titsjob", **kwargs)
-                elif act == tags[4]:
-                    if "Lesbian" in worker.traits:
-                        effectiveness -= 25
-                        sexmod = 20
-                    else:
-                        sexmod = 25
-                        oralmod = 5
-                    log.append(choice(["Customer wanted nothing else then to jerk himself in from of her and ejaculate on her face. \n",
-                                       "He wanked himself hard in effort to cover her with his cum. \n"]))
-                    log.img = worker.show("after sex", **kwargs)
-                elif act == tags[5]:
+                elif act == 4:
                     log.append(choice(['Client was in mood for some oral sex. \n',
                                        'Client was in the mood for a blowjob. \n',
                                        'He asked her to lick his dick. \n']))
@@ -409,12 +399,27 @@ init -5 python:
                         sexmod = 25
                         oralmod = 10
                     log.img = worker.show("bc blowjob", **kwargs)
-                else: # I do not thing that this will ever be reached...
+                elif act == 5:
+                    if "Lesbian" in worker.traits:
+                        effectiveness -= 25
+                        sexmod = 20
+                    else:
+                        sexmod = 25
+                        oralmod = 5
+                    log.append(choice(["Customer wanted nothing else then to jerk himself in from of her and ejaculate on her face. \n",
+                                       "He wanked himself hard in effort to cover her with his cum. \n"]))
+                    log.img = worker.show("after sex", **kwargs)
+                else: # could not find a matching image
                     log.append(choice(['Client was in mood for some oral sex. \n',
                                        'Client was in the mood for a blowjob. \n',
                                        'He asked her to lick his dick. \n']))
-                    sexmod = 10
-                    oralmod = 10
+                    if "Lesbian" in worker.traits:
+                        effectiveness -= 25
+                        sexmod = 20
+                        oralmod = 8
+                    else:
+                        sexmod = 25
+                        oralmod = 10
                     log.img = worker.show("bc blowjob", **kwargs)
             # Lesbian Act
             elif act == 'lesbian':
@@ -427,7 +432,7 @@ init -5 python:
                         {"tags": ["gay", "2c lickanus"], "exclude": always_exclude},
                         {"tags": ["gay", "bc lickanus"], "exclude": always_exclude},
                         {"tags": ["gay", "2c vaginalfingering"], "exclude": always_exclude},
-                        {"tags": ["gay", "bc vagnalhandjob"], "exclude": always_exclude},
+                        {"tags": ["gay", "bc vaginalhandjob"], "exclude": always_exclude},
                         {"tags": ["gay", "2c analfingering"], "exclude": always_exclude},
                         {"tags": ["gay", "bc analhandjob"], "exclude": always_exclude},
                         {"tags": ["gay", "2c caresstits"], "exclude": always_exclude},
@@ -442,12 +447,12 @@ init -5 python:
                         {"tags": ["gay", "2c analtoy"], "exclude": always_exclude},
                         {"tags": ["gay", "bc toyanal"], "exclude": always_exclude},
                         {"tags": ["gay", "scissors"], "exclude": always_exclude})
-                act = WhoreJob.get_act(worker, tags)
+                act = WhoreJob.get_act_idx(worker, tags)
 
                 # We'll be adding "les" here as Many lesbian pics do not fall in any of the categories and will never be called...
-                if act == tags[0]:
+                if act == 0:
                     log.append(choice(["Clearly in the mood for some cunt, she licked %ss pussy clean.\n" % nickname,
-                                       "Hungry for a cunt, she told %s to be still and started licking her soft pussy with her hot tong. \n" % nickname]))
+                                       "Hungry for a cunt, she told %s to be still and started licking her soft pussy with her hot tongue. \n" % nickname]))
                     if "Lesbian" in worker.traits: # bisexuals will have normal value during lesbian action, lesbians will get +15 effectiveness, and straight ones -25
                         effectiveness += 15
                         sexmod = 25
@@ -463,9 +468,9 @@ init -5 python:
                         oralmod = 8
                         vaginalmod = 8
                     log.img = worker.show("gay", "2c lickpussy", **kwargs)
-                elif act == tags[1]:
+                elif act == 1:
                     log.append(choice(["All hot and bothered, she ordered %s to lick her cunt. \n" % nickname,
-                                       "As if she had an itch, she quickly told %s to tong her pussy. \n" % nickname]))
+                                       "As if she had an itch, she quickly told %s to tongue her pussy. \n" % nickname]))
                     if "Lesbian" in worker.traits:
                         effectiveness += 15
                         sexmod = 10
@@ -482,9 +487,9 @@ init -5 python:
                         oralmod = 20
                         vaginalmod = 8
                     log.img = worker.show("gay", "bc lickpussy", **kwargs)
-                elif act == tags[2]:
+                elif act == 2:
                     log.append(choice(["She licked %ss anus clean.\n" % nickname,
-                                       "She told %s to be still and started licking her asshole with her hot tong. \n" % nickname]))
+                                       "She told %s to be still and started licking her asshole with her hot tongue. \n" % nickname]))
                     if "Lesbian" in worker.traits:
                         effectiveness += 15
                         sexmod = 25
@@ -500,9 +505,9 @@ init -5 python:
                         oralmod = 8
                         analmod = 8
                     log.img = worker.show("gay", "2c lickanus", **kwargs)
-                elif act == tags[3]:
+                elif act == 3:
                     log.append(choice(["All hot and bothered, she ordered %s to lick her asshole. \n" % nickname,
-                                       "As if she had an itch, she quickly told %s to tong her anus. \n" % nickname]))
+                                       "As if she had an itch, she quickly told %s to tongue her anus. \n" % nickname]))
                     if "Lesbian" in worker.traits:
                         effectiveness += 15
                         sexmod = 10
@@ -518,7 +523,7 @@ init -5 python:
                         oralmod = 20
                         analmod = 8
                     log.img = worker.show("gay", "bc lickanus", **kwargs)
-                elif act == tags[4]:
+                elif act == 4:
                     log.append(choice(["In mood for a hot lesbo action, she stuck her fingers in your girls pussy. \n",
                                        "She watched %s moan as she stuck fingers in her pussy. \n" % nickname]))
                     if "Lesbian" in worker.traits:
@@ -533,7 +538,7 @@ init -5 python:
                         sexmod = 20
                         vaginalmod = 8
                     log.img = worker.show("gay", "2c vaginalfingering", **kwargs)
-                elif act == tags[5]:
+                elif act == 5:
                     log.append(choice(["Quite horny, she ordered your girl to finger her cunt. \n",
                                        "Clearly in the mood, she told %s to finger her until she cums. \n" % nickname]))
                     if "Lesbian" in worker.traits:
@@ -547,8 +552,8 @@ init -5 python:
                         effectiveness -= 25
                         sexmod = 20
                         vaginalmod = 8
-                    log.img = worker.show("gay", "bc vagnalhandjob", **kwargs)
-                elif act == tags[6]:
+                    log.img = worker.show("gay", "bc vaginalhandjob", **kwargs)
+                elif act == 6:
                     log.append(choice(["In mood for a hot lesbo action, she stuck her fingers in your girls anus. \n",
                                        "She watched %s moan as she stuck fingers in her asshole. \n" % nickname]))
                     if "Lesbian" in worker.traits:
@@ -563,7 +568,7 @@ init -5 python:
                         sexmod = 20
                         analmod = 8
                     log.img = worker.show("gay", "2c analfingering", **kwargs)
-                elif act == tags[7]:
+                elif act == 7:
                     log.append(choice(["Quite horny, she ordered your girl to finger her anus. \n",
                                        "Clearly in the mood, she told %s to finger her asshole until she cums. \n" % nickname]))
                     if "Lesbian" in worker.traits:
@@ -578,7 +583,7 @@ init -5 python:
                         sexmod = 20
                         analmod = 8
                     log.img = worker.show("gay", "bc analhandjob", **kwargs)
-                elif act == tags[8]:
+                elif act == 8:
                     log.append(choice(["Liking your girls breasts, she had some good time caressing them. \n",
                                        "She enjoyed herself by caressing your girls breasts. \n"]))
                     if "Lesbian" in worker.traits:
@@ -590,7 +595,7 @@ init -5 python:
                         effectiveness -= 25
                         sexmod = 20
                     log.img = worker.show("gay", "2c caresstits", **kwargs)
-                elif act == tags[9]:
+                elif act == 9:
                     log.append(choice(["She asked your girl to caress her tits. \n",
                                        "She told your girl to put a squeeze on her breasts. \n"]))
                     if "Lesbian" in worker.traits:
@@ -602,7 +607,7 @@ init -5 python:
                         effectiveness -= 25
                         sexmod = 20
                     log.img = worker.show("gay", "bc caresstits", **kwargs)
-                elif act == tags[10]:
+                elif act == 10:
                     log.append(choice(["Girls lost themselves in each others embrace.\n",
                                        "Any good lesbo action should start with a hug, don't you think??? \n"]))
                     if "Lesbian" in worker.traits:
@@ -614,7 +619,7 @@ init -5 python:
                         effectiveness -= 25
                         sexmod = 20
                     log.img = worker.show("gay", "bc hug", "2c hug", **kwargs)
-                elif act == tags[11]:
+                elif act == 11:
                     log.append(choice(["She put on a strapon and fucked your girl in her cunt. \n",
                                        "Equipping herself with a strap-on, she lustfully shoved it in %ss pussy. \n" % nickname]))
                     if "Lesbian" in worker.traits:
@@ -629,8 +634,8 @@ init -5 python:
                         vaginalmod = 20
                         sexmod = 8
                     log.img = worker.show("gay", "2c vaginal", **kwargs)
-                    WhoreJob.take_virginity(worker, log.loc, log)
-                elif act == tags[12]:
+                    WhoreJob.take_virginity(worker, log)
+                elif act == 12:
                     log.append(choice(["She ordered %s to put on a strapon and fuck her silly with it. \n" % nickname,
                                        "She equipped %s with a strapon and told her that she was 'up' for a good fuck! \n" % nickname]))
                     if "Lesbian" in worker.traits:
@@ -645,7 +650,7 @@ init -5 python:
                         sexmod = 20
                         vaginalmod = 8
                     log.img = worker.show("gay", "bc vaginal", **kwargs)
-                elif act == tags[13]:
+                elif act == 13:
                     log.append(choice(["She put on a strapon and fucked your girl in her butt. \n",
                                        "Equipping herself with a strapon, she lustfully shoved it in %s's asshole. \n" % nickname]))
                     if "Lesbian" in worker.traits:
@@ -660,7 +665,7 @@ init -5 python:
                         analmod = 20
                         sexmod = 8
                     log.img = worker.show("gay", "2c anal", **kwargs)
-                elif act == tags[14]:
+                elif act == 14:
                     log.append(choice(["She ordered %s to put on a strapon and butt-fuck her silly with it. \n" % nickname,
                                        "She equipped %s with a strapon and told her that she was 'up' for a good anal fuck! \n" % nickname]))
                     if "Lesbian" in worker.traits:
@@ -675,7 +680,7 @@ init -5 python:
                         sexmod = 20
                         analmod = 8
                     log.img = worker.show("gay", "bc anal", **kwargs)
-                elif act == tags[15]:
+                elif act == 15:
                     log.append(choice(["She played with a toy and %ss pussy. \n" % nickname,
                                        "She stuck a toy up %s cunt. \n" % nickname]))
                     if "Lesbian" in worker.traits:
@@ -690,8 +695,8 @@ init -5 python:
                         sexmod = 20
                         vaginalmod = 8
                     log.img = worker.show("gay", "2c vaginaltoy", **kwargs)
-                    WhoreJob.take_virginity(worker, log.loc, log)
-                elif act == tags[16]:
+                    WhoreJob.take_virginity(worker, log)
+                elif act == 16:
                     log.append(choice(["Without further ado, %s fucked her with a toy. \n" % nickname,
                                        "She asked your girl to fuck her pussy with a toy. \n"]))
                     if "Lesbian" in worker.traits:
@@ -706,7 +711,7 @@ init -5 python:
                         sexmod = 20
                         vaginalmod = 8
                     log.img = worker.show("gay", "bc toypussy", **kwargs)
-                elif act == tags[17]:
+                elif act == 17:
                     log.append(choice(["After some foreplay, she stuck a toy up your girls butt. \n",
                                        "For her money, she had some fun playing with a toy and your girls asshole. \n"]))
                     if "Lesbian" in worker.traits:
@@ -721,7 +726,7 @@ init -5 python:
                         sexmod = 20
                         analmod = 8
                     log.img = worker.show("gay", "2c analtoy", **kwargs)
-                elif act == tags[18]:
+                elif act == 18:
                     log.append(choice(["After some foreplay, she asked %s to shove a toy up her ass. \n" % nickname,
                                        "This female customer of your brothel clearly believed that there is no greater pleasure than a toy up her butt. \n"]))
                     if "Lesbian" in worker.traits:
@@ -736,7 +741,7 @@ init -5 python:
                         sexmod = 20
                         analmod = 8
                     log.img = worker.show("gay", "bc toyanal", **kwargs)
-                elif act == tags[19]:
+                elif act == 19:
                     log.append(choice(["She was hoping to get some clit to clit action, and she got it. \n",
                                        "The female customer asked for a session of hot, sweaty tribadism. \n"]))
                     if "Lesbian" in worker.traits:
@@ -872,25 +877,25 @@ init -5 python:
             return effectiveness
 
         @staticmethod
-        def get_act(worker, tags):
+        def get_act_idx(worker, tags):
             acts = list()
-            for t in tags:
+            for idx, t in enumerate(tags):
                 if isinstance(t, tuple):
                     if worker.has_image(*t):
-                        acts.append(t)
+                        acts.append((idx, 100))
                 elif isinstance(t, dict):
-                    if worker.has_image(*t.get("tags", []), exclude=t.get("exclude", [])) and dice(t.get("dice", 100)):
-                        acts.append(t)
+                    if worker.has_image(*t.get("tags", []), exclude=t.get("exclude", [])):
+                        acts.append((idx, t.get("dice", 100)))
 
             if acts:
-                act = choice(acts)
+                act = weighted_sample(acts)
             else:
                 act = None
 
             return act
 
         @staticmethod
-        def take_virginity(worker, loc, log):
+        def take_virginity(worker, log):
             # let's just assume (for now) that dildos are too small to take virginity, otherwise it becomes too complicated in terms of girls control :)
             if "Virgin" in worker.traits and "Chastity" not in worker.effects:
                 tips = 100 + worker.get_stat("charisma") * 3
