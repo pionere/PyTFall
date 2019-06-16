@@ -45,10 +45,10 @@ init -5 python:
                 log.append("%s is not feeling well (down with cold)..." % name)
                 effectiveness -= 15
             elif 'Horny' in effects:
-                log.append("%s is horny. It's perfect mindset for %s job!" % (name, worker.pp))
+                log.append("%s is horny. It's perfect mindset for %s job!" % (name, worker.pd))
                 effectiveness += 20
             elif 'Revealing Clothes' in effects:
-                log.append("%s revealing clothes appeal to customers and make them really horny." % worker.ppC)
+                log.append("%s revealing clothes appeal to customers and make them really horny." % worker.pdC)
                 effectiveness += 15
 
             if locked_dice(65): # traits don't always work, even with high amount of traits there are normal days when performance is not affected
@@ -65,7 +65,7 @@ init -5 python:
                         log.append("Sperm is a good source of protein, and today %s intends to get all protein available!" % name)
                         effectiveness += 25
                     else:
-                        log.append("Hungry %s eats %s snacks all the day, making customers feel like they are less important for %s than food... Which may be true." % (name, worker.pp, worker.pp))
+                        log.append("Hungry %s eats %s snacks all the day, making customers feel like they are less important for %s than food... Which may be true." % (name, worker.pd, worker.pd))
                         effectiveness -= 25
                         log.logloc("dirt", 1)
                 elif trait == "Heavy Drinker":
@@ -79,7 +79,7 @@ init -5 python:
                     log.append("%s is always glad to engage in sex, and this job is just perfect for %s." % (name, worker.op))
                     effectiveness += 40
                 elif trait == "Psychic":
-                    log.append("Knowing what %s partners really want is a trivial matter for a psychic like %s, making %s customers happier." % (worker.pp, name, worker.pp))
+                    log.append("Knowing what %s partners really want is a trivial matter for a psychic like %s, making %s customers happier." % (worker.pd, name, worker.pd))
                     effectiveness += 35
                 elif trait == "Lactation":
                     log.append("%s is lactating! Sometimes customers crave whitish liquids as much as working girls." % name)
@@ -95,10 +95,10 @@ init -5 python:
                     log.logloc("dirt", randint(1, 2))
                     effectiveness += 20
                 elif trait == "Ill-mannered":
-                    log.append("%s is pretty rude today, but fortunately in bed %s bad manners makes customers harder." % (name, worker.pp))
+                    log.append("%s is pretty rude today, but fortunately in bed %s bad manners makes customers harder." % (name, worker.pd))
                     effectiveness += 15
                 elif trait == "Homebody":
-                    log.append("%s really enjoys %s job, having warm food and soft bed nearby all the time. Nice to see someone dedicated to their work." % (name, worker.pp))
+                    log.append("%s really enjoys %s job, having warm food and soft bed nearby all the time. Nice to see someone dedicated to their work." % (name, worker.pd))
                     effectiveness += 15
                 elif trait == "Sexy Air":
                     log.append("%s's sexiness gives customers more fuel, resulting in better satisfaction." % name)
@@ -107,10 +107,10 @@ init -5 python:
                     log.append("Somehow %s doesn't care much about being fucked today, and most customers don't appreciate it." % name)
                     effectiveness -= 15
                 elif trait == "Neat":
-                    log.append("Unfortunately %s is too focused on keeping %s freshly laundered clothes clean instead of satisfying %s partners..." % (name, worker.pp, worker.pp))
+                    log.append("Unfortunately %s is too focused on keeping %s freshly laundered clothes clean instead of satisfying %s partners..." % (name, worker.pd, worker.pd))
                     effectiveness -= 20
                 elif trait == "Energetic":
-                    log.append("%s's moves too fast for %s own good today, rushing too much to the displeasure of %s partners." % (name, worker.pp, worker.pp))
+                    log.append("%s's moves too fast for %s own good today, rushing too much to the displeasure of %s partners." % (name, worker.pd, worker.pd))
                     effectiveness -= 20
                 elif trait == "Frigid":
                     log.append("For %s sex is just a boring job, and many customers don't appreciate it." % name)
@@ -143,7 +143,7 @@ init -5 python:
             # Virgin trait makes whoring problematic, unless Chastity effect is
             # active which should protect Virgin trait all the time no matter what
             virgin = "Virgin" in traits
-            if check_lovers(worker, hero):
+            if check_lovers(worker):
                 if virgin:
                     if "Dedicated" in traits:
                         disposition += 2000 # not a typo; they never agree, even with Chastity effect
@@ -152,7 +152,7 @@ init -5 python:
                         disposition += 300
                 else:
                     disposition -= 100
-            elif check_friends(hero, worker):
+            elif check_friends(worker):
                 if virgin:
                     if worker.get_stat("disposition") >= 900 and "Chastity" not in worker.effects:
                         disposition += 100
@@ -174,7 +174,7 @@ init -5 python:
                 sub = check_submissivity(worker)
                 if worker.status != 'slave':
                     if sub < 0:
-                        log.append("%s is not very happy with %s current job as a harlot, but %s'll get the job done." % (name, worker.pp, worker.p))
+                        log.append("%s is not very happy with %s current job as a harlot, but %s'll get the job done." % (name, worker.pd, worker.p))
                         sub = 15
                     elif sub == 0:
                         log.append("%s serves customers as a whore, but %s would prefer to do something else." % (name, worker.p))
@@ -198,13 +198,13 @@ init -5 python:
                         sub = 25
                     elif sub == 0:
                         if dispo < dispo_req:
-                            log.append("%s will do as you command, but %s will hate every second of %s working as a harlot..." % (name, worker.p, worker.pp))
+                            log.append("%s will do as you command, but %s will hate every second of %s working as a harlot..." % (name, worker.p, worker.pd))
                         else:
-                            log.append("%s was very displeased by %s order to work as a whore, but didn't dare to refuse." % (name, worker.pp))
+                            log.append("%s was very displeased by %s order to work as a whore, but didn't dare to refuse." % (name, worker.pd))
                         sub = 35
                     else:
                         if dispo < dispo_req:
-                            log.append("%s was very displeased by %s order to work as a whore, and makes it clear for everyone before getting busy with clients." % (name, worker.pp))
+                            log.append("%s was very displeased by %s order to work as a whore, and makes it clear for everyone before getting busy with clients." % (name, worker.pd))
                         else:
                             log.append("%s will do as you command and work as a harlot, but not without a lot of grumbling and complaining." % name)
                         sub = 45
@@ -848,7 +848,7 @@ init -5 python:
             if effectiveness < 100 and "Open Minded" not in worker.traits and "Bisexual" not in worker.traits:
                 # with low effectiveness wrong orientation will take some vitality
                 if ("Lesbian" in worker.traits or "Gay" in worker.traits) != (client.gender == worker.gender):
-                    log.append(" It was a bit difficult for %s to do it with %s due to %s sexual orientation..." % (nickname, clientname, worker.pp))
+                    log.append(" It was a bit difficult for %s to do it with %s due to %s sexual orientation..." % (nickname, clientname, worker.pd))
                     log.logws("vitality", -randint(1, 5))
 
             log.append("")

@@ -26,7 +26,7 @@ init -9 python:
 label arena_outside:
     $ setup_xeona()
     if not global_flags.has_flag("menu_return"):
-        $ gm.enter_location(goodtraits=["Manly", "Courageous", "Aggressive"], badtraits=["Coward", "Nerd", "Homebody"],
+        $ iam.enter_location(goodtraits=["Manly", "Courageous", "Aggressive"], badtraits=["Coward", "Nerd", "Homebody"],
                             goodoccupations=["Combatant"], coords=[[.1, .6], [.59, .64], [.98, .61]])
         # Music related:
         if not global_flags.has_flag("keep_playing_music"):
@@ -73,7 +73,7 @@ label arena_outside:
 
         if result[0] == 'jump':
             $ global_flags.set_flag("keep_playing_music")
-            $ gm.start_gm(result[1], img=result[1].show("girlmeets", "armor", exclude=["swimsuit", "beach", "pool", "onsen", "bunny", "indoor", "formal", "wildness"], label_cache=True, gm_mode=True, type="reduce"))
+            $ iam.start_gm(result[1], img=result[1].show("girlmeets", "armor", exclude=["swimsuit", "beach", "pool", "onsen", "bunny", "indoor", "formal", "wildness"], label_cache=True, gm_mode=True, type="reduce"))
 
         if result[0] == 'control':
             if result[1] == "enter_arena":
@@ -420,11 +420,11 @@ screen arena_outside:
 
     use location_actions("arena_outside")
 
-    if gm.show_girls:
-        key "mousedown_3" action ToggleField(gm, "show_girls")
+    if iam.show_girls:
+        key "mousedown_3" action ToggleField(iam, "show_girls")
 
         add "content/gfx/images/bg_gradient.webp" yalign .45
-        for entry, pos in zip(gm.display_girls(), gm.coords):
+        for entry, pos in zip(iam.display_girls(), iam.coords):
             hbox:
                 align pos
                 use rg_lightbutton(return_value=['jump', entry])

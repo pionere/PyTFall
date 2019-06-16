@@ -218,10 +218,10 @@ init -11 python:
         # Free girls should always refuse giving up their items unless MC gave it to them:
         # (Unless action is forced):
         if not force:
-            if all([isinstance(source, Char), source.status != "slave", not(item.price <= interactions_influence(source)*10*(source.tier + 1) and check_lovers(source, hero))]):
+            if all([isinstance(source, Char), source.status != "slave", not(item.price <= iam.hero_influence(source)*10*(source.tier + 1) and check_lovers(source))]):
                 if any([item.slot == "consumable", (item.slot == "misc" and item.mdestruct), source.given_items.get(item.id, 0) < amount]):
                     if not silent:
-                        interactions_items_deny_access(source)
+                        iam.items_deny_access(source)
                     return
 
         return True
@@ -244,11 +244,11 @@ init -11 python:
         char_dispo = character.get_stat("disposition")
         if char_dispo < 0:
             if not silent:
-                interactions_girl_disp_is_too_low_to_give_money(character) # turns out money lines are perfect here
+                iam.disp_is_too_low_to_give_money(character) # turns out money lines are perfect here
             return False
 
         if unequip:
-            if char_dispo >= 900 or check_lovers(character, hero):
+            if char_dispo >= 900 or check_lovers(character):
                 return True
 
             if item.eqchance <= 0 or item.badness >= 80:
@@ -260,7 +260,7 @@ init -11 python:
             # Bad Traits:
             if not item.badtraits.isdisjoint(character.traits):
                 if not silent:
-                    interactions_items_deny_bad_item(character)
+                    iam.items_deny_bad_item(character)
                 return False
 
             # Good traits:
@@ -269,10 +269,10 @@ init -11 python:
 
             if item.eqchance <= 0 or item.badness >= 80:
                 if not silent:
-                    interactions_items_deny_bad_item(character)
+                    iam.items_deny_bad_item(character)
                 return False
 
-            if char_dispo >= 900 or check_lovers(character, hero):
+            if char_dispo >= 900 or check_lovers(character):
                 return True
 
             if item.type == "alcohol":
@@ -280,11 +280,11 @@ init -11 python:
                     return True
 
             # Just an awesome item in general:
-            if item.eqchance >= (40 if check_friends(character, hero) else 70):
+            if item.eqchance >= (40 if check_friends(character) else 70):
                 return True
 
         if not silent:
-            interactions_items_deny_equip(character)
+            iam.items_deny_equip(character)
         return False
 
     def give_to_mc_item_reward(types, price=None, tier=None, locations=["Exploration"]):

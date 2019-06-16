@@ -33,7 +33,7 @@ label city_events_thugs_robbery:
             "Attack him":
                 t "Oho, you have guts, I like it. Let's see what you can do against my boys!"
                 python hide:
-                    back = interactions_pick_background_for_fight("city")
+                    back = iam.select_background_for_fight("city")
                     enemy_team = Team(name="Enemy Team", max_size=3)
                     min_lvl = max(mobs["Thug"]["min_lvl"], 45)
                     for i in xrange(3):
@@ -74,7 +74,7 @@ label city_events_thugs_robbery_attack:
         hs() # hide everything
 
         scr = pytfall.world_events.event_instance("city_events_thugs_robbery_attack").label_cache
-        back = interactions_pick_background_for_fight(scr)
+        back = iam.select_background_for_fight(scr)
         enemy_team = Team(name="Enemy Team", max_size=3)
         min_lvl = max(mobs["Thug"]["min_lvl"], 25)
         for i in xrange(3):

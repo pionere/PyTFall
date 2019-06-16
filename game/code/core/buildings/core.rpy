@@ -872,9 +872,9 @@ init -10 python:
                         continue
                     others = [o for o in self.inhabitants if o != c and o != hero]
                     if trait == "Extremely Jealous":
-                        if not check_lovers(c, hero):
+                        if not check_lovers(c):
                             continue
-                        others = [o for o in others if check_lovers(o, hero)]
+                        others = [o for o in others if check_lovers(o)]
                     if not others:
                         continue
                     o = choice(others)
@@ -1077,7 +1077,7 @@ init -10 python:
                     # business is removed
                     self.all_clients.remove(client)
                     self.modthreat(client.threatmod*2)
-                    temp = "%s storms out of the building pissed off as %s favorite business was removed!" % (client_name, client.pp)
+                    temp = "%s storms out of the building pissed off as %s favorite business was removed!" % (client_name, client.pd)
                     self.log(temp)
                     self.env.exit()
             else:
@@ -1105,7 +1105,7 @@ init -10 python:
                     
                     # Manager active effect:
                     temp = "Your manager convinced %s to wait a bit for a slot in %s favorite %s to open up!" % (
-                                    client_name, client.pp, fav_business.name)
+                                    client_name, client.pd, fav_business.name)
                     self.log(temp)
 
                     self._dnd_manager._dnd_mlog.append("\nAsked a client to wait for a spot in %s to open up!" % (fav_business.name))

@@ -44,10 +44,10 @@ init -5 python:
                 log.append("%s is injured and is in need of some rest." % name)
                 effectiveness -= 70
             elif 'Food Poisoning' in effects:
-                log.append("%s suffers from Food Poisoning, and is very far from %s top shape." % (name, worker.pp))
+                log.append("%s suffers from Food Poisoning, and is very far from %s top shape." % (name, worker.pd))
                 effectiveness -= 50
             elif 'Drunk' in effects:
-                log.append("%s is drunk, which affects %s coordination. Not the best thing when you need to guard something." % (name, worker.pp))
+                log.append("%s is drunk, which affects %s coordination. Not the best thing when you need to guard something." % (name, worker.pd))
                 effectiveness -= 20
             elif 'Down with Cold' in effects:
                 log.append("%s is not feeling well due to colds..." % name)
@@ -97,7 +97,7 @@ init -5 python:
                     log.append("%s has trouble adapting to the constantly evolving world." % name)
                     effectiveness -= 15
                 elif trait == "Neat":
-                    log.append("%s refuses to dirty %s hands on some of the uglier looking beasts." % (name, worker.pp))
+                    log.append("%s refuses to dirty %s hands on some of the uglier looking beasts." % (name, worker.pd))
                     effectiveness -= 15
                 elif trait == "Coward":
                     log.append("%s keeps asking for backup every single time an incident arises." % name)

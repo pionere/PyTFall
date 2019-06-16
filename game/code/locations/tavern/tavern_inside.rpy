@@ -180,8 +180,8 @@ label mc_action_tavern_relax:
                     member.gfx_mod_stat("joy", randint(2, 4))
                     member.gfx_mod_stat("disposition", randint(3, 5))
                     member.gfx_mod_stat("affection", affection_reward(member))
-                    interactions_drinking_outside_of_inventory(character=member, count=randint(15, 40))
-                interactions_drinking_outside_of_inventory(character=hero, count=randint(15, 25))
+                    iam.drinking_outside_of_inventory(character=member, count=randint(15, 40))
+                iam.drinking_outside_of_inventory(character=hero, count=randint(15, 25))
             hide temp1
             hide temp2
             with dissolve
@@ -232,7 +232,7 @@ label mc_action_tavern_look_around: # various bonuses to theoretical skills for 
     if hero.take_money(randint(10, 20), reason="Tavern"):
         hide drunkards with dissolve
 
-        $ interactions_drinking_outside_of_inventory(character=hero, count=randint(15, 25))
+        $ iam.drinking_outside_of_inventory(character=hero, count=randint(15, 25))
         $ N = random.choice(["fishing", "sex", "exp"])
 
         if N == "fishing":
@@ -272,7 +272,7 @@ label city_tavern_thugs_fight: # fight with random thugs in the brawl mode
             mob = build_mob(id=id, level=randint(min_lvl, min_lvl+20))
             mob.front_row = 1
             enemy_team.add(mob)
-        back = interactions_pick_background_for_fight("tavern")
+        back = iam.select_background_for_fight("tavern")
         result = run_default_be(enemy_team, background=back, end_background="tavern_inside", skill_lvl=3,
                                 slaves=False, prebattle=True)
 

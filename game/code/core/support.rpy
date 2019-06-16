@@ -205,7 +205,7 @@ init -9 python:
 
             # Girlsmeets:
             tl.start("Girlsmeets ND")
-            gm.next_day()
+            iam.next_day()
             tl.end("Girlsmeets ND")
 
             # Schools:

@@ -36,7 +36,7 @@ init -5 python:
             if num_workers > 1:
                 building.log(set_font_color("Your cleaners are starting their shift!", "cadetblue"))
             elif num_workers == 1: 
-                building.log(set_font_color("Your cleaner is starting %s shift!" % (next(iter(strict_workers)).pp), "cadetblue"))
+                building.log(set_font_color("Your cleaner is starting %s shift!" % (next(iter(strict_workers)).pd), "cadetblue"))
 
             while 1:
                 now = self.env.now
@@ -144,7 +144,7 @@ init -5 python:
                     temp += "%s were pulled off their duties to help out..." % (", ".join([w.nickname for w in extra_workers]))
                 else:
                     w = next(iter(extra_workers))
-                    temp += "%s was pulled off %s duty to help out..." % (w.nickname, w.pp)
+                    temp += "%s was pulled off %s duty to help out..." % (w.nickname, w.pd)
                 log.append(temp)
 
                 workers -= extra_workers
@@ -155,7 +155,7 @@ init -5 python:
                     temp = "%s worked hard keeping your business clean as it is their direct job!" % (", ".join([w.nickname for w in workers]))
                 else:
                     w = next(iter(workers))
-                    temp = "%s worked hard keeping your business clean as it is %s direct job!" % (w.nickname, w.pp)
+                    temp = "%s worked hard keeping your business clean as it is %s direct job!" % (w.nickname, w.pd)
                 log.append(temp)
 
             simpy_debug("Cleaners.write_nd_report marker 3")

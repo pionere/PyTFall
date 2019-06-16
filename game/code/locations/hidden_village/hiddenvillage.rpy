@@ -1,5 +1,5 @@
 label hiddenvillage_entrance:
-    $ gm.enter_location(limited_location=True, goodtraits=["Curious"], coords=[[.2, .25], [.55, .2], [.8, .18]])
+    $ iam.enter_location(limited_location=True, goodtraits=["Curious"], coords=[[.2, .25], [.55, .2], [.8, .18]])
     # Music
     if not global_flags.has_flag("keep_playing_music"):
         $ PyTFallStatic.play_music("village", fadein=.5)
@@ -27,7 +27,7 @@ label hiddenvillage_entrance:
         $ result = ui.interact()
 
         if result[0] == 'jump':
-            $ gm.start_gm(result[1], img=result[1].show("girlmeets", "suburb", exclude=["beach", "winter", "night", "formal", "indoors", "swimsuit"], type="first_default", label_cache=True, gm_mode=True))
+            $ iam.start_gm(result[1], img=result[1].show("girlmeets", "suburb", exclude=["beach", "winter", "night", "formal", "indoors", "swimsuit"], type="first_default", label_cache=True, gm_mode=True))
 
         elif result == ['control', 'return']:
             $ renpy.music.stop(channel="world")
@@ -40,7 +40,7 @@ screen hiddenvillage_entrance:
     use top_stripe(True)
 
     use location_actions("hiddenvillage_entrance")
-    if not gm.show_girls:
+    if not iam.show_girls:
         $img = ProportionalScale("content/gfx/interface/icons/ninja_shop.png", 100, 70)
         imagebutton:
             pos(300, 315)
@@ -49,12 +49,12 @@ screen hiddenvillage_entrance:
             action [Hide("hiddenvillage_entrance"), Jump("hidden_village_shop")]
             tooltip "Ninja Shop"
 
-    if gm.show_girls:
-        key "mousedown_3" action ToggleField(gm, "show_girls")
+    if iam.show_girls:
+        key "mousedown_3" action ToggleField(iam, "show_girls")
 
         add "content/gfx/images/bg_gradient.webp" yalign .45
 
-        for entry, pos in zip(gm.display_girls(), gm.coords):
+        for entry, pos in zip(iam.display_girls(), iam.coords):
             hbox:
                 align pos
                 use rg_lightbutton(return_value=['jump', entry])

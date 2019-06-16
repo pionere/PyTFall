@@ -111,8 +111,8 @@ init -11 python:
         Launches BE with MC team vs provided enemy team, returns True if MC won and vice versa
         - if slaves == True, slaves in MC team will be inside BE with passive AI, otherwise they won't be there
         - background by default is arena, otherwise could be anything,
-            like interactions_pick_background_for_fight(gm.label_cache) for GMs
-            or interactions_pick_background_for_fight(pytfall.world_events.event_instance("event name").label_cache) for events
+            like iam.select_background_for_fight(iam.label_cache) for GMs
+            or iam.select_background_for_fight(pytfall.world_events.event_instance("event name").label_cache) for events
         - track by default is random, otherwise it could be a path to some track
         - if prebattle is true, there will be prebattle quotes inside BE from characters before battle starts
         - if death == True, characters in MC team will die if defeated, otherwise they will have 1 hp left

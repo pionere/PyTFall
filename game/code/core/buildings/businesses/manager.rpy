@@ -34,10 +34,10 @@ init -5 python:
                 log.append("%s is exhausted and is in need of some rest." % name)
                 effectiveness -= 75
             elif 'Drunk' in effects:
-                log.append("Being drunk, %s is totally incapable to fulfill %s job." % (name, worker.pp))
+                log.append("Being drunk, %s is totally incapable to fulfill %s job." % (name, worker.pd))
                 effectiveness -= 70
             elif 'Food Poisoning' in effects:
-                log.append("%s suffers from Food Poisoning, and is very far from %s top shape." % (name, worker.pp))
+                log.append("%s suffers from Food Poisoning, and is very far from %s top shape." % (name, worker.pd))
                 effectiveness -= 50
             elif 'Down with Cold' in effects:
                 log.append("%s is not feeling well due to colds..." % name)
@@ -61,13 +61,13 @@ init -5 python:
                     log.append("%s knows how to convince the workers to do their job." % name)
                     effectiveness += 20
                 elif trait == "Well-mannered":
-                    log.append("%s expresses %s wishes in a perfect way. The workers are happy to comply." % (name, worker.pp))
+                    log.append("%s expresses %s wishes in a perfect way. The workers are happy to comply." % (name, worker.pd))
                     effectiveness += 10
                 elif trait == "Frigid":
-                    log.append("%s focus is always on the job, which makes %s a great manager." % (name, worker.pp))
+                    log.append("%s focus is always on the job, which makes %s a great manager." % (name, worker.pd))
                     effectiveness += 10
                 elif trait == "Serious":
-                    log.append("%s means business. The workers follow %s orders promptly." % (name, worker.pp))
+                    log.append("%s means business. The workers follow %s orders promptly." % (name, worker.pd))
                     effectiveness += 10
                 elif trait == "Peaceful":
                     log.append("%s does not let arguments spiral out of control. Makes it easy to handle the difficulties on the job." % name)
@@ -76,7 +76,7 @@ init -5 python:
                     log.append("The perfect dress of %s indicates professionalism." % name)
                     effectiveness += 10
                 elif trait == "Clumsy":
-                    log.append("The footsteps of %s are marked with mistakes. %s subordinates wish for a better lead." % (name, worker.ppC))
+                    log.append("The footsteps of %s are marked with mistakes. %s subordinates wish for a better lead." % (name, worker.pdC))
                     effectiveness -= 10
                 elif trait == "Nerd":
                     log.append("The workers find it hard to communicate with %s." % name)
@@ -85,16 +85,16 @@ init -5 python:
                     log.append("It is hard to give orders while your stomach is empty and your mouth is full. %s should find a more appropriate job." % name)
                     effectiveness -= 10
                 elif trait == "Ill-mannered" or trait == "Aggressive":
-                    log.append("The rude behaviour of %s makes %s co-worker unwilling to follow %s orders." % (name, worker.pp, worker.pp))
+                    log.append("The rude behaviour of %s makes %s co-worker unwilling to follow %s orders." % (name, worker.pd, worker.pd))
                     effectiveness -= 10
                 elif trait == "Exhibitionist":
-                    log.append("The way %s dresses distracts the worker around %s." % (name, worker.pp))
+                    log.append("The way %s dresses distracts the worker around %s." % (name, worker.pd))
                     effectiveness -= 20
                 elif trait == "Natural Follower":
-                    log.append("%s would rather take than give orders. This is really not a job for %s." % (name, worker.pp))
+                    log.append("%s would rather take than give orders. This is really not a job for %s." % (name, worker.pd))
                     effectiveness -= 25
                 elif trait == "Shy":
-                    log.append("The commands of %s are easily suppressed by the workers wishes. %s feels out of place at %s job." % (name, worker.pC, worker.pp))
+                    log.append("The commands of %s are easily suppressed by the workers wishes. %s feels out of place at %s job." % (name, worker.pC, worker.pd))
                     effectiveness -= 30
 
             return effectiveness

@@ -1,5 +1,5 @@
 label city_parkgates:
-    $ gm.enter_location(goodtraits=["Elf", "Furry", "Human"], badtraits=["Aggressive", "Adventurous"],
+    $ iam.enter_location(goodtraits=["Elf", "Furry", "Human"], badtraits=["Aggressive", "Adventurous"],
                         coords=[[.1, .75], [.4, .67], [.9, .7]])
     # Music related:
     if not global_flags.has_flag("keep_playing_music"):
@@ -31,7 +31,7 @@ label city_parkgates:
         $ result = ui.interact()
 
         if result[0] == 'jump':
-            $ gm.start_gm(result[1], img=result[1].show("girlmeets", "outdoors", "nature", "urban", exclude=["swimsuit", "wildness", "indoors", "stage", "beach", "pool", "onsen", "indoor"], type="reduce", label_cache=True, gm_mode=True))
+            $ iam.start_gm(result[1], img=result[1].show("girlmeets", "outdoors", "nature", "urban", exclude=["swimsuit", "wildness", "indoors", "stage", "beach", "pool", "onsen", "indoor"], type="reduce", label_cache=True, gm_mode=True))
 
         if result[0] == 'control':
             hide screen city_parkgates
@@ -50,17 +50,17 @@ screen city_parkgates():
 
     use top_stripe(True)
 
-    if not gm.show_girls:
+    if not iam.show_girls:
         use r_lightbutton(img=im.Scale("content/gfx/interface/buttons/blue_arrow.png", 80, 80), return_value=['control', 'jumppark'], align=(.99,0.5))
 
     use location_actions("city_parkgates")
 
-    if gm.show_girls:
-        key "mousedown_3" action ToggleField(gm, "show_girls")
+    if iam.show_girls:
+        key "mousedown_3" action ToggleField(iam, "show_girls")
 
         add "content/gfx/images/bg_gradient.webp" yalign .45
 
-        for entry, pos in zip(gm.display_girls(), gm.coords):
+        for entry, pos in zip(iam.display_girls(), iam.coords):
             hbox:
                 align pos
                 use rg_lightbutton(return_value=['jump', entry])

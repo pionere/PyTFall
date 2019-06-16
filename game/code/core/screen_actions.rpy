@@ -558,10 +558,10 @@ init -9 python:
 
             # Get the mode
             if isinstance(mode, (list, tuple)):
-                mode = Iff(S((gm, "mode")), "in", mode)
+                mode = Iff(S((iam, "mode")), "in", mode)
 
             elif isinstance(mode, basestring):
-                mode = Iff(S((gm, "mode")), "==", mode)
+                mode = Iff(S((iam, "mode")), "==", mode)
 
             # Update the condition
             if mode is not None:
@@ -605,7 +605,7 @@ init -9 python:
             Adds the default "Meet Girls" action.
             index = The index to use. Defaults to "meet_girls".
             """
-            self.add(index, WorldAction("Meet Girls", ToggleField(gm, "show_girls")))
+            self.add(index, WorldAction("Meet Girls", ToggleField(iam, "show_girls")))
 
         def menu(self, index, *args, **kwargs):
             """

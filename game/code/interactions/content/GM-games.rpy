@@ -4,16 +4,17 @@
 #
 ##################################################################################################    
 label interactions_play_bow:
-    $ interactions_check_for_bad_stuff(char)
+    if iam.check_for_bad_stuff(char):
+        jump girl_interactions_end
 
-    $ m = interactions_flag_count_checker(char, "flag_interactions_archery")
+    $ m = iam.flag_count_checker(char, "flag_interactions_archery")
     if m > 1:
         $ del m
-        call interactions_refused_because_tired from _call_interactions_refused_because_tired_4
+        $ iam.refuse_because_tired(char)
         jump girl_interactions
     $ del m
 
-    call interactions_prearchery_lines from _call_interactions_prearchery_lines
+    $ iam.archery_start(char)
 
     menu:
         "Where would you like to do it?"
@@ -453,29 +454,6 @@ screen interactions_archery_range_result:
                 text "Next Round" style "pb_button_text"
                 align .5, .9
 
-label interactions_prearchery_lines: # lines before archery
-    if ct("Impersonal"):
-        $ rc("Understood. Initialising battle mode.", "Very well. Switching to training mode.")
-    elif ct("Imouto"):
-        $ rc("Behold of my amazing techniques, [char.mc_ref]!")
-    elif ct("Dandere"):
-        $ rc("Let's end this quickly, [char.mc_ref]. We have many other things to do.",  "Let's see who's better.")
-    elif ct("Kuudere"):
-        $ rc("Fine, I accept your challenge.", "Let's fight fair and square.")
-    elif ct("Tsundere"):
-        $ rc("I won't go easy on you!", "Fine, I'll show you how it's done.")
-    elif ct("Bokukko"):
-        $ rc("I'm gonna whack you good!", "All right, let's get over with this fast!")
-    elif ct("Ane"):
-        $ rc("Hehe, let's both do our best.", "Fine, let's find out who is better at this!")
-    elif ct("Kamidere"):
-        $ rc("Alright, let's see what you can do.", "I suppose, I have a few minutes to spare.")
-    elif ct("Yandere"):
-        $ rc("Sure, but don't blame me if your ass is gonna be kicked...", "I'll try to be gentle, but no promises.")
-    else:
-        $ rc("I don't mind. Let's do it.", "Sure, I can use some practice.")
-    return
-
 label interactions_postgame_lines: # lines and rewards after games
     if game_result == hero:
         "You won."
@@ -504,34 +482,13 @@ label interactions_postgame_lines: # lines and rewards after games
     else:
         "Draw."
 
-        $ hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=.25))
-        $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.25))
-        
+        $ iam.int_reward_exp(char)
+
         $ char.gfx_mod_stat("disposition", randint(15, 20))
         $ char.gfx_mod_stat("affection", affection_reward(char, .4, stat="attack"))
         $ char.gfx_mod_stat("affection", affection_reward(char, .4))
 
-    if ct("Impersonal"):
-        $ rc("Practice is over. Switching to standby mode.", "All right, let's get back to normal.")
-    elif ct("Imouto"):
-        $ rc("Woohoo! Getting better every day!", "Haha, it was fun! We should do it again!")
-    elif ct("Dandere"):
-        $ rc("Guess that does it. Good fight.", "Ok, I suppose we can leave it at this.")
-    elif ct("Kuudere"):
-        $ rc("You are a worthy opponent.", "We both still have much to learn.")
-    elif ct("Tsundere"):
-        $ rc("Jeez, now I'm tired after all that.", "Haaa... It was pretty fun.")
-    elif ct("Bokukko"):
-        $ rc("Oh, we done already?", "Not a bad exercise, was it?")
-    elif ct("Ane"):
-        $ rc("Oh my, I think I may have overdone it a little. Apologies.")
-    elif ct("Kamidere"):
-        $ rc("I'm tired. We are done here.", "I suppose it was a valuable experience.")
-    elif ct("Yandere"):
-        $ rc("Sorry, I got carried away. But you did well nevertheless.", "Goodness, look at this. I got my clothes all wet.")
-    else:
-        $ rc("You're pretty good.", "Phew... We should do this again sometime.")
-
+    $ iam.archery_end(char)
     return
 
 label interaction_archery_char_comment_self: # (game_result)
@@ -551,13 +508,13 @@ label interaction_archery_char_comment_self: # (game_result)
             extend "[game_result]"
         elif game_result < 4:
             # weak hit
-            $ rc("Well, a [game_result]. Maybe the next one...", "Ehh... [game_result]. Could have been better.", "A [game_result]. Not my best one.")
+            $ iam.say_line(char, ("Well, a [game_result]. Maybe the next one...", "Ehh... [game_result]. Could have been better.", "A [game_result]. Not my best one."), "sad")
         else:
             # normal hit
-            $ rc("A [game_result]. It is fine, I guess.", "A hit of [game_result] is O.K. with me.", "Hm.. [game_result]. That was a nice shot, don't you think?", "A [game_result]. For now that will do.", "Can to beat this [game_result]?")
+            $ iam.say_line(char, ("A [game_result]. It is fine, I guess.", "A hit of [game_result] is O.K. with me.", "Hm.. [game_result]. That was a nice shot, don't you think?", "A [game_result]. For now that will do.", "Can to beat this [game_result]?"))
     else:
         # miss
-        $ rc("Hmpf... Can I try again?", "Ouch... that hurts.", "Stop distracting me!", "Eh... Maybe we should not play against the sun.", "Well, here goes nothing...")
+        $ iam.say_line(char, ("Hmpf... Can I try again?", "Ouch... that hurts.", "Stop distracting me!", "Eh... Maybe we should not play against the sun.", "Well, here goes nothing..."), "sad")
     $ game_result = None
     return
 
@@ -578,10 +535,10 @@ label interaction_archery_char_comment: # (game_result)
             extend "[game_result]"
         elif game_result < 4:
             # weak hit
-            $ rc("A [game_result]. Now watch me!", "Anyone can hit a [game_result].", "A [game_result]. Do you even try?")
+            $ iam.say_line(char, ("A [game_result]. Now watch me!", "Anyone can hit a [game_result].", "A [game_result]. Do you even try?"), "confident")
         else:
             # normal hit
-            $ rc("A [game_result]. You try to challenge me?", "A hit of [game_result] is not bad for a beginner.", "Hm.. [game_result]. Is this your lucky shot?", "A [game_result]. It is O.K., considering the circumstances...", "Are you satisfied with your [game_result]?")
+            $ iam.say_line(char, ("A [game_result]. You try to challenge me?", "A hit of [game_result] is not bad for a beginner.", "Hm.. [game_result]. Is this your lucky shot?", "A [game_result]. It is O.K., considering the circumstances...", "Are you satisfied with your [game_result]?"))
     else:
         # miss
         if game_result[0] == "_": # "_r", "_R", "_l", "_L"
@@ -591,21 +548,22 @@ label interaction_archery_char_comment: # (game_result)
         elif len(game_result) == 1:
             # one-way miss  ("r", "R", "l", "L", "u", "U", "d", "D")
             if game_result == "r":
-                $ rc("You might want to come a bit closer?", "I guess now you try to blame the wind.")
+                $ temp = ("You might want to come a bit closer?", "I guess now you try to blame the wind.")
             elif game_result == "R":
-                $ rc("That was way too far to the right.", "I would not even try to find that arrow.")
+                $ temp = ("That was way too far to the right.", "I would not even try to find that arrow.")
             elif game_result == "l":
-                $ rc("You might want to come a bit closer?", "I guess now you try to blame the wind.")
+                $ temp = ("You might want to come a bit closer?", "I guess now you try to blame the wind.")
             elif game_result == "L":
-                $ rc("That was way too far to the left.", "I would not even try to find that arrow.")
+                $ temp = ("That was way too far to the left.", "I would not even try to find that arrow.")
             elif game_result == "u":
-                $ rc("I see you have high hopes.", "Optimism helps in many situations.")
+                $ temp = ("I see you have high hopes.", "Optimism helps in many situations.")
             elif game_result == "U":
-                $ rc("Are you shooting for the stars?", "Watch your back, the arrow might come around the Earth.", "Please, do not hurt the birds!")
+                $ temp = ("Are you shooting for the stars?", "Watch your back, the arrow might come around the Earth.", "Please, do not hurt the birds!")
             elif game_result == "d":
-                $ rc("All right, so the trestle is stable.", "You might want to try this on the Moon.", "Well, at least we do not have to pay for this arrow.")
+                $ temp = ("All right, so the trestle is stable.", "You might want to try this on the Moon.", "Well, at least we do not have to pay for this arrow.")
             else: # game_result == "D":
-                $ rc("Try not to shoot yourself in the foot!", "Are you hunting for gophers?", "You never had to dig a borehole by hand, right?")
+                $ temp = ("Try not to shoot yourself in the foot!", "Are you hunting for gophers?", "You never had to dig a borehole by hand, right?")
+            $ iam.say_line(char, temp, "happy")
         else:
             # two-way miss
             if game_result == game_result.lower():
@@ -635,9 +593,11 @@ label interaction_archery_char_comment: # (game_result)
                     char.say "That was way too far to the left."
                     extend " Not to mention other issues..."
                 elif game_result == "U":
-                    $ rc("Are you shooting for the stars?", "Watch your back, the arrow might come around the Earth.", "Please, do not hurt the birds!")
+                    $ temp = ("Are you shooting for the stars?", "Watch your back, the arrow might come around the Earth.", "Please, do not hurt the birds!")
+                    $ iam.say_line(char, temp, "happy")
                 else: # game_result == "D":
-                    $ rc("Try not to shoot yourself in the foot!", "Are you hunting for gophers?", "You never had to dig a borehole by hand, right?")
+                    $ temp = ("Try not to shoot yourself in the foot!", "Are you hunting for gophers?", "You never had to dig a borehole by hand, right?")
+                    $ iam.say_line(char, temp, "happy")
     $ game_result = None
     return
 
@@ -718,16 +678,17 @@ label interactions_archery_end:
 #
 ##################################################################################################    
 label interactions_play_power:
-    $ interactions_check_for_bad_stuff(char)
+    if iam.check_for_bad_stuff(char):
+        jump girl_interactions_end
 
-    $ m = interactions_flag_count_checker(char, "flag_interactions_power_balls")
+    $ m = iam.flag_count_checker(char, "flag_interactions_power_balls")
     if m > 1:
         $ del m
-        call interactions_refused_because_tired from _call_interactions_refused_because_tired_5
+        $ iam.refuse_because_tired(char)
         jump girl_interactions
     $ del m
 
-    call interactions_prearchery_lines from _call_interactions_prearchery_lines_2
+    $ iam.archery_start(char)
 
     hide screen girl_interactions
 

@@ -38,10 +38,10 @@ init -5 python:
                 log.append("%s is injured and is in need of some rest." % name)
                 effectiveness -= 70
             elif 'Food Poisoning' in effects:
-                log.append("%s suffers from Food Poisoning, and is very far from %s top shape." % (name, worker.pp))
+                log.append("%s suffers from Food Poisoning, and is very far from %s top shape." % (name, worker.pd))
                 effectiveness -= 50
             elif 'Drunk' in effects:
-                log.append("%s is drunk, which affects %s coordination. Not the best thing when you need to tend to the horses." % (name, worker.pp))
+                log.append("%s is drunk, which affects %s coordination. Not the best thing when you need to tend to the horses." % (name, worker.pd))
                 effectiveness -= 20
             elif 'Down with Cold' in effects:
                 log.append("%s is not feeling well due to colds..." % name)
@@ -84,7 +84,7 @@ init -5 python:
                     log.append("Her massive tits get in the way and keep her off balance as %s tries to ride a horse." % name)
                     effectiveness -= 10
                 elif trait == "Neat":
-                    log.append("%s refuses to dirty %s hands on some of the muddier animals." % (name, worker.pp))
+                    log.append("%s refuses to dirty %s hands on some of the muddier animals." % (name, worker.pd))
                     effectiveness -= 15
                 elif trait == "Coward":
                     log.append("%s is too afraid to get close to the animals. Maybe it's not the best job for %s." % (name, worker.op))
@@ -112,7 +112,7 @@ init -5 python:
                 sub = check_submissivity(worker)
                 if worker.status != 'slave':
                     if sub < 0:
-                        log.append("%s is not very happy with %s current job as a wrangler, but %s will get the job done." % (name, worker.pp, worker.p))
+                        log.append("%s is not very happy with %s current job as a wrangler, but %s will get the job done." % (name, worker.pd, worker.p))
                         sub = 15
                     elif sub == 0:
                         log.append("%s serves customers in the stable, but, truth be told, %s would prefer to do something else." % (name, worker.p))
@@ -132,17 +132,17 @@ init -5 python:
                         if dispo < dispo_req:
                             log.append("%s is a slave so no one really cares, but being forced to work as a wrangler, %s's quite upset." % (name, worker.p))
                         else:
-                            log.append("%s will do as %s is told, but doesn't mean that %s'll be happy about %s stable duties." % (name, worker.p, worker.p, worker.pp))
+                            log.append("%s will do as %s is told, but doesn't mean that %s'll be happy about %s stable duties." % (name, worker.p, worker.p, worker.pd))
                         sub = 25
                     elif sub == 0:
                         if dispo < dispo_req:
-                            log.append("%s will do as you command, but %s will hate every second of %s stable job..." % (name, worker.p, worker.pp))
+                            log.append("%s will do as you command, but %s will hate every second of %s stable job..." % (name, worker.p, worker.pd))
                         else:
-                            log.append("%s was very displeased by %s order to work as a wrangler, but didn't dare to refuse." % (name, worker.pp))
+                            log.append("%s was very displeased by %s order to work as a wrangler, but didn't dare to refuse." % (name, worker.pd))
                         sub = 35
                     else:
                         if dispo < dispo_req:
-                            log.append("%s was very displeased by %s order to work as a wrangler, and makes it clear for everyone before getting busy with the horses." % (name, worker.pp))
+                            log.append("%s was very displeased by %s order to work as a wrangler, and makes it clear for everyone before getting busy with the horses." % (name, worker.pd))
                         else:
                             log.append("%s will do as you command and work as a wrangler, but not without a lot of grumbling and complaining." % name)
                         sub = 45
@@ -167,19 +167,19 @@ init -5 python:
             if riding > 150:
                 if dice(70):
                     log.logloc('reputation', 1)
-                log.append("%s was an excellent wrangler, customers kept spending their money just for the pleasure of %s company." % (worker.pC, worker.pp))
+                log.append("%s was an excellent wrangler, customers kept spending their money just for the pleasure of %s company." % (worker.pC, worker.pd))
             elif riding >= 100:
                 if dice(50):
                     log.logloc('reputation', 1)
-                log.append("Customers were pleased with %s company and kept spending more time in the stable." % worker.pp)
+                log.append("Customers were pleased with %s company and kept spending more time in the stable." % worker.pd)
             elif riding >= 75:
                 if dice(10):
                     log.logloc('reputation', 1)
-                log.append("%s was skillful enough not to mess anything up during %s job." % (worker.pC, worker.pp))
+                log.append("%s was skillful enough not to mess anything up during %s job." % (worker.pC, worker.pd))
             elif riding >= 50:
                 if dice(70):
                     log.logloc('reputation', -1)
-                log.append("%s performance was rather poor and it most definitely has cost you income." % worker.ppC)
+                log.append("%s performance was rather poor and it most definitely has cost you income." % worker.pdC)
             else:
                 log.logloc('reputation', -2)
                 log.append("%s is a very unskilled wrangler, %s definitely needs training." % (worker.name, worker.p))

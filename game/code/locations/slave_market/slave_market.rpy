@@ -157,7 +157,7 @@ label sm_free_slaves:
         show expression our_char.get_vnsprite() as slave at mid_right with dissolve
 
         if out_char.get_stat("disposition") > 0:
-            if our_char.get_stat("disposition") >= 700 or our_char.get_stat("affection") >= 700 or check_lovers(hero, our_char):
+            if our_char.get_stat("disposition") >= 700 or our_char.get_stat("affection") >= 700 or check_lovers(our_char):
                 $ our_char.override_portrait("portrait", "shy")
                 $ our_char.say("I don't really mind being your slave, [hero.name]...  ")
             elif "Dedicated" in our_char.traits or "Masochist" in our_char.traits:

@@ -41,7 +41,7 @@ init -5 python:
                 temp = set_font_color("Your guards are starting their shift!", "cadetblue")
                 building.log(temp)
             elif num_workers == 1:
-                temp = set_font_color("Your guard is starting %s shift!" % (next(iter(strict_workers)).pp), "cadetblue")
+                temp = set_font_color("Your guard is starting %s shift!" % (next(iter(strict_workers)).pd), "cadetblue")
                 building.log(temp)
 
             while 1:
@@ -168,7 +168,7 @@ init -5 python:
                     temp += "%s were pulled off their duties to help out..." % (", ".join([w.nickname for w in extra_workers]))
                 else:
                     w = next(iter(extra_workers))
-                    temp += "%s was pulled off %s duty to help out..." % (w.nickname, w.pp)
+                    temp += "%s was pulled off %s duty to help out..." % (w.nickname, w.pd)
                 log.append(temp)
 
                 workers -= extra_workers
@@ -179,7 +179,7 @@ init -5 python:
                     temp = "%s worked hard keeping your business safe as it is their direct job!" % (", ".join([w.nickname for w in workers]))
                 else:
                     w = next(iter(workers))
-                    temp = "%s worked hard keeping your business safe as it is %s direct job!" % (w.nickname, w.pp)
+                    temp = "%s worked hard keeping your business safe as it is %s direct job!" % (w.nickname, w.pd)
                 log.append(temp)
 
             simpy_debug("Guards.write_nd_report marker 3")

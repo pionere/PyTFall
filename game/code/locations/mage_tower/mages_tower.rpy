@@ -1,7 +1,7 @@
 #Angelica
 
 label mages_tower:
-    $ gm.enter_location(goodtraits=["Psychic", "Curious"], badtraits=["Indifferent"], goodoccupations=["Caster"], badoccupations=["SIW"],
+    $ iam.enter_location(goodtraits=["Psychic", "Curious"], badtraits=["Indifferent"], goodoccupations=["Caster"], badoccupations=["SIW"],
                         coords=[[.07, .8], [.57, .64], [.93, .61]])
     # Music related:
     if not global_flags.has_flag("keep_playing_music"):
@@ -33,7 +33,7 @@ label mages_tower:
         $ result = ui.interact()
 
         if result[0] == 'jump':
-            $ gm.start_gm(result[1], img=result[1].show("girlmeets", "magic", exclude=["swimsuit", "beach", "pool", "urban", "stage", "onsen", "indoors", "indoor"], type="reduce", label_cache=True, gm_mode=True))
+            $ iam.start_gm(result[1], img=result[1].show("girlmeets", "magic", exclude=["swimsuit", "beach", "pool", "urban", "stage", "onsen", "indoors", "indoor"], type="reduce", label_cache=True, gm_mode=True))
 
         if result[0] == 'control':
             if result[1] == 'return':
@@ -47,12 +47,12 @@ screen mages_tower():
 
     use location_actions("mages_tower")
 
-    if gm.show_girls:
-        key "mousedown_3" action ToggleField(gm, "show_girls")
+    if iam.show_girls:
+        key "mousedown_3" action ToggleField(iam, "show_girls")
 
         add "content/gfx/images/bg_gradient.webp" yalign .45
 
-        for entry, pos in zip(gm.display_girls(), gm.coords):
+        for entry, pos in zip(iam.display_girls(), iam.coords):
             hbox:
                 align pos
                 use rg_lightbutton(return_value=['jump', entry])

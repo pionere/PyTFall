@@ -14,20 +14,20 @@ label girl_interactions:
         pytfall.world_events.run_events("auto")
 
         # Hide menus till greeting
-        gm.show_menu = False
-        gm.show_menu_givegift = False
+        iam.show_menu = False
+        iam.show_menu_givegift = False
 
-    if gm.mode == "girl_interactions":
-        scene expression select_girl_room(char)
+    if iam.mode == "girl_interactions":
+        scene expression iam.select_girl_room(char)
     else:
-        scene expression gm.bg_cache
+        scene expression iam.bg_cache
 
     show screen girl_interactions
     with dissolve
 
-    if char.flag("quest_cannot_be_fucked") != True and interactions_silent_check_for_bad_stuff(char): # chars with flag will propose sex once per day once you try to talk to them
-        if 'Horny' in char.effects and interactions_silent_check_for_bad_stuff(char) and check_lovers(char, hero):
-            call interactions_girl_proposes_sex from _call_interactions_girl_proposes_sex
+    if char.flag("quest_cannot_be_fucked") != True and iam.silent_check_for_bad_stuff(char): # chars with flag will propose sex once per day once you try to talk to them
+        if 'Horny' in char.effects and check_lovers(char):
+            $ iam.offer_sex(char)
             menu:
                 "Do you wish to have sex with [char.name]?"
                 "Yes":
@@ -36,22 +36,22 @@ label girl_interactions:
                     jump interactions_sex_scene_select_place
                 "No":
                     $ char.override_portrait("portrait", "indifferent")
-                    $ rc("...", "I see...", "Maybe next time then...")
+                    $ iam.say_line(char, ("...", "I see...", "Maybe next time then..."))
                     $ char.gfx_mod_stat("joy", -randint(1, 5))
                     $ char.restore_portrait()
                     jump girl_interactions_after_greetings
 
     # Show greeting:
-    if gm.see_greeting:
-        $ gm.see_greeting = False
+    if iam.see_greeting:
+        $ iam.see_greeting = False
 
-        if renpy.has_label("%s_greeting"%gm.mode):
-            call expression ("%s_greeting"%gm.mode) from _call_expression
+        if renpy.has_label("%s_greeting" % iam.mode):
+            call expression ("%s_greeting" % iam.mode) from _call_expression
 
 label girl_interactions_after_greetings: # when character wants to say something in the start of interactions, we need to skip greetings and go here
     python hide:
         # Show menu
-        gm.show_menu = True
+        iam.show_menu = True
 
         # GM labels can now be of the following formats (where %l is the label and %g is the girl's id):
         # girl_meets_%l_%g
@@ -81,9 +81,9 @@ label girl_interactions_after_greetings: # when character wants to say something
 
         # Create actions
         if pytfall.world_actions.location("girl_meets"):
-            _gm_mode = Iff(S((gm, "mode")), "==", "girl_meets")
-            _gi_mode = Iff(S((gm, "mode")), "==", "girl_interactions")
-            _gt_mode = Iff(S((gm, "mode")), "==", "girl_trainings")
+            _gm_mode = Iff(S((iam, "mode")), "==", "girl_meets")
+            _gi_mode = Iff(S((iam, "mode")), "==", "girl_interactions")
+            _gt_mode = Iff(S((iam, "mode")), "==", "girl_trainings")
 
             _not_gm_mode = IffOr(_gi_mode, _gt_mode)
             _not_gi_mode = IffOr(_gm_mode, _gt_mode)
@@ -158,12 +158,12 @@ label girl_interactions_after_greetings: # when character wants to say something
             # PROPOSITION
             m = 7
             pytfall.world_actions.menu(m, "Propose")
-            pytfall.world_actions.gm_choice("Girlfriend", condition="not check_lovers(char, hero)", index=(m, 0))
-            pytfall.world_actions.gm_choice("Break Up", condition="check_lovers(char, hero)", index=(m, 1))
+            pytfall.world_actions.gm_choice("Girlfriend", condition="not check_lovers(char)", index=(m, 0))
+            pytfall.world_actions.gm_choice("Break Up", condition="check_lovers(char)", index=(m, 1))
             pytfall.world_actions.gm_choice("Move in", condition="char.home != hero.home and char.status == 'free'", index=(m, 2))
             pytfall.world_actions.gm_choice("Move out", condition="char.home == hero.home and char.status == 'free'", index=(m, 3))
             pytfall.world_actions.gm_choice("Hire", condition="not(char in hero.chars)", index=(m, 4))
-            pytfall.world_actions.gm_choice("Sparring", condition="cgo('Combatant')", index=(m, 5))
+            pytfall.world_actions.gm_choice("Sparring", condition="'Combatant' in char.gen_occs", index=(m, 5))
 
             # PLAY A GAME
             m = 8
@@ -179,7 +179,7 @@ label girl_interactions_after_greetings: # when character wants to say something
             pytfall.world_actions.gm_choice("Grab Breasts", index=(m, 2))
             pytfall.world_actions.gm_choice("Kiss", index=(m, 3))
             pytfall.world_actions.gm_choice("Sex", index=(m, 4))
-            pytfall.world_actions.gm_choice("Hire For Sex", index=(m, 5), condition="not(check_lovers(char, hero)) and cgo('SIW') and char.status != 'slave'")
+            pytfall.world_actions.gm_choice("Hire For Sex", index=(m, 5), condition="not(check_lovers(char)) and 'SIW' in char.gen_occs and char.status != 'slave'")
             pytfall.world_actions.gm_choice("Become Fr", index=(m, 6), condition="DEBUG_INTERACTIONS")
             pytfall.world_actions.gm_choice("Become Lv", index=(m, 7), condition="DEBUG_INTERACTIONS")
             pytfall.world_actions.gm_choice("Disp", index=(m, 8), condition="DEBUG_INTERACTIONS")
@@ -220,7 +220,7 @@ label girl_interactions_after_greetings: # when character wants to say something
 
 label girl_interactions_end:
         # End the GM:
-        $ gm.end()
+        $ iam.end()
 
 label interactions_control:
     while 1:
@@ -230,26 +230,29 @@ label interactions_control:
         if result[0] == "gift":
             # Show menu:
             if result[1] is True:
-                $ gm.show_menu = False
-                $ gm.show_menu_givegift = True
+                $ iam.show_menu = False
+                $ iam.show_menu_givegift = True
             # Hide menu:
             elif result[1] is None:
-                $ gm.show_menu = True
-                $ gm.show_menu_givegift = False
+                $ iam.show_menu = True
+                $ iam.show_menu_givegift = False
             # Give gift:
             else:
-                $ item = result[1]
                 python hide:
+                    item = result[1]
                     # Prevent repetition of this action (any gift, we do this on per gift basis already):
                     if char.has_flag("cnd_interactions_gifts"):
                         char.up_counter("cnd_interactions_gifts")
                     else:
                         char.set_flag("cnd_interactions_gifts", day)
 
+                    iam.show_menu = True
+                    iam.show_menu_givegift = False
+
                     item.hidden = False # We'll use existing hidden flag to hide items effectiveness.
                     dismod = getattr(item, "dismod", 0)
 
-                    if item.type == "romantic" and not(check_lovers(char, hero)) and char.get_stat("affection") < 700:  # cannot give romantic gifts to anyone
+                    if item.type == "romantic" and not(check_lovers(char)) and char.get_stat("affection") < 700:  # cannot give romantic gifts to anyone
                         dismod = -10
                     else:
                         for t, v in getattr(item, "traits", {}).iteritems():
@@ -260,36 +263,34 @@ label interactions_control:
                     flag_value = char.get_flag(flag_name, day) - day
 
                     # Add the appropriate dismod value:
-                    if flag_value != 0:
-                        if flag_value < item.cblock:
-                            dismod = round_int(float(dismod)*(item.cblock-flag_value)/item.cblock)
-                        else:
-                            gm.show_menu = True
-                            gm.show_menu_givegift = False
-                            delattr(store, "item")
-                            gm.jump("refusegift")
-
-                    char.gfx_mod_stat("disposition", dismod)
-
-                    hero.inventory.remove(item)
-                    gm.show_menu = True
-                    gm.show_menu_givegift = False
-
                     if flag_value == 0:
+                        # first time gift
                         char.set_flag(flag_name, item.cblock+day-1)
                     else:
-                        char.up_counter(flag_name, item.cblock)
+                        if flag_value < item.cblock:
+                            dismod = round_int(float(dismod)*(item.cblock-flag_value)/item.cblock)
+
+                            char.up_counter(flag_name, item.cblock)
+                        else:
+                            iam.refuse_gift(char)
+                            jump("girl_interactions")
+
+                    char.gfx_mod_stat("disposition", dismod)
+                    hero.inventory.remove(item)
                     if dismod > 0:
-                        result = "perfectgift" if dismod > 30 else "goodgift"
+                        perfect = dismod > 30
                         if item.type == "romantic":
                             dismod *= 2
                         dismod /= 10.0
                         char.gfx_mod_stat("affection", affection_reward(char, dismod))
+                        if perfect:
+                            iam.accept_perfectgift(char)
+                        else:
+                            iam.accept_goodgift(char)
                     else:
-                        result = "badgift"
                         char.gfx_mod_stat("affection", affection_reward(char, -1))
-                    delattr(store, "item")
-                    gm.jump(result)
+                        iam.accept_badgift(char)
+                jump girl_interactions
         # Controls
         elif result[0] == "control":
             # Return / Back
@@ -298,18 +299,18 @@ label interactions_control:
         # Testing
         elif result[0] == "test":
             python:
-                gm.end(safe=True)
+                iam.end(safe=True)
 
                 # Girls Meets
                 if result[1] == "GM":
                     # Include img as coming from int and tr prevents the "img from last location" from working
-                    gm.start_gm(char, img=char.show("profile", exclude=["nude", "bikini", "swimsuit", "beach", "angry", "scared", "ecstatic"]))
+                    iam.start_gm(char, img=char.show("profile", exclude=["nude", "bikini", "swimsuit", "beach", "angry", "scared", "ecstatic"]))
                 # Interactions
                 elif result[1] == "GI":
-                    gm.start_int(char)
+                    iam.start_int(char)
                 # Training
                 elif result[1] == "GT":
-                    gm.start_tr(char)
+                    iam.start_tr(char)
 
 screen girl_interactions():
     # BG
@@ -372,29 +373,29 @@ screen girl_interactions():
         frame:
             background Frame("content/gfx/frame/MC_bg.png", 10, 10)
             # basestring assumes that image is coming from cache, so it simply a path.
-            if isinstance(gm.img, basestring):
-                add ProportionalScale(gm.img, gm.IMG_SIZE[0], gm.IMG_SIZE[1])
+            if isinstance(iam.img, basestring):
+                add ProportionalScale(iam.img, iam.IMG_SIZE[0], iam.IMG_SIZE[1])
             else:
-                add gm.img
+                add iam.img
 
         # if DEBUG_INTERACTIONS:
             # null width 15
 
             # vbox:
                 # null height 60
-                # text "{color=white}Mode: [gm.mode]"
-                # text "{color=white}Label: [gm.jump_cache]"
-                # text ("{color=white}Girl.PP: [gm.char.PP] / %s"%gm.char.setPP)
+                # text "{color=white}Mode: [iam.mode]"
+                # text "{color=white}Label: [iam.jump_cache]"
+                # text ("{color=white}Girl.PP: [iam.char.PP] / %s"%iam.char.setPP)
                 # text "{color=white}Points: [hero.PP]"
 
 
 
     # Actions
-    if gm.show_menu:
+    if iam.show_menu:
         use location_actions("girl_meets", char, pos=(1180, 315), anchor=(1.0, .5), style="main_screen_3")
 
     # Give gift interface
-    if gm.show_menu_givegift:
+    if iam.show_menu_givegift:
         frame:
             style "dropdown_gm_frame"
             xysize (385, 455)
@@ -409,7 +410,7 @@ screen girl_interactions():
                     if item.slot == "gift":
                         python:
                             dismod = getattr(item, "dismod", 0)
-                            if item.type == "romantic" and not(check_lovers(char, hero)) and char.get_stat("affection") < 700: # cannot give romantic gifts to anyone
+                            if item.type == "romantic" and not(check_lovers(char)) and char.get_stat("affection") < 700: # cannot give romantic gifts to anyone
                                 dismod = -10
                             else:
                                 for t, v in getattr(item, "traits", {}).iteritems():

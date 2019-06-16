@@ -126,7 +126,7 @@ init python:
         return books
 
 label academy_town:
-    $ gm.enter_location(badtraits=["Adventurous", "Slime", "Monster"], goodtraits=["Curious"],
+    $ iam.enter_location(badtraits=["Adventurous", "Slime", "Monster"], goodtraits=["Curious"],
                         has_tags=["girlmeets", "schoolgirl"], coords=[[.1, .55], [.45, .64], [.86, .65]])
     # Music
     if not global_flags.has_flag("keep_playing_music"):
@@ -165,7 +165,7 @@ label academy_town:
         $ result = ui.interact()
 
         if result[0] == 'jump':
-            $ gm.start_gm(result[1], img=result[1].show("girlmeets", "schoolgirl", "indoors", exclude=["swimsuit", "wildness", "beach", "pool", "urban", "stage", "onsen"], type="reduce", label_cache=True, gm_mode=True))
+            $ iam.start_gm(result[1], img=result[1].show("girlmeets", "schoolgirl", "indoors", exclude=["swimsuit", "wildness", "beach", "pool", "urban", "stage", "onsen"], type="reduce", label_cache=True, gm_mode=True))
 
         if result[0] == 'control':
             hide screen academy_town
@@ -245,12 +245,12 @@ screen academy_town():
 
     use location_actions("academy_town")
 
-    if gm.show_girls:
-        key "mousedown_3" action ToggleField(gm, "show_girls")
+    if iam.show_girls:
+        key "mousedown_3" action ToggleField(iam, "show_girls")
 
         add "content/gfx/images/bg_gradient.webp" yalign .45
 
-        for entry, pos in zip(gm.display_girls(), gm.coords):
+        for entry, pos in zip(iam.display_girls(), iam.coords):
             hbox:
                 align pos
                 use rg_lightbutton(return_value=['jump', entry])

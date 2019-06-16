@@ -1,5 +1,5 @@
 label village_town:
-    $ gm.enter_location(goodtraits=["Scars", "Undead", "Furry", "Monster", "Not Human", "Aggressive", "Vicious", "Sadist", "Assassin"],
+    $ iam.enter_location(goodtraits=["Scars", "Undead", "Furry", "Monster", "Not Human", "Aggressive", "Vicious", "Sadist", "Assassin"],
                         badtraits=["Sexy Air", "Virtuous", "Optimist", "Peaceful", "Elegant", "Energetic", "Exhibitionist", "Divine Creature", "Healer", "Knight"],
                         goodoccupations=["SIW"], coords=[[.2, .7], [.45, .72], [.75, .7]])
 
@@ -32,7 +32,7 @@ label village_town:
     while 1:
         $ result = ui.interact()
         if result[0] == 'jump':
-            $ gm.start_gm(result[1], img=result[1].show("girlmeets", "suburb", exclude=["beach", "winter", "night", "formal", "indoors", "swimsuit"], type="first_default", label_cache=True, gm_mode=True))
+            $ iam.start_gm(result[1], img=result[1].show("girlmeets", "suburb", exclude=["beach", "winter", "night", "formal", "indoors", "swimsuit"], type="first_default", label_cache=True, gm_mode=True))
 
         elif result[0] == 'control':
             if result[1] == 'return':
@@ -44,11 +44,11 @@ screen village_town:
     use top_stripe(True)
     use location_actions("village_town")
 
-    if gm.show_girls:
-        key "mousedown_3" action ToggleField(gm, "show_girls")
+    if iam.show_girls:
+        key "mousedown_3" action ToggleField(iam, "show_girls")
 
         add "content/gfx/images/bg_gradient.webp" yalign .45
-        for entry, pos in zip(gm.display_girls(), gm.coords):
+        for entry, pos in zip(iam.display_girls(), iam.coords):
             hbox:
                 align pos
                 use rg_lightbutton(return_value=['jump', entry])

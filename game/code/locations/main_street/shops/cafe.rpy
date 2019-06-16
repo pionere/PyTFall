@@ -61,11 +61,11 @@ label cafe:
                             members.append(member)
             if members:
                 inviting_character = random.choice(members)
-                interactions_eating_propose(inviting_character)
+                iam.eating_propose(inviting_character)
 
     if inviting_character != hero:
         menu:
-            "Do you want to accept [inviting_character.pp] invitation (free of charge)?"
+            "Do you want to accept [inviting_character.pd] invitation (free of charge)?"
             "Yes":
                 jump mc_action_cafe_invitation
             "No":
@@ -225,7 +225,7 @@ label mc_action_cafe_invitation: # we jump here when the group was invited by on
         $ img = renpy.random.randint(1, 9)
         $ img = "content/gfx/images/food/cafe_mass_%d.webp" % img
         show expression img at truecenter with dissolve
-        $ interactions_eating_line(hero.team)
+        $ iam.eating_line(hero.team)
         "You enjoy your meals together. Overall health and mood were improved."
         $ hero.set_flag("dnd_ate_in_cafe")
         python hide:

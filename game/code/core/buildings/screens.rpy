@@ -1085,7 +1085,7 @@ screen building_controls():
                     "Handle Clients", "Work Other Jobs"]
                 default tts = [
                     "Manager will talk to workers before the start of every workday to try and motivate them.",
-                    "Manager will try to cheer up girls who seem sad or tired.",
+                    "Manager will try to cheer up workers who seem sad or tired.",
                     "Manager will ask clients to wait if there is no spot available in their favorite business.",
                     "Manager will try to talk down clients who received inadequate service and attempt to salvage payment for the service provided.",
                     "Manager will work other Jobs than their own if there are no dedicated worker available."]

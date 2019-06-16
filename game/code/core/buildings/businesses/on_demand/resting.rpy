@@ -43,7 +43,7 @@ init -5 python:
 
             # at first we set excluded tags
             kwargs = ["dungeon", "angry", "in pain", "after sex", "group", "normalsex", "bdsm"]
-            if (worker.get_stat("affection") < 500) and ("Exhibitionist" not in worker.traits) and not check_lovers(worker, hero):
+            if (worker.get_stat("affection") < 500) and ("Exhibitionist" not in worker.traits) and not check_lovers(worker):
                 kwargs.append("nude") # with not too low affection nude pics become available during rest
             kwargs = dict(exclude=kwargs, add_mood=False)
 
@@ -56,7 +56,7 @@ init -5 python:
             # if vitality is really low, they try to sleep, assuming there is a sleeping picture
             if vit_perc < 20 and worker.has_image("sleeping", **kwargs):
                 log.img = worker.show("sleeping", **kwargs)
-                log.append("%s is too tired to do anything but sleep at %s free time." % (name, worker.pp))
+                log.append("%s is too tired to do anything but sleep at %s free time." % (name, worker.pd))
             else:
             # otherwise we build a list of usable tags
                 image_tags = list()
@@ -91,44 +91,44 @@ init -5 python:
                 image_tags = tagdb.get_image_tags(image_tags)
                 if "sleeping" in image_tags:
                     if "living" in image_tags:
-                        log.append("%s is enjoying additional bedtime in %s room." % (name, worker.pp))
+                        log.append("%s is enjoying additional bedtime in %s room." % (name, worker.pd))
                     elif "beach" in image_tags:
                         log.append("%s takes a small nap at the local beach." % name)
                     elif "nature" in image_tags:
                         log.append("%s takes a small nap in the local park." % name)
                     else:
-                        log.append("%s takes a small nap during %s free time." % (name, worker.pp))
+                        log.append("%s takes a small nap during %s free time." % (name, worker.pd))
                 elif "masturbation" in image_tags:
-                    log.append(choice(["%s has some fun with %sself during %s free time." % (name, worker.op, worker.pp),
-                                       "%s is relieving %s sexual tension at the free time." % (name, worker.pp)]))
+                    log.append(choice(["%s has some fun with %sself during %s free time." % (name, worker.op, worker.pd),
+                                       "%s is relieving %s sexual tension at the free time." % (name, worker.pd)]))
                 elif "onsen" in image_tags:
                     log.append("%s relaxes in the onsen. The perfect remedy for stress!" % name)
                 elif "reading" in image_tags:
-                    log.append(choice(["%s spends %s free time reading." % (name, worker.pp),
+                    log.append(choice(["%s spends %s free time reading." % (name, worker.pd),
                                        "%s is enjoying a book and relaxing." % name]))
                 elif "shopping" in image_tags:
-                    log.append(choice(["%s spends %s free time to visit some shops." % (name, worker.pp),
+                    log.append(choice(["%s spends %s free time to visit some shops." % (name, worker.pd),
                                        "%s is enjoying a small shopping tour." % name]))
                 elif "exercising" in image_tags:
-                    log.append("%s keeps %sself in shape doing some exercises during %s free time." % (name, worker.op, worker.pp))
+                    log.append("%s keeps %sself in shape doing some exercises during %s free time." % (name, worker.op, worker.pd))
                 elif "sport" in image_tags:
-                    log.append("%s is in a good shape today, so %s spends %s free time doing sports." % (name, worker.p, worker.pp))
+                    log.append("%s is in a good shape today, so %s spends %s free time doing sports." % (name, worker.p, worker.pd))
                 elif "eating" in image_tags:
                     log.append(choice(["%s has a snack during %s free time.",
-                                       "%s spends %s free time enjoying a meal."]) % (name, worker.pp))
+                                       "%s spends %s free time enjoying a meal."]) % (name, worker.pd))
                 elif "bathing" in image_tags:
                     if "pool" in image_tags:
-                        log.append("%s spends %s free time enjoying swimming in the local swimming pool." % (name, worker.pp))
+                        log.append("%s spends %s free time enjoying swimming in the local swimming pool." % (name, worker.pd))
                     elif "beach" in image_tags:
-                        log.append("%s spends %s free time enjoying swimming at the local beach. The water is great today!" % (name, worker.pp))
+                        log.append("%s spends %s free time enjoying swimming at the local beach. The water is great today!" % (name, worker.pd))
                     elif "living" in image_tags:
-                        log.append("%s spends %s free time enjoying a bath." % (name, worker.pp))
+                        log.append("%s spends %s free time enjoying a bath." % (name, worker.pd))
                     else:
-                        log.append("%s spends %s free time relaxing in a water." % (name, worker.pp))
+                        log.append("%s spends %s free time relaxing in a water." % (name, worker.pd))
                 else:
                     if "living" in image_tags:
                         log.append(choice(["%s is taking a break in %s room to recover.",
-                                           "%s is resting in %s room."]) % (name, worker.pp))
+                                           "%s is resting in %s room."]) % (name, worker.pd))
                     elif "beach" in image_tags:
                             log.append(choice(["%s is taking a break at the local beach.",
                                                "%s is relaxing at the local beach."]) % name)
@@ -147,7 +147,7 @@ init -5 python:
                                                "%s is relaxing somewhere in the city."]) % name)
                     else:
                         log.append(choice(["%s is taking a break during %s free time.",
-                                           "%s is relaxing during %s free time."]) % (name, worker.pp))
+                                           "%s is relaxing during %s free time."]) % (name, worker.pd))
 
             # Work with JP in order to try and waste nothing.
             # Any Char without impairments should recover health and vitality in 3 days fully.

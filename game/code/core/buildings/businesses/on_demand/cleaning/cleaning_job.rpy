@@ -39,10 +39,10 @@ init -5 python:
                 log.append("%s is injured and is in need of some rest." % name)
                 effectiveness -= 70
             elif 'Food Poisoning' in effects:
-                log.append("%s suffers from Food Poisoning, and is very far from %s top shape." % (name, worker.pp))
+                log.append("%s suffers from Food Poisoning, and is very far from %s top shape." % (name, worker.pd))
                 effectiveness -= 50
             elif 'Drunk' in effects:
-                log.append("%s is drunk, which affects %s coordination. The occasional vomitting does not help either." % (name, worker.pp))
+                log.append("%s is drunk, which affects %s coordination. The occasional vomitting does not help either." % (name, worker.pd))
                 effectiveness -= 30
             elif 'Down with Cold' in effects:
                 log.append("%s is not feeling well due to colds..." % name)
@@ -58,7 +58,7 @@ init -5 python:
                 trait = trait.id
 
                 if trait == "Neat":
-                    log.append("%s rearranged rooms to look a little more presentable on top of %s cleaning duties." % (name, worker.pp))
+                    log.append("%s rearranged rooms to look a little more presentable on top of %s cleaning duties." % (name, worker.pd))
                     effectiveness += 40
                 elif trait == "Homebody" or trait == "Indifferent":
                     log.append("%s really enjoys the simple and predictable cleaning task." % name)
@@ -85,7 +85,7 @@ init -5 python:
                     log.append("%s got a little sad whenever %s cleaned a window because %s wanted to go out and explore, not clean." % (name, worker.p, worker.p))
                     effectiveness -= 25
                 elif trait == "Messy":
-                    log.append("%s reluctantly does %s job, preferring to hide the dirt instead of cleaning it properly." % (name, worker.pp))
+                    log.append("%s reluctantly does %s job, preferring to hide the dirt instead of cleaning it properly." % (name, worker.pd))
                     effectiveness -= 40
                 elif trait == "Abnormally Large Boobs":
                     log.append("Her boobs get in the way so much that she may as well scrub down the walls with them instead...")
@@ -101,9 +101,9 @@ init -5 python:
             sub = check_submissivity(worker)
             disposition = 200 + 50 * sub
 
-            if check_lovers(hero, worker):
+            if check_lovers(worker):
                 disposition -= 50
-            elif check_friends(hero, worker):
+            elif check_friends(worker):
                 disposition -= 20
 
             traits = worker.traits
@@ -149,17 +149,17 @@ init -5 python:
                         if dispo < dispo_req:
                             temp = "%s is a slave so no one really cares, but being forced to work as a cleaner, %s's quite upset." % (name, worker.p)
                         else:
-                            temp = "%s will do as %s is told, but doesn't mean that %s'll be happy about %s cleaning duties." % (name, worker.p, worker.p, worker.pp)
+                            temp = "%s will do as %s is told, but doesn't mean that %s'll be happy about %s cleaning duties." % (name, worker.p, worker.p, worker.pd)
                         sub = 25
                     elif sub == 0:
                         if dispo < dispo_req:
-                            temp = "%s will do as you command, but %s will hate every second of %s cleaning shift..." % (name, worker.p, worker.pp)
+                            temp = "%s will do as you command, but %s will hate every second of %s cleaning shift..." % (name, worker.p, worker.pd)
                         else:
-                            temp = "%s was very displeased by %s order to work as a cleaner, but didn't dare to refuse." % (name, worker.pp)
+                            temp = "%s was very displeased by %s order to work as a cleaner, but didn't dare to refuse." % (name, worker.pd)
                         sub = 35
                     else:
                         if dispo < dispo_req:
-                            temp = "%s was very displeased by %s order to work as a cleaner, and makes it clear for everyone before getting busy with clients." % (name, worker.pp)
+                            temp = "%s was very displeased by %s order to work as a cleaner, and makes it clear for everyone before getting busy with clients." % (name, worker.pd)
                         else:
                             temp = "%s will do as you command and work as a cleaner, but not without a lot of grumbling and complaining." % name
                         sub = 45

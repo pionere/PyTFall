@@ -24,7 +24,7 @@ init -5 python:
                     if result >= 5:
                         self.building.modfame(-randint(1, 2))
 
-                        temp = "%s lost %s patience to wait for someone to satisfy %s needs, so %s leaves the %s cursing..." % (client_name, client.pp, client.pp, client.p, self.name)
+                        temp = "%s lost %s patience to wait for someone to satisfy %s needs, so %s leaves the %s cursing..." % (client_name, client.pd, client.pd, client.p, self.name)
                         self.log(temp, True)
                         return
                     if self.env.now + self.time > 100: # MAX_DU

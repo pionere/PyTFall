@@ -1,5 +1,5 @@
 label city_beach_cafe_main:
-    $ gm.enter_location(goodtraits=["Athletic", "Dawdler", "Always Hungry"], badtraits=["Scars", "Undead", "Furry", "Monster"],
+    $ iam.enter_location(goodtraits=["Athletic", "Dawdler", "Always Hungry"], badtraits=["Scars", "Undead", "Furry", "Monster"],
                         coords=[[.15, .75], [.5, .6], [.9, .8]])
     # Music related:
     if not global_flags.has_flag("keep_playing_music"):
@@ -36,7 +36,7 @@ label city_beach_cafe_main:
                         if not tags:
                             # giveup
                             tags = ["girlmeets", "swimsuit"]
-                gm.start_gm(char, img=char.show(*tags, type="reduce", label_cache=True, gm_mode=True))
+                iam.start_gm(char, img=char.show(*tags, type="reduce", label_cache=True, gm_mode=True))
 
         elif result[0] == 'control':
             if result[1] == 'return':
@@ -47,7 +47,7 @@ label city_beach_cafe_main:
 screen city_beach_cafe_main:
     use top_stripe(True)
 
-    if not gm.show_girls:
+    if not iam.show_girls:
         # Jump buttons:
         $ img = im.Flip(im.Scale("content/gfx/interface/buttons/blue_arrow.png", 80, 80), horizontal=True)
         imagebutton:
@@ -65,12 +65,12 @@ screen city_beach_cafe_main:
 
     use location_actions("city_beach_cafe_main")
 
-    if gm.show_girls:
-        key "mousedown_3" action ToggleField(gm, "show_girls")
+    if iam.show_girls:
+        key "mousedown_3" action ToggleField(iam, "show_girls")
 
         add "content/gfx/images/bg_gradient.webp" yalign .45
 
-        for entry, pos in zip(gm.display_girls(), gm.coords):
+        for entry, pos in zip(iam.display_girls(), iam.coords):
             hbox:
                 align pos
                 use rg_lightbutton(return_value=['jump', entry])

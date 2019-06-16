@@ -150,7 +150,7 @@ init python:
             return True
 
         def apply_effects(self):
-            interactions_prebattle_line([member.char for member in self.team])
+            iam.prebattle_line([member.char for member in self.team])
 
 
     class BESkip(_object):

@@ -1,5 +1,5 @@
 label city_park:
-    $ gm.enter_location(goodtraits=["Elf", "Furry"], badtraits=["Aggressive", "Adventurous"],
+    $ iam.enter_location(goodtraits=["Elf", "Furry"], badtraits=["Aggressive", "Adventurous"],
                         coords=[[.1, .7], [.4, .45], [.74, .73]])
     python:
         # Build the actions
@@ -21,7 +21,7 @@ label city_park:
         $ result = ui.interact()
 
         if result[0] == 'jump':
-            $ gm.start_gm(result[1], img=result[1].show("girlmeets", "outdoors", "nature", "urban", exclude=["swimsuit", "wildness", "indoors", "stage", "beach", "pool", "onsen", "indoor"], type="reduce", label_cache=True, gm_mode=True))
+            $ iam.start_gm(result[1], img=result[1].show("girlmeets", "outdoors", "nature", "urban", exclude=["swimsuit", "wildness", "indoors", "stage", "beach", "pool", "onsen", "indoor"], type="reduce", label_cache=True, gm_mode=True))
 
         if result[0] == 'control':
             #if result[1] == 'jumpgates':
@@ -41,7 +41,7 @@ screen city_park():
 
     # use r_lightbutton(img=im.Flip(im.Scale("content/gfx/interface/buttons/blue_arrow.png", 80, 80), horizontal=true), return_value =['control', 'jumpgates'], align=(.01, .5))
 
-    if not gm.show_girls:
+    if not iam.show_girls:
         $ img = im.Flip(im.Scale("content/gfx/interface/buttons/blue_arrow.png", 80, 80), horizontal=True)
         imagebutton:
             align (.01, .5)
@@ -51,15 +51,15 @@ screen city_park():
 
     use location_actions("city_park")
 
-    if gm.show_girls:
-        key "mousedown_3" action ToggleField(gm, "show_girls")
+    if iam.show_girls:
+        key "mousedown_3" action ToggleField(iam, "show_girls")
         add "content/gfx/images/bg_gradient.webp" yalign .45
-        for entry, pos in zip(gm.display_girls(), gm.coords):
+        for entry, pos in zip(iam.display_girls(), iam.coords):
             hbox:
                 align pos
                 use rg_lightbutton(return_value=['jump', entry])
 
-    if not gm.show_girls:
+    if not iam.show_girls:
         if global_flags.has_flag("met_aine"):
             $ img_aine_shop = ProportionalScale("content/gfx/interface/icons/aine.png", 75, 75)
             imagebutton:

@@ -21,9 +21,9 @@ init python:
             index = (index - 1) % len(girls)
         char = girls[index]
 
-        if (check_lovers(char, hero) or "Exhibitionist" in char.traits) and dice(30):
+        if (check_lovers(char) or "Exhibitionist" in char.traits) and dice(30):
             img = char.show('profile', "nude", "revealing", label_cache=True)
-        elif check_friends(hero, char):
+        elif check_friends(char):
             img = char.show('profile', exclude=["nude"], label_cache=True)
         else:
             img = char.show('profile', exclude=["nude", "revealing", "lingerie", "swimsuit"], label_cache=True)
@@ -38,7 +38,7 @@ init python:
 
         if "Exhibitionist" in char.traits and dice(40):
             gm_img = char.show("girlmeets", "nude", "revealing")
-        elif check_friends(hero, char) or check_lovers(char, hero):
+        elif check_friends(char) or check_lovers(char):
             gm_img = char.show("girlmeets", exclude=["nude"])
         else:
             gm_img = char.show("girlmeets",
@@ -127,13 +127,9 @@ label char_profile:
                                 $ hero.add_money(int(char.get_price()*.8), reason="SlaveTrade")
                             else:
                                 if char.get_stat("disposition") >= 500:
-                                    $ block_say = True
-                                    call interactions_good_goodbye from _call_interactions_good_goodbye
-                                    $ block_say = False
+                                    $ iam.good_goodbye(char)
                                 else:
-                                    $ block_say = True
-                                    call interactions_bad_goodbye from _call_interactions_bad_goodbye
-                                    $ block_say = False
+                                    $ iam.bad_goodbye(char)
 
                                 $ char.gfx_mod_stat("disposition", -400)
                                 $ char.mod_stat("affection", -40)
@@ -192,7 +188,7 @@ screen char_profile():
                 padding 4, 4
                 background store.bg
                 hover_background store.hbg
-                action Hide("char_profile"), With(dissolve), Function(gm.start_int, char, img=gm_img)
+                action Hide("char_profile"), With(dissolve), Function(iam.start_int, char, img=gm_img)
                 sensitive char_is_controlled
                 tooltip "Click to interact with %s!\n%s" % (char.nickname, char.desc)
                 add ProportionalScale(store.img, 590, 600)
@@ -294,7 +290,7 @@ screen char_profile():
                             text trait.id idle_color "gold" align .5, .5 hover_color "crimson" size 18 outlines [(2, "#3a3a3a", 0, 0)]
                             tooltip "%s" % trait.desc
 
-                if check_lovers(char, hero):
+                if check_lovers(char):
                     imagebutton:
                         pos 5, 97
                         idle ProportionalScale("content/gfx/interface/icons/heartbeat.png", 30, 30)
@@ -610,13 +606,13 @@ screen char_profile():
                         xysize (150, 40)
                         action Hide("char_profile"), SetVariable("came_to_equip_from", "char_profile"), SetVariable("eqtarget", char), SetVariable("equip_girls", girls), Jump('char_equip')
                         sensitive char_is_controlled
-                        tooltip "Manage %s inventory and equipment!" % char.pp
+                        tooltip "Manage %s inventory and equipment!" % char.pd
                         text "Equipment"
                     button:
                         xysize (150, 40)
                         action [Hide("char_profile"), With(dissolve), Return(["girl", "gallery"])]
                         sensitive char_is_controlled
-                        tooltip "View %s gallery!\n(building a gallery may take some time for large packs)" % char.pp
+                        tooltip "View %s gallery!\n(building a gallery may take some time for large packs)" % char.pd
                         text "Gallery"
 
                 vbox:
@@ -755,7 +751,7 @@ screen char_control():
                 xysize 150, 33
                 align .5, .05
                 action ToggleDict(char.autocontrol, "Tips")
-                tooltip "Does %s keep %s tips, 25%% of the loot from exploration?" % (char.nickname, char.pp)
+                tooltip "Does %s keep %s tips, 25%% of the loot from exploration?" % (char.nickname, char.pd)
                 text "Tips:" align .0, .5
                 if isinstance(char.autocontrol["Tips"], list):
                     add cb_some_checked align 1.0, .5

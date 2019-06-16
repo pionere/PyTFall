@@ -903,7 +903,7 @@ init -10 python:
             expected_wage = char.expected_wage
             if char.status == "free":
                 # Free chars:
-                temp = choice(["%s expects to be compensated for %s services ({color=gold}%d Gold{/color})." % (char.pC, char.pp, expected_wage),
+                temp = choice(["%s expects to be compensated for %s services ({color=gold}%d Gold{/color})." % (char.pC, char.pd, expected_wage),
                                "%s expects to be paid a wage of {color=gold}%d Gold{/color}." % (char.pC, expected_wage)])
 
                 tmp = " You chose to pay %s %d%% of that! ({color=gold}%d Gold{/color})"
@@ -929,7 +929,7 @@ init -10 python:
                 if isinstance(char.workplace, Building):
                     char.workplace.fin.log_logical_expense(paid_wage, "Wages")
             else:
-                txt.append("You lacked the funds to pay %s the promised wage." % char.pp)
+                txt.append("You lacked the funds to pay %s the promised wage." % char.pd)
                 paid_wage = real_wagemod = 0
 
             # So... if we got this far, we're either talking slaves that player
@@ -2084,8 +2084,8 @@ init -10 python:
             return self.op.capitalize()
 
         @property
-        def pp(self):
-            # Possessive pronoun (his, her, its):
+        def pd(self):
+            # Possessive determiner (his, her, its):
             # This may 'gramatically' incorrect, cause things (it) cannot possess/own anything but knowing PyTFall :D
             if self.gender == "female":
                 return "her"
@@ -2095,9 +2095,20 @@ init -10 python:
                 return "its"
 
         @property
-        def ppC(self):
-            # Possessive pronoun (his, hers, its) capitalized::
-            return self.pp.capitalize()
+        def pdC(self):
+            # Possessive determiner (his, her, its) capitalized::
+            return self.pd.capitalize()
+
+        @property
+        def pp(self):
+            # Possessive pronoun (his, hers, its):
+            # This may 'gramatically' incorrect, cause things (it) cannot possess/own anything but knowing PyTFall :D
+            if self.gender == "female":
+                return "hers"
+            elif self.gender == "male":
+                return "his"
+            else:
+                return "its"
 
         @property
         def hs(self):
@@ -2105,6 +2116,10 @@ init -10 python:
                 return "sister"
             else:
                 return "brother"
+
+        @property
+        def hsC(self):
+            return self.hs.capitalize()
 
         @property
         def hss(self):
@@ -2209,7 +2224,7 @@ init -10 python:
                         item = "Slime's Milk"
                     else:
                         item = "Bottle of Milk"
-                    if char.status == "slave" or check_lovers(char, hero):
+                    if char.status == "slave" or check_lovers(char):
                         if "Small Boobs" in char.traits:
                             num = 1
                         elif "Average Boobs" in char.traits:

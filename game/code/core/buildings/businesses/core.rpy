@@ -646,7 +646,7 @@ init -12 python:
 
             self.active_workers.remove(worker)
             building.available_workers.append(worker) # Put the worker back in the pool.
-            temp = "%s is finished with %s shift in %s!" % (worker.name, worker.pp, self.name)
+            temp = "%s is finished with %s shift in %s!" % (worker.name, worker.pd, self.name)
             temp = set_font_color(temp, "cadetblue")
             self.log(temp, True)
 

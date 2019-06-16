@@ -1,5 +1,5 @@
 label forest_entrance:
-    $ gm.enter_location(goodtraits=["Furry", "Monster", "Scars", "Adventurous", "Curious"], badtraits=["Homebody", "Coward", "Exhibitionist", "Human"],
+    $ iam.enter_location(goodtraits=["Furry", "Monster", "Scars", "Adventurous", "Curious"], badtraits=["Homebody", "Coward", "Exhibitionist", "Human"],
                         coords=[[.1, .7], [.39, .84], [.88, .71]])
     # Music related:
     if not global_flags.has_flag("keep_playing_music"):
@@ -31,7 +31,7 @@ label forest_entrance:
         $ result = ui.interact()
 
         if result[0] == 'jump':
-            $ gm.start_gm(result[1], img=result[1].show("girlmeets", "nature", "wildness", type="first_default", label_cache=True, gm_mode=True,
+            $ iam.start_gm(result[1], img=result[1].show("girlmeets", "nature", "wildness", type="first_default", label_cache=True, gm_mode=True,
                             exclude=["urban", "winter", "night", "beach", "onsen", "dungeon", "stage", "swimsuit", "indoor", "formal"]))
         if result[0] == 'control':
             if result[1] == 'return':
@@ -70,16 +70,16 @@ screen forest_entrance():
 
     use location_actions("forest_entrance")
 
-    if gm.show_girls:
-        key "mousedown_3" action ToggleField(gm, "show_girls")
+    if iam.show_girls:
+        key "mousedown_3" action ToggleField(iam, "show_girls")
 
         add "content/gfx/images/bg_gradient.webp" yalign .45
-        for entry, pos in zip(gm.display_girls(), gm.coords):
+        for entry, pos in zip(iam.display_girls(), iam.coords):
             hbox:
                 align pos
                 use rg_lightbutton(return_value=['jump', entry])
 
-    if not gm.show_girls:
+    if not iam.show_girls:
         $ img_witch_shop = ProportionalScale("content/gfx/interface/icons/witch.png", 90, 90)
         imagebutton:
             pos(670, 490)

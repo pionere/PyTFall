@@ -1,5 +1,5 @@
 label swimming_pool:
-    $ gm.enter_location(has_tags=["girlmeets", "swimsuit"], has_no_tags=["beach", "sleeping"],
+    $ iam.enter_location(has_tags=["girlmeets", "swimsuit"], has_no_tags=["beach", "sleeping"],
                         coords=[[.2, .45], [.42, .6], [.7, .5]])
     # Music
     if not global_flags.has_flag("keep_playing_music"):
@@ -46,7 +46,7 @@ label swimming_pool:
                         if not tags:
                             # giveup
                             tags = ["girlmeets", "swimsuit"]
-                gm.start_gm(char, img=char.show(*tags, type="reduce", label_cache=True, gm_mode=True))
+                iam.start_gm(char, img=char.show(*tags, type="reduce", label_cache=True, gm_mode=True))
 
         elif result[0] == 'control':
             if result[1] == 'return':
@@ -72,12 +72,12 @@ screen swimming_pool():
         hover (im.MatrixColor(img_swim_pool, im.matrix.brightness(.15)))
         action [Hide("swimming_pool"), Show("swimmong_pool_swim"), With(dissolve)]
 
-    if gm.show_girls:
-        key "mousedown_3" action ToggleField(gm, "show_girls")
+    if iam.show_girls:
+        key "mousedown_3" action ToggleField(iam, "show_girls")
 
         add "content/gfx/images/bg_gradient.webp" yalign .45
 
-        for entry, pos in zip(gm.display_girls(), gm.coords):
+        for entry, pos in zip(iam.display_girls(), iam.coords):
             hbox:
                 align pos
                 use rg_lightbutton(return_value=['jump', entry])

@@ -198,7 +198,7 @@ label city_dark_forest_hideout_fight:
             mob = build_mob(id=mob, level=randint(min_lvl, min_lvl+20))
             enemy_team.add(mob)
 
-    $ result = interactions_pick_background_for_fight("forest")
+    $ result = iam.select_background_for_fight("forest")
     $ result = run_default_be(enemy_team, background=result, end_background=forest_location, give_up="escape")
     if result is True:
         $ del result, enemy_team
@@ -259,7 +259,7 @@ label city_dark_forest_fight:
 
         narrator(msg)
 
-    $ result = interactions_pick_background_for_fight("forest")
+    $ result = iam.select_background_for_fight("forest")
     $ result = run_default_be(enemy_team, background=result, end_background=forest_location, give_up="escape")
 
     if result is True:
@@ -276,7 +276,7 @@ label city_dark_forest_fight:
 label dark_forest_girl_meet:
     $ hero.set_flag("dnd_dark_forest_girl")
     python:
-        temp = set(gm.get_all_girls()) | set(hero.chars)
+        temp = set(iam.get_all_girls()) | set(hero.chars)
         choices = list(i for i in chars.values() if
                        i not in temp and i.location != pytfall.jail and
                        not i.arena_active)

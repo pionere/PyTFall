@@ -1,5 +1,5 @@
 label city_beach_left:
-    $ gm.enter_location(goodtraits=["Athletic", "Dawdler"], badtraits=["Scars", "Undead", "Furry", "Monster"],
+    $ iam.enter_location(goodtraits=["Athletic", "Dawdler"], badtraits=["Scars", "Undead", "Furry", "Monster"],
                         coords=[[.15, .5], [.5, .45], [.7, .8]])
     # Music related:
     if not global_flags.has_flag("keep_playing_music"):
@@ -38,7 +38,7 @@ label city_beach_left:
                             # giveup
                             tags = ["girlmeets", "swimsuit"]
 
-                gm.start_gm(char, img=char.show(*tags, type="reduce", label_cache=True, gm_mode=True))
+                iam.start_gm(char, img=char.show(*tags, type="reduce", label_cache=True, gm_mode=True))
 
         elif result[0] == 'control':
             if result[1] == 'return':
@@ -51,12 +51,12 @@ screen city_beach_left():
     use top_stripe(True)
     use location_actions("city_beach_left")
 
-    if gm.show_girls:
-        key "mousedown_3" action ToggleField(gm, "show_girls")
+    if iam.show_girls:
+        key "mousedown_3" action ToggleField(iam, "show_girls")
 
         add "content/gfx/images/bg_gradient.webp" yalign .45
 
-        for entry, pos in zip(gm.display_girls(), gm.coords):
+        for entry, pos in zip(iam.display_girls(), iam.coords):
             hbox:
                 align pos
                 use rg_lightbutton(return_value=['jump', entry])
@@ -107,20 +107,21 @@ label mc_action_city_beach_rest:
         python hide:
             excluded = ["sex", "stripping"]
             for member in hero.team:
-                if member != hero:
-                    result = (["rest", "beach"], ["bathing", "beach"], ["sleeping", "beach"])
-                    result = get_simple_act(member, result, excluded)
-                    if result:
-                        picture.append(member.show(*result, exclude=excluded, resize=gm.IMG_SIZE, type="reduce"))
-                        continue
+                if member == hero:
+                    continue
+                result = (["rest", "beach"], ["bathing", "beach"], ["sleeping", "beach"])
+                result = get_simple_act(member, result, excluded)
+                if result:
+                    picture.append(member.show(*result, exclude=excluded, resize=iam.IMG_SIZE, type="reduce"))
+                    continue
 
-                    result = (["rest", "swimsuit", "no bg"], ["bathing", "swimsuit", "no bg"], ["sleeping", "swimsuit", "no bg"],
-                            ["rest", "swimsuit", "simple bg"], ["bathing", "swimsuit", "simple bg"], ["sleeping", "swimsuit", "simple bg"])
-                    result = get_simple_act(member, result, excluded)
-                    if result:
-                        picture.append(member.show(*result, exclude=excluded, resize=gm.IMG_SIZE, type="reduce"))
-                    elif member.has_image("beach", exclude=excluded):
-                        picture.append(member.show("beach", "sfw", exclude=excluded, resize=gm.IMG_SIZE, type="reduce"))
+                result = (["rest", "swimsuit", "no bg"], ["bathing", "swimsuit", "no bg"], ["sleeping", "swimsuit", "no bg"],
+                        ["rest", "swimsuit", "simple bg"], ["bathing", "swimsuit", "simple bg"], ["sleeping", "swimsuit", "simple bg"])
+                result = get_simple_act(member, result, excluded)
+                if result:
+                    picture.append(member.show(*result, exclude=excluded, resize=iam.IMG_SIZE, type="reduce"))
+                elif member.has_image("beach", exclude=excluded):
+                    picture.append(member.show("beach", "sfw", exclude=excluded, resize=iam.IMG_SIZE, type="reduce"))
 
         if len(picture) == 1:
             show expression picture[0] at truecenter as temp1
@@ -133,31 +134,30 @@ label mc_action_city_beach_rest:
 
         "You're relaxing at the beach with your team."
 
-        $ members = list(x for x in hero.team if (x != hero and 'Horny' in x.effects and (check_lovers(x, hero) or x.get_stat("affection") >= 500) and interactions_silent_check_for_bad_stuff(x)))
+        $ members = []
+        python hide:
+            for member in hero.team:
+                if member == hero:
+                    continue
+                if "Horny" not in member.effects:
+                    continue
+                if not iam.silent_check_for_bad_stuff(member):
+                    continue
+                if iam.gender_mismatch(member) or iam.incest(member):
+                    continue
+                if check_lovers(member) or member.get_stat("affection") >= 500:
+                    members.append(member)
+
         if members:
             $ char = choice(members)
             hide temp1
             hide temp2
-            # Further goes example of running sex scene from anywhere, DO NOT DELETE until it will be implemented elsewhere
-            # $ sex_scene_location = "beach"
-            # $ interactions_run_gm_anywhere(char, exit="city_beach_left", background="beach_rest", custom=True)
-
-            # # Setup all the required globals:
-            # python:
-                # picture_before_sex = False
-                # sex_scene_location = "beach"
-
-            # hide temp1
-            # hide temp2
-            # show screen girl_interactions
-            # with dissolve
-
             # jump interactions_sex_scene_begins
             if hero.gender == "male":
                 $ tags = [["bc handjob", "beach"], ["bc blowjob", "beach"], ["bc footjob", "beach"]]
                 if char.gender == "female":
                     $ tags.append(["bc titsjob", "beach"])
-                $ msg = "Unfortunately %s forgot %s sunscreen today, so you had no choice but to provide another liquid as a replacement." % (char.name, char.pp) 
+                $ msg = "Unfortunately %s forgot %s sunscreen today, so you had no choice but to provide another liquid as a replacement." % (char.name, char.pd) 
             else:
                 if char.gender == "male":
                     $ tags = (["2c handjob", "beach"], ["2c blowjob", "beach"], ["2c footjob", "beach"], ["2c titsjob", "beach"])
@@ -175,7 +175,7 @@ label mc_action_city_beach_rest:
                     # give up
                     $ result = ("beach", "swimsuit")
 
-            show expression char.show(*result, exclude=excluded, type="reduce", resize=gm.IMG_SIZE) at truecenter with dissolve
+            show expression char.show(*result, exclude=excluded, type="reduce", resize=iam.IMG_SIZE) at truecenter with dissolve
 
             $ narrator(msg)
             $ char.gfx_mod_skill("sex", 0, 1)

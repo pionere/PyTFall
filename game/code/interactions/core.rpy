@@ -24,7 +24,7 @@ init -1 python:
 
             cell_chars = list()
             self.girls = cell_chars
-            interactive_chars = set(gm.get_all_girls()) | set(hero.chars)
+            interactive_chars = set(iam.get_all_girls()) | set(hero.chars)
             possible_chars = [c for c in chars.itervalues() if c not in interactive_chars]
 
             # Get available characters and check stuff:
@@ -96,7 +96,7 @@ init -1 python:
             return bool(self.girls)
 
 
-    class GirlsMeets(_object):
+    class GirlsMeets(InteractionsDecisions, InteractionsResponses, InteractionsHelper):
         """
         Girlsmeets control system, handles all related logic
         """
@@ -389,4 +389,4 @@ init -1 python:
             """
             Functions the jump.
             """
-            gm.jump(self.label, free=self.free, allow_unique=self.allow_unique, **self.kwargs)
+            iam.jump(self.label, free=self.free, allow_unique=self.allow_unique, **self.kwargs)

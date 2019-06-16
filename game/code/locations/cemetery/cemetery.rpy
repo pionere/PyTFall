@@ -1,5 +1,5 @@
 label graveyard_town:
-    $ gm.enter_location(goodtraits=["Undead", "Divine Creature", "Demonic Creature"],
+    $ iam.enter_location(goodtraits=["Undead", "Divine Creature", "Demonic Creature"],
                         badtraits=["Elf", "Android", "Monster", "Human", "Furry", "Slime"],
                         coords=[[.1, .55], [.5, .84], [.92, .45]])
     # Music
@@ -21,7 +21,7 @@ label graveyard_town:
         $ result = ui.interact()
 
         if result[0] == 'jump':
-            $ gm.start_gm(result[1], img=result[1].show('girlmeets', type="first_default", label_cache=True,
+            $ iam.start_gm(result[1], img=result[1].show('girlmeets', type="first_default", label_cache=True,
                         exclude=["swimsuit", "wildness", "beach", "pool", "urban", "stage", "onsen", "indoors", "indoor"]))
 
         elif result[0] == 'control':
@@ -159,7 +159,7 @@ screen graveyard_town():
 
     use location_actions("graveyard_town")
 
-    if not gm.show_girls:
+    if not iam.show_girls:
         $ img_cemetery = ProportionalScale("content/gfx/interface/icons/cemetery.png", 80, 80)
         $ img_mausoleum = ProportionalScale("content/gfx/interface/icons/mausoleum.png", 80, 80)
         $ img_time = ProportionalScale("content/gfx/interface/icons/clock.png", 100, 100)
@@ -182,10 +182,10 @@ screen graveyard_town():
             action [Hide("graveyard_town"), Jump("enter_dungeon")]
             tooltip "Dungeon\nBeware all who enter here"
 
-    if gm.show_girls:
-        key "mousedown_3" action ToggleField(gm, "show_girls")
+    if iam.show_girls:
+        key "mousedown_3" action ToggleField(iam, "show_girls")
         add "content/gfx/images/bg_gradient.webp" yalign .45
-        for entry, pos in zip(gm.display_girls(), gm.coords):
+        for entry, pos in zip(iam.display_girls(), iam.coords):
             hbox:
                 align pos
                 use rg_lightbutton(return_value=['jump', entry])

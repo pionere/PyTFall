@@ -594,7 +594,7 @@ init -9 python:
             gm_mode = kwargs.get("gm_mode", False)
 
             if gm_mode:
-                if check_lovers(self, hero) or "Exhibitionist" in self.traits:
+                if check_lovers(self) or "Exhibitionist" in self.traits:
                     if dice(40):
                         if not "nude" in tags:
                             tags += ("nude",)
@@ -1536,8 +1536,9 @@ init -9 python:
                 effect.next_day(self)
 
             # 3+ days with low joy lead to Depression effect, removed if joy raises above a limit
+            effects = self.effects
             joy = self.get_stat("joy")
-            if "Depression" in self.effects:
+            if "Depression" in effects:
                 self.PP -= 100 # PP_PER_AP
                 if joy > 30:
                     self.disable_effect("Depression")
@@ -1550,7 +1551,7 @@ init -9 python:
                     self.enable_effect("Depression")
 
             # 3+ days with high joy lead to Elation effect, removed if joy falls below a limit
-            if "Elation" in self.effects:
+            if "Elation" in effects:
                 if dice(10):
                     self.PP += 100 # PP_PER_AP
                 if joy < 85:
@@ -1566,7 +1567,7 @@ init -9 python:
             # 5+ days with vitality < .3 max lead to Exhausted effect, can be removed by one day of rest or some items
             vit = self.get_stat("vitality")
             max = self.get_max("vitality")
-            if "Exhausted" in self.effects:
+            if "Exhausted" in effects:
                 self.mod_stat("vitality", -max/5)
             elif vit > max * .8:
                 self.del_flag("exhausted_counter")
@@ -1576,10 +1577,10 @@ init -9 python:
                     if self.flag("exhausted_counter") >= 5:
                         self.enable_effect('Exhausted')
 
-            if "Horny" in self.effects: # horny effect which affects various sex-related things and scenes
+            if "Horny" in effects: # horny effect which affects various sex-related things and scenes
                 self.disable_effect("Horny")
             else:
-                if interactions_silent_check_for_bad_stuff(self):
+                if iam.silent_check_for_bad_stuff(self):
                     if "Nymphomaniac" in self.traits:
                         chance = 60
                     elif "Frigid" in self.traits:
@@ -1588,13 +1589,6 @@ init -9 python:
                         chance = 30
                     if locked_dice(chance):
                         self.enable_effect("Horny")
-
-        # Relationships:
-        def is_friend(self, char):
-            return char in self.friends
-
-        def is_lover(self, char):
-            return char in self.lovers
 
         def next_day(self):
             self.restore_ap()
@@ -2318,7 +2312,7 @@ init -9 python:
                         self.mod_stat("joy", randint(1, 3))
 
                         if self.status == "slave":
-                            temp += " %s is happy to live under the same roof as %s master!" % (pC, self.pp)
+                            temp += " %s is happy to live under the same roof as %s master!" % (pC, self.pd)
                         else:
                             temp += " %s is content living with you." % pC
                     else:
@@ -2401,7 +2395,7 @@ init -9 python:
                 if self.location == pytfall.ra:
                     # If escaped:
                     self.mod_stat("health", -randint(3, 5))
-                    txt.append("{color=red}%s location is still unknown. You might want to increase your efforts to find %s, otherwise %s will be gone forever.{/color}" % (self.ppC, self.pp, self.p))
+                    txt.append("{color=red}%s location is still unknown. You might want to increase your efforts to find %s, otherwise %s will be gone forever.{/color}" % (self.pdC, self.pd, self.p))
                 else:
                     # your worker is in jail TODO might want to do this in the ND of the jail
                     mod_battle_stats(self, pytfall.jail.get_daily_modifier())
@@ -2430,7 +2424,7 @@ init -9 python:
                 # Upkeep:
                 if self.action == StudyingTask:
                     # currently in school
-                    txt.append("%s is currently in school. %s upkeep is included in price of the class %s is taking." % (self.pC, self.ppC, self.p))
+                    txt.append("%s is currently in school. %s upkeep is included in price of the class %s is taking." % (self.pC, self.pdC, self.p))
                 else:
                     # The whole upkeep thing feels weird, penalties to slaves are severe...
                     amount = self.get_upkeep()
@@ -2444,13 +2438,13 @@ init -9 python:
                         self.fin.log_logical_expense(amount, "Upkeep")
                         if hasattr(self.workplace, "fin"):
                             self.workplace.fin.log_logical_expense(amount, "Workers Upkeep")
-                        txt.append("You paid {color=gold}%d Gold{/color} for %s upkeep." % (amount, self.pp))
+                        txt.append("You paid {color=gold}%d Gold{/color} for %s upkeep." % (amount, self.pd))
                     else:
                         if self.status != "slave":
                             self.mod_stat("joy", -randint(3, 5))
                             self.mod_stat("disposition", -randint(5, 10))
                             self.mod_stat("affection", affection_reward(self, -1, stat="gold"))
-                            txt.append("You failed to pay %s upkeep, %s is a bit cross with you because of that..." % (self.pp, self.p))
+                            txt.append("You failed to pay %s upkeep, %s is a bit cross with you because of that..." % (self.pd, self.p))
                         else:
                             self.mod_stat("joy", -20)
                             self.mod_stat("disposition", -randint(25, 50))
@@ -2483,7 +2477,7 @@ init -9 python:
                         self.mod_stat("affection", affection_reward(self, .1, stat="gold"))
                         self.mod_stat("joy", 1 + tips/40)
                     else:
-                        temp = choice(["You take all of %s tips for yourself." % self.pp,
+                        temp = choice(["You take all of %s tips for yourself." % self.pd,
                                        "You keep all of it."])
                         txt.append(temp)
                         hero.add_money(tips, reason="Worker Tips")
@@ -2496,10 +2490,10 @@ init -9 python:
                     flag_red = True
                 if (not self.autobuy) and not self.allowed_to_define_autobuy:
                     self.autobuy = True
-                    txt.append("%s will go shopping whenever it may please %s from now on!" % (self.pC, self.pp))
+                    txt.append("%s will go shopping whenever it may please %s from now on!" % (self.pC, self.pd))
                 if (not self.autoequip) and not self.allowed_to_define_autoequip:
                     self.autoequip = True
-                    txt.append("%s will be handling %s own equipment from now on!" % (self.pC, self.pp))
+                    txt.append("%s will be handling %s own equipment from now on!" % (self.pC, self.pd))
 
                 # throw a red flag if the worker is not doing anything:
                 if not self.action:
@@ -2540,7 +2534,7 @@ init -9 python:
 
             if txt is not None:
                 temp = choice(["%s decided to go on a shopping tour :)" % self.nickname,
-                               "%s went to town to relax, take %s mind of things and maybe even do some shopping!" % (self.nickname, self.pp)])
+                               "%s went to town to relax, take %s mind of things and maybe even do some shopping!" % (self.nickname, self.pd)])
                 txt.append(temp)
 
             result = self.auto_buy(amount=randint(1, 2), equip=self.autoequip)
@@ -2552,7 +2546,7 @@ init -9 python:
                 temp = set_font_color(", ".join([item.id for item in result]), "cadetblue")
                 temp = choice(("%s bought %sself %s %s.", 
                                "%s got %s hands on %s %s!")) % (self.pC, self.op, temp, plural("item", len(result)))
-                temp += choice(("This brightened %s mood a bit!" % self.pp, "%s's definitely in better mood because of that!" % self.pC))
+                temp += choice(("This brightened %s mood a bit!" % self.pd, "%s's definitely in better mood because of that!" % self.pC))
 
                 temp = set_font_color(temp, "limegreen")
             else:
@@ -2588,10 +2582,10 @@ init -9 python:
                         msg = "%s tried to escape, but the guards subdued %s." % (self.name, self.op)
                     elif self.get_stat("disposition") < -500:
                         if dice(50):
-                            msg = "Took %s own life because %s could no longer live as your slave!" % (self.pp, self.p)
+                            msg = "Took %s own life because %s could no longer live as your slave!" % (self.pd, self.p)
                             kill_char(self)
                         else:
-                            msg = "Tried to take %s own life because %s could no longer live as your slave!" % (self.pp, self.p)
+                            msg = "Tried to take %s own life because %s could no longer live as your slave!" % (self.pd, self.p)
                             self.set_stat("health", 1)
                     else:
                         msg = None
@@ -2607,7 +2601,7 @@ init -9 python:
                         msg = "%s has left your employment because you do not give a rats ass about how %s feels!" % (self.pC, self.p)
                         mood = "sad"
                     else:
-                        msg = "%s has left your employment because %s no longer trusts or respects you!" % (self.pC, self.pp)
+                        msg = "%s has left your employment because %s no longer trusts or respects you!" % (self.pC, self.pd)
                     self.txt.append(set_font_color(msg, "red"))
                     flag_red = True
                     hero.remove_char(self)

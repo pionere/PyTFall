@@ -1,13 +1,4 @@
 init -11 python:
-    def stop_training(char):
-        #since there is no slave training yet, this does nothing
-        pass
-
-    def char_is_training(char):
-        #since there is no slave training yet, this is always false.
-        #Should be updated when Slave Training is implemented.
-        return False
-
     def is_skill(skill):
         return skill in STATIC_CHAR.SKILLS
 
@@ -19,23 +10,58 @@ init -11 python:
         wage = sum(wages)/len(wages)
         return round_int(wage)
 
+    # Relationships:
+    def check_friends(char, other=None):
+        if other is None:
+            other = hero
+        return other in char.friends
+
+    def set_friends(char, other=None):
+        if other is None:
+            other = hero
+        char.friends.add(other)
+        other.friends.add(char)
+
+    def end_friends(char, other=None):
+        if other is None:
+            other = hero
+        char.friends.discard(other)
+        other.friends.discard(char)
+
+    def check_lovers(char, other=None):
+        if other is None:
+            other = hero
+        return other in char.lovers
+
+    def set_lovers(char, other=None):
+        if other is None:
+            other = hero
+        char.lovers.add(other)
+        other.lovers.add(char)
+
+    def end_lovers(char, other=None):
+        if other is None:
+            other = hero
+        char.lovers.discard(other)
+        other.lovers.discard(char)
+
     def friends_disp_check(char, msg=None):
         """Sets up friendship with characters based on disposition and affection"""
         if hero in char.lovers:
             temp = char.get_stat("affection")
             if (temp < 200 and char.status == "free") or (temp < 50): # and self.status == "slave"):
-                    end_lovers(char, hero)
+                    end_lovers(char)
                     if msg is not None:
                         msg.append("%s and you are no longer lovers..." % char.nickname)
 
         temp = char.get_stat("disposition")
         if hero in char.friends:
             if temp <= 0:
-                end_friends(char, hero)
+                end_friends(char)
                 if msg is not None:
                     msg.append("%s is no longer friends with you..." % char.nickname)
         elif temp > 400:
-            set_friends(char, hero)
+            set_friends(char)
             if msg is not None:
                 msg.append("%s became pretty close to you." % char.nickname)
 
@@ -700,8 +726,7 @@ init -11 python:
         # Jail
         pytfall.jail.remove_char(char)
 
-        global gm
-        gm.remove_girl(char) # gm is poorly named and can be overwritten...
+        iam.remove_girl(char) # iam is poorly named and can be overwritten...
 
         global chars
         temp = getattr(char, "dict_id", char.id)
@@ -723,7 +748,7 @@ init -11 python:
 
         char.home = pytfall.afterlife
 
-        gm.remove_girl(char)
+        iam.remove_girl(char)
 
     def tier_up_to(char, tier, level_bios=(.9, 1.1),
                    skill_bios=(.65, 1.0), stat_bios=(.65, 1.0)):
@@ -943,14 +968,7 @@ init -11 python:
 
         value *= mod
 
-        temp = ("Lesbian" if char.gender == "female" else "Gay") in char.traits
-        if char.gender != hero.gender:
-            if temp and "Yuri Expert" not in hero.traits:
-                return limited_affection(char, value)
-        else:
-            if not temp:
-                return limited_affection(char, value)
-        if "Half-Sister" in char.traits and "Sister Lover" not in hero.traits:
+        if iam.gender_mismatch(char, False) or iam.incest(char):
             return limited_affection(char, value)
 
         return dice_int(value)

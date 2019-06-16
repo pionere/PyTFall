@@ -140,7 +140,7 @@ label start:
 
     python: # Girlsmeets:
         tl.start("Loading: GirlsMeets")
-        gm = GirlsMeets()
+        iam = GirlsMeets()
         tl.end("Loading: GirlsMeets")
 
     jump dev_testing_menu_and_load_mc
@@ -1656,6 +1656,10 @@ label after_load:
             del store.items["Garem Charm"]
             hc.id = "Harem Charm"
             store.items["Harem Charm"] = hc
+
+        if not hasattr(store, "iam"):
+            store.iam = store.gm
+            del store.gm
 
         if hasattr(pytfall.general_store, "locations"):
             for i in pytfall.__dict__.values():

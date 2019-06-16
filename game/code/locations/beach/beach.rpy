@@ -1,5 +1,5 @@
 label city_beach:
-    $ gm.enter_location(goodtraits=["Energetic", "Exhibitionist"], badtraits=["Scars", "Undead", "Furry", "Monster", "Not Human"],
+    $ iam.enter_location(goodtraits=["Energetic", "Exhibitionist"], badtraits=["Scars", "Undead", "Furry", "Monster", "Not Human"],
                         coords=[[.14, .65], [.42, .6], [.85, .45]])
 
     # Music related:
@@ -44,7 +44,7 @@ label city_beach:
                         if not tags:
                             # giveup
                             tags = ["girlmeets", "swimsuit"]
-                gm.start_gm(char, img=char.show(*tags, type="reduce", label_cache=True, gm_mode=True))
+                iam.start_gm(char, img=char.show(*tags, type="reduce", label_cache=True, gm_mode=True))
 
         elif result[0] == 'control':
             if result[1] == 'return':
@@ -56,11 +56,11 @@ screen city_beach():
     use top_stripe(True)
     use location_actions("city_beach")
 
-    if gm.show_girls:
-        key "mousedown_3" action ToggleField(gm, "show_girls")
+    if iam.show_girls:
+        key "mousedown_3" action ToggleField(iam, "show_girls")
 
         add "content/gfx/images/bg_gradient.webp" yalign .45
-        for entry, pos in zip(gm.display_girls(), gm.coords):
+        for entry, pos in zip(iam.display_girls(), iam.coords):
             hbox:
                 align pos
                 use rg_lightbutton(return_value=['jump', entry])
@@ -225,7 +225,7 @@ label city_beach_monsters_fight:
             mob.front_row = 1
             enemy_team.add(mob)
 
-    $ result = interactions_pick_background_for_fight("beach")
+    $ result = iam.select_background_for_fight("beach")
     $ result = run_default_be(enemy_team, background=result, end_background="city_beach", give_up="escape")
 
     if result is True:

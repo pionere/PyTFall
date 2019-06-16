@@ -123,7 +123,7 @@ init -9 python:
             Returns a list of all characters available/willing to fight in the Arena.
             Excludes all girls participating in girl_meets to avoid them being at multiple locations (this needs better handling)
             '''
-            interactions_chars = set(gm.get_all_girls())
+            interactions_chars = set(iam.get_all_girls())
             interactions_chars.update(hero.chars)
             return [c for c in chars.itervalues() if c.arena_willing and c not in interactions_chars] + fighters.values()
 
@@ -1197,7 +1197,7 @@ init -9 python:
             if len(opfor) == 1:
                 opfor = opfor.leader
                 temp = "%s missed a 1v1 fight against %s, who entrained the public by boasting of %s prowess " \
-                        "and making funny jabs at %s's cowardliness!" % (hero.name, opfor.name, opfor.pp, hero.name)
+                        "and making funny jabs at %s's cowardliness!" % (hero.name, opfor.name, opfor.pd, hero.name)
             else:
                 temp = "%s didn't show up for a team combat against %s! The spectators were very displeased!" % (hero.team.name, opfor.name)
             temp = set_font_color(temp, "red")

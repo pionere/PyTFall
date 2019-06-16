@@ -40,7 +40,7 @@ init -5 python:
                 log.append("%s is injured and is in need of some rest." % name)
                 effectiveness -= 70
             elif 'Food Poisoning' in effects:
-                log.append("%s suffers from Food Poisoning, and is very far from %s top shape." % (name, worker.pp))
+                log.append("%s suffers from Food Poisoning, and is very far from %s top shape." % (name, worker.pd))
                 effectiveness -= 50
             elif 'Down with Cold' in effects:
                 log.append("%s is not feeling well due to colds..." % name)
@@ -49,7 +49,7 @@ init -5 python:
                 log.append("%s is drunk. Not the best thing when you need take care of others." % name)
                 effectiveness -= 20
             elif 'Revealing Clothes' in effects:
-                log.append("%s revealing clothes attract unneeded attention, interfering with work." % worker.ppC)
+                log.append("%s revealing clothes attract unneeded attention, interfering with work." % worker.pdC)
                 effectiveness -= 10
 
             if locked_dice(65): # traits don't always work, even with high amount of traits there are normal days when performance is not affected
@@ -129,17 +129,17 @@ init -5 python:
                         if dispo < dispo_req:
                             temp = "%s is a slave so no one really cares, but being forced to work as a nurse, %s's quite upset." % (name, worker.p)
                         else:
-                            temp = "%s will do as %s's told, but this doesn't mean that %s'll be happy about %s nursing duties." % (name, worker.p, worker.p, worker.pp)
+                            temp = "%s will do as %s's told, but this doesn't mean that %s'll be happy about %s nursing duties." % (name, worker.p, worker.p, worker.pd)
                         sub = 25
                     elif sub == 0:
                         if dispo < dispo_req:
                             temp = "%s will do as you command, but %s will hate every second of being forced to work as a nurse..." % (name, worker.p)
                         else:
-                            temp = "%s was very displeased by %s order to work as a nurse, but didn't dare to refuse." % (name, worker.pp)
+                            temp = "%s was very displeased by %s order to work as a nurse, but didn't dare to refuse." % (name, worker.pd)
                         sub = 35
                     else:
                         if dispo < dispo_req:
-                            temp = "%s was very displeased by %s order to work as a nurse." % (name, worker.pp)
+                            temp = "%s was very displeased by %s order to work as a nurse." % (name, worker.pd)
                         else:
                             temp = "%s will do as you command and work as a nurse, but not without a lot of grumbling and complaining." % name
                         sub = 45

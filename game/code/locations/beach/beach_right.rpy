@@ -1,5 +1,5 @@
 label city_beach_right:
-    $ gm.enter_location(goodtraits=["Not Human", "Alien"], badtraits=["Shy", "Coward", "Homebody", "Human"],
+    $ iam.enter_location(goodtraits=["Not Human", "Alien"], badtraits=["Shy", "Coward", "Homebody", "Human"],
                         coords=[[.4, .9], [.6, .8], [.9, .7]])
     python:
         # Build the actions
@@ -30,7 +30,7 @@ label city_beach_right:
                         if not tags:
                             # giveup
                             tags = ["girlmeets", "swimsuit"]
-                gm.start_gm(char, img=char.show(*tags, type="reduce", label_cache=True, gm_mode=True))
+                iam.start_gm(char, img=char.show(*tags, type="reduce", label_cache=True, gm_mode=True))
 
         elif result[0] == 'control':
             if result[1] == 'return':
@@ -42,22 +42,22 @@ label city_beach_right:
 screen city_beach_right():
     use top_stripe(True)
 
-    if not gm.show_girls:
+    if not iam.show_girls:
         $img = im.Flip(im.Scale("content/gfx/interface/buttons/blue_arrow.png", 80, 80), horizontal=True)
         imagebutton:
             align (.01, .5)
             idle (img)
             hover (im.MatrixColor(img, im.matrix.brightness(.15)))
             action [Hide("city_beach_right"), Function(global_flags.set_flag, "keep_playing_music"), Jump("city_beach")]
-    
+
     use location_actions("city_beach_right")
 
-    if gm.show_girls:
-        key "mousedown_3" action ToggleField(gm, "show_girls")
+    if iam.show_girls:
+        key "mousedown_3" action ToggleField(iam, "show_girls")
 
         add "content/gfx/images/bg_gradient.webp" yalign .45
-        
-        for entry, pos in zip(gm.display_girls(), gm.coords):
+
+        for entry, pos in zip(iam.display_girls(), iam.coords):
             hbox:
                 align pos
                 use rg_lightbutton(return_value=['jump', entry])
