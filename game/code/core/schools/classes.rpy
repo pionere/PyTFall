@@ -14,27 +14,20 @@ init python:
 
             self.data = data
 
+            # set price
+            price = get_average_wage()
+            price = price + price * difficulty
+            self.price = round_int(price)
+
             self.set_image()
-            self.set_price()
 
         def __repr__(self):
             return str(self.name + " Course")
 
-        def set_price(self):
-            price = get_average_wage()
-            price = price + price*self.difficulty
-            self.price = round_int(price)
-
         def set_image(self):
-            images = []
-            folder = os.path.join("content", "schools", self.data["image"])
-            path = os.path.join(gamedir, folder)
-            if os.path.isdir(path):
-                for fn in os.listdir(path):
-                    if fn.endswith(IMAGE_EXTENSIONS):
-                        images.append(os.path.join(folder, fn)) 
-
-            img = choice(images) if images else IMG_NOT_FOUND_PATH
+            dir = content_path("schools", self.data["image"])
+            images = [fn for fn in listfiles(dir) if check_image_extension(fn)]
+            img = os.path.join(dir, choice(images)) if images else IMG_NOT_FOUND_PATH
             self.img = renpy.displayable(img)
 
         def get_status(self, char):

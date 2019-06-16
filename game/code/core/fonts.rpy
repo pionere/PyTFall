@@ -1,14 +1,9 @@
 label fonts:
-    python:
-        fonts = list()
-        for font in os.listdir(renpy.loader.transfn("fonts")):
-            fonts.append("fonts/" + font)
-    call screen fonts(fonts)
+    call screen fonts
 
-screen fonts(fonts):
-
+screen fonts():
     zorder 1000
-
+    default fonts = [os.path.join("fonts", file) for file in listfiles(renpy.loader.transfn("fonts"))]
     default index = 0
     default group = None
 
@@ -20,7 +15,7 @@ screen fonts(fonts):
         python:
             if not group:
                 font = fonts[index]
-                font_name = font.strip("fonts/")
+                font_name = font[6:]
             else:
                 font = group
                 font_name = "GroupTest"

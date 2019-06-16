@@ -1470,12 +1470,11 @@ init python:
             return None
 
     def get_random_image_dissolve(time):
-        transitions = list()
-        path = content_path("gfx/masks")
-        for file in os.listdir(path):
-            if check_image_extension(file):
-                transitions.append("/".join(["content/gfx/masks", file]))
-        return ImageDissolve(choice(transitions), time)
+        dir = content_path("gfx", "masks")
+        transitions = [file for file in listfiles(dir) if check_image_extension(file)]
+        if transitions:
+            image = os.path.join(dir, choice(transitions))
+            return ImageDissolve(image, time)
 
 
 init -100 python: # Older factory designs:

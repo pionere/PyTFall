@@ -24,7 +24,7 @@ init -9 python:
             img_set = set()
             tags_dict = self.tags_dict
             tagmap = self.tagmap
-            for fn in os.listdir(path):
+            for fn in listfiles(path):
                 if not check_image_extension(fn):
                     continue
                 # Add filename to girls id:
@@ -114,52 +114,6 @@ init -9 python:
                         imgmap[p] = tagset
                     tagset.add(tag)
             return imgmap
-
-        def dump_json(self, targetfiles=[]):
-            '''Dumps the tag information into tags.json files.
-
-            targetfiles is a list of paths to files.
-            If targetfiles is empty, a single tags.json file will be written to
-            the game directory and will contain the complete database contents.
-            '''
-            # ensure that all target files have valid paths
-            if not targetfiles:
-                targets = {os.path.join(gamedir, "tags.json") : {}}
-            else:
-                targets = {}
-                for p in targetfiles:
-                    normpath = normalize_path(p)
-                    targets[normpath] = {}
-            for t in targets.keys():
-                dirpath = os.path.dirname(t)
-                if not os.path.exists(dirpath):
-                    tagslog.error("directory does not exist: %s" % dirpath)
-                    targets.pop(t)
-            # separate database content by targetdir
-            targetdirs = {}
-            for t in targets:
-                td = os.path.dirname(t)
-                targetdirs[td] = t
-            imgmap = self.map_images_to_tags()
-            for imgpath in imgmap:
-                taglist = sorted(imgmap[imgpath])
-                normimgpath = normalize_path(imgpath)
-                found = False
-                for td in targetdirs:
-                    if normimgpath.startswith(td):
-                        targetfile = targetdirs[td]
-                        targets[targetfile][imgpath] = taglist
-                        found = True
-                        break
-                if not found:
-                    tagslog.error("could not find target directory for %s" % imgpath)
-            # write one JSON file per target directory
-            for t in targets:
-                imgmap = targets[t]
-                tagslog.debug("writing tags to %s" % t)
-                tagsfile = open(t, "w")
-                json.dump(imgmap, tagsfile, indent=4, sort_keys=True)
-
 
     class Tagger(_object):
         '''Backend supporting the in-game tagger

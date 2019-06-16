@@ -1,11 +1,12 @@
 init -9 python:
     def get_random_event_image(eventfolder):
-        templist = []
-        if eventfolder in os.listdir(content_path('events')):
-            for file in os.listdir(content_path('events/%s' % eventfolder)):
-                if check_image_extension(file):
-                    templist.append('content/events/%s/%s' % (eventfolder, file))
-            return ProportionalScale(choice(templist), config.screen_width, config.screen_height)
+        dir = content_path('events')
+        if eventfolder in listdirs(dir):
+            dir = os.path.join(dir, eventfolder)
+            images = [file for file in listfiles(dir) if check_image_extension(file)]
+            if images:
+                image = os.path.join(dir, choice(images))
+                return ProportionalScale(image, config.screen_width, config.screen_height)
 
     # Utility funcs to alias otherwise long command lines:
     def register_event(*args, **kwargs):

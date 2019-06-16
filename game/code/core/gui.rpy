@@ -82,18 +82,13 @@ init -1 python:
             Transitions are taken from Ceramic Hearts.
             """
             # Get the list of files for transitions first:
-            transitions = list()
-            path = content_path("gfx/masks")
-            for file in os.listdir(path):
-                if check_image_extension(file):
-                    transitions.append("/".join([path, file]))
-            transitions.reverse()
-            transitions_copy = copy.copy(transitions)
+
+            dir = content_path("gfx", "masks")
+            all_transitions = [os.path.join(dir, file) for file in listfiles(dir) if check_image_extension(file)]
 
             # Get the images:
-            images = self.pathlist * 1
-            shuffle(images)
-            images_copy = copy.copy(images)
+            all_images = self.pathlist * 1
+            shuffle(all_images)
 
             renpy.hide_screen("gallery")
             renpy.with_statement(dissolve)
@@ -101,14 +96,15 @@ init -1 python:
             renpy.music.play("content/sfx/music/reflection.mp3", fadein=1.5)
 
             loop = True
+            images = transitions = None
             while loop:
                 if not images:
-                    images = images_copy * 1
+                    images = all_images * 1
                 if not transitions:
-                    transitions = transitions_copy * 1
+                    transitions = all_transitions * 1
 
                 image = images.pop()
-                image = "/".join([self.girl.path_to_imgfolder, image])
+                image = os.path.join(self.girl.path_to_imgfolder, image)
                 x, y = renpy.image_size(image)
                 rndm = randint(5, 7)
                 tag = str(random.random())

@@ -33,37 +33,34 @@ label tavern_town:
             $ global_flags.set_flag("tavern_status", value=[day, tavern_status])
     $ tavern_event_list = []
     if global_flags.flag("tavern_status")[1] == "cozy":
-        python:
-            for file in os.listdir(content_path("events/tavern_entry/cozy/")):
-                if check_image_extension(file):
-                    tavern_event_list.append('content/events/tavern_entry/cozy/%s' % (file))
-            img = ProportionalScale(choice(tavern_event_list), 1000, 600)
+        python hide:
+            dir = content_path("events", "tavern_entry", "cozy")
+            images = [file for file in listfiles(dir) if check_image_extension(file)]
+            img = os.path.join(dir, choice(images))
+            img = ProportionalScale(img, 1000, 600)
             renpy.show("drunkards", what=img, at_list=[Position(ypos = .5, xpos = .5, yanchor = .5, xanchor = .5)])
             renpy.with_statement(dissolve)
-            narrator ("The tavern is warm and cozy with only a handful of drunkards enjoying the stay.")
-            del tavern_event_list, img
+        "The tavern is warm and cozy with only a handful of drunkards enjoying the stay."
     elif global_flags.flag("tavern_status")[1] == "lively":
-        python:
-            for file in os.listdir(content_path("events/tavern_entry/lively/")):
-                if check_image_extension(file):
-                    tavern_event_list.append('content/events/tavern_entry/lively/%s' % (file))
-            img = ProportionalScale(choice(tavern_event_list), 1000, 600)
+        python hide:
+            dir = content_path("events", "tavern_entry", "lively")
+            images = [file for file in listfiles(dir) if check_image_extension(file)]
+            img = os.path.join(dir, choice(images))
+            img = ProportionalScale(img, 1000, 600)
             renpy.show("drunkards", what=img, at_list=[Position(ypos = .5, xpos = .5, yanchor = .5, xanchor = .5)])
             renpy.with_statement(dissolve)
-            narrator ("The place is loud and lively today, with townsmen drinking and talking at every table.")
-            del tavern_event_list, img
+        "The place is loud and lively today, with townsmen drinking and talking at every table."
     else:
-        python:
-            for file in os.listdir(content_path("events/tavern_entry/brawl/")):
-                if check_image_extension(file):
-                    tavern_event_list.append('content/events/tavern_entry/brawl/%s' % (file))
-            img = ProportionalScale(choice(tavern_event_list), 1000, 600)
+        python hide:
+            dir = content_path("events", "tavern_entry", "brawl")
+            images = [file for file in listfiles(dir) if check_image_extension(file)]
+            img = os.path.join(dir, choice(images))
+            img = ProportionalScale(img, 1000, 600)
             renpy.show("event", what=img, at_list=[Position(ypos = .5, xpos = .5, yanchor = .5, xanchor = .5)])
             renpy.with_statement(dissolve)
             renpy.music.stop(channel="world")
             renpy.music.play("brawl.mp3",channel="world")
-            narrator ("You step into the room... right into a fierce tavern brawl!")
-            del tavern_event_list, img
+        "You step into the room... right into a fierce tavern brawl!"
         menu:
             "Join it!":
                 jump city_tavern_brawl_fight

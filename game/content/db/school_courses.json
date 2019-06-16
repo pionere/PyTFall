@@ -1,7 +1,7 @@
 {
     "Beauty": {
         "desc": "This course focuses on training charisma and refinement.",
-        "image": "Beauty/",
+        "image": "Beauty",
         "imageMode": "any",
         "imageTags": [
             "beauty",
@@ -20,7 +20,7 @@
     },
     "Taiji": {
         "desc": "This course focuses on training constitution. May also improve character and refinement skill.",
-        "image": "Combat/",
+        "image": "Combat",
         "imageMode": "any",
         "imageTags": [
             "ninja",
@@ -42,7 +42,7 @@
     },
     "Dance": {
         "desc": "This course focuses on agility and charisma. May also improve constitution and striptease skill.",
-        "image": "Dance/",
+        "image": "Dance",
         "imageMode": "any",
         "imageTags": [
             "dancing",
@@ -63,7 +63,7 @@
     },
     "Combat": {
         "desc": "This course focuses on training attack and security. May also improve defense.",
-        "image": "Combat/",
+        "image": "Combat",
         "type": "combat",
         "imageMode": "any",
         "imageTags": [
@@ -86,7 +86,7 @@
     },
     "Leadership": {
         "desc": "This course focuses on training management and character.",
-        "image": "Leader/",
+        "image": "Leader",
         "imageMode": "any",
         "imageTags": [
             "confident",
@@ -107,7 +107,7 @@
     },
     "Guard": {
         "desc": "This course focuses on training defence and security. May also improve constitution.",
-        "image": "Combat/",
+        "image": "Combat",
         "type": "combat",
         "imageMode": "any",
         "imageTags": [
@@ -130,7 +130,7 @@
     },
     "Kunoichi": {
         "desc": "This course focuses on training attack and agility. May also improve general sex and security.",
-        "image": "Kunoichi/",
+        "image": "Kunoichi",
         "type": "combat",
         "imageMode": "any",
         "imageTags": [
@@ -154,7 +154,7 @@
 
     "Striptease": {
         "desc": "This course focuses on training striptease skill and agility. May also improve general sex skill and charisma.",
-        "image": "Strip/",
+        "image": "Strip",
         "type": "xxx",
         "imageTags": [
             "stripping"
@@ -169,7 +169,7 @@
     },
     "Etiquette": {
         "desc": "This course focuses on refinement. May also improve service and intelligence.",
-        "image": "Etiquette/",
+        "image": "Etiquette",
         "imageMode": "any",
         "imageTags": [
             "etiquette",
@@ -190,7 +190,7 @@
     },
     "Maid": {
         "desc": "This course focuses on maid skills. May also improve character and intelligence.",
-        "image": "Service/",
+        "image": "Service",
         "imageMode": "any",
         "imageTags": [
             "maid",
@@ -215,7 +215,7 @@
     },
     "Cleaning": {
         "desc": "This course focuses on cleaning and service skills, as well as agility and constitution.",
-        "image": "Service/",
+        "image": "Service",
         "imageMode": "any",
         "imageTags": [
             "maid",
@@ -238,7 +238,7 @@
     },
     "Barmaid": {
         "desc": "This course focuses on bartending and service skills, intelligence and character. May also improve constitution.",
-        "image": "Service/",
+        "image": "Service",
         "imageMode": "any",
         "imageTags": [
             "maid",
@@ -263,7 +263,7 @@
     },
     "Oral Sex": {
         "desc": "This course focuses on training oral sex skills. May also improve general sex skill.",
-        "image": "Oral/",
+        "image": "Oral",
         "type": "xxx",
         "imageMode": "any",
         "imageTags": [
@@ -285,7 +285,7 @@
     },
     "Anal Sex": {
         "desc": "This course focuses on training anal sex skills. May also improve general sex skill.",
-        "image": "Anal/",
+        "image": "Anal",
         "type": "xxx",
         "imageMode": "any",
         "imageTags": [
@@ -309,7 +309,7 @@
     },
     "Vaginal Sex": {
         "desc": "This course focuses on training vaginal sex skills. May also improve general sex skill.",
-        "image": "Vaginal/",
+        "image": "Vaginal",
         "type": "xxx",
         "imageMode": "any",
         "imageTags": [
@@ -334,7 +334,7 @@
     },
     "BDSM": {
         "desc": "This course focuses on training constitution. May also improve general sex skill.",
-        "image": "BDSM/",
+        "image": "BDSM",
         "type": "xxx",
         "imageTags": [
             "bdsm",

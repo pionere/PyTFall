@@ -1,31 +1,30 @@
 # The whole thing should one day be recoded over a single renpy.list_files loop.
 init 11 python:
     def load_webms():
-        webms = {}
-        for path in renpy.list_files():
-            if "content/gfx/autowebm/" in path:
-                split_path = path.split("/")
-                folder = split_path[-2]
-                file = split_path[-1]
+        webms = defaultdict(dict)
+        dir = content_path("gfx", "autowebm")
+        for folder in listdirs(dir):
+            base = os.path.join(dir, folder)
+            for file in listfiles(base):
+                path = os.path.join(base, file)
                 if "mask" in file:
-                    webms.setdefault(folder, {})["mask"] = path
+                    webms[folder]["mask"] = path
                 if "movie" in file:
-                    webms.setdefault(folder, {})["movie"] = path
-                if "moviemask" in file: # rare cases when movie itself is also the mask
-                    webms.setdefault(folder, {})["movie"] = path
-                    webms.setdefault(folder, {})["mask"] = path
+                    webms[folder]["movie"] = path
 
-        for folder in webms:
+        for folder, data in webms.iteritems():
+            movie = data["movie"]
+            mask = data.get("mask", None)
             temp = folder.split(" ")
-
             tag = temp[0]
             channel = temp[2] if len(temp) == 3 else "main_gfx_attacks"
             loops = temp[1] if len(temp) >= 2 else 1
+
             if loops == "inf":
-                renpy.image(tag, Movie(channel=channel, play=webms[folder]["movie"], mask=webms[folder].get("mask", None)))
+                renpy.image(tag, Movie(channel=channel, play=movie, mask=mask))
             else:
                 loops = int(loops)
-                renpy.image(tag, MovieLooped(channel=channel, loops=loops, play=webms[folder]["movie"], mask=webms[folder].get("mask", None)))
+                renpy.image(tag, MovieLooped(channel=channel, loops=loops, play=movie, mask=mask))
 
     load_webms()
 
@@ -37,7 +36,7 @@ init -11 python:
         return data
 
     def load_db_json(fn):
-        path = "content/db/" + fn
+        path = os.path.join("content", "db", fn)
         return load_json(path)
 
     def load_team_names(amount):
@@ -55,8 +54,7 @@ init -11 python:
         return random.sample(rn, amount)
 
     def load_random_last_names(amount):
-        with open(content_path("db/names/last_names.json")) as f:
-            rn = json.load(f)
+        rn = load_db_json("names/last_names.json")
         return random.sample(rn, amount)
 
     def load_characters(path, cls=None):
@@ -78,17 +76,17 @@ init -11 python:
         traits = store.traits
 
         # Get to a folder with unique girl datafiles and imagefolders:
-        for packfolder in os.walk(os.path.join(dir,'.')).next()[1]:
+        for packfolder in listdirs(dir):
             # Load data files one after another.
-            for file in os.walk(os.path.join(dir, packfolder, '.')).next()[2]:
+            packfolder = os.path.join(dir, packfolder)
+            for file in listfiles(packfolder):
                 if not (file.startswith("data") and file.endswith(".json")):
                     continue
 
                 # Load the file:
-                in_file = os.path.join(dir, packfolder, file)
+                in_file = os.path.join(packfolder, file)
                 char_debug("Loading from %s!" % str(in_file)) # Str call to avoid unicode
-                with open(in_file) as f:
-                    ugirls = json.load(f, object_pairs_hook=OrderedDict)
+                ugirls = load_json(in_file)
 
                 # Apply the content of the file to the character:
                 for gd in ugirls: # We go over each dict one mainaining correct order of application:
@@ -97,7 +95,7 @@ init -11 python:
                         raise Exception("No id was specified in %s JSON Datafile!" % str(in_file))
 
                     folder = id = gd["id"]
-                    _path = os.path.join(dir, packfolder, folder)
+                    _path = os.path.join(packfolder, folder)
                     if os.path.isdir(_path):
                         # We load the new tags!:
                         tagdb.load_tags_folder(folder, _path)
@@ -540,15 +538,13 @@ init -11 python:
 
     def load_traits():
         content = list()
-        folder = content_path('db/traits')
-        for file in os.listdir(folder):
-            # New file "content/db/traits_chances.json" crashes this function as it matches the naming scheme for the traits files, but not the content scheme
-            # Added check to remove it from consideration to prevent crashing, should look into changing its name, conforming to scheme, or better check.
-            #
-            if file.startswith("traits") and file.endswith(".json") and "_chances" not in file:
-                in_file = content_path("".join(["db/traits/", file]))
-                with open(in_file) as f:
-                    content.extend(json.load(f))
+        dir = content_path("db", "traits")
+
+        for file in listfiles(dir):
+            if file.endswith(".json"):
+                in_file = os.path.join(dir, file)
+                content.extend(load_json(in_file))
+
         traits = dict()
         for trait in content:
             t = Trait()
@@ -647,13 +643,12 @@ init -11 python:
 
     def load_fg_areas():
         content = list()
-        dir = content_path('db/maps')
+        dir = content_path("db", "maps")
 
-        for file in os.walk(os.path.join(dir, '.')).next()[2]:
+        for file in listfiles(dir):
             if file.endswith(".json"):
                 in_file = os.path.join(dir, file)
-                with open(in_file) as f:
-                    content.extend(json.load(f))
+                content.extend(load_json(in_file))
 
         areas, named_areas = dict(), dict()
         idx = 0
@@ -782,18 +777,16 @@ init -11 python:
         Returns items dict with standard items and gift items to be used during girl_meets.
         """
         content = dict()
-        dir = content_path('db/items')
+        dir = content_path("db", "items")
         items = list()
         gifts = list()
-        for file in os.walk(os.path.join(dir, '.')).next()[2]:
+        for file in listfiles(dir):
             if file.endswith(".json"):
                 in_file = os.path.join(dir, file)
                 if file.startswith("items"):
-                    with open(in_file) as f:
-                        items.extend(json.load(f))
+                    items.extend(load_json(in_file))
                 elif file.startswith("gifts"):
-                    with open(in_file) as f:
-                        gifts.extend(json.load(f))
+                    gifts.extend(load_json(in_file))
 
         for item in items:
             iteminst = Item()
@@ -814,13 +807,12 @@ init -11 python:
 
     def load_dungeons():
         content = []
-        dir = content_path('db/dungeons')
+        dir = content_path("db", "dungeons")
 
-        for file in os.walk(os.path.join(dir, '.')).next()[2]:
+        for file in listfiles(dir):
             if file.endswith(".json"):
                 in_file = os.path.join(dir, file)
-                with open(in_file) as f:
-                    content.extend(json.load(f))
+                content.extend(load_json(in_file))
 
         return { d['id']: Dungeon(**d) for d in content }
 

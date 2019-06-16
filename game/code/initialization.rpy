@@ -56,11 +56,13 @@ init -950 python:
     if persistent.showed_pyp_hint is None:
         persistent.showed_pyp_hint = False
 
-    def content_path(path):
+    def content_path(*args):
         '''Returns proper path for a file in the content directory *To be used with os module.'''
-        if os.pathsep+"content"+os.pathsep in path:
-            renpy.error("content already in path: "+path)
-        return renpy.loader.transfn('content/' + path)
+        path = os.path.join("content", *args)
+        #path = "/".join(["content"] + list(args))
+        #if os.pathsep+"content"+os.pathsep in path:
+        #    renpy.error("content already in path: "+path)
+        return renpy.loader.transfn(path)
 
     # enable logging via the 'logging' module
     if DEBUG_LOG:
@@ -178,20 +180,6 @@ init -950 python:
 
     def check_image_extension(fn):
         return fn.lower().endswith(IMAGE_EXTENSIONS)
-
-    # Auto Animation from a folder:
-    def animate(path, delay=.25, function=None, transition=None, loop=False):
-        # Build a list of all images:
-        files = os.listdir("".join([gamedir, path]))
-        images = list("".join([path[1:], "/", fn]) for fn in files if check_image_extension(fn))
-        # Build a list of arguments
-        args = list()
-        # for image in images:
-            # args.extend([image, delay, transition])
-        # return anim.TransitionAnimation(*args)
-        for image in images:
-            args.append([image, delay])
-        return AnimateFromList(args, loop=loop)
 
     class Flags(_object):
         """Simple class to log all variables into a single namespace
@@ -357,14 +345,30 @@ init -950 python:
             gui_debug(u"Label '%s' does not exist." % labelname)
 
     # Useful methods for path
-    def listdir(dir):
-        return os.listdir(os.path.join(gamedir, dir))
+    def listfiles(dir):
+        return (file for file in os.walk(os.path.join(dir, '.')).next()[2])
+    def listdirs(dir):
+        return (file for file in os.walk(os.path.join(dir, '.')).next()[1])
 
     def exist(path):
         if isinstance(path, basestring):
             return os.path.exists(os.path.join(gamedir, path))
 
         return all(exist(x) for x in path)
+
+    # Auto Animation from a folder:
+    def animate(path, delay=.25, function=None, transition=None, loop=False):
+        # Build a list of all images:
+        files = listfiles(path)
+        images = list(os.path.join(path, fn) for fn in files if check_image_extension(fn))
+        # Build a list of arguments
+        args = list()
+        # for image in images:
+            # args.extend([image, delay, transition])
+        # return anim.TransitionAnimation(*args)
+        for image in images:
+            args.append([image, delay])
+        return AnimateFromList(args, loop=loop)
 
     # Analizis of strings and turning them into int, float or bool.
     # Useful for importing data from xml.
@@ -389,6 +393,7 @@ init -950 python:
 
     # -------------------------------------------------------------------------------------------------------- Ends here
 
+init -4 python:
     ########################## Images ##########################
     # Colors are defined in colors.rpy to global namespace, prolly was not the best way but file was ready to be used.
 
@@ -397,64 +402,74 @@ init -950 python:
     # displayed by "show bg <filename>" or similar commands
     # file name without the extention
     fname = tag = image = None
-    for fname in os.listdir(gamedir + '/content/gfx/bg'):
+    dir = content_path("gfx", "bg")
+    for fname in listfiles(dir):
         if check_image_extension(fname):
             tag = 'bg ' + fname.rsplit(".", 1)[0]
-            image = 'content/gfx/bg/' + fname
+            image = os.path.join(dir, fname)
             renpy.image(tag, im.Scale(image, config.screen_width,
                         config.screen_height))
 
-    for fname in os.listdir(gamedir + '/content/gfx/bg/locations'):
+    dir = content_path("gfx", "bg", "locations")
+    for fname in listfiles(dir):
         if check_image_extension(fname):
             tag = 'bg ' + fname.rsplit(".", 1)[0]
-            image = 'content/gfx/bg/locations/' + fname
+            image = os.path.join(dir, fname)
             renpy.image(tag, im.Scale(image, config.screen_width,
                         config.screen_height))
 
-    for fname in os.listdir(gamedir + '/content/gfx/bg/story'):
+    dir = content_path("gfx", "bg", "story")
+    for fname in listfiles(dir):
         if check_image_extension(fname):
             tag = 'bg ' + 'story ' + fname.rsplit(".", 1)[0]
-            image = 'content/gfx/bg/story/' + fname
+            image = os.path.join(dir, fname)
             renpy.image(tag, im.Scale(image, config.screen_width,
                         config.screen_height))
 
-    for fname in os.listdir(gamedir + '/content/gfx/bg/be'):
+    dir = content_path("gfx", "bg", "be")
+    for fname in listfiles(dir):
         if check_image_extension(fname):
             tag = 'bg ' + fname.rsplit(".", 1)[0]
-            image = 'content/gfx/bg/be/' + fname
+            image = os.path.join(dir, fname)
             renpy.image(tag, im.Scale(image, config.screen_width,
                         config.screen_height))
 
-    for fname in os.listdir(gamedir + '/content/events/slave_club'):
+    dir = content_path("events", "slave_club")
+    for fname in listfiles(dir):
         if check_image_extension(fname):
             tag = 'smc ' + fname[:-5]
-            image = 'content/events/slave_club/' + fname
+            image = os.path.join(dir, fname)
             renpy.image(tag, im.Scale(image, config.screen_width,
                         config.screen_height))
-    del fname, tag, image
+    del fname, tag, dir, image
 
     # Dungeon:
-    light = blend = fname = orientations = ori = wall = bgfname = fn_end = bg_img = tag = fg_img = None
+    light = blend = fname = orientations = ori = wall = bgfname = fn_end = bg_img = tag = fg_img = dir = image = None
     for light in ('', '_torch'):
         # 4 sided symmetry (or symmetry ignored)
         for blend in ('bluegrey', 'door', 'barrel', 'mossy', 'pilar', 'more_barrels', 'barrel_crate',
                       'portal', 'portal_turned', 'ladderdownf', 'mossy_alcove', 'dagger', 'ring'):
-            for fname in os.listdir('%s/content/dungeon/%s%s' % (gamedir, blend, light)):
+            dir = content_path("dungeon", "%s%s" % (blend, light))
+            for fname in listfiles(dir):
                 if check_image_extension(fname):
-                    renpy.image(fname[:-5], 'content/dungeon/%s%s/%s' % (blend, light, fname))
+                    image = os.path.join(dir, fname)
+                    renpy.image(fname[:-5], image)
 
         # 2 sided symmetry and no symmetry
         for blend, orientations in [('portal', ['', '_turned']), ('ladder', "lrfb")]:
             for ori in orientations:
-                for fname in os.listdir('%s/content/dungeon/%s%s%s' % (gamedir, blend, ori, light)):
+                dir = content_path("dungeon", "%s%s%s" % (blend, ori, light))
+                for fname in listfiles(dir):
                     if check_image_extension(fname):
-                        renpy.image(fname[:-5], 'content/dungeon/%s%s%s/%s' % (blend, ori, light, fname))
+                        image = os.path.join(dir, fname)
+                        renpy.image(fname[:-5], image)
 
         #composite images
         for wall in ('bluegrey', 'mossy'):
-            for bgfname in os.listdir('%s/content/dungeon/%s%s' % (gamedir, wall, light)):
+            dir = content_path("dungeon", "%s%s" % (wall, light))
+            for bgfname in listfiles(dir):
                 if check_image_extension(bgfname):
-                    bg_img = 'content/dungeon/%s%s/%s' % (wall, light, bgfname)
+                    bg_img = os.path.join(dir, bgfname)
                     for blend in ('door2','button'):
                         fn_end = bgfname[len('dungeon_'+wall):-5]
                         tag = 'dungeon_%s_%s%s' % (wall, blend, fn_end)
@@ -464,21 +479,21 @@ init -950 python:
                             renpy.image(tag, im.Composite((1280,720), (0, 0), bg_img, (0, 0), fg_img))
                         else:
                             renpy.image(tag, bgfname[:-5])
-    del light, blend, fname, orientations, ori, wall, bgfname, fn_end, bg_img, tag, fg_img
+    del light, blend, fname, orientations, ori, wall, bgfname, fn_end, bg_img, tag, fg_img, dir, image
 
     # Auto-Animations are last
     folder = path = dir = split_dir = len_split = folder_path = img_name = delay = loop = None
-    for folder in ("gfx/animations", "gfx/be/auto-animations"):
-        path = content_path(folder)
-        for dir in os.listdir(path):
+    for folder in (["gfx", "animations"], ["gfx", "be", "auto-animations"]):
+        path = content_path(*folder)
+        for dir in listdirs(path):
             split_dir = dir.split(" ")
             len_split = len(split_dir)
 
-            folder_path = "/".join(["/content", folder, dir])
             img_name = split_dir[0]
             delay = float(split_dir[1]) if len_split > 1 else .25
             loop = bool(int(split_dir[2])) if len_split > 2 else False
 
+            folder_path = os.path.join(path, dir)
             renpy.image(img_name, animate(folder_path, delay, loop=loop))
     del folder, path, dir, split_dir, len_split, folder_path, img_name, delay, loop
 

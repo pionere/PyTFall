@@ -9,7 +9,8 @@ init -9 python:
         @staticmethod
         def load_music(key):
             if key not in PyTFallStatic.world_music:
-                PyTFallStatic.world_music[key] = [track for track in os.listdir(content_path("sfx/music/world")) if track.startswith(key)]
+                dir = content_path("sfx", "music", "world")
+                PyTFallStatic.world_music[key] = [track for track in listfiles(dir) if track.startswith(key)]
         @staticmethod
         def play_music(key, fadein=0):
             PyTFallStatic.load_music(key)
@@ -402,10 +403,7 @@ init -9 python:
         It either builds the map from cut out peaces or by placing icons on in.
         """
         def __init__(self):
-            in_file = content_path("db/city_map.json")
-            with open(in_file) as f:
-                data = json.load(f)
-
+            data = load_db_json("city_map.json")
             for i in data:
                 setattr(self, i, data[i])
 
