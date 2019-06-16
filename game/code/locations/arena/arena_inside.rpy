@@ -504,8 +504,7 @@ init: # Main Screens:
                                     align (.5, .6)
                                     xysize (100, 45)
                                     background Frame("content/gfx/frame/rank_frame.png", 5, 5)
-                                    $ lvl = team.get_level
-                                    text("Lvl [team[0].level]") align .5, .5 size 25 style "proper_stats_text" color "gold"
+                                    text ("Lvl %s" % team.get_level()) align .5, .5 size 25 style "proper_stats_text" color "gold"
                                 $ name = team[0].nickname if len(team) == 1 else team.name
                                 hbox:
                                     yoffset 1
