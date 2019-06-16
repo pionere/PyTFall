@@ -929,7 +929,7 @@ init -10 python:
                 if isinstance(char.workplace, Building):
                     char.workplace.fin.log_logical_expense(paid_wage, "Wages")
             else:
-                txt.append("You lacked the funds to pay %s the promised wage." % char.pd)
+                txt.append("You lacked the funds to pay %s the promised wage." % char.op)
                 paid_wage = real_wagemod = 0
 
             # So... if we got this far, we're either talking slaves that player

@@ -35,26 +35,26 @@ init -11 python:
         data = json.load(file, object_pairs_hook=OrderedDict)
         return data
 
-    def load_db_json(fn):
-        path = os.path.join("content", "db", fn)
+    def load_db_json(*args):
+        path = os.path.join("content", "db", *args)
         return load_json(path)
 
     def load_team_names(amount):
-        rn = load_db_json("names/team_names.json")
+        rn = load_db_json("names", "team_names.json")
         return random.sample(rn, amount)
 
     def load_male_first_names(amount):
-        rn = load_db_json("names/male_first_names.json")
+        rn = load_db_json("names", "male_first_names.json")
         return random.sample(rn, amount)
 
     def load_female_first_names(amount):
-        file_1 = "names/female_first_names_1.json"
-        file_2 = "names/female_first_names_2.json"
-        rn = load_db_json(file_1) + load_db_json(file_2)
+        file_1 = ("names", "female_first_names_1.json")
+        file_2 = ("names", "female_first_names_2.json")
+        rn = load_db_json(*file_1) + load_db_json(*file_2)
         return random.sample(rn, amount)
 
     def load_random_last_names(amount):
-        rn = load_db_json("names/last_names.json")
+        rn = load_db_json("names", "last_names.json")
         return random.sample(rn, amount)
 
     def load_characters(path, cls=None):
@@ -445,7 +445,7 @@ init -11 python:
 
     def load_buildings():
         # Load 'static' data of the upgrades
-        json_data = load_db_json("buildings/upgrades.json")
+        json_data = load_db_json("buildings", "upgrades.json")
         idx = 0
         for upgrade in json_data:
             up = getattr(store, upgrade.pop('class'))
@@ -457,7 +457,7 @@ init -11 python:
             up.ID = idx
 
         # Load 'static' data of the businesses
-        json_data = load_db_json("buildings/businesses.json")
+        json_data = load_db_json("buildings", "businesses.json")
         idx = 0
         for business in json_data:
             b = getattr(store, business.pop('class'))
@@ -469,8 +469,8 @@ init -11 python:
             b.ID = idx
 
         # Load json data of the buildings and the corresponding adverts
-        adverts_data = load_db_json("buildings/adverts.json")
-        buildings_data = load_db_json("buildings/buildings.json")
+        adverts_data = load_db_json("buildings", "adverts.json")
+        buildings_data = load_db_json("buildings", "buildings.json")
         # Populate into building objects:
         buildings = dict()
         idx = 0
@@ -684,7 +684,7 @@ init -11 python:
                         raise Exception("Unknown mobs '%s' in map '%s'." % (m, area.name))
 
         # initialize the possible objects
-        objects = load_db_json('maps/data/objects.json')
+        objects = load_db_json("maps", "data", "objects.json")
         om = dict()
         for o in objects:
             om[o['id']] = o
@@ -739,7 +739,7 @@ init -11 python:
         return areas
 
     def load_aeq_purposes():
-        data = load_db_json('items/aeq_purposes.json')
+        data = load_db_json("items", "aeq_purposes.json")
 
         for entry in data:
             id = entry.pop("id")
