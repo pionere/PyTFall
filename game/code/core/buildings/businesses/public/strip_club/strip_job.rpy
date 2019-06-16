@@ -307,8 +307,8 @@ init -5 python:
                 log.append("\n%s feels like %s learned something!\n" % (worker.name, worker.p))
                 log.logws("joy", 1)
 
-            excluded = ["sad", "angry", "in pain"]
-            kwargs = dict(exclude=excluded, type="reduce", add_mood=False)
+            excluded = ["sex", "sad", "angry", "in pain"]
+            kwargs = dict(exclude=excluded, type="reduce")
             tags = (["stripping", "stage"], ["stripping", "simple bg"], ["stripping", "no bg"])
 
             result = get_simple_act(worker, tags, excluded)

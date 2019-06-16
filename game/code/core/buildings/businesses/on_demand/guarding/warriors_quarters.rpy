@@ -155,7 +155,7 @@ init -5 python:
             for l in pre_log:
                 log.append(l)
 
-            log.img = nd_report_image(loc.img, all_workers, "fighting", exclude=["sex"])
+            log.img = nd_report_image(loc.img, all_workers, "fighting", exclude=["nude", "sex"])
 
             simpy_debug("Guards.write_nd_report marker 2")
 

@@ -220,9 +220,10 @@ init -5 python:
             if dice(10):
                 log.logws('constitution', 1)
 
-            if worker.has_image("nature", "outdoors", exclude=["sex"]):
-                log.img = worker.show("nature", "outdoors", exclude=["sex"])
-            elif worker.has_image("maid", exclude=["sex"]):
-                log.img = worker.show("maid", exclude=["sex"])
+            excluded = ["nude", "sex"]
+            if worker.has_image("nature", "outdoors", exclude=excluded):
+                log.img = worker.show("nature", "outdoors", exclude=excluded)
+            elif worker.has_image("maid", exclude=excluded):
+                log.img = worker.show("maid", exclude=excluded)
             else:
-                log.img = worker.show("profile", exclude=["sex", "nude"])
+                log.img = worker.show("profile", exclude=excluded)

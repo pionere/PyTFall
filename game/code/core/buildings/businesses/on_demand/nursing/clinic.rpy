@@ -176,7 +176,7 @@ init -5 python:
                 log.logws("exp", exp_reward(w, difficulty, exp_mod=ap_used), char=w)
                 w.del_flag("jp_nurse")
 
-            log.img = nd_report_image(building.img, nurses, "healing", exclude=["sex"])
+            log.img = nd_report_image(building.img, nurses, "healing", exclude=["nude", "sex"])
 
             log.after_job()
             NextDayEvents.append(log)

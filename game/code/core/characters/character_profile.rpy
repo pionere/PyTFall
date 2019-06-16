@@ -24,9 +24,9 @@ init python:
         if (check_lovers(char) or "Exhibitionist" in char.traits) and dice(30):
             img = char.show('profile', "nude", "revealing", label_cache=True)
         elif check_friends(char):
-            img = char.show('profile', exclude=["nude"], label_cache=True)
+            img = char.show('profile', exclude=["nude", "sex"], label_cache=True)
         else:
-            img = char.show('profile', exclude=["nude", "revealing", "lingerie", "swimsuit"], label_cache=True)
+            img = char.show('profile', exclude=["nude", "sex", "revealing", "lingerie", "swimsuit"], label_cache=True)
 
         image_tags = tagdb.get_image_tags(img)
         if "no bg" in image_tags:

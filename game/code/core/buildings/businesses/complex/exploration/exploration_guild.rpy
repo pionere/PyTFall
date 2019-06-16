@@ -317,7 +317,7 @@ init -6 python: # Guild, Tracker and Log.
             # Build an image combo for the report:
             img = area.img
             if team is not None:
-                img = nd_report_image(img, team, "fighting", exclude=["sex"])
+                img = nd_report_image(img, team, "fighting", exclude=["nude", "sex"])
 
             # We need to create major report for nd to keep track of progress:
             for l in self.logs:

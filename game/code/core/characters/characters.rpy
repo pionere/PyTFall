@@ -2511,7 +2511,11 @@ init -9 python:
                 # Finances related:
                 self.fin.next_day()
 
-            img = 'profile' if mood is None else self.show("profile", mood)
+            excluded = ["nude", "sex"]
+            if mood is None:
+                img = self.show("profile", exclude=excluded)
+            else:
+                img = self.show("profile", mood, exclude=excluded, add_mood=False)
 
             self.nd_log_report(txt, img, flag_red, type='girlndreport')
             self.txt = list()
