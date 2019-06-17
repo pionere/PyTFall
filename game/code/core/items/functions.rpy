@@ -244,7 +244,7 @@ init -11 python:
         char_dispo = character.get_stat("disposition")
         if char_dispo < 0:
             if not silent:
-                iam.disp_is_too_low_to_give_money(character) # turns out money lines are perfect here
+                iam.refuse_to_give(character) # turns out money lines are perfect here
             return False
 
         if unequip:

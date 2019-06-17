@@ -84,6 +84,7 @@ label interactions_girlfriend:
 
     if (char.flag("quest_cannot_be_lover") != True) and iam.become_lovers(char):
         $ set_lovers(char)
+        $ char.del_flag("tried_to_lover")
         $ iam.int_reward_exp(char)
         $ char.gfx_mod_stat("affection", affection_reward(char))
         $ char.gfx_mod_stat("joy", 25)

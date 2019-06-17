@@ -36,17 +36,71 @@ label girl_meets_greeting: # also lines for sad and angry flags are needed. but 
         else:
             $ iam.greet_many(char)
 
-    if "Fluffy Companion" in hero.effects and m < 1:
-        $ cat = npcs["sad_cat"]
-        $ cat.override_portrait("portrait", "happy")
-        cat.say "Meow!"
-        $ cat.restore_portrait()
-        $ iam.cat_line(char)
-        if char.get_stat("disposition") <= 500:
-            $ char.gfx_mod_stat("disposition", locked_random("randint", 5, 10))
-        if char.get_stat("affection") <= 500:
-            $ char.gfx_mod_stat("affection", affection_reward(char, .5))
-        $ del cat
+    if m < 1:
+        # meeting the first time -> check if the character has something to tell the MC
+        if all((check_submissivity(char) == 1,
+                iam.become_lovers(char) is True,
+                not iam.gender_mismatch(char, just_sex=False),
+                not iam.incest(char),
+                not check_lovers(char),
+                not char.flag("tried_to_lover"),
+                not char.flag("cnd_tried_to_lover"),
+                not char.flag("quest_cannot_be_lover"))):
+            # propose relationship
+            $ iam.offer_relationship(char)
+            menu:
+                "Do you want to be [char.pd] lover?"
+                "Yes":
+                    $ set_lovers(char)
+                    $ char.gfx_mod_stat("affection", affection_reward(char))
+                    $ char.gfx_mod_stat("joy", 25)
+                    if hero.get_stat("joy") < 80:
+                        $ hero.gfx_mod_stat("joy", randint(1, 2))
+                    $  iam.glad(char)
+                "No":
+                    $ char.set_flag("cnd_tried_to_lover", day+7)
+
+                    $ char.override_portrait("portrait", "indifferent")
+                    $ iam.say_line(char, ("...", "I see...", "Maybe later then..."))
+                    $ char.gfx_mod_stat("joy", -randint(4, 8))
+                    $ char.restore_portrait()
+                "No, and do not bother me again... Ever!":
+                    $ char.set_flag("tried_to_lover")
+
+                    $ char.override_portrait("portrait", "sad")
+                    $ iam.say_line(char, ("...", "I see..."))
+                    $ char.gfx_mod_stat("joy", -randint(12, 20))
+                    $ char.restore_portrait()
+        if all(("Horny" in char.effects,
+                check_lovers(char),
+                not char.flag("quest_cannot_be_fucked"),
+                iam.silent_check_for_bad_stuff(char))):
+            # propose sex
+            $ iam.offer_sex(char)
+            menu:
+                "Do you wish to have sex with [char.name]?"
+                "Yes":
+                    $ char.disable_effect("Horny")
+                    $ del m
+                    jump interactions_sex_scene_select_place
+                "No":
+                    $ char.override_portrait("portrait", "indifferent")
+                    $ iam.say_line(char, ("...", "I see...", "Maybe later then..."))
+                    $ char.gfx_mod_stat("joy", -randint(1, 5))
+                    $ char.restore_portrait()
+
+        elif "Fluffy Companion" in hero.effects:
+            # play with the cat
+            $ cat = npcs["sad_cat"]
+            $ cat.override_portrait("portrait", "happy")
+            cat.say "Meow!"
+            $ cat.restore_portrait()
+            $ iam.cat_line(char)
+            if char.get_stat("disposition") <= 500:
+                $ char.gfx_mod_stat("disposition", locked_random("randint", 5, 10))
+            if char.get_stat("affection") <= 500:
+                $ char.gfx_mod_stat("affection", affection_reward(char, .5))
+            $ del cat
     $ del m
     return
 

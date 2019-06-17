@@ -52,7 +52,7 @@ label interactions_giftmoney:
         $ char.gfx_mod_stat("disposition", mod)
         $ char.gfx_mod_stat("affection", affection_reward(char, mod*.05, stat="gold"))
         $ del a, b, mod, money
-        $ iam.interactions_accept_money(char)
+        $ iam.accept_money(char)
     else:
         "You don't have that amount of gold."
         $ del money
@@ -89,7 +89,7 @@ label interactions_askmoney:
             jump girl_interactions
     else:
         "But [char.p] doesn't know you well enough yet."
-        $ iam.disp_is_too_low_to_give_money(char)
+        $ iam.refuse_to_give(char)
         $ char.gfx_mod_stat("disposition", -randint(5, 15))
         $ char.gfx_mod_stat("affection", -randint(1,3))
     jump girl_interactions

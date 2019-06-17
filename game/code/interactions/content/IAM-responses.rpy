@@ -319,7 +319,7 @@ init -2 python:
         @staticmethod
         def blowoff(character):
             """
-            Outputs a line when the character plays with the MC's cat
+            Outputs a line when the character is pissed at the MC
             """
             char_traits = character.traits
             if "Impersonal" in char_traits:
@@ -483,7 +483,7 @@ init -2 python:
             iam.say_line(character, lines, "tired")
 
         @staticmethod
-        def disp_is_too_low_to_give_money(character):
+        def refuse_to_give(character):
             """
             Output line when a character denies to give money or to access to an item.
             """
@@ -649,7 +649,9 @@ init -2 python:
 
         @staticmethod
         def bad_goodbye(character):
-            # character leaves with bad disposition
+            """
+            Output line when a character leaves with bad disposition
+            """
             global block_say
             char_traits = character.traits
             if "Impersonal" in char_traits:
@@ -829,7 +831,7 @@ init -2 python:
             iam.say_line(character, lines, overlay_args=("puzzled", "reset"))
 
         @staticmethod
-        def interactions_accept_money(character):
+        def accept_money(character):
             """
             Output line when a character accepts money
             """
@@ -2053,6 +2055,36 @@ init -2 python:
             else:
                 lines = ("*sign* No wonder, my horoscope predicted a bad day.", "... *you see disappointment in [pd] eyes before [p] turns away*")
             iam.say_line(character, lines, overlay_args=("sweat", "reset"))
+
+        @staticmethod
+        def glad(character):
+            """
+            Output line when a character is glad because of something done by the hero
+            """
+            char_traits = character.traits
+            if "Impersonal" in char_traits:
+                lines = ("... *[p] is looking at you, smiling*", )
+            elif "Shy" in char_traits and dice(50):
+                lines = ("Uhm... I'm really glad about it.", )
+            elif "Imouto" in char_traits:
+                lines = ("Whaaa! I'm soo glad! ♪", )
+            elif "Dandere" in char_traits:
+                lines = ("Right, that is good.", )
+            elif "Tsundere" in char_traits:
+                lines = ("Alright, finally... ♪", )
+            elif "Kuudere" in char_traits:
+                lines = ("Good, good. That's it.", )
+            elif "Kamidere" in char_traits:
+                lines = ("*nods* I'm really glad!", )
+            elif "Bokukko" in char_traits:
+                lines = ("This makes me really happy!", )
+            elif "Ane" in char_traits:
+                lines = ("Oh-My.. *[p] is looking at you with glowing eyes*", "*sigh* How nice...")
+            elif "Yandere" in char_traits:
+                lines = ("That is it! ♪", "So glad it is done ♪")
+            else:
+                lines = ("Haha.. I'm really happy!", "Yes ♪ You made me really happy!")
+            iam.say_line(character, lines, overlay_args=("note", "reset"))
 
         @staticmethod
         def after_normal_sex(character):

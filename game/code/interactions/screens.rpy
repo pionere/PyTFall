@@ -25,22 +25,6 @@ label girl_interactions:
     show screen girl_interactions
     with dissolve
 
-    if char.flag("quest_cannot_be_fucked") != True and iam.silent_check_for_bad_stuff(char): # chars with flag will propose sex once per day once you try to talk to them
-        if 'Horny' in char.effects and check_lovers(char):
-            $ iam.offer_sex(char)
-            menu:
-                "Do you wish to have sex with [char.name]?"
-                "Yes":
-                    if 'Horny' in char.effects:
-                        $ char.disable_effect("Horny")
-                    jump interactions_sex_scene_select_place
-                "No":
-                    $ char.override_portrait("portrait", "indifferent")
-                    $ iam.say_line(char, ("...", "I see...", "Maybe next time then..."))
-                    $ char.gfx_mod_stat("joy", -randint(1, 5))
-                    $ char.restore_portrait()
-                    jump girl_interactions_after_greetings
-
     # Show greeting:
     if iam.see_greeting:
         $ iam.see_greeting = False
