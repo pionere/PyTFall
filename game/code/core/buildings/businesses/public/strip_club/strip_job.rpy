@@ -136,11 +136,10 @@ init -5 python:
             return effectiveness
 
         @staticmethod
-        def calculate_disposition_level(worker):
+        def calculate_disposition_level(worker, sub):
             """
             calculating the needed level of disposition;
             """
-            sub = check_submissivity(worker)
             disposition = 600 + 50 * sub
 
             if check_lovers(worker):
@@ -197,7 +196,7 @@ init -5 python:
                     worker.logws('vitality', -randint(5, 10))
                 else:
                     dispo = worker.get_stat("disposition")
-                    dispo_req = StripJob.calculate_disposition_level(worker)
+                    dispo_req = StripJob.calculate_disposition_level(worker, sub)
                     if sub < 0:
                         if dispo < dispo_req:
                             log.append("%s is a slave so no one really cares, but being forced to work as a stripper, %s's quite upset." % (name, worker.p))

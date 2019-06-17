@@ -130,7 +130,7 @@ label interactions_sex: # we go to this label from GM menu propose sex
         $ del m, n
         $ iam.refuse_sex_too_many(char)
         $ char.gfx_mod_stat("disposition", -randint(15, 30))
-        $ char.gfx_mod_stat("affection", -randint(4,6))
+        $ char.gfx_mod_stat("affection", -randint(4, 6))
         if char.get_stat("joy") > 50:
             $ char.gfx_mod_stat("joy", -randint(2, 4))
         jump girl_interactions
@@ -140,66 +140,33 @@ label interactions_sex: # we go to this label from GM menu propose sex
         $ iam.refuse_sex(char)
         jump girl_interactions
 
-    if iam.gender_mismatch(char):
-        if char.status != "slave":
-            $ iam.refuse_because_of_gender(char) # you can hire them, but they will never do it for free with wrong orientation
-            jump girl_interactions
-        $ gender_disagreement = True
-    else:
-        $ gender_disagreement = False
+    if char.status == "free" and iam.gender_mismatch(char):
+        $ iam.refuse_because_of_gender(char) # you can hire them, but they will never do it for free with wrong orientation
+        jump girl_interactions
 
     if char.get_stat("vitality") < char.get_max("vitality")/4 or not char.has_ap():
-        $ del gender_disagreement
         $ iam.refuse_because_tired(char)
         jump girl_interactions
 
-    $ sub = check_submissivity(char)
-    if check_lovers(char): # a clear way to calculate how much disposition is needed to make her agree
-        $ disposition_level_for_sex = randint(0, 100) + sub*200 # probably a placeholder until it becomes more difficult to keep lover status
+    $ temp = iam.want_sex(char)
+    if temp is True:
+        if char.status == "slave" and iam.gender_mismatch(char):
+            $ temp = "females" if hero.gender == "male" else "males"
+            "Although [char.p] prefers [temp], [char.p] reluctantly agrees."
+            $ char.gfx_mod_stat("joy", -10)
     else:
-        $ disposition_level_for_sex = randint(600, 700) + sub*100 # thus weak willed characters will need from 500 to 600 disposition, strong willed ones from 700 to 800, if there are no other traits that change it
-    $ del sub
-
-    if 'Horny' in char.effects:
-        $ disposition_level_for_sex -= randint(200, 300)
-
-    if char.status == "slave":
-        $ disposition_level_for_sex -= 500
-        if "SIW" in char.gen_occs:
-            $ disposition_level_for_sex -= 500
-
-    if char.flag("quest_sex_anytime"): # special flag for cases when we don't want character to refuse unless disposition is ridiculously low
-        $ disposition_level_for_sex -= 1000
-
-    if 'Drunk' in char.effects: # a bit less disposition for drunk ones
-        $ disposition_level_for_sex -= randint(50, 100)
-
-    if "SIW" in char.gen_occs and char.status == "free":
-        if char.get_stat("disposition") >= 400:
-            $ disposition_level_for_sex -= randint(50, 100)
-        else:
-            $ disposition_level_for_sex += randint(50, 100)
-
-    if char.has_flag("flag_int_had_sex_with_mc"):
-        $ disposition_level_for_sex -= 50+char.flag("flag_int_had_sex_with_mc")*10 # the more char does it with MC, the less needed disposition is, despite everything else
-
-    # so normal (without flag) required level of disposition could be from 200 to 1200 for non lovers
-    if "Open Minded" in char.traits: # open minded trait greatly reduces the needed disposition level
-        $ disposition_level_for_sex -= randint(400, 500)
-    if disposition_level_for_sex < -500:
-        $ disposition_level_for_sex = -500 # normalization, no free sex with too low disposition no matter the character
-
-    if char.get_stat("affection") < disposition_level_for_sex:
         if char.status == "free":
             $ iam.refuse_sex(char)
-            $ diff = disposition_level_for_sex - char.get_stat("affection") # the difference between required for sex and current disposition
-            if diff <= 100:
-                $ char.gfx_mod_stat("disposition", -randint(20, 35)) # if it's low, then disposition penalty will be low too
-                $ char.gfx_mod_stat("affection", -randint(8, 12))
-            else:
-                $ char.gfx_mod_stat("disposition", -randint(30, 60)) # otherwise it will be significant
+            # the difference between required for sex and current disposition ...
+            if temp == "blowoff":
+                #  is high -> significant penalty
+                $ char.gfx_mod_stat("disposition", -randint(30, 60))
                 $ char.gfx_mod_stat("affection", -randint(10, 20))
-            $ del diff, gender_disagreement, disposition_level_for_sex
+            else:
+                #  is low -> low penalty
+                $ char.gfx_mod_stat("disposition", -randint(20, 35))
+                $ char.gfx_mod_stat("affection", -randint(8, 12))
+            $ del temp
             jump girl_interactions
         else:
             $ iam.slave_refuse_sex(char)
@@ -217,15 +184,9 @@ label interactions_sex: # we go to this label from GM menu propose sex
                         $ char.gfx_mod_stat("affection", -randint(15, 25))
                     $ char.set_flag("raped_by_player")
                 "No":
-                    $ del gender_disagreement, disposition_level_for_sex
+                    $ del temp
                     jump girl_interactions
-    else:
-        if gender_disagreement:
-            $ temp = "females" if hero.gender == "male" else "males"
-            "Although [char.p] prefers [temp], [char.p] reluctantly agrees."
-            $ char.gfx_mod_stat("joy", -10)
-            $ del temp
-    $ del gender_disagreement, disposition_level_for_sex
+    $ del temp
 
     $ raped_by_player = char.has_flag("raped_by_player")
     if not raped_by_player:
@@ -289,6 +250,8 @@ label interactions_sex_scene_begins: # here we set initial picture before the sc
 
     $ char.up_counter("flag_int_had_sex_with_mc")
 
+    if "raped_by_player" not in globals():
+        $ raped_by_player = char.has_flag("raped_by_player")
     if not raped_by_player:
         $ iam.before_sex(char)
 

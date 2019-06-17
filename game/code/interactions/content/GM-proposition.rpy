@@ -82,7 +82,7 @@ label interactions_girlfriend:
         $ iam.refuse_because_of_incest(char)
         jump girl_interactions
 
-    if (char.flag("quest_cannot_be_lover") != True) and iam.become_lover(char):
+    if (char.flag("quest_cannot_be_lover") != True) and iam.become_lovers(char):
         $ set_lovers(char)
         $ iam.int_reward_exp(char)
         $ char.gfx_mod_stat("affection", affection_reward(char))

@@ -94,11 +94,10 @@ init -5 python:
             return effectiveness
 
         @staticmethod
-        def calculate_disposition_level(worker):
+        def calculate_disposition_level(worker, sub):
             """
             calculating the needed level of disposition;
             """
-            sub = check_submissivity(worker)
             disposition = 200 + 50 * sub
 
             if check_lovers(worker):
@@ -144,7 +143,7 @@ init -5 python:
                     worker.logws('vitality', -randint(2, 5)) # a small vitality penalty for wrong job
                 else:
                     dispo = worker.get_stat("disposition")
-                    dispo_req = CleaningJob.calculate_disposition_level(worker)
+                    dispo_req = CleaningJob.calculate_disposition_level(worker, sub)
                     if sub < 0:
                         if dispo < dispo_req:
                             temp = "%s is a slave so no one really cares, but being forced to work as a cleaner, %s's quite upset." % (name, worker.p)

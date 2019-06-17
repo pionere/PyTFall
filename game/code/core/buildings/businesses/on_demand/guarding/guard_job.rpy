@@ -154,7 +154,7 @@ init -5 python:
                     worker.logws('vitality', -randint(2, 5)) # a small vitality penalty for wrong job
                 else:
                     dispo = worker.get_stat("disposition")
-                    dispo_req = GuardJob.calculate_disposition_level(worker)
+                    dispo_req = 0 #GuardJob.calculate_disposition_level(worker)
                     if sub < 0:
                         if dispo < dispo_req:
                             temp = "%s is a slave so no one really cares, but being forced to work as a guard, %s's quite upset." % (name, worker.p)

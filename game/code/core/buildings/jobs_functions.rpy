@@ -168,11 +168,14 @@ init -10 python:
                 mult -= .05
 
         if c.status == "slave":
-            mult -= .1
+            mult -= .15
 
-        if mult < .35: # there are 3 levels of submissiveness, we return -1, 0 or 1, it's very simple to use in further calculations
+        if "Drunk" in c.effects:
+            mult -= .15
+
+        if mult < .3: # there are 3 levels of submissiveness, we return -1, 0 or 1, it's very simple to use in further calculations
             return -1
-        elif mult > .67:
+        elif mult > .6:
             return 1
         else:
             return 0

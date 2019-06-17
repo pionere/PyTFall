@@ -118,12 +118,11 @@ init -5 python:
             return effectiveness
 
         @staticmethod
-        def calculate_disposition_level(worker):
+        def calculate_disposition_level(worker, sub):
             """calculating the needed level of disposition;
             since it's whoring we talking about, values are really close to max,
             or even higher than max in some cases, making it impossible.
             """
-            sub = check_submissivity(worker)
             disposition = 800 + 50 * sub
 
             traits = worker.traits
@@ -189,7 +188,7 @@ init -5 python:
                     worker.logws('vitality', -randint(2, 8)) # a small vitality penalty for wrong job
                 else:
                     dispo = worker.get_stat("disposition")
-                    dispo_req = WhoreJob.calculate_disposition_level(worker)
+                    dispo_req = WhoreJob.calculate_disposition_level(worker, sub)
                     if sub < 0:
                         if dispo < dispo_req:
                             log.append("%s is a slave so no one really cares, but being forced to work as a whore, %s's quite upset." % (name, worker.p))

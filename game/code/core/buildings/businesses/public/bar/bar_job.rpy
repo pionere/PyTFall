@@ -40,12 +40,12 @@ init -5 python:
             elif 'Food Poisoning' in effects:
                 log.append("%s suffers from Food Poisoning, and is very far from %s top shape." % (name, worker.pd))
                 effectiveness -= 50
+            elif 'Drunk' in effects:
+                log.append("%s is drunk. Not really optimal to run a business, not to mention to pour liquids." % name)
+                effectiveness -= 20
             elif 'Down with Cold' in effects:
                 log.append("%s is not feeling well due to colds..." % name)
                 effectiveness -= 15
-            elif 'Drunk' in effects:
-                log.append("Being drunk, %s perfectly understands %s customers who also are far from sobriety." % (name, worker.pd))
-                effectiveness += 20
 
             # traits don't always work, even with high amount of traits
             # there are normal days when performance is not affected
@@ -62,7 +62,7 @@ init -5 python:
                 trait = trait.id
 
                 if trait == "Heavy Drinker":
-                    if dice(50):
+                    if dice(80):
                         log.append("%s's deep knowledge of alcohol helps to serve the best possible drink." % name)
                         effectiveness += 10
                     else:
@@ -129,11 +129,10 @@ init -5 python:
             return effectiveness
 
         @staticmethod
-        def calculate_disposition_level(worker):
+        def calculate_disposition_level(worker, sub):
             """
             calculating the needed level of disposition;
             """
-            sub = check_submissivity(worker)
             disposition = 200 + 50 * sub
 
             if check_lovers(worker):
@@ -187,7 +186,7 @@ init -5 python:
                     worker.logws('vitality', -randint(2, 5)) # a small vitality penalty for wrong job
                 else:
                     dispo = worker.get_stat("disposition")
-                    dispo_req = BarJob.calculate_disposition_level(worker)
+                    dispo_req = BarJob.calculate_disposition_level(worker, sub)
                     if sub < 0:
                         if dispo < dispo_req:
                             log.append("%s is a slave so no one really cares, but being forced to work as a barmaid, %s's quite upset." % (name, worker.p))
