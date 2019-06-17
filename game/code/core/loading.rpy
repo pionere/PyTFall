@@ -26,9 +26,6 @@ init 11 python:
                 loops = int(loops)
                 renpy.image(tag, MovieLooped(channel=channel, loops=loops, play=movie, mask=mask))
 
-    load_webms()
-
-init -11 python:
     # ---------------------- Loading game data:
     def load_json(path):
         file = renpy.file(path)
@@ -841,7 +838,7 @@ init -11 python:
 
         return content
 
-    def start_image_predicition():
+    def start_image_prediction():
         """
         main_menu_predict = ["content/gfx/bg/main.webp",
                              "content/gfx/animations/main_menu/cloud1.webp",

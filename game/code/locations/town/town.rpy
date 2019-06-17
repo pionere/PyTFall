@@ -82,6 +82,10 @@ label village_town_work:
         hide npc with dissolve
         $ del n
 
+    if hero.get_stat("health") < hero.get_max("health")/2:
+        "You are too wounded at the moment."
+        jump village_town
+
     menu:
         "What do you want to do?"
         "Work 1AP" if hero.has_ap():
@@ -115,6 +119,8 @@ label village_town_work:
         # initial belt
         for item in xrange(randint(4, 6)): # BELT LEFT    ...   RIGHT-LEFT, BELT TOP ...      BOTTOM-TOP-ITEM WIDTH
             source_items.append([choice(sources), [80 + random.random()*100, 100 + random.random()*460]])
+
+        renpy.start_predict(*[item.icon for item in sources])
 
     show screen village_town_work
     with dissolve
@@ -185,7 +191,7 @@ label village_town_work:
                 else:
                     # no protection -> chance to injury
                     if dice(100.0 / 60):     # once a day
-                        hero.gfx_mod_stat("health", -randint(2, 8))
+                        hero.gfx_mod_stat("health", -randint(24, 48))
                         tkwargs = {"color": "tomato", "outlines": [(1, "black", 0, 0)]}
                         gfx_overlay.notify("You hurt yourself as you reach for the item.", tkwargs=tkwargs, duration=2.0)
 
@@ -239,7 +245,7 @@ label village_town_work:
             moving_items = [i for i in moving_items if i not in drops]
 
             # populate the belt
-            if random.random() < dt/4: # BELT RIGHT-ITEM-WIDTH/2, BELT TOP ... BOTTOM-TOP-ITEM WIDTH
+            if random.random() < dt/2: # BELT RIGHT-ITEM-WIDTH/2, BELT TOP ... BOTTOM-TOP-ITEM WIDTH
                 source_items.append([choice(sources), [180, 100 + random.random()*460]])
 
             # start new shift
@@ -382,6 +388,7 @@ label village_town_work_end:
 
     hero.say "This is all for now."
 
+    $ renpy.stop_predict(*[item.icon for item in sources])
     $ del source_items, moving_items, basket, hand_item, hand_protection, next_pp_time, used_pp, running, last_time, sources, time_limit, item
     $ global_flags.set_flag("keep_playing_music")
     jump village_town

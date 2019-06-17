@@ -312,7 +312,7 @@ label mc_action_city_beach_diving_checks:
         $ i += 200
 
     if has_items("Underwater Lantern", hero, equipped=True):
-        $ j = 120
+        $ j = 90
     else:
         $ j = 60
     $ loots = [[item, item.chance] for item in items.values() if "Diving" in item.locations]
@@ -322,7 +322,7 @@ label mc_action_city_beach_diving_checks:
     while vitality > 10:
         if not renpy.get_screen("diving_progress_bar"):
             "You've run out of air!"
-            $ hero.gfx_mod_stat("health", -10)
+            $ hero.gfx_mod_stat("health", -40)
             jump mc_action_city_beach_diving_exit
 
         $ result = tuple(["Item", (j, j), (random.random(), random.random())] for i in range(4))
@@ -333,7 +333,7 @@ label mc_action_city_beach_diving_checks:
         hide screen diving_hidden_area
         if result == "All out of Air!":
             "You've run out of air!"
-            $ hero.gfx_mod_stat("health", -10)
+            $ hero.gfx_mod_stat("health", -40)
             jump mc_action_city_beach_diving_exit
         if result == "Swim Out":
             "You return to the surface before you run out of air."

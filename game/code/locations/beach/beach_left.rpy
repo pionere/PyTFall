@@ -358,15 +358,12 @@ label mc_action_beach_start_fishing:
         # so they only can be used with more or less high skillthey are useless if skill
         # is too low so they only can be used with more or less high skill
         python:
-            c0 = (items["Simple Bait"] in hero.inventory and hero.get_skill("fishing") >= 30)
-            c1 = (items["Good Bait"] in hero.inventory and hero.get_skill("fishing") >= 100)
-            c2 = (items["Magic Bait"] in hero.inventory and hero.get_skill("fishing") >= 200)
-            if any([c0, c1, c2]):
-                use_baits = True
-            else:
-                use_baits = False
+            fishing_skill = round_int(hero.get_skill("fishing"))
+            c0 = (items["Simple Bait"] in hero.inventory and fishing_skill >= 30)
+            c1 = (items["Good Bait"] in hero.inventory and fishing_skill >= 100)
+            c2 = (items["Magic Bait"] in hero.inventory and fishing_skill >= 200)
 
-        if use_baits:
+        if any([c0, c1, c2]):
             menu:
                 "Don't use any bait":
                     $ fishing_attempts = 3
@@ -387,9 +384,10 @@ label mc_action_beach_start_fishing:
                     jump city_beach_left
 
         $ hero.take_ap(1)
-        $ renpy.start_predict("content/gfx/images/fishy.png", "content/gfx/interface/icons/fishing_hook.png", "content/gfx/animations/bubbles_webm/movie.webm", "content/gfx/animations/bubbles_webm/mask.webm")
+        $ renpy.start_predict("content/gfx/images/fishy.png", "content/gfx/interface/icons/fishing_hook.png", "content/gfx/animations/bubbles_webm/movie.webm", "content/gfx/animations/bubbles_webm/mask.webm", "content/gfx/animations/water_texture_webm/movie.webm")
         image fishing_circles_webm = Transform(Movie(channel="main_gfx_attacks", play="content/gfx/animations/bubbles_webm/movie.webm", mask="content/gfx/animations/bubbles_webm/mask.webm"), zoom=.4, alpha=.4)
         image fishing_circles_webm_alpha = Transform(Movie(channel="main_gfx_attacks", play="content/gfx/animations/bubbles_webm/movie.webm", mask="content/gfx/animations/bubbles_webm/mask.webm"), zoom=.8, alpha=1.0)
+        image water_texture__ = Movie(channel="movie", play="content/gfx/animations/water_texture_webm/movie.webm")
         while fishing_attempts > 0:
             $ fishing_attempts -= 1
                 
@@ -408,7 +406,6 @@ label mc_action_beach_start_fishing:
             python hide:
                 global item
                 # Get a list of fishing items player is skilled enough to fish out
-                fishing_skill = hero.get_skill("fishing")
                 all_fish = []
                 for i in items.values():
                     if "Fishing" in i.locations and min_fish_price <= i.price <= fishing_skill:
@@ -436,12 +433,12 @@ label mc_action_beach_start_fishing:
                 hero.gfx_mod_skill("fishing", 0, temp)
 
 label end_fishing:
-    $ renpy.stop_predict("content/gfx/images/fishy.png", "content/gfx/interface/icons/fishing_hook.png", "content/gfx/animations/bubbles_webm/movie.webm", "content/gfx/animations/bubbles_webm/mask.webm")
+    $ renpy.stop_predict("content/gfx/images/fishy.png", "content/gfx/interface/icons/fishing_hook.png", "content/gfx/animations/bubbles_webm/movie.webm", "content/gfx/animations/bubbles_webm/mask.webm", "content/gfx/animations/water_texture_webm/movie.webm")
     $ hero.say(getattr(store, "exit_string", "This is all for now."))
     # safe(r) cleanup:
     python hide:
         cleanup = ["fishing_attempts", "min_fish_price",
-                  "c0", "c1", "c2", "use_baits",
+                  "c0", "c1", "c2", "fishing_skill",
                   "num_fish", "stop_fishing", "exit_string",
                   "item"]
         for i in cleanup:

@@ -118,8 +118,6 @@ screen new_style_tooltip():
                         $ value = "One"
                     text "Target: %s"%value color "gold"
 
-image water_texture__ = Movie(channel="main_gfx_bow", play="content/gfx/animations/water_texture_webm/movie.webm")
-
 screen r_lightbutton:
     default align = (0, 0)
     imagebutton:
