@@ -3,19 +3,17 @@ init -1 python:
     register_event("creatures_beach_event", locations=["city_beach_right"], restore_priority=2, dice=40, max_runs=3)
 
 label simple_beach_event(event):
-    python:
-        n = Character(" ")
+    python hide:
         img = get_random_event_image("simple_beach")
         renpy.show("event", what=img, at_list=[center])
         renpy.with_statement(dissolve)
-        n(choice(["This looks like fun!", "Damn, don't you wish could join them...", "Fun on the beach :)", "Awesome!", "... speechless", "Cute!"]))
+        narrator(choice(["This looks like fun!", "Damn, don't you wish could join them...", "Fun on the beach :)", "Awesome!", "... speechless", "Cute!"]))
     return
 
 label creatures_beach_event(event):
-    python:
-        n = Character(" ")
+    python hide:
         img = get_random_event_image("creatures_beach")
         renpy.show("event", what=img, at_list=[center])
         renpy.with_statement(dissolve)
-        n(choice(["This looks like fun!", "Monster Girls are the best?", "What the hell?", "What are they called???"]))
+        narrator(choice(["This looks like fun!", "Monster Girls are the best?", "What the hell?", "What are they called???"]))
     return

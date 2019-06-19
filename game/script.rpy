@@ -127,8 +127,9 @@ label start:
         #global_flags.set_flag("last_modified_rchars", os.path.getmtime(content_path('rchars')))
         tl.end("Loading: All Characters!")
 
-        # Start auto-quests
+        # Start auto-quests, initialize world_events-cache
         pytfall.world_quests.first_day()
+        pytfall.world_events.next_day()
 
         # tl.start("Loading: Mobs")
         # mobs = load_mobs()

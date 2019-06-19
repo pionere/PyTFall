@@ -381,8 +381,11 @@ label mc_action_beach_start_fishing:
                     $ fishing_attempts = 6
                 "Cancel":
                     $ global_flags.set_flag("keep_playing_music")
+                    $ del c0, c1, c2, fishing_skill, fishing_attempts, min_fish_price
                     jump city_beach_left
 
+        # Get a list of fishing items player is skilled enough to fish out (real fishes have doubled chance)
+        $ loots = [(item, item.chance*2 if item.type == "fish" else item.chance) for item in items.values() if "Fishing" in item.locations and min_fish_price <= item.price <= fishing_skill]
         $ hero.take_ap(1)
         $ renpy.start_predict("content/gfx/images/fishy.png", "content/gfx/interface/icons/fishing_hook.png", "content/gfx/animations/bubbles_webm/movie.webm", "content/gfx/animations/bubbles_webm/mask.webm", "content/gfx/animations/water_texture_webm/movie.webm")
         image fishing_circles_webm = Transform(Movie(channel="main_gfx_attacks", play="content/gfx/animations/bubbles_webm/movie.webm", mask="content/gfx/animations/bubbles_webm/mask.webm"), zoom=.4, alpha=.4)
@@ -402,20 +405,7 @@ label mc_action_beach_start_fishing:
                 $ exit_string = "This is tiring, back to the beach!"
                 jump end_fishing 
                    
-            $ item = None
-            python hide:
-                global item
-                # Get a list of fishing items player is skilled enough to fish out
-                all_fish = []
-                for i in items.values():
-                    if "Fishing" in i.locations and min_fish_price <= i.price <= fishing_skill:
-                        chance = i.chance
-                        # count real fishes twice
-                        if i.type == "fish":
-                            chance += chance
-                        all_fish.append([i, chance])
-                item = weighted_sample(all_fish) 
-
+            $ item = weighted_sample(loots)
             if not item:
                 $ exit_string = "Damn' it got away..."
                 jump end_fishing
@@ -440,7 +430,7 @@ label end_fishing:
         cleanup = ["fishing_attempts", "min_fish_price",
                   "c0", "c1", "c2", "fishing_skill",
                   "num_fish", "stop_fishing", "exit_string",
-                  "item"]
+                  "item", "loots"]
         for i in cleanup:
             if hasattr(store, i):
                 delattr(store, i)

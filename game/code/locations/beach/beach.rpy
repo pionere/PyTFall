@@ -307,16 +307,20 @@ label mc_action_city_beach_diving_checks:
 
     play world "underwater.mp3"
     scene bg ocean_underwater_1 with dissolve
-    $ i = int(hero.get_skill("swimming")+1)
-    if has_items("Snorkel Mask", hero, equipped=True):
-        $ i += 200
 
-    if has_items("Underwater Lantern", hero, equipped=True):
-        $ j = 90
-    else:
-        $ j = 60
-    $ loots = [[item, item.chance] for item in items.values() if "Diving" in item.locations]
-    $ vitality = hero.get_stat("vitality")
+    python:
+        i = round_int(hero.get_skill("swimming"))
+        loots = [[item, item.chance] for item in items.values() if "Diving" in item.locations and item.price <= i]
+        vitality = hero.get_stat("vitality")
+        if has_items("Snorkel Mask", hero, equipped=True):
+            i += 200
+        i = (i * vitality) / hero.get_max("vitality")
+
+        if has_items("Underwater Lantern", hero, equipped=True):
+            j = 90
+        else:
+            j = 60
+
     $ renpy.start_predict("content/gfx/images/fishy.png", "content/gfx/interface/icons/net.png")
     show screen diving_progress_bar(i, i)
     while vitality > 10:
