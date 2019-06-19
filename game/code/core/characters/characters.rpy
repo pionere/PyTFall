@@ -594,18 +594,20 @@ init -9 python:
             gm_mode = kwargs.get("gm_mode", False)
 
             if gm_mode:
+                if exclude is None:
+                    exclude = ["sex"]
+                else:
+                    exclude.append("sex")
                 if check_lovers(self) or "Exhibitionist" in self.traits:
                     if dice(40):
-                        if not "nude" in tags:
-                            tags += ("nude",)
-                        if not "revealing" in tags:
-                            tags += ("revealing",)
+                        if "nude" not in tags:
+                            tags.append("nude")
+                        if "revealing" not in tags:
+                            tags.append("revealing")
+                elif check_friends(self):
+                    exclude.append("nude")
                 else:
-                    if not exclude:
-                        exclude = ["nude"]
-                    elif not "nude" in exclude:
-                        exclude.append("nude")
-
+                    exclude.extend(["nude", "revealing", "lingerie"])
 
             # Direct image request:
             if "-" in tags[0]:
@@ -736,8 +738,6 @@ init -9 python:
             for entry in self.label_cache:
                 if entry[1] == label:
                     return entry[2]
-
-            return ""
 
         def get_tags_from_cache(self, label):
             """

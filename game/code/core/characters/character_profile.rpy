@@ -1,13 +1,6 @@
 init python:
     def change_char_in_profile(dir="next"):
-        global girls
-        global char
-        global hero
-        global index
-        global img
-        global bg, hbg
-        global gm_img
-
+        global hero, girls, char, index
         try:
             index = girls.index(char)
         except:
@@ -20,34 +13,6 @@ init python:
         elif dir == "prev":
             index = (index - 1) % len(girls)
         char = girls[index]
-
-        if (check_lovers(char) or "Exhibitionist" in char.traits) and dice(30):
-            img = char.show('profile', "nude", "revealing", label_cache=True)
-        elif check_friends(char):
-            img = char.show('profile', exclude=["nude", "sex"], label_cache=True)
-        else:
-            img = char.show('profile', exclude=["nude", "sex", "revealing", "lingerie", "swimsuit"], label_cache=True)
-
-        image_tags = tagdb.get_image_tags(img)
-        if "no bg" in image_tags:
-            frame_image = "content/gfx/frame/MC_bg3_white.png"
-        else:
-            frame_image = "content/gfx/frame/MC_bg3.png"
-        bg = Frame(frame_image, 10, 10)
-        hbg = Frame(im.MatrixColor(frame_image, im.matrix.brightness(.1)), 10, 10)
-
-        if "Exhibitionist" in char.traits and dice(40):
-            gm_img = char.show("girlmeets", "nude", "revealing")
-        elif check_friends(char) or check_lovers(char):
-            gm_img = char.show("girlmeets", exclude=["nude"])
-        else:
-            gm_img = char.show("girlmeets",
-                               exclude=["nude",
-                                        "revealing",
-                                        "lingerie",
-                                        "swimsuit"])
-
-        return char
 
 label char_profile:
     if girls is None:
@@ -177,7 +142,17 @@ screen char_profile():
     default stats_display = "main"
 
     if girls:
-        $ char_is_controlled = controlled_char(char)
+        python:
+            char_img = char.show('profile', gm_mode=True, label_cache=True)
+            gm_img = char.show('girlmeets', exclude=["swimsuit"], gm_mode=True, label_cache=True)
+            image_tags = tagdb.get_image_tags(char_img)
+            if "no bg" in image_tags:
+                frame_image = "content/gfx/frame/MC_bg3_white.png"
+            else:
+                frame_image = "content/gfx/frame/MC_bg3.png"
+            frame_bg = Frame(frame_image, 10, 10)
+            frame_hbg = Frame(im.MatrixColor(frame_image, im.matrix.brightness(.1)), 10, 10)
+            char_is_controlled = controlled_char(char)
         # Picture and left/right buttons ====================================>
         frame:
             background Frame("content/gfx/frame/p_frame6.png", 10, 10)
@@ -186,12 +161,12 @@ screen char_profile():
             button:
                 align .5, .38
                 padding 4, 4
-                background store.bg
-                hover_background store.hbg
+                background frame_bg
+                hover_background frame_hbg
                 action Hide("char_profile"), With(dissolve), Function(iam.start_int, char, img=gm_img)
                 sensitive char_is_controlled
                 tooltip "Click to interact with %s!\n%s" % (char.nickname, char.desc)
-                add PyTGFX.scale_img(store.img, 590, 600)
+                add PyTGFX.scale_content(char_img, 590, 600)
                 alternate Return(['control', 'return']) # keep in sync with mousedown_3
 
         # Mid-Bottom Frame: Level, experience ====================================>

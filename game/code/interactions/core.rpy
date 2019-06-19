@@ -261,8 +261,8 @@ init -1 python:
             # Routine to get the correct image for this interaction:
             if img is None:
                 img = char.get_img_from_cache(str(last_label))
-                if not img:
-                    img = char.show("profile", exclude=["nude", "bikini", "swimsuit", "beach", "angry", "scared", "ecstatic"])
+                if img is None:
+                    img = char.show("girlmeets", gm_mode=True)
             self.img = img
             self.img_cache = img
 
