@@ -185,14 +185,14 @@ screen items_transfer(it_members):
         has hbox spacing 1
 
         for filter in list(sorted(set(rc.inventory.filters + lc.inventory.filters))):
-            $ img = ProportionalScale("content/gfx/interface/buttons/filters/%s.png" % filter, 40, 40)
-            $ img_hover = ProportionalScale("content/gfx/interface/buttons/filters/%s hover.png" % filter, 40, 40)
-            $ img_selected = ProportionalScale("content/gfx/interface/buttons/filters/%s selected.png" % filter, 40, 40)
+            $ img = PyTGFX.scale_img("content/gfx/interface/buttons/filters/%s.png" % filter, 40, 40)
+            $ img_hover = PyTGFX.scale_img("content/gfx/interface/buttons/filters/%s hover.png" % filter, 40, 40)
+            $ img_selected = PyTGFX.scale_img("content/gfx/interface/buttons/filters/%s selected.png" % filter, 40, 40)
             imagebutton:
                 idle img
-                hover im.MatrixColor(img_hover, im.matrix.brightness(.10))
+                hover img_hover
                 selected_idle img_selected
-                selected_hover im.MatrixColor(img_selected, im.matrix.brightness(.10))
+                selected_hover PyTGFX.bright_img(img_selected, .10)
                 action SetScreenVariable("slot_filter", filter), Function(rc.inventory.apply_filter, filter), Function(lc.inventory.apply_filter, filter)
                 selected filter == slot_filter
                 focus_mask True
@@ -207,12 +207,13 @@ screen items_transfer(it_members):
             $ img = fc.show("portrait", resize=(150, 150), cache=True)
             imagebutton:
                 idle img
-                hover im.MatrixColor(img, im.matrix.brightness(.15))
+                hover PyTGFX.bright_content(img, .15)
                 align .5, .5
                 tooltip fc.name
                 action NullAction()
 
-    if selection[1]:
+    $ items = selection[1]
+    if items:
         # Transfer Buttons:
         vbox:
             xalign .5
@@ -225,9 +226,9 @@ screen items_transfer(it_members):
                 has vbox
                 hbox:
                     xfill True
-                    if len(selection[1]) == 1:
-                        $ temp = "Transfer %d %s from %s to %s!" % (transfer_amount, iter(selection[1]).next().id, rc.name, lc.name)
-                        $ tmp = "Transfer %d %s from %s to %s!" % (transfer_amount, iter(selection[1]).next().id, lc.name, rc.name)
+                    if len(items) == 1:
+                        $ temp = "Transfer %d %s from %s to %s!" % (transfer_amount, iter(items).next().id, rc.name, lc.name)
+                        $ tmp = "Transfer %d %s from %s to %s!" % (transfer_amount, iter(items).next().id, lc.name, rc.name)
                     elif transfer_amount == 1:
                         $ temp = "Transfer the selected items from %s to %s!" % (rc.name, lc.name)
                         $ tmp = "Transfer the selected items from %s to %s!" % (lc.name, rc.name)
@@ -235,11 +236,11 @@ screen items_transfer(it_members):
                         $ temp = "Transfer the selected items (%d each) from %s to %s!" % (transfer_amount, rc.name, lc.name)
                         $ tmp = "Transfer the selected items (%d each) from %s to %s!" % (transfer_amount, lc.name, rc.name)
 
-                    use t_lightbutton(img='content/gfx/interface/buttons/left.png', size=(25,25), action=Return(["transfer", rc, lc, selection[1], transfer_amount]), align=(0.15, .5),
-                                      sensitive=(selection[1] and lc and rc), tooltip=temp)
+                    use t_lightbutton(img='content/gfx/interface/buttons/left.png', size=(25,25), action=Return(["transfer", rc, lc, items, transfer_amount]), align=(0.15, .5),
+                                      sensitive=(items and lc and rc), tooltip=temp)
 
-                    use t_lightbutton(img='content/gfx/interface/buttons/right.png', size=(25,25), action=Return(["transfer", lc, rc, selection[1], transfer_amount]), align=(0.85, .5),
-                                      sensitive=(selection[1] and lc and rc), tooltip=tmp)
+                    use t_lightbutton(img='content/gfx/interface/buttons/right.png', size=(25,25), action=Return(["transfer", lc, rc, items, transfer_amount]), align=(0.85, .5),
+                                      sensitive=(items and lc and rc), tooltip=tmp)
 
                 hbox:
                     xfill True
@@ -271,8 +272,8 @@ screen items_transfer(it_members):
             xalign .5
             background Frame("content/gfx/frame/frame_dec_1.png", 10, 10)
             padding 30, 34
-            if len(selection[1]) == 1:
-                use itemstats(item=iter(selection[1]).next(), size=(540, 300))
+            if len(items) == 1:
+                use itemstats(item=iter(items).next(), size=(540, 300))
             else:
                 vpgrid:
                     cols 6
@@ -284,16 +285,16 @@ screen items_transfer(it_members):
                     #scrollbars 'vertical' 
 
                     $ fc = selection[0]
-                    for item in selection[1]:
+                    for item in items:
                         frame:
                             background Frame("content/gfx/frame/frame_it2.png", 5, 5)
                             xysize (80, 80)
-                            $ img = ProportionalScale(item.icon, 60, 60)
+                            $ img = PyTGFX.scale_content(item.icon, 60, 60)
                             imagebutton:
                                 align (.4, .5)
                                 idle img
-                                hover im.MatrixColor(img, im.matrix.brightness(.10))
+                                hover PyTGFX.bright_content(img, .10)
                                 action Function(it_item_click, selection, None, item)
-                                tooltip "%s" % item.id
+                                tooltip item.id
                             $ amount = fc.inventory[item] if (fc and fc.inventory) else 0 
                             text "[amount]" align 1.0, 1.0 style "dropdown_gm2_button_value_text"

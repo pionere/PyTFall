@@ -83,7 +83,7 @@ screen building_management_leftframe_exploration_guild_mode:
                                 $ name_bg = "content/gfx/frame/frame_bg.png"
                                 $ hcolor = "gold"
                             else:
-                                hover_background Frame(im.MatrixColor(img, im.matrix.brightness(.05)))
+                                hover_background Frame(PyTGFX.bright_content(img, .05))
                                 action SetVariable("bm_selected_exp_area", area)
                                 $ name_bg = "content/gfx/frame/ink_box.png"
                                 $ hcolor = "red"
@@ -170,10 +170,11 @@ screen building_management_leftframe_exploration_guild_mode:
         hbox:
             xalign .5
             spacing 10
+            $ img = PyTGFX.scale_img("content/gfx/interface/buttons/prev.png", 28, 28)
             imagebutton:
                 yalign .5
-                idle 'content/gfx/interface/buttons/prev.png'
-                hover im.MatrixColor('content/gfx/interface/buttons/prev.png', im.matrix.brightness(.15))
+                idle img
+                hover PyTGFX.bright_img(img, .15)
                 action SetField(area, "days", max(3, area.days-1))
             bar:
                 align .5, .5
@@ -181,10 +182,11 @@ screen building_management_leftframe_exploration_guild_mode:
                 xmaximum 150
                 thumb 'content/gfx/interface/icons/move15.png'
                 tooltip "Adjust the number of days to spend on site."
+            $ img = PyTGFX.scale_img("content/gfx/interface/buttons/next.png", 28, 28)
             imagebutton:
                 yalign .5
-                idle 'content/gfx/interface/buttons/next.png'
-                hover im.MatrixColor('content/gfx/interface/buttons/next.png', im.matrix.brightness(.15))
+                idle img
+                hover PyTGFX.bright_img(img, .15)
                 action SetField(area, "days", min(15, area.days+1))
 
         null height 5
@@ -202,10 +204,11 @@ screen building_management_leftframe_exploration_guild_mode:
         hbox:
             xalign .5
             spacing 10
+            $ img = PyTGFX.scale_img("content/gfx/interface/buttons/prev.png", 28, 28)
             imagebutton:
                 yalign .5
-                idle 'content/gfx/interface/buttons/prev.png'
-                hover im.MatrixColor('content/gfx/interface/buttons/prev.png', im.matrix.brightness(.15))
+                idle img
+                hover PyTGFX.bright_img(img, .15)
                 action SetField(area, "risk", max(0, area.risk-1))
             bar:
                 align .5, .5
@@ -214,10 +217,11 @@ screen building_management_leftframe_exploration_guild_mode:
                 thumb 'content/gfx/interface/icons/move15.png'
                 tooltip ("Adjust the risk your team takes while exploring. Higher risk gives higher reward, " +
                          "but your team may not even return if you push this too far!")
+            $ img = PyTGFX.scale_img("content/gfx/interface/buttons/next.png", 28, 28)
             imagebutton:
                 yalign .5
-                idle 'content/gfx/interface/buttons/next.png'
-                hover (im.MatrixColor('content/gfx/interface/buttons/next.png', im.matrix.brightness(.15)))
+                idle img
+                hover PyTGFX.bright_img(img, .15)
                 action SetField(area, "risk", min(100, area.risk+1))
 
         null height 5
@@ -604,11 +608,11 @@ screen building_management_midframe_exploration_guild_mode:
                             action NullAction()
                             text t.name align .5, .5 color "orange" text_align .5
                         # Configure the team:
-                        $ img = im.Scale("content/gfx/interface/buttons/preference.png", 20, 20)
+                        $ img = PyTGFX.scale_img("content/gfx/interface/buttons/preference.png", 20, 20)
                         button:
                             background img
-                            hover_background im.MatrixColor(img, im.matrix.brightness(.15))
-                            insensitive_background im.Sepia(img)
+                            hover_background PyTGFX.bright_img(img, .15)
+                            insensitive_background PyTGFX.sepia_img(img)
                             padding 0, 0
                             margin 0, 0
                             align 0.0, 0.0 offset -8, -8
@@ -617,11 +621,11 @@ screen building_management_midframe_exploration_guild_mode:
                             action Show("exploration_team", None, t)
                             tooltip "Configure"
                         # Dissolve the team:
-                        $ img = ProportionalScale("content/gfx/interface/buttons/close4.png", 20, 20)
+                        $ img = PyTGFX.scale_img("content/gfx/interface/buttons/close4.png", 20, 20)
                         button:
                             background img
-                            hover_background im.MatrixColor(img, im.matrix.brightness(.15))
-                            insensitive_background im.Sepia(img)
+                            hover_background PyTGFX.bright_img(img, .15)
+                            insensitive_background PyTGFX.sepia_img(img)
                             padding 0, 0
                             margin 0, 0
                             align 1.0, 0.0 offset 3, -8
@@ -630,11 +634,11 @@ screen building_management_midframe_exploration_guild_mode:
                             action Return(["fg_team", "dissolve", t])
                             tooltip "Dissolve"
                         # Remove all teammembers:
-                        $ img = im.Scale("content/gfx/interface/buttons/shape69.png", 20, 20)
+                        $ img = PyTGFX.scale_img("content/gfx/interface/buttons/shape69.png", 20, 20)
                         button:
                             background img
-                            hover_background im.MatrixColor(img, im.matrix.brightness(.15))
-                            insensitive_background im.Sepia(img)
+                            hover_background PyTGFX.bright_img(img, .15)
+                            insensitive_background PyTGFX.sepia_img(img)
                             padding 0, 0
                             margin 0, 0
                             align 1.0, 1.0 offset 3, -10
@@ -765,8 +769,8 @@ screen building_management_midframe_exploration_guild_mode:
                                     xysize 200, 20
                                     text "[tracker.team.name]" yalign .5
                                 if tracker.used_horses:
-                                    $ img = im.MatrixColor("content/gfx/interface/icons/horse.webp", im.matrix.brightness(.30))
-                                    add ProportionalScale(img, 20, 20) yalign .5 
+                                    $ img = PyTGFX.scale_img("content/gfx/interface/icons/horse.webp", 20, 20)
+                                    add PyTGFX.bright_img(img, .30) yalign .5 
                                 text "%d (%d)" % (tracker.day-1, tracker.days) align (.98, .5)
             else:
                 frame:
@@ -848,7 +852,7 @@ screen building_management_midframe_exploration_guild_mode:
                             vbox:
                                 spacing 10
                                 xfill True
-                                add ProportionalScale(obj.icon, 100, 100) xalign .5
+                                add PyTGFX.scale_content(obj.icon, 100, 100) xalign .5
                                 text obj.desc xalign .5 style "stats_value_text" size 14 color "ivory"
                         elif isinstance(obj, Char):
                             vbox:
@@ -913,11 +917,11 @@ screen building_management_rightframe_exploration_guild_mode:
                                 margin 0, 0
                                 xysize 60, 60
                                 align .99, .5
-                                $ img = ProportionalScale(m["portrait"], 57, 57)
+                                $ img = PyTGFX.scale_content(m["portrait"], 57, 57)
                                 imagebutton:
                                     align .5, .5
                                     idle img
-                                    hover (im.MatrixColor(img, im.matrix.brightness(.15)))
+                                    hover PyTGFX.bright_img(img, .15)
                                     action Show("arena_bestiary", dissolve, m, return_button_action=[Function(SetVariable, "bm_mid_frame_mode", bm_mid_frame_mode), Function(SetVariable, "bm_exploration_view_mode", "area")])
 
             frame:
@@ -963,17 +967,17 @@ screen building_management_rightframe_exploration_guild_mode:
                                 padding 3, 3
                                 xysize 60, 60
                                 align .99, .5
-                                $ temp = ProportionalScale(i.icon, 57, 57)
+                                $ temp = PyTGFX.scale_content(i.icon, 57, 57)
                                 imagebutton:
                                     align .5, .5
                                     idle temp
-                                    hover im.MatrixColor(temp, im.matrix.brightness(.15))
+                                    hover PyTGFX.bright_img(temp, .15)
                                     action Show("show_item_info", item=i)
-                                $ temp = ProportionalScale("content/gfx/interface/buttons/close4.png", 16, 16)
+                                $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/close4.png", 16, 16)
                                 imagebutton:
                                     align 1.0, 0 offset 2, -2
                                     idle temp
-                                    hover im.MatrixColor(temp, im.matrix.brightness(.15))
+                                    hover PyTGFX.bright_img(temp, .15)
                                     action Function(area.found_items.pop, i.id)
                                     tooltip "Remove item from the list\n(resets its counter as well)"
 
@@ -1055,11 +1059,11 @@ screen exploration_team(team):
                 spacing 2
                 xalign .5
                 label "[team.name]" align .5, .5 text_color "#CDAD00" text_size 30
-                $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 24, 24)
+                $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/edit.png", 24, 24)
                 imagebutton:
                     align .6, .05
                     idle temp
-                    hover im.MatrixColor(temp, im.matrix.brightness(.15))
+                    hover PyTGFX.bright_img(temp, .15)
                     action Return(["fg_team", "rename", team])
                     tooltip "Rename the team"
 
@@ -1120,11 +1124,11 @@ screen exploration_team(team):
                         xysize 158, 25
                         xalign .5
                         text "{=TisaOTMolxm}[member.name]" xalign .06
-                        $ temp = ProportionalScale("content/gfx/interface/buttons/close4.png", 20, 20)
+                        $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/close4.png", 20, 20)
                         imagebutton:
                             xalign .92
                             idle temp
-                            hover im.MatrixColor(temp, im.matrix.brightness(.15))
+                            hover PyTGFX.bright_img(temp, .15)
                             action Return(["fg_team", "remove", team, member])
                             tooltip "Remove %s from %s" % (member.nickname, team.name)
 
@@ -1133,8 +1137,8 @@ screen exploration_team(team):
                         ysize 25
                         $ temp, tmp = member.get_stat("health"), member.get_max("health")
                         bar:
-                            left_bar ProportionalScale("content/gfx/interface/bars/hp1.png", 150, 20)
-                            right_bar ProportionalScale("content/gfx/interface/bars/empty_bar1.png", 150, 20)
+                            left_bar PyTGFX.scale_img("content/gfx/interface/bars/hp1.png", 150, 20)
+                            right_bar PyTGFX.scale_img("content/gfx/interface/bars/empty_bar1.png", 150, 20)
                             value temp
                             range tmp
                             thumb None
@@ -1148,8 +1152,8 @@ screen exploration_team(team):
                         ysize 25
                         $ temp, tmp = member.get_stat("mp"), member.get_max("mp")
                         bar:
-                            left_bar ProportionalScale("content/gfx/interface/bars/mp1.png", 150, 20)
-                            right_bar ProportionalScale("content/gfx/interface/bars/empty_bar1.png", 150, 20)
+                            left_bar PyTGFX.scale_img("content/gfx/interface/bars/mp1.png", 150, 20)
+                            right_bar PyTGFX.scale_img("content/gfx/interface/bars/empty_bar1.png", 150, 20)
                             value temp
                             range tmp
                             thumb None
@@ -1163,8 +1167,8 @@ screen exploration_team(team):
                         ysize 25
                         $ temp, tmp = member.get_stat("vitality"), member.get_max("vitality")
                         bar:
-                            left_bar ProportionalScale("content/gfx/interface/bars/vitality1.png", 150, 20)
-                            right_bar ProportionalScale("content/gfx/interface/bars/empty_bar1.png", 150, 20)
+                            left_bar PyTGFX.scale_img("content/gfx/interface/bars/vitality1.png", 150, 20)
+                            right_bar PyTGFX.scale_img("content/gfx/interface/bars/empty_bar1.png", 150, 20)
                             value temp
                             range tmp
                             thumb None

@@ -13,12 +13,12 @@ label storyi_start: # beginning point of the dungeon;
         eye_open = ImageDissolve("content/gfx/masks/eye_blink.webp", 0.5, ramplen=128, reverse=False, time_warp=eyewarp) # transitions for backgrounds, try to emulate effect of opening or closing eyes
         eye_shut = ImageDissolve("content/gfx/masks/eye_blink.webp", 0.5, ramplen=128, reverse=True, time_warp=eyewarp)
 
-        map_scroll = ProportionalScale("content/events/StoryI/scroll.webp", 900, 900)
-        blueprint = ProportionalScale("content/events/StoryI/blueprint.webp", 660, 540)
+        map_scroll = PyTGFX.scale_img("content/events/StoryI/scroll.webp", 900, 900)
+        blueprint = PyTGFX.scale_img("content/events/StoryI/blueprint.webp", 660, 540)
         point = "content/gfx/interface/icons/move15.png" # the point which shows location on the map; it's actually a part of the main gui
 
-        #enemy_soldier = Character("Guard", color="white", what_color="white", show_two_window=True, show_side_image=ProportionalScale("content/mobs/ct1.png", 120, 120))
-        #enemy_soldier2 = Character("Guard", color="white", what_color="white", show_two_window=True, show_side_image=ProportionalScale("content/mobs/h1.png", 120, 120))
+        #enemy_soldier = Character("Guard", color="white", what_color="white", show_two_window=True, show_side_image=PyTGFX.scale_img("content/mobs/ct1.png", 120, 120))
+        #enemy_soldier2 = Character("Guard", color="white", what_color="white", show_two_window=True, show_side_image=PyTGFX.scale_img("content/mobs/h1.png", 120, 120))
 
         fight_chance = 100
 

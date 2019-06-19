@@ -65,7 +65,7 @@ init -1 python:
 
         @property
         def image(self):
-            return ProportionalScale(os.sep.join([self.girl.path_to_imgfolder, self.imagepath]), self.imgsize[0], self.imgsize[1])
+            return PyTGFX.scale_content(os.path.join(self.girl.path_to_imgfolder, self.imagepath), self.imgsize[0], self.imgsize[1])
 
         def set_img(self, path):
             self.imagepath = path

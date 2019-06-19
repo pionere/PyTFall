@@ -4,7 +4,7 @@ init python:
             if key.get("appearing", False) and not key.get("hidden", False):
                 idle_img = "".join(["content/gfx/bg/locations/map_buttons/gismo/", key["id"], ".webp"])
                 if mode == "show":
-                    appearing_img = Appearing(idle_img, 50, 200, start_alpha=.1)
+                    appearing_img = PyTGFX.Appearing(idle_img, 50, 200, start_alpha=.1)
                     pos = key["pos"]
                     renpy.show(idle_img, what=appearing_img, at_list=[Transform(pos=pos)], layer="screens", zorder=2)
                 elif mode == "hide":
@@ -94,31 +94,31 @@ screen city_screen():
         $ img = im.Scale("content/gfx/interface/buttons/journal1.png", 36, 40)
         imagebutton:
             idle img
-            hover im.MatrixColor(img, im.matrix.brightness(.15))
+            hover PyTGFX.bright_img(img, .15)
             tooltip "Quest Journal"
             action ShowMenu("quest_log")
         $ img = im.Scale("content/gfx/interface/buttons/MS.png", 38, 37)
         imagebutton:
             idle img
-            hover im.MatrixColor(img, im.matrix.brightness(.15))
+            hover PyTGFX.bright_img(img, .15)
             action Return(["control", "return"])
             tooltip "Return to Main Screen"
         $ img = im.Scale("content/gfx/interface/buttons/profile.png", 35, 40)
         imagebutton:
             idle img
-            hover im.MatrixColor(img, im.matrix.brightness(.15))
+            hover PyTGFX.bright_img(img, .15)
             action [SetField(pytfall.hp, "came_from", last_label), Hide(renpy.current_screen().tag), Jump("hero_profile")]
             tooltip "View Hero Profile"
         $ img = im.Scale("content/gfx/interface/buttons/save.png", 40, 40)
         imagebutton:
             idle img
-            hover im.MatrixColor(img, im.matrix.brightness(.15))
+            hover PyTGFX.bright_img(img, .15)
             tooltip "QuickSave"
             action QuickSave()
         $ img = im.Scale("content/gfx/interface/buttons/load.png", 38, 40)
         imagebutton:
             idle img
-            hover im.MatrixColor(img, im.matrix.brightness(.15))
+            hover PyTGFX.bright_img(img, .15)
             tooltip "QuickLoad"
             action QuickLoad()
 
@@ -135,7 +135,7 @@ screen city_screen():
         true=[Preference("sound mute", "disable"), Preference("music mute", "disable")],
         false=[Preference("sound mute", "enable"), Preference("music mute", "enable")])]
 
-    add ProportionalScale("content/gfx/frame/frame_ap.webp", 155, 50) pos (1040, 90)
+    add PyTGFX.scale_img("content/gfx/frame/frame_ap.webp", 155, 50) pos (1040, 90)
     $ temp = hero.PP / 100 # PP_PER_AP
     text str(temp) style "TisaOTM" color "#f1f1e1" size 24 outlines [(1, "#3a3a3a", 0, 0)] pos (1143, 85)
     fixed:

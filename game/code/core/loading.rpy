@@ -880,7 +880,7 @@ init 11 python:
                             #"content/gfx/images/fishy.png",
                             "content/gfx/interface/icons/exp.webp",
                             "content/gfx/interface/icons/gold.png",
-                            "content/gfx/interface/icons/win_icon.png",
+                            "content/gfx/interface/icons/win_icon_s.png",
                             "content/gfx/interface/images/work.webp",
                             "content/gfx/interface/images/money_bag3.png",
                             "content/gfx/interface/buttons/compass.png",
@@ -893,6 +893,7 @@ init 11 python:
                             "content/gfx/interface/buttons/save.png",
                             "content/gfx/interface/buttons/load.png",
                             "content/gfx/interface/buttons/blue3.png",
+                            "content/gfx/interface/buttons/sunset_s.png",
                             "content/gfx/interface/buttons/locations/*.png",
                             "content/gfx/bg/locations/map_buttons/gismo/*.webp")
 

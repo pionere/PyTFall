@@ -437,7 +437,7 @@ screen school_training():
                                 temp = None
                                 break
                     if temp is True:
-                        add pscale("content/gfx/interface/images/completed_stamp.webp", 130, 130):
+                        add PyTGFX.scale_img("content/gfx/interface/images/completed_stamp.webp", 130, 130):
                             xalign .5 ypos 210
 
 

@@ -65,14 +65,14 @@ label examples:
     # scene black
     # $ renpy.maximum_framerate(60)
     # "First attempt to emulate dizziness:"
-    # show expression Mirage("bg cafe", amplitude=.04, ycrop=1, wavelength=10) as testing
+    # show expression PyTGFX.Mirage("bg cafe", amplitude=.04, ycrop=1, wavelength=10) as testing
     # pause
     # hide testing
     #
     # "Second Try:"
-    # $ double_vision_on("bg cafe")
+    # $ PyTGFX.double_vision_on("bg cafe")
     # pause
-    # $ double_vision_off()
+    # $ PyTGFX.double_vision_off()
     #
     # "Third..."
     # $ temp = im.Scale(ImageReference("bg cafe"), 128, 72)

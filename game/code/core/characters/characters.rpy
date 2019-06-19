@@ -1718,20 +1718,15 @@ init -9 python:
 
             if what == "portrait":
                 what = self.portrait
-            elif what == "battle_sprite":
-                # See if we can find idle animation for this...
-                webm_spites = mobs[self.id].get("be_webm_sprites", None)
-                if webm_spites:
-                    return ImageReference(webm_spites["idle"][0])
-                else:
-                    what = self.battle_sprite
             else:
+                if what == "battle_sprite":
+                    # See if we can find idle animation for this...
+                    webm_spites = mobs[self.id].get("be_webm_sprites", None)
+                    if webm_spites:
+                        return ImageReference(webm_spites["idle"][0])
                 what = self.battle_sprite
 
-            if isinstance(what, ImageReference):
-                return pscale(what, resize[0], resize[1])
-            else:
-                return ProportionalScale(what, resize[0], resize[1])
+            return PyTGFX.scale_img(what, resize[0], resize[1])
 
         def restore_ap(self):
             self.PP = self.basePP + self.get_stat("constitution")*5 # FIXME too much?

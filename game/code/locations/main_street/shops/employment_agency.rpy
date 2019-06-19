@@ -83,11 +83,11 @@ screen employment_agency():
                         $ img = entry.show("portrait", cache=True, resize=(90, 90))
                         vbox:
                             frame:
-                                padding(2, 2)
+                                padding (2, 2)
                                 background Frame("content/gfx/frame/MC_bg3.png")
                                 imagebutton:
-                                    idle (img)
-                                    hover (im.MatrixColor(img, im.matrix.brightness(.15)))
+                                    idle img
+                                    hover PyTGFX.bright_content(img, .15)
                                     action [SetVariable("char_profile_entry", "employment_agency"),
                                             SetVariable("girls", v),
                                             SetVariable("char", entry),
@@ -95,10 +95,9 @@ screen employment_agency():
                                             Jump("char_profile")]
                                     tooltip "View {}'s Detailed Info.\nClasses: {}".format(entry.fullname, entry.traits.base_to_string)
                             button:
-                                padding(2, 2)
+                                padding (2, 2)
                                 xsize 94
                                 background Frame("content/gfx/frame/gm_frame.png")
-                                hover_background Frame("content/gfx/frame/gm_frame.png")
                                 label "Tier [entry.tier]" xalign .5 text_color "#DAA520"
                                 if entry.location != pytfall.jail:
                                     action Return(['hire', entry, v])

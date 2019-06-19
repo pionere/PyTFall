@@ -63,35 +63,35 @@ screen city_beach_left():
 
     else:
         # Jump buttons:
-        $img = ProportionalScale("content/gfx/interface/icons/beach_cafe.png", 80, 80)
+        $ img = im.Scale("content/gfx/interface/icons/beach_cafe.png", 80, 80)
         imagebutton:
-            pos(380, 300)
-            idle (img)
-            hover (im.MatrixColor(img, im.matrix.brightness(.15)))
+            pos (380, 300)
+            idle img
+            hover PyTGFX.bright_img(img, .15)
             action [Hide("city_beach_left"), Jump("city_beach_cafe_main")]
             tooltip "Beach Café"
 
         $ img = im.Scale("content/gfx/interface/buttons/blue_arrow.png", 80, 80)
         imagebutton:
             align (.99, .5)
-            idle (img)
-            hover (im.MatrixColor(img, im.matrix.brightness(.15)))
+            idle img
+            hover PyTGFX.bright_img(img, .15)
             action [Hide("city_beach_left"), Function(global_flags.set_flag, "keep_playing_music"), Jump("city_beach")]
 
-        $ img_beach_fish = ProportionalScale("content/gfx/interface/icons/beach_fishing.png", 90, 90)
+        $ img = im.Scale("content/gfx/interface/icons/beach_fishing.png", 90, 90)
         imagebutton:
             pos(960, 400)
-            idle (img_beach_fish)
-            hover (im.MatrixColor(img_beach_fish, im.matrix.brightness(.15)))
+            idle img
+            hover PyTGFX.bright_img(img, .15)
             action [Hide("city_beach_left"), Jump("fishing_logic"), With(dissolve)]
             tooltip "Fishing Docks"
 
 
-        $ img_beach_swim = ProportionalScale("content/gfx/interface/icons/beach_resting.png", 90, 90)
+        $ img = im.Scale("content/gfx/interface/icons/beach_resting.png", 90, 90)
         imagebutton:
-            pos(400, 545)
-            idle (img_beach_swim)
-            hover (im.MatrixColor(img_beach_swim, im.matrix.brightness(.15)))
+            pos (400, 545)
+            idle img
+            hover PyTGFX.bright_img(img, .15)
             action [Hide("city_beach_left"), Jump("mc_action_city_beach_rest")]
             tooltip "Rest"
 

@@ -112,13 +112,15 @@ screen hero_profile():
     fixed:
         xysize (270, 270)
         pos (300, 413)
-        add Transform(child=RadarChart((float(hero.get_stat("attack"))/hero.get_max("attack")), (float(hero.get_stat("defence"))/hero.get_max("defence")), (float(hero.get_stat("agility"))/hero.get_max("agility")),
-                                       (float(hero.get_stat("luck"))/hero.get_max("luck")), (float(hero.get_stat("magic"))/hero.get_max("magic")), 112, 126, 148, "darkgreen"), alpha=.4) align (.5, .5)
-        add Transform(child=RadarChart((float(hero.get_stat("attack"))/hero.get_max("attack")), (float(hero.get_stat("defence"))/hero.get_max("defence")), (float(hero.get_stat("agility"))/hero.get_max("agility")),
-                                       (float(hero.get_stat("luck"))/hero.get_max("luck")), (float(hero.get_stat("magic"))/hero.get_max("magic")), 65, 126, 148, "green"), alpha=.3) align (.5, .5)
-        add Transform(child=RadarChart((float(hero.get_stat("attack"))/hero.get_max("attack")), (float(hero.get_stat("defence"))/hero.get_max("defence")), (float(hero.get_stat("agility"))/hero.get_max("agility")),
-                                       (float(hero.get_stat("luck"))/hero.get_max("luck")), (float(hero.get_stat("magic"))/hero.get_max("magic")), 33, 126, 148, "lightgreen"), alpha=.2) align (.5, .5)
-        add ProportionalScale("content/gfx/interface/images/pentagon1.png", 250, 250) align (.01, .5)
+        $ temp = [float(hero.get_stat("attack"))/hero.get_max("attack"),
+                  float(hero.get_stat("defence"))/hero.get_max("defence"),
+                  float(hero.get_stat("agility"))/hero.get_max("agility"),
+                  float(hero.get_stat("luck"))/hero.get_max("luck"),
+                  float(hero.get_stat("magic"))/hero.get_max("magic")]
+        add Transform(child=PyTGFX.RadarChart(temp, 112, 126, 148, "darkgreen"), alpha=.4) align (.5, .5)
+        add Transform(child=PyTGFX.RadarChart(temp, 65, 126, 148, "green"), alpha=.3) align (.5, .5)
+        add Transform(child=PyTGFX.RadarChart(temp, 33, 126, 148, "lightgreen"), alpha=.2) align (.5, .5)
+        add PyTGFX.scale_img("content/gfx/interface/images/pentagon1.png", 250, 250) align (.01, .5)
 
     fixed:
         $ stats = [("attack", (375, 402), "content/gfx/interface/images/atk.png", "red"),
@@ -146,7 +148,7 @@ screen hero_profile():
                     button:
                         xysize 20, 20
                         offset -6, -12
-                        background ProportionalScale("content/gfx/interface/icons/stars/legendary.png", 16, 16)
+                        background PyTGFX.scale_img("content/gfx/interface/icons/stars/legendary.png", 16, 16)
                         action NullAction()
                         tooltip "This is a Class Stat!"
 
@@ -197,7 +199,7 @@ screen hero_profile():
                             button:
                                 xysize 16, 16
                                 offset -5, -5
-                                background ProportionalScale("content/gfx/interface/icons/stars/legendary.png", 16, 16)
+                                background PyTGFX.scale_img("content/gfx/interface/icons/stars/legendary.png", 16, 16)
                                 action NullAction()
                                 tooltip "This is a Class Stat!"
                         $ temp, tmp = hero.get_stat(stat), hero.get_max(stat)
@@ -213,7 +215,7 @@ screen hero_profile():
                             button:
                                 xysize 16, 16
                                 offset -5, -5
-                                background ProportionalScale("content/gfx/interface/icons/stars/legendary.png", 16, 16)
+                                background PyTGFX.scale_img("content/gfx/interface/icons/stars/legendary.png", 16, 16)
                                 action NullAction()
                                 tooltip "This is a Class Stat!"
                         text "%d/%d"%(hero.get_stat(stat), hero.get_max(stat)) xalign 1.0 style_suffix "value_text" xoffset -6 yoffset 4
@@ -281,7 +283,7 @@ screen hero_profile():
                         $ skill_val = int(hero.get_skill(skill))
                         $ skill_limit = int(hero.get_max_skill(skill))
                         # We don't care about the skill if it's less than 10% of limit:
-                        if skill in base_ss or skill_val/float(skill_limit) > .1:
+                        if skill in base_ss or skill_val > skill_limit/10:
                             frame:
                                 xoffset -4
                                 xysize (212, 27)
@@ -292,7 +294,7 @@ screen hero_profile():
                                     button:
                                         xysize 16, 16
                                         xoffset -3
-                                        background ProportionalScale("content/gfx/interface/icons/stars/legendary.png", 16, 16)
+                                        background PyTGFX.scale_img("content/gfx/interface/icons/stars/legendary.png", 16, 16)
                                         action NullAction()
                                         tooltip "This is a Class Skill!"
                                 hbox:
@@ -475,7 +477,7 @@ screen hero_profile():
     # AP ====================================>
     frame:
         align .5, .95
-        background ProportionalScale("content/gfx/frame/frame_ap2.webp", 190, 80)
+        background PyTGFX.scale_img("content/gfx/frame/frame_ap2.webp", 190, 80)
         $ temp = hero.PP / 100 # PP_PER_AP
         label str(temp):
             pos (130, -2)
@@ -504,10 +506,10 @@ screen hero_team():
                 spacing 2
                 xalign .5
                 label "[hero.team.name]" xalign .5 text_color "#CDAD00" text_size 30
-                $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 24, 24)
+                $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/edit.png", 24, 24)
                 imagebutton:
                     idle temp
-                    hover im.MatrixColor(temp, im.matrix.brightness(.15))
+                    hover PyTGFX.bright_img(temp, .15)
                     action Return(["rename_team", "set_name"]), With(dissolve)
                     tooltip "Rename the team"
 
@@ -573,11 +575,11 @@ screen hero_team():
                         xalign .5
                         text "{=TisaOTMolxm}[member.name]" xalign .06
                         if not member == hero:
-                            $ temp = ProportionalScale("content/gfx/interface/buttons/close4.png", 20, 20)
+                            $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/close4.png", 20, 20)
                             imagebutton:
                                 xalign .92
                                 idle temp
-                                hover im.MatrixColor(temp, im.matrix.brightness(.15))
+                                hover PyTGFX.bright_img(temp, .15)
                                 action Return(["remove_from_team", member])
                                 tooltip "Remove %s from %s"%(member.nickname, hero.team.name)
 
@@ -586,8 +588,8 @@ screen hero_team():
                         ysize 25
                         $ temp, tmp = member.get_stat("health"), member.get_max("health")
                         bar:
-                            left_bar ProportionalScale("content/gfx/interface/bars/hp1.png", 150, 20)
-                            right_bar ProportionalScale("content/gfx/interface/bars/empty_bar1.png", 150, 20)
+                            left_bar PyTGFX.scale_img("content/gfx/interface/bars/hp1.png", 150, 20)
+                            right_bar PyTGFX.scale_img("content/gfx/interface/bars/empty_bar1.png", 150, 20)
                             value temp
                             range tmp
                             thumb None
@@ -601,8 +603,8 @@ screen hero_team():
                         ysize 25
                         $ temp, tmp = member.get_stat("mp"), member.get_max("mp")
                         bar:
-                            left_bar ProportionalScale("content/gfx/interface/bars/mp1.png", 150, 20)
-                            right_bar ProportionalScale("content/gfx/interface/bars/empty_bar1.png", 150, 20)
+                            left_bar PyTGFX.scale_img("content/gfx/interface/bars/mp1.png", 150, 20)
+                            right_bar PyTGFX.scale_img("content/gfx/interface/bars/empty_bar1.png", 150, 20)
                             value temp
                             range tmp
                             thumb None
@@ -616,8 +618,8 @@ screen hero_team():
                         ysize 25
                         $ temp, tmp = member.get_stat("vitality"), member.get_max("vitality")
                         bar:
-                            left_bar ProportionalScale("content/gfx/interface/bars/vitality1.png", 150, 20)
-                            right_bar ProportionalScale("content/gfx/interface/bars/empty_bar1.png", 150, 20)
+                            left_bar PyTGFX.scale_img("content/gfx/interface/bars/vitality1.png", 150, 20)
+                            right_bar PyTGFX.scale_img("content/gfx/interface/bars/empty_bar1.png", 150, 20)
                             value temp
                             range tmp
                             thumb None
@@ -634,11 +636,11 @@ screen hero_team():
                 imagebutton:
                     if hero.team == team:
                         action None
-                        idle ProportionalScale("content/gfx/interface/buttons/arrow_button_metal_gold_right.png", 24, 24)
+                        idle im.Scale("content/gfx/interface/buttons/arrow_button_metal_gold_right.png", 24, 24)
                     else:
                         action Function(hero.remove_team, team)
-                        idle ProportionalScale("content/gfx/interface/buttons/round_blue.png", 24, 24)
-                        hover ProportionalScale("content/gfx/interface/buttons/round_blue_h.png", 24, 24)
+                        idle im.Scale("content/gfx/interface/buttons/round_blue.png", 24, 24)
+                        hover im.Scale("content/gfx/interface/buttons/round_blue_h.png", 24, 24)
                         tooltip "Dissolve"
                 button:
                     xminimum 100
@@ -703,6 +705,7 @@ screen mc_friends_list:
 
                     text "{=TisaOTMolxm}[char.nickname]" align (.5, 1.0) yoffset 5 xmaximum 190
                     if char in hero.lovers:
-                        add ProportionalScale("content/gfx/interface/images/love.png", 35, 35) xalign .5
+                        $ img = "content/gfx/interface/images/love.png"
                     else:
-                        add ProportionalScale("content/gfx/interface/images/friendship.png", 35, 35) xalign .5
+                        $ img = "content/gfx/interface/images/friendship.png"
+                    add PyTGFX.scale_img(img, 35, 35) xalign .5

@@ -111,10 +111,10 @@ screen realtor_agency():
                                         xpadding 5
                                         ypadding 5
                                         xalign .5
-                                        $ img = ProportionalScale(building.img, 300, 220)
+                                        $ img = PyTGFX.scale_content(building.img, 300, 220)
                                         imagebutton:
-                                            idle (img)
-                                            hover (im.MatrixColor(img, im.matrix.brightness(.25)))
+                                            idle img
+                                            hover PyTGFX.bright_content(img, .25)
                                             action SetScreenVariable("focus", building)
                 vbar value YScrollValue("brothelmarket_vp")
 

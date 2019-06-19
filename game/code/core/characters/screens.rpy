@@ -211,8 +211,8 @@ screen character_pick_screen(): # screen to select someone from the MC team
                     imagebutton:
                         xalign .5
                         background Frame("content/gfx/frame/MC_bg3.png", 10, 10)
-                        idle (char_profile_img)
-                        hover (im.MatrixColor(char_profile_img, im.matrix.brightness(.15)))
+                        idle char_profile_img
+                        hover PyTGFX.bright_content(char_profile_img, .15)
                         action Return(l)
                         xysize (102, 102)
                     bar:
@@ -452,13 +452,13 @@ screen race_and_elements(align=(.5, .99), char=None):
             xysize (100, 100)
             $ trait = char.race
             background Frame(Transform("content/gfx/frame/frame_it1.png", alpha=.6, size=(100, 100)), 10, 10)
-            $ img = ProportionalScale(trait.icon, 95, 95)
+            $ img = PyTGFX.scale_content(trait.icon, 95, 95)
             button:
                 align (.5, .5)
                 xysize (95, 95)
                 background img
                 action Show("show_trait_info", trait=trait)
-                hover_background im.MatrixColor(img, im.matrix.brightness(.10))
+                hover_background PyTGFX.bright_content(img, .10)
                 tooltip "Race:\n   {}".format(char.full_race)
 
         # Elements icon:
@@ -469,7 +469,7 @@ screen race_and_elements(align=(.5, .99), char=None):
         frame:
             xysize (100, 100)
             background Frame(Transform("content/gfx/frame/frame_it1.png", alpha=.6, size=(100, 100)), 10, 10)
-            add ProportionalScale("content/gfx/interface/images/elements/hover.png", 98, 98) align (.5, .5)
+            add im.Scale("content/gfx/interface/images/elements/hover.png", 98, 98) align (.5, .5)
             button:
                 xysize 90, 90
                 align .5, .5 offset -1, -1
@@ -623,7 +623,7 @@ screen show_trait_info_content(trait):
                         text skill.title() size 15 color "yellowgreen" align .0, .5 outlines [(1, "black", 0, 0)]
 
                         $ img_path = "content/gfx/interface/icons/skills_icons/"
-                        default PS = ProportionalScale
+                        default PS = PyTGFX.scale_img
                         button:
                             style "default"
                             xysize 20, 18

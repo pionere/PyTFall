@@ -60,16 +60,16 @@ screen swimming_pool():
     $ img = im.Flip(im.Scale("content/gfx/interface/buttons/blue_arrow.png", 80, 80), horizontal=True)
     imagebutton:
         align (.01, .5)
-        idle (img)
-        hover (im.MatrixColor(img, im.matrix.brightness(.15)))
+        idle img
+        hover PyTGFX.bright_img(img, .15)
         action [Hide("swimming_pool"), Jump("city_beach")]
 
     use location_actions("swimming_pool")
-    $ img_swim_pool = ProportionalScale("content/gfx/interface/icons/sp_swimming.png", 90, 90)
+    $ img = ProportionalScale("content/gfx/interface/icons/sp_swimming.png", 90, 90)
     imagebutton:
-        pos(290, 510)
-        idle (img_swim_pool)
-        hover (im.MatrixColor(img_swim_pool, im.matrix.brightness(.15)))
+        pos (290, 510)
+        idle img
+        hover PyTGFX.bright_img(img, .15)
         action [Hide("swimming_pool"), Show("swimmong_pool_swim"), With(dissolve)]
 
     if iam.show_girls:

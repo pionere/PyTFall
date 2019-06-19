@@ -307,9 +307,8 @@ init python:
             if self.students_dismissed:
                 txt.append("The course has ended for %d %s, have a look at our other courses!" % (self.students_dismissed, plural("student", self.students_dismissed)))
 
-            img = pscale(self.img, 820, 705)
             txt = "\n".join(txt)
 
-            evt = NDEvent(type=type, txt=txt, img=img)
+            evt = NDEvent(type=type, txt=txt, img=self.img)
             NextDayEvents.append(evt)
 

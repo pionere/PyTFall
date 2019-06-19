@@ -425,7 +425,7 @@ screen char_equip():
                 pos (64, 8)
                 background Null()
                 idle img
-                hover im.MatrixColor(img, im.matrix.brightness(0.15))
+                hover PyTGFX.bright_content(img, 0.15)
                 action Show("show_trait_info", trait=eqtarget)
                 focus_mask True
 
@@ -490,12 +490,12 @@ screen char_equip():
                             group_icon = "content/gfx/interface/images/student.png"
                             group_tt = "Non-combat skills are shown!"
                             next_group = "combat"
-                        img = ProportionalScale(group_icon, 20, 20)
+                        img = PyTGFX.scale_img(group_icon, 20, 20)
                     imagebutton:
                         xalign .75#, .5
                         yoffset 4
                         idle img
-                        hover im.MatrixColor(img, im.matrix.brightness(0.15))
+                        hover PyTGFX.bright_img(img, 0.15)
                         action SetScreenVariable("skill_display", next_group)
                         tooltip group_tt
 
@@ -528,12 +528,12 @@ screen char_equip():
                         fixed:
                             xysize 204, 28 
                             label (u"Stats:") text_size 18 text_color "#CDCDC1" text_bold True xalign .5
-                            $ img = ProportionalScale("content/gfx/interface/icons/info.webp", 12, 12)
+                            $ img = PyTGFX.scale_img("content/gfx/interface/icons/info.webp", 12, 12)
                             imagebutton:
                                 align (.98, 0.1)
                                 focus_mask True
                                 idle img
-                                hover im.MatrixColor(img, im.matrix.brightness(0.15))
+                                hover PyTGFX.bright_img(img, 0.15)
                                 action Show("show_stat_info", char=eqtarget, stats=stats)
 
                         for stat, stat_color, value_color in stats:
@@ -564,12 +564,12 @@ screen char_equip():
                         fixed:
                             xysize 204, 28
                             label (u"Battle Stats:") text_size 18 text_color "#CDCDC1" text_bold True xalign .5
-                            $ img = ProportionalScale("content/gfx/interface/icons/info.webp", 12, 12)
+                            $ img = PyTGFX.scale_img("content/gfx/interface/icons/info.webp", 12, 12)
                             imagebutton:
                                 align (.98, 0.1)
                                 focus_mask True
                                 idle img
-                                hover im.MatrixColor(img, im.matrix.brightness(0.15))
+                                hover PyTGFX.bright_img(img, 0.15)
                                 action Show("show_stat_info", char=eqtarget, stats=stats)
 
                         for stat, stat_color, value_color in stats:
@@ -706,7 +706,7 @@ screen char_equip():
                                             button:
                                                 xysize 16, 16
                                                 xoffset -3
-                                                background ProportionalScale("content/gfx/interface/icons/stars/legendary.png", 16, 16)
+                                                background PyTGFX.scale_img("content/gfx/interface/icons/stars/legendary.png", 16, 16)
                                                 action NullAction()
                                                 tooltip "This is a Class Skill!"
                                         if skill_old == skill_new:
@@ -943,7 +943,7 @@ screen char_equip_right_frame():
         pos 935, 260 anchor -.1, 1.0
         xysize 40, 40
         style "pb_button"
-        add pscale(gender_icons[index], 30, 30) align .5, .5
+        add PyTGFX.scale_img(gender_icons[index], 30, 30) align .5, .5
         action Function(inv_source.inventory.apply_filter,
                         direction=inv_source.inventory.slot_filter,
                         gender=next_gender)
@@ -961,24 +961,18 @@ screen char_equip_right_frame():
                 padding 0, 0
                 margin 1, 1
                 background Null()
-                if renpy.loadable("content/gfx/interface/buttons/filters/%s.png" % filter):
-                    $ img = ProportionalScale("content/gfx/interface/buttons/filters/%s.png" % filter, 44, 44)
-                    $ img_hover = ProportionalScale("content/gfx/interface/buttons/filters/%s hover.png" % filter, 44, 44)
-                    $ img_selected = ProportionalScale("content/gfx/interface/buttons/filters/%s selected.png" % filter, 44, 44)
-                else:
-                    $ img = Solid("#FFF", xysize=(44, 44))
-                    $ img_hover = Solid("#FFF", xysize=(44, 44))
-                    $ img_selected = Solid("#FFF", xysize=(44, 44))
+                $ img = PyTGFX.scale_img("content/gfx/interface/buttons/filters/%s.png" % filter, 44, 44)
+                $ img_hover = PyTGFX.scale_img("content/gfx/interface/buttons/filters/%s hover.png" % filter, 44, 44)
+                $ img_selected = PyTGFX.scale_img("content/gfx/interface/buttons/filters/%s selected.png" % filter, 44, 44)
                 imagebutton:
                     idle img
-                    hover Transform(img_hover, alpha=1.1)
+                    hover img_hover
                     selected_idle img_selected
-                    selected_hover Transform(img_selected, alpha=1.15)
-                    action [Function(inv_source.inventory.apply_filter, filter),
-                            SelectedIf(filter == inv_source.inventory.slot_filter)],
-                            #SetVariable("last_inv_filter", filter)]
+                    selected_hover PyTGFX.bright_img(img_selected, .10)
+                    action Function(inv_source.inventory.apply_filter, filter) #, SetVariable("last_inv_filter", filter)]
+                    selected filter == inv_source.inventory.slot_filter
                     focus_mask True
-                    tooltip "{}".format(filter.capitalize())
+                    tooltip filter.capitalize()
 
     # Inventory: ====================================>
     frame:
@@ -1014,12 +1008,12 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
             hbox:
                 align .5, .0
                 xsize xs-10
-                $ temp = ProportionalScale("content/gfx/interface/buttons/discard.png", 22, 22)
+                $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/discard.png", 22, 22)
                 imagebutton:
                     align 0, .5
                     idle temp
-                    hover im.MatrixColor(temp, im.matrix.brightness(0.15))
-                    insensitive im.Sepia(temp)
+                    hover PyTGFX.bright_img(temp, 0.15)
+                    insensitive PyTGFX.sepia_img(temp)
                     action Return(["item", "discard"])
                     sensitive inv_source.inventory[item] > 0
                     tooltip "Discard item"
@@ -1028,11 +1022,11 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                     xysize (439, 35)
                     background Transform(Frame(im.MatrixColor("content/gfx/frame/p_frame5.png", im.matrix.brightness(-0.05)), 10, 10), alpha=.9)
                     label ('[item.id]') text_color "gold" align .5, .5 text_size 19 text_outlines [(1, "black", 0, 0)] text_style "interactions_text"
-                $ temp = ProportionalScale("content/gfx/interface/buttons/close4.png", 20, 20)
+                $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/close4.png", 20, 20)
                 imagebutton:
                     align .98, .5
                     idle temp
-                    hover im.MatrixColor(temp, im.matrix.brightness(0.15))
+                    hover PyTGFX.bright_img(temp, 0.15)
                     action Return(["con", "return"])
                     tooltip "Close item info"
 
@@ -1102,11 +1096,11 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                     align (.5, .5)
                     background Frame("content/gfx/frame/frame_it2.png", 5, 5)
                     xysize (120, 120)
-                    $ temp = ProportionalScale(item.icon, 100, 100)
+                    $ temp = PyTGFX.scale_content(item.icon, 100, 100)
                     imagebutton:
                         align .5, .5
                         idle temp
-                        hover im.MatrixColor(temp, im.matrix.brightness(.15))
+                        hover PyTGFX.bright_content(temp, .15)
                         action Show("show_item_info", item=item)
 
                 if item_direction == "unequip":
@@ -1265,11 +1259,11 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                                         tooltip "Show the outfit"
                                         
                                     text str(v["name"]) underline (focusoutfit == v) style "pb_button_text"
-                                $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 16, 16)
+                                $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/edit.png", 16, 16)
                                 imagebutton:
                                     align (.0, .0)
                                     idle temp
-                                    hover im.MatrixColor(temp, im.matrix.brightness(.15))
+                                    hover PyTGFX.bright_img(temp, 0.15)
                                     focus_mask True
                                     action Return(["outfit", "rename", v])
                                     tooltip "Rename the outfit"
@@ -1449,7 +1443,7 @@ screen show_item_info_content(item):
                         text skill.title() size 15 color "yellowgreen" align .0, .5 outlines [(1, "black", 0, 0)]
 
                         $ img_path = "content/gfx/interface/icons/skills_icons/"
-                        default PS = ProportionalScale
+                        default PS = PyTGFX.scale_img
                         button:
                             style "default"
                             xysize 20, 18

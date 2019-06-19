@@ -11,7 +11,7 @@ screen pytfallopedia():
         imagebutton:
             align .996, .5
             idle img
-            hover im.MatrixColor(img, im.matrix.brightness(.15))
+            hover PyTGFX.bright_img(img, .15)
             action Function(pyp.close)
             tooltip "Close PyTFallopedia"
             keysym "K_ESCAPE", "mousedown_3"
@@ -20,7 +20,7 @@ screen pytfallopedia():
         imagebutton:
             align .035, .5
             idle img
-            hover im.MatrixColor(img, im.matrix.brightness(.15))
+            hover PyTGFX.bright_img(img, .15)
             insensitive im.Sepia(img)
             action Function(pyp.back)
             sensitive pyp.root != pyp.focused_page

@@ -95,11 +95,12 @@ screen mainscreen():
                 $ name = o.get("name", None)
                 $ next_loc = o.get("location", None)
                 $ tooltip = o.get("tooltip", None)
+                $ img = o["img"]
                 button:
                     style 'image_button'
                     pos o["pos"]
-                    idle_background o["img"]
-                    hover_background im.MatrixColor(o["img"], im.matrix.brightness(.25))
+                    idle_background img
+                    hover_background PyTGFX.bright_content(img, .25)
                     focus_mask True
                     if name == "gazette":
                         action ToggleField(gazette, "show")
@@ -152,16 +153,16 @@ screen mainscreen():
                 hbox:
                     xalign .5
                     spacing 30
-                    $ img = ProportionalScale("content/gfx/interface/images/merchant2.png", 40, 40)
+                    $ img = PyTGFX.scale_img("content/gfx/interface/images/merchant2.png", 40, 40)
                     imagebutton:
                         idle img
-                        hover im.MatrixColor(img, im.matrix.brightness(.15))
+                        hover PyTGFX.bright_img(img, .15)
                         tooltip "Review Reports!"
                         action SetVariable("just_view_next_day", True), Hide("mainscreen"), Jump("next_day")
-                    $ img = ProportionalScale(ImageReference("journal"), 40, 40)
+                    $ img = PyTGFX.scale_img(ImageReference("journal"), 40, 40)
                     imagebutton:
                         idle img
-                        hover im.MatrixColor(img, im.matrix.brightness(.15))
+                        hover PyTGFX.bright_img(img, .15)
                         tooltip "PyTFall's GAZETTE"
                         action ToggleField(gazette, "show")
             else:

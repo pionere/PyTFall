@@ -687,24 +687,24 @@ init: # Main Screens:
             yinitial (((scr_mobs.index(focus_mob) / 5) * 217) if focus_mob else 0)
             for data in scr_mobs:
                 $ creature = data["name"]
-                $ img = ProportionalScale(data["battle_sprite"], 150, 150)
                 frame:
                     background Frame("content/gfx/frame/bst.png", 5, 5)
                     margin 2, 2
                     has vbox spacing 2 xysize 180, 200
                     if data["id"] not in defeated_mobs: # <------------------------------ Note for faster search, change here to test the whole beasts screen without the need to kill mobs
                         text "-Unknown-" xalign .5 ypos -1 style "TisaOTM" color "indianred"
-                        add im.Twocolor(img, "black", "black") xalign .5
+                        text "?" align .5, .5 size 150 color "silver" outlines [(2, "black", 0, 0)] 
                     else:
                         text creature xalign .5 style "TisaOTM" size 20 color ("ivory" if in_focus_mob == data else "gold"):
                             if len(creature) > 12:
                                 size 16
                                 yoffset 4
+                        $ img = PyTGFX.scale_content(data["battle_sprite"], 150, 150)
                         imagebutton:
                             xalign .5
                             idle img
                             if in_focus_mob != data:
-                                hover (im.MatrixColor(img, im.matrix.brightness(.15)))
+                                hover PyTGFX.bright_content(img, .15)
                                 action SetScreenVariable("in_focus_mob", data)
                             else:
                                 action NullAction()
@@ -1116,7 +1116,7 @@ init: # ChainFights vs Mobs:
             size 75
 
         # Bonus Roll: ===========================================================================>>>
-        default my_udd = ArenaBarMinigame(data, length)
+        default my_udd = PyTGFX.ArenaBarMinigame(data, length)
         style_prefix "dropdown_gm"
         frame:
             align .5, .9

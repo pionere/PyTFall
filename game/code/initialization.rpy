@@ -350,11 +350,10 @@ init -950 python:
     def listdirs(dir):
         return (file for file in os.walk(os.path.join(dir, '.')).next()[1])
 
-    def exist(path):
-        if isinstance(path, basestring):
-            return os.path.exists(os.path.join(gamedir, path))
-
-        return all(exist(x) for x in path)
+    #def exist(path):
+    #    if isinstance(path, basestring):
+    #        return os.path.exists(os.path.join(gamedir, path))
+    #    return all(exist(x) for x in path)
 
     # Auto Animation from a folder:
     def animate(path, delay=.25, function=None, transition=None, loop=False):

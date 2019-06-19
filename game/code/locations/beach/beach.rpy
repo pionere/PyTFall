@@ -69,30 +69,30 @@ screen city_beach():
         $ img = im.Scale("content/gfx/interface/buttons/blue_arrow.png", 80, 80)
         imagebutton:
             align (.99, .5)
-            idle (img)
-            hover (im.MatrixColor(img, im.matrix.brightness(.15)))
+            idle img
+            hover PyTGFX.bright_img(img, .15)
             action [Hide("city_beach"), Jump("city_beach_right")]
 
-        $ img = im.Flip(im.Scale("content/gfx/interface/buttons/blue_arrow.png", 80, 80), horizontal=True)
+        $ img = im.Flip(img, horizontal=True)
         imagebutton:
             align (.01, .5)
-            idle (img)
-            hover (im.MatrixColor(img, im.matrix.brightness(.15)))
+            idle img
+            hover PyTGFX.bright_img(img, .15)
             action [Hide("city_beach"), Function(global_flags.set_flag, "keep_playing_music"), Jump("city_beach_left")]
 
-        $ img_pool = ProportionalScale("content/gfx/interface/icons/swimming_pool.png", 60, 60)
+        $ img = im.Scale("content/gfx/interface/icons/swimming_pool.png", 60, 60)
         imagebutton:
             pos(1040, 80)
-            idle (img_pool)
-            hover (im.MatrixColor(img_pool, im.matrix.brightness(.15)))
+            idle img
+            hover PyTGFX.bright_img(img, .15)
             action [Hide("city_beach"), Jump("swimming_pool")]
             tooltip "Swimming Pool"
 
-        $ img_beach_swim = ProportionalScale("content/gfx/interface/icons/sp_swimming.png", 90, 90)
+        $ img = im.Scale("content/gfx/interface/icons/sp_swimming.png", 90, 90)
         imagebutton:
             pos(280, 240)
-            idle (img_beach_swim)
-            hover (im.MatrixColor(img_beach_swim, im.matrix.brightness(.15)))
+            idle img
+            hover PyTGFX.bright_img(img, .15)
             action [Hide("city_beach"), Show("city_beach_swim"), With(dissolve)]
             tooltip "Swim"
 

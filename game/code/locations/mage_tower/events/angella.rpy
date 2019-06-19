@@ -166,12 +166,12 @@ screen alignment_choice(character):
 
     for el in elements:
         python:
-            img = ProportionalScale(el.icon, 120, 120)
+            img = PyTGFX.scale_content(el.icon, 120, 120)
             angle = var
             var = var + step
         imagebutton at circle_around(t=10, angle=angle, radius=250):
             idle img
-            hover im.MatrixColor(img, im.matrix.brightness(.25))
+            hover PyTGFX.bright_content(img, .25)
             action Return(el)
             tooltip "Add " + el.id
 
@@ -191,7 +191,7 @@ screen alignment_choice(character):
         frame:
             xysize (100, 100)
             background Frame(Transform("content/gfx/frame/frame_it1.png", alpha=.6, size=(100, 100)), 10, 10)
-            add ProportionalScale("content/gfx/interface/images/elements/hover.png", 98, 98) align (.5, .5)
+            add im.Scale("content/gfx/interface/images/elements/hover.png", 98, 98) align (.5, .5)
             button:
                 xysize 90, 90
                 align .5, .5 offset -1, -1
@@ -219,20 +219,20 @@ screen alignment_removal_choice(character):
 
     for el in elements:
         python:
-            img = ProportionalScale(el.icon, 120, 120)
+            img = PyTGFX.scale_content(el.icon, 120, 120)
             angle = var
             var = var + step
         imagebutton at circle_around(t=10, angle=angle, radius=250):
             idle img
-            hover im.MatrixColor(img, im.matrix.brightness(.25))
+            hover PyTGFX.bright_content(img, .25)
             action Return(el)
             tooltip "Remove " + el.id
 
-    $ img = ProportionalScale(traits["Neutral"].icon, 120, 120)
+    $ img = PyTGFX.scale_content(traits["Neutral"].icon, 120, 120)
     imagebutton:
         align (.5, .5)
         idle img
-        hover Transform(im.MatrixColor(img, im.matrix.brightness(.25)), zoom=1.2)
+        hover Transform(PyTGFX.bright_content(img, .25), zoom=1.2)
         action Return("clear_all")
         tooltip "Remove all elements"
 

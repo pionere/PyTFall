@@ -41,11 +41,11 @@ screen hiddenvillage_entrance:
 
     use location_actions("hiddenvillage_entrance")
     if not iam.show_girls:
-        $img = ProportionalScale("content/gfx/interface/icons/ninja_shop.png", 100, 70)
+        $ img = im.Scale("content/gfx/interface/icons/ninja_shop.png", 70, 70)
         imagebutton:
-            pos(300, 315)
-            idle (img)
-            hover (im.MatrixColor(img, im.matrix.brightness(.15)))
+            pos (300, 315)
+            idle img
+            hover PyTGFX.bright_img(img, .15)
             action [Hide("hiddenvillage_entrance"), Jump("hidden_village_shop")]
             tooltip "Ninja Shop"
 

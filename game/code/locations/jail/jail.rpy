@@ -282,22 +282,22 @@ screen city_jail_cells():
         frame:
             background Frame(Transform("content/gfx/frame/p_frame53.png", alpha=.98), 10, 10)
             xpadding 5
-            pos(928, 397)
+            pos (928, 397)
             xsize 350
             hbox:
                 xalign .5
-                $ img=im.Scale("content/gfx/interface/buttons/arrow_button_metal_gold_left.png", 50, 50)
+                $ img = im.Scale("content/gfx/interface/buttons/arrow_button_metal_gold_left.png", 50, 50)
                 imagebutton:
-                    align(.5, .5)
+                    align (.5, .5)
                     idle img
-                    hover (im.MatrixColor(img, im.matrix.brightness(.15)))
-                    action (Function(source.previous_index))
+                    hover PyTGFX.bright_img(img, .15)
+                    action Function(source.previous_index)
                     tooltip "Previous Prisoner"
 
                 null width 10
 
                 frame:
-                    align(.5, .5)
+                    align (.5, .5)
                     style_group "dropdown_gm"
                     textbutton "Bail out":
                         xsize 150
@@ -306,12 +306,12 @@ screen city_jail_cells():
 
                 null width 10
 
-                $ img=im.Scale("content/gfx/interface/buttons/arrow_button_metal_gold_right.png", 50, 50)
+                $ img = im.Scale("content/gfx/interface/buttons/arrow_button_metal_gold_right.png", 50, 50)
                 imagebutton:
-                    align(.5, .5)
+                    align (.5, .5)
                     idle img
-                    hover (im.MatrixColor(img, im.matrix.brightness(.15)))
-                    action (Function(source.next_index))
+                    hover PyTGFX.bright_img(img, .15)
+                    action Function(source.next_index)
                     tooltip "Next Prisoner"
 
         # Girl choice:
@@ -333,7 +333,7 @@ screen city_jail_cells():
                             background Frame("content/gfx/frame/Mc_bg3.png", 10, 10)
                             imagebutton:
                                 idle img
-                                hover (im.MatrixColor(img, im.matrix.brightness(.15)))
+                                hover PyTGFX.bright_content(img, .15)
                                 action Function(source.set_char, idx)
                                 tooltip u"{=proper_stats_text}%s\n{size=-5}{=proper_stats_value_text}%s"%(c.name, c.desc)
                 bar value XScrollValue("jail_vp_list")

@@ -314,7 +314,7 @@ screen interactions_archery_range_shoot:
         xysize 150, 40
         spacing 10
         $ img = im.Scale("content/gfx/images/button.webp", 40, 40)
-        $ hover_img = im.MatrixColor(img, im.matrix.brightness(.10))
+        $ hover_img = PyTGFX.bright_img(img, .10)
         button:
             xysize 40, 40
             idle_background img
@@ -347,12 +347,11 @@ screen interactions_archery_range_shoot:
         align .1, .2
         xysize 190, 40
         $ img = im.Scale("content/gfx/images/button.webp", 150, 40)
-        $ hover_img = im.MatrixColor(img, im.matrix.brightness(.10))
         button:
             xysize 160, 40
             xalign .5
             idle_background img
-            hover_background hover_img
+            hover_background PyTGFX.bright_img(img, .10)
             action Return("shoot")
             text "Space" align .5, .5 size 30 color "black"
             keysym "K_SPACE", "mousedown_1", "K_ESCAPE"
@@ -1027,16 +1026,16 @@ label interactions_power_sources:
         if redraw_hero_sources:
             ypos = 670
             for idx, source in enumerate(hero_magics):
-                img = ProportionalScale(traits[source.capitalize()].icon, size, size)
-                img = ImageButton(idle_image=img, hover_image=im.MatrixColor(img, im.matrix.brightness(.25)), action=NullAction(), tooltip=source.capitalize())
+                img = PyTGFX.scale_content(traits[source.capitalize()].icon, size, size)
+                img = ImageButton(idle_image=img, hover_image=PyTGFX.bright_content(img, .25), action=NullAction(), tooltip=source.capitalize())
                 offset = 288 + (hero_source_base+88*idx + dx*dt/16) % dx
                 renpy.show("hero_magic%d" % idx, what=img, at_list=[elements_from_to_with_linear((288, ypos), (992, ypos), t=16, offset_pos=(offset, ypos), rot=randint(15, 45), base_rot=randint(0, 360))])
     
         if redraw_char_sources:
             ypos = 50
             for idx, source in enumerate(char_magics):
-                img = ProportionalScale(traits[source.capitalize()].icon, size, size)
-                img = ImageButton(idle_image=img, hover_image=im.MatrixColor(img, im.matrix.brightness(.25)), action=NullAction(), tooltip=source.capitalize())
+                img = PyTGFX.scale_content(traits[source.capitalize()].icon, size, size)
+                img = ImageButton(idle_image=img, hover_image=PyTGFX.bright_content(img, .25), action=NullAction(), tooltip=source.capitalize())
                 offset = 288 + (char_source_base+88*idx + dx*dt/16) % dx
                 renpy.show("char_magic%d" % idx, what=img, at_list=[elements_from_to_with_linear((288, ypos), (992, ypos), t=16, offset_pos=(offset, ypos), rot=randint(15, 45), base_rot=randint(0, 360))])
     
@@ -1057,8 +1056,8 @@ init python:
         size = attack
         size *= random.uniform(.9, 1.1)
         
-        img = ProportionalScale(traits[source.capitalize()].icon, size, size)
-        img = ImageButton(idle_image=img, hover_image=im.MatrixColor(img, im.matrix.brightness(.25)), action=NullAction(), tooltip=source.capitalize())
+        img = PyTGFX.scale_content(traits[source.capitalize()].icon, size, size)
+        img = ImageButton(idle_image=img, hover_image=PyTGFX.bright_content(img, .25), action=NullAction(), tooltip=source.capitalize())
         offset = 420 + pos * 88 + 44
         renpy.show(name, what=img, at_list=[elements_from_to_with_linear((offset, ypos[0]), (offset, ypos[1]), t=16, offset_pos=None, rot=randint(15, 45), base_rot=randint(0, 360))])
     
@@ -1119,8 +1118,8 @@ init python:
 
         yoffset = ypos[0] + (curr_time-ball[0]) * (ypos[1]-ypos[0]) / 16.0 # DISTANCE / DT
 
-        img = ProportionalScale(traits[source.capitalize()].icon, size, size)
-        img = ImageButton(idle_image=img, hover_image=im.MatrixColor(img, im.matrix.brightness(.25)), action=NullAction(), tooltip=source.capitalize())
+        img = PyTGFX.scale_content(traits[source.capitalize()].icon, size, size)
+        img = ImageButton(idle_image=img, hover_image=PyTGFX.bright_content(img, .25), action=NullAction(), tooltip=source.capitalize())
         offset = 420 + pos * 88 + 44
         renpy.show(name, what=img, at_list=[elements_from_to_with_linear((offset, ypos[0]), (offset, ypos[1]), t=16, offset_pos=(offset, yoffset), rot=randint(15, 45), base_rot=randint(0, 360))])
 
@@ -1180,7 +1179,7 @@ screen interactions_power_balls_interface:
     add im.Scale("content/gfx/images/cloud.webp", 330, 220) pos 860, 560
     
     $ img = im.Scale("content/gfx/images/button.webp", 40, 40)
-    $ hover_img = im.MatrixColor(img, im.matrix.brightness(.10))
+    $ hover_img = PyTGFX.bright_content(img, .10)
     $ ins_img = im.Sepia(img)
     button:
         pos (340-2, 670)
@@ -1239,7 +1238,7 @@ screen interactions_power_balls_interface:
     add im.Flip(im.Scale("content/gfx/images/cloud.webp", 330, 220), vertical=True) pos 860, -50
     
     $ img = im.Scale("content/gfx/images/button.webp", 80, 30)
-    $ hover_img = im.MatrixColor(img, im.matrix.brightness(.10))
+    $ hover_img = PyTGFX.bright_content(img, .10)
     $ ins_img = im.Sepia(img)
     button:
         pos (420 + 3 + hero_pos * 88, 600-2)

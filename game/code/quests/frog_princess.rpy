@@ -35,7 +35,7 @@ screen show_frog_final:
         imagebutton:
             pos (237, 586)
             idle img
-            hover im.MatrixColor(img, im.matrix.brightness(0.15))
+            hover PyTGFX.bright_img(img, .15)
             action Jump("final_frog_event")
     else:
         timer 0.01 action Hide("show_frog_final")

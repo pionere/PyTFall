@@ -216,9 +216,8 @@ transform patreon_hover(init_alpha=.25):
 screen main_menu():
     tag menu
 
-    default prereqs = exist(["content/chars/", "content/rchars/"])
-
-    default map_options = ["content/gfx/bg/locations/map_buttons/dark/", "content/gfx/bg/locations/map_buttons/bright/", "content/gfx/bg/locations/map_buttons/gismo/"]
+    default prereqs = renpy.loadable("content/chars/") and renpy.loadable("content/rchars/")
+    #default map_options = ["content/gfx/bg/locations/map_buttons/dark/", "content/gfx/bg/locations/map_buttons/bright/", "content/gfx/bg/locations/map_buttons/gismo/"]
 
     # The background of the main menu.
     add "bg_main"

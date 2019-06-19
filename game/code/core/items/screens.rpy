@@ -162,11 +162,11 @@ screen itemstats(item=None, size=(635, 380), style_group="content", mc_mode=Fals
                         yalign .5
                         background Frame("content/gfx/frame/frame_it2.png", 5, 5)
                         xysize (130, 130)
-                        $ temp = ProportionalScale(item.icon, 110, 110)
+                        $ temp = PyTGFX.scale_content(item.icon, 110, 110)
                         imagebutton:
                             align .5, .5
                             idle temp
-                            hover im.MatrixColor(temp, im.matrix.brightness(.15))
+                            hover PyTGFX.bright_img(temp, .15)
                             action Show("show_item_info", item=item)
                     frame:
                         background Frame("content/gfx/frame/p_frame4.png", 10, 10)
@@ -195,16 +195,14 @@ screen itemstats(item=None, size=(635, 380), style_group="content", mc_mode=Fals
                             padding 4, 1
                             text ('Sex:') color "ivory" xalign .0 yoffset -1
                             $ temp = getattr(item, "gender", "unisex")
-                            if item.slot in ["gift", "resources", "loot"]:
+                            if item.slot in ("gift", "resources", "loot"):
                                 label "N/A" xalign 1.0 text_size 18 yoffset -2
                             elif item.type == "food" and temp == 'unisex':
                                 label "N/A" xalign 1.0 text_size 18 yoffset -2
-                            elif temp == 'male':
-                                label ('{color=#FFA54F}%s'%temp.capitalize()) xalign 1.0 text_size 18 yoffset -2
-                            elif temp == 'female':
-                                label ('{color=#FFAEB9}%s'%temp.capitalize()) xalign 1.0 text_size 18 yoffset -2
+                            elif temp in ("female", "male"):
+                                label temp.capitalize() xalign 1.0 text_size 18 yoffset -2 text_color ("#FFA54F" if temp == "male" else "#FFAEB9")
                             else:
-                                label ('%s'%temp.capitalize()) xalign 1.0 text_size 18 yoffset -2
+                                label temp.capitalize() xalign 1.0 text_size 18 yoffset -2
                     frame:
                         xalign 1.0
                         xysize (165, 130)
@@ -295,20 +293,21 @@ screen paging(path="content/gfx/interface/buttons/",
                     xmaximum xysize[0] - 15
                     xfill True
                     xalign .5
-                    $ img = "".join([path, 'prev.png'])
+                    $ img = path + 'prev.png'
                     imagebutton:
                         align .0, .5
                         idle img
-                        hover im.MatrixColor(img, im.matrix.brightness(.15))
+                        hover PyTGFX.bright_img(img, .15)
                         action Function(ref.apply_filter, "prev")
 
                     $ slot = EQUIP_SLOTS.get(ref.slot_filter, ref.slot_filter.capitalize())
                     label "[slot] " align .5, .5  text_color "ivory"
 
+                    $ img = path + 'next.png'
                     imagebutton:
                         align 1.0, .5
-                        idle path+'next.png'
-                        hover im.MatrixColor(path+'next.png', im.matrix.brightness(.15))
+                        idle img
+                        hover PyTGFX.bright_img(img, .15)
                         action Function(ref.apply_filter, "next")
             # Listing
             hbox:
@@ -317,28 +316,32 @@ screen paging(path="content/gfx/interface/buttons/",
                 xfill True
                 hbox:
                     align (.0, .5)
+                    $ img = path + 'first.png'
                     imagebutton:
                         yalign .5
-                        idle (path+'first.png')
-                        hover (im.MatrixColor(path+'first.png', im.matrix.brightness(.15)))
+                        idle img
+                        hover PyTGFX.bright_img(img, .15)
                         action Function(ref.first)
+                    $ img = path + 'prev.png'
                     imagebutton:
                         yalign .5
-                        idle (path+'prev.png')
-                        hover (im.MatrixColor(path+'prev.png', im.matrix.brightness(.15)))
+                        idle img
+                        hover PyTGFX.bright_img(img, .15)
                         action Function(ref.prev)
                 label ("%d - %d"%(ref.page+1, max(ref.max_page,1))) align (.5, .5) text_color "ivory"
                 hbox:
                     align (1.0, .5)
+                    $ img = path + 'next.png'
                     imagebutton:
                         yalign .5
-                        idle (path+'next.png')
-                        hover (im.MatrixColor(path+'next.png', im.matrix.brightness(.15)))
+                        idle img
+                        hover PyTGFX.bright_img(img, .15)
                         action Function(ref.next)
+                    $ img = path + 'last.png'
                     imagebutton:
                         yalign .5
-                        idle (path+'last.png')
-                        hover (im.MatrixColor(path+'last.png', im.matrix.brightness(.15)))
+                        idle img
+                        hover PyTGFX.bright_img(img, .15)
                         action Function(ref.last)
 
 screen shop_inventory(ref=None, x=.0):

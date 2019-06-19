@@ -2061,3 +2061,517 @@ def patrol(self, workers, building):
     # Build the report:
     self.write_nd_report(workers_original, workers)
     # simple_jobs["Guarding"](workers_original, workers, building, action="patrol")
+
+init -100 python: # Older factory designs:
+    class SnowBlossomFactory2(renpy.python.NoRollback):
+
+        rotate = False
+
+        def __setstate__(self, state):
+            self.start = 0
+            vars(self).update(state)
+            self.init()
+
+        def __init__(self, image, count, xspeed, yspeed, border, start, fluttering, flutteringspeed, fast, rotate=False):
+            self.image = renpy.easy.displayable(image)
+            self.count = count
+            self.xspeed = xspeed
+            self.yspeed = yspeed
+            self.border = border
+            self.start = start
+            self.fluttering = fluttering
+            self.flutteringspeed = flutteringspeed
+            self.fast = fast
+            self.rotate = rotate
+            self.init()
+
+        def init(self):
+            self.starts = [ uniform(0, self.start) for _i in xrange(0, self.count) ] # W0201
+            self.starts.append(self.start)
+            self.starts.sort()
+
+        def create(self, particles, st):
+
+            def ranged(n):
+                if isinstance(n, tuple):
+                    return uniform(n[0], n[1])
+                else:
+                    return n
+
+            if not particles and self.fast:
+                rv = [ ]
+
+                for _i in xrange(0, self.count):
+                    rv.append(SnowBlossomParticle(self.image,
+                                                  ranged(self.xspeed),
+                                                  ranged(self.yspeed),
+                                                  self.border,
+                                                  st,
+                                                  self.fluttering,
+                                                  self.flutteringspeed,
+                                                  uniform(0, 100),
+                                                  fast=True,
+                                                  rotate=self.rotate))
+                return rv
+
+
+            if particles is None or len(particles) < self.count:
+
+                # Check to see if we have a particle ready to start. If not,
+                # don't start it.
+                if particles and st < self.starts[len(particles)]:
+                    return None
+
+                return [ SnowBlossomParticle2(self.image,
+                                             ranged(self.xspeed),
+                                             ranged(self.yspeed),
+                                             self.border,
+                                             st,
+                                             self.fluttering,
+                                             self.flutteringspeed,
+                                             uniform(0, 100),
+                                             fast=False,
+                                             rotate=self.rotate) ]
+
+        def predict(self):
+            return [ self.image ]
+
+
+    class SnowBlossomParticle2(renpy.python.NoRollback):
+
+        def __init__(self, image, xspeed, yspeed, border, start, fluttering, flutteringspeed, offset, fast, rotate):
+
+            # safety.
+            if yspeed == 0:
+                yspeed = 1
+
+            self.image = image
+            self.xspeed = xspeed
+            self.yspeed = yspeed
+            self.border = border
+            self.start = start
+            self.fluttering = fluttering
+            self.flutteringspeed = flutteringspeed
+            self.offset = offset
+            self.rotate = rotate
+            self.angle = 0
+
+
+            if not rotate:
+                sh = renpy.config.screen_height
+                sw = renpy.config.screen_width
+            else:
+                sw = renpy.config.screen_height
+                sh = renpy.config.screen_width
+
+
+            if self.yspeed > 0:
+                self.ystart = -border
+            else:
+                self.ystart = sh + border
+
+
+            travel_time = (2.0 * border + sh) / abs(yspeed)
+
+            xdist = xspeed * travel_time
+
+            x0 = min(-xdist, 0)
+            x1 = max(sw + xdist, sw)
+
+            self.xstart = uniform(x0, x1)
+
+            if fast:
+                self.ystart = uniform(-border, sh + border)
+                self.xstart = uniform(0, sw)
+
+        def update(self, st):
+            to = st - self.start
+            self.angle += self.flutteringspeed
+
+
+            xpos = self.xstart + to * self.xspeed + math.sin(self.angle)*self.fluttering
+            ypos = self.ystart + to * self.yspeed
+
+            if not self.rotate:
+                sh = renpy.config.screen_height
+            else:
+                sh = renpy.config.screen_width
+
+            if ypos > sh + self.border:
+                return None
+
+            if ypos < -self.border:
+                return None
+
+            if not self.rotate:
+                return int(xpos), int(ypos), to + self.offset, self.image
+            else:
+                return int(ypos), int(xpos), to + self.offset, self.image
+
+
+    def SnowBlossom2(d,
+                    count=10,
+                    border=50,
+                    xspeed=(20, 50),
+                    yspeed=(100, 200),
+                    start=0,
+                    fluttering=0,
+                    flutteringspeed=.01,
+                    fast=False,
+                    horizontal=False):
+
+        """
+        :doc: sprites_extra
+
+        The snowblossom effect moves multiple instances of a sprite up,
+        down, left or right on the screen. When a sprite leaves the screen, it
+        is returned to the start.
+
+        `d`
+            The displayable to use for the sprites.
+
+        `border`
+            The size of the border of the screen. The sprite is considered to be
+            on the screen until it clears the border, ensuring that sprites do
+            not disappear abruptly.
+
+        `xspeed`, `yspeed`
+            The speed at which the sprites move, in the horizontal and vertical
+            directions, respectively. These can be a single number or a tuple of
+            two numbers. In the latter case, each particle is assigned a random
+            speed between the two numbers. The speeds can be positive or negative,
+            as long as the second number in a tuple is larger than the first.
+
+        `start`
+            The delay, in seconds, before each particle is added. This can be
+            allows the particles to start at the top of the screen, while not
+            looking like a "wave" effect.
+
+        'fluttering'
+            The width of fluttering in pixel.
+
+        'flutteringspeed'
+            The speed of fluttering.
+
+        `fast`
+            If true, particles start in the center of the screen, rather than
+            only at the edges.
+
+        `horizontal`
+            If true, particles appear on the left or right side of the screen,
+            rather than the top or bottom.
+            """
+
+        # If going horizontal, swap the xspeed and the yspeed.
+        if horizontal:
+            xspeed, yspeed = yspeed, xspeed
+
+        return Particles(SnowBlossomFactory2(image=d,
+                                            count=count,
+                                            border=border,
+                                            xspeed=xspeed,
+                                            yspeed=yspeed,
+                                            start=start,
+                                            fluttering=fluttering,
+                                            flutteringspeed=flutteringspeed,
+                                            fast=fast,
+                                            rotate=horizontal))
+
+
+    def blurred_vision(img):
+        img = renpy.easy_displayable(img)
+        width, height = get_size(img)
+
+        factor = im.Scale(img, width/5, height/5)
+        factor = Transform(factor, size=(width, height))
+        renpy.show("blur_effect", what=factor)
+        renpy.with_statement(Dissolve(.6))
+        renpy.hide("blur_effect")
+
+        renpy.show("blur_effect", what=img)
+        renpy.with_statement(Dissolve(.4))
+        renpy.hide("blur_effect")
+
+        factor = im.Scale(img, width/10, height/10)
+        factor = Transform(factor, size=(width, height))
+        renpy.show("blur_effect", what=factor)
+        renpy.with_statement(Dissolve(.8))
+        renpy.hide("blur_effect")
+
+        factor = im.Scale(img, width/5, height/5)
+        factor = Transform(factor, size=(width, height))
+        renpy.show("blur_effect", what=factor)
+        renpy.with_statement(Dissolve(.6))
+        renpy.hide("blur_effect")
+
+        factor = im.Scale(img, width/15, height/15)
+        factor = Transform(factor, size=(width, height))
+        renpy.show("blur_effect", what=factor)
+        renpy.with_statement(Dissolve(1.0))
+        renpy.hide("blur_effect")
+
+        factor = im.Scale(img, width/10, height/10)
+        factor = Transform(factor, size=(width, height))
+        renpy.show("blur_effect", what=factor)
+        renpy.with_statement(Dissolve(.8))
+        renpy.hide("blur_effect")
+
+        factor = im.Scale(img, width/20, height/20)
+        factor = Transform(factor, size=(width, height))
+        renpy.show("blur_effect", what=factor)
+        renpy.with_statement(Dissolve(1.2))
+        renpy.hide("blur_effect")
+
+        class ParticleBurst(renpy.Displayable):
+            def __init__(self, displayable, interval=(.02, .04), speed=(.15, .3),
+                         around=(config.screen_width/2, config.screen_height/2), angle=(0, 360),
+                         radius=(50, 75), particles=None, mouse_sparkle_mode=False, **kwargs):
+                """Creates a burst of displayable...
+                ==> This class can be used as a blueprint for similar setups.
+
+                @params:
+                - displayable: Anything that can be shown in Ren'Py
+                    (expects a single displayable or a container of displayable to randomly draw from).
+                - interval: Time between bursts in seconds
+                    (expects a tuple with two floats to get randoms between them).
+                - speed: Speed of the particle (same rule as above).
+                - angle: Area delimiter (expects a tuple with two integers to get randoms between them)
+                    with full circle burst by default. (0, 180) for example will limit the burst only upwards creating sort of a fountain.
+                - radius: Distance delimiter (same rule as above).
+                - around: Position of the displayable (expects a tuple of with integers). Burst will be focused around this position.
+                - particles: Amount of particle to go through, endless by default.
+                - mouse_sparkle_mode: Focuses the burst around a mouse poiner overriding "around" property.
+    
+                This is far better customizable than the original ParticleBurst and is much easier to expand further if an required..
+                """
+                super(PyTGFX.ParticleBurst, self).__init__(**kwargs)
+                self.d = [renpy.easy.displayable(d) for d in displayable] if isinstance(displayable, (set, list, tuple)) else [renpy.easy.displayable(displayable)]
+                self.interval = interval
+                self.speed = speed
+                self.around = around
+                self.angle = angle
+                self.radius = radius
+                self.particles = particles
+                self.msm = mouse_sparkle_mode
+
+            def render(self, width, height, st, at):
+                rp = store.renpy
+
+                if not st:
+                    self.next = 0
+                    self.particle = 0
+                    self.shown = OrderedDict()
+
+                render = rp.Render(width, height)
+
+                if not (self.particles and self.particle >= self.particles) and self.next <= st:
+                    speed = rp.uniform(self.speed[0], self.speed[1])
+                    angle = rp.random.randrange(self.angle[0], self.angle[1])
+                    radius = rp.random.randrange(self.radius[0], self.radius[1])
+                    pos = rp.get_mouse_pos() if self.msm else self.around
+                    self.shown[st + speed] = particle(rp.random.choice(self.d), st, speed, pos, angle, radius)
+
+                    self.next = st + rp.uniform(self.interval[0], self.interval[1])
+                    if self.particles:
+                        self.particle += 1
+
+                for d in self.shown.keys():
+                    if d < st:
+                        del(self.shown[d])
+                    else:
+                        d = self.shown[d]
+                        render.place(d, st=st)
+
+                rp.redraw(self, 0)
+
+                return render
+
+            def visit(self):
+                return self.d
+
+        class Snowing(renpy.Displayable, NoRollback):
+            def __init__(self, d, interval=None, start_pos=None, end_pos=None, speed=4.0, slow_start=False, transform=snowlike_particle, **kwargs):
+                """Creates a 'stream' of displayable...
+
+                @params:
+                -d: Anything that can shown in Ren'Py.
+                -interval: Time to wait before adding a new particle. Expects a tuple with two floats.
+                -start_pos: x, y starting positions. This expects a tuple of two elements containing either a tuple or an int each.
+                -end_pos: x, y end positions. Same rule as above but in addition a dict can be used, in such a case:
+                    *empty dict will result in straight movement
+                    *a dict containing an "offset" key will offset the ending position by the value. Expects an int or a tuple of two ints. Default is (100, 200) and attempts to simulate a slight wind to the right (east).
+                -speed: A time before particle eaches the end_pos. Expects float or a tuple of floats.
+                -slow_start: If not the default False, this will expect a tuple of (time, (new_interval_min, new_interval_max)):
+                    *This will override the normal interval when the Displayable is first shown for the "time" seconds with the new_interval.
+                -transform: ATL function to use for the particles.
+    
+                The idea behind the design is to enable large amounts of the same displayable guided by instructions from a specified ATL function to
+                reach end_pos from start_pos in speed amount of seconds (randomized if needs be). For any rotation, "fluff" or any additional effects different ATL funcs with parallel can be used to achieve the desired effect.
+                """
+                super(PyTGFX.Snowing, self).__init__(**kwargs)
+                self.d = renpy.easy.displayable(d)
+
+                self.interval = interval if interval is not None else (.2, .3)
+                self.start_pos = start_pos if start_pos is not None else ((-200, config.screen_width), 0)
+                self.end_pos = end_pos if end_pos is not None else ({"offset": (100, 200)}, config.screen_height)
+
+                self.speed = speed
+                self.slow_start = slow_start
+                self.transform = transform
+
+                self.next = 0
+                self.shown = {}
+
+            def render(self, width, height, st, at):
+                rp = store.renpy
+                random = store.random
+
+                if not st:
+                    self.next = 0
+                    self.particle = 0
+                    self.shown = {}
+
+                render = rp.Render(width, height)
+
+                if self.next <= st:
+                    speed = uniform(self.speed[0], self.speed[1])  if isinstance(self.speed, (list, tuple)) else self.speed
+
+                    posx = self.start_pos[0]
+                    posx = random.randint(posx[0], posx[1]) if isinstance(posx, (list, tuple)) else posx
+
+                    posy = self.start_pos[1]
+                    posy = random.randint(posy[0], posy[1]) if isinstance(posy, (list, tuple)) else posy
+
+                    endposx = self.end_pos[0]
+                    if isinstance(endposx, dict):
+                        offset = endposx.get("offset", 0)
+                        endposx = posx + random.randint(offset[0], offset[1]) if isinstance(offset, (list, tuple)) else offset
+                    else:
+                        endposx = random.randint(endposx[0], endposx[1]) if isinstance(endposx, (list, tuple)) else endposx
+
+                    endposy = self.end_pos[1]
+                    if isinstance(endposy, dict):
+                        offset = endposy.get("offset", 0)
+                        endposy = posy + randint.randint(offset[0], offset[1]) if isinstance(offset, (list, tuple)) else offset
+                    else:
+                        endposy = random.randint(endposy[0], endposy[1]) if isinstance(endposy, (list, tuple)) else endposy
+
+                    self.shown[st + speed] = self.transform(self.d, st, (posx, posy), (endposx, endposy), speed)
+                    if self.slow_start and st < self.slow_start[0]:
+                        interval = self.slow_start[1]
+                    else:
+                        interval = self.interval
+                    self.next = st + uniform(interval[0], interval[1])
+
+                for d in self.shown.keys():
+                    if d < st:
+                        del(self.shown[d])
+                    else:
+                        d = self.shown[d]
+                        render.place(d)
+
+                rp.redraw(self, 0)
+
+                return render
+
+            def visit(self):
+                return [self.d]
+
+        class Blurred(renpy.Displayable):
+            def __init__(self, child, factor=5, **kwargs):
+                super(PyTGFX.Blurred, self).__init__(**kwargs)
+
+                self.child = renpy.displayable(child)
+                self.blurred = None
+                self.factor = factor
+
+            def create_blur(self):
+                img = self.child
+                width, height = get_size(img)
+                self.width = width
+                self.height = height
+
+                factor = im.Scale(img, width/self.factor, height/self.factor)
+                factor = Transform(factor, size=(width, height))
+
+                self.blurred = factor
+
+            def render(self, width, height, st, at):
+                if self.blurred is None:
+                    self.create_blur()
+
+                render = renpy.Render(self.width, self.height)
+                render.place(self.blurred)
+
+                return render
+
+            def visit(self):
+                return [ self.child ]
+
+        class Vortex(renpy.Displayable):
+            def __init__(self, displayable, amount=25, radius=300, limit_radius=0, adjust_radius=None, constant_radius=False, time=10, circles=3, reverse=False, **kwargs):
+                """Sends the particles flying in round "Vortex" patterns.
+
+                @params:
+                -dispayable: A displayable to use.
+                -amount: Number of displayable to clone.
+                -radius: Radius of the vortex.
+                -limit_radius: This can be used to get the radius to start at something other than .
+                -constant_radius: Vorex will not make any inwards/outward movement, radius will be kept contant.
+                -adjust_radius: Expects a tuple of two ints, will plainly add a random between the to radius.
+                -time: Time animation takes place, in case of animation with constant radius, this is a time for one circle. Can be a float or a tuple of floats.
+                -circles: Amount of circles Vortex should make. Will take int ot a tuples of ints or floats.
+                -reverse: Reverses the movement outwards, does nothing in case of constant radius.
+                """
+                super(PyTGFX.Vortex, self).__init__(**kwargs)
+                self.displayable = renpy.easy.displayable(displayable)
+                self.amount = amount
+                self.adjust_radius = adjust_radius
+                self.limit_radius = limit_radius
+                self.constant_radius = constant_radius
+                self.time = time
+                self.circles = circles
+                self.vp = None
+
+                self.reverse = reverse
+                self.radius = radius
+
+            def render(self, width, height, st, at):
+                if not st:
+                    self.args = None
+
+                if self.constant_radius:
+                    tfunc = store.vortex_particle_2
+                else:
+                    tfunc = store.vortex_particle
+
+                if not self.args:
+                    self.args = list()
+                    if not self.limit_radius:
+                        step = self.radius/self.amount
+                    else:
+                        step = (self.radius-self.limit_radius)/self.amount
+                    for i in xrange(1, self.amount+1):
+                        t = self.time
+                        if isinstance(t, (tuple, list)):
+                            t = uniform(*t)
+
+                        c = self.circles
+                        if isinstance(c, (tuple, list)):
+                            c = uniform(*c)
+
+                        r = self.radius - step*i
+                        if self.adjust_radius:
+                            r += randint(*self.adjust_radius)
+
+                        if self.reverse:
+                            self.args.append(tfunc(self.displayable, t=t, angle=randint(0, 360), start_radius=0, end_radius=r, circles=c))
+                        else:
+                            self.args.append(tfunc(self.displayable, t=t, angle=randint(0, 360), start_radius=r, circles=c))
+
+                render = renpy.Render(width, height)
+                for r in self.args:
+                    render.place(r)
+                renpy.redraw(self, 0)
+                return render
+

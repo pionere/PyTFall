@@ -131,15 +131,15 @@ screen cemetry_list_of_dead_chars(): # the list should not be empty!
 
         imagebutton:
             align (.415, .62)
-            idle (img1)
-            hover (im.MatrixColor(img1, im.matrix.brightness(.15)))
+            idle img1
+            hover PyTGFX.bright_img(img1, .15)
             action Return("next")
             keysym "mousedown_4"
 
         imagebutton:
             align (.59, .62)
-            idle (img)
-            hover (im.MatrixColor(img, im.matrix.brightness(.15)))
+            idle img
+            hover PyTGFX.bright_img(img, .15)
             action Return("prev")
             keysym "mousedown_5"
 
@@ -160,25 +160,25 @@ screen graveyard_town():
     use location_actions("graveyard_town")
 
     if not iam.show_girls:
-        $ img_cemetery = ProportionalScale("content/gfx/interface/icons/cemetery.png", 80, 80)
-        $ img_mausoleum = ProportionalScale("content/gfx/interface/icons/mausoleum.png", 80, 80)
-        $ img_time = ProportionalScale("content/gfx/interface/icons/clock.png", 100, 100)
+        $ img = im.Scale("content/gfx/interface/icons/clock.png", 100, 100)
         imagebutton:
-            pos(93, 306)
-            idle (img_time)
-            hover (im.MatrixColor(img_time, im.matrix.brightness(.15)))
+            pos (93, 306)
+            idle img
+            hover PyTGFX.bright_img(img, .15)
             action [Hide("graveyard_town"), Function(global_flags.set_flag, "keep_playing_music"), Jump("time_temple")]
             tooltip "Temple"
+        $ img = im.Scale("content/gfx/interface/icons/cemetery.png", 80, 80)
         imagebutton:
-            pos(580, 220)
-            idle (img_cemetery)
-            hover (im.MatrixColor(img_cemetery, im.matrix.brightness(.15)))
+            pos (580, 220)
+            idle img
+            hover PyTGFX.bright_img(img, .15)
             action [Hide("graveyard_town"), Jump("show_dead_list")]
             tooltip "Graves"
+        $ img = im.Scale("content/gfx/interface/icons/mausoleum.png", 80, 80)
         imagebutton:
-            pos(1090, 180)
-            idle (img_mausoleum)
-            hover (im.MatrixColor(img_mausoleum, im.matrix.brightness(.15)))
+            pos (1090, 180)
+            idle img
+            hover PyTGFX.bright_img(img, .15)
             action [Hide("graveyard_town"), Jump("enter_dungeon")]
             tooltip "Dungeon\nBeware all who enter here"
 

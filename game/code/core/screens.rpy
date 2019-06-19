@@ -147,8 +147,8 @@ screen rg_lightbutton:
             has fixed fit_first True
             imagebutton:
                 align align
-                idle (p_img)
-                hover (im.MatrixColor(p_img, im.matrix.brightness(.15)))
+                idle p_img
+                hover PyTGFX.bright_content(p_img, .15)
                 action Return(return_value)
             hbox:
                 align 1.0, 1.0
@@ -193,14 +193,14 @@ screen quest_notifications(q, type, align=None, autohide=2.5):
             align .5, .5
             text q align .5, .5 style "TisaOTM" size 25
 
-            $ temp = ProportionalScale("content/gfx/interface/buttons/close4.png", 22, 22)
+            $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/close4.png", 22, 22)
             imagebutton:
                 align 1.005, -.03
                 idle temp
-                hover im.MatrixColor(temp, im.matrix.brightness(0.15))
+                hover PyTGFX.bright_img(temp, 0.15)
                 action Hide("quest_notifications"), With(dissolve)
 
-        add ProportionalScale("content/gfx/interface/images/quest.png", 170, 120) pos (100, 0)
+        add PyTGFX.scale_img("content/gfx/interface/images/quest.png", 170, 120) pos (100, 0)
         frame:
             pos 400, 140 xanchor 1.0
             xpadding 15
@@ -268,7 +268,7 @@ screen top_stripe(show_return_button=True, return_button_action=None, show_lead_
                 ypos 3
                 xysize 170, 50
                 focus_mask True
-                background ProportionalScale("content/gfx/frame/frame_ap.webp", 170, 50)
+                background PyTGFX.scale_img("content/gfx/frame/frame_ap.webp", 170, 50)
                 action NullAction()
                 tooltip tt_string
                 hbox:
@@ -286,10 +286,10 @@ screen top_stripe(show_return_button=True, return_button_action=None, show_lead_
                             yoffset 7
             # Next Day:
             if show_lead_away_buttons and renpy.current_screen().tag != "mainscreen":
-                $ img = ProportionalScale("content/gfx/interface/buttons/sunset.png", 80, 40)
+                $ img = PyTGFX.scale_img("content/gfx/interface/buttons/sunset_s.png", 80, 40)
                 imagebutton:
                     idle img
-                    hover im.MatrixColor(img, im.matrix.brightness(.15))
+                    hover PyTGFX.bright_img(img, .15)
                     if renpy.current_screen().tag == "next_day":
                         action Return(['control', "next_day_local"])
                     else:
@@ -311,34 +311,34 @@ screen top_stripe(show_return_button=True, return_button_action=None, show_lead_
                     action Jump("fonts")
                     tooltip "View available Fonts"
 
-            $ img = ProportionalScale("content/gfx/interface/icons/win_icon.png", 40, 38)
+            $ img = PyTGFX.scale_img("content/gfx/interface/icons/win_icon_s.png", 40, 40)
             imagebutton:
                 idle img
-                hover im.MatrixColor(img, im.matrix.brightness(.15))
+                hover PyTGFX.bright_img(img, .15)
                 action Show("pytfallopedia")
                 tooltip "Open PyTFallopedia"
 
             if renpy.current_screen().tag != "quest_log":
-                $ img = ProportionalScale("content/gfx/interface/buttons/journal1.png", 36, 40)
+                $ img = PyTGFX.scale_img("content/gfx/interface/buttons/journal1.png", 36, 40)
                 imagebutton:
                     idle img
-                    hover im.MatrixColor(img, im.matrix.brightness(.15))
+                    hover PyTGFX.bright_img(img, .15)
                     tooltip "Quest Journal"
                     action ShowMenu("quest_log")
 
-            $ img = ProportionalScale("content/gfx/interface/buttons/preference.png", 39, 40)
+            $ img = PyTGFX.scale_img("content/gfx/interface/buttons/preference.png", 39, 40)
             imagebutton:
                 idle img
-                hover im.MatrixColor(img, im.matrix.brightness(.15))
+                hover PyTGFX.bright_img(img, .15)
                 action Show("s_menu", transition=dissolve)
                 tooltip "Game Preferences"
                 keysym "K_ESCAPE"
 
             if show_lead_away_buttons and renpy.current_screen().tag != "mainscreen":
-                $ img = ProportionalScale("content/gfx/interface/buttons/MS.png", 38, 37)
+                $ img = PyTGFX.scale_img("content/gfx/interface/buttons/MS.png", 38, 37)
                 imagebutton:
                     idle img
-                    hover im.MatrixColor(img, im.matrix.brightness(.15))
+                    hover PyTGFX.bright_img(img, .15)
                     tooltip "Return to Main Screen"
                     if renpy.current_screen().tag == "next_day":
                         action return_action
@@ -346,26 +346,26 @@ screen top_stripe(show_return_button=True, return_button_action=None, show_lead_
                         action (hs, Function(global_flags.del_flag, "keep_playing_music"), Function(global_flags.del_flag, "mc_home_location"), Jump("mainscreen"))
 
             if show_lead_away_buttons:
-                $ img = ProportionalScale("content/gfx/interface/buttons/profile.png", 35, 40)
+                $ img = PyTGFX.scale_img("content/gfx/interface/buttons/profile.png", 35, 40)
                 imagebutton:
                     idle img
-                    hover im.MatrixColor(img, im.matrix.brightness(.15))
+                    hover PyTGFX.bright_img(img, .15)
                     action [SetField(pytfall.hp, "came_from", last_label), hs, Jump("hero_profile")]
                     tooltip "View Hero Profile"
 
             null width 10
 
-            $ img = ProportionalScale("content/gfx/interface/buttons/save.png", 40, 40)
+            $ img = PyTGFX.scale_img("content/gfx/interface/buttons/save.png", 40, 40)
             imagebutton:
                 idle img
-                hover im.MatrixColor(img, im.matrix.brightness(.15))
+                hover PyTGFX.bright_img(img, .15)
                 tooltip "QuickSave"
                 action QuickSave()
 
-            $ img = ProportionalScale("content/gfx/interface/buttons/load.png", 38, 40)
+            $ img = PyTGFX.scale_img("content/gfx/interface/buttons/load.png", 38, 40)
             imagebutton:
                 idle img
-                hover im.MatrixColor(img, im.matrix.brightness(.15))
+                hover PyTGFX.bright_img(img, .15)
                 tooltip "QuickLoad"
                 action QuickLoad()
 
@@ -379,10 +379,10 @@ screen top_stripe(show_return_button=True, return_button_action=None, show_lead_
             # CTD or collapsing the stack all the way to MainMenu.
             $ img = im.Scale("content/gfx/interface/buttons/close.png", 35, 35)
             imagebutton:
-                align(.993, .5)
+                align (.993, .5)
                 idle img
-                hover im.MatrixColor(img, im.matrix.brightness(.25))
-                insensitive_background im.Sepia(img)
+                hover PyTGFX.bright_img(img, .25)
+                insensitive_background PyTGFX.sepia_img(img)
                 action return_action
                 # sensitive not str(last_label).startswith("mc_action_")
                 tooltip "Return to previous screen"
@@ -405,8 +405,8 @@ screen team_status(allow_status_to_work=True, pos=(17, 50)):
                                 xysize (102, 102)
                                 background Frame("content/gfx/frame/MC_bg3.png", 10, 10)
                                 padding (1, 1)
-                                idle (char_profile_img)
-                                hover (im.MatrixColor(char_profile_img, im.matrix.brightness(.15)))
+                                idle char_profile_img
+                                hover PyTGFX.bright_content(char_profile_img, .15)
                                 action SensitiveIf(allow_status_to_work), Return(member)
 
                             $ ap_h, pp_h = member.ap_pp
@@ -519,7 +519,7 @@ screen exit_button(size=(35, 35), align=(1.0, .0), action=Return(['control', 're
     imagebutton:
         align(align[0], align[1])
         idle img
-        hover im.MatrixColor(img, im.matrix.brightness(.25))
+        hover PyTGFX.bright_img(img, .25)
         action action
         keysym "mousedown_3"
 
@@ -1000,10 +1000,11 @@ screen s_menu(s_menu="Settings", main_menu=False):
                                 background Frame("content/gfx/frame/MC_bg.png", 10, 10)
                                 align (.5, .5)
                                 $ portrait = json_info.get("portrait", "")
-                                if not portrait.endswith(IMAGE_EXTENSIONS) or not renpy.loadable(portrait):
+                                if check_image_extension(portrait) and renpy.loadable(portrait):
+                                    $ portrait = PyTGFX.scale_img(portrait, 90, 90)
+                                else:
                                     $ portrait = Null(width=90, height=90)
-                                if portrait is not None:
-                                    add pscale(portrait, 90, 90) align (.5, .5)
+                                add portrait align (.5, .5)
                             button:
                                 style "smenu2_button"
                                 align (.5, .5)
@@ -1141,7 +1142,7 @@ screen give_exp_after_battle(group, enemy_team, ap_used):
 
     use keymap_override
 
-    default bars = [ExpBarController(c) for c in group]
+    default bars = [PyTGFX.ExpBarController(c) for c in group]
 
     frame:
         align (.5, .5)

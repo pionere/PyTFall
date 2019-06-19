@@ -48,8 +48,8 @@ screen city_beach_cafe:
         $ img = im.Scale("content/gfx/interface/buttons/blue_arrow.png", 80, 80)
         imagebutton:
             align (.99, .5)
-            idle (img)
-            hover (im.MatrixColor(img, im.matrix.brightness(.15)))
+            idle img
+            hover PyTGFX.bright_img(img, .15)
             action [Hide("city_beach_cafe"), Jump("city_beach_cafe_main")]
 
     use location_actions("city_beach_cafe")

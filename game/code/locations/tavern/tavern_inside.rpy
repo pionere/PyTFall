@@ -72,7 +72,7 @@ label city_tavern_menu: # "lively" status is limited by drunk effect; every acti
     if 'Drunk' in hero.effects and not(tavern_dizzy):
         $ tavern_dizzy = True
         "You feel a little dizzy... Perhaps you should go easy on drinks."
-        $ double_vision_on("bg tavern_inside")
+        $ PyTGFX.double_vision_on("bg tavern_inside")
         $ renpy.show("drunkards", what=img, at_list=[Position(ypos = .5, xpos = .5, yanchor = .5, xanchor = .5)])
     show screen city_tavern_inside
     while 1:

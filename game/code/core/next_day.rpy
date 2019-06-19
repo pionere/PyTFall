@@ -305,8 +305,8 @@ screen next_day():
                 xysize (414, 150)
                 style_prefix "proper_stats"
                 background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 5, 5)
-                add ProportionalScale("content/gfx/images/jp1.png", 68, 101) pos (330, 20)
-                add ProportionalScale("content/gfx/images/jp2.png", 73, 103) pos (12, 20)
+                add PyTGFX.scale_img("content/gfx/images/jp1.png", 68, 101) pos (330, 20)
+                add PyTGFX.scale_img("content/gfx/images/jp2.png", 73, 103) pos (12, 20)
 
                 vbox:
                     align .5, .3
@@ -347,7 +347,7 @@ screen next_day():
                     align .23, .8
                     imagebutton:
                         idle img
-                        hover im.MatrixColor(img, im.matrix.brightness(.15))
+                        hover PyTGFX.bright_content(img, .15)
                         action [Return(['filter', 'mc']), SetScreenVariable("show_summary", False)]
                         tooltip "Show personal MC report!"
                 frame:
@@ -369,8 +369,8 @@ screen next_day():
                             xanchor -8
                             bar:
                                 yalign .5
-                                left_bar ProportionalScale("content/gfx/interface/bars/hp1.png", 150, 20)
-                                right_bar ProportionalScale("content/gfx/interface/bars/empty_bar1.png", 150, 20)
+                                left_bar PyTGFX.scale_img("content/gfx/interface/bars/hp1.png", 150, 20)
+                                right_bar PyTGFX.scale_img("content/gfx/interface/bars/empty_bar1.png", 150, 20)
                                 value temp
                                 range tmp
                                 thumb None
@@ -384,8 +384,8 @@ screen next_day():
                             xanchor -5
                             bar:
                                 yalign .2
-                                left_bar ProportionalScale("content/gfx/interface/bars/mp1.png", 150, 20)
-                                right_bar ProportionalScale("content/gfx/interface/bars/empty_bar1.png", 150, 20)
+                                left_bar PyTGFX.scale_img("content/gfx/interface/bars/mp1.png", 150, 20)
+                                right_bar PyTGFX.scale_img("content/gfx/interface/bars/empty_bar1.png", 150, 20)
                                 value temp
                                 range tmp
                                 thumb None
@@ -399,15 +399,15 @@ screen next_day():
                             xanchor -2
                             bar:
                                 yalign .5
-                                left_bar ProportionalScale("content/gfx/interface/bars/vitality1.png", 150, 20)
-                                right_bar ProportionalScale("content/gfx/interface/bars/empty_bar1.png", 150, 20)
+                                left_bar PyTGFX.scale_img("content/gfx/interface/bars/vitality1.png", 150, 20)
+                                right_bar PyTGFX.scale_img("content/gfx/interface/bars/empty_bar1.png", 150, 20)
                                 value temp
                                 range tmp
                                 thumb None
                                 xysize (150, 20)
                             text "VP" size 14 color "ivory" bold True yalign .8 xpos 7
                             text "[temp]" size 14 color ("red" if temp <= tmp*.2 else "ivory") bold True style_suffix "value_text" yoffset 2 xpos 99
-                            add ProportionalScale("content/gfx/images/c1.png", 123, 111) pos (-42, 55)
+                            add PyTGFX.scale_img("content/gfx/images/c1.png", 123, 111) pos (-42, 55)
 
                 # MC (extra info) -------------------------------------------->>>
                 # Preparing info:
@@ -506,14 +506,14 @@ screen next_day():
 
             $ explorers = any(i.type == "explorationndreport" for i in NextDayEvents.event_list)
             if explorers:
-                $ img = "content/gfx/interface/buttons/exploration.webp"
+                $ img = PyTGFX.scale_img("content/gfx/interface/buttons/exploration.webp", 60, 60)
                 imagebutton:
                     background Frame("content/gfx/frame/MC_bg3.png", 10, 10)
                     xalign .5 ypos 250
                     padding 3, 3
                     margin 0, 0
-                    hover pscale(img, 60, 60) 
-                    idle pscale(im.Sepia(img), 60, 60)
+                    hover img
+                    idle PyTGFX.sepia_img(img)
                     action [Return(['filter', 'xndreports']), SetScreenVariable("show_summary", False)]
                     tooltip "View the Exploration Guild reports!"
 
@@ -528,7 +528,7 @@ screen next_day():
                 vbox:
                     spacing 5
                     yalign .5
-                    add ProportionalScale("content/gfx/interface/icons/slave.png", 50, 50)
+                    add PyTGFX.scale_img("content/gfx/interface/icons/slave.png", 50, 50)
                     text "[slaves]" xalign .5 style "agrevue"
 
                 frame:
@@ -561,7 +561,7 @@ screen next_day():
                 vbox:
                     spacing 5
                     yalign .5
-                    add ProportionalScale("content/gfx/interface/icons/free.png", 50, 50)
+                    add PyTGFX.scale_img("content/gfx/interface/icons/free.png", 50, 50)
                     text "[free]" xalign .5 style "agrevue"
 
             # Data:
@@ -645,7 +645,7 @@ screen next_day():
                     text "Total" xoffset 3 color color
                     text "[total]" style_suffix "value_text" xoffset -3 color color
 
-                add ProportionalScale("content/gfx/images/magic2.png", 120, 120) offset 140, -140
+                add PyTGFX.scale_img("content/gfx/images/magic2.png", 120, 120) offset 140, -140
 
         # Right frame (Building/Businesses reports):
         frame:
@@ -664,7 +664,7 @@ screen next_day():
                     xysize (330, 50)
                     background Frame("content/gfx/frame/namebox5.png", 10, 10)
                     label (u"Buildings") text_size 23 text_color "ivory" align .5, .6
-                    add ProportionalScale("content/gfx/images/birds1.webp", 548, 115) pos (-100, 5)
+                    add PyTGFX.scale_img("content/gfx/images/birds1.webp", 548, 115) pos (-100, 5)
 
                 null height 80
                 # ALL Buildings/Workers SUMMARY:
@@ -1027,7 +1027,7 @@ screen next_day():
                 else:
                     nd_debug("Unknown Image Type: {} Provided to Event (Next Day Events class)".format(bg_img), "warning")
                     bg_img = IMG_NOT_FOUND_PATH
-                bg_img = pscale(bg_img, *ND_IMAGE_SIZE)
+                bg_img = ProportionalScale(bg_img, *ND_IMAGE_SIZE)
 
             frame:
                 align .5, .5
@@ -1050,7 +1050,7 @@ screen next_day():
                             fixed:
                                 xysize (csize, csize)
                                 pos (xpos, 0)
-                                add pscale(char, csize, csize) align (.5, .5)
+                                add ProportionalScale(char, csize, csize) align (.5, .5)
                             $ xpos += csize + border
                 else:
                     $ xsize = (csize + border) * num_imgs
@@ -1068,7 +1068,7 @@ screen next_day():
                                 fixed:
                                     xysize (csize, csize)
                                     pos (xpos, 0)
-                                    add pscale(char, csize, csize) align (.5, .5)
+                                    add ProportionalScale(char, csize, csize) align (.5, .5)
                                 $ xpos += csize + border
 
         # Stat Frames:
@@ -1305,7 +1305,7 @@ screen next_day():
                     imagebutton:
                         align (.5, .5)
                         idle img
-                        hover im.MatrixColor(img, im.matrix.brightness(.25))
+                        hover PyTGFX.bright_img(img, .25)
                         action Return(['control', 'return'])
                         tooltip "Return to previous screen!"
 

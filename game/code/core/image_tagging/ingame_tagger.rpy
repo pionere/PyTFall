@@ -286,12 +286,12 @@ screen tagger_pick_tagchar:
                 python:
                     index = genders.index(gender)
                     next_gender = genders[(index + 1) % len(genders)]
-                    img = ProportionalScale(gender_icons[index], 30, 30)
+                    img = PyTGFX.scale_img(gender_icons[index], 30, 30)
                 imagebutton:
                     xalign .5
                     action SetField(tagr, "list_gender", next_gender)
                     idle img
-                    hover im.MatrixColor(img, im.matrix.brightness(.15))
+                    hover PyTGFX.bright_img(img, .15)
             null height 10
             $ all_chars = tagr.all_chars.values()
             if gender is not None:
@@ -375,18 +375,18 @@ screen tagger_create_tagchar:
                     xalign 1.0
                     xsize 20
                     xoffset -16
-                    $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
+                    $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/edit.png", 20, 20)
                     if mode == "folder":
                         imagebutton:
                             idle temp
-                            hover im.MatrixColor(temp, im.matrix.brightness(.15))
+                            hover PyTGFX.bright_img(temp, .15)
                             action [SetScreenVariable("folder", renpy.get_widget("tagger_create_tagchar", "folder_input").content), SetScreenVariable("mode", "id")]
                             tooltip "Edit ID"
                     else:
                         null height 30
                         imagebutton:
                             idle temp
-                            hover im.MatrixColor(temp, im.matrix.brightness(.15))
+                            hover PyTGFX.bright_img(temp, .15)
                             action [SetScreenVariable("char_id", renpy.get_widget("tagger_create_tagchar", "id_input").content), SetScreenVariable("mode", "folder")]
                             tooltip "Edit Folder"
 
@@ -428,10 +428,10 @@ screen tagger_json_dropdown(char, field, options, label=None):
                 background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
                 hover_background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
                 action Return(["json", "select", field, options])
-            $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
+            $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/edit.png", 20, 20)
             imagebutton:
                 idle temp
-                hover im.MatrixColor(temp, im.matrix.brightness(.15))
+                hover PyTGFX.bright_img(temp, .15)
                 action Return(["json", "text", field, 30])
                 tooltip "Edit"
 
@@ -473,10 +473,10 @@ screen tagger_char_json_config(char):
                             text temp yalign .5 color color:
                                 if len(temp) > 50:
                                     size 12
-                            $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
+                            $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/edit.png", 20, 20)
                             imagebutton:
                                 idle temp
-                                hover im.MatrixColor(temp, im.matrix.brightness(.15))
+                                hover PyTGFX.bright_img(temp, .15)
                                 action Return(["json", "text", "name", 100])
                                 tooltip "Edit"
                 if "nickname" in char:
@@ -496,10 +496,10 @@ screen tagger_char_json_config(char):
                             text temp yalign .5 color color:
                                 if len(temp) > 50:
                                     size 12
-                            $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
+                            $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/edit.png", 20, 20)
                             imagebutton:
                                 idle temp
-                                hover im.MatrixColor(temp, im.matrix.brightness(.15))
+                                hover PyTGFX.bright_img(temp, .15)
                                 action Return(["json", "text", "nickname", 100])
                                 tooltip "Edit"
                 if "fullname" in char:
@@ -519,10 +519,10 @@ screen tagger_char_json_config(char):
                             text temp yalign .5 color color:
                                 if len(temp) > 50:
                                     size 12
-                            $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
+                            $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/edit.png", 20, 20)
                             imagebutton:
                                 idle temp
-                                hover im.MatrixColor(temp, im.matrix.brightness(.15))
+                                hover PyTGFX.bright_img(temp, .15)
                                 action Return(["json", "text", "fullname", 100])
                                 tooltip "Edit"
                 if "desc" in char:
@@ -536,10 +536,10 @@ screen tagger_char_json_config(char):
                             text temp yalign .5:
                                 if len(temp) > 50:
                                     size 12
-                            $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
+                            $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/edit.png", 20, 20)
                             imagebutton:
                                 idle temp
-                                hover im.MatrixColor(temp, im.matrix.brightness(.15))
+                                hover PyTGFX.bright_img(temp, .15)
                                 action Return(["json", "text", "desc", 100])
                                 tooltip "Edit"
                 if "origin" in char:
@@ -550,10 +550,10 @@ screen tagger_char_json_config(char):
                         hbox:
                             xalign 1.0
                             text char["origin"] yalign .5
-                            $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
+                            $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/edit.png", 20, 20)
                             imagebutton:
                                 idle temp
-                                hover im.MatrixColor(temp, im.matrix.brightness(.15))
+                                hover PyTGFX.bright_img(temp, .15)
                                 action Return(["json", "text", "origin", 30])
                                 tooltip "Edit"
                 if "full_race" in char:
@@ -564,10 +564,10 @@ screen tagger_char_json_config(char):
                         hbox:
                             xalign 1.0
                             text char["full_race"] yalign .5
-                            $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
+                            $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/edit.png", 20, 20)
                             imagebutton:
                                 idle temp
-                                hover im.MatrixColor(temp, im.matrix.brightness(.15))
+                                hover PyTGFX.bright_img(temp, .15)
                                 action Return(["json", "text", "full_race", 30])
                                 tooltip "Edit"
                 if "race" in char:
@@ -639,10 +639,10 @@ screen tagger_char_json_config(char):
                                     color = "red"
                                     temp = "%s*" % temp
                             text temp yalign .5 color color
-                            $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
+                            $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/edit.png", 20, 20)
                             imagebutton:
                                 idle temp
-                                hover im.MatrixColor(temp, im.matrix.brightness(.15))
+                                hover PyTGFX.bright_img(temp, .15)
                                 action Return(["json", "float", "tier"])
                                 tooltip "Edit"
                 if "gold" in char:
@@ -661,10 +661,10 @@ screen tagger_char_json_config(char):
                                     color = "red"
                                     temp = "%s*" % temp
                             text temp yalign .5 color color
-                            $ temp = ProportionalScale("content/gfx/interface/buttons/edit.png", 20, 20)
+                            $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/edit.png", 20, 20)
                             imagebutton:
                                 idle temp
-                                hover im.MatrixColor(temp, im.matrix.brightness(.15))
+                                hover PyTGFX.bright_img(temp, .15)
                                 action Return(["json", "int", "gold"])
                                 tooltip "Edit"
                 if "item_up" in char:
@@ -743,17 +743,17 @@ screen tagger_char_json_config(char):
                                 hbox:
                                     xalign 1.0
                                     text t yalign .5 color color
-                                    $ temp = ProportionalScale("content/gfx/interface/buttons/discard.png", 20, 20)
+                                    $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/discard.png", 20, 20)
                                     imagebutton:
                                         idle temp
-                                        hover im.MatrixColor(temp, im.matrix.brightness(.15))
+                                        hover PyTGFX.bright_img(temp, .15)
                                         action Return(["json", "remove", "basetraits", t])
                                         tooltip "Remove"
-                            $ temp = ProportionalScale("content/gfx/interface/buttons/add.png", 20, 20)
+                            $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/add.png", 20, 20)
                             imagebutton:
                                 xalign 1.0
                                 idle temp
-                                hover im.MatrixColor(temp, im.matrix.brightness(.15))
+                                hover PyTGFX.bright_img(temp, .15)
                                 action Return(["json", "add", "text", "basetraits", tmp])
                                 tooltip "Add"
                 if "elements" in char:
@@ -774,17 +774,17 @@ screen tagger_char_json_config(char):
                                 hbox:
                                     xalign 1.0
                                     text t yalign .5 color color
-                                    $ temp = ProportionalScale("content/gfx/interface/buttons/discard.png", 20, 20)
+                                    $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/discard.png", 20, 20)
                                     imagebutton:
                                         idle temp
-                                        hover im.MatrixColor(temp, im.matrix.brightness(.15))
+                                        hover PyTGFX.bright_img(temp, .15)
                                         action Return(["json", "remove", "elements", t])
                                         tooltip "Remove"
-                            $ temp = ProportionalScale("content/gfx/interface/buttons/add.png", 20, 20)
+                            $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/add.png", 20, 20)
                             imagebutton:
                                 xalign 1.0
                                 idle temp
-                                hover im.MatrixColor(temp, im.matrix.brightness(.15))
+                                hover PyTGFX.bright_img(temp, .15)
                                 action Return(["json", "add", "text", "elements", tmp])
                                 tooltip "Add"
                 if "traits" in char:
@@ -820,17 +820,17 @@ screen tagger_char_json_config(char):
                                 hbox:
                                     xalign 1.0
                                     text t yalign .5 color color
-                                    $ temp = ProportionalScale("content/gfx/interface/buttons/discard.png", 20, 20)
+                                    $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/discard.png", 20, 20)
                                     imagebutton:
                                         idle temp
-                                        hover im.MatrixColor(temp, im.matrix.brightness(.15))
+                                        hover PyTGFX.bright_img(temp, .15)
                                         action Return(["json", "remove", "traits", t])
                                         tooltip "Remove"
-                            $ temp = ProportionalScale("content/gfx/interface/buttons/add.png", 20, 20)
+                            $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/add.png", 20, 20)
                             imagebutton:
                                 xalign 1.0
                                 idle temp
-                                hover im.MatrixColor(temp, im.matrix.brightness(.15))
+                                hover PyTGFX.bright_img(temp, .15)
                                 action Return(["json", "add", "text", "traits", tmp])
                                 tooltip "Add"
                 if "random_trait_groups" in char:
@@ -904,10 +904,10 @@ screen tagger_char_json_config(char):
                                         background Null()
                                         hover_background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
                                         action Return(["json", "edit", interval, 1, "int"])
-                                    $ temp = ProportionalScale("content/gfx/interface/buttons/discard.png", 20, 20)
+                                    $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/discard.png", 20, 20)
                                     imagebutton:
                                         idle temp
-                                        hover im.MatrixColor(temp, im.matrix.brightness(.15))
+                                        hover PyTGFX.bright_img(temp, .15)
                                         action Return(["json", "remove", "random_trait_groups", rtg])
                                         tooltip "Remove"
                                     vbox:
@@ -934,24 +934,24 @@ screen tagger_char_json_config(char):
                                                     background Null()
                                                     hover_background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
                                                     action Return(["json", "edit", t, 1, "int"])
-                                                $ temp = ProportionalScale("content/gfx/interface/buttons/discard.png", 20, 20)
+                                                $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/discard.png", 20, 20)
                                                 imagebutton:
                                                     idle temp
-                                                    hover im.MatrixColor(temp, im.matrix.brightness(.15))
+                                                    hover PyTGFX.bright_img(temp, .15)
                                                     action Function(random_traits.remove, t)
                                                     tooltip "Remove"
-                                        $ temp = ProportionalScale("content/gfx/interface/buttons/add.png", 20, 20)
+                                        $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/add.png", 20, 20)
                                         imagebutton:
                                             xalign 1.0
                                             idle temp
-                                            hover im.MatrixColor(temp, im.matrix.brightness(.15))
+                                            hover PyTGFX.bright_img(temp, .15)
                                             action Return(["json", "add", "pair", random_traits, tmp])
                                             tooltip "Add"
-                            $ temp = ProportionalScale("content/gfx/interface/buttons/add.png", 20, 20)
+                            $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/add.png", 20, 20)
                             imagebutton:
                                 xalign .5
                                 idle temp
-                                hover im.MatrixColor(temp, im.matrix.brightness(.15))
+                                hover PyTGFX.bright_img(temp, .15)
                                 action Return(["json", "add", "pair", "random_trait_groups", [[[0, 0], []]]])
                                 tooltip "Add"
 
@@ -1012,17 +1012,17 @@ screen tagger_char_json_config(char):
                                         background Null()
                                         hover_background Frame("content/gfx/interface/buttons/choice_buttons2h.png", 5, 5)
                                         action Return(["json", "edit", t, 1, "int"])
-                                    $ temp = ProportionalScale("content/gfx/interface/buttons/discard.png", 20, 20)
+                                    $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/discard.png", 20, 20)
                                     imagebutton:
                                         idle temp
-                                        hover im.MatrixColor(temp, im.matrix.brightness(.15))
+                                        hover PyTGFX.bright_img(temp, .15)
                                         action Return(["json", "remove", "random_traits", t])
                                         tooltip "Remove"
-                            $ temp = ProportionalScale("content/gfx/interface/buttons/add.png", 20, 20)
+                            $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/add.png", 20, 20)
                             imagebutton:
                                 xalign 1.0
                                 idle temp
-                                hover im.MatrixColor(temp, im.matrix.brightness(.15))
+                                hover PyTGFX.bright_img(temp, .15)
                                 action Return(["json", "add", "pair", "random_traits", tmp])
                                 tooltip "Add"
 
@@ -1069,17 +1069,17 @@ screen tagger_char_json_config(char):
                                 hbox:
                                     xalign 1.0
                                     text t yalign .5 color color
-                                    $ temp = ProportionalScale("content/gfx/interface/buttons/discard.png", 20, 20)
+                                    $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/discard.png", 20, 20)
                                     imagebutton:
                                         idle temp
-                                        hover im.MatrixColor(temp, im.matrix.brightness(.15))
+                                        hover PyTGFX.bright_img(temp, .15)
                                         action Return(["json", "remove", "magic_skills", t])
                                         tooltip "Remove"
-                            $ temp = ProportionalScale("content/gfx/interface/buttons/add.png", 20, 20)
+                            $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/add.png", 20, 20)
                             imagebutton:
                                 xalign 1.0
                                 idle temp
-                                hover im.MatrixColor(temp, im.matrix.brightness(.15))
+                                hover PyTGFX.bright_img(temp, .15)
                                 action Return(["json", "add", "text", "magic_skills", tmp])
                                 tooltip "Add"
 
@@ -1124,7 +1124,7 @@ screen tagger():
             xalign 0.1
             ypos 35
             idle img
-            hover im.MatrixColor(img, im.matrix.brightness(0.15))
+            hover PyTGFX.bright_img(img, .15)
             action Function(tagr.previous_page)
             sensitive len(tagr.images) > tagr.pagesize
             tooltip "Previous Page"
@@ -1144,7 +1144,7 @@ screen tagger():
             xalign .9
             ypos 35
             idle img
-            hover im.MatrixColor(img, im.matrix.brightness(0.15))
+            hover PyTGFX.bright_img(img, .15)
             action Function(tagr.next_page)
             sensitive len(tagr.images) > tagr.pagesize
             tooltip "Next Page"

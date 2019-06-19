@@ -24,30 +24,21 @@ label city_park:
             $ iam.start_gm(result[1], img=result[1].show("girlmeets", "outdoors", "nature", "urban", exclude=["swimsuit", "wildness", "indoors", "stage", "beach", "pool", "onsen", "indoor"], type="reduce", label_cache=True, gm_mode=True))
 
         if result[0] == 'control':
-            #if result[1] == 'jumpgates':
-            #    $ global_flags.set_flag("keep_playing_music")
-            #    $ hs()
-            #    $ jump('city_parkgates')
-
-            if result[1] == 'return':
+            #if result[1] in ['jumpgates', 'return'):
                 $ global_flags.set_flag("keep_playing_music")
                 hide screen city_park
                 jump city_parkgates
 
-
 screen city_park():
-
     use top_stripe(True)
-
-    # use r_lightbutton(img=im.Flip(im.Scale("content/gfx/interface/buttons/blue_arrow.png", 80, 80), horizontal=true), return_value =['control', 'jumpgates'], align=(.01, .5))
 
     if not iam.show_girls:
         $ img = im.Flip(im.Scale("content/gfx/interface/buttons/blue_arrow.png", 80, 80), horizontal=True)
         imagebutton:
             align (.01, .5)
-            idle (img)
-            hover (im.MatrixColor(img, im.matrix.brightness(.15)))
-            action [Hide("city_park"), Function(global_flags.set_flag, "keep_playing_music"), Jump("city_parkgates")]
+            idle img
+            hover PyTGFX.bright_img(img, .15)
+            action Return(['control', 'jumpgates'])
 
     use location_actions("city_park")
 
@@ -61,9 +52,9 @@ screen city_park():
 
     if not iam.show_girls:
         if global_flags.has_flag("met_aine"):
-            $ img_aine_shop = ProportionalScale("content/gfx/interface/icons/aine.png", 75, 75)
+            $ img = im.Scale("content/gfx/interface/icons/aine.png", 75, 75)
             imagebutton:
                 pos (1090, 340)
-                idle (img_aine_shop)
-                hover (im.MatrixColor(img_aine_shop, im.matrix.brightness(.15)))
+                idle img
+                hover PyTGFX.bright_img(img, .15)
                 action [Hide("city_park"), Jump("aine_menu"), With(dissolve)]

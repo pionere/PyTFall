@@ -191,7 +191,7 @@ screen char_profile():
                 action Hide("char_profile"), With(dissolve), Function(iam.start_int, char, img=gm_img)
                 sensitive char_is_controlled
                 tooltip "Click to interact with %s!\n%s" % (char.nickname, char.desc)
-                add ProportionalScale(store.img, 590, 600)
+                add PyTGFX.scale_img(store.img, 590, 600)
                 alternate Return(['control', 'return']) # keep in sync with mousedown_3
 
         # Mid-Bottom Frame: Level, experience ====================================>
@@ -211,10 +211,10 @@ screen char_profile():
             fixed:
                 align .5, .5
                 xysize 230, 45
-                add pscale("content/gfx/frame/level.png", 230, 45) align .5, .5
-                text "{font=fonts/Rubius.ttf}{color=ivory}{size=16}{b}[char.level]" pos 38, 7
-                text "{font=fonts/Rubius.ttf}{color=ivory}{size=16}{b}[char.exp]" pos 114, 7
-                text "{font=fonts/Rubius.ttf}{color=ivory}{size=16}{b}[char.goal]" pos 114, 27
+                add PyTGFX.scale_img("content/gfx/frame/level.png", 230, 45) align .5, .5
+                text str(char.level) size 16 bold True color "ivory" font "fonts/Rubius.ttf" pos 38, 7
+                text str(char.exp) size 16 bold True color "ivory" font "fonts/Rubius.ttf" pos 114, 7
+                text str(char.goal) size 16 bold True color "ivory" font "fonts/Rubius.ttf" pos 114, 27
             button:
                 xysize 140, 40
                 yalign .5
@@ -236,7 +236,7 @@ screen char_profile():
                 align .0, .0
                 xysize 330, 126
                 $ trait = char.personality
-                $ img = ProportionalScale("".join(["content/gfx/interface/images/personality/", trait.id.lower(), ".png"]), 120, 120)
+                $ img = PyTGFX.scale_img("".join(["content/gfx/interface/images/personality/", trait.id.lower(), ".png"]), 120, 120)
                 imagebutton:
                     at pers_effect()
                     focus_mask True
@@ -291,23 +291,23 @@ screen char_profile():
                             tooltip "%s" % trait.desc
 
                 if check_lovers(char):
+                    $ img = PyTGFX.scale_img("content/gfx/interface/icons/heartbeat.png", 30, 30)
                     imagebutton:
                         pos 5, 97
-                        idle ProportionalScale("content/gfx/interface/icons/heartbeat.png", 30, 30)
-                        hover (im.MatrixColor(ProportionalScale("content/gfx/interface/icons/heartbeat.png", 30, 30), im.matrix.brightness(.25)))
+                        idle img
+                        hover PyTGFX.bright_img(img, .25)
                         tooltip "This girl is your lover!"
                         action NullAction()
 
+                $ img = PyTGFX.scale_img("content/gfx/interface/icons/slave.png" if char.status == "slave" else "content/gfx/interface/icons/free.png", 30, 30)
                 imagebutton:
+                    idle img
+                    hover PyTGFX.bright_img(img, .25)
                     if char.status == "slave":
                         pos 80, 97
-                        idle ProportionalScale("content/gfx/interface/icons/slave.png", 30, 30)
-                        hover (im.MatrixColor(ProportionalScale("content/gfx/interface/icons/slave.png", 30, 30), im.matrix.brightness(.25)))
                         tooltip "This girl is a slave!"
                     else:
                         pos 75, 95
-                        idle ProportionalScale("content/gfx/interface/icons/free.png", 30, 30)
-                        hover (im.MatrixColor(ProportionalScale("content/gfx/interface/icons/free.png", 30, 30), im.matrix.brightness(.25)))
                         tooltip "This girl is free as a bird :)"
                     action NullAction()
 
@@ -368,15 +368,17 @@ screen char_profile():
                 pos (10, 200)
                 if char_is_controlled:
                     if char in hero.team:
+                        $ img = im.Scale("content/gfx/interface/buttons/RG.png", 27, 30)
                         imagebutton:
-                            idle im.Scale("content/gfx/interface/buttons/RG.png", 27, 30)
-                            hover im.MatrixColor(im.Scale("content/gfx/interface/buttons/RG.png", 27, 30), im.matrix.brightness(.15))
+                            idle img
+                            hover PyTGFX.bright_img(img, .15)
                             action Function(hero.team.remove, char)
                             tooltip "Remove {} from your team".format(char.nickname)
                     else:
+                        $ img = im.Scale("content/gfx/interface/buttons/AG.png", 27, 30)
                         imagebutton:
-                            idle im.Scale("content/gfx/interface/buttons/AG.png", 27, 30)
-                            hover im.MatrixColor(im.Scale("content/gfx/interface/buttons/AG.png", 27, 30), im.matrix.brightness(.15))
+                            idle img
+                            hover PyTGFX.bright_img(img, .15)
                             action If(len(hero.team) < 3, true=Function(hero.team.add, char), false=Show("message_screen", msg="Team cannot have more than three members"))
                             tooltip "Add {} to your team".format(char.nickname) 
             hbox:
@@ -420,12 +422,11 @@ screen char_profile():
                             xoffset 4
                             xysize (270, 27)
                             xpadding 7
-                            text "%s:"%stat.capitalize() color color
+                            text stat.capitalize() color color
                             if stat in base_ss:
-                                button:
-                                    xysize 16, 16
+                                imagebutton:
                                     offset -10, -5
-                                    background ProportionalScale("content/gfx/interface/icons/stars/legendary.png", 16, 16)
+                                    idle PyTGFX.scale_img("content/gfx/interface/icons/stars/legendary.png", 16, 16)
                                     action NullAction()
                                     tooltip "This is a Class Stat!"
                             $ temp, tmp = char.get_stat(stat), char.get_max(stat)
@@ -440,13 +441,12 @@ screen char_profile():
                             xoffset 4
                             xysize (270, 27)
                             xpadding 7
-                            text "%s"%stat.capitalize() color color
+                            text stat.capitalize() color color
                             $ stat = stat
                             if stat in base_ss:
-                                button:
-                                    xysize 16, 16
+                                imagebutton:
                                     offset -10, -5
-                                    background ProportionalScale("content/gfx/interface/icons/stars/legendary.png", 16, 16)
+                                    idle PyTGFX.scale_img("content/gfx/interface/icons/stars/legendary.png", 16, 16)
                                     action NullAction()
                                     tooltip "This is a Class Stat!"
                             text "%d/%d"%(char.get_stat(stat), char.get_max(stat)) style_suffix "value_text" color color
@@ -459,12 +459,11 @@ screen char_profile():
                             xoffset 4
                             xysize (270, 27)
                             xpadding 7
-                            text "%s"%stat.capitalize() color "#79CDCD"
+                            text stat.capitalize() color "#79CDCD"
                             if stat in base_ss:
-                                button:
-                                    xysize 16, 16
+                                imagebutton:
                                     offset -10, -5
-                                    background ProportionalScale("content/gfx/interface/icons/stars/legendary.png", 16, 16)
+                                    idle PyTGFX.scale_img("content/gfx/interface/icons/stars/legendary.png", 16, 16)
                                     action NullAction()
                                     tooltip "This is a Class Stat!"
                             text "%d/%d"%(char.get_stat(stat), char.get_max(stat)) style_suffix "value_text"
@@ -507,10 +506,9 @@ screen char_profile():
                             xpadding 7
                             text stat.capitalize() color "#79CDCD"
                             if stat in base_ss:
-                                button:
-                                    xysize 16, 16
+                                imagebutton:
                                     offset -8, -2
-                                    background ProportionalScale("content/gfx/interface/icons/stars/legendary.png", 16, 16)
+                                    idle PyTGFX.scale_img("content/gfx/interface/icons/stars/legendary.png", 16, 16)
                                     action NullAction()
                                     tooltip "This is a Class Stat!"
                             text "%d/%d" % (char.get_stat(stat), char.get_max(stat)) xalign 1.0 style_suffix "value_text"
@@ -525,10 +523,9 @@ screen char_profile():
                             xpadding 7
                             text stat.capitalize() color color
                             if stat in base_ss:
-                                button:
-                                    xysize 16, 16
+                                imagebutton:
                                     offset -8, -2
-                                    background ProportionalScale("content/gfx/interface/icons/stars/legendary.png", 16, 16)
+                                    idle PyTGFX.scale_img("content/gfx/interface/icons/stars/legendary.png", 16, 16)
                                     action NullAction()
                                     tooltip "This is a Class Stat!"
                             text "%d/%d" % (char.get_stat(stat), char.get_max(stat)) style_suffix "value_text" color color
@@ -539,24 +536,23 @@ screen char_profile():
                     style_suffix "main_frame"
                     xsize 300
                     ypos 230 xalign .5
-                    has viewport xysize (310, 392) draggable True mousewheel True child_size (300, 1000)
+                    has viewport xysize (300, 392) draggable True mousewheel True child_size (300, 1000)
                     vbox:
                         spacing 1
                         for skill in char.stats.skills:
                             $ skill_val = int(char.get_skill(skill))
                             $ skill_limit = int(char.get_max_skill(skill))
                             # We don't care about the skill if it's less than 10% of limit:
-                            if skill in base_ss or skill_val/float(skill_limit) > .1:
+                            if skill in base_ss or skill_val > skill_limit/10:
                                 frame:
                                     xoffset 4
                                     xysize (270, 27)
                                     xpadding 7
                                     text skill.capitalize() color "gold" size 18 xoffset 10 # style_suffix "value_text" 
                                     if skill in base_ss:
-                                        button:
-                                            xysize 16, 16
-                                            xoffset -3
-                                            background ProportionalScale("content/gfx/interface/icons/stars/legendary.png", 16, 16)
+                                        imagebutton:
+                                            xoffset -1
+                                            idle PyTGFX.scale_img("content/gfx/interface/icons/stars/legendary.png", 16, 16)
                                             action NullAction()
                                             tooltip "This is a Class Skill!"
                                     hbox:
@@ -643,7 +639,7 @@ screen char_profile():
             frame:
                 xalign .5 ypos 160
                 xysize 300, 90
-                background ProportionalScale("content/gfx/frame/frame_ap.webp", 300, 100)
+                background PyTGFX.scale_img("content/gfx/frame/frame_ap.webp", 300, 100)
                 $ temp = char.PP/100 # PP_PER_AP
                 if not char_is_controlled:
                     $ temp -= 1 # reduced AP is available when the character is hired
@@ -763,23 +759,25 @@ screen char_control():
             # effecting disposition.
             hbox:
                 align (.5, .5)
+                $ img = PyTGFX.scale_img("content/gfx/interface/buttons/prev.png", 28, 28)
                 imagebutton:
                     yalign .5
-                    idle ('content/gfx/interface/buttons/prev.png')
-                    hover (im.MatrixColor('content/gfx/interface/buttons/prev.png', im.matrix.brightness(.15)))
+                    idle img
+                    hover PyTGFX.bright_img(img, .15)
                     action SetField(char, "wagemod", max(0, char.wagemod-1))
                 null width 5
                 bar:
-                    align .5, 1.0
+                    align .5, .5
                     value FieldValue(char, 'wagemod', 200, max_is_zero=False, style='scrollbar', offset=0, step=1)
                     xmaximum 150
                     thumb 'content/gfx/interface/icons/move15.png'
                     tooltip "What percentage of a fair wage are you willing to pay?"
                 null width 5
+                $ img = PyTGFX.scale_img("content/gfx/interface/buttons/next.png", 28, 28)
                 imagebutton:
                     yalign .5
-                    idle ('content/gfx/interface/buttons/next.png')
-                    hover (im.MatrixColor('content/gfx/interface/buttons/next.png', im.matrix.brightness(.15)))
+                    idle img
+                    hover PyTGFX.bright_img(img, .15)
                     action SetField(char, "wagemod", min(200, char.wagemod+1))
             fixed:
                 align .5, 1.0

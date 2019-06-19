@@ -308,7 +308,7 @@ screen slave_market_work:
             $ alpha = d[5]
             #$ img = Transform(ProportionalScale("content/gfx/images/smudge%02d.webp" % d[0], 45+(size*3/2), 30+size), rotate=rotation)
             $ size = get_linear_value_of(d[3], 0, 1.0, 12, 1.8) # MAX_SIZE
-            $ img = ProportionalScale("content/gfx/images/smudge/smudge%02d.webp" % d[0], 30*size, 20*size)
+            $ img = im.Scale("content/gfx/images/smudge/smudge%02d.webp" % d[0], 30*size, 20*size)
             #$ idle_img = Frame(Transform(img, alpha=alpha, rotate=rotation), 5, 5)
             #$ hover_img = Frame(Transform(im.MatrixColor(img, im.matrix.brightness(.15)), alpha=alpha, rotate=rotation), 5, 5)
             $ idle_img = Transform(img, alpha=alpha, rotate=rotation)
@@ -325,14 +325,14 @@ screen slave_market_work:
                 hovered Return("_dirt%02d"%idx)
         
     # bucket
-    add ProportionalScale("content/gfx/images/bucket.png", 200, 233) pos 100, 520
+    add PyTGFX.scale_img("content/gfx/images/bucket.png", 200, 233) pos 100, 520
     
-    $ img = ProportionalScale("content/gfx/images/bucket_water.webp", 170, 60)
+    $ img = PyTGFX.scale_img("content/gfx/images/bucket_water.webp", 170, 60)
     button id "water":
         style 'image_button'
         pos 118, 540 
         idle_background img
-        hover_background im.MatrixColor(img, im.matrix.brightness(.15))
+        hover_background PyTGFX.bright_img(img, .15)
         focus_mask True
         action Return("water")
 
@@ -347,7 +347,7 @@ screen slave_market_work:
 
     # sponge
     $ temp = get_linear_value_of(effectiveness, 0, 1.0, 60, 1.6) # MAX_EFFECTIVENESS
-    $ img = ProportionalScale("content/gfx/images/sponge.webp", (30*temp), (20*temp))
+    $ img = im.Scale("content/gfx/images/sponge.webp", (30*temp), (20*temp))
     if sponge_in_hand:
         $ sponge_loc = renpy.get_mouse_pos()
         $ sponge_loc = [sponge_loc[0] - int(30*temp/2), sponge_loc[1] - int(20*temp/2)]
@@ -357,7 +357,7 @@ screen slave_market_work:
             style 'image_button'
             pos sponge_loc 
             idle_background img
-            hover_background im.MatrixColor(img, im.matrix.brightness(.15))
+            hover_background PyTGFX.bright_img(img, .15)
             focus_mask True
             action Return("pick")
 
@@ -541,40 +541,25 @@ screen slave_shopping(source, buy_button, buy_tt):
                 has viewport xysize (236, 236) mousewheel 1 draggable 1 # child_size (255, 1000)
                 vbox:
                     spacing 1
-                    xpos 5
                     for skill in char.stats.skills:
                         $ skill_val = int(char.get_skill(skill))
                         $ skill_limit = int(char.get_max_skill(skill))
                         # We don't care about the skill if it's less than 10% of limit:
                         if skill in base_ss or skill_val > skill_limit/10:
-                            hbox:
-                                xsize 224
-                                text "{}:".format(skill.capitalize()):
-                                    style_suffix "value_text"
-                                    color "gold"
-                                    xalign .0
-                                    size 18
-                                hbox:
-                                    xalign 1.0
-                                    yoffset 8
-                                    use stars(skill_val, skill_limit)
-                vbox:
-                    spacing 1
-                    for skill in char.stats.skills:
-                        $ skill_val = int(char.get_skill(skill))
-                        $ skill_limit = int(char.get_max_skill(skill))
-                        # We don't care about the skill if it's less than 10% of limit:
-                        if skill in base_ss or skill_val/float(skill_limit) > .1:
-                            if skill in base_ss:
-                                fixed:
-                                    xysize 20, 26
-                                    button:
-                                        xysize 20, 20
-                                        background pscale("content/gfx/interface/icons/stars/legendary.png", 20, 20)
+                            frame:
+                                xoffset 2
+                                xysize (236, 27)
+                                xpadding 4
+                                text skill.capitalize() color "gold" size 18 xoffset 10 # style_suffix "value_text" 
+                                if skill in base_ss:
+                                    imagebutton:
+                                        idle PyTGFX.scale_img("content/gfx/interface/icons/stars/legendary.png", 16, 16)
                                         action NullAction()
                                         tooltip "This is a Class Skill!"
-                            else:
-                                null height 26
+                                hbox:
+                                    xalign 1.0
+                                    yoffset 4
+                                    use stars(skill_val, skill_limit)
 
         # Image (Mid-Top): =============================================================================>>>
         frame:
@@ -630,12 +615,12 @@ screen slave_shopping(source, buy_button, buy_tt):
             hbox:
                 ysize 63
                 xalign .5
-                $ img=im.Scale("content/gfx/interface/buttons/arrow_button_metal_gold_left.png", 50, 50)
+                $ img = im.Scale("content/gfx/interface/buttons/arrow_button_metal_gold_left.png", 50, 50)
                 imagebutton:
-                    align(.5, .5)
+                    align (.5, .5)
                     idle img
-                    hover (im.MatrixColor(img, im.matrix.brightness(.15)))
-                    action (Function(source.previous_index))
+                    hover PyTGFX.bright_img(img, .15)
+                    action Function(source.previous_index)
                     tooltip "Previous Slave"
 
                 null width 10
@@ -661,12 +646,12 @@ screen slave_shopping(source, buy_button, buy_tt):
 
                 null width 10
 
-                $ img=im.Scale("content/gfx/interface/buttons/arrow_button_metal_gold_right.png", 50, 50)
+                $ img = im.Scale("content/gfx/interface/buttons/arrow_button_metal_gold_right.png", 50, 50)
                 imagebutton:
-                    align(.5, .5)
+                    align (.5, .5)
                     idle img
-                    hover (im.MatrixColor(img, im.matrix.brightness(.15)))
-                    action (Function(source.next_index))
+                    hover PyTGFX.bright_img(img, .15)
+                    action Function(source.next_index)
                     tooltip "Next Slave"
 
         # Girl choice:
@@ -689,7 +674,7 @@ screen slave_shopping(source, buy_button, buy_tt):
                             background Frame("content/gfx/frame/Mc_bg3.png", 10, 10)
                             imagebutton:
                                 idle img
-                                hover (im.MatrixColor(img, im.matrix.brightness(.15)))
+                                hover PyTGFX.bright_content(img, .15)
                                 action Function(source.set_char, idx)
                                 tooltip u"{=proper_stats_text}%s\n{size=-5}{=proper_stats_value_text}%s"%(c.name, c.desc)
                 bar value XScrollValue("sm_vp_list")

@@ -269,7 +269,7 @@ screen chars_list():
                                     status_img = "content/gfx/interface/icons/gravestone.png"
                                 else:
                                     status_img = "content/gfx/interface/icons/question.png"
-                            add ProportionalScale(status_img, 40, 40)
+                            add PyTGFX.scale_img(status_img, 40, 40)
 
                         vbox:
                             align 1.0, .6 xoffset 5

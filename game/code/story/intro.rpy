@@ -11,9 +11,9 @@ label intro:
             "No":
                 $ pass
 
-    $ he = ProportionalScale("content/events/Intro/h1.webp", 1750, 550)
-    $ hes = ProportionalScale("content/events/Intro/he1.webp", 1750, 550)
-    $ logo = ProportionalScale("content/events/Intro/logo-transperent.webp", 600, 300)
+    $ he = PyTGFX.scale_img("content/events/Intro/h1.webp", 1750, 550)
+    $ hes = PyTGFX.scale_img("content/events/Intro/he1.webp", 1750, 550)
+    $ logo = PyTGFX.scale_img("content/events/Intro/logo-transperent.webp", 600, 300)
 
     show expression Text("Mundiga continent", style="TisaOTM", align=(0.5, 0.33), size=40) as txt1:
         alpha 0

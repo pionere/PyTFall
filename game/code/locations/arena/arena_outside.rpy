@@ -470,7 +470,7 @@ screen arena_practice:
             else:
                 $ img = mob["battle_sprite"]
                 $ creature = mob["name"]
-            $ img = ProportionalScale(img, 150, 150)
+            $ img = PyTGFX.scale_content(img, 150, 150)
             frame:
                 align .5, .5
                 background Frame("content/gfx/frame/bst.png", 5, 5)
@@ -483,7 +483,7 @@ screen arena_practice:
                 imagebutton:
                     xalign .5
                     idle img
-                    hover (im.MatrixColor(img, im.matrix.brightness(.15)))
+                    hover PyTGFX.bright_content(img, .15)
                     action NullAction()
 
             # next mob
@@ -509,11 +509,11 @@ screen arena_practice:
             xfill True
             ysize 50
 
-            $ img = "content/gfx/interface/buttons/prev.png"
+            $ img = PyTGFX.scale_img("content/gfx/interface/buttons/prev.png", 28, 28)
             imagebutton:
                 align .1, .5
                 idle img
-                hover (im.MatrixColor(img, im.matrix.brightness(.15)))
+                hover PyTGFX.bright_img(img, .15)
                 action SetField(store, "level", max(level-1, min_lvl))
                 tooltip "Decrement the level of the mob!"
 
@@ -524,11 +524,11 @@ screen arena_practice:
                 thumb 'content/gfx/interface/icons/move15.png'
                 tooltip "Adjust the level of the mob!" 
 
-            $ img = "content/gfx/interface/buttons/next.png"
+            $ img = PyTGFX.scale_img("content/gfx/interface/buttons/next.png", 28, 28)
             imagebutton:
                 align .9, .5
                 idle img
-                hover (im.MatrixColor(img, im.matrix.brightness(.15)))
+                hover PyTGFX.bright_img(img, .15)
                 action SetField(store, "level", min(level+1, max_lvl))
                 tooltip "Increment the level of the mob!"
 

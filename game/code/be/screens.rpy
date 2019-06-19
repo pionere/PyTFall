@@ -182,7 +182,7 @@ screen pick_skill(char):
                     tooltip mod_to_tooltip(i.mod)
                     hbox:
                         yalign .5
-                        add pscale(i.icon, 25, 25) yalign .5
+                        add PyTGFX.scale_content(i.icon, 25, 25) yalign .5
                         text "[i.id]" yalign .5 style "dropdown_gm_button_text" size 12
                     text "[amount]" align 1.0, .5 style "proper_stats_label_text" color "purple"
     elif menu_mode == "attacks":
@@ -257,7 +257,7 @@ screen pick_skill(char):
                             vbox:
                                 if e.icon:
                                     imagebutton:
-                                        idle ProportionalScale(e.icon, 70, 70)
+                                        idle PyTGFX.scale_content(e.icon, 70, 70)
                                         align .5, .1
                                         action NullAction()
                                         tooltip e.id
@@ -377,8 +377,8 @@ screen battle_overlay(be):
                     fixed:
                         ysize 25
                         bar:
-                            left_bar ProportionalScale("content/gfx/interface/bars/hp1.png", 150, 20)
-                            right_bar ProportionalScale("content/gfx/interface/bars/empty_bar1.png", 150, 20)
+                            left_bar PyTGFX.scale_img("content/gfx/interface/bars/hp1.png", 150, 20)
+                            right_bar PyTGFX.scale_img("content/gfx/interface/bars/empty_bar1.png", 150, 20)
                             value AnimatedValue(value=health, range=member.maxhp, delay=.5, old_value=None)
                             thumb None
                             xysize (150, 20)
@@ -391,8 +391,8 @@ screen battle_overlay(be):
                     fixed:
                         ysize 25
                         bar:
-                            left_bar ProportionalScale("content/gfx/interface/bars/mp1.png", 150, 20)
-                            right_bar ProportionalScale("content/gfx/interface/bars/empty_bar1.png", 150, 20)
+                            left_bar PyTGFX.scale_img("content/gfx/interface/bars/mp1.png", 150, 20)
+                            right_bar PyTGFX.scale_img("content/gfx/interface/bars/empty_bar1.png", 150, 20)
                             value AnimatedValue(value=mp, range=member.maxmp, delay=.5, old_value=None)
                             thumb None
                             xysize (150, 20)
@@ -405,8 +405,8 @@ screen battle_overlay(be):
                     fixed:
                         ysize 25
                         bar:
-                            left_bar ProportionalScale("content/gfx/interface/bars/vitality1.png", 150, 20)
-                            right_bar ProportionalScale("content/gfx/interface/bars/empty_bar1.png", 150, 20)
+                            left_bar PyTGFX.scale_img("content/gfx/interface/bars/vitality1.png", 150, 20)
+                            right_bar PyTGFX.scale_img("content/gfx/interface/bars/empty_bar1.png", 150, 20)
                             value AnimatedValue(value=vitality, range=member.maxvit, delay=.5, old_value=None)
                             thumb None
                             xysize (150, 20)
@@ -424,13 +424,12 @@ screen battle_overlay(be):
             textbutton "Terminate":
                 action SetField(be, "terminate", True)
 
-    $ img = im.Scale("content/gfx/interface/buttons/close.png", 35, 35)
-
     if DEBUG:
+        $ img = im.Scale("content/gfx/interface/buttons/close.png", 35, 35)
         imagebutton:
             align(.995, .005)
             idle img
-            hover im.MatrixColor(img, im.matrix.brightness(.25))
+            hover PyTGFX.bright_img(img, .25)
             insensitive_background im.Sepia(img)
             action MainMenu()
 

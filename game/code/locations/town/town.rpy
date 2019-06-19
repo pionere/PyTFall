@@ -57,8 +57,8 @@ screen village_town:
         $ img = im.Scale("content/gfx/interface/icons/work_shop.png", 80, 80)
         imagebutton:
             align (.05, .75)
-            idle (img)
-            hover (im.MatrixColor(img, im.matrix.brightness(.15)))
+            idle img
+            hover PyTGFX.bright_img(img, .15)
             action [Hide("village_town"), Jump("village_town_work")]
 
 label village_town_work:
@@ -271,7 +271,7 @@ screen village_town_work:
         pos (65, 20)
         xysize 170, 50
         focus_mask True
-        background ProportionalScale("content/gfx/frame/frame_ap.webp", 170, 50)
+        background PyTGFX.scale_img("content/gfx/frame/frame_ap.webp", 170, 50)
         action NullAction()
         hbox:
             yalign .1
@@ -294,12 +294,12 @@ screen village_town_work:
     # items on the belt
     for item in source_items:
         $ temp, pos = item
-        $ img = ProportionalScale(temp.icon, 40, 40)
+        $ img = im.Scale(temp.icon, 40, 40)
         button:
             style 'image_button'
             pos (int(pos[0]), int(pos[1]))
             idle_background img
-            hover_background im.MatrixColor(img, im.matrix.brightness(.15))
+            hover_background PyTGFX.bright_content(img, .15)
             focus_mask True
             tooltip temp.id
             action Return(item)
@@ -310,8 +310,8 @@ screen village_town_work:
         pos (70, 630)
         xysize 160, 40
         idle_background img
-        hover_background im.MatrixColor(img, im.matrix.brightness(.10))
-        insensitive_background im.Sepia(img)
+        hover_background PyTGFX.bright_img(img, .10)
+        insensitive_background PyTGFX.sepia_img(img)
         action Return("drop")
         sensitive hand_item is not None
         text "Space" align .5, .5 size 30 color "black"
@@ -324,25 +324,25 @@ screen village_town_work:
     # flying items:
     for item in moving_items:
         $ temp, pos, speed = item
-        $ img = ProportionalScale(temp.icon, 40, 40)
+        $ img = im.Scale(temp.icon, 40, 40)
         button:
             style 'image_button'
             pos (int(pos[0]), int(pos[1]))
             idle_background img
-            hover_background im.MatrixColor(img, im.matrix.brightness(.15))
+            hover_background PyTGFX.bright_content(img, .15)
             focus_mask True
             tooltip temp.id
             action NullAction()
 
     # baskets
     for idx, item in enumerate(sources):
-        $ img = ProportionalScale(item.icon, 60, 60)
+        $ img = im.Scale(item.icon, 60, 60)
         textbutton str(basket[item]):
             xysize (60, 60)
             style 'image_button'
             pos (600 + 100 * idx, 650) # SEPARATOR + DIST, FLOOR
             idle_background img
-            hover_background im.MatrixColor(img, im.matrix.brightness(.15))
+            hover_background PyTGFX.bright_content(img, .15)
             focus_mask True
             tooltip item.id
             action NullAction()

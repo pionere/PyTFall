@@ -80,37 +80,37 @@ screen forest_entrance():
                 use rg_lightbutton(return_value=['jump', entry])
 
     if not iam.show_girls:
-        $ img_witch_shop = ProportionalScale("content/gfx/interface/icons/witch.png", 90, 90)
+        $ img = im.Scale("content/gfx/interface/icons/witch.png", 90, 90)
         imagebutton:
-            pos(670, 490)
-            idle (img_witch_shop)
-            hover (im.MatrixColor(img_witch_shop, im.matrix.brightness(.15)))
+            pos (670, 490)
+            idle img
+            hover PyTGFX.bright_img(img, .15)
             action [Jump("witches_hut"), With(dissolve)]
             tooltip "Abby's Shop"
 
-        $ img_deep_forest= ProportionalScale("content/gfx/interface/icons/deep_forest.png", 75, 75)
+        $ img = im.Scale("content/gfx/interface/icons/deep_forest.png", 75, 75)
         imagebutton:
-            pos(350, 450)
-            idle (img_deep_forest)
-            hover (im.MatrixColor(img_deep_forest, im.matrix.brightness(.15)))
+            pos (350, 450)
+            idle img
+            hover PyTGFX.bright_img(img, .15)
             action [Hide("forest_entrance"),
                     Function(global_flags.set_flag, "keep_playing_music"),
                     Jump("forest_dark"), With(dissolve)]
             tooltip "Dark Forest\nBeware all who enter here"
 
         if global_flags.has_flag("met_peevish"):
-            $ img_peev_shop= ProportionalScale("content/gfx/interface/icons/peevish.png", 75, 75)
+            $ img = im.Scale("content/gfx/interface/icons/peevish.png", 75, 75)
             imagebutton:
-                pos(100, 100)
-                idle (img_peev_shop)
-                hover (im.MatrixColor(img_peev_shop, im.matrix.brightness(.15)))
+                pos (100, 100)
+                idle img
+                hover PyTGFX.bright_img(img, .15)
                 action [Hide("forest_entrance"), Jump("peevish_menu"), With(dissolve)]
                 tooltip "Peevishes Shop"
 
-        $ img_forest_wood = ProportionalScale("content/gfx/interface/icons/wood_cut.png", 90, 90)
+        $ img = im.Scale("content/gfx/interface/icons/wood_cut.png", 90, 90)
         imagebutton:
-            pos(1120, 460)
-            idle (img_forest_wood)
-            hover (im.MatrixColor(img_forest_wood, im.matrix.brightness(.15)))
+            pos (1120, 460)
+            idle img
+            hover PyTGFX.bright_img(img, .15)
             action [Hide("forest_entrance"), Jump("mc_action_wood_cutting"), With(dissolve)]
             tooltip "Trees Cutting"

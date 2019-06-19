@@ -235,41 +235,44 @@ init: # MC Setup Screens:
         $ left_index = (index - 1) % temp
         $ right_index = (index + 1) % temp
 
+        $ active_img = Transform(Frame("content/gfx/interface/images/story12.png", 5, 5), alpha=.8)
+        $ hover_img = Transform(Frame(im.MatrixColor("content/gfx/interface/images/story12.png", im.matrix.brightness(.15)), 5, 5), alpha=1)
+
         # Rename and Start buttons + Classes are now here as well!!!:
         if getattr(store, "mc_substory", None):
             textbutton "Start Game" text_color "white" text_font "fonts/TisaOTB.otf" text_size 40 at fade_in_out():
-                background Transform(Frame("content/gfx/interface/images/story12.png", 5, 5), alpha=1)
-                hover_background Transform(Frame(im.MatrixColor("content/gfx/interface/images/story12.png", im.matrix.brightness(.15)), 5, 5), alpha=1)
+                background active_img
+                hover_background hover_img
                 align (.46, .93)
                 action [Stop("music"), Return(["control", "build_mc", sprites[index]])]
         vbox:
             # align (.37, .10)
             pos (365, 30)
             textbutton "Name:" text_color "goldenrod" text_font "fonts/TisaOTM.otf" text_size 20:
-                background Transform(Frame("content/gfx/interface/images/story12.png", 5, 5), alpha=.8)
+                background active_img
                 xpadding 12
                 ypadding 8
 
             textbutton "Gender:" text_color "goldenrod" text_font "fonts/TisaOTM.otf" text_size 20:
-                background Transform(Frame("content/gfx/interface/images/story12.png", 5, 5), alpha=.8)
+                background active_img
                 xpadding 12
                 ypadding 8
 
             textbutton "Race:" text_color "goldenrod" text_font "fonts/TisaOTM.otf" text_size 20:
-                background Transform(Frame("content/gfx/interface/images/story12.png", 5, 5), alpha=.8)
+                background active_img
                 xpadding 12
                 ypadding 8
 
             textbutton "Height:" text_color "goldenrod" text_font "fonts/TisaOTM.otf" text_size 20:
-                background Transform(Frame("content/gfx/interface/images/story12.png", 5, 5), alpha=.8)
+                background active_img
                 xpadding 12
                 ypadding 8
         vbox:
             # align (.37, .10)
             pos (455, 30)
             textbutton str(hero.name) text_color "white" text_hover_color "red" text_font "fonts/TisaOTM.otf" text_size 20:
-                background Transform(Frame("content/gfx/interface/images/story12.png", 5, 5), alpha=.8)
-                hover_background Transform(Frame(im.MatrixColor("content/gfx/interface/images/story12.png", im.matrix.brightness(.15)), 5, 5), alpha=1)
+                background active_img
+                hover_background hover_img
                 action Show("char_rename", char=hero)
                 tooltip "Click to change name"
                 xpadding 12
@@ -285,8 +288,8 @@ init: # MC Setup Screens:
             $ tmp = next(iter(figher_sprites[temp]))
             $ genders = ["female", "male"]
             textbutton hero.gender.capitalize() text_color "white" text_hover_color "red" text_font "fonts/TisaOTM.otf" text_size 20:
-                background Transform(Frame("content/gfx/interface/images/story12.png", 5, 5), alpha=.8)
-                hover_background Transform(Frame(im.MatrixColor("content/gfx/interface/images/story12.png", im.matrix.brightness(.15)), 5, 5), alpha=1)
+                background active_img
+                hover_background hover_img
                 action ac_list + [Function(setattr, hero, "gender", temp), Function(SetVariable("mc_race", tmp))]
                 tooltip "Click to change gender"
                 xpadding 12
@@ -294,8 +297,8 @@ init: # MC Setup Screens:
 
             $ races = figher_sprites[hero.gender].keys()
             textbutton mc_race.id text_color "white" text_hover_color "red" text_font "fonts/TisaOTM.otf" text_size 20:
-                background Transform(Frame("content/gfx/interface/images/story12.png", 5, 5), alpha=.8)
-                hover_background Transform(Frame(im.MatrixColor("content/gfx/interface/images/story12.png", im.matrix.brightness(.15)), 5, 5), alpha=1)
+                background active_img
+                hover_background hover_img
                 action SetVariable("mc_race", races[(races.index(mc_race)+1)%len(races)])
                 tooltip "Click to change race"
                 sensitive len(races) > 1
@@ -304,8 +307,8 @@ init: # MC Setup Screens:
 
             $ heights = ["short", "average", "tall"]
             textbutton hero.height.capitalize() text_color "white" text_hover_color "red" text_font "fonts/TisaOTM.otf" text_size 20:
-                background Transform(Frame("content/gfx/interface/images/story12.png", 5, 5), alpha=.8)
-                hover_background Transform(Frame(im.MatrixColor("content/gfx/interface/images/story12.png", im.matrix.brightness(.15)), 5, 5), alpha=1)
+                background active_img
+                hover_background hover_img
                 action SetField(hero, "height", heights[(heights.index(hero.height)+1)%len(heights)])
                 tooltip "Click to change height"
                 xpadding 12
@@ -316,22 +319,22 @@ init: # MC Setup Screens:
         hbox:
             spacing 10
             align (.463, .85)
-            $ img = ProportionalScale("content/gfx/interface/buttons/blue_arrow_left.png", 40, 40)
+            $ img = PyTGFX.scale_img("content/gfx/interface/buttons/blue_arrow_left.png", 40, 40)
             imagebutton:
                 yalign .5
                 idle img
-                hover im.MatrixColor(img, im.matrix.brightness(.20))
+                hover PyTGFX.bright_img(img, .20)
                 activate_sound "content/sfx/sound/sys/hover_2.wav"
                 action SetScreenVariable("index", index - 1)
             frame:
                 background Frame(Transform("content/gfx/interface/images/story12.png", alpha=.8), 10, 10)
                 padding 15, 10
                 text "Select your appearance" size 20 font 'fonts/TisaOTm.otf'
-            $ img = ProportionalScale("content/gfx/interface/buttons/blue_arrow_right.png", 40, 40)
+            $ img = PyTGFX.scale_img("content/gfx/interface/buttons/blue_arrow_right.png", 40, 40)
             imagebutton:
                 yalign .5
                 idle img
-                hover im.MatrixColor(img, im.matrix.brightness(.20))
+                hover PyTGFX.bright_img(img, .20)
                 activate_sound "content/sfx/sound/sys/hover_2.wav"
                 action SetScreenVariable("index", index + 1)
         $ temp = Frame("content/gfx/frame/MC_bg3.png", 40, 40)
@@ -339,12 +342,12 @@ init: # MC Setup Screens:
             align .328, .63
             xysize (160, 220)
             background temp
-            add im.Sepia(sprites[left_index].show("battle_sprite", resize=(140, 200), cache=True)) align .5, .5
+            add PyTGFX.sepia_content(sprites[left_index].show("battle_sprite", resize=(140, 200), cache=True)) align .5, .5
         frame:
             align .586, .63
             xysize (160, 220)
             background temp
-            add im.Sepia(sprites[right_index].show("battle_sprite", resize=(140, 200), cache=True)) align .5, .5
+            add PyTGFX.sepia_content(sprites[right_index].show("battle_sprite", resize=(140, 200), cache=True)) align .5, .5
         frame:
             align .457, .46
             xysize (160, 220)
@@ -373,11 +376,11 @@ init: # MC Setup Screens:
                          SetVariable("sub_story", None), SetVariable("mc_story", None),
                          SetVariable("mc_substory", None)]
             for branch in mc_stories:
-                $ img = im.Scale(branch["img"], 50, 50, align=(.5, .5))
+                $ img = im.Scale(branch["img"], 50, 50)
                 $ sub_choices = branch.get("choices", None)
                 button: ## Merchant ##
                     foreground im.Sepia(img, align=(.5, .5))
-                    selected_foreground img
+                    selected_foreground Transform(img, align=(.5, .5))
                     idle_foreground im.Sepia(img, align=(.5, .5))
                     hover_foreground im.MatrixColor(img, im.matrix.brightness(.15), align=(.5, .5))
                     if sub_choices:

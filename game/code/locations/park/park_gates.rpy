@@ -27,7 +27,6 @@ label city_parkgates:
     $ pytfall.world_events.run_events("auto")
 
     while 1:
-
         $ result = ui.interact()
 
         if result[0] == 'jump':
@@ -36,22 +35,22 @@ label city_parkgates:
         if result[0] == 'control':
             hide screen city_parkgates
             if result[1] == 'jumppark':
-                $ jump('city_park')
+                jump city_park
 
             if result[1] == 'return':
                 $ renpy.music.stop(channel="world")
-                hide screen city_parkgates
                 jump city
 
-
-
-
 screen city_parkgates():
-
     use top_stripe(True)
 
     if not iam.show_girls:
-        use r_lightbutton(img=im.Scale("content/gfx/interface/buttons/blue_arrow.png", 80, 80), return_value=['control', 'jumppark'], align=(.99,0.5))
+        $ img = im.Scale("content/gfx/interface/buttons/blue_arrow.png", 80, 80)
+        imagebutton:
+            align (.99, .5)
+            idle img
+            hover PyTGFX.bright_img(img, .15)
+            action Return(['control', 'jumppark'])
 
     use location_actions("city_parkgates")
 

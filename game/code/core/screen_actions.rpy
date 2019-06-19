@@ -1045,18 +1045,11 @@ screen location_actions(actions, char=None, pos=(.98, .98), anchor=(1.0, 1.0), a
 
         for i in range(0, 10):
             if i < len(pytfall.world_actions.nest):
-                if style == "main_screen_3":
-                    frame:
-                        style_group "main_screen_3"
-                        has vbox
-                        for a in pytfall.world_actions(i):
-                            use action_button(a)
-                else:
-                    frame:
-                        style_group "dropdown_gm"
-                        has vbox
-                        for a in pytfall.world_actions(i):
-                            use action_button(a)
+                frame:
+                    style_group style
+                    has vbox
+                    for a in pytfall.world_actions(i):
+                        use action_button(a)
 
 screen action_button(a):
     if a.available:
