@@ -50,42 +50,42 @@ screen main_street():
     use location_actions("main_street")
 
     if not iam.show_girls:
-        $ img = ProportionalScale("content/gfx/interface/icons/tailor_shop.png", 50, 50)
+        $ img = im.Scale("content/gfx/interface/icons/tailor_shop.png", 50, 50)
         imagebutton:
             pos (245, 374)
             idle img
             hover PyTGFX.bright_img(img, .15)
             action [Hide("main_street"), Jump("tailor_store")]
             tooltip "Tailor Shop"
-        $ img = ProportionalScale("content/gfx/interface/icons/cafe_shop.png", 60, 60)
+        $ img = im.Scale("content/gfx/interface/icons/cafe_shop.png", 60, 60)
         imagebutton:
             pos (31, 540)
             idle img
             hover PyTGFX.bright_img(img, .15)
             action [Hide("main_street"), Jump("cafe")]
             tooltip "Cafe"
-        $ img = ProportionalScale("content/gfx/interface/icons/general_shop.png", 65, 65)
+        $ img = im.Scale("content/gfx/interface/icons/general_shop.png", 65, 65)
         imagebutton:
             pos (640, 360)
             idle img
             hover PyTGFX.bright_img(img, .15)
             action [Hide("main_street"), Jump("general_store")]
             tooltip "General Store"
-        $ img = ProportionalScale("content/gfx/interface/icons/work_shop.png", 50, 50)
+        $ img = im.Scale("content/gfx/interface/icons/work_shop.png", 50, 50)
         imagebutton:
             pos (90, 390)
             idle img
             hover PyTGFX.bright_img(img, .15)
             action [Hide("main_street"), Jump("workshop")]
             tooltip "Workshop"
-        $ img = ProportionalScale("content/gfx/interface/icons/realtor_shop.png", 50, 50)
+        $ img = im.Scale("content/gfx/interface/icons/realtor_shop.png", 50, 50)
         imagebutton:
             pos 245, 203
             idle img
             hover PyTGFX.bright_img(img, .15)
             action [Hide("main_street"), Jump("realtor_agency")]
             tooltip "Real Estate Agency"
-        $ img = ProportionalScale("content/gfx/interface/icons/employment_agency.png", 50, 50)
+        $ img = im.Scale("content/gfx/interface/icons/employment_agency.png", 50, 50)
         imagebutton:
             pos 245, 256
             idle img

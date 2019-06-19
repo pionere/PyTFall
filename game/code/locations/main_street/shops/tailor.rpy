@@ -116,7 +116,7 @@ screen shopkeeper_items_upgrades(upgrades_list):
                             xsize 100
                             align (.5, .5)
                             action NullAction()
-                            idle ProportionalScale(items[i["first_item"]].icon, 80, 80)
+                            idle PyTGFX.scale_content(items[i["first_item"]].icon, 80, 80)
                             tooltip i["first_item"] 
                         hbox:
                             yalign .5
@@ -132,7 +132,7 @@ screen shopkeeper_items_upgrades(upgrades_list):
                             xsize 100
                             align (.5, .5)
                             action NullAction()
-                            idle ProportionalScale(items[i["second_item"]].icon, 80, 80)
+                            idle PyTGFX.scale_content(items[i["second_item"]].icon, 80, 80)
                             tooltip i["second_item"]
                         button:
                             xysize (100, 50)

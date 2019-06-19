@@ -1,35 +1,32 @@
-screen items_inv(char=None, main_size=(553, 282), frame_size=(90, 90), return_value=['item', 'get']):
+screen items_inv(inv=None, main_size=(553, 282), frame_size=(90, 90), return_value=['item', 'get']):
     frame:
         background Null()
         xysize main_size
         has hbox box_wrap True
-        for item in char.inventory.page_content:
+        for item in inv.page_content:
             frame:
                 xysize frame_size
-                if char.inventory[item]:
-                    background Frame("content/gfx/frame/frame_it2.png", -1, -1)
-                    use r_lightbutton (img=ProportionalScale(item.icon, 70, 70), return_value=return_value+[item], align=(.5, .5))
-                    label (u"{color=#ecc88a}%d" % char.inventory[item]):
-                        align (.995, .995)
-                        style "stats_label_text"
-                        text_size 18
-                        text_outlines [(2, "#9c8975", 0, 0), (1, "black", 0, 0)]
-                else:
-                    # in groups indicate some have the item
-                    background Frame("content/gfx/frame/frame_it1.png", -1, -1)
-                    use r_lightbutton (img=ProportionalScale(im.Sepia(item.icon), 70, 70), return_value=return_value+[item], align=(.5, .5))
+                background Frame("content/gfx/frame/frame_it2.png", -1, -1)
+                $ img = PyTGFX.scale_content(item.icon, 70, 70)
+                imagebutton:
+                    align (.5, .5)
+                    idle img
+                    hover PyTGFX.bright_img(img, .15)
+                    action Return(return_value+[item])
 
-screen eqdoll(active_mode=True, char=None, frame_size=[55, 55], scr_align=(.23, .23), return_value=['item', 'get'], txt_size=17, fx_size=(300, 320)):
-    # active_mode = Allows equipped item to be focused if true, otherwise just dispayes a picture of an item (when equipped).
-    # char = source of equipment slots.
-    # Slots and the doll ------------------------------------------------------------>
-    if not isinstance(char, dict):
-        #f rame:
-            # align (.5, .5)
-            # background Frame("content/gfx/frame/MC_bg3.png", 10, 10)
-        add (char.show("vnsprite", resize=(288, 400), cache=True)) alpha .9 align (.5, 1.0)
-        # add im.Scale("content/gfx/interface/images/doll_fem.png", 350, 500) align (.25, .23)
+                label (u"{color=#ecc88a}%d" % inv[item]):
+                    align (.995, .995)
+                    style "stats_label_text"
+                    text_size 18
+                    text_outlines [(2, "#9c8975", 0, 0), (1, "black", 0, 0)]
 
+screen eqdoll(source, outfit, fx_size, scr_align, frame_size, return_value):
+    # source = source of equipment slots (char or outfit)
+    # Doll if the source is a char ------------------------------------->
+    if not outfit:
+        add (source.show("vnsprite", resize=(288, 400), cache=True)) alpha .9 align (.5, 1.0)
+
+    # Slots ------------------------------------------------------------>
     fixed:
         style_group "content"
         align scr_align
@@ -47,41 +44,35 @@ screen eqdoll(active_mode=True, char=None, frame_size=[55, 55], scr_align=(.23, 
                                        "ring": (1.18, .2),
                                        "ring1": (1.18, .4),
                                        "ring2": (1.18, .6)}
+        $ slots = source if outfit else source.eqslots
         for slot, pos in equipSlotsPositions.items():
             python:
-                is_multiple_pytgroup = False
+                equipment = slots[slot]
 
-                if isinstance(char, dict):
-                    # saved equipment state
-                    equipment = char[slot]
-
-                elif isinstance(char.eqslots[slot], list):
-
-                    is_multiple_pytgroup = True
-                    equipment = char.eqslots[slot][0]
-                else:
-                    equipment = char.eqslots[slot]
-
-                if equipment and active_mode:
+                bg = "content/gfx/frame/frame_it2.png"
+                if equipment:
                     # Frame background:
-                    img = im.Sepia(equipment.icon) if is_multiple_pytgroup else equipment.icon
-                    bg = im.Scale("content/gfx/frame/frame_it2.png", *frame_size)
+                    img = equipment.icon
                     equipment = [equipment, slot]
                 else:
-                    bg = im.Scale(im.Twocolor("content/gfx/frame/frame_it2.png", "grey", "black"), *frame_size)
+                    bg = im.Twocolor(bg, "grey", "black")
                     key = "ring" if slot.startswith("ring") else slot
-                    img = blank
             frame:
-                background bg
-                pos (pos[0]+ (0 if not isinstance(char, dict) or pos[0] < .5 else -0.619), pos[1])
-                xysize (frame_size[0], frame_size[1])
-                if active_mode and equipment:
-                    if not isinstance(char, dict):
-                        use r_lightbutton(img=ProportionalScale(img, frame_size[0]*.78, frame_size[1]*.78), return_value=return_value+equipment, align=(.5, .5))
+                background im.Scale(bg, *frame_size)
+                pos (pos[0] + (0 if not outfit or pos[0] < .5 else -0.619), pos[1])
+                xysize frame_size
+                if equipment:
+                    if not outfit:
+                        $ img = PyTGFX.scale_content(img, frame_size[0]*.78, frame_size[1]*.78)
+                        imagebutton:
+                            align (.5, .5)
+                            idle img
+                            hover PyTGFX.bright_content(img, .15)
+                            action Return(return_value+equipment)
                     else:
-                        add ProportionalScale(img, frame_size[0]*.71, frame_size[1]*.71) align (.5, .5)
+                        add PyTGFX.scale_content(img, frame_size[0]*.71, frame_size[1]*.71) align (.5, .5)
                 else:
-                    add Transform(ProportionalScale("content/gfx/interface/buttons/filters/%s_bg.png"%key, frame_size[0]*.71, frame_size[1]*.71), alpha=.35) align (.5, .5)
+                    add Transform(PyTGFX.scale_img("content/gfx/interface/buttons/filters/%s_bg.png"%key, frame_size[0]*.71, frame_size[1]*.71), alpha=.35) align (.5, .5)
 
 screen shopping(left_ref=None, right_ref=None):
     use shop_inventory(ref=left_ref, x=.0)
@@ -118,13 +109,45 @@ screen shopping(left_ref=None, right_ref=None):
                 fixed:
                     xsize 180
                     xalign .5
-                    use r_lightbutton(img=ProportionalScale('content/gfx/interface/buttons/blue_arrow_left.png', 25, 25), return_value=['control', -10], align=(0, .5))
-                    use r_lightbutton(img=ProportionalScale('content/gfx/interface/buttons/blue_arrow_left.png', 30, 30), return_value=['control', -5], align=(.1, .5))
-                    use r_lightbutton(img=ProportionalScale('content/gfx/interface/buttons/blue_arrow_left.png', 40, 40), return_value=['control', -1], align=(.25, .5))
-                    text ("{size=36}[amount]") align .5, .5 color "ivory" style "proper_stats_label_text"
-                    use r_lightbutton(img=ProportionalScale('content/gfx/interface/buttons/blue_arrow_right.png', 40, 40), return_value=['control', 1], align=(.75, .5))
-                    use r_lightbutton(img=ProportionalScale('content/gfx/interface/buttons/blue_arrow_right.png', 30, 30), return_value=['control', 5], align=(.9, .5))
-                    use r_lightbutton(img=ProportionalScale('content/gfx/interface/buttons/blue_arrow_right.png', 25, 25), return_value=['control', 10], align=(1.0, .5))
+                    # left arrows
+                    $ img = PyTGFX.scale_img('content/gfx/interface/buttons/blue_arrow_left.png', 25, 25)
+                    imagebutton:
+                        align (0, .5)
+                        idle img
+                        hover PyTGFX.bright_img(img, .15)
+                        action Return(['control', -10])
+                    $ img = PyTGFX.scale_img('content/gfx/interface/buttons/blue_arrow_left.png', 30, 30)
+                    imagebutton:
+                        align (.1, .5)
+                        idle img
+                        hover PyTGFX.bright_img(img, .15)
+                        action Return(['control', -5])
+                    $ img = PyTGFX.scale_img('content/gfx/interface/buttons/blue_arrow_left.png', 40, 40)
+                    imagebutton:
+                        align (.25, .5)
+                        idle img
+                        hover PyTGFX.bright_img(img, .15)
+                        action Return(['control', -1])
+                    text str(amount) align .5, .5 color "ivory" style "proper_stats_label_text" size 36
+                    # right arrows
+                    $ img = PyTGFX.scale_img('content/gfx/interface/buttons/blue_arrow_right.png', 40, 40)
+                    imagebutton:
+                        align (.75, .5)
+                        idle img
+                        hover PyTGFX.bright_img(img, .15)
+                        action Return(['control', 1])
+                    $ img = PyTGFX.scale_img('content/gfx/interface/buttons/blue_arrow_right.png', 30, 30)
+                    imagebutton:
+                        align (.9, .5)
+                        idle img
+                        hover PyTGFX.bright_img(img, .15)
+                        action Return(['control', 5])
+                    $ img = PyTGFX.scale_img('content/gfx/interface/buttons/blue_arrow_right.png', 25, 25)
+                    imagebutton:
+                        align (1.0, .5)
+                        idle img
+                        hover PyTGFX.bright_img(img, .15)
+                        action Return(['control', 10])
 
                 button:
                     style_prefix "basic"
@@ -379,7 +402,7 @@ screen shop_inventory(ref=None, x=.0):
 
         null height 5
 
-        use items_inv(char=ref, main_size=(268, 522), frame_size=(85, 85), return_value=["item", ref])
+        use items_inv(inv=ref.inventory, main_size=(268, 522), frame_size=(85, 85), return_value=["item", ref])
 
 # Control loop for shopping?
 label shop_control:

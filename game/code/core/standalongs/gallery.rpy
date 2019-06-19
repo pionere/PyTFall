@@ -44,7 +44,7 @@ screen gallery():
             background Frame("content/gfx/frame/p_frame5.png", 10, 10)
             xysize (300, 570)
             has vbox xfill True #xalign .5
-            $ img = ProportionalScale("content/gfx/interface/logos/logo9.png", 280, 60)
+            $ img = PyTGFX.scale_img("content/gfx/interface/logos/logo9.png", 280, 60)
             imagebutton:
                 xalign .5
                 idle img

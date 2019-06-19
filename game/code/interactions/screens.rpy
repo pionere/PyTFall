@@ -358,7 +358,7 @@ screen girl_interactions():
             background Frame("content/gfx/frame/MC_bg.png", 10, 10)
             # basestring assumes that image is coming from cache, so it simply a path.
             if isinstance(iam.img, basestring):
-                add ProportionalScale(iam.img, iam.IMG_SIZE[0], iam.IMG_SIZE[1])
+                add PyTGFX.scale_content(iam.img, *iam.IMG_SIZE)
             else:
                 add iam.img
 

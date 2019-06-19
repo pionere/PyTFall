@@ -200,13 +200,13 @@ init: # Main Screens:
                     spacing 5
                     style_group "basic"
                     textbutton "{size=20}{color=black}1v1":
-                        action Show("arena_matches", container=pytfall.arena.matches_1v1, transition=dissolve, vs_img=ProportionalScale("content/gfx/interface/images/vs_2.webp", 100, 100))
+                        action Show("arena_matches", container=pytfall.arena.matches_1v1, transition=dissolve, vs_img=PyTGFX.scale_img("content/gfx/interface/images/vs_2.webp", 100, 100))
                         tooltip "Ranked 1v1 fights"
                     textbutton "{size=20}{color=black}2v2":
-                        action Show("arena_matches", container=pytfall.arena.matches_2v2, transition=dissolve, vs_img=ProportionalScale("content/gfx/interface/images/vs_3.webp", 100, 100))
+                        action Show("arena_matches", container=pytfall.arena.matches_2v2, transition=dissolve, vs_img=PyTGFX.scale_img("content/gfx/interface/images/vs_3.webp", 100, 100))
                         tooltip "Ranked team 2v2 fights"
                     textbutton "{size=20}{color=black}3v3":
-                        action Show("arena_matches", container=pytfall.arena.matches_3v3, transition=dissolve, vs_img=ProportionalScale("content/gfx/interface/images/vs_4.webp", 100, 100))
+                        action Show("arena_matches", container=pytfall.arena.matches_3v3, transition=dissolve, vs_img=PyTGFX.scale_img("content/gfx/interface/images/vs_4.webp", 100, 100))
                         tooltip "Ranked team fights 3v3 fights"
 
 
@@ -278,8 +278,8 @@ init: # Main Screens:
                         ysize 25
                         $ temp, tmp = hero.get_stat("health"), hero.get_max("health")
                         bar:
-                            left_bar ProportionalScale("content/gfx/interface/bars/hp1.png", 150, 20)
-                            right_bar ProportionalScale("content/gfx/interface/bars/empty_bar1.png", 150, 20)
+                            left_bar PyTGFX.scale_img("content/gfx/interface/bars/hp1.png", 150, 20)
+                            right_bar PyTGFX.scale_img("content/gfx/interface/bars/empty_bar1.png", 150, 20)
                             value temp
                             range tmp
                             thumb None
@@ -291,8 +291,8 @@ init: # Main Screens:
                         ysize 25
                         $ temp, tmp = hero.get_stat("mp"), hero.get_max("mp")
                         bar:
-                            left_bar ProportionalScale("content/gfx/interface/bars/mp1.png", 150, 20)
-                            right_bar ProportionalScale("content/gfx/interface/bars/empty_bar1.png", 150, 20)
+                            left_bar PyTGFX.scale_img("content/gfx/interface/bars/mp1.png", 150, 20)
+                            right_bar PyTGFX.scale_img("content/gfx/interface/bars/empty_bar1.png", 150, 20)
                             value temp
                             range tmp
                             thumb None
@@ -304,8 +304,8 @@ init: # Main Screens:
                         ysize 25
                         $ temp, tmp = hero.get_stat("vitality"), hero.get_max("vitality")
                         bar:
-                            left_bar ProportionalScale("content/gfx/interface/bars/vitality1.png", 150, 20)
-                            right_bar ProportionalScale("content/gfx/interface/bars/empty_bar1.png", 150, 20)
+                            left_bar PyTGFX.scale_img("content/gfx/interface/bars/vitality1.png", 150, 20)
+                            right_bar PyTGFX.scale_img("content/gfx/interface/bars/empty_bar1.png", 150, 20)
                             value temp
                             range tmp
                             thumb None
@@ -636,7 +636,7 @@ init: # Main Screens:
                                     text "Challenge!" style "arena_badaboom_text" size 40 outlines [(2, "#3a3a3a", 0, 0)]
                                     text "Enemy level: [level]" style "arena_badaboom_text" size 30 outlines [(1, "#3a3a3a", 0, 0)]
 
-                            add ProportionalScale("content/gfx/interface/images/vs_1.webp", 130, 130) yalign .5
+                            add PyTGFX.scale_img("content/gfx/interface/images/vs_1.webp", 130, 130) yalign .5
 
                             frame:
                                 style "arena_channenge_frame"
@@ -1260,7 +1260,7 @@ init: # ChainFights vs Mobs:
                         frame:
                             background Frame("content/gfx/frame/24-1.png", 5, 5)
                             xysize (90, 90)
-                            add ProportionalScale(reward.icon, 80, 80) align .5, .5
+                            add PyTGFX.scale_content(reward.icon, 80, 80) align .5, .5
                 else:
                     text "No extra rewards... this is unlucky :(":
                         xalign .5

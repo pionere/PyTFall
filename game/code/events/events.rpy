@@ -1,12 +1,11 @@
 init -9 python:
     def get_random_event_image(eventfolder):
-        dir = content_path('events')
-        if eventfolder in listdirs(dir):
-            dir = os.path.join(dir, eventfolder)
+        dir = content_path(os.path.join('events', eventfolder))
+        if renpy.loadable(dir):
             images = [file for file in listfiles(dir) if check_image_extension(file)]
             if images:
                 image = os.path.join(dir, choice(images))
-                return ProportionalScale(image, config.screen_width, config.screen_height)
+                return PyTGFX.scale_content(image, config.screen_width, config.screen_height)
 
     # Utility funcs to alias otherwise long command lines:
     def register_event(*args, **kwargs):

@@ -65,7 +65,7 @@ screen swimming_pool():
         action [Hide("swimming_pool"), Jump("city_beach")]
 
     use location_actions("swimming_pool")
-    $ img = ProportionalScale("content/gfx/interface/icons/sp_swimming.png", 90, 90)
+    $ img = im.Scale("content/gfx/interface/icons/sp_swimming.png", 90, 90)
     imagebutton:
         pos (290, 510)
         idle img

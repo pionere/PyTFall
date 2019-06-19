@@ -378,7 +378,7 @@ screen char_equip():
         pos (425, 10)
         xysize 298, 410
         background Frame(Transform("content/gfx/frame/Mc_bg3.png", alpha=.3), 10, 10)
-        use eqdoll(active_mode=True, char=eqtarget, frame_size=[70, 70], scr_align=(.98, 1.0), return_value=["item", "unequip"], txt_size=17, fx_size=(455, 400))
+        use eqdoll(source=eqtarget, outfit=False, fx_size=(455, 400), scr_align=(.98, 1.0), frame_size=[70, 70], return_value=["item", "unequip"])
 
     # BASE FRAME 3 "mid layer" ====================================>
     add "content/gfx/frame/equipment1.webp"
@@ -830,9 +830,9 @@ screen char_equip():
                                 if effect.name not in temp:
                                     use effect_info(effect, xsize, ysize, idle_color="#F5F5DC")
 
-    use char_equip_right_frame()
+    #use char_equip_right_frame()
 
-screen char_equip_right_frame():
+#screen char_equip_right_frame():
     # Right Frame: =====================================>
     # TOOLTIP TEXT  ====================================>
     frame:
@@ -899,6 +899,7 @@ screen char_equip_right_frame():
                 text "Exchange" style "pb_button_text" yoffset 2
 
     # Auto-Equip/Item Transfer Buttons and Paging: ================>
+    $ inventory = inv_source.inventory
     frame:
         background Transform(Frame(im.MatrixColor("content/gfx/frame/p_frame5.png", im.matrix.brightness(-0.1)), 5, 5), alpha=.7)
         pos (931, 184)
@@ -909,23 +910,23 @@ screen char_equip_right_frame():
             style_prefix "pb"
             button:
                 xsize 110
-                action Function(inv_source.inventory.update_sorting, ("id", False))
+                action Function(inventory.update_sorting, ("id", False))
                 text "Name" style "pb_button_text" yoffset 2
-                selected inv_source.inventory.final_sort_filter[0] == "id"
+                selected inventory.final_sort_filter[0] == "id"
                 tooltip "Sort items by the Name!"
             button:
                 xsize 110
-                action Function(inv_source.inventory.update_sorting, ("price", True))
+                action Function(inventory.update_sorting, ("price", True))
                 text "Price" style "pb_button_text" yoffset 2
-                selected inv_source.inventory.final_sort_filter[0] == "price"
+                selected inventory.final_sort_filter[0] == "price"
                 tooltip "Sort items by the Price!"
             button:
                 xsize 110
-                action Function(inv_source.inventory.update_sorting, ("amount", True))
+                action Function(inventory.update_sorting, ("amount", True))
                 text "Amount" style "pb_button_text" yoffset 2
-                selected inv_source.inventory.final_sort_filter[0] == "amount"
+                selected inventory.final_sort_filter[0] == "amount"
                 tooltip "Sort items by the Amount owned!"
-        use paging(ref=inv_source.inventory, use_filter=False, xysize=(240, 30), align=(.5, .5))
+        use paging(ref=inventory, use_filter=False, xysize=(240, 30), align=(.5, .5))
 
     # Gender filter
     default item_genders = ["any", "male", "female"]
@@ -936,7 +937,7 @@ screen char_equip_right_frame():
                          "Items of Male and Unisex genders are shown!",
                          "Items of Female and Unisex genders are shown!"]
     python:
-        index = item_genders.index(inv_source.inventory.gender_filter)
+        index = item_genders.index(inventory.gender_filter)
         next_gender = item_genders[(index + 1) % len(item_genders)]
 
     button:
@@ -944,8 +945,8 @@ screen char_equip_right_frame():
         xysize 40, 40
         style "pb_button"
         add PyTGFX.scale_img(gender_icons[index], 30, 30) align .5, .5
-        action Function(inv_source.inventory.apply_filter,
-                        direction=inv_source.inventory.slot_filter,
+        action Function(inventory.apply_filter,
+                        direction=inventory.slot_filter,
                         gender=next_gender)
         tooltip gender_tt[index]
 
@@ -956,7 +957,7 @@ screen char_equip_right_frame():
         xsize 340
         cols 7 rows 2
         spacing 2
-        for filter in inv_source.inventory.filters:
+        for filter in inventory.filters:
             frame:
                 padding 0, 0
                 margin 1, 1
@@ -969,8 +970,8 @@ screen char_equip_right_frame():
                     hover img_hover
                     selected_idle img_selected
                     selected_hover PyTGFX.bright_img(img_selected, .10)
-                    action Function(inv_source.inventory.apply_filter, filter) #, SetVariable("last_inv_filter", filter)]
-                    selected filter == inv_source.inventory.slot_filter
+                    action Function(inventory.apply_filter, filter) #, SetVariable("last_inv_filter", filter)]
+                    selected filter == inventory.slot_filter
                     focus_mask True
                     tooltip filter.capitalize()
 
@@ -978,7 +979,7 @@ screen char_equip_right_frame():
     frame:
         pos (931, 372)
         background Transform(Frame(im.MatrixColor("content/gfx/frame/p_frame5.png", im.matrix.brightness(-0.1)), 5, 5), alpha=.7)
-        use items_inv(char=inv_source, main_size=(333, 333), frame_size=(80, 80), return_value=["item", "equip"])
+        use items_inv(inv=inventory, main_size=(333, 333), frame_size=(80, 80), return_value=["item", "equip"])
 
     # BASE FRAME 1 "top layer" ====================================>
     add "content/gfx/frame/h1.webp"
@@ -1293,7 +1294,7 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                             xysize (234, 246)
                             background Null()
                             if eqsave[i]:
-                                use eqdoll(active_mode=True, char=v, scr_align=(.98, 1.0), return_value=["item", "save"], txt_size=17, fx_size=(304, 266))
+                                use eqdoll(source=v, outfit=True, fx_size=(304, 266), scr_align=(.98, 1.0), frame_size=[55, 55], return_value=["item", "save"])
 
                 if len(eqtarget.eqsave) < 3:
                     vbox:

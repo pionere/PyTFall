@@ -11,11 +11,6 @@ screen target_practice(skill, source, targets):
     if "all" in skill.type:
         $ return_all = True
 
-    python:
-        img = im.Flip("content/gfx/interface/buttons/blue_arrow_up.png", vertical=True)
-        idle_image = im.MatrixColor(img, im.matrix.opacity(.7))
-        selected_img = im.MatrixColor(img, im.matrix.tint(1.0, .6, 1.0)*im.matrix.brightness(.15))
-
     if persistent.use_be_menu_targeting:
         frame:
             style_prefix "dropdown_gm"
@@ -54,6 +49,11 @@ screen target_practice(skill, source, targets):
                             size 15
                             hover_color "red"
     else:
+        python:
+            img = im.Flip("content/gfx/interface/buttons/blue_arrow_up.png", vertical=True)
+            idle_image = im.MatrixColor(img, im.matrix.opacity(.7))
+            selected_img = im.MatrixColor(img, im.matrix.tint(1.0, .6, 1.0)*im.matrix.brightness(.15))
+
         for index, t in enumerate(targets):
             $ pos = battle.get_cp(t, type="tc", yo=-40)
             $ temp = dict(what=crosshair_red,
@@ -456,4 +456,4 @@ screen be_status_overlay():
         hbox:
             pos temp xanchor .5
             for status_icon in fighter.status_overlay:
-                add Text(ProportionalScale(status_icon, 30, 30)) at status_overlay(sv1=.8, ev1=1.0, t1=.9, sv2=1.0, ev2=.8, t2=.9) yalign .5
+                add PyTGFX.scale_content(status_icon, 30, 30) at status_overlay(sv1=.6, ev1=.8, t1=.9, sv2=.8, ev2=.6, t2=.9) yalign .5

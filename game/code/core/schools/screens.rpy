@@ -117,7 +117,7 @@ screen school_training():
             xalign .5
             background Null()
             foreground Frame("content/gfx/frame/MC_bg2.png", 10, 10)
-            add ProportionalScale(school.img, 450, 300)
+            add PyTGFX.scale_content(school.img, 450, 300)
         null height 8
         default desc = school_desc_string()
         text "[desc]" color "ivory"
@@ -301,7 +301,7 @@ screen school_training():
                             xalign .5
                             background Null()
                             foreground Frame("content/gfx/frame/MC_bg2.png", 10, 10)
-                            add ProportionalScale(course.img, 150, 150)
+                            add PyTGFX.scale_content(course.img, 150, 150)
                     text "---------------------------------":
                         xalign .5
                         color "ivory"
