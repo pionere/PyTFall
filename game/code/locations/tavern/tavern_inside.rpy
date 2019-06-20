@@ -37,7 +37,7 @@ label tavern_town:
             dir = content_path("events", "tavern_entry", "cozy")
             images = [file for file in listfiles(dir) if check_image_extension(file)]
             img = os.path.join(dir, choice(images))
-            img = ProportionalScale(img, 1000, 600)
+            img = PyTGFX.scale_content(img, 1000, 600)
             renpy.show("drunkards", what=img, at_list=[Position(ypos = .5, xpos = .5, yanchor = .5, xanchor = .5)])
             renpy.with_statement(dissolve)
         "The tavern is warm and cozy with only a handful of drunkards enjoying the stay."
@@ -46,7 +46,7 @@ label tavern_town:
             dir = content_path("events", "tavern_entry", "lively")
             images = [file for file in listfiles(dir) if check_image_extension(file)]
             img = os.path.join(dir, choice(images))
-            img = ProportionalScale(img, 1000, 600)
+            img = PyTGFX.scale_content(img, 1000, 600)
             renpy.show("drunkards", what=img, at_list=[Position(ypos = .5, xpos = .5, yanchor = .5, xanchor = .5)])
             renpy.with_statement(dissolve)
         "The place is loud and lively today, with townsmen drinking and talking at every table."
@@ -55,7 +55,7 @@ label tavern_town:
             dir = content_path("events", "tavern_entry", "brawl")
             images = [file for file in listfiles(dir) if check_image_extension(file)]
             img = os.path.join(dir, choice(images))
-            img = ProportionalScale(img, 1000, 600)
+            img = PyTGFX.scale_content(img, 1000, 600)
             renpy.show("event", what=img, at_list=[Position(ypos = .5, xpos = .5, yanchor = .5, xanchor = .5)])
             renpy.with_statement(dissolve)
             renpy.music.stop(channel="world")

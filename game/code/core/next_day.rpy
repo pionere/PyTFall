@@ -1003,41 +1003,17 @@ screen next_day():
             padding 0, 0
             margin 0, 0
 
-            python:
-                # select/load an image according to img
-                bg_img = event.img
-                char_imgs = None
-                # Try to analyze self.img in order to figure out what it represents:
-                if isinstance(bg_img, renpy.display.core.Displayable):
-                    pass # a standard displayable -> ok
-                elif isinstance(bg_img, basestring):
-                    if not bg_img:
-                        raise Exception("Basestring Supplied as img {}: Ev.type: {}, Ev.loc.name: {}".format(
-                                    bg_img,
-                                    event.type,
-                                    event.loc.name if event.loc else "Unknown"))
-                    elif "." in bg_img:
-                        pass
-                    else:
-                        bg_img = event.char.show(bg_img, cache=True)
-                elif isinstance(bg_img, list):
-                    # list of displayables -> first img is the background, rest is list of char-images
-                    char_imgs = bg_img[1:]
-                    bg_img = bg_img[0]
-                else:
-                    nd_debug("Unknown Image Type: {} Provided to Event (Next Day Events class)".format(bg_img), "warning")
-                    bg_img = IMG_NOT_FOUND_PATH
-                bg_img = ProportionalScale(bg_img, *ND_IMAGE_SIZE)
-
+            # select/load an image according to img
+            $ bg_img, char_imgs = event.get_nd_imgs()
             frame:
                 align .5, .5
                 padding 5, 5
                 margin 0, 0
                 background Frame("content/gfx/frame/MC_bg3.png", 10 , 10)
-                add bg_img align .5, .5
-            if char_imgs is not None:
+                add PyTGFX.scale_content(bg_img, *ND_IMAGE_SIZE) align .5, .5
+            if char_imgs:
                 $ num_imgs = len(char_imgs)
-                $ border, csize = 5, 150
+                $ border, csize = 5, 200
                 if num_imgs < 4:
                     frame:
                         background Solid("#00000011")
@@ -1050,7 +1026,7 @@ screen next_day():
                             fixed:
                                 xysize (csize, csize)
                                 pos (xpos, 0)
-                                add ProportionalScale(char, csize, csize) align (.5, .5)
+                                add PyTGFX.scale_content(char, csize, csize) align (.5, .5)
                             $ xpos += csize + border
                 else:
                     $ xsize = (csize + border) * num_imgs
@@ -1068,7 +1044,7 @@ screen next_day():
                                 fixed:
                                     xysize (csize, csize)
                                     pos (xpos, 0)
-                                    add ProportionalScale(char, csize, csize) align (.5, .5)
+                                    add PyTGFX.scale_content(char, csize, csize) align (.5, .5)
                                 $ xpos += csize + border
 
         # Stat Frames:

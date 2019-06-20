@@ -162,6 +162,24 @@ init -10 python:
                 if flag.startswith("jobs"):
                     char.del_flag(flag)
 
+        def get_nd_imgs(self):
+            # Try to analyze self.img in order to figure out what it represents:
+            bg_img = self.img
+            if isinstance(bg_img, renpy.display.core.Displayable):
+                return bg_img, None # a standard displayable -> ok
+            if isinstance(bg_img, basestring):
+                if "." in bg_img: # path to content
+                    return bg_img, None
+                elif bg_img:      # image-tag
+                    return self.char.show(bg_img, label_cache=True), None
+            elif isinstance(bg_img, list):
+                # list of displayables -> first img is the background, rest is list of char-images
+                return bg_img[0], bg_img[1:]
+            nd_debug("Unknown Image Type: '{}' supplied as img. Ev.type: {}, Ev.loc.name: {}".format(
+                                bg_img,
+                                self.type,
+                                self.loc.name if self.loc else "Unknown"), "warning")
+            return IMG_NOT_FOUND_PATH, None
 
     class Job(_object):
         """Baseclass for jobs and tasks.

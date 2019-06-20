@@ -538,7 +538,7 @@ screen hero_team():
                         idle img
                         action None
 
-                    $ img = ProportionalScale("content/gfx/interface/buttons/row_switch.png", 40, 20)
+                    $ img = im.Scale("content/gfx/interface/buttons/row_switch_s.png", 40, 20)
                     if not member.front_row:
                         $ img = im.Flip(img, horizontal=True)
 

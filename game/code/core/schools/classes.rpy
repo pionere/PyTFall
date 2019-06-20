@@ -220,7 +220,7 @@ init python:
         def __init__(self, id="-PyTFall Educators-",
                      img="content/schools/school.webp"):
             super(School, self).__init__(id=id, name=id)
-            self.img = renpy.displayable(img)
+            self.img = img
             self.courses = []
             self.students = {} # cached map of student:course pairs for faster access
 

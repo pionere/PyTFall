@@ -1062,7 +1062,7 @@ init: # ChainFights vs Mobs:
                     for setup in arena_chain_fights:
                         $ id = setup["id"]
                         $ lvl = setup["level"]
-                        $ portrait = setup["boss_portrait"] 
+                        $ portrait = setup["boss_portrait"]
                         frame:
                             xysize (695, 55)
                             background Frame(Transform("content/gfx/frame/p_frame7.webp", alpha=1.0), 10, 10)
@@ -1078,7 +1078,7 @@ init: # ChainFights vs Mobs:
                                     yalign .5
                                     xysize (45, 45)
                                     background Frame("content/gfx/frame/rank_frame.png", 5, 5)
-                                    add portrait align (.5, .5)
+                                    add PyTGFX.scale_content(portrait, 36, 36) align (.5, .5)
                                 frame:
                                     yalign .5
                                     xysize (100, 45)

@@ -580,12 +580,10 @@ screen building_management_midframe_exploration_guild_mode:
                         dragged dragged
                         droppable 0
                         draggable idle_t
-                        tooltip "%s\nClick to check equipment\nDrag And Drop to remove from team" % w.fullname
+                        tooltip "%s\nDrag And Drop to remove from team" % w.fullname
                         drag_name w
                         pos w_pos
                         if idle_t:
-                            clicked [SetVariable("came_to_equip_from", last_label), SetVariable("char", w),
-                                    SetVariable("eqtarget", w), SetVariable("equip_girls", [w]), Jump("char_equip")]
                             hovered Function(setattr, config, "mouse", mouse_drag)
                             unhovered Function(setattr, config, "mouse", mouse_cursor)
 
@@ -652,11 +650,9 @@ screen building_management_midframe_exploration_guild_mode:
                 drag:
                     dragged dragged
                     droppable 0
-                    tooltip "%s\nClick to check equipment\nDrag And Drop to build teams" % w.fullname
+                    tooltip "%s\nDrag And Drop to build teams" % w.fullname
                     drag_name w
                     pos pos
-                    clicked [SetVariable("came_to_equip_from", last_label), SetVariable("char", w),
-                             SetVariable("eqtarget", w), SetVariable("equip_girls", [w]), Jump("char_equip")]
                     add w.show("portrait", resize=(74, 74), cache=True)
                     hovered Function(setattr, config, "mouse", mouse_drag)
                     unhovered Function(setattr, config, "mouse", mouse_cursor)
@@ -1093,7 +1089,7 @@ screen exploration_team(team):
                         idle img
                         action None
 
-                    $ img = ProportionalScale("content/gfx/interface/buttons/row_switch.png", 40, 20)
+                    $ img = im.Scale("content/gfx/interface/buttons/row_switch_s.png", 40, 20)
                     if not member.front_row:
                         $ img = im.Flip(img, horizontal=True)
 

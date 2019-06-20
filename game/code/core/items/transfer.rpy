@@ -67,19 +67,6 @@ init python:
                     selection[0] = source
                 selection[1] = set([item])
 
-screen t_lightbutton(img, size, action, align, sensitive=True, tooltip=None):
-    $ img = ProportionalScale(img, *size, align=(.5, .5))
-    button:
-        xysize 40, 30
-        align align
-        idle_background img
-        hover_background im.MatrixColor(img, im.matrix.brightness(.15), align=(.5, .5))
-        insensitive_background im.Sepia(img, align=(.5, .5))
-        sensitive sensitive
-        action action
-        tooltip tooltip
-        focus_mask True
-
 screen items_transfer(it_members):
     on "show":
         action Function(it_on_show, it_members)
@@ -221,7 +208,7 @@ screen items_transfer(it_members):
             #style_group "dropdown_gm"
             frame:
                 xalign .5
-                xysize 200, 90
+                xysize 200, 83
                 background Frame("content/gfx/frame/BG_choicebuttons.png", 10, 10)
                 has vbox
                 hbox:
@@ -236,35 +223,75 @@ screen items_transfer(it_members):
                         $ temp = "Transfer the selected items (%d each) from %s to %s!" % (transfer_amount, rc.name, lc.name)
                         $ tmp = "Transfer the selected items (%d each) from %s to %s!" % (transfer_amount, lc.name, rc.name)
 
-                    use t_lightbutton(img='content/gfx/interface/buttons/left.png', size=(25,25), action=Return(["transfer", rc, lc, items, transfer_amount]), align=(0.15, .5),
-                                      sensitive=(items and lc and rc), tooltip=temp)
+                    $ img = PyTGFX.scale_img("content/gfx/interface/buttons/left.png", 25, 25)
+                    imagebutton:
+                        align (0.15, .5)
+                        idle img
+                        hover PyTGFX.bright_img(img, .15)
+                        insensitive PyTGFX.sepia_img(img)
+                        sensitive (items and lc and rc)
+                        action Return(["transfer", rc, lc, items, transfer_amount])
+                        tooltip temp
 
-                    use t_lightbutton(img='content/gfx/interface/buttons/right.png', size=(25,25), action=Return(["transfer", lc, rc, items, transfer_amount]), align=(0.85, .5),
-                                      sensitive=(items and lc and rc), tooltip=tmp)
+                    $ img = PyTGFX.scale_img("content/gfx/interface/buttons/right.png", 25, 25)
+                    imagebutton:
+                        align (0.85, .5)
+                        idle img
+                        hover PyTGFX.bright_img(img, .15)
+                        insensitive PyTGFX.sepia_img(img)
+                        sensitive (items and lc and rc)
+                        action Return(["transfer", lc, rc, items, transfer_amount])
+                        tooltip tmp
 
                 hbox:
                     xfill True
-                    xoffset -8
-                    spacing -10
                     hbox:
                         align .0, .8
-                        spacing -22
-                        use t_lightbutton(img='content/gfx/interface/buttons/blue_arrow_left.png', size=(30,30), action=SetScreenVariable("transfer_amount", max(1, transfer_amount - 10)), align=(.0, .5))
-                        use t_lightbutton(img='content/gfx/interface/buttons/blue_arrow_left.png', size=(25,25), action=SetScreenVariable("transfer_amount", max(1, transfer_amount - 5)), align=(.5, .5))
-                        use t_lightbutton(img='content/gfx/interface/buttons/blue_arrow_left.png', size=(20,20), action=SetScreenVariable("transfer_amount", max(1, transfer_amount - 1)), align=(1, .5))
-        
+                        $ img = PyTGFX.scale_img("content/gfx/interface/buttons/blue_arrow_left.png", 30, 30)
+                        imagebutton:
+                            align (.0, .5)
+                            idle img
+                            hover PyTGFX.bright_img(img, .15)
+                            action SetScreenVariable("transfer_amount", max(1, transfer_amount - 10))
+                        $ img = PyTGFX.scale_img("content/gfx/interface/buttons/blue_arrow_left.png", 25, 25)
+                        imagebutton:
+                            align (.5, .5)
+                            idle img
+                            hover PyTGFX.bright_img(img, .15)
+                            action SetScreenVariable("transfer_amount", max(1, transfer_amount - 5))
+                        $ img = PyTGFX.scale_img("content/gfx/interface/buttons/blue_arrow_left.png", 20, 20)
+                        imagebutton:
+                            align (1.0, .5)
+                            idle img
+                            hover PyTGFX.bright_img(img, .15)
+                            action SetScreenVariable("transfer_amount", max(1, transfer_amount - 1))
                     vbox:
                         xalign .5
                         spacing -4
+                        yoffset -10
                         text 'Amount:' style "proper_stats_label_text" align .5, .5 size 18
                         text '[transfer_amount]' style "proper_stats_text" align .5, .5 size 18
 
                     hbox:
                         align 1.0, .8
-                        spacing -22
-                        use t_lightbutton(img='content/gfx/interface/buttons/blue_arrow_right.png', size=(20,20), action=SetScreenVariable("transfer_amount", transfer_amount + 1), align=(.0, .5))
-                        use t_lightbutton(img='content/gfx/interface/buttons/blue_arrow_right.png', size=(25,25), action=SetScreenVariable("transfer_amount", transfer_amount + 5), align=(.5, .5))
-                        use t_lightbutton(img='content/gfx/interface/buttons/blue_arrow_right.png', size=(30,30), action=SetScreenVariable("transfer_amount", transfer_amount + 10), align=(1.0, .5))
+                        $ img = PyTGFX.scale_img("content/gfx/interface/buttons/blue_arrow_right.png", 20, 20)
+                        imagebutton:
+                            align (.0, .5)
+                            idle img
+                            hover PyTGFX.bright_img(img, .15)
+                            action SetScreenVariable("transfer_amount", transfer_amount + 1)
+                        $ img = PyTGFX.scale_img("content/gfx/interface/buttons/blue_arrow_right.png", 25, 25)
+                        imagebutton:
+                            align (.5, .5)
+                            idle img
+                            hover PyTGFX.bright_img(img, .15)
+                            action SetScreenVariable("transfer_amount", transfer_amount + 5)
+                        $ img = PyTGFX.scale_img("content/gfx/interface/buttons/blue_arrow_right.png", 30, 30)
+                        imagebutton:
+                            align (1.0, .5)
+                            idle img
+                            hover PyTGFX.bright_img(img, .15)
+                            action SetScreenVariable("transfer_amount", transfer_amount + 10)
 
         # Selected Item(s):
         frame:
