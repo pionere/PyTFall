@@ -42,27 +42,6 @@ init -1 python:
             self.pathlist = list(tagdb.get_imgset_with_all_tags([char.id, "profile"]))
             self.set_img(self.pathlist[0])
 
-        def screen_loop(self):
-            while 1:
-                result = ui.interact()
-
-                if result[0] == "image":
-                    index = self.pathlist.index(self.imagepath)
-                    if result[1] == "next":
-                        index += 1
-                    elif result[1] == "previous":
-                        index -= 1 
-                    self.set_img(self.pathlist[index % len(self.pathlist)])
-                elif result[0] == "tag":
-                    self.tag = result[1]
-                    self.pathlist = list(tagdb.get_imgset_with_all_tags([self.girl.id, result[1]]))
-                    self.set_img(self.pathlist[0])
-                elif result[0] == "view_trans":
-                    gallery.trans_view()
-                elif result[0] == "control":
-                    if result[1] == 'return':
-                        break
-
         @property
         def image(self):
             return PyTGFX.scale_content(os.path.join(self.girl.path_to_imgfolder, self.imagepath), self.imgsize[0], self.imgsize[1])
@@ -87,7 +66,7 @@ init -1 python:
             all_transitions = [os.path.join(dir, file) for file in listfiles(dir) if check_image_extension(file)]
 
             # Get the images:
-            all_images = self.pathlist * 1
+            all_images = self.pathlist
             shuffle(all_images)
 
             renpy.hide_screen("gallery")
@@ -95,7 +74,8 @@ init -1 python:
 
             renpy.music.play("content/sfx/music/reflection.mp3", fadein=1.5)
 
-            loop = True
+            tag = "gallery_tv_img"
+            loop = first = True
             images = transitions = None
             while loop:
                 if not images:
@@ -106,30 +86,30 @@ init -1 python:
                 image = images.pop()
                 image = os.path.join(self.girl.path_to_imgfolder, image)
                 x, y = renpy.image_size(image)
-                rndm = randint(5, 7)
-                tag = str(random.random())
 
-                if x > y:
-                    ratio = config.screen_height/float(y)
-                    if int(round(x * ratio)) <= config.screen_width:
-                        image = ProportionalScale(image, config.screen_width, config.screen_height)
-                        renpy.show(tag, what=image, at_list=[truecenter, simple_zoom_from_to_with_linear(1.0, 1.5, rndm)])
+                rndm = randint(3, 5)
+                ratio = min(config.screen_width/float(x), config.screen_height/float(y))
+                if ratio < 1.5:
+                    # image fits to the screen (can be resized without much distortion)
+                    if ratio < 1.2:
+                        # almost exact fit to the screen -> add at least a bit of zoom-effect
+                        zoom_from = ratio - .4
                     else:
-                        image = ProportionalScale(image, 10000, config.screen_height)
-                        renpy.show(tag, what=image, at_list=[move_from_to_align_with_linear((.0, .5), (1.0, .5), rndm)])
-                elif y > x:
-                    ratio = 1366/float(x)
-                    if int(round(y * ratio)) <= 768:
-                        image = ProportionalScale(image, config.screen_width, config.screen_height)
-                        renpy.show(tag, what=image, at_list=[truecenter, simple_zoom_from_to_with_linear(1.0, 1.5, rndm)])
-                    else:
-                        image = ProportionalScale(image, config.screen_width, 10000)
-                        renpy.show(tag, what=image, at_list=[truecenter, move_from_to_align_with_linear((.5, 1.0), (.5, .0), rndm)])
+                        # the image must be resized anyway -> zoom from original size to the screen
+                        zoom_from = 1.0
+                    image = PyTGFX.scale_img(image, x, y)
+                    at_list=[truecenter, simple_zoom_from_to_with_linear(zoom_from, ratio, rndm)]
                 else:
-                    image = ProportionalScale(image, config.screen_width, config.screen_height)
-                    renpy.show(tag, what=image, at_list=[truecenter, simple_zoom_from_to_with_linear(1.0, 1.5, rndm)])
+                    # image is too small -> zoom from resized to the original image
+                    image = PyTGFX.scale_img(image, config.screen_width, config.screen_height)
+                    at_list=[truecenter, simple_zoom_from_to_with_linear(1.0, 1.0/ratio, rndm)]
 
-                renpy.with_statement(ImageDissolve(transitions.pop(), 3), always=True)
+                renpy.show(tag, what=image, at_list=at_list)
+                if first is True:
+                    # first time run without transition effect
+                    first = False
+                else:
+                    renpy.with_statement(ImageDissolve(transitions.pop(), 3), always=True)
 
                 loop = renpy.call_screen("gallery_trans")
                 renpy.hide(tag)

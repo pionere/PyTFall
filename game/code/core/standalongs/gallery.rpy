@@ -9,7 +9,26 @@ label gallery:
     show screen gallery
     with dissolve
 
-    $ gallery.screen_loop()
+    python hide:
+        while 1:
+            result = ui.interact()
+
+            if result[0] == "image":
+                index = gallery.pathlist.index(gallery.imagepath)
+                if result[1] == "next":
+                    index += 1
+                elif result[1] == "previous":
+                    index -= 1 
+                gallery.set_img(gallery.pathlist[index % len(gallery.pathlist)])
+            elif result[0] == "tag":
+                gallery.tag = result[1]
+                gallery.pathlist = list(tagdb.get_imgset_with_all_tags([gallery.girl.id, result[1]]))
+                gallery.set_img(gallery.pathlist[0])
+            elif result[0] == "view_trans":
+                gallery.trans_view()
+            elif result[0] == "control":
+                if result[1] == 'return':
+                    break
 
     hide screen gallery
     with dissolve
@@ -98,10 +117,6 @@ screen gallery():
                 action Jump("jigsaw_puzzle_start")
 
 screen gallery_trans():
-    zorder 5000
-    layer "pytfall"
-    modal True
-
     timer 3.0 action Return(True)
 
     button:
@@ -109,3 +124,4 @@ screen gallery_trans():
         background None
         xysize (config.screen_width, config.screen_height)
         action Return(False)
+        keysym "mousedown_3", "K_ESCAPE"
