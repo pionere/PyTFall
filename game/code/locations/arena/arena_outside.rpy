@@ -33,9 +33,18 @@ label arena_outside:
             $ PyTFallStatic.play_music("arena_outside")
         $ global_flags.del_flag("keep_playing_music")
 
+        python:
+            # Build the actions
+            if pytfall.world_actions.location("arena_outside"):
+                pytfall.world_actions.meet_girls()
+                pytfall.world_actions.look_around()
+                pytfall.world_actions.add("0xeona", "Find Xeona", Jump("find_xeona"))
+                pytfall.world_actions.add("0arena", "Enter Arena", Return(["control", "enter_arena"]))
+                pytfall.world_actions.add("1arena", "Practice", Return(["control", "practice"]))
+                pytfall.world_actions.finish()
+
         scene bg arena_outside
         with dissolve
-
 
         # Texts: ---------------------------------------------------------->
         if not global_flags.flag("visited_arena"):
@@ -50,17 +59,7 @@ label arena_outside:
             jump xeona_talking
     else:
         $ global_flags.del_flag("menu_return")
-
-    scene bg arena_outside
-    python:
-        # Build the actions
-        if pytfall.world_actions.location("arena_outside"):
-            pytfall.world_actions.meet_girls()
-            pytfall.world_actions.look_around()
-            pytfall.world_actions.add("0xeona", "Find Xeona", Jump("find_xeona"))
-            pytfall.world_actions.add("0arena", "Enter Arena", Return(["control", "enter_arena"]))
-            pytfall.world_actions.add("1arena", "Practice", Return(["control", "practice"]))
-            pytfall.world_actions.finish()
+        scene bg arena_outside
 
     show screen arena_outside
 
@@ -71,24 +70,20 @@ label arena_outside:
     while 1:
         $ result = ui.interact()
 
-        if result[0] == 'jump':
+        if result[0] == "jump":
             $ global_flags.set_flag("keep_playing_music")
             $ iam.start_gm(result[1], img=result[1].show("girlmeets", "armor", exclude=["swimsuit", "beach", "pool", "onsen", "bunny", "indoor", "formal", "wildness"], label_cache=True, gm_mode=True, type="reduce"))
 
-        if result[0] == 'control':
+        if result[0] == "control":
+            $ renpy.music.stop(channel="gamemusic")
+            hide screen arena_outside
             if result[1] == "enter_arena":
-                $ renpy.music.stop(channel="gamemusic")
-                hide screen arena_outside
                 jump arena_inside
 
             if result[1] == "practice":
-                $ renpy.music.stop(channel="gamemusic")
-                hide screen arena_outside
                 jump arena_practice_start
 
             if result[1] == 'return':
-                $ renpy.music.stop(channel="gamemusic")
-                hide screen arena_outside
                 jump city
 
 label xeona_menu:
@@ -125,7 +120,7 @@ label xeona_talking:
             "Xeona Main":
                 $ pass
 
-            "Tell me about Arena":
+            "Tell me about the Arena":
                 ax "The arena, other than our sex industry, is the biggest source of entertainment for locals and tourists alike."
                 ax "Many warriors come here to test their mettle against all challengers. Mages come to test their wisdom and training against all kinds of a foe."
                 ax "Though most come just to unwind and see some kickass battles."
@@ -194,7 +189,7 @@ label xeona_talking:
                     "Get more than 6000 arena reputation to date Xeona!"
                 else:
                     $ xeona_status.disposition = 1
-                    $ xeona_status.meet_day == day
+                    $ xeona_status.meet_day = day
                     ax "Well, I suppose I could... But I'm often busy with my arena duties."
                     ax "I'm only free every third day. If you have time, we could hang out sometimes."
             "Hang out" if xeona_status.disposition > 0:
@@ -216,12 +211,7 @@ label xeona_talking:
                     ax "It wasn't too bad. We should do it again."
                     if xeona_status.disposition == 10:
                         ax "By the way... We know each other pretty well already, so if you want, we could arrange a more private date... If you know what I mean."
-                        $ xeona_status.disposition = 11
-                    elif xeona_status.disposition >= 20 and xeona_status.stage == 0:
-                        ax "Listen... I have a favor to ask. I need a Demonic Blade to enchant my magical capabilities, but I have no idea where to get it."
-                        ax "If you bring it to me, I'll make it worth your while."
-                        $ xeona_status.stage = 1
-            "Private date" if xeona_status.disposition >= 11:
+            "Private date" if xeona_status.disposition >= 10:
                 if not xeona_status.flirt:
                     ax "Sorry, I can't today. Too busy. I only have some free time every third day."
                 elif xeona_status.meet_day == day:
@@ -238,10 +228,6 @@ label xeona_talking:
                     with dissolve
                     $ del img
                     ax "I may be not very good at striptease, but I hope you liked what you saw..."
-                    if xeona_status.disposition >= 20 and xeona_status.stage == 0:
-                        ax "Listen... I have a favor to ask. I need a Demonic Blade to enchant my magical capabilities, but I have no idea where to get it."
-                        ax "If you bring it to me, I'll make it worth your while."
-                        $ xeona_status.stage = 1
             "Xeona's Favor" if xeona_status.stage == 1:
                 if has_items("Demonic Blade", hero, equipped=False):
                     ax "Did you find a Demonic Blade for me?"
@@ -291,6 +277,11 @@ label xeona_talking:
 
             "I know all I need to":
                 jump xeona_menu
+
+        if xeona_status.disposition >= 20 and xeona_status.stage == 0:
+            ax "Listen... I have a favor to ask. I need a Demonic Blade to enchant my magical capabilities, but I have no idea where to get it."
+            ax "If you bring it to me, I'll make it worth your while."
+            $ xeona_status.stage = 1
 
 label find_xeona:
     hide screen arena_outside
@@ -427,7 +418,7 @@ screen arena_outside:
         for entry, pos in zip(iam.display_girls(), iam.coords):
             hbox:
                 align pos
-                use rg_lightbutton(return_value=['jump', entry])
+                use rg_lightbutton(return_value=["jump", entry])
 
 screen xeona_screen:
     style_prefix "dropdown_gm"
