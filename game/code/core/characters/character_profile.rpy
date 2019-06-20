@@ -144,7 +144,7 @@ screen char_profile():
     if girls:
         python:
             char_img = char.show('profile', gm_mode=True, label_cache=True)
-            gm_img = char.show('girlmeets', exclude=["swimsuit"], gm_mode=True, label_cache=True)
+            gm_img = char.show('girlmeets', gm_mode=True, label_cache=True)
             image_tags = tagdb.get_image_tags(char_img)
             if "no bg" in image_tags:
                 frame_image = "content/gfx/frame/MC_bg3_white.png"

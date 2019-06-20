@@ -50,7 +50,7 @@ label interactions_sparring: # sparring with MC, for Combatant occupations only
     show screen girl_interactions
 
     if iam.mode == "girl_interactions":
-        scene expression iam.select_girl_room(char)
+        scene expression iam.select_char_location(char)
     else:
         show expression iam.bg_cache
 

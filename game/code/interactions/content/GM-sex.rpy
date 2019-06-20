@@ -394,20 +394,21 @@ label mc_action_scene_finish_sex:
         $ char.gfx_mod_stat("disposition", -round(sex_scene_libido*3))
         $ char.gfx_mod_stat("affection", -1)
 
-    if (together_count > 0 and sex_count > 1) or (sex_count > 2 and char_count > 0 and mc_count > 0):
-        $ excluded = ["angry", "sad", "scared", "in pain"]
-        $ loc_tag = sex_scene_location
-        if sex_scene_location == "room":
-            $ loc_tag = "living"
-        #elif sex_scene_location == "beach":
-        #    $ pass
-        elif sex_scene_location == "park":
-            $ loc_tag = "nature"
-            $ excluded.extend(["beach", "wildness"])
-        elif sex_scene_location == "forest":
-            $ loc_tag = "nature"
-            $ excluded.extend(["beach", "urban"])
+    $ loc_tag = sex_scene_location
+    $ excluded = ["scared", "in pain"]
+    if sex_scene_location == "room":
+        $ loc_tag = "living"
+    #elif sex_scene_location == "beach":
+    #    $ pass
+    elif sex_scene_location == "park":
+        $ loc_tag = "nature"
+        $ excluded.extend(["beach", "wildness"])
+    elif sex_scene_location == "forest":
+        $ loc_tag = "nature"
+        $ excluded.extend(["beach", "urban"])
 
+    if (together_count > 0 and sex_count > 1) or (sex_count > 2 and char_count > 0 and mc_count > 0):
+        $ excluded.extend(["angry", "sad"])
         if char.has_image("profile", loc_tag, exclude=excluded):
             $ iam.set_img("profile", loc_tag, "happy", exclude=excluded, type="reduce")
         else:
@@ -422,18 +423,7 @@ label mc_action_scene_finish_sex:
             "[char.pC] quickly dresses up and leaves."
         $ char.mod_stat("vitality", -randint(5, 10))
     elif char_count < 1 and mc_count > 0:
-        $ excluded = ["happy", "scared", "in pain", "ecstatic", "suggestive"]
-        $ loc_tag = sex_scene_location
-        if sex_scene_location == "room":
-            $ loc_tag = "living"
-        #elif sex_scene_location == "beach":
-        #    $ pass
-        elif sex_scene_location == "park":
-            $ loc_tag = "nature"
-            $ excluded.extend(["beach", "wildness"])
-        elif sex_scene_location == "forest":
-            $ loc_tag = "nature"
-            $ excluded.extend(["beach", "urban"])
+        $ excluded.extend(["happy", "ecstatic", "suggestive"])
 
         if char.has_image("profile", loc_tag, exclude=excluded):
             $ iam.set_img("profile", loc_tag, "angry", exclude=excluded, type="reduce")
@@ -442,25 +432,14 @@ label mc_action_scene_finish_sex:
 
         if not raped_by_player:
             $ char.gfx_mod_stat("disposition", -randint(15, 35))
-            $ char.gfx_mod_stat("affection", -randint(8,12))
+            $ char.gfx_mod_stat("affection", -randint(8, 12))
             $ char.gfx_mod_stat("joy", -randint(2, 5))
             $ iam.after_sex_char_never_come(char)
         else:
             "[char.pC] quickly dresses up and leaves."
         $ char.mod_stat("vitality", -randint(5, 10))
     elif char_count > 0 and mc_count < 1 and cum_count < 1 and sex_count > 0:
-        $ excluded = ["happy", "scared", "in pain", "ecstatic", "suggestive"]
-        $ loc_tag = sex_scene_location
-        if sex_scene_location == "room":
-            $ loc_tag = "living"
-        #elif sex_scene_location == "beach":
-        #    $ pass
-        elif sex_scene_location == "park":
-            $ loc_tag = "nature"
-            $ excluded.extend(["beach", "wildness"])
-        elif sex_scene_location == "forest":
-            $ loc_tag = "nature"
-            $ excluded.extend(["beach", "urban"])
+        $ excluded.extend(["happy", "ecstatic", "suggestive"])
 
         if char.has_image("profile", loc_tag, exclude=excluded):
             $ iam.set_img("profile", loc_tag, "sad", exclude=excluded, type="reduce")
@@ -477,18 +456,7 @@ label mc_action_scene_finish_sex:
             "[char.pC] quickly dresses up and leaves."
         $ char.mod_stat("vitality", -randint(5, 15))
     elif cum_count > 3 and cum_count > char_count:
-        $ excluded = ["angry", "sad", "scared", "in pain"]
-        $ loc_tag = sex_scene_location
-        if sex_scene_location == "room":
-            $ loc_tag = "living"
-        #elif sex_scene_location == "beach":
-        #    $ pass
-        elif sex_scene_location == "park":
-            $ loc_tag = "nature"
-            $ excluded.extend(["beach", "wildness"])
-        elif sex_scene_location == "forest":
-            $ loc_tag = "nature"
-            $ excluded.extend(["beach", "urban"])
+        $ excluded.extend(["angry", "sad"])
 
         if char.has_image("profile", loc_tag, exclude=excluded):
             $ iam.set_img("profile", loc_tag, "shy", exclude=excluded, type="reduce")
@@ -503,18 +471,7 @@ label mc_action_scene_finish_sex:
             "[char.pC] quickly dresses up and leaves."
         $ char.mod_stat("vitality", -randint(5, 10))
     elif sex_count < 1 and mast_count < 1:
-        $ excluded = ["happy", "scared", "in pain", "ecstatic", "suggestive"]
-        $ loc_tag = sex_scene_location
-        if sex_scene_location == "room":
-            $ loc_tag = "living"
-        #elif sex_scene_location == "beach":
-        #    $ pass
-        elif sex_scene_location == "park":
-            $ loc_tag = "nature"
-            $ excluded.extend(["beach", "wildness"])
-        elif sex_scene_location == "forest":
-            $ loc_tag = "nature"
-            $ excluded.extend(["beach", "urban"])
+        $ excluded.extend(["happy", "ecstatic", "suggestive"])
 
         if char.has_image("profile", loc_tag, exclude=excluded):
             $ iam.set_img("profile", loc_tag, "angry", exclude=excluded, type="reduce")
@@ -529,18 +486,7 @@ label mc_action_scene_finish_sex:
             $ char.gfx_mod_stat("joy", -randint(15, 30))
             $ char.mod_stat("vitality", -5)
     elif mast_count > 0 and mc_count < 1 and char_count < 1:
-        $ excluded = ["angry", "sad", "scared", "in pain"]
-        $ loc_tag = sex_scene_location
-        if sex_scene_location == "room":
-            $ loc_tag = "living"
-        #elif sex_scene_location == "beach":
-        #    $ pass
-        elif sex_scene_location == "park":
-            $ loc_tag = "nature"
-            $ excluded.extend(["beach", "wildness"])
-        elif sex_scene_location == "forest":
-            $ loc_tag = "nature"
-            $ excluded.extend(["beach", "urban"])
+        $ excluded.extend(["angry", "sad"])
 
         if char.has_image("profile", loc_tag, exclude=excluded):
             $ iam.set_img("profile", loc_tag, "shy", exclude=excluded, type="reduce")
@@ -554,18 +500,7 @@ label mc_action_scene_finish_sex:
         $ iam.disappointed(char)
         $ char.mod_stat("vitality", -5)
     else:
-        $ excluded = ["angry", "sad", "scared", "in pain"]
-        $ loc_tag = sex_scene_location
-        if sex_scene_location == "room":
-            $ loc_tag = "living"
-        #elif sex_scene_location == "beach":
-        #    $ pass
-        elif sex_scene_location == "park":
-            $ loc_tag = "nature"
-            $ excluded.extend(["beach", "wildness"])
-        elif sex_scene_location == "forest":
-            $ loc_tag = "nature"
-            $ excluded.extend(["beach", "urban"])
+        $ excluded.extend(["angry", "sad"])
 
         if char.has_image("profile", loc_tag, exclude=excluded):
             $ iam.set_img("profile", loc_tag, "happy", exclude=excluded, type="reduce")

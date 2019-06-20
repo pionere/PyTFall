@@ -2,41 +2,79 @@ init -2 python:
     # Interactions (Girlsmeets Helper Functions):
     class InteractionsHelper(_object):
         @staticmethod
-        def select_girl_room(char): # selects room background for interactions, will be based on tiers too eventually
-            image_tags = iam.get_image_tags()
-            if "no bg" in image_tags or "simple bg" in image_tags or "living" in image_tags:
-                if char.status == "slave":
-                    if check_friends(char) or check_lovers(char):
-                        return "bg girl_room_s1"
-                    else:
-                        return "bg girl_room_s2"
+        def select_char_room(char):
+            if char.status == "slave":
+                if check_friends(char) or check_lovers(char):
+                    return "bg girl_room_s1"
                 else:
-                    return "bg girl_room"
-            elif "beach" in image_tags:
+                    return "bg girl_room_s2"
+            else:
+                return "bg girl_room"
+
+        @staticmethod
+        def select_char_location(char): # selects room background for interactions, will be based on tiers too eventually
+            image_tags = iam.get_image_tags()
+            # select bg based on the location-tags
+            if "beach" in image_tags:
                 return "bg city_beach"
             elif "pool" in image_tags:
                 return "bg pool_lockers"
             elif "onsen" in image_tags:
                 return "bg onsen"
+            elif "living" in image_tags:
+                pass #return iam.select_char_room(char)
             elif "indoors" in image_tags:
                 if "public" in image_tags:
                     return "bg city_bar"
                 elif "dungeon" in image_tags:
                     return "bg slave_market"
                 else:
-                    return "bg girl_room"
+                    pass # return iam.select_char_room(char)
             elif "outdoors" in image_tags:
                 if "nature" in image_tags:
                     if "urban" in image_tags:
                         return "bg city_park"
                     else:
-                        return "bg forest_3"
+                        return "bg forest_%d" % randint(1, 4)
                 elif "urban" in image_tags:
                     return "bg main_street"
                 else:
                     return "bg wildness"
-            else:
-                return "bg girl_room"
+            elif "urban" in image_tags:
+                return "bg main_street"
+            elif "wildness" in image_tags:
+                return "bg wildness"
+            elif "suburb" in image_tags:
+                return "bg hiddenvillage_alley"
+            elif "stage" in image_tags:
+                return "bg stage"
+            elif "public" in image_tags:
+                return "bg city_bar"
+            elif "nature" in image_tags:
+                return "bg forest_%d" % randint(1, 4)
+            elif "dungeon" in image_tags:
+                return "bg slave_market"
+            elif "no bg" in image_tags or "simple bg" in image_tags:
+                # no location information -> try to select location based on the clothes
+                if "swimsuit" in image_tags:
+                    return "bg city_beach"
+                if "sportswear" in image_tags:
+                    return "bg city_park"
+                if "formal" in image_tags:
+                    return "bg main_street"
+                if "ninja" in image_tags or "armor" in image_tags or "miko" in image_tags:
+                    return "bg arena_outside"
+                if "yukata" in image_tags:
+                    return "bg onsen"
+                if "nurse" in image_tags:
+                    return "bg infirmary"
+                if "schoolgirl" in image_tags:
+                    return "bg academy_town"
+                #if "lingerie" in image_tags or "indoor" in image_tags or "no clothes" in image_tags:
+                #    return iam.select_char_room(char)
+                # TODO "everyday", "transformed", "cosplay", "ripped", "revealing", "cow", "cat", "bunny", "dog", "maid", "after sex" ?
+            # last fall-back -> in her/his room
+            return iam.select_char_room(char)
 
         @staticmethod
         def select_background_for_fight(place):
