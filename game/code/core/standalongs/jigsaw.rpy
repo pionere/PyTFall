@@ -54,11 +54,11 @@ label jigsaw_puzzle_start:
 
     $ grid_width = grid_height = 3  # default values
     $ puzzle_field_size = 655       # should be less then minimal of config.screen_width and config.screen_height values
-    $ img_to_play = PyTGFX.scale_content(os.path.join(gallery.girl.path_to_imgfolder, gallery.imagepath), puzzle_field_size, puzzle_field_size)
+    $ img_to_play = PyTGFX.scale_img(os.path.join(gallery.girl.path_to_imgfolder, gallery.imagepath), puzzle_field_size, puzzle_field_size)
     $ renpy.call_screen("control_scr", img_to_play)
 
     python:
-        img_width, img_height = img_to_play.true_size()
+        img_width, img_height = img_to_play.load().get_size() # get the real size of the image (true_size)
         puzzle_piece_size = 450       # the size of stencil images that are used to create puzzle piece
         grip_size = 75       # see "_how_to_make_a_tile.png" file
         active_area_size = puzzle_piece_size - (grip_size * 2)

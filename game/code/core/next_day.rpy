@@ -341,11 +341,13 @@ screen next_day():
                 xalign .5
                 xysize 414, 120
                 background Frame("content/gfx/frame/ink_box.png", 10 ,10)
-                $ img = hero.show("portrait", resize=(95, 95), cache=True)
+                $ img = hero.show("portrait", resize=(100, 100), cache=True)
                 frame:
-                    background Frame("content/gfx/frame/MC_bg3.png", 10 ,10)
-                    align .23, .8
+                    background Frame("content/gfx/frame/MC_bg3.png", 5, 5)
+                    xysize 103, 103
+                    align .23, .5
                     imagebutton:
+                        align .5, .5
                         idle img
                         hover PyTGFX.bright_content(img, .15)
                         action [Return(['filter', 'mc']), SetScreenVariable("show_summary", False)]
@@ -354,7 +356,7 @@ screen next_day():
                     style_group "proper_stats"
                     yalign .5
                     xpos 178
-                    xysize 155, 110
+                    xysize 159, 110
                     background Frame(Transform("content/gfx/frame/p_frame2.png", alpha=.6), 10, 10)
                     vbox:
                         label "[hero.name]":
@@ -366,7 +368,7 @@ screen next_day():
                         $ temp, tmp = NextDayEvents.get_hero_hp()
                         fixed: # HP
                             xysize (150, 25)
-                            xanchor -8
+                            xanchor -12
                             bar:
                                 yalign .5
                                 left_bar PyTGFX.scale_img("content/gfx/interface/bars/hp1.png", 150, 20)
@@ -381,7 +383,7 @@ screen next_day():
                         $ temp, tmp = NextDayEvents.get_hero_mp()
                         fixed: # MP
                             xysize (150, 25)
-                            xanchor -5
+                            xanchor -9
                             bar:
                                 yalign .2
                                 left_bar PyTGFX.scale_img("content/gfx/interface/bars/mp1.png", 150, 20)
@@ -396,7 +398,7 @@ screen next_day():
                         $ temp, tmp = NextDayEvents.get_hero_vp()
                         fixed: # VIT
                             xysize (150, 25)
-                            xanchor -2
+                            xanchor -6
                             bar:
                                 yalign .5
                                 left_bar PyTGFX.scale_img("content/gfx/interface/bars/vitality1.png", 150, 20)
@@ -407,7 +409,7 @@ screen next_day():
                                 xysize (150, 20)
                             text "VP" size 14 color "ivory" bold True yalign .8 xpos 7
                             text "[temp]" size 14 color ("red" if temp <= tmp*.2 else "ivory") bold True style_suffix "value_text" yoffset 2 xpos 99
-                            add PyTGFX.scale_img("content/gfx/images/c1.png", 123, 111) pos (-42, 55)
+                            add PyTGFX.smooth_scale_img("content/gfx/images/c1.png", 123, 111) pos (-42, 55)
 
                 # MC (extra info) -------------------------------------------->>>
                 # Preparing info:

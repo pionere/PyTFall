@@ -11,7 +11,7 @@ screen items_inv(inv=None, main_size=(553, 282), frame_size=(90, 90), return_val
                 imagebutton:
                     align (.5, .5)
                     idle img
-                    hover PyTGFX.bright_img(img, .15)
+                    hover PyTGFX.bright_content(img, .15)
                     action Return(return_value+[item])
 
                 label (u"{color=#ecc88a}%d" % inv[item]):
@@ -189,7 +189,7 @@ screen itemstats(item=None, size=(635, 380), style_group="content", mc_mode=Fals
                         imagebutton:
                             align .5, .5
                             idle temp
-                            hover PyTGFX.bright_img(temp, .15)
+                            hover PyTGFX.bright_content(temp, .15)
                             action Show("show_item_info", item=item)
                     frame:
                         background Frame("content/gfx/frame/p_frame4.png", 10, 10)

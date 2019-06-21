@@ -615,8 +615,8 @@ screen building_management_leftframe_businesses_mode:
                 frame:
                     xysize (97, 27)
                     has hbox xysize (97, 27)
-                    imagebutton:
-                        idle ProportionalScale("content/gfx/animations/coin_top 0.13 1/1.webp", 20, 20)
+                    button:
+                        background Frame("content/gfx/animations/coin_top 0.13 1/1.webp")
                         xysize 20, 20
                         align 0.2, .5
                         action NullAction()
@@ -632,8 +632,9 @@ screen building_management_leftframe_businesses_mode:
                     frame:
                         xysize (97, 27)
                         has hbox xysize (97, 27)
-                        imagebutton:
-                            idle PyTGFX.scale_content(r.icon, 20, 20)
+                        button:
+                            background Frame(r.icon)  # TODO scale_content ?
+                            xysize 20, 20
                             align 0.2, .5
                             action NullAction()
                             tooltip r.id
@@ -810,7 +811,7 @@ screen building_management_midframe_building_mode:
         align .5, .0
         ypos 60
         background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.95), 10, 10)
-        add PyTGFX.scale_img(bm_building.img, 600, 444)
+        add PyTGFX.scale_content(bm_building.img, 600, 444)
 
     # Left/Right Controls + Expand button:
     vbox:
@@ -903,8 +904,9 @@ screen building_management_midframe_businesses_mode:
                                     background Frame("content/gfx/frame/p_frame5.png", 5, 5)
                                     xsize 100
                                     has hbox xsize 90
-                                    imagebutton:
-                                        idle PyTGFX.scale_content(r.icon, 25, 25)
+                                    button:
+                                        background Frame(r.icon) # TODO scale_content ?
+                                        xysize 25, 25
                                         align 0, .5
                                         action NullAction()
                                         tooltip r.id

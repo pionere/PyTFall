@@ -278,7 +278,7 @@ screen pick_skill(char):
                         xysize 140, 330
                         default me_icon = build_multi_elemental_icon(me_elements)
                         vbox:
-                            #add ProportionalScale("content/gfx/interface/images/elements/multi.png", 70, 70) align (.5, .1)
+                            #add im.Scale("content/gfx/interface/images/elements/multi.png", 70, 70) align (.5, .1)
                             imagebutton:
                                 idle me_icon
                                 align .5, .1

@@ -614,7 +614,7 @@ init -9 python:
                 _path = os.path.join(self.path_to_imgfolder, tags[0])
                 if not renpy.loadable(_path):
                     _path = IMG_NOT_FOUND_PATH
-                return _path if resize is None else ProportionalScale(_path, *resize)
+                return _path if resize is None else PyTGFX.scale_content(_path, *resize)
 
             # Mood will never be checked in auto-mode when that is not sensible
             add_mood = kwargs.get("add_mood", True)
@@ -631,13 +631,13 @@ init -9 python:
                 for entry in self.label_cache:
                     if entry[1] == last_label and entry[0] == tags:
                         entry = entry[2]
-                        return entry if resize is None else ProportionalScale(entry, *resize)
+                        return entry if resize is None else PyTGFX.scale_content(entry, *resize)
 
             if cache:
                 for entry in self.cache:
                     if entry[0] == tags:
                         entry = entry[1]
-                        return entry if resize is None else ProportionalScale(entry, *resize)
+                        return entry if resize is None else PyTGFX.scale_content(entry, *resize)
 
             imgpath = ""
             if type in ["normal", "first_default", "reduce"]:
@@ -729,7 +729,7 @@ init -9 python:
             if cache:
                 self.cache.append([tags, imgpath])
 
-            return imgpath if resize is None else ProportionalScale(imgpath, *resize)
+            return imgpath if resize is None else PyTGFX.scale_content(imgpath, *resize)
 
         def get_img_from_cache(self, label):
             """

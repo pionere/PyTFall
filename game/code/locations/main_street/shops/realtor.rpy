@@ -33,6 +33,7 @@ label realtor_agency:
         extend " My name is Rose. I'm the owner and the realtor."
         g "Please have a seat and take a look at some of our offers."
 
+        $ del nvl_ra
         $ global_flags.set_flag("visited_ra")
     else:
         "The room is still bright and filled with the same sweet scent."
@@ -40,41 +41,41 @@ label realtor_agency:
             # yoffset -100
 
     $ market_buildings = sorted(set(buildings.values()) - set(hero.buildings), key=attrgetter("id"))
-
+    $ focus = None
     if not market_buildings:
-        npcs["Rose_estate"].say "I'm sorry, we don't have anything for sale at the moment."
+        g "I'm sorry, we don't have anything for sale at the moment."
     show screen realtor_agency
 
-    while 1:
-        $ result = ui.interact()
+    python:
+        while 1:
+            result = ui.interact()
 
-        if result[0] == 'buy':
-            if not hero.has_ap():
-                $ renpy.call_screen('message_screen', "You don't have enough Action Points!")
-            elif not hero.take_money(result[1].price, reason="Property"):
-                $ renpy.call_screen('message_screen', "You don't have enough Gold!")
-            else:
-                $ hero.take_ap(1)
-                $ renpy.play("content/sfx/sound/world/purchase_1.ogg")
-                $ hero.add_building(result[1])
-                $ market_buildings.remove(result[1])
-        elif result[0] == 'control':
-            if result[1] == 'return':
-                jump realtor_exit
+            if result[0] == 'select':
+                focus = result[1]
+            elif result[0] == 'buy':
+                if not hero.has_ap():
+                    renpy.call_screen('message_screen', "You don't have enough Action Points!")
+                elif not hero.take_money(result[1].price, reason="Property"):
+                    renpy.call_screen('message_screen', "You don't have enough Gold!")
+                else:
+                    hero.take_ap(1)
+                    renpy.play("content/sfx/sound/world/purchase_1.ogg")
+                    hero.add_building(result[1])
+                    market_buildings.remove(result[1])
+                    focus = None
+            elif result[0] == 'control':
+                if result[1] == 'return':
+                    break
 
-label realtor_exit:
     $ renpy.music.stop(channel="world")
     hide screen realtor_agency
     with dissolve
     hide rose
 
-    $ del market_buildings
+    $ del market_buildings, focus, g, result
     jump main_street
 
 screen realtor_agency():
-    modal True
-    zorder 1
-    default focus = None
     if market_buildings:
         frame:
             style_group "content"
@@ -83,146 +84,138 @@ screen realtor_agency():
             ypos 42
             xysize (420, 675)
             side "c r":
-                viewport id "brothelmarket_vp":
+                viewport id "realtor_vp":
                     xysize (410, 645)
                     draggable True
                     mousewheel True
                     has vbox
                     for building in market_buildings:
-                        vbox:
-                            xfill True
-                            xysize (395, 320)
-                            frame:
-                                background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.6), 5, 5)
-                                xysize (395, 320)
-                                null height 15
-                                vbox:
+                        frame:
+                            background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.6), 5, 5)
+                            xysize (395, 310)
+                            vbox:
+                                xalign .5
+                                null height 5
+                                frame:
+                                    style_group "content"
                                     xalign .5
-                                    null height 5
-                                    frame:
-                                        style_group "content"
-                                        xalign .5
-                                        xysize (340, 50)
-                                        background Frame("content/gfx/frame/p_frame5.png", 10, 10)
-                                        label (u"[building.name]") text_size 23 text_color "ivory" align(.5, .5)
-                                    null height 5
-                                    frame:
-                                        background Frame("content/gfx/frame/mes11.webp", 5, 5)
-                                        xpadding 5
-                                        ypadding 5
-                                        xalign .5
-                                        $ img = PyTGFX.scale_content(building.img, 300, 220)
-                                        imagebutton:
-                                            idle img
-                                            hover PyTGFX.bright_content(img, .25)
-                                            action SetScreenVariable("focus", building)
-                vbar value YScrollValue("brothelmarket_vp")
+                                    xysize (340, 50)
+                                    background Frame("content/gfx/frame/p_frame5.png", 10, 10)
+                                    label (u"[building.name]") text_size 23 text_color "ivory" align(.5, .5)
+                                null height 5
+                                frame:
+                                    background Frame("content/gfx/frame/mes11.webp", 5, 5)
+                                    padding 5, 5
+                                    xalign .5
+                                    $ img = PyTGFX.scale_content(building.img, 300, 220) #
+                                    imagebutton:
+                                        idle img
+                                        hover PyTGFX.bright_content(img, .25)
+                                        action Return(["select", building])
+                vbar value YScrollValue("realtor_vp")
 
-    if focus and focus in market_buildings:
+    if focus:
         frame:
             style_group "content"
             background Frame("content/gfx/frame/p_frame53.png", 10, 10)
             xalign .5
             ypos 42
             xysize (420, 675)
-            side "c l":
-                viewport id "info_vp":
-                    xysize (410, 645)
-                    draggable True
-                    mousewheel True
-                    vbox:
-                        xsize 400
-                        xfill True
-                        null height 50
+            viewport id "info_vp":
+                xysize (410, 645)
+                draggable True
+                mousewheel True
+                vbox:
+                    xfill True
+                    null height 50
+                    frame:
+                        style_group "content"
+                        xalign .5
+                        xysize (350, 60)
+                        background Frame("content/gfx/frame/namebox5.png", 10, 10)
+                        label (u"[focus.name]") text_size 23 text_color "ivory" align (.5, .8)
+                    null height 50
+                    hbox:
+                        style_group "proper_stats"
+                        frame:
+                            padding 12, 12
+                            background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.98), 10, 10)
+                            vbox:
+                                spacing -1
+                                frame:
+                                    xysize 380, 24
+                                    text "Price:" color "gold" yalign .5
+                                    label "[focus.price]" text_color "gold" align 1.0, .5
+                                frame:
+                                    xysize 380, 24
+                                    text "Quarter:" color "ivory" yalign .5
+                                    label "[focus.location]" text_color "ivory" align 1.0, .5
+                                if focus.in_slots_max != 0:
+                                    frame:
+                                        xysize 380, 24
+                                        text "Interior Space:" yalign .5
+                                        label ("%s/%s" % (focus.in_slots, focus.in_slots_max)) text_color "ivory" align 1.0, .5
+                                if focus.ex_slots_max != 0:
+                                    frame:
+                                        xysize 380, 24
+                                        text "Exterior Space:" yalign .5
+                                        label ("%s/%s" % (focus.ex_slots, focus.ex_slots_max)) text_color "ivory" align 1.0, .5
+                                if focus.maxfame != 0:
+                                    frame:
+                                        xysize 380, 24
+                                        text "Fame:" yalign .5
+                                        label (u"%s/%s" % (focus.fame, focus.maxfame)) align 1.0, .5
+                                if focus.maxrep != 0:
+                                    frame:
+                                        xysize 380, 24
+                                        text "Reputation:" yalign .5
+                                        label (u"%s/%s" % (focus.rep, focus.maxrep)) align 1.0, .5
+                                frame:
+                                    xysize 380, 24
+                                    text "Tier:" yalign .5
+                                    label "[focus.tier]" align (1.0, .5)
+
+                    null height 10
+
+                    hbox:
+                        xalign .5
+                        xysize (400,30)
+                        hbox:
+                            xalign .5
+                            spacing 4
+                            for business in focus.allowed_businesses:
+                                $ img = im.Scale("content/buildings/upgrades/icons/" + business.__class__.__name__ + ".png", 26, 26)
+                                if not (focus.has_extension(business.__class__)):
+                                    $ img = im.Grayscale(img)
+                                imagebutton:
+                                    xpadding 3
+                                    ypadding 2
+                                    background Frame("content/gfx/frame/MC_bg3.png", 1, 1)
+                                    xysize 32, 30
+                                    tooltip ("%s" % (business.name))
+                                    action NullAction()
+                                    idle img
+
+                    null height 10
+
+                    hbox:
+                        xalign .5
+                        xysize (400, 100)
                         frame:
                             style_group "content"
-                            xalign .5
-                            xysize (350, 60)
-                            background Frame("content/gfx/frame/namebox5.png", 10, 10)
-                            label (u"[focus.name]") text_size 23 text_color "ivory" align (.5, .8)
-                        null height 50
-                        hbox:
-                            style_group "proper_stats"
-                            frame:
-                                xpadding 12
-                                ypadding 12
-                                background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.98), 10, 10)
-                                vbox:
-                                    spacing -1
-                                    frame:
-                                        xysize 380, 24
-                                        text "Price:" color "gold" yalign .5
-                                        label "[focus.price]" text_color "gold" align 1.0, .5
-                                    frame:
-                                        xysize 380, 24
-                                        text "Quarter:" color "ivory" yalign .5
-                                        label "[focus.location]" text_color "ivory" align 1.0, .5
-                                    if focus.in_slots_max != 0:
-                                        frame:
-                                            xysize 380, 24
-                                            text "Interior Space:" yalign .5
-                                            label ("%s/%s" % (focus.in_slots, focus.in_slots_max)) text_color "ivory" align 1.0, .5
-                                    if focus.ex_slots_max != 0:
-                                        frame:
-                                            xysize 380, 24
-                                            text "Exterior Space:" yalign .5
-                                            label ("%s/%s" % (focus.ex_slots, focus.ex_slots_max)) text_color "ivory" align 1.0, .5
-                                    if focus.maxfame != 0:
-                                        frame:
-                                            xysize 380, 24
-                                            text "Fame:" yalign .5
-                                            label (u"%s/%s" % (focus.fame, focus.maxfame)) align 1.0, .5
-                                    if focus.maxrep != 0:
-                                        frame:
-                                            xysize 380, 24
-                                            text "Reputation:" yalign .5
-                                            label (u"%s/%s" % (focus.rep, focus.maxrep)) align 1.0, .5
-                                    frame:
-                                        xysize 380, 24
-                                        text "Tier:" yalign .5
-                                        label "[focus.tier]" align (1.0, .5)
-
-                        null height 10
-
-                        hbox:
-                            xalign .5
-                            xysize (400,30)
-                            hbox:
-                                xalign .5
-                                spacing 4
-                                for business in focus.allowed_businesses:
-                                    $ img = im.Scale("content/buildings/upgrades/icons/" + business.__class__.__name__ + ".png", 26, 26)
-                                    if not (focus.has_extension(business.__class__)):
-                                        $ img = im.Grayscale(img)
-                                    imagebutton:
-                                        xpadding 3
-                                        ypadding 2
-                                        background Frame("content/gfx/frame/MC_bg3.png", 1, 1)
-                                        xysize 32, 30
-                                        tooltip ("%s" % (business.name))
-                                        action NullAction()
-                                        idle img
-
-                        null height 10
-
-                        hbox:
-                            xalign .5
-                            xysize (400, 100)
-                            frame:
-                                style_group "content"
-                                background Frame("content/gfx/frame/ink_box.png", 10, 10)
-                                xsize 400
-                                xpadding 10
-                                ypadding 10
-                                text "[focus.desc]" color "ivory"
-
-                        null height 50
-
-                        button:
-                            xalign .5
-                            style "blue1"
-                            xpadding 15
+                            background Frame("content/gfx/frame/ink_box.png", 10, 10)
+                            xsize 400
+                            xpadding 10
                             ypadding 10
-                            text "Buy" align .5, .5 style "black_serpent" color "ivory" hover_color "red"
-                            action Return(['buy', focus])
-    use top_stripe(True)
+                            text "[focus.desc]" color "ivory"
+
+                    null height 50
+
+                    button:
+                        xalign .5
+                        style "blue1"
+                        xpadding 15
+                        ypadding 10
+                        text "Buy" align .5, .5 style "black_serpent" color "ivory" hover_color "red"
+                        action Return(['buy', focus])
+    use top_stripe(True, show_lead_away_buttons=False)

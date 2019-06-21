@@ -176,10 +176,13 @@ init -950 python:
     ######################## Classes/Functions ###################################
     IMAGE_EXTENSIONS = (".png", ".jpg", ".gif", ".jpeg", ".webp")
     MUSIC_EXTENSIONS = (".mp3", ".ogg", ".wav")
+    MOVIE_EXTENSIONS = (".webm", ".mkv")
     IMG_NOT_FOUND_PATH = os.path.join("content", "gfx", "interface", "images", "no_image.png")
 
     def check_image_extension(fn):
         return fn.lower().endswith(IMAGE_EXTENSIONS)
+    def check_movie_extension(fn):
+        return fn.lower().endswith(MOVIE_EXTENSIONS)
 
     class Flags(_object):
         """Simple class to log all variables into a single namespace
@@ -521,6 +524,7 @@ init -1 python: # Constants:
                                ("ring", "Ring"),
                                ("smallweapon", "Left Hand")])
     ND_IMAGE_SIZE = (820, 705)
+    MOVIE_CHANNEL_COUNT = 32
 
 init python: # Locking random seed of internal renpys random
     def locked_random(type, *args, **kwargs):

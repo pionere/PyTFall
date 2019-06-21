@@ -369,24 +369,27 @@ init: # MC Setup Screens:
             text "Select your origin" size 20 font 'fonts/TisaOTm.otf'
 
         hbox: # Fathers Main occupation:
-            style_group "sqstory"
             pos (30, 65)
             spacing 17
             $ ac_list = [Hide("mc_stories"), Hide("mc_sub_stories"), Hide("mc_sub_texts"),
                          SetVariable("sub_story", None), SetVariable("mc_story", None),
                          SetVariable("mc_substory", None)]
             for branch in mc_stories:
-                $ img = im.Scale(branch["img"], 50, 50)
-                $ sub_choices = branch.get("choices", None)
-                button: ## Merchant ##
-                    foreground im.Sepia(img, align=(.5, .5))
-                    selected_foreground Transform(img, align=(.5, .5))
-                    idle_foreground im.Sepia(img, align=(.5, .5))
-                    hover_foreground im.MatrixColor(img, im.matrix.brightness(.15), align=(.5, .5))
-                    if sub_choices:
-                        action SelectedIf(main_story == branch), If(store.main_story == branch,
-                                  false=ac_list + [SetVariable("main_story", branch),
-                                   Show("mc_stories", transition=dissolve, choices=sub_choices)])
+                frame:
+                    background Frame("content/gfx/frame/cry_box.png", 10, 10)
+                    xysize (60, 60)
+                    $ img = PyTGFX.scale_content(branch["img"], 50, 50)
+                    $ sub_choices = None
+                    if branch != main_story:
+                        $ img = PyTGFX.sepia_content(img)
+                        $ sub_choices = branch.get("choices", None)
+                    imagebutton:
+                        align .5, .5
+                        idle img
+                        if sub_choices:
+                            hover PyTGFX.bright_content(PyTGFX.sepia_content(img), .10)
+                            action (ac_list + [SetVariable("main_story", branch),
+                                                   Show("mc_stories", transition=dissolve, choices=sub_choices)])
 
     screen mc_texts():
         tag mc_texts
@@ -447,35 +450,41 @@ init: # MC Setup Screens:
                 pos 870, 50
                 spacing 10
                 for branch in choices:
-                        vbox:
-                            spacing 2
-                            $ img = ProportionalScale(branch["img"], 150, 150, align=(.5, .5))
+                    vbox:
+                        spacing 2
+                        frame:
+                            background Frame("content/gfx/frame/MC_bg.png", 10, 10)
+                            xysize (160, 160)
+                            xalign .5
+                            $ img = PyTGFX.scale_content(branch["img"], 150, 150)
                             if branch != mc_story:
-                                $ img = im.Sepia(img, align=(.5, .5))
-                            button:
-                                xalign .5
-                                xysize (165, 165)
-                                background Frame("content/gfx/frame/MC_bg.png", 10, 10)
-                                idle_foreground img
-                                hover_foreground im.MatrixColor(img, im.matrix.brightness(.10), align=(.5, .5))
+                                $ img = PyTGFX.sepia_content(img)
+                            imagebutton:
+                                align .5, .5
+                                idle img
+                                hover PyTGFX.bright_content(img, .10)
                                 action Hide("mc_sub_texts"), SetVariable("mc_story", branch), SetVariable("mc_substory", None), Show("mc_sub_texts", transition=dissolve)
-                            $ sub_choices = branch.get("choices", None)
-                            if sub_choices:
-                                hbox:
-                                    xalign .5
-                                    spacing 1
-                                    style_group "sqstory"
-                                    for sub in sub_choices:
-                                        if sub.get("gender", hero.gender) == hero.gender:
-                                            $ img = ProportionalScale(sub["img"], 46, 46, align=(.5, .5))
+
+                        $ sub_choices = branch.get("choices", None)
+                        if sub_choices:
+                            hbox:
+                                xalign .5
+                                spacing 1
+                                style_group "sqstory"
+                                for sub in sub_choices:
+                                    if sub.get("gender", hero.gender) == hero.gender:
+                                        frame:
+                                            background Frame("content/gfx/frame/MC_bg.png", 10, 10)
+                                            xysize 56, 56
+                                            $ img = PyTGFX.scale_content(sub["img"], 46, 46)
                                             if mc_substory != sub:
-                                                $ img = im.Sepia(img, align=(.5, .5))
-                                            button:
-                                                background Frame("content/gfx/frame/MC_bg.png", 10, 10)
-                                                idle_foreground im.Sepia(img, align=(.5, .5))
-                                                hover_foreground im.MatrixColor(img, im.matrix.brightness(.15), align=(.5, .5))
-                                                selected_foreground img
-                                                action SetVariable("mc_substory", sub), SensitiveIf(branch == mc_story), SelectedIf(mc_substory == sub), Show("mc_sub_texts", transition=dissolve)
+                                                $ img = PyTGFX.sepia_content(img)
+                                            imagebutton:
+                                                align .5, .5
+                                                idle img
+                                                hover PyTGFX.bright_content(img, .15)
+                                                sensitive branch == mc_story
+                                                action SetVariable("mc_substory", sub), Show("mc_sub_texts", transition=dissolve)
 
     screen mc_sub_texts():
         tag mc_subtexts

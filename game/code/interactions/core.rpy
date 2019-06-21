@@ -171,10 +171,14 @@ init -1 python:
             self.img = self.img_cache
 
         def get_image_tags(self):
-            if isinstance(self.img, basestring):
-                return tagdb.get_image_tags(self.img)
-            else:
-                return self.img.get_image_tags()
+            img = self.img
+            if isinstance(img, basestring):
+                pass
+            elif isinstance(img, Movie):
+                img = img._play
+            else: # if instance(img, ImageBase)
+                img = img.image.filename
+            return tagdb.get_image_tags(img)
 
         # Interactions/GM Flow Controls:
         def jump(self, label, free=False, allow_unique=True, **kwargs):

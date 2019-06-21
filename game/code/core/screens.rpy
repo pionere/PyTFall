@@ -42,7 +42,7 @@ screen new_style_tooltip():
                 xmaximum 400
                 has vbox
 
-                $ temp = "".join([BE_Core.DAMAGE_20[t] for t in combat_skill.damage])
+                #$ temp = "".join([BE_Core.DAMAGE_20[t] for t in combat_skill.damage])
                 # if "melee" in combat_skill.attributes:
                 #     $ line = "{color=red}Melee skill{/color}"
                 # elif "ranged" in combat_skill.attributes:
@@ -65,7 +65,12 @@ screen new_style_tooltip():
                 hbox:
                     xsize 200
                     text "Damage: "
-                    text "[temp]" xalign 1.0
+                    hbox:
+                        xalign 1.0
+                        yoffset 2
+                        for t in combat_skill.damage:
+                            text BE_Core.DAMAGE_20[t]
+                    #text "[temp]" xalign 1.0 yoffset 2
 
                 $ value = combat_skill.critpower
                 if value != 0:
@@ -382,7 +387,7 @@ screen top_stripe(show_return_button=True, return_button_action=None, show_lead_
                 align (.993, .5)
                 idle img
                 hover PyTGFX.bright_img(img, .25)
-                insensitive_background PyTGFX.sepia_img(img)
+                #insensitive_background PyTGFX.sepia_img(img)
                 action return_action
                 # sensitive not str(last_label).startswith("mc_action_")
                 tooltip "Return to previous screen"

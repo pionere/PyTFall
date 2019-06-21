@@ -1,6 +1,9 @@
 # The whole thing should one day be recoded over a single renpy.list_files loop.
 init 11 python:
     def load_webms():
+        for i in range(MOVIE_CHANNEL_COUNT):
+            renpy.audio.music.register_channel("%02dmovie"%i, renpy.config.movie_mixer, loop=True, stop_on_mute=False, movie=True)
+
         webms = defaultdict(dict)
         dir = content_path("gfx", "autowebm")
         for folder in listdirs(dir):

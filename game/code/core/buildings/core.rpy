@@ -518,7 +518,7 @@ init -10 python:
         # Mimicking the show method expected from character classes for items transfer:
         def show(self, *tags, **kwargs):
             size = kwargs.get("resize", (205, 205))
-            return ProportionalScale(self.img, size[0], size[1])
+            return PyTGFX.scale_content(self.img, size[0], size[1])
 
         def toggle_workers_rule(self):
             index = self.WORKER_RULES.index(self.workers_rule)

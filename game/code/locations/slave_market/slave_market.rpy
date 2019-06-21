@@ -306,14 +306,10 @@ screen slave_market_work:
             $ pos = (d[1], d[2])
             $ rotation = d[4]
             $ alpha = d[5]
-            #$ img = Transform(ProportionalScale("content/gfx/images/smudge%02d.webp" % d[0], 45+(size*3/2), 30+size), rotate=rotation)
             $ size = get_linear_value_of(d[3], 0, 1.0, 12, 1.8) # MAX_SIZE
             $ img = im.Scale("content/gfx/images/smudge/smudge%02d.webp" % d[0], 30*size, 20*size)
-            #$ idle_img = Frame(Transform(img, alpha=alpha, rotate=rotation), 5, 5)
-            #$ hover_img = Frame(Transform(im.MatrixColor(img, im.matrix.brightness(.15)), alpha=alpha, rotate=rotation), 5, 5)
             $ idle_img = Transform(img, alpha=alpha, rotate=rotation)
-            #$ hover_img = Transform(im.MatrixColor(img, im.matrix.brightness(.15)), alpha=alpha)
-            $ hover_img = Transform(im.MatrixColor(img, im.matrix.brightness(.15)), alpha=alpha, rotate=rotation)
+            $ hover_img = Transform(PyTGFX.bright_img(img, .15), alpha=alpha, rotate=rotation)
             button:
                 #at rotate_by(rotation)
                 style 'image_button'

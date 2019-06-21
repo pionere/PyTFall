@@ -114,6 +114,7 @@ screen gallery():
 
             textbutton "Lets Jig with this girl! :)":
                 xalign .5
+                sensitive check_image_extension(gallery.imagepath)
                 action Jump("jigsaw_puzzle_start")
 
 screen gallery_trans():

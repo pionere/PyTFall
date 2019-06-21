@@ -160,7 +160,7 @@ label examples:
         """
         hi: (Hinate Image) we assign a VN type of an image to a variable hi
         show: is a Ren'Py statement that shows something like a picture, image or any displayable... normally show expects a defined Ren'Py tagged image (using image statement).
-        expression: means that we are not using an internally (Ren'Py) tagged image but some other displyable (PyTFall tagged displayable, here it is called ProportionalScale in case anyone want to know).
+        expression: means that we are not using an internally (Ren'Py) tagged image but some other displyable (PyTFall tagged displayable, here it is called PytGFX.scale_img/scale_content).
         at: is used to apply a transform to the displayble (our Hinata Sprite). Here we tell it to position the sprite to the right position of the screen.
         with: is used to apply transision (kinda special effect), in this example it's a dissolve.
         """

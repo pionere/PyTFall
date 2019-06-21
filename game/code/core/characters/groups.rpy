@@ -286,14 +286,6 @@ init -8 python:
             for c in self.lst:
                 c.wagemod = v
 
-        #def show(self, what, resize=(None, None), cache=True):
-        #    if what == "portrait":
-        #        what = self.portrait
-        #    elif what != self.img:
-        #        what = self.img
-
-        #    return ProportionalScale(what, resize[0], resize[1])
-
         # remedy functions below here
         def _list_for_caller(self, arr):
             return arr

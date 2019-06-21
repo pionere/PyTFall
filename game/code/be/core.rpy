@@ -783,13 +783,13 @@ init -1 python: # Core classes:
             is_mob = isinstance(char, Mob)
             if team_index == "r":
                 if not is_mob:
-                    if isinstance(sprite, ProportionalScale):
+                    if isinstance(sprite, im.Scale):
                         sprite = im.Flip(sprite, horizontal=True)
                     else:
                         sprite = Transform(sprite, xzoom=-1)
             else:
                 if is_mob:
-                    if isinstance(sprite, ProportionalScale):
+                    if isinstance(sprite, im.Scale):
                         sprite = im.Flip(sprite, horizontal=True)
                     else:
                         sprite = Transform(sprite, xzoom=-1)
@@ -1749,7 +1749,7 @@ init -1 python: # Core classes:
             # Scale if requested
             scale = self.main_effect.get("scale", None)
             if scale is not None:
-                gfx = ProportionalScale(gfx, *scale)
+                gfx = PyTGFX.scale_content(gfx, *scale)
 
             return gfx
 

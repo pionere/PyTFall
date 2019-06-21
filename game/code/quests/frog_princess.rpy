@@ -19,7 +19,7 @@ label show_frog_final:
 screen show_frog:
     zorder 10
     if renpy.get_screen("forest_entrance"):
-        $ img = Transform(animate("/content/quests/frog_princess/img/frog_jump", loop=True), zoom=.2)
+        $ img = Transform(animate(content_path("quests", "frog_princess", "img", "frog_jump"), loop=True), zoom=.2)
         imagebutton:
             pos (237, 586)
             idle img
@@ -43,28 +43,25 @@ screen show_frog_final:
 label start_frog_event:
     hide screen forest_entrance
     with dissolve
-    $ frog = Transform(animate("/content/quests/frog_princess/img/frog_jump", loop=True), zoom=.4)
-    show expression frog:
+    show expression Transform(animate(content_path("quests", "frog_princess", "img", "frog_jump"), loop=True), zoom=.4) as frog:
         pos (257, 536)
     "How odd. There is a rather large frog jumping around, even though there are no water bodies nearby."
 
     menu:
         "Approach with curiosity to have a closer look.":
-            hide expression frog
-            $ frog = "content/quests/frog_princess/img/frog.webp"
-            show expression frog
+            hide frog
+            show expression "content/quests/frog_princess/img/frog.webp" as frog
             with dissolve
             menu:
                 "You approach the frog. Upon further inspection, it appears to be wearing a crown."
 
                 "Poke the frog with a stick.":
-                    $ del frog
                     jump frog1_event_poke
                 "Try to snatch the crown":
                     "You quickly grab the crown before the frog realizes your intentions!"
-                    hide expression frog
+                    hide frog
                     play events "events/clap.mp3"
-                    show expression HitlerKaputt(frog, 50) as death
+                    show expression HitlerKaputt("content/quests/frog_princess/img/frog.webp", 50) as death
                     pause 1.5
                     "As soon as the crown is off of the frogs head, its body disappears with a soft clap..."
                     $ item = items["Gilded Crown"]
@@ -80,7 +77,6 @@ label start_frog_event:
         "Leave the frog alone.":
             "Not interested in green slime bags, you continue your quest looking for some fun bags."
             $ finish_quest("Frog Princess!", "You've rejected the Frog Princess Quest! It's further fate is unknown.")
-    $ del frog
     $ kill_event("show_frog")
     $ global_flags.set_flag("keep_playing_music")
     jump forest_entrance
@@ -315,8 +311,7 @@ label final_frog_event:
     "Finding her wasn't really a problem, she was sitting on the same rock when you met for the first time."
 
     $ f1 = Character("Frog", color="green", what_color="lawngreen", show_two_window=True)
-    $ frog = "content/quests/frog_princess/img/frog.webp"
-    show expression frog
+    show expression "content/quests/frog_princess/img/frog.webp"
     f1 "So why did you come today?"
 
     menu:
@@ -353,5 +348,5 @@ label final_frog_event:
             "The first kiss was disgusting enough. This is just too much for you. After dropping the frog you head back home thinking about what a crappy ordeal this was."
             $ finish_quest("Frog Princess!", "You could not bring yourself to kiss the frog properly...")
     $ kill_event("show_frog_final")
-    $ del f1, frog
+    $ del f1
     jump forest_entrance

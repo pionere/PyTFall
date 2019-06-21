@@ -239,19 +239,19 @@ screen main_menu():
                     at patreon_hover
                     xalign .5
                     xysize (100, 100)
-                    background ProportionalScale("content/gfx/interface/icons/credits/x_hole_idle.png", 100, 100)
-                    hover_background ProportionalScale("content/gfx/interface/icons/credits/x_hole_hover.png", 100, 100)
+                    background PyTGFX.scale_img("content/gfx/interface/icons/credits/x_hole_idle.png", 100, 100)
+                    hover_background PyTGFX.scale_img("content/gfx/interface/icons/credits/x_hole_hover.png", 100, 100)
                     action OpenURL('https://www.patreon.com/xelapy')
-                    add At(ProportionalScale("content/gfx/interface/icons/credits/patreonlogoorange.png", 100, 25, yalign=1.0), patreon_bounce)
+                    add At(PyTGFX.scale_img("content/gfx/interface/icons/credits/patreonlogoorange.png", 100, 25), patreon_bounce) yalign 1.0
                 # null width 10
                 button:
                     at patreon_hover
                     xalign .5
                     xysize (100, 100)
-                    background ProportionalScale("content/gfx/interface/icons/credits/dark_hole_idle.png", 100, 100)
-                    hover_background ProportionalScale("content/gfx/interface/icons/credits/dark_hole_hover.png", 100, 100)
+                    background PyTGFX.scale_img("content/gfx/interface/icons/credits/dark_hole_idle.png", 100, 100)
+                    hover_background PyTGFX.scale_img("content/gfx/interface/icons/credits/dark_hole_hover.png", 100, 100)
                     action OpenURL('https://www.patreon.com/darkt')
-                    add At(ProportionalScale("content/gfx/interface/icons/credits/patreonlogoorange.png", 100, 25, yalign=1.0), patreon_bounce)
+                    add At(PyTGFX.scale_img("content/gfx/interface/icons/credits/patreonlogoorange.png", 100, 25), patreon_bounce) yalign 1.0
 
     # button:
         # background "content/gfx/interface/logos/gibc.png"
@@ -268,7 +268,7 @@ screen main_menu():
         # text "<->" color "black" align (0.5, 0.5) size 15
         # action [SetField(persistent, "town_path", map_options[(index + 1) % len(map_options)]), Jump("_save_reload_game")]
 
-    # $ img = ProportionalScale("content/gfx/interface/icons/arena.png", 60, 60)
+    # $ img = PyTGFX.scale_img("content/gfx/interface/icons/arena.png", 60, 60)
     #imagebutton:
         #pos (380, 460)
         #idle (img)
@@ -389,10 +389,10 @@ screen credits():
                             button:
                                 xalign .5
                                 xysize (100, 100)
-                                background ProportionalScale("content/gfx/interface/icons/credits/x_hole_idle.png", 100, 100)
-                                hover_background ProportionalScale("content/gfx/interface/icons/credits/x_hole_hover.png", 100, 100)
+                                background PyTGFX.scale_img("content/gfx/interface/icons/credits/x_hole_idle.png", 100, 100)
+                                hover_background PyTGFX.scale_img("content/gfx/interface/icons/credits/x_hole_hover.png", 100, 100)
                                 action OpenURL('https://www.patreon.com/xelapy')
-                                add At(ProportionalScale("content/gfx/interface/icons/credits/patreonlogoorange.png", 100, 25, yalign=1.0), patreon_bounce)
+                                add At(PyTGFX.scale_img("content/gfx/interface/icons/credits/patreonlogoorange.png", 100, 25), patreon_bounce) yalign 1.0
                             null height 3
                             text " XelaPy " xalign .5 size 30 color "goldenrod" drop_shadow [(1, 2)] drop_shadow_color "black" antialias True
                             hbox:
@@ -421,10 +421,10 @@ screen credits():
                             button:
                                 xalign .5
                                 xysize (100, 100)
-                                background ProportionalScale("content/gfx/interface/icons/credits/dark_hole_idle.png", 100, 100)
-                                hover_background ProportionalScale("content/gfx/interface/icons/credits/dark_hole_hover.png", 100, 100)
+                                background PyTGFX.scale_img("content/gfx/interface/icons/credits/dark_hole_idle.png", 100, 100)
+                                hover_background PyTGFX.scale_img("content/gfx/interface/icons/credits/dark_hole_hover.png", 100, 100)
                                 action OpenURL('https://www.patreon.com/darkt')
-                                add At(ProportionalScale("content/gfx/interface/icons/credits/patreonlogoorange.png", 100, 25, yalign=1.0), patreon_bounce)
+                                add At(PyTGFX.scale_img("content/gfx/interface/icons/credits/patreonlogoorange.png", 100, 25), patreon_bounce) yalign 1.0
                             null height 3
                             text " DarkTl ":
                                 align .5, 1.0

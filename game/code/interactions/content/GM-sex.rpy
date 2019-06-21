@@ -569,7 +569,7 @@ label interactions_lesbian_choice:
     hide char_sprite2
     with dissolve
 
-    # Resize images to be slightly smaller than half a screen in width and the screen in height. ProportionalScale will do the rest.
+    # Resize images to be slightly smaller than half a screen in width and the screen in height. *Scale will do the rest.
     $ resize = (config.screen_width/2 - 75, config.screen_height - 75)
 
     show expression char.show("nude", "simple bg", resize=resize, exclude=["sex", "sleeping", "angry", "in pain", "beach", "onsen", "pool", "stage", "dungeon", "bathing"], type="first_default") as xxx at Transform(align=(0, .5)) with moveinright

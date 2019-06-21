@@ -1,4 +1,38 @@
 init -960 python:
+    class ProportionalScale(im.Scale):
+        pass # FIXME obsolete
+    """
+        '''Resizes a renpy image to fit into the specified width and height.
+        The aspect ratio of the image will be conserved.'''
+        def __init__(self, im, width, height, bilinear=True, **properties):
+            super(ProportionalScale, self).__init__(im, width, height, bilinear, **properties)
+
+        def load(self):
+            #if isinstance(self.image, renpy.display.im.ImageBase) and "buildings" in self.image.filename:
+            #    devlog.warn("Loading building image: %s" % self.image)
+            surf = im.cache.get(self.image)
+            width, height = surf.get_size()
+
+            ratio = min(self.width/float(width), self.height/float(height))
+            width = int(round(ratio*width))
+            height = int(round(ratio*height))
+
+            if self.bilinear:
+                try:
+                    renpy.display.render.blit_lock.acquire()
+                    rv = renpy.display.scale.smoothscale(surf, (width, height))
+                finally:
+                    renpy.display.render.blit_lock.release()
+            else:
+                try:
+                    renpy.display.render.blit_lock.acquire()
+                    rv = renpy.display.pgrender.transform_scale(surf, (width, height))
+                finally:
+                    renpy.display.render.blit_lock.release()
+
+            return rv
+    """
+
     class PyTGFX(_object):
         """ A Namespace for gfx related objects/functions
         """
@@ -310,70 +344,100 @@ init -960 python:
         #    w, h = d.render(0, 0, 0, 0).get_size()
         #    return int(round(w)), int(round(h))
 
-        @staticmethod
-        def scale_img(img, maxwidth, maxheight):
-            """
-            Proportionally resizes an image (preserving tha aspect ratio)
-            :param img: path to the image
-            :param maxwidth: the maximum width of the resulting image
-            :param maxheight: the maximum height of the resulting image
-            """
-            img = Image(img)
-            image = im.cache.get(img)
-            width, height = image.get_size()
+        class TransformScale(im.Scale):
+            '''Resizes a renpy image to fit into the specified width and height.
+            The aspect ratio of the image will be conserved.'''
+            def __init__(self, im, width, height):
+                super(PyTGFX.TransformScale, self).__init__(im, width, height, bilinear=False)
 
-            ratio = min(maxwidth/float(width), maxheight/float(height))
-            width = round_int(ratio * width)
-            height = round_int(ratio * height)
-            return Transform(img, size=(width, height))
+            def load(self):
+                surf = im.cache.get(self.image)
+                width, height = surf.get_size()
+
+                ratio = min(self.width/float(width), self.height/float(height))
+                width = int(round(ratio*width))
+                height = int(round(ratio*height))
+
+                try:
+                    renpy.display.render.blit_lock.acquire()
+                    return renpy.display.pgrender.transform_scale(surf, (width, height))
+                finally:
+                    renpy.display.render.blit_lock.release()
+
+        class SmoothScale(im.Scale):
+            '''Resizes a renpy image to fit into the specified width and height.
+            The aspect ratio of the image will be conserved.'''
+            def __init__(self, im, width, height):
+                super(PyTGFX.SmoothScale, self).__init__(im, width, height, bilinear=True)
+
+            def load(self):
+                surf = im.cache.get(self.image)
+                width, height = surf.get_size()
+
+                ratio = min(self.width/float(width), self.height/float(height))
+                width = int(round(ratio*width))
+                height = int(round(ratio*height))
+
+                try:
+                    renpy.display.render.blit_lock.acquire()
+                    return renpy.display.scale.smoothscale(surf, (width, height))
+                finally:
+                    renpy.display.render.blit_lock.release()
+
+        scale_img = TransformScale
+        smooth_scale_img = SmoothScale
 
         @staticmethod
         def sepia_img(img):
-            """
-            Proportionally resizes an image (preserving tha aspect ratio)
-            """
-            if isinstance(img, renpy.display.transform.Transform):
-                if isinstance(img.child, renpy.display.im.ImageBase):
-                    img = img.copy()
-                    img.child = im.Sepia(img.child)
-                    return img
-                else:
-                    raise Exception("Failed to apply sepia: A Transform with child: %s is not supported." % img.child.__class__)
-            #elif isinstance(img, renpy.display.imagelike.Frame):
-            #    if isinstance(img.image, renpy.display.im.Image):
-            #        img = img.copy()
-            #        img.image = im.Sepia(img.image)
-            #        return img
-            #    else:
-            #        raise Exception("Failed to apply sepia: A Frame with image: %s is not supported." % img.image.__class__)
-            else:
-                return im.Sepia(img)
+            return im.Sepia(img)
+        #sepia_img = im.Sepia
 
         @staticmethod
         def bright_img(img, scale):
             """
             Proportionally resizes an image (preserving tha aspect ratio)
             """
-            if isinstance(img, renpy.display.transform.Transform):
-                if isinstance(img.child, renpy.display.im.ImageBase):
-                    img = img.copy()
-                    img.child = im.MatrixColor(img.child, im.matrix.brightness(scale))
-                    return img
-                else:
-                    raise Exception("Failed to apply brightness: A Transform with child: %s is not supported." % img.child.__class__)
-            elif isinstance(img, ProportionalScale):
-                if isinstance(img.image, renpy.display.im.ImageBase):
-                    width, height = img.width, img.height
-                    img = im.MatrixColor(img.image, im.matrix.brightness(scale))
-                    return ProportionalScale(img, width, height)
-                else:
-                    raise Exception("Failed to apply brightness: A ProportionalScale with image: %s is not supported." % img.image.__class__)
+            return im.MatrixColor(img, im.matrix.brightness(scale))
+
+        @staticmethod
+        def scale_content(img, maxwidth, maxheight):
+            if check_movie_extension(img):
+                return PyTGFX.scale_movie(img, maxwidth, maxheight)
+            else:
+                return PyTGFX.scale_img(img, maxwidth, maxheight)
+
+        @staticmethod
+        def sepia_content(img):
+            """
+            Proportionally resizes an image (preserving tha aspect ratio)
+            """
+            if isinstance(img, Movie):
+                return img # FIXME
+            else:
+                return im.Sepia(img)
+
+        @staticmethod
+        def bright_content(img, scale):
+            """
+            Proportionally resizes an image (preserving tha aspect ratio)
+            """
+            if isinstance(img, Movie):
+                return img # FIXME
             else:
                 return im.MatrixColor(img, im.matrix.brightness(scale))
 
-        scale_content = scale_img # temporary (content could be anything, not just an image)
-        sepia_content = sepia_img # temporary (content could be anything, not just an image)
-        bright_content = bright_img # temporary (content could be anything, not just an image)
+        movie_cache = {}
+        @staticmethod
+        def scale_movie(path, maxwidth, maxheight):
+            new_tag = (path, maxwidth, maxheight)
+            for tag, movie in PyTGFX.movie_cache.itervalues():
+                if tag == new_tag:
+                    return movie
+            idx = global_flags.get_flag("last_movie_channel", 0)
+            global_flags.set_flag("last_movie_channel", (idx+1)%MOVIE_CHANNEL_COUNT)
+            movie = Movie(channel="%02dmovie"%idx, play=path, size=(maxwidth, maxheight))
+            PyTGFX.movie_cache[idx] = (new_tag, movie)
+            return movie
 
         def gen_randmotion(count, dist, delay):
             args = [ ]
@@ -1014,50 +1078,6 @@ init -960 python:
         def visit(self):
             return [img[0] for img in self.images]
 
-
-    class ProportionalScale(im.Scale):
-        '''Resizes a renpy image to fit into the specified width and height.
-        The aspect ratio of the image will be conserved.'''
-        def __init__(self, im, width, height, bilinear=True, **properties):
-            super(ProportionalScale, self).__init__(im, width, height, bilinear, **properties)
-
-        def load(self):
-            surf = im.cache.get(self.image)
-            width, height = surf.get_size()
-
-            ratio = min(self.width/float(width), self.height/float(height))
-            width = int(round(ratio*width))
-            height = int(round(ratio*height))
-
-            if self.bilinear:
-                try:
-                    renpy.display.render.blit_lock.acquire()
-                    rv = renpy.display.scale.smoothscale(surf, (width, height))
-                finally:
-                    renpy.display.render.blit_lock.release()
-            else:
-                try:
-                    renpy.display.render.blit_lock.acquire()
-                    rv = renpy.display.pgrender.transform_scale(surf, (width, height))
-                finally:
-                    renpy.display.render.blit_lock.release()
-
-            return rv
-
-        def true_size(self):
-            """
-            I use this for the BE. Will do the calculations but not render anything.
-            """
-            width, height = get_size(self.image)
-            ratio = min(self.width/float(width), self.height/float(height))
-            width = int(round(ratio*width))
-            height = int(round(ratio*height))
-            return width, height
-
-        def get_image_tags(self):
-            """Returns a list of tags bound to the image.
-            """
-            return tagdb.get_image_tags(self.image.filename)
 
 
 init -100 python:
