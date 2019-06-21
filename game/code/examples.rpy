@@ -180,12 +180,12 @@ label examples:
     show expression ti at center with dissolve
     t "And you keep forgetting about me!!!"
 
-    "Devs: And now we do magix:"
-    hide ti
-    show expression PytPix(1, 5, ti, si) at center as temp
+    #"Devs: And now we do magix:"
+    #hide ti
+    #show expression PytPix(1, 5, ti, si) at center as temp
 
-    "It's easier than it looks... especially if you try it yourself a couple of times!"
-    hide temp
+    #"It's easier than it looks... especially if you try it yourself a couple of times!"
+    #hide temp
 
     "Let's shuffle them a bit!"
     show expression hi at center with move

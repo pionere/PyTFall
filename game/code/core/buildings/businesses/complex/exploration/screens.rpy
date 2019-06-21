@@ -36,18 +36,18 @@ screen building_management_leftframe_exploration_guild_mode:
                 yalign .5 
 
             $ options = OrderedDict([("level", "Level"), ("name", "Name"), (None, "-")])
-            $ temp = fg_filters.sorting_order
-            use dropdown_box(options, max_rows=6, row_size=(160, 30), pos=(89, 200), value=temp, field=(fg_filters, "sorting_order"), action=Function(fg_filters.filter))
+            use dropdown_box(options, max_rows=4, row_size=(160, 30), pos=(89, 200), value=fg_filters.sorting_order, field=(fg_filters, "sorting_order"), action=Function(fg_filters.filter))
 
+            if fg_filters.sorting_desc:
+                $ temp = "content/gfx/interface/icons/checkbox_checked.png"
+            else:
+                $ temp = "content/gfx/interface/icons/checkbox_unchecked.png"
             button:
                 xysize (25, 25)
                 align 1.0, 0.5 #offset 9, -2
                 background Frame(Transform("content/gfx/frame/MC_bg2.png", alpha=.55), 5, 5)
                 action ToggleField(fg_filters, "sorting_desc"), Function(fg_filters.filter)
-                if fg_filters.sorting_desc:
-                    add(im.Scale('content/gfx/interface/icons/checkbox_checked.png', 20, 20)) align .5, .5
-                else:
-                    add(im.Scale('content/gfx/interface/icons/checkbox_unchecked.png', 20, 20)) align .5, .5
+                add(im.Scale(temp, 20, 20)) align .5, .5
                 tooltip 'Descending order'
     elif bm_exploration_view_mode == "explore":
         fixed: # making sure we can align stuff...
@@ -69,7 +69,7 @@ screen building_management_leftframe_exploration_guild_mode:
                     $ mid_frame_focus = temp[0]
 
                 for area in temp:
-                    $ img = area.img
+                    $ img = PyTGFX.scale_content(area.img, 220, 130)
                     frame:
                         background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.9), 10, 10)
                         padding 2, 2
@@ -77,13 +77,13 @@ screen building_management_leftframe_exploration_guild_mode:
                         button:
                             align .5, .5
                             xysize 220, 130
-                            background Frame(img)
+                            background Transform(img, align=(.5, .5))
                             if bm_selected_exp_area == area:
                                 action NullAction()
                                 $ name_bg = "content/gfx/frame/frame_bg.png"
                                 $ hcolor = "gold"
                             else:
-                                hover_background Frame(PyTGFX.bright_content(img, .05))
+                                hover_background Transform(PyTGFX.bright_content(img, .05), align=(.5, .5))
                                 action SetVariable("bm_selected_exp_area", area)
                                 $ name_bg = "content/gfx/frame/ink_box.png"
                                 $ hcolor = "red"
@@ -345,7 +345,7 @@ screen building_management_leftframe_exploration_guild_mode:
             # Main Area with paging:
             # We assume that there is always at least one area!
             $ main_area = temp[focused_area_index]
-            $ img = main_area.img
+            $ img = PyTGFX.scale_content(main_area.img, 220, 130)
             hbox:
                 xalign .5
                 button:
@@ -362,7 +362,7 @@ screen building_management_leftframe_exploration_guild_mode:
                     button:
                         align .5, .5
                         xysize 220, 130
-                        background Frame(img)
+                        background Transform(img, align=(.5, .5))
                         action NullAction()
                         frame:
                             align .5, .0
@@ -707,7 +707,7 @@ screen building_management_midframe_exploration_guild_mode:
             ypos 100 
             align .5, .0
             background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.95), 10, 10)
-            add im.Scale(area.img, 600, 350)
+            add PyTGFX.scale_content(area.img, 600, 350)
 
         # Overlay objects
         frame:
@@ -917,7 +917,7 @@ screen building_management_rightframe_exploration_guild_mode:
                                 imagebutton:
                                     align .5, .5
                                     idle img
-                                    hover PyTGFX.bright_img(img, .15)
+                                    hover PyTGFX.bright_content(img, .15)
                                     action Show("arena_bestiary", dissolve, m, return_button_action=[Function(SetVariable, "bm_mid_frame_mode", bm_mid_frame_mode), Function(SetVariable, "bm_exploration_view_mode", "area")])
 
             frame:
@@ -967,7 +967,7 @@ screen building_management_rightframe_exploration_guild_mode:
                                 imagebutton:
                                     align .5, .5
                                     idle temp
-                                    hover PyTGFX.bright_img(temp, .15)
+                                    hover PyTGFX.bright_content(temp, .15)
                                     action Show("show_item_info", item=i)
                                 $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/close4.png", 16, 16)
                                 imagebutton:

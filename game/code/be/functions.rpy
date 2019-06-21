@@ -26,7 +26,7 @@ init -11 python:
                 icon = elements[0].icon
                 if mc is not None:
                     icon = im.MatrixColor(icon, mc)
-                icon = Transform(icon, size=(size, size))
+                icon = PyTGFX.scale_img(icon, size, size) # TODO scale_content?
                 fixed.add(icon)
             return fixed
         angle = 360.0/angle

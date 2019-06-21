@@ -429,12 +429,13 @@ init -960 python:
         movie_cache = {}
         @staticmethod
         def scale_movie(path, maxwidth, maxheight):
+            global NEXT_MOVIE_CHANNEL
             new_tag = (path, maxwidth, maxheight)
             for tag, movie in PyTGFX.movie_cache.itervalues():
                 if tag == new_tag:
                     return movie
-            idx = global_flags.get_flag("last_movie_channel", 0)
-            global_flags.set_flag("last_movie_channel", (idx+1)%MOVIE_CHANNEL_COUNT)
+            idx = NEXT_MOVIE_CHANNEL
+            NEXT_MOVIE_CHANNEL = (NEXT_MOVIE_CHANNEL+1)%MOVIE_CHANNEL_COUNT
             movie = Movie(channel="%02dmovie"%idx, play=path, size=(maxwidth, maxheight))
             PyTGFX.movie_cache[idx] = (new_tag, movie)
             return movie

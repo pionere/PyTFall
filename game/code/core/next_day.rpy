@@ -430,10 +430,10 @@ screen next_day():
                 # ALL Reports button:
                 $ img = "content/gfx/frame/MC_bg3.png"
                 button:
-                    xysize 95, 95
+                    xysize 96, 64
                     yalign .5
-                    idle_background Frame(img, 5 , 5)
-                    hover_background Frame(im.MatrixColor(img ,im.matrix.brightness(.2)), 5, 5)
+                    background Frame(img, 5 , 5)
+                    hover_background Frame(PyTGFX.bright_img(img, .2), 5, 5)
                     text "All" align .5, .5 style "proper_stats_label_text" size 32
                     action [Return(['filter', 'all']), SetScreenVariable("show_summary", False)]
                     tooltip "Show full report tree!"
@@ -445,9 +445,9 @@ screen next_day():
                 button:
                     yalign .5
                     xysize (90, 90)
-                    idle_background Frame(img, 5, 5)
+                    background Frame(img, 5, 5)
                     if red_flags:
-                        hover_background Frame(im.MatrixColor(img, im.matrix.brightness(.10)), 5, 5)
+                        hover_background Frame(PyTGFX.bright_img(img, .10), 5, 5)
                         tooltip "View all Events flagged Red!"
                         action [Return(['filter', 'red_flags']), SetScreenVariable("show_summary", False)]
                     else:
@@ -464,16 +464,14 @@ screen next_day():
                             break
 
                 frame:
-                    align .02, .98
-                    xysize 95, 95
-                    padding 2, 2
+                    yalign .5
+                    xysize 96, 64
                     background Frame("content/gfx/frame/MC_bg3.png", 5, 5)
-                    $ img = pytfall.school.img
-                    button:
-                        xysize 90, 90
+                    $ img = PyTGFX.scale_content(pytfall.school.img, 93, 62)
+                    imagebutton:
                         align .5, .5
-                        background Frame(img, 10, 10)
-                        hover_background Frame(im.MatrixColor(img ,im.matrix.brightness(.15)), 10, 10)
+                        idle img
+                        hover PyTGFX.bright_content(img, .15)
                         action [Return(['filter', 'school']), SetScreenVariable("show_summary", False)]
                         tooltip "View School and School Events!"
 
@@ -525,8 +523,8 @@ screen next_day():
                 spacing 80
                 # Getting .status field data:
                 $ free, slaves = NextDayEvents.get_chars_dist()
-                $ red_flags = any(i.type == "girlndreport" and i.red_flag for i in NextDayEvents.event_list)
-
+                $ girl_reports = [i for i in NextDayEvents.event_list if i.type == "girlndreport"]
+                $ red_flags = any(i.red_flag for i in girl_reports)
                 vbox:
                     spacing 5
                     yalign .5
@@ -535,14 +533,14 @@ screen next_day():
 
                 frame:
                     xysize 95, 95
-                    padding 2, 2
                     background Frame("content/gfx/frame/MC_bg3.png", 5, 5)
                     $ img = "content/gfx/interface/buttons/girls_reports.png"
                     button:
                         align .5, .5
-                        xysize 90, 90
-                        background Frame(img, 10, 10)
-                        hover_background Frame(im.MatrixColor(img ,im.matrix.brightness(.15)), 10, 10)
+                        xysize 93, 93
+                        background Frame(img, 5, 5)
+                        hover_background Frame(PyTGFX.bright_img(img, .15), 5, 5)
+                        sensitive girl_reports
                         action [Return(['filter', 'gndreports']), SetScreenVariable("show_summary", False)]
                         tooltip "Show personal girl reports!"
                     if red_flags:
@@ -825,13 +823,13 @@ screen next_day():
                                 null width 10
                                 frame:
                                     yalign .5
-                                    xysize 95, 95
+                                    xysize 96, 70
                                     background Frame("content/gfx/frame/MC_bg3.png", 5, 5)
-                                    $ img = im.Scale(building.img, 89, 89)
+                                    $ img = PyTGFX.scale_content(building.img, 93, 68)
                                     imagebutton:
                                         align .5, .5
                                         idle img
-                                        hover im.MatrixColor(img ,im.matrix.brightness(.15))
+                                        hover PyTGFX.bright_content(img, .15)
                                         action [Return(['filter', 'building', building]), SetScreenVariable("show_summary", False)]
                                         tooltip "View Events in %s building." % building.name
 

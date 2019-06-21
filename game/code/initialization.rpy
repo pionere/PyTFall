@@ -339,6 +339,11 @@ init -950 python:
         # Same as above, only using locked seed...
         return locked_random("random") * 100 < percent_chance
 
+    # Locking random seed of internal renpys random
+    def locked_random(type, *args, **kwargs):
+        #store.stored_random_seed = renpy.random.getstate()
+        return getattr(renpy.random, type)(*args, **kwargs)
+
     # Safe jump, if label doesn't exists, game will notify about it
     def jump(labelname):
         if renpy.has_label(labelname):
@@ -499,6 +504,7 @@ init -4 python:
             renpy.image(img_name, animate(folder_path, delay, loop=loop))
     del folder, path, dir, split_dir, len_split, folder_path, img_name, delay, loop
 
+    # Overrides
     colorprev = Color.__new__
     Color.__prev_new__ = classmethod(colorprev)
     def colornew(cls, cls_, color=None, hls=None, hsv=None, rgb=None, alpha=1.0):
@@ -506,6 +512,17 @@ init -4 python:
         return Color.__prev_new__(color, hls, hsv, rgb, alpha)
     Color.__new__ = classmethod(colornew)
     del colornew, colorprev
+
+    # Or we crash due to an engine bug (going to MMS):
+    class SetVariable(SetField):
+        def __init__(self, name, value):
+            super(SetVariable, self).__init__(store, name, value, kind="variable")
+
+        def get_selected(self):
+            try:
+                return super(SetVariable, self).get_selected()
+            except:
+                return False
 
 init -1 python: # Constants:
     # for f in renpy.list_files():
@@ -526,22 +543,8 @@ init -1 python: # Constants:
     ND_IMAGE_SIZE = (820, 705)
     MOVIE_CHANNEL_COUNT = 32
 
-init python: # Locking random seed of internal renpys random
-    def locked_random(type, *args, **kwargs):
-        #store.stored_random_seed = renpy.random.getstate()
-        return getattr(renpy.random, type)(*args, **kwargs)
-
-    # Or we crash due to an engine bug (going to MMS):
-    class SetVariable(SetField):
-        def __init__(self, name, value):
-            super(SetVariable, self).__init__(store, name, value, kind="variable")
-            
-        def get_selected(self):
-            try:
-                return super(SetVariable, self).get_selected()
-            except:
-                return False
 init:
+    default NEXT_MOVIE_CHANNEL = 0
     default DAILY_EXP_CORE = 30 # 1 lvl per 10 days give or take. Rebalance experience gain.
     default DAILY_AFF_CORE = 10 # about 20 affection per day, give or take. Rebalance affection gain. 
     default MAX_TIER = 10 # to limit the characters tier
@@ -550,13 +553,12 @@ init:
     #default MAX_STAT_PER_TIER = PP_PER_AP = 100
     #default SKILLS_MAX = 5000
     default block_say = False
-    define PytPix = renpy.display.transition.Pixellate
+    #define PytPix = renpy.display.transition.Pixellate
     default last_label_pure = ""
 
     default special_save_number = 1
 
-    $ renpyd = renpy.displayable
-
+    #$ renpyd = renpy.displayable
     # Or we crash due to an engine bug (going to MMS):
     #default char = None
     #default char_profile_entry = None # Label to access chars profile from weird locations.

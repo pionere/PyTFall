@@ -741,7 +741,8 @@ label after_load:
             del store.businesses
         if hasattr(store, "adverts"):
             del store.adverts
-        if not hasattr(store.gm, "coords"):
+
+        if hasattr(store, "gm") and not hasattr(store.gm, "coords"):
             store.gm.coords = store.coords
             del store.coords
 
@@ -1317,6 +1318,8 @@ label after_load:
         if not hasattr(pytfall.school, "tier_filter"):
             pytfall.school.tier_filter = hero.tier
             pytfall.school.type_filter = {"xxx", "combat", None}
+        if isinstance(pytfall.school.img, im.Image):
+            pytfall.school.img = pytfall.school.img.filename
 
         if not hasattr(pytfall, "city"):
             pytfall.city = store.locations["City Apartments"]

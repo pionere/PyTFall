@@ -530,12 +530,10 @@ screen building_management_leftframe_building_mode:
                         xysize 280, 90
                         frame:
                             xpos 5
+                            xysize 110, 76
                             yalign .5
                             background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.95), 10, 10)
-                            if hasattr(u, "img"):
-                                add im.Scale(u.img, 100, 65)# align .5, .5
-                            else:
-                                add Solid("black", xysize=(100, 65))# align .5, .5
+                            add PyTGFX.scale_content(u.img, 100, 66) align .5, .5
                         vbox:
                             xpos 115
                             yalign .6
@@ -725,15 +723,11 @@ screen building_management_leftframe_businesses_mode:
                 cols 2
                 spacing 2
                 $ box_size = (139, 80)
-                $ entry_size = (100, 65)
+                $ entry_size = (100, 66)
                 # Active extensions
                 for u in bm_mid_frame_mode.upgrades:
                     $ desc = "{u}{i}%s{/u}{/i}\n%s" % (u.name, u.desc)
-                    $ img = getattr(u, "img", None)
-                    if img:
-                        $ img = im.Scale(img, *entry_size)
-                    else:
-                        $ img = Solid("black", xysize=entry_size)
+                    $ img = PyTGFX.scale_content(u.img, *entry_size)
                     frame:
                         background Null()
                         xysize box_size
@@ -746,6 +740,7 @@ screen building_management_leftframe_businesses_mode:
                                 xysize entry_size
                                 imagebutton:
                                     #xysize entry_size
+                                    align .5, .5
                                     idle img
                                     hover PyTGFX.bright_content(img, .15)
                                     action NullAction()
@@ -754,7 +749,7 @@ screen building_management_leftframe_businesses_mode:
                                 imagebutton:
                                     align 1.0, 0 offset 2, -2
                                     idle temp
-                                    hover PyTGFX.bright_img(img, .15)
+                                    hover PyTGFX.bright_img(temp, .15)
                                     action Show("yesno_prompt",
                                                 message="Are you sure you wish to remove the %s for %d Gold?" % (u.name, u.get_cost()[0]),
                                                 yes_action=[Function(bm_mid_frame_mode.remove_upgrade, u), Hide("yesno_prompt")], no_action=Hide("yesno_prompt"))
@@ -943,13 +938,15 @@ screen building_management_midframe_businesses_mode:
                             align 1.0, .8
                             xsize 150
                             spacing 4
-                            button:
-                                xalign .5
-                                xysize 133, 83
+                            frame:
                                 background Frame("content/gfx/frame/MC_bg3.png", 3, 3)
-                                foreground Transform(u.img, size=(120, 75), align=(.5, .5))
-                                action NullAction()
-                                tooltip u.desc
+                                xysize 133, 84
+                                xalign .5
+                                imagebutton:
+                                    align .5, .5
+                                    idle PyTGFX.scale_content(u.img, 120, 80)
+                                    action NullAction()
+                                    tooltip u.desc
                             textbutton "Build":
                                 xalign .5
                                 style "pb_button"
