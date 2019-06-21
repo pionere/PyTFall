@@ -16,7 +16,7 @@
         "tier": 0,
 
         "adverts": ["Sign", "Flyers"],
-        "img": "content/buildings/haunted.webp",
+        "img": "content/buildings/haunted_s.webp",
 
         "build_businesses": [ "BrothelBlock" ],
         "allowed_businesses": ["Cleaners",
@@ -39,7 +39,7 @@
         "tier": 0,
 
         "adverts": ["Sign", "Flyers"],
-        "img": "content/buildings/bad_0.webp",
+        "img": "content/buildings/bad_0_s.webp",
 
         "build_businesses": ["BrothelBlock"],
         "allowed_businesses": ["Cleaners", "WarriorQuarters",
@@ -62,7 +62,7 @@
         "tier": 1,
 
         "adverts": ["Sign", "Flyers", "Magazine"],
-        "img": "content/buildings/small_1.webp",
+        "img": "content/buildings/small_1_s.webp",
 
         "build_businesses": ["BrothelBlock", "Cleaners"],
         "allowed_businesses": ["Cleaners",
@@ -88,7 +88,7 @@
         "tier": 2,
 
         "adverts": ["Sign", "Flyers", "Magazine", "Billboard"],
-        "img": "content/buildings/small_0.webp",
+        "img": "content/buildings/small_0_s.webp",
 
         "build_businesses": ["Cleaners", "WarriorQuarters"],
         "allowed_businesses": ["BarBusiness",
@@ -114,7 +114,7 @@
         "tier": 3,
 
         "adverts": ["Sign", "Flyers", "Magazine", "Billboard"],
-        "img": "content/buildings/medium_0.webp",
+        "img": "content/buildings/medium_0_s.webp",
 
         "build_businesses": ["Cleaners", "WarriorQuarters"],
         "allowed_businesses": ["BarBusiness",
@@ -140,7 +140,7 @@
         "tier": 4,
 
         "adverts": ["Sign", "Flyers", "Magazine", "Billboard", "Girl"],
-        "img": "content/buildings/house2.webp",
+        "img": "content/buildings/house2_s.webp",
 
         "build_businesses": ["BrothelBlock", "Cleaners", "WarriorQuarters"],
         "allowed_businesses": ["StripClub", "Clinic",
@@ -167,7 +167,7 @@
         "tier": 5,
 
         "adverts": ["Sign", "Flyers", "Magazine", "Billboard", "Girl"],
-        "img": "content/buildings/mansion.webp",
+        "img": "content/buildings/mansion_s.webp",
 
         "build_businesses": ["BrothelBlock", "StripClub", "Cleaners", "WarriorQuarters"],
         "allowed_businesses": ["BarBusiness", "Clinic",
@@ -195,7 +195,7 @@
         "tier": 6,
 
         "adverts": ["Sign", "Flyers", "Magazine", "Billboard", "Girl", "Celebrity"],
-        "img": "content/buildings/large_0.webp",
+        "img": "content/buildings/large_0_s.webp",
 
         "build_businesses": ["Cleaners", "WarriorQuarters"],
         "allowed_businesses": ["BarBusiness", "StableBusiness", "ExplorationGuild", "Clinic",
@@ -223,7 +223,7 @@
         "tier": 7,
 
         "adverts": ["Sign", "Flyers", "Magazine", "Billboard", "Girl", "Celebrity"],
-        "img": "content/buildings/palace.webp",
+        "img": "content/buildings/palace_s.webp",
 
         "build_businesses": ["Cleaners", "WarriorQuarters"],
         "allowed_businesses": ["BarBusiness", "StableBusiness", "ExplorationGuild", "Clinic",
@@ -251,7 +251,7 @@
         "tier": 8,
 
         "adverts": ["Sign", "Flyers", "Magazine", "Billboard", "Girl", "Celebrity"],
-        "img": "content/buildings/centralpalace.webp",
+        "img": "content/buildings/centralpalace_s.webp",
 
         "build_businesses": ["BrothelBlock", "StripClub"],
         "allowed_businesses": ["BarBusiness", "StableBusiness", "ExplorationGuild", "Clinic",
@@ -275,7 +275,7 @@
         "tier": 1,
 
         "adverts": [],
-        "img": "content/buildings/slave_quaters.webp",
+        "img": "content/buildings/slave_quaters_s.webp",
 
         "build_businesses": ["SlaveQuarters"],
         "allowed_businesses": ["SlaveQuarters"]
@@ -294,7 +294,7 @@
         "tier": 1,
 
         "adverts": [],
-        "img": "content/buildings/slave_quaters.webp",
+        "img": "content/buildings/slave_quaters_s.webp",
 
         "build_businesses": ["SlaveQuarters"],
         "allowed_businesses": [{"class": "SlaveQuarters", "capacity": 5, "in_slots": 5}]
@@ -313,7 +313,7 @@
         "tier": 5,
 
         "adverts": [],
-        "img": "content/buildings/slave_quaters.webp",
+        "img": "content/buildings/slave_quaters_s.webp",
 
         "build_businesses": ["SlaveQuarters"],
         "allowed_businesses": [{"class": "SlaveQuarters", "capacity": 10, "in_slots": 10}],

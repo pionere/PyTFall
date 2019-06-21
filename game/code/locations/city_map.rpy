@@ -4,7 +4,7 @@ init python:
             if key.get("appearing", False) and not key.get("hidden", False):
                 idle_img = "".join(["content/gfx/bg/locations/map_buttons/gismo/", key["id"], ".webp"])
                 if mode == "show":
-                    appearing_img = PyTGFX.Appearing(idle_img, 50, 200, start_alpha=.1)
+                    appearing_img = Appearing(idle_img, 50, 200, start_alpha=.1)
                     pos = key["pos"]
                     renpy.show(idle_img, what=appearing_img, at_list=[Transform(pos=pos)], layer="screens", zorder=2)
                 elif mode == "hide":

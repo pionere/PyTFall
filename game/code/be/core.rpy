@@ -260,9 +260,9 @@ init -1 python: # Core classes:
                             bg = ImageReference("bg " + bg)
                 else:
                     bg = Null()
-                self.bg = PyTGFX.ConsitionSwitcher("default", {"default": bg,
+                self.bg = ConsitionSwitcher("default", {"default": bg,
                                                         "black": Solid("#000000"),
-                                                        "mirage": PyTGFX.Mirage(bg, resize=get_size(bg),
+                                                        "mirage": Mirage(bg, resize=get_size(bg),
                                                         amplitude=.04, wavelength=10, ycrop=10)})
 
                 self.start_sfx = start_sfx

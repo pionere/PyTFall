@@ -530,10 +530,11 @@ screen building_management_leftframe_building_mode:
                         xysize 280, 90
                         frame:
                             xpos 5
-                            xysize 110, 76
                             yalign .5
-                            background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.95), 10, 10)
-                            add PyTGFX.scale_content(u.img, 100, 66) align .5, .5
+                            background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.95), 5, 5)
+                            margin 0, 0
+                            padding 2, 2
+                            add PyTGFX.scale_content(u.img, 105, 70) align .5, .5
                         vbox:
                             xpos 115
                             yalign .6
@@ -735,7 +736,9 @@ screen building_management_leftframe_businesses_mode:
                         padding 0, 0
                         frame:
                             align .5, .5
-                            background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.95), 10, 10)
+                            background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.95), 5, 5)
+                            margin 0, 0
+                            padding 2, 2
                             fixed:
                                 xysize entry_size
                                 imagebutton:
@@ -777,7 +780,9 @@ screen building_management_leftframe_businesses_mode:
                         padding 0, 0
                         frame:
                             align .5, .5
-                            background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.95), 10, 10)
+                            background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.95), 5, 5)
+                            margin 0, 0
+                            padding 2, 2
                             fixed:
                                 xysize entry_size
                                 imagebutton:
@@ -940,7 +945,7 @@ screen building_management_midframe_businesses_mode:
                             spacing 4
                             frame:
                                 background Frame("content/gfx/frame/MC_bg3.png", 3, 3)
-                                xysize 133, 84
+                                xysize 124, 83
                                 xalign .5
                                 imagebutton:
                                     align .5, .5

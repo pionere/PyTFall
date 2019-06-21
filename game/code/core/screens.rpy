@@ -1147,7 +1147,7 @@ screen give_exp_after_battle(group, enemy_team, ap_used):
 
     use keymap_override
 
-    default bars = [PyTGFX.ExpBarController(c) for c in group]
+    default bars = [ExpBarController(c) for c in group]
 
     frame:
         align (.5, .5)

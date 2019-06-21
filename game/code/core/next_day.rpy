@@ -430,7 +430,7 @@ screen next_day():
                 # ALL Reports button:
                 $ img = "content/gfx/frame/MC_bg3.png"
                 button:
-                    xysize 96, 64
+                    xysize 98, 66
                     yalign .5
                     background Frame(img, 5 , 5)
                     hover_background Frame(PyTGFX.bright_img(img, .2), 5, 5)
@@ -465,7 +465,7 @@ screen next_day():
 
                 frame:
                     yalign .5
-                    xysize 96, 64
+                    xysize 98, 66
                     background Frame("content/gfx/frame/MC_bg3.png", 5, 5)
                     $ img = PyTGFX.scale_content(pytfall.school.img, 93, 62)
                     imagebutton:
@@ -823,7 +823,7 @@ screen next_day():
                                 null width 10
                                 frame:
                                     yalign .5
-                                    xysize 96, 70
+                                    xysize 96, 71
                                     background Frame("content/gfx/frame/MC_bg3.png", 5, 5)
                                     $ img = PyTGFX.scale_content(building.img, 93, 68)
                                     imagebutton:

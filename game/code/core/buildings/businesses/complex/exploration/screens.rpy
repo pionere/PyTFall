@@ -69,14 +69,14 @@ screen building_management_leftframe_exploration_guild_mode:
                     $ mid_frame_focus = temp[0]
 
                 for area in temp:
-                    $ img = PyTGFX.scale_content(area.img, 220, 130)
+                    $ img = PyTGFX.scale_content(area.img, 220, 124)
                     frame:
                         background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.9), 10, 10)
                         padding 2, 2
                         margin 0, 0
                         button:
                             align .5, .5
-                            xysize 220, 130
+                            xysize 220, 124
                             background Transform(img, align=(.5, .5))
                             if bm_selected_exp_area == area:
                                 action NullAction()
@@ -345,7 +345,7 @@ screen building_management_leftframe_exploration_guild_mode:
             # Main Area with paging:
             # We assume that there is always at least one area!
             $ main_area = temp[focused_area_index]
-            $ img = PyTGFX.scale_content(main_area.img, 220, 130)
+            $ img = PyTGFX.scale_content(main_area.img, 220, 124)
             hbox:
                 xalign .5
                 button:
@@ -361,7 +361,7 @@ screen building_management_leftframe_exploration_guild_mode:
                     xalign .5
                     button:
                         align .5, .5
-                        xysize 220, 130
+                        xysize 220, 124
                         background Transform(img, align=(.5, .5))
                         action NullAction()
                         frame:

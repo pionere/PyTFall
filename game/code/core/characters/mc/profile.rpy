@@ -117,9 +117,9 @@ screen hero_profile():
                   float(hero.get_stat("agility"))/hero.get_max("agility"),
                   float(hero.get_stat("luck"))/hero.get_max("luck"),
                   float(hero.get_stat("magic"))/hero.get_max("magic")]
-        add Transform(child=PyTGFX.RadarChart(temp, 112, 126, 148, "darkgreen"), alpha=.4) align (.5, .5)
-        add Transform(child=PyTGFX.RadarChart(temp, 65, 126, 148, "green"), alpha=.3) align (.5, .5)
-        add Transform(child=PyTGFX.RadarChart(temp, 33, 126, 148, "lightgreen"), alpha=.2) align (.5, .5)
+        add Transform(child=RadarChart(temp, 112, 126, 148, "darkgreen"), alpha=.4) align (.5, .5)
+        add Transform(child=RadarChart(temp, 65, 126, 148, "green"), alpha=.3) align (.5, .5)
+        add Transform(child=RadarChart(temp, 33, 126, 148, "lightgreen"), alpha=.2) align (.5, .5)
         add PyTGFX.scale_img("content/gfx/interface/images/pentagon1.png", 250, 250) align (.01, .5)
 
     fixed:

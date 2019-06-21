@@ -218,7 +218,7 @@ init python:
 
     class School(BaseBuilding):
         def __init__(self, id="-PyTFall Educators-",
-                     img="content/schools/school.webp"):
+                     img="content/schools/school_s.webp"):
             super(School, self).__init__(id=id, name=id)
             self.img = img
             self.courses = []

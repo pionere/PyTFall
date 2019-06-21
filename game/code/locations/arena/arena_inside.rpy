@@ -1116,7 +1116,7 @@ init: # ChainFights vs Mobs:
             size 75
 
         # Bonus Roll: ===========================================================================>>>
-        default my_udd = PyTGFX.ArenaBarMinigame(data, length)
+        default my_udd = ArenaBarMinigame(data, length)
         style_prefix "dropdown_gm"
         frame:
             align .5, .9

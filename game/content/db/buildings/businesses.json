@@ -3,7 +3,7 @@
         "name": "Slave Quarters",
         "class": "SlaveQuarters",
         "desc": "Home for slaves to live in",
-        "img": "content/buildings/upgrades/guard_qt.webp",
+        "img": "content/buildings/upgrades/guard_qt_s.webp",
         "materials": {"Wood": 10, "Bricks": 10, "Glass": 3},
 
         "capacity": 2,
@@ -24,7 +24,7 @@
         "name": "Cleaning Block",
         "class": "Cleaners",
         "desc": "Allows to use cleaners in the building",
-        "img": "content/buildings/upgrades/cleaners.webp",
+        "img": "content/buildings/upgrades/cleaners_s.webp",
         "materials": {"Wood": 2, "Bricks": 2},
 
         "capacity": 2,
@@ -38,7 +38,7 @@
         "name": "Warrior Quarters",
         "class": "WarriorQuarters",
         "desc": "Allows to use guards in the building",
-        "img": "content/buildings/upgrades/guard_qt.webp",
+        "img": "content/buildings/upgrades/guard_qt_s.webp",
         "materials": {"Wood": 15, "Bricks": 30, "Glass": 3},
 
         "capacity": 2,
@@ -52,7 +52,7 @@
         "name": "Bar",
         "class": "BarBusiness",
         "desc": "Allows to serve drinks and snacks to your customers",
-        "img": "content/buildings/upgrades/bar.webp",
+        "img": "content/buildings/upgrades/bar_s.webp",
         "materials": {"Wood": 50, "Bricks": 30, "Glass": 5},
 
         "capacity": 2,
@@ -75,7 +75,7 @@
         "name": "Strip Club",
         "class": "StripClub",
         "desc": "Allows to use strippers to make customers hornier and get occasional tips",
-        "img": "content/buildings/upgrades/strip_club.webp",
+        "img": "content/buildings/upgrades/strip_club_S.webp",
         "materials": {"Wood": 30, "Bricks": 50, "Glass": 10},
 
         "capacity": 2,
@@ -98,7 +98,7 @@
         "name": "Brothel",
         "class": "BrothelBlock",
         "desc": "Allows to whore out your girls in the building",
-        "img": "content/buildings/upgrades/room.webp",
+        "img": "content/buildings/upgrades/room_s.webp",
         "materials": {"Wood": 70, "Bricks": 30, "Glass": 5},
 
         "capacity": 2,
@@ -119,7 +119,7 @@
         "name": "Stable",
         "class": "StableBusiness",
         "desc": "Allows to keep horses in the building and also to rent them to customers",
-        "img": "content/buildings/upgrades/stables.webp",
+        "img": "content/buildings/upgrades/stables_s.webp",
         "materials": {"Wood": 70, "Bricks": 20, "Hay": 100, "Steel": 5},
 
         "capacity": 2,
@@ -140,7 +140,7 @@
         "name": "Exploration Guild",
         "class": "ExplorationGuild",
         "desc": "Travel to exotic places, meet new monsters and people... and take their shit!",
-        "img": "content/gfx/bg/buildings/Chorrol_Fighters_Guild.webp",
+        "img": "content/buildings/upgrades/exploration_guild.webp",
         "materials": {"Wood": 70, "Bricks": 50, "Glass": 5},
 
         "capacity": 2,
@@ -156,7 +156,7 @@
         "name": "Clinic",
         "class": "Clinic",
         "desc": "Cure patients of PyTFall.",
-        "img": "content/gfx/bg/locations/infirmary.webp",
+        "img": "content/buildings/upgrades/clinic.webp",
         "materials": {"Bricks": 50, "Glass": 20, "Silk": 20, "Velvet": 20},
 
         "capacity": 2,
