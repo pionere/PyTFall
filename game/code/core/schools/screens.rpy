@@ -229,14 +229,14 @@ screen school_training():
                                                 tooltip "Remove %s from your group." % s.name
                                             else:
                                                 tooltip "Add %s to your group." % s.name
+                                        $ days_left = c.days_to_complete - c.students_progress.get(s, 0)
+                                        $ can_complete = c.days_remaining >= days_left
                                         button:
                                             xalign .9
                                             background None
                                             if s in c.completed:
                                                 text "(Completed)" color "goldenrod" hover_color "red"
                                             else:
-                                                $ days_left = c.days_to_complete - c.students_progress.get(s, 0)
-                                                $ can_complete = c.days_remaining >= days_left
                                                 if can_complete:
                                                     text "([days_left] days to complete)" color "ivory" hover_color "red"
                                                 else:

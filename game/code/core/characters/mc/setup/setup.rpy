@@ -429,10 +429,10 @@ init: # MC Setup Screens:
                     else:
                         sepia = True
                         img = im.Sepia(img)
-                button:
-                    $ temp = branch.get("name", "")
+                    temp = branch.get("name", "")
                     if isinstance(temp, dict):
-                        $ temp = temp[hero.gender]
+                        temp = temp[hero.gender]
+                button:
                     if idx % 2:
                         text str(temp) align (1.0, .52)
                         add img align (.0, .5)

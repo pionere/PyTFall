@@ -402,6 +402,15 @@ screen girl_interactions():
                                         dismod += v
                             flag_name = "cnd_item_%s" % item.id
                             flag_value = char.get_flag(flag_name, day-1) - day
+                            if dismod <= 0:
+                                img = "content/gfx/interface/icons/gifts_0.png"
+                            elif dismod <= 30:
+                                img = "content/gfx/interface/icons/gifts_1.png"
+                            else:
+                                img = "content/gfx/interface/icons/gifts_2.png"
+                            img = im.Scale(img, 65, 35)
+                            if flag_value >= 0:
+                                img = im.Sepia(img)
 
                         button:
                             style "main_screen_3_button"
@@ -413,15 +422,6 @@ screen girl_interactions():
                                     add im.Scale(item.icon, 90, 90)
                                     text str(hero.inventory[item]) color "ivory" style "library_book_header_main" align (0, 0)
                                     if not item.hidden:
-                                        if dismod <= 0:
-                                            $ img = "content/gfx/interface/icons/gifts_0.png"
-                                        elif dismod <= 30:
-                                            $ img = "content/gfx/interface/icons/gifts_1.png"
-                                        else:
-                                            $ img = "content/gfx/interface/icons/gifts_2.png"
-                                        $ img = im.Scale(img, 65, 35)
-                                        if flag_value >= 0:
-                                            $ img = im.Sepia(img)
                                         add img align (.0, .9)
                                 null width 10
                                 text "[item.id]" yalign .5 style "library_book_header_sub" color "ivory"

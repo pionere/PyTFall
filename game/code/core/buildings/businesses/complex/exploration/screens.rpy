@@ -390,6 +390,10 @@ screen building_management_leftframe_exploration_guild_mode:
                     xalign .5
                     style_prefix "dropdown_gm2"
                     for area in areas:
+                        if area.unlocked:
+                            $ tmp = area.name
+                        else:
+                            $ tmp = "?????????"
                         button:
                             xysize 220, 18
                             if area.unlocked:
@@ -399,9 +403,7 @@ screen building_management_leftframe_exploration_guild_mode:
                                 else:
                                     action SetVariable("bm_selected_log_area", area)
                                 tooltip area.desc
-                                $ tmp = area.name
                             else:
-                                $ tmp = "?????????"
                                 action NullAction()
                             text str(area.stage):
                                 size 12
@@ -672,6 +674,10 @@ screen building_management_midframe_exploration_guild_mode:
                 if isinstance(bm_selected_exp_area, FG_Area):
                     $ temp = sorted([a for a in fg_areas.values() if a.area == bm_selected_exp_area.id], key=attrgetter("stage"))
                     for area in temp:
+                        if area.unlocked:
+                            $ temp = area.name
+                        else:
+                            $ temp = "?????????"
                         button:
                             background Transform(Frame("content/gfx/frame/mes12.jpg", 10, 10), alpha=.9)
                             hover_background Transform(Frame(im.MatrixColor("content/gfx/frame/mes11.webp", im.matrix.brightness(.10)), 10, 10), alpha=.9)
@@ -679,10 +685,8 @@ screen building_management_midframe_exploration_guild_mode:
                             ymargin 1
                             ypadding 1
                             if area.unlocked:
-                                $ temp = area.name
                                 action [SetVariable("bm_selected_exp_area_sub", area), SetVariable("bm_exploration_view_mode", "area")]
                             else:
-                                $ temp = "?????????"
                                 action NullAction()
                             text temp color "gold" style "interactions_text" size 14 outlines [(1, "#3a3a3a", 0, 0)] align (.5, .3)
                             hbox:
