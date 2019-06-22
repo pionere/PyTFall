@@ -5,17 +5,14 @@ label tavern_town:
 
     scene bg tavern_inside
     with dissolve
+
     $ pytfall.world_quests.run_quests("auto")
     $ pytfall.world_events.run_events("auto")
-
-    $ tavern_dizzy = False
-
-    $ tavern_rita = npcs["Rita_tavern"].say
 
     if hero.has_flag("dnd_fought_in_tavern"): # after a brawl tavern will be unavailable until the next turn
         show expression npcs["Rita_tavern"].get_vnsprite() as npc
         with dissolve
-        tavern_rita "I'm sorry, we are closed for maintenance. Please return tomorrow."
+        npcs["Rita_tavern"].say "I'm sorry, we are closed for maintenance. Please return tomorrow."
         jump city
 
     if not global_flags.flag('visited_tavern'):
@@ -23,7 +20,7 @@ label tavern_town:
         $ global_flags.set_flag("city_tavern_dice_bet", 5) # default dice bet
         show expression npcs["Rita_tavern"].get_vnsprite() as npc
         with dissolve
-        tavern_rita "Oh, hello! Welcome to our tavern! We will always have a seat for you! *wink*"
+        npcs["Rita_tavern"].say "Oh, hello! Welcome to our tavern! We will always have a seat for you! *wink*"
         hide npc
         with dissolve
         $ global_flags.set_flag("tavern_status", value=[day, "cozy"])
@@ -31,35 +28,35 @@ label tavern_town:
         if global_flags.flag("tavern_status")[0] != day: # every day tavern can randomly have one of three statuses, depending on the status it has very different activities available
             $ tavern_status = weighted_sample([["cozy", 40], ["lively", 40], ["brawl", 20]])
             $ global_flags.set_flag("tavern_status", value=[day, tavern_status])
-    $ tavern_event_list = []
+
     if global_flags.flag("tavern_status")[1] == "cozy":
         python hide:
             dir = content_path("events", "tavern_entry", "cozy")
-            images = [file for file in listfiles(dir) if check_image_extension(file)]
+            images = [file for file in listfiles(dir) if check_content_extension(file)]
             img = os.path.join(dir, choice(images))
             img = PyTGFX.scale_content(img, 1000, 600)
-            renpy.show("drunkards", what=img, at_list=[Position(ypos = .5, xpos = .5, yanchor = .5, xanchor = .5)])
+            renpy.show("drunkards", what=img, at_list=[truecenter])
             renpy.with_statement(dissolve)
         "The tavern is warm and cozy with only a handful of drunkards enjoying the stay."
     elif global_flags.flag("tavern_status")[1] == "lively":
         python hide:
             dir = content_path("events", "tavern_entry", "lively")
-            images = [file for file in listfiles(dir) if check_image_extension(file)]
+            images = [file for file in listfiles(dir) if check_content_extension(file)]
             img = os.path.join(dir, choice(images))
             img = PyTGFX.scale_content(img, 1000, 600)
-            renpy.show("drunkards", what=img, at_list=[Position(ypos = .5, xpos = .5, yanchor = .5, xanchor = .5)])
+            renpy.show("drunkards", what=img, at_list=[truecenter])
             renpy.with_statement(dissolve)
         "The place is loud and lively today, with townsmen drinking and talking at every table."
     else:
         python hide:
             dir = content_path("events", "tavern_entry", "brawl")
-            images = [file for file in listfiles(dir) if check_image_extension(file)]
+            images = [file for file in listfiles(dir) if check_content_extension(file)]
             img = os.path.join(dir, choice(images))
             img = PyTGFX.scale_content(img, 1000, 600)
-            renpy.show("event", what=img, at_list=[Position(ypos = .5, xpos = .5, yanchor = .5, xanchor = .5)])
+            renpy.show("event", what=img, at_list=[truecenter])
             renpy.with_statement(dissolve)
             renpy.music.stop(channel="world")
-            renpy.music.play("brawl.mp3",channel="world")
+            renpy.music.play("brawl.mp3", channel="world")
         "You step into the room... right into a fierce tavern brawl!"
         menu:
             "Join it!":
@@ -69,11 +66,11 @@ label tavern_town:
 
 label city_tavern_menu: # "lively" status is limited by drunk effect; every action rises drunk counter, and every action with drunk effect active decreases AP
     scene bg tavern_inside
-    if 'Drunk' in hero.effects and not(tavern_dizzy):
-        $ tavern_dizzy = True
-        "You feel a little dizzy... Perhaps you should go easy on drinks."
+    if 'Drunk' in hero.effects:
+        if not hero.has_flag("dnd_tavern_dizzy"):
+            "You feel a little dizzy... Perhaps you should go easy on drinks."
+            $ hero.set_flag("dnd_tavern_dizzy")
         $ PyTGFX.double_vision_on("bg tavern_inside")
-        $ renpy.show("drunkards", what=img, at_list=[Position(ypos = .5, xpos = .5, yanchor = .5, xanchor = .5)])
     show screen city_tavern_inside
     while 1:
         $ result = ui.interact()
@@ -281,7 +278,7 @@ label city_tavern_shopping: # tavern shop with alcohol, available in all modes e
     hide drunkards with dissolve
     show expression npcs["Rita_tavern"].get_vnsprite() as npc
     with dissolve
-    tavern_rita "Do you want something?"
+    npcs["Rita_tavern"].say "Do you want something?"
     python:
         focus = None
         item_price = 0

@@ -2,7 +2,7 @@ init -9 python:
     def get_random_event_image(eventfolder):
         dir = content_path(os.path.join('events', eventfolder))
         if renpy.loadable(dir):
-            images = [file for file in listfiles(dir) if check_image_extension(file)]
+            images = [file for file in listfiles(dir) if check_content_extension(file)]
             if images:
                 image = os.path.join(dir, choice(images))
                 return PyTGFX.scale_content(image, config.screen_width, config.screen_height)

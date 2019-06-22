@@ -26,9 +26,8 @@ init python:
 
         def set_image(self):
             dir = content_path("schools", self.data["image"])
-            images = [fn for fn in listfiles(dir) if check_image_extension(fn)]
-            img = os.path.join(dir, choice(images)) if images else IMG_NOT_FOUND_PATH
-            self.img = renpy.displayable(img)
+            images = [fn for fn in listfiles(dir) if check_content_extension(fn)]
+            self.img = os.path.join(dir, choice(images)) if images else IMG_NOT_FOUND_PATH
 
         def get_status(self, char):
             if char in self.students:

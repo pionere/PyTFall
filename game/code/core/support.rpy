@@ -10,7 +10,7 @@ init -9 python:
         def load_music(key):
             if key not in PyTFallStatic.world_music:
                 dir = content_path("sfx", "music", "world")
-                PyTFallStatic.world_music[key] = [track for track in listfiles(dir) if track.startswith(key)]
+                PyTFallStatic.world_music[key] = [fn for fn in listfiles(dir) if fn.startswith(key) and check_music_extension(fn)]
         @staticmethod
         def play_music(key, fadein=0):
             PyTFallStatic.load_music(key)

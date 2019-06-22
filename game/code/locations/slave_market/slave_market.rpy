@@ -6,7 +6,7 @@ label slave_market:
         $ global_flags.set_flag("visited_sm")
         scene bg slave_market
         with dissolve
-        show slave_market_slaves at truecenter
+        show expression "content/gfx/bg/locations/slave_podium.webp" at truecenter as slave_market_slaves
 
         "What's this?"
         extend " WHAT THE HELL IS THIS???"

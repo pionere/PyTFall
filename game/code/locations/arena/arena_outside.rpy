@@ -9,7 +9,7 @@ init -9 python:
             xeona_status.meet_day = 0
             xeona_status.heal_day = 0
             store.xeona_status = xeona_status
-            
+
         if xeona_status.disposition > 0:
             xeona_status.flirt = day%3 == 0
 
@@ -22,7 +22,7 @@ init -9 python:
                 status = "confident"
         xeona_status.sprite = npcs["Xeona_arena"].get_vnsprite(status)
         npcs["Xeona_arena"].override_portrait("portrait", status)
-    
+
 label arena_outside:
     $ setup_xeona()
     if not global_flags.has_flag("menu_return"):
@@ -103,11 +103,13 @@ label xeona_talking:
     if (hero.get_max("health") - hero.get_stat("health") >= 10) and xeona_status.disposition >= 10 and xeona_status.heal_day != day:
         $ xeona_status.heal_day = day
         ax "Wait, you are wounded! That won't do! One second..."
-        $ img = npcs["Xeona_arena"].show('nurse', resize=(590, 600), add_mood=False)
+        hide xeona with dissolve
+        $ img = npcs["Xeona_arena"].show('nurse', resize=iam.IMG_SIZE, add_mood=False)
         show expression img at truecenter as ddd
         with dissolve
         "She quickly patched your wounds."
-        hide ddd
+        hide ddd with dissolve
+        show expression xeona_status.sprite as xeona
         with dissolve
         $ del img
         $ hero.mod_stat("health", 250)
@@ -117,8 +119,8 @@ label xeona_talking:
         menu:
             ax "Well?"
             
-            "Xeona Main":
-                $ pass
+            #"Xeona Main":
+            #    $ pass
 
             "Tell me about the Arena":
                 ax "The arena, other than our sex industry, is the biggest source of entertainment for locals and tourists alike."
@@ -201,11 +203,13 @@ label xeona_talking:
                     $ xeona_status.disposition += 1
                     $ xeona_status.meet_day = day
                     ax "Sure, I have a few hours! Let's go."
-                    $ img = npcs["Xeona_arena"].show('sfw', resize=(590, 600), add_mood=False)
+                    hide xeona with dissolve
+                    $ img = npcs["Xeona_arena"].show('sfw', resize=iam.IMG_SIZE, add_mood=False)
                     show expression img at truecenter as ddd
                     with dissolve
                     "You spent some time with Xeona. She likes you a bit more now."
-                    hide ddd
+                    hide ddd with dissolve
+                    show expression xeona_status.sprite as xeona
                     with dissolve
                     $ del img
                     ax "It wasn't too bad. We should do it again."
@@ -220,12 +224,13 @@ label xeona_talking:
                     $ xeona_status.disposition += 1
                     $ xeona_status.meet_day = day
                     ax "In the mood for some kinky stuff today? Me too, hehe."
-                    $ img = npcs["Xeona_arena"].show('nude', resize=(590, 600), add_mood=False)
+                    hide xeona with dissolve
+                    $ img = npcs["Xeona_arena"].show('nude', resize=iam.IMG_SIZE, add_mood=False)
                     show expression img at truecenter as ddd
                     with dissolve
                     "Xeona arranged a small private show for you. You both enjoyed it."
-                    hide ddd
-                    with dissolve
+                    hide ddd with dissolve
+                    show expression xeona_status.sprite as xeona
                     $ del img
                     ax "I may be not very good at striptease, but I hope you liked what you saw..."
             "Xeona's Favor" if xeona_status.stage == 1:
@@ -260,17 +265,18 @@ label xeona_talking:
                     $ xeona_status.disposition += 1
                     $ xeona_status.meet_day = day
                     ax "Alright, hehe. Come, I know a good place nearby!"
-                    $ img = npcs["Xeona_arena"].show('sex', resize=(590, 600), add_mood=False)
+                    hide xeona with dissolve
+                    $ img = npcs["Xeona_arena"].show('sex', resize=iam.IMG_SIZE, add_mood=False)
                     $ hero.gfx_mod_skill("sex", 0, randint(5, 10))
                     show expression img at truecenter as ddd
                     with dissolve
                     "You spent some pleasant time together."
-                    hide ddd
-                    with dissolve
+                    hide ddd with dissolve
+                    show expression xeona_status.sprite as xeona
                     $ del img
                     ax "Phew, not bad! I didn't do to for a long time, always busy with arena and stuff..."
                     ax "Come again soon. Really soon."
-            
+
             "Talk about weather":
                 ax "Err... this is getting really awkward..."
                 ax "Is there anything else???"

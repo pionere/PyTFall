@@ -42,7 +42,7 @@ screen new_style_tooltip():
                 xmaximum 400
                 has vbox
 
-                #$ temp = "".join([BE_Core.DAMAGE_20[t] for t in combat_skill.damage])
+                $ temp = "".join([BE_Core.DAMAGE_20[t] for t in combat_skill.damage])
                 # if "melee" in combat_skill.attributes:
                 #     $ line = "{color=red}Melee skill{/color}"
                 # elif "ranged" in combat_skill.attributes:
@@ -65,33 +65,26 @@ screen new_style_tooltip():
                 hbox:
                     xsize 200
                     text "Damage: "
-                    hbox:
-                        xalign 1.0
-                        yoffset 2
-                        for t in combat_skill.damage:
-                            text BE_Core.DAMAGE_20[t]
-                    #text "[temp]" xalign 1.0 yoffset 2
+                    text temp align 1.0, .5
 
                 $ value = combat_skill.critpower
                 if value != 0:
-                    if value > 0:
-                        $ value = "+%s"%str(value)
                     hbox:
                         xsize 200
                         text "Critical damage:"
-                        text "%s%%"%str(value) xalign 1.0
+                        text "%+g%%"%value xalign 1.0
                 $ value = combat_skill.effect
                 if value != 0:
                     hbox:
                         xsize 200
                         text "Relative power:"
-                        text "%s"%str(value) xalign 1.0
+                        text str(value) xalign 1.0
                 $ value = combat_skill.multiplier
                 if value != 0:
                     hbox:
                         xsize 200
                         text "Damage multiplier:"
-                        text "%s"%str(value) xalign 1.0
+                        text str(value) xalign 1.0
 
                 null height 5
 
@@ -1005,8 +998,8 @@ screen s_menu(s_menu="Settings", main_menu=False):
                                 background Frame("content/gfx/frame/MC_bg.png", 10, 10)
                                 align (.5, .5)
                                 $ portrait = json_info.get("portrait", "")
-                                if check_image_extension(portrait) and renpy.loadable(portrait):
-                                    $ portrait = PyTGFX.scale_img(portrait, 90, 90)
+                                if check_content_extension(portrait) and renpy.loadable(portrait):
+                                    $ portrait = PyTGFX.scale_content(portrait, 90, 90)
                                 else:
                                     $ portrait = Null(width=90, height=90)
                                 add portrait align (.5, .5)

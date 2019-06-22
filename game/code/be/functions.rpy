@@ -88,13 +88,9 @@ init -11 python:
 
     def get_random_battle_track():
         # get a list of all battle tracks:
-        battle_tracks = []
-        folder = os.path.join("content", "sfx", "music", "be")
-        path = os.path.join(gamedir, folder, '.')
-        for fn in os.walk(path).next()[2]:
-            if fn.endswith(MUSIC_EXTENSIONS):
-                battle_tracks.append(os.path.join(folder, fn))
-        return choice(battle_tracks)
+        folder = content_path("sfx", "music", "be")
+        battle_tracks = [fn for fn in listfiles(folder) if check_music_extension(fn)]
+        return os.path.join(folder, choice(battle_tracks))
 
     def be_hero_escaped(team):
         '''Punish team for escaping'''

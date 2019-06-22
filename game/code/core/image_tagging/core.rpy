@@ -25,7 +25,7 @@ init -9 python:
             tags_dict = self.tags_dict
             tagmap = self.tagmap
             for fn in listfiles(path):
-                if not check_image_extension(fn):
+                if not check_content_extension(fn):
                     continue
                 # Add filename to girls id:
                 img_set.add(fn)

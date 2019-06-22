@@ -121,31 +121,31 @@ init -950 python:
     # Best I can tell, does nothing, but looks kinda nice :)
     sys.setdefaultencoding('utf-8')
 
-    def resolve_lib_file(badf, l=1):
+    # some debug functions
+    #def resolve_lib_file(badf, l=1):
+    #    m = re.match(r'^(?:.*[\\/])?(library[\\/].*\.rpy)c?$', badf)
+    #    if m:
+    #        f = m.group(1).replace('\\','/')
+    #        try:
+    #            return (renpy.loader.transfn(f), l)
+    #        except Exception: pass
 
-        m = re.match(r'^(?:.*[\\/])?(library[\\/].*\.rpy)c?$', badf)
-        if m:
-            f = m.group(1).replace('\\','/')
-            try:
-                return (renpy.loader.transfn(f), l)
+    #def get_screen_src(name):
+    #    for n, f, l in renpy.dump.screens:
+    #        if isinstance(name, basestring) and n == name or n == name+"_screen":
+    #            return resolve_lib_file(f, l)
 
-            except Exception: pass
+    #def get_label_src(name):
+    #    for n, r in renpy.game.script.namemap.iteritems():
+    #        if isinstance(name, basestring) and n == name or n == name+"_label":
+    #            return resolve_lib_file(r.filename, r.linenumber)
 
-    def get_screen_src(name):
-
-        for n, f, l in renpy.dump.screens:
-
-            if isinstance(name, basestring) and n == name or n == name+"_screen":
-
-                return resolve_lib_file(f, l)
-
-    def get_label_src(name):
-
-        for n, r in renpy.game.script.namemap.iteritems():
-
-            if isinstance(name, basestring) and n == name or n == name+"_label":
-
-                return resolve_lib_file(r.filename, r.linenumber)
+    # Getting rid of Ren'Py's containers since we don't require rollback.
+    dict = _dict
+    set = _set
+    list = _list
+    # object = _object # We are not using Ren'Pys object anywhere but it will throw errors if initiated this early because layout cannot be built with Pythons one.
+    _rollback = False
 
     # Object to specify a lack of value when None can be considered valid.
     # Use as "x is undefined".
@@ -156,13 +156,6 @@ init -950 python:
 
     # Prepping a list to append all quests for the registration.
     world_quests = list()
-
-    # Getting rid of Ren'Py's containers since we don't require rollback.
-    dict = _dict
-    set = _set
-    list = _list
-    # object = _object # We are not using Ren'Pys object anywhere but it will throw errors if initiated this early because layout cannot be built with Pythons one.
-    _rollback = False
 
     # Override the default game_menu
     config.game_menu_action = Show("s_menu", s_menu="Settings", main_menu=True)
@@ -175,14 +168,20 @@ init -950 python:
 
     ######################## Classes/Functions ###################################
     IMAGE_EXTENSIONS = (".png", ".jpg", ".gif", ".jpeg", ".webp")
-    MUSIC_EXTENSIONS = (".mp3", ".ogg", ".wav")
     MOVIE_EXTENSIONS = (".webm", ".mkv")
+    CONTENT_EXTENSIONS = IMAGE_EXTENSIONS + MOVIE_EXTENSIONS
+    MUSIC_EXTENSIONS = (".mp3", ".ogg", ".wav")
     IMG_NOT_FOUND_PATH = os.path.join("content", "gfx", "interface", "images", "no_image.png")
 
     def check_image_extension(fn):
+        #return fn.rsplit(".", 1)[-1].lower() in IMAGE_EXTENSIONS
         return fn.lower().endswith(IMAGE_EXTENSIONS)
     def check_movie_extension(fn):
         return fn.lower().endswith(MOVIE_EXTENSIONS)
+    def check_content_extension(fn):
+        return fn.lower().endswith(CONTENT_EXTENSIONS)
+    def check_music_extension(fn):
+        return fn.lower().endswith(MUSIC_EXTENSIONS)
 
     class Flags(_object):
         """Simple class to log all variables into a single namespace
@@ -363,40 +362,26 @@ init -950 python:
     #        return os.path.exists(os.path.join(gamedir, path))
     #    return all(exist(x) for x in path)
 
-    # Auto Animation from a folder:
-    def animate(path, delay=.25, function=None, transition=None, loop=False):
-        # Build a list of all images:
-        files = listfiles(path)
-        images = list(os.path.join(path, fn) for fn in files if check_image_extension(fn))
-        # Build a list of arguments
-        args = list()
-        # for image in images:
-            # args.extend([image, delay, transition])
-        # return anim.TransitionAnimation(*args)
-        for image in images:
-            args.append([image, delay])
-        return AnimateFromList(args, loop=loop)
-
     # Analizis of strings and turning them into int, float or bool.
     # Useful for importing data from xml.
-    def parse(string):
-        try:
-            value = int(string)
-        except TypeError:
-            value = string
-        except AttributeError:
-            value = string
-        except ValueError:
-            try:
-                value = float(string)
-            except ValueError:
-                if string.lower() in ['true', 'yes', 'on']:
-                    value = True
-                elif string.lower() in ['false', 'no', 'off', 'none']:
-                    value = False
-                else:
-                    value = string
-        return value
+    #def parse(string):
+    #    try:
+    #        value = int(string)
+    #    except TypeError:
+    #        value = string
+    #    except AttributeError:
+    #        value = string
+    #    except ValueError:
+    #        try:
+    #            value = float(string)
+    #        except ValueError:
+    #            if string.lower() in ['true', 'yes', 'on']:
+    #                value = True
+    #            elif string.lower() in ['false', 'no', 'off', 'none']:
+    #                value = False
+    #            else:
+    #                value = string
+    #    return value
 
     # -------------------------------------------------------------------------------------------------------- Ends here
 

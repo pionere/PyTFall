@@ -440,3 +440,27 @@ init -1: # Images and Animations
         "content/gfx/be/animations/ice_arrow/IceArrow_I8.webp"
 
     image ice_dagger = FilmStrip("content/gfx/be/filmstrips/ice_dagger.webp", (192, 192), (5, 3), .05, loop=False)
+
+    image fire_element_be_viewport = PyTGFX.smooth_scale_img("content/gfx/interface/images/elements/small_fire.png", 14, 14)
+    image water_element_be_viewport = PyTGFX.smooth_scale_img("content/gfx/interface/images/elements/small_water.png", 14, 14)
+    image earth_element_be_viewport = PyTGFX.smooth_scale_img("content/gfx/interface/images/elements/small_earth.png", 15, 15)
+    image darkness_element_be_viewport = PyTGFX.smooth_scale_img("content/gfx/interface/images/elements/small_darkness.png", 15, 15)
+    image ice_element_be_viewport = PyTGFX.smooth_scale_img("content/gfx/interface/images/elements/small_ice.png", 15, 15)
+    image air_element_be_viewport = PyTGFX.smooth_scale_img("content/gfx/interface/images/elements/small_air.png", 15, 15)
+    image ele_element_be_viewport = PyTGFX.smooth_scale_img("content/gfx/interface/images/elements/small_electricity.png", 13, 13)
+    image light_element_be_viewport = PyTGFX.smooth_scale_img("content/gfx/interface/images/elements/small_light.png", 13, 13)
+    image healing_be_viewport = PyTGFX.smooth_scale_img("content/gfx/interface/images/elements/healing.png", 13, 13)
+    image poison_be_viewport = PyTGFX.smooth_scale_img("content/gfx/interface/images/elements/poison.png", 13, 13)
+    image physical_be_viewport = PyTGFX.smooth_scale_img("content/gfx/interface/images/elements/physical.png", 15, 15)
+
+    image fire_element_be_size20 = PyTGFX.smooth_scale_img("content/gfx/interface/images/elements/small_fire.png", 19, 19)
+    image water_element_be_size20 = PyTGFX.smooth_scale_img("content/gfx/interface/images/elements/small_water.png", 19, 19)
+    image earth_element_be_size20 = PyTGFX.smooth_scale_img("content/gfx/interface/images/elements/small_earth.png", 20, 20)
+    image darkness_element_be_size20 = PyTGFX.smooth_scale_img("content/gfx/interface/images/elements/small_darkness.png", 20, 20)
+    image ice_element_be_size20 = PyTGFX.smooth_scale_img("content/gfx/interface/images/elements/small_ice.png", 20, 20)
+    image air_element_be_size20 = PyTGFX.smooth_scale_img("content/gfx/interface/images/elements/small_air.png", 20, 20)
+    image ele_element_be_size20 = PyTGFX.smooth_scale_img("content/gfx/interface/images/elements/small_electricity.png", 18, 18)
+    image light_element_be_size20 = PyTGFX.smooth_scale_img("content/gfx/interface/images/elements/small_light.png", 18, 18)
+    image healing_be_size20 = PyTGFX.smooth_scale_img("content/gfx/interface/images/elements/healing.png", 17, 17)
+    image poison_be_size20 = PyTGFX.smooth_scale_img("content/gfx/interface/images/elements/poison.png", 17, 17)
+    image physical_be_size20 = PyTGFX.smooth_scale_img("content/gfx/interface/images/elements/physical.png", 20, 20)

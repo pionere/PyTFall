@@ -455,15 +455,14 @@ label enter_dungeon_r:
                     pt = str((x, y))
                     if pt in dungeon.renderitem:
                         for ri in dungeon.renderitem[pt]:
-
                             img_name = sided[lateral+3] % ('dungeon_'+ri['name'], dungeon.light, distance)
-
-                            if 'function' in ri and ri['function'][:10] == "im.matrix.":
-                                img_name = 'content/dungeon/'+ri['name']+dungeon.light+'/'+img_name+'.webp'
-                                if os.path.isfile(gamedir + '/'+img_name):
+                            img_func = ri.get("function", None)
+                            if img_func is not None and img_func.startswith("im.matrix."):
+                                img_name = content_path("dungeon", ri['name']+dungeon.light, img_name+".webp")
+                                if renpy.loadable(img_name):
                                     # distance darkening
                                     brightness = im.matrix.brightness(-math.sqrt(lateral**2 + distance**2)/(5.8 if dungeon.light else 4.5))
-                                    shown.append(im.MatrixColor(img_name, eval(ri["function"])(*ri["arguments"]) * brightness))
+                                    shown.append(im.MatrixColor(img_name, eval(img_func)(*ri["arguments"]) * brightness))
                             else:
                                 shown.append(img_name)
 

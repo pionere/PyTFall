@@ -448,6 +448,7 @@ init -960 python:
             PyTGFX.movie_cache[idx] = (new_tag, movie)
             return movie
 
+        @staticmethod
         def gen_randmotion(count, dist, delay):
             args = [ ]
             for i in xrange(count):
@@ -466,12 +467,14 @@ init -960 python:
                     args.append(anim.Edge(i, delay, j, MoveTransition(delay)))
             return anim.SMAnimation(0, *args)
 
+        @staticmethod
         def double_vision_on(img, alpha=.5, count=10, dist=7, delay=.4, clear_scene=True):
             if clear_scene:
                 renpy.scene()
             renpy.show(img)
             renpy.show(img, at_list=[Transform(alpha=alpha), PyTGFX.gen_randmotion(count, dist, delay)], tag="blur_image")
 
+        @staticmethod
         def double_vision_off():
             renpy.hide("blur_image")
             renpy.with_statement(dissolve)
@@ -1222,8 +1225,19 @@ init -100 python:
                     if self.mask:
                         renpy.audio.music.stop(channel=self.mask_channel)
 
-
-
+    # Auto Animation from a folder: (Used at initialization as well!)
+    def animate(path, delay=.25, function=None, transition=None, loop=False):
+        # Build a list of all images:
+        files = listfiles(path)
+        images = list(os.path.join(path, fn) for fn in files if check_image_extension(fn))
+        # Build a list of arguments
+        args = list()
+        # for image in images:
+            # args.extend([image, delay, transition])
+        # return anim.TransitionAnimation(*args)
+        for image in images:
+            args.append([image, delay])
+        return AnimateFromList(args, loop=loop)
 
 init python:
     def get_size(d):
