@@ -1203,9 +1203,10 @@ screen tagger():
             frame:
                 align (.5, .5)
                 background Null()
+                $ img = PyTGFX.get_content(os.path.join(tagr.path_to_pic, tagr.pic))
                 imagebutton:
                     align (.5, .5)
-                    idle os.path.join(tagr.path_to_pic, tagr.pic)
+                    idle img
                     maximum (config.screen_width - 152, config.screen_height)
 
         if show_tags & 1:
@@ -1231,7 +1232,7 @@ screen tagger():
                         xysize (150, 18)
                         #style "white_cry_button"
                         action Function(temp.remove, tag)
-                        text_color color #"lime"
+                        text_color color
                         text_size 14
                         text_layout "nobreak"
                         if outlines is not None:
@@ -1260,7 +1261,6 @@ screen tagger():
                         color = color[0]
                 textbutton tag:
                     xysize (150, 18)
-                    #style "white_cry_button"
                     if tag in temp:
                         action Function(temp.remove, tag)
                         text_color "lime"
@@ -1294,7 +1294,6 @@ screen tagger():
                         $ color = color[0]
                     textbutton tg:
                         xysize (150, 18)
-                        #style "white_cry_button"
                         if tg in tagr.selected_groups:
                             action Function(tagr.remove_tag_group, tg)
                         else:

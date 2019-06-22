@@ -86,7 +86,7 @@ screen mainscreen():
         xalign .5
         padding 0, 0
         margin 0, 0
-        background location
+        background PyTGFX.get_content(location)
         at fade_from_to(.0, 1.0, fadein)
     # Overlay objects
         if objects:
@@ -95,7 +95,7 @@ screen mainscreen():
                 $ name = o.get("name", None)
                 $ next_loc = o.get("location", None)
                 $ tooltip = o.get("tooltip", None)
-                $ img = o["img"]
+                $ img = PyTGFX.get_content(o["img"])
                 button:
                     style 'image_button'
                     pos o["pos"]

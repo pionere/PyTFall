@@ -725,13 +725,14 @@ screen building_management_midframe_exploration_guild_mode:
                     padding 0, 0
                     margin 0, 0
                     for o in objects:
+                        $ img = PyTGFX.get_content(o.img)
                         button:
                             style 'image_button'
                             pos o.pos
-                            idle_background o.img
+                            idle_background img
                             focus_mask True
                             action NullAction()
-                            hover_background im.MatrixColor(o.img, im.matrix.brightness(.25))
+                            hover_background PyTGFX.bright_content(img, .25)
                             tooltip o.name
 
         # Teams

@@ -408,6 +408,17 @@ init -960 python:
             return im.MatrixColor(img, im.matrix.brightness(scale))
 
         @staticmethod
+        def get_content(path):
+            global NEXT_MOVIE_CHANNEL
+            if not check_movie_extension(path):
+                return path
+            idx = NEXT_MOVIE_CHANNEL
+            NEXT_MOVIE_CHANNEL = (NEXT_MOVIE_CHANNEL+1)%MOVIE_CHANNEL_COUNT
+            movie = Movie(channel="%02dmovie"%idx, play=path)
+            PyTGFX.movie_cache[idx] = (path, movie)
+            return movie
+
+        @staticmethod
         def scale_content(img, maxwidth, maxheight):
             if check_movie_extension(img):
                 return PyTGFX.scale_movie(img, maxwidth, maxheight)

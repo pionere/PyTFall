@@ -1029,23 +1029,48 @@ screen next_day():
                                 add PyTGFX.scale_content(char, csize, csize) align (.5, .5)
                             $ xpos += csize + border
                 else:
-                    $ xsize = (csize + border) * num_imgs
-                    viewport:
+                    python:
+                        images_left = []
+                        images_right = []
+                        for idx, image in enumerate(char_imgs):
+                            image = PyTGFX.scale_content(image, csize, csize)
+                            fixed = Fixed(xysize=(csize, csize))
+                            fixed.add(Transform(image, align=(.5, .5)))
+                            image = [fixed, randint(4, 5), get_random_image_dissolve(1.5)]
+                            if idx < num_imgs/2:
+                                images_left.extend(image)
+                            else:
+                                images_right.extend(image)
+                        char_imgs = [anim.TransitionAnimation(*images_left), anim.TransitionAnimation(*images_right)]
+                        num_imgs = 2
+                    frame:
+                        background Solid("#00000011")
                         align .5, .9
-                        xysize (500, csize + 2*border)
-                        child_size xsize, csize
-                        frame:
-                            background Solid("#00000011")
-                            xysize (xsize, csize + 2*border)
-                            ypadding border
-                            at scroll_around(num_imgs*4)
-                            $ xpos = 0
-                            for char in char_imgs:
-                                fixed:
-                                    xysize (csize, csize)
-                                    pos (xpos, 0)
-                                    add PyTGFX.scale_content(char, csize, csize) align (.5, .5)
-                                $ xpos += csize + border
+                        xysize ((csize+border)*num_imgs+border, csize + 2*border)
+                        padding border, border
+                        margin 0, 0
+                        $ xpos = 0
+                        for char in char_imgs:
+                            add char pos (xpos, 0)
+                            $ xpos += csize + border
+                #else:
+                #    $ xsize = (csize + border) * num_imgs
+                #    viewport:
+                #        align .5, .9
+                #        xysize (500, csize + 2*border)
+                #        child_size xsize, csize
+                #        frame:
+                #            background Solid("#00000011")
+                #            xysize (xsize, csize + 2*border)
+                #            ypadding border
+                #            at scroll_around(num_imgs*4)
+                #            $ xpos = 0
+                #            for char in char_imgs:
+                #                fixed:
+                #                    xysize (csize, csize)
+                #                    pos (xpos, 0)
+                #                    add PyTGFX.scale_content(char, csize, csize) align (.5, .5)
+                #                $ xpos += csize + border
 
         # Stat Frames:
         python:
