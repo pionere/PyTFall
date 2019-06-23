@@ -311,40 +311,34 @@ screen dungeon_move(hotspots):
         key "focus_up" action NullAction()
         key "focus_down" action NullAction()
 
-        button:
+        imagebutton:
             pos (190, 600)
-            xysize (50, 36)
-            background "content/gfx/interface/buttons/blue_arrow_up.png"
+            idle im.Scale("content/gfx/interface/buttons/blue_arrow_up.png", 50, 36)
             action Return(value=8)
             keysym "K_KP8", "K_UP", "repeat_K_KP8", "repeat_K_UP"
-        button:
+        imagebutton:
             pos (190, 650)
-            xysize (50, 36)
-            background "content/gfx/interface/buttons/blue_arrow_down.png"
+            idle im.Flip(im.Scale("content/gfx/interface/buttons/blue_arrow_up.png", 50, 36), vertical=True)
             action Return(value=2)
             keysym "K_KP2", "K_DOWN", "repeat_K_KP2", "repeat_K_DOWN"
-        button:
+        imagebutton:
             pos (135, 605)
-            xysize (36, 50)
-            background "content/gfx/interface/buttons/blue_arrow_l.png"
+            idle im.Flip(im.Scale("content/gfx/interface/buttons/blue_arrow_r.png", 36, 50), horizontal=True)
             action Return(value=4)
             keysym "K_KP4", "K_LEFT"
-        button:
-            xysize (36, 50)
+        imagebutton:
             pos (245, 605)
-            background "content/gfx/interface/buttons/blue_arrow_r.png"
+            idle im.Scale("content/gfx/interface/buttons/blue_arrow_r.png", 36, 50)
             action Return(value=6)
             keysym "K_KP6", "K_RIGHT"
-        button:
+        imagebutton:
             pos (145, 660)
-            xysize (36, 50)
-            background "content/gfx/interface/buttons/blue_arrow_left.png"
+            idle im.Flip(im.Scale("content/gfx/interface/buttons/blue_arrow.png", 36, 50), horizontal=True)
             action Return(value=7)
             keysym "K_KP7", "repeat_K_KP7"
-        button:
-            xysize (36, 50)
+        imagebutton:
             pos (248, 660)
-            background "content/gfx/interface/buttons/blue_arrow_right.png"
+            idle im.Scale("content/gfx/interface/buttons/blue_arrow.png", 36, 50)
             action Return(value=9)
             keysym "K_KP9", "repeat_K_KP9"
 

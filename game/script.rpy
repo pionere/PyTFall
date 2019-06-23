@@ -539,6 +539,10 @@ label after_load:
         if global_flags.has_flag("time_healing_day"):
             hero.set_flag("dnd_time_healing_day")
             global_flags.del_flag("time_healing_day")
+        if global_flags.has_flag("waitress_chosen_today"):
+            global_flags.set_flag("waitress_cafe", [global_flags.flag("waitress_chosen_today"), store.cafe_waitress_who])
+            global_flags.del_flag("waitress_chosen_today")
+            del store.cafe_waitress_who
 
         pytfall.maps = OnScreenMap()
 

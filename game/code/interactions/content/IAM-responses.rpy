@@ -425,7 +425,7 @@ init -2 python:
         @staticmethod
         def eating_propose(character):
             """
-            Outputs a line before eating for provided character
+            Outputs a line when a character proposes to eat something
             """
             char_traits = character.traits
             if "Impersonal" in char_traits:
@@ -450,6 +450,36 @@ init -2 python:
                 lines = ("Do you want to take a tea break?", "Hey, aren't you hungry? Want to go get something to eat?", "If you'd like, we could have lunch?")
             else:
                 lines = ("Hey, you got some snacks or something? I'm kinda hungry.", "Shall we take a break? I'm hungry.", "Aaah, I'm hungry... What about you?")
+            iam.say_line(character, lines)
+
+        @staticmethod
+        def icecream_propose(character):
+            """
+            Outputs a line when a character proposes to eat an icecream
+            """
+            char_traits = character.traits
+            if "Impersonal" in char_traits:
+                lines = ("Let's have an icecream.", "Hey, I was thinking about having an icecream.", "How about an icecream?")
+            elif "Shy" in char_traits and dice(50):
+                lines = ("H-hey, how about an icecream?", "I was just thinking about having an icecream...", "It's so hot... S-so maybe we...")
+            elif "Imouto" in char_traits:
+                lines = ("I really want some sweets ♪ C'mon!", "I could really have an icecream now. Wanna join?", "Woo! Icecream, icecream! Hurry!")
+            elif "Dandere" in char_traits:
+                lines = ("Icecream?", "Want to have an icecream?", "Icecream..?")
+            elif "Tsundere" in char_traits:
+                lines = ("C-come on, invite me for an icecream or something.", "Hey... Do you want to have an icecream? O-Or later?", "Y-you're going to join me for an icecream... okay?")
+            elif "Kuudere" in char_traits:
+                lines = ("Would you like to have some icecream together?", "Let's get an icecream.", "Is'nt it so hot? How about an icecream?")
+            elif "Kamidere" in char_traits:
+                lines = ("I think it's time for an icecream.", "Let's have an icecream, I'm really longing for it.")
+            elif "Bokukko" in char_traits:
+                lines = ("Hey, let's have an icecream, alright?", "Let's eat an icecream! I haven't had one in ages!", "It's time to have an icecream! Come on, let's go!")
+            elif "Ane" in char_traits:
+                lines = ("Shall we have an icecream and enjoy the sun?", "What would you say to an icecream with me?", "Would you like to join me for an icecream?")
+            elif "Yandere" in char_traits:
+                lines = ("Do you want to have an icecream?", "Hey, aren't you sweating on the sun? Want to have an icecream?", "If you'd like, we could have an icecream?")
+            else:
+                lines = ("Hey, you got something to cool down? It is kinda hot on the sun.", "Shall we take a break? I want some icecream.", "Aaah, I want an icecream... What about you?")
             iam.say_line(character, lines)
 
         @staticmethod

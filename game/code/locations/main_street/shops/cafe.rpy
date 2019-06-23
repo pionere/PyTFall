@@ -10,60 +10,33 @@ label cafe:
     $ pytfall.world_quests.run_quests("auto")
     $ pytfall.world_events.run_events("auto")
 
-    if global_flags.flag("waitress_chosen_today") != day:
-        $ cafe_waitress_who = npcs[(choice(["Mel_cafe", "Monica_cafe", "Chloe_cafe"]))]
-        $ global_flags.set_flag("waitress_chosen_today", value=day)
+    if global_flags.get_flag("waitress_cafe", [-1])[0] != day:
+        python hide:
+            who = global_flags.get_flag("waitress_ice", [0, None])
+            who = getattr(who[1], "id", None)
+            who = [w for w in ["Mel_cafe", "Monica_cafe", "Chloe_cafe"] if w != who]
+            who = npcs[(choice(who))]
+            global_flags.set_flag("waitress_cafe", value=[day, who])
 
-    $ w = cafe_waitress_who.say
+    $ waitress = global_flags.flag("waitress_cafe")[1]
 
-    show expression cafe_waitress_who.get_vnsprite() as npc
+    show expression waitress.get_vnsprite() as npc
     with dissolve
 
     if global_flags.flag('visited_cafe'):
-        w "Welcome back! Do you want a table?"
+        waitress.say "Welcome back! Do you want a table?"
     else:
         $ global_flags.set_flag('visited_cafe')
         $ hero.set_flag("health_bonus_from_eating_in_cafe", value=0)
-        w "Welcome to the Cafe!"
+        waitress.say "Welcome to the Cafe!"
         "Here you can find delicious food and tasty beverages!"
-    $ del w
-    $ inviting_character = hero
 
-    if len(hero.team) > 1 and not hero.has_flag("dnd_ate_in_cafe"):
-        python hide:
-            global inviting_character
-            members = [] # all chars willing to invite will be in this list
-            for member in hero.team:
-                if member != hero:
-                    if member.status == "free" and member.gold >= locked_random("randint", 500, 1000) and (member.get_stat("disposition") >= 200 or member.get_stat("affection") >= 200) and member.get_stat("joy") >= 30:
-                        # the chance for a member of MC team to invite team
-                        if "Imouto" in member.traits:
-                            chance = 60
-                        elif "Kamidere" in member.traits:
-                            chance = 55
-                        elif "Yandere" in member.traits:
-                            chance = 50
-                        elif "Ane" in member.traits:
-                            chance = 45
-                        elif "Bokukko" in member.traits:
-                            chance = 40
-                        elif "Tsundere" in member.traits:
-                            chance = 30
-                        elif "Kuudere" in member.traits:
-                            chance = 20
-                        elif "Dandere" in member.traits:
-                            chance = 10
-                        elif "Impersonal" in member.traits:
-                            chance = 5
-                        else:
-                            chance = 35
-                        if dice(chance):
-                            members.append(member)
-            if members:
-                inviting_character = random.choice(members)
-                iam.eating_propose(inviting_character)
+    $ inviting_character = hero
+    if not hero.has_flag("dnd_ate_in_cafe"):
+        $ inviting_character = iam.would_invite(locked_random("randint", 500, 1000))
 
     if inviting_character != hero:
+        $ iam.eating_propose(inviting_character)
         menu:
             "Do you want to accept [inviting_character.pd] invitation (free of charge)?"
             "Yes":
@@ -74,10 +47,20 @@ label cafe:
 
 label cafe_menu: # after she said her lines but before we show menu controls, to return here when needed
     scene bg cafe
-    show expression cafe_waitress_who.get_vnsprite() as npc
+    show expression waitress.get_vnsprite() as npc
     show screen cafe_eating
     while 1:
         $ result = ui.interact()
+
+        hide screen cafe_eating
+        if result == "shopping":
+            jump cafe_shopping
+        if result == "eat_alone":
+            jump mc_action_cafe_eat_alone_cafe_invitation
+        if result == "eat_group":
+            jump cafe_eat_group
+        $ del waitress
+        jump main_street
 
 label cafe_shopping:
     python:
@@ -109,26 +92,26 @@ screen cafe_eating():
         pos (.98, .98) anchor (1.0, 1.0)
         has vbox
         textbutton "Shop":
-            action [Hide("cafe_eating"), Jump("cafe_shopping")]
+            action Return("shopping")
 
         textbutton "Eat alone":
             sensitive not hero.has_flag("dnd_ate_in_cafe")
-            action [Hide("cafe_eating"), Jump("mc_action_cafe_eat_alone_cafe_invitation")]
+            action Return("eat_alone")
 
         textbutton "Eat with group":
             sensitive len(hero.team)>1 and not hero.has_flag("dnd_ate_in_cafe")
-            action [Hide("cafe_eating"), Jump("cafe_eat_group")]
+            action Return("eat_group")
 
         textbutton "Leave":
-            action [Hide("cafe_eating"), Jump("main_street")]
+            action Return("main_street")
             keysym "mousedown_3"
 
 label mc_action_cafe_eat_alone_cafe_invitation:
     menu:
         "What will it be?"
 
-        "Light Snack (10 G)":
-            if hero.take_money(10, reason="Cafe"):
+        "Light Snack (25 G)":
+            if hero.take_money(25, reason="Cafe"):
                 $ name = "small_food_" + str(renpy.random.randint(1, 3))
                 show image name at truecenter with dissolve
                 $ hero.set_flag("dnd_ate_in_cafe")
@@ -145,8 +128,8 @@ label mc_action_cafe_eat_alone_cafe_invitation:
             else:
                 "You don't have that amount of gold."
 
-        "Ordinary Meal (25 G)":
-            if hero.take_money(25, reason="Cafe"):
+        "Ordinary Meal (50 G)":
+            if hero.take_money(50, reason="Cafe"):
                 $ name = "medium_food_" + str(renpy.random.randint(1, 3))
                 show image name at truecenter with dissolve
                 $ hero.set_flag("dnd_ate_in_cafe")
@@ -163,8 +146,8 @@ label mc_action_cafe_eat_alone_cafe_invitation:
                 $ del name, result_v
             else:
                 "You don't have that amount of gold."
-        "Extra Large Meal (50 G)":   # by eating big meals hero can increase max health by 2 with 75% chance; after increasing it by 50 the chance drops to 10% with smaller bonus
-            if hero.take_money(50, reason="Cafe"):
+        "Extra Large Meal (200 G)":   # by eating big meals hero can increase max health by 2 with 75% chance; after increasing it by 50 the chance drops to 10% with smaller bonus
+            if hero.take_money(200, reason="Cafe"):
                 $ name = "big_food_" + str(renpy.random.randint(1, 3))
                 show image name at truecenter with dissolve
                 $ hero.set_flag("dnd_ate_in_cafe")
@@ -196,29 +179,29 @@ label mc_action_cafe_eat_alone_cafe_invitation:
 label cafe_eat_group:
     # MC always pays for everyone; an algorithm where we check if every character can and wants to pay and then pays separately is too complex without a good reason
     # instead there will be another event when a character with enough money and disposition invites the group and pays for everything
-    if hero.gold < 200:
-        "Sadly, you don't have enough money to reserve a table." # MC doesn't even have 200 gold, it's not a good idea to spend money here so we just stop it immediately
+    if hero.gold < 400:
+        "Sadly, you don't have enough money to reserve a table." # MC doesn't even have 400 gold, it's not a good idea to spend money here so we just stop it immediately
         jump cafe_menu
     else:
         $ inviting_character = hero
         jump mc_action_cafe_invitation
 
 label mc_action_cafe_invitation: # we jump here when the group was invited by one of chars
-    $ result = randint (30, 40) # base price MC pays for himself and the table
+    $ result = randint (60, 80) # base price MC pays for himself and the table
     python:
         for member in hero.team:
             if member != hero:
                 if member.status != "free":
                     if member.get_stat("disposition") < -50:
-                        result += randint(5, 10) # slaves with negative disposition will afraid to order too much, and also will have low bonuses
+                        result += randint(10, 20) # slaves with negative disposition will afraid to order too much, and also will have low bonuses
                     else:
-                        result += randint(20, 45)
-                    if "Always Hungry" in member.traits:
-                        result += randint(5, 10)
-                else:
-                    result += randint(25, 50)
+                        result += randint(40, 90)
                     if "Always Hungry" in member.traits:
                         result += randint(10, 20)
+                else:
+                    result += randint(50, 100)
+                    if "Always Hungry" in member.traits:
+                        result += randint(20, 40)
         del member
 
     if inviting_character.take_money(result, reason="Cafe"):

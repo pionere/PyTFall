@@ -43,15 +43,6 @@ label city_beach_cafe:
 
 screen city_beach_cafe:
     use top_stripe(True)
-
-    if not iam.show_girls:
-        $ img = im.Scale("content/gfx/interface/buttons/blue_arrow.png", 80, 80)
-        imagebutton:
-            align (.99, .5)
-            idle img
-            hover PyTGFX.bright_img(img, .15)
-            action [Hide("city_beach_cafe"), Jump("city_beach_cafe_main")]
-
     use location_actions("city_beach_cafe")
 
     if iam.show_girls:
@@ -63,3 +54,11 @@ screen city_beach_cafe:
             hbox:
                 align pos
                 use rg_lightbutton(return_value=['jump', entry])
+
+    else:
+        $ img = im.Scale("content/gfx/interface/buttons/blue_arrow.png", 80, 80)
+        imagebutton:
+            align (.99, .5)
+            idle img
+            hover PyTGFX.bright_img(img, .15)
+            action [Hide("city_beach_cafe"), Jump("city_beach_cafe_main")]

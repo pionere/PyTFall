@@ -26,43 +26,8 @@ label tavern_town:
         $ global_flags.set_flag("tavern_status", value=[day, "cozy"])
     else:
         if global_flags.flag("tavern_status")[0] != day: # every day tavern can randomly have one of three statuses, depending on the status it has very different activities available
-            $ tavern_status = weighted_sample([["cozy", 40], ["lively", 40], ["brawl", 20]])
-            $ global_flags.set_flag("tavern_status", value=[day, tavern_status])
-
-    if global_flags.flag("tavern_status")[1] == "cozy":
-        python hide:
-            dir = content_path("events", "tavern_entry", "cozy")
-            images = [file for file in listfiles(dir) if check_content_extension(file)]
-            img = os.path.join(dir, choice(images))
-            img = PyTGFX.scale_content(img, 1000, 600)
-            renpy.show("drunkards", what=img, at_list=[truecenter])
-            renpy.with_statement(dissolve)
-        "The tavern is warm and cozy with only a handful of drunkards enjoying the stay."
-    elif global_flags.flag("tavern_status")[1] == "lively":
-        python hide:
-            dir = content_path("events", "tavern_entry", "lively")
-            images = [file for file in listfiles(dir) if check_content_extension(file)]
-            img = os.path.join(dir, choice(images))
-            img = PyTGFX.scale_content(img, 1000, 600)
-            renpy.show("drunkards", what=img, at_list=[truecenter])
-            renpy.with_statement(dissolve)
-        "The place is loud and lively today, with townsmen drinking and talking at every table."
-    else:
-        python hide:
-            dir = content_path("events", "tavern_entry", "brawl")
-            images = [file for file in listfiles(dir) if check_content_extension(file)]
-            img = os.path.join(dir, choice(images))
-            img = PyTGFX.scale_content(img, 1000, 600)
-            renpy.show("event", what=img, at_list=[truecenter])
-            renpy.with_statement(dissolve)
-            renpy.music.stop(channel="world")
-            renpy.music.play("brawl.mp3", channel="world")
-        "You step into the room... right into a fierce tavern brawl!"
-        menu:
-            "Join it!":
-                jump city_tavern_brawl_fight
-            "Leave while you can":
-                jump city
+            $ global_flags.set_flag("tavern_status", value=[day, 
+                                    weighted_sample([["cozy", 40], ["lively", 40], ["brawl", 20]])])
 
 label city_tavern_menu: # "lively" status is limited by drunk effect; every action rises drunk counter, and every action with drunk effect active decreases AP
     scene bg tavern_inside
@@ -71,6 +36,33 @@ label city_tavern_menu: # "lively" status is limited by drunk effect; every acti
             "You feel a little dizzy... Perhaps you should go easy on drinks."
             $ hero.set_flag("dnd_tavern_dizzy")
         $ PyTGFX.double_vision_on("bg tavern_inside")
+    $ temp = global_flags.flag("tavern_status")[1]
+    python hide:
+        dir = content_path("events", "tavern_entry", temp)
+        images = [file for file in listfiles(dir) if check_content_extension(file)]
+        img = os.path.join(dir, choice(images))
+        img = PyTGFX.scale_content(img, 1000, 600)
+        renpy.show("drunkards", what=img, at_list=[truecenter])
+        renpy.with_statement(dissolve)
+    # comment on the state of the tavern, but only on the first time
+    if not hero.has_flag("dnd_was_in_tavern"):
+        if temp == "cozy":
+            "The tavern is warm and cozy with only a handful of drunkards enjoying the stay."
+        elif temp == "lively":
+            "The place is loud and lively today, with townsmen drinking and talking at every table."
+        else:
+            $ del temp
+            python hide:
+                renpy.music.stop(channel="world")
+                renpy.music.play("brawl.mp3", channel="world")
+            "You step into the room... right into a fierce tavern brawl!"
+            menu:
+                "Join it!":
+                    jump city_tavern_brawl_fight
+                "Leave while you can":
+                    jump city
+        $ hero.set_flag("dnd_was_in_tavern")
+    $ del temp
     show screen city_tavern_inside
     while 1:
         $ result = ui.interact()
@@ -81,6 +73,8 @@ label city_tavern_choose_label:
     "The current bet is [bet] Gold."
     menu:
         "How much Gold do you wish to bet?"
+        "5":
+            $ bet = 5
         "10":
             $ bet = 10
         "25" if hero.tier >= 1:
@@ -114,31 +108,33 @@ screen city_tavern_inside():
                 yalign .5
                 action [Hide("city_tavern_inside"), Jump("city_tavern_shopping")]
                 text "Buy a drink" size 15
-            if hero.has_ap() and global_flags.flag("tavern_status")[1] == "lively":
-                button:
-                    xysize (120, 40)
-                    yalign .5
-                    action [Hide("city_tavern_inside"), Jump("mc_action_tavern_look_around")]
-                    text "Look around" size 15
-            if hero.has_ap() and global_flags.flag("tavern_status")[1] == "cozy" and not hero.has_flag("dnd_rest_in_tavern"):
-                button:
-                    xysize (120, 40)
-                    yalign .5
-                    action [Hide("city_tavern_inside"), Jump("mc_action_tavern_relax")]
-                    text "Relax" size 15
-            if hero.has_ap() and global_flags.flag("tavern_status")[1] == "cozy":
-                button:
-                    xysize (120, 40)
-                    yalign .5
-                    action [Hide("city_tavern_inside"), Jump("city_tavern_play_dice")]
-                    text "Blackjack" size 15
-            if hero.has_ap() and global_flags.flag("tavern_status")[1] == "cozy":
-                button:
-                    xysize (120, 40)
-                    yalign .5
-                    action [Hide("city_tavern_inside"), Jump("city_tavern_play_poker")]
-                    text "Poker" size 15
-            if global_flags.flag("tavern_status")[1] == "cozy":
+            $ temp = global_flags.flag("tavern_status")[1]
+            if hero.has_ap():
+                if temp == "lively":
+                    button:
+                        xysize (120, 40)
+                        yalign .5
+                        action [Hide("city_tavern_inside"), Jump("mc_action_tavern_look_around")]
+                        text "Look around" size 15
+                if temp == "cozy" and not hero.has_flag("dnd_rest_in_tavern"):
+                    button:
+                        xysize (120, 40)
+                        yalign .5
+                        action [Hide("city_tavern_inside"), Jump("mc_action_tavern_relax")]
+                        text "Relax" size 15
+                if temp == "cozy":
+                    button:
+                        xysize (120, 40)
+                        yalign .5
+                        action [Hide("city_tavern_inside"), Jump("city_tavern_play_dice")]
+                        text "Blackjack" size 15
+                if temp == "cozy":
+                    button:
+                        xysize (120, 40)
+                        yalign .5
+                        action [Hide("city_tavern_inside"), Jump("city_tavern_play_poker")]
+                        text "Poker" size 15
+            if temp == "cozy":
                 button:
                     xysize (120, 40)
                     yalign .5
@@ -154,13 +150,17 @@ screen city_tavern_inside():
 label mc_action_tavern_relax:
     hide drunkards with dissolve
     if len(hero.team) < 2:
-        $ hero.set_flag("dnd_rest_in_tavern")
-        "You relax for awhile, but there isn't much to do here. Perhaps it would be more fun if you weren't alone."
-        $ hero.gfx_mod_stat("vitality", 5)
+        if hero.take_money(randint(10, 20), reason="Tavern"):
+            $ hero.set_flag("dnd_rest_in_tavern")
+            "You sit next to your drink for awhile, but there isn't much to do here. Perhaps it would be more fun if you weren't alone."
+            $ hero.gfx_mod_stat("joy", randint(2, 4))
+            $ iam.drinking_outside_of_inventory(char=hero, count=randint(10, 15))
+        else:
+            "You do not even have the means to buy yourself a drink. Maybe it is time to make yourself useful?"
     else:
         if hero.take_money(randint(30, 50), reason="Tavern"):
             $ hero.set_flag("dnd_rest_in_tavern")
-            $ members = list(x for x in hero.team if (x != hero))
+            $ members = list(member for member in hero.team if (member != hero))
             if len(members) == 1:
                 show expression members[0].get_vnsprite() at center as temp1
                 with dissolve
@@ -171,11 +171,13 @@ label mc_action_tavern_relax:
             "You ordered a few drinks and spent some time together."
             python:
                 for member in members:
-                    member.gfx_mod_stat("joy", randint(2, 4))
+                    member.gfx_mod_stat("joy", randint(4, 8))
                     member.gfx_mod_stat("disposition", randint(3, 5))
                     member.gfx_mod_stat("affection", affection_reward(member))
-                    iam.drinking_outside_of_inventory(character=member, count=randint(15, 40))
-                iam.drinking_outside_of_inventory(character=hero, count=randint(15, 25))
+                    iam.drinking_outside_of_inventory(char=member, count=randint(15, 40))
+                hero.gfx_mod_stat("joy", randint(4, 8))
+                iam.drinking_outside_of_inventory(char=hero, count=randint(15, 25))
+                del member, members
             hide temp1
             hide temp2
             with dissolve
@@ -226,7 +228,7 @@ label mc_action_tavern_look_around: # various bonuses to theoretical skills for 
     if hero.take_money(randint(10, 20), reason="Tavern"):
         hide drunkards with dissolve
 
-        $ iam.drinking_outside_of_inventory(character=hero, count=randint(15, 25))
+        $ iam.drinking_outside_of_inventory(char=hero, count=randint(15, 25))
         $ N = random.choice(["fishing", "sex", "exp"])
 
         if N == "fishing":

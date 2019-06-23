@@ -50,7 +50,7 @@ screen target_practice(skill, source, targets):
                             hover_color "red"
     else:
         python:
-            img = im.Flip("content/gfx/interface/buttons/blue_arrow_up.png", vertical=True)
+            img = im.Flip(im.Scale("content/gfx/interface/buttons/blue_arrow_up.png", 50, 36), vertical=True)
             idle_image = im.MatrixColor(img, im.matrix.opacity(.7))
             selected_img = im.MatrixColor(img, im.matrix.tint(1.0, .6, 1.0)*im.matrix.brightness(.15))
 

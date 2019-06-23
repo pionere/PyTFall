@@ -46,7 +46,6 @@ label city_beach_left:
                 hide screen city_beach_left
                 jump city_beach
 
-
 screen city_beach_left():
     use top_stripe(True)
     use location_actions("city_beach_left")
