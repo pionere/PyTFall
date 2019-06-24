@@ -3022,6 +3022,42 @@ init -2 python:
             lines = ("I have nothing! Please let it go.", "I'm poor, could we just go on?")
             iam.say_line(character, lines, "sad")
 
+        @staticmethod
+        def got_injured(character):
+            """
+            Output line when the character suffers an injury
+            """
+            global block_say
+            char_traits = character.traits
+            mood = "indifferent"
+            if "Impersonal" in char_traits:
+                lines = ("Uff... I got hurt...", )
+            elif "Shy" in char_traits:
+                mood = "sad"
+                lines = ("Um, what happened to me... Oh, I see...", )
+            elif "Imouto" in char_traits:
+                mood = "scared"
+                lines = ("Ouch?! Uuh, I'm bleeding!", )
+            elif "Dandere" in char_traits:
+                lines = ("Ohh well... Now I got hurt...", )
+            elif "Tsundere" in char_traits:
+                lines = ("What is it? Just a small bruise.", )
+            elif "Kuudere" in char_traits:
+                lines = ("Ehh.. Why does this happen always to me?", )
+            elif "Kamidere" in char_traits:
+                lines = ("Uhh... Don't worry, I'm going to be fine.", )
+            elif "Bokukko" in char_traits:
+                lines = ("Mmm. Nothing, but a scratch.", )
+            elif "Ane" in char_traits:
+                lines = ("Oh my... Another wound, but it is going to heal soon.", )
+            elif "Yandere" in char_traits:
+                lines = ("Oh... I'm alright... Or will be soon...", )
+            else:
+                lines = ("Right. Nothing... It is just a wound to tend to.", )
+            block_say = True
+            iam.say_line(character, lines, mood)
+            block_say = False
+
         ##############################     TODO unused methods     ##############################
 
         @staticmethod

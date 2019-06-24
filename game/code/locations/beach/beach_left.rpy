@@ -191,6 +191,8 @@ label mc_action_city_beach_rest:
     python hide:
         for member in hero.team:
             member.gfx_mod_stat("vitality", randint(10, 15))
+            if "Adventurous" not in member.traits:
+                member.gfx_mod_stat("joy", randint(0, 1))
             if member != hero:
                 member.gfx_mod_stat("disposition", 1)
                 member.gfx_mod_stat("affection", affection_reward(member, .1))

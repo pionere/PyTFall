@@ -104,7 +104,7 @@ label xeona_talking:
         $ xeona_status.heal_day = day
         ax "Wait, you are wounded! That won't do! One second..."
         hide xeona with dissolve
-        $ img = npcs["Xeona_arena"].show('nurse', resize=iam.IMG_SIZE, add_mood=False)
+        $ img = npcs["Xeona_arena"].show("nurse", exclude=["sex", "nude"], resize=iam.IMG_SIZE, add_mood=False)
         show expression img at truecenter as ddd
         with dissolve
         "She quickly patched your wounds."
@@ -204,7 +204,7 @@ label xeona_talking:
                     $ xeona_status.meet_day = day
                     ax "Sure, I have a few hours! Let's go."
                     hide xeona with dissolve
-                    $ img = npcs["Xeona_arena"].show('sfw', resize=iam.IMG_SIZE, add_mood=False)
+                    $ img = npcs["Xeona_arena"].show("sfw", resize=iam.IMG_SIZE, add_mood=False)
                     show expression img at truecenter as ddd
                     with dissolve
                     "You spent some time with Xeona. She likes you a bit more now."
@@ -225,7 +225,7 @@ label xeona_talking:
                     $ xeona_status.meet_day = day
                     ax "In the mood for some kinky stuff today? Me too, hehe."
                     hide xeona with dissolve
-                    $ img = npcs["Xeona_arena"].show('nude', resize=iam.IMG_SIZE, add_mood=False)
+                    $ img = npcs["Xeona_arena"].show("nude", exclude=["sex"], resize=iam.IMG_SIZE, add_mood=False)
                     show expression img at truecenter as ddd
                     with dissolve
                     "Xeona arranged a small private show for you. You both enjoyed it."
@@ -266,7 +266,7 @@ label xeona_talking:
                     $ xeona_status.meet_day = day
                     ax "Alright, hehe. Come, I know a good place nearby!"
                     hide xeona with dissolve
-                    $ img = npcs["Xeona_arena"].show('sex', resize=iam.IMG_SIZE, add_mood=False)
+                    $ img = npcs["Xeona_arena"].show("sex", exclude=["in pain", "scared", "angry", "sad", "rape", "forced", "group"], resize=iam.IMG_SIZE, add_mood=False)
                     $ hero.gfx_mod_skill("sex", 0, randint(5, 10))
                     show expression img at truecenter as ddd
                     with dissolve

@@ -161,10 +161,10 @@ label mc_action_ice_invitation:
             $ hero.set_flag("dnd_ice_in_cafe")
             "You ordered an icecream for yourself. It is very tasty, but it would be more fun if you weren't alone."
             $ hero.gfx_mod_stat("joy", randint(2, 4))
-            if "Depressed" in hero.effects and dice(20):
-                $ hero.disable_effect("Depressed")
+            if dice(20):
+                $ hero.disable_effect("Depression")
             if dice(5):
-                $ hero.enable_effect("Down with Cold")
+                $ hero.enable_effect("Down with Cold", duration=randint(1, 2))
         else:
             $ narrator("You do not even have the means to buy yourself an icecream. Maybe it is time to make yourself useful?")
     else:
@@ -183,10 +183,10 @@ label mc_action_ice_invitation:
             python:
                 for member in hero.team:
                     member.gfx_mod_stat("joy", randint(3, 5))
-                    if "Depressed" in member.effects and dice(20):
-                        member.disable_effect("Depressed")
+                    if dice(20):
+                        member.disable_effect("Depression")
                     if dice(5):
-                        member.enable_effect("Down with Cold")
+                        member.enable_effect("Down with Cold", duration=randint(1, 2))
                     if member != hero:
                         member.gfx_mod_stat("disposition", randint(3, 5))
                         member.gfx_mod_stat("affection", affection_reward(member))

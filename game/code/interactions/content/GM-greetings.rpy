@@ -45,7 +45,8 @@ label girl_meets_greeting: # also lines for sad and angry flags are needed. but 
                 not check_lovers(char),
                 not char.flag("tried_to_lover"),
                 not char.flag("cnd_tried_to_lover"),
-                not char.flag("quest_cannot_be_lover"))):
+                not char.flag("quest_cannot_be_lover"),
+                dice(10))):
             # propose relationship
             $ iam.offer_relationship(char)
             menu:

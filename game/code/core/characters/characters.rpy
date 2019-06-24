@@ -1513,7 +1513,9 @@ init -9 python:
                 ss_mod = {"health": -randint(2, 5),
                           "vitality": -randint(5, 15),
                           "joy": -randint(2, 5)}
-                duration = locked_random("randint", 6, 14)
+                duration = kwargs.get("duration", None)
+                if duration is None:
+                    duration = locked_random("randint", 6, 14)
             elif name == "Food Poisoning":
                 ss_mod = {"health": -randint(8, 12),
                           "vitality": -randint(10, 25),
