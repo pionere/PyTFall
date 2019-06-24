@@ -30,7 +30,6 @@ label hiddenvillage_entrance:
             $ iam.start_gm(result[1], img=result[1].show("girlmeets", "suburb", exclude=["beach", "winter", "night", "formal", "indoors", "swimsuit"], type="first_default", label_cache=True, gm_mode=True))
 
         elif result == ['control', 'return']:
-            $ renpy.music.stop(channel="world")
             hide screen hiddenvillage_entrance
             jump city
 

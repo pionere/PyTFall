@@ -32,13 +32,12 @@ label city_parkgates:
         if result[0] == 'jump':
             $ iam.start_gm(result[1], img=result[1].show("girlmeets", "outdoors", "nature", "urban", exclude=["swimsuit", "wildness", "indoors", "stage", "beach", "pool", "onsen", "indoor"], type="reduce", label_cache=True, gm_mode=True))
 
-        if result[0] == 'control':
+        elif result[0] == 'control':
             hide screen city_parkgates
             if result[1] == 'jumppark':
                 jump city_park
 
             if result[1] == 'return':
-                $ renpy.music.stop(channel="world")
                 jump city
 
 screen city_parkgates():

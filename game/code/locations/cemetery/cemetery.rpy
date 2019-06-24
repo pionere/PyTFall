@@ -24,12 +24,9 @@ label graveyard_town:
             $ iam.start_gm(result[1], img=result[1].show('girlmeets', type="first_default", label_cache=True,
                         exclude=["swimsuit", "wildness", "beach", "pool", "urban", "stage", "onsen", "indoors", "indoor"]))
 
-        elif result[0] == 'control':
-            $ renpy.hide_screen("graveyard_town")
-            if result[1] == 'return':
-                $ renpy.music.stop(channel="world")
-                hide screen graveyard_town
-                jump city
+        elif result == ['control', 'return']:
+            hide screen graveyard_town
+            jump city
 
 label show_dead_list:
     $ dead_chars = pytfall.afterlife.inhabitants # list of dead characters

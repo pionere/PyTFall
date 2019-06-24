@@ -50,17 +50,12 @@ label employment_agency:
             $ block_say = False
             $ del char, cost
 
-        if result[0] == 'control':
-            if result[1] == 'return':
-                jump employment_agency_exit
-
-label employment_agency_exit:
-    $ renpy.music.stop(channel="world")
-    hide screen employment_agency
-    with dissolve
-    hide charla
-    $ del ea
-    jump main_street
+        elif result == ['control', 'return']:
+            hide screen employment_agency
+            with dissolve
+            hide charla
+            $ del ea
+            jump main_street
 
 screen employment_agency():
     modal True

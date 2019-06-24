@@ -33,13 +33,9 @@ label forest_entrance:
         if result[0] == 'jump':
             $ iam.start_gm(result[1], img=result[1].show("girlmeets", "nature", "wildness", type="first_default", label_cache=True, gm_mode=True,
                             exclude=["urban", "winter", "night", "beach", "onsen", "dungeon", "stage", "swimsuit", "indoor", "formal"]))
-        if result[0] == 'control':
-            if result[1] == 'return':
-                hide screen forest_entrance
-                jump city
-        elif result[0] == 'location':
-            $ renpy.music.stop(channel="world")
-            $ jump(result[1])
+        elif result == ['control', 'return']:
+            hide screen forest_entrance
+            jump city
 
 label mc_action_wood_cutting:
     if not has_items("Woodcutting Axe", hero, equipped=True):
@@ -79,7 +75,7 @@ screen forest_entrance():
                 align pos
                 use rg_lightbutton(return_value=['jump', entry])
 
-    if not iam.show_girls:
+    else:
         $ img = im.Scale("content/gfx/interface/icons/witch.png", 90, 90)
         imagebutton:
             pos (670, 490)

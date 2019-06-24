@@ -68,7 +68,6 @@ screen city_park():
                 action [Hide("city_park"), Jump("aine_menu"), With(dissolve)]
 
 label mc_action_park_rest:
-    show bg city_park with dissolve
     if hero.has_flag("dnd_rest_at_park"):
         "You already relaxed at the park today."
         jump city_park

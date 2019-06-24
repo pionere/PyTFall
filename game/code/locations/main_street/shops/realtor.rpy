@@ -2,6 +2,7 @@ label realtor_agency:
     # Music related:
     if not global_flags.has_flag("keep_playing_music"):
         $ PyTFallStatic.play_music("shops", fadein=1.5)
+    $ global_flags.del_flag("keep_playing_music")
 
     hide screen main_street
 
@@ -63,11 +64,9 @@ label realtor_agency:
                     hero.add_building(result[1])
                     market_buildings.remove(result[1])
                     focus = None
-            elif result[0] == 'control':
-                if result[1] == 'return':
-                    break
+            elif result == ['control', 'return']:
+                break
 
-    $ renpy.music.stop(channel="world")
     hide screen realtor_agency
     with dissolve
     hide rose

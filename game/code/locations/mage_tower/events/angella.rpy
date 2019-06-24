@@ -147,8 +147,6 @@ label angelica_remove_alignment:
     jump angelica_menu
 
 screen alignment_choice(character):
-    key "mousedown_3" action Return("")
-
     vbox:
         style_group "wood"
         xalign .5
@@ -157,6 +155,7 @@ screen alignment_choice(character):
             yalign .5
             action Return("")
             text "Finish" size 15
+            keysym "mousedown_3"
 
     python:
         char_elements = character.elements

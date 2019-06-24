@@ -160,7 +160,7 @@ label mc_action_ice_invitation:
         if hero.take_money(randint(5, 10), reason="Icecream"):
             $ hero.set_flag("dnd_ice_in_cafe")
             "You ordered an icecream for yourself. It is very tasty, but it would be more fun if you weren't alone."
-            $ hero.gfx_mod_stat("joy", randint(2, 4))
+            $ hero.gfx_mod_stat("joy", randint(1, 3))
             if dice(20):
                 $ hero.disable_effect("Depression")
             if dice(5):

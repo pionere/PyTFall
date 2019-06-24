@@ -13,7 +13,7 @@ label main_street:
             pytfall.world_actions.look_around()
             pytfall.world_actions.finish()
 
-    $ global_flags.set_flag("visited_mainstreet", True)
+    #$ global_flags.set_flag("visited_mainstreet", True)
 
     hide screen city_screen
     scene bg main_street at truecenter
@@ -26,21 +26,14 @@ label main_street:
     $ pytfall.world_events.run_events("auto")
 
     while 1:
-
         $ result = ui.interact()
-
-        if result[0] == 'control':
-            if result[1] == 'return':
-                $ global_flags.del_flag("keep_playing_music")
-                hide screen main_street
-                jump city
-
-        elif result[0] == 'location':
-            $ hs()
-            $ jump(result[1])
 
         if result[0] == 'jump':
             $ iam.start_gm(result[1], img=result[1].show("girlmeets", "outdoors", "urban", exclude=["swimsuit", "indoor", "wildness", "suburb", "beach", "pool", "onsen", "nature"], type="reduce", label_cache=True, gm_mode=True))
+
+        elif result == ['control', 'return']:
+            hide screen main_street
+            jump city
 
 
 screen main_street():

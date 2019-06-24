@@ -46,11 +46,10 @@ label city_beach:
                             tags = ["girlmeets", "swimsuit"]
                 iam.start_gm(char, img=char.show(*tags, type="reduce", label_cache=True, gm_mode=True))
 
-        elif result[0] == 'control':
-            if result[1] == 'return':
-                hide screen city_beach
-                with dissolve
-                jump city
+        elif result == ['control', 'return']:
+            hide screen city_beach
+            with dissolve
+            jump city
 
 screen city_beach():
     use top_stripe(True)
