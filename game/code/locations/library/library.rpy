@@ -383,7 +383,7 @@ label mc_action_library_study:
                     member.gfx_mod_stat("joy", -randint(2, 4))
                     if member == misfit:
                         continue
-                member.gfx_mod_exp(exp_reward(member, group, exp_mod=.1*mod))
+                member.gfx_mod_exp(exp_reward(member, group, exp_mod=.5*mod))
                 if is_skill(stat_skill):
                     member.gfx_mod_skill(stat_skill, 1, randint(0, mod))
                 else:
