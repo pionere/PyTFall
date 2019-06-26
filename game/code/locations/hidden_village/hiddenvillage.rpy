@@ -61,6 +61,7 @@ screen hiddenvillage_entrance:
 label hidden_village_shop: # ninja shop logic
     if not global_flags.has_flag("keep_playing_music"):
         $ PyTFallStatic.play_music("shops", fadein=1.5)
+    $ global_flags.del_flag("keep_playing_music")
 
     hide bg hiddenvillage_entrance
 
@@ -96,7 +97,6 @@ label hidden_village_shop: # ninja shop logic
 
     call shop_control from _call_shop_control_5
 
-    $ global_flags.del_flag("keep_playing_music")
     hide screen shopping
     with dissolve
     hide ren

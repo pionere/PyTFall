@@ -1,6 +1,7 @@
 label witches_hut:
     if not global_flags.has_flag("keep_playing_music"):
         $ PyTFallStatic.play_music("shops", fadein=1.5)
+    $ global_flags.del_flag("keep_playing_music")
 
     hide screen forest_entrance
 
@@ -49,7 +50,6 @@ label witches_hut_shopping:
 
     call shop_control from _call_shop_control_8
 
-    $ global_flags.del_flag("keep_playing_music")
     hide screen shopping
     with dissolve
     $ gfx_overlay.notify("Let me know if you need anything else.", tkwargs={"style": "interactions_text"}, duration=1.5)
@@ -72,7 +72,6 @@ label witches_hut_shopping_spells:
 
     call shop_control from _call_shop_control_9
 
-    $ global_flags.del_flag("keep_playing_music")
     hide screen shopping
     with dissolve
     $ gfx_overlay.notify("Let me know if you need anything else.", tkwargs={"style": "interactions_text"}, duration=1.5)

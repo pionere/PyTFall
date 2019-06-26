@@ -2,6 +2,7 @@ label cafe:
     # Music related:
     if not global_flags.has_flag("keep_playing_music"):
         $ PyTFallStatic.play_music("shops", fadein=1.5)
+    $ global_flags.del_flag("keep_playing_music")
 
     hide screen main_street
 
@@ -77,7 +78,6 @@ label cafe_shopping:
 
     call shop_control from _call_shop_control_2
 
-    $ global_flags.del_flag("keep_playing_music")
     hide screen shopping
     with dissolve
     $ del shop, focus, item_price, amount, purchasing_dir
@@ -112,7 +112,7 @@ label mc_action_cafe_eat_alone_cafe_invitation:
 
         "Light Snack (25 G)":
             if hero.take_money(25, reason="Cafe"):
-                $ name = "small_food_" + str(renpy.random.randint(1, 3))
+                $ name = "small_food_%d" % randint(1, 3)
                 show image name at truecenter with dissolve
                 $ hero.set_flag("dnd_ate_in_cafe")
                 "You feel a bit better!"
@@ -130,7 +130,7 @@ label mc_action_cafe_eat_alone_cafe_invitation:
 
         "Ordinary Meal (50 G)":
             if hero.take_money(50, reason="Cafe"):
-                $ name = "medium_food_" + str(renpy.random.randint(1, 3))
+                $ name = "medium_food_%d" % randint(1, 3)
                 show image name at truecenter with dissolve
                 $ hero.set_flag("dnd_ate_in_cafe")
                 "You feel quite satisfied."
@@ -148,7 +148,7 @@ label mc_action_cafe_eat_alone_cafe_invitation:
                 "You don't have that amount of gold."
         "Extra Large Meal (200 G)":   # by eating big meals hero can increase max health by 2 with 75% chance; after increasing it by 50 the chance drops to 10% with smaller bonus
             if hero.take_money(200, reason="Cafe"):
-                $ name = "big_food_" + str(renpy.random.randint(1, 3))
+                $ name = "big_food_%d" % randint(1, 3)
                 show image name at truecenter with dissolve
                 $ hero.set_flag("dnd_ate_in_cafe")
                 "You feel extremely full and satisfied."

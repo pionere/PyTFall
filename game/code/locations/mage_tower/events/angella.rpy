@@ -49,6 +49,17 @@ label angelica_menu:
     while 1:
         $ result = ui.interact()
 
+        hide screen angelica_menu
+        if result == "spells":
+            jump angelica_spells
+        elif result == "add_alignment":
+            jump angelica_add_alignment
+        elif result == "remove_alignment":
+            jump angelica_remove_alignment
+        else:
+            $ global_flags.set_flag("keep_playing_music")
+            jump mages_tower
+
 label angelica_spells:
     a "Magic is knowledge and knowledge is power!"
     python:
@@ -65,7 +76,6 @@ label angelica_spells:
 
     call shop_control from _call_shop_control_1
 
-    $ global_flags.del_flag("keep_playing_music")
     hide screen shopping
     with dissolve
     a "Use your magic responsibly."
@@ -241,11 +251,11 @@ screen angelica_menu():
         pos (.98, .98) anchor (1.0, 1.0)
         has vbox
         textbutton "Spells":
-            action Hide("angelica_menu"), Jump("angelica_spells")
+            action Return("spells")
         textbutton "Add Alignment":
-            action Hide("angelica_menu"), Jump("angelica_add_alignment")
+            action Return("add_alignment")
         textbutton "Remove Alignment":
-            action Hide("angelica_menu"), Jump("angelica_remove_alignment")
+            action Return("remove_alignment")
         textbutton "Leave":
-            action Hide("angelica_menu"), Jump("mages_tower")
+            action Return("leave")
             keysym "mousedown_3"

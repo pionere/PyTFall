@@ -44,6 +44,17 @@ label aine_menu_return:
     while 1:
         $ result = ui.interact()
 
+        hide screen aine_screen
+        if result == "shop":
+            jump aine_shop
+        elif result == "training":
+            jump aine_training
+        else:
+            a "Good luck!"
+            hide aine with dissolve
+            $ del a
+            jump city_park
+
 label aine_shop:
     a "Of course!"
     python:
@@ -120,22 +131,15 @@ label about_aine_personal_training:
     "The training will cost you 250 gold per tier of the trained character every day."
     return
 
-label aine_goodbye:
-    a "Good luck!"
-    $ global_flags.set_flag("keep_playing_music")
-    hide aine with dissolve
-    $ del a
-    jump city_park
-
 screen aine_screen():
     style_prefix "dropdown_gm"
     frame:
         pos (.98, .98) anchor (1.0, 1.0)
         has vbox
         textbutton "Spells":
-            action Hide("aine_screen"), Jump("aine_shop")
+            action Return("shop")
         textbutton "Training":
-            action Hide("aine_screen"), Jump("aine_training")
+            action Return("training")
         textbutton "Leave":
-            action Hide("aine_screen"), Jump("aine_goodbye")
+            action Return("leave")
             keysym "mousedown_3"

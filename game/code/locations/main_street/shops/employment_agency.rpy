@@ -2,6 +2,7 @@ label employment_agency:
     # Music related:
     if not global_flags.has_flag("keep_playing_music"):
         $ PyTFallStatic.play_music("shops", fadein=1.5)
+    $ global_flags.del_flag("keep_playing_music")
 
     hide screen main_street
 

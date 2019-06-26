@@ -3,6 +3,7 @@ label tailor_store:
     # Music related:
     if not global_flags.has_flag("keep_playing_music"):
         $ PyTFallStatic.play_music("shops", fadein=1.5)
+    $ global_flags.del_flag("keep_playing_music")
 
     hide screen main_street
 
@@ -51,7 +52,6 @@ label tailor_store_shopping:
 
     call shop_control from _call_shop_control_4
 
-    $ global_flags.del_flag("keep_playing_music")
     hide screen shopping
     with dissolve
     hide npc

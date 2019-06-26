@@ -295,7 +295,6 @@ label city_tavern_shopping: # tavern shop with alcohol, available in all modes e
 
     call shop_control from _call_shop_control_6
 
-    $ global_flags.del_flag("keep_playing_music")
     hide screen shopping
     with dissolve
     hide npc
