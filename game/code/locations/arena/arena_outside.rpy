@@ -74,7 +74,7 @@ label arena_outside:
             $ global_flags.set_flag("keep_playing_music")
             $ iam.start_gm(result[1], img=result[1].show("girlmeets", "armor", exclude=["swimsuit", "beach", "pool", "onsen", "bunny", "indoor", "formal", "wildness"], label_cache=True, gm_mode=True, type="reduce"))
 
-        if result[0] == "control":
+        elif result[0] == "control":
             $ renpy.music.stop(channel="gamemusic")
             hide screen arena_outside
             if result[1] == "enter_arena":
@@ -299,11 +299,7 @@ label find_xeona:
 
 label xeona_training:
     if not global_flags.has_flag("xeona_training_explained"):
-        ax "I train battle skills."
-        ax "Don't expect to learn any magic, but I can teach you how to fight on level with any silly mage!"
-        ax "Due to my the nature of training, there is always a chance of your constitution increasing as well."
-        ax "Potions we drink to increase stamina during the training might also restore your health."
-        "The training will cost you 250 gold per tier of the trained character every day."
+        call about_xeona_personal_training from _call_about_xeona_personal_training
         $ global_flags.set_flag("xeona_training_explained")
     else:
         ax "I am ready if you are!"
@@ -323,11 +319,7 @@ label xeona_training:
             "About training sessions":
                 call about_personal_training(ax) from _call_about_personal_training
             "About Xeona training":
-                ax "I train battle skills."
-                ax "Don't expect to learn any magic, but I can teach you how to fight on level with any silly mage!"
-                ax "Due to my the nature of training, there is always a chance of your constitution increasing as well."
-                ax "Potions we drink to increase stamina during the training might also restore your health."
-                "The training will cost you 250 gold per tier of the trained character every day."
+                call about_xeona_personal_training from _call_about_xeona_personal_training_1
             "{color=green}Setup sessions for [char.name]{/color}" if "Xeona Training" not in char.traits:
                 $ char.apply_trait(traits["Xeona Training"])
                 ax "Great, it will be [char.npc_training_price] gold per day."
@@ -341,6 +333,14 @@ label xeona_training:
             "Do Nothing":
                 $ del char
                 jump xeona_menu
+
+label about_xeona_personal_training:
+    ax "I train battle skills."
+    ax "Don't expect to learn any magic, but I can teach you how to fight on level with any silly mage!"
+    ax "Due to my the nature of training, there is always a chance of your constitution increasing as well."
+    ax "Potions we drink to increase stamina during the training might also restore your health."
+    "The training will cost you 250 gold per tier of the trained character every day."
+    return
 
 label arena_practice_start:
     scene bg battle_arena_1

@@ -60,7 +60,7 @@ label aine_shop:
     hide screen shopping
     with dissolve
     a " Come back with more gold!"
-    $ del shop, focus, item_price, amount, purchasing_dir
+    $ del shop, focus, item_price, amount, purchasing_dir, char
     jump aine_menu_return
 
 label aine_training:
@@ -121,6 +121,7 @@ label aine_goodbye:
     a "Good luck!"
     $ global_flags.set_flag("keep_playing_music")
     hide aine with dissolve
+    $ del a
     jump city_park
 
 screen aine_screen():

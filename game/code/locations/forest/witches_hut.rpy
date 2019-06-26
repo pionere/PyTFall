@@ -53,7 +53,7 @@ label witches_hut_shopping:
     hide screen shopping
     with dissolve
     $ gfx_overlay.notify("Let me know if you need anything else.", tkwargs={"style": "interactions_text"}, duration=1.5)
-    $ del shop, focus, item_price, amount, purchasing_dir
+    $ del shop, focus, item_price, amount, purchasing_dir, char
     jump witch_menu
 
 label witches_hut_shopping_spells:
@@ -76,17 +76,12 @@ label witches_hut_shopping_spells:
     hide screen shopping
     with dissolve
     $ gfx_overlay.notify("Let me know if you need anything else.", tkwargs={"style": "interactions_text"}, duration=1.5)
-    $ del shop, focus, item_price, amount, purchasing_dir
+    $ del shop, focus, item_price, amount, purchasing_dir, char
     jump witch_menu
 
 label witch_training:
     if not global_flags.has_flag("witches_training_explained"):
-        w "I train magic and intelligence."
-        w "I can also guarantee that your agility will go up if you pay attention in class!"
-        extend " That, however, doesn't happen very often."
-        w "And to make me even more awesome, half of your MP will be restored each time you train here!"
-        w "Yeap! I am That good!"
-        "The training will cost you 250 gold per tier of the trained character every day."
+        call about_abby_personal_training from _call_about_abby_personal_training
         $ global_flags.set_flag("witches_training_explained")
     else:
         w "You know the deal!"
@@ -106,11 +101,7 @@ label witch_training:
             "About training sessions":
                 call about_personal_training(w) from _call_about_personal_training_1
             "About Abby training":
-                w "I will train magic, intelligence and restore some MP."
-                w "I can also guarantee your character will go up if you pay attention in class!"
-                extend " That, however, does not often happen for reasons unknown..."
-                w "Yeap! I am That good!"
-                "The training will cost you 250 gold per tier of the trained character every day."
+                call about_abby_personal_training from _call_about_abby_personal_training_1
             "{color=green}Setup sessions for [char.name]{/color}" if "Abby Training" not in char.traits:
                 $ char.apply_trait(traits["Abby Training"])
                 w "I will take [char.npc_training_price] gold per day. Be sure to use my training only on wicked stuff!"
@@ -124,6 +115,15 @@ label witch_training:
             "Do Nothing":
                 $ del char
                 jump witch_menu
+
+label about_abby_personal_training:
+    w "I train magic and intelligence."
+    w "I can also guarantee that your character will go up if you pay attention in class!"
+    extend " That, however, doesn't happen very often."
+    w "And to make things even more awesome, half of your MP will be restored each time you train here!"
+    w "Yeap! I am That good!"
+    "The training will cost you 250 gold per tier of the trained character every day."
+    return
 
 label witch_talking_menu:
     while 1:

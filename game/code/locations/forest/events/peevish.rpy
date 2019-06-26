@@ -64,6 +64,7 @@ label peevish_meeting:
     $ pytfall.peevish_shop.visible = True 
     $ global_flags.set_flag("met_peevish")
     $ global_flags.del_flag("keep_playing_music")
+    $ del p
     jump forest_entrance
 
 label peevish_menu:
@@ -97,7 +98,7 @@ label peevish_menu:
 
     hide screen shopping
     with dissolve
-    $ del shop, focus, item_price, amount, purchasing_dir
+    $ del shop, focus, item_price, amount, purchasing_dir, char
     p "Come back when you have more {color=gold}gold{/color}!"
     if not global_flags.has_flag("revealed_aine_location"):
         p "Oh! Before I forget!"

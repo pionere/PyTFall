@@ -1618,7 +1618,7 @@ init -9 python:
                 self.mod_stat("intelligence", randint(1, 2))
                 mod_by_max(self, "mp", .5)
                 if dice(50):
-                    self.mod_stat("agility", randint(1, 2))
+                    self.mod_stat("character", randint(1, 2))
 
             elif kind == "Aine Training":
                 self.mod_stat("charisma", randint(1, 3))
@@ -1628,6 +1628,7 @@ init -9 python:
                     self.mod_stat("fame", 1)
                 if dice(1 + self.get_stat("luck")*.05):
                     self.mod_stat("luck", randint(1, 2))
+
             elif kind == "Xeona Training":
                 self.mod_stat("attack", randint(1, 2))
                 self.mod_stat("defence", randint(1, 2))
