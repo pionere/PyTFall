@@ -3531,7 +3531,7 @@
             "vitality": 140
         },
         "skills": {},
-        "traits": ["Divine Creature", "Light", "Light Absorption", "Darkness Immunity", "Minor Physical Resistance", "Darkness Weakness"],
+        "traits": ["Divine Creature", "Light", "Light Absorption", "Minor Physical Resistance", "Darkness Weakness"],
         "attack_skills": [
             "Light Slash"
         ],
