@@ -1,6 +1,6 @@
 init python:
     register_event("aine_menu", locations=["city_park"],
-        simple_conditions=["global_flags.flag('met_peevish')", "hero.get_stat('magic') >= 100"],
+        simple_conditions=["hero.get_stat('magic') >= 100"],
         priority=100, start_day=1, jump=True, dice=100, max_runs=1)
 
 label aine_menu:
@@ -22,10 +22,13 @@ label aine_menu:
         extend " Hello dear, I am Aine!"
 
         menu:
-            "A leprechaun? In the park?":
+            "What are you doing here?":
                 a "How Rude! I go wherever I please, and I can take care of myself!"
                 a "Not mentioning that this is a really nice place and very few people can see me!"
-            "I've met someone called Peevish...":
+            "A leprechaun? Here in the park?" if not global_flags.has_flag("met_peevish"):
+                a "Yes, why not? This place is as good as anywhere else!"
+                a "Or maybe even better. It is not so crowded and a pleasant location for someone like me."
+            "I've met someone called Peevish..." if global_flags.has_flag("met_peevish"):
                 a "That rude, good for nothing, useless excuse for a brother... well, you don't get to choose family..."
 
         a "I can teach you {color=lightblue}Ice{/color} and {color=yellow}Electricity{/color} spells if you're interested,"

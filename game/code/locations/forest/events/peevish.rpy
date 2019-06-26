@@ -100,7 +100,7 @@ label peevish_menu:
     with dissolve
     $ del shop, focus, item_price, amount, purchasing_dir, char
     p "Come back when you have more {color=gold}gold{/color}!"
-    if not global_flags.has_flag("revealed_aine_location"):
+    if not (global_flags.has_flag("revealed_aine_location") or global_flags.has_flag("met_aine")):
         p "Oh! Before I forget!"
         p "I have a goodie, goodie sis that usually hangs around the park area. She is magical too so you might not be able to see her until you train up a bit..."
         p "Sure wish you weren't such a wuss..."
