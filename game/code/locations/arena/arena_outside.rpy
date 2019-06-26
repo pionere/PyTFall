@@ -119,8 +119,8 @@ label xeona_talking:
         menu:
             ax "Well?"
             
-            #"Xeona Main":
-            #    $ pass
+            "Xeona Main":
+                $ pass
 
             "Tell me about the Arena":
                 ax "The arena, other than our sex industry, is the biggest source of entertainment for locals and tourists alike."
