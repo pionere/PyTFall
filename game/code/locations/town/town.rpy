@@ -15,7 +15,7 @@ label village_town:
             pytfall.world_actions.look_around()
             pytfall.world_actions.finish()
 
-    scene bg tavern_town
+    scene bg village_town
     with dissolve
 
     if not global_flags.flag('visited_village_town'):
