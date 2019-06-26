@@ -68,9 +68,9 @@ init -9 python:
                 'constitution': [5, 0, 50, 60, 0, 0, 0],
                 'joy': [50, 0, 100, 200, 0, 0, 0],             # FIXED_MAX
                 'character': [5, 0, 50, 60, 0, 0, 0],
-                'reputation': [0, 0, 100, 100, 0, 0, 0],       # FIXED_MAX
+                'reputation': [0, 0, 1000, 1000, 0, 0, 0],     # FIXED_MAX
                 'health': [100, 0, 100, 200, 0, 0, 0],
-                'fame': [0, 0, 100, 100, 0, 0, 0],             # FIXED_MAX
+                'fame': [0, 0, 1000, 1000, 0, 0, 0],           # FIXED_MAX
                 'mood': [0, 0, 1000, 1000, 0, 0, 0],           # FIXED_MAX not used...
                 'disposition': [0, -1000, 1000, 1000, 0, 0, 0],# FIXED_MAX
                 'affection': [0, -1000, 1000, 1000, 0, 0, 0],  # FIXED_MAX

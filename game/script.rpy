@@ -700,6 +700,8 @@ label after_load:
             hero.PP = store.gm.gm_points * 25
             del store.gm.gm_points
             clearCharacters = True
+        if hero.get_max("fame") != 1000:
+            clearCharacters = True
         if isinstance(simple_jobs, dict):
             if isinstance(simple_jobs["Manager"], Manager):
                 pmj = simple_jobs["Manager"]
@@ -1209,6 +1211,9 @@ label after_load:
                         if slot != "misc":
                             char.apply_item_effects(item) # Apply item effects
                         char.inventory.remove(item) # Remove item from the inventory
+                if char.get_max("fame") != 1000:
+                    char.stats.max["fame"] = char.stats.lvl_max["fame"] = 1000
+                    char.stats.max["reputation"] = char.stats.lvl_max["reputation"] = 1000
                 if hasattr(char, "price"):
                     del char.price
                 if hasattr(char, "days_depressed"):
