@@ -1,5 +1,4 @@
-label girl_interactions_greeting: # because GMs and interactions use different labels for greetings. Should be fixed eventually.
-label girl_meets_greeting: # also lines for sad and angry flags are needed. but if they will require interaction rewriting ie 1.3 game version, it's clearly too early for that
+label girl_interactions_greeting:
     if iam.check_for_bad_stuff_greetings(char):
         return
     $ m = iam.flag_count_checker(char, "flag_interactions_greeting") # probably not the most elegant way to count how many times greeting was shown this day already
@@ -105,18 +104,17 @@ label girl_meets_greeting: # also lines for sad and angry flags are needed. but 
     $ del m
     return
 
-label interactions_blowoff(char=None, exit=None):
+label interactions_blowoff(char, exit):
     $ hs()
     show expression char.get_vnsprite() as vn_sprite
     with dissolve
 
     $ iam.blowoff(char)
 
-    $ last_label = exit
     hide vn_sprite
-    $ renpy.show_screen(exit)
     with dissolve
-    return
+
+    jump expression exit
 
 label klepto_stealing:
     if "Kleptomaniac" in char.traits:

@@ -30,7 +30,7 @@ label city_beach_right:
                         if not tags:
                             # giveup
                             tags = ["girlmeets", "swimsuit"]
-                iam.start_gm(char, img=char.show(*tags, type="reduce", label_cache=True, gm_mode=True))
+                iam.start_int(char, img=char.show(*tags, type="reduce", label_cache=True, gm_mode=True), keep_music=False)
 
         elif result == ['control', 'return']:
             $ global_flags.set_flag("keep_playing_music")

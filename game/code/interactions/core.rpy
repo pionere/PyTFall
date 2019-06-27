@@ -29,7 +29,7 @@ init -1 python:
 
             # Get available characters and check stuff:
             #  filter chars out of city or in jail
-            choices = [c for c in possible_chars if c.location != pytfall.jail and (c.home == pytfall.city or str(c.location) == "girl_meets_quest")]
+            choices = [c for c in possible_chars if c.home == pytfall.city and c.location != pytfall.jail]
             #  filter by required tags
             if has_tags:
                 choices = [c for c in choices if c.has_image(*has_tags, exclude=has_no_tags)]
@@ -102,13 +102,10 @@ init -1 python:
         """
 
         # List of modes to use the girl_interactions label with.
-        # USE_GI = ["girl_meets", "girl_interactions", "girl_trainings"]
-        USE_GI = ["girl_meets", "girl_interactions"]
         IMG_SIZE = (600, 515) # Img size we automatically use for girlsmeets.
         def __init__(self):
             """
             Creates a new GirlsMeets.
-            There should be no lists in this classes dictionary except for girl_meets ones.
             """
             # Mode and caches
             self.mode = None
@@ -143,7 +140,7 @@ init -1 python:
             Returns a list of all girls currently in girl_meets.
             """
             l = list()
-            for cell in self.girlcells.values():
+            for cell in self.girlcells.itervalues():
                 l.extend(cell.girls)
             return l
 
@@ -151,7 +148,7 @@ init -1 python:
             """
             Removes a girl from the girl_meets.
             """
-            for cell in self.girlcells.values():
+            for cell in self.girlcells.itervalues():
                 if char in cell:
                     cell.girls.remove(char)
 
@@ -213,17 +210,14 @@ init -1 python:
             for l in ls:
                 # If the label exists
                 if renpy.has_label(l):
-                    self.jump_cache = l
                     break
             else:
                 # Try just the label name...:
                 if renpy.has_label(label):
-                    self.jump_cache = label
                     l = label
                 else:
                     # Notify and stop:
                     gui_debug("Unable to find GM label %s." % label)
-                    self.jump_cache = ""
                     return
 
             # If the action costs AP:
@@ -240,13 +234,15 @@ init -1 python:
 
             # Notify and jump
             self.show_menu = False
+            self.jump_cache = l
             renpy.jump(l)
 
-        def start(self, mode, char, img=None, exit=None, bg=None):
+        def start(self, mode, char, bg=None, img=None, exit=None):
             """Starts a girl meet scenario.
 
             mode = The mode to use.
             char = The character to use.
+            bg = The background to use. Use to override enter_location function. Set to True to select based on the char image.
             img = The image to use.
             exit = The exit label to use. Overrides enter_location.
             """
@@ -254,13 +250,6 @@ init -1 python:
             self.char = char
 
             hs() # Kill the current screen...
-
-            if exit is not None:
-                self.label_cache = exit
-                self.bg_cache = "bg " + (bg or exit)
-
-            elif bg is not None:
-                self.bg_cache = bg
 
             # Routine to get the correct image for this interaction:
             if img is None:
@@ -270,6 +259,19 @@ init -1 python:
             self.img = img
             self.img_cache = img
 
+            if exit is not None:
+                self.label_cache = exit
+                if bg is None:
+                    bg = exit
+
+            if bg is not None:
+                if bg is True:
+                    # set bg based on the char image
+                    bg = iam.select_char_location(char, self.get_image_tags())
+                #else:
+                    # direct set of the bg
+                self.bg_cache = "bg " + bg
+
             if hasattr(store, "char"):
                 self.prev_char = store.char
             elif hasattr(self, "prev_char"): # FIXME should not be necessary if the end is always called, but this is safer for now
@@ -278,40 +280,28 @@ init -1 python:
 
             if mode == "custom":
                 pass
-            elif mode in self.USE_GI:
-                jump("girl_interactions")
             else:
                 jump(mode)
 
-        def start_gm(self, char, img=None, exit=None, bg=None):
+        def start_int(self, char, bg=None, img=None, exit=None, keep_music=True):
             """
             Starts the girlsmeet scenario.
             char = The character to use.
+            bg = The background to use. Use to override enter_location function. Set to True to select based on the char image.
             img = The image for the character.
             exit = The exit label to use. Use to override enter_location function.
-            bg = The background to use. Use to override enter_location function.
+            keep_music = Whether we need to set the keep_playing_music flag after ending the interaction
             """
+            # Music flag:
+            if keep_music is True:
+                global_flags.set_flag("keep_playing_music")
             friends_disp_check(char)
             if char.has_flag("cnd_interactions_blowoff"):
-                renpy.call("interactions_blowoff", char=char, exit=last_label)
+                if exit is None:
+                    exit = last_label
+                renpy.call("interactions_blowoff", char=char, exit=exit)
 
-            if char.location == "girl_meets_quest":
-                self.start(char.id, char, img, exit, bg)
-            else:
-                self.start("girl_meets", char, img, exit, bg)
-
-        def start_int(self, char, img=None, exit="char_profile", bg="gallery"):
-            """
-            Starts the interaction scenario.
-            char = The character to use.
-            img = The image for the character.
-            exit = The exit label to use. Defaults to "char_profile".
-            bg = The background to use. Defaults to "gallery".
-            """
-            if char.has_flag("cnd_interactions_blowoff"):
-                renpy.call("interactions_blowoff", char=char, exit=last_label)
-
-            self.start("girl_interactions", char, img, exit, bg)
+            self.start("girl_interactions", char, bg, img, exit)
 
         def start_tr(self, char, img=None, exit="char_profile", bg="sex_dungeon_1"):
             """
@@ -321,32 +311,29 @@ init -1 python:
             exit = The exit label to use. Defaults to "char_profile".
             bg = The background to use. Defaults to "dungeon".
             """
-            self.start("girl_trainings", char, img, exit, bg)
+            self.start("girl_trainings", char, bg, img, exit)
 
         def enter_location(self, coords=None, **kwargs):
             """
             Enters the current location for the GM system.
             """
-            self.label_cache = str(last_label)
-            self.bg_cache = " ".join(["bg", self.label_cache])
+            label = str(last_label)
+            self.label_cache = label
+            self.bg_cache = "bg " + label
             self.show_girls = False
             self.coords = coords
 
             # Creation:
-            if self.label_cache not in self.girlcells:
-                cell = GmCell(self.label_cache, **kwargs)
+            if label not in self.girlcells:
+                cell = GmCell(label, **kwargs)
                 if cell.girls: # discard cell if no character found -> try to repopulate later
-                    self.girlcells[self.label_cache] = cell
+                    self.girlcells[label] = cell
 
         def end(self, safe=False):
             """
             Ends the current scenario.
             safe = Whether to prevent the label jump.
             """
-            # Music flag:
-            if self.mode != "girl_interactions" and renpy.music.get_playing(channel='world'):
-                global_flags.set_flag("keep_playing_music")
-
             # Reset scene
             hs()
 

@@ -1,11 +1,7 @@
-#init python:
-#    # The job for the GT mode
-#    gm_job = None
-
 label girl_interactions:
     python:
-        if "girl_meets" in pytfall.world_actions.locations:
-            del pytfall.world_actions.locations["girl_meets"]
+        if "girl_interactions" in pytfall.world_actions.locations:
+            del pytfall.world_actions.locations["girl_interactions"]
         pytfall.world_actions.clear()
 
     python:
@@ -17,10 +13,7 @@ label girl_interactions:
         iam.show_menu = False
         iam.show_menu_givegift = False
 
-    if iam.mode == "girl_interactions":
-        scene expression iam.select_char_location(char)
-    else:
-        scene expression iam.bg_cache
+    scene expression iam.bg_cache
 
     show screen girl_interactions
     with dissolve
@@ -64,23 +57,18 @@ label girl_interactions_after_greetings: # when character wants to say something
         #
 
         # Create actions
-        if pytfall.world_actions.location("girl_meets"):
-            _gm_mode = Iff(S((iam, "mode")), "==", "girl_meets")
+        if pytfall.world_actions.location("girl_interactions"):
             _gi_mode = Iff(S((iam, "mode")), "==", "girl_interactions")
             _gt_mode = Iff(S((iam, "mode")), "==", "girl_trainings")
-
-            _not_gm_mode = IffOr(_gi_mode, _gt_mode)
-            _not_gi_mode = IffOr(_gm_mode, _gt_mode)
-            _not_gt_mode = IffOr(_gm_mode, _gi_mode)
 
             # CHAT
             m = 0
             pytfall.world_actions.menu(m, "Chat")
             pytfall.world_actions.gm_choice("Small Talk", index=(m, 0))
-            pytfall.world_actions.gm_choice("About Job", mode="girl_interactions", index=(m, 1))
-            pytfall.world_actions.gm_choice("How She Feels", mode="girl_interactions", index=(m, 2))
+            pytfall.world_actions.gm_choice("About Job", condition="char in hero.chars", index=(m, 1))
+            pytfall.world_actions.gm_choice("How She Feels", condition="char in hero.chars", index=(m, 2))
             pytfall.world_actions.gm_choice("About Her", index=(m, 3))
-            pytfall.world_actions.gm_choice("About Occupation", mode="girl_meets", index=(m, 4))
+            pytfall.world_actions.gm_choice("About Occupation", condition="not(char in hero.chars)", index=(m, 4))
             pytfall.world_actions.gm_choice("Interests", index=(m, 5))
             pytfall.world_actions.gm_choice("Flirt", index=(m, 6))
 
@@ -113,16 +101,16 @@ label girl_interactions_after_greetings: # when character wants to say something
             # PRAISE
             m = 2
             pytfall.world_actions.menu(m, "Praise", condition="not(char in hero.chars)")
-            pytfall.world_actions.gm_choice("Clever", mode="girl_meets", index=(m, 0))
-            pytfall.world_actions.gm_choice("Strong", mode="girl_meets", index=(m, 1))
-            pytfall.world_actions.gm_choice("Cute", mode="girl_meets", index=(m, 2))
+            pytfall.world_actions.gm_choice("Clever", index=(m, 0))
+            pytfall.world_actions.gm_choice("Strong", index=(m, 1))
+            pytfall.world_actions.gm_choice("Cute", index=(m, 2))
 
             # INSULT
             m = 3
             pytfall.world_actions.menu(m, "Insult", condition="not(char in hero.chars)")
-            pytfall.world_actions.gm_choice("Stupid", mode="girl_meets", index=(m, 0))
-            pytfall.world_actions.gm_choice("Weak", mode="girl_meets", index=(m, 1))
-            pytfall.world_actions.gm_choice("Ugly", mode="girl_meets", index=(m, 2))
+            pytfall.world_actions.gm_choice("Stupid", index=(m, 0))
+            pytfall.world_actions.gm_choice("Weak", index=(m, 1))
+            pytfall.world_actions.gm_choice("Ugly", index=(m, 2))
 
             # GIVE MONEY
             m = 4
@@ -190,13 +178,6 @@ label girl_interactions_after_greetings: # when character wants to say something
             # pytfall.world_actions.gm_choice("Escalation", index=(m, 1))
 
             pytfall.world_actions.add("zzz", "Leave", Return(["control", "back"]), keysym="mousedown_3")
-
-            # Developer mode switches
-            if DEBUG_INTERACTIONS:
-                pytfall.world_actions.menu("dev", "Developer")
-                pytfall.world_actions.add(("dev", "gm"), "GM", Return(["test", "GM"]), condition=_not_gm_mode)
-                pytfall.world_actions.add(("dev", "gi"), "GI", Return(["test", "GI"]), condition=_not_gi_mode)
-                pytfall.world_actions.add(("dev", "gt"), "GT", Return(["test", "GT"]), condition=_not_gt_mode)
 
             pytfall.world_actions.finish()
 
@@ -280,21 +261,6 @@ label interactions_control:
             # Return / Back
             if result[1] in ("back", "return"):
                 jump girl_interactions_end
-        # Testing
-        elif result[0] == "test":
-            python:
-                iam.end(safe=True)
-
-                # Girls Meets
-                if result[1] == "GM":
-                    # Include img as coming from int and tr prevents the "img from last location" from working
-                    iam.start_gm(char, img=char.show("profile", exclude=["nude", "bikini", "swimsuit", "beach", "angry", "scared", "ecstatic"]))
-                # Interactions
-                elif result[1] == "GI":
-                    iam.start_int(char)
-                # Training
-                elif result[1] == "GT":
-                    iam.start_tr(char)
 
 screen girl_interactions():
     # BG
@@ -376,7 +342,7 @@ screen girl_interactions():
 
     # Actions
     if iam.show_menu:
-        use location_actions("girl_meets", char, pos=(1180, 315), anchor=(1.0, .5), style="main_screen_3")
+        use location_actions("girl_interactions", char, pos=(1180, 315), anchor=(1.0, .5), style="main_screen_3")
 
     # Give gift interface
     if iam.show_menu_givegift:

@@ -66,6 +66,8 @@ label char_profile:
                         hide screen char_profile
                         $ items_transfer([hero, char])
                         show screen char_profile
+                    elif result[1] == "interaction":
+                        $ iam.start_int(char, img=char.show('girlmeets', gm_mode=True, label_cache=True), bg=True, exit="char_profile", keep_music=False)
                 elif result[0] == "dropdown":
                     python:
                         if result[1] == "workplace":
@@ -144,7 +146,6 @@ screen char_profile():
     if girls:
         python:
             char_img = char.show('profile', gm_mode=True, label_cache=True)
-            gm_img = char.show('girlmeets', gm_mode=True, label_cache=True)
             image_tags = tagdb.get_image_tags(char_img)
             if "no bg" in image_tags:
                 frame_image = "content/gfx/frame/MC_bg3_white.png"
@@ -163,7 +164,7 @@ screen char_profile():
                 padding 4, 4
                 background frame_bg
                 hover_background frame_hbg
-                action Hide("char_profile"), With(dissolve), Function(iam.start_int, char, img=gm_img)
+                action Return(["jump", "interaction"])
                 sensitive char_is_controlled
                 tooltip "Click to interact with %s!\n%s" % (char.nickname, char.desc)
                 add PyTGFX.scale_content(char_img, 590, 600)

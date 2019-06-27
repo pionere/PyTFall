@@ -1675,6 +1675,8 @@ label after_load:
         if not hasattr(store, "iam"):
             store.iam = store.gm
             del store.gm
+        if "girl_meets" in pytfall.world_actions.locations:
+            del pytfall.world_actions.locations["girl_meets"]
 
         if hasattr(pytfall.general_store, "locations"):
             for i in pytfall.__dict__.values():

@@ -56,12 +56,11 @@ label city_beach_cafe_main:
                         if not tags:
                             # giveup
                             tags = ["girlmeets", "swimsuit"]
-                iam.start_gm(char, img=char.show(*tags, type="reduce", label_cache=True, gm_mode=True))
+                iam.start_int(char, img=char.show(*tags, type="reduce", label_cache=True, gm_mode=True))
 
-        elif result[0] == 'control':
-            if result[1] == 'return':
-                hide screen city_beach_cafe_main
-                jump city_beach_left
+        elif result == ['control', 'return']:
+            hide screen city_beach_cafe_main
+            jump city_beach_left
 
 
 screen city_beach_cafe_main:

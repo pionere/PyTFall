@@ -21,9 +21,9 @@ label city_park:
         $ result = ui.interact()
 
         if result[0] == 'jump':
-            $ iam.start_gm(result[1], img=result[1].show("girlmeets", "outdoors", "nature", "urban", exclude=["swimsuit", "wildness", "indoors", "stage", "beach", "pool", "onsen", "indoor"], type="reduce", label_cache=True, gm_mode=True))
+            $ iam.start_int(result[1], img=result[1].show("girlmeets", "outdoors", "nature", "urban", exclude=["swimsuit", "wildness", "indoors", "stage", "beach", "pool", "onsen", "indoor"], type="reduce", label_cache=True, gm_mode=True), keep_music=False)
 
-        if result[0] == 'control':
+        elif result[0] == 'control':
             #if result[1] in ['jumpgates', 'return'):
                 $ global_flags.set_flag("keep_playing_music")
                 hide screen city_park

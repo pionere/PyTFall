@@ -1,11 +1,7 @@
 label hero_profile:
     scene bg h_profile
 
-    $ global_flags.set_flag("keep_playing_music")
-
-    # $ pytfall.world_quests.run_quests("auto") Goes against squelching policy?
-    $ pytfall.world_events.run_events("auto")
-    $ renpy.retain_after_load()
+    #$ renpy.retain_after_load()
 
     show screen hero_profile
     with dissolve
@@ -41,7 +37,7 @@ label hero_profile:
         elif result[0] == 'control':
             if result[1] == 'return':
                 hide screen hero_profile
-
+                $ global_flags.set_flag("keep_playing_music") # FIXME sure?
                 jump expression pytfall.hp.came_from
         elif result[0] == "dropdown":
             if result[1] == "workplace":
@@ -93,7 +89,7 @@ label hero_profile:
                 else:
                     bg = "city_park"
 
-                iam.start_gm(char, exit="hero_profile", img=char.show("girlmeets", tag, label_cache=True, type="reduce"), bg=bg)
+                iam.start_int(char, img=char.show("girlmeets", tag, label_cache=True, type="reduce"), bg=bg, exit="hero_profile", keep_music=False)
 
 # Screens:
 screen hero_profile():

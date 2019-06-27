@@ -165,7 +165,7 @@ label academy_town:
         $ result = ui.interact()
 
         if result[0] == 'jump':
-            $ iam.start_gm(result[1], img=result[1].show("girlmeets", "schoolgirl", "indoors", exclude=["swimsuit", "wildness", "beach", "pool", "urban", "stage", "onsen"], type="reduce", label_cache=True, gm_mode=True))
+            $ iam.start_int(result[1], img=result[1].show("girlmeets", "schoolgirl", "indoors", exclude=["swimsuit", "wildness", "beach", "pool", "urban", "stage", "onsen"], type="reduce", label_cache=True, gm_mode=True))
 
         elif result == ['control', 'return']:
             hide screen academy_town

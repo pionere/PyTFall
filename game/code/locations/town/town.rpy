@@ -32,13 +32,12 @@ label village_town:
     while 1:
         $ result = ui.interact()
         if result[0] == 'jump':
-            $ iam.start_gm(result[1], img=result[1].show("girlmeets", "suburb", exclude=["beach", "winter", "night", "formal", "indoors", "swimsuit"], type="first_default", label_cache=True, gm_mode=True))
+            $ iam.start_int(result[1], img=result[1].show("girlmeets", "suburb", exclude=["beach", "winter", "night", "formal", "indoors", "swimsuit"], type="first_default", label_cache=True, gm_mode=True))
 
-        elif result[0] == 'control':
-            if result[1] == 'return':
-                hide screen village_town
-                with dissolve
-                jump city
+        elif result == ['control', 'return']:
+            hide screen village_town
+            with dissolve
+            jump city
 
 screen village_town:
     use top_stripe(True)

@@ -44,7 +44,7 @@ label city_beach:
                         if not tags:
                             # giveup
                             tags = ["girlmeets", "swimsuit"]
-                iam.start_gm(char, img=char.show(*tags, type="reduce", label_cache=True, gm_mode=True))
+                iam.start_int(char, img=char.show(*tags, type="reduce", label_cache=True, gm_mode=True))
 
         elif result == ['control', 'return']:
             hide screen city_beach

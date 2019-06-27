@@ -1,7 +1,6 @@
 label city_beach_cafe:
     $ iam.enter_location(goodtraits=["Athletic", "Dawdler", "Always Hungry"], badtraits=["Scars", "Undead", "Furry", "Monster"],
                         coords=[[.2, .75], [.5, .65], [.87, .6]])
-    $ global_flags.set_flag("keep_playing_music")
 
     python:
         # Build the actions
@@ -33,12 +32,12 @@ label city_beach_cafe:
                         if not tags:
                             # giveup
                             tags = ["girlmeets", "swimsuit"]
-                iam.start_gm(char, img=char.show(*tags, type="reduce", label_cache=True, gm_mode=True))
+                iam.start_int(char, img=char.show(*tags, type="reduce", label_cache=True, gm_mode=True), keep_music=False)
 
-        elif result[0] == 'control':
-            if result[1] == 'return':
-                hide screen city_beach_cafe
-                jump city_beach_cafe_main
+        elif result == ['control', 'return']:
+            $ global_flags.set_flag("keep_playing_music")
+            hide screen city_beach_cafe
+            jump city_beach_cafe_main
 
 
 screen city_beach_cafe:

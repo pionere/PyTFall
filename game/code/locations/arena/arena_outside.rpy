@@ -71,8 +71,7 @@ label arena_outside:
         $ result = ui.interact()
 
         if result[0] == "jump":
-            $ global_flags.set_flag("keep_playing_music")
-            $ iam.start_gm(result[1], img=result[1].show("girlmeets", "armor", exclude=["swimsuit", "beach", "pool", "onsen", "bunny", "indoor", "formal", "wildness"], label_cache=True, gm_mode=True, type="reduce"))
+            $ iam.start_int(result[1], img=result[1].show("girlmeets", "armor", exclude=["swimsuit", "beach", "pool", "onsen", "bunny", "indoor", "formal", "wildness"], label_cache=True, gm_mode=True, type="reduce"))
 
         elif result[0] == "control":
             $ renpy.music.stop(channel="gamemusic")
