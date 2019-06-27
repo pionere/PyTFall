@@ -1382,32 +1382,32 @@ screen show_item_info_content(item):
                         xysize (200, 20)
                         if hasattr(item, 'mreusable'):
                             if item.mreusable:
-                                if item.mtemp > 1:
-                                    text (u'Every %d days'%item.mtemp) color "#F5F5DC" size 15 xalign .02
-                                else:
-                                    text (u'Every day') color "#F5F5DC" size 15 xalign .02 yoffset -2
+                                $ temp = (u'Every %d days'%item.mtemp) if item.mtemp > 1 else u'Every day'
                             else:
-                                if item.mtemp > 1:
-                                    text (u'After %d days'%item.mtemp) color "#F5F5DC" size 15 xalign .02
-                                else:
-                                    text (u'After one day') color "#F5F5DC" size 15 xalign .02
+                                $ temp = (u'After %d days'%item.mtemp) if item.mtemp > 1 else u'After one day'
+                            text temp color "#F5F5DC" size 15 xalign .02 yoffset -2
                         if getattr(item, 'mdestruct', False):
-                                text (u'Disposable') color "#F5F5DC" size 15 xalign 1.0
+                            text (u'Disposable') color "#F5F5DC" size 15 xalign 1.0 yoffset -2
                         if getattr(item, 'mreusable', False):
-                                text (u'Reusable') color "#F5F5DC" size 15 xalign 1.0
+                            text (u'Reusable') color "#F5F5DC" size 15 xalign 1.0 yoffset -2
                     if getattr(item, 'statmax', False):
                         frame:
                             xysize (200, 20)
-                            text (u'Stat limit') color "#F5F5DC" size 15 xalign .02
-                            label (u'{color=#F5F5DC}{size=-4}%d'%item.statmax) align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
-            if getattr(item, 'ctemp', False):
-                label (u"Duration:") text_size 14 text_color "gold" xpos 30
-                frame:
-                    xysize (172, 18)
-                    if item.ctemp > 1:
-                        text (u'%d days'%item.ctemp) color "#F5F5DC" size 15 xalign .02
-                    else:
-                        text (u'One day') color "#F5F5DC" size 15 xalign .02 yoffset -2
+                            text (u'Stat limit') color "#F5F5DC" size 15 xalign .02 yoffset -2
+                            label str(item.statmax) text_size 15 text_color "#F5F5DC" text_outlines [(1, "#3a3a3a", 0, 0)] xalign 1.0 yoffset -1
+            if getattr(item, "cblock", False) or getattr(item, "ctemp", False):
+                label (u"Frequency:") text_size 20 text_color "goldenrod" text_bold True xalign .45
+                if getattr(item, "cblock", False):
+                    frame:
+                        xysize (200, 20)
+                        $ temp = (u'After %d days'%item.cblock) if item.cblock > 1 else u'After one day'
+                        text temp color "#F5F5DC" size 15 xalign 1.0 yoffset -2
+                if getattr(item, "ctemp", False):
+                    frame:
+                        xysize (200, 20)
+                        text (u'Duration') color "#F5F5DC" size 15 xalign .02 yoffset -2
+                        $ temp = (u'%d days'%item.ctemp) if item.ctemp > 1 else u'One day'
+                        text temp color "#F5F5DC" size 15 xalign 1.0 yoffset -2
 
             $ temp = [t.id for t in item.addtraits if not t.hidden]
             $ tmp = [t.id for t in item.removetraits if not t.hidden]
@@ -1417,11 +1417,11 @@ screen show_item_info_content(item):
                 for trait in temp:
                     frame:
                         xysize 200, 20
-                        text trait.title() size 15 color "lime" align .5, .5 text_align .5 outlines [(1, "black", 0, 0)]
+                        text trait.title() size 15 color "lime" outlines [(1, "black", 0, 0)] xalign .5 yoffset -1
                 for trait in tmp:
                     frame:
                         xysize 200, 20
-                        text trait.title() size 15 color "red" align .5, .5 text_align .5 outlines [(1, "black", 0, 0)]
+                        text trait.title() size 15 color "red" outlines [(1, "black", 0, 0)] xalign .5 yoffset -1
 
             if item.addeffects or item.removeeffects:
                 $ any_mod = True
@@ -1429,11 +1429,11 @@ screen show_item_info_content(item):
                 for effect in item.addeffects:
                     frame:
                         xysize 200, 20
-                        text effect.title() size 15 color "lime" align .5, .5 text_align .5 outlines [(1, "black", 0, 0)]
+                        text effect.title() size 15 color "lime" outlines [(1, "black", 0, 0)] xalign .5 yoffset -1
                 for effect in item.removeeffects:
                     frame:
                         xysize 200, 20
-                        text effect.title() size 15 color "red" align .5, .5 text_align .5 outlines [(1, "black", 0, 0)]
+                        text effect.title() size 15 color "red" outlines [(1, "black", 0, 0)] xalign .5 yoffset -1
 
             if item.mod_skills or item.add_be_spells or item.attacks:
                 $ any_mod = True
@@ -1441,7 +1441,7 @@ screen show_item_info_content(item):
                 for skill, data in item.mod_skills.iteritems():
                     frame:
                         xysize 200, 20
-                        text skill.title() size 15 color "yellowgreen" align .0, .5 outlines [(1, "black", 0, 0)]
+                        text skill.title() size 15 color "yellowgreen" outlines [(1, "black", 0, 0)] xalign .02 yoffset -1
 
                         $ img_path = "content/gfx/interface/icons/skills_icons/"
                         default PS = PyTGFX.scale_img
@@ -1475,33 +1475,39 @@ screen show_item_info_content(item):
                             $ txt_color = "red" if value < 0 else "lime"
                             $ temp += set_font_color("%+g" % value, txt_color)
                         if temp:
-                            label temp text_size 15 align 1.0, .5 text_outlines [(1, "black", 0, 0)]
+                            label temp text_size 15 text_outlines [(1, "black", 0, 0)] xalign 1.0 yoffset -1
 
                 if item.add_be_spells:
                     for skill in item.add_be_spells:
                         frame:
                             xysize 200, 20
-                            text skill.name size 15 color "yellow" align .5, .5 outlines [(1, "black", 0, 0)]
+                            text skill.name size 15 color "yellow" outlines [(1, "black", 0, 0)] xalign .5 yoffset -1
                 if item.attacks:
                     for skill in item.attacks:
                         frame:
                             xysize 200, 20
-                            text skill.name size 15 color "yellow" align .5, .5 outlines [(1, "black", 0, 0)]
+                            text skill.name size 15 color "yellow" outlines [(1, "black", 0, 0)] xalign .5 yoffset -1
 
             $ bem = modifiers_calculator(item)
             if any((bem.elemental_modifier, bem.defence_modifier, bem.evasion_bonus, bem.delivery_modifier, bem.damage_multiplier, bem.ch_multiplier)):
                 $ any_mod = True
                 use list_be_modifiers(bem)
 
-            if item.be:
+            if item.be or item.jump_to_label:
                 $ any_mod = True
                 label (u"Other:") text_size 20 text_color "goldenrod" text_bold True xalign .45
-                frame:
-                    xysize 200, 20
-                    text "Can be used in combat!" align .5, .5 size 15 color "yellowgreen" text_align .5 outlines [(1, "black", 0, 0)]
+                if item.be:
+                    frame:
+                        xysize 200, 20
+                        text "Can be used in combat!" size 15 color "yellowgreen" outlines [(1, "black", 0, 0)] xalign .5 yoffset -1
+
+                if item.jump_to_label:
+                    frame:
+                        xysize 200, 20
+                        text "Special item!" size 15 color "yellowgreen" outlines [(1, "black", 0, 0)] xalign .5 yoffset -1
 
             if not any_mod:
-                label ("- no direct effects -") text_size 15 text_color "goldenrod" text_bold True xalign .45 text_outlines [(1, "black", 0, 0)]
+                label ("- no direct effects -") text_size 15 text_color "goldenrod" text_bold True text_outlines [(1, "black", 0, 0)] xalign .45 yoffset -1
 
 screen show_stat_info(char, stats):
     $ pos = renpy.get_mouse_pos()
