@@ -1592,6 +1592,8 @@ label after_load:
             del pytfall.desc
         if hasattr(pytfall, "map_pattern"):
             del pytfall.map_pattern
+        if hasattr(pytfall, "hp"):
+            del pytfall.hp
         if hasattr(store, "equipSlotsPositions"):
             del store.equipSlotsPositions
         if hasattr(store, "SLOTALIASES"):

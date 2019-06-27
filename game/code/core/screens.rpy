@@ -348,7 +348,7 @@ screen top_stripe(show_return_button=True, return_button_action=None, show_lead_
                 imagebutton:
                     idle img
                     hover PyTGFX.bright_img(img, .15)
-                    action [SetField(pytfall.hp, "came_from", last_label), hs, Jump("hero_profile")]
+                    action [SetVariable("hero_profile_entry", last_label), hs, Jump("hero_profile")]
                     tooltip "View Hero Profile"
 
             null width 10

@@ -23,15 +23,16 @@ label city:
     while 1:
         $ result = ui.interact()
 
-        if result[0] == 'control':
-            if result[1] == 'return':
+        hide screen city_screen
+        if result[0] == "control":
+            if result[1] == "return":
                 $ global_flags.set_flag("keep_playing_music")
                 $ global_flags.del_flag("mc_home_location")
-                hide screen city_screen
-                with dissolve
                 jump mainscreen
-        elif result[0] == 'location':
-            hide screen city_screen
+            elif result[1] == "hero":
+                $ hero_profile_entry = "city"
+                jump hero_profile
+        elif result[0] == "location":
             jump expression result[1]
 
 
@@ -107,7 +108,7 @@ screen city_screen():
         imagebutton:
             idle img
             hover PyTGFX.bright_img(img, .15)
-            action [SetField(pytfall.hp, "came_from", last_label), Hide(renpy.current_screen().tag), Jump("hero_profile")]
+            action Return(["control", "hero"])
             tooltip "View Hero Profile"
         $ img = im.Scale("content/gfx/interface/buttons/save.png", 40, 40)
         imagebutton:

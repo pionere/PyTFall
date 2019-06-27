@@ -547,6 +547,7 @@ init:
     # Or we crash due to an engine bug (going to MMS):
     #default char = None
     #default char_profile_entry = None # Label to access chars profile from weird locations.
+    #default hero_profile_entry = None # Label to access hero profile from weird locations.
     #default girls = None
     #default came_to_equip_from = None # Girl equipment screen came from label holder
     #default eqtarget = None # Equipment screen

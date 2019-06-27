@@ -21,13 +21,7 @@ init -1 python:
         return inside
 
     class GuiHeroProfile(_object):
-        '''The idea is to try and turn the while loop into the function
-        I want girl_meets and quests to work in similar way
-        This is basically practicing :)
-        '''
-        def __init__(self):
-            self.finance_filter = "day"
-            self.came_from = None # To enable jumping back to where we originally came from.
+        pass # FIXME obsolete
 
     class PytGallery(_object):
         """

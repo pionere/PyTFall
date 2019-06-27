@@ -38,7 +38,8 @@ label hero_profile:
             if result[1] == 'return':
                 hide screen hero_profile
                 $ global_flags.set_flag("keep_playing_music") # FIXME sure?
-                jump expression pytfall.hp.came_from
+                $ last_label, hero_profile_entry = hero_profile_entry, None
+                jump expression last_label
         elif result[0] == "dropdown":
             if result[1] == "workplace":
                 $ renpy.show_screen("set_workplace_dropdown", hero, pos=renpy.get_mouse_pos())

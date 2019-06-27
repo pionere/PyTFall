@@ -43,8 +43,6 @@ init -9 python:
             self.streets = HabitableLocation(id="Streets", daily_modifier=-.1, desc="Cold and unneighborly city alleys")
             self.afterlife = AfterLife()
 
-            self.hp = GuiHeroProfile()
-
             # Exploration
             # self.tiles = load_tiles()
             # self.forest_1 = object()
