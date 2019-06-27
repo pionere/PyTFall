@@ -144,7 +144,7 @@ label mc_action_beach_competitions:
     show screen beach_competition_result(winners, event_type)
 
     python:
-        num = len(competitors) 
+        num = len(competitors) * 8 
         winners[0].add_money(expense/2)
         winners[0].gfx_mod_stat("disposition", randint(num/2, num))
         winners[0].gfx_mod_stat("affection", affection_reward(winners[0], .02 * num))
