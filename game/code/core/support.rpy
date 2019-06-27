@@ -60,7 +60,7 @@ init -9 python:
             self.rc_free_pop_distr = {"SIW": 30, "Specialist": 10,
                                       "Combatant": 30, "Server": 15,
                                       "Caster": 5}
-            self.rc_free_population = 40
+            self.rc_free_population = 80
             self.rc_slave_pop_distr = {"SIW": 60, "Server": 40}
             self.rc_slave_population = 30
 
