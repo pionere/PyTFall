@@ -166,7 +166,7 @@ screen building_management_leftframe_exploration_guild_mode:
             hbox:
                 xsize 300
                 text "Days Exploring:" xpos 5
-                text "[area.days]" xalign .9
+                text "[area.days]" xalign .9 yoffset -2
         hbox:
             xalign .5
             spacing 10
@@ -200,7 +200,7 @@ screen building_management_leftframe_exploration_guild_mode:
             hbox:
                 xsize 300
                 text "Risk:" xpos 5
-                text "[area.risk]" xalign .9
+                text "[area.risk]" xalign .9 yoffset -2
         hbox:
             xalign .5
             spacing 10

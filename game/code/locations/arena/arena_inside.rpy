@@ -519,7 +519,7 @@ init: # Main Screens:
                                             add fighter.show("portrait", resize=(45, 45), cache=True)
                                 null width 12
                                 frame:
-                                    align (.5, .5)
+                                    align (.5, .6)
                                     xfill True
                                     background Frame("content/gfx/frame/rank_frame.png", 5, 5)
                                     label "[name]" align .5, .5 text_size 25 text_style "proper_stats_text" text_color "gold":
