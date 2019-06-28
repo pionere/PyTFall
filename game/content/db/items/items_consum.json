@@ -1167,6 +1167,7 @@
     "infinite": false,
     "slot": "consumable",
     "type": "special",
+    "cblock": 5,
     "jump_to_label": "special_items_empty_extractor",
     "locations": ["Witches Hut"]
     },
