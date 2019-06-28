@@ -162,8 +162,8 @@ screen chars_list():
                 $ available = c.is_available and c in hero.chars
                 button:
                     ymargin 0
-                    idle_background Frame(Transform(img, alpha=.4), 10 ,10)
-                    hover_background Frame(Transform(img, alpha=.9), 10 ,10)
+                    idle_background Frame(im.Alpha(img, alpha=.4), 10 ,10)
+                    hover_background Frame(im.Alpha(img, alpha=.9), 10 ,10)
                     xysize (470, 120)
                     alternate Return(['control', 'return']) # keep in sync with mousedown_3
                     if available:
@@ -184,7 +184,7 @@ screen chars_list():
                     frame:
                         xpos 120
                         xysize (335, 115)
-                        background Frame(Transform("content/gfx/frame/p_frame2.png", alpha=.6), 10, 10)
+                        background Frame(im.Alpha("content/gfx/frame/p_frame2.png", alpha=.6), 10, 10)
                         vbox:
                             xpos 10
 
@@ -326,7 +326,7 @@ screen chars_list():
 
     # Filters:
     frame:
-        background Frame(Transform("content/gfx/frame/p_frame2.png", alpha=.55), 10 ,10)
+        background Frame(im.Alpha("content/gfx/frame/p_frame2.png", alpha=.55), 10 ,10)
         style_prefix "content"
         xmargin 0
         padding 5, 5
@@ -426,7 +426,7 @@ screen chars_list():
 
     # Sorting
     frame:
-        background Frame(Transform("content/gfx/frame/MC_bg.png", alpha=.55), 10 ,10)
+        background Frame(im.Alpha("content/gfx/frame/MC_bg.png", alpha=.55), 10 ,10)
         xmargin 0
         padding 5, 5
         pos (1005, 518)
@@ -446,7 +446,7 @@ screen chars_list():
         button:
             xysize (25, 25)
             align 1.0, 0.5 #offset 9, -2
-            background Frame(Transform("content/gfx/frame/MC_bg2.png", alpha=.55), 5, 5)
+            background Frame(im.Alpha("content/gfx/frame/MC_bg2.png", alpha=.55), 5, 5)
             action ToggleField(chars_list_state.source, "sorting_desc"), Function(chars_list_state.source.filter)
             if chars_list_state.source.sorting_desc:
                 add(im.Scale('content/gfx/interface/icons/checkbox_checked.png', 20, 20)) align .5, .5
@@ -459,7 +459,7 @@ screen chars_list():
         pos 1005, 568
         xsize 270
         frame:
-            background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.9), 10, 10)
+            background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.9), 10, 10)
             xysize (90, 150)
             style_prefix "basic"
             has vbox spacing 3 align .5, .5
@@ -484,7 +484,7 @@ screen chars_list():
 
         # Mass action Buttons ====================================>
         frame:
-            background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.9), 10, 10)
+            background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.9), 10, 10)
             align .5, .5
             style_prefix "basic"
             xysize (170, 150)
@@ -545,7 +545,7 @@ screen dropdown_content(options, max_rows, row_size, pos, value=None, field=None
         xsize, ysize = row_size
 
     frame:
-        background Frame(Transform("content/gfx/frame/MC_bg.png", alpha=.55), 10 ,10)
+        background Frame(im.Alpha("content/gfx/frame/MC_bg.png", alpha=.55), 10 ,10)
         #style_prefix "content"
         xmargin 0
         padding 5, 5

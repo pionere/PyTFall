@@ -131,7 +131,7 @@ screen hero_profile():
             $ tmp = 80 if temp < 100 else (100 if temp < 1000 else 120)
             frame:
                 pos pos
-                background Frame(Transform("content/gfx/frame/stat_box_proper.png", alpha=.9), 10, 10)
+                background Frame(im.Alpha("content/gfx/frame/stat_box_proper.png", alpha=.9), 10, 10)
                 xysize tmp, 30
                 hbox:
                     align .5, .5
@@ -318,7 +318,7 @@ screen hero_profile():
         frame:
             xalign .5
             yfill True
-            background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.6), 10, 10)
+            background Frame(im.Alpha("content/gfx/frame/MC_bg3.png", alpha=.6), 10, 10)
             xysize (142, 60)
             text (u"Day [day]") color "#CDAD00" font "fonts/Rubius.ttf" size 26 outlines [(1, "#3a3a3a", 0, 0)] align (.5, .6)
         null height 2
@@ -486,13 +486,13 @@ screen hero_team():
     zorder 1
     modal True
 
-    add Transform("content/gfx/images/bg_gradient2.webp", alpha=.3)
+    add im.Alpha("content/gfx/images/bg_gradient2.webp", alpha=.3)
 
     # Hero team ====================================>
     frame:
         style_prefix "proper_stats"
         align .58, .4
-        background Frame(Transform(im.Twocolor("content/gfx/frame/ink_box.png", "white", "black"), alpha=.7), 5, 5)
+        background Frame(im.Alpha(im.Twocolor("content/gfx/frame/ink_box.png", "white", "black"), alpha=.7), 5, 5)
         padding 10, 5
         has vbox spacing 10
 
@@ -541,8 +541,8 @@ screen hero_team():
 
                     imagebutton:
                         align (0, 1.0)
-                        idle Transform(img, alpha=.9)
-                        hover Transform(img, alpha=1.05)
+                        idle im.Alpha(img, alpha=.8)
+                        hover img
                         action ToggleField(member, "front_row", true_value=1, false_value=0)
                         tooltip "Toggle between rows in battle, currently character fights from the %s row" % ("front" if member.front_row else "back")
 
@@ -550,8 +550,8 @@ screen hero_team():
                         $ img = "content/gfx/interface/buttons/Profile.png"
                         imagebutton:
                             align (1.0, 1.0)
-                            idle Transform(img, alpha=.9)
-                            hover Transform(img, alpha=1.0)
+                            idle im.Alpha(img, alpha=.9)
+                            hover img
                             action If(member.is_available, true=[Hide("hero_profile"),
                                                                       Hide("hero_team"),
                                                                       SetVariable("girls", [member]),
@@ -565,7 +565,7 @@ screen hero_team():
                 frame:
                     xsize 162
                     padding 10, 5
-                    background Frame(Transform("content/gfx/frame/p_frame2.png", alpha=.6), 5, 5)
+                    background Frame(im.Alpha("content/gfx/frame/p_frame2.png", alpha=.6), 5, 5)
                     has vbox spacing 4 xfill True
                     fixed:
                         xysize 158, 25
@@ -684,7 +684,7 @@ screen mc_friends_list:
 
             for char in temp:
                 frame:
-                    background Frame(Transform("content/gfx/frame/ink_box.png", alpha=.6), 5, 5)
+                    background Frame(im.Alpha("content/gfx/frame/ink_box.png", alpha=.6), 5, 5)
                     top_padding 10
                     bottom_padding 3
                     xpadding 5

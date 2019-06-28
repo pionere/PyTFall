@@ -271,10 +271,10 @@ screen finances(obj, mode="logical"):
     default fin_mode = mode
     default focused = obj
 
-    add Transform("content/gfx/images/bg_gradient2.webp", alpha=.3)
+    add im.Alpha("content/gfx/images/bg_gradient2.webp", alpha=.3)
     frame:
         at slide(so1=(0, 700), t1=.7, so2=(0, 0), t2=.3, eo2=(0, -config.screen_height))
-        background Frame(Transform("content/gfx/frame/frame_gp.webp", alpha=.9), 10, 10)
+        background Frame(im.Alpha("content/gfx/frame/frame_gp.webp", alpha=.9), 10, 10)
         style_prefix "proper_stats"
         xysize 1000, 600
         padding 20, 20
@@ -398,7 +398,7 @@ screen finances(obj, mode="logical"):
         if focused.fin.income_tax_debt or focused.fin.property_tax_debt:
             $ total_debt = focused.fin.income_tax_debt + focused.fin.property_tax_debt
             frame:
-                background Frame(Transform("content/gfx/frame/MC_bg2.png", alpha=.9), 10, 10)
+                background Frame(im.Alpha("content/gfx/frame/MC_bg2.png", alpha=.9), 10, 10)
                 style_prefix "proper_stats"
                 align 1.0, 1.0
                 padding 5, 10
@@ -450,7 +450,7 @@ screen race_and_elements(align=(.5, .99), char=None):
         # Race:
         frame:
             xysize (100, 100)
-            background Frame(Transform("content/gfx/frame/frame_it1.png", alpha=.6, size=(100, 100)), 10, 10)
+            background Frame(im.Alpha("content/gfx/frame/frame_it1.png", alpha=.6), 0, 0)
             $ trait = char.race
             $ img = PyTGFX.scale_content(trait.icon, 95, 95)
             button:
@@ -468,7 +468,7 @@ screen race_and_elements(align=(.5, .99), char=None):
         $ ele = ", ".join([e.id for e in elements])
         frame:
             xysize (100, 100)
-            background Frame(Transform("content/gfx/frame/frame_it1.png", alpha=.6, size=(100, 100)), 10, 10)
+            background Frame(im.Alpha("content/gfx/frame/frame_it1.png", alpha=.6), 0, 0)
             add im.Scale("content/gfx/interface/images/elements/hover.png", 98, 98) align (.5, .5)
             button:
                 xysize 90, 90

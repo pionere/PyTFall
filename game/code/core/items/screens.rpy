@@ -72,7 +72,7 @@ screen eqdoll(source, outfit, fx_size, scr_align, frame_size, return_value):
                     else:
                         add PyTGFX.scale_content(img, frame_size[0]*.71, frame_size[1]*.71) align (.5, .5)
                 else:
-                    add Transform(PyTGFX.scale_img("content/gfx/interface/buttons/filters/%s_bg.png"%key, frame_size[0]*.71, frame_size[1]*.71), alpha=.35) align (.5, .5)
+                    add im.Alpha(PyTGFX.scale_img("content/gfx/interface/buttons/filters/%s_bg.png"%key, frame_size[0]*.71, frame_size[1]*.71), alpha=.35) align (.5, .5)
 
 screen shopping(left_ref=None, right_ref=None):
     use shop_inventory(ref=left_ref, x=.0)
@@ -376,7 +376,7 @@ screen shop_inventory(ref=None, x=.0):
 
     frame at fade_in_out(t1=.5, t2=.5):
         style_group "content"
-        background Frame(Transform("content/gfx/frame/mes11.webp", alpha=.5), 5, 5)
+        background Frame(im.Alpha("content/gfx/frame/mes11.webp", alpha=.5), 5, 5)
         xalign x
         yfill True
         has vbox

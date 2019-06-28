@@ -80,7 +80,7 @@ screen items_transfer(it_members):
     add "bg gallery"
 
     frame:
-        background Frame(Transform("content/gfx/frame/Namebox.png", alpha=.9), 10, 10)
+        background Frame(im.Alpha("content/gfx/frame/Namebox.png", alpha=.9), 10, 10)
         style_group "proper_stats"
         xalign .5
         ypos 42

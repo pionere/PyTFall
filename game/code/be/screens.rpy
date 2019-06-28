@@ -328,11 +328,11 @@ screen battle_overlay(be):
                         pass
                 portrait_frame = "content/gfx/frame/mes11.webp"
                 if battle.controller != member:
-                    portrait_frame = Transform(portrait_frame, alpha=.25)
+                    portrait_frame = im.Alpha(portrait_frame, alpha=.25)
 
             frame:
                 style_prefix "proper_stats"
-                background Frame(Transform("content/gfx/frame/ink_box.png", alpha=.5), 5, 5)
+                background Frame(im.Alpha("content/gfx/frame/ink_box.png", alpha=.5), 5, 5)
                 padding 5, 3
                 has hbox spacing 3
 
@@ -348,7 +348,7 @@ screen battle_overlay(be):
                 frame:
                     padding 8, 2
                     xsize 155
-                    background Frame(Transform("content/gfx/frame/p_frame2.png", alpha=.6), 5, 5)
+                    background Frame(im.Alpha("content/gfx/frame/p_frame2.png", alpha=.6), 5, 5)
                     has vbox
 
                     label "[member.name]":

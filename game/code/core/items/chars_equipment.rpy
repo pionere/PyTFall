@@ -20,9 +20,9 @@ init:
                 elif not can_transfer(source, hero, item, amount=tmp, silent=True):
                     tmp = 1
 
-        add Transform("content/gfx/images/bg_gradient2.webp", alpha=.3)
+        add im.Alpha("content/gfx/images/bg_gradient2.webp", alpha=.3)
         frame:
-            background Frame(Transform("content/gfx/frame/ink_box.png", alpha=.75), 10, 10)
+            background Frame(im.Alpha("content/gfx/frame/ink_box.png", alpha=.75), 10, 10)
             style_group "dropdown_gm2"
             align .42, .61
             xsize 500
@@ -377,7 +377,7 @@ screen char_equip():
     frame:
         pos (425, 10)
         xysize 298, 410
-        background Frame(Transform("content/gfx/frame/Mc_bg3.png", alpha=.3), 10, 10)
+        background Frame(im.Alpha("content/gfx/frame/Mc_bg3.png", alpha=.3), 10, 10)
         use eqdoll(source=eqtarget, outfit=False, fx_size=(455, 400), scr_align=(.98, 1.0), frame_size=[70, 70], return_value=["item", "unequip"])
 
     # BASE FRAME 3 "mid layer" ====================================>
@@ -393,7 +393,7 @@ screen char_equip():
         frame:
             xalign .6
             at fade_in_out()
-            background Transform(Frame(im.MatrixColor("content/gfx/frame/Mc_bg3.png", im.matrix.brightness(-0.2)), 5, 5), alpha=.3)
+            background Frame(im.Alpha(PyTGFX.bright_img("content/gfx/frame/Mc_bg3.png", -0.2), alpha=.3), 5, 5)
             xysize (710, 296)
             use char_equip_item_info(item=focusitem, size=(703, 287))
 
@@ -512,7 +512,7 @@ screen char_equip():
                     pos (4, 40)
                     # STATS ===================================>
                     frame:
-                        background Transform(Frame(im.MatrixColor("content/gfx/frame/p_frame5.png", im.matrix.brightness(-0.1)), 5, 5), alpha=.7)
+                        background Frame(im.Alpha(PyTGFX.bright_img("content/gfx/frame/p_frame5.png", -0.1), alpha=.7), 5, 5)
                         xsize 218
                         padding 6, 6
                         margin 0, 0
@@ -549,7 +549,7 @@ screen char_equip():
 
                     # BATTLE STATS ============================>
                     frame:
-                        background Transform(Frame(im.MatrixColor("content/gfx/frame/p_frame5.png", im.matrix.brightness(-0.1)), 5, 5), alpha=.7)
+                        background Frame(im.Alpha(PyTGFX.bright_img("content/gfx/frame/p_frame5.png", -0.1), alpha=.7), 5, 5)
                         xsize 218
                         padding 6, 6
                         margin 0, 0
@@ -588,7 +588,7 @@ screen char_equip():
                     spacing 5
                     pos (4, 40)
                     frame:
-                        background Transform(Frame(im.MatrixColor("content/gfx/frame/p_frame5.png", im.matrix.brightness(-0.1)), 5, 5), alpha=.7)
+                        background Frame(im.Alpha(PyTGFX.bright_img("content/gfx/frame/p_frame5.png", -0.1), alpha=.7), 5, 5)
                         xsize 218
                         padding 6, 6
                         margin 0, 0
@@ -632,7 +632,7 @@ screen char_equip():
                                     use skill_info(skill, xsize, ysize, idle_color="#F5F5DC")
 
                     frame:
-                        background Transform(Frame(im.MatrixColor("content/gfx/frame/p_frame5.png", im.matrix.brightness(-0.1)), 5, 5), alpha=.7)
+                        background Frame(im.Alpha(PyTGFX.bright_img("content/gfx/frame/p_frame5.png", -0.1), alpha=.7), 5, 5)
                         xsize 218
                         padding 6, 6
                         margin 0, 0
@@ -680,7 +680,7 @@ screen char_equip():
                     spacing 5
                     pos (4, 40)
                     frame:
-                        background Transform(Frame(im.MatrixColor("content/gfx/frame/p_frame5.png", im.matrix.brightness(-0.1)), 5, 5), alpha=.7)
+                        background Frame(im.Alpha(PyTGFX.bright_img("content/gfx/frame/p_frame5.png", -0.1), alpha=.7), 5, 5)
                         xsize 218
                         padding 6, 6
                         margin 0, 0
@@ -738,7 +738,7 @@ screen char_equip():
                     spacing 5
                     pos (4, 40)
                     frame:
-                        background Transform(Frame(im.MatrixColor("content/gfx/frame/p_frame5.png", im.matrix.brightness(-0.1)), 5, 5), alpha=.7)
+                        background Frame(im.Alpha(PyTGFX.bright_img("content/gfx/frame/p_frame5.png", -0.1), alpha=.7), 5, 5)
                         xsize 218
                         padding 6, 6
                         margin 0, 0
@@ -785,7 +785,7 @@ screen char_equip():
                                     use trait_info(trait, xsize, ysize, idle_color="#F5F5DC")
 
                     frame:
-                        background Transform(Frame(im.MatrixColor("content/gfx/frame/p_frame5.png", im.matrix.brightness(-0.1)), 5, 5), alpha=.7)
+                        background Frame(im.Alpha(PyTGFX.bright_img("content/gfx/frame/p_frame5.png", -0.1), alpha=.7), 5, 5)
                         xsize 218
                         padding 6, 6
                         margin 0, 0
@@ -837,7 +837,7 @@ screen char_equip():
     # TOOLTIP TEXT  ====================================>
     frame:
         pos (930, 4)
-        background Frame(Transform("content/gfx/frame/ink_box.png", alpha=.4), 10, 10)
+        background Frame(im.Alpha("content/gfx/frame/ink_box.png", alpha=.4), 10, 10)
         xpadding 10
         xysize (345, 110)
 
@@ -901,7 +901,7 @@ screen char_equip():
     # Auto-Equip/Item Transfer Buttons and Paging: ================>
     $ inventory = inv_source.inventory
     frame:
-        background Transform(Frame(im.MatrixColor("content/gfx/frame/p_frame5.png", im.matrix.brightness(-0.1)), 5, 5), alpha=.7)
+        background Frame(im.Alpha(PyTGFX.bright_img("content/gfx/frame/p_frame5.png", -0.1), alpha=.7), 5, 5)
         pos (931, 184)
         xysize (345, 80)
         has vbox spacing 2 xalign .5
@@ -978,7 +978,7 @@ screen char_equip():
     # Inventory: ====================================>
     frame:
         pos (931, 372)
-        background Transform(Frame(im.MatrixColor("content/gfx/frame/p_frame5.png", im.matrix.brightness(-0.1)), 5, 5), alpha=.7)
+        background Frame(im.Alpha(PyTGFX.bright_img("content/gfx/frame/p_frame5.png", -0.1), alpha=.7), 5, 5)
         use items_inv(inv=inventory, main_size=(333, 333), frame_size=(80, 80), return_value=["item", "equip"])
 
     # BASE FRAME 1 "top layer" ====================================>
@@ -1021,7 +1021,7 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                 frame:
                     align .5, .5
                     xysize (439, 35)
-                    background Transform(Frame(im.MatrixColor("content/gfx/frame/p_frame5.png", im.matrix.brightness(-0.05)), 10, 10), alpha=.9)
+                    background Frame(im.Alpha(PyTGFX.bright_img("content/gfx/frame/p_frame5.png", -0.05), alpha=.9), 10, 10)
                     label ('[item.id]') text_color "gold" align .5, .5 text_size 19 text_outlines [(1, "black", 0, 0)] text_style "interactions_text"
                 $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/close4.png", 20, 20)
                 imagebutton:
@@ -1046,7 +1046,7 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                 frame:
                     xalign .02
                     style_prefix "proper_stats"
-                    background Transform(Frame(im.MatrixColor("content/gfx/frame/p_frame5.png", im.matrix.brightness(-0.05)), 5, 5), alpha=.9)
+                    background Frame(im.Alpha(PyTGFX.bright_img("content/gfx/frame/p_frame5.png", -0.05), alpha=.9), 5, 5)
                     xysize (180, 130)
                     xpadding 0
                     xmargin 0
@@ -1127,7 +1127,7 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                 # Right items info (Stats):
                 frame:
                     xalign .98
-                    background Transform(Frame(im.MatrixColor("content/gfx/frame/p_frame5.png", im.matrix.brightness(-0.05)), 5, 5), alpha=.9)
+                    background Frame(im.Alpha(PyTGFX.bright_img("content/gfx/frame/p_frame5.png", -0.05), alpha=.9), 5, 5)
                     xysize (185, 130)
                     style_group "proper_stats"
                     left_padding 6
@@ -1172,7 +1172,7 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                 yalign 1.0
                 # Traits, Effects:
                 frame:
-                    background Transform(Frame(im.MatrixColor("content/gfx/frame/p_frame5.png", im.matrix.brightness(-0.05)), 5, 5), alpha=.9)
+                    background Frame(im.Alpha(PyTGFX.bright_img("content/gfx/frame/p_frame5.png", -0.05), alpha=.9), 5, 5)
                     xysize 158, 104
                     padding 2, 3
                     has viewport draggable True mousewheel True
@@ -1209,13 +1209,13 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                 frame:
                     xysize 382, 104
                     padding 10, 5
-                    background Transform(Frame(im.MatrixColor("content/gfx/frame/p_frame5.png", im.matrix.brightness(-0.1)), 5, 5), alpha=.9)
+                    background Frame(im.Alpha(PyTGFX.bright_img("content/gfx/frame/p_frame5.png", -0.1), alpha=.9), 5, 5)
                     has viewport draggable True mousewheel True
                     text '{color=#ecc88a}[item.desc]{/color}' font "fonts/TisaOTM.otf" size 15 outlines [(1, "#3a3a3a", 0, 0)]
 
 
                 frame:
-                    background Transform(Frame(im.MatrixColor("content/gfx/frame/p_frame5.png", im.matrix.brightness(-0.05)), 5, 5), alpha=.9)
+                    background Frame(im.Alpha(PyTGFX.bright_img("content/gfx/frame/p_frame5.png", -0.05), alpha=.9), 5, 5)
                     xysize 158, 104
                     padding 2, 3
                     has viewport draggable True mousewheel True

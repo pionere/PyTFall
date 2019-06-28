@@ -286,7 +286,7 @@ screen next_day():
         # Middle Frames =======================================================================>>>>
         # Middle Top: Game Total
         frame:
-            background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
+            background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
             xysize (430, 220)
             pos (275, 37)
             style_group "content"
@@ -304,7 +304,7 @@ screen next_day():
                 align .5, .95
                 xysize (414, 150)
                 style_prefix "proper_stats"
-                background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 5, 5)
+                background Frame(im.Alpha("content/gfx/frame/p_frame4.png", alpha=.6), 5, 5)
                 add PyTGFX.scale_img("content/gfx/images/jp1.png", 68, 101) pos (330, 20)
                 add PyTGFX.scale_img("content/gfx/images/jp2.png", 73, 103) pos (12, 20)
 
@@ -334,7 +334,7 @@ screen next_day():
         frame:
             pos (275, 249)
             xysize (430, 472)
-            background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
+            background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
 
             # Hero Filter/Portrait:
             frame:
@@ -357,7 +357,7 @@ screen next_day():
                     yalign .5
                     xpos 178
                     xysize 159, 110
-                    background Frame(Transform("content/gfx/frame/p_frame2.png", alpha=.6), 10, 10)
+                    background Frame(im.Alpha("content/gfx/frame/p_frame2.png", alpha=.6), 10, 10)
                     vbox:
                         label "[hero.name]":
                             text_size 16
@@ -574,7 +574,7 @@ screen next_day():
         # Left Frame ==========================================================================>>>>
         # Finances:
         frame:
-            background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
+            background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
             xysize 282, 685 #xoffset 3
             ypos 37
 
@@ -584,7 +584,7 @@ screen next_day():
 
             frame:
                 style_prefix "proper_stats"
-                background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
+                background Frame(im.Alpha("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
                 xysize 274, 670
                 xoffset -4
 
@@ -594,7 +594,7 @@ screen next_day():
                     style "content_frame"
                     xalign .6 ypos 15
                     xysize 210, 40
-                    background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.6), 10, 10)
+                    background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.6), 10, 10)
                     label (u"Daily Balance") text_size 23 text_color "ivory" xalign .5 yoffset -4
 
                 $ entry_size = (254, 25)
@@ -649,7 +649,7 @@ screen next_day():
 
         # Right frame (Building/Businesses reports):
         frame:
-            background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
+            background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
             xysize (582, 685)
             ypos 37
             xalign 1.0
@@ -672,7 +672,7 @@ screen next_day():
                     align .5, .5
                     top_padding 6
                     xysize 515, 136
-                    background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
+                    background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
                     hbox:
                         xalign .5
 
@@ -682,7 +682,7 @@ screen next_day():
                         frame:
                             align .5, .5
                             xysize 300, 122
-                            background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 5, 5)
+                            background Frame(im.Alpha("content/gfx/frame/p_frame4.png", alpha=.6), 5, 5)
                             style_group "proper_stats"
                             padding 8, 10
                             has vbox spacing 1
@@ -817,7 +817,7 @@ screen next_day():
                         frame:
                             xoffset 9
                             xysize 550, 136
-                            background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
+                            background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
                             hbox:
                                 yalign .5
                                 null width 10
@@ -847,7 +847,7 @@ screen next_day():
                                 frame:
                                     align .5, .5
                                     xysize 426, 122
-                                    background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 5, 5)
+                                    background Frame(im.Alpha("content/gfx/frame/p_frame4.png", alpha=.6), 5, 5)
                                     style_prefix "proper_stats"
                                     padding 8, 10
                                     has vbox spacing 1
@@ -1116,7 +1116,7 @@ screen next_day():
             frame:
                 at slide(so1=(136, 0), eo1=(0, 0), t1=.4,
                          so2=(0, 0), eo2=(136, 0), t2=.3)
-                background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
+                background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
                 pos (690, -2)
                 has fixed xysize 136, 400
                 if teammod or charmod:
@@ -1125,7 +1125,7 @@ screen next_day():
                         xalign .5
                         ypos 5
                         xysize (136, 40)
-                        background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.7), 10, 10)
+                        background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.7), 10, 10)
                         label (u"Stat Changes:") text_size 18 text_color "ivory" align (.5, .5)
 
                     # team report with multiple members
@@ -1192,7 +1192,7 @@ screen next_day():
                                         label "[value]" text_color ("lawngreen" if value > 0 else "red") align .98, .5
 
             # Buildings Stats Frame:
-            frame background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10):
+            frame background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10):
                 at slide(so1=(136, 0), eo1=(0, 0), t1=.4,
                              so2=(0, 0), eo2=(136, 0), t2=.3)
                 pos (690, 406)
@@ -1205,7 +1205,7 @@ screen next_day():
                                 style_group "content"
                                 xalign .5
                                 xysize (136, 40)
-                                background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.7), 10, 10)
+                                background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.7), 10, 10)
                                 label (u"Building Stats:") text_size 18 text_color "ivory" align .5, .5
                             null height 10
                             vbox:
@@ -1283,7 +1283,7 @@ screen next_day():
                         text "Previous Event" style "wood_text" xalign(.6) size 10
                     frame:
                         align (.5, .5)
-                        background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.9), 5, 5)
+                        background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.9), 5, 5)
                         xysize (100, 40)
                         text(u'Act: %d/%d'%(event_index+1, len(FilteredList))) align (.5, .5) size 16 style "proper_stats_text"
                     button:

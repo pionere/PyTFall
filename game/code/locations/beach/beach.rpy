@@ -280,9 +280,8 @@ screen diving_hidden_area(items=()):
     for item, size, align in items:
         button:
             align align
-            background Transform(Solid("black", xysize=size), alpha=.01)
+            background Null()
             xysize size
-            focus_mask True
             action Return(item)
             hovered SetField(config, "mouse", {"default": [("content/gfx/interface/icons/net.png", 0, 0)]})
             unhovered SetField(config, "mouse", None)

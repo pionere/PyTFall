@@ -194,7 +194,7 @@ screen city_jail_cells():
 
         # Data (Left Frame): =============================================================================>>>
         frame:
-            background Frame(Transform("content/gfx/frame/p_frame53.png", alpha=.98), 10, 10)
+            background Frame(im.Alpha("content/gfx/frame/p_frame53.png", alpha=.98), 10, 10)
             xysize 270, 678
             ypos 41
             style_group "content"
@@ -204,7 +204,7 @@ screen city_jail_cells():
             frame:
                 xysize 250, 50
                 xalign .5
-                background Frame(Transform("content/gfx/frame/namebox5.png", alpha=.95), 250, 50)
+                background Frame(im.Alpha("content/gfx/frame/namebox5.png", alpha=.95), 250, 50)
                 label "[char.fullname]":
                     text_color "gold"
                     text_outlines [(2, "#424242", 0, 0)]
@@ -224,7 +224,7 @@ screen city_jail_cells():
                 style_group "proper_stats"
                 spacing 5
                 frame:
-                    background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
+                    background Frame(im.Alpha("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
                     xsize 258 xalign .5
                     padding 6, 6
                     has vbox spacing 1 xmaximum 246
@@ -243,7 +243,7 @@ screen city_jail_cells():
         frame:
             pos 265, 41
             xysize 669, 423
-            background Frame(Transform("content/gfx/frame/p_frame53.png", alpha=1.0), 10, 10)
+            background Frame("content/gfx/frame/p_frame53.png", 10, 10)
             frame:
                 align .5, .5
                 background Frame("content/gfx/frame/MC_bg.png", 10, 10)
@@ -254,7 +254,7 @@ screen city_jail_cells():
             pos (928, 41)
             style_group "content"
             xysize (350, 361)
-            background Frame(Transform("content/gfx/frame/p_frame53.png", alpha=.98), 10, 10)
+            background Frame(im.Alpha("content/gfx/frame/p_frame53.png", alpha=.98), 10, 10)
             has vbox xalign .5 #ypos 5
             null height 5
             label "Details:" xalign .5 text_color "ivory" text_size 20 text_bold True text_outlines [(2, "#424242", 0, 0)]
@@ -263,7 +263,7 @@ screen city_jail_cells():
                 left_padding 15
                 ypadding 10
                 xsize 226
-                background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
+                background Frame(im.Alpha("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
                 vbox:
                     xalign .5
                     style_group "proper_stats"
@@ -280,7 +280,7 @@ screen city_jail_cells():
 
         # Buttons:
         frame:
-            background Frame(Transform("content/gfx/frame/p_frame53.png", alpha=.98), 10, 10)
+            background Frame(im.Alpha("content/gfx/frame/p_frame53.png", alpha=.98), 10, 10)
             xpadding 5
             pos (928, 397)
             xsize 350
@@ -318,7 +318,7 @@ screen city_jail_cells():
         frame:
             # pos 265, 459
             pos 10, 455
-            background Frame(Transform("content/gfx/frame/p_frame53.png", alpha=.98), 10, 10)
+            background Frame(im.Alpha("content/gfx/frame/p_frame53.png", alpha=.98), 10, 10)
             side "c t":
                 yoffset -2
                 viewport id "jail_vp_list":

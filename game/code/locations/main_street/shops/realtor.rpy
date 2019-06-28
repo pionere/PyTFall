@@ -90,7 +90,7 @@ screen realtor_agency():
                     has vbox
                     for building in market_buildings:
                         frame:
-                            background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.6), 5, 5)
+                            background Frame(im.Alpha("content/gfx/frame/MC_bg3.png", alpha=.6), 5, 5)
                             xysize (395, 310)
                             vbox:
                                 xalign .5
@@ -138,7 +138,7 @@ screen realtor_agency():
                         style_group "proper_stats"
                         frame:
                             padding 12, 12
-                            background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.98), 10, 10)
+                            background Frame(im.Alpha("content/gfx/frame/p_frame4.png", alpha=.98), 10, 10)
                             vbox:
                                 spacing -1
                                 frame:

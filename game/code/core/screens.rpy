@@ -185,7 +185,7 @@ screen quest_notifications(q, type, align=None, autohide=2.5):
             xalign .5
         xysize (500, 200)
         frame:
-            background Frame(Transform("content/gfx/frame/ink_box.png", alpha=.65), 10, 10)
+            background Frame(im.Alpha("content/gfx/frame/ink_box.png", alpha=.65), 10, 10)
             style_group "dropdown_gm2"
             xysize (400, 150)
             align .5, .5
@@ -202,7 +202,7 @@ screen quest_notifications(q, type, align=None, autohide=2.5):
         frame:
             pos 400, 140 xanchor 1.0
             xpadding 15
-            background Frame(Transform("content/gfx/frame/ink_box.png", alpha=.45), 10, 10)
+            background Frame(im.Alpha("content/gfx/frame/ink_box.png", alpha=.45), 10, 10)
             text type style "content_text" size 40 color "gold"
 
     if autohide:
@@ -635,12 +635,12 @@ screen s_menu(s_menu="Settings", main_menu=False):
 
     # default s_menu = "Settings"
 
-    add Transform("content/gfx/images/bg_gradient2.webp", alpha=.8)
+    add im.Alpha("content/gfx/images/bg_gradient2.webp", alpha=.8)
 
     frame:
         # at fade_in_out(sv1=.0, ev1=1.0, t1=.7,
                                 # sv2=1.0, ev2=.0, t2=.5)
-        background Frame(Transform("content/gfx/frame/frame_gp2.webp", alpha=.8), 10, 10)
+        background Frame(im.Alpha("content/gfx/frame/frame_gp2.webp", alpha=.8), 10, 10)
         align (.315, .5)
         xysize (690, 444)
         style_group "smenu"
@@ -653,19 +653,19 @@ screen s_menu(s_menu="Settings", main_menu=False):
                 # Left column...
                 frame:
                     align (.5, .5)
-                    background Frame(Transform("content/gfx/frame/ink_box.png", alpha=.3), 10, 10)
+                    background Frame(im.Alpha("content/gfx/frame/ink_box.png", alpha=.3), 10, 10)
                     xpadding 10
                     ypadding 10
                     has vbox spacing 5
                     # frame:
-                        # background Frame(Transform("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
+                        # background Frame(im.Alpha("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
                         # xsize 194
                         # ypadding 8
                         # style_group "dropdown_gm2"
                         # has vbox align (.5, .5)
 
                     frame:
-                        background Frame(Transform("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
+                        background Frame(im.Alpha("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
                         xsize 194
                         ypadding 8
                         style_group "dropdown_gm2"
@@ -673,13 +673,13 @@ screen s_menu(s_menu="Settings", main_menu=False):
                         frame:
                             xsize 184
                             align (.5, .5)
-                            background Frame(Transform("content/gfx/frame/stat_box_proper.png", alpha=.9), 10, 10)
+                            background Frame(im.Alpha("content/gfx/frame/stat_box_proper.png", alpha=.9), 10, 10)
                             text _("- Display -") style "TisaOTMolxm"
                         textbutton _("Window") action Preference("display", "window") xsize 150 xalign .5 text_size 16
                         textbutton _("Fullscreen") action Preference("display", "fullscreen") xsize 150 xalign .5 text_size 16
 
                     frame:
-                        background Frame(Transform("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
+                        background Frame(im.Alpha("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
                         xsize 194
                         ypadding 8
                         style_group "dropdown_gm2"
@@ -687,13 +687,13 @@ screen s_menu(s_menu="Settings", main_menu=False):
                         frame:
                             xsize 184
                             align (.5, .5)
-                            background Frame(Transform("content/gfx/frame/stat_box_proper.png", alpha=.9), 10, 10)
+                            background Frame(im.Alpha("content/gfx/frame/stat_box_proper.png", alpha=.9), 10, 10)
                             text _("- Transitions -") style "TisaOTMolxm"
                         textbutton _("All") action Preference("transitions", "all") xsize 150 xalign .5 text_size 16
                         textbutton _("None") action Preference("transitions", "none") xsize 150 xalign .5 text_size 16
 
                     frame:
-                        background Frame(Transform("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
+                        background Frame(im.Alpha("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
                         xsize 194
                         ypadding 10
                         style_group "dropdown_gm2"
@@ -701,12 +701,12 @@ screen s_menu(s_menu="Settings", main_menu=False):
                         frame:
                             xsize 184
                             align (.5, .5)
-                            background Frame(Transform("content/gfx/frame/stat_box_proper.png", alpha=.9), 10, 10)
+                            background Frame(im.Alpha("content/gfx/frame/stat_box_proper.png", alpha=.9), 10, 10)
                             text _("- Text Speed -") style "TisaOTMolxm"
                         bar value Preference("text speed") align (.5, .5)
 
                     frame:
-                        background Frame(Transform("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
+                        background Frame(im.Alpha("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
                         xsize 194
                         ypadding 8
                         style_group "dropdown_gm2"
@@ -717,12 +717,12 @@ screen s_menu(s_menu="Settings", main_menu=False):
                 # Middle column...
                 frame:
                     align (.5, .5)
-                    background Frame(Transform("content/gfx/frame/ink_box.png", alpha=.3), 10, 10)
+                    background Frame(im.Alpha("content/gfx/frame/ink_box.png", alpha=.3), 10, 10)
                     xpadding 10
                     ypadding 10
                     has vbox spacing 5
                     frame:
-                        background Frame(Transform("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
+                        background Frame(im.Alpha("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
                         xsize 194
                         ypadding 8
                         style_group "dropdown_gm2"
@@ -730,13 +730,13 @@ screen s_menu(s_menu="Settings", main_menu=False):
                         frame:
                             xsize 184
                             align (.5, .5)
-                            background Frame(Transform("content/gfx/frame/stat_box_proper.png", alpha=.9), 10, 10)
+                            background Frame(im.Alpha("content/gfx/frame/stat_box_proper.png", alpha=.9), 10, 10)
                             text _("- Skip -") style "TisaOTMolxm"
                         textbutton _("Seen Messages") action Preference("skip", "seen") xsize 150 xalign .5 text_size 16
                         textbutton _("All Messages") action Preference("skip", "all") xsize 150 xalign .5 text_size 16
 
                     frame:
-                        background Frame(Transform("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
+                        background Frame(im.Alpha("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
                         xsize 194
                         ypadding 8
                         style_group "dropdown_gm2"
@@ -744,13 +744,13 @@ screen s_menu(s_menu="Settings", main_menu=False):
                         frame:
                             xsize 184
                             align (.5, .5)
-                            background Frame(Transform("content/gfx/frame/stat_box_proper.png", alpha=.9), 10, 10)
+                            background Frame(im.Alpha("content/gfx/frame/stat_box_proper.png", alpha=.9), 10, 10)
                             text _("- After Choices -") style "TisaOTMolxm"
                         textbutton _("Stop Skipping") action Preference("after choices", "stop") xsize 150 xalign .5 text_size 16
                         textbutton _("Keep Skipping") action Preference("after choices", "skip") xsize 150 xalign .5 text_size 16
 
                     frame:
-                        background Frame(Transform("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
+                        background Frame(im.Alpha("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
                         xsize 194
                         ypadding 10
                         style_group "dropdown_gm2"
@@ -758,7 +758,7 @@ screen s_menu(s_menu="Settings", main_menu=False):
                         frame:
                             xsize 184
                             align (.5, .5)
-                            background Frame(Transform("content/gfx/frame/stat_box_proper.png", alpha=.9), 10, 10)
+                            background Frame(im.Alpha("content/gfx/frame/stat_box_proper.png", alpha=.9), 10, 10)
                             text _("- A-Forward Time -") style "TisaOTMolxm"
                         null height 8
                         bar value Preference("auto-forward time") align (.5, .5)
@@ -766,7 +766,7 @@ screen s_menu(s_menu="Settings", main_menu=False):
                             textbutton _("Wait for Voice") action Preference("wait for voice", "toggle") xsize 150 xalign .5 text_size 16
 
                     frame:
-                        background Frame(Transform("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
+                        background Frame(im.Alpha("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
                         xsize 194
                         ypadding 8
                         style_group "dropdown_gm2"
@@ -776,13 +776,13 @@ screen s_menu(s_menu="Settings", main_menu=False):
                 # Right column...
                 frame:
                     align (.5, .0)
-                    background Frame(Transform("content/gfx/frame/ink_box.png", alpha=.3), 10, 10)
+                    background Frame(im.Alpha("content/gfx/frame/ink_box.png", alpha=.3), 10, 10)
                     xpadding 10
                     ypadding 10
                     has vbox spacing 5
 
                     frame:
-                        background Frame(Transform("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
+                        background Frame(im.Alpha("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
                         xsize 194
 
                         ypadding 8
@@ -792,13 +792,13 @@ screen s_menu(s_menu="Settings", main_menu=False):
                             xsize 184
 
                             align (.5, .5)
-                            background Frame(Transform("content/gfx/frame/stat_box_proper.png", alpha=.9), 10, 10)
+                            background Frame(im.Alpha("content/gfx/frame/stat_box_proper.png", alpha=.9), 10, 10)
                             text _("- Mute -") style "TisaOTMolxm"
                         textbutton "Music" action Preference("music mute", "toggle") xsize 150 xalign .5 text_size 16
                         textbutton "Sound" action Preference("sound mute", "toggle") xsize 150 xalign .5 text_size 16
 
                     frame:
-                        background Frame(Transform("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
+                        background Frame(im.Alpha("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
                         xsize 194
                         ypadding 10
                         style_group "dropdown_gm2"
@@ -806,12 +806,12 @@ screen s_menu(s_menu="Settings", main_menu=False):
                         frame:
                             xsize 184
                             align (.5, .5)
-                            background Frame(Transform("content/gfx/frame/stat_box_proper.png", alpha=.9), 10, 10)
+                            background Frame(im.Alpha("content/gfx/frame/stat_box_proper.png", alpha=.9), 10, 10)
                             text _("- Music Volume -") align (.5, .0) style "TisaOTMolxm"
                         bar value Preference("music volume") align (.5, .5)
 
                     frame:
-                        background Frame(Transform("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
+                        background Frame(im.Alpha("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
                         xsize 194
                         ypadding 10
                         style_group "dropdown_gm2"
@@ -819,7 +819,7 @@ screen s_menu(s_menu="Settings", main_menu=False):
                         frame:
                             xsize 184
                             align (.5, .5)
-                            background Frame(Transform("content/gfx/frame/stat_box_proper.png", alpha=.9), 10, 10)
+                            background Frame(im.Alpha("content/gfx/frame/stat_box_proper.png", alpha=.9), 10, 10)
                             text _("- Sound Volume -") style "TisaOTMolxm"
                         null height 8
                         bar value Preference("sound volume") align (.5, .5)
@@ -842,12 +842,12 @@ screen s_menu(s_menu="Settings", main_menu=False):
                 frame:
                     align (.5, .5)
                     style_prefix "dropdown_gm2"
-                    background Frame(Transform("content/gfx/frame/ink_box.png", alpha=.3), 10, 10)
+                    background Frame(im.Alpha("content/gfx/frame/ink_box.png", alpha=.3), 10, 10)
                     xpadding 10
                     ypadding 10
                     has vbox spacing 5
                     frame:
-                        background Frame(Transform("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
+                        background Frame(im.Alpha("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
                         xsize 194
                         ypadding 8
                         $ msg = "{}\nPanic screen transforms your game window into a system-log. If enabled, press Q whenever you need it.".format("Active" if persistent.unsafe_mode else "Inactive")
@@ -861,7 +861,7 @@ screen s_menu(s_menu="Settings", main_menu=False):
                             else:
                                 tooltip msg
                     frame:
-                        background Frame(Transform("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
+                        background Frame(im.Alpha("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
                         xsize 194
                         ypadding 8
                         $ msg = "{}\nShows experience screen after combat.".format("Active" if persistent.battle_results else "Inactive")
@@ -875,7 +875,7 @@ screen s_menu(s_menu="Settings", main_menu=False):
                             else:
                                 tooltip msg
                     frame:
-                        background Frame(Transform("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
+                        background Frame(im.Alpha("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
                         xsize 194
                         ypadding 8
                         $ msg = "Use %s for targeting in battle engine." % ("menu" if persistent.use_be_menu_targeting else "pointer/arrows")
@@ -889,7 +889,7 @@ screen s_menu(s_menu="Settings", main_menu=False):
                             else:
                                 tooltip msg
                     frame:
-                        background Frame(Transform("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
+                        background Frame(im.Alpha("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
                         xsize 194
                         ypadding 8
                         $ msg = "{}\nSaves your game progress every day. This can be slow, disable if it bothers you.".format("Active" if persistent.auto_saves else "Inactive")
@@ -903,7 +903,7 @@ screen s_menu(s_menu="Settings", main_menu=False):
                             else:
                                 tooltip msg
                     frame:
-                        background Frame(Transform("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
+                        background Frame(im.Alpha("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
                         xsize 194
                         ypadding 8
                         $ msg = "{}\nDisplay notifications as you make progress in Quests.".format("Active" if persistent.use_quest_popups else "Inactive")
@@ -918,7 +918,7 @@ screen s_menu(s_menu="Settings", main_menu=False):
                                 tooltip msg
 
                     frame:
-                        background Frame(Transform("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
+                        background Frame(im.Alpha("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
                         xsize 194
                         ypadding 8
                         $ msg = "New-style tooltips %s." % ("enabled" if persistent.tooltips else "disabled")
@@ -936,7 +936,7 @@ screen s_menu(s_menu="Settings", main_menu=False):
                                 hovered tt.Action(msg)
 
                     frame:
-                        background Frame(Transform("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
+                        background Frame(im.Alpha("content/gfx/frame/settings1.webp", alpha=.9), 10, 10)
                         xsize 194
                         ypadding 10
                         style_group "dropdown_gm2"
@@ -944,7 +944,7 @@ screen s_menu(s_menu="Settings", main_menu=False):
                         frame:
                             xsize 184
                             align (.5, .5)
-                            background Frame(Transform("content/gfx/frame/stat_box_proper.png", alpha=.9), 10, 10)
+                            background Frame(im.Alpha("content/gfx/frame/stat_box_proper.png", alpha=.9), 10, 10)
                             text _("- Battle Speed -") style "TisaOTMolxm"
                         if persistent.battle_speed == 1.0:
                             $ msg = "Battle Animations run with the default speed."
@@ -1036,7 +1036,7 @@ screen s_menu(s_menu="Settings", main_menu=False):
                                     text " - [file_name] -" align (1.0, 0) style "TisaOTMol" size 14 outlines [(3, "#3a3a3a", 0, 0),(2, "#009ACD", 0, 0), (1, "#3a3a3a", 0, 0)]
                                     text "[file_time!t]\n[save_name!t]" style "TisaOTMol" size 12 align (1.05, 1.25)
     frame:
-        background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.9), 10, 10)
+        background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.9), 10, 10)
         align (.765, .505)
         xysize (150, 439)
         style_group "smenu"

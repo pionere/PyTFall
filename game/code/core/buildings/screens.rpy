@@ -160,7 +160,7 @@ screen building_management():
     if hero.buildings:
         # Main Building mode:
         frame:
-            background Frame(Transform("content/gfx/frame/p_frame6.png", alpha=.98), 10, 10)
+            background Frame(im.Alpha("content/gfx/frame/p_frame6.png", alpha=.98), 10, 10)
             style_prefix "content"
             xysize (630, 680)
             xalign .5
@@ -175,7 +175,7 @@ screen building_management():
 
         ## Stats/Upgrades - Left Frame
         frame:
-            background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
+            background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
             xysize (330, 680)
             ypos 40
             style_group "content"
@@ -189,7 +189,7 @@ screen building_management():
 
         ## Right frame:
         frame:
-            background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
+            background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
             xysize (330, 680)
             xalign 1.0
             ypos 40
@@ -220,7 +220,7 @@ screen building_management_rightframe_building_mode:
         xalign .5
         style_prefix "wood"
         xpadding 0
-        background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.9), 5, 5)
+        background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.9), 5, 5)
         has hbox xalign .5 spacing 5 xsize 315
         null height 16
         vbox:
@@ -281,7 +281,7 @@ screen building_management_rightframe_building_mode:
         frame:
             xalign .5
             style_prefix "proper_stats"
-            background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.9), 5, 5)
+            background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.9), 5, 5)
             padding 10, 10
             has vbox xalign .5 spacing 2
 
@@ -321,7 +321,7 @@ screen building_management_rightframe_building_mode:
                     ymaximum 220
 
                     xalign .5
-                    background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.95), 10, 10)
+                    background Frame(im.Alpha("content/gfx/frame/MC_bg3.png", alpha=.95), 10, 10)
                     if managers:
                         $ w = managers[0]
                         $ img = w.show("profile", resize=(190, 190), add_mood=True, cache=True)
@@ -437,7 +437,7 @@ screen building_management_rightframe_businesses_mode:
         background Null()
         xfill True yfill True
         frame:
-            background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
+            background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
             align .5, .95
             padding 10, 10
             vbox:
@@ -453,7 +453,7 @@ screen building_management_rightframe_businesses_mode:
 
 screen building_management_leftframe_building_mode:
     frame:
-        background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
+        background Frame(im.Alpha("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
         style_prefix "proper_stats"
         xsize 317
         padding 12, 12
@@ -504,7 +504,7 @@ screen building_management_leftframe_building_mode:
     if bm_building.businesses:
         null height 5
         frame:
-            background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
+            background Frame(im.Alpha("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
             xsize 317
             #padding 12, 12
             xpadding 12
@@ -513,7 +513,7 @@ screen building_management_leftframe_building_mode:
             yfill True
             frame:
                 xalign .5
-                background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
+                background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
                 xysize (180, 40)
                 label 'Businesses' text_color "ivory" xalign .5 text_bold True
             viewport:
@@ -526,12 +526,12 @@ screen building_management_leftframe_building_mode:
                 # Businesses
                 for u in bm_building.businesses:
                     frame:
-                        background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 5, 5)
+                        background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.98), 5, 5)
                         xysize 280, 90
                         frame:
                             xpos 5
                             yalign .5
-                            background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.95), 5, 5)
+                            background Frame(im.Alpha("content/gfx/frame/MC_bg3.png", alpha=.95), 5, 5)
                             margin 0, 0
                             padding 2, 2
                             add PyTGFX.scale_content(u.img, 105, 70) align .5, .5
@@ -542,8 +542,8 @@ screen building_management_leftframe_building_mode:
                             text "[u.name]" xalign .5 style "proper_stats_text" size 19
                             null height 2
                             textbutton "{size=15}{font=fonts/TisaOTM.otf}{color=goldenrod}Details":
-                                background Transform(Frame("content/gfx/interface/images/story12.png"), alpha=.8)
-                                hover_background Transform(Frame(im.MatrixColor("content/gfx/interface/images/story12.png", im.matrix.brightness(.15))), alpha=1)
+                                background Frame(im.Alpha("content/gfx/interface/images/story12.png", alpha=.8))
+                                hover_background Frame(PyTGFX.bright_img("content/gfx/interface/images/story12.png", .15))
                                 tooltip "View details or expand {}.\n{}".format(u.name, u.desc)
                                 xalign .5
                                 top_padding 3
@@ -562,7 +562,7 @@ screen building_management_leftframe_building_mode:
 
 screen building_management_leftframe_businesses_mode:
     frame:
-        background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
+        background Frame(im.Alpha("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
         style_group "proper_stats"
         xsize 317
         padding 12, 12
@@ -588,7 +588,7 @@ screen building_management_leftframe_businesses_mode:
     if getattr(bm_mid_frame_mode, "expands_capacity", False):
         null height 5
         frame:
-            background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
+            background Frame(im.Alpha("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
             style_prefix "proper_stats"
             xsize 317
             padding 12, 12
@@ -703,7 +703,7 @@ screen building_management_leftframe_businesses_mode:
     if bm_mid_frame_mode.upgrades or bm_mid_frame_mode.in_construction_upgrades:
         null height 5
         frame:
-            background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
+            background Frame(im.Alpha("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
             xsize 317
             #padding 12, 12
             xpadding 12
@@ -712,7 +712,7 @@ screen building_management_leftframe_businesses_mode:
             yfill True
             frame:
                 xalign .5
-                background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
+                background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
                 xysize (180, 40)
                 label 'Extensions' text_color "ivory" xalign .5 text_bold True
             vpgrid:
@@ -736,7 +736,7 @@ screen building_management_leftframe_businesses_mode:
                         padding 0, 0
                         frame:
                             align .5, .5
-                            background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.95), 5, 5)
+                            background Frame(im.Alpha("content/gfx/frame/MC_bg3.png", alpha=.95), 5, 5)
                             margin 0, 0
                             padding 2, 2
                             fixed:
@@ -780,7 +780,7 @@ screen building_management_leftframe_businesses_mode:
                         padding 0, 0
                         frame:
                             align .5, .5
-                            background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.95), 5, 5)
+                            background Frame(im.Alpha("content/gfx/frame/MC_bg3.png", alpha=.95), 5, 5)
                             margin 0, 0
                             padding 2, 2
                             fixed:
@@ -810,14 +810,14 @@ screen building_management_midframe_building_mode:
     frame:
         align .5, .0
         ypos 60
-        background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.95), 10, 10)
+        background Frame(im.Alpha("content/gfx/frame/MC_bg3.png", alpha=.95), 10, 10)
         add PyTGFX.scale_content(bm_building.img, 600, 444)
 
     # Left/Right Controls + Expand button:
     vbox:
         align .5, .99
         frame:
-            background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.9), 10, 10)
+            background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.9), 10, 10)
             has hbox xysize (600, 74)
             button:
                 align .1, .5
@@ -826,7 +826,7 @@ screen building_management_midframe_building_mode:
                 action Return(['control', 'left'])
                 text "Previous" style "wood_text" xalign .69
             frame:
-                background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
+                background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
                 xysize 200, 50
                 align (.5, .5)
                 if len(bm_building.all_possible_extensions()) != 0:
@@ -857,7 +857,7 @@ screen building_management_midframe_businesses_mode:
                 if can_build:
                     frame:
                         xalign .5
-                        background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
+                        background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
                         has fixed xysize 500, 150
                         $ cost, materials, in_slots, ex_slots = u.get_cost()
                         $ duration = u.duration

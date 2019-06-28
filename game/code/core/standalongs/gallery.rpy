@@ -70,7 +70,7 @@ screen gallery():
                 action NullAction()
             null height 2
             frame:
-                background Frame(Transform("content/gfx/frame/mc_bg.png", alpha=.5), 5, 5)
+                background Frame(im.Alpha("content/gfx/frame/mc_bg.png", alpha=.5), 5, 5)
                 xysize (280, 495)
                 xalign .5
                 # ypos 15
@@ -98,7 +98,7 @@ screen gallery():
         # Buttons:
         frame:
             yoffset -5
-            background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
+            background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
             style_group "basic"
             xysize (300, 157)
             has vbox xalign .5 spacing 5

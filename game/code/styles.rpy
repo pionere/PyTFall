@@ -195,9 +195,9 @@ init -2: # Base Styles like Texts and Buttons just with the basic properties.
 
     # This is a simple white, semi transparrent button, prolly should be deleted.
     style white_cry_button:
-        background Transform(Frame(im.Twocolor("content/gfx/frame/cry_box.png", "white", "white"), 5, 5), alpha=.8)
-        hover_background Transform(Frame(im.MatrixColor(im.Twocolor("content/gfx/frame/cry_box.png", "white", "aquamarine"), im.matrix.brightness(.20)), 5, 5), alpha=.8)
-        insensitive_background Transform(Frame(im.Sepia("content/gfx/frame/cry_box.png"), 5, 5), alpha=.8)
+        background Frame(im.Alpha(im.Twocolor("content/gfx/frame/cry_box.png", "white", "white"), alpha=.8), 5, 5)
+        hover_background Frame(im.Alpha(im.MatrixColor(im.Twocolor("content/gfx/frame/cry_box.png", "white", "aquamarine"), im.matrix.brightness(.20)), alpha=.8), 5, 5)
+        insensitive_background Frame(im.Alpha(im.Sepia("content/gfx/frame/cry_box.png"), alpha=.8), 5, 5)
         ypadding 3
 
     # Parent of the Gismo's Blue Marble button that was used in Main Menu Screen for a while.
@@ -414,7 +414,7 @@ init 2: # Advanced style that can carry a lot of properties to be used in screen
         spacing 1
     style proper_stats_main_frame:
         is frame
-        background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
+        background Frame(im.Alpha("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
         padding (12, 12)
         margin (0, 0)
     style proper_stats_text:

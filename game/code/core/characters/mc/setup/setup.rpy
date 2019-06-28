@@ -235,8 +235,8 @@ init: # MC Setup Screens:
         $ left_index = (index - 1) % temp
         $ right_index = (index + 1) % temp
 
-        $ active_img = Transform(Frame("content/gfx/interface/images/story12.png", 5, 5), alpha=.8)
-        $ hover_img = Transform(Frame(im.MatrixColor("content/gfx/interface/images/story12.png", im.matrix.brightness(.15)), 5, 5), alpha=1)
+        $ active_img = Frame(im.Alpha("content/gfx/interface/images/story12.png", alpha=.8), 5, 5)
+        $ hover_img = Frame(PyTGFX.bright_img("content/gfx/interface/images/story12.png", .15), 5, 5)
 
         # Rename and Start buttons + Classes are now here as well!!!:
         if getattr(store, "mc_substory", None):
@@ -327,7 +327,7 @@ init: # MC Setup Screens:
                 activate_sound "content/sfx/sound/sys/hover_2.wav"
                 action SetScreenVariable("index", index - 1)
             frame:
-                background Frame(Transform("content/gfx/interface/images/story12.png", alpha=.8), 10, 10)
+                background Frame(im.Alpha("content/gfx/interface/images/story12.png", alpha=.8), 10, 10)
                 padding 15, 10
                 text "Select your appearance" size 20 font 'fonts/TisaOTm.otf'
             $ img = PyTGFX.scale_img("content/gfx/interface/buttons/blue_arrow_right.png", 40, 40)
@@ -363,7 +363,7 @@ init: # MC Setup Screens:
         add "content/gfx/interface/images/story1.png" align (.002, .09)
 
         frame: # Text frame for Main Story (Merchant, Warrior, Scholar and Noble)
-            background Frame(Transform("content/gfx/interface/images/story12.png", alpha=.8), 10, 10)
+            background Frame(im.Alpha("content/gfx/interface/images/story12.png", alpha=.8), 10, 10)
             pos 173, 16 anchor .5, .0
             padding 15, 10
             text "Select your origin" size 20 font 'fonts/TisaOTm.otf'
@@ -396,7 +396,7 @@ init: # MC Setup Screens:
         frame:
             pos (0, 350)
             ysize 370
-            background Frame(Transform("content/gfx/frame/MC_bg.png", alpha=1), 30, 30)
+            background Frame("content/gfx/frame/MC_bg.png", 30, 30)
             has vbox xsize 350
             if main_story:
                 $ temp = main_story.get("header", "")
@@ -489,7 +489,7 @@ init: # MC Setup Screens:
     screen mc_sub_texts():
         tag mc_subtexts
         frame:
-            background Frame(Transform("content/gfx/frame/MC_bg.png", alpha=1), 30, 30)
+            background Frame("content/gfx/frame/MC_bg.png", 30, 30)
             anchor (1.0, 1.0)
             pos (1280, 721)
             xysize (450, 440)

@@ -100,7 +100,7 @@ init: # Main Screens:
         yoffset 2
         margin (0, 0)
         xysize (250, 135)
-        background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
+        background Frame(im.Alpha("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
         hover_background Frame("content/gfx/frame/p_frame4.png", 10, 10)
 
     screen arena_inside():
@@ -133,13 +133,13 @@ init: # Main Screens:
         frame:
             style_group "content"
             pos (2, 39)
-            background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=1.0), 10, 10)
+            background Frame("content/gfx/frame/p_frame5.png", 10, 10)
             xysize (280, 682)
             has vbox align .5, .03 spacing 1
 
             # Beast Fights:
             frame:
-                background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.7), 5, 5)
+                background Frame(im.Alpha("content/gfx/frame/p_frame4.png", alpha=.7), 5, 5)
                 padding 10, 10
                 has vbox spacing 2
 
@@ -161,7 +161,7 @@ init: # Main Screens:
 
             # Ladders (Just Info):
             frame:
-                background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.7), 5, 5)
+                background Frame(im.Alpha("content/gfx/frame/p_frame4.png", alpha=.7), 5, 5)
                 padding 10, 10
                 has vbox spacing 2
 
@@ -186,7 +186,7 @@ init: # Main Screens:
 
             # Official matches:
             frame:
-                background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.7), 5, 5)
+                background Frame(im.Alpha("content/gfx/frame/p_frame4.png", alpha=.7), 5, 5)
                 padding 10, 10
                 has vbox spacing 2
 
@@ -212,7 +212,7 @@ init: # Main Screens:
 
             # Dogfights:
             frame:
-                background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.7), 5, 5)
+                background Frame(im.Alpha("content/gfx/frame/p_frame4.png", alpha=.7), 5, 5)
                 padding 10, 10
                 has vbox spacing 2
 
@@ -264,7 +264,7 @@ init: # Main Screens:
                 # Name + Stats:
                 frame:
                     padding 8, 2
-                    background Frame(Transform("content/gfx/frame/p_frame2.png", alpha=.6), 5, 5)
+                    background Frame(im.Alpha("content/gfx/frame/p_frame2.png", alpha=.6), 5, 5)
                     xsize 155
                     has vbox
 
@@ -370,7 +370,7 @@ init: # Main Screens:
                                 xysize (690, 150)
                                 margin 0, 0
                                 padding 3, 3
-                                background Frame(Transform("content/gfx/frame/p_frame7.webp", alpha=1.0), 10, 10)
+                                background Frame("content/gfx/frame/p_frame7.webp", 10, 10)
                                 has hbox # xysize (690, 150)
 
                                 # Day of the fight:
@@ -379,7 +379,7 @@ init: # Main Screens:
                                     xysize (100, 100)
                                     align (.5, .5)
                                     frame:
-                                        background Frame(Transform("content/gfx/frame/rank_frame.png", alpha=1.0), 10, 10)
+                                        background Frame("content/gfx/frame/rank_frame.png", 10, 10)
                                         xsize 80
                                         vbox:
                                             xalign .5
@@ -489,7 +489,7 @@ init: # Main Screens:
                         frame:
                             xalign .5
                             xysize (695, 60)
-                            background Frame(Transform("content/gfx/frame/p_frame7.webp", alpha=1.0), 10, 10)
+                            background Frame("content/gfx/frame/p_frame7.webp", 10, 10)
                             padding 1, 1
                             has hbox spacing 5
                             fixed:
@@ -560,7 +560,7 @@ init: # Main Screens:
                             style_group "content"
                             xalign .5
                             xysize (690, 60)
-                            background Frame(Transform("content/gfx/frame/p_frame7.webp", alpha=1.0), 10, 10)
+                            background Frame("content/gfx/frame/p_frame7.webp", 10, 10)
                             has hbox spacing 20
                             textbutton "{color=red}[index]":
                                 ypadding 5
@@ -625,7 +625,7 @@ init: # Main Screens:
                             padding 5, 3
                             xalign .5
                             xysize (695, 150)
-                            background Frame(Transform("content/gfx/frame/p_frame7.webp", alpha=1.0), 10, 10)
+                            background Frame("content/gfx/frame/p_frame7.webp", 10, 10)
                             has hbox xalign .5
                             button:
                                 style "arena_channenge_button"
@@ -731,7 +731,7 @@ init: # Main Screens:
                     vbox:
                         xalign .5
                         frame:
-                            background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.6), 10, 10)
+                            background Frame(im.Alpha("content/gfx/frame/MC_bg3.png", alpha=.6), 10, 10)
                             xysize (145, 30)
                             text "Class" color "#CDAD00" font "fonts/Rubius.ttf" size 20 outlines [(1, "#3a3a3a", 0, 0)] xalign .5
                         vbox:
@@ -749,7 +749,7 @@ init: # Main Screens:
                 # Stats:
                 frame:
                     xalign .5
-                    background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.6), 10, 10)
+                    background Frame(im.Alpha("content/gfx/frame/MC_bg3.png", alpha=.6), 10, 10)
                     xysize (155, 30)
                     text "Level %s" % data['min_lvl'] color "#CDAD00" font "fonts/Rubius.ttf" size 20 outlines [(1, "#3a3a3a", 0, 0)] xalign .5
                 hbox:
@@ -789,7 +789,7 @@ init: # Main Screens:
                     # Desc:
                     frame:
                         xalign .5
-                        background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.6), 10, 10)
+                        background Frame(im.Alpha("content/gfx/frame/MC_bg3.png", alpha=.6), 10, 10)
                         xysize (155, 30)
                         text "Description" color "#CDAD00" font "fonts/Rubius.ttf" size 20 outlines [(1, "#3a3a3a", 0, 0)] xalign .5
                     vbox:
@@ -813,7 +813,7 @@ init: # Main Screens:
                         vbox:
                             frame:
                                 xalign .5
-                                background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.6), 10, 10)
+                                background Frame(im.Alpha("content/gfx/frame/MC_bg3.png", alpha=.6), 10, 10)
                                 xysize (130, 30)
                                 text "Attacks" color "#CDAD00" font "fonts/Rubius.ttf" size 20 outlines [(1, "#3a3a3a", 0, 0)] xalign .5
 
@@ -833,7 +833,7 @@ init: # Main Screens:
                         vbox:
                             frame:
                                 xalign .5
-                                background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.6), 10, 10)
+                                background Frame(im.Alpha("content/gfx/frame/MC_bg3.png", alpha=.6), 10, 10)
                                 xysize (130, 30)
                                 text "Spells" color "#CDAD00" font "fonts/Rubius.ttf" size 20 outlines [(1, "#3a3a3a", 0, 0)] xalign .5
 
@@ -853,7 +853,7 @@ init: # Main Screens:
                     # Traits
                     frame:
                         xalign .5
-                        background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.6), 10, 10)
+                        background Frame(im.Alpha("content/gfx/frame/MC_bg3.png", alpha=.6), 10, 10)
                         xysize (130, 30)
                         text "Traits" color "#CDAD00" font "fonts/Rubius.ttf" size 20 outlines [(1, "#3a3a3a", 0, 0)] xalign .5
 
@@ -988,7 +988,7 @@ init: # Main Screens:
                 frame:
                     style_group "proper_stats"
                     align (.2, .5)
-                    background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
+                    background Frame(im.Alpha("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
                     xpadding 12
                     ypadding 12
                     xmargin 0
@@ -1065,7 +1065,7 @@ init: # ChainFights vs Mobs:
                         $ portrait = setup["boss_portrait"]
                         frame:
                             xysize (695, 55)
-                            background Frame(Transform("content/gfx/frame/p_frame7.webp", alpha=1.0), 10, 10)
+                            background Frame("content/gfx/frame/p_frame7.webp", 10, 10)
                             padding 1, 1
                             hbox:
                                 yalign .5

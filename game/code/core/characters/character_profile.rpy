@@ -172,7 +172,7 @@ screen char_profile():
 
         # Mid-Bottom Frame: Level, experience ====================================>
         frame:
-            background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.9), 10, 10)
+            background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.9), 10, 10)
             align .5, 1.0
             xysize 630, 64
             padding 15, 10
@@ -203,7 +203,7 @@ screen char_profile():
         frame:
             align .0, 1.0
             xysize 340, 680
-            background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
+            background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
             style_group "content"
             # # Base frame ====================================>
             # # Prof-Classes ==================================>
@@ -557,11 +557,11 @@ screen char_profile():
         frame:
             align 1.0, 1.0
             xysize 340, 680
-            background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
+            background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
 
             # Buttons ====================================>
             frame:
-                background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.9), 10, 10)
+                background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.9), 10, 10)
                 xalign .5 ypos 1
                 xysize 325, 150
                 has hbox style_group "wood" align .5, .5 spacing 5
@@ -627,7 +627,7 @@ screen char_profile():
 
             # Traits/Effects/Attacks/Magix ====================================>
             frame:
-                background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6))
+                background Frame(im.Alpha("content/gfx/frame/p_frame4.png", alpha=.6))
                 xsize 335 ypos 230 xalign .5
                 style_group "proper_stats"
                 padding 7, 8
@@ -706,14 +706,14 @@ screen char_control():
 
         # Tooltip Related:
         frame:
-            background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
+            background Frame(im.Alpha("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
             align (.5, .0)
             padding 40, 10
             text "Adjust your workers behavior here." align .5, .5 color "ivory"
 
         # Tips/Wagemod
         frame:
-            background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.7), 10, 10)
+            background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.7), 10, 10)
             align .5, .12
             padding 10, 10
             xysize 225, 120

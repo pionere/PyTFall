@@ -171,7 +171,7 @@ screen city_tavern_show_poker_status(): # additional screen, shows all info rela
         xalign .05
         yalign .05
         xysize (120, 120)
-        background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
+        background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
         vbox:
             xalign .5
             yalign .5
@@ -184,7 +184,7 @@ screen city_tavern_show_poker_status(): # additional screen, shows all info rela
         xalign .05
         yalign .95
         xysize (120, 120)
-        background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
+        background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
         vbox:
             xalign .5
             yalign .5
@@ -197,7 +197,7 @@ screen city_tavern_show_poker_status(): # additional screen, shows all info rela
         xalign .5
         yalign .05
         xysize (120, 120)
-        background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
+        background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
         xpadding 1
         ypadding 1
         vbox:

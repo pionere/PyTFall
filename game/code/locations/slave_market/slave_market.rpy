@@ -448,7 +448,7 @@ screen slave_shopping(source, buy_button, buy_tt):
 
         # Data (Left Frame): =============================================================================>>>
         frame:
-            background Frame(Transform("content/gfx/frame/p_frame53.png", alpha=.98), 10, 10)
+            background Frame(im.Alpha("content/gfx/frame/p_frame53.png", alpha=.98), 10, 10)
             xysize 270, 678
             ypos 41
             style_group "content"
@@ -458,7 +458,7 @@ screen slave_shopping(source, buy_button, buy_tt):
             frame:
                 xysize 250, 50
                 xalign .5
-                background Frame(Transform("content/gfx/frame/namebox5.png", alpha=.95), 250, 50)
+                background Frame(im.Alpha("content/gfx/frame/namebox5.png", alpha=.95), 250, 50)
                 label "[char.fullname]":
                     text_color "gold"
                     text_outlines [(2, "#424242", 0, 0)]
@@ -478,7 +478,7 @@ screen slave_shopping(source, buy_button, buy_tt):
                 style_group "proper_stats"
                 spacing 5
                 frame:
-                    background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
+                    background Frame(im.Alpha("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
                     xsize 258 xalign .5
                     padding 6, 6
                     has vbox spacing 1 xmaximum 246
@@ -508,7 +508,7 @@ screen slave_shopping(source, buy_button, buy_tt):
                 xalign .5
                 text_outlines [(2, "#424242", 0, 0)]
             frame:
-                background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
+                background Frame(im.Alpha("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
                 xsize 258
                 xalign .5
                 padding 6, 6
@@ -560,7 +560,7 @@ screen slave_shopping(source, buy_button, buy_tt):
         frame:
             pos 265, 41
             xysize 669, 423
-            background Frame(Transform("content/gfx/frame/p_frame53.png", alpha=1.0), 10, 10)
+            background Frame("content/gfx/frame/p_frame53.png", 10, 10)
             frame:
                 align .5, .5
                 background Frame("content/gfx/frame/MC_bg.png", 10, 10)
@@ -571,7 +571,7 @@ screen slave_shopping(source, buy_button, buy_tt):
             pos (928, 41)
             style_group "content"
             xysize (350, 351)
-            background Frame(Transform("content/gfx/frame/p_frame53.png", alpha=.98), 10, 10)
+            background Frame(im.Alpha("content/gfx/frame/p_frame53.png", alpha=.98), 10, 10)
             has vbox xalign .5 #ypos 5
             null height 5
             label (u"{size=20}{color=ivory}{b}Visible Traits") xalign .5 text_outlines [(2, "#424242", 0, 0)]
@@ -582,7 +582,7 @@ screen slave_shopping(source, buy_button, buy_tt):
                 left_padding 15
                 ypadding 10
                 #xsize 226
-                background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
+                background Frame(im.Alpha("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
                 has viewport xysize ((210 if long else 200), min(260, 26 * len(temp))) draggable long mousewheel long scrollbars ("vertical" if long else None)
                 vbox:
                     style_group "proper_stats"
@@ -606,7 +606,7 @@ screen slave_shopping(source, buy_button, buy_tt):
             pos(928, 387)
             style_group "content"
             xysize (350, 73)
-            background Frame(Transform("content/gfx/frame/p_frame53.png", alpha=.98), 10, 10)
+            background Frame(im.Alpha("content/gfx/frame/p_frame53.png", alpha=.98), 10, 10)
             hbox:
                 ysize 63
                 xalign .5
@@ -653,7 +653,7 @@ screen slave_shopping(source, buy_button, buy_tt):
         frame:
             # pos 265, 459
             pos 265, 455
-            background Frame(Transform("content/gfx/frame/p_frame53.png", alpha=.98), 10, 10)
+            background Frame(im.Alpha("content/gfx/frame/p_frame53.png", alpha=.98), 10, 10)
             side "c t":
                 yoffset -2
                 viewport id "sm_vp_list":

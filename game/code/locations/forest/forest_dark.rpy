@@ -58,7 +58,7 @@ screen city_dark_forest():
     frame:
         xalign .95
         ypos 50
-        background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
+        background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
         padding 10, 10
         vbox:
             style_group "wood"

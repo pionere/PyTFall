@@ -4,7 +4,7 @@ screen building_management_leftframe_exploration_guild_mode:
     elif bm_exploration_view_mode == "team":
         # Filters:
         frame:
-            background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
+            background Frame(im.Alpha("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
             style_group "proper_stats"
             xsize 316
             xalign .5
@@ -26,7 +26,7 @@ screen building_management_leftframe_exploration_guild_mode:
 
         # Sorting:
         frame:
-            background Frame(Transform("content/gfx/frame/MC_bg.png", alpha=.55), 10 ,10)
+            background Frame(im.Alpha("content/gfx/frame/MC_bg.png", alpha=.55), 10 ,10)
             style_group "proper_stats"
             xysize (316, 50)
             xalign .5
@@ -45,7 +45,7 @@ screen building_management_leftframe_exploration_guild_mode:
             button:
                 xysize (25, 25)
                 align 1.0, 0.5 #offset 9, -2
-                background Frame(Transform("content/gfx/frame/MC_bg2.png", alpha=.55), 5, 5)
+                background Frame(im.Alpha("content/gfx/frame/MC_bg2.png", alpha=.55), 5, 5)
                 action ToggleField(fg_filters, "sorting_desc"), Function(fg_filters.filter)
                 add(im.Scale(temp, 20, 20)) align .5, .5
                 tooltip 'Descending order'
@@ -71,7 +71,7 @@ screen building_management_leftframe_exploration_guild_mode:
                 for area in temp:
                     $ img = PyTGFX.scale_content(area.img, 220, 124)
                     frame:
-                        background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.9), 10, 10)
+                        background Frame(im.Alpha("content/gfx/frame/MC_bg3.png", alpha=.9), 10, 10)
                         padding 2, 2
                         margin 0, 0
                         button:
@@ -90,7 +90,7 @@ screen building_management_leftframe_exploration_guild_mode:
                             frame:
                                 align .5, .0
                                 padding 20, 2
-                                background Frame(Transform(name_bg, alpha=.5), 5, 5)
+                                background Frame(im.Alpha(name_bg, alpha=.5), 5, 5)
                                 text area.name:
                                     color "gold"
                                     hover_color hcolor
@@ -142,7 +142,7 @@ screen building_management_leftframe_exploration_guild_mode:
         null height 5
         $ distance = round_int(area.travel_time / 20.0)
         frame:
-            background Frame(Transform("content/gfx/frame/Namebox.png", alpha=.9), 10, 10)
+            background Frame(im.Alpha("content/gfx/frame/Namebox.png", alpha=.9), 10, 10)
             xalign .5
             xysize 300, 30
             margin 0, 0
@@ -157,7 +157,7 @@ screen building_management_leftframe_exploration_guild_mode:
                 else:
                     text "Travel time is less than one day" xpos 5
         frame:
-            background Frame(Transform("content/gfx/frame/Namebox.png", alpha=.9), 10, 10)
+            background Frame(im.Alpha("content/gfx/frame/Namebox.png", alpha=.9), 10, 10)
             xalign .5
             xysize 300, 30
             margin 0, 0
@@ -191,7 +191,7 @@ screen building_management_leftframe_exploration_guild_mode:
 
         null height 5
         frame:
-            background Frame(Transform("content/gfx/frame/Namebox.png", alpha=.9), 10, 10)
+            background Frame(im.Alpha("content/gfx/frame/Namebox.png", .9), 10, 10)
             xalign .5
             xysize 300, 30
             margin 0, 0
@@ -355,7 +355,7 @@ screen building_management_leftframe_exploration_guild_mode:
                     action SetScreenVariable("focused_area_index", (focused_area_index - 1) % len(temp))
                 null width 5
                 frame:
-                    background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.9), 10, 10)
+                    background Frame(im.Alpha("content/gfx/frame/MC_bg3.png", alpha=.9), 10, 10)
                     padding 2, 2
                     margin 0, 0
                     xalign .5
@@ -367,7 +367,7 @@ screen building_management_leftframe_exploration_guild_mode:
                         frame:
                             align .5, .0
                             padding 20, 2
-                            background Frame(Transform("content/gfx/frame/frame_bg.png", alpha=.5), 5, 5)
+                            background Frame(im.Alpha("content/gfx/frame/frame_bg.png", alpha=.5), 5, 5)
                             text main_area.name:
                                 color "gold"
                                 style "interactions_text"
@@ -471,7 +471,7 @@ screen building_management_midframe_exploration_guild_mode:
     elif bm_exploration_view_mode == "team":
         # Backgrounds:
         frame:
-            background Frame(Transform("content/gfx/frame/hp_1long.png", alpha=.9), 5, 5)
+            background Frame(im.Alpha("content/gfx/frame/hp_1long.png", alpha=.9), 5, 5)
             xysize 620, 344
             yoffset -5
             xalign .5
@@ -519,7 +519,7 @@ screen building_management_midframe_exploration_guild_mode:
         # Downframe (for the teams and team paging)
         #frame:
         #    #background Frame("content/gfx/frame/p_frame52.webp", 10, 10)
-        #    background Frame(Transform("content/gfx/frame/p_frame_.png", alpha=.9), 5, 5)
+        #    background Frame(im.Alpha("content/gfx/frame/p_frame_.png", alpha=.9), 5, 5)
         #    xysize 620, 349
         #    ypos 331 xalign .5
 
@@ -679,8 +679,8 @@ screen building_management_midframe_exploration_guild_mode:
                         else:
                             $ temp = "?????????"
                         button:
-                            background Transform(Frame("content/gfx/frame/mes12.jpg", 10, 10), alpha=.9)
-                            hover_background Transform(Frame(im.MatrixColor("content/gfx/frame/mes11.webp", im.matrix.brightness(.10)), 10, 10), alpha=.9)
+                            background Frame(im.Alpha("content/gfx/frame/mes12.jpg", alpha=.9), 10, 10)
+                            hover_background Frame(im.Alpha(PyTGFX.bright_img("content/gfx/frame/mes11.webp", .10), alpha=.9), 10, 10)
                             xysize (150, 90)
                             ymargin 1
                             ypadding 1
@@ -696,7 +696,7 @@ screen building_management_midframe_exploration_guild_mode:
         $ area = bm_selected_exp_area_sub
         # Area-Name
         frame:
-            background Transform(Frame("content/gfx/frame/mes11.webp", 10, 10), alpha=.9)
+            background Frame(im.Alpha("content/gfx/frame/mes11.webp", alpha=.9), 10, 10)
             xysize (620, 90)
             ymargin 1
             ypadding 1
@@ -710,7 +710,7 @@ screen building_management_midframe_exploration_guild_mode:
         frame:
             ypos 100 
             align .5, .0
-            background Frame(Transform("content/gfx/frame/MC_bg3.png", alpha=.95), 10, 10)
+            background Frame(im.Alpha("content/gfx/frame/MC_bg3.png", alpha=.95), 10, 10)
             add PyTGFX.scale_content(area.img, 600, 350)
 
         # Overlay objects
@@ -758,7 +758,7 @@ screen building_management_midframe_exploration_guild_mode:
                     yspacing 3
                     for tracker in area.trackers:
                         frame:
-                            background Frame(Transform("content/gfx/frame/Namebox.png", alpha=.9), 10, 10)
+                            background Frame(im.Alpha("content/gfx/frame/Namebox.png", alpha=.9), 10, 10)
                             xsize 290
                             padding 3, 2
                             margin 0, 0
@@ -775,7 +775,7 @@ screen building_management_midframe_exploration_guild_mode:
                                 text "%d (%d)" % (tracker.day-1, tracker.days) align (.98, .5)
             else:
                 frame:
-                    background Frame(Transform("content/gfx/frame/Namebox.png", alpha=.9), 10, 10)
+                    background Frame(im.Alpha("content/gfx/frame/Namebox.png", alpha=.9), 10, 10)
                     xsize 290
                     padding 3, 2
                     margin 0, 0
@@ -796,7 +796,7 @@ screen building_management_midframe_exploration_guild_mode:
             $ area = bm_selected_log_area
 
             frame:
-                background Transform(Frame("content/gfx/frame/mes11.webp", 10, 10), alpha=.9)
+                background Frame(im.Alpha("content/gfx/frame/mes11.webp", alpha=.9), 10, 10)
                 xysize (620, 90)
                 xalign .5
                 ymargin 1
@@ -809,7 +809,7 @@ screen building_management_midframe_exploration_guild_mode:
 
             # Buttons with logs (Events):
             frame:
-                background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
+                background Frame(im.Alpha("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
                 style_prefix "dropdown_gm2"
                 ypos 100 xalign .0
                 ysize 550
@@ -819,7 +819,7 @@ screen building_management_midframe_exploration_guild_mode:
                     style_group "content"
                     xalign .5
                     padding 15, 5
-                    background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.6), 10, 10)
+                    background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.6), 10, 10)
                     label "Events" text_size 20 text_color "ivory" align .5, .5
 
                 for l in area.logs:
@@ -832,7 +832,7 @@ screen building_management_midframe_exploration_guild_mode:
 
             # Information (Story)
             frame:
-                background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6, yzoom=-1), 10, 10)
+                background Frame(im.Alpha(im.Flip("content/gfx/frame/p_frame4.png", vertical=True), alpha=.6), 10, 10)
                 ysize 550
                 padding 10, 10
                 ypos 100 xalign 1.0
@@ -841,7 +841,7 @@ screen building_management_midframe_exploration_guild_mode:
                     style_group "content"
                     xalign .5
                     padding 15, 5
-                    background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.6), 10, 10)
+                    background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.6), 10, 10)
                     label "Story" text_size 20 text_color "ivory" align .5, .5
 
                 frame:
@@ -876,14 +876,14 @@ screen building_management_rightframe_exploration_guild_mode:
     if bm_exploration_view_mode == "area":
             $ area = bm_selected_exp_area_sub
             frame:
-                background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
+                background Frame(im.Alpha("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
                 xysize (310, 335)
                 xpadding 5
                 frame:
                     style_group "content"
                     align (.5, .015)
                     xysize (210, 40)
-                    background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.6), 10, 10)
+                    background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.6), 10, 10)
                     label (u"Enemies") text_size 23 text_color "ivory" align .5, .5
                 viewport:
                     style_prefix "proper_stats"
@@ -913,7 +913,7 @@ screen building_management_rightframe_exploration_guild_mode:
                                 $ temp = m["min_lvl"]
                                 text ("Lvl\n[temp]+") style "TisaOTM" size 17 text_align .5 line_spacing -6
                             frame:
-                                background Frame(Transform("content/gfx/interface/buttons/choice_buttons2.png", alpha=.75), 10, 10)
+                                background Frame(im.Alpha("content/gfx/interface/buttons/choice_buttons2.png", alpha=.75), 10, 10)
                                 padding 3, 3
                                 margin 0, 0
                                 xysize 60, 60
@@ -926,14 +926,14 @@ screen building_management_rightframe_exploration_guild_mode:
                                     action Show("arena_bestiary", dissolve, m, return_button_action=[Function(SetVariable, "bm_mid_frame_mode", bm_mid_frame_mode), Function(SetVariable, "bm_exploration_view_mode", "area")])
 
             frame:
-                background Frame(Transform("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
+                background Frame(im.Alpha("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
                 xysize (310, 335)
                 xpadding 5
                 frame:
                     style_group "content"
                     align (.5, .015)
                     xysize (210, 40)
-                    background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.6), 10, 10)
+                    background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.6), 10, 10)
                     label (u"Items") text_size 23 text_color "ivory" align .5, .5
                 viewport:
                     style_prefix "proper_stats"
@@ -964,7 +964,7 @@ screen building_management_rightframe_exploration_guild_mode:
                                     $ n = "99+"
                                 text "[n]" align (.5, .5) style "TisaOTM" size 18
                             frame:
-                                background Frame(Transform("content/gfx/interface/buttons/choice_buttons2.png", alpha=.75), 10, 10)
+                                background Frame(im.Alpha("content/gfx/interface/buttons/choice_buttons2.png", alpha=.75), 10, 10)
                                 padding 3, 3
                                 xysize 60, 60
                                 align .99, .5
@@ -993,7 +993,7 @@ screen building_management_rightframe_exploration_guild_mode:
             background Null()
             xfill True yfill True
             frame:
-                background Frame(Transform("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
+                background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.98), 10, 10)
                 align .5, .95
                 padding 10, 10
                 vbox:
@@ -1043,13 +1043,13 @@ screen exploration_team(team):
     zorder 1
     modal True
 
-    add Transform("content/gfx/images/bg_gradient2.webp", alpha=.3)
+    add im.Alpha("content/gfx/images/bg_gradient2.webp", alpha=.3)
 
     # Hero team ====================================>
     frame:
         style_prefix "proper_stats"
         align .58, .4
-        background Frame(Transform(im.Twocolor("content/gfx/frame/ink_box.png", "white", "black"), alpha=.7), 5, 5)
+        background Frame(im.Alpha(im.Twocolor("content/gfx/frame/ink_box.png", "white", "black"), alpha=.7), 5, 5)
         padding 10, 5
         has vbox spacing 10
 
@@ -1100,8 +1100,8 @@ screen exploration_team(team):
 
                     imagebutton:
                         align (0, 1.0)
-                        idle Transform(img, alpha=.9)
-                        hover Transform(img, alpha=1.05)
+                        idle im.Alpha(img, alpha=.8)
+                        hover img
                         action ToggleField(member, "front_row", true_value=1, false_value=0)
                         tooltip "Toggle between rows in battle, currently character fights from the %s row" % ("front" if member.front_row else "back")
 
@@ -1109,8 +1109,8 @@ screen exploration_team(team):
                         $ img = "content/gfx/interface/buttons/Profile.png"
                         imagebutton:
                             align (1.0, 1.0)
-                            idle Transform(img, alpha=.9)
-                            hover Transform(img, alpha=1.0)
+                            idle im.Alpha(img, alpha=.9)
+                            hover img
                             action [Hide("exploration_team"), SetVariable("came_to_equip_from", last_label), SetVariable("char", member),
                                     SetVariable("eqtarget", member), SetVariable("equip_girls", team._members), Jump("char_equip")]
                             tooltip "Check equipment"
@@ -1119,7 +1119,7 @@ screen exploration_team(team):
                 frame:
                     xsize 162
                     padding 10, 5
-                    background Frame(Transform("content/gfx/frame/p_frame2.png", alpha=.6), 5, 5)
+                    background Frame(im.Alpha("content/gfx/frame/p_frame2.png", alpha=.6), 5, 5)
                     has vbox spacing 4 xfill True
                     fixed:
                         xysize 158, 25

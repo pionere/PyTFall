@@ -60,8 +60,8 @@ screen city_screen():
             # Resolve images + Add Appearing where appropriate:
             $ idle_img = "".join([prefix, keyid, ".webp"])
             if key.get("appearing", False):
-                $ hover_img = im.MatrixColor(idle_img, im.matrix.brightness(.08))
-                $ idle_img = Transform(idle_img, alpha=.01)
+                $ hover_img = PyTGFX.bright_img(idle_img, .08)
+                $ idle_img = im.Alpha(idle_img, alpha=.01)
             else:
                 $ hover_img = "".join([prefix, keyid, "_hover.webp"])
             if "pos" in key:

@@ -73,8 +73,7 @@ label time_temple:
                                 hero.take_money(res, reason="Time Temple")
 
                                 img = "content/gfx/bg/locations/deep_sea.webp"
-                                img = im.MatrixColor(img, im.matrix.brightness(.3))
-                                img = Transform(img, alpha=.85)
+                                img = im.Alpha(PyTGFX.bright_img(img, .3), alpha=.85) 
                                 renpy.show("sea", what=img)
                                 renpy.with_statement(Dissolve(.5))
                                 renpy.hide("sea")
@@ -146,8 +145,7 @@ label time_temple:
                             hero.take_money(p, reason="Time Temple")
 
                             img = "content/gfx/bg/locations/ocean_underwater.webp"
-                            img = im.MatrixColor(img, im.matrix.brightness(.3))
-                            img = Transform(img, alpha=.85)
+                            img = im.Alpha(PyTGFX.bright_img(img, .3), alpha=.85)
                             renpy.show("sea", what=img)
                             renpy.with_statement(Dissolve(.5))
                             renpy.hide("sea")
