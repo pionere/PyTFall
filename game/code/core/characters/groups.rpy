@@ -190,7 +190,7 @@ init -8 python:
                 ".eqslots{}": self._ordered_on_abundance, ".auto_equip()": self._list_for_caller, ".home": "various",
                 ".status": "various", ".location": "various", ".workplace": "various", ".action": "Several actions",
                 ".autobuy": [], ".front_row": [], ".autoequip": "various", ".job": "Several jobs",
-                ".pp": "theirs", ".pd": "their", ".op": "them",
+                ".p": "they", ".pp": "theirs", ".pd": "their", ".op": "them",
                 ".autocontrol{}": [], ".sex_acts{}": [], ".miscblock": [],
                 ".flag()": False, ".has_flag()": False, ".is_available": False,
                 ".allowed_to_define_autobuy": False, ".allowed_to_define_autoequip": False,
@@ -204,10 +204,10 @@ init -8 python:
             #self._inventory = PytGInv([c.inventory for c in self.lst])
             #self.img = "content/gfx/interface/images/group.png"
             #self.portrait = "content/gfx/interface/images/group_portrait.png"
-            #self.nickname = "group"
+            self.nickname = "group"
             #self.effects = {}
             #stat_remedy = {'.stats._get_stat()': self._average, '.stats._raw_skill()': self._average}
-            self._stats = Delegator(l=[c.stats for c in self.lst], remedy=stat_remedy, at=".stats")
+            #self._stats = Delegator(l=[c.stats for c in self.lst], remedy=stat_remedy, at=".stats")
             #self.unselected = set()
 
         def __new__(cls, chars):
@@ -269,10 +269,10 @@ init -8 python:
             self._inventory.lst = [c.inventory for c in self.lst]
             return self._inventory
 
-        @property
-        def stats(self):
-            self._stats.lst = [c.stats for c in self.lst]
-            return self._stats
+        #@property
+        #def stats(self):
+        #    self._stats.lst = [c.stats for c in self.lst]
+        #    return self._stats
 
         @property
         def given_items(self):
