@@ -852,6 +852,7 @@ screen building_management_midframe_exploration_guild_mode:
                             vbox:
                                 spacing 10
                                 xfill True
+                                text obj.id xalign .5 style "stats_value_text" size 16 color "goldenrod"
                                 add PyTGFX.scale_content(obj.icon, 100, 100) xalign .5
                                 text obj.desc xalign .5 style "stats_value_text" size 14 color "ivory"
                         elif isinstance(obj, Char):
@@ -860,6 +861,19 @@ screen building_management_midframe_exploration_guild_mode:
                                 xfill True
                                 add obj.show("portrait", resize=(100, 100), cache=True) xalign .5
                                 text obj.name xalign .5 style "stats_value_text" size 18 color "ivory"
+                        elif isinstance(obj, OrderedDict):
+                            # map of item/count pairs
+                            vbox:
+                                spacing 10
+                                xfill True
+                                for item, amount in obj.iteritems():
+                                    $ temp = item.id
+                                    if amount != 1:
+                                        $ temp += " x%d" % amount
+                                    text temp xalign .5 style "stats_value_text" size 16 color "goldenrod"
+                                    add PyTGFX.scale_content(item.icon, 100, 100) xalign .5
+                                    text item.desc xalign .5 style "stats_value_text" size 14 color "ivory"
+                                    null height 10
                         elif isinstance(obj, list):
                             # battle_log
                             text "\n".join(obj) style "stats_value_text" size 14 color "ivory"

@@ -307,7 +307,34 @@ init -6 python: # Guild, Tracker and Log.
             self.guild.explorers.remove(self)
 
             # update area log
-            area.logs.extend([l for l in self.logs if l.ui_log])
+            logs = []
+            last_checked_idx = -1
+            temp = self.logs
+            last_idx = len(temp)-1
+            for idx, l in enumerate(temp):
+                if idx < last_checked_idx or not l.ui_log:
+                    continue
+                # merge consecutive item entries into a single entry with an ordered dict
+                if isinstance(l.event_object, Item):
+                    log_items = None
+                    next_idx = idx + 1
+                    while next_idx <= last_idx:
+                        ln = temp[next_idx]
+                        if ln.ui_log:
+                            obj = ln.event_object
+                            if not isinstance(obj, Item):
+                                break
+                            if log_items is None:
+                                log_items = OrderedDict()
+                                log_items[l.event_object] = 1
+                                l = ExplorationLog("Items", "various", "", False, True, log_items)
+                            log_items[obj] = log_items.get(obj, 0) + 1
+                        next_idx += 1
+                    last_checked_idx = next_idx
+
+                logs.append(l)
+
+            area.logs.extend(logs)
 
             # Next Day Stuff:
             # Not sure if this is required... we can add log objects and build
