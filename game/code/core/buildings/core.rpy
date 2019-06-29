@@ -970,7 +970,7 @@ init -10 python:
                     self.moddirt(5) # 5 dirt each 25 turns even if nothing is happening.
 
                     if self.has_garden and dice(25):
-                        for w in self.all_workers:
+                        for w in chain(self.available_workers, self.available_managers):
                             w.mod_stat("joy", 1)
 
                 if env.now >= end:
