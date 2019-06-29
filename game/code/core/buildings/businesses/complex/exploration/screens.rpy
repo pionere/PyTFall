@@ -770,8 +770,7 @@ screen building_management_midframe_exploration_guild_mode:
                                     xysize 200, 20
                                     text "[tracker.team.name]" yalign .5
                                 if tracker.used_horses:
-                                    $ img = PyTGFX.scale_img("content/gfx/interface/icons/horse.webp", 20, 20)
-                                    add PyTGFX.bright_img(img, .30) yalign .5 
+                                    add PyTGFX.scale_img("content/gfx/interface/images/ranch35.png", 20, 20) yalign .5 
                                 text "%d (%d)" % (tracker.day-1, tracker.days) align (.98, .5)
             else:
                 frame:
