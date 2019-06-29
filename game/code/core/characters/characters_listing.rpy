@@ -9,7 +9,7 @@ init:
                 self.page = 0
                 self.page_size = 10
 
-                self.source = CharsSortingForGui(sorting_for_chars_list)
+                self.source = CharsSortingForGui(hero.chars)
 
                 self.status_filters = None
                 #self.location_filters = None
@@ -26,6 +26,7 @@ init:
                 self.update_filter_sets()
                 # update the chars list only if no filter was selected
                 if not self.selected_filters:
+                    self.source.content = hero.chars
                     self.source.filter()
                 # remove selected chars which are no longer available
                 gone_chars = set()
@@ -66,6 +67,7 @@ init:
                 self.update_filter_sets()
 
                 self.source.clear()
+                self.source.content = hero.chars
                 self.source.filter()
 
             def toggleChosenMembership(self, chars):
@@ -85,44 +87,40 @@ label chars_list:
     show screen chars_list()
     with dissolve
 
-    python:
-        while 1:
+    while 1:
+        $ result = ui.interact()
 
-            result = ui.interact()
+        if result[0] == "dropdown":
+            if result[1] == "workplace":
+                $ renpy.show_screen("set_workplace_dropdown", result[2], pos=renpy.get_mouse_pos())
+            elif result[1] == "home":
+                $ renpy.show_screen("set_home_dropdown", result[2], pos=renpy.get_mouse_pos())
+            elif result[1] == "action":
+                $ renpy.show_screen("set_action_dropdown", result[2], pos=renpy.get_mouse_pos())
+        elif result[0] == "choice":
+            hide screen chars_list
+            $ girls = [char for char in chars_list_state.source.sorted if char.is_available and char in hero.chars]
+            $ char = result[1]
+            $ char_profile_entry = "chars_list"
+            jump char_profile
+        elif result[0] == "group":
+            if result[1] == "control":
+                $ char = PytGroup(list(chars_list_state.the_chosen))
+                show screen char_control
+            elif result[1] == "equip":
+                hide screen chars_list
+                $ came_to_equip_from = "chars_list"
+                $ equip_girls = list(chars_list_state.the_chosen)
+                $ eqtarget = equip_girls[0]
+                jump char_equip
+            elif result[1] == "training":
+                hide screen chars_list
+                $ the_chosen = list(chars_list_state.the_chosen)
+                jump school_training
+        elif result == ["control", "return"]:
+            hide screen chars_list
+            jump mainscreen
 
-            if result[0] == "control":
-                if result[1] == "return":
-                    break
-            elif result[0] == "dropdown":
-                if result[1] == "workplace":
-                    renpy.show_screen("set_workplace_dropdown", result[2], pos=renpy.get_mouse_pos())
-                elif result[1] == "home":
-                    renpy.show_screen("set_home_dropdown", result[2], pos=renpy.get_mouse_pos())
-                elif result[1] == "action":
-                    renpy.show_screen("set_action_dropdown", result[2], pos=renpy.get_mouse_pos())
-            elif result[0] == "choice":
-                renpy.hide_screen("chars_list")
-                girls = [char for char in chars_list_state.source.sorted if char.is_available and char in hero.chars]
-                char = result[1]
-                char_profile_entry = "chars_list"
-                jump('char_profile')
-            elif result[0] == "group":
-                if result[1] == "control":
-                    char = PytGroup(list(chars_list_state.the_chosen))
-                    renpy.show_screen("char_control")
-                elif result[1] == "equip":
-                    renpy.hide_screen("chars_list")
-                    came_to_equip_from = "chars_list"
-                    equip_girls = list(chars_list_state.the_chosen)
-                    eqtarget = equip_girls[0]
-                    jump('char_equip')
-                elif result[1] == "training":
-                    renpy.hide_screen("chars_list")
-                    the_chosen = list(chars_list_state.the_chosen)
-                    jump('school_training')
-
-    hide screen chars_list
-    jump mainscreen
 
 screen chars_list():
     key "mousedown_3" action Return(['control', 'return']) # keep in sync with button - alternate
@@ -360,7 +358,7 @@ screen chars_list():
                 button:
                     style_group "basic"
                     xsize 100
-                    action [chars_list_state.reset_filters, renpy.restart_interaction]
+                    action Function(chars_list_state.reset_filters)
                     tooltip 'Reset all filters'
                     text "Reset"
 

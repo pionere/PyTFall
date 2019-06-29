@@ -16,7 +16,7 @@ screen building_management_leftframe_exploration_guild_mode:
                 xalign .5
                 textbutton "Reset":
                     xsize 296
-                    action Function(fg_filters.clear)
+                    action [Function(fg_filters.occ_filters.add, "Combatant"), Function(fg_filters.action_filters.discard, None), Function(fg_filters.filter)]
                 textbutton "Warriors":
                     xsize 296
                     action ModFilterSet(fg_filters, "occ_filters", "Combatant")
@@ -47,7 +47,7 @@ screen building_management_leftframe_exploration_guild_mode:
                 align 1.0, 0.5 #offset 9, -2
                 background Frame(im.Alpha("content/gfx/frame/MC_bg2.png", alpha=.55), 5, 5)
                 action ToggleField(fg_filters, "sorting_desc"), Function(fg_filters.filter)
-                add(im.Scale(temp, 20, 20)) align .5, .5
+                add (im.Scale(temp, 20, 20)) align .5, .5
                 tooltip 'Descending order'
     elif bm_exploration_view_mode == "explore":
         fixed: # making sure we can align stuff...
@@ -574,7 +574,7 @@ screen building_management_midframe_exploration_guild_mode:
                 pos (0, 0)
 
             for t, pos in guild_teams:
-                $ idle_t = t not in bm_mid_frame_mode.exploring_teams()
+                $ idle_t = True #t not in bm_mid_frame_mode.exploring_teams()
                 for idx, w in enumerate(t):
                     $ w_pos = (pos[0]+17+idx*63, pos[1]+12)
                     $ w.set_flag("dnd_drag_container", t)

@@ -31,22 +31,7 @@ label building_management:
                         if hasattr(store, i):
                             delattr(store, i)
             elif isinstance(bm_mid_frame_mode, ExplorationGuild):
-                # Looks pretty ugly... this might be worth improving upon just for the sake of esthetics.
-                $ workers = CoordsForPaging(all_chars_for_se(), columns=6, rows=3,
-                        size=(80, 80), xspacing=10, yspacing=10, init_pos=(46, 9))
-
-                $ fg_filters = CharsSortingForGui(all_chars_for_se)
-                $ fg_filters.occ_filters.add("Combatant")
-                $ fg_filters.target_container = [workers, "content"]
-                $ fg_filters.filter()
-
-                $ guild_teams = CoordsForPaging(bm_mid_frame_mode.idle_teams(), columns=3, rows=3,
-                                size=(208, 83), xspacing=0, yspacing=5, init_pos=(4, 344))
-
-                $ bm_exploration_view_mode = "explore"
-                $ bm_selected_log_area = None
-                $ bm_selected_exp_area = None
-
+                $ bm_mid_frame_mode.load_gui()
         elif result[0] == "fg_team":
             python hide:
                 action = result[1]

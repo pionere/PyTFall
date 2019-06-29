@@ -400,6 +400,32 @@ init -6 python: # Guild, Tracker and Log.
         def can_close(self):
             return not self.explorers
 
+        def load_gui(self):
+            # Looks pretty ugly... this might be worth improving upon just for the sake of esthetics.
+            global fg_filters, workers, guild_teams
+            global bm_exploration_view_mode, bm_selected_log_area, bm_selected_exp_area
+
+            _teams = self.idle_teams()
+            _chars = [w for w in self.building.all_workers if w != hero and ExplorationTask.willing_work(w) and w.is_available]
+
+            # filter chars
+            idle_chars = list(chain.from_iterable(t.members for t in _teams))
+            _chars = [w for w in _chars if w not in idle_chars]
+
+            # load gui elements
+            workers = CoordsForPaging(None, columns=6, rows=3,
+                    size=(80, 80), xspacing=10, yspacing=10, init_pos=(46, 9))
+
+            fg_filters = CharsSortingForGui(_chars, container = [workers, "content"])
+            fg_filters.occ_filters.add("Combatant")
+            fg_filters.filter()
+
+            guild_teams = CoordsForPaging(_teams, columns=3, rows=3,
+                            size=(208, 83), xspacing=0, yspacing=5, init_pos=(4, 344))
+
+            bm_exploration_view_mode = "explore"
+            bm_selected_log_area = bm_selected_exp_area = None
+
         # Teams control/sorting/grouping methods:
         def new_team(self, name):
             team = Team(name, free=True)
@@ -428,17 +454,10 @@ init -6 python: # Guild, Tracker and Log.
                 index = 0
             self.team_to_launch_index = index
 
-        def exploring_teams(self):
-            # Teams that are busy with exploration runs.
-            return [tracker.team for tracker in self.explorers]
-
         def idle_teams(self):
             # Teams avalible for setup in order to set them on exploration runs.
-            return [t for t in self.teams if t not in self.exploring_teams()]
-
-        def idle_explorers(self):
-            # Returns a list of idle explorers:
-            return list(chain.from_iterable(t.members for t in self.idle_teams()))
+            exploring_teams = [tracker.team for tracker in self.explorers]
+            return [t for t in self.teams if t not in exploring_teams]
 
         def launch_team(self, team, area):
             # self.teams.remove(team) # We prolly do not do this?
