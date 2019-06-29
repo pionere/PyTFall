@@ -1,21 +1,15 @@
 label building_management:
     python:
         # Some Global Vars we use to pass data between screens:
-        if hero.buildings:
-            bm_index = getattr(store, "bm_index", 0)
-            if bm_index >= len(hero.buildings):
-                bm_index = 0
+        bm_building = hero.buildings[bm_index]
+        bm_mid_frame_mode = getattr(store, "bm_mid_frame_mode", None)
 
-            bm_building = hero.buildings[bm_index]
-            bm_mid_frame_mode = getattr(store, "bm_mid_frame_mode", None)
-
-            # special cursor for DragAndDrop and the original value
-            mouse_drag = {"default" :[("content/gfx/interface/cursors/hand.png", 0, 0)]}
-            mouse_cursor = config.mouse
+        # special cursor for DragAndDrop and the original value
+        mouse_drag = {"default" :[("content/gfx/interface/cursors/hand.png", 0, 0)]}
+        mouse_cursor = config.mouse
 
     scene bg scroll
 
-    $ renpy.retain_after_load()
     show screen building_management
     with fade
 
@@ -152,7 +146,8 @@ label building_management:
 label building_management_end:
     hide screen building_management
 
-    jump mainscreen
+    $ del bm_index, bm_building, bm_mid_frame_mode, mouse_drag, mouse_cursor
+    jump buildings_list
     with dissolve
 
 # Screens:

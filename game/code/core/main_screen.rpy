@@ -142,7 +142,7 @@ screen mainscreen():
                 action Return("chars_list")
                 tooltip "A list of all of your workers"
             textbutton "Buildings":
-                action Return("building_management")
+                action Return("buildings_list")
                 tooltip "Manage your properties and businesses"
             textbutton "Go to the City":
                 action Return("city")
