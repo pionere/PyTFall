@@ -103,10 +103,12 @@ init -1 python:
 
         # List of modes to use the girl_interactions label with.
         IMG_SIZE = (600, 515) # Img size we automatically use for girlsmeets.
-        def __init__(self):
+        def __init__(self, data):
             """
             Creates a new GirlsMeets.
             """
+            self.world_gossips = WorldGossipsManager(data)
+
             # Mode and caches
             self.mode = None
             self.label_cache = ""

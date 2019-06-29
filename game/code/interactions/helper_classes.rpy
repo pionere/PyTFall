@@ -1,4 +1,43 @@
 init -2 python:
+    # Utility funcs to alias otherwise long command lines:
+    def register_gossip(*args, **kwargs):
+        """
+        Registers a new gossip in an init block (and now in labels as well!).
+        """
+        gossip = WorldGossip(*args, **kwargs)
+        if hasattr(store, "iam"):
+            wg = iam.world_gossips
+        else:
+            wg = world_gossips
+        wg.append(gossip)
+
+    def stop_gossip(gossip_id):
+        iam.world_gossips.stop_gossip(gossip_id)
+
+    class WorldGossip(_object):
+        def __init__(self, id, func, dice):
+            self.id = id
+            self.func = func
+            self.dice = dice
+
+    class WorldGossipsManager(_object):
+        def __init__(self, data):
+            """
+            Creates the manager and copies the pre-existsing gossips into itself.
+            """
+            self.gossips = deepcopy(data)
+
+        def get_gossip(self):
+            gossips = [g for g in self.gossips if dice(g.dice)]
+            if gossips:
+                return choice(gossips)
+
+        def stop_gossip(self, gossip_id):
+            for g in self.gossips:
+                if g.id == gossip_id:
+                    self.gossips.remove(g)
+                    break
+
     # Interactions (Girlsmeets Helper Functions):
     class InteractionsHelper(_object):
         @staticmethod

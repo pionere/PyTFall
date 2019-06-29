@@ -18,6 +18,11 @@ label interactions_smalltalk:
             $ hero.gfx_mod_stat("joy", -1)
         jump girl_interactions
     if char.get_stat("disposition") >= 100:
+        if dice(5):
+            $ gossip = iam.world_gossips.get_gossip()
+            if gossip:
+                $ gossip = getattr(iam, gossip.func)
+                $ gossip(char)
         if "Impersonal" in char.traits or "Dandere" in char.traits or "Shy" in char.traits:
             $ narrator(choice(["[char.pC] didn't talked much, but [char.pC] enjoyed your company nevertheless.",
                                "You had to do most of the talking, but [char.p] listened you with a smile.",

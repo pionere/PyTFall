@@ -1,5 +1,6 @@
 init python:
     register_event("peevish_meeting", locations=["forest_entrance"], simple_conditions=["hero.get_stat('magic') >= 50"],  priority=500, start_day=1, jump=True, dice=100, max_runs=1)
+    register_gossip("peevish_forest", "gossip_peevish_in_forest", dice=100)
 
 label peevish_meeting:
     $ p = Character("???", color="lawngreen", what_color="lawngreen", show_two_window=True)
@@ -65,6 +66,7 @@ label peevish_meeting:
     $ global_flags.set_flag("met_peevish")
     $ global_flags.del_flag("keep_playing_music")
     $ del p
+    $ stop_gossip("peevish_forest")
     jump forest_entrance
 
 label peevish_menu:

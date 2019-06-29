@@ -157,6 +157,9 @@ init -950 python:
     # Prepping a list to append all quests for the registration.
     world_quests = list()
 
+    # Prepping a list to append all gossips for the registration.
+    world_gossips = list()
+
     # Override the default game_menu
     config.game_menu_action = Show("s_menu", s_menu="Settings", main_menu=True)
 

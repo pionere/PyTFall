@@ -143,7 +143,7 @@ label start:
 
     python: # Girlsmeets:
         tl.start("Loading: GirlsMeets")
-        iam = GirlsMeets()
+        iam = GirlsMeets(world_gossips)
         tl.end("Loading: GirlsMeets")
 
     jump dev_testing_menu_and_load_mc
@@ -1677,6 +1677,8 @@ label after_load:
         if not hasattr(store, "iam"):
             store.iam = store.gm
             del store.gm
+        if not hasattr(store.iam, "world_gossips"):
+            store.iam.world_gossips = WorldGossipsManager(world_gossips)
         if "girl_meets" in pytfall.world_actions.locations:
             del pytfall.world_actions.locations["girl_meets"]
 

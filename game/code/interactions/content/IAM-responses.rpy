@@ -2,7 +2,7 @@ init -2 python:
     # Interactions (Girlsmeets conversation-lines):
     class InteractionsResponses(_object):
         @staticmethod
-        def say_line(character, lines, mood="indifferent", overlay_args=None, msg_args=None):
+        def say_line(character, lines, mood="indifferent", overlay_args=None, msg_args=None, gossip=False):
             result = random.choice(lines)
             text_args = {"[mc_ref]": character.mc_ref,
                          "[p]": character.p,
@@ -17,7 +17,18 @@ init -2 python:
             character.override_portrait("portrait", mood)
             if overlay_args is not None:
                 character.show_portrait_overlay(*overlay_args)
-            character.say(result)
+            if gossip is True:
+                character.say("... " + result + " ...")
+                #character.say("... ")
+                ## record_say...
+                ##renpy.store._last_say_who = character
+                #renpy.store._last_say_what = "... "
+                ##renpy.store._last_say_args = ()
+                ##renpy.store._last_say_kwargs = {}
+                #extend(result)
+                #extend(" ...")
+            else:
+                character.say(result)
             if overlay_args is not None:
                 character.hide_portrait_overlay()
             character.restore_portrait()
@@ -3057,6 +3068,70 @@ init -2 python:
             block_say = True
             iam.say_line(character, lines, mood)
             block_say = False
+
+        ##############################           GOSSIPS           ##############################
+
+        @staticmethod
+        def gossip_peevish_in_forest(character):
+            """
+            Output line when the character gossips about peevish's whereabout
+            """
+            char_traits = character.traits
+            mood = "indifferent"
+            if "Impersonal" in char_traits:
+                lines = ("The stories about the strange AND magical creature of the forest... Isn't it the same?", )
+            elif "Shy" in char_traits:
+                lines = ("Um, you heard these strange stories about a magical creature living in the forest?", )
+            elif "Imouto" in char_traits:
+                mood = "scared"
+                lines = ("There lives a magical creature right next to the city. You can hear strange stories about it!", )
+            elif "Dandere" in char_traits:
+                lines = ("Where can you be safe when there lives an invisible 'magical' creature right next to the city?", )
+            elif "Tsundere" in char_traits:
+                lines = ("A strange creature in the forest they say? Who isn't strange is some ways, right?", )
+            elif "Kuudere" in char_traits:
+                lines = ("Everyone talks about a magical creature in the forest, but why should I care?", )
+            elif "Kamidere" in char_traits:
+                lines = ("That magical creature in the forest must be really powerful if it can hide in plain sight.", )
+            elif "Bokukko" in char_traits:
+                lines = ("Hah. Some says they saw a strange creature in the forest, but I really doubt it.", )
+            elif "Ane" in char_traits:
+                lines = ("Did you hear? They say some strange creature lives in the forest right next to the city.", )
+            elif "Yandere" in char_traits:
+                lines = ("The magical creature of the forest must feel really lonely sometimes, don't you think?", )
+            else:
+                lines = ("I hope the strange, magical creature of the forest won't disturb us in the city.", )
+            iam.say_line(character, lines, mood, gossip=True)
+
+        @staticmethod
+        def gossip_aine_in_park(character):
+            """
+            Output line when the character gossips about aine's whereabout
+            """
+            char_traits = character.traits
+            if "Impersonal" in char_traits:
+                lines = ("It should be prohibited to beome invisible. It is really upsets people, even in public places like the park.", )
+            elif "Shy" in char_traits:
+                lines = ("You also heard the rumors about the ghost of the park? I hope it is just a wind.", )
+            elif "Imouto" in char_traits:
+                lines = ("Sometimes when I walk in the park, I get the feeling that I'm not alone!", )
+            elif "Dandere" in char_traits:
+                lines = ("Nowadays you have to avoid being alone in the park. There are rumors about a 'fairy'...", )
+            elif "Tsundere" in char_traits:
+                lines = ("The fairy of the park should really stop scaring the people. It is a fairy after all, right?", )
+            elif "Kuudere" in char_traits:
+                lines = ("And now a 'ghost' in the park... Does it really bother anyone?", )
+            elif "Kamidere" in char_traits:
+                lines = ("There can not be a fairy in the park. A real fairy would not scare people like that.", )
+            elif "Bokukko" in char_traits:
+                lines = ("I heard someone was spooked by a ghost in the park. How naïve..", )
+            elif "Ane" in char_traits:
+                lines = ("Ohh dear, that poor fairy in the park must have lost its way..", )
+            elif "Yandere" in char_traits:
+                lines = ("I guess that the magical creature in the park is sometimes surprised by us the same as some of us by them.", )
+            else:
+                lines = ("With the fairy in the park I think we start to get overrun by non-humans.", )
+            iam.say_line(character, lines, gossip=True)
 
         ##############################     TODO unused methods     ##############################
 

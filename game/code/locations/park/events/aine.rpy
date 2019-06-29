@@ -2,6 +2,7 @@ init python:
     register_event("aine_menu", locations=["city_park"],
         simple_conditions=["hero.get_stat('magic') >= 100"],
         priority=100, start_day=1, jump=True, dice=100, max_runs=1)
+    register_gossip("aine_park", "gossip_aine_in_park", dice=80)
 
 label aine_menu:
 
@@ -35,6 +36,7 @@ label aine_menu:
         extend " it will cost you, but you'll never have to hear a word about no pile of gold from me."
 
         $ pytfall.aine_shop.visible = True
+        $ stop_gossip("aine_park")
     else:
         a "Hello again. How are you today?"
 
