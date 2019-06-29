@@ -21,7 +21,16 @@ label building_management:
             pass
         elif result[0] == "bm_mid_frame_mode":
             $ bm_mid_frame_mode = result[1]
-            if isinstance(bm_mid_frame_mode, ExplorationGuild):
+            if bm_mid_frame_mode is None:
+                # cleanup after EG
+                python hide:
+                    cleanup = ["workers", "fg_filters", "guild_teams",
+                              "bm_exploration_view_mode", "bm_selected_log_area",
+                              "bm_selected_exp_area", "bm_selected_exp_area_sub"]
+                    for i in cleanup:
+                        if hasattr(store, i):
+                            delattr(store, i)
+            elif isinstance(bm_mid_frame_mode, ExplorationGuild):
                 # Looks pretty ugly... this might be worth improving upon just for the sake of esthetics.
                 $ workers = CoordsForPaging(all_chars_for_se(), columns=6, rows=3,
                         size=(80, 80), xspacing=10, yspacing=10, init_pos=(46, 9))
