@@ -24,7 +24,7 @@ label building_management:
             if bm_mid_frame_mode is None:
                 # cleanup after EG
                 python hide:
-                    cleanup = ["workers", "fg_filters", "guild_teams",
+                    cleanup = ["workers", "guild_teams",
                               "bm_exploration_view_mode", "bm_selected_log_area",
                               "bm_selected_exp_area", "bm_selected_exp_area_sub"]
                     for i in cleanup:

@@ -2,32 +2,29 @@ init:
     default chars_list_state = None
     python:
         def sorting_for_chars_list():
-            return [c for c in hero.chars]
+            pass # FIXME obsolete
 
-        class CharsListState(_object):
+        class CharsListState(CharsSortingForGui):
             def __init__(self):
-                self.page = 0
-                self.page_size = 10
+                super(CharsListState, self).__init__(hero.chars, page_size=10)
 
-                self.source = CharsSortingForGui(hero.chars)
-
-                self.status_filters = None
-                #self.location_filters = None
-                self.action_filters = None
-                self.class_filters = None
-                self.home_filters = None
-                self.work_filters = None
+                self.all_status_filters = None
+                #self.all_location_filters = None
+                self.all_action_filters = None
+                self.all_class_filters = None
+                self.all_home_filters = None
+                self.all_work_filters = None
 
                 self.selected_filters = set()
                 self.the_chosen = set()
 
             def refresh(self):
-                # prepare the filters
-                self.update_filter_sets()
                 # update the chars list only if no filter was selected
                 if not self.selected_filters:
-                    self.source.content = hero.chars
-                    self.source.filter()
+                    self.all_content = hero.chars
+                    self.filter()
+                # prepare the filters
+                self.update_filter_sets()
                 # remove selected chars which are no longer available
                 gone_chars = set()
                 for c in self.the_chosen:
@@ -36,39 +33,29 @@ init:
                 if gone_chars:
                     self.the_chosen -= gone_chars
 
-            def next(self):
-                self.page += 1
-
-            def prev(self):
-                self.page -= 1
-
-            def page_content(self):
-                start = self.page*self.page_size
-                return self.source.sorted[start:start+self.page_size]
-
             def update_filter_sets(self):
-                self.status_filters = set()
-                #self.location_filters = set()
-                self.action_filters = set()
-                self.class_filters = set()
-                self.home_filters = set()
-                self.work_filters = set()
+                self.all_status_filters = set()
+                #self.all_location_filters = set()
+                self.all_action_filters = set()
+                self.all_class_filters = set()
+                self.all_home_filters = set()
+                self.all_work_filters = set()
                 for c in hero.chars:
-                    self.status_filters.add(c.status)
+                    self.all_status_filters.add(c.status)
                     #self.locations_filters.add(c.location)
-                    self.action_filters.add(c.action)
-                    self.home_filters.add(c.home)
-                    self.work_filters.add(c.workplace)
+                    self.all_action_filters.add(c.action)
+                    self.all_home_filters.add(c.home)
+                    self.all_work_filters.add(c.workplace)
                     for bt in c.traits.basetraits:
-                        self.class_filters.add(bt)
+                        self.all_class_filters.add(bt)
 
             def reset_filters(self):
                 self.selected_filters = set()
                 self.update_filter_sets()
 
-                self.source.clear()
-                self.source.content = hero.chars
-                self.source.filter()
+                self.clear()
+                self.all_content = hero.chars
+                self.filter()
 
             def toggleChosenMembership(self, chars):
                 if self.the_chosen.issuperset(chars):
@@ -99,7 +86,7 @@ label chars_list:
                 $ renpy.show_screen("set_action_dropdown", result[2], pos=renpy.get_mouse_pos())
         elif result[0] == "choice":
             hide screen chars_list
-            $ girls = [char for char in chars_list_state.source.sorted if char.is_available and char in hero.chars]
+            $ girls = [char for char in chars_list_state.pager_content if char.is_available and char in hero.chars]
             $ char = result[1]
             $ char_profile_entry = "chars_list"
             jump char_profile
@@ -126,11 +113,11 @@ screen chars_list():
     key "mousedown_3" action Return(['control', 'return']) # keep in sync with button - alternate
 
     # the number of filtered workers
-    $ num_chars = len(chars_list_state.source.sorted)
+    $ num_chars = len(chars_list_state.pager_content)
 
     # Normalize pages.
     python:
-        max_page = 0 if num_chars == 0 else ((num_chars-1)/chars_list_state.page_size)
+        max_page = chars_list_state.max_page()
         if chars_list_state.page > max_page:
             chars_list_state.page = max_page
 
@@ -309,7 +296,7 @@ screen chars_list():
                     button:
                         style_suffix "button_left"
                         tooltip "Previous Page"
-                        action Function(chars_list_state.prev)
+                        action Function(chars_list_state.prev_page)
                         sensitive curr_page != 1
                         keysym "mousedown_4"
 
@@ -318,7 +305,7 @@ screen chars_list():
                     button:
                         style_suffix "button_right"
                         tooltip "Next Page"
-                        action Function(chars_list_state.next)
+                        action Function(chars_list_state.next_page)
                         sensitive (curr_page <= max_page)
                         keysym "mousedown_5"
 
@@ -371,17 +358,17 @@ screen chars_list():
                 cols 2
                 draggable True edgescroll (30, 100)
                 if "Status" in chars_list_state.selected_filters:
-                    for f in chars_list_state.status_filters:
+                    for f in chars_list_state.all_status_filters:
                         button:
                             xysize 125, 32
-                            action ModFilterSet(chars_list_state.source, "status_filters", f)
+                            action ModFilterSet(chars_list_state, "status_filters", f)
                             text f.capitalize() color "green"
                             tooltip 'Toggle the filter'
                 if "Home" in chars_list_state.selected_filters:
-                    for f in chars_list_state.home_filters:
+                    for f in chars_list_state.all_home_filters:
                         button:
                             xysize 125, 32
-                            action ModFilterSet(chars_list_state.source, "home_filters", f)
+                            action ModFilterSet(chars_list_state, "home_filters", f)
                             text "[f]" color "saddlebrown":
                                 if len(str(f)) > 12:
                                     size 10
@@ -390,10 +377,10 @@ screen chars_list():
                                     layout "nobreak"
                             tooltip 'Toggle the filter'
                 if "Work" in chars_list_state.selected_filters:
-                    for f in chars_list_state.work_filters:
+                    for f in chars_list_state.all_work_filters:
                         button:
                             xysize 125, 32
-                            action ModFilterSet(chars_list_state.source, "work_filters", f)
+                            action ModFilterSet(chars_list_state, "work_filters", f)
                             text "[f]" color "brown":
                                 if len(str(f)) > 12:
                                     size 10
@@ -402,10 +389,10 @@ screen chars_list():
                                     layout "nobreak"
                             tooltip 'Toggle the filter'
                 if "Action" in chars_list_state.selected_filters:
-                    for f in chars_list_state.action_filters:
+                    for f in chars_list_state.all_action_filters:
                         button:
                             xysize 125, 32
-                            action ModFilterSet(chars_list_state.source, "action_filters", f)
+                            action ModFilterSet(chars_list_state, "action_filters", f)
                             $ temp = getattr(f, "id", "None")
                             text temp color "darkblue":
                                 if len(temp) > 12:
@@ -415,10 +402,10 @@ screen chars_list():
                                     layout "nobreak"
                             tooltip 'Toggle the filter'
                 if "Class" in chars_list_state.selected_filters:
-                    for f in chars_list_state.class_filters:
+                    for f in chars_list_state.all_class_filters:
                         button:
                             xysize 125, 32
-                            action ModFilterSet(chars_list_state.source, "class_filters", f)
+                            action ModFilterSet(chars_list_state, "class_filters", f)
                             text "[f]" color "purple"
                             tooltip 'Toggle the filter'
 
@@ -438,15 +425,15 @@ screen chars_list():
             text_outlines [(1, "black", 0, 0)]
 
         $ options = OrderedDict([("level", "Level"), ("name", "Name"), ("disposition", "Disposition"), ("affection", "Affection"), (None, "-")])
-        $ temp = chars_list_state.source.sorting_order
-        use dropdown_box(options, max_rows=6, row_size=(160, 30), pos=(1064, 530), value=temp, field=(chars_list_state.source, "sorting_order"), action=Function(chars_list_state.source.filter))
+        $ temp = chars_list_state.sorting_order
+        use dropdown_box(options, max_rows=6, row_size=(160, 30), pos=(1064, 530), value=temp, field=(chars_list_state, "sorting_order"), action=Function(chars_list_state.filter))
 
         button:
             xysize (25, 25)
             align 1.0, 0.5 #offset 9, -2
             background Frame(im.Alpha("content/gfx/frame/MC_bg2.png", alpha=.55), 5, 5)
-            action ToggleField(chars_list_state.source, "sorting_desc"), Function(chars_list_state.source.filter)
-            if chars_list_state.source.sorting_desc:
+            action ToggleField(chars_list_state, "sorting_desc"), Function(chars_list_state.filter)
+            if chars_list_state.sorting_desc:
                 add(im.Scale('content/gfx/interface/icons/checkbox_checked.png', 20, 20)) align .5, .5
             else:
                 add(im.Scale('content/gfx/interface/icons/checkbox_unchecked.png', 20, 20)) align .5, .5
@@ -469,7 +456,7 @@ screen chars_list():
                 tooltip "Select all currently visible characters"
             button: # every of currently filtered, also in next tabs
                 xysize (66, 40)
-                action Function(chars_list_state.toggleChosenMembership, set(chars_list_state.source.sorted))
+                action Function(chars_list_state.toggleChosenMembership, set(chars_list_state.pager_content))
                 sensitive num_chars != 0
                 text "All"
                 tooltip "Select all characters"

@@ -16,13 +16,13 @@ screen building_management_leftframe_exploration_guild_mode:
                 xalign .5
                 textbutton "Reset":
                     xsize 296
-                    action [Function(fg_filters.occ_filters.add, "Combatant"), Function(fg_filters.action_filters.discard, None), Function(fg_filters.filter)]
+                    action [Function(workers.occ_filters.add, "Combatant"), Function(workers.action_filters.discard, None), Function(workers.filter)]
                 textbutton "Warriors":
                     xsize 296
-                    action ModFilterSet(fg_filters, "occ_filters", "Combatant")
+                    action ModFilterSet(workers, "occ_filters", "Combatant")
                 textbutton "Idle":
                     xsize 296
-                    action ModFilterSet(fg_filters, "action_filters", None)
+                    action ModFilterSet(workers, "action_filters", None)
 
         # Sorting:
         frame:
@@ -36,9 +36,9 @@ screen building_management_leftframe_exploration_guild_mode:
                 yalign .5 
 
             $ options = OrderedDict([("level", "Level"), ("name", "Name"), (None, "-")])
-            use dropdown_box(options, max_rows=4, row_size=(160, 30), pos=(89, 200), value=fg_filters.sorting_order, field=(fg_filters, "sorting_order"), action=Function(fg_filters.filter))
+            use dropdown_box(options, max_rows=4, row_size=(160, 30), pos=(89, 200), value=workers.sorting_order, field=(workers, "sorting_order"), action=Function(workers.filter))
 
-            if fg_filters.sorting_desc:
+            if workers.sorting_desc:
                 $ temp = "content/gfx/interface/icons/checkbox_checked.png"
             else:
                 $ temp = "content/gfx/interface/icons/checkbox_unchecked.png"
@@ -46,7 +46,7 @@ screen building_management_leftframe_exploration_guild_mode:
                 xysize (25, 25)
                 align 1.0, 0.5 #offset 9, -2
                 background Frame(im.Alpha("content/gfx/frame/MC_bg2.png", alpha=.55), 5, 5)
-                action ToggleField(fg_filters, "sorting_desc"), Function(fg_filters.filter)
+                action ToggleField(workers, "sorting_desc"), Function(workers.filter)
                 add (im.Scale(temp, 20, 20)) align .5, .5
                 tooltip 'Descending order'
     elif bm_exploration_view_mode == "explore":
@@ -478,7 +478,7 @@ screen building_management_midframe_exploration_guild_mode:
             hbox:
                 xalign .5
                 box_wrap 1
-                for i in xrange(18):
+                for i in xrange(workers.page_size):
                     frame:
                         xysize 90, 90
                         xmargin 2
@@ -490,7 +490,7 @@ screen building_management_midframe_exploration_guild_mode:
                 align .5, .97
                 hbox:
                     spacing 5
-                    $ temp = workers.page >= 1
+                    $ temp = workers.page != 0
                     button:
                         style_suffix "button_left2x"
                         tooltip "First Page"
@@ -504,7 +504,7 @@ screen building_management_midframe_exploration_guild_mode:
                 null width 100
                 hbox:
                     spacing 5
-                    $ temp = workers.page + 1 < workers.max_page
+                    $ temp = workers.page < workers.max_page()
                     button:
                         style_suffix "button_right"
                         tooltip "Next Page"
@@ -529,7 +529,7 @@ screen building_management_midframe_exploration_guild_mode:
             xalign .5 ypos 611
             hbox:
                 spacing 5
-                $ temp = guild_teams.page >= 1
+                $ temp = guild_teams.page != 0
                 button:
                     style_suffix "button_left2x"
                     tooltip "First Page"
@@ -551,7 +551,7 @@ screen building_management_midframe_exploration_guild_mode:
             null width 20
             hbox:
                 spacing 5
-                $ temp = guild_teams.page + 1 < guild_teams.max_page
+                $ temp = guild_teams.page < guild_teams.max_page()
                 button:
                     style_suffix "button_right"
                     tooltip "Next Page"
@@ -573,10 +573,14 @@ screen building_management_midframe_exploration_guild_mode:
                 droppable True
                 pos (0, 0)
 
-            for t, pos in guild_teams:
+
+            $ init_pos = (4, 344)
+            $ boxsizex, boxsizey = 208, 88
+            $ curr_pos = list(init_pos)
+            for t in guild_teams.page_content():
                 $ idle_t = True #t not in bm_mid_frame_mode.exploring_teams()
                 for idx, w in enumerate(t):
-                    $ w_pos = (pos[0]+17+idx*63, pos[1]+12)
+                    $ w_pos = (curr_pos[0]+17+idx*63, curr_pos[1]+12)
                     $ w.set_flag("dnd_drag_container", t)
                     drag:
                         dragged dragged
@@ -596,7 +600,7 @@ screen building_management_midframe_exploration_guild_mode:
                     xysize (208, 83)
                     draggable 0
                     droppable idle_t
-                    pos pos
+                    pos curr_pos[:]
                     frame:
                         xysize (208, 83)
                         background "content/gfx/frame/team_frame_4.png"
@@ -646,18 +650,28 @@ screen building_management_midframe_exploration_guild_mode:
                             sensitive t and idle_t
                             action Return(["fg_team", "clear", t])
                             tooltip "Remove all members!"
+                $ curr_pos[0] += boxsizex
+                if curr_pos[0] == (init_pos[0] + boxsizex*3): # columns
+                    $ curr_pos = [init_pos[0], curr_pos[1]+boxsizey]
 
-            for w, pos in workers:
+            $ init_pos = (46, 9)
+            $ boxsize = 90 # with spacing
+            $ curr_pos = list(init_pos)
+            for w in workers.page_content():
                 $ w.set_flag("dnd_drag_container", workers)
                 drag:
                     dragged dragged
                     droppable 0
                     tooltip "%s\nDrag And Drop to build teams" % w.fullname
                     drag_name w
-                    pos pos
+                    pos curr_pos[:]
                     add w.show("portrait", resize=(74, 74), cache=True)
                     hovered Function(setattr, config, "mouse", mouse_drag)
                     unhovered Function(setattr, config, "mouse", mouse_cursor)
+                $ curr_pos[0] += boxsize
+                if curr_pos[0] == (init_pos[0] + boxsize*6): # columns
+                    $ curr_pos = [init_pos[0], curr_pos[1]+boxsize]
+
     elif bm_exploration_view_mode == "explore":
         vbox:
             xalign .5

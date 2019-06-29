@@ -413,15 +413,11 @@ init -6 python: # Guild, Tracker and Log.
             _chars = [w for w in _chars if w not in idle_chars]
 
             # load gui elements
-            workers = CoordsForPaging(None, columns=6, rows=3,
-                    size=(80, 80), xspacing=10, yspacing=10, init_pos=(46, 9))
+            workers = CharsSortingForGui(_chars, page_size=18)
+            workers.occ_filters.add("Combatant")
+            workers.filter()
 
-            fg_filters = CharsSortingForGui(_chars, container = [workers, "content"])
-            fg_filters.occ_filters.add("Combatant")
-            fg_filters.filter()
-
-            guild_teams = CoordsForPaging(_teams, columns=3, rows=3,
-                            size=(208, 83), xspacing=0, yspacing=5, init_pos=(4, 344))
+            guild_teams = PagerGui(_teams, page_size=9)
 
             bm_exploration_view_mode = "explore"
             bm_selected_log_area = bm_selected_exp_area = None
@@ -474,7 +470,7 @@ init -6 python: # Guild, Tracker and Log.
             area.trackers.append(tracker)
             self.explorers.append(tracker)
 
-            guild_teams.remove(team)
+            guild_teams.pager_content.remove(team)
 
             renpy.show_screen("message_screen", "The team is going to explore this area for %d days!" % area.days)
 

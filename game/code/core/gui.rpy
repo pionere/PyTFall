@@ -113,18 +113,47 @@ init -1 python:
             renpy.with_statement(dissolve)
 
 
-    class CharsSortingForGui(_object):
+    class PagerGui(_object):
+        def __init__(self, content, page_size=10):
+            self.pager_content = content
+
+            self.page = 0
+            self.page_size = page_size
+            
+        def next_page(self):
+            self.page += 1
+
+        def prev_page(self):
+            self.page -= 1
+
+        def max_page(self):
+            """Max page assuming page_size > 1"""
+            return (len(self.pager_content)-1)/self.page_size
+
+        def last_page(self):
+            """Last page"""
+            self.page = self.max_page()
+
+        def first_page(self):
+            self.page = 0
+
+        def page_content(self):
+            start = self.page*self.page_size
+            return self.pager_content[start:start+self.page_size]
+
+    class CharsSortingForGui(PagerGui):
         """Class we use to sort and filter character for the GUI.
 
         - Reset is done by a separate function we bind to this class.
         """
-        def __init__(self, content, container=None):
+        def __init__(self, content, page_size=10):
             """
             content: the list of all chars
             container: If not None, we set this container to self.sorted every time we update. We expect a list with an object and a field to be used with setattr.
             """
-            self.content = content
-            self.target_container = container
+            super(CharsSortingForGui, self).__init__(content, page_size)
+
+            self.all_content = content
 
             self.sorting_order = None
             self.sorting_desc = False
@@ -132,7 +161,7 @@ init -1 python:
             self.clear()
 
         def clear(self):
-            self.update(self.content)
+            self.pager_content = self.all_content
             self.status_filters = set()
             self.action_filters = set()
             self.class_filters = set()
@@ -141,13 +170,8 @@ init -1 python:
             self.home_filters = set()
             self.work_filters = set()
 
-        def update(self, container):
-            self.sorted = container
-            if self.target_container:
-                setattr(self.target_container[0], self.target_container[1], container)
-
         def filter(self):
-            filtered = self.content
+            filtered = self.all_content
 
             # Filters:
             filters = self.status_filters
@@ -183,105 +207,24 @@ init -1 python:
                     key = attrgetter(order)
                 filtered = sorted(filtered, key=key, reverse=self.sorting_desc) # make sure the original content is left intact
 
-            self.update(filtered)
+            self.pager_content = filtered
 
-
-    class CoordsForPaging(_object):
-        """ This class setups up x, y coordinates for items in content list.
-
-        We use this in DragAndDrop.
-        Might be I'll just use this in the future to handle the whole thing.
-        For now, this will be used in combination with screen language.
-        """
-        def __init__(self, content, columns=2, rows=6, size=(100, 100), xspacing=10, yspacing=10, init_pos=(0, 0)):
-            self.content = content
-            self.page = 0
-            self.page_size = columns*rows
-
-            self.pos = list()
-            x = init_pos[0]
-            for c in xrange(columns):
-                y = init_pos[1]
-                for r in xrange(rows):
-                    self.pos.append((x, y))
-                    y = y + size[1] + yspacing
-                x = x + size[0] + xspacing
-
-        def __len__(self):
-            return len(self.content)
-
-        def __iter__(self):
-            """We return a list of tuples of [(item, pos), (item, pos), ...]"""
-            page = self.page_content
-            pos = self.pos[:len(page)]
-            return iter(zip(page, pos))
-
-        def __getitem__(self, index):
-            # Minding the page we're on!
-            return self.content[self.page*self.page_size + index]
-
-        def __nonzero__(self):
-            return bool(self.content)
-
-        def get_pos(self, item):
-            """Retruns a pos of an item on current page"""
-            return self.pos[self.page_content.index(item)]
-
-        # Paging:
-        def next_page(self):
-            """Next page"""
-            self.page += 1
-            if self.page >= self.max_page:
-                self.page = 0
-
-        def prev_page(self):
-            """Previous page"""
-            self.page -= 1
-            if self.page < 0:
-                self.last()
-
-        def last_page(self):
-            """Last page"""
-            self.page = max(self.max_page - 1, 0)
-
-        def first_page(self):
-            self.page = 0
-
-        @property
-        def max_page(self):
-            return len(self.paged_items)
-
-        @property
-        def paged_items(self):
-            items = []
-            for start in xrange(0, len(self.content), self.page_size):
-                items.append(self.content[start:start+self.page_size])
-            return items
-
-        @property
-        def page_content(self):
-            """Get content for current page"""
-            items = self.paged_items
-            try:
-                return items[self.page]
-            except IndexError:
-                idx = len(items)-1
-                if idx >= 0:
-                    self.page = idx
-                    return items[idx]
-                else:
-                    self.page = 0
-                    return []
-
+        # TODO extended functionality for the pager (add/remove)
+        # might not be the best place...
         def add(self, item):
-            if item not in self.content:
-                self.content.append(item)
+            if item not in self.all_content:
+                self.all_content.append(item)
+                self.pager_content.append(item)
                 return True
 
         def remove(self, item):
-            if item in self.content:
-                self.content.remove(item)
+            if item in self.all_content:
+                self.all_content.remove(item)
+                if item in self.pager_content:
+                    self.pager_content.remove(item)
 
+    class CoordsForPaging(_object):
+        pass # FIXME obsolete
 
     def dragged(drags, drop):
         # Simple func we use to manage drag and drop in team setups and maybe more in the future.

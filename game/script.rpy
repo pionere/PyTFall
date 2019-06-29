@@ -1689,5 +1689,8 @@ label after_load:
                         i.location = i.locations.pop()
                         del i.locations
 
+        if not hasattr(store.chars_list_state, "all_status_filters"):
+            store.chars_list_state = None
+
     stop music
     return
