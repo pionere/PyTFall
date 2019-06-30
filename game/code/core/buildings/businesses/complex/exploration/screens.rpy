@@ -574,7 +574,7 @@ screen building_management_midframe_exploration_guild_mode:
                 pos (0, 0)
 
 
-            $ init_pos = (4, 344)
+            $ init_pos = (0, 344)
             $ boxsizex, boxsizey = 208, 88
             $ curr_pos = list(init_pos)
             for t in guild_teams.page_content():
@@ -619,11 +619,24 @@ screen building_management_midframe_exploration_guild_mode:
                             insensitive_background PyTGFX.sepia_img(img)
                             padding 0, 0
                             margin 0, 0
-                            align 0.0, 0.0 offset -8, -8
+                            align 0.0, 0.0 offset -4, -8
                             xysize 20, 20
                             sensitive idle_t
-                            action Show("exploration_team", None, t)
+                            action Show("exploration_team", team=t)
                             tooltip "Configure"
+                        # Configure the team:
+                        $ img = PyTGFX.scale_img("content/gfx/interface/buttons/transfer.png", 20, 20)
+                        button:
+                            background img
+                            hover_background PyTGFX.bright_img(img, .15)
+                            insensitive_background PyTGFX.sepia_img(img)
+                            padding 0, 0
+                            margin 0, 0
+                            align 0.0, 1.0 offset -4, -10
+                            xysize 20, 20
+                            sensitive idle_t
+                            action Show("transfer_team", team=t, guild=bm_mid_frame_mode)
+                            tooltip "Transfer"
                         # Dissolve the team:
                         $ img = PyTGFX.scale_img("content/gfx/interface/buttons/close4.png", 20, 20)
                         button:
@@ -1206,6 +1219,60 @@ screen exploration_team(team):
                         text "[temp]" size 14 color tmb bold True style_suffix "value_text" xpos 125 yoffset -8
 
         null height 5
+
+screen transfer_team(team, guild):
+    zorder 1
+    modal True
+
+    default buildings = OrderedDict([(b, guilds) for b, guilds in [(b, [u for u in b.businesses if u.__class__ == ExplorationGuild]) for b in hero.buildings] if guilds])
+    default result = None
+    python:
+        if result is None:
+            result = object()
+            result.building = guild.building
+            result.guild = guild
+
+        building_options = OrderedDict([(b, b.name) for b in buildings.keys()])
+        guild_options = OrderedDict([(g, g.name) for g in buildings[result.building]])
+
+        if result.guild not in guild_options:
+            result.guild = guild_options.keys()[0]
+
+    add im.Alpha("content/gfx/images/bg_gradient2.webp", alpha=.3)
+
+    # Guild team ====================================>
+    frame:
+        style_prefix "proper_stats"
+        align .58, .4
+        background Frame(im.Alpha(im.Twocolor("content/gfx/frame/ink_box.png", "white", "black"), alpha=.7), 5, 5)
+        padding 10, 5
+        has vbox spacing 10
+
+        # Name of the Team / Close
+        hbox:
+            xsize 300
+            label "[team.name]" xalign .5 text_color "#CDAD00" text_size 30
+
+            imagebutton:
+                align (1.0, .0)
+                idle im.Scale("content/gfx/interface/buttons/close2.png", 35, 35)
+                hover im.Scale("content/gfx/interface/buttons/close2_h.png", 35, 35)
+                action Hide("transfer_team"), With(dissolve)
+                keysym "mousedown_3"
+                tooltip "Close transfer screen"
+
+        # Building
+        use basic_dropdown_box(building_options, max_rows=6, row_size=(160, 30), pos=(630, 270), value=result.building, field=(result, "building"))
+        
+        # Guild
+        use basic_dropdown_box(guild_options, max_rows=6, row_size=(160, 30), pos=(630, 310), value=result.guild, field=(result, "guild"))
+
+        style_prefix "basic"
+        textbutton "Transfer":
+            xalign .5
+            action [Hide("transfer_team"), With(dissolve), Return(["fg_team", "transfer", team, result.guild])]
+            sensitive result.guild != guild
+            tooltip "Transfer the team"
 
 screen se_debugger():
     zorder 200

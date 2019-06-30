@@ -433,8 +433,11 @@ init -6 python: # Guild, Tracker and Log.
         # Teams control/sorting/grouping methods:
         def new_team(self, name):
             team = Team(name, free=True)
-            self.teams.append(team)
+            self.add_team(team)
             return team
+
+        def add_team(self, t):
+            self.teams.append(t)
 
         def remove_team(self, t):
             self.teams.remove(t)

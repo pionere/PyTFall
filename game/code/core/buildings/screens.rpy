@@ -39,7 +39,7 @@ label building_management:
                     n = renpy.call_screen("pyt_input", "", "Enter Name", 20)
                     if len(n):
                         t = bm_mid_frame_mode.new_team(n)
-                        guild_teams.add(t)
+                        guild_teams.pager_content.append(t)
                 else:
                     team = result[2]
                     if action == "rename":
@@ -58,7 +58,15 @@ label building_management:
                         for i in team:
                             workers.add(i)
                         bm_mid_frame_mode.remove_team(team)
-                        guild_teams.remove(team)
+                        guild_teams.pager_content.remove(team)
+                    elif action == "transfer":
+                        dest_guild = result[3]
+                        dest_building = dest_guild.building
+                        for i in team:
+                            i.mod_workplace(dest_building)
+                        dest_guild.add_team(team)
+                        bm_mid_frame_mode.remove_team(team)
+                        guild_teams.pager_content.remove(team)
         elif result[0] == "building":
             if result[1] == 'items_transfer':
                 hide screen building_management
