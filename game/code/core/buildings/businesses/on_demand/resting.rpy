@@ -30,7 +30,7 @@ init -5 python:
             log = NDEvent(job=cls, char=char, loc=char.home)
             if cls.rest(char, log):
                 log.after_job()
-                cls.after_rest(char, log.txt)
+                cls.after_rest(char, log.log_txt)
             else:
                 log.after_job()
             NextDayEvents.append(log)

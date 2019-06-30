@@ -522,16 +522,14 @@ init -6 python: # Guild, Tracker and Log.
                         teammod[w] = charmod
                         w.PP = 0
 
+                    txt = choice(["The members of the guild-teams visited the Healing Springs of the %s.",
+                                   "The members of the guild-teams took some time off to visit the Onsen in the %s."])
+                    txt = txt % self.name
+
                     job, loc = RestTask, self.building
                     img = nd_report_image(HealingSprings.img, bathers, "bathing", "onsen", exclude=["nude", "sex"], type="reduce")
-                    log = NDEvent(job=job, loc=loc, img=img, charmod=teammod, team=bathers, business=self)
 
-                    temp = choice(["The members of the guild-teams visited the Healing Springs of the %s.",
-                                   "The members of the guild-teams took some time off to visit the Onsen in the %s."])
-                    temp = temp % self.name
-                    log.append(temp)
-
-                    log.txt, log.log = log.log, [] #log.after_job()
+                    log = NDEvent(job=job, loc=loc, txt=txt, img=img, charmod=teammod, team=bathers, business=self)
                     NextDayEvents.append(log)
 
         def exploration_controller(self, tracker):

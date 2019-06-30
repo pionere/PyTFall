@@ -15,33 +15,32 @@ init -10 python:
         be kept in check because older parts of code still just create this
         object at the end of their lifetime.
         """
-        def __init__(self, type='', txt='', img='', char=None, charmod=None,
+        def __init__(self, type=None, txt=None, img=None, char=None, charmod=None,
                      loc=None, locmod=None, red_flag=False, green_flag=False,
                      team=None, job=None, business=None):
             super(NDEvent, self).__init__()
 
-            self.log = []
-            if txt: self.log.append(txt)
+            if txt is None:
+                txt = []
+            self.log_txt = txt
 
             self.job = job
-            if not type and job:
-                self.type = job.event_type
-            else:
-                self.type = type
+            if type is None and job is not None:
+                type = job.event_type
+            self.type = type
 
-            self.txt = txt
             self.img = img
 
             self.char = char
             self.team = team
-            if charmod is None:
-                charmod = {}
-            if team is not None:
-                self.team_charmod = charmod.copy()
-                self.charmod = None
-            else:
-                self.charmod = charmod.copy()
+
+            charmod = {} if charmod is None else charmod.copy()
+            if team is None:
+                self.charmod = charmod
                 self.team_charmod = None
+            else:
+                self.team_charmod = charmod
+                self.charmod = None
 
             # the location of the event (optional):
             self.loc = loc
@@ -56,7 +55,7 @@ init -10 python:
 
         def append(self, text):
             # Adds a text to the log.
-            self.log.append(text)
+            self.log_txt.append(text)
 
         # Data logging and application:
         def logws(self, s, value, char=None):
@@ -154,8 +153,6 @@ init -10 python:
                 self.append("You've earned {color=gold}%d Gold{/color}!" % earned) # use the line above if there are multiple shifts in one NDEvent
             else:
                 self.append("{color=gold}No Gold{/color} was earned!")
-            self.txt = self.log
-            self.log = []
 
         def reset_workers_flags(self, char):
             for flag in char.flags.keys():

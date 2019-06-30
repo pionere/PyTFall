@@ -457,12 +457,6 @@ screen next_day():
                     text "!" align (.5, .5) color ("red" if red_flags else "grey") size 60 style "proper_stats_text"
 
                 # School:
-                # Preparing info:
-                python:
-                    for school_report in NextDayEvents.event_list:
-                        if school_report.type == "school_nd_report":
-                            break
-
                 frame:
                     yalign .5
                     xysize 98, 66
@@ -477,7 +471,7 @@ screen next_day():
 
                     hbox:
                         align 1.0, 1.0
-                        if "New Courses" in school_report.txt:
+                        if pytfall.school.new_courses_created:
                             button:
                                 xysize 30, 30
                                 yalign .5
@@ -487,7 +481,7 @@ screen next_day():
                                 action NullAction()
                                 tooltip "New Courses available!"
                                 text "+" color "yellow" size 40 style "proper_stats_text" align .5, .5
-                        if "Student(s) completed" in school_report.txt:
+                        if pytfall.school.successfully_completed:
                             button:
                                 xysize 10, 36
                                 yalign .5
@@ -495,7 +489,7 @@ screen next_day():
                                 action NullAction()
                                 tooltip "One of your workers has successfully completed their course (this doesn't mean that a course has ended)!"
                                 text "!" color "yellow" size 40 style "proper_stats_text" align .5, .5
-                        if "Student(s) were sent" in school_report.txt:
+                        if pytfall.school.students_dismissed:
                             button:
                                 xysize 10, 36
                                 yalign .5
@@ -1254,10 +1248,11 @@ screen next_day():
                     child_size 400, 10000
                     has vbox xsize 420 xfill True
                     null height 5
-                    if isinstance(event.txt, basestring):
-                        text event.txt style "TisaOTMol" xalign .5 size 18
+                    $ temp = event.log_txt
+                    if isinstance(temp, basestring):
+                        text temp style "TisaOTMol" xalign .5 size 18
                     else:
-                        for i in event.txt:
+                        for i in temp:
                             text str(i) style "TisaOTMol" xalign .0 size 13
                 vbar value YScrollValue("nextdaytxt_vp")
 
