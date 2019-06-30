@@ -127,7 +127,7 @@
         "class": "HealingSprings",
         "img": "content/buildings/upgrades/onsen_s.webp",
         "materials": {"Green Marble": 20, "Stone": 10},
-        "desc": "Provides the much needed relief when returning to Guild after a difficult quest.\n(+25% HP when returning to Guild)\n(+25% MP when returning to Guild)\n(+25% VP when returning to Guild)",
+        "desc": "Provides relief to the members of the guild-teams.\n(+50% HP/MP/VP per day)",
         "cost": 5000,
         "in_slots": 2,
         "ex_slots": 10,

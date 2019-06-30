@@ -201,7 +201,8 @@ init -6 python: # Guild, Tracker and Log.
             global fg_areas
             global items
             area = self.area
-            building = self.guild.building
+            guild = self.guild
+            building = guild.building
 
             # finish off dead members
             for char in self.died:
@@ -250,13 +251,6 @@ init -6 python: # Guild, Tracker and Log.
 
                 defeated_mobs.update(self.mobs_defeated)
 
-                if self.guild.has_extension(HealingSprings):
-                    temp = choice(["The team visited the Healing Springs on their way back to the Guild.",
-                                   "The team took some time off to visit the Onsen on their way back"])
-                    self.log(temp)
-                    for char in team:
-                        mod_battle_stats(char, .25)
-
                 for key in self.found_areas:
                     a = fg_areas[key]
                     if not a.unlocked:
@@ -267,10 +261,14 @@ init -6 python: # Guild, Tracker and Log.
                         self.log(temp)
                         self.green_flag = True
 
+                ratio = guild.env.now/100.0 
                 mod = self.days * self.risk / 100.0 # MAX_RISK
                 for char in team:
                     self.logws("exp", exp_reward(char, area.tier, exp_mod=mod*char.setPP/100.0), char) # PP_PER_AP
                     self.logws("constitution", randrange(int(mod)), char)
+                    char.PP -= round_int(char.setPP*ratio)
+                    if char.PP < 0:
+                        char.PP = 0 # TODO should not happen
                     char.set_flag("dnd_back_from_track")
                 charmod = self.team_charmod
 
@@ -304,7 +302,7 @@ init -6 python: # Guild, Tracker and Log.
 
             # Remove Tracker:
             area.trackers.remove(self)
-            self.guild.explorers.remove(self)
+            guild.explorers.remove(self)
 
             # update area log
             logs = []
@@ -506,8 +504,35 @@ init -6 python: # Guild, Tracker and Log.
             for tracker in self.explorers:
                 self.env.process(self.exploration_controller(tracker))
 
-            while 1:
-                yield self.env.timeout(100)
+            yield self.env.timeout(105) # FIXME MAX_DU
+
+            # use the HealingSprings
+            if self.has_extension(HealingSprings):
+                bathers = [w for team in self.idle_teams() for w in team if w.PP > 0] 
+                if bathers:
+                    teammod = {}
+                    for w in bathers:
+                        charmod = {}
+                        #mod_battle_stats(w, .25 * w.PP / w.setPP)
+                        mod = .5 * w.PP / w.setPP
+                        for stat in ("health", "mp", "vitality"): # BATTLE_STATS
+                            value = round_int(w.get_max(stat)*mod) # mod_battle_stats
+                            value = w.mod_stat(stat, value)
+                            charmod[stat] = value
+                        teammod[w] = charmod
+                        w.PP = 0
+
+                    job, loc = RestTask, self.building
+                    img = nd_report_image(HealingSprings.img, bathers, "bathing", "onsen", exclude=["nude", "sex"], type="reduce")
+                    log = NDEvent(job=job, loc=loc, img=img, charmod=teammod, team=bathers, business=self)
+
+                    temp = choice(["The members of the guild-teams visited the Healing Springs of the %s.",
+                                   "The members of the guild-teams took some time off to visit the Onsen in the %s."])
+                    temp = temp % self.name
+                    log.append(temp)
+
+                    log.txt, log.log = log.log, [] #log.after_job()
+                    NextDayEvents.append(log)
 
         def exploration_controller(self, tracker):
             # Controls the exploration by setting up proper simpy processes.
