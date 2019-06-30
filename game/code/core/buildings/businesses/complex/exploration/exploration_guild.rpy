@@ -408,6 +408,14 @@ init -6 python: # Guild, Tracker and Log.
             _teams = self.idle_teams()
             _chars = [w for w in self.building.all_workers if w != hero and ExplorationTask.willing_work(w) and w.is_available]
 
+            # update idle teams
+            #  TODO this is necessary because the player might relocate a member of an idle team
+            #    this could be rendered obsolete, but right now it is too expensive... 
+            for team in _teams:
+                moves = [w for w in team if w not in _chars]
+                for w in moves:
+                    team.remove(w)
+
             # filter chars
             idle_chars = list(chain.from_iterable(t.members for t in _teams))
             _chars = [w for w in _chars if w not in idle_chars]
