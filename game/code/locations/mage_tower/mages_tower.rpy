@@ -18,18 +18,18 @@ label mages_tower:
 
     scene bg mages_tower
     with dissolve
-    show screen mages_tower
 
-    if not global_flags.flag('visited_mages_tower'):
+    if not global_flags.has_flag('visited_mages_tower'):
         $ global_flags.set_flag('visited_mages_tower')
         "Real mages, other practitioners of Arcane Arts and some plain weirdos hang around here."
         "Try not to get yourself blown up :)"
+
+    show screen mages_tower
 
     $ pytfall.world_quests.run_quests("auto")
     $ pytfall.world_events.run_events("auto")
 
     while 1:
-
         $ result = ui.interact()
 
         if result[0] == 'jump':
@@ -41,17 +41,8 @@ label mages_tower:
 
 
 screen mages_tower():
-
     use top_stripe(True)
-
     use location_actions("mages_tower")
 
     if iam.show_girls:
-        key "mousedown_3" action ToggleField(iam, "show_girls")
-
-        add "content/gfx/images/bg_gradient.webp" yalign .45
-
-        for entry, pos in zip(iam.display_girls(), iam.coords):
-            hbox:
-                align pos
-                use rg_lightbutton(return_value=['jump', entry])
+        use interactions_meet

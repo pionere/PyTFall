@@ -14,20 +14,18 @@ label forest_entrance:
             pytfall.world_actions.finish()
 
     scene bg forest_entrance at truecenter
-    show screen forest_entrance
     with dissolve
 
-    if not global_flags.flag('visited_dark_forest'):
+    if not global_flags.has_flag('visited_dark_forest'):
         $ global_flags.set_flag('visited_dark_forest')
-        $ block_say = True
         "A dark, thick forest surrounds the city from the west. Only a few people live here, and even fewer are brave enough to step away far from city walls without a platoon of guards."
-        $ block_say = False
+
+    show screen forest_entrance
 
     $ pytfall.world_quests.run_quests("auto")
     $ pytfall.world_events.run_events("auto")
 
     while 1:
-
         $ result = ui.interact()
 
         if result[0] == 'jump':
@@ -63,25 +61,17 @@ label mc_action_wood_cutting:
 
 screen forest_entrance():
     use top_stripe(True)
-
     use location_actions("forest_entrance")
 
     if iam.show_girls:
-        key "mousedown_3" action ToggleField(iam, "show_girls")
-
-        add "content/gfx/images/bg_gradient.webp" yalign .45
-        for entry, pos in zip(iam.display_girls(), iam.coords):
-            hbox:
-                align pos
-                use rg_lightbutton(return_value=['jump', entry])
-
+        use interactions_meet
     else:
         $ img = im.Scale("content/gfx/interface/icons/witch.png", 90, 90)
         imagebutton:
             pos (670, 490)
             idle img
             hover PyTGFX.bright_img(img, .15)
-            action [Jump("witches_hut"), With(dissolve)]
+            action [Hide("forest_entrance"), Jump("witches_hut"), With(dissolve)]
             tooltip "Abby's Shop"
 
         $ img = im.Scale("content/gfx/interface/icons/deep_forest.png", 75, 75)

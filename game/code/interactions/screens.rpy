@@ -405,3 +405,53 @@ screen girl_interactions():
                     keysym "mousedown_3"
 
     use top_stripe(False, show_lead_away_buttons=False)
+
+screen interactions_meet:
+    key "mousedown_3" action ToggleField(iam, "show_girls")
+    add "content/gfx/images/bg_gradient.webp" yalign .45
+    for entry, pos in zip(iam.display_girls(), iam.coords):
+        hbox:
+            align pos
+            $ tmp = entry.get_stat("disposition")
+            if entry.has_flag("cnd_interactions_blowoff"):
+                $ temp = "angry"
+            elif tmp >= 500:
+                $ temp = "shy"
+            elif tmp >= 100:
+                $ temp = "happy"
+            else:
+                $ temp = "indifferent"
+
+            $ p_img = entry.show("portrait", temp, label_cache=True, resize=(90, 90), type="reduce")
+
+            vbox:
+                frame:
+                    padding(2, 2)
+                    background Frame("content/gfx/frame/MC_bg3.png")
+                    has fixed fit_first True
+                    imagebutton:
+                        align .5, .5
+                        idle p_img
+                        hover PyTGFX.bright_content(p_img, .15)
+                        action Return(['jump', entry])
+                    hbox:
+                        align 1.0, 1.0
+                        if tmp > 0:
+                            add "green_dot_gm"
+                        if tmp > 100:
+                            add "green_dot_gm"
+                        if tmp > 250:
+                            add "green_dot_gm"
+
+                        if tmp < 0:
+                            add "red_dot_gm"
+                        if tmp < -100:
+                            add "red_dot_gm"
+                        if tmp < -250:
+                            add "red_dot_gm"
+
+                frame:
+                    padding(2, 2)
+                    xsize 94
+                    background Frame("content/gfx/frame/gm_frame.png")
+                    label "Tier [entry.tier]" xalign .5 text_color "#DAA520"

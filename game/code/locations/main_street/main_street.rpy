@@ -15,12 +15,9 @@ label main_street:
 
     #$ global_flags.set_flag("visited_mainstreet", True)
 
-    hide screen city_screen
-    scene bg main_street at truecenter
+    scene bg main_street
     with dissolve
-
     show screen main_street
-    with dissolve
 
     $ pytfall.world_quests.run_quests("auto")
     $ pytfall.world_events.run_events("auto")
@@ -41,15 +38,7 @@ screen main_street():
     use location_actions("main_street")
 
     if iam.show_girls:
-        key "mousedown_3" action ToggleField(iam, "show_girls")
-
-        add "content/gfx/images/bg_gradient.webp" yalign .45
-
-        for entry, pos in zip(iam.display_girls(), iam.coords):
-            hbox:
-                align pos
-                use rg_lightbutton(return_value=['jump', entry])
-
+        use interactions_meet
     else:
         $ img = im.Scale("content/gfx/interface/icons/tailor_shop.png", 50, 50)
         imagebutton:
@@ -91,6 +80,6 @@ screen main_street():
             pos 245, 256
             idle img
             hover PyTGFX.bright_img(img, .15)
-            action Jump("employment_agency")
+            action [Hide("main_street"), Jump("employment_agency")]
             tooltip "Employment Agency"
 

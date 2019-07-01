@@ -143,7 +143,7 @@ label academy_town:
 
     scene bg academy_town
     with dissolve
-    if not global_flags.flag('visited_library'):
+    if not global_flags.has_flag('visited_library'):
         $ global_flags.set_flag('visited_library')
         $ golem = npcs["Eleven"]
         $ e = golem.say
@@ -161,6 +161,10 @@ label academy_town:
         $ del e, golem
 
     show screen academy_town
+
+    $ pytfall.world_quests.run_quests("auto")
+    $ pytfall.world_events.run_events("auto")
+
     while 1:
         $ result = ui.interact()
 
@@ -242,15 +246,7 @@ screen academy_town():
     use location_actions("academy_town")
 
     if iam.show_girls:
-        key "mousedown_3" action ToggleField(iam, "show_girls")
-
-        add "content/gfx/images/bg_gradient.webp" yalign .45
-
-        for entry, pos in zip(iam.display_girls(), iam.coords):
-            hbox:
-                align pos
-                use rg_lightbutton(return_value=['jump', entry])
-
+        use interactions_meet
     else:
         $ img = im.Scale("content/gfx/interface/icons/library_study.png", 80, 80)
         imagebutton:

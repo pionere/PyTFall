@@ -34,11 +34,12 @@ label hiddenvillage_entrance:
 
 
 screen hiddenvillage_entrance:
-
     use top_stripe(True)
-
     use location_actions("hiddenvillage_entrance")
-    if not iam.show_girls:
+
+    if iam.show_girls:
+        use interactions_meet
+    else:
         $ img = im.Scale("content/gfx/interface/icons/ninja_shop.png", 70, 70)
         imagebutton:
             pos (300, 315)
@@ -46,16 +47,6 @@ screen hiddenvillage_entrance:
             hover PyTGFX.bright_img(img, .15)
             action [Hide("hiddenvillage_entrance"), Jump("hidden_village_shop")]
             tooltip "Ninja Shop"
-
-    if iam.show_girls:
-        key "mousedown_3" action ToggleField(iam, "show_girls")
-
-        add "content/gfx/images/bg_gradient.webp" yalign .45
-
-        for entry, pos in zip(iam.display_girls(), iam.coords):
-            hbox:
-                align pos
-                use rg_lightbutton(return_value=['jump', entry])
 
 label hidden_village_shop: # ninja shop logic
     if not global_flags.has_flag("keep_playing_music"):

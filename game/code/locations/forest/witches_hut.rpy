@@ -3,8 +3,6 @@ label witches_hut:
         $ PyTFallStatic.play_music("shops", fadein=1.5)
     $ global_flags.del_flag("keep_playing_music")
 
-    hide screen forest_entrance
-
     scene bg witches_hut
     with dissolve
 

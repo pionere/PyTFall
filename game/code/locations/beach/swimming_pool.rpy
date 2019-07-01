@@ -70,31 +70,24 @@ label swimming_pool:
 
 screen swimming_pool():
     use top_stripe(True, return_button_action=Return("leave"))
-
-    $ img = im.Flip(im.Scale("content/gfx/interface/buttons/blue_arrow.png", 80, 80), horizontal=True)
-    imagebutton:
-        align (.01, .5)
-        idle img
-        hover PyTGFX.bright_img(img, .15)
-        action Return("leave")
-
     use location_actions("swimming_pool")
-    $ img = im.Scale("content/gfx/interface/icons/sp_swimming.png", 90, 90)
-    imagebutton:
-        pos (290, 510)
-        idle img
-        hover PyTGFX.bright_img(img, .15)
-        action Return("swim")
 
     if iam.show_girls:
-        key "mousedown_3" action ToggleField(iam, "show_girls")
+        use interactions_meet
+    else:
+        $ img = im.Flip(im.Scale("content/gfx/interface/buttons/blue_arrow.png", 80, 80), horizontal=True)
+        imagebutton:
+            align (.01, .5)
+            idle img
+            hover PyTGFX.bright_img(img, .15)
+            action Return("leave")
 
-        add "content/gfx/images/bg_gradient.webp" yalign .45
-
-        for entry, pos in zip(iam.display_girls(), iam.coords):
-            hbox:
-                align pos
-                use rg_lightbutton(return_value=['jump', entry])
+        $ img = im.Scale("content/gfx/interface/icons/sp_swimming.png", 90, 90)
+        imagebutton:
+            pos (290, 510)
+            idle img
+            hover PyTGFX.bright_img(img, .15)
+            action Return("swim")
 
 screen swimmong_pool_swim():
     style_prefix "dropdown_gm"

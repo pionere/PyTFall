@@ -44,15 +44,7 @@ screen city_parkgates():
     use location_actions("city_parkgates")
 
     if iam.show_girls:
-        key "mousedown_3" action ToggleField(iam, "show_girls")
-
-        add "content/gfx/images/bg_gradient.webp" yalign .45
-
-        for entry, pos in zip(iam.display_girls(), iam.coords):
-            hbox:
-                align pos
-                use rg_lightbutton(return_value=['jump', entry])
-
+        use interactions_meet
     else:
         $ img = im.Scale("content/gfx/interface/buttons/blue_arrow.png", 80, 80)
         imagebutton:

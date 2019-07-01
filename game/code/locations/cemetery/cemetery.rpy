@@ -151,12 +151,12 @@ screen cemetry_list_of_dead_chars(): # the list should not be empty!
             keysym "mousedown_3"
 
 screen graveyard_town():
-
     use top_stripe(True)
-
     use location_actions("graveyard_town")
 
-    if not iam.show_girls:
+    if iam.show_girls:
+        use interactions_meet
+    else:
         $ img = im.Scale("content/gfx/interface/icons/clock.png", 100, 100)
         imagebutton:
             pos (93, 306)
@@ -178,11 +178,3 @@ screen graveyard_town():
             hover PyTGFX.bright_img(img, .15)
             action [Hide("graveyard_town"), Jump("enter_dungeon")]
             tooltip "Dungeon\nBeware all who enter here"
-
-    if iam.show_girls:
-        key "mousedown_3" action ToggleField(iam, "show_girls")
-        add "content/gfx/images/bg_gradient.webp" yalign .45
-        for entry, pos in zip(iam.display_girls(), iam.coords):
-            hbox:
-                align pos
-                use rg_lightbutton(return_value=['jump', entry])

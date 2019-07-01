@@ -124,52 +124,6 @@ screen r_lightbutton:
         hover im.MatrixColor(img, im.matrix.brightness(.15))
         action Return(return_value)
 
-screen rg_lightbutton:
-    $ tmp = entry.get_stat("disposition")
-    if entry.has_flag("cnd_interactions_blowoff"):
-        $ temp = "angry"
-    elif tmp >= 500:
-        $ temp = "shy"
-    elif tmp >= 100:
-        $ temp = "happy"
-    else:
-        $ temp = "indifferent"
-
-    $ p_img = entry.show("portrait", temp, label_cache=True, resize=(90, 90), type="reduce")
-
-    default align = (0, 0)
-    vbox:
-        frame:
-            padding(2, 2)
-            background Frame("content/gfx/frame/MC_bg3.png")
-            has fixed fit_first True
-            imagebutton:
-                align align
-                idle p_img
-                hover PyTGFX.bright_content(p_img, .15)
-                action Return(return_value)
-            hbox:
-                align 1.0, 1.0
-                if tmp > 0:
-                    add "green_dot_gm"
-                if tmp > 100:
-                    add "green_dot_gm"
-                if tmp > 250:
-                    add "green_dot_gm"
-
-                if tmp < 0:
-                    add "red_dot_gm"
-                if tmp < -100:
-                    add "red_dot_gm"
-                if tmp < -250:
-                    add "red_dot_gm"
-
-        frame:
-            padding(2, 2)
-            xsize 94
-            background Frame("content/gfx/frame/gm_frame.png")
-            label "Tier [entry.tier]" xalign .5 text_color "#DAA520"
-
 screen quest_notifications(q, type, align=None, autohide=2.5):
     zorder 500
 

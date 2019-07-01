@@ -5,8 +5,6 @@ label tailor_store:
         $ PyTFallStatic.play_music("shops", fadein=1.5)
     $ global_flags.del_flag("keep_playing_music")
 
-    hide screen main_street
-
     scene bg tailor_store
     with dissolve
 

@@ -4,8 +4,6 @@ label realtor_agency:
         $ PyTFallStatic.play_music("shops", fadein=1.5)
     $ global_flags.del_flag("keep_playing_music")
 
-    hide screen main_street
-
     scene bg realtor_agency
     with dissolve
 
@@ -15,7 +13,7 @@ label realtor_agency:
     $ g = npcs["Rose_estate"].say
 
     if global_flags.has_flag("visited_ra"):
-       "The room is still bright and filled with the same sweet scent."
+        "The room is still bright and filled with the same sweet scent."
     else:
         $ nvl_ra = Character(None, kind=nvl)
         nvl_ra "After entering the real-estate office, the first thing that hit you was the brightness."

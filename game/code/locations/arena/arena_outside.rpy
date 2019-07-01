@@ -413,17 +413,10 @@ label arena_practice_end:
 
 screen arena_outside:
     use top_stripe(True)
-
     use location_actions("arena_outside")
 
     if iam.show_girls:
-        key "mousedown_3" action ToggleField(iam, "show_girls")
-
-        add "content/gfx/images/bg_gradient.webp" yalign .45
-        for entry, pos in zip(iam.display_girls(), iam.coords):
-            hbox:
-                align pos
-                use rg_lightbutton(return_value=["jump", entry])
+        use interactions_meet
 
 screen xeona_screen:
     style_prefix "dropdown_gm"

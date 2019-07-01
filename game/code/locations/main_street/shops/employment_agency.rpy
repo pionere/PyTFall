@@ -4,8 +4,6 @@ label employment_agency:
         $ PyTFallStatic.play_music("shops", fadein=1.5)
     $ global_flags.del_flag("keep_playing_music")
 
-    hide screen main_street
-
     scene bg realtor_agency
     with dissolve
 
