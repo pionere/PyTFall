@@ -24,6 +24,7 @@ label smc_1(event):
             play events "events/machine_up.mp3"
             pause .2
             "..."
+            $ del g
             return
 
     show smc power_on
@@ -87,4 +88,5 @@ label smc_1(event):
     g "Now wasn't that fun?"
     g "I could bet you my whip that sales will go over the roof today even without that damn weasel!"
     g "Well, see you around and remember that this is the best quality Slave Market in the town!"
+    $ del g
     return

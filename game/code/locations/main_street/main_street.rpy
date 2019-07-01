@@ -37,12 +37,20 @@ label main_street:
 
 
 screen main_street():
-
     use top_stripe(True)
-
     use location_actions("main_street")
 
-    if not iam.show_girls:
+    if iam.show_girls:
+        key "mousedown_3" action ToggleField(iam, "show_girls")
+
+        add "content/gfx/images/bg_gradient.webp" yalign .45
+
+        for entry, pos in zip(iam.display_girls(), iam.coords):
+            hbox:
+                align pos
+                use rg_lightbutton(return_value=['jump', entry])
+
+    else:
         $ img = im.Scale("content/gfx/interface/icons/tailor_shop.png", 50, 50)
         imagebutton:
             pos (245, 374)
@@ -86,13 +94,3 @@ screen main_street():
             action Jump("employment_agency")
             tooltip "Employment Agency"
 
-    # Girlsmeets screen
-    if iam.show_girls:
-        key "mousedown_3" action ToggleField(iam, "show_girls")
-
-        add "content/gfx/images/bg_gradient.webp" yalign .45
-
-        for entry, pos in zip(iam.display_girls(), iam.coords):
-            hbox:
-                align pos
-                use rg_lightbutton(return_value=['jump', entry])

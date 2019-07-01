@@ -24,7 +24,7 @@ label cafe:
     show expression waitress.get_vnsprite() as npc
     with dissolve
 
-    if global_flags.flag('visited_cafe'):
+    if global_flags.has_flag('visited_cafe'):
         waitress.say "Welcome back! Do you want a table?"
     else:
         $ global_flags.set_flag('visited_cafe')
@@ -60,7 +60,7 @@ label cafe_menu: # after she said her lines but before we show menu controls, to
             jump mc_action_cafe_eat_alone_cafe_invitation
         if result == "eat_group":
             jump cafe_eat_group
-        $ del waitress
+        $ del waitress, result
         jump main_street
 
 label cafe_shopping:

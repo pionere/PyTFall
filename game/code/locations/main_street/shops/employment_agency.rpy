@@ -16,7 +16,7 @@ label employment_agency:
 
     $ ea = npcs["Charla_ea"].say
 
-    if not global_flags.flag("visited_employment_agency"):
+    if not global_flags.has_flag("visited_employment_agency"):
         $ global_flags.set_flag("visited_employment_agency", True)
         ea "Welcome to my Employment Agency, my name is Charla."
         ea "I am always on a lookout for perspective Employees and Employers."
@@ -55,7 +55,7 @@ label employment_agency:
             hide screen employment_agency
             with dissolve
             hide charla
-            $ del ea
+            $ del ea, result
             jump main_street
 
 screen employment_agency():

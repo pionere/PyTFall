@@ -15,13 +15,12 @@ label city_parkgates:
 
     scene bg city_parkgates
     with dissolve
-    show screen city_parkgates
 
-    if not global_flags.flag('visited_park_gates'):
+    if not global_flags.has_flag('visited_park_gates'):
         $ global_flags.set_flag('visited_park_gates')
-        $ block_say = True
         "Gates to the park on city outskirts. Great place to hit on girls or take a walk after lunch on a sunny day."
-        $ block_say = False
+
+    show screen city_parkgates
 
     $ pytfall.world_quests.run_quests("auto")
     $ pytfall.world_events.run_events("auto")
@@ -42,15 +41,6 @@ label city_parkgates:
 
 screen city_parkgates():
     use top_stripe(True)
-
-    if not iam.show_girls:
-        $ img = im.Scale("content/gfx/interface/buttons/blue_arrow.png", 80, 80)
-        imagebutton:
-            align (.99, .5)
-            idle img
-            hover PyTGFX.bright_img(img, .15)
-            action Return(['control', 'jumppark'])
-
     use location_actions("city_parkgates")
 
     if iam.show_girls:
@@ -62,3 +52,11 @@ screen city_parkgates():
             hbox:
                 align pos
                 use rg_lightbutton(return_value=['jump', entry])
+
+    else:
+        $ img = im.Scale("content/gfx/interface/buttons/blue_arrow.png", 80, 80)
+        imagebutton:
+            align (.99, .5)
+            idle img
+            hover PyTGFX.bright_img(img, .15)
+            action Return(['control', 'jumppark'])

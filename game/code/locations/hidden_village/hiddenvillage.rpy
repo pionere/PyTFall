@@ -12,7 +12,7 @@ label hiddenvillage_entrance:
             pytfall.world_actions.look_around()
             pytfall.world_actions.finish()
 
-    if global_flags.flag('visited_hidden_village'): # should be changed to not global_flags.flag('visited_hidden_village') before the release !!!!!!!!!!!!!!!!!!!
+    if global_flags.has_flag('visited_hidden_village'): # should be changed to not global_flags.has_flag('visited_hidden_village') before the release !!!!!!!!!!!!!!!!!!!
         $ global_flags.set_flag('visited_hidden_village')
 
     scene bg hiddenvillage_entrance
@@ -22,8 +22,7 @@ label hiddenvillage_entrance:
     $ pytfall.world_quests.run_quests("auto")
     $ pytfall.world_events.run_events("auto")
 
-    while True:
-
+    while 1:
         $ result = ui.interact()
 
         if result[0] == 'jump':
@@ -69,12 +68,12 @@ label hidden_village_shop: # ninja shop logic
     with dissolve
     show expression npcs["Ren_hidden_village"].get_vnsprite() as ren
     with dissolve
-    $ r = npcs["Ren_hidden_village"].say
 
+    $ r = npcs["Ren_hidden_village"]
     if global_flags.flag('hidden_village_shop_first_enter'):
-        r "Hey, [hero.name]. Need something?"
+        r.say "Hey, [hero.name]. Need something?"
     else:
-        $ r = Character("???", color="red", what_color="orange", show_two_window=True)
+        $ r = Character("???", color=r.say_style["color"], what_color=r.say_style["what_color"], show_two_window=True)
         $ global_flags.set_flag('hidden_village_shop_first_enter')
         r "Hm? Ah, I've heard about you."
         extend " Welcome to my Tools Shop."
@@ -83,6 +82,8 @@ label hidden_village_shop: # ninja shop logic
         r "If we are interested, I can sell you some leftovers. Of course, it won't be cheap for an outsider like you."
         r "But you won't find these things anywhere else, so it is worth it."
         r "Wanna take a look?"
+    $ del r
+
     python:
         focus = False
         item_price = 0

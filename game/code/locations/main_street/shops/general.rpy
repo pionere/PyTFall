@@ -13,15 +13,16 @@ label general_store:
 
     show expression npcs["Yukiko_shop"].get_vnsprite() as npc
     with dissolve
-    $ y = npcs["Yukiko_shop"].say
 
-    if global_flags.flag('visited_general_store'):
+    $ y = npcs["Yukiko_shop"].say
+    if global_flags.has_flag('visited_general_store'):
         y "Welcome back!"
     else:
         $ global_flags.set_flag('visited_general_store')
         y "Welcome to PyTFall's General Store!"
         y "Here you can buy all sorts of items!"
         y "Please take a look at our selection: "
+    $ del y
 
 label general_store_shopping:
 

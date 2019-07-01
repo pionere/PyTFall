@@ -11,12 +11,12 @@ label witches_hut:
     show expression npcs["Abby_the_witch"].get_vnsprite() as npc
     with dissolve
 
-    $ w = npcs["Abby_the_witch"].say
-
-    if global_flags.flag('visited_witches_hut'):
+    if global_flags.has_flag('visited_witches_hut'):
+        $ w = npcs["Abby_the_witch"].say
         w "Welcome back!"
     else:
-        $ w = Character("???", color="orange", what_color="yellow", show_two_window=True)
+        $ w = npcs["Abby_the_witch"]
+        $ w = Character("???", color=w.say_style["color"], what_color=w.say_style["what_color"], show_two_window=True)
         $ global_flags.set_flag('visited_witches_hut')
         w "New Customer!"
         extend " Welcome to my Potion Shop!"
@@ -33,6 +33,19 @@ label witch_menu:
     with dissolve
     while 1:
         $ result = ui.interact()
+
+        hide screen witch_shop
+        if result == "shop":
+            jump witches_hut_shopping
+        elif result == "spells":
+            jump witches_hut_shopping_spells
+        elif result == "train":
+            jump witch_training
+        elif result == "talk":
+            jump witch_talking_menu
+        else:
+            $ del result
+            jump witches_hut_exit
 
 label witches_hut_shopping:
     $ gfx_overlay.notify(msg="Sweet!", tkwargs={"style": "interactions_text"})
@@ -141,20 +154,17 @@ screen witch_shop():
         pos (.98, .98) anchor (1.0, 1.0)
         has vbox
         textbutton "Shop":
-            action Hide("witch_shop"), Jump("witches_hut_shopping")
+            action Return("shop")
         textbutton "Spells":
-            action Hide("witch_shop"), Jump("witches_hut_shopping_spells")
+            action Return("spells")
         textbutton "Train":
-            action Hide("witch_shop"), Jump("witch_training")
+            action Return("train")
         textbutton "Talk":
-            action Hide("witch_shop"), Jump("witch_talking_menu")
+            action Return("talk")
         textbutton "Leave":
-            action Jump("witches_hut_exit")
+            action Return("leave")
             keysym "mousedown_3"
 
 label witches_hut_exit:
-    hide screen witch_shop
-    with dissolve
-
     $ del w
     jump forest_entrance

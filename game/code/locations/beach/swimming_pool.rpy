@@ -14,7 +14,7 @@ label swimming_pool:
     scene bg swimming_pool
     with dissolve
 
-    if not global_flags.flag('visited_swimming_pool'):
+    if not global_flags.has_flag('visited_swimming_pool'):
         $ global_flags.set_flag('visited_swimming_pool')
         $ block_say = True
         show expression npcs["Henry_beach"].get_vnsprite() as henry
@@ -33,7 +33,26 @@ label swimming_pool:
     while 1:
         $ result = ui.interact()
 
-        if result[0] == 'jump':
+        if result == "swim":
+            hide screen swimming_pool
+            show screen swimmong_pool_swim
+            with dissolve
+        elif result == "leave":
+            hide screen swimming_pool
+            jump city_beach
+        elif result[0] == "pool":
+            hide screen swimmong_pool_swim
+            $ result = result[1]
+            if result == "swim":
+                jump single_swim_pool
+            elif result == "hire":
+                jump instructor_swim_pool
+            elif result == "work":
+                jump mc_action_work_swim_pool
+            else:
+                show screen swimming_pool
+                with dissolve
+        elif result[0] == "jump":
             python hide:
                 char = result[1]
                 tags = char.get_tags_from_cache(last_label)
@@ -48,20 +67,16 @@ label swimming_pool:
                             tags = ["girlmeets", "swimsuit"]
                 iam.start_int(char, img=char.show(*tags, type="reduce", label_cache=True, gm_mode=True))
 
-        elif result == ['control', 'return']:
-            hide screen swimming_pool
-            jump city_beach
-
 
 screen swimming_pool():
-    use top_stripe(True)
+    use top_stripe(True, return_button_action=Return("leave"))
 
     $ img = im.Flip(im.Scale("content/gfx/interface/buttons/blue_arrow.png", 80, 80), horizontal=True)
     imagebutton:
         align (.01, .5)
         idle img
         hover PyTGFX.bright_img(img, .15)
-        action [Hide("swimming_pool"), Jump("city_beach")]
+        action Return("leave")
 
     use location_actions("swimming_pool")
     $ img = im.Scale("content/gfx/interface/icons/sp_swimming.png", 90, 90)
@@ -69,7 +84,7 @@ screen swimming_pool():
         pos (290, 510)
         idle img
         hover PyTGFX.bright_img(img, .15)
-        action [Hide("swimming_pool"), Show("swimmong_pool_swim"), With(dissolve)]
+        action Return("swim")
 
     if iam.show_girls:
         key "mousedown_3" action ToggleField(iam, "show_girls")
@@ -87,14 +102,14 @@ screen swimmong_pool_swim():
         pos (.98, .98) anchor (1.0, 1.0)
         has vbox
         textbutton "Swim (10 G)":
-            action Hide("swimmong_pool_swim"), Jump("single_swim_pool")
+            action Return(["pool", "swim"])
         textbutton "Hire an instructor (50 G)":
-            action Hide("swimmong_pool_swim"), Jump("instructor_swim_pool")
+            action Return(["pool", "hire"])
         if hero.get_skill("swimming") >= 100:
             textbutton "Work as instructor":
-                action Hide("swimmong_pool_swim"), Jump("mc_action_work_swim_pool")
+                action Return(["pool", "work"])
         textbutton "Leave":
-            action Hide("swimmong_pool_swim"), Show("swimming_pool"), With(dissolve)
+            action Return(["pool", "leave"])
             keysym "mousedown_3"
 
 

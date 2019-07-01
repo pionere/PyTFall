@@ -14,7 +14,9 @@ label realtor_agency:
 
     $ g = npcs["Rose_estate"].say
 
-    if not global_flags.has_flag("visited_ra"):
+    if global_flags.has_flag("visited_ra"):
+       "The room is still bright and filled with the same sweet scent."
+    else:
         $ nvl_ra = Character(None, kind=nvl)
         nvl_ra "After entering the real-estate office, the first thing that hit you was the brightness."
         nvl_ra "It was far brighter than the outside world. Your eyes quickly adapted and you noticed the source of the light."
@@ -36,10 +38,7 @@ label realtor_agency:
 
         $ del nvl_ra
         $ global_flags.set_flag("visited_ra")
-    else:
-        "The room is still bright and filled with the same sweet scent."
-        show expression npcs["Rose_estate"].get_vnsprite() at right as rose with dissolve
-            # yoffset -100
+    show expression npcs["Rose_estate"].get_vnsprite() at right as rose with dissolve
 
     $ market_buildings = sorted(set(buildings.values()) - set(hero.buildings), key=attrgetter("id"))
     $ focus = None
@@ -47,32 +46,29 @@ label realtor_agency:
         g "I'm sorry, we don't have anything for sale at the moment."
     show screen realtor_agency
 
-    python:
-        while 1:
-            result = ui.interact()
+    while 1:
+        $ result = ui.interact()
 
-            if result[0] == 'select':
-                focus = result[1]
-            elif result[0] == 'buy':
-                if not hero.has_ap():
-                    renpy.call_screen('message_screen', "You don't have enough Action Points!")
-                elif not hero.take_money(result[1].price, reason="Property"):
-                    renpy.call_screen('message_screen', "You don't have enough Gold!")
-                else:
-                    hero.take_ap(1)
-                    renpy.play("content/sfx/sound/world/purchase_1.ogg")
-                    hero.add_building(result[1])
-                    market_buildings.remove(result[1])
-                    focus = None
-            elif result == ['control', 'return']:
-                break
+        if result[0] == 'select':
+            $ focus = result[1]
+        elif result[0] == 'buy':
+            if not hero.has_ap():
+                $ renpy.call_screen('message_screen', "You don't have enough Action Points!")
+            elif not hero.take_money(result[1].price, reason="Property"):
+                $ renpy.call_screen('message_screen', "You don't have enough Gold!")
+            else:
+                $ hero.take_ap(1)
+                $ renpy.play("content/sfx/sound/world/purchase_1.ogg")
+                $ hero.add_building(result[1])
+                $ market_buildings.remove(result[1])
+                $ focus = None
+        elif result == ['control', 'return']:
+            hide screen realtor_agency
+            with dissolve
+            hide rose
 
-    hide screen realtor_agency
-    with dissolve
-    hide rose
-
-    $ del market_buildings, focus, g, result
-    jump main_street
+            $ del market_buildings, focus, g, result
+            jump main_street
 
 screen realtor_agency():
     if market_buildings:

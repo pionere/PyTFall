@@ -11,13 +11,12 @@ label city_park:
     scene bg city_park
     with dissolve
 
+    show screen city_park
+
     $ pytfall.world_quests.run_quests("auto")
     $ pytfall.world_events.run_events("auto")
 
-    show screen city_park
-
     while 1:
-
         $ result = ui.interact()
 
         if result[0] == 'jump':
@@ -31,15 +30,6 @@ label city_park:
 
 screen city_park():
     use top_stripe(True)
-
-    if not iam.show_girls:
-        $ img = im.Flip(im.Scale("content/gfx/interface/buttons/blue_arrow.png", 80, 80), horizontal=True)
-        imagebutton:
-            align (.01, .5)
-            idle img
-            hover PyTGFX.bright_img(img, .15)
-            action Return(['control', 'jumpgates'])
-
     use location_actions("city_park")
 
     if iam.show_girls:
@@ -51,6 +41,13 @@ screen city_park():
                 use rg_lightbutton(return_value=['jump', entry])
 
     else:
+        $ img = im.Flip(im.Scale("content/gfx/interface/buttons/blue_arrow.png", 80, 80), horizontal=True)
+        imagebutton:
+            align (.01, .5)
+            idle img
+            hover PyTGFX.bright_img(img, .15)
+            action Return(['control', 'jumpgates'])
+
         $ img = im.Scale("content/gfx/interface/icons/park_swing.png", 80, 80)
         imagebutton:
             pos (670, 310)

@@ -1,5 +1,4 @@
 label workshop:
-
     # Music related:
     if not global_flags.has_flag("keep_playing_music"):
         $ PyTFallStatic.play_music("shops", fadein=1.5)
@@ -14,15 +13,16 @@ label workshop:
 
     show expression npcs["Katia_workshop"].get_vnsprite() as katia
     with dissolve
-    $ k = npcs["Katia_workshop"].say
 
-    if global_flags.flag('visited_workshop'):
-        "Welcome back!"
+    $ k = npcs["Katia_workshop"].say
+    if global_flags.has_flag('visited_workshop'):
+        k "Welcome back!"
     else:
         $ global_flags.set_flag('visited_workshop')
         k "Welcome to PyTFall's Workshop!"
         k "The best place to go for Weapons and Armor!"
         k "Please take a look at our selection: "
+    $ del k
 
 label workshop_shopping:
 

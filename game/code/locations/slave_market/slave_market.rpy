@@ -73,8 +73,6 @@ label slave_market:
         $ del g, s
 
 label slave_market_controls:
-    show bg slave_market
-
     python:
         # Build the actions
         if pytfall.world_actions.location("slave_market"):
@@ -102,21 +100,17 @@ label slave_market_controls:
             $ msg = pytfall.sm.buy_slave(char)
             if msg:
                 call screen message_screen(msg)
-            $ del msg
-
             if not pytfall.sm.chars_list:
                 hide screen slave_shopping
+            $ del char, msg
         elif result[0] == "control":
+            hide screen slavemarket
             if result[1] == "work":
-                hide screen slavemarket
                 jump slave_market_work
             elif result[1] == "jumpclub":
-                hide screen slavemarket
                 jump slave_market_club
-            elif result[1] == "return":
-                if not renpy.get_screen("slave_shopping"):
-                    hide screen slavemarket
-                    jump city
+            else:
+                jump city
 
 label sm_free_slaves:
     hide screen slavemarket

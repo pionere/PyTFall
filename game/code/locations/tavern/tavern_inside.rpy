@@ -15,7 +15,11 @@ label tavern_town:
         npcs["Rita_tavern"].say "I'm sorry, we are closed for maintenance. Please return tomorrow."
         jump city
 
-    if not global_flags.flag('visited_tavern'):
+    if global_flags.has_flag('visited_tavern'):
+        if global_flags.flag("tavern_status")[0] != day: # every day tavern can randomly have one of three statuses, depending on the status it has very different activities available
+            $ global_flags.set_flag("tavern_status", value=[day, 
+                                    weighted_sample([["cozy", 40], ["lively", 40], ["brawl", 20]])])
+    else:
         $ global_flags.set_flag('visited_tavern')
         $ global_flags.set_flag("city_tavern_dice_bet", 5) # default dice bet
         show expression npcs["Rita_tavern"].get_vnsprite() as npc
@@ -24,10 +28,6 @@ label tavern_town:
         hide npc
         with dissolve
         $ global_flags.set_flag("tavern_status", value=[day, "cozy"])
-    else:
-        if global_flags.flag("tavern_status")[0] != day: # every day tavern can randomly have one of three statuses, depending on the status it has very different activities available
-            $ global_flags.set_flag("tavern_status", value=[day, 
-                                    weighted_sample([["cozy", 40], ["lively", 40], ["brawl", 20]])])
 
 label city_tavern_menu: # "lively" status is limited by drunk effect; every action rises drunk counter, and every action with drunk effect active decreases AP
     scene bg tavern_inside
@@ -66,6 +66,23 @@ label city_tavern_menu: # "lively" status is limited by drunk effect; every acti
     show screen city_tavern_inside
     while 1:
         $ result = ui.interact()
+
+        hide screen city_tavern_inside
+        if result == "shop":
+            jump city_tavern_shopping
+        elif result == "look_around":
+            jump mc_action_tavern_look_around
+        elif result == "relax":
+            jump mc_action_tavern_relax
+        elif result == "blackjack":
+            jump city_tavern_play_dice
+        elif result == "poker":
+            jump city_tavern_play_poker
+        elif result == "bet":
+            jump city_tavern_choose_label
+        else:
+            $ del r
+            jump city
 
 label city_tavern_choose_label:
     $ bet = global_flags.flag("city_tavern_dice_bet")
@@ -106,7 +123,7 @@ screen city_tavern_inside():
             button:
                 xysize (120, 40)
                 yalign .5
-                action [Hide("city_tavern_inside"), Jump("city_tavern_shopping")]
+                action Return("shop")
                 text "Buy a drink" size 15
             $ temp = global_flags.flag("tavern_status")[1]
             if hero.has_ap():
@@ -114,36 +131,36 @@ screen city_tavern_inside():
                     button:
                         xysize (120, 40)
                         yalign .5
-                        action [Hide("city_tavern_inside"), Jump("mc_action_tavern_look_around")]
+                        action Return("look_around")
                         text "Look around" size 15
                 if temp == "cozy" and not hero.has_flag("dnd_rest_in_tavern"):
                     button:
                         xysize (120, 40)
                         yalign .5
-                        action [Hide("city_tavern_inside"), Jump("mc_action_tavern_relax")]
+                        action Return("relax")
                         text "Relax" size 15
                 if temp == "cozy":
                     button:
                         xysize (120, 40)
                         yalign .5
-                        action [Hide("city_tavern_inside"), Jump("city_tavern_play_dice")]
+                        action Return("blackjack")
                         text "Blackjack" size 15
                 if temp == "cozy":
                     button:
                         xysize (120, 40)
                         yalign .5
-                        action [Hide("city_tavern_inside"), Jump("city_tavern_play_poker")]
+                        action Return("poker")
                         text "Poker" size 15
             if temp == "cozy":
                 button:
                     xysize (120, 40)
                     yalign .5
-                    action [Hide("city_tavern_inside"), Jump("city_tavern_choose_label")]
+                    action Return("bet")
                     text "Set dice bet" size 15
             button:
                 xysize (120, 40)
                 yalign .5
-                action [Hide("city_tavern_inside"), Jump("city")]
+                action Return("leave")
                 text "Leave" size 15
                 keysym "mousedown_3"
 
@@ -302,8 +319,6 @@ label city_tavern_shopping: # tavern shop with alcohol, available in all modes e
     $ del shop, focus, item_price, amount, purchasing_dir
     jump city_tavern_menu
 
-screen tavern_inside():
-
-    use top_stripe(True)
-
-    use location_actions("tavern_inside")
+#screen tavern_inside():
+#    use top_stripe(True)
+#    use location_actions("tavern_inside")

@@ -12,7 +12,7 @@ label tailor_store:
 
     $ t = npcs["Kayo_Sudou"].say
 
-    if global_flags.flag('visited_tailor_store'):
+    if global_flags.has_flag('visited_tailor_store'):
         show expression npcs["Kayo_Sudou"].get_vnsprite() as npc
         with dissolve
         t "Welcome back, take a look at our latest arrivals!"
@@ -29,13 +29,20 @@ label tailor_store:
         t "But If you have any special requests, just tell me. I'm sure I will be able to help you."
 
 label tailor_menu: # after she said her lines but before we show menu controls, to return here when needed
-    scene bg tailor_store
-    show expression npcs["Kayo_Sudou"].get_vnsprite() as npc
     show screen tailor_shop
     with dissolve
     while 1:
         $ result = ui.interact()
 
+        hide screen tailor_shop
+        if result == "shop":
+            jump tailor_store_shopping
+        elif result == "order":
+            jump tailor_special_order
+        else:
+            hide npc
+            $ del t, result
+            jump main_street
 
 label tailor_store_shopping:
     python:
@@ -54,7 +61,6 @@ label tailor_store_shopping:
 
     hide screen shopping
     with dissolve
-    hide npc
 
     $ del shop, focus, item_price, amount, purchasing_dir
     jump tailor_menu
@@ -143,7 +149,7 @@ screen shopkeeper_items_upgrades(upgrades_list):
         vbar value YScrollValue("tailor_orders")
 
         null height 5
-        use exit_button(action=Return(None), align=(.5, 1.05))
+        use exit_button(action=Return(False), align=(.5, 1.05))
 
 label tailor_special_order:
     if npcs["Kayo_Sudou"].has_flag("tailor_special_order"):
@@ -163,7 +169,7 @@ label tailor_special_order:
 
         $ result = renpy.call_screen("shopkeeper_items_upgrades", upgrade_list)
         $ del upgrade_list, items_upgrades
-        if result is None:
+        if result is False:
             t "If you want anything, please don't hesitate to tell me."
         else:
             if not has_items(result["first_item"], hero, equipped=False):
@@ -183,9 +189,9 @@ screen tailor_shop():
         pos (.98, .98) anchor (1.0, 1.0)
         has vbox
         textbutton "Shop":
-            action Hide("tailor_shop"), Jump("tailor_store_shopping")
+            action Return("shop")
         textbutton "Special Order":
-            action Hide("tailor_shop"), Jump("tailor_special_order")
+            action Return("order")
         textbutton "Leave":
-            action Hide("tailor_shop"), Jump("main_street")
+            action Return("leave")
             keysym "mousedown_3"
