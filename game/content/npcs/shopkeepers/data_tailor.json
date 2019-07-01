@@ -5,17 +5,15 @@
         "fullname": "Kayo Sudou",
         "desc": "A local tailor.",
         "origin": "PyTFall",
-        
         "base_race": "Human",
-        "gender": "female",
         "race": "Human",
-        "location": "city",
-        "status": "free",
         "gold": 2000,
-        
         "color": "orange",
         "what_color": "orange",
-        
-        "basetraits": ["Manager"]
+        "basetraits": [
+            "Manager"
+        ],
+        "personality": "Imouto",
+        "body": "Slim"
     }
 ]

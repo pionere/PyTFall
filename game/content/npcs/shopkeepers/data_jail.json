@@ -5,18 +5,17 @@
         "fullname": "Domino One Piece",
         "desc": "A guard. She manages the prison.",
         "origin": "PyTFall",
-
         "base_race": "Human",
-        "gender": "female",
         "race": "Human",
         "height": "tall",
-        "location": "city",
-        "status": "free",
         "gold": 1000,
-
         "color": "beige",
         "what_color": "beige",
-
-        "basetraits": ["Manager"]
+        "basetraits": [
+            "Manager"
+        ],
+        "personality": "Kamidere",
+        "breasts": "Big Boobs",
+        "body": "Slim"
     }
 ]

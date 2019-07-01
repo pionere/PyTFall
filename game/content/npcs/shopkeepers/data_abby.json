@@ -5,26 +5,19 @@
         "fullname": "Abby The Witch",
         "desc": "Redhead Witch who keeps a shop near the forest entrance.",
         "origin": "PyTFall",
-        
         "base_race": "Human",
-        "gender": "female",
         "race": "Human",
-        "location": "city",
-        "status": "free",
         "gold": 1000,
-        
         "color": "orange",
         "what_color": "yellow",
-        
-        "basetraits": ["Mage"],
-        
+        "basetraits": [
+            "Mage"
+        ],
         "traits": [
             "Fire",
-            "Darkness",
-            "Bokukko",
-            "Average Boobs",
-            "Deredere",
-            "Slim"
-        ]
+            "Darkness"
+        ],
+        "personality": "Bokukko",
+        "body": "Slim"
     }
 ]

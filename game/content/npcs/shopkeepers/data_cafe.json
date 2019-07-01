@@ -5,18 +5,16 @@
         "fullname": "Chloe Alanato",
         "desc": "A local cafe waitress.",
         "origin": "PyTFall",
-        
         "base_race": "Human",
-        "gender": "female",
         "race": "Human",
-        "location": "city",
-        "status": "free",
         "gold": 2000,
-        
         "color": "violet",
         "what_color": "violet",
-        
-        "basetraits": ["Maid"]
+        "basetraits": [
+            "Maid"
+        ],
+        "personality": "Dandere",
+        "body": "Lolita"
     },
     {
         "id": "Mel_cafe",
@@ -24,18 +22,17 @@
         "fullname": "Melissandre El Ktmndd Ed Tmdtr Et Dmdrr",
         "desc": "A local cafe waitress.",
         "origin": "PyTFall",
-
         "base_race": "Human",
-        "gender": "female",
         "race": "Human",
-        "location": "city",
-        "status": "free",
         "gold": 12000,
-
         "color": "yellow",
         "what_color": "yellow",
-
-        "basetraits": ["Maid"]
+        "basetraits": [
+            "Maid"
+        ],
+        "body": "Slim",
+        "personality": "Dandere",
+        "breasts": "Small Boobs"
     },
     {
         "id": "Monica_cafe",
@@ -43,17 +40,14 @@
         "fullname": "Monica",
         "desc": "A local cafe waitress.",
         "origin": "PyTFall",
-
         "base_race": "Human",
-        "gender": "female",
         "race": "Human",
-        "location": "city",
-        "status": "free",
         "gold": 200,
-
         "color": "aliceblue",
         "what_color": "aliceblue",
-
-        "basetraits": ["Maid"]
+        "basetraits": [
+            "Maid"
+        ],
+        "body": "Slim"
     }
 ]

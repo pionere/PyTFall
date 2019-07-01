@@ -5,13 +5,12 @@
         "fullname": "Cat",
         "desc": "Just a local cat.",
         "origin": "PyTFall",
-        
         "base_race": "Furry",
         "gender": "male",
         "race": "Furry",
         "full_race": "Cat",
-        "location": "city",
-        "status": "free",
-        "gold": 0
+        "gold": 0,
+        "body": "Slim",
+        "default_attack_skill": "Claw Slash"
     }
 ]

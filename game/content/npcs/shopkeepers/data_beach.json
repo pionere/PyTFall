@@ -5,15 +5,15 @@
         "fullname": "Hentry De Grass",
         "desc": "A local man. He oversees the swimming pool next to the beach.",
         "origin": "PyTFall",
-        
         "base_race": "Human",
         "gender": "male",
         "race": "Human",
         "height": "tall",
-        "location": "city",
-        "status": "free",
         "gold": 1000,
-        
-        "basetraits": ["Manager"]
+        "basetraits": [
+            "Manager"
+        ],
+        "personality": "Impersonal",
+        "body": "Chubby"
     }
 ]

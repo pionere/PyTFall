@@ -5,18 +5,17 @@
         "fullname": "Irma Fukushima",
         "desc": "A local slave trainer and trader. She runs PyTFall's slave market.",
         "origin": "PyTFall",
-        
         "base_race": "Human",
-        "gender": "female",
         "race": "Human",
-        "location": "city",
-        "status": "free",
         "gold": 2000,
-        
         "color": "aliceblue",
         "what_color": "aliceblue",
-        
-        "basetraits": ["Warrior"]
+        "basetraits": [
+            "Warrior"
+        ],
+        "personality": "Kamidere",
+        "breasts": "Small Boobs",
+        "body": "Slim"
     },
     {
         "id": "Stan_slavemarket",
@@ -24,17 +23,14 @@
         "fullname": "Stan",
         "desc": "A local slave trader.",
         "origin": "PyTFall",
-
         "base_race": "Human",
         "gender": "male",
         "race": "Human",
-        "location": "city",
-        "status": "free",
         "gold": 12000,
-
         "color": "white",
         "what_color": "white",
-
-        "basetraits": ["Manager"]
+        "basetraits": [
+            "Manager"
+        ]
     }
 ]

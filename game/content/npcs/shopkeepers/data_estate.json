@@ -5,17 +5,15 @@
         "fullname": "Rose Salvadore",
         "desc": "A local buisness woman. She runs PyTFall's real estate agency.",
         "origin": "PyTFall",
-        
         "base_race": "Human",
-        "gender": "female",
         "race": "Human",
-        "location": "city",
-        "status": "free",
         "gold": 2000,
-        
         "color": "rosybrown",
         "what_color": "rosybrown",
-        
-        "basetraits": ["Manager"]
+        "basetraits": [
+            "Manager"
+        ],
+        "personality": "Ane",
+        "breasts": "Big Boobs"
     }
 ]

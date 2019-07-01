@@ -427,17 +427,37 @@ init -9 python:
                         json_data.pop(field, None)
 
             path = json_data.pop("_path_to_imgfolder")
+            json_data = [json_data]
             _path = path.split(os.sep)
-            folder = _path[-1]
-            _path[-1] = "data_" + folder + ".json"
-            _path = os.sep.join(_path)
+            char_id = _path.pop()
+            filename = "data_" + char_id + ".json"
+            folder = os.sep.join(_path)
+            _path = os.path.join(folder, filename)
+            if not renpy.loadable(_path):
+                # direct data_*.json does not exists, check the other jsons for existing entry
+                for file in listfiles(folder):  
+                    if not (file.startswith("data") and file.endswith(".json")):
+                        continue
+                    in_file = os.path.join(folder, file)
+                    data = load_json(in_file)
+
+                    for char in data:
+                        if char.get("id", None) == char_id:
+                            break
+                    else:
+                        continue
+                    # matching entry
+                    _path = in_file
+                    data[data.index(char)] = json_data[0]
+                    json_data = data
+                    break
+
             with open(_path, 'w') as outfile:
-                json.dump([json_data], outfile, indent=4)
+                json.dump(json_data, outfile, indent=4)
 
             # restore path-to-imgfolder
-            json_data["_path_to_imgfolder"] = path
-            self.char = json_data
-            self.char_edit = None
+            self.char_edit["_path_to_imgfolder"] = path
+            self.char, self.char_edit = self.char_edit, None
 
     # enable logging
     if DEBUG_LOG:
