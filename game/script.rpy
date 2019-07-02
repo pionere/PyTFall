@@ -1584,10 +1584,6 @@ label after_load:
             temp = pytfall.world_events.garbage
             pytfall.world_events.events[:] = [e for e in pytfall.world_events.events if e not in temp]
             del pytfall.world_events.garbage
-        if hasattr(pytfall.hp, "show_item_info"):
-            del pytfall.hp.show_item_info
-        if hasattr(pytfall.hp, "item"):
-            del pytfall.hp.item
         if hasattr(pytfall, "desc"):
             del pytfall.desc
         if hasattr(pytfall, "map_pattern"):
