@@ -81,7 +81,6 @@ label city_tavern_menu: # "lively" status is limited by drunk effect; every acti
         elif result == "bet":
             jump city_tavern_choose_label
         else:
-            $ del r
             jump city
 
 label city_tavern_choose_label:
