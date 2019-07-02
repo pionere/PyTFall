@@ -34,6 +34,7 @@ label realtor_agency:
         extend " My name is Rose. I'm the owner and the realtor."
         g "Please have a seat and take a look at some of our offers."
 
+        hide rose
         $ del nvl_ra
         $ global_flags.set_flag("visited_ra")
     show expression npcs["Rose_estate"].get_vnsprite() at right as rose with dissolve
