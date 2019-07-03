@@ -28,7 +28,7 @@ init -950 python:
     from collections import OrderedDict, defaultdict, deque
     import xml.etree.ElementTree as ET
     import simpy
-    import cPickle as pickle
+    #import cPickle as pickle
     import bisect
     import types
 

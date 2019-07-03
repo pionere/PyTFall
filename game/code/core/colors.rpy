@@ -1,5 +1,5 @@
 init -998 python:
-    blank = Solid((0,0,0,0))
+    #blank = Solid((0,0,0,0))
 
     _COLORS_ = {
     "aliceblue" : "#f0f8ff",
