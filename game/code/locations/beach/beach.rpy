@@ -195,14 +195,14 @@ label mc_action_hero_ocean_skill_checks:
         $ swim_vit = randint (15, 25)
     $ hero.gfx_mod_skill("swimming", 0, swim_act)
     $ hero.mod_stat("vitality", -swim_vit)
-    $ del swim_act, swim_vit
 
-    if locked_dice(temp) and global_flags.flag("constitution_bonus_from_swimming_at_beach") <= 30:
+    if locked_dice(min(600, temp) - global_flags.flag("constitution_bonus_from_swimming_at_beach")*20): # MAX 30
         $ hero.stats.mod_raw_max("constitution", 1)
         $ hero.gfx_mod_stat("constitution", 1)
         $ global_flags.up_counter("constitution_bonus_from_swimming_at_beach")
-        $ narrator ("You feel more endurant than before {color=green}(max constitution +1){/color}.")
+        "You feel more endurant than before {color=green}(max constitution +1){/color}."
 
+    $ del swim_act, swim_vit, temp
     $ global_flags.set_flag("keep_playing_music")
     jump city_beach
 
@@ -311,7 +311,7 @@ label mc_action_city_beach_diving_checks:
         if has_items("Underwater Lantern", hero, equipped=True):
             j = 90
         else:
-            j = 60
+            j = 50
 
     $ renpy.start_predict("content/gfx/images/fishy.png", "content/gfx/interface/icons/net.png")
     show screen diving_progress_bar(i, i)
