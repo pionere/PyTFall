@@ -6,19 +6,18 @@ label city_beach_cafe_main:
         $ PyTFallStatic.play_music("beach_cafe")
     $ global_flags.del_flag("keep_playing_music")
 
+    # Build the actions
     python:
-        # Build the actions
         if pytfall.world_actions.location("city_beach_cafe_main"):
             pytfall.world_actions.meet_girls()
             pytfall.world_actions.look_around()
             pytfall.world_actions.finish()
 
-    scene bg city_beach_cafe_main
-    with dissolve
-    show screen city_beach_cafe_main
-
-    $ pytfall.world_quests.run_quests("auto")
-    $ pytfall.world_events.run_events("auto")
+        if pytfall.world_actions.location("city_beach_cafe_ice"):
+            pytfall.world_actions.add(1, "Eat an icecream alone", Return("ice_alone"))
+            pytfall.world_actions.add(2, "Icecream for the team", Return("ice_group"))
+            pytfall.world_actions.add(3, "Leave", Return("leave"), keysym="mousedown_3")
+            pytfall.world_actions.finish()
 
     if global_flags.get_flag("waitress_ice", [-1])[0] != day:
         python hide:
@@ -28,6 +27,12 @@ label city_beach_cafe_main:
             who = npcs[(choice(who))]
             global_flags.set_flag("waitress_ice", value=[day, who])
 
+    scene bg city_beach_cafe_main
+    with dissolve
+
+    $ pytfall.world_quests.run_quests("auto")
+    $ pytfall.world_events.run_events("auto")
+
     if not hero.has_flag("dnd_ice_in_cafe"):
         $ inviting_character = iam.would_invite(locked_random("randint", 100, 200))
         if inviting_character != hero:
@@ -35,10 +40,13 @@ label city_beach_cafe_main:
             menu:
                 "Do you want to accept [inviting_character.pd] invitation (free of charge)?"
                 "Yes":
+                    scene bg icestand
                     jump mc_action_ice_invitation
                 "No":
                     $ pass
         $ del inviting_character
+
+    show screen city_beach_cafe_main
 
     while 1:
         $ result = ui.interact()
@@ -125,24 +133,9 @@ label mc_action_city_beach_ice:
         jump city_beach_cafe_main
 
 screen city_beach_ice_stand:
-    style_prefix "dropdown_gm"
-
     add im.Scale("content/gfx/images/ice_stand.webp", config.screen_width, config.screen_height) # align .5, .5
 
-    frame:
-        pos (.98, .98) anchor (1.0, 1.0)
-        has vbox
-
-        textbutton "Eat an icecream alone":
-            action Return("ice_alone")
-
-        textbutton "Icecream for the team":
-            sensitive len(hero.team) > 1
-            action Return("ice_group")
-
-        textbutton "Leave":
-            action Return("leave")
-            keysym "mousedown_3"
+    use location_actions("city_beach_cafe_ice")
 
 label mc_action_ice_invitation:
     hide npc

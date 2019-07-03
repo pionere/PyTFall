@@ -5,6 +5,14 @@ label tailor_store:
         $ PyTFallStatic.play_music("shops", fadein=1.5)
     $ global_flags.del_flag("keep_playing_music")
 
+    # Build the actions
+    python:
+        if pytfall.world_actions.location("city_tailor"):
+            pytfall.world_actions.add(1, "Shop", Return("shop"))
+            pytfall.world_actions.add(2, "Special Order", Return("order"))
+            pytfall.world_actions.add(3, "Leave", Return("leave"), keysym="mousedown_3")
+            pytfall.world_actions.finish()
+
     scene bg tailor_store
     with dissolve
 
@@ -182,14 +190,4 @@ label tailor_special_order:
 
 screen tailor_shop():
     #use top_stripe(False)
-    style_prefix "dropdown_gm"
-    frame:
-        pos (.98, .98) anchor (1.0, 1.0)
-        has vbox
-        textbutton "Shop":
-            action Return("shop")
-        textbutton "Special Order":
-            action Return("order")
-        textbutton "Leave":
-            action Return("leave")
-            keysym "mousedown_3"
+    use location_actions("city_tailor")

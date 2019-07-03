@@ -1053,25 +1053,22 @@ screen location_actions(actions, char=None, pos=(.98, .98), anchor=(1.0, 1.0), a
 
 screen action_button(a):
     if a.available:
-        if a.is_null:
-            textbutton str(a.null_button or a.button):
-                xsize 200
-                action NullAction(insensitive=True)
-        elif isinstance(a, WorldAction) and a.is_event_trigger:
-            textbutton a.button:
-                xsize 200
-                action (CloseActionMenus(a), Function(pytfall.world_events.run_events, a.action, a.label, a.cost))
-                keysym a.keysym
-        elif isinstance(a, WorldActionMenu):
-            textbutton "< " + a.button:
-                xsize 200
-                action a.action
-                keysym a.keysym
-        else:
-            textbutton a.button:
-                xsize 200
-                action (CloseActionMenus(a), a.action)
-                keysym a.keysym
+        python:
+            txt, action = a.button, a.action
+            if a.is_null:
+                txt = a.null_button or txt
+                action = NullAction(insensitive=True)
+            elif isinstance(a, WorldAction) and a.is_event_trigger:
+                action = (CloseActionMenus(a), Function(pytfall.world_events.run_events, action, a.label, a.cost))
+            elif isinstance(a, WorldActionMenu):
+                txt = "< " + txt
+            else:
+                action = (CloseActionMenus(a), action)
+        textbutton str(txt):
+            xsize 200
+            action action
+            keysym a.keysym
+            text_layout "nobreak"
 
 label _events_not_found:
     $ hero.say(choice(["Damn, I couldn't find anything...",

@@ -4,12 +4,14 @@ label cafe:
         $ PyTFallStatic.play_music("shops", fadein=1.5)
     $ global_flags.del_flag("keep_playing_music")
 
-    hide screen main_street
-
-    scene bg cafe
-    with dissolve
-    $ pytfall.world_quests.run_quests("auto")
-    $ pytfall.world_events.run_events("auto")
+    # Build the actions
+    python:
+        if pytfall.world_actions.location("city_cafe"):
+            pytfall.world_actions.add(1, "Shop", Return("shop"))
+            pytfall.world_actions.add(2, "Eat alone", Return("eat_alone"), null_condition="hero.has_flag('dnd_ate_in_cafe')")
+            pytfall.world_actions.add(3, "Eat with group", Return("eat_group"), null_condition="len(hero.team)==1 or hero.has_flag('dnd_ate_in_cafe')")
+            pytfall.world_actions.add(4, "Leave", Return("leave"), keysym="mousedown_3")
+            pytfall.world_actions.finish()
 
     if global_flags.get_flag("waitress_cafe", [-1])[0] != day:
         python hide:
@@ -18,6 +20,12 @@ label cafe:
             who = [w for w in ["Mel_cafe", "Monica_cafe", "Chloe_cafe"] if w != who]
             who = npcs[(choice(who))]
             global_flags.set_flag("waitress_cafe", value=[day, who])
+
+    scene bg cafe
+    with dissolve
+
+    $ pytfall.world_quests.run_quests("auto")
+    $ pytfall.world_events.run_events("auto")
 
     $ waitress = global_flags.flag("waitress_cafe")[1]
 
@@ -54,7 +62,7 @@ label cafe_menu: # after she said her lines but before we show menu controls, to
         $ result = ui.interact()
 
         hide screen cafe_eating
-        if result == "shopping":
+        if result == "shop":
             jump cafe_shopping
         if result == "eat_alone":
             jump mc_action_cafe_eat_alone_cafe_invitation
@@ -85,26 +93,7 @@ label cafe_shopping:
 
 screen cafe_eating():
     #use top_stripe(False)
-
-    style_prefix "dropdown_gm"
-    
-    frame:
-        pos (.98, .98) anchor (1.0, 1.0)
-        has vbox
-        textbutton "Shop":
-            action Return("shopping")
-
-        textbutton "Eat alone":
-            sensitive not hero.has_flag("dnd_ate_in_cafe")
-            action Return("eat_alone")
-
-        textbutton "Eat with group":
-            sensitive len(hero.team)>1 and not hero.has_flag("dnd_ate_in_cafe")
-            action Return("eat_group")
-
-        textbutton "Leave":
-            action Return("main_street")
-            keysym "mousedown_3"
+    use location_actions("city_cafe")
 
 label mc_action_cafe_eat_alone_cafe_invitation:
     menu:
