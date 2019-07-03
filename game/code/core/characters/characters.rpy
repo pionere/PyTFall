@@ -593,6 +593,13 @@ init -9 python:
             default = kwargs.get("default", None)
             gm_mode = kwargs.get("gm_mode", False)
 
+            # Direct image request:
+            if "-" in tags[0]:
+                _path = os.path.join(self.path_to_imgfolder, tags[0])
+                if not renpy.loadable(_path):
+                    _path = IMG_NOT_FOUND_PATH
+                return _path if resize is None else PyTGFX.scale_content(_path, *resize)
+
             if gm_mode:
                 if exclude is None:
                     exclude = ["sex"]
@@ -600,21 +607,17 @@ init -9 python:
                     exclude.append("sex")
                 if check_lovers(self) or "Exhibitionist" in self.traits:
                     if dice(40):
-                        if "nude" not in tags:
-                            tags.append("nude")
-                        if "revealing" not in tags:
-                            tags.append("revealing")
+                        optional_tags = ["nude", "revealing"]
+                        if "revealing" in tags:
+                            optional_tags.pop()
+                        if "nude" in tags:
+                            optional_tags.pop(0)
+                            if not optional_tags:
+                                del optional_tags
                 elif check_friends(self):
                     exclude.append("nude")
                 else:
                     exclude.extend(["nude", "revealing", "lingerie"])
-
-            # Direct image request:
-            if "-" in tags[0]:
-                _path = os.path.join(self.path_to_imgfolder, tags[0])
-                if not renpy.loadable(_path):
-                    _path = IMG_NOT_FOUND_PATH
-                return _path if resize is None else PyTGFX.scale_content(_path, *resize)
 
             # Mood will never be checked in auto-mode when that is not sensible
             add_mood = kwargs.get("add_mood", True)
@@ -639,6 +642,9 @@ init -9 python:
                         entry = entry[1]
                         return entry if resize is None else PyTGFX.scale_content(entry, *resize)
 
+            if "optional_tags" in locals():
+                tags.extend(optional_tags)
+
             imgpath = ""
             if type in ["normal", "first_default", "reduce"]:
                 imgpath = self.select_image(*tags, exclude=exclude)
@@ -646,7 +652,21 @@ init -9 python:
                     imgpath = self.select_image(*pure_tags, exclude=exclude)
 
                 if not imgpath and len(pure_tags) > 1:
-                    if type in ["normal", "first_default"]:
+                    if type == "reduce":
+                        _tags = pure_tags[:]
+                        while not imgpath:
+                            _tags.pop()
+
+                            # Do not try with empty tags TODO why not? 
+                            if not _tags:
+                                break
+                            # Try with mood first:
+                            if add_mood:
+                                imgpath = self.select_image(mood_tag, *_tags, exclude=exclude)
+                            if not imgpath:
+                                imgpath = self.select_image(*_tags, exclude=exclude)
+
+                    else: #if type in ["normal", "first_default"]:
                         main_tag = None
                         for tag in pure_tags:
                             if main_tag is None:
@@ -667,21 +687,6 @@ init -9 python:
                                 imgpath = self.select_image(main_tag, mood_tag, exclude=exclude)
                             if not imgpath:
                                 imgpath = self.select_image(main_tag, exclude=exclude)
-
-                    elif type == "reduce":
-                        _tags = pure_tags[:]
-                        while not imgpath:
-                            _tags.pop()
-                           
-                            # Do not try with empty tags TODO why not? 
-                            if not _tags:
-                                break
-                            # Try with mood first:
-                            if add_mood:
-                                imgpath = self.select_image(mood_tag, *_tags, exclude=exclude)
-                            if not imgpath:
-                                imgpath = self.select_image(*_tags, exclude=exclude)
-
 
             elif type == "any":
                 _tags = pure_tags[:] 
@@ -722,10 +727,11 @@ init -9 python:
             else: # We have an image, time to convert it to full path.
                 imgpath = os.path.join(self.path_to_imgfolder, imgpath)
 
-            # FIXME regardless of type ???
+            # FIXME cache regardless of type ???
+            if "optional_tags" in locals():
+                tags = tags[:-len(optional_tags)]
             if label_cache:
                 self.label_cache.append([tags, last_label, imgpath])
-
             if cache:
                 self.cache.append([tags, imgpath])
 
