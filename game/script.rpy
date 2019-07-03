@@ -740,8 +740,6 @@ label after_load:
                         del v.allowed_status
                     simple_jobs[k] = v
 
-        store.bm_mid_frame_mode = None
-
         if hasattr(store, "businesses"):
             buildings.update(store.businesses)
             del store.businesses
@@ -1407,9 +1405,8 @@ label after_load:
 
     python hide:
         if getattr(store, "chars_list_state", None):
-            cls = store.chars_list_state
-            if not hasattr(cls.source, "sorting_desc"):
-                cls.source.sorting_desc = True
+            if not hasattr(store.chars_list_state, "sorting_desc"):
+                store.chars_list_state.sorting_desc = True
 
         if hasattr(store, "NextDayEvents") and not isinstance(store.NextDayEvents, NextDayStats):
             nds = NextDayStats()

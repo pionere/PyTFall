@@ -177,7 +177,7 @@ init -9 python:
                         ("gender", "female"),
                         ("gold", "number"),
                         #("basetraits", "list"),
-                        ("personality", "Deredere"),
+                        ("personality", "text"),
                         ("breasts", "Average Boobs"),
                         ("penis", "Average Dick"),
                         ("body", "Lean"),
@@ -210,7 +210,7 @@ init -9 python:
                         ("gender", "female"),
                         ("gold", "number"),
                         ("basetraits", "list"),
-                        ("personality", "Deredere"),
+                        ("personality", "text"),
                         ("breasts", "Average Boobs"),
                         ("penis", "Average Dick"),
                         ("body", "Lean"),
@@ -455,9 +455,12 @@ init -9 python:
             with open(_path, 'w') as outfile:
                 json.dump(json_data, outfile, indent=4)
 
+            char = self.char_edit
             # restore path-to-imgfolder
-            self.char_edit["_path_to_imgfolder"] = path
-            self.char, self.char_edit = self.char_edit, None
+            char["_path_to_imgfolder"] = path
+            # update game-data
+            self.char, self.char_edit = char, None
+            self.all_chars[char_id] = char
 
     # enable logging
     if DEBUG_LOG:
