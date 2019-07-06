@@ -440,8 +440,8 @@ init -12 python:
             # If this is set to self.env.now in client manager, we send in workers (bc).
             #self.send_in_worker = False
 
-            #self.active_workers = set() # On duty Workers.
-            #self.clients_waiting = set() # Clients waiting to be served.
+            self.active_workers = set() # On duty Workers.
+            self.clients_waiting = set() # Clients waiting to be served.
             #self.has_tap_beer = False # cached result of check for TapBeer upgrade
 
             # SimPy and etc follows (L33t stuff :) ):
@@ -659,10 +659,12 @@ init -12 python:
             self.res = simpy.Resource(self.env, self.capacity)
             self.has_tap_beer = self.has_extension(TapBeer)
             self.send_in_worker = False
-            self.active_workers = set()
+            #self.active_workers = set()
+            #self.clients_waiting = set()
 
         def post_nd(self):
-            self.res = self.active_workers = None
+            self.res = None
+            #self.active_workers = self.clients_waiting = None
             #self.has_tap_beer = self.send_in_worker = False
             super(PublicBusiness, self).post_nd()
 
