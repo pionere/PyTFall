@@ -448,7 +448,7 @@
     "icon": "content/items/ring/wr.png",
     "price": 450,
     "chance": 45,
-    "badness": 85,
+    "badness": 75,
     "eqchance": 30,
     "hidden": false,
     "infinite": false,
