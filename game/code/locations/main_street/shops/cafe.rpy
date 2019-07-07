@@ -204,26 +204,34 @@ label mc_action_cafe_invitation: # we jump here when the group was invited by on
         $ hero.set_flag("dnd_ate_in_cafe")
         python hide:
             for member in hero.team:
-                if member.status != "free" and member.get_stat("disposition") < -50:
-                    d = .5
-                else:
-                    d = 1
-                stat = int(randint(5, 10)*d)
-                if "Effective Metabolism" in member.traits:
-                    stat *= 2
-                member.gfx_mod_stat("vitality", stat)
-                stat = int(randint(5, 10)*d)
-                member.gfx_mod_stat("health", stat)
-                stat = int(randint(5, 10)*d)
-                member.gfx_mod_stat("mp", stat)
-                stat = int(randint(4, 8)*d)
-                member.gfx_mod_stat("joy", stat)
+                d = 1
+
                 if member != hero:
-                    stat = int(randint(10, 20)*d)
-                    if len(hero.team)<3: # when there is only one char, disposition bonus is higher
-                        stat += randint(5, 10)
+                    if member.get_stat("disposition") < -50:
+                        d *= .5
+
+                    if len(hero.team) == 2: # when there is only one char, disposition bonus is higher
+                        stat = randint(int(d*15), int(d*30)) # randint(15,30)*mod
+                    else:
+                        stat = randint(int(d*10), int(d*20)) # randint(10,20)*mod
                     member.gfx_mod_stat("disposition", stat)
                     member.gfx_mod_stat("affection", affection_reward(member))
+
+                if "Fast Metabolism" in member.effects:
+                    d *= 2
+
+                stat = randint(int(d*5), int(d*10)) # randint(5,10)*mod
+                member.gfx_mod_stat("health", stat)
+                stat = randint(int(d*5), int(d*10)) # randint(5,10)*mod
+                member.gfx_mod_stat("mp", stat)
+                stat = randint(int(d*4), int(d*8)) # randint(4,8)*mod
+                member.gfx_mod_stat("joy", stat)
+
+                if "Effective Metabolism" in member.traits:
+                    d *= 2
+
+                stat = randint(int(d*5), int(d*10)) # randint(5,10)*mod
+                member.gfx_mod_stat("vitality", stat)
 
         hide expression img with dissolve
         $ del img

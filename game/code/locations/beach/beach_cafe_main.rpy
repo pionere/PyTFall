@@ -150,7 +150,7 @@ label mc_action_ice_invitation:
             if dice(5):
                 $ hero.enable_effect("Down with Cold", duration=randint(1, 2))
         else:
-            $ narrator("You do not even have the means to buy yourself an icecream. Maybe it is time to make yourself useful?")
+            "You do not even have the means to buy yourself an icecream. Maybe it is time to make yourself useful?"
     else:
         # icecream for the team by the inviting_character
         if inviting_character.take_money(randint(10, 25), reason="Icecream"):
@@ -164,21 +164,33 @@ label mc_action_ice_invitation:
                 show expression members[1].get_vnsprite() at center_right as temp2
                 with dissolve
             "You ordered the icecreams and spent some time together."
-            python:
+            $ del member, members, inviting_character
+            python hide:
                 for member in hero.team:
-                    member.gfx_mod_stat("joy", randint(3, 5))
+                    d = 1
+                    if member != hero:
+                        if member.get_stat("disposition") < -50:
+                            d *= .5
+                        if len(hero.team) == 2: # when there is only one char, disposition bonus is higher
+                            stat = randint(int(d*4), int(d*8)) # randint(4,8)*mod
+                        else:
+                            stat = randint(int(d*3), int(d*6)) # randint(3,6)*mod
+                        member.gfx_mod_stat("disposition", stat)
+                        member.gfx_mod_stat("affection", affection_reward(member))
+
+                    if "Fast Metabolism" in member.effects:
+                        d *= 2
+                    stat = randint(d*2, d*4) # randint(2,4)*mod
+                    member.gfx_mod_stat("joy", stat)
+
                     if dice(20):
                         member.disable_effect("Depression")
                     if dice(5):
                         member.enable_effect("Down with Cold", duration=randint(1, 2))
-                    if member != hero:
-                        member.gfx_mod_stat("disposition", randint(3, 5))
-                        member.gfx_mod_stat("affection", affection_reward(member))
-                del member, members
+
             hide temp1
             hide temp2
             with dissolve
-            $ del inviting_character
             jump city_beach_cafe
         else:
             "You could spend time with your team, but sadly you are too poor to afford it at the moment."
