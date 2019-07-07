@@ -262,7 +262,7 @@ screen diving_progress_bar(o2, max_o2): # oxygen bar for diving
         label "Find hidden items!" text_color "gold" text_size 18 xalign .5 yalign .5
         label "Right click or Esc to exit" text_color "gold" text_size 18 xalign .5 yalign .5
 
-screen diving_hidden_area(items=()):
+screen diving_hidden_area(items, size):
     on "hide":
         action SetField(config, "mouse", None)
 
@@ -271,7 +271,7 @@ screen diving_hidden_area(items=()):
     # Expects a list/tuple, like: (["hidden_cache_1", (100, 100), (.1, .5)], ["hidden_cache_2", (50, 50), (.54, .10)])
     # If cache is found, screen (which should be called) will return: "hidden_cache_1" string. Tuple is the size in pixels.
     # Data is randomized outside of this screen!
-    for item, size, align in items:
+    for item, align in items:
         button:
             align align
             background Null()
@@ -302,27 +302,27 @@ label mc_action_city_beach_diving_checks:
 
     python:
         i = round_int(hero.get_skill("swimming"))
-        loots = [[item, item.chance] for item in items.values() if "Diving" in item.locations and item.price <= i]
-        vitality = hero.get_stat("vitality")
+        loots = [[j, j.chance] for j in items.values() if "Diving" in j.locations and j.price <= i]
         if has_items("Snorkel Mask", hero, equipped=True):
             i += 200
-        i = (i * vitality) / hero.get_max("vitality")
-
         if has_items("Underwater Lantern", hero, equipped=True):
-            j = 90
+            j = (90, 90)
         else:
-            j = 50
+            j = (50, 50)
+            renpy.show("shadow", what=Solid("#000000a0", xysize=(config.screen_width, config.screen_height)))
+        vitality = hero.get_stat("vitality")
+        result = hero.get_max("vitality")
 
     $ renpy.start_predict("content/gfx/images/fishy.png", "content/gfx/interface/icons/net.png")
-    show screen diving_progress_bar(i, i)
+    show screen diving_progress_bar((i * vitality) / result, i)
     while vitality > 10:
         if not renpy.get_screen("diving_progress_bar"):
             "You've run out of air!"
             $ hero.gfx_mod_stat("health", -40)
             jump mc_action_city_beach_diving_exit
 
-        $ result = tuple(["Item", (j, j), (random.random(), random.random())] for i in range(4))
-        show screen diving_hidden_area(result)
+        $ result = tuple(["Item", (random.random(), random.random())] for i in range(4))
+        show screen diving_hidden_area(result, j)
 
         $ result = ui.interact()
 
@@ -363,5 +363,5 @@ label mc_action_city_beach_diving_checks:
 
 label mc_action_city_beach_diving_exit:
     $ renpy.stop_predict("content/gfx/images/fishy.png", "content/gfx/interface/icons/net.png")
-    $ del i, j, loots, vitality
+    $ del i, j, loots, vitality, result
     jump city_beach
