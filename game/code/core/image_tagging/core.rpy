@@ -60,18 +60,24 @@ init -9 python:
             '''
             return self.tagmap.get(tag, set()).copy()
 
-        def get_imgset_with_all_tags(self, tags):
+        def get_imgset_with_all_tags(self, *tags, **kwargs):
             '''Returns a set of images that are all tagged with all specified tags.
             '''
-            data = [self.get_imgset_with_tag(tag) for tag in tags]
-            return set.intersection(*data)
-
-        def remove_excluded_images(self, data, excludedtags):
-            """Get rid of all images tagged with excludedtags.
-            """
-            exclude = [self.get_imgset_with_tag(tag) for tag in excludedtags]
-            exclude = set.union(*exclude)
-            data.difference_update(exclude)
+            data = None
+            for tag in tags:
+                tag_set = self.tagmap.get(tag, None)
+                if tag_set is None:
+                    return set()
+                if data is None:
+                    data = tag_set.copy()
+                else:
+                    data &= tag_set
+            exclude = kwargs.get("exclude", None)
+            if exclude is not None:
+                for tag in exclude:
+                    tag_set = self.tagmap.get(tag, None)
+                    if tag_set is not None:
+                        data -= tag_set
             return data
 
         def get_tags_per_character(self, character):
@@ -87,33 +93,6 @@ init -9 python:
                 for tag in tags_per_path:
                     tags[tag] += 1
             return tags
-
-        def get_tags_per_path(self, path):
-            """
-            Returns a set of tags got from the image path in the database
-            path = path to a file
-            """
-            tags = set([])
-            for tag, images in self.tagmap.iteritems():
-                if path in images:
-                    tags.add(tag)
-            return tags
-
-        # dump the database
-        #-----------------------------------
-        def map_images_to_tags(self):
-            '''Returns a dict of image path keys and sets of tags as values.
-            '''
-            imgmap = {}
-            for tag, imgpaths in self.tagmap.iteritems():
-                for p in imgpaths:
-                    try:
-                        tagset = imgmap[p]
-                    except KeyError:
-                        tagset = set()
-                        imgmap[p] = tagset
-                    tagset.add(tag)
-            return imgmap
 
     class Tagger(_object):
         '''Backend supporting the in-game tagger

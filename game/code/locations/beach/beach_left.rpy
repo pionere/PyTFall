@@ -100,17 +100,16 @@ label mc_action_city_beach_rest:
                     continue
                 result = (["rest", "beach"], ["bathing", "beach"], ["sleeping", "beach"])
                 result = get_simple_act(member, result, excluded)
-                if result:
-                    picture.append(member.show(*result, exclude=excluded, resize=iam.IMG_SIZE, type="reduce"))
-                    continue
-
-                result = (["rest", "swimsuit", "no bg"], ["bathing", "swimsuit", "no bg"], ["sleeping", "swimsuit", "no bg"],
-                        ["rest", "swimsuit", "simple bg"], ["bathing", "swimsuit", "simple bg"], ["sleeping", "swimsuit", "simple bg"])
-                result = get_simple_act(member, result, excluded)
-                if result:
-                    picture.append(member.show(*result, exclude=excluded, resize=iam.IMG_SIZE, type="reduce"))
-                elif member.has_image("beach", exclude=excluded):
-                    picture.append(member.show("beach", "sfw", exclude=excluded, resize=iam.IMG_SIZE, type="reduce"))
+                if not result:
+                    result = (["rest", "swimsuit", "no bg"], ["bathing", "swimsuit", "no bg"], ["sleeping", "swimsuit", "no bg"],
+                            ["rest", "swimsuit", "simple bg"], ["bathing", "swimsuit", "simple bg"], ["sleeping", "swimsuit", "simple bg"])
+                    result = get_simple_act(member, result, excluded)
+                    if not result:
+                        result = (["swimsuit", "no bg"], ["swimsuit", "simple bg"])
+                        result = get_simple_act(member, result, excluded)
+                        if not result:
+                            result = ["beach", "sfw"]
+                picture.append(member.show(*result, exclude=excluded, resize=iam.IMG_SIZE, type="reduce"))
 
         if len(picture) == 1:
             show expression picture[0] at truecenter as temp1

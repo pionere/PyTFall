@@ -101,10 +101,7 @@ screen cemetry_list_of_dead_chars(): # the list should not be empty!
                     align (.5, .6)
                     $ character, date = data[0], data[1]
 
-                    if character.has_image('portrait', 'indifferent'):
-                        $ char_profile_img = character.show('portrait', 'indifferent', resize=(data[4], data[4]), cache=True)
-                    else:
-                        $ char_profile_img = character.show('portrait', 'happy', resize=(data[4], data[4]), cache=True, type="reduce")
+                    $ char_profile_img = character.show('portrait', 'indifferent', 'happy', resize=(data[4], data[4]), cache=True, type="first_default", add_mood=False)
 
                     frame:
                         background Frame("content/gfx/frame/MC_bg.png")

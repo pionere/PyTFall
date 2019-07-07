@@ -254,7 +254,6 @@ init -5 python:
                 if worker.has_image("2c vaginal", **kwargs):
                     image_tags = worker.show("2c vaginal", **kwargs)
                 else:
-                    kwargs["exclude"] = always_exclude
                     image_tags = worker.show("after sex", **kwargs)
 
                 log.img = image_tags
@@ -295,7 +294,6 @@ init -5 python:
                 if worker.has_image("2c anal", **kwargs):
                     image_tags = worker.show("2c anal", **kwargs)
                 else:
-                    kwargs["exclude"] = always_exclude
                     image_tags = worker.show("after sex", **kwargs)
 
                 log.img = image_tags

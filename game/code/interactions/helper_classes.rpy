@@ -148,19 +148,15 @@ init -2 python:
             """
             This function selects the best possible rape picture, without specifying where or what kind of action it should have since rape pics are not common enough to be so demanding.
             """
-            excluded = ["happy", "confident", "suggestive", "ecstatic", "gay"]
-            if char.has_image("normalsex", "rape", exclude=["gay"]):
-                if hidden_partner:
-                    iam.set_img("normalsex", "rape", "partnerhidden", exclude=["gay"], type="reduce")
-                else:
-                    iam.set_img("normalsex", "rape", exclude=["gay"], type="reduce")
-            elif char.has_image("normalsex", exclude=excluded):
-                if hidden_partner:
-                    iam.set_img("normalsex", "partnerhidden", exclude=excluded, type="first_default")
-                else:
-                    iam.set_img("normalsex", exclude=excluded, type="first_default")
-            else:
-                iam.set_img("normalsex", "partnerhidden", "ripped", exclude=["gay", "happy", "confident"], type="reduce")
+            exclude = ["happy", "confident", "suggestive", "ecstatic", "gay"]
+            tags = ["normalsex"] # FIXME what is normal???
+            if char.has_image("normalsex", "rape", exclude=exclude):
+                tags.append("rape")
+            elif char.has_image("normalsex", "ripped", exclude=exclude):
+                tags.append("ripped")
+            if hidden_partner:
+                tags.append("partnerhidden")
+            iam.set_img(*tags, exclude=exclude, type="reduce")
 
         @staticmethod
         def get_single_sex_picture(char, act="stripping", location="any", hidden_partner=False):

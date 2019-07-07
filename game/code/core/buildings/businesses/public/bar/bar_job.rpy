@@ -284,7 +284,5 @@ init -5 python:
             excluded = ["nude", "sex"]
             if worker.has_image("waitress", exclude=excluded):
                 log.img = worker.show("waitress", exclude=excluded)
-            elif worker.has_image("maid", exclude=excluded):
-                log.img = worker.show("maid", exclude=excluded)
             else:
-                log.img = worker.show("profile", exclude=excluded)
+                log.img = worker.show("maid", exclude=excluded)

@@ -453,10 +453,10 @@ init -9 python:
                 return self._path_to_imgfolder
 
         def _portrait(self, st, at):
-            if self.has_flag("fixed_portrait"):
-                return self.flag("fixed_portrait"), None
-            else:
-                return self.show("portrait", self.get_mood_tag(), type="first_default", add_mood=False, cache=True, resize=(120, 120)), None
+            result = self.get_flag("fixed_portrait", None)
+            if result is None:
+                result = self.show("portrait", cache=True, resize=(120, 120))
+            return result, None
 
         def override_portrait(self, *args, **kwargs):
             kwargs["resize"] = kwargs.get("resize", (120, 120))
@@ -529,35 +529,22 @@ init -9 python:
         def select_image(self, *tags, **kwargs):
             '''Returns the path to an image with the supplied tags or "".
             '''
-            tags = list(tags)
-            tags.append(self.id)
-            exclude = kwargs.get("exclude", None)
-
             # search for images
-            imgset = tagdb.get_imgset_with_all_tags(tags)
-            if exclude:
-                imgset = tagdb.remove_excluded_images(imgset, exclude)
+            imgset = tagdb.get_imgset_with_all_tags(self.id, *tags, **kwargs)
 
             # randomly select an image
             if imgset:
                 return choice(tuple(imgset))
             else:
-                return ""
+                return None
 
         def has_image(self, *tags, **kwargs):
             """
             Returns True if image is found.
             exclude k/w argument (to exclude undesired tags) is expected to be a list.
             """
-            tags = list(tags)
-            tags.append(self.id)
-            exclude = kwargs.get("exclude", None)
-
             # search for images
-            imgset = tagdb.get_imgset_with_all_tags(tags)
-            if exclude:
-                imgset = tagdb.remove_excluded_images(imgset, exclude)
-
+            imgset = tagdb.get_imgset_with_all_tags(self.id, *tags, **kwargs)
             return bool(imgset)
 
         def show(self, *tags, **kwargs):
@@ -592,6 +579,7 @@ init -9 python:
             type = kwargs.get("type", "normal")
             default = kwargs.get("default", None)
             gm_mode = kwargs.get("gm_mode", False)
+            add_mood = kwargs.get("add_mood", True)
 
             # Direct image request:
             if "-" in tags[0]:
@@ -618,11 +606,6 @@ init -9 python:
                     exclude.append("nude")
                 else:
                     exclude.extend(["nude", "revealing", "lingerie"])
-
-            # Mood will never be checked in auto-mode when that is not sensible
-            add_mood = kwargs.get("add_mood", True)
-            if not STATIC_CHAR.MOOD_TAGS.isdisjoint(set(tags)):
-                add_mood = False
 
             pure_tags = list(tags)
             tags = list(tags)

@@ -59,34 +59,17 @@ init -5 python:
                 log.append("%s is too tired to do anything but sleep at %s free time." % (name, worker.pd))
             else:
             # otherwise we build a list of usable tags
-                image_tags = list()
-
-                if worker.has_image("sleeping", **kwargs):
-                    image_tags.append("sleeping")
-                if worker.has_image("reading", **kwargs):
-                    image_tags.append("reading")
+                kwargs["type"] = "any"
+                image_tags = ["sleeping", "reading", "eating", "bathing", "rest"]
                 if vit_perc > 30: # not too tired for more active rest
-                    if worker.has_image("shopping", **kwargs) and (worker.gold >= 200): # eventually there should be a real existing event about going to shop and buy a random item there for gold. after all we do have an algorithm for that. but atm it might be broken, so...
+                    if vit_perc > 50: # not too tired for sport stuff
+                        image_tags.extend(("sport", "exercising"))
+                    if worker.gold >= 200: # there is a real existing event about going to shop and buy a random item there for gold, but anyway..
                         image_tags.append("shopping")
                     if "Nymphomaniac" in worker.traits or "Horny" in worker.effects:
-                        if worker.has_image("masturbation", **kwargs):
-                            image_tags.append("masturbation")
-                if vit_perc > 50: # not too tired for sport stuff
-                    if worker.has_image("sport", **kwargs):
-                        image_tags.append("sport")
-                    if worker.has_image("exercising", **kwargs):
-                        image_tags.append("exercising")
-                if worker.has_image("eating", **kwargs):
-                    image_tags.append("eating")
-                if worker.has_image("bathing", **kwargs):
-                    image_tags.append("bathing")
-                if worker.has_image("rest", **kwargs):
-                    image_tags.append("rest")
+                        image_tags.append("masturbation")
 
-                if not(image_tags):
-                    image_tags = ["profile"] # no rest at all? c'mon...
-
-                image_tags = worker.show(choice(image_tags), **kwargs)
+                image_tags = worker.show(*image_tags, **kwargs)
                 log.img = image_tags
                 image_tags = tagdb.get_image_tags(image_tags)
                 if "sleeping" in image_tags:
