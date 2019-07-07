@@ -164,8 +164,7 @@ label mc_action_ice_invitation:
                 show expression members[1].get_vnsprite() at center_right as temp2
                 with dissolve
             "You ordered the icecreams and spent some time together."
-            $ del member, members, inviting_character
-            python hide:
+            python:
                 for member in hero.team:
                     d = 1
                     if member != hero:
@@ -187,6 +186,7 @@ label mc_action_ice_invitation:
                         member.disable_effect("Depression")
                     if dice(5):
                         member.enable_effect("Down with Cold", duration=randint(1, 2))
+                del member, members, inviting_character, d, stat
 
             hide temp1
             hide temp2
