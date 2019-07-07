@@ -82,7 +82,7 @@ label special_items_slime_bottle:
     jump char_equip
 
 label special_items_empty_extractor:
-    if eqtarget.exp <= 2000:
+    if eqtarget.exp <= 200:
         if eqtarget == hero:
             $ renpy.show_screen('message_screen', "Unfortunately, you are not experienced enough yet to share your knowledge with anybody.")
         else:
@@ -112,7 +112,7 @@ label special_items_empty_extractor:
                     "[eqtarget.pC] slightly shudders when the device starts to work."
                     $ eqtarget.gfx_mod_stat("disposition", -randint(20, 30))
                     $ eqtarget.gfx_mod_stat("affection", -randint(2, 3))
-                $ eqtarget.gfx_mod_exp(-2000)
+                $ eqtarget.gfx_mod_exp(-200)
                 $ hero.add_item("Full Extractor", 1)
                 "The device seems to be full of energy."
             "No":
@@ -133,7 +133,7 @@ label special_items_full_extractor:
 
     if eqtarget.get_stat("joy") < 50:
         $ eqtarget.gfx_mod_stat("joy", 10)
-    $ eqtarget.gfx_mod_exp(exp_reward(eqtarget, eqtarget, exp_mod=1500.0/DAILY_EXP_CORE))
+    $ eqtarget.gfx_mod_exp(exp_reward(eqtarget, eqtarget, exp_mod=150.0/DAILY_EXP_CORE))
 
     jump char_equip
 
