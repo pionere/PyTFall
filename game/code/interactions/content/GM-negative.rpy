@@ -88,7 +88,7 @@ label interactions_harrasment_after_battle: # after MC provoked a free character
     jump girl_interactions_end
 
 label interactions_escalation: # character was provoked to attack MC
-    $ iam.set_img("battle", "confident", "angry", exclude=["happy", "suggestive"], type="first_default")
+    $ iam.set_img("battle", "confident", "angry", exclude=["happy", "suggestive"], type="first_default", add_mood=False)
     $ iam.provoked(char)
     hide screen girl_interactions
 

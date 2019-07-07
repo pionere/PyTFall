@@ -410,9 +410,9 @@ label mc_action_scene_finish_sex:
     if (together_count > 0 and sex_count > 1) or (sex_count > 2 and char_count > 0 and mc_count > 0):
         $ excluded.extend(["angry", "sad"])
         if char.has_image("profile", loc_tag, exclude=excluded):
-            $ iam.set_img("profile", loc_tag, "happy", exclude=excluded, type="reduce")
+            $ iam.set_img("profile", loc_tag, "happy", exclude=excluded, type="reduce", add_mood=False)
         else:
-            $ iam.set_img("girlmeets", loc_tag, "happy", exclude=excluded, type="reduce")
+            $ iam.set_img("girlmeets", loc_tag, "happy", exclude=excluded, type="reduce", add_mood=False)
 
         if not raped_by_player:
             $ char.gfx_mod_stat("disposition", randint(50, 100))
@@ -426,9 +426,9 @@ label mc_action_scene_finish_sex:
         $ excluded.extend(["happy", "ecstatic", "suggestive"])
 
         if char.has_image("profile", loc_tag, exclude=excluded):
-            $ iam.set_img("profile", loc_tag, "angry", exclude=excluded, type="reduce")
+            $ iam.set_img("profile", loc_tag, "angry", exclude=excluded, type="reduce", add_mood=False)
         else:
-            $ iam.set_img("girlmeets", loc_tag, "angry", exclude=excluded, type="reduce")
+            $ iam.set_img("girlmeets", loc_tag, "angry", exclude=excluded, type="reduce", add_mood=False)
 
         if not raped_by_player:
             $ char.gfx_mod_stat("disposition", -randint(15, 35))
@@ -442,9 +442,9 @@ label mc_action_scene_finish_sex:
         $ excluded.extend(["happy", "ecstatic", "suggestive"])
 
         if char.has_image("profile", loc_tag, exclude=excluded):
-            $ iam.set_img("profile", loc_tag, "sad", exclude=excluded, type="reduce")
+            $ iam.set_img("profile", loc_tag, "sad", exclude=excluded, type="reduce", add_mood=False)
         else:
-            $ iam.set_img("girlmeets", loc_tag, "sad", exclude=excluded, type="reduce")
+            $ iam.set_img("girlmeets", loc_tag, "sad", exclude=excluded, type="reduce", add_mood=False)
 
         if not raped_by_player:
             $ char.gfx_mod_stat("disposition", randint(15, 30))
@@ -459,9 +459,9 @@ label mc_action_scene_finish_sex:
         $ excluded.extend(["angry", "sad"])
 
         if char.has_image("profile", loc_tag, exclude=excluded):
-            $ iam.set_img("profile", loc_tag, "shy", exclude=excluded, type="reduce")
+            $ iam.set_img("profile", loc_tag, "shy", exclude=excluded, type="reduce", add_mood=False)
         else:
-            $ iam.set_img("girlmeets", loc_tag, "shy", exclude=excluded, type="reduce")
+            $ iam.set_img("girlmeets", loc_tag, "shy", exclude=excluded, type="reduce", add_mood=False)
 
         if not raped_by_player:
             $ char.gfx_mod_stat("disposition", randint(25, 50))
@@ -474,9 +474,9 @@ label mc_action_scene_finish_sex:
         $ excluded.extend(["happy", "ecstatic", "suggestive"])
 
         if char.has_image("profile", loc_tag, exclude=excluded):
-            $ iam.set_img("profile", loc_tag, "angry", exclude=excluded, type="reduce")
+            $ iam.set_img("profile", loc_tag, "angry", exclude=excluded, type="reduce", add_mood=False)
         else:
-            $ iam.set_img("girlmeets", loc_tag, "angry", exclude=excluded, type="reduce")
+            $ iam.set_img("girlmeets", loc_tag, "angry", exclude=excluded, type="reduce", add_mood=False)
         if char.status == "slave":
             "[char.pC] is puzzled and confused by the fact that you didn't do anything. [char.pC] quickly leaves, probably thinking that you teased [char.op]."
         else:
@@ -489,9 +489,9 @@ label mc_action_scene_finish_sex:
         $ excluded.extend(["angry", "sad"])
 
         if char.has_image("profile", loc_tag, exclude=excluded):
-            $ iam.set_img("profile", loc_tag, "shy", exclude=excluded, type="reduce")
+            $ iam.set_img("profile", loc_tag, "shy", exclude=excluded, type="reduce", add_mood=False)
         else:
-            $ iam.set_img("girlmeets", loc_tag, "shy", exclude=excluded, type="reduce")
+            $ iam.set_img("girlmeets", loc_tag, "shy", exclude=excluded, type="reduce", add_mood=False)
 
         "[char.pC] did nothing but masturbated in front of you. Be prepared for rumors about your impotence or orientation."
         if not raped_by_player:
@@ -503,9 +503,9 @@ label mc_action_scene_finish_sex:
         $ excluded.extend(["angry", "sad"])
 
         if char.has_image("profile", loc_tag, exclude=excluded):
-            $ iam.set_img("profile", loc_tag, "happy", exclude=excluded, type="reduce")
+            $ iam.set_img("profile", loc_tag, "happy", exclude=excluded, type="reduce", add_mood=False)
         else:
-            $ iam.set_img("girlmeets", loc_tag, "happy", exclude=excluded, type="reduce")
+            $ iam.set_img("girlmeets", loc_tag, "happy", exclude=excluded, type="reduce", add_mood=False)
 
         if not raped_by_player:
             $ char.gfx_mod_stat("disposition", randint(30, 60))

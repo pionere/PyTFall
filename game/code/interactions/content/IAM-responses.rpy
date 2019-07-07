@@ -14,7 +14,7 @@ init -2 python:
                 text_args.update(msg_args)
             for k, v in text_args.iteritems():
                 result = result.replace(k, v)
-            character.override_portrait("portrait", mood)
+            character.override_portrait("portrait", mood, add_mood=False)
             if overlay_args is not None:
                 character.show_portrait_overlay(*overlay_args)
             if gossip is True:
@@ -429,7 +429,7 @@ init -2 python:
                 result = random.sample(set(lines).difference(said_lines), 1)[0]
                 said_lines.add(result)
                 result = result.replace("[mc_ref]", character.mc_ref)
-                character.override_portrait("portrait", "indifferent")
+                character.override_portrait("portrait", "indifferent", add_mood=False)
                 character.say(result)
                 character.restore_portrait()
 

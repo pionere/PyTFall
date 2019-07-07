@@ -628,7 +628,7 @@ init -960 python:
             fi.add(frame)
 
             portrait = "sad" if value < 0 else "happy"
-            portrait = char.show("portrait", portrait, resize=(65, 65), type="reduce", cache=True)
+            portrait = char.show("portrait", portrait, resize=(65, 65), type="reduce", cache=True, add_mood=False)
             portrait = Transform(portrait, align=(.5, .5))
             fi.add(portrait)
 
