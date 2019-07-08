@@ -90,7 +90,7 @@ label hero_profile:
                 else:
                     bg = "city_park"
 
-                iam.start_int(char, img=char.show("girlmeets", tag, label_cache=True, type="reduce"), bg=bg, exit="hero_profile", keep_music=False)
+                iam.start_int(char, img=char.show("girlmeets", tag, label_cache=True, type="reduce", gm_mode=True), bg=bg, exit="hero_profile", keep_music=False)
 
 # Screens:
 screen hero_profile():

@@ -33,7 +33,7 @@ init -1 python:
             self.tag = "profile"
             tagsdict = tagdb.get_tags_per_character(self.girl)
             self.tagsdict = OrderedDict(sorted(tagsdict.items(), key=itemgetter(1), reverse=True))
-            self.pathlist = list(tagdb.get_imgset_with_all_tags([char.id, "profile"]))
+            self.pathlist = list(tagdb.get_imgset_with_all_tags(char.id, "profile"))
             self.set_img(self.pathlist[0])
 
         @property

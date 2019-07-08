@@ -342,7 +342,7 @@ init -2 python:
         def get_character_wishes(char): # for taking action during sex scenes, returns action that character is willing to commit on her own
             skills = ["sex", "oral"]
             if hero.gender == "male":
-                skill.append("anal")
+                skills.append("anal")
                 if char.gender == "female" and ((char.status != "slave" and check_lovers(char)) or "Virgin" not in char.traits):
                     skills.append("vaginal")
             skills = [[t, char.get_skill(t)] for t in skills]

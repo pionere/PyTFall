@@ -754,7 +754,7 @@ init -9 python:
             ***This is mirrored in galleries testmode, this method is not actually used.
             """
             if mood:
-                return self.show("vnsprite", mood, resize=self.get_sprite_size())
+                return self.show("vnsprite", mood, resize=self.get_sprite_size(), add_mood=False)
             else:
                 return self.show("vnsprite", resize=self.get_sprite_size())
 

@@ -381,8 +381,7 @@ label interaction_sex_scene_choice:
             jump interactions_sex_scene_logic_part
 
         "That's all.":
-            if hasattr(store, "current_action"):
-                $ del store.current_action
+            $ current_action = None # make sure the variable exists
 
 label mc_action_scene_finish_sex:
     hide screen int_libido_level
@@ -518,7 +517,7 @@ label mc_action_scene_finish_sex:
 
     $ iam.restore_img()
 
-    $ del excluded, loc_tag, sub, sex_count, mc_count, char_count, together_count, cum_count, mast_count, sex_prelude, max_sex_scene_libido, sex_scene_libido, scene_picked_by_character, raped_by_player
+    $ del excluded, loc_tag, sub, sex_count, mc_count, char_count, together_count, cum_count, mast_count, sex_prelude, max_sex_scene_libido, sex_scene_libido, sex_scene_location, scene_picked_by_character, picture_before_sex, current_action, raped_by_player
 
     jump girl_interactions_end
 

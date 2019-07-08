@@ -22,7 +22,7 @@ label gallery:
                 gallery.set_img(gallery.pathlist[index % len(gallery.pathlist)])
             elif result[0] == "tag":
                 gallery.tag = result[1]
-                gallery.pathlist = list(tagdb.get_imgset_with_all_tags([gallery.girl.id, result[1]]))
+                gallery.pathlist = list(tagdb.get_imgset_with_all_tags(gallery.girl.id, result[1]))
                 gallery.set_img(gallery.pathlist[0])
             elif result[0] == "view_trans":
                 gallery.trans_view()
