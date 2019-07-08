@@ -144,6 +144,25 @@ init -2 python:
             return back
 
         @staticmethod
+        def select_beach_img_tags(char, location="beach"):
+            tags = char.get_tags_from_cache(last_label)
+            if not tags:
+                img_tags = []
+                if location == "beach_cafe":
+                    location = "beach"
+                    img_tags = [["girlmeets", "swimsuit", "outdoors"]]
+                img_tags += (["girlmeets", "swimsuit", location], ["girlmeets", "swimsuit", "simple bg"], ["girlmeets", "swimsuit", "no bg"])
+                img_tags = get_simple_act(char, img_tags)
+                if img_tags is None:
+                    img_tags = (["girlmeets", "beach"], ["girlmeets", "simple bg"], ["girlmeets", "no bg"])
+                    img_tags = get_simple_act(char, img_tags)
+                    if img_tags is None:
+                        # giveup
+                        img_tags = ["girlmeets", "swimsuit"]
+                tags[:] = img_tags
+            return char.show(*tags, type="reduce", label_cache=True, gm_mode=True)
+
+        @staticmethod
         def get_rape_picture(char=None, hidden_partner=False):
             """
             This function selects the best possible rape picture, without specifying where or what kind of action it should have since rape pics are not common enough to be so demanding.

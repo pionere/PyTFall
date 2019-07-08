@@ -20,17 +20,7 @@ label city_beach_right:
         if result[0] == 'jump':
             python hide:
                 char = result[1]
-                tags = char.get_tags_from_cache(last_label)
-                if not tags:
-                    img_tags = (["girlmeets", "beach"], ["girlmeets", "swimsuit", "simple bg"], ["girlmeets", "swimsuit", "no bg"])
-                    tags = get_simple_act(char, img_tags)
-                    if not tags:
-                        img_tags = (["girlmeets", "simple bg"], ["girlmeets", "no bg"])
-                        tags = get_simple_act(char, img_tags)
-                        if not tags:
-                            # giveup
-                            tags = ["girlmeets", "swimsuit"]
-                iam.start_int(char, img=char.show(*tags, type="reduce", label_cache=True, gm_mode=True), keep_music=False)
+                iam.start_int(char, img=iam.select_beach_img_tags(char), keep_music=False)
 
         elif result == ['control', 'return']:
             $ global_flags.set_flag("keep_playing_music")

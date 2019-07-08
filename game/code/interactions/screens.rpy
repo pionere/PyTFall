@@ -422,7 +422,7 @@ screen interactions_meet:
             else:
                 $ temp = "indifferent"
 
-            $ p_img = entry.show("portrait", temp, label_cache=True, resize=(90, 90), type="reduce")
+            $ p_img = entry.show("portrait", temp, label_cache=True, resize=(90, 90), type="reduce", add_mood=False)
 
             vbox:
                 frame:

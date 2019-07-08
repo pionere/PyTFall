@@ -563,6 +563,8 @@ init -9 python:
                     be found, the value of default is returned and a warning is
                     printed to "devlog.txt".
                 cache = load image/tags to cache (can be used in screens language directly)
+                label_cache = load image/tags to label_cache based on last_label
+                exclude = tags to exclude from the possible images
                 type = type of image lookup order (normal by default)
                 types:
                      - normal = normal search behavior, try all tags first, then first tag + one of each tags taken from the end of taglist
@@ -625,11 +627,11 @@ init -9 python:
                         entry = entry[1]
                         return entry if resize is None else PyTGFX.scale_content(entry, *resize)
 
-            if "optional_tags" in locals():
-                tags.extend(optional_tags)
-
             imgpath = ""
             if type in ["normal", "first_default", "reduce"]:
+                if "optional_tags" in locals():
+                    pure_tags.extend(optional_tags)
+                    tags.extend(optional_tags)
                 imgpath = self.select_image(*tags, exclude=exclude)
                 if not imgpath and add_mood:
                     imgpath = self.select_image(*pure_tags, exclude=exclude)
