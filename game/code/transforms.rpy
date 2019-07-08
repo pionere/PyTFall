@@ -2,12 +2,6 @@ init -948: # Transforms:
     # Basic transforms:
 
     # First, More default positions:
-    transform bottom_right:
-        align (1.0, 1.0)
-
-    transform bottom_left:
-        align (.0, 1.0)
-
     transform mid_right:
         align (.75, 1.0)
 

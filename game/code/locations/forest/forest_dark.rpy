@@ -285,7 +285,7 @@ label dark_forest_girl_meet:
     if choices:
         $ char = random.choice(choices)
         $ spr = char.get_vnsprite()
-        show expression spr at center with dissolve
+        show expression spr with dissolve
         "You found a girl lost in the woods and escorted her to the city."
         $ char.override_portrait("portrait", "happy")
         $ char.show_portrait_overlay("love", "reset")

@@ -355,8 +355,8 @@ label mc_action_library_study:
                 show expression members[0].get_vnsprite() at center as temp1
                 with dissolve
             else:
-                show expression members[0].get_vnsprite() at center_left as temp1
-                show expression members[1].get_vnsprite() at center_right as temp2
+                show expression members[0].get_vnsprite() at left as temp1
+                show expression members[1].get_vnsprite() at right as temp2
                 with dissolve
             $ del members
             "You're studying [temp] with your team."

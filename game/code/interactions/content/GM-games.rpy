@@ -42,8 +42,8 @@ label interactions_play_bow:
 
     hide screen girl_interactions
 
-    show expression hero.get_vnsprite() at bottom_left as player with dissolve
-    show expression char.get_vnsprite() at bottom_right as character with dissolve
+    show expression hero.get_vnsprite() at left as player with dissolve
+    show expression char.get_vnsprite() at right as character with dissolve
 
     python:
         min_distance = 5        # the minimum distance of the target
@@ -691,8 +691,8 @@ label interactions_play_power:
 
     hide screen girl_interactions
 
-    show expression hero.get_vnsprite() at bottom_left as player with dissolve
-    show expression char.get_vnsprite() at bottom_right as character with dissolve
+    show expression hero.get_vnsprite() at left as player with dissolve
+    show expression char.get_vnsprite() at right as character with dissolve
 
     python:
         # off|def    Earth    Water    Fire    Air    Elec    Ice    Dark    Light

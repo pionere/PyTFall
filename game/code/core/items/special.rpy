@@ -21,7 +21,7 @@ label special_items_slime_bottle:
             $ ns = new_slime.say
             if locked_dice(50):
                 $ new_slime.override_portrait("portrait", "happy")
-                show expression spr at center with dissolve
+                show expression spr with dissolve
                 if new_slime.status == "free":
                     ns "Finally, someone opened it! Thanks a lot!"
                     ns "They promised me to smuggle me into the city, but something must have gone wrong!"
@@ -58,7 +58,7 @@ label special_items_slime_bottle:
                                     "[new_slime.pC] leaves."
             else:
                 $ new_slime.override_portrait("portrait", "angry")
-                show expression spr at center with dissolve
+                show expression spr with dissolve
                 ns "AAAAGHHHHHH!"
                 "[new_slime.pC] attacks you!"
 
@@ -86,7 +86,7 @@ label special_items_empty_extractor:
         if eqtarget == hero:
             $ renpy.show_screen('message_screen', "Unfortunately, you are not experienced enough yet to share your knowledge with anybody.")
         else:
-            show expression eqtarget.get_vnsprite() at center
+            show expression eqtarget.get_vnsprite()
             with dissolve
             $ renpy.show_screen('message_screen', "Unfortunately, [eqtarget.name] is not experienced enough yet to share [eqtarget.pd] knowledge with anybody.")
         $ inv_source.add_item("Empty Extractor")
@@ -95,7 +95,7 @@ label special_items_empty_extractor:
         if eqtarget == hero:
             "This device will extract some of your experience."
         else:
-            show expression eqtarget.get_vnsprite() at center
+            show expression eqtarget.get_vnsprite()
             with dissolve
             "This device will extract some of [eqtarget.name]'s experience."
             $ eqtarget.gfx_mod_stat("disposition", -randint(25, 50))
@@ -123,7 +123,7 @@ label special_items_full_extractor:
     if eqtarget == hero:
         $ renpy.show_screen('message_screen', "The energy of knowledge slowly flows inside you. You became more experienced.")
     else:
-        show expression eqtarget.get_vnsprite() at center
+        show expression eqtarget.get_vnsprite()
         with dissolve
         $ renpy.show_screen('message_screen', "The energy of knowledge slowly flows inside [eqtarget.name]. [eqtarget.pC] became more experienced.")
         if eqtarget.get_stat("disposition") < 750:
@@ -155,7 +155,7 @@ label special_items_one_for_all:
 
     $ spr = eqtarget.get_vnsprite()
     scene bg h_profile
-    show expression spr at center
+    show expression spr
     with dissolve
 
     menu:

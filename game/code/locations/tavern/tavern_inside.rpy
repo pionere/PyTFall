@@ -181,8 +181,8 @@ label mc_action_tavern_relax:
                 show expression members[0].get_vnsprite() at center as temp1
                 with dissolve
             else:
-                show expression members[0].get_vnsprite() at center_left as temp1
-                show expression members[1].get_vnsprite() at center_right as temp2
+                show expression members[0].get_vnsprite() at left as temp1
+                show expression members[1].get_vnsprite() at right as temp2
                 with dissolve
             "You ordered a few drinks and spent some time together."
             python:

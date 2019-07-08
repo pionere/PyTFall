@@ -27,7 +27,8 @@ label slave_market:
         "And bring out some decent slaves to shop!"
 
         hide slave_market_slaves with fade
-        show expression npcs["Blue_slavemarket"].get_vnsprite() as blue with dissolve
+        $ spr = npcs["Blue_slavemarket"].get_vnsprite()
+        show expression spr as blue with dissolve
 
         $ g = Character("?????", color="aliceblue", show_two_window=True)
 
@@ -49,6 +50,7 @@ label slave_market:
         $ s = npcs["Stan_slavemarket"].say
 
         show expression npcs["Stan_slavemarket"].get_vnsprite() as stan at mid_left with dissolve
+        show expression spr as blue at mid_right with move
 
         s "Hey, hey there!"
         s "Is there anyone here talking about me?"
@@ -60,7 +62,7 @@ label slave_market:
         s "Don't bother our prospective clients and play with your slaves while {color=red}I{/color} take care of real work! <Smirks>"
 
         hide stan with dissolve
-        show expression npcs["Blue_slavemarket"].get_vnsprite() as blue at center with move
+        show expression spr as blue at center with move
 
         g "That damn baboon only thinks about money! No sense of duty or love for the craft!"
         g "You see it too, don't you?"
@@ -70,7 +72,7 @@ label slave_market:
         g "Goodbye!"
         hide blue with dissolve
 
-        $ del g, s
+        $ del g, s, spr
 
 label slave_market_controls:
     python:
