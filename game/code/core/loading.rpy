@@ -790,17 +790,16 @@ init 11 python:
 
         for item in items:
             iteminst = Item()
-            for k, v in item.items():
-                setattr(iteminst, k, v)
+            iteminst.__dict__.update(item)
             iteminst.init()
             content[iteminst.id] = iteminst
+        exist = getattr(store, "items", dict())
         for item in gifts:
             iteminst = Item()
-            iteminst.slot = "gift"
-            iteminst.type = "gift"
-            iteminst.sellable = True
-            iteminst.tier = 0
             iteminst.__dict__.update(item)
+            iteminst.init()
+            # preserve hidden field value
+            iteminst.hidden = getattr(exist.get(iteminst.id, None), "hidden", getattr(iteminst, "hidden", True))
             content[iteminst.id] = iteminst
 
         return content

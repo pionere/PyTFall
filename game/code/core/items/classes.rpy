@@ -36,7 +36,7 @@ init -9 python:
 
             # mostly not used atm, decides if we should hide the item effects;
             # does hide effects for gifts which have not been used at least once, becoming False afterwards
-            self.hidden = True
+            #self.hidden = True optional field
             self.jump_to_label = None
             self.price = 0
             # self.gender = 'unisex' optional field

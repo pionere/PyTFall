@@ -61,6 +61,7 @@
         "chance": 50,
         "dismod": 20,
         "cblock": 4,
+        "type": "gift",
         "infinite": false,
         "locations": ["General Store"],
         "traits": {
@@ -430,6 +431,7 @@
         "chance": 50,
         "dismod": 20,
         "cblock": 4,
+        "type": "gift",
         "infinite": false,
         "locations": ["Fishing", "Look around"],
         "traits": {
@@ -830,7 +832,6 @@
         }
     },
 
-
     {
         "id": "Handkerchief",
         "icon": "content/items/gift/h.png",
@@ -890,9 +891,9 @@
         "icon": "content/items/gift/m.png",
         "desc": "A pair of suit kitchen mittens.",
         "price": 200,
+        "slot": "gift",
         "chance": 100,
         "dismod": 20,
-        "slot": "gift",
         "cblock": 4,
         "type": "clothes",
         "infinite": false,
@@ -932,8 +933,8 @@
         "chance": 60,
         "dismod": 50,
         "cblock": 3,
-        "infinite": false,
         "type": "romantic",
+        "infinite": false,
         "locations": ["General Store"]
     }, {
         "id": "Key to Heart",
@@ -968,8 +969,8 @@
         "chance": 60,
         "dismod": 50,
         "cblock": 3,
-        "infinite": false,
         "type": "romantic",
+        "infinite": false,
         "locations": ["General Store"]
     },
 
