@@ -21,14 +21,6 @@ init -11 python:
     # so all things which can break it are disabled
     equipment_safe_mode = False
 
-    def equip_item(item, char, silent=False):
-        """First level of checks, all items should be equipped through this function!
-        """
-        if not can_equip(item, char, silent=silent):
-            return
-
-        char.equip(item)
-
     def transfer_items(source, target, item, amount=1, silent=False, force=False):
         """Transfers items between characters.
 
@@ -44,18 +36,27 @@ init -11 python:
         if not source.inventory.remove(item, amount):
             return False
 
-        if not any([item.slot == "consumable", (item.slot == "misc" and item.mdestruct)]):
+        target.inventory.append(item, amount)
 
+        # register transfers to maintain 'ownership' of the items
+        if item.slot != "consumable" and (item.slot != "misc" or not item.mdestruct):
+            item = item.id
             if isinstance(source, Char) and source.status != "slave":
-                source.given_items[item.id] = source.given_items.get(item.id, 0) - amount
+                new_amount = source.given_items.get(item, 0) - amount
+                if new_amount == 0:
+                    source.given_items.pop(item, None)
+                else:
+                    source.given_items[item] = new_amount
 
             if isinstance(target, Char) and target.status != "slave":
-                target.given_items[item.id] = target.given_items.get(item.id, 0) + amount
-
-        target.inventory.append(item, amount)
+                new_amount = target.given_items.get(item, 0) + amount
+                if new_amount == 0:
+                    target.given_items.pop(item, None)
+                else:
+                    target.given_items[item] = new_amount
         return True
 
-    def can_equip(item, character, silent=True):
+    def can_equip(item, character, silent=False):
         """Checks if it is legal for a character to use/equip the item.
 
         @param: silent: If False, game will notify the player with a reason why an item cannot be equipped.
@@ -200,7 +201,7 @@ init -11 python:
 
         return picks
 
-    def can_transfer(source, target, item, amount=1, silent=True, force=False):
+    def can_transfer(source, target, item, amount=1, silent=False, force=False):
         """Checks if it is legal for a character to transfer the item.
 
         @param: silent: If False, game will notify the player with a reason why an item cannot be equipped.
@@ -219,7 +220,7 @@ init -11 python:
         # (Unless action is forced):
         if not force:
             if all([isinstance(source, Char), source.status != "slave", not(item.price <= iam.hero_influence(source)*10*(source.tier + 1) and check_lovers(source))]):
-                if any([item.slot == "consumable", (item.slot == "misc" and item.mdestruct), source.given_items.get(item.id, 0) < amount]):
+                if source.given_items.get(item.id, 0) < amount:
                     if not silent:
                         iam.items_deny_access(source)
                     return
@@ -255,6 +256,21 @@ init -11 python:
             if diff >= 0:
                 return True
         else:
+            # check the current equipped item
+            slot = item.slot
+            if slot == "ring":
+                # if the last ring-slot is empty, we are free to proceed
+                current_item = character.eqslots["ring2"]
+                if current_item:
+                    # otherwise we are going to try to replace the first one
+                    current_item = character.eqslots["ring"]
+            elif slot != "consumable":
+                current_item = character.eqslots[slot]
+            else:
+                current_item = None
+            if current_item and not equipment_access(character, current_item, silent=silent, unequip=True):
+                return False
+
             # Bad Traits:
             if not item.badtraits.isdisjoint(character.traits):
                 if not silent:

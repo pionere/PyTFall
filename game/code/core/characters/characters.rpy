@@ -1270,48 +1270,46 @@ init -9 python:
 
         def load_equip(self, eqsave, silent=False):
             # load equipment from save, if possible
-            ordered = OrderedDict(sorted(self.eqslots.items()))
-
-            for slot, current_item in ordered.iteritems():
+            eqslots = self.eqslots
+            for slot in sorted(eqslots.keys()):
+                current_item = eqslots[slot]
                 desired_item = eqsave[slot]
                 if current_item == desired_item:
                     continue
 
                 # rings can be on other fingers. swapping them is allowed in any case
                 if slot == "ring":
-
                     # if the wanted ring is on the next finger, or the next finger requires current ring, swap
-                    if self.eqslots["ring1"] == desired_item or eqsave["ring1"] == current_item:
-                        (self.eqslots["ring1"], self.eqslots[slot]) = (self.eqslots[slot], self.eqslots["ring1"])
+                    next_item = eqslots["ring1"]
+                    if next_item == desired_item or eqsave["ring1"] == current_item:
+                        eqslots["ring1"] = current_item
+                        eqslots[slot] = current_item = next_item
 
-                        current_item = self.eqslots[slot]
                         if current_item == desired_item:
                             continue
 
                 if slot == "ring" or slot == "ring1":
+                    next_item = eqslots["ring2"]
+                    if next_item == desired_item or eqsave["ring2"] == current_item:
+                        eqslots["ring2"] = current_item
+                        eqslots[slot] = current_item = next_item
 
-                    if self.eqslots["ring2"] == desired_item or eqsave["ring2"] == current_item:
-                        (self.eqslots["ring2"], self.eqslots[slot]) = (self.eqslots[slot], self.eqslots["ring2"])
-
-                        current_item = self.eqslots[slot]
                         if current_item == desired_item:
                             continue
 
-                # if we have something equipped, see if we're allowed to unequip
                 if current_item:
-                    if equipment_access(self, item=current_item, silent=True, unequip=True):
+                    # we have something equipped -> unequip
+                    if equipment_access(self, item=current_item, silent=silent, unequip=True):
                         self.unequip(item=current_item, slot=slot)
                     else:
                         continue
 
                 if desired_item:
-                    # if we want something else and have it in inventory..
-                    if not self.inventory[desired_item]:
-                        continue
-
-                    # ..see if we're allowed to equip what we want
-                    if equipment_access(self, item=desired_item, silent=True):
-                        equip_item(item=desired_item, char=self, silent=silent)
+                    # if we want something to equip
+                    if all((desired_item in self.inventory,                        # have it in inventory
+                        can_equip(desired_item, self, silent=silent),              # allowed to equip
+                        equipment_access(self, item=desired_item, silent=silent))):# willing to equip
+                            self.equip(desired_item)
 
         # Applies Item Effects:
         def apply_item_effects(self, item):

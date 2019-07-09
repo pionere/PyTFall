@@ -125,12 +125,12 @@ label char_equip_loop:
                     # Equipping:
                     if item_direction == "equip":
                         # Common to any eqtarget:
-                        if can_equip(focusitem, eqtarget, silent=False) and \
+                        if can_equip(focusitem, eqtarget) and \
                            equipment_access(eqtarget, focusitem) and \
                            (eqtarget == inv_source or transfer_items(inv_source, eqtarget, focusitem)):
 
                             # If we got here, we just equip the item :D
-                            $ equip_item(focusitem, eqtarget)
+                            $ eqtarget.equip(focusitem)
 
                             $ char_equip_reset_fields()
                     elif item_direction == "unequip":
@@ -157,42 +157,37 @@ label char_equip_loop:
                             char_equip_reset_fields()
                         del num
             elif result[1] == "transfer":
-                $ transfer_items(result[2], result[3], focusitem, silent=False)
+                $ transfer_items(result[2], result[3], focusitem)
             elif result[1] == "equip":
                 python:
                     focusitem = result[2]
-
                     item_direction = "equip"
 
                     # # To Calc the effects:
                     dummy = copy_char(eqtarget)
-                    equip_item(focusitem, dummy, silent=True)
+                    if can_equip(focusitem, dummy, silent=True):
+                        dummy.equip(focusitem)
                     # renpy.show_screen("diff_item_effects", eqtarget, dummy)
             elif result[1] == "unequip":
                 python:
-                    unequip_slot = result[3]
-
-                    dummy = copy_char(eqtarget)
-
                     focusitem = result[2]
+                    unequip_slot = result[3]
                     item_direction = "unequip"
 
-                    if focusitem:
-                        # To Calc the effects:
-                        dummy.eqslots[unequip_slot] = focusitem
-                        dummy.unequip(focusitem, unequip_slot)
-                        #renpy.show_screen("diff_item_effects", eqtarget, dummy)
+                    # To Calc the effects:
+                    dummy = copy_char(eqtarget)
+                    dummy.unequip(focusitem, unequip_slot)
+                    #renpy.show_screen("diff_item_effects", eqtarget, dummy)
         elif result[0] == "unequip_all":
-            python:
+            python hide:
                 for temp in eqtarget.eqslots.itervalues():
-                    if temp and not equipment_access(eqtarget, temp, silent=False, unequip=True):
+                    if temp and not equipment_access(eqtarget, temp, unequip=True):
                         break
                 else:
                     for temp in eqtarget.eqslots:
                         eqtarget.unequip(slot=temp)
 
                     char_equip_reset_fields()
-                del temp
         elif result[0] == "outfit":
             if result[1] == "create":
                 python hide:
@@ -1121,7 +1116,7 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                     tooltip temp_msg
                     action SensitiveIf(focusitem), Return(["item", "equip/unequip"])
                     text "[temp]" style "pb_button_text" align (.5, .5):
-                        if item_direction == "equip" and not can_equip(focusitem, eqtarget):
+                        if item_direction == "equip" and not can_equip(focusitem, eqtarget, silent=True):
                             color "red" strikethrough True
 
                 # Right items info (Stats):

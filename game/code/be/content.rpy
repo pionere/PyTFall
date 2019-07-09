@@ -850,23 +850,19 @@ init python:
             source = self.source
             target = targets[0]
             tc = target.char
+            if target != source and not can_transfer(source.char, tc, item):
+                return False # can not give to the target
+            esm = equipment_safe_mode
+            equipment_safe_mode = True
+            if not can_equip(item, tc):
+                equipment_safe_mode = esm
+                return False # can not equip
+            equipment_safe_mode = esm
+            if not equipment_access(tc, item, unequip=False):
+                return False # does not want to equip
+            # success -> (transfer and) equip the item
             if target != source:
-                if not can_transfer(source.char, tc, item):
-                    return False # can not give to the target
-                esm = equipment_safe_mode
-                equipment_safe_mode = True
-                if not can_equip(item, tc, silent=False):
-                    equipment_safe_mode = esm
-                    return False # can not equip
-                equipment_safe_mode = esm
                 transfer_items(source.char, tc, item)
-            else:
-                esm = equipment_safe_mode
-                equipment_safe_mode = True
-                if not can_equip(item, tc, silent=False):
-                    equipment_safe_mode = esm
-                    return False # can not equip
-                equipment_safe_mode = esm
             target.restore_char()
             tc.equip(item)
             target.load_char(tc)
