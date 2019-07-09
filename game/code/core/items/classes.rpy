@@ -46,7 +46,6 @@ init -9 python:
             self.infinite = False
             self.locations = []
             self.chance = 50
-            self.badness = 0
             self.eqchance = 0 # equip chance
 
             self.tier = 0     # Tier of an item to match class tier, 0 - 4 is the range.

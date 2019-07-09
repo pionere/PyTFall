@@ -364,15 +364,17 @@ init -2 python:
 
         @staticmethod
         def slave_siw_check(c): # slaves-SIWs allow more than other characters
-            if c.status == "slave" and ("SIW" in c.gen_occs) and c.get_stat("disposition") >= -150:
-                return True
-            else:
-                return False
-    
+            return c.status == "slave" and ("SIW" in c.gen_occs) and c.get_stat("disposition") >= -150
+
         @staticmethod
         def hero_influence(c):
-            return ((hero.get_stat("charisma")*(1 + c.get_stat("disposition")/(3.0*c.get_max("disposition")))) - c.get_stat("character")) / (c.tier + 1) 
-    
+            # TODO check_friends/check_lovers?
+            result = hero.get_stat("charisma")*(1 + c.get_stat("disposition")/(3.0*c.get_max("disposition")))
+            result = (result - c.get_stat("character")) / (c.tier + 1)
+            if "Drunk" in c.effects:
+                result *= 1.1
+            return result 
+
         @staticmethod
         def gender_mismatch(char, just_sex=True):
             if just_sex and "Open Minded" in char.traits:

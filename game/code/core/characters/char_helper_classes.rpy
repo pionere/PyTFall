@@ -1852,17 +1852,10 @@ init -10 python:
                     #weights.append((100 - item.chance + min(item.price/10, 100))/2)
                     weights *= (100 - item.chance)/100.0
                 elif is_tsundere is True: # stubborn: what s|he won't buy, s|he won't wear.
-                    #weights.append(100 - item.badness)
-                    weights *= (100 - item.badness)/100.0
+                    weights *= item.eqchance/100.0
                 elif is_bokukko is True: # what the farmer don't know, s|he won't eat.
                     #weights.append(item.chance)
                     weights *= (100 + item.chance)/100.0
-
-                #weights.append(item.eqchance)
-                #weights += item.eqchance
-                #if item.badness:
-                #    weights.append(-item.badness)
-                #weights -= item.badness
 
                 result.append([weights, item])
 
@@ -2019,12 +2012,6 @@ init -10 python:
                     if appetite < 0:
                         continue
                     weights *= appetite
-
-                #weights.append(item.eqchance)
-                #weights += item.eqchance
-                #if item.badness:
-                #    weights.append(-item.badness)
-                #weights -= item.badness
 
                 if weights <= 0:
                     #aeq_debug("Ignoring item %s on fitness.", item)
@@ -2262,6 +2249,21 @@ init -10 python:
                 char.mod_stat("health", -10)
                 char.mod_stat("joy", -5)
                 char.mod_stat("mp", -20)
+                if char.status == "free" and char != hero:
+                    # unequip unwanted items (not equipped by the char)
+                    purpose = None
+                    for item in char.eqslots.itervalues():
+                        if item is None or item.eqchance > 0:
+                            continue
+                        if purpose is None:
+                            purpose = char.last_known_aeq_purpose
+                            purpose = STATIC_ITEM.AEQ_PURPOSES.get(purpose, None)
+                            if purpose is None:
+                                purpose = set()
+                            else:
+                                purpose = purpose.get("base_purpose")
+                        if item.goodtraits.isdisjoint(char.traits) and purpose.isdisjoint(item.pref_class):
+                            char.unequip(item, aeq_mode=True)
                 if not ('Drinker' in char.effects):
                     char.take_ap(1)
                 self.end(char)

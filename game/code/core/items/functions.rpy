@@ -155,8 +155,8 @@ init -11 python:
                 aeq_debug("Ignoring item %s on purpose.", item)
                 continue
 
-            #if not item.eqchance or item.badness >= 100: pref_class filter!
-            #    aeq_debug("Ignoring item %s on eqchance (%s)/badness (%s).", item, item.eqchance, item.badness)
+            #if not item.eqchance: pref_class filter!
+            #    aeq_debug("Ignoring item %s on eqchance (%s) (%s).", item, item.eqchance)
             #    continue
             #if not item.usable: # pref_class filter!
             #    aeq_debug("Ignoring unusable item %s.", item)
@@ -240,21 +240,18 @@ init -11 python:
         if character.status == "slave":
             return True
 
-        # Always refuse if character hates the player:
+        # Refuse based on disposition: # TODO use the hero_influence function? It would kill the gameplay at the moment...
+        dispo_max = character.get_max("disposition")
         char_dispo = character.get_stat("disposition")
-        if char_dispo < 0:
-            if not silent:
-                iam.refuse_to_give(character) # turns out money lines are perfect here
-            return False
+        hero_influence = get_linear_value_of(char_dispo, dispo_max*.4, .0, dispo_max, 100.0)
+        if "Drunk" in character.effects:
+            hero_influence *= 1.1
 
         if unequip:
-            if char_dispo >= 900 or check_lovers(character):
-                return True
-
-            if item.eqchance <= 0 or item.badness >= 80:
-                return True
-
             if not item.badtraits.isdisjoint(character.traits):
+                return True
+
+            if item.eqchance <= hero_influence:
                 return True
         else:
             # Bad Traits:
@@ -267,20 +264,10 @@ init -11 python:
             if not item.goodtraits.isdisjoint(character.traits):
                 return True
 
-            if item.eqchance <= 0 or item.badness >= 80:
-                if not silent:
-                    iam.items_deny_bad_item(character)
-                return False
+            if item.type == "alcohol" and "Depression" in character.effects: # green light for booze in case of suitable effects
+                hero_influence *= 1.2
 
-            if char_dispo >= 900 or check_lovers(character):
-                return True
-
-            if item.type == "alcohol":
-                if 'Drunk' in character.effects or 'Depression' in character.effects: # green light for booze in case of suitable effects
-                    return True
-
-            # Just an awesome item in general:
-            if item.eqchance >= (40 if check_friends(character) else 70):
+            if hero_influence > (100 - item.eqchance):
                 return True
 
         if not silent:
