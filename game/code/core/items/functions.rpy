@@ -251,7 +251,8 @@ init -11 python:
             if not item.badtraits.isdisjoint(character.traits):
                 return True
 
-            if item.eqchance <= hero_influence:
+            diff = hero_influence - item.eqchance
+            if diff >= 0:
                 return True
         else:
             # Bad Traits:
@@ -267,11 +268,15 @@ init -11 python:
             if item.type == "alcohol" and "Depression" in character.effects: # green light for booze in case of suitable effects
                 hero_influence *= 1.2
 
-            if hero_influence > (100 - item.eqchance):
+            diff = hero_influence - (100 - item.eqchance)
+            if diff > 0:
                 return True
 
         if not silent:
-            iam.items_deny_equip(character)
+            if diff < -20:
+                iam.items_deny_equip_bad(character)
+            else:
+                iam.items_deny_equip_neutral(character)
         return False
 
     def give_to_mc_item_reward(types, price=None, tier=None, locations=["Exploration"]):

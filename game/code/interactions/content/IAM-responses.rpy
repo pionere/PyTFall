@@ -555,7 +555,7 @@ init -2 python:
             block_say = True
             iam.say_line(character, lines)
             block_say = False
-    
+
         @staticmethod
         def items_deny_access(character):
             """
@@ -588,7 +588,7 @@ init -2 python:
             block_say = True
             iam.say_line(character, lines)
             block_say = False
-    
+
         @staticmethod
         def items_deny_bad_item(character):
             """
@@ -621,18 +621,18 @@ init -2 python:
             block_say = True
             iam.say_line(character, lines, overlay_args=("sweat", "reset"))
             block_say = False
-    
+
         @staticmethod
-        def items_deny_equip(character):
+        def items_deny_equip_bad(character):
             """
-            Output line when a character does not want to equip an item.
+            Output line when a character really does not want to (un)equip an item.
             """
             global block_say
             char_traits = character.traits
             if "Impersonal" in char_traits:
                 lines = ("Access denied.", "You are not authorised to make such decisions.")
             elif "Shy" in char_traits:
-                lines = ("M-maybe another time?", "Um... I'll think about it.")
+                lines = ("Um... I prefer to leave it for the moment.", )
             elif "Dandere" in char_traits:
                 lines = ("I'm fine as it is.", "I don't feel like it.")
             elif "Kuudere" in char_traits:
@@ -644,17 +644,50 @@ init -2 python:
             elif "Imouto" in char_traits:
                 lines = ("You think I'm too stupid to take care of myself?", "Hey! Don't tell me what to do, I'm not a kid!")
             elif "Bokukko" in char_traits:
-                lines = ("Hey, aren't you too cocky tellin' me what to do?", "Nah, not in the mood for this stuff...")
+                lines = ("Hey, aren't you too cocky tellin' me what to do?", )
             elif "Kamidere" in char_traits:
                 lines = ("You think I just will agree to do anything for you?", "If you wish to control someone's life, get yourself a pretty slave.")
             elif "Ane" in char_traits:
                 lines = ("Thanks for the proposition, but I'm fine.", "I find this quite inappropriate.")
             else:
-                lines = ("Sorry, but I don't want to.", "Eh? Don't worry, I think I'm doing great already.")
+                lines = ("No, I don't want to.", "Eh? I think I'm doing great already.", "Don't worry, I think I can manage my stuff.")
             block_say = True
             iam.say_line(character, lines)
             block_say = False
-    
+
+        @staticmethod
+        def items_deny_equip_neutral(character):
+            """
+            Output line when a character just does not want to (un)equip an item.
+            """
+            global block_say
+            char_traits = character.traits
+            if "Impersonal" in char_traits:
+                lines = ("I do not think that is a good idea.", "No can do, sorry.")
+            elif "Shy" in char_traits:
+                lines = ("M-maybe another time?", "Um... I'll think about it.")
+            elif "Dandere" in char_traits:
+                lines = ("Sorry, but I have to refuse your proposal.", "I don't want that, sorry.")
+            elif "Kuudere" in char_traits:
+                lines = ("For the moment, I prefer to follow my own instinct on such matters.", "I don't think I need advice right now...")
+            elif "Yandere" in char_traits:
+                lines = ("I prefer to decide on my own what to wear.", "It's better to keep it as it is for the moment.")
+            elif "Tsundere" in char_traits:
+                lines = ("I can manage my things just fine, thanks!", "I think I'm can decide something like that on my own!")
+            elif "Imouto" in char_traits:
+                lines = ("Please, let me decide what to wear!", "Just leave it to me, I'm an adult!")
+            elif "Bokukko" in char_traits:
+                lines = ("Nah, not in the mood for this stuff...", )
+            elif "Kamidere" in char_traits:
+                lines = ("I don't think I can accept that.", "Let's just leave it for the moment.")
+            elif "Ane" in char_traits:
+                lines = ("Thanks for the proposition, but I'm fine.", "Sorry, but I would rather not.")
+            else:
+                lines = ("Sorry, but I don't want to.", "Thanks for the care, but I have to refuse it.")
+            block_say = True
+            iam.say_line(character, lines)
+            block_say = False
+
         @staticmethod
         def good_goodbye(character):
             """
