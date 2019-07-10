@@ -2,6 +2,8 @@
     {
         "name": "Sign",
         "desc": "Put up a sign above entrance. Sensible advertisement for every business that you own.",
+        "inactivate": "Remove the Sign!",
+        "activate": "Put Up Sign for 200 Gold!",
         "price": 200,
         "client": 2,
         "fame": [0, 1]
@@ -15,7 +17,7 @@
     {
         "name": "Magazine",
         "desc": "Put an advertisement in local 'Playdude' magazine. Target your audience for a modest fee.",
-        "upkeep": 500,
+        "upkeep": 800,
         "fame": [2, 3]
     },
     {
@@ -26,16 +28,20 @@
     },
     {
         "name": "Girl",
-        "desc": "Hire a pretty girl to attract clients into your buildings.",
-        "price": 50,
-        "upkeep": 200,
+        "desc": "Hire a pretty girl to attract clients into your buildings. You have to pay a daily wage of 400 Gold.",
+        "inactivate": "Dismiss the girl!",
+        "activate": "Hire a girl for 100 Gold!",
+        "price": 100,
+        "upkeep": 400,
         "fame": [0, 1],
         "reputation": [0, 2]
     },
     {
         "name": "Celebrity",
         "desc": "Pay a celebrity to come into your building and publicly endorse it!",
-        "price": 5000,
+        "inactivate": "Celebrity hired!",
+        "activate": "Hire a Celeb for 10000 Gold!",
+        "price": 10000,
         "client": 30,
         "unique": true,
         "fame": [25, 50],

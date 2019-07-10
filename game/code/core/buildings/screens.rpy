@@ -72,7 +72,7 @@ label building_management:
                 hide screen building_management
                 $ items_transfer(result[2])
                 show screen building_management
-            elif result[1] == "sign" or result[1] == "celeb":
+            elif result[1] == "advert":
                 python hide:
                     ad = result[2]
                     price = ad['price']
@@ -1141,36 +1141,37 @@ screen building_adverts():
                 vbox:
                     style_group "basic"
                     align (.5, .5)
-                    # else:
-                    if advert['name'] == "Sign" and not advert['active']:
-                        button:
-                            xysize(280, 32)
-                            tooltip advert['desc']
-                            action Return(["building", 'sign', advert])
-                            text "Put Up Sign for 200 gold" color "black" align (.5, .5) size 15
-                    elif advert['name'] == "Celebrity":
-                        button:
-                            xysize(280, 32)
-                            tooltip advert['desc']
-                            action Return(["building", 'celeb', advert])
-                            sensitive not advert['active']
-                            if not advert['active']:
-                                text "Hire a Celeb!" color "black" align (.5, .5) size 15
-                            else:
-                                text "Celebrity hired!" color "black" align (.5, .5) size 15
-                    else:
-                        button:
-                            xysize(280, 32)
-                            tooltip advert['desc']
-                            action ToggleDict(advert, "active")
-                            if advert['active']:
-                                text ("Stop %s!" % advert['name']) color "black" align (.5, .5)
-                            elif advert['price'] == 0:
-                                text ("Use %s for %s Gold a day!" % (advert['name'], advert['upkeep'])) color "black" align (.5, .5) size 15
-                            elif advert['upkeep'] == 0:
-                                text ("Use %s for %s Gold!" % (advert['name'], advert['price'])) color "black" align (.5, .5) size 15
-                            else:
-                                text ("Use %s for %s Gold and %s a day!" % (advert['name'], advert['price'], advert['upkeep'])) color "black" align (.5, .5) size 15
+                    python:
+                        name = advert['name']
+                        active = advert['active']
+                        sensitive = True
+                        if active:
+                            txt = advert.get("inactivate", None)
+                            if txt is None:
+                                txt = "Stop %s!" % name
+                            action = ToggleDict(advert, "active")
+                            if advert.get("unique", False):
+                                sensitive = False
+                        else:
+                            price = advert['price']
+                            upkeep = advert['upkeep']
+                            txt = advert.get("activate", None)
+                            if txt is None:
+                                if price == 0:
+                                    txt = "Use %s for %s Gold a day!" % (name, upkeep)
+                                elif upkeep == 0:
+                                    txt = "Use %s for %s Gold!" % (name, price)
+                                else:
+                                    txt = "Use %s for %s Gold and %s a day!" % (name, price, upkeep)
+                            action = ToggleDict(advert, "active")
+                            if price != 0:
+                                action = [action, Return(["building", 'advert', advert])]
+                    button:
+                        xysize (280, 32)
+                        tooltip advert['desc']
+                        text txt color "black" align (.5, .5) size 15
+                        sensitive sensitive
+                        action action
 
         button:
             style_group "dropdown_gm"

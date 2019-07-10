@@ -1205,15 +1205,28 @@ init -10 python:
                         advert['active'] = False
 
             if spentcash or tmodfame or tmodrep:
-                txt.append("In total you got a bill of %d Gold in advertising fees, reputation was increased through advertising by %d, fame by %d." % (spentcash, tmodrep, tmodfame))
+                if tmodfame:
+                    if tmodrep:
+                        temp = "Reputation was increased through advertising by %d, fame by %d." % (tmodrep, tmodfame)
+                    else:
+                        temp = "Fame was increased through advertising by %d." % tmodfame
+                elif tmodrep:
+                    temp = "Reputation was increased through advertising by %d" % tmodrep
+                else:
+                    temp = ""
+                if spentcash:
+                    txt.append("In total you got a bill of %d Gold in advertising fees. %s" % (spentcash, temp))
 
-                if spentcash and not hero.take_money(spentcash, reason="Building Ads"):
-                    rep_hit = max(10, spentcash/10)
-                    self.modrep(-rep_hit)
-                    txt.append("{color=red}And yet, you did not have enough money to pay your advertisers! They took it out on you by promoting %s as a shitty dump...{/color}" % self.name)
-                    self.flag_red = True
-
-                self.fin.log_logical_expense(spentcash, "Ads")
+                    if hero.take_money(spentcash, reason="Building Ads"):
+                        self.fin.log_logical_expense(spentcash, "Ads")
+                    else:
+                        rep_hit = tmodfame + tmodrep
+                        rep_hit = randint(rep_hit * 4, rep_hit * 8)
+                        self.modrep(-rep_hit)
+                        txt.append("{color=red}And yet, you did not have enough money to pay your advertisers! They took it out on you by promoting %s as a shitty dump...{/color}" % self.name)
+                        self.flag_red = True
+                elif temp:
+                    txt.append(temp)
 
             # do the construction work
             #  construction in the businesses: 
