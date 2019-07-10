@@ -739,7 +739,7 @@ init 11 python:
         return areas
 
     def load_aeq_purposes():
-        data = load_db_json("items", "aeq_purposes.json")
+        data = load_db_json("items", "data", "aeq_purposes.json")
 
         for entry in data:
             id = entry.pop("id")
@@ -779,28 +779,23 @@ init 11 python:
         content = dict()
         dir = content_path("db", "items")
         items = list()
-        gifts = list()
         for file in listfiles(dir):
             if file.endswith(".json"):
                 in_file = os.path.join(dir, file)
-                if file.startswith("items"):
-                    items.extend(load_json(in_file))
-                elif file.startswith("gifts"):
-                    gifts.extend(load_json(in_file))
+                items.extend(load_json(in_file))
 
         for item in items:
             iteminst = Item()
             iteminst.__dict__.update(item)
             iteminst.init()
             content[iteminst.id] = iteminst
-        exist = getattr(store, "items", dict())
-        for item in gifts:
-            iteminst = Item()
-            iteminst.__dict__.update(item)
-            iteminst.init()
-            # preserve hidden field value
-            iteminst.hidden = getattr(exist.get(iteminst.id, None), "hidden", getattr(iteminst, "hidden", True))
-            content[iteminst.id] = iteminst
+
+        # preserve/set hidden field value of gifts
+        if hasattr(store, "items"):
+            exist = store.items
+            for id, item in content.iteritems():
+                if item.slot == "gift":
+                    item.hidden = getattr(exist.get(id, None), "hidden", getattr(item, "hidden", True))
 
         return content
 

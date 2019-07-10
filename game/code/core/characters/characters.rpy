@@ -461,6 +461,7 @@ init -9 python:
         def override_portrait(self, *args, **kwargs):
             kwargs["resize"] = kwargs.get("resize", (120, 120))
             kwargs["cache"] = kwargs.get("cache", True)
+            kwargs["add_mood"] = False
             # if we have the needed portrait, we just show it
             if self.has_image(*args, **kwargs):
                 self.set_flag("fixed_portrait", self.show(*args, **kwargs))

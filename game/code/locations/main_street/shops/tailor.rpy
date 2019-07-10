@@ -170,7 +170,7 @@ label tailor_special_order:
             $ npcs["Kayo_Sudou"].del_flag("tailor_special_order")
     else:
         t "For a small price, I can upgrade your clothes to better versions. What would you like to order?"
-        $ items_upgrades = load_db_json("items", "upgrades.json")
+        $ items_upgrades = load_db_json("items", "data", "upgrades.json")
         $ upgrade_list = list(i for i in items_upgrades if i["location"] == "Tailor")
 
         $ result = renpy.call_screen("shopkeeper_items_upgrades", upgrade_list)
