@@ -81,24 +81,14 @@ label mc_action_city_beach_rest:
     $ hero.set_flag("dnd_rest_at_beach")
 
     if len(hero.team) > 1:
-        $ picture = []
         python hide:
+            global picture
+            tags = ("rest", "bathing", "sleeping")
+            tags = [(tag, 0) for tag in tags]
+            tags.append((None, 6))
+            tags = [(("beach", 3), ("no bg", 4), ("simple bg", 5)), (("swimsuit", 1), (None, 2)), tags]
             excluded = ["sex", "stripping"]
-            for member in hero.team:
-                if member == hero:
-                    continue
-                result = (["rest", "beach"], ["bathing", "beach"], ["sleeping", "beach"])
-                result = get_simple_act(member, result, excluded)
-                if not result:
-                    result = (["rest", "swimsuit", "no bg"], ["bathing", "swimsuit", "no bg"], ["sleeping", "swimsuit", "no bg"],
-                            ["rest", "swimsuit", "simple bg"], ["bathing", "swimsuit", "simple bg"], ["sleeping", "swimsuit", "simple bg"])
-                    result = get_simple_act(member, result, excluded)
-                    if not result:
-                        result = (["swimsuit", "no bg"], ["swimsuit", "simple bg"])
-                        result = get_simple_act(member, result, excluded)
-                        if not result:
-                            result = ["beach", "sfw"]
-                picture.append(member.show(*result, exclude=excluded, resize=iam.IMG_SIZE, type="reduce"))
+            picture = [char.show(*tags, exclude=excluded, resize=iam.IMG_SIZE, type="ptls") for char in hero.team if char != hero]
 
         if len(picture) == 1:
             show expression picture[0] at truecenter as temp1
@@ -130,29 +120,29 @@ label mc_action_city_beach_rest:
             hide temp1
             hide temp2
             # jump interactions_sex_scene_begins
-            if hero.gender == "male":
-                $ tags = [["bc handjob", "beach"], ["bc blowjob", "beach"], ["bc footjob", "beach"]]
-                if char.gender == "female":
-                    $ tags.append(["bc titsjob", "beach"])
-                $ msg = "Unfortunately %s forgot %s sunscreen today, so you had no choice but to provide another liquid as a replacement." % (char.name, char.pd) 
-            else:
-                if char.gender == "male":
-                    $ tags = (["2c handjob", "beach"], ["2c blowjob", "beach"], ["2c footjob", "beach"], ["2c titsjob", "beach"])
-                    $ msg = "Unfortunately you forgot your sunscreen today, so you had no choice but to use a replacement."
-                else: 
-                    $ tags = (["bc hug", "beach"], ["2c hug", "beach"])
-                    $ msg = "Unfortunately you forgot your sunscreen today and %s already applied hers. You had no choice but to use her body." % char.name
 
-            $ excluded = ["rape", "bdsm", "group", "forced"]
-            $ result = get_simple_act(char, tags, excluded)
-            if not result:
-                $ tags = ([[act, "no bg"] for act, loc in tags] + [[act, "simple bg"] for act, loc in tags])
-                $ result = get_simple_act(char, tags, excluded)
-                if not result:
-                    # give up
-                    $ result = ("beach", "swimsuit")
+            python hide:
+                global msg, picture
+                if hero.gender == "male":
+                    tags = ["bc handjob", "bc blowjob", "bc footjob"]
+                    if char.gender == "female":
+                        tags.append("bc titsjob")
+                    msg = "Unfortunately %s forgot %s sunscreen today, so you had no choice but to provide another liquid as a replacement." % (char.name, char.pd) 
+                else:
+                    if char.gender == "male":
+                        tags = ("2c handjob", "2c blowjob", "2c footjob", "2c titsjob")
+                        msg = "Unfortunately you forgot your sunscreen today, so you had no choice but to use a replacement."
+                    else: 
+                        tags = ("bc hug", "2c hug")
+                        msg = "Unfortunately you forgot your sunscreen today and %s already applied hers. You had no choice but to use her body." % char.name
 
-            show expression char.show(*result, exclude=excluded, type="reduce", resize=iam.IMG_SIZE) at truecenter with dissolve
+                tags = [(tag, 0) for tag in tags]
+                tags.append((None, 6))
+                tags = [(("beach", 3), ("no bg", 4), ("simple bg", 5)), (("swimsuit", 1), (None, 2)), tags]
+                excluded = ["rape", "bdsm", "group", "forced", "sad", "angry", "in pain"]
+                picture = char.show(*tags, exclude=excluded, resize=iam.IMG_SIZE, type="ptls")
+
+            show expression picture at truecenter with dissolve
 
             $ narrator(msg)
             $ char.gfx_mod_skill("sex", 0, 1)
@@ -160,7 +150,7 @@ label mc_action_city_beach_rest:
             $ hero.gfx_mod_stat("joy", randint(0, 1))
             $ char.gfx_mod_stat("disposition", 3)
             $ char.gfx_mod_stat("affection", affection_reward(char))
-            $ del msg, result, excluded, tags, char
+            $ del msg, picture, char
         $ del members
 
     else:

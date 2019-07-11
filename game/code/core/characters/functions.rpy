@@ -991,13 +991,13 @@ init -11 python:
 
     # copypaste of get_act from jobs without the self part, allows to randomly select one of existing tags sets
     #  unlike the function from jobs it supports only one set of excluded tags
-    def get_simple_act(char, tags, excluded=None):
-        acts = list()
-        for t in tags:
-            if char.has_image(*t, exclude=excluded):
-                acts.append(t)
-        if acts:
-            act = choice(acts)
-        else:
-            act = None
-        return act
+    #def get_simple_act(char, tags, excluded=None):
+    #    acts = list()
+    #    for t in tags:
+    #        if char.has_image(*t, exclude=excluded):
+    #            acts.append(t)
+    #    if acts:
+    #        act = choice(acts)
+    #    else:
+    #        act = None
+    #    return act

@@ -145,37 +145,15 @@ init -2 python:
 
         @staticmethod
         def select_beach_img_tags(char, location="beach"):
-            tags = char.get_tags_from_cache(last_label)
-            if not tags:
-                img_tags = []
-                if location == "beach_cafe":
-                    location = "beach"
-                    img_tags = [["girlmeets", "swimsuit", "outdoors"]]
-                img_tags += (["girlmeets", "swimsuit", location], ["girlmeets", "swimsuit", "simple bg"], ["girlmeets", "swimsuit", "no bg"])
-                img_tags = get_simple_act(char, img_tags)
-                if img_tags is None:
-                    img_tags = (["girlmeets", "beach"], ["girlmeets", "simple bg"], ["girlmeets", "no bg"])
-                    img_tags = get_simple_act(char, img_tags)
-                    if img_tags is None:
-                        # giveup
-                        img_tags = ["girlmeets", "swimsuit"]
-                tags[:] = img_tags
-            return char.show(*tags, type="reduce", label_cache=True, gm_mode=True)
-
-        @staticmethod
-        def get_rape_picture(char=None, hidden_partner=False):
+            """Selects and returns a suitable image when the player meets a character on the beach.
             """
-            This function selects the best possible rape picture, without specifying where or what kind of action it should have since rape pics are not common enough to be so demanding.
-            """
-            exclude = ["happy", "confident", "suggestive", "ecstatic", "gay"]
-            tags = ["normalsex"] # FIXME what is normal???
-            if char.has_image("normalsex", "rape", exclude=exclude):
-                tags.append("rape")
-            elif char.has_image("normalsex", "ripped", exclude=exclude):
-                tags.append("ripped")
-            if hidden_partner:
-                tags.append("partnerhidden")
-            iam.set_img(*tags, exclude=exclude, type="reduce")
+            if location == "beach_cafe":
+                clothes = [("swimsuit", 4), (None, 5)]
+                locations = [("outdoors", 0), ("beach", 1), ("no bg", 2), ("simple bg", 3), (None, 6)]
+            else:
+                clothes = [("swimsuit", 3), (None, 4)]
+                locations = [(location, 0), ("no bg", 1), ("simple bg", 2), (None, 5)]
+            return char.show("girlmeets", clothes, locations, type="ptls", label_cache=True, gm_mode=True)
 
         @staticmethod
         def get_single_sex_picture(char, act="stripping", location="any", hidden_partner=False):
@@ -196,10 +174,10 @@ init -2 python:
                 loc_tag = "living"
             elif location == "beach":
                 if dice(50):
-                    optional_included = ["swimsuit"]
+                    optional_included = [("swimsuit", None)]
             elif location == "park":
                 loc_tag = "nature"
-    
+
                 excluded.extend(["beach", "wildness"])
             elif location == "forest":
                 loc_tag = "nature"
@@ -207,46 +185,12 @@ init -2 python:
 
             if act == "stripping":
                 # try to find a stripping image
-                if char.has_image("stripping", loc_tag, exclude=excluded):
-                    iam.set_img("stripping", loc_tag, *optional_included, exclude=excluded, type="reduce")
-                else:
-                    tags = (["simple bg", "stripping"], ["no bg", "stripping"])
-                    result = get_simple_act(char, tags, excluded)
-                    if result:
-                        result.extend(optional_included)
-                        iam.set_img(*result, exclude=excluded, type="reduce")
-                    else:
-                        # could not find a stripping image, check for lingerie or nude pictures
-                        excluded.extend(["sleeping", "bathing", "stage", "sex"])
-
-                        if char.has_image("lingerie", loc_tag, exclude=excluded):
-                            iam.set_img("lingerie", loc_tag, *optional_included, exclude=excluded, type="reduce")
-                        elif char.has_image("nude", loc_tag, exclude=excluded):
-                            iam.set_img("nude", loc_tag, *optional_included, exclude=excluded, type="reduce")
-                        else:
-                            tags = (["simple bg", "nude"], ["no bg", "nude"], ["simple bg", "lingerie"], ["no bg", "lingerie"])
-                            result = get_simple_act(char, tags, excluded)
-                            if result:
-                                result.extend(optional_included)
-                                iam.set_img(*result, exclude=excluded, type="reduce")
-                            else:
-                                # whatever...
-                                iam.set_img("nude", loc_tag, *optional_included, exclude=excluded, type="reduce")
+                excluded.extend(["sleeping", "bathing", "stage", "sex"])
+                iam.set_img(("stripping", "lingerie", "nude"), (loc_tag, "no bg", "simple bg"), *optional_included, exclude=excluded, type="ptls")
 
             elif act == "masturbation":
-                if char.has_image("masturbation", loc_tag, exclude=excluded):
-                    iam.set_img("masturbation", loc_tag, *optional_included, exclude=excluded, type="reduce")
-                else:
-                    tags = (["simple bg", "masturbation"], ["no bg", "masturbation"])
-                    result = get_simple_act(char, tags, excluded)
-                    if result:
-                        result.extend(optional_included)
-                        iam.set_img(*result, exclude=excluded, type="reduce")
-                    else:
-                        # could not find masturbation image, check for nude pictures
-                        excluded.extend(["sleeping", "bathing", "stage", "sex"])
-
-                        iam.set_img("nude", loc_tag, *optional_included, exclude=excluded, type="reduce")
+                excluded.extend(["sleeping", "bathing", "stage", "sex"])
+                iam.set_img(("masturbation", "lingerie", "nude"), (loc_tag, "no bg", "simple bg"), *optional_included, exclude=excluded, type="ptls")
 
             else: # any 2c/bc sexual act
                 # partner filters
@@ -255,24 +199,11 @@ init -2 python:
                 else:
                     excluded.append("gay")
                 if hidden_partner:
-                    optional_included.append("partnerhidden")
+                    optional_included.append(("partnerhidden", None))
                 else:
-                    optional_included.append("sexwithmc")
+                    optional_included.append(("sexwithmc", None))
 
-                # image selection
-                if char.has_image(act, loc_tag, exclude=excluded):
-                    iam.set_img(act, loc_tag, *optional_included, exclude=excluded, type="reduce")
-                elif char.has_image("after sex", loc_tag, exclude=excluded):
-                    iam.set_img("after sex", loc_tag, *optional_included, exclude=excluded, type="reduce")
-                else:
-                    tags = ([act, "simple bg"], [act, "no bg"], ["after sex", "simple bg"], ["after sex", "no bg"])
-                    result = get_simple_act(char, tags, excluded)
-                    if result:
-                        result.append(optional_included[-1])
-                        iam.set_img(*result, exclude=excluded, type="reduce")
-                    else:
-                        excluded.append("sex")
-                        iam.set_img("nude", loc_tag, exclude=excluded, type="reduce")
+                iam.set_img((act, "after sex", "lingerie", "nude"), (loc_tag, "no bg", "simple bg"), *optional_included, exclude=excluded, type="ptls")
 
         @staticmethod
         def get_picture_before_sex(char=None, location="room"): # here we set initial picture before the scene begins depending on location
@@ -291,23 +222,7 @@ init -2 python:
                 loc_tag = "nature"
                 excluded.extend(["beach", "urban"])
 
-            if char.has_image(loc_tag, underwear, exclude=excluded):
-                iam.set_img(loc_tag, underwear, "nude", exclude=excluded, type="reduce")
-            elif char.has_image(loc_tag, "nude", exclude=excluded):
-                iam.set_img(loc_tag, "nude", exclude=excluded, type="reduce")
-            else:
-                tags = (["simple bg", underwear], ["no bg", underwear])
-                result = get_simple_act(char, tags, excluded)
-                if result:
-                    result.append("nude")
-                    iam.set_img(*result, exclude=excluded, type="reduce")
-                else:
-                    tags = (["simple bg", "nude"], ["no bg", "nude"])
-                    result = get_simple_act(char, tags, excluded)
-                    if result:
-                        iam.set_img(*result, exclude=excluded, type="reduce")
-                    else:
-                        iam.set_img("nude", underwear, exclude=excluded, type="reduce")
+            iam.set_img((loc_tag, "no bg", "simple bg"), (underwear, "nude"), exclude=excluded, type="ptls")
 
         @staticmethod
         def get_character_libido(char, mc=True): # depending on character traits returns relative libido level, ie how much the character wishes to have sex with MC

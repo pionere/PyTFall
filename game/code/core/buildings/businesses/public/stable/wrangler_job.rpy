@@ -220,8 +220,4 @@ init -5 python:
             if dice(10):
                 log.logws('constitution', 1)
 
-            excluded = ["nude", "sex"]
-            if worker.has_image("nature", "outdoors", exclude=excluded):
-                log.img = worker.show("nature", "outdoors", exclude=excluded)
-            else:
-                log.img = worker.show("maid", exclude=excluded)
+            log.img = worker.show(("nature", "no bg", "simple bg"), ("maid", None), exclude=["nude", "sex", "lingerie"], type="ptls")

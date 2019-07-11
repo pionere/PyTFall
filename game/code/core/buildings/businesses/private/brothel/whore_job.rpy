@@ -239,7 +239,7 @@ init -5 python:
             # Acts, Images, Tags and things Related:
             # Straight Sex Act
             if act == 'sex':
-                kwargs = dict(exclude=["gay"]+always_exclude, type="reduce", add_mood=False)
+                kwargs = dict(exclude=["gay"]+always_exclude, type="ptls", add_mood=False)
                 log.append(choice(["%s hired %s for some good old straight sex. " % (clientname, worker.op),
                                    "%s is willing to pay for %s." % (clientname, "her pussy" if worker.gender == "female" else "his dick")]))
                 if "Lesbian" in worker.traits: # lesbians will have only a part of skill level compared to others during normal sex
@@ -251,10 +251,7 @@ init -5 python:
                     sexmod = 10
                 # Temporarily done here, should be moved to game init and after_load to improve performance
                 # probably not everything though, since now we don't form huge lists of pictures for some acts, using get_image_tags to figure out poses
-                if worker.has_image("2c vaginal", **kwargs):
-                    image_tags = worker.show("2c vaginal", **kwargs)
-                else:
-                    image_tags = worker.show("after sex", **kwargs)
+                image_tags = worker.show(("2c vaginal", "after sex"), **kwargs)
 
                 log.img = image_tags
                 image_tags = tagdb.get_image_tags(image_tags)
@@ -278,7 +275,7 @@ init -5 python:
                 WhoreJob.take_virginity(worker, log)
             # Anal Sex Act
             elif act == 'anal':
-                kwargs = dict(exclude=["gay"]+always_exclude, type="reduce", add_mood=False)
+                kwargs = dict(exclude=["gay"]+always_exclude, type="ptls", add_mood=False)
                 log.append(choice(["%s hired her for some anal fun. ", "%s is willing to pay her for backdoor action. "]) % clientname)
                 if "Lesbian" in worker.traits:
                     effectiveness -= 25
@@ -291,10 +288,7 @@ init -5 python:
                                    "I am in the mood for a good anal fuck, customer said. ",
                                    "Customer's dick got harder and harder just from the thought of %s's asshole! " % nickname]))
 
-                if worker.has_image("2c anal", **kwargs):
-                    image_tags = worker.show("2c anal", **kwargs)
-                else:
-                    image_tags = worker.show("after sex", **kwargs)
+                image_tags = worker.show(("2c anal", "after sex"), **kwargs)
 
                 log.img = image_tags
                 image_tags = tagdb.get_image_tags(image_tags)
@@ -319,13 +313,13 @@ init -5 python:
                 kwargs = dict(exclude=always_exclude, type="reduce", add_mood=False)
                 log.append(choice(["%s hired %s for some side job on his thing. ", "%s is paying %s today for naughty service. "]) % (clientname, worker.op))
                 # here we will have to choose skills depending on selected act
-                tags = ({"tags": ["bc deepthroat"], "exclude": always_exclude},
-                        {"tags": ["bc handjob"], "exclude": always_exclude},
-                        {"tags": ["bc footjob"], "exclude": always_exclude},
-                        {"tags": ["bc titsjob"], "exclude": always_exclude},
-                        {"tags": ["bc blowjob"], "exclude": always_exclude},
-                        {"tags": ["after sex"], "exclude": always_exclude, "dice": 20})
-                act = WhoreJob.get_act_idx(worker, tags)
+                tags = (["bc deepthroat"],
+                        ["bc handjob"],
+                        ["bc footjob"],
+                        ["bc titsjob"],
+                        ["bc blowjob"],
+                        {"tags": ["after sex"], "dice": 20})
+                act = WhoreJob.get_act_idx(worker, tags, always_exclude)
                 if act == 0:
                     log.append(choice(["He shoved his cock all the way into her throat! \n",
                                        "Deepthroat is definitely my style, thought the customer... \n"]))
@@ -424,27 +418,27 @@ init -5 python:
                 skill = worker.get_skill("vaginal")
                 kwargs = dict(exclude=always_exclude, type="reduce", add_mood=False)
 
-                tags = ({"tags": ["gay", "2c lickpussy"], "exclude": always_exclude},
-                        {"tags": ["gay", "bc lickpussy"], "exclude": always_exclude},
-                        {"tags": ["gay", "2c lickanus"], "exclude": always_exclude},
-                        {"tags": ["gay", "bc lickanus"], "exclude": always_exclude},
-                        {"tags": ["gay", "2c vaginalfingering"], "exclude": always_exclude},
-                        {"tags": ["gay", "bc vaginalhandjob"], "exclude": always_exclude},
-                        {"tags": ["gay", "2c analfingering"], "exclude": always_exclude},
-                        {"tags": ["gay", "bc analhandjob"], "exclude": always_exclude},
-                        {"tags": ["gay", "2c caresstits"], "exclude": always_exclude},
-                        {"tags": ["gay", "bc caresstits"], "exclude": always_exclude},
-                        {"tags": ["gay", "bc hug", "2c hug"], "exclude": always_exclude},
-                        {"tags": ["gay", "2c vaginal"], "exclude": always_exclude},
-                        {"tags": ["gay", "bc vaginal"], "exclude": always_exclude},
-                        {"tags": ["gay", "2c anal"], "exclude": always_exclude},
-                        {"tags": ["gay", "bc anal"], "exclude": always_exclude},
-                        {"tags": ["gay", "2c vaginaltoy"], "exclude": always_exclude},
-                        {"tags": ["gay", "bc toypussy"], "exclude": always_exclude},
-                        {"tags": ["gay", "2c analtoy"], "exclude": always_exclude},
-                        {"tags": ["gay", "bc toyanal"], "exclude": always_exclude},
-                        {"tags": ["gay", "scissors"], "exclude": always_exclude})
-                act = WhoreJob.get_act_idx(worker, tags)
+                tags = (["gay", "2c lickpussy"],
+                        ["gay", "bc lickpussy"],
+                        ["gay", "2c lickanus"],
+                        ["gay", "bc lickanus"],
+                        ["gay", "2c vaginalfingering"],
+                        ["gay", "bc vaginalhandjob"],
+                        ["gay", "2c analfingering"],
+                        ["gay", "bc analhandjob"],
+                        ["gay", "2c caresstits"],
+                        ["gay", "bc caresstits"],
+                        ["gay", "bc hug", "2c hug"],
+                        ["gay", "2c vaginal"],
+                        ["gay", "bc vaginal"],
+                        ["gay", "2c anal"],
+                        ["gay", "bc anal"],
+                        ["gay", "2c vaginaltoy"],
+                        ["gay", "bc toypussy"],
+                        ["gay", "2c analtoy"],
+                        ["gay", "bc toyanal"],
+                        ["gay", "scissors"])
+                act = WhoreJob.get_act_idx(worker, tags, always_exclude)
 
                 # We'll be adding "les" here as Many lesbian pics do not fall in any of the categories and will never be called...
                 if act == 0:
@@ -874,14 +868,14 @@ init -5 python:
             return effectiveness
 
         @staticmethod
-        def get_act_idx(worker, tags):
+        def get_act_idx(worker, tags, exclude):
             acts = list()
             for idx, t in enumerate(tags):
                 if isinstance(t, tuple):
-                    if worker.has_image(*t):
+                    if worker.has_image(*t, exclude=exclude):
                         acts.append((idx, 100))
                 elif isinstance(t, dict):
-                    if worker.has_image(*t.get("tags", []), exclude=t.get("exclude", [])):
+                    if worker.has_image(*t.get("tags", []), exclude=exclude):
                         acts.append((idx, t.get("dice", 100)))
 
             if acts:

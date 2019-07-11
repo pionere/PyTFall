@@ -281,8 +281,4 @@ init -5 python:
             if dice(10):
                 log.logws('intelligence', 1)
 
-            excluded = ["nude", "sex"]
-            if worker.has_image("waitress", exclude=excluded):
-                log.img = worker.show("waitress", exclude=excluded)
-            else:
-                log.img = worker.show("maid", exclude=excluded)
+            log.img = worker.show(("waitress", "maid"), ("indoors", "no bg", "simple bg", None), exclude=["nude", "sex", "lingerie"], type="ptls")

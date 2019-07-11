@@ -551,10 +551,7 @@ init -9 python:
         def show(self, *tags, **kwargs):
             '''Returns an image with the supplied tags.
 
-            Under normal type of images lookup (default):
-            First tag is considered to be most important.
-            If no image with all tags is found,
-            game will look for a combination of first and any other tag from second to last.
+            The lookup behavior is depending on the "type" argument.
 
             Valid keyword arguments:
                 resize = (maxwidth, maxheight)
@@ -572,6 +569,23 @@ init -9 python:
                      - any = will try to find an image with any of the tags chosen at random
                      - first_default = will use first tag as a default instead of a profile and only than switch to profile
                      - reduce = try all tags first, if that fails, pop the last tag and try without it. Repeat until no tags remain and fall back to profile or default.
+                     - ptls = check tags/groups in prioritized order.
+                         first: if a tag is not a list, it is converted to one
+                         second: if the entries of the list are no lists, they converted to lists and a 
+                             priority is assigned to them (starting from the highest predefined priority)
+                         this means at the end the tags will have the following format:
+                             [[(tag0, priority0), (tag1, priority1),...], [...] ...]
+                         to find the best matching image, the first tag is taken from each list.
+                         If nothing is found, a new tag with the lowest priority is selected until there is a match.
+                         At the end additional queries are made if there are tags with the same priority.
+                         The result is randomly selected from the matches.
+                         Remark: a tag can be a 'complex' tag, like "beach-nature", or "beach-nature-outdoors", etc...
+                         e.g: "happy", ("beach", "no bg", None) means, the algorithm first try to find a "happy" image with "beach"-tag.
+                                  If nothing found, it checks for "happy", "no bg"-tags.
+                                  Finally it tries with only the "happy" tag.
+                              "happy", (("beach", 0), ("no bg", 0), None) means almost the same as above,
+                                  but the images with "beach" and "no bg" tags have the same priority. This means if both found,
+                                  the result is randomly selected from the two.
                 add_mood = Automatically adds proper mood tag. This will not work if a mood tag was specified on request OR this is set to False
                 gm_mode = overwrite to add nude/not nude logic for GMs pictures no matter how and where we get them
             '''
@@ -583,13 +597,6 @@ init -9 python:
             default = kwargs.get("default", None)
             gm_mode = kwargs.get("gm_mode", False)
             add_mood = kwargs.get("add_mood", True)
-
-            # Direct image request:
-            if "-" in tags[0]:
-                _path = os.path.join(self.path_to_imgfolder, tags[0])
-                if not renpy.loadable(_path):
-                    _path = IMG_NOT_FOUND_PATH
-                return _path if resize is None else PyTGFX.scale_content(_path, *resize)
 
             if gm_mode:
                 if exclude is None:
@@ -610,91 +617,147 @@ init -9 python:
                 else:
                     exclude.extend(["nude", "revealing", "lingerie"])
 
-            pure_tags = list(tags)
-            tags = list(tags)
-            if add_mood:
+            if type == "first_default":
+                tags_list = []
+                for idx, tag in enumerate(tags):
+                    if idx != 0:
+                        tags_list.append((tag, idx-1))
+                tags_list.append((None, idx))
+                tags_list = [tags_list, [(tags[0], idx+1)]]
+            elif type == "reduce":
+                tags_list = []
+                for idx, tag in enumerate(reversed(tags)):
+                    tags_list.append([(tag, idx*2), (None, idx*2+1)])
+                tags_list[-1].pop()
+            elif type == "normal":
+                tags_list = []
+                for idx, tag in enumerate(tags):
+                    if idx != 0:
+                        tags_list.append((tag, idx-1))
+                if idx != 0:
+                    tags_list = [tags_list]
+                tags_list.append([(tags[0], idx)])
+            elif type == "any":
+                tags_list = [[(tag, 0) for tag in tags]]
+            else: # type == "ptls"
+                tags_list = list(tags)
+                max_prio = -1
+                for idx, tags in enumerate(tags_list):
+                    if not isinstance(tags, list):
+                        # convert entries to list
+                        if isinstance(tags, tuple):
+                            tags = list(tags)
+                        else:
+                            tags = [tags]
+                        tags_list[idx] = tags
+
+                    # find the maximum preset priority
+                    for tag in tags:
+                        if isinstance(tag, (list, tuple)):
+                            prio = tag[1]
+                            if prio > max_prio:
+                                max_prio = prio 
+
+                # set priorities if necessary
+                for tags in reversed(tags_list):
+                    for idx, tag in enumerate(tags):
+                        if not isinstance(tag, (list, tuple)):
+                            max_prio += 1
+                            tags[idx] = (tag, max_prio)
+
+            min_prio = None
+            for tags in tags_list:
+                for tag, prio in tags:
+                    if min_prio is None or prio < min_prio:
+                        min_prio = prio
+
+            if add_mood is True:
+                # Mood will never be checked in auto-mode when that is not sensible
+                for tags in tags_list:
+                    for tag, prio in tags:
+                        if tag in STATIC_CHAR.MOOD_TAGS:
+                            raise Exception("Who and why???") # FIXME
+
+                min_prio -= 2
                 mood_tag = self.get_mood_tag()
-                tags.append(mood_tag)
+                tags_list.append([(mood_tag, min_prio), (None, min_prio+1)])
 
             if label_cache:
                 for entry in self.label_cache:
-                    if entry[1] == last_label and entry[0] == tags:
+                    if entry[1] == last_label and entry[0] == tags_list:
                         entry = entry[2]
                         return entry if resize is None else PyTGFX.scale_content(entry, *resize)
 
             if cache:
                 for entry in self.cache:
-                    if entry[0] == tags:
+                    if entry[0] == tags_list:
                         entry = entry[1]
                         return entry if resize is None else PyTGFX.scale_content(entry, *resize)
 
-            imgpath = ""
-            if type in ["normal", "first_default", "reduce"]:
-                if "optional_tags" in locals():
-                    pure_tags.extend(optional_tags)
-                    tags.extend(optional_tags)
-                imgpath = self.select_image(*tags, exclude=exclude)
-                if not imgpath and add_mood:
-                    imgpath = self.select_image(*pure_tags, exclude=exclude)
+            if "optional_tags" in locals():
+                for tag in optional_tags:
+                    min_prio -= 2
+                    tags_list.append([(tag, min_prio), (None, min_prio+1)])
 
-                if not imgpath and len(pure_tags) > 1:
-                    if type == "reduce":
-                        _tags = pure_tags[:]
-                        while not imgpath:
-                            _tags.pop()
+            indices = [0] * len(tags_list)
+            while 1:
+                #img_tags = [tag for tag in [tags[idx][0] for idx, tags in zip(indices, tags_list)] if tag is not None]
+                img_tags = []
+                for tag in (tags[idx][0] for idx, tags in zip(indices, tags_list)):
+                    if tag is not None:
+                        img_tags.extend(tag.split("-"))
+                imgpath = self.select_image(*img_tags, exclude=exclude)
+                if imgpath is None:
+                    # image not found -> try to select another one
+                    option = base_prio = None
+                    for i, (idx, tags) in enumerate(zip(indices, tags_list)):
+                        if idx != len(tags)-1:
+                            prio = tags[idx+1][1]
+                            if option is None or base_prio > prio:
+                                option = i
+                                base_prio = prio
+                    if option is None:
+                        break # no more option
+                    for i, (idx, tags) in enumerate(zip(indices, tags_list)):
+                        if i == option:
+                            indices[i] = idx+1
+                        else:
+                            prio = tags[idx][1]
+                            if prio < base_prio:
+                                indices[i] = 0
+                            elif prio == base_prio and i < option:
+                                indices[i] = 0
+                    continue # try the selected indices
 
-                            # Do not try with empty tags TODO why not? 
-                            if not _tags:
-                                break
-                            # Try with mood first:
-                            if add_mood:
-                                imgpath = self.select_image(mood_tag, *_tags, exclude=exclude)
-                            if not imgpath:
-                                imgpath = self.select_image(*_tags, exclude=exclude)
-
-                    else: #if type in ["normal", "first_default"]:
-                        main_tag = None
-                        for tag in pure_tags:
-                            if main_tag is None:
-                                main_tag = tag
-                                continue
-
-                            # Try with the mood first:
-                            if add_mood:
-                                imgpath = self.select_image(main_tag, tag, mood_tag, exclude=exclude)
-                            # Without mood
-                            if not imgpath:
-                                imgpath = self.select_image(main_tag, tag, exclude=exclude)
-                            if imgpath:
-                                break
-
-                        if type == "first_default" and not imgpath: # In case we need to try first tag as default (instead of profile/default) and failed to find a path.
-                            if add_mood:
-                                imgpath = self.select_image(main_tag, mood_tag, exclude=exclude)
-                            if not imgpath:
-                                imgpath = self.select_image(main_tag, exclude=exclude)
-
-            elif type == "any":
-                _tags = pure_tags[:] 
-                shuffle(_tags)
-                # Try with the mood first:
-                if add_mood:
-                    for tag in _tags:
-                        imgpath = self.select_image(tag, mood_tag, exclude=exclude)
-                        if imgpath:
+                # image found
+                #  check for images with the same priority
+                for i, (idx, tags) in enumerate(zip(indices, tags_list)):
+                    last = len(tags)-1
+                    prio = tags[idx][1]
+                    options = []
+                    while idx != last:
+                        idx += 1
+                        if tags[idx][1] > prio:
                             break
-                # Then try 'any' behavior without the mood:
-                if not imgpath:
-                    for tag in _tags:
-                        imgpath = self.select_image(tag, exclude=exclude)
-                        if imgpath:
-                            break
+                        indices[i] = idx
+                        #img_tags = [_tag for _tag in [_tags[_idx][0] for _idx, _tags in zip(indices, tags_list)] if _tag is not None]
+                        img_tags = []
+                        for tag in (tags[idx][0] for idx, tags in zip(indices, tags_list)):
+                            if tag is not None:
+                                img_tags.extend(tag.split("-"))
+                        option = self.select_image(*img_tags, exclude=exclude)
+                        if option is not None:
+                            options.append(option)
+                    if options:
+                        options.append(imgpath)
+                        imgpath = choice(options)
+                break
 
             if not imgpath:
-                char_debug("could not find image with tags %s" % sorted(tags))
+                char_debug("could not find image with tags: %s" % ", ".join(str(tags) for tags in tags_list))
                 if default is None:
                     # New rule (Default Battle Sprites):
-                    if "battle_sprite" in pure_tags:
+                    if "battle_sprite" in (tag for tags in tags_list for tag, prio in tags):
                         force_battle_sprite = True
                     else:
                         if add_mood:
@@ -715,11 +778,11 @@ init -9 python:
 
             # FIXME cache regardless of type ???
             if "optional_tags" in locals():
-                tags = tags[:-len(optional_tags)]
+                tags_list = tags_list[:-len(optional_tags)]
             if label_cache:
-                self.label_cache.append([tags, last_label, imgpath])
+                self.label_cache.append([tags_list, last_label, imgpath])
             if cache:
-                self.cache.append([tags, imgpath])
+                self.cache.append([tags_list, imgpath])
 
             return imgpath if resize is None else PyTGFX.scale_content(imgpath, *resize)
 
@@ -731,17 +794,17 @@ init -9 python:
                 if entry[1] == label:
                     return entry[2]
 
-        def get_tags_from_cache(self, label):
-            """
-            Returns tags from cache based on the label provided.
-            """
-            for entry in self.tags_cache:
-                if entry[0] == label:
-                    return entry[1]
-            
-            entry = [label, []]
-            self.tags_cache.append(entry)
-            return entry[1]
+        #def get_tags_from_cache(self, label):
+        #    """
+        #    Returns tags from cache based on the label provided.
+        #    """
+        #    for entry in self.tags_cache:
+        #        if entry[0] == label:
+        #            return entry[1]
+
+        #    entry = [label, []]
+        #    self.tags_cache.append(entry)
+        #    return entry[1]
 
         def clear_img_cache(self):
             self.cache = list()

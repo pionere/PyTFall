@@ -306,12 +306,4 @@ init -5 python:
                 log.append("\n%s feels like %s learned something!\n" % (worker.name, worker.p))
                 log.logws("joy", 1)
 
-            excluded = ["sex", "sad", "angry", "in pain"]
-            kwargs = dict(exclude=excluded, type="reduce")
-            tags = (["stripping", "stage"], ["stripping", "simple bg"], ["stripping", "no bg"])
-
-            result = get_simple_act(worker, tags, excluded)
-            if result:
-                log.img = worker.show(*result, **kwargs)
-            else:
-                log.img = worker.show("stripping", "indoors", **kwargs)
+            log.img = worker.show("stripping", ("stage", "no bg", "simple bg", "indoors", None), exclude=["sex", "sad", "angry", "in pain"], type="ptls")
