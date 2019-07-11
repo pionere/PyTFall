@@ -452,7 +452,7 @@
     "cblock": 1,
     "mod": {"charisma": 1, "joy": 1},
     "locations": ["Cafe", "Look around"],
-    "pref_class":["SIW", "Bartender", "Manager"]
+    "pref_class":["SIW", "Bartender", "Manager", "Casual"]
     },
     {
     "id": "Succubus Milk",

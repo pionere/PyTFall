@@ -364,7 +364,8 @@
     "mreusable": false,
     "mdestruct": true,
     "tier": 1,
-    "mod": {"agility": 5},
+    "mod": {"agility": 25},
+    "max": {"agility": 20},
     "mod_skills": {"service": [0, 0, 0, 0, 15], "strip": [0, 0, 0, 0, 10], "dancing": [0, 0, 0, 0, 100], "refinement": [0, 0, 0, 0, 20]},
     "locations": ["General Store"],
     "pref_class":["Stripper"]
@@ -404,7 +405,7 @@
     "mdestruct": false,
     "tier": 1,
     "mod": {"vitality": -20},
-    "mod_skills": {"strip": [0, 0, 0, 5, 0], "dancing": [0, 0, 0, 5, 0]},
+    "mod_skills": {"strip": [0, 0, 0, 10, 0], "dancing": [0, 0, 0, 10, 0]},
     "locations": ["General Store"],
     "goodtraits": ["Exhibitionist"],
     "pref_class":["SIW"]
@@ -425,7 +426,7 @@
     "mdestruct": false,
     "tier": 0,
     "mod": {"vitality": -20},
-    "mod_skills": {"vaginal": [0, 0, 0, 5, 0], "anal": [0, 0, 0, 5, 0]},
+    "mod_skills": {"vaginal": [0, 0, 0, 10, 0], "anal": [0, 0, 0, 10, 0]},
     "locations": ["General Store", "Fishing"],
     "goodtraits": ["Lesbian", "Bisexual"],
     "badtraits": ["Frigid"],

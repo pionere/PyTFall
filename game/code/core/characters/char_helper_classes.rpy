@@ -66,42 +66,42 @@ init -10 python:
             target_level = (target_tier)*20
             if target_level > self.level:
                 # We need 100 points to tier up!
-
                 level_points = self.level*50.0/target_level
 
                 default_points = 12.5
-                skill_bonus = stat_bonus = 0
+                stats_skills_points = 0
                 for trait in self.traits.basetraits:
-                    # Skills first (We calc this as 12.5% of the total)
-                    skills = trait.base_skills
-                    if not skills: # Some weird ass base trait, we just award 33% of total possible points.
-                        skill_bonus += default_points*.33
+                    # Skills first (12.5% of the total)
+                    base_skills = trait.base_skills
+                    trait_bonus = 0
+                    for skill, weight in base_skills.iteritems():
+                        sp = self.get_skill(skill)
+                        sp_required = self.get_max_skill(skill, target_tier)
+
+                        trait_bonus += min(float(sp)/sp_required, 1.1)*weight
+                    if trait_bonus is 0:
+                        # Some weird ass base trait, we just award 33% of total possible points.
+                        trait_bonus = .33
                     else:
-                        total_weight_points = sum(skills.values())
-                        for skill, weight in skills.items():
-                            weight_ratio = float(weight)/total_weight_points
-                            max_p = default_points*weight_ratio
+                        trait_bonus /= sum(base_skills.itervalues())
+                    stats_skills_points += default_points * trait_bonus
 
-                            sp = self.get_skill(skill)
-                            sp_required = self.get_max_skill(skill, target_tier)
+                    # Stats second (12.5% of the total)
+                    base_stats = trait.base_stats
+                    curr_stats = self.stats
+                    trait_bonus = 0
+                    for stat, weight in base_stats.iteritems():
+                        sp = curr_stats.stats[stat] # STAT_STAT
+                        sp_required = self.get_relative_max_stat(stat, target_tier)
 
-                            skill_bonus += min(float(sp)/sp_required, 1.1)*max_p
-
-                    stats = trait.base_stats
-                    if not stats: # Some weird ass base trait, we just award 33% of total possible points.
-                        stat_bonus += default_points*.33
+                        trait_bonus += min(float(sp)/sp_required, 1.1)*weight
+                    if trait_bonus is 0:
+                        # Some weird ass base trait, we just award 33% of total possible points.
+                        trait_bonus = .33
                     else:
-                        total_weight_points = sum(stats.values())
-                        for stat, weight in stats.items():
-                            weight_ratio = float(weight)/total_weight_points
-                            max_p = default_points*weight_ratio
+                        trait_bonus /= sum(base_stats.itervalues())
+                    stats_skills_points += default_points * trait_bonus
 
-                            sp = self.stats.stats[stat] # STAT_STAT
-                            sp_required = self.get_relative_max_stat(stat, target_tier)
-
-                            stat_bonus += min(float(sp)/sp_required, 1.1)*max_p
-
-                stats_skills_points = skill_bonus + stat_bonus
                 if len(self.traits.basetraits) == 1:
                     stats_skills_points *= 2
 
@@ -1153,8 +1153,8 @@ init -10 python:
                     self.max[stat] += value[1] * multiplier        # STAT_MAX
 
                 # Super Skill Bonuses:
-                for skill in trait.init_skills:
-                    self.mod_full_skill(skill, 20*num_lvl)
+                #for skill in trait.init_skills:
+                #    self.mod_full_skill(skill, 20*num_lvl)
 
             curr_lvl = self.level
             new_lvl = curr_lvl + num_lvl
@@ -1166,6 +1166,7 @@ init -10 python:
                 mod_stats = trait.mod_stats
                 if mod_stats:
                     self.apply_trait_statsmod(mod_stats, curr_lvl, new_lvl, trait in traits.normal)
+                # TODO mod_skills?
 
             restore_battle_stats(char)
 
