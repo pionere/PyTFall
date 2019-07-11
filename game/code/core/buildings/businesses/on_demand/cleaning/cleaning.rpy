@@ -131,7 +131,7 @@ init -5 python:
             for l in pre_log:
                 log.append(l)
 
-            log.img = nd_report_image(loc.img, all_workers, "maid", "cleaning", exclude=["nude", "sex"], type="any")
+            log.img = nd_report_image(loc.img, all_workers, "maid", "cleaning", exclude=["nude", "sex", "lingerie"], type="any")
 
             simpy_debug("Cleaners.write_nd_report marker 2")
 

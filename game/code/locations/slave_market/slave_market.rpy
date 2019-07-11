@@ -208,7 +208,7 @@ label slave_market_work:
     python:
         slaves = min(use_ap, len(pytfall.sm.inhabitants))
         slaves = random.sample(tuple(pytfall.sm.inhabitants), slaves)
-        slaves = [s.show("nude", "no bg", "no clothes", resize=(560, 400), exclude=["sex", "rest", "outdoors", "onsen", "beach", "pool", "living"], type="first_default") for s in slaves] 
+        slaves = [s.show((("nude", 1), ("no clothes", 1), ("lingerie", 2), ("swimsuit", 3)), (("no bg", 0), (None, 4)), resize=(560, 400), exclude=["sex", "rest", "outdoors", "onsen", "beach", "pool", "living"], type="ptls") for s in slaves] 
 
         slave_index = 0
         effectiveness = 20

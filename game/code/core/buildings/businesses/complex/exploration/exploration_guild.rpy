@@ -527,7 +527,7 @@ init -6 python: # Guild, Tracker and Log.
                     txt = txt % self.name
 
                     job, loc = RestTask, self.building
-                    img = nd_report_image(HealingSprings.img, bathers, "bathing", "onsen", exclude=["nude", "sex"], type="reduce")
+                    img = nd_report_image(HealingSprings.img, bathers, ("onsen", "no bg"), ("bathing", None), exclude=["nude", "sex"], type="ptls")
 
                     log = NDEvent(job=job, loc=loc, txt=txt, img=img, charmod=teammod, team=bathers, business=self)
                     NextDayEvents.append(log)

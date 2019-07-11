@@ -30,7 +30,7 @@ label forest_entrance:
 
         if result[0] == 'jump':
             $ iam.start_int(result[1], img=result[1].show("girlmeets", "nature", "wildness", type="first_default", label_cache=True, gm_mode=True,
-                            exclude=["urban", "winter", "night", "beach", "onsen", "dungeon", "stage", "swimsuit", "indoor", "formal"]))
+                            exclude=["urban", "beach", "onsen", "dungeon", "stage", "swimsuit", "indoor", "formal"]))
         elif result == ['control', 'return']:
             hide screen forest_entrance
             jump city
