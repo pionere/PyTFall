@@ -540,13 +540,13 @@ init -9 python:
                 if c.arena_active and c not in actives:
                     c.arena_active = False
 
-        @staticmethod
-        def load_chainfights():
+        @classmethod
+        def load_chainfights(cls):
             chain_fights = load_db_json("arena_chainfights.json")
             chain_fights.sort(key=itemgetter("level"))
             for i in chain_fights:
                 i["boss_portrait"] = mobs[i["boss"]]["portrait"]
-            return chain_fights
+            cls.all_chain_fights = chain_fights
 
         def load_special_team_presets(self):
             teams = load_db_json("arena_teams.json")

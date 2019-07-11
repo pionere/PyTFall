@@ -9,9 +9,9 @@ init 100 python:
     mobs = load_mobs()
     tl.end("Loading: Mobs")
 
-    school_courses = load_db_json("school_courses.json")
+    School.load_courses()
 
-    arena_chain_fights = Arena.load_chainfights()
+    Arena.load_chainfights()
 
     load_aeq_purposes()
 

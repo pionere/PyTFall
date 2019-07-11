@@ -187,17 +187,12 @@ init python:
 
         def build_nd_report(self, char, charmod=None, type="normal",
                             txt=None, flag_green=False):
-            if txt is None:
-                txt = str(self.name) + " Testing string."
-            else:
-                txt = "\n".join(txt)
+            txt = "\n".join(txt)
 
             if type == "normal":
                 # Get char image from data:
-                tags = self.data.get("imageTags", ["profile"])
-                mode = self.data.get("imageMode", "reduce")
-                kwargs = dict(exclude=self.data.get("noImageTags", []), type=mode, add_mood=False)
-                img = char.show(*tags, **kwargs)
+                img = self.data
+                img = char.show(*img["imageTags"], exclude=img["noImageTags"], type=img["imageMode"], add_mood=False)
                 flag_red = False
 
             elif type == "failed_to_pay":
@@ -227,6 +222,18 @@ init python:
             self.tier_filter = 0
             self.type_filter = {"xxx", "combat", None}
 
+        @classmethod
+        def load_courses(cls):
+            courses = load_db_json("school_courses.json")
+            for data in courses.itervalues():
+                if "imageMode" not in data:
+                    data["imageMode"] = "reduce"
+                if "imageTags" not in data:
+                    data["imageTags"] = ["profile"]
+                if "noImageTags" not in data:
+                    data["noImageTags"] = []
+            cls.all_courses = courses
+
         def toggle_type_filter(self, type):
             type_filter = self.type_filter
             if type in type_filter:
@@ -235,7 +242,9 @@ init python:
                 type_filter.add(type)
 
         def add_courses(self):
+            school_courses = self.all_courses
             courses = self.courses
+
             keys = school_courses.keys()
             num_courses = len(keys)*MAX_TIER/2
             num_courses += randint(0, num_courses/2)

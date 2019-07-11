@@ -1059,7 +1059,7 @@ init: # ChainFights vs Mobs:
                     mousewheel True
                     child_size (700, 5000)
                     has vbox spacing 5
-                    for setup in arena_chain_fights:
+                    for setup in Arena.all_chain_fights:
                         $ id = setup["id"]
                         $ lvl = setup["level"]
                         $ portrait = setup["boss_portrait"]
