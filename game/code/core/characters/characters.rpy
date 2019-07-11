@@ -1104,6 +1104,8 @@ init -9 python:
              'Service' (Maid)
              """
 
+            if hint is None:
+                hint = getattr(self._job, "aeq_purpose", None)
             if hint in STATIC_ITEM.AEQ_PURPOSES:
                 return hint
 
