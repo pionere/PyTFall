@@ -623,6 +623,39 @@ init -2 python:
             block_say = False
 
         @staticmethod
+        def items_deny_good_item(character):
+            """
+            Output line when a character does not want to unequip a good item.
+            """
+            global block_say
+            char_traits = character.traits
+            if "Impersonal" in char_traits:
+                lines = ("I don't want to part with it. I like it very much.", )
+            elif "Shy" in char_traits and dice(50):
+                lines = ("It's... necessary for me. Um... I really need it...", )
+            elif "Tsundere" in char_traits:
+                lines = ("Why would I put it away?", "Whaaat? This item is really necessary for me!")
+            elif "Kuudere" in char_traits:
+                lines = ("And why should I put this away?", "You know, someone like me has a real use for this.")
+            elif "Yandere" in char_traits:
+                lines = ("What were you thinking? I still need this!", "Hey, I still want to use this!")
+            elif "Dandere" in char_traits:
+                lines = ("I'm still using this!", "This item is bound to me.")
+            elif "Ane" in char_traits:
+                lines = ("Not to be ungrateful, but... I really need this.", "Sorry, but I think this could still be useful to me.")
+            elif "Imouto" in char_traits:
+                lines = ("Hey! I don't want to part with this!", "Yuck. I'm still using this, you know?")
+            elif "Kamidere" in char_traits:
+                lines = ("This item is still useful to me.", "Please refrain from bothering me with this in the future.")
+            elif "Bokukko" in char_traits:
+                lines = ("Hey, is this a joke? What am I supposed to do without this?", )
+            else:
+                lines = ("I'm sorry, but I absolutely need this.", )
+            block_say = True
+            iam.say_line(character, lines)
+            block_say = False
+
+        @staticmethod
         def items_deny_equip_bad(character):
             """
             Output line when a character really does not want to (un)equip an item.

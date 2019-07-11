@@ -253,8 +253,13 @@ init -11 python:
                 return True
 
             diff = hero_influence - item.eqchance
-            if diff >= 0:
+            if diff >= 0: # allow unequip of items with eqchance 100 under 'complete' influence
                 return True
+
+            if item.eqchance > 70:
+                if not silent:
+                    iam.items_deny_good_item(character)
+                return False
         else:
             # check the current equipped item
             slot = item.slot
@@ -285,8 +290,13 @@ init -11 python:
                 hero_influence *= 1.2
 
             diff = hero_influence - (100 - item.eqchance)
-            if diff > 0:
+            if diff > 0: # items with eqchance 0 should not be equipped in normal circumstances 
                 return True
+
+            if item.eqchance < 30:
+                if not silent:
+                    iam.items_deny_bad_item(character)
+                return False
 
         if not silent:
             if diff < -20:
