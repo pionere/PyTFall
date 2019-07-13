@@ -563,29 +563,20 @@ init -10 python:
             stats = char.stats
             # If the trait is a basetrait:
             if trait in self.basetraits:
+                multiplier = 2 if len(self.basetraits) == 1 else 1
                 for k, v in trait.init_lvlmax.iteritems(): # Mod value setting
-                    v *= 2
-                    if v > stats.lvl_max[k]: # STAT_LVL_MAX
-                        stats.lvl_max[k] = v # STAT_LVL_MAX
+                    stats.lvl_max[k] += v * multiplier # STAT_LVL_MAX
 
                 for k, v in trait.init_max.iteritems(): # Mod value setting
-                    v *= 2
-                    if v > stats.max[k]: # STAT_MAX
-                        stats.max[k] = v # STAT_MAX 
+                    stats.max[k] += v * multiplier # STAT_MAX 
 
                 for k, v in trait.init_mod.iteritems(): # Mod value setting
-                    v *= 2
-                    if v > stats.stats[k]: # STAT_STAT
-                        stats.stats[k] = v # STAT_STAT
+                    stats.stats[k] += v * multiplier # STAT_STAT
 
                 for k, v in trait.init_skills.iteritems(): # Mod value setting
-                    value = v[0]*2
                     k = stats.skills[k]
-                    if value > k[0]:
-                        k[0] = value
-                    value =  v[1]*2
-                    if value > k[1]:
-                        k[1] = value 
+                    k[0] += v[0] * multiplier
+                    k[1] += v[1] * multiplier
 
             # Only for body traits:
             if trait.body:
