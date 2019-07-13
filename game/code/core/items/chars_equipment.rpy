@@ -1065,31 +1065,34 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                     xpadding 0
                     xmargin 0
                     has vbox spacing 1 xoffset 10
-                    null height 15
+                    null height 13
                     frame:
                         xysize (160, 25)
                         text "Price:" color "gold" xalign .02
-                        label '{size=-4}{color=gold}[item.price]' align .98, .5 text_outlines [(1, "#3a3a3a", 0, 0)]
+                        label str(item.price) text_color "gold" text_size 15 align .98, .5 text_outlines [(1, "#3a3a3a", 0, 0)]
                     frame:
                         xysize (160, 25)
                         text "Slot:" color "#F5F5DC" xalign .02
                         $ slot = EQUIP_SLOTS.get(item.slot, item.slot.capitalize())
-                        label ('{color=#F5F5DC}{size=-4}%s'%slot) align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
+                        label slot text_color "#F5F5DC" text_size 15 align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
                     frame:
                         xysize (160, 25)
                         text "Type:" color "#F5F5DC" xalign .02
-                        label ('{color=#F5F5DC}{size=-4}%s'%item.type.capitalize()) align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
+                        label item.type.capitalize() text_color "#F5F5DC" text_size 15 align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
                     frame:
                         xysize (160, 25)
                         text "Sex:" color "#F5F5DC" xalign .02
+                        $ color = "#F5F5DC"
                         $ temp = getattr(item, "gender", "unisex")
                         if item.slot in ["gift", "resources", "loot"]:
-                            label "{size=-4}N/A" align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
+                            $ temp = "N/A"
                         elif item.type == "food" and temp == "unisex":
-                            label "{size=-4}N/A" align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
-                        else:
-                            $ color = "#FFA54F" if temp == "male" else ("#FFAEB9" if temp == "female" else "#F5F5DC")
-                            label ('{size=-4}{color=%s}%s'%(color, temp.capitalize())) align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
+                            $ temp = "N/A"
+                        elif temp == "female":
+                            $ color = "#FFAEB9" 
+                        elif temp == "male":
+                            $ color = "#FFA54F"
+                        label temp.capitalize() text_color color text_size 15 align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
 
                 # Buttons and image:
                 if item_direction == "unequip":
@@ -1150,37 +1153,52 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                     ypadding 5
                     has viewport draggable True mousewheel True child_size 200, 500
                     vbox:
+                        if item in eqtarget.constemp:
+                            $ temp = eqtarget.constemp[item]
+                            null height 3
+                            frame:
+                                xysize (172, 18)
+                                text u"{i}Remaining %s: %d{/i}" % (plural("day", temp), temp) color "yellowgreen" size 15 xalign .5 yoffset -2
+
+                        if item in eqtarget.miscitems:
+                            $ temp = item.mtemp - eqtarget.miscitems[item] 
+                            null height 3
+                            frame:
+                                xysize (172, 18)
+                                text u"{i}Remaining %s: %d{/i}" % (plural("day", temp), temp) color "yellowgreen" size 15 xalign .5 yoffset -2
+
                         if item.mod:
-                            label ('Stats:') text_size 14 text_color "gold" xpos 30
+                            label u"Stats:" text_size 14 text_color "gold" xpos 30
                             vbox:
                                 spacing 1
                                 for stat, value in item.mod.items():
                                     frame:
                                         xysize (172, 18)
                                         text stat.capitalize() color "#F5F5DC" size 15 xalign .02 yoffset -2
-                                        label (u'{color=#F5F5DC}{size=-4}[value]') align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
+                                        label str(value) text_color "#F5F5DC" text_size 15 align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
                             null height 3
 
                         if item.max:
-                            label ('Max:') text_size 14 text_color "gold" xpos 30
+                            label u"Max:" text_size 14 text_color "gold" xpos 30
                             vbox:
                                 spacing 1
                                 for stat, value in item.max.items():
                                     frame:
                                         xysize (172, 18)
                                         text stat.capitalize() color "#F5F5DC" size 15 xalign .02 yoffset -2
-                                        label (u'{color=#F5F5DC}{size=-4}[value]') align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
+                                        label str(value) text_color "#F5F5DC" text_size 15 align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
                             null height 3
 
                         if item.min:
-                            label ('Min:') text_size 14 text_color "gold" xpos 30
+                            label u"Min:" text_size 14 text_color "gold" xpos 30
                             vbox:
                                 spacing 1
                                 for stat, value in item.min.items():
                                     frame:
                                         xysize (172, 18)
                                         text stat.capitalize() color "#F5F5DC" size 15 xalign .02 yoffset -2
-                                        label (u'{color=#F5F5DC}{size=-4}%d'%value) align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
+                                        label str(value) text_color "#F5F5DC" text_size 15 align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
+                            null height 3
 
             # Bottom HBox: Desc/Traits/Effects/Skills:
             hbox:
