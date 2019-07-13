@@ -137,8 +137,8 @@ label char_profile_end:
 
 screen char_profile():
 
-    key "mousedown_4" action Return(["control", "right"])
-    key "mousedown_5" action Return(["control", "left"])
+    key "mousedown_4" action Return(["control", "left"])
+    key "mousedown_5" action Return(["control", "right"])
     key "mousedown_3" action Return(['control', 'return']) # keep in sync with button - alternate
 
     default stats_display = "main"

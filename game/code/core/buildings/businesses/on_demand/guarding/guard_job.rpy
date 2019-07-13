@@ -4,7 +4,7 @@ init -5 python:
         desc = "Protects your business and girls from rivals and aggressive customers"
         type = "Combat"
 
-        aeq_purpose = "Guard"
+        aeq_purpose = "Fighting" # select equipment based on the basetraits
 
         # Relevant skills and stats:
         base_stats = {"attack": 25, "defence": 25,

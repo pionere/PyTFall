@@ -305,18 +305,21 @@ label after_load:
         if last_modified_traits < last_modified:
             tl.start("Updating traits")
             updated_traits = load_traits()
+            current_traits = store.traits
             for id, trait in updated_traits.iteritems():
-                curr_trait = store.traits.get(id, None)
+                curr_trait = current_traits.get(id, None)
                 if curr_trait is None:
                     # Add new trait
-                    store.traits[id] = trait
+                    current_traits[id] = trait
                     if DEBUG_LOG:
                         devlog.info("New Trait: {}".format(id))
                 else:
                     # Update the existing trait
+                    #  change references to traits
+                    trait.blocks = [current_traits.get(t.id, t) for t in trait.blocks]
+                    #  update the attributes
                     update_object(curr_trait, trait, "Trait")
 
-            del updated_traits
             load_traits_context() 
             tl.end("Updating traits")
             global_flags.set_flag("last_modified_traits", last_modified)
@@ -328,19 +331,18 @@ label after_load:
         if last_modified_items < last_modified: 
             tl.start("Updating items")
             updated_items = load_items()
-
+            current_items = store.items
             for id, item in updated_items.iteritems():
-                curr_item = store.items.get(id, None)
+                curr_item = current_items.get(id, None)
                 if curr_item is None:
                     # Add new item
-                    store.items[id] = item
+                    current_items[id] = item
                     if DEBUG_LOG:
                         devlog.info("New Item: {}".format(id))
                 else:
                     # Update the existing item
                     update_object(curr_item, item, "Item")
 
-            del updated_items
             tl.end("Updating items")
             global_flags.set_flag("last_modified_items", last_modified)
             renpy.call("sort_items_for_gameplay")
@@ -354,11 +356,12 @@ label after_load:
         if True: # last_modified_chars < last_modified:
         #    tl.start("Updating chars")
             updated_chars = load_characters("chars", Char)
+            current_chars = store.chars
             for id, char in updated_chars.items():
-                curr_char = store.chars.get(id, None)
+                curr_char = current_chars.get(id, None)
                 if curr_char is None:
                     # Add new char
-                    store.chars[id] = char
+                    current_chars[id] = char
         #            devlog.info("New Character: {}".format(id))
         #        else:
         #            # Update the existing char

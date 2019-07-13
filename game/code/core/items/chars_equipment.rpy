@@ -138,11 +138,6 @@ label char_equip_loop:
                         if equipment_access(eqtarget, focusitem, unequip=True):
                             $ eqtarget.unequip(focusitem, unequip_slot)
 
-                            # We should try to transfer items in case of:
-                            # We don't really care if that isn't possible...
-                            if inv_source != eqtarget:
-                                $ transfer_items(eqtarget, inv_source, focusitem, silent=True)
-
                             $ char_equip_reset_fields()
             elif result[1] == "discard":
                 python:
@@ -157,7 +152,31 @@ label char_equip_loop:
                             char_equip_reset_fields()
                         del num
             elif result[1] == "transfer":
-                $ transfer_items(result[2], result[3], focusitem)
+                python:
+                    source = result[2]
+                    target = result[3]
+                    if can_transfer(source, target, focusitem):
+                        if item_direction == "unequip":
+                            # unequip transfer (reequip)
+                            # Remark: assumes a transfer is more strict than an equipment_access
+                            #  otherwise it should be called as well, but at the moment ownership
+                            #  is not checked in the equipment_access
+                            purpose = source.last_known_aeq_purpose
+                            source.unequip(focusitem, unequip_slot)
+
+                            transfer_items(source, target, focusitem)
+                            if source.autoequip:
+                                source.auto_equip(purpose)
+                            del purpose
+
+                            char_equip_reset_fields()
+                        else:
+                            # just transfer
+                            transfer_items(source, target, focusitem)
+
+                            if focusitem not in source.inventory:
+                                char_equip_reset_fields()
+                    del source, target
             elif result[1] == "equip":
                 python:
                     focusitem = result[2]
@@ -1073,15 +1092,18 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                             label ('{size=-4}{color=%s}%s'%(color, temp.capitalize())) align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
 
                 # Buttons and image:
-                if inv_source == hero:
-                    $ temp_source, temp_target = hero, eqtarget
+                if item_direction == "unequip":
+                    $ temp_source = eqtarget
+                    $ temp_target = hero
                 else:
-                    $ temp_source, temp_target = eqtarget, hero
+                    $ temp_source = inv_source
+                    $ temp_target = eqtarget if inv_source == hero else hero
                 button:
                     style_group "pb"
                     align (.0, .5)
                     xysize (80, 45)
-                    action SensitiveIf(eqtarget != hero and inv_source.inventory[item] > 0), Return(["item", "transfer", temp_source, temp_target])
+                    action Return(["item", "transfer", temp_source, temp_target])
+                    sensitive eqtarget != hero
                     if eqtarget == hero:
                         text "Transfer" style "pb_button_text" align (.5, .5)
                     else:
@@ -1101,21 +1123,19 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
 
                 if item_direction == "unequip":
                     $ temp = "Unequip"
-                    $ temp_msg = "Unequip {}".format(item.id)
                 elif item_direction == "equip":
                     if item.slot == "consumable":
                         $ temp = "Use"
-                        $ temp_msg = "Use {}".format(item.id)
                     else:
                         $ temp = "Equip"
-                        $ temp_msg = "Equip {}".format(item.id)
+                $ temp_msg = " ".join([temp, item.id])
                 button:
                     style_group "pb"
                     align (1.0, .5)
                     xysize (80, 45)
                     tooltip temp_msg
                     action SensitiveIf(focusitem), Return(["item", "equip/unequip"])
-                    text "[temp]" style "pb_button_text" align (.5, .5):
+                    text temp style "pb_button_text" align (.5, .5):
                         if item_direction == "equip" and not can_equip(focusitem, eqtarget, silent=True):
                             color "red" strikethrough True
 
