@@ -1032,7 +1032,7 @@ init -9 python:
             target_skills = base_purpose.get("target_skills")
             base_purpose = base_purpose.get("base_purpose")
 
-            picks = eval_inventory(self, inv, EQUIP_SLOTS, base_purpose)
+            picks = eval_inventory(self, inv, EQUIP_SLOTS, base_purpose, False)
 
             # traits that may influence the item selection process
             upto_skill_limit = False
@@ -1103,7 +1103,7 @@ init -9 python:
             base_purpose.update(bt.id for bt in self.traits.basetraits)
             base_purpose.update(str(t) for t in self.occupations)
 
-            picks = eval_inventory(self, inv, ["consumable"], base_purpose)
+            picks = eval_inventory(self, inv, ["consumable"], base_purpose, False)
 
             # traits that may influence the item selection process
             intelligence = 80
@@ -1253,7 +1253,7 @@ init -9 python:
             target_skills = base_purpose.get("target_skills")
             base_purpose = base_purpose.get("base_purpose")
 
-            picks = eval_inventory(self, container, slots, base_purpose)
+            picks = eval_inventory(self, container, slots, base_purpose, check_money)
             picks = self.stats.weight_items(picks, target_stats, target_skills, fighting, False)
 
             # filter the weighted items
@@ -1261,7 +1261,7 @@ init -9 python:
             slot_limit = dict()
             # smart_ownership_limit
             owned_slots = {s for s in slots if s not in ["ring", "misc", "consumable"]}
-            owned_picks = eval_inventory(self, self.inventory, owned_slots, base_purpose)
+            owned_picks = eval_inventory(self, self.inventory, owned_slots, base_purpose, False)
             owned_picks = self.stats.weight_items(owned_picks, target_stats, target_skills, fighting, False)
 
             for _weight, item in owned_picks:

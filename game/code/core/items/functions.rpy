@@ -117,7 +117,7 @@ init -11 python:
                 return
         return True
 
-    def eval_inventory(char, inventory, slots, base_purpose):
+    def eval_inventory(char, inventory, slots, base_purpose, check_money):
         """
         picks items from an inventory for the current character.
         incorporates most of the can_equip function
@@ -125,10 +125,11 @@ init -11 python:
         :param inventory: the inventory to evaluate items from
         :param slots: a list/tuple/set/dict of slots to be considered
         :param base_purpose: set of strings to match against item.pref_class
+        :param check_money: whether check if the char has enough money to buy the item
         """
 
         # call the functions for these only once
-        gold = char.gold
+        gold = char.gold if check_money else sys.maxint
         gender = char.gender
         is_slave = char.status == "slave"
         miscblock = char.miscblock
@@ -140,9 +141,13 @@ init -11 python:
         # most_weights = {slot: 0 for slot in weighted}
         picks = []
         for item in inventory:
+            if item.price > gold:
+                aeq_debug("Ignoring item %s on gold.", item)
+                continue
+
             slot = item.slot
             if slot not in slots:
-                aeq_debug("Ignoring item %s on slot", item)
+                aeq_debug("Ignoring item %s on slot.", item)
                 continue
 
             # Gender:

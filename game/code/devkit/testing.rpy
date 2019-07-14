@@ -1209,7 +1209,7 @@ init 1000 python:
             slots = store.EQUIP_SLOTS.keys()
             slots.append("consumable")
 
-            picks = eval_inventory(char, items, slots, base_purpose)
+            picks = eval_inventory(char, items, slots, base_purpose, False)
 
             #picks = [p for p in picks if p.id == "Manual of Health"]
             result = char.stats.weight_items(picks, target_stats, target_skills, fighting, upto_skill_limit=False)
