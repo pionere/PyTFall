@@ -62,7 +62,7 @@ label peevish_meeting:
     p "Well, don't expect it to be cheap!"
     extend " Talk to me when you have some G's on you!"
 
-    $ pytfall.peevish_shop.visible = True 
+    $ pytfall.shops_stores["Peevish Shop"].visible = True 
     $ global_flags.set_flag("met_peevish")
     $ global_flags.del_flag("keep_playing_music")
     $ del p
@@ -89,7 +89,7 @@ label peevish_menu:
         item_price = 0
         amount = 1
         purchasing_dir = None
-        shop = pytfall.peevish_shop
+        shop = pytfall.shops_stores["Peevish Shop"]
         char = hero
         char.inventory.set_page_size(18)
 

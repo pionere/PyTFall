@@ -35,7 +35,7 @@ label aine_menu:
         a "I can teach you {color=lightblue}Ice{/color} and {color=yellow}Electricity{/color} spells if you're interested,"
         extend " it will cost you, but you'll never have to hear a word about no pile of gold from me."
 
-        $ pytfall.aine_shop.visible = True
+        $ pytfall.shops_stores["Aine Shop"].visible = True
         $ stop_gossip("aine_park")
     else:
         a "Hello again. How are you today?"
@@ -64,7 +64,7 @@ label aine_shop:
         item_price = 0
         amount = 1
         purchasing_dir = None
-        shop = pytfall.aine_shop
+        shop = pytfall.shops_stores["Aine Shop"]
         char = hero
         char.inventory.set_page_size(18)
 

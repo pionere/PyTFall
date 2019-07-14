@@ -80,7 +80,7 @@ label hidden_village_shop: # ninja shop logic
         item_price = 0
         amount = 1
         purchasing_dir = None
-        shop = pytfall.hidden_village_shop
+        shop = pytfall.shops_stores["Ninja Tools Shop"]
         char = hero
         char.inventory.set_page_size(18)
 

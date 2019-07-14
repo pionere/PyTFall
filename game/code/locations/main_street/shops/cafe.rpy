@@ -77,7 +77,7 @@ label cafe_shopping:
         item_price = 0
         amount = 1
         purchasing_dir = None
-        shop = pytfall.cafe
+        shop = pytfall.shops_stores["Cafe"]
         char = hero
         char.inventory.set_page_size(18)
 

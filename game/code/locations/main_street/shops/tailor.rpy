@@ -56,7 +56,7 @@ label tailor_store_shopping:
         item_price = 0
         amount = 1
         purchasing_dir = None
-        shop = pytfall.tailor_store
+        shop = pytfall.shops_stores["Tailor Store"]
         char = hero
         char.inventory.set_page_size(18)
 

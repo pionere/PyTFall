@@ -66,18 +66,20 @@ init -9 python:
 
         def init_shops(self):
             # Shops:
-            self.shops = ['General Store', 'Cafe', 'Work Shop', 'Witches Hut', 'Tailor Store', 'Tavern', 'Ninja Tools Shop', 'Peevish Shop', 'Witch Spells Shop', 'Aine Shop', 'Angelica Shop']
-            self.general_store = ItemShop('General Store', gold=15000, sells=["any"], sell_margin=.7)
-            self.cafe = ItemShop('Cafe', sells=["food"], sell_margin=1.1)
-            self.tavern = ItemShop('Tavern', sells=["alcohol"], sell_margin=1.1)
-            self.workshop = ItemShop('Work Shop', sells=["axe", "armor", "special", "dagger", "fists", "rod", "claws", "sword", "bow", "shield", "tool", "whip", "throwing", "crossbow", "scythe", "other"])
-            self.witches_hut = ItemShop('Witches Hut', sells=["amulet", "ring", "restore", "other", "rod", "dagger", "treasure"])
-            self.witch_spells_shop = ItemShop("Witch Spells Shop", gold=5000, sells=["scroll"], sell_margin=1, buy_margin=5.0)
-            self.tailor_store = ItemShop('Tailor Store', sells=["dress", "special"])
-            self.hidden_village_shop = ItemShop("Ninja Tools Shop", location="Ninja Shop", gold=1000, sells=["armor", "dagger", "fists", "rod", "claws", "scroll", "sword", "bow", "amulet", "ring", "restore", "dress", "treasure"], buy_margin=3.0)
-            self.peevish_shop = ItemShop("Peevish Shop", gold=5000, visible=False, sells=["scroll"], sell_margin=1, buy_margin=5.0)
-            self.aine_shop = ItemShop("Aine Shop", gold=5000, visible=False, sells=["scroll"], sell_margin=1, buy_margin=5.0)
-            self.angelica_shop = ItemShop("Angelica Shop", gold=5000, visible=False, sells=["scroll"], sell_margin=1, buy_margin=5.0)
+            shops_stores = [
+                ItemShop('General Store', gold=15000, sells=["any"], sell_margin=.7),
+                ItemShop('Cafe', sells=["food"], sell_margin=1.1),
+                ItemShop('Tavern', sells=["alcohol"], sell_margin=1.1),
+                ItemShop('Work Shop', sells=["axe", "armor", "special", "dagger", "fists", "rod", "claws", "sword", "bow", "shield", "tool", "whip", "throwing", "crossbow", "scythe", "other"]),
+                ItemShop('Witches Hut', sells=["amulet", "ring", "restore", "other", "rod", "dagger", "treasure"]),
+                ItemShop("Witch Spells Shop", gold=5000, sells=["scroll"], sell_margin=1, buy_margin=5.0),
+                ItemShop('Tailor Store', sells=["dress", "special"]),
+                ItemShop("Ninja Tools Shop", location="Ninja Shop", gold=1000, sells=["armor", "dagger", "fists", "rod", "claws", "scroll", "sword", "bow", "amulet", "ring", "restore", "dress", "treasure"], buy_margin=3.0),
+                ItemShop("Peevish Shop", gold=5000, visible=False, sells=["scroll"], sell_margin=1, buy_margin=5.0),
+                ItemShop("Aine Shop", gold=5000, visible=False, sells=["scroll"], sell_margin=1, buy_margin=5.0),
+                ItemShop("Angelica Shop", gold=5000, visible=False, sells=["scroll"], sell_margin=1, buy_margin=5.0)]
+
+            self.shops_stores = dict((shop.name, shop) for shop in shops_stores)
 
         # World AI ----------------------------->
         def populate_world(self, tier_offset=.0):
@@ -173,17 +175,8 @@ init -9 python:
 
             # Shops:
             tl.start("Shops ND")
-            self.general_store.next_day()
-            self.cafe.next_day()
-            self.tavern.next_day()
-            self.workshop.next_day()
-            self.witches_hut.next_day()
-            self.tailor_store.next_day()
-            self.hidden_village_shop.next_day()
-            self.peevish_shop.next_day()
-            self.witch_spells_shop.next_day()
-            self.aine_shop.next_day()
-            self.angelica_shop.next_day()
+            for shop in self.shops_stores.itervalues():
+                shop.next_day()
             tl.end("Shops ND")
 
             # Slave Market:

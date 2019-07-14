@@ -302,7 +302,7 @@ label city_tavern_shopping: # tavern shop with alcohol, available in all modes e
         item_price = 0
         amount = 1
         purchasing_dir = None
-        shop = pytfall.tavern
+        shop = pytfall.shops_stores["Tavern"]
         char = hero
         char.inventory.set_page_size(18)
 

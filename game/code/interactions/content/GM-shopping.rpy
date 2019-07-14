@@ -24,7 +24,8 @@ label interactions_shopping:
 
     python:
         focus = False
-        pytfall.tailor_store.inventory.apply_filter('all')
+        shop = pytfall.shops_stores["Tailor Store"]
+        shop.inventory.apply_filter('all')
         char.inventory.set_page_size(18)
         char.inventory.apply_filter('all')
 
@@ -36,15 +37,15 @@ label interactions_shopping:
         while True:
             result = ui.interact()
             if result[0] == 'shop':
-                if result[1] == 'first_page':pytfall.tailor_store.inventory.first()
-                elif result[1] == 'last_page':pytfall.tailor_store.inventory.last()
-                elif result[1] == 'next_page':pytfall.tailor_store.inventory.next()
-                elif result[1] == 'prev_page':pytfall.tailor_store.inventory.prev()
-                elif result[1] == 'prev_filter':pytfall.tailor_store.inventory.apply_filter('prev')
-                elif result[1] == 'next_filter':pytfall.tailor_store.inventory.apply_filter('next')
+                if result[1] == 'first_page':shop.inventory.first()
+                elif result[1] == 'last_page':shop.inventory.last()
+                elif result[1] == 'next_page':shop.inventory.next()
+                elif result[1] == 'prev_page':shop.inventory.prev()
+                elif result[1] == 'prev_filter':shop.inventory.apply_filter('prev')
+                elif result[1] == 'next_filter':shop.inventory.apply_filter('next')
                 else:
                     purchasing_dir = 'buy'
-                    focus = pytfall.tailor_store.inventory.getitem(result[1])
+                    focus = shop.inventory.getitem(result[1])
 
             elif result[0] == 'inv':
                 if result[1] == 'first_page':char.inventory.first()
@@ -119,19 +120,19 @@ label interactions_shopping:
                                     char.gfx_mod_stat("affection", "gold")
                                     char.gfx_mod_stat('joy', 3)
 
-                            pytfall.tailor_store.inventory.remove(focus)
+                            shop.inventory.remove(focus)
                             char.inventory.append(focus)
-                            pytfall.tailor_store.gold += focus.price
+                            shop.gold += focus.price
                             break
 
                         focus = False
 
                     elif purchasing_dir == 'sell':
-                        if pytfall.tailor_store.gold >= focus.price:
-                            pytfall.tailor_store.gold -= focus.price
+                        if shop.gold >= focus.price:
+                            shop.gold -= focus.price
                             hero.add_money(focus.price, reason="Items")
                             char.inventory.remove(focus)
-                            pytfall.tailor_store.inventory.append(focus)
+                            shop.inventory.append(focus)
 
                             if char.occupation=='Prostitute':
                                 txt += "Prostitute test"
@@ -162,9 +163,9 @@ label interactions_shopping:
         g "[txt]"
 
     python:
-        pytfall.tailor_store.inventory.apply_filter('all')
+        shop.inventory.apply_filter('all')
         char.inventory.apply_filter('all')
-        del txt, focus, purchasing_dir
+        del txt, shop, focus, purchasing_dir
 
     scene bg gallery
     with dissolve
@@ -188,7 +189,7 @@ screen tailor_store_shopping_girl():
             null width 50
 
     use shop_inventory(ref=char, x=.0, title="Inventory")
-    use shop_inventory(ref=pytfall.tailor_store, x=1.0, title="Tailor Store")
+    use shop_inventory(ref=shop, x=1.0, title="Tailor Store")
 
     if focus:
         frame background Frame("content/gfx/frame/mes12.jpg", 5, 5):

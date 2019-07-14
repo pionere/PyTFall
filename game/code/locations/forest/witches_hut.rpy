@@ -52,7 +52,7 @@ label witches_hut_shopping:
         item_price = 0
         amount = 1
         purchasing_dir = None
-        shop = pytfall.witches_hut
+        shop = pytfall.shops_stores["Witches Hut"]
         char = hero
         char.inventory.set_page_size(18)
 
@@ -74,7 +74,7 @@ label witches_hut_shopping_spells:
         item_price = 0
         amount = 1
         purchasing_dir = None
-        shop = pytfall.witch_spells_shop
+        shop = pytfall.shops_stores["Witch Spells Shop"]
         char = hero
         char.inventory.set_page_size(18)
 

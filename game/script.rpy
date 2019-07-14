@@ -260,17 +260,16 @@ label dev_testing_menu_and_load_mc:
     jump mainscreen
 
 label sort_items_for_gameplay:
-    python:
-        # AutoBuy + Items sorting per Tier:
-        auto_shops = set(pytfall.shops)
-        all_auto_buy_items = []
-        tiered_items = [[],[],[],[],[]] # MAX_ITEM_TIER = 4
+    # AutoBuy + Items sorting per Tier:
+    $ all_auto_buy_items = []
+    $ tiered_items = [[],[],[],[],[]] # MAX_ITEM_TIER = 4
+    python hide:
+        auto_shops = set([shop.location for shop in pytfall.shops_stores.itervalues()])
         for i in items.values():
             if i.pref_class: # i.usable and not i.jump_to_label and i.type != "permanent"
                 tiered_items[i.tier or 0].append(i)
                 if not auto_shops.isdisjoint(i.locations):
                     all_auto_buy_items.append(i)
-        del auto_shops, i
     return
 
 label after_load:
@@ -326,6 +325,24 @@ label after_load:
 
     # Items:
     python hide:
+        if hasattr(pytfall, "shops"):
+            # FIXME Save-Load Compatibility -> remove this part!
+            shops_stores = [pytfall.general_store, pytfall.cafe, pytfall.tavern, pytfall.workshop, pytfall.witches_hut,
+                                    pytfall.witch_spells_shop, pytfall.tailor_store, pytfall.hidden_village_shop,
+                                    pytfall.peevish_shop, pytfall.aine_shop, pytfall.angelica_shop]
+
+            if hasattr(shops_stores[0], "locations"):
+                for i in shops_stores:
+                    if hasattr(i, "locations"):
+                        i.location = i.locations.pop()
+                        del i.locations
+
+            pytfall.shops_stores = dict((shop.name, shop) for shop in shops_stores)
+
+            del pytfall.shops, pytfall.general_store, pytfall.cafe, pytfall.tavern, pytfall.workshop, pytfall.witches_hut,
+            del pytfall.witch_spells_shop, pytfall.tailor_store, pytfall.hidden_village_shop,
+            del pytfall.peevish_shop, pytfall.aine_shop, pytfall.angelica_shop
+
         last_modified_items = global_flags.get_flag("last_modified_items", 0)
         last_modified = os.path.getmtime(content_path('db/items'))
         if last_modified_items < last_modified: 
@@ -1677,13 +1694,6 @@ label after_load:
             store.iam.world_gossips = WorldGossipsManager(world_gossips)
         if "girl_meets" in pytfall.world_actions.locations:
             del pytfall.world_actions.locations["girl_meets"]
-
-        if hasattr(pytfall.general_store, "locations"):
-            for i in pytfall.__dict__.values():
-                if isinstance(i, ItemShop):
-                    if hasattr(i, "locations"):
-                        i.location = i.locations.pop()
-                        del i.locations
 
         if not hasattr(store.chars_list_state, "all_status_filters"):
             store.chars_list_state = None

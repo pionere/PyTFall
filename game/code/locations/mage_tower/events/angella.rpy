@@ -40,7 +40,7 @@ label angelica_meet:
                 a "I'll be around if you change your mind."
                 jump mages_tower
 
-    $ pytfall.angelica_shop.visible = True # done here so it is not enabled if the user is not interested in magic, but also not barred forever 
+    $ pytfall.shops_stores["Angelica Shop"].visible = True # done here so it is not enabled if the user is not interested in magic, but also not barred forever 
     a "How can I be of assistance?"
 
 label angelica_menu:
@@ -67,7 +67,7 @@ label angelica_spells:
         item_price = 0
         amount = 1
         purchasing_dir = None
-        shop = pytfall.angelica_shop
+        shop = pytfall.shops_stores["Angelica Shop"]
         char = hero
         char.inventory.set_page_size(18)
 
