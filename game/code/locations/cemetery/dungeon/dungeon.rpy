@@ -7,10 +7,10 @@ init -1 python:
             self._map = kwargs['map']
             self.said = None
             self.next_events = deque()
-            self.show_map = False
+            self.show_map = True
             self.can_move = True
             self.timer = None
-            self.light = ""
+            self.light = None # None/"lantern"/"torch"
             self.timed = {}
 
         def say(self, who, what, **kwargs):
@@ -82,10 +82,19 @@ init -1 python:
                 # reset hero position
                 del self.hero
 
+                # remove used torch
+                if dungeon.light == "torch":
+                    torch = items["Torch"]
+                    for char in hero.team:
+                        if has_items("Torch", char, equipped=True):
+                            char.unequip(item=torch, aeq_mode=True)
+                            char.inventory.remove(torch)
+                            break
+
                 # cleanup globals
                 vars = ["dungeon", "pc", "mpos", "mpos2", "sided", "blend", "areas", "shown",
-                        "hotspots", "distance", "lateral", "x", "y", "front_str",
-                        "k", "d_items", "d_hotspots", "actions", "ri", "n", "e",
+                        "hotspots", "distance", "lateral", "x", "y", "front_str", "torch",
+                        "k", "d_items", "d_hotspots", "actions", "ri", "n", "e", "light",
                         "situ", "pt", "it", "img_name", "brightness", "spawn", "ori",
                         "transparent_area", "bx", "by", "at", "to", "pos", "access_denied",
                         "dungeon_location", "dungeons", "event", "current_time", "t"]
@@ -111,7 +120,8 @@ init -1 python:
                 adx = -adx
             if ady < 0:
                 ady = -ady
-            if adx <= 5 and ady <= 5:
+            visibility = 5 if self.light is None else 10
+            if adx <= visibility and ady <= visibility:
                 # if within 5 of hero move about.
                 if adx != 0:
                     if adx == dx:
@@ -288,9 +298,15 @@ screen dungeon_move(hotspots):
     use top_stripe(False, show_lead_away_buttons=False)
     use team_status(True)
 
-    # if dungeon.show_map:
-    add dungeon.smallMap:
-        pos (450, 50)
+    if dungeon.show_map:
+        imagebutton:
+            pos (450, 50)
+            idle dungeon.smallMap
+            action ToggleField(dungeon, "show_map")
+            tooltip "Hide map (Key: m)"
+            keysym "K_m"
+    else:
+        key "K_m" action ToggleField(dungeon, "show_map")
 
     if hotspots:
         imagemap:
@@ -311,36 +327,69 @@ screen dungeon_move(hotspots):
         key "focus_up" action NullAction()
         key "focus_down" action NullAction()
 
+        $ img = im.Scale("content/gfx/interface/buttons/blue_arrow_up.png", 50, 36)
         imagebutton:
             pos (190, 600)
-            idle im.Scale("content/gfx/interface/buttons/blue_arrow_up.png", 50, 36)
+            idle img
+            hover PyTGFX.bright_img(img, .15)
             action Return(value=8)
             keysym "K_KP8", "K_UP", "repeat_K_KP8", "repeat_K_UP"
+        $ img = im.Scale("content/gfx/interface/buttons/blue_arrow_down.png", 50, 36)
         imagebutton:
             pos (190, 650)
-            idle im.Flip(im.Scale("content/gfx/interface/buttons/blue_arrow_up.png", 50, 36), vertical=True)
+            idle img
+            hover PyTGFX.bright_img(img, .15)
             action Return(value=2)
             keysym "K_KP2", "K_DOWN", "repeat_K_KP2", "repeat_K_DOWN"
+        $ img = im.Scale("content/gfx/interface/buttons/blue_arrow_l.png", 36, 50)
         imagebutton:
-            pos (135, 605)
-            idle im.Flip(im.Scale("content/gfx/interface/buttons/blue_arrow_r.png", 36, 50), horizontal=True)
+            pos (149, 605)
+            idle img
+            hover PyTGFX.bright_img(img, .15)
             action Return(value=4)
             keysym "K_KP4", "K_LEFT"
+        $ img = im.Scale("content/gfx/interface/buttons/blue_arrow_r.png", 36, 50)
         imagebutton:
             pos (245, 605)
-            idle im.Scale("content/gfx/interface/buttons/blue_arrow_r.png", 36, 50)
+            idle img
+            hover PyTGFX.bright_img(img, .15)
             action Return(value=6)
             keysym "K_KP6", "K_RIGHT"
+        $ img = im.Scale("content/gfx/interface/buttons/blue_arrow_left.png", 36, 50)
         imagebutton:
-            pos (145, 660)
-            idle im.Flip(im.Scale("content/gfx/interface/buttons/blue_arrow.png", 36, 50), horizontal=True)
+            pos (149, 660)
+            idle img
+            hover PyTGFX.bright_img(img, .15)
             action Return(value=7)
             keysym "K_KP7", "repeat_K_KP7"
+        $ img = im.Scale("content/gfx/interface/buttons/blue_arrow_right.png", 36, 50)
         imagebutton:
-            pos (248, 660)
-            idle im.Scale("content/gfx/interface/buttons/blue_arrow.png", 36, 50)
+            pos (245, 660)
+            idle img
+            hover PyTGFX.bright_img(img, .15)
             action Return(value=9)
             keysym "K_KP9", "repeat_K_KP9"
+
+        if dungeon.light != "lantern":
+            $ torch = items["Torch"]
+            $ torch = sum([(char.inventory[torch]+1) for char in hero.team if has_items("Torch", char, equipped=True)])
+            if torch != 0:
+                if dungeon.light is None:
+                    $ img = "content/items/sweapon/torch.png"
+                    $ temp = "Light a torch! (Key: l)"
+                else:
+                    $ img = "content/gfx/interface/buttons/torch_lit.png"
+                    $ temp = "Turn off the torch! (Key: l)"
+                $ img = im.Scale(img, 50, 50)
+                imagebutton:
+                    pos (config.screen_width - (245 + 50), 660)
+                    idle img
+                    hover PyTGFX.bright_img(img, .15)
+                    action Return(value="torch")
+                    tooltip temp
+                    keysym "K_l"
+                text str(torch) size 30 color "ivory" outlines [(1, "black", 0, 0)]:
+                    pos (config.screen_width - (245 + 50 - 30), 680)
 
             # if config.developer:
                 # textbutton "U" action Return(value="update map") xcenter .2 ycenter .8
@@ -348,8 +397,6 @@ screen dungeon_move(hotspots):
                 # key "K_p" action Function(scrap.put, SCRAP_TEXT, str((pc['x'], pc['y'])))
                 # key "K_o" action Return(value="mpos")
                 # key "K_g" action SetField(dungeon, "show_map", "teleport")
-        key "K_m" action ToggleField(dungeon, "show_map")
-        key "K_l" action ToggleField(dungeon, "light", "_torch", "")
 
     if dungeon.next_events:
         timer .1 action Return(value="event_list")
@@ -396,6 +443,28 @@ label enter_dungeon:
     # dx,dy means direction. If dy=1, it's down. If dx=-1, it's left.
 
 label enter_dungeon_r:
+    # check artificial lights
+    python hide:
+        if dungeon.light == "torch":
+            for char in hero.team:
+                if has_items("Torch", char, equipped=True):
+                    break
+            else:
+                dungeon.light = None
+                # a lit torch is gone -> seek and destroy
+                torch = items["Torch"]
+                for char in hero.team:
+                    if torch in char.inventory:
+                        char.inventory.remove(torch)
+                        break
+        if dungeon.light != "torch":
+            for char in hero.team:
+                if has_items("Lantern", char, equipped=True):
+                    dungeon.light = "lantern"
+                    break
+            else:
+                dungeon.light = None
+
     while True:
         # Composite background images.
         scene
@@ -403,6 +472,7 @@ label enter_dungeon_r:
             # compile front to back, a list of what area are walls to be shown, behind wall we don't show.
             sided = ["%s%s_left%dc", "%s%s_left%db", "%s%s_left%d", "%s%s_front%d", "%s%s_right%d", "%s%s_right%db", "%s%s_right%dc"]
             blend = dungeon.area
+            light = "" if dungeon.light is None else "_torch"
             areas = deque([[0, 0]])
             shown = []
             hotspots = []
@@ -411,7 +481,7 @@ label enter_dungeon_r:
             #    hotspots.append({'spot': [3, 43, len(dungeon._map[0])*6, len(dungeon._map)*6],
             #                     'actions': [{ "function": "teleport", "arguments": [] }] })
 
-            renpy.show(dungeon.background % dungeon.light)
+            renpy.show(dungeon.background % light)
 
             while areas:
                 (distance, lateral) = areas.popleft()
@@ -449,13 +519,13 @@ label enter_dungeon_r:
                     pt = str((x, y))
                     if pt in dungeon.renderitem:
                         for ri in dungeon.renderitem[pt]:
-                            img_name = sided[lateral+3] % ('dungeon_'+ri['name'], dungeon.light, distance)
+                            img_name = sided[lateral+3] % ('dungeon_'+ri['name'], light, distance)
                             img_func = ri.get("function", None)
                             if img_func is not None and img_func.startswith("im.matrix."):
-                                img_name = content_path("dungeon", ri['name']+dungeon.light, img_name+".webp")
+                                img_name = content_path("dungeon", ri['name']+light, img_name+".webp")
                                 if renpy.loadable(img_name):
                                     # distance darkening
-                                    brightness = im.matrix.brightness(-math.sqrt(lateral**2 + distance**2)/(5.8 if dungeon.light else 4.5))
+                                    brightness = im.matrix.brightness(-math.sqrt(lateral**2 + distance**2)/(5.8 if light else 4.5))
                                     shown.append(im.MatrixColor(img_name, eval(img_func)(*ri["arguments"]) * brightness))
                             else:
                                 shown.append(img_name)
@@ -494,12 +564,12 @@ label enter_dungeon_r:
                 if situ in dungeon.visible: # a wall or so, need to draw.
                     if isinstance(blend[situ], list):
                         if len(blend[situ]) == 2: # left-right symmetry
-                            shown.append(sided[lateral+3] % ('dungeon_'+blend[situ][abs(pc['dx'])], dungeon.light, distance))
+                            shown.append(sided[lateral+3] % ('dungeon_'+blend[situ][abs(pc['dx'])], light, distance))
                         else: # no symmetry, 4 images.
                             ori = 1 - pc['dx'] - pc['dy'] + (1 if pc['dx'] > pc['dy'] else 0)
-                            shown.append(sided[lateral+3] % ('dungeon_'+blend[situ][ori], dungeon.light, distance))
+                            shown.append(sided[lateral+3] % ('dungeon_'+blend[situ][ori], light, distance))
                     else: # symmetric, or simply rendered in only one symmetry
-                        shown.append(sided[lateral+3] % ('dungeon_'+blend[situ], dungeon.light, distance))
+                        shown.append(sided[lateral+3] % ('dungeon_'+blend[situ], light, distance))
 
                 transparent_area = dungeon.transparent[abs(pc['dx'])]
 
@@ -559,6 +629,22 @@ label enter_dungeon_r:
                     mpos = None
                 else:
                     mpos = renpy.get_mouse_pos()
+            elif _return == "torch":
+                if dungeon.light is None:
+                    dungeon.light = "torch"
+                    # TODO add event to turn off?
+                else:
+                    dungeon.light = None
+                    torch = items["Torch"]
+                    for t in hero.team:
+                        if torch in t.inventory:
+                            break
+                    else:
+                        for t in hero.team:
+                            if has_items("Torch", t, equipped=True):
+                                t.unequip(item=torch, aeq_mode=True)
+                                break
+                    t.inventory.remove(torch)
             elif _return in hero.team:
                 came_to_equip_from = "enter_dungeon_r"
                 eqtarget = _return

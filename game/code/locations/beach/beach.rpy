@@ -295,7 +295,7 @@ label mc_action_city_beach_diving_checks:
         loots = [[j, j.chance] for j in items.values() if "Diving" in j.locations and j.price <= i]
         if has_items("Snorkel Mask", hero, equipped=True):
             i += 200
-        if has_items("Underwater Lantern", hero, equipped=True):
+        if has_items("Lantern", hero, equipped=True):
             j = (90, 90)
         else:
             j = (50, 50)

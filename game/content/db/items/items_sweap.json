@@ -335,16 +335,29 @@
     "pref_class":["Warrior"]
     },
     {
-    "id": "Underwater Lantern",
-    "desc": "Helps to find items underwater by increasing the area of search, but useless otherwise.",
+    "id": "Lantern",
+    "desc": "Provides light in various environments (Waterproof).",
     "icon": "content/items/sweapon/u_lantern.png",
-    "price": 250,
-    "chance": 30,
+    "price": 500,
+    "chance": 10,
     "eqchance": 0,
     "infinite": false,
     "slot": "smallweapon",
     "type": "tool",
     "locations": ["General Store"],
+    "tier": 1
+    },
+    {
+    "id": "Torch",
+    "desc": "Provides temporary light (single use).",
+    "icon": "content/items/sweapon/torch.png",
+    "price": 10,
+    "chance": 80,
+    "eqchance": 50,
+    "infinite": false,
+    "slot": "smallweapon",
+    "type": "tool",
+    "locations": ["Witches Hut"],
     "tier": 1
     },
     {
