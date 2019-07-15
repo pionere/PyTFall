@@ -174,12 +174,11 @@ screen chars_list():
                             xpos 10
 
                             # Name
-                            label "[c.name]":
-                                text_size 18
-                                if c.__class__ == Char:
-                                    text_color "pink"
-                                else:
-                                    text_color "goldenrod"
+                            if c.__class__ == Char:
+                                $ color = "pink" if c.gender == "female" else "paleturquoise"
+                            else:
+                                $ color = "goldenrod"
+                            label "[c.name]" text_size 18 text_color color
 
                             # Prof-Classes
                             python:

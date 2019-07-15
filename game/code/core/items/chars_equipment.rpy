@@ -865,58 +865,56 @@ screen char_equip():
         text (u"{color=gold}[eqtarget.name]{/color}  {color=#ecc88a}%s" % t) size 14 align (.55, .65) font "fonts/TisaOTM.otf" line_leading -5
 
     # Right Frame Buttons ====================================>
-    vbox:
+    fixed:
         pos 937, 118
         xsize 345
         style_prefix "pb"
-        hbox:
-            xalign .5
-            spacing 2
-            button:
-                xsize 110
-                action If(eqtarget != hero, true=[SetVariable("inv_source", hero),
-                                                  Function(hero.inventory.apply_filter, eqtarget.inventory.slot_filter),
-                                                  Return(["con", "return"]),
-                                                  With(dissolve)])
-                tooltip "Equip from {}'s Inventory".format(hero.nickname)
-                selected eqtarget == hero or inv_source == hero
-                text "Hero" style "pb_button_text" yoffset 2
-            button:
-                xsize 110
-                action If(eqtarget != hero, true=[SetVariable("inv_source", eqtarget),
-                                                  Function(eqtarget.inventory.apply_filter, hero.inventory.slot_filter),
-                                                  Return(["con", "return"]),
-                                                  With(dissolve)])
-                selected inv_source != hero
-                sensitive eqtarget != hero
-                tooltip "Equip from {}'s Inventory".format(eqtarget.nickname)
-                text "Girl" style "pb_button_text" yoffset 2
+        if inv_source == hero:
+            $ temp = "Your Inventory"
+        else:
+            $ temp = "%s's Inventory" % set_font_color(inv_source.nickname, "pink" if inv_source.gender == "female" else "paleturquoise")
+        text temp color "#CDCDC1" size 19 font "fonts/rubius.ttf" xalign .5 outlines [(1, "black", 0, 0)] #yalign .5 #style "pb_button_text"
+        $ img = im.Scale("content/gfx/interface/buttons/switch.png", 20, 20)
+        if inv_source == hero:
+            $ swap_source = eqtarget
+        else:
+            $ swap_source = hero
+            $ img = im.Flip(img, horizontal=True, vertical=True)
+        imagebutton:
+            xalign .9
+            idle img
+            hover PyTGFX.bright_img(img, .15)
+            insensitive im.Sepia(img)
+            action [SetVariable("inv_source", swap_source),
+                    Function(swap_source.inventory.apply_filter, inv_source.inventory.slot_filter),
+                    Return(["con", "return"]),
+                    With(dissolve)]
+            sensitive eqtarget != hero
+            tooltip "Equip from {}'s Inventory".format(swap_source.nickname)
 
     # "Final" Filters (id/price/etc.)
     hbox:
-        pos 937, 150
+        pos 937, 146
         spacing 1
         style_prefix "pb"
-        hbox:
-            style_prefix "pb"
-            button:
-                xsize 110
-                action Return(["equip_for"])
-                text "Equip For" style "pb_button_text" yoffset 2
-            button:
-                xsize 110
-                action Return(["unequip_all"])
-                text "Unequip all" style "pb_button_text" yoffset 2
-            button:
-                xsize 110
-                action If(eqtarget != hero, true=Return(["jump", "item_transfer"]))
-                text "Exchange" style "pb_button_text" yoffset 2
+        button:
+            xsize 110
+            action Return(["equip_for"])
+            text "Equip For" style "pb_button_text" yoffset 1
+        button:
+            xsize 110
+            action Return(["unequip_all"])
+            text "Unequip all" style "pb_button_text" yoffset 1
+        button:
+            xsize 110
+            action If(eqtarget != hero, true=Return(["jump", "item_transfer"]))
+            text "Exchange" style "pb_button_text" yoffset 1
 
     # Auto-Equip/Item Transfer Buttons and Paging: ================>
     $ inventory = inv_source.inventory
     frame:
         background Frame(im.Alpha(PyTGFX.bright_img("content/gfx/frame/p_frame5.png", -0.1), alpha=.7), 5, 5)
-        pos (931, 184)
+        pos (931, 180)
         xysize (345, 80)
         has vbox spacing 2 xalign .5
         hbox:
@@ -925,19 +923,19 @@ screen char_equip():
             button:
                 xsize 110
                 action Function(inventory.update_sorting, ("id", False))
-                text "Name" style "pb_button_text" yoffset 2
+                text "Name" style "pb_button_text" yoffset 1
                 selected inventory.final_sort_filter[0] == "id"
                 tooltip "Sort items by the Name!"
             button:
                 xsize 110
                 action Function(inventory.update_sorting, ("price", True))
-                text "Price" style "pb_button_text" yoffset 2
+                text "Price" style "pb_button_text" yoffset 1
                 selected inventory.final_sort_filter[0] == "price"
                 tooltip "Sort items by the Price!"
             button:
                 xsize 110
                 action Function(inventory.update_sorting, ("amount", True))
-                text "Amount" style "pb_button_text" yoffset 2
+                text "Amount" style "pb_button_text" yoffset 1
                 selected inventory.final_sort_filter[0] == "amount"
                 tooltip "Sort items by the Amount owned!"
         use paging(ref=inventory, use_filter=False, xysize=(240, 30), align=(.5, .5))
@@ -955,7 +953,7 @@ screen char_equip():
         next_gender = item_genders[(index + 1) % len(item_genders)]
 
     button:
-        pos 935, 260 anchor -.1, 1.0
+        pos 935, 256 anchor -.1, 1.0
         xysize 40, 40
         style "pb_button"
         add PyTGFX.scale_img(gender_icons[index], 30, 30) align .5, .5
@@ -966,7 +964,7 @@ screen char_equip():
 
     # Filters: ====================================>
     vpgrid:
-        pos (935, 268)
+        pos (935, 270)
         style_group "dropdown_gm"
         xsize 340
         cols 7 rows 2
@@ -1004,7 +1002,7 @@ screen char_equip():
         hover im.Scale("content/gfx/interface/buttons/close2_h.png", 35, 35)
         action Return(["control", "return"])
         tooltip "Return to previous screen!"
-    key "mousedown_3" action Return(["control", "return"])
+        keysym "mousedown_3"
 
 screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="content", mc_mode=False):
 
