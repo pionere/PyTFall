@@ -22,9 +22,7 @@ label storyi_start: # beginning point of the dungeon;
 
         fight_chance = 100
 
-        storyi_data = "code/story/prison_break/coordinates_1.json"
-        with open(renpy.loader.transfn(storyi_data)) as f:
-            storyi_data = json.load(f)
+        storyi_data = load_json("code/story/prison_break/coordinates_1.json")
         storyi_loc_map = dict([(i["id"], i) for i in storyi_data])
 
         # create/update a map of id-day pairs to store the last search day at the given location
@@ -357,8 +355,9 @@ label storyi_map: # shows dungeon map and calls matrix to control it
     show expression map_scroll at truecenter
     show expression blueprint at blueprint_position
     call storyi_move_map_point from _call_storyi_move_map_point
+
     call screen poly_matrix(storyi_data, cursor="content/gfx/interface/icons/zoom_pen.png", xoff=0, yoff=0, show_exit_button=(1.0, 1.0))
-    $ setattr(config, "mouse", None)
+
     $ fight_chance += randint(10, 20)
 
     if _return in storyi_loc_map:

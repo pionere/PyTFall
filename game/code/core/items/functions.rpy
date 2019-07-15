@@ -1,5 +1,5 @@
 init -11 python:
-    def count_owned_items(char, item):
+    def count_owned_items(item, char):
         # Includes iventory and equipped.
         if isinstance(item, basestring):
             item = items[item]
