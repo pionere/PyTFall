@@ -98,13 +98,38 @@ label library_eleven_dialogue:
             $ hero.remove_item("Rebels Leaflet", has_items("Rebels Leaflet", hero, equipped=False))
             $ hero.add_money(money, reason="Items")
             $ del money, golem_change, golem_change_back
+            $ golem.override_portrait("portrait", "indifferent")
             jump eleven_menu
-        "Sell old books" if has_items("Old Books", hero, equipped=False) and global_flags.flag('player_knows_about_eleven_jobs'):
-            $ money = has_items("Old Books", hero, equipped=False)*15
-            e "{b}I appreciate your concern about the archive collection, [hero.name]. [money] coins should be sufficient.{/b}"
-            $ hero.add_money(money, reason="Items")
-            $ hero.remove_item("Old Books", has_items("Old Books", hero, equipped=False))
-            $ del money
+        "Donate books" if global_flags.flag('player_knows_about_eleven_jobs'):
+            $ num = has_items("Old Books", hero, equipped=False)
+            if num > 0:
+                "How many do you want to donate?"
+                menu:
+                    "[num]" if num < 10:
+                        $ pass
+                    "10" if num >= 10:
+                        $ num = 10
+                    "20" if 50 > num >= 20:
+                        $ num = 20
+                    "50" if num >= 50:
+                        $ num = 50
+                    "100" if num >= 100:
+                        $ num = 100
+                    "All" if num > 10:
+                        $ pass
+                    "Nevermind":
+                        $ num = 0
+                if num:
+                    e "{b}I appreciate your concern about the archive collection, [hero.name].{/b}"
+                    $ hero.remove_item(items["Old Books"], num)
+                    $ global_flags.up_counter("library_book_donations", num)
+                    $ num = global_flags.flag("library_book_donations") / 100
+                    if num:
+                        $ hero.mod_stat("reputation", randrange(num))
+                        $ global_flags.up_counter("library_book_donations", -100*num)
+            else:
+                e "{b}Yes, we appreciate any help to extend our archive. Obviously we need rare, old books.{/b}"
+            $ del num
             jump eleven_menu
         "Ask about him":
             e "{b}This unit was found and activated during excavations in Crossgate city among other units classified amount of time ago. It was eleventh, so it was called Eleven.{/b}"
@@ -121,15 +146,15 @@ label library_eleven_dialogue:
             $ golem.override_portrait("portrait", "indifferent")
             jump eleven_menu
         "Ask about job":
-            e "{b}I am authorized to buy books to expand the archive collection. The archive doesn't need common books, but you may bring any unusual and rare ones.{/b}"
+            e "{b}I would be glad to expand the archive collection. We do not need common books, but you may bring any unusual and rare ones.{/b}"
+            e " {b}I can not pay anything in return, but the people of the city surely benefit from these donations.{/b}"
             $ golem.override_portrait("portrait", "confident")
             e "{b}More importantly, I was entrusted with the task to clear the city from forbidden propaganda. After the war, a lot of leaflets made by rebels left in the city. I am authorized to pay for any prohibited leaflets, which will be destroyed soon after that.{/b}"
             "At these words, his eyes flash brightly, and you can sense his hostility - not towards you, but towards the rebels."
             $ golem.override_portrait("portrait", "angry")
-            e "{b}Handle them with care. Once you find one, bring it to me immediately. Otherwise, you will be suspected of treason.{/b}"
+            e "{b}Handle them with care. Once you find one, bring it to me immediately and you will be compensated for your efforts. Otherwise, you will be suspected of treason.{/b}"
             $ golem.override_portrait("portrait", "indifferent")
-            if not global_flags.flag('player_knows_about_eleven_jobs'):
-                $ global_flags.set_flag('player_knows_about_eleven_jobs')
+            $ global_flags.set_flag('player_knows_about_eleven_jobs')
             jump eleven_menu
         "Leave him be":
             "You step away, and the light in his eyes dims."
