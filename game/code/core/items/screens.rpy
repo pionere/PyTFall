@@ -351,7 +351,7 @@ screen paging(path="content/gfx/interface/buttons/",
                         idle img
                         hover PyTGFX.bright_img(img, .15)
                         action Function(ref.prev)
-                label ("%d - %d"%(ref.page+1, max(ref.max_page,1))) align (.5, .5) text_color "ivory"
+                label ("%d - %d"%(ref.page+1, ref.max_page+1)) align (.5, .5) text_color "ivory"
                 hbox:
                     align (1.0, .5)
                     $ img = path + 'next.png'

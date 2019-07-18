@@ -259,13 +259,6 @@ init -9 python:
             self.page = 0 # min(max(0, self.max_page-1), self.page)
 
         # Paging:
-        @property
-        def paged_items(self):
-            items = []
-            for start in xrange(0, len(self.filtered_items), self.page_size):
-                items.append(self.filtered_items[start:start+self.page_size])
-            return items
-
         def set_page_size(self, size):
             self.page_size = size
             self.page = 0
@@ -273,7 +266,7 @@ init -9 python:
         def next(self):
             """Next page"""
             self.page += 1
-            if self.page >= self.max_page:
+            if self.page > self.max_page:
                 self.page = 0
 
         def prev(self):
@@ -288,26 +281,18 @@ init -9 python:
 
         def last(self):
             """Last page"""
-            self.page = max(self.max_page - 1, 0)
+            self.page = self.max_page
 
         @property
         def page_content(self):
             """Get content for current page"""
-            items = self.paged_items
-
-            try:
-                return items[self.page]
-            except IndexError:
-                if self.page >= 1:
-                    self.page -= 1
-                    return items[self.page]
-                else:
-                    self.page = 0
-                    return []
+            start = self.page*self.page_size
+            return self.filtered_items[start:start+self.page_size]
 
         @property
         def max_page(self):
-            return len(self.paged_items)
+            """Max page(idx) assuming page_size > 1"""
+            return int(float(len(self.filtered_items)-1)/self.page_size) # round towards zero... thanks, python...
 
         # Add/Remove/Clear:
         def append(self, item, amount=1):

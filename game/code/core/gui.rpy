@@ -127,8 +127,8 @@ init -1 python:
             self.page -= 1
 
         def max_page(self):
-            """Max page assuming page_size > 1"""
-            return (len(self.pager_content)-1)/self.page_size
+            """Max page(idx) assuming page_size > 1"""
+            return int(float(len(self.pager_content)-1)/self.page_size) # round towards zero... thanks, python...
 
         def last_page(self):
             """Last page"""
