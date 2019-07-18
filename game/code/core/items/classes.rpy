@@ -304,9 +304,14 @@ init -9 python:
             if isinstance(item, basestring):
                 item = store.items[item]
 
-            self.items[item] = self.items.get(item, 0) + amount
-            if item not in self.filtered_items:
+            num = self.items[item] = self.items.get(item, 0) + amount
+            if num == amount:
+                # append only if this is a new item, otherwise auto_buy with its re-equip is going to mess up the current content
                 self.filtered_items.append(item)
+
+            #self.items[item] = self.items.get(item, 0) + amount
+            #if item not in self.filtered_items:
+            #    self.filtered_items.append(item)
 
         def remove(self, item, amount=1):
             """Removes given amount of items from inventory.
