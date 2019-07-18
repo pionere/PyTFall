@@ -1214,10 +1214,6 @@ init -9 python:
 
             self.find_opfor()
 
-            # Warning the player of a scheduled arena match:
-            if day+1 in hero.fighting_days:
-                txt.append("{color=orange}You have a scheduled Arena match today! Don't you dare chickening out :){/color}")
-
             # Add the hero's matchresult from today
             if self.hero_match_result:
                 self.append_match_result(txt, len(self.hero_match_result[0]) == 1, self.hero_match_result)
@@ -1320,6 +1316,41 @@ init -9 python:
             tl.end("Arena: Dogfights")
 
             txt.append("%d unofficial dogfights took place yesterday!" % self.df_count)
+
+            # Warning the player of a scheduled arena match:
+            for setup in chain(self.matches_1v1, self.matches_2v2, self.matches_3v3):
+                if setup[2] != day+1:
+                    continue
+                off_team, def_team = setup[0], setup[1]
+                if off_team and def_team:
+                    num = len(off_team)
+                    if num == 1:
+                        lineup = self.lineup_1v1
+                    elif num == 2:
+                        lineup = self.lineup_2v2
+                    elif num == 3:
+                        lineup = self.lineup_2v2
+                    else:
+                        raise Exception()
+
+                    for idx, team in enumerate(lineup):
+                        if team == off_team or team == def_team:
+                            idx = 3 * idx / len(lineup)
+                            temp = ["very", "really", "quite"][idx]
+                            temp = choice(["The upcoming match between %s and %s looks {} interesting.",
+                                           "%s challenged %s in the Arena. The match is going to be {} entertaining!",
+                                           "Today's match of %s and %s is going to be {} spectacular (according to our sources).",
+                                           "%s and %s are going to provide a {} good show for the spectators of the Arena.",
+                                           "The scheduled match of %s against %s seems {} promising."]).format(temp)
+                            break
+                    else:
+                        temp = choice(["There is going to be a match between %s and %s, but we do not know much about them...",
+                                       "The match of %s and %s takes place today, but it is quite possible that no one will remember it tomorrow."])
+                    if num == 1:
+                        off_team = off_team[0]
+                        def_team = def_team[0]
+                    txt.append(temp % ("{b}" + off_team.name + "{/b}", "{b}" +def_team.name + "{/b}"))
+
             self.daily_report = gazette.arena = txt
 
             # Update top 100 ladder:
