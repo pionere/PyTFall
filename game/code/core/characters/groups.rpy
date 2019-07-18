@@ -111,86 +111,13 @@ init -8 python:
             return len(self._first)
 
 
-    class PytGInv(Delegator):
-        def __init__(self, inv):
-            super(PytGInv, self).__init__(l=inv, at="inventory")
-            self._attrs.extend(('slot_filter', 'page'))
-            self.slot_filter = False
-            self.page = 0
-
-        def __getitem__(self, item):
-            if isinstance(item, list):
-                return 0
-            return min([x[item] for x in self.lst])
-
-        @property
-        def filters(self):
-            return list(frozenset([item for sublist in self.lst for item in sublist.filters]))
-
-        @property
-        def filtered_items(self):
-            return set([item for sublist in self.lst for item in sublist.filtered_items])
-
-        @property
-        def page_content(self):
-            ps = self.page_size
-            start = self.page*ps
-            return list(self.filtered_items)[start : (start+ps)]
-
-        @property
-        def max_page(self):
-            ps = self.page_size
-            l = len(self.filtered_items)
-            return int(l / ps) + (l % ps > 0)
-
-        def next(self):
-            """Next page"""
-            self.page += 1
-            if self.page >= self.max_page:
-                self.page = 0
-
-        def prev(self):
-            """Previous page"""
-            self.page -= 1
-            if self.page < 0:
-                self.last()
-
-        def first(self):
-            """First page"""
-            self.page = 0
-
-        def last(self):
-            """Last page"""
-            self.page = max(self.max_page - 1, 0)
-
-        def remove(self, item, amount=1):
-            """ see Inventory.remove(): False means not enough items """
-            return all([x.remove(item, amount) for x in self.lst])
-
-        def apply_filter(self, filt):
-            if filt in ('next', 'prev'):
-                for x in self.lst:
-                    x.apply_filter(filt)
-            else:
-                self.slot_filter = filt
-                for x in self.lst:
-                    if filt in x.filters:
-                        x.apply_filter(filt)
-                    else:
-                        x.filtered_items = []
-            self.page = 0
-
-        def append(self, item, amount=1):
-            all([x.append(item, amount) for x in self.lst])
-
-
     class PytGroup(Delegator):
         def __init__(self, chars):
             remedy = {
                 ".eqslots{}": self._ordered_on_abundance, ".auto_equip()": self._list_for_caller, ".home": "various",
                 ".status": "various", ".location": "various", ".workplace": "various", ".action": "Several actions",
                 ".autobuy": [], ".front_row": [], ".autoequip": "various", ".job": "Several jobs",
-                ".p": "they", ".pp": "theirs", ".pd": "their", ".op": "them",
+                ".p": "they", ".pp": "theirs", ".pd": "their", ".op": "them", ".nickname": "group",
                 ".autocontrol{}": [], ".sex_acts{}": [], ".miscblock": [],
                 ".flag()": False, ".has_flag()": False, ".is_available": False,
                 ".allowed_to_define_autobuy": False, ".allowed_to_define_autoequip": False,
@@ -198,17 +125,6 @@ init -8 python:
                 "flatten": [".traits", ".attack_skills", ".magic_skills"]
             }
             super(PytGroup, self).__init__(l=chars, remedy=remedy, at="")
-            #self._attrs.extend(['_inventory', 'img', 'portrait', 'nickname', 'effects', '_stats',
-            #                    'unselected'])
-
-            #self._inventory = PytGInv([c.inventory for c in self.lst])
-            #self.img = "content/gfx/interface/images/group.png"
-            #self.portrait = "content/gfx/interface/images/group_portrait.png"
-            self.nickname = "group"
-            #self.effects = {}
-            #stat_remedy = {'.stats._get_stat()': self._average, '.stats._raw_skill()': self._average}
-            #self._stats = Delegator(l=[c.stats for c in self.lst], remedy=stat_remedy, at=".stats")
-            #self.unselected = set()
 
         def __new__(cls, chars):
             return next(iter(chars)) if len(chars) == 1 else super(PytGroup, cls).__new__(cls, chars)

@@ -13,7 +13,7 @@ init python:
             self.add_content(result, book["title"], style="library_book_header_main")
             #self.add_content(result, book["sub_title"], style="library_book_header_sub")
             for i in book["content"]:
-                self.add_content(result, i + "\n\n", style="library_book_content")
+                self.add_content(result, "\n\n" + i, style="library_book_content")
             return result
 
         @staticmethod
