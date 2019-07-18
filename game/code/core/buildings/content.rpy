@@ -235,6 +235,10 @@ init -9 python:
             sentence: Sentence type (reason to put in Jail)
             days: the length of the sentence
             """
+            rep = (char.get_stat("reputation")*10/char.get_max("reputation")) + days
+            if rep > 0:
+                char.mod_stat("reputation", -randint(0, rep))
+
             char.set_flag("release_day", day + days)
             if char != hero and char.take_money(self.get_bail(char), "Bail:%s" % sentence):
                 char.del_flag("release_day")
