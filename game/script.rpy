@@ -67,7 +67,7 @@ label start:
         # tiered (offensive/support) skills for faster access
         tiered_magic_skills = [[],[],[],[],[]] # MAX_MAGIC_TIER = 4, order is not preserved by the user!
         tiered_healing_skills = [[],[],[],[],[]] # MAX_MAGIC_TIER = 4, order is not preserved by the user!
-        for s in battle_skills.values():
+        for s in battle_skills.itervalues():
             if getattr(s, "mob_only", False) or getattr(s, "item_only", False):
                 continue
             if s.kind in ("healing", "buff", "revival"):
@@ -566,10 +566,14 @@ label after_load:
 
         pytfall.maps = OnScreenMap()
 
-        for s in store.battle_skills.values():
+        for s in store.battle_skills.itervalues():
             if isinstance(s, DefenceBuffSpell):
                 if not hasattr(s, "event_duration"):
                     s.event_duration = (5, 8)
+                if s.defence_bonus is None:
+                    s.defence_bonus = {}
+                if s.defence_multiplier is None:
+                    s.defence_multiplier = {}
             elif isinstance(getattr(s, "event_duration", None), int):
                 s.event_duration = (s.event_duration-1, s.event_duration+1)
             if "initial_pause" not in s.target_damage_effect.keys():

@@ -306,7 +306,7 @@ init python:
             self.counter -= 1
 
     class DefenceBuff(BE_Event):
-        def __init__(self, source, target, duration, bonus, multi, icon, group, gfx_effect):
+        def __init__(self, source, target, duration, bonus, multi, effect, icon, group, gfx_effect):
             # bonus and multi both expect dicts if mods are desirable.
             self.target = target
             self.source = source
@@ -321,11 +321,9 @@ init python:
             # We also add the icon to targets status overlay:
             target.status_overlay.append(self.icon)
 
-            if bonus:
-                self.defence_bonus = bonus
-
-            if multi:
-                self.defence_multiplier = multi
+            self.defence_bonus = bonus
+            self.defence_multiplier = multi
+            self.effect = effect
 
         def check_conditions(self):
             if battle.controller == self.target:
@@ -772,8 +770,8 @@ init python:
             super(DefenceBuffSpell, self).__init__()
             self.event_class = DefenceBuff
 
-            self.defence_bonus = None      # direct def bonus
-            self.defence_multiplier = None # def multiplier
+            self.defence_bonus = {}        # direct def bonus
+            self.defence_multiplier = {}   # def multiplier
             self.event_duration = (5, 8)   # Active for 5-8 turns
             self.buff_icon = "content/gfx/be/fists.webp"
             self.buff_group = self.__class__
@@ -788,8 +786,8 @@ init python:
                 effects = []
 
                 # We get the multi and any effects that those may bring:
-                effect = round_int(BE_Core.damage_modifier(source, t, 100, type)) # BASE_EFFECT == 100
-                if effect:
+                effect = round_int(BE_Core.damage_modifier(source, t, 1.0, type)) # BASE_EFFECT == 1.0
+                if effect > 0.1: # ignore effects lower than 10%
                     # Check if event is in play already:
                     for event in store.battle.mid_turn_events:
                         if t == event.target and event.group == group:
@@ -797,14 +795,14 @@ init python:
                             break
                     else:
                         temp = self.event_class(source, t, randint(*self.event_duration),
-                                                self.defence_bonus, self.defence_multiplier,
+                                                self.defence_bonus, self.defence_multiplier, effect,
                                                 self.buff_icon, group, self.defence_gfx)
                         battle.mid_turn_events.append(temp)
                         temp = "{color=skyblue}%s buffs %ss defence!{/color}" % (source.nickname, t.name)
+                        effect = int(100 * effect)
                         self.log_to_battle(effects, effect, source, t, message=temp)
                 else:
-                    temp = "{color=skyblue}%s resisted the defence buff!{/color}" % (t.name)
-                    self.log_to_battle(effects, effect, source, t, message=temp)
+                    battle.log("{color=skyblue}%s resisted %ss spell!{/color}" % (t.nickname, source.name))
 
         def apply_effects(self, targets):
             self.settle_cost()

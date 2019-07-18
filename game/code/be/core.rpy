@@ -1184,10 +1184,6 @@ init -1 python: # Core classes:
 
         def check_conditions(self, source):
             """Checks if the source can manage the attack."""
-            # Indoor check:
-            if self.menu_pos >= battle.max_skill_lvl:
-                return False
-
             # Check if attacker has enough resources for the attack:
             cost = self.mp_cost
             if not isinstance(cost, int):
@@ -1208,7 +1204,11 @@ init -1 python: # Core classes:
                 return False
 
             # Check if there is a target in sight
-            return self.get_targets(source)
+            if not self.get_targets(source):
+                return False
+
+            # Indoor check:
+            return self.menu_pos < battle.max_skill_lvl # TODO strange limit. Sure not equal?
 
         # Logical Effects:
         def effects_resolver(self, targets):
@@ -1391,12 +1391,13 @@ init -1 python: # Core classes:
             m = 0
             d = 0
             for event in battle.get_all_events():
-                if event.target == target:
-                    if hasattr(event, "defence_bonus"):
-                        d += event.defence_bonus.get(delivery, 0)
-                        event.activated_this_turn = True
-                    if hasattr(event, "defence_multiplier"):
-                        m += event.defence_multiplier.get(delivery, 0)
+                if event.target == target and event.__class__ == DefenceBuff:
+                    ed = event.defence_bonus.get(delivery, 0)
+                    em = event.defence_multiplier.get(delivery, 0)
+                    if ed or em:
+                        e = event.effect
+                        d += ed * e
+                        m += em * e
                         event.activated_this_turn = True
 
             if d or m:
@@ -2097,7 +2098,7 @@ init -1 python: # Core classes:
                     # Get GFX:
                     what = None
                     for event in battle.get_all_events():
-                        if event.target == target and isinstance(event, DefenceBuff) and event.activated_this_turn:
+                        if event.target == target and event.__class__ == DefenceBuff and event.activated_this_turn:
                             what = event
                             event.activated_this_turn = False # reset the flag
 
