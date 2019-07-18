@@ -708,7 +708,7 @@ init -12 python:
             difficulty = building.tier
 
             for w in workers:
-                if not w.flag(power_flag_name):
+                if not w.has_flag(power_flag_name):
                     effectiveness = job.effectiveness(w, difficulty, log, building.manager_effectiveness)
 
                     # Upgrade mods:
@@ -721,8 +721,8 @@ init -12 python:
                     value = -effectiveness/20.0
                     w.set_flag(power_flag_name, value)
 
-                    # Remove from active workers:
-                    building.available_workers.remove(w)
+                # Remove from active workers:
+                building.available_workers.remove(w)
 
 
     class TaskBusiness(Business):
