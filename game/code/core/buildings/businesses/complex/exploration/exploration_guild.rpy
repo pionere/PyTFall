@@ -566,6 +566,8 @@ init -6 python: # Guild, Tracker and Log.
                         else:
                             injured.append(d)
                             d.enable_effect("Injured", duration=randint(6, 12))
+                            if dice(50):
+                                d.apply_trait(traits["Scars"])
                     if injured:
                         temp = "The wounds of {color=red}%s{/color} were not fatal, but they require further medical care." % ", ".join([d.fullname for d in injured])
                         tracker.log(temp)
