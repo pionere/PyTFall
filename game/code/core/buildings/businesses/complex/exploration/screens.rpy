@@ -586,7 +586,7 @@ screen building_management_midframe_exploration_guild_mode:
             for t in guild_teams.page_content():
                 $ idle_t = True #t not in bm_mid_frame_mode.exploring_teams()
                 for idx, w in enumerate(t):
-                    $ w_pos = (curr_pos[0]+17+idx*63, curr_pos[1]+12)
+                    $ w_pos = (curr_pos[0]+16+idx*61, curr_pos[1]+12)
                     $ w.set_flag("dnd_drag_container", t)
                     drag:
                         dragged dragged
@@ -599,7 +599,7 @@ screen building_management_midframe_exploration_guild_mode:
                             hovered Function(setattr, config, "mouse", mouse_drag)
                             unhovered Function(setattr, config, "mouse", mouse_cursor)
 
-                        add w.show("portrait", resize=(46, 46), cache=1)
+                        add w.show("portrait", resize=(46, 46), cache=True)
 
                 drag:
                     drag_name t
