@@ -151,6 +151,14 @@ label building_management_end:
 
 # Screens:
 screen building_management():
+    use top_stripe(True, show_lead_away_buttons=False)
+
+    if bm_mid_frame_mode is None:
+        key "mousedown_4" action Return(["control", "right"])
+        key "mousedown_5" action Return(["control", "left"])
+    else:
+        key "mousedown_3" action Function(setattr, config, "mouse", mouse_cursor), Return(["bm_mid_frame_mode", None])
+
     if hero.buildings:
         # Main Building mode:
         frame:
@@ -200,13 +208,6 @@ screen building_management():
             color "ivory"
             align .5, .5
             style "TisaOTM"
-
-    use top_stripe(True, show_lead_away_buttons=False)
-    if not bm_mid_frame_mode is None:
-        key "mousedown_3" action Function(setattr, config, "mouse", mouse_cursor), Return(["bm_mid_frame_mode", None])
-    else:
-        key "mousedown_4" action Return(["control", "right"])
-        key "mousedown_5" action Return(["control", "left"])
 
 screen building_management_rightframe_building_mode:
     # Buttons group:
