@@ -20,26 +20,23 @@ label building_management:
         if not result or not isinstance(result, (list, tuple)):
             pass
         elif result[0] == "bm_mid_frame_mode":
-            $ bm_mid_frame_mode = result[1]
-            if bm_mid_frame_mode is None:
-                # cleanup after EG
-                python hide:
-                    cleanup = ["workers", "guild_teams",
-                              "bm_exploration_view_mode", "bm_selected_log_area",
-                              "bm_selected_exp_area", "bm_selected_exp_area_sub"]
-                    for i in cleanup:
-                        if hasattr(store, i):
-                            delattr(store, i)
-            elif isinstance(bm_mid_frame_mode, ExplorationGuild):
-                $ bm_mid_frame_mode.load_gui()
+            python hide:
+                global bm_mid_frame_mode
+                last_bm_mode = bm_mid_frame_mode
+                bm_mid_frame_mode = result[1]
+                if isinstance(last_bm_mode, ExplorationGuild):
+                    last_bm_mode.clear_gui()
+                if isinstance(bm_mid_frame_mode, ExplorationGuild):
+                    bm_mid_frame_mode.load_gui()
         elif result[0] == "fg_team":
             python hide:
                 action = result[1]
+                guild = bm_mid_frame_mode
                 if action == "create":
                     n = renpy.call_screen("pyt_input", "", "Enter Name", 20)
                     if len(n):
-                        t = bm_mid_frame_mode.new_team(n)
-                        guild_teams.pager_content.append(t)
+                        t = guild.new_team(n)
+                        guild.guild_teams.pager_content.append(t)
                 else:
                     team = result[2]
                     if action == "rename":
@@ -57,16 +54,16 @@ label building_management:
                     elif action == "dissolve":
                         for i in team:
                             workers.add(i)
-                        bm_mid_frame_mode.remove_team(team)
-                        guild_teams.pager_content.remove(team)
+                        guild.remove_team(team)
+                        guild.guild_teams.pager_content.remove(team)
                     elif action == "transfer":
                         dest_guild = result[3]
                         dest_building = dest_guild.building
                         for i in team:
                             i.mod_workplace(dest_building)
                         dest_guild.add_team(team)
-                        bm_mid_frame_mode.remove_team(team)
-                        guild_teams.pager_content.remove(team)
+                        guild.remove_team(team)
+                        guild.guild_teams.pager_content.remove(team)
         elif result[0] == "building":
             if result[1] == 'items_transfer':
                 hide screen building_management

@@ -1,7 +1,8 @@
 screen building_management_leftframe_exploration_guild_mode:
-    if bm_exploration_view_mode == "upgrades":
+    if bm_mid_frame_mode.view_mode == "upgrades":
         use building_management_leftframe_businesses_mode
-    elif bm_exploration_view_mode == "team":
+    elif bm_mid_frame_mode.view_mode == "team":
+        $ workers = bm_mid_frame_mode.workers
         # Filters:
         frame:
             background Frame(im.Alpha("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
@@ -49,7 +50,8 @@ screen building_management_leftframe_exploration_guild_mode:
                 action ToggleField(workers, "sorting_desc"), Function(workers.filter)
                 add (im.Scale(temp, 20, 20)) align .5, .5
                 tooltip 'Descending order'
-    elif bm_exploration_view_mode == "explore":
+    elif bm_mid_frame_mode.view_mode == "explore":
+        $ selected_exp_area = bm_mid_frame_mode.selected_exp_area
         fixed: # making sure we can align stuff...
             xysize 320, 665
             frame:
@@ -65,7 +67,7 @@ screen building_management_leftframe_exploration_guild_mode:
                 mousewheel True
                 has vbox spacing 4
                 $ temp = sorted([a for a in fg_areas.values() if a.area is None and a.unlocked], key=attrgetter("name"))
-                if temp and not bm_selected_exp_area:
+                if temp and not selected_exp_area:
                     $ mid_frame_focus = temp[0]
 
                 for area in temp:
@@ -78,13 +80,13 @@ screen building_management_leftframe_exploration_guild_mode:
                             align .5, .5
                             xysize 220, 124
                             background Transform(img, align=(.5, .5))
-                            if bm_selected_exp_area == area:
+                            if selected_exp_area == area:
                                 action NullAction()
                                 $ name_bg = "content/gfx/frame/frame_bg.png"
                                 $ hcolor = "gold"
                             else:
                                 hover_background Transform(PyTGFX.bright_content(img, .05), align=(.5, .5))
-                                action SetVariable("bm_selected_exp_area", area)
+                                action SetField(bm_mid_frame_mode, "selected_exp_area", area)
                                 $ name_bg = "content/gfx/frame/ink_box.png"
                                 $ hcolor = "red"
                             frame:
@@ -97,18 +99,19 @@ screen building_management_leftframe_exploration_guild_mode:
                                     style "interactions_text"
                                     size 18 outlines [(1, "#3a3a3a", 0, 0)]
                                     align .5, .5
-    elif bm_exploration_view_mode == "area":
-        $ area = bm_selected_exp_area_sub
+    elif bm_mid_frame_mode.view_mode == "area":
         # Left frame with Area controls
         python:
             can_use_horses = False
-            teams = bm_mid_frame_mode.teams_to_launch()
+            guild = bm_mid_frame_mode
+            area = guild.selected_exp_area_sub
+            teams = guild.teams_to_launch()
             if teams:
-                if bm_mid_frame_mode.team_to_launch_index >= len(teams):
-                    bm_mid_frame_mode.team_to_launch_index = 0
-                focus_team = teams[bm_mid_frame_mode.team_to_launch_index]
+                if guild.team_to_launch_index >= len(teams):
+                    guild.team_to_launch_index = 0
+                focus_team = teams[guild.team_to_launch_index]
 
-                for u in bm_mid_frame_mode.building.businesses:
+                for u in guild.building.businesses:
                     if u.__class__ == StableBusiness:
                         num = len(focus_team)
                         reserved = u.reserved_capacity + num
@@ -231,14 +234,14 @@ screen building_management_leftframe_exploration_guild_mode:
             button:
                 style "paging_green_button_left"
                 yalign .5
-                action Function(bm_mid_frame_mode.prev_team_to_launch)
+                action Function(guild.prev_team_to_launch)
                 tooltip "Previous Team"
                 sensitive len(teams) > 1
             button:
                 style "marble_button"
                 padding 10, 10
                 if teams:
-                    action Function(bm_mid_frame_mode.launch_team, focus_team, area), With(fade)
+                    action Function(guild.launch_team, focus_team, area), With(fade)
                     tooltip "Send %s on %s days long exploration run!" % (focus_team.name, area.days)
                     vbox:
                         xminimum 150
@@ -252,7 +255,7 @@ screen building_management_leftframe_exploration_guild_mode:
             button:
                 style "paging_green_button_right"
                 yalign .5
-                action Function(bm_mid_frame_mode.next_team_to_launch)
+                action Function(guild.next_team_to_launch)
                 tooltip "Next Team"
                 sensitive len(teams) > 1
 
@@ -326,10 +329,11 @@ screen building_management_leftframe_exploration_guild_mode:
                             sensitive (not builders)
                             tooltip u.desc
 
-    elif bm_exploration_view_mode == "log":
+    elif bm_mid_frame_mode.view_mode == "log":
         default focused_area_index = 0
-
-        $ temp = sorted([a for a in fg_areas.values() if a.area is None and a.unlocked], key=attrgetter("stage"))
+        python:
+            selected_log_area = bm_mid_frame_mode.selected_log_area
+            temp = sorted([a for a in fg_areas.values() if a.area is None and a.unlocked], key=attrgetter("stage"))
         vbox:
             xsize 320 spacing 1
             # Maps sign:
@@ -397,11 +401,11 @@ screen building_management_leftframe_exploration_guild_mode:
                         button:
                             xysize 220, 18
                             if area.unlocked:
-                                if bm_selected_log_area == area:
-                                    action SetVariable("bm_selected_log_area", None)
+                                if selected_log_area == area:
+                                    action SetField(bm_mid_frame_mode, "selected_log_area", None)
                                     selected True
                                 else:
-                                    action SetVariable("bm_selected_log_area", area)
+                                    action SetField(bm_mid_frame_mode, "selected_log_area", area)
                                 tooltip area.desc
                             else:
                                 action NullAction()
@@ -466,10 +470,12 @@ screen building_management_leftframe_exploration_guild_mode:
                         color "ivory"
 
 screen building_management_midframe_exploration_guild_mode:
-    if bm_exploration_view_mode == "upgrades":
+    if bm_mid_frame_mode.view_mode == "upgrades":
         use building_management_midframe_businesses_mode
-    elif bm_exploration_view_mode == "team":
+    elif bm_mid_frame_mode.view_mode == "team":
         # Backgrounds:
+        $ workers = bm_mid_frame_mode.workers
+        $ guild_teams = bm_mid_frame_mode.guild_teams
         frame:
             background Frame(im.Alpha("content/gfx/frame/hp_1long.png", alpha=.9), 5, 5)
             xysize 620, 344
@@ -685,7 +691,8 @@ screen building_management_midframe_exploration_guild_mode:
                 if curr_pos[0] == (init_pos[0] + boxsize*6): # columns
                     $ curr_pos = [init_pos[0], curr_pos[1]+boxsize]
 
-    elif bm_exploration_view_mode == "explore":
+    elif bm_mid_frame_mode.view_mode == "explore":
+        $ selected_area = bm_mid_frame_mode.selected_exp_area 
         vbox:
             xalign .5
             frame: # Image
@@ -698,8 +705,8 @@ screen building_management_midframe_exploration_guild_mode:
                 box_wrap 1
                 spacing 2
                 xalign .5
-                if isinstance(bm_selected_exp_area, FG_Area):
-                    $ temp = sorted([a for a in fg_areas.values() if a.area == bm_selected_exp_area.id], key=attrgetter("stage"))
+                if isinstance(selected_area, FG_Area):
+                    $ temp = sorted([a for a in fg_areas.values() if a.area == selected_area.id], key=attrgetter("stage"))
                     for area in temp:
                         if area.unlocked:
                             $ temp = area.name
@@ -712,15 +719,15 @@ screen building_management_midframe_exploration_guild_mode:
                             ymargin 1
                             ypadding 1
                             if area.unlocked:
-                                action [SetVariable("bm_selected_exp_area_sub", area), SetVariable("bm_exploration_view_mode", "area")]
+                                action [SetField(bm_mid_frame_mode, "selected_exp_area_sub", area), SetField(bm_mid_frame_mode, "view_mode", "area")]
                             else:
                                 action NullAction()
                             text temp color "gold" style "interactions_text" size 14 outlines [(1, "#3a3a3a", 0, 0)] align (.5, .3)
                             hbox:
                                 align (.5, .9)
                                 use stars(area.explored, area.maxexplored)
-    elif bm_exploration_view_mode == "area":
-        $ area = bm_selected_exp_area_sub
+    elif bm_mid_frame_mode.view_mode == "area":
+        $ area = bm_mid_frame_mode.selected_exp_area_sub
         # Area-Name
         frame:
             background Frame(im.Alpha("content/gfx/frame/mes11.webp", alpha=.9), 10, 10)
@@ -811,16 +818,21 @@ screen building_management_midframe_exploration_guild_mode:
             align .5, .99
             button:
                 style_group "basic"
-                action SetVariable("bm_exploration_view_mode", "explore")
+                action SetField(bm_mid_frame_mode, "view_mode", "explore")
                 minimum (50, 30)
                 text "Back"
                 keysym "mousedown_3"
 
-    elif bm_exploration_view_mode == "log":
-        if isinstance(bm_selected_log_area, FG_Area):
+    elif bm_mid_frame_mode.view_mode == "log":
+        $ area = bm_mid_frame_mode.selected_log_area
+        if area is None:
+            frame: # Image
+                xalign .5
+                padding 5, 5
+                background Frame("content/gfx/frame/MC_bg3.png", 10 ,10)
+                add im.Scale("content/gfx/bg/buildings/log.webp", 600, 390)
+        else:
             default focused_log = None
-            $ area = bm_selected_log_area
-
             frame:
                 background Frame(im.Alpha("content/gfx/frame/mes11.webp", alpha=.9), 10, 10)
                 xysize (620, 90)
@@ -904,123 +916,116 @@ screen building_management_midframe_exploration_guild_mode:
                         elif isinstance(obj, list):
                             # battle_log
                             text "\n".join(obj) style "stats_value_text" size 14 color "ivory"
-        else:
-            # bm_selected_log_area is None
-            frame: # Image
-                xalign .5
-                padding 5, 5
-                background Frame("content/gfx/frame/MC_bg3.png", 10 ,10)
-                add im.Scale("content/gfx/bg/buildings/log.webp", 600, 390)
 
 screen building_management_rightframe_exploration_guild_mode:
-    if bm_exploration_view_mode == "area":
-            $ area = bm_selected_exp_area_sub
+    if bm_mid_frame_mode.view_mode == "area":
+        $ area = bm_mid_frame_mode.selected_exp_area_sub
+        frame:
+            background Frame(im.Alpha("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
+            xysize (310, 335)
+            xpadding 5
             frame:
-                background Frame(im.Alpha("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
-                xysize (310, 335)
-                xpadding 5
-                frame:
-                    style_group "content"
-                    align (.5, .015)
-                    xysize (210, 40)
-                    background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.6), 10, 10)
-                    label (u"Enemies") text_size 23 text_color "ivory" align .5, .5
-                viewport:
-                    style_prefix "proper_stats"
-                    xysize (300, 265)
-                    mousewheel True
-                    draggable True
-                    ypos 50
-                    xalign .5
-                    has vbox spacing 3
-                    for m in area.mobs_defeated:
-                        $ m = mobs[m]
-                        fixed:
-                            xysize 300, 65
-                            frame:
-                                xpos 6
-                                left_padding 2
-                                align .01, .5
-                                xsize 197
-                                text m["name"]
-                            frame:
-                                yalign .5
-                                xanchor 1.0
-                                ysize 44
-                                xpadding 4
-                                xminimum 28
-                                xpos 233
-                                $ temp = m["min_lvl"]
-                                text ("Lvl\n[temp]+") style "TisaOTM" size 17 text_align .5 line_spacing -6
-                            frame:
-                                background Frame(im.Alpha("content/gfx/interface/buttons/choice_buttons2.png", alpha=.75), 10, 10)
-                                padding 3, 3
-                                margin 0, 0
-                                xysize 60, 60
-                                align .99, .5
-                                $ img = PyTGFX.scale_content(m["portrait"], 57, 57)
-                                imagebutton:
-                                    align .5, .5
-                                    idle img
-                                    hover PyTGFX.bright_content(img, .15)
-                                    action Show("arena_bestiary", dissolve, m, return_button_action=[Function(SetVariable, "bm_mid_frame_mode", bm_mid_frame_mode), Function(SetVariable, "bm_exploration_view_mode", "area")])
+                style_group "content"
+                align (.5, .015)
+                xysize (210, 40)
+                background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.6), 10, 10)
+                label (u"Enemies") text_size 23 text_color "ivory" align .5, .5
+            viewport:
+                style_prefix "proper_stats"
+                xysize (300, 265)
+                mousewheel True
+                draggable True
+                ypos 50
+                xalign .5
+                has vbox spacing 3
+                for m in area.mobs_defeated:
+                    $ m = mobs[m]
+                    fixed:
+                        xysize 300, 65
+                        frame:
+                            xpos 6
+                            left_padding 2
+                            align .01, .5
+                            xsize 197
+                            text m["name"]
+                        frame:
+                            yalign .5
+                            xanchor 1.0
+                            ysize 44
+                            xpadding 4
+                            xminimum 28
+                            xpos 233
+                            $ temp = m["min_lvl"]
+                            text ("Lvl\n[temp]+") style "TisaOTM" size 17 text_align .5 line_spacing -6
+                        frame:
+                            background Frame(im.Alpha("content/gfx/interface/buttons/choice_buttons2.png", alpha=.75), 10, 10)
+                            padding 3, 3
+                            margin 0, 0
+                            xysize 60, 60
+                            align .99, .5
+                            $ img = PyTGFX.scale_content(m["portrait"], 57, 57)
+                            imagebutton:
+                                align .5, .5
+                                idle img
+                                hover PyTGFX.bright_content(img, .15)
+                                action Show("arena_bestiary", dissolve, m, return_button_action=[Function(SetVariable, "bm_mid_frame_mode", bm_mid_frame_mode)])
 
+        frame:
+            background Frame(im.Alpha("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
+            xysize (310, 335)
+            xpadding 5
             frame:
-                background Frame(im.Alpha("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
-                xysize (310, 335)
-                xpadding 5
-                frame:
-                    style_group "content"
-                    align (.5, .015)
-                    xysize (210, 40)
-                    background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.6), 10, 10)
-                    label (u"Items") text_size 23 text_color "ivory" align .5, .5
-                viewport:
-                    style_prefix "proper_stats"
-                    mousewheel True
-                    draggable True
-                    xysize (300, 265)
-                    ypos 50
-                    xalign .5
-                    has vbox spacing 3
-                    for i, n in area.found_items.items():
-                        $ i = items[i]
-                        fixed:
-                            xysize 300, 65
-                            frame:
-                                xpos 6
-                                left_padding 2
-                                align .01, .5
-                                xsize 197
-                                text i.id
-                            frame:
-                                yalign .5
-                                xanchor 1.0
-                                ysize 40
-                                xsize 35
-                                xpadding 4
-                                xpos 233
-                                if n >= 100:
-                                    $ n = "99+"
-                                text "[n]" align (.5, .5) style "TisaOTM" size 18
-                            frame:
-                                background Frame(im.Alpha("content/gfx/interface/buttons/choice_buttons2.png", alpha=.75), 10, 10)
-                                padding 3, 3
-                                xysize 60, 60
-                                align .99, .5
-                                $ temp = PyTGFX.scale_content(i.icon, 57, 57)
-                                imagebutton:
-                                    align .5, .5
-                                    idle temp
-                                    hover PyTGFX.bright_content(temp, .15)
-                                    action Show("show_item_info", item=i)
-                                $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/close4.png", 16, 16)
-                                imagebutton:
-                                    align 1.0, 0 offset 2, -2
-                                    idle temp
-                                    hover PyTGFX.bright_img(temp, .15)
-                                    action Function(area.found_items.pop, i.id)
-                                    tooltip "Remove item from the list\n(resets its counter as well)"
+                style_group "content"
+                align (.5, .015)
+                xysize (210, 40)
+                background Frame(im.Alpha("content/gfx/frame/p_frame5.png", alpha=.6), 10, 10)
+                label (u"Items") text_size 23 text_color "ivory" align .5, .5
+            viewport:
+                style_prefix "proper_stats"
+                mousewheel True
+                draggable True
+                xysize (300, 265)
+                ypos 50
+                xalign .5
+                has vbox spacing 3
+                for i, n in area.found_items.items():
+                    $ i = items[i]
+                    fixed:
+                        xysize 300, 65
+                        frame:
+                            xpos 6
+                            left_padding 2
+                            align .01, .5
+                            xsize 197
+                            text i.id
+                        frame:
+                            yalign .5
+                            xanchor 1.0
+                            ysize 40
+                            xsize 35
+                            xpadding 4
+                            xpos 233
+                            if n >= 100:
+                                $ n = "99+"
+                            text "[n]" align (.5, .5) style "TisaOTM" size 18
+                        frame:
+                            background Frame(im.Alpha("content/gfx/interface/buttons/choice_buttons2.png", alpha=.75), 10, 10)
+                            padding 3, 3
+                            xysize 60, 60
+                            align .99, .5
+                            $ temp = PyTGFX.scale_content(i.icon, 57, 57)
+                            imagebutton:
+                                align .5, .5
+                                idle temp
+                                hover PyTGFX.bright_content(temp, .15)
+                                action Show("show_item_info", item=i)
+                            $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/close4.png", 16, 16)
+                            imagebutton:
+                                align 1.0, 0 offset 2, -2
+                                idle temp
+                                hover PyTGFX.bright_img(temp, .15)
+                                action Function(area.found_items.pop, i.id)
+                                tooltip "Remove item from the list\n(resets its counter as well)"
 
     else:
         frame:
@@ -1050,26 +1055,26 @@ screen building_management_rightframe_exploration_guild_mode:
                     button:
                         xysize (150, 40)
                         yalign .5
-                        action SetVariable("bm_exploration_view_mode", "upgrades")
+                        action SetField(bm_mid_frame_mode, "view_mode", "upgrades")
                         tooltip "Expand your Guild"
                         text "Upgrades" size 15
                     button:
                         xysize (150, 40)
                         yalign .5
-                        action SetVariable("bm_exploration_view_mode", "team")
+                        action SetField(bm_mid_frame_mode, "view_mode", "team")
                         tooltip "You can customize your teams here or hire Guild members."
                         text "Teams" size 15
                     button:
                         xysize (150, 40)
                         yalign .5
-                        action SetVariable("bm_exploration_view_mode", "explore")
+                        action SetField(bm_mid_frame_mode, "view_mode", "explore")
                         tooltip ("On this screen you can organize the expedition. Also, there is a "+
                                  "possibility to see all available information on the various places, enemies and items drop.")
                         text "Exploration" size 15
                     button:
                         xysize (150, 40)
                         yalign .5
-                        action SetVariable("bm_exploration_view_mode", "log")
+                        action SetField(bm_mid_frame_mode, "view_mode", "log")
                         tooltip "For each of your teams, recorded one last adventure, which you can see here in detail."
                         text "Log" size 15
                     button:

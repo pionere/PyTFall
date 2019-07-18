@@ -388,21 +388,23 @@ init -6 python: # Guild, Tracker and Log.
             super(ExplorationGuild, self).__init__()
 
             # Global Values that have effects on the whole business.
-            self.teams = list() # List to hold all the teams formed in this guild. We should add at least one team or the guild will be useless...
-            self.explorers = list() # List to hold all the (active) exploring trackers.
+            self.teams = list() # List to hold all the teams formed in this guild.
+            self.explorers = list() # List to hold all (active) exploring trackers.
 
-            self.teams.append(Team("Avengers", free=True))
+            self.teams.append(Team("Avengers", free=True)) # sample team
 
+            # gui
             self.team_to_launch_index = 0
+            self.view_mode = "explore"
+            self.selected_log_area = self.selected_exp_area = self.selected_exp_area_sub = None
+            #self.workers initialized later
+            #self.guild_teams initialized later
 
         def can_close(self):
             return not self.explorers
 
         def load_gui(self):
             # Looks pretty ugly... this might be worth improving upon just for the sake of esthetics.
-            global fg_filters, workers, guild_teams
-            global bm_exploration_view_mode, bm_selected_log_area, bm_selected_exp_area
-
             _teams = self.idle_teams()
             _chars = [w for w in self.building.all_workers if w != hero and ExplorationTask.willing_work(w) and w.is_available]
 
@@ -422,11 +424,16 @@ init -6 python: # Guild, Tracker and Log.
             workers = CharsSortingForGui(_chars, page_size=18)
             workers.occ_filters.add("Combatant")
             workers.filter()
+            self.workers = workers
 
-            guild_teams = PagerGui(_teams, page_size=9)
+            self.guild_teams = PagerGui(_teams, page_size=9)
 
-            bm_exploration_view_mode = "explore"
-            bm_selected_log_area = bm_selected_exp_area = None
+        def clear_gui(self):
+            """Clear GUI-object to free memory and eliminate dead references
+                @TODO merge with EG.clear_gui?
+            """
+            self.workers = None
+            self.guild_teams = None
 
         # Teams control/sorting/grouping methods:
         def new_team(self, name):
@@ -479,7 +486,7 @@ init -6 python: # Guild, Tracker and Log.
             area.trackers.append(tracker)
             self.explorers.append(tracker)
 
-            guild_teams.pager_content.remove(team)
+            self.guild_teams.pager_content.remove(team)
 
             renpy.show_screen("message_screen", "The team is going to explore this area for %d days!" % area.days)
 

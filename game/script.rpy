@@ -907,6 +907,13 @@ label after_load:
                     b.asks_clients_to_wait = True
                     b.help_ineffective_workers = True # Bad performance still may get a payout.
                     b.works_other_jobs = False
+                for ab in b.allowed_businesses:
+                    if not isinstance(ab, ExplorationGuild):
+                        continue
+                    if not hasattr(ab, "view_mode"):
+                        ab.team_to_launch_index = 0
+                        ab.view_mode = "explore"
+                        ab.selected_log_area = ab.selected_exp_area = ab.selected_exp_area_sub = None
             else:
                 nb = Building()
                 nb.init()
