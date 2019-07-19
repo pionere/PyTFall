@@ -1533,29 +1533,44 @@ init -10 python:
             if cost != 0:
                 if isinstance(cost, int):
                     cost = float(cost)/_bs_stats[0] # max_hp
-                    if cost > 1:
-                        cost = 1
                 if cost > .05:
                     power *= max(0.1, (1 - cost*10))
             cost = battle_skill.mp_cost
             if cost != 0:
                 if isinstance(cost, int):
                     cost = float(cost)/_bs_stats[1] # max_mp
-                    if cost > 1:
-                        cost = 1
                 if cost > .1:
                     power *= max(0.1, (1 - cost*5))
             cost = battle_skill.vitality_cost
             if cost != 0:
                 if isinstance(cost, int):
                     cost = float(cost)/_bs_stats[2] # max_vitality
-                    if cost > 1:
-                        cost = 1
                 if cost > .1:
                     power *= max(0.1, (1 - cost*5))
             #temp = ", ".join([str(delivery_multiplier[m]) for m in battle_skill.attributes])
             #devlog.warn("Battle-skill: %s - power: %s ... (base_power:%s, bonus:%s, multiplier:%s, dms:%s target:%s)" % (battle_skill.name, power, bmpc[1], bmpc[3], bmpc[4], temp, battle_skill.type))
             return power
+
+        @staticmethod
+        def weight_def_mod(delivery, bmpc, _bs_mod_curr):
+            # TODO bind this to BE_Core?
+            #                      bonus                                  multiplier
+            defense = (bmpc[1] + _bs_mod_curr[7].get(delivery, 0)) * (1 + _bs_mod_curr[8].get(delivery, 0))
+
+            # evasion_bonus
+            ev = _bs_mod_curr[9]
+            if ev != 0 and delivery in ["melee", "ranged"]:
+                defense = defense * (100 + ev) / 100.0
+
+            # el_def
+            for value in _bs_mod_curr[5].itervalues():
+                defense *= 1.0 + (value / 10) # 10 is just a guess from len(BE_Core.DAMAGE)
+
+            # absorbs
+            for value in _bs_mod_curr[6].itervalues():
+                defense *= 1.2 # TODO check for delivery?
+
+            return defense
 
         def weight_items(self, items, target_stats, target_skills, fighting, upto_skill_limit):
             """
@@ -1609,14 +1624,26 @@ init -10 python:
                 BE_Core.merge_modifiers(_bs_mod_curr, _bs_item_curr)
 
                 # TODO bind this to BE_Core ?
+                constitution = char.get_stat("constitution")
+                intelligence = char.get_stat("intelligence")
                 attack = char.get_stat("attack")
+                defence = char.get_stat("defence")
                 agility = char.get_stat("agility")
                 magic = char.get_stat("magic")
-                intelligence = char.get_stat("intelligence")
+                constitution_value = target_stats.get("constitution", 0)
+                intelligence_value = target_stats.get("intelligence", 0)
                 attack_value = target_stats.get("attack", 0)
+                defence_value = target_stats.get("defence", 0)
                 agility_value = target_stats.get("agility", 0)
                 magic_value = target_stats.get("magic", 0)
-                intelligence_value = target_stats.get("intelligence", 0)
+                _bs_mul_def_curr = {"melee": [defence_value*.7 + constitution_value*.3, defence*.7 + constitution*.3, None],
+                                    "ranged": [defence_value*.7 + agility_value*.3, defence*.7 + agility*.3, None],
+                                    "magic": [defence_value*.4 + magic_value*.2 + intelligence_value*.4, defence*.4 + magic*.2 + intelligence*.4, None],
+                                    "status": [defence_value*.4 + intelligence_value*.3 + constitution_value*.3, defence*.4 + intelligence*.3 + constitution*.3, None]}
+                for delivery, bmpc in _bs_mul_def_curr.iteritems():
+                    bmpc[0] /= 4 # len(BE_Core.DELIVERY)
+                    bmpc[2] = Stats.weight_def_mod(delivery, bmpc, _bs_mod_curr)
+
                 _bs_mul_power_curr = {"melee": [attack_value*.7 + agility_value*.3, attack*.7 + agility*.3, 0, None],
                                       "ranged": [agility_value*.7 + attack_value*.3, agility*.7 + attack*.3, 0, None],
                                       "magic": [magic_value*.7 + intelligence_value*.3, magic*.7 + intelligence*.3, 0, None],
@@ -1633,6 +1660,11 @@ init -10 python:
                     if power > bmpc[2]: # best power
                         bmpc[2] = power
                         bmpc[3] = battle_skill
+
+                    #devlog.warn("Battle-skill: %s - power: %s" % (battle_skill.name, power))
+                #devlog.warn("Attack: %s, Agility: %s, Magic %s, Intelligence %s" % (attack, agility, magic, intelligence))
+                #for delivery, power in _bs_mul_power_curr.iteritems():
+                #    devlog.warn("Delivery: %s - stats: %s" % (delivery, ", ".join(["%s"%p for p in power])))
 
             result = []
             for item in items:
@@ -1705,8 +1737,10 @@ init -10 python:
                     # add the fraction increase/decrease
                     #weights.append(mcm[0]*100*change/float(new_max))
                     #weights += mcm[0]*100*change/float(new_max)
+                    #devlog.warn("Add Stat-Weight:%s - %s  - %s" % (stat, change, new_max))
                     weights += mcm[0]*change/float(new_max)
 
+                #devlog.warn("Weights after stat:%s" % weights)
                 # Max Stats:
                 for stat, value in item.max.iteritems():
                     mcm = _stats_mul_curr_max.get(stat, None)
@@ -1728,6 +1762,7 @@ init -10 python:
                     #weights += mcm[0]*100*change/float(new_max)
                     weights += mcm[0]*change/float(new_max)
 
+                #devlog.warn("Weights after max:%s" % weights)
                 # Skills:
                 for skill, effect in item.mod_skills.iteritems():
                     smc = _skills_mul_curr.get(skill, None)
@@ -1755,40 +1790,61 @@ init -10 python:
                     #weights += smc[0]*100*change/5000.0 # SKILLS_MAX
                     weights += smc[0]*change/5000.0 # SKILLS_MAX
 
+                #devlog.warn("Weights after skill:%s" % weights)
                 if fighting is True:
                     # gain on current skills
+                    #debug_modifiers = ["ch", "damage_mpl", "delivery_bonus", "delivery_mpl", "el_dmg", "el_def", "absorbs", "defence_bonus", "defence_mpl", "ev"]
+                    #devlog.warn("Curr modifs:%s" % ", ".join([(debug_modifiers[idx] + ": " + str(i)) for idx, i in enumerate(_bs_mod_curr)]))
                     if item.be_modifiers is None:
                         _bs_mod_new = _bs_mod_curr
                     else:
                         _bs_mod_new = BE_Core.get_item_modifiers((item, ))
+                        #devlog.warn("Base-Item modifs:%s" % ", ".join([str(i) for i in _bs_mod_new]))
                         BE_Core.merge_modifiers(_bs_mod_new, _bs_mod_curr)
+                    #devlog.warn("AddTraits:%s" % ", ".join([str(i) for i in item.addtraits]))
                     for t in item.addtraits:
                         if t.be_modifiers is None or t in char_traits:
                             continue
                         _bs_trait_new = BE_Core.get_trait_modifiers((t, ), level)
+                        #devlog.warn("Trait modifs:%s" % ", ".join([str(i) for i in _bs_mod_trait]))
                         if _bs_mod_new is _bs_mod_curr:
-                            _bs_mod_new = _bs_trait_new
-                        else:
-                            BE_Core.merge_modifiers(_bs_mod_new, _bs_trait_new)
+                            _bs_mod_new = deepcopy(_bs_mod_curr)
+                        BE_Core.merge_modifiers(_bs_mod_new, _bs_trait_new)
                     # FIXME remove traits? 
+                    #devlog.warn("New modifs:%s" % ", ".join([(debug_modifiers[idx] + ": " + str(i)) for idx, i in enumerate(_bs_mod_new)]))
                     if _bs_mod_new is not _bs_mod_curr:
+                        # weight offensive modifiers
                         off_mod = any((_bs_mod_new[i] != _bs_mod_curr[i] for i in xrange(6)))
                         if off_mod is True:
-                            for delivery, bmpc in _bs_mul_power_curr.iteritems():
+                            for bmpc in _bs_mul_power_curr.itervalues():
                                 curr_power = bmpc[2]
                                 if curr_power == 0:
                                     continue
                                 #                              battle_skill
                                 power = Stats.weight_battle_skill(bmpc[3], bmpc, _bs_mod_new, _bs_stats)
+                                #new_power = power
                                 power -= curr_power
                                 if power == 0:
                                     continue
                                 #weights.append(bmpc[0]*change/curr_power)
                                 weights += bmpc[0]*power/float(curr_power)
                                 #devlog.warn("Gain on Current Skill: %s" % (bmpc[0]*float(power-curr_power)/curr_power))
-                        # FIXME weight defensive modifiers
-                        #def_mod = not off_mod or any((_bs_mod_new[i] != _bs_mod_curr[i] for i in xrange(5, 10)))
+                                #devlog.warn("Gain on Current Off Mod (%s): new power:%s, curr power: %s" % (bmpc[0], new_power, curr_power))
+                        #devlog.warn("Weights after off:%s" % weights)
+                        # weight defensive modifiers
+                        def_mod = not off_mod or any((_bs_mod_new[i] != _bs_mod_curr[i] for i in xrange(5, 10)))
+                        if def_mod is True:
+                            for delivery, bmpc in _bs_mul_def_curr.iteritems():
+                                curr_power = bmpc[2]
+                                power = Stats.weight_def_mod(delivery, bmpc, _bs_mod_new)
+                                #new_power = power
+                                if curr_power != 0:
+                                    power -= curr_power*.9 # LEEWAY
+                                    power /= curr_power
+                                weights += bmpc[0]*power
+                                #devlog.warn("Gain on Current Def Mod (%s): new power:%s, curr power: %s" % (bmpc[0], new_power, curr_power))
 
+                    #devlog.warn("Weights after curr bs skill:%s" % weights)
                     # gain from new skills
                     # Attacks:
                     if item.attacks is not None:
@@ -1803,21 +1859,27 @@ init -10 python:
                             power = Stats.weight_battle_skill(battle_skill, bmpc, _bs_mod_new, _bs_stats)
                             if power > best.get(delivery, 0): # best
                                 best[delivery] = power
-                                if bmpc[2] == 0:
-                                    temp = bmpc[0]+power
-                                else:
-                                    temp = bmpc[0]*(power-bmpc[2]/2)/float(bmpc[2])
+                                #if bmpc[2] == 0:
+                                #    temp = bmpc[0]+power
+                                #else:
+                                #    temp = bmpc[0]*(power-bmpc[2]/2)/float(bmpc[2])
+                                #devlog.warn("Attack skill %s bonus: %s - delivery: %s " % (battle_skill.name, temp, delivery))
                         for delivery, power in best.iteritems():
                             bmpc = _bs_mul_power_curr[delivery]
                             # add the fraction increase/decrease TODO cost?
                             curr_best = bmpc[2]
-                            if curr_best == 0:
-                                #weights.append(2*bmpc[0])
-                                weights += bmpc[0]+power
-                            else:
-                                #weights.append(bmpc[0]*power/curr_best)
-                                weights += bmpc[0]*(power-curr_best/2)/float(curr_best)
+                            if curr_best != 0:
+                                power -= curr_best*.9 # LEEWAY
+                                power /= curr_best
+                            weights += bmpc[0]*power
+                            #if curr_best == 0:
+                            #    #weights.append(2*bmpc[0])
+                            #    weights += bmpc[0]+power
+                            #else:
+                            #    #weights.append(bmpc[0]*power/curr_best)
+                            #    weights += bmpc[0]*(power-curr_best/2)/float(curr_best)
 
+                    #devlog.warn("Weights after attack:%s" % weights)
                     # Spells:
                     for battle_skill in item.add_be_spells:
                         #if front_row is False and battle_skill.range == 1:
@@ -1826,19 +1888,29 @@ init -10 python:
                             continue
                         bmpc = _bs_mul_power_curr[battle_skill.delivery]
                         power = Stats.weight_battle_skill(battle_skill, bmpc, _bs_mod_new, _bs_stats)
+                        #new_power = power
                         curr_best = bmpc[2] # TODO how to differentiate between poison and buff spells?
-                        if curr_best == 0:
-                            weights += bmpc[0]+power
-                        else:
-                            # FIXME right now there is only a single battle_skill per item, might change in the future 
-                            #weights.append(bmpc[0]*power/curr_best)
-                            weights += bmpc[0]*float(power-curr_best/2)/curr_best
+                        if curr_best != 0:
+                            power -= curr_best*.9 # LEEWAY
+                            power /= curr_best
+                        weights += bmpc[0]*power
+                        #if curr_best == 0:
+                        #    weights += bmpc[0]+power
+                        #else:
+                        #    # FIXME right now there is only a single battle_skill per item, might change in the future 
+                        #    #weights.append(bmpc[0]*power/curr_best)
+                        #    weights += bmpc[0]*float(power-curr_best/2)/curr_best
+                        #devlog.warn("Spell: %s - power: %s - relative to %s - weight: %s - mpl: %s" % (battle_skill.name, new_power, curr_best, weights, bmpc[0]))
+
+                #devlog.warn("Weights after fighting:%s" % weights)
 
                 # Other traits and modifiers:
                 for trait in item.goodtraits:
                     if trait in char_traits:
                         #weights.append(100)
                         weights *= 2
+
+                #devlog.warn("Weights after good traits:%s" % weights)
 
                 if is_kamidere is True: # Vanity: wants pricy, uncommon items
                     #weights.append((100 - item.chance + min(item.price/10, 100))/2)
