@@ -3805,6 +3805,7 @@
 		"effect": 10,
 		"multiplier": 0.9,
 		"mp_cost": 12,
+		"piercing": true,
 		"range": 4,
 		"desc": "A cloud of water droplets at high speed crashes into the target.",
 		"attacker_effects": {
