@@ -182,7 +182,7 @@
     "type": "tool",
     "ch_multiplier": 0.02,
     "max": {"attack": 5, "defence": 25},
-    "delivery_bonus": {"status": 0.25},
+    "delivery_bonus": {"status": 25},
     "mod": {"character": 20, "agility": 10, "defence": 15},
     "locations": ["Witches Hut"],
     "tier": 2,
