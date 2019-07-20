@@ -2201,11 +2201,9 @@ init -10 python:
             self.days_active += 1
 
             name = self.name
-            if name == "Poisoned":
-                self.ss_mod["health"] -= self.duration*5
-                char.mod_stat("health", self.ss_mod["health"])
-                if self.days_active >= self.duration:
-                    self.end(char)
+            if name == "Assertive":
+                if char.get_stat("character") < char.get_max("character")/2:
+                    char.mod_stat("character", 2)
             elif name == "Unstable":
                 if self.days_active == self.duration:
                     char.mod_stat("joy", self.ss_mod["joy"])
@@ -2215,51 +2213,43 @@ init -10 python:
             elif name == "Optimist":
                 if char.get_stat("joy") >= 30:
                     char.mod_stat("joy", 1)
-            elif name == "Blood Connection":
-                char.mod_stat("disposition", 2)
-                char.mod_stat("character", -1)
-            elif name == "Regeneration":
-                h = 30
-                if "Summer Eternality" in char.traits:
-                    h += char.get_max("health")/2
-                char.mod_stat("health", max(1, h))
-            elif name == "MP Regeneration":
-                h = 30
-                if "Winter Eternality" in char.traits:
-                    h += char.get_max("mp")/2
-                char.mod_stat("mp", max(1, h))
-            elif name == "Small Regeneration":
-                char.mod_stat("health", 15)
             elif name == "Pessimist":
-                if char.get_stat("joy") > 80:
+                joy = char.get_stat("joy")
+                if joy > 80:
                     char.mod_stat("joy", -2)
-                elif char.get_stat("joy") > 10 and dice(60):
+                elif joy > 10 and dice(60):
                     char.mod_stat("joy", -1)
-            elif name == "Assertive":
-                if char.get_stat("character") < char.get_max("character")/2:
-                    char.mod_stat("character", 2)
+            elif name == "Composure":
+                joy = char.get_stat("joy")
+                if joy < 50:
+                    char.mod_stat("joy", 1)
+                elif joy > 70:
+                    char.mod_stat("joy", -1)
             elif name == "Diffident":
                 if char.get_stat("character") > char.get_max("character")/2:
                     char.mod_stat("character", -2)
-            elif name == "Composure":
-                if char.get_stat("joy") < 50:
-                    char.mod_stat("joy", 1)
-                elif char.get_stat("joy") > 70:
-                    char.mod_stat("joy", -1)
             elif name == "Vigorous":
-                if char.get_stat("vitality") < char.get_max("vitality")/4:
+                vit = char.get_stat("vitality")
+                if vit < char.get_max("vitality")/4:
                     char.mod_stat("vitality", randint(2, 3))
-                elif char.get_stat("vitality") < char.get_max("vitality")/2:
+                elif vit < char.get_max("vitality")/2:
                     char.mod_stat("vitality", randint(1, 2))
-            elif name == "Down with Cold":
-                char.mod_stat("health", self.ss_mod["health"])
-                char.mod_stat("vitality", self.ss_mod['vitality'])
-                char.mod_stat("joy", self.ss_mod['joy'])
-                if self.days_active >= self.duration:
-                    self.end(char)
             elif name == "Kleptomaniac":
                 if dice(char.get_stat("luck")+55):
                     char.add_money(randint(5, 25), reason="Kleptomania")
+            elif name == "Intelligent":
+                if char.get_stat("joy") >= 75 and char.get_stat("vitality") >= char.get_max("vitality")*.75 and char.get_stat("health") >= char.get_max("health")*.75:
+                    char.mod_stat("intelligence", 1)
+            elif name == "Silly":
+                intel = char.get_stat("intelligence")
+                if intel >= 200:
+                    char.mod_stat("intelligence", -20)
+                elif intel >= 100:
+                    char.mod_stat("intelligence", -10)
+                elif intel >= 25:
+                    char.mod_stat("intelligence", -5)
+                else:
+                    char.set_stat("intelligence", 20)
             elif name == "Injured":
                 if char.get_stat("health") > char.get_max("health")/5:
                     char.set_stat("health", char.get_max("health")/5)
@@ -2269,45 +2259,18 @@ init -10 python:
                 char.take_ap(1)
                 if self.days_active >= self.duration:
                     self.end(char)
-            elif name == "Lactation": # TODO add milking activities, to use this fetish more widely
-                if char.get_stat("health") >= 30 and char.get_stat("vitality") >= 30 and char in hero.chars and char.is_available:
-                    if "Slime" in char.traits:
-                        item = "Slime's Milk"
-                    else:
-                        item = "Bottle of Milk"
-                    if char.status == "slave" or check_lovers(char):
-                        if "Small Boobs" in char.traits:
-                            num = 1
-                        elif "Average Boobs" in char.traits:
-                            num = randint(1, 2)
-                        elif "Big Boobs" in char.traits:
-                            num = randint(2, 3)
-                        else:
-                            num = randint(2, 5)
-                        hero.add_item(item, num)
-                    else:
-                        # in order to not stack bottles of milk into free chars inventories they get only one, and only if they had 0
-                        if not(has_items(item, char, equipped=False)):
-                            char.add_item(item)
-            elif name == "Silly":
-                if char.get_stat("intelligence") >= 200:
-                    char.mod_stat("intelligence", -20)
-                elif char.get_stat("intelligence") >= 100:
-                    char.mod_stat("intelligence", -10)
-                elif char.get_stat("intelligence") >= 25:
-                    char.mod_stat("intelligence", -5)
-                else:
-                    char.set_stat("intelligence", 20)
-            elif name == "Intelligent":
-                if char.get_stat("joy") >= 75 and char.get_stat("vitality") >= char.get_max("vitality")*.75 and char.get_stat("health") >= char.get_max("health")*.75:
-                    char.mod_stat("intelligence", 1)
-            elif name == "Sibling":
-                if char.get_stat("disposition") < 100:
-                    char.mod_stat("disposition", 2)
-                elif char.get_stat("disposition") < 200:
-                    char.mod_stat("disposition", 1)
-                if char.get_stat("affection") < 200 and "Sister Lover" in hero.traits:
-                    char.mod_stat("affection", 1)
+            elif name == "Down with Cold":
+                char.mod_stat("health", self.ss_mod["health"])
+                char.mod_stat("vitality", self.ss_mod['vitality'])
+                char.mod_stat("joy", self.ss_mod['joy'])
+                if self.days_active >= self.duration:
+                    self.end(char)
+            elif name == "Food Poisoning":
+                char.mod_stat("health", self.ss_mod["health"])
+                char.mod_stat("vitality", self.ss_mod['vitality'])
+                char.mod_stat("joy", self.ss_mod['joy'])
+                if self.days_active >= self.duration:
+                    self.end(char)
             elif name == "Drunk":
                 char.mod_stat("vitality", -char.get_flag("dnd_drunk_counter", 0))
                 char.mod_stat("health", -10)
@@ -2328,15 +2291,60 @@ init -10 python:
                                 purpose = purpose.get("base_purpose")
                         if item.goodtraits.isdisjoint(char.traits) and purpose.isdisjoint(item.pref_class):
                             char.unequip(item, aeq_mode=True)
-                if not ('Drinker' in char.effects):
+                if 'Drinker' not in char.effects: # TODO check for Heavy Drinker trait?
                     char.take_ap(1)
                 self.end(char)
-            elif name == "Food Poisoning":
+            elif name == "Poisoned":
+                self.ss_mod["health"] -= self.duration*5
                 char.mod_stat("health", self.ss_mod["health"])
-                char.mod_stat("vitality", self.ss_mod['vitality'])
-                char.mod_stat("joy", self.ss_mod['joy'])
                 if self.days_active >= self.duration:
                     self.end(char)
+            elif name == "Lactation": # TODO add milking activities, to use this fetish more widely
+                if char.get_stat("health") >= 30 and char.get_stat("vitality") >= 30 and char in hero.chars and char.is_available:
+                    if "Slime" in char.traits:
+                        item = "Slime's Milk"
+                    else:
+                        item = "Bottle of Milk"
+                    if char.status == "slave" or check_lovers(char):
+                        boobs = char.gents.id
+                        if boobs.startswith("Ab"):  # "Abnormally Large Boobs"
+                            num = randint(2, 5)
+                        elif boobs.startswith("B"): # "Big Boobs"
+                            num = randint(2, 3)
+                        elif boobs.startswith("Av"):# "Average Boobs"
+                            num = randint(1, 2)
+                        else:                       # "Small Boobs"
+                            num = 1
+                        hero.add_item(item, num)
+                    else:
+                        # in order to not stack bottles of milk into free chars inventories they get only one, and only if they had 0
+                        if not(has_items(item, char, equipped=False)):
+                            char.add_item(item)
+            elif name == "Regeneration":
+                if "Summer Eternality" in char.traits:
+                    h = max(1, char.get_max("health")/2)
+                else:
+                    h = 30
+                char.mod_stat("health", h)
+            elif name == "MP Regeneration":
+                if "Winter Eternality" in char.traits:
+                    h = max(1, char.get_max("mp")/2)
+                else:
+                    h = 30
+                char.mod_stat("mp", h)
+            elif name == "Small Regeneration":
+                char.mod_stat("health", 15)
+            elif name == "Blood Connection":
+                char.mod_stat("disposition", 2)
+                char.mod_stat("character", -1)
+            elif name == "Sibling":
+                dispo = char.get_stat("disposition")
+                if dispo < 100:
+                    char.mod_stat("disposition", 2)
+                elif dispo < 200:
+                    char.mod_stat("disposition", 1)
+                if char.get_stat("affection") < 200 and "Sister Lover" in hero.traits:
+                    char.mod_stat("affection", 1)
 
         def end(self, char):
             name = self.name
