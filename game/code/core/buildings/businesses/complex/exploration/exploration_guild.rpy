@@ -28,10 +28,11 @@ init -9 python:
             if self.area:
                 # add required field for sub-areas
                 self.tier = getattr(self, "tier", 0)   # Difficulty
-                self.daily_modifier = getattr(self, "daily_modifier", 0.1) # modifer when spending the night on the site
-                self.maxdays = getattr(self, "maxdays", 15) # maximum number of days to spend on site
-                self.maxexplored = getattr(self, "maxexplored", 1000) # the required points to fully explore an area
+                self.daily_modifier = getattr(self, "daily_modifier", 0.1)     # modifer when spending the night on the site
+                self.maxdays = getattr(self, "maxdays", 15)                    # maximum number of days to spend on site
+                self.maxexplored = getattr(self, "maxexplored", 1000)          # the required points to fully explore an area
                 self.items_price_limit = getattr(self, "items_price_limit", 0) # limit on the price of items which can be found in the area
+                self.cash_limit = getattr(self, "cash_limit", 0)               # limit on the cash to be found on site
 
                 # Traveling to and from: Input is in number of days which is converted to KM units
                 # 20KM is what we expect the team to be able to travel in a day.
@@ -949,14 +950,16 @@ init -6 python: # Guild, Tracker and Log.
 
                 # Effectiveness (Ability):
                 ability = tracker.get_team_ability()
-                ability = (ability+tracker.risk)*.01
+                # convert to reward multiplier
+                ability = ability*tracker.risk*.01           # (0-200)*(1-3) * (0-100) / 100.0 -> 0 - 6.0
+                ability += (tracker.day-tracker.traveled)*.2 #  + (0-15) / 5.0               -> 3.0 - 9.0
                 # Max cash to be found this day:
-                tracker.max_cash = int(area.cash_limit*ability*(1 + .1*tracker.day))
+                tracker.max_cash = int(area.cash_limit*ability)
 
                 # Get the max number of items that can be found in one day:
-                max_items = round_int(ability+(tracker.day*.2))
+                max_items = round_int(ability)
                 if DEBUG_SE:
-                    msg = "Max Items ({}) to be found on Day: {}!".format(max_items, tracker.day)
+                    msg = "Max Items: {}, Cash: {} to be found on Day: {}!".format(max_items, tracker.max_cash, tracker.day)
                     se_debug(msg)
                 # Let's run the expensive item calculations once and just give
                 # Items as we explore. This just figures what items to give.
