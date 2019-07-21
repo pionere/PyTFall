@@ -247,7 +247,7 @@ screen city_jail_cells():
             frame:
                 align .5, .5
                 background Frame("content/gfx/frame/MC_bg.png", 10, 10)
-                add char.show("girlmeets", "sad", "indoors", "dungeon", "ripped", resize=(560, 400), exclude=["nude", "no clothes", "rest", "outdoors", "onsen", "beach", "pool", "living"], type="reduce", label_cache=True) align .5, .5
+                add char.show("girlmeets", ("dungeon", "no bg", "indoors", "simple bg", None), ("ripped", None), ("sad", None), resize=(560, 400), exclude=["nude", "no clothes", "rest", "outdoors", "onsen", "beach", "pool", "living"], type="ptls", label_cache=True, add_mood=False) align .5, .5
 
         # Details:
         frame:
