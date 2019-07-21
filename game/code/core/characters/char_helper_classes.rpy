@@ -1552,7 +1552,7 @@ init -10 python:
             return power
 
         @staticmethod
-        def weight_def_mod(delivery, bmpc, _bs_mod_curr):
+        def weight_def_mod(delivery, bmpc, _bs_mod_curr, resists):
             # TODO bind this to BE_Core?
             #                      bonus                                  multiplier
             defense = (bmpc[1] + _bs_mod_curr[7].get(delivery, 0)) * (1 + _bs_mod_curr[8].get(delivery, 0))
@@ -1563,12 +1563,18 @@ init -10 python:
                 defense = defense * (100 + ev) / 100.0
 
             # el_def
-            for value in _bs_mod_curr[5].itervalues():
-                defense *= 1.0 + (value / 10) # 10 is just a guess from len(BE_Core.DAMAGE)
+            el_def = _bs_mod_curr[5]
+            for type, value in el_def.iteritems():
+                if type in resists:
+                    continue
+                defense *= 1.0 + (value / 40) # 40 is just a guess from len(BE_Core.DAMAGE) * len(BE_Core.DELIVERY)
 
             # absorbs
-            for value in _bs_mod_curr[6].itervalues():
-                defense *= 1.2 # TODO check for delivery?
+            for type, value in _bs_mod_curr[6].iteritems():
+                if type in resists:
+                    continue
+                value = .4 * (1.0 - el_def.get(type, 0)) # absorb worth more, if the char is not protected against that element anyway 
+                defense *= 1.0 + (value / 40) # 40 is just a guess from len(BE_Core.DAMAGE) * len(BE_Core.DELIVERY)
 
             return defense
 
@@ -1624,6 +1630,7 @@ init -10 python:
                 BE_Core.merge_modifiers(_bs_mod_curr, _bs_item_curr)
 
                 # TODO bind this to BE_Core ?
+                resists = char.resist
                 constitution = char.get_stat("constitution")
                 intelligence = char.get_stat("intelligence")
                 attack = char.get_stat("attack")
@@ -1642,7 +1649,7 @@ init -10 python:
                                     "status": [defence_value*.4 + intelligence_value*.3 + constitution_value*.3, defence*.4 + intelligence*.3 + constitution*.3, None]}
                 for delivery, bmpc in _bs_mul_def_curr.iteritems():
                     bmpc[0] /= 4 # len(BE_Core.DELIVERY)
-                    bmpc[2] = Stats.weight_def_mod(delivery, bmpc, _bs_mod_curr)
+                    bmpc[2] = Stats.weight_def_mod(delivery, bmpc, _bs_mod_curr, resists)
 
                 _bs_mul_power_curr = {"melee": [attack_value*.7 + agility_value*.3, attack*.7 + agility*.3, 0, None],
                                       "ranged": [agility_value*.7 + attack_value*.3, agility*.7 + attack*.3, 0, None],
@@ -1836,7 +1843,7 @@ init -10 python:
                         if def_mod is True:
                             for delivery, bmpc in _bs_mul_def_curr.iteritems():
                                 curr_power = bmpc[2]
-                                power = Stats.weight_def_mod(delivery, bmpc, _bs_mod_new)
+                                power = Stats.weight_def_mod(delivery, bmpc, _bs_mod_new, resists)
                                 #new_power = power
                                 if curr_power != 0:
                                     power -= curr_power*.9 # LEEWAY
