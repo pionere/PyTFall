@@ -1146,6 +1146,172 @@ init 1000 python:
                                 TestSuite.reportError("Business %s in Building %s is not expandable, but has expansion-related field %s!" % (bs.name, b.name, f))
 
         @staticmethod
+        def loadBuilding(tier=2, op=False, adverts=[], auto_clean=100, auto_guard=0, business=None, businesses={}, workers=[], stats=[]):
+            # building
+            b = [b for b in buildings.values() if b.tier == tier][0]
+
+            hero.add_building(b)
+
+            b.modrep(b.maxrep)
+            b.modfame(b.maxfame)
+
+            b.auto_clean=auto_clean
+            b.auto_guard=auto_guard
+
+            # businesses + upgrades
+            for bu in b.allowed_businesses:
+                ups = businesses.get(bu.name, None)
+                if ups is None:
+                    if bu in b.businesses:
+                        cost, materials, in_slots, ex_slots = bu.get_cost()
+                        hero.gold += cost
+                        b.close_business(bu)
+                else:
+                    # business
+                    if bu not in b.businesses:
+                        cost, materials, in_slots, ex_slots = bu.get_cost()
+                        b.in_slots += in_slots
+                        b.ex_slots += ex_slots
+                        b.add_business(bu, in_game=True)
+                    # upgrades
+                    for up in bu.allowed_upgrades:
+                        if up.name in ups:
+                            cost, materials, in_slots, ex_slots = up.get_cost()
+
+                            bu.in_slots += in_slots
+                            b.in_slots += in_slots
+                            bu.ex_slots += ex_slots
+                            b.ex_slots += ex_slots
+                            
+                            bu.add_upgrade(up)
+            # capacity of THE business
+            for bu in b.allowed_businesses:
+                if bu.name == business:
+                    cost, materials, in_slots, ex_slots = bu.get_expansion_cost()
+
+                    num = min(b.in_slots_max - b.in_slots / in_slots if in_slots != 0 else float("inf"),
+                              b.ex_slots_max - b.ex_slots / ex_slots if ex_slots != 0 else float("inf"))
+
+                    for i in xrange(num):
+                        bu.in_slots += in_slots
+                        b.in_slots += in_slots
+                        bu.ex_slots += ex_slots
+                        b.ex_slots += ex_slots
+                        bu.capacity += 1
+
+            # adverts
+            for a in b.adverts:
+                if a["name"] in adverts:
+                    a["active"] = True
+            # clients
+
+            # workers
+            wtier = tier + (2 if op else 0)
+            for bt_list, num, job in workers:
+                for i in xrange(num):
+                    worker = build_rc(bt_list=bt_list, give_bt_items=True, give_civilian_items=True, tier=wtier)
+                    hero.add_char(worker)
+                    worker.mod_workplace(b)
+                    worker.set_job(job)
+                    for stat in stats:
+                        mod_by_max(worker, stat, 1.0)
+                    worker.autocontrol["Tips"] = True
+                    worker.wagemod = 200
+
+        # Bar
+        @staticmethod
+        def loadBarT2_0(op=False):
+            TestSuite.loadBuilding(tier=2, op=op, adverts=["Sign"], auto_clean=40, auto_guard=1200,
+                                   business="Bar", businesses={"Bar": []}, workers=[("Manager", 1, ManagerJob), ("Maid", 4, BarJob)],
+                                   stats=["charisma", "joy", "disposition"])
+
+        @staticmethod
+        def loadBarT2_1(op=False): # 3400
+            TestSuite.loadBuilding(tier=2, op=op, adverts=["Sign"], auto_clean=100, auto_guard=1200,
+                                   business="Bar", businesses={"Cleaning Block": [], "Bar": []}, workers=[("Manager", 1, ManagerJob), ("Maid", 4, BarJob), ("Maid", 2, CleaningJob)],
+                                   stats=["charisma", "joy", "disposition"])
+
+        @staticmethod
+        def loadBarT2_2(op=False): # 3000
+            TestSuite.loadBuilding(tier=2, op=op, adverts=["Sign"], auto_clean=100, auto_guard=1200,
+                                   business="Bar", businesses={"Cleaning Block": [], "Bar": ["Tap Beer"]}, workers=[("Manager", 1, ManagerJob), ("Maid", 4, BarJob), ("Maid", 2, CleaningJob)],
+                                   stats=["charisma", "joy", "disposition"])
+
+        @staticmethod
+        def loadBarT2_3(op=False): # 3500
+            TestSuite.loadBuilding(tier=2, op=op, adverts=["Sign"], auto_clean=100, auto_guard=0,
+                                   business="Bar", businesses={"Cleaning Block": [], "Warrior Quarters": [], "Bar": []}, workers=[("Manager", 1, ManagerJob), ("Maid", 4, BarJob), ("Maid", 2, CleaningJob), ("Warrior", 2, GuardJob)],
+                                   stats=["charisma", "joy", "disposition"])
+
+        @staticmethod
+        def loadBarT2_4(op=False):
+            TestSuite.loadBuilding(tier=2, op=op, adverts=["Sign"], auto_clean=100, auto_guard=0,
+                                   business="Bar", businesses={"Cleaning Block": [], "Warrior Quarters": [], "Bar": ["Tap Beer"]}, workers=[("Manager", 1, ManagerJob), ("Maid", 4, BarJob), ("Maid", 2, CleaningJob), ("Warrior", 2, GuardJob)],
+                                   stats=["charisma", "joy", "disposition"])
+
+        # Brothel
+        @staticmethod
+        def loadBrothelT2_0(op=False):
+            TestSuite.loadBuilding(tier=2, op=op, adverts=["Sign"], auto_clean=40, auto_guard=1200,
+                                   business="Brothel", businesses={"Brothel": []}, workers=[("Manager", 1, ManagerJob), ("Prostitute", 24, WhoreJob)],
+                                   stats=["charisma", "joy", "disposition"])
+
+        @staticmethod
+        def loadBrothelT2_1(op=False): # 6800
+            TestSuite.loadBuilding(tier=2, op=op, adverts=["Sign"], auto_clean=100, auto_guard=1200,
+                                   business="Brothel", businesses={"Cleaning Block": [], "Brothel": []}, workers=[("Manager", 1, ManagerJob), ("Prostitute", 24, WhoreJob), ("Maid", 2, CleaningJob)],
+                                   stats=["charisma", "joy", "disposition"])
+
+        @staticmethod
+        def loadBrothelT2_2(op=False): # 5800
+            TestSuite.loadBuilding(tier=2, op=op, adverts=["Sign"], auto_clean=100, auto_guard=1200,
+                                   business="Brothel", businesses={"Cleaning Block": [], "Brothel": ["Statue"]}, workers=[("Manager", 1, ManagerJob), ("Prostitute", 24, WhoreJob), ("Maid", 2, CleaningJob)],
+                                   stats=["charisma", "joy", "disposition"])
+
+        @staticmethod
+        def loadBrothelT2_3(op=False): # 6000
+            TestSuite.loadBuilding(tier=2, op=op, adverts=["Sign"], auto_clean=100, auto_guard=0,
+                                   business="Brothel", businesses={"Cleaning Block": [], "Warrior Quarters": [], "Brothel": []}, workers=[("Manager", 1, ManagerJob), ("Prostitute", 24, WhoreJob), ("Maid", 2, CleaningJob), ("Warrior", 2, GuardJob)],
+                                   stats=["charisma", "joy", "disposition"])
+
+        @staticmethod
+        def loadBrothelT2_4(op=False):
+            TestSuite.loadBuilding(tier=2, op=op, adverts=["Sign"], auto_clean=100, auto_guard=0,
+                                   business="Brothel", businesses={"Cleaning Block": [], "Warrior Quarters": [], "Brothel": ["Statue"]}, workers=[("Manager", 1, ManagerJob), ("Prostitute", 24, WhoreJob), ("Maid", 2, CleaningJob), ("Warrior", 2, GuardJob)],
+                                   stats=["charisma", "joy", "disposition"])
+
+        # Strip Club
+        @staticmethod
+        def loadStripT2_0(op=False):
+            TestSuite.loadBuilding(tier=4, op=op, adverts=["Sign"], auto_clean=40, auto_guard=1200,
+                                   business="Strip Club", businesses={"Strip Club": []}, workers=[("Manager", 1, ManagerJob), ("Stripper", 16, StripJob)],
+                                   stats=["charisma", "agility", "joy", "disposition"])
+
+        @staticmethod
+        def loadStripT2_1(op=False):
+            TestSuite.loadBuilding(tier=4, op=op, adverts=["Sign"], auto_clean=100, auto_guard=3000,
+                                   business="Strip Club", businesses={"Cleaning Block": [], "Strip Club": []}, workers=[("Manager", 1, ManagerJob), ("Stripper", 16, StripJob), ("Maid", 3, CleaningJob)],
+                                   stats=["charisma", "agility", "joy", "disposition"])
+
+        @staticmethod
+        def loadStripT2_2(op=False): # 23000
+            TestSuite.loadBuilding(tier=4, op=op, adverts=["Sign"], auto_clean=100, auto_guard=3000,
+                                   business="Strip Club", businesses={"Cleaning Block": [], "Strip Club": ["Catwalk"]}, workers=[("Manager", 1, ManagerJob), ("Stripper", 16, StripJob), ("Maid", 3, CleaningJob)],
+                                   stats=["charisma", "agility", "joy", "disposition"])
+
+        @staticmethod
+        def loadStripT2_3(op=False): # 22000
+            TestSuite.loadBuilding(tier=4, op=op, adverts=["Sign"], auto_clean=100, auto_guard=0,
+                                   business="Strip Club", businesses={"Cleaning Block": [], "Warrior Quarters": [], "Strip Club": []}, workers=[("Manager", 1, ManagerJob), ("Stripper", 16, StripJob), ("Maid", 3, CleaningJob), ("Warrior", 2, GuardJob)],
+                                   stats=["charisma", "agility", "joy", "disposition"])
+
+        @staticmethod
+        def loadStripT2_4(op=False): # 20000
+            TestSuite.loadBuilding(tier=4, op=op, adverts=["Sign"], auto_clean=100, auto_guard=0,
+                                   business="Strip Club", businesses={"Cleaning Block": [], "Warrior Quarters": [], "Strip Club": ["Catwalk"]}, workers=[("Manager", 1, ManagerJob), ("Stripper", 16, StripJob), ("Maid", 3, CleaningJob), ("Warrior", 2, GuardJob)],
+                                   stats=["charisma", "agility", "joy", "disposition"])
+
+        @staticmethod
         def aeqTest():
             base_traits, other_traits, purpose = ["Mage"], ["Impersonal", "Fire"], "Mage"
             #base_traits, other_traits, purpose = ["Shooter"], ["Yandere"], "Shooter"
