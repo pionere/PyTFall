@@ -768,42 +768,42 @@ init -5 python:
             # Charisma mods:
             charisma = WhoreJob.normalize_required_stat(worker, "charisma", effectiveness, tier)
             if charisma >= 170:
-                log.append("Her supernal loveliness made the customer to shed tears of happiness, comparing %s to ancient goddess of love. Be wary of possible cults dedicated to her..." % nickname)
+                log.append("%s supernal loveliness made the customer to shed tears of happiness, comparing %s to ancient %s of love. Be wary of possible cults dedicated to %s..." % (worker.pdC, nickname, "goddess" if worker.gender == "female" else "god", worker.op))
                 log.logws("joy", 1)
                 if dice(75):
                     log.logloc("fame", 1)
                 if dice(50):
                     log.logloc("reputation", 1)
             elif charisma >= 160:
-                log.append("%s made the customer fall in love with her unearthly beauty. Careful now girl, we don't need crowds of admires around our businesses..." % nickname)
+                log.append("%s made the customer fall in love with %s unearthly beauty. Careful now %s, we don't need crowds of admires around our businesses..." % (nickname, worker.pd, "girl" if worker.gender == "female" else "boy"))
                 log.logws("joy", 1)
                 if dice(50):
                     log.logloc("fame", 1)
                 if dice(30): 
                     log.logloc("reputation", 1)
             elif charisma >= 145:
-                log.append("%s completely enchanted the customer with her stunning beauty." % nickname)
+                log.append("%s completely enchanted the customer with %s stunning beauty." % (nickname, worker.pd))
                 if dice(30):
                     log.logloc("fame", 1)
                 if dice(25):
                     log.logloc("reputation", 1)
             elif charisma >= 120:
-                log.append("The client was happy to be alone with such a breathtakingly beautiful girl as %s." % nickname)
+                log.append("The client was happy to be alone with such a breathtakingly beautiful %s as %s." % ("girl" if worker.gender == "female" else "guy", nickname))
                 if dice(25):
                     log.logloc("fame", 1)
             elif charisma >= 100:
                 log.append("%s good looks clearly was pleasing to the customer." % nickname)
             elif charisma >= 50:
-                log.append("%s did her best to make the customer like her, but her beauty could definitely be enhanced." % nickname)
+                log.append("%s did %s best to make the customer like %s, but %s attractiveness could definitely be enhanced." % (nickname, worker.pd, worker.op, worker.pd))
             else:
+                log.append("The customer was unimpressed by %s looks, to say at least. Still, %s preferred fucking %s over a harpy. Hearing that from %s however, was not encouraging for the poor girl at all..." % (nickname, client.p, worker.op, client.op))
                 log.logws("joy", -2)
                 if dice(50):
                     log.logloc("fame", -1)
-                log.append("The customer was unimpressed by %s looks, to say at least. Still, %s preferred fucking her over a harpy. Hearing that from %s however, was not encouraging for the poor girl at all..." % (nickname, client.p, client.op))
 
             refinement = WhoreJob.normalize_required_skill(worker, "refinement", effectiveness, tier)
             if charisma >= 100 and refinement >= 100 and dice(75):
-                log.append("Her impeccable manners also made a very good impression.")
+                log.append("%s impeccable manners also made a very good impression." % worker.pdC)
                 log.logloc("reputation", 1)
 
             # Award EXP:
@@ -812,30 +812,30 @@ init -5 python:
             log.logws("exp", exp_reward(worker, tier, exp_mod=ap_used))
 
             if effectiveness >= 190:
-                log.append("The client was at the girls mercy. She brought him to the heavens and %s remained there, unconscious from sensory overload." % client.p)
+                log.append("The client was at the %ss mercy. %s brought %s to the heavens and %s remained there, unconscious from sensory overload." % ("girl" if worker.gender == "female" else "guy", worker.pC, client.op, client.p))
                 if dice(50):
                     log.logloc("reputation", 1)
                 log.logws("joy", 3)
             elif effectiveness >= 150:
-                log.append("She playfully took the customer into embrace and made him forget about the rest of the world until they were finished." % client.op)
+                log.append("%s playfully took the customer into embrace and made %s forget about the rest of the world until they were finished." % (worker.pC, client.op))
                 if dice(30):
                     log.logloc("reputation", 1)
                 log.logws("joy", 2)
             elif effectiveness >= 130:
-                log.append("She performed wonderfully with her unmatched carnal skills, making the customer exhausted and completely satisfied.")
+                log.append("%s performed wonderfully with %s unmatched carnal skills, making the customer exhausted and completely satisfied." % (worker.pC, worker.pd))
                 log.logws("joy", 2)
             elif effectiveness >= 100:
-                log.append("Her well honed sexual tricks and techniques were very pleasing to the customer, and she was quite pleased in return by client's praises.")
+                log.append("%s well honed sexual tricks and techniques were very pleasing to the customer, and %s was quite pleased in return by client's praises." % (worker.pdC, worker.p))
                 log.logws("joy", 1)
             elif effectiveness >= 65:
-                log.append("%s did the job to the best of her ability, making a good impression, but her skills could definitely be improved." % nickname)
+                log.append("%s did the job to the best of %s ability, making a good impression, but %s skills could definitely be improved." % (nickname, worker.pd, worker.pd))
             elif effectiveness >= 35:
-                log.append("The girl performed quite poorly. Still, %s somewhat managed to provide required service, following impatient instructions of the client." % nickname)
+                log.append("The %s performed quite poorly. Still, %s somewhat managed to provide required service, following impatient instructions of the client." % ("girl" if worker.gender == "female" else "guy", nickname))
             else:
                 if charisma >= 100:
-                    log.append("Even though %s failed to satisfy the client, her performance was however somewhat saved by her looks." % nickname)
+                    log.append("Even though %s failed to satisfy the client, %s performance was however somewhat saved by %s looks." % (nickname, worker.pd, worker.pd))
                 else:
-                    log.append("Unfortunately, %s failed to satisfy the client. Her looks were not likely to be of any help to her either." % nickname)
+                    log.append("Unfortunately, %s failed to satisfy the client. %s looks were not likely to be of any help to %s either." % (nickname, worker.pdC, worker.op))
             if effectiveness < 100 and "Open Minded" not in worker.traits and "Bisexual" not in worker.traits:
                 # with low effectiveness wrong orientation will take some vitality
                 if ("Lesbian" in worker.traits or "Gay" in worker.traits) != (client.gender == worker.gender):
