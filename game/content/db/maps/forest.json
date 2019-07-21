@@ -4,7 +4,13 @@
         "unlocked": true,
         "stage": 1,
         "img": "content/maps/night_forest.webp",
-        "allowed_objects": ["firepit", "bench", {"id": "tent", "cost": 3000}, "hut", "house", "kitchen", "cantine", "cage", "cell"]
+        "allowed_objects": ["firepit", { "id": "bench", "pos": [130, 240]},
+                            {"id": "kitchen", "pos": [316, 140]},
+                            {"id": "cantine", "pos": [319, 131], "img": "content/maps/objects/cantine_cf.webp"},
+                            {"id": "tent", "pos": [-80, 230], "cost": 3500, "capacity":3}, "hut",
+                            {"id": "house", "img": "content/maps/objects/house_cf.webp"},
+                            {"id": "cage", "img": "content/maps/objects/cage_cf.webp"},
+                            {"id": "cell", "img": "content/maps/objects/cell_cf.webp"}]
     },
     {
         "name": "Forest Maze",
@@ -24,13 +30,7 @@
         "daily_modifier": 0.10,
         "cash_limit": 20,
         "items_price_limit": 200,
-        "allowed_objects": ["+", { "id": "bench", "pos": [130, 240]},
-                            {"id":"tent", "pos": [-80, 230], "cost": 3500, "capacity":3},
-                            {"id": "kitchen", "pos": [316, 140]},
-                            {"id": "cantine", "pos": [319, 131], "img": "content/maps/objects/cantine_cf.webp"},
-                            {"id": "cage", "img": "content/maps/objects/cage_cf.webp"},
-                            {"id": "cell", "img": "content/maps/objects/cell_cf.webp"},
-                            {"id": "house", "img": "content/maps/objects/house_cf.webp"} ]
+        "allowed_objects": ["+"]
     },
     {
         "name": "Cursed Forest",
@@ -44,7 +44,8 @@
         "mobs": ["Werewolf", "Weregirl", "Werecat", "Undead Rat", "Arachna"],
         "unlocks": {"Black Woods": 80, "Dead Forest": 40},
         "cash_limit": 100,
-        "items_price_limit": 500
+        "items_price_limit": 500,
+        "allowed_objects": ["+"]
     },
     {
         "name": "Dead Forest",
@@ -58,7 +59,8 @@
         "mobs": ["Undead Rat", "Undead Werecat", "Undead Unicorn", "Naga Archer", "Naga Warrior"],
         "unlocks": {"Elven Burial Grounds": 80},
         "cash_limit": 200,
-        "items_price_limit": 700
+        "items_price_limit": 700,
+        "allowed_objects": ["+"]
     },
     {
         "name": "Elven Burial Grounds",
@@ -72,7 +74,8 @@
         "mobs": ["Shadowman", "Horny Mummy", "Undead Unicorn", "Skeleton Warrior"],
         "unlocks": {"Forest Catacombs": 80},
         "cash_limit": 300,
-        "items_price_limit": 1000
+        "items_price_limit": 1000,
+        "allowed_objects": ["+"]
     },
     {
         "name": "Black Woods",
@@ -89,7 +92,8 @@
         "unlocks": {"Dark Elves Settlement": 70},
         "cash_limit": 500,
         "items_price_limit": 900,
-        "items": {"Mithril Armor": 20}
+        "items": {"Mithril Armor": 20},
+        "allowed_objects": ["+"]
     },
     {
         "name": "Dark Elves Settlement",
@@ -105,6 +109,7 @@
         "mobs": ["Dark Elf Archer", "Undead Unicorn", "Giant Spider"],
         "cash_limit": 500,
         "items_price_limit": 900,
-        "items": {"Organic Lingerie": 30}
+        "items": {"Organic Lingerie": 30},
+        "allowed_objects": ["+"]
     }
 ]
