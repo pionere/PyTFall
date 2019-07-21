@@ -1483,8 +1483,6 @@ init -10 python:
             value: the value to be added
             """
             curr_value = self.skills[key][at]
-            if curr_value == 5000: # SKILLS_MAX
-                return 0 # Maxed out...
 
             value *= max(.5, min(self.skills_multipliers[key][at], 2.5)) 
             value *= (1.0 - float(curr_value)/5000) # SKILLS_MAX
@@ -1493,11 +1491,30 @@ init -10 python:
             self.skills[key][at] = value
             return round_int(value)-round_int(curr_value) # return the real delta
 
-        def mod_full_skill(self, skill, value):
+        def set_full_skill(self, skill, value):
             """This spreads the skill bonus over both action and training.
             """
-            self._mod_raw_skill(skill, 0, value/1.5)
-            self._mod_raw_skill(skill, 1, value/3.0)
+            self.skills[skill][0] = value/1.5
+            self.skills[skill][1] = value/3.0
+
+        def degrade_values(self):
+            """auto-degrading stats/skills
+            """
+            for stat in STATIC_CHAR.DEGRADING_STATS:
+                value = self._get_stat(stat)
+                if value > 100 and dice(value/100):
+                    self._mod_base_stat(stat, -1)
+            for skill in STATIC_CHAR.SKILLS:
+                action, training = self.skills[skill]
+                if action > 100 and dice(value/100):
+                    self._mod_raw_skill(skill, 0, -1) # out of practice
+                if training > 100 and dice(value/100):
+                    self._mod_raw_skill(skill, 1, -1) # forget what you've learnt
+            joy = self._get_stat("joy")
+            if joy > 60:
+                self._mod_base_stat("joy", -1)
+            elif joy < 40:
+                self._mod_base_stat("joy", 1)
 
         @staticmethod
         def weight_battle_skill(battle_skill, bmpc, _bs_mod_curr, _bs_stats):

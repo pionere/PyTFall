@@ -175,9 +175,8 @@ label mc_setup_end:
         for s in base_skills:
             value = high_factor()+.2
             # set skill to the given percentage
-            stats.skills[s] = [0, 0] 
-            value = round_int(hero.get_max_skill(s)*value)
-            stats.mod_full_skill(s, value)
+            value *= hero.get_max_skill(s)
+            stats.set_full_skill(s, value)
 
         # Add default workable building to MC, but only if we didn't add one in special labels.
         if not [b for b in hero.upgradable_buildings if b.is_business()]:

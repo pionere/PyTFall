@@ -2078,21 +2078,9 @@ init -9 python:
             return flag_red
 
         def next_day(self):
-            # auto-degrading stats/skills
             # FIXME should be done for all chars, but non-workers do not gain stats at the moment
             #        might be merged with the degrading disposition/affection
-            for stat in STATIC_CHAR.DEGRADING_STATS:
-                value = self.get_stat(stat)/100
-                if value >= 1 and dice(value):
-                    self.stats._mod_base_stat(stat, -1)
-            for skill in STATIC_CHAR.SKILLS:
-                value = self.get_skill(skill)/100
-                if value >= 1 and dice(value):
-                    self.stats.mod_full_skill(skill, -1)
-            if self.get_stat("joy") > 60:
-                self.mod_stat("joy", -1)
-            elif self.get_stat("joy") < 40:
-                self.mod_stat("joy", 1)
+            self.stats.degrade_values()
 
             txt = self.txt
             flag_red = False

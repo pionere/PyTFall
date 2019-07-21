@@ -238,7 +238,7 @@ init -11 python:
                 setattr(mob, i, temp)
 
         for skill, value in data["skills"].iteritems():
-            mob.stats.mod_full_skill(skill, value)
+            mob.stats.set_full_skill(skill, value)
 
         # Get and normalize basetraits:
         basetraits = set(traits[t] for t in data["basetraits"])
@@ -767,13 +767,10 @@ init -11 python:
         if tier > MAX_TIER:
             tier = MAX_TIER
 
-        level_bios = partial(uniform, level_bios[0], level_bios[1])
-        skill_bios = partial(uniform, skill_bios[0], skill_bios[1])
-        stat_bios = partial(uniform, stat_bios[0], stat_bios[1])
         # Level with base 20
-        level = tier*20
-        if level:
-            level = round_int(level*level_bios())
+        level = tier
+        if tier:
+            level = round_int(tier*20*uniform(*level_bios))
             initial_levelup(char, level)
 
         # devlog.info("")
@@ -783,14 +780,17 @@ init -11 python:
         # Do the stats/skills:
         base_skills = set()
         base_stats = set()
+        char_stats = char.stats
         # !!! Using weight may actually confuse thing in here... this needs testing.
         # Also, it may be a good idea to do list(s) of stats/skills every ht char should have a bit of...
         for trait in char.traits.basetraits:
             skills = trait.base_skills
-            total_weight_points = sum(skills.values())
-            total_skill_points = sum(char.get_max_skill(s, tier)*.6 for s in skills)
-            for skill, weight in skills.items():
+            total_weight_points = sum(skills.itervalues())
+            total_skill_points = sum(char.get_max_skill(s, tier) for s in skills)
+            for skill, weight in skills.iteritems():
                 # devlog.info("SKILL/Pre-Value: {}/{}".format(skill, char.get_skill(skill)))
+                if skill in base_skills:
+                    continue
                 base_skills.add(skill)
                 weight_ratio = float(weight)/total_weight_points
                 # devlog.info("Weight Ratio: {}".format(weight_ratio))
@@ -798,47 +798,48 @@ init -11 python:
                 # devlog.info("Skill Points: {}".format(sp))
                 # # weight_sp = weight_ratio*sp
                 # # devlog.info("Weighted Points: {}".format(weight_sp))
-                biosed_sp = round_int(sp*skill_bios())
-                # devlog.info("Biased Points: {}".format(biosed_sp))
+                sp *= uniform(*skill_bios)
+                # devlog.info("Biased Points: {}".format(sp))
 
-                char.stats.mod_full_skill(skill, biosed_sp)
+                char_stats.set_full_skill(skill, sp)
 
                 # devlog.info("Resulting Skill: {}".format(char.get_skill(skill)))
 
             stats = trait.base_stats
-            total_weight_points = sum(stats.values())
+            total_weight_points = sum(stats.itervalues())
             total_stat_points = sum(char.get_relative_max_stat(s, tier) for s in stats)
-            for stat, weight in stats.items():
+            for stat, weight in stats.iteritems():
+                if stat in base_stats:
+                    continue
                 base_stats.add(stat)
                 weight_ratio = float(weight)/total_weight_points
                 sp = total_stat_points*weight_ratio
                 # weight_sp = weight_ratio*sp
-                biosed_sp = round_int(sp*stat_bios())
+                sp *= uniform(*stat_bios)
 
-                char.mod_stat(stat, biosed_sp)
+                char_stats.set_base_stat(stat, round_int(sp))
 
         # devlog.info("")
 
         # Now that we're done with baseskills, we can play with other stats/skills a little bit
         base_stats.update(STATIC_CHAR.FIXED_MAX)
-        for stat in char.stats.stats:
+        skill_bios = (skill_bios[0]*.1, skill_bios[1]*.1)
+        stat_bios = (stat_bios[0]*.1, stat_bios[1]*.1)
+        luck = char_stats._get_stat("luck")*.5
+        for stat in char_stats.stats:
             if stat not in base_stats:
-                value = char.get_max(stat)
-                if dice(char.get_stat("luck")*.5):
-                    value *= .3
-                else:
-                    value *= uniform(.05, .15)
-                value = round_int(value*stat_bios())
-                char.mod_stat(stat, value)
-        for skill in char.stats.skills:
+                value = char_stats.get_max(stat)
+                value *= uniform(*stat_bios)
+                if dice(luck):
+                    value *= 2
+                char_stats._mod_base_stat(stat, round_int(value))
+        for skill in char_stats.skills:
             if skill not in base_skills:
                 value = char.get_max_skill(skill, tier)
-                if dice(char.get_stat("luck")*.5):
-                    value *= .3
-                else:
-                    value *= uniform(.05, .15)
-                value = round_int(value*skill_bios())
-                char.mod_skill(skill, 0, value)
+                value *= uniform(*skill_bios)
+                if dice(luck):
+                    value *= 2
+                char_stats._mod_raw_skill(skill, 0, value)
 
         char.tier = round_int(tier) # Makes sure we can use float tiers
 
