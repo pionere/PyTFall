@@ -951,8 +951,8 @@ init -6 python: # Guild, Tracker and Log.
                 # Effectiveness (Ability):
                 ability = tracker.get_team_ability()
                 # convert to reward multiplier
-                ability = ability*tracker.risk*.01           # (0-200)*(1-3) * (0-100) / 100.0 -> 0 - 6.0
-                ability += (tracker.day-tracker.traveled)*.2 #  + (0-15) / 5.0               -> 3.0 - 9.0
+                ability = ability*tracker.risk*.0001           # (0-200)*(1-3) * (0-100) / 10000.0 -> 0 - 6.0
+                ability += (tracker.day-tracker.traveled)*.2 #  + (0-15) / 5.0                   -> 3.0 - 9.0
                 # Max cash to be found this day:
                 tracker.max_cash = int(area.cash_limit*ability)
 
@@ -980,7 +980,7 @@ init -6 python: # Guild, Tracker and Log.
                 # record the exploration, unlock new maps
                 if dice(5):
                     if area.explored < area.maxexplored:
-                        mod = randint(8, 12)
+                        mod = randint(4, 6)
                         if getattr(tracker, "cartography", False):
                             mod = mod * 3 / 2
                         area.explored = min(area.maxexplored, area.explored + mod)
