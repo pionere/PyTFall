@@ -157,26 +157,8 @@ label mc_setup_end:
             if len(story) != 0:
                 raise Exception("Unrecognized parameters '%s' in story of '%s'." % (str(story), name))
 
-        restore_battle_stats(hero) # We never really want to start with weakened MC?
-
-        high_factor = partial(uniform, .5, .6)
-        normal_factor = partial(uniform, .3, .4)
-
-        stats = hero.stats
-        base_stats = stats.get_base_stats()
-        for s in ['constitution', 'intelligence', 'charisma', 'attack', 'magic', 'defence', 'agility']:
-            if s in base_stats:
-                value = high_factor()
-            else:
-                value = normal_factor()
-            mod_by_max(hero, s, value)
-
-        base_skills = stats.get_base_skills()
-        for s in base_skills:
-            value = high_factor()+.2
-            # set skill to the given percentage
-            value *= hero.get_max_skill(s)
-            stats.set_full_skill(s, value)
+        # give initial skill/stat
+        tier_up_to(hero, 0, skill_bios=(.7, .8), stat_bios=(.5, .6))
 
         # Add default workable building to MC, but only if we didn't add one in special labels.
         if not [b for b in hero.upgradable_buildings if b.is_business()]:
