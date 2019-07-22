@@ -17,7 +17,7 @@ init python:
             for j in simple_jobs:
                 base[j.type] = 0
             total_clients = 0
-            for setup in [b for b in hero.buildings if b.expects_clients] + ["ALL"]:
+            for setup in [b for b in hero.buildings if b.needs_manager] + ["ALL"]:
                 a = base.copy()
                 r = base.copy()
                 e = base.copy()
