@@ -14,7 +14,7 @@ init -5 python:
                 return False
             return super(Clinic, self).can_reduce_capacity()
 
-        def log(self, text, time=None):
+        def log(self, text, time):
             # Logs the text for next day event... # FIXME similar as log of Building
             # try to create a timestamp between 9:00 and 19:00 assuming env.now is between 0 and 100 MAX_DU
             text = "%02d:%02d - %s" % (9+time/10,(time*6)%60, text)
@@ -40,15 +40,20 @@ init -5 python:
 
             # workers on active duty
             pre_log = []
-            workers = self.get_strict_workers(job, power_flag_name, log=pre_log)
+            workers = list(self.get_strict_workers(job, power_flag_name, log=pre_log))
 
             wlen = len(workers)
-            temp = "%s %s tended to the patients." % (set_font_color(wlen, "lightgreen"), plural("Worker", wlen))
+            temp = "%s %s are assigned to work as a nurse." % (set_font_color(wlen, "lightgreen"), plural("Employee", wlen))
             log.append(temp)
 
             # add log from preparation
             for l in pre_log:
                 log.append(l)
+
+            if wlen > 1:
+                log.append(set_font_color("Your nurses are starting their day!", "cadetblue"))
+            elif wlen == 1:
+                log.append(set_font_color("You nurse is starting %s day!" % workers[0].pd, "cadetblue"))
 
             curr_patients = self.patients
 
@@ -62,7 +67,7 @@ init -5 python:
 
                 # TODO manager effectiveness?
                 earned = pytfall.economy.get_clients_pay(job, difficulty)
-                earned *= p.num_weeks * 7
+                earned *= p.num_weeks
                 temp = ("%s is healed now, and %s is leaving your clinic.",
                         "The recovery of %s is complete. Now %s is ready to leave.",
                         "The prescribed treatment for %s is ended. Finally %s can go home.")
@@ -70,11 +75,31 @@ init -5 python:
                 log.append(temp)
                 log.earned += earned
 
-            log.append(set_font_color("Your nurses are starting their day!", "cadetblue"))
+            temp = self.reserved_capacity
+            if temp > 1:
+                log.append("For the day %d beds are occupied." % temp)
+            elif temp == 1:
+                log.append("For the day one bed is occupied.")
+            else:
+                if self.capacity == 1:
+                    log.append("The room is empty.")
+                else:
+                    log.append("The rooms are empty.")
+
+            if DSNBR:
+                for p in curr_patients:
+                    temp = "Patient {} is staying till {}. Today is {}!".format(p.name, p.release_day, today)
+                    log.append(temp)
 
             # add possible new patients (about 1 new patient every 15 days if everyting is perfect)
-            new_patients = building.get_fame_percentage() * building.get_rep_percentage()
-            new_patients /= 3000000.0 # 100 * quality (0-1) / (20 * 15)
+            new_patients = self.capacity
+            new_patients *= building.get_fame_percentage() * building.get_rep_percentage()
+            new_patients /= 3000000.0 # quality (0-1) / (20 * 15)
+
+            if not self.active:
+                new_patients = 0
+                temp = "New patients are not admitted at the moment!"
+                log.append(temp)
 
             while 1:
                 now = self.env.now
@@ -90,11 +115,11 @@ init -5 python:
                     p = choice(curr_patients)
                     curr_patients.remove(p)
                     self.reserved_capacity -= 1
-                    temp = "%s can't stay any longer in this dirt. %s is leaving prematurely (and without paying a dime)" % (p.name, p.pC)
+                    temp = "%s can't stay any longer in this dirt. %s is leaving prematurely (and without paying a dime)!" % (p.name, p.pC)
                     self.log(temp, now)
 
                 # Add new patient:
-                if dice(new_patients * (100 - dirt)):
+                if dice(new_patients * (125 - max(25, dirt))):
                     p = building.create_customer()
                     temp = "A new patient arrived"
                     if self.capacity <= self.reserved_capacity:
@@ -114,7 +139,7 @@ init -5 python:
                     # add dirt and threat
                     dirt = random.random() * 5 * sum((p.dirtmod for p in curr_patients))
                     building.moddirt(dirt)
-                    threat = random.random() * sum((p.threatmod for p in curr_patients))
+                    threat = random.random() * .25 * sum((p.threatmod for p in curr_patients))
                     if building.has_garden:
                         threat /= 1.5
                     building.modthreat(threat)
@@ -122,17 +147,18 @@ init -5 python:
                     # tend to the patients
                     shuffle(workers)
                     nurses_done = []
+                    curr_nurses = []
                     for w in workers:
                         value = w.flag(power_flag_name)
 
                         to_tend += value
-                        nurses.add(w)
+                        curr_nurses.append(w)
 
                         # TODO tips?
 
                         # Adjust PP
-                        w.up_counter("jp_nurse", 10)
-                        w.PP -= 10
+                        w.up_counter("jp_nurse", 20)
+                        w.PP -= 20
                         if w.PP <= 0:
                             nurses_done.append(w)
                         if to_tend <= 0:
@@ -147,6 +173,18 @@ init -5 python:
                         else:
                             temp = "The unattended %s became slightly unruly, but this time the situation did not escalate." % plural("patient", len(curr_patients))
                         self.log(temp, now)
+
+                    # report the activity
+                    temp = len(curr_nurses)
+                    if temp > 1:
+                        temp = "%s tended to the patients." % ", ".join([w.name for w in curr_nurses])
+                        self.log(temp, now)
+                    elif temp == 1:
+                        temp = "%s tended to the patients." % curr_nurses[0].name
+                        self.log(temp, now)
+
+                    # collect nurses for the summary
+                    nurses.update(curr_nurses)
 
                     # Remove the workers after running out of action points:
                     for w in nurses_done:
@@ -167,7 +205,7 @@ init -5 python:
             difficulty = building.tier
             for w in nurses:
                 ap_used = w.get_flag("jp_nurse", 0)/100.0
-                log.logws("vitality", round_int(ap_used*-2), char=w)
+                log.logws("vitality", round_int(ap_used*-5), char=w)
                 log.logws("service", randfloat(ap_used), char=w)
                 log.logws("refinement", randfloat(ap_used), char=w)
                 log.logws("magic", randfloat(ap_used), char=w)
@@ -181,3 +219,5 @@ init -5 python:
             log.after_job()
             NextDayEvents.append(log)
             del self.nd_log
+
+        inactive_process = business_control # clinic is always active, it just does not accept new patients if it is 'inactive'
