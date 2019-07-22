@@ -237,22 +237,22 @@ init -5 python:
 
             name = worker.name
             if charisma >= 170:
-                log.append("%s supernal loveliness instantly captivated audiences. " % name)
+                log.append("%s supernal loveliness instantly captivated audiences." % name)
                 log.logws("joy", 2)
             elif charisma >= 150:
-                log.append("The attention of customers was entirely focused on %s thanks to %s prettiness. " % (name, worker.pd))
+                log.append("The attention of customers was entirely focused on %s thanks to %s prettiness." % (name, worker.pd))
                 log.logws("joy", 1)
             elif charisma >= 120:
-                log.append("%s enchanted customers with her stunning beauty. " % (name, worker.pd))
+                log.append("%s enchanted customers with %s stunning beauty." % (name, worker.pd))
             elif charisma >= 100:
-                log.append("Customers were delighted with %s beauty. " % name)
+                log.append("Customers were delighted with %s beauty." % name)
             elif charisma >= 75:
-                log.append("%s good looks was pleasing to audiences. " % name)
+                log.append("%s good looks was pleasing to audiences." % name)
             elif charisma >= 50:
-                log.append("%s did %s best to make customers like %s, but %s charm could definitely be enhanced. " % (name, worker.pd, worker.op, worker.pd))
+                log.append("%s did %s best to make customers like %s, but %s charm could definitely be enhanced." % (name, worker.pd, worker.op, worker.pd))
             else:
                 log.logws("joy", -2)
-                log.append("Customers clearly were unimpressed by %s looks, to say the least. Such a cold reception was not encouraging for the poor fellow at all..." % name)
+                log.append("Customers clearly were unimpressed by %s looks, to say the least. Such a cold reception was not encouraging for the poor %s at all..." % (name, "girl" if worker.gender == "female" else "guy"))
 
             log.append("\n")
             if skill >= 170:
@@ -280,7 +280,6 @@ init -5 python:
                     log.append("%s tripped several times while trying to undress %sself as %s 'stripdanced' on the floor. Still, %s was pretty enough to arouse some men and women in the club." % (worker.pC, worker.op, worker.p, worker.p))
                 else:
                     log.append("%s certainly did not shine as %s clumsily 'danced' on the floor. Neither %s looks nor %s skill could save the performance..." % (worker.pC, worker.p, worker.pd, worker.pd))
-                    log.append("\n")
 
             # Stats Mods
             # Award EXP:
