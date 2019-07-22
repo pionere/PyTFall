@@ -485,9 +485,8 @@
         "basetrait": true,
         "higher_tiers": ["Mage"],
         "base_stats": {
-            "magic": 10,
-            "intelligence": 10,
-            "mp": 50
+            "magic": 60,
+            "intelligence": 40
         },
         "base_skills": {
             "security": 50
@@ -551,7 +550,6 @@
         "base_stats": {
             "attack": 20,
             "defence": 20,
-            "health": 10,
             "agility": 10
         },
         "base_skills": {
@@ -630,9 +628,8 @@
         "higher_tiers": ["Warrior"],
         "basetrait": true,
         "base_stats": {
-            "attack": 10,
-            "defence": 20,
-            "health": 40
+            "attack": 40,
+            "defence": 60
         },
         "base_skills": {
             "security": 150
@@ -703,9 +700,9 @@
         "higher_tiers": ["Warrior"],
         "basetrait": true,
         "base_stats": {
-            "attack": 10,
-            "defence": 10,
-            "agility": 10
+            "attack": 40,
+            "defence": 20,
+            "agility": 40
         },
         "base_skills": {
             "security": 150
