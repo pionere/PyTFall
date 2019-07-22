@@ -1228,7 +1228,7 @@ init 1000 python:
                         if is_stat(ss):
                             mod_by_max(worker, ss, 1.0)
                         else:
-                            worker.stats.set_full_skill(ss, worker.get_max_skill(ss))
+                            worker.stats.mod_full_skill(ss, worker.get_max_skill(ss))
                     worker.autocontrol["Tips"] = True
                     worker.wagemod = 200
 

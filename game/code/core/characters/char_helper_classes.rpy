@@ -1491,11 +1491,11 @@ init -10 python:
             self.skills[key][at] = value
             return round_int(value)-round_int(curr_value) # return the real delta
 
-        def set_full_skill(self, skill, value):
+        def mod_full_skill(self, skill, value):
             """This spreads the skill bonus over both action and training.
             """
-            self.skills[skill][0] = value/1.5
-            self.skills[skill][1] = value/3.0
+            self._mod_raw_skill(skill, 0, value/1.5)
+            self._mod_raw_skill(skill, 1, value/3.0)
 
         def degrade_values(self):
             """auto-degrading stats/skills

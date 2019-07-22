@@ -237,9 +237,6 @@ init -11 python:
             if temp is not None:
                 setattr(mob, i, temp)
 
-        for skill, value in data["skills"].iteritems():
-            mob.stats.set_full_skill(skill, value)
-
         # Get and normalize basetraits:
         basetraits = set(traits[t] for t in data["basetraits"])
         mob.traits.basetraits = basetraits
@@ -269,6 +266,8 @@ init -11 python:
                 stats._mod_base_stat(stat, value)
             else:
                 stats.set_base_stat(stat, value)
+        for skill, value in data["skills"].iteritems():
+            stats.mod_full_skill(skill, value)
 
         return mob
 
@@ -761,7 +760,8 @@ init -11 python:
               will be used.
               Level, stats and skills biases work in the same way
 
-        Important: Should only be used right after the character was created!
+        Important: 1. Should only be used right after the character was created!
+                   2. Right now mod* is used to preserve the init_mod settings, but later that attribute could/should be eliminated  
         """
         # limit tier
         if tier > MAX_TIER:
@@ -778,12 +778,26 @@ init -11 python:
         # devlog.info("Base: {}".format(char.traits.base_to_string))
 
         # Do the stats/skills:
-        base_skills = set()
         base_stats = set()
+        base_skills = set()
         char_stats = char.stats
         # !!! Using weight may actually confuse thing in here... this needs testing.
         # Also, it may be a good idea to do list(s) of stats/skills every ht char should have a bit of...
         for trait in char.traits.basetraits:
+            stats = trait.base_stats
+            total_weight_points = sum(stats.itervalues())
+            total_stat_points = sum(char.get_relative_max_stat(s, tier) for s in stats)
+            for stat, weight in stats.iteritems():
+                if stat in base_stats:
+                    continue
+                base_stats.add(stat)
+                weight_ratio = float(weight)/total_weight_points
+                sp = total_stat_points*weight_ratio
+                # weight_sp = weight_ratio*sp
+                sp *= uniform(*stat_bios)
+
+                char_stats._mod_base_stat(stat, round_int(sp))
+
             skills = trait.base_skills
             total_weight_points = sum(skills.itervalues())
             total_skill_points = sum(char.get_max_skill(s, tier) for s in skills)
@@ -801,47 +815,40 @@ init -11 python:
                 sp *= uniform(*skill_bios)
                 # devlog.info("Biased Points: {}".format(sp))
 
-                char_stats.set_full_skill(skill, sp)
+                char_stats.mod_full_skill(skill, sp)
 
                 # devlog.info("Resulting Skill: {}".format(char.get_skill(skill)))
-
-            stats = trait.base_stats
-            total_weight_points = sum(stats.itervalues())
-            total_stat_points = sum(char.get_relative_max_stat(s, tier) for s in stats)
-            for stat, weight in stats.iteritems():
-                if stat in base_stats:
-                    continue
-                base_stats.add(stat)
-                weight_ratio = float(weight)/total_weight_points
-                sp = total_stat_points*weight_ratio
-                # weight_sp = weight_ratio*sp
-                sp *= uniform(*stat_bios)
-
-                char_stats.set_base_stat(stat, round_int(sp))
 
         # devlog.info("")
 
         # Now that we're done with baseskills, we can play with other stats/skills a little bit
-        base_stats.update(STATIC_CHAR.FIXED_MAX)
-        skill_bios = (skill_bios[0]*.1, skill_bios[1]*.1)
-        stat_bios = (stat_bios[0]*.1, stat_bios[1]*.1)
+        mod = get_linear_value_of(tier, 0, .6, MAX_TIER, 0.1)
+        skill_bios = (skill_bios[0]*mod, skill_bios[1]*mod)
+        stat_bios = (stat_bios[0]*mod, stat_bios[1]*mod)
         luck = char_stats._get_stat("luck")*.5
-        for stat in char_stats.stats:
+        for stat in ["charisma", "constitution", "character", "intelligence", "attack", "magic", "defence", "agility"]: # ALL_STATS - BATTLE_STATS - FIXED_MAX
             if stat not in base_stats:
                 value = char_stats.get_max(stat)
                 value *= uniform(*stat_bios)
                 if dice(luck):
                     value *= 2
                 char_stats._mod_base_stat(stat, round_int(value))
-        for skill in char_stats.skills:
-            if skill not in base_skills:
-                value = char.get_max_skill(skill, tier)
-                value *= uniform(*skill_bios)
-                if dice(luck):
-                    value *= 2
-                char_stats._mod_raw_skill(skill, 0, value)
+
+        if tier:
+            # add skills only if the char is not 'virgin'
+            for skill in char_stats.skills:
+                if skill not in base_skills:
+                    value = char.get_max_skill(skill, tier)
+                    value *= uniform(*skill_bios)
+                    if dice(luck):
+                        value *= 2
+                    char_stats.mod_full_skill(skill, value)
 
         char.tier = round_int(tier) # Makes sure we can use float tiers
+
+        restore_battle_stats(char) # TODO this might not be necessary any more 
+                                   #      if it is ensured that the battle stats are not 
+                                   #      modified here. Setup of the hero could still need it...
 
     def exp_reward(char, difficulty, exp_mod=1): 
         """Adjusts the XP to be given to an actor. Doesn't actually award the EXP.
