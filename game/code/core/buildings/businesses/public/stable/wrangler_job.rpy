@@ -4,7 +4,7 @@ init -5 python:
         desc = "Wranglers tend the horses and handing over the horses to the customers"
         type = "Service"
 
-        per_client_payout = 6
+        per_client_payout = 7
 
         aeq_purpose = 'Wrangler'
 

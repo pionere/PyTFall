@@ -4,7 +4,7 @@ init -5 python:
         desc = "Tends to injured customers, cures their sickness."
         type = "Service"
 
-        per_client_payout = 50
+        per_client_payout = 300 * 7
 
         aeq_purpose = "Nurse"
 
