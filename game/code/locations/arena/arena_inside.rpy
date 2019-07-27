@@ -684,7 +684,7 @@ init: # Main Screens:
             draggable True
             mousewheel True
             scrollbars "vertical"
-            yinitial (((scr_mobs.index(focus_mob) / 5) * 217) if focus_mob else 0)
+            yinitial (((scr_mobs.index(focus_mob) / 5) * 216) if focus_mob else 0)
             for data in scr_mobs:
                 $ creature = data["name"]
                 frame:
@@ -693,7 +693,7 @@ init: # Main Screens:
                     has vbox spacing 2 xysize 180, 200
                     if data["id"] not in defeated_mobs: # <------------------------------ Note for faster search, change here to test the whole beasts screen without the need to kill mobs
                         text "-Unknown-" xalign .5 ypos -1 style "TisaOTM" color "indianred"
-                        text "?" align .5, .5 size 150 color "silver" outlines [(2, "black", 0, 0)] 
+                        text "?" align .5, .5 size 140 color "silver" outlines [(2, "black", 0, 0)] 
                     else:
                         text creature xalign .5 style "TisaOTM" size 20 color ("ivory" if in_focus_mob == data else "gold"):
                             if len(creature) > 12:
