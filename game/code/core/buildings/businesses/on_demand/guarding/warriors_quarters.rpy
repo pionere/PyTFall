@@ -275,12 +275,12 @@ init -5 python:
                     enemy.init() # TODO temporary solution, run this in build_client if it is necessary somewhere else (e.g. the PP field)
                     enemy.front_row = 1
                     enemy.apply_trait("Fire")
-                    enemy.controller = BE_AI(enemy)
+                    enemy.controller = BE_AI()
                     enemy_team.add(enemy)
 
                 defence_team = Team(name="Guardians Of The Galaxy", max_size=num_defenders)
                 for i in defenders:
-                    i.controller = BE_AI(i)
+                    i.controller = BE_AI()
                     defence_team.add(i)
 
                 # ImageReference("chainfights")

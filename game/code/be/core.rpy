@@ -102,14 +102,15 @@ init -1 python: # Core classes:
             #self.dpos = None # Default position based on row + team.
             #self.cpos = None # Current position of a sprite.
 
+            # TODO obsolete attributes -> remove
             #self.sopos = () # Status underlay position, which should be fixed.
+            #self.dmg_font = "red"
 
             #self.beinx = 0 # Passes index from logical execution to SFX setup.
             #self.beteampos = pos # This manages team position bound to target (left or right on the screen).
             #self.row = 1 # row on the battlefield, used to calculate range of weapons.
             #self.allegiance = None # BE will default this to the team name.
             self.beeffects = []
-            self.dmg_font = "red"
             self.status_overlay = [] # Status icons over the sprites.
 
             # Position:
@@ -346,7 +347,7 @@ init -1 python: # Core classes:
             persistent.battle_speed = 1.0/2**value
 
         @staticmethod
-        def color_string_by_DAMAGE_type(effect, return_for="log"):
+        def color_string_by_DAMAGE_type(effect, logstr):
             # Takes a string "s" and colors it based of damage "type".
             # If type is not an element, color will be red or some preset (in this method) default.
             type, value = effect
@@ -357,12 +358,52 @@ init -1 python: # Core classes:
             else:
                 color = BE_Core.TYPE_TO_COLOR_MAP.get(type, "red")
 
-            if return_for == "log":
+            if logstr is True:
                 return "{color=%s}%s: %s{/color}" % (color, BE_Core.DAMAGE.get(type, type), value)
-            elif return_for == "bb": # battle bounce
-                return value, color
             else:
-                return "Unknown Return For DAMAGE type!"
+                return "{color=%s}%s{/color}" % (color, value)
+
+        @staticmethod
+        def effects_to_string(effects):
+            """Adds information about target to the list and returns it to be written to the log later.
+
+            - We assume that all tuples in effects are damages by type!
+            """
+            # String for the log:
+            s = list()
+
+            str_effects = list()
+            type_effects = list()
+
+            for effect in effects:
+                if isinstance(effect, tuple):
+                    type_effects.append(effect)
+                else:
+                    str_effects.append(effect)
+
+            # First add the str effects:
+            for effect in str_effects:
+                if effect == "backrow_penalty":
+                    # Damage halved due to the target being in the back row!
+                    s.append("{color=red}1/2 DMG (Back-Row){/color}")
+                elif effect == "critical_hit":
+                    s.append("{color=lawngreen}Critical Hit{/color}")
+                elif effect == "magic_shield":
+                    s.append("{color=lawngreen}☗+{/color}")
+                elif effect == "missed_hit":
+                    s.append("{color=lawngreen}Attack Missed{/color}")
+                else:
+                    #debug_be("Unrecognized effect '%s' when converting to string." % effect)
+                    devlog.warn("Unrecognized effect '%s' when converting to string." % effect)
+
+            # Next type effects:
+            if len(type_effects) > 1:
+                # add entry for a combined damage in case of multi-type attacks:
+                type_effects.append(("DMG", effects[0]))
+            for effect in type_effects:
+                s.append(BE_Core.color_string_by_DAMAGE_type(effect, True))
+
+            return s
 
         @staticmethod
         def get_item_modifiers(items):
@@ -845,39 +886,37 @@ init -1 python: # Core classes:
 
             absolute: convert to absolute for subpixel positioning.
             """
-            if not override:
-                if not member.cpos or not member.besprite_size:
-                    raise Exception([member.cpos, member.besprite_size])
-
+            # in case we do not care about position of a target/caster and just provide "overwrite" we should use instead:
+            if override:
+                xpos, ypos = override
+            else:
                 if type == "sopos":
                     xpos = member.dpos[0] + member.besprite_size[0] / 2
-                    ypos = member.dpos[1] + yo
+                    ypos = member.dpos[1]
                 elif type == "pos":
                     xpos = member.cpos[0]
-                    ypos = member.cpos[1] + yo
+                    ypos = member.cpos[1]
                 elif type == "center":
                     xpos = member.cpos[0] + member.besprite_size[0] / 2
-                    ypos = member.cpos[1] + member.besprite_size[1] / 2 + yo
+                    ypos = member.cpos[1] + member.besprite_size[1] / 2
                 elif type == "tc":
                     xpos = member.cpos[0] + member.besprite_size[0] / 2
-                    ypos = member.cpos[1] + yo
+                    ypos = member.cpos[1]
                 elif type == "bc":
                     xpos = member.cpos[0] + member.besprite_size[0] / 2
-                    ypos = member.cpos[1] + member.besprite_size[1] + yo
+                    ypos = member.cpos[1] + member.besprite_size[1]
                 elif type == "fc":
                     if member.row in [0, 1]:
                         xpos = member.cpos[0] + member.besprite_size[0]
-                        ypos = member.cpos[1] + member.besprite_size[1] / 2 + yo
+                        ypos = member.cpos[1] + member.besprite_size[1] / 2
                     else:
                         xpos = member.cpos[0]
-                        ypos = member.cpos[1] + member.besprite_size[1] / 2 + yo
+                        ypos = member.cpos[1] + member.besprite_size[1] / 2
 
-            # in case we do not care about position of a target/caster and just provide "overwrite" we should use instead:
-            else:
-                xpos, ypos = override
-                ypos += yo # Same as for comment below (Maybe I just forgot how offsets work and why...)
+            # Add offsets:
+            ypos += yo
 
-            # While yoffset is the same, x offset depends on the team position: @REVIEW: AM I TOO WASTED OR DOES THIS NOT MAKE ANY SENSE???
+            # While yoffset is the same, x offset depends on the team position:
             if member.row in [0, 1]:
                 xpos += xo
             else:
@@ -1408,68 +1447,15 @@ init -1 python: # Core classes:
             t.beeffects = effects
 
             # String for the log:
-            s = list()
-            if not message:
+            if message is None:
                 if total_damage >= 0:
-                    s.append("{color=teal}%s{/color} attacks %s with %s" % (a.nickname, t.nickname, self.name))
+                    message = "{color=teal}%s{/color} attacks %s with %s" % (a.nickname, t.nickname, self.name)
                 else:
-                    s.append("{color=teal}%s{/color} attacks %s with %s, but %s absorbs it" % (a.nickname, t.nickname, self.name, t.nickname))
-            else:
-                s.append(message)
+                    message = "{color=teal}%s{/color} attacks %s with %s, but %s absorbs it" % (a.nickname, t.nickname, self.name, t.nickname)
 
-            s = s + self.effects_to_string(t)
+            s = [message] + BE_Core.effects_to_string(effects)
 
             battle.log(" ".join(s), delayed=True)
-
-        def effects_to_string(self, t, default_color="red"):
-            """Adds information about target to the list and returns it to be written to the log later.
-
-            - We assume that all tuples in effects are damages by type!
-            """
-            # String for the log:
-            effects = t.beeffects
-            s = list()
-
-            str_effects = list()
-            type_effects = list()
-
-            for effect in effects:
-                if isinstance(effect, tuple):
-                    type_effects.append(effect)
-                else:
-                    str_effects.append(effect)
-
-            # First add the str effects:
-            for effect in str_effects:
-                if effect == "backrow_penalty":
-                    # Damage halved due to the target being in the back row!
-                    s.append("{color=red}1/2 DMG (Back-Row){/color}")
-                elif effect == "critical_hit":
-                    s.append("{color=lawngreen}Critical Hit{/color}")
-                elif effect == "magic_shield":
-                    s.append("{color=lawngreen}☗+{/color}")
-                elif effect == "missed_hit":
-                    gfx = self.dodge_effect.get("gfx", "dodge")
-                    if gfx == "dodge":
-                        s.append("{color=lawngreen}Attack Missed{/color}")
-
-            # Next type effects:
-            for effect in type_effects:
-                temp = BE_Core.color_string_by_DAMAGE_type(effect)
-                s.append(temp)
-
-            # And finally, combined damage for multi-type attacks:
-            if len(type_effects) > 1:
-                value = effects[0]
-                if value < 0:
-                    value = -value
-                    color = BE_Core.TYPE_TO_COLOR_MAP["healing"]
-                else:
-                    color = "red"
-                temp = "{color=%s}DGM: %d{/color}" % (color, value)
-                s.append(temp)
-
-            return s
 
         def apply_effects(self, targets):
             """This is a  final method where all effects of the attacks are being dished out on the objects.
@@ -1687,7 +1673,7 @@ init -1 python: # Core classes:
                 zorder = 1 if cast.get("ontop", True) else -1
 
                 # Flip the attack image if required:
-                if self.attacker_effects.get("hflip", None) and battle.get_cp(attacker)[0] > battle.get_cp(targets[0])[0]:
+                if self.attacker_effects.get("hflip", False) and battle.get_cp(attacker)[0] > battle.get_cp(targets[0])[0]:
                     what = Transform(what, xzoom=-1)
                     align = (1.0 - align[0], align[1])
 
@@ -1761,24 +1747,24 @@ init -1 python: # Core classes:
             if gfx:
                 what = self.get_main_gfx()
 
+                # Flip the attack image if required:
+                if self.main_effect.get("hflip", False) and battle.get_cp(attacker)[0] > battle.get_cp(targets[0])[0]:
+                    what = Transform(what, xzoom=-1)
+
                 aim = self.main_effect["aim"]
                 point = aim.get("point", "center")
                 anchor = aim.get("anchor", (.5, .5))
                 xo = aim.get("xo", 0)
                 yo = aim.get("yo", 0)
 
-                # Flip the attack image if required:
-                if self.main_effect.get("hflip", None) and battle.get_cp(attacker)[0] > battle.get_cp(targets[0])[0]:
-                    what = Transform(what, xzoom=-1)
-
                 for index, target in enumerate(targets):
-                    gfxtag = "attack" + str(index)
-                    renpy.show(gfxtag, what=what, at_list=[Transform(pos=battle.get_cp(target, type=point, xo=xo, yo=yo), anchor=anchor)], zorder=target.besk["zorder"]+1)
+                    renpy.show("attack" + str(index), what=what,
+                               at_list=[Transform(pos=battle.get_cp(target, type=point, xo=xo, yo=yo), anchor=anchor)],
+                               zorder=target.besk["zorder"]+1)
 
         def hide_main_gfx(self, targets):
             for i in xrange(len(targets)):
-                gfxtag = "attack" + str(i)
-                renpy.hide(gfxtag)
+                renpy.hide("attack" + str(i))
 
         def time_target_sprite_damage_effect(self, targets, died, start):
             # We take previous start as basepoint for execution:
@@ -1920,44 +1906,31 @@ init -1 python: # Core classes:
             if type == "battle_bounce":
                 for index, target in enumerate(targets):
                     if target not in died or force:
-                        tag = "bb" + str(index)
-                        value = target.beeffects[0]
+                        effects = target.beeffects
+                        value = effects[0]
+                        #color = "red"
 
-                        if "missed_hit" in target.beeffects:
+                        if "missed_hit" in effects:
                             gfx = self.dodge_effect.get("gfx", "dodge")
                             if gfx == "dodge":
-                                s = "Missed"
+                                s = "{color=lawngreen}Missed{/color}"
                             else:
-                                s = "▼ "+"%s" % value
-                            color = target.dmg_font
+                                s = "▼ %s" % value
                         else:
-                            effects = []
-                            for effect in target.beeffects:
-                                if isinstance(effect, tuple):
-                                    effects.append(effect)
-
-                            if len(effects) == 1:
-                                value, color = BE_Core.color_string_by_DAMAGE_type(effect, return_for="bb")
-                                s = "%s" % value
+                            dmg = [effect for effect in effects if isinstance(effect, tuple)]
+                            if len(dmg) == 1:
+                                dmg = dmg[0]
                             else:
-                                if value < 0:
-                                    s = "%s" % -value
-                                    color = "lightgreen"
-                                else:
-                                    s = "%s" % value
-                                    color = target.dmg_font
+                                dmg = ("DMG", value)
+                            s = BE_Core.color_string_by_DAMAGE_type(dmg, False)
 
-                        if "critical_hit" in target.beeffects:
-                            s = "\n".join([s, "Critical hit!"])
+                        if "critical_hit" in effects:
+                            s += "\n{color=lawngreen}Critical hit!{/color}"
                         txt = Text(s, style="TisaOTM", min_width=200,
-                                   text_align=.5, color=color, size=18)
-                        renpy.show(tag, what=txt,
-                                   at_list=[battle_bounce(battle.get_cp(target,
-                                                                        type="tc",
-                                                                        yo=-30))],
+                                   text_align=.5, size=18)
+                        renpy.show("bb" + str(index), what=txt,
+                                   at_list=[battle_bounce(battle.get_cp(target, type="tc", yo=-30))],
                                    zorder=target.besk["zorder"]+2)
-
-                        target.dmg_font = "red"
 
         def get_target_damage_effect_duration(self):
             type = self.target_damage_effect.get("gfx", "battle_bounce")
@@ -1969,7 +1942,7 @@ init -1 python: # Core classes:
             # Kind of a shitty way of trying to handle attacks that come
             # With their own pauses in time_main_gfx method.
             if hasattr(self, "firing_effects"):
-                duration += getattr(self, "firing_effects", {}).get("duration", 0)
+                duration += self.firing_effects.get("duration", 0)
                 duration += self.main_effect.get("duration")
             duration += getattr(self, "projectile_effects", {}).get("duration", 0)
 
@@ -1978,8 +1951,7 @@ init -1 python: # Core classes:
         def hide_target_damage_effect(self, targets, died):
             for index, target in enumerate(targets):
                 if target not in died:
-                    tag = "bb" + str(index)
-                    renpy.hide(tag)
+                    renpy.hide("bb" + str(index))
 
         def time_target_death_effect(self, died, start):
             death_effect_start = start + self.target_death_effect["initial_pause"]*persistent.battle_speed
@@ -2113,15 +2085,15 @@ init -1 python: # Core classes:
                     else:
                         be_debug("The defence_gfx '%s' is not recognized. Should be one of ('default', 'gray_shield', 'air_shield', 'solid_shield')" % what)
                         continue
-                    tag = "dodge" + str(index)
-                    renpy.show(tag, what=what, at_list=[Transform(size=size, pos=battle.get_cp(target, type="center"), anchor=(.5, .5))], zorder=target.besk["zorder"]+1)
+                    renpy.show("dodge" + str(index), what=what,
+                               at_list=[Transform(size=size, pos=battle.get_cp(target, type="center"), anchor=(.5, .5))],
+                               zorder=target.besk["zorder"]+1)
 
         def hide_dodge_effect(self, targets):
             # gfx = self.dodge_effect.get("gfx", "dodge")
             for index, target in enumerate(targets):
                 if "magic_shield" in target.beeffects:
-                    tag = "dodge" + str(index)
-                    renpy.hide(tag)
+                    renpy.hide("dodge" + str(index))
 
 
     class BE_AI(_object):

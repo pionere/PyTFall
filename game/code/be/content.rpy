@@ -356,18 +356,12 @@ init python:
             gfx = main_effect["gfx"]
             sfx = main_effect["sfx"]
 
-            times = main_effect.get("times", 2)
-            interval = main_effect.get("interval", .2)
-            sd_duration = main_effect.get("sd_duration", .3)*persistent.battle_speed
-            alpha_fade = main_effect.get("alpha_fade", .3)
-            webm_size  = main_effect.get("webm_size", ())
-
             # GFX:
             if gfx:
                 what = self.get_main_gfx()
 
                 # Flip the attack image if required:
-                if main_effect.get("hflip", None) and battle.get_cp(attacker)[0] > battle.get_cp(targets[0])[0]:
+                if main_effect.get("hflip", False) and battle.get_cp(attacker)[0] > battle.get_cp(targets[0])[0]:
                     what = Transform(what, xzoom=-1)
 
                 # Posional properties:
@@ -378,11 +372,17 @@ init python:
                 yo = aim.get("yo", 0)
 
                 # Create a UDD:
+                times = main_effect.get("times", 2)
+                interval = main_effect.get("interval", .2)
+                sd_duration = main_effect.get("sd_duration", .3)*persistent.battle_speed
+                alpha_fade = main_effect.get("alpha_fade", .3)
+                webm_size  = main_effect.get("webm_size", ())
                 what = ChainedAttack(what, sfx, chain_sfx=True, times=times, delay=interval, sd_duration=sd_duration, alpha_fade=alpha_fade, webm_size=webm_size)
 
                 for index, target in enumerate(targets):
-                    gfxtag = "attack" + str(index)
-                    renpy.show(gfxtag, what=what, at_list=[Transform(pos=battle.get_cp(target, type=point, xo=xo, yo=yo), anchor=anchor)], zorder=target.besk["zorder"]+1)
+                    renpy.show("attack" + str(index), what=what,
+                               at_list=[Transform(pos=battle.get_cp(target, type=point, xo=xo, yo=yo), anchor=anchor)],
+                               zorder=target.besk["zorder"]+1)
 
 
     class ArealSkill(BE_Action):
@@ -409,8 +409,11 @@ init python:
             # GFX:
             if gfx:
                 what = self.get_main_gfx()
+
+                target = targets[0]
+
                 # Flip the attack image if required:
-                if main_effect.get("hflip", False) and battle.get_cp(attacker)[0] > battle.get_cp(targets[0])[0]:
+                if main_effect.get("hflip", False) and battle.get_cp(attacker)[0] > battle.get_cp(target)[0]:
                     what = Transform(what, xzoom=-1)
 
                 aim = main_effect["aim"]
@@ -419,11 +422,11 @@ init python:
                 xo = aim.get("xo", 0)
                 yo = aim.get("yo", 0)
 
-                gfxtag = "areal"
-
-                target = targets[0]
                 aimpos = battle.BDP["perfect_middle_left"] if target.beteampos == "l" else battle.BDP["perfect_middle_right"]
-                renpy.show(gfxtag, what=what, at_list=[Transform(pos=battle.get_cp(target, type=point, xo=xo, yo=yo, override=aimpos), anchor=anchor)], zorder=1000)
+
+                renpy.show("areal", what=what,
+                           at_list=[Transform(pos=battle.get_cp(target, type=point, xo=xo, yo=yo, override=aimpos), anchor=anchor)],
+                           zorder=1000)
 
         def hide_main_gfx(self, targets):
             renpy.hide("areal")
@@ -441,22 +444,23 @@ init python:
 
         def show_main_gfx(self, battle, attacker, targets):
             # We simply want to add projectile effect here:
-            pro_gfx = self.projectile_effects["gfx"]
-            pro_sfx = self.projectile_effects["sfx"]
+            launch_gfx = self.projectile_effects["gfx"]
+            launch_sfx = self.projectile_effects["sfx"]
             pause = self.projectile_effects["duration"]*persistent.battle_speed
 
-            missle = Transform(pro_gfx, xzoom=-1, xanchor=1.0) if battle.get_cp(attacker)[0] > battle.get_cp(targets[0])[0] else pro_gfx
+            if battle.get_cp(attacker)[0] > battle.get_cp(targets[0])[0]:
+                launch_gfx = Transform(launch_gfx, xzoom=-1, xanchor=1.0)
 
             initpos = battle.get_cp(attacker, type="fc", xo=60)
 
-            if pro_sfx:
-                if isinstance(pro_sfx, (list, tuple)):
-                    pro_sfx = choice(pro_sfx)
-                renpy.sound.play(pro_sfx)
+            if launch_sfx:
+                if isinstance(launch_sfx, (list, tuple)):
+                    launch_sfx = choice(launch_sfx)
+                renpy.sound.play(launch_sfx)
 
             for index, target in enumerate(targets):
                 aimpos = battle.get_cp(target, type="center")
-                renpy.show("launch" + str(index), what=missle,
+                renpy.show("launch" + str(index), what=launch_gfx,
                         at_list=[move_from_to_pos_with_easeout(start_pos=initpos, end_pos=aimpos, t=pause),
                         Transform(anchor=(.5, .5))], zorder=target.besk["zorder"]+50)
 
@@ -479,27 +483,23 @@ init python:
             if gfx:
                 what = self.get_main_gfx()
 
+                if self.main_effect.get("hflip", False) and battle.get_cp(attacker)[0] > battle.get_cp(targets[0])[0]:
+                    what = Transform(what, xzoom=-1)
+
                 aim = self.main_effect["aim"]
                 point = aim.get("point", "center")
                 anchor = aim.get("anchor", (.5, .5))
                 xo = aim.get("xo", 0)
                 yo = aim.get("yo", 0)
 
-                c0 = self.main_effect.get("hflip", False)
-                c1 = battle.get_cp(attacker)[0] > battle.get_cp(targets[0])[0]
-                if c0 and c1:
-                    what = Transform(what, xzoom=-1)
-
                 for index, target in enumerate(targets):
-                    gfxtag = "attack" + str(index)
-                    renpy.show(gfxtag, what=what,
+                    renpy.show("attack" + str(index), what=what,
                         at_list=[Transform(pos=battle.get_cp(target, type=point, xo=xo, yo=yo), anchor=anchor)],
                         zorder=target.besk["zorder"]+51)
 
         def hide_main_gfx(self, targets):
             for i in xrange(len(targets)):
-                gfxtag = "attack" + str(i)
-                renpy.hide(gfxtag)
+                renpy.hide("attack" + str(i))
 
 
     class P2P_ArealSkill(P2P_Skill):
@@ -511,24 +511,24 @@ init python:
 
         def show_main_gfx(self, battle, attacker, targets):
             # We simply want to add projectile effect here:
-            pro_gfx = self.projectile_effects["gfx"]
-            pro_sfx = self.projectile_effects["sfx"]
+            launch_gfx = self.projectile_effects["gfx"]
+            launch_sfx = self.projectile_effects["sfx"]
             pause = self.projectile_effects["duration"]*persistent.battle_speed
 
             target = targets[0]
-
-            missle = Transform(pro_gfx, zoom=-1, xanchor=1.0) if battle.get_cp(attacker)[0] > battle.get_cp(target)[0] else pro_gfx
+            if battle.get_cp(attacker)[0] > battle.get_cp(target)[0]:
+                launch_gfx = Transform(launch_gfx, zoom=-1, xanchor=1.0)
 
             initpos = battle.get_cp(attacker, type="fc", xo=60)
 
-            if pro_sfx:
-                if isinstance(pro_sfx, (list, tuple)):
-                    pro_sfx = choice(pro_sfx)
-                renpy.sound.play(pro_sfx)
+            if launch_sfx:
+                if isinstance(launch_sfx, (list, tuple)):
+                    launch_sfx = choice(launch_sfx)
+                renpy.sound.play(launch_sfx)
 
             aimpos = battle.BDP["perfect_middle_left"] if target.beteampos == "l" else battle.BDP["perfect_middle_right"]
 
-            renpy.show("launch", what=missle, at_list=[move_from_to_pos_with_easeout(start_pos=initpos, end_pos=aimpos, t=pause), Transform(anchor=(.5, .5))], zorder=target.besk["zorder"]+1000)
+            renpy.show("launch", what=launch_gfx, at_list=[move_from_to_pos_with_easeout(start_pos=initpos, end_pos=aimpos, t=pause), Transform(anchor=(.5, .5))], zorder=target.besk["zorder"]+1000)
             renpy.pause(pause)
             renpy.hide("launch")
 
@@ -546,13 +546,18 @@ init python:
             if gfx:
                 what = self.get_main_gfx()
 
+                if self.main_effect.get("hflip", False) and battle.get_cp(attacker)[0] > battle.get_cp(target)[0]:
+                    what = Transform(what, xzoom=-1)
+
                 aim = self.main_effect["aim"]
                 point = aim.get("point", "center")
                 anchor = aim.get("anchor", (.5, .5))
                 xo = aim.get("xo", 0)
                 yo = aim.get("yo", 0)
 
-                renpy.show("projectile", what=what, at_list=[Transform(pos=aimpos, anchor=anchor)], zorder=target.besk["zorder"]+1001)
+                renpy.show("projectile", what=what,
+                           at_list=[Transform(pos=battle.get_cp(target, type=point, xo=xo, yo=yo, override=aimpos), anchor=anchor)],
+                           zorder=target.besk["zorder"]+1001)
 
         def hide_main_gfx(self, targets):
             renpy.hide("projectile")
@@ -572,37 +577,38 @@ init python:
             firing_sfx = self.firing_effects["sfx"]
             pause = self.firing_effects["duration"]*persistent.battle_speed
 
-            bow = Transform(firing_gfx, zoom=-1, xanchor=1.0) if battle.get_cp(attacker)[0] > battle.get_cp(targets[0])[0] else firing_gfx
+            if battle.get_cp(attacker)[0] > battle.get_cp(targets[0])[0]:
+                firing_gfx = Transform(firing_gfx, zoom=-1, xanchor=1.0)
 
             if firing_sfx:
                 if isinstance(firing_sfx, (list, tuple)):
                     firing_sfx = choice(firing_sfx)
                 renpy.sound.play(firing_sfx)
 
-            castpos = battle.get_cp(attacker, type="fc", xo=30)
-
-            renpy.show("casting", what=bow, at_list=[Transform(pos=castpos, yanchor=.5)], zorder=attacker.besk["zorder"]+50)
+            renpy.show("casting", what=firing_gfx,
+                       at_list=[Transform(pos=battle.get_cp(attacker, type="fc", xo=30), yanchor=.5)],
+                       zorder=attacker.besk["zorder"]+50)
             renpy.pause(pause)
 
             # We simply want to add projectile effect here:
-            pro_gfx = self.projectile_effects["gfx"]
-            pro_sfx = self.projectile_effects["sfx"]
+            launch_gfx = self.projectile_effects["gfx"]
+            launch_sfx = self.projectile_effects["sfx"]
             pause = self.projectile_effects["duration"]*persistent.battle_speed
 
-            missle = Transform(pro_gfx, zoom=-1, xanchor=1.0) if battle.get_cp(attacker)[0] > battle.get_cp(targets[0])[0] else pro_gfx
+            if battle.get_cp(attacker)[0] > battle.get_cp(targets[0])[0]:
+                launch_gfx = Transform(launch_gfx, zoom=-1, xanchor=1.0)
 
-            if pro_sfx:
-                if isinstance(pro_sfx, (list, tuple)):
-                    pro_sfx = choice(pro_sfx)
-                renpy.sound.play(pro_sfx)
+            if launch_sfx:
+                if isinstance(launch_sfx, (list, tuple)):
+                    launch_sfx = choice(launch_sfx)
+                renpy.sound.play(launch_sfx)
 
             castpos = battle.get_cp(attacker, type="fc", xo=75)
 
             for index, target in enumerate(targets):
                 aimpos = battle.get_cp(target, type="center", yo=-20)
-                renpy.show("launch" + str(index), what=missle, at_list=[
-                           move_from_to_pos_with_easeout(start_pos=castpos, end_pos=aimpos, t=pause),
-                           Transform(anchor=(.5, .5))],
+                renpy.show("launch" + str(index), what=launch_gfx,
+                           at_list=[move_from_to_pos_with_easeout(start_pos=castpos, end_pos=aimpos, t=pause), Transform(anchor=(.5, .5))],
                            zorder=target.besk["zorder"]+51)
 
             renpy.pause(pause)
@@ -624,6 +630,9 @@ init python:
             if gfx:
                 what = self.get_main_gfx()
 
+                if self.main_effect.get("hflip", False) and battle.get_cp(attacker)[0] > battle.get_cp(targets[0])[0]:
+                    what = Transform(what, xzoom=-1)
+
                 # pause = self.main_effect["duration"]
                 aim = self.main_effect["aim"]
                 point = aim.get("point", "center")
@@ -632,15 +641,15 @@ init python:
                 yo = aim.get("yo", 0)
 
                 for index, target in enumerate(targets):
-                    gfxtag = "attack" + str(index)
-                    renpy.show(gfxtag, what=what, at_list=[Transform(pos=battle.get_cp(target, type=point, xo=xo, yo=yo), anchor=anchor)], zorder=target.besk["zorder"]+52)
+                    renpy.show("attack" + str(index), what=what,
+                               at_list=[Transform(pos=battle.get_cp(target, type=point, xo=xo, yo=yo), anchor=anchor)],
+                               zorder=target.besk["zorder"]+52)
 
         def hide_main_gfx(self, targets):
             renpy.hide("casting")
-            renpy.with_statement(Dissolve(.5))
+            renpy.with_statement(Dissolve(.5*persistent.battle_speed))
             for i in xrange(len(targets)):
-                gfxtag = "attack" + str(i)
-                renpy.hide(gfxtag)
+                renpy.hide("attack" + str(i))
 
 
     class ATL_ArealSkill(ArealSkill):
@@ -663,10 +672,11 @@ init python:
                 renpy.music.play(sfx, channel='audio')
 
             # GFX:
-            gfx = getattr(store, gfx)
-            gfx = gfx(*self.main_effect["left_args"]) if battle.get_cp(attacker)[0] > battle.get_cp(targets[0])[0] else gfx(*self.main_effect["right_args"])
-            gfxtag = "areal"
-            renpy.show(gfxtag, what=gfx, zorder=1000)
+            if gfx:
+                args = "left_args" if targets[0].beteampos == "l" else "right_args"
+                gfx = getattr(store, gfx)
+                what = gfx(*self.main_effect[args])
+                renpy.show("areal", what=what, zorder=1000)
 
 
     class FullScreenCenteredArealSkill(ArealSkill):
@@ -688,8 +698,7 @@ init python:
 
             # GFX:
             if gfx:
-                gfxtag = "areal"
-                renpy.show(gfxtag, what=gfx, at_list=[Transform(align=(.5, .5))], zorder=1000)
+                renpy.show("areal", what=gfx, at_list=[Transform(align=(.5, .5))], zorder=1000)
 
 
     class BasicHealingSpell(BE_Action):
