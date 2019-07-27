@@ -432,6 +432,7 @@ screen char_equip():
                     hover "content/gfx/interface/buttons/small_button_wood_left_hover.png"
                     tooltip "Previous Character"
                     focus_mask True
+                    keysym "K_LEFT"
 
             $ img = eqtarget.show("portrait", resize=(100, 100), cache=True)
             imagebutton:
@@ -452,6 +453,7 @@ screen char_equip():
                     hover "content/gfx/interface/buttons/small_button_wood_right_hover.png"
                     tooltip "Next Character"
                     focus_mask True
+                    keysym "K_RIGHT"
 
         # NAME ========================================>
         hbox:
