@@ -72,7 +72,7 @@ screen new_style_tooltip():
                     hbox:
                         xsize 200
                         text "Critical damage:"
-                        text "%+g%%"%value xalign 1.0
+                        text "%+g%%" % int(value * 100) xalign 1.0
                 $ value = combat_skill.effect
                 if value != 0:
                     hbox:
