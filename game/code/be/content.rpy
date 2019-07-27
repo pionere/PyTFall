@@ -701,17 +701,14 @@ init python:
 
         def effects_resolver(self, targets):
             source = self.source
-            base_restore = self.get_attack()
 
             for t in targets:
-                base_restore = t.maxhp * self.effect
+                restore = t.maxhp * self.effect
                 effects = []
 
                 # We get the multi and any effects that those may bring:
-                restore = round_int(BE_Core.damage_modifier(source, t, base_restore, "healing"))
-                effects.append(("healing", restore))
-
-                t.dmg_font = "lightgreen" # Color the battle bounce green!
+                restore = round_int(BE_Core.damage_modifier(source, t, restore, "healing"))
+                effects.append(("healing", -restore))
 
                 # String for the log:
                 temp = "{color=teal}%s{/color} used %s to heal %s!" % (source.nickname, self.name, t.name)
@@ -724,6 +721,8 @@ init python:
                     t.health = t.maxhp
 
             self.settle_cost()
+
+            return []
 
     class BasicPoisonSpell(BE_Action):
         def __init__(self):
@@ -746,7 +745,6 @@ init python:
 
                 # String for the log:
                 s = ("{color=palegreen}%s revives %s!{/color}" % (char.nickname, t.name))
-                t.dmg_font = "lightgreen" # Color the battle bounce green!
 
                 battle.log(s)
 
