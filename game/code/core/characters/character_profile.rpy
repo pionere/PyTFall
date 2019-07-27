@@ -220,7 +220,7 @@ screen char_profile():
                     ycenter 65
                     idle img
                     hover img
-                    action Show("show_trait_info", trait=trait)
+                    action Show("popup_info", content="trait_info_content", param=trait)
                     tooltip "{}".format("\n".join([trait.id, trait.desc]))
 
                 add Transform("content/gfx/frame/base_frame.webp", alpha=.9, size=(330, 126)):
@@ -262,7 +262,7 @@ screen char_profile():
                             background Null()
                             padding 0, 0
                             margin 0, 0
-                            action Show("show_trait_info", trait=trait)
+                            action Show("popup_info", content="show_trait_info_content", param=trait)
                             text trait.id idle_color "gold" align .5, .5 hover_color "crimson" size 18 outlines [(2, "#3a3a3a", 0, 0)]
                             tooltip "%s" % trait.desc
 

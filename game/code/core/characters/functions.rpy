@@ -100,8 +100,10 @@ init -11 python:
         #else: # string result of PytGroup
         return result
 
-    def modifiers_calculator(entity):
+    def modifiers_calculator(entity, char=None):
         if isinstance(entity, PytCharacter):
+            # char
+            level = entity.level
             bem = None
             entities = []
             for trait in entity.traits:
@@ -109,7 +111,7 @@ init -11 python:
                 temp = trait.be_modifiers
                 if temp is None:
                     continue
-                temp = temp.get_flat_modifier(char.level)
+                temp = temp.get_flat_modifier(level)
                 if bem is None:
                     bem = temp
                 else:
@@ -126,18 +128,21 @@ init -11 python:
                 else:
                     bem.merge(temp)
         elif isinstance(entity, list):
+            # a pair of (char, traits)
+            level = entity[0].level
             bem = None
             entities = entity
-            for trait in entities:
+            for trait in entity[1]:
                 temp = trait.be_modifiers
                 if temp is None:
                     continue
-                temp = temp.get_flat_modifier(char.level)
+                temp = temp.get_flat_modifier(level)
                 if bem is None:
                     bem = temp
                 else:
                     bem.merge(temp)
         else:
+            # trait or item
             bem = entity.be_modifiers
             entities = [entity]
             if bem is not None:

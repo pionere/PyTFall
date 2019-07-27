@@ -440,7 +440,7 @@ screen char_equip():
                 background Null()
                 idle img
                 hover PyTGFX.bright_content(img, 0.15)
-                action Show("show_trait_info", trait=eqtarget)
+                action Show("popup_info", content="trait_info_content", param=eqtarget)
                 focus_mask True
 
             if equip_girls:
@@ -548,7 +548,7 @@ screen char_equip():
                                 focus_mask True
                                 idle img
                                 hover PyTGFX.bright_img(img, 0.15)
-                                action Show("show_stat_info", char=eqtarget, stats=stats)
+                                action Show("popup_info", content="stat_info_content", param=(eqtarget, stats))
 
                         for stat, stat_color, value_color in stats:
                             frame:
@@ -584,7 +584,7 @@ screen char_equip():
                                 focus_mask True
                                 idle img
                                 hover PyTGFX.bright_img(img, 0.15)
-                                action Show("show_stat_info", char=eqtarget, stats=stats)
+                                action Show("popup_info", content="stat_info_content", param=(eqtarget, stats))
 
                         for stat, stat_color, value_color in stats:
                             frame:
@@ -1120,7 +1120,7 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                         align .5, .5
                         idle temp
                         hover PyTGFX.bright_content(temp, .15)
-                        action Show("show_item_info", item=item)
+                        action Show("popup_info", content="item_info_content", param=item)
 
                 if item_direction == "unequip":
                     $ temp = "Unequip"
@@ -1340,38 +1340,11 @@ screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="
                                     tooltip "Create a new outfit based on the current equipment"
                                     text "..." style "pb_button_text"
 
-# TODO keep in sync or even merge with show_trait_info
-screen show_item_info(item=None):
-    #modal True
-    $ pos = renpy.get_mouse_pos()
-    mousearea:
-        area(pos[0], pos[1], 1, 1)
-        hovered Show("show_item_info_content", transition=None, item=item)
-        unhovered Hide("show_item_info_content"), Hide("show_item_info")
-
-    #key "mousedown_3" action Hide("show_trait_info_content"), Hide("show_trait_info")
-
-screen show_item_info_content(item):
-    default pos = renpy.get_mouse_pos()
-    python:
-        x, y = pos
-        if x > config.screen_width/2:
-            x -= 20
-            xval = 1.0
-        else:
-            x += 20
-            xval = .0
-        temp = config.screen_height/3
-        if y < temp:
-            yval = .0
-        elif y > config.screen_height-temp:
-            yval = 1.0
-        else:
-            yval = .5
-
+screen item_info_content(param, pos, anchor):
+    default item = param
     fixed:
-        pos x, y
-        anchor xval, yval
+        pos pos
+        anchor anchor
         fit_first True
         frame:
             background Frame("content/gfx/frame/p_frame52.webp", 10, 10)
@@ -1540,34 +1513,11 @@ screen show_item_info_content(item):
             if not any_mod:
                 label ("- no direct effects -") text_size 15 text_color "goldenrod" text_bold True text_outlines [(1, "black", 0, 0)] xalign .45 yoffset -1
 
-screen show_stat_info(char, stats):
-    $ pos = renpy.get_mouse_pos()
-    mousearea:
-        area(pos[0], pos[1], 1, 1)
-        hovered Show("show_stat_info_content", transition=None, char=char, stats=stats)
-        unhovered Hide("show_stat_info_content"), Hide("show_stat_info")
-
-screen show_stat_info_content(char, stats):
-    default pos = renpy.get_mouse_pos()
-    python:
-        x, y = pos
-        if x > config.screen_width/2:
-            x -= 20
-            xval = 1.0
-        else:
-            x += 20
-            xval = .0
-        temp = config.screen_height/3
-        if y < temp:
-            yval = .0
-        elif y > config.screen_height-temp:
-            yval = 1.0
-        else:
-            yval = .5
-
+screen stat_info_content(param, pos, anchor):
+    $ char, stats = param
     fixed:
-        pos x, y
-        anchor xval, yval
+        pos pos
+        anchor anchor
         fit_first True
         frame:
             background Frame("content/gfx/frame/p_frame52.webp", 10, 10)

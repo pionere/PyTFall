@@ -614,7 +614,7 @@ screen race_and_elements(align=(.5, .99), char=None):
                 align (.5, .5)
                 xysize (95, 95)
                 background img
-                action Show("show_trait_info", trait=trait)
+                action Show("popup_info", content="trait_info_content", param=trait)
                 hover_background PyTGFX.bright_content(img, .10)
                 tooltip "Race:\n   {}".format(char.full_race)
 
@@ -630,7 +630,7 @@ screen race_and_elements(align=(.5, .99), char=None):
             button:
                 xysize 90, 90
                 align .5, .5 offset -1, -1
-                action Show("show_trait_info", trait=elements)
+                action Show("popup_info", content="trait_info_content", param=[char, elements])
                 background img
                 hover_background img_h
                 tooltip "Elements:\n   %s" % ele
@@ -678,25 +678,15 @@ screen trait_info(trait, xsize, ysize, idle_color="ivory", strikethrough=False):
         button:
             background Null()
             xysize (xsize, ysize)
-            action Show("show_trait_info", trait=trait)
+            action Show("popup_info", content="trait_info_content", param=trait)
             text trait.id idle_color idle_color align .5, .5 hover_color "crimson" text_align .5 size font_size layout "nobreak" strikethrough strikethrough
             tooltip "%s" % trait.desc
             hover_background Frame(im.MatrixColor("content/gfx/interface/buttons/choice_buttons2h.png", im.matrix.brightness(.10)), 5, 5)
 
-# TODO keep in sync or even merge with show_item_info
-screen show_trait_info(trait=None):
+screen popup_info(content=None, param=None):
     modal True
-    $ pos = renpy.get_mouse_pos()
-    mousearea:
-        area(pos[0], pos[1], 1, 1)
-        hovered Show("show_trait_info_content", transition=None, trait=trait)
-        unhovered Hide("show_trait_info_content"), Hide("show_trait_info")
-
-    #key "mousedown_3" action Hide("show_trait_info_content"), Hide("show_trait_info")
-
-screen show_trait_info_content(trait):
-    default pos = renpy.get_mouse_pos()
     python:
+        pos = renpy.get_mouse_pos()
         x, y = pos
         if x > config.screen_width/2:
             x -= 20
@@ -711,15 +701,23 @@ screen show_trait_info_content(trait):
             yval = 1.0
         else:
             yval = .5
+    mousearea:
+        area(pos[0], pos[1], 1, 1)
+        hovered Show(content, transition=None, param=param, pos=(x, y), anchor=(xval, yval))
+        unhovered Hide(content), Hide("popup_info")
 
+# TODO this screen is used to display the modifiers of a trait, 
+#      a combined info of a char and the merged info of the elemental traits
+#      it could be split to three different screens later...
+screen trait_info_content(param, pos, anchor):
     python:
-        if isinstance(trait, Trait):
-            trait_info = trait
+        if isinstance(param, Trait):
+            trait_info = param
         else:
             trait_info = Trait() 
     fixed:
-        pos x, y
-        anchor xval, yval
+        pos pos
+        anchor anchor
         fit_first True
         frame:
             background Frame("content/gfx/frame/p_frame52.webp", 10, 10)
@@ -799,7 +797,7 @@ screen show_trait_info_content(trait):
                             elif data[2] < 0:
                                 add PS(img_path + "top_red.png", 20, 20)
 
-            $ bem = modifiers_calculator(trait)
+            $ bem = modifiers_calculator(param)
             if any((bem.elemental_modifier, bem.defence_modifier, bem.evasion_bonus, bem.delivery_modifier, bem.damage_multiplier, bem.ch_multiplier)):
                 $ any_mod = True
                 use list_be_modifiers(bem)

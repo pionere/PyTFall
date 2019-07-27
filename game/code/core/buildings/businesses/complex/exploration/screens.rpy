@@ -1022,7 +1022,7 @@ screen building_management_rightframe_exploration_guild_mode:
                                 align .5, .5
                                 idle temp
                                 hover PyTGFX.bright_content(temp, .15)
-                                action Show("show_item_info", item=i)
+                                action Show("popup_info", content="item_info_content", param=i)
                             $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/close4.png", 16, 16)
                             imagebutton:
                                 align 1.0, 0 offset 2, -2

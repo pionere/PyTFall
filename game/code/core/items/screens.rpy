@@ -190,7 +190,7 @@ screen itemstats(item=None, size=(635, 380), style_group="content", mc_mode=Fals
                             align .5, .5
                             idle temp
                             hover PyTGFX.bright_content(temp, .15)
-                            action Show("show_item_info", item=item)
+                            action Show("popup_info", content="item_info_content", param=item)
                     frame:
                         background Frame("content/gfx/frame/p_frame4.png", 10, 10)
                         padding 15, 15
