@@ -413,8 +413,6 @@ init python:
                 if main_effect.get("hflip", False) and battle.get_cp(attacker)[0] > battle.get_cp(targets[0])[0]:
                     what = Transform(what, xzoom=-1)
 
-                target = targets[0]
-                teampos = target.beteampos
                 aim = main_effect["aim"]
                 point = aim.get("point", "center")
                 anchor = aim.get("anchor", (.5, .5))
@@ -422,11 +420,10 @@ init python:
                 yo = aim.get("yo", 0)
 
                 gfxtag = "areal"
-                if teampos == "l":
-                    teampos = battle.BDP["perfect_middle_right"]
-                else:
-                    teampos = battle.BDP["perfect_middle_left"]
-                renpy.show(gfxtag, what=what, at_list=[Transform(pos=battle.get_cp(target, type=point, xo=xo, yo=yo, override=teampos), anchor=anchor)], zorder=1000)
+
+                target = targets[0]
+                aimpos = battle.BDP["perfect_middle_left"] if target.beteampos == "l" else battle.BDP["perfect_middle_right"]
+                renpy.show(gfxtag, what=what, at_list=[Transform(pos=battle.get_cp(target, type=point, xo=xo, yo=yo, override=aimpos), anchor=anchor)], zorder=1000)
 
         def hide_main_gfx(self, targets):
             renpy.hide("areal")
@@ -529,7 +526,7 @@ init python:
                     pro_sfx = choice(pro_sfx)
                 renpy.sound.play(pro_sfx)
 
-            aimpos = battle.BDP["perfect_middle_right"] if target.beteampos == "l" else battle.BDP["perfect_middle_left"]
+            aimpos = battle.BDP["perfect_middle_left"] if target.beteampos == "l" else battle.BDP["perfect_middle_right"]
 
             renpy.show("launch", what=missle, at_list=[move_from_to_pos_with_easeout(start_pos=initpos, end_pos=aimpos, t=pause), Transform(anchor=(.5, .5))], zorder=target.besk["zorder"]+1000)
             renpy.pause(pause)

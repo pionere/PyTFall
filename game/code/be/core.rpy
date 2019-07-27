@@ -294,8 +294,6 @@ init -1 python: # Core classes:
 
                 self.quotes = quotes
 
-            self.row_pos = self.BDP
-
             self.teams = list() # Each team represents a faction on the battlefield. 0 index for left team and 1 index for right team.
             self.queue = list() # List of events in BE..
             self.combat_status = None # general status of the battle, used to run away from BF atm.
@@ -318,18 +316,15 @@ init -1 python: # Core classes:
         @staticmethod
         def init():
             # BE DEFAULT POSITIONS *positions are tuples in lists that go from top to bottom.
-            BDP = {"l0": [(230, 540), (190, 590), (150, 640)], # Left (Usually player) teams backrow default positions.
-                   "l1": [(360, 540), (320, 590), (280, 640)]} # Left (Usually player) teams frontrow default positions.
-            BDP["r0"] = list((config.screen_width-t[0], t[1]) for t in BDP["l0"]) # BackRow, Right (Usually enemy).
-            BDP["r1"] = list((config.screen_width-t[0], t[1]) for t in BDP["l1"]) # FrontRow, Right (Usually enemy).
+            BDP = {0: [(230, 540), (190, 590), (150, 640)], # Left (Usually player) teams backrow default positions.
+                   1: [(360, 540), (320, 590), (280, 640)]} # Left (Usually player) teams frontrow default positions.
+            BDP[3] = list((config.screen_width-t[0], t[1]) for t in BDP[0]) # BackRow, Right (Usually enemy).
+            BDP[2] = list((config.screen_width-t[0], t[1]) for t in BDP[1]) # FrontRow, Right (Usually enemy).
 
-            # We need to get perfect middle positioning:
-            # Get the perfect middle x:
-            perfect_middle_xl = BDP["l0"][1][0] + round_int((BDP["l1"][1][0] - BDP["l0"][1][0])*.5)
-            perfect_middle_yl = perfect_middle_yr = BDP["l1"][1][1] - 100
-            perfect_middle_xr = BDP["r0"][1][0] + round_int((BDP["r1"][1][0] - BDP["r0"][1][0])*.5)
-            BDP["perfect_middle_right"] = (perfect_middle_xl, perfect_middle_yl)
-            BDP["perfect_middle_left"] = (perfect_middle_xr, perfect_middle_yr)
+            # Perfect middle positioning:
+            y = BDP[1][1][1] - 100
+            BDP["perfect_middle_left"] = ((BDP[0][1][0] + BDP[1][1][0])/2, y)
+            BDP["perfect_middle_right"] = ((BDP[3][1][0] + BDP[2][1][0])/2, y)
             BE_Core.BDP.clear()
             BE_Core.BDP.update(BDP)
 
@@ -363,8 +358,7 @@ init -1 python: # Core classes:
                 color = BE_Core.TYPE_TO_COLOR_MAP.get(type, "red")
 
             if return_for == "log":
-                s = "%s: %s" % (BE_Core.DAMAGE.get(type, type), value)
-                return "{color=%s}%s{/color}" % (color, s)
+                return "{color=%s}%s: %s{/color}" % (color, BE_Core.DAMAGE.get(type, type), value)
             elif return_for == "bb": # battle bounce
                 return value, color
             else:
@@ -807,7 +801,7 @@ init -1 python: # Core classes:
             # We're going to land the character at the default position from now on,
             # with centered bottom of the image landing directly on the position!
             # This makes more sense for all purposes:
-            x, y = self.row_pos[team_index + str(member.front_row)][char_index]
+            x, y = self.BDP[member.row][char_index]
             w, h = member.besprite_size
             xpos = round_int(x-w*.5)
             ypos = round_int(y-h)
