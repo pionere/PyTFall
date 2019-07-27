@@ -331,10 +331,14 @@ screen building_management_leftframe_exploration_guild_mode:
                             tooltip u.desc
 
     elif bm_mid_frame_mode.view_mode == "log":
-        default focused_area_index = 0
         python:
-            selected_log_area = bm_mid_frame_mode.selected_log_area
+            main_area = bm_mid_frame_mode.selected_log_area
+            selected_log_area_sub = bm_mid_frame_mode.selected_log_area_sub
             temp = sorted([a for a in fg_areas.values() if a.area is None and a.unlocked], key=attrgetter("stage"))
+            if main_area is None:
+                # We assume that there is always at least one area!
+                main_area = temp[0]
+            focused_area_index = temp.index(main_area)
         vbox:
             xsize 320 spacing 1
             # Maps sign:
@@ -348,8 +352,6 @@ screen building_management_leftframe_exploration_guild_mode:
             null height 5
 
             # Main Area with paging:
-            # We assume that there is always at least one area!
-            $ main_area = temp[focused_area_index]
             $ img = PyTGFX.scale_content(main_area.img, 220, 124)
             hbox:
                 xalign .5
@@ -357,7 +359,7 @@ screen building_management_leftframe_exploration_guild_mode:
                     style "paging_green_button_left"
                     yalign .5
                     tooltip "Previous Page"
-                    action SetScreenVariable("focused_area_index", (focused_area_index - 1) % len(temp))
+                    action SetField(bm_mid_frame_mode, "selected_log_area", temp[(focused_area_index - 1) % len(temp)])
                 null width 5
                 frame:
                     background Frame(im.Alpha("content/gfx/frame/MC_bg3.png", alpha=.9), 10, 10)
@@ -384,7 +386,7 @@ screen building_management_leftframe_exploration_guild_mode:
                     style "paging_green_button_right"
                     yalign .5
                     tooltip "Next Page"
-                    action SetScreenVariable("focused_area_index", (focused_area_index + 1) % len(temp))
+                    action SetField(bm_mid_frame_mode, "selected_log_area", temp[(focused_area_index + 1) % len(temp)])
 
             # Sub Areas:
             null height 5
@@ -403,11 +405,11 @@ screen building_management_leftframe_exploration_guild_mode:
                         button:
                             xysize 220, 18
                             if area.unlocked:
-                                if selected_log_area == area:
-                                    action SetField(bm_mid_frame_mode, "selected_log_area", None)
+                                if selected_log_area_sub == area:
+                                    action SetField(bm_mid_frame_mode, "selected_log_area_sub", None)
                                     selected True
                                 else:
-                                    action SetField(bm_mid_frame_mode, "selected_log_area", area)
+                                    action SetField(bm_mid_frame_mode, "selected_log_area_sub", area)
                                 tooltip area.desc
                             else:
                                 action NullAction()
@@ -826,7 +828,7 @@ screen building_management_midframe_exploration_guild_mode:
                 keysym "mousedown_3"
 
     elif bm_mid_frame_mode.view_mode == "log":
-        $ area = bm_mid_frame_mode.selected_log_area
+        $ area = bm_mid_frame_mode.selected_log_area_sub
         if area is None:
             frame: # Image
                 xalign .5

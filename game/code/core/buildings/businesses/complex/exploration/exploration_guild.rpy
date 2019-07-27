@@ -340,15 +340,54 @@ init -6 python: # Guild, Tracker and Log.
             # reports from them in real-time instead of replicating data we already have.
             txt = []
 
+            # We need to create major report for nd to keep track of progress:
+            last_checked_idx = -1
+            logs = temp #self.logs
+            #last_idx = len(temp)-1 
+            for idx, l in enumerate(logs):
+                if idx < last_checked_idx or not l.nd_log:
+                    continue
+                # merge consecutive hazard entries
+                hazards = l.event_object
+                l = l.txt
+                if isinstance(hazards, dict):
+                    next_idx = idx + 1
+                    while next_idx <= last_idx:
+                        ln = logs[next_idx]
+                        if ln.nd_log:
+                            haz = ln.event_object
+                            if not isinstance(haz, dict):
+                                break
+                            for char, effects in haz.iteritems():
+                                temp = hazards.get(char, None)
+                                if temp is None:
+                                    hazards[char] = effects
+                                else:
+                                    merge_dicts(temp, effects)
+                        next_idx += 1
+                    last_checked_idx = next_idx
+
+                    if hazards:
+                        temp = []
+                        for char, effects in hazards.iteritems():  
+                            stat_to_color_map = {"health": "orangered", "mp": "dodgerblue", "vitality": "greenyellow"}
+                            #tmp = ["".join(["{color=", stat_to_color_map.get(stat, "ivory"), "}", "+" if var < 0 else "", str(-var), "{/color}"]) for stat, var in effects.iteritems()]
+                            tmp = [set_font_color("%+g" % (-var), stat_to_color_map.get(stat, "ivory")) for stat, var in effects.iteritems()]
+                            tmp = ", ".join(tmp)
+                            #tmp = "".join(["{color=pink}", char.name, "{/color} (", tmp, ")"])
+                            tmp = "%s (%s)" % (set_font_color(char.name, "pink"), tmp)
+                            temp.append(tmp)
+                        temp = "".join([", ".join(temp), " were" if len(temp) > 1 else " was", " affected."])
+                    else:
+                        temp = "Nobody was affected."
+                    l.append("{color=yellow}Hazardous area!{/color} " + temp)
+
+                txt.append("\n".join(l))
+
             # Build an image combo for the report:
             img = area.img
             if team is not None:
                 img = nd_report_image(img, team, "fighting", exclude=["nude", "sex"])
-
-            # We need to create major report for nd to keep track of progress:
-            for l in self.logs:
-                if l.nd_log:
-                    txt.append("\n".join(l.txt))
 
             evt = NDEvent(type='explorationndreport',
                           img=img,
@@ -397,7 +436,8 @@ init -6 python: # Guild, Tracker and Log.
             # gui
             self.team_to_launch_index = 0
             self.view_mode = "explore"
-            self.selected_log_area = self.selected_exp_area = self.selected_exp_area_sub = None
+            self.selected_exp_area = self.selected_exp_area_sub = None
+            self.selected_log_area = self.selected_log_area_sub = None 
             #self.workers initialized later
             #self.guild_teams initialized later
 
@@ -625,6 +665,9 @@ init -6 python: # Guild, Tracker and Log.
                         result = yield process(self.explore(tracker))
                         if result == "back2camp":
                             break # We're done for today...
+                        elif result == "camp2rest":
+                            tracker.state = "camping"
+                            break # We're done for today and rest is necessary
                         elif result == "rest":
                             tracker.state = "camping"
                     elif tracker.state == "camping":
@@ -887,7 +930,7 @@ init -6 python: # Guild, Tracker and Log.
             tracker.log(temp)
 
             multiplier = tracker.area.daily_modifier * (200 - self.env.now) / 100.0
-            if in_camp:
+            if in_camp is True:
                 for o in tracker.area.camp_objects:
                     if hasattr(o, "daily_modifier_mod"):
                         if hasattr(o, "capacity"):
@@ -934,6 +977,7 @@ init -6 python: # Guild, Tracker and Log.
             """
             team = tracker.team
             area = tracker.area
+            risk = tracker.risk
 
             if tracker.daily_items is None:
                 # first run during the day
@@ -951,7 +995,7 @@ init -6 python: # Guild, Tracker and Log.
                 # Effectiveness (Ability):
                 ability = tracker.get_team_ability()
                 # convert to reward multiplier
-                ability = ability*tracker.risk*.0001           # (0-200)*(1-3) * (0-100) / 10000.0 -> 0 - 6.0
+                ability = ability*risk*.0001           # (0-200)*(1-3) * (0-100) / 10000.0 -> 0 - 6.0
                 ability += (tracker.day-tracker.traveled)*.2 #  + (0-15) / 5.0                   -> 3.0 - 9.0
                 # Max cash to be found this day:
                 tracker.max_cash = int(area.cash_limit*ability)
@@ -967,12 +1011,11 @@ init -6 python: # Guild, Tracker and Log.
                 if max_items == 1:
                     temp = [temp]
                 tracker.chosen_items = temp
+                tracker.max_items = max_items
             else:
                 if DEBUG_SE:
                     msg = "{} is continuing the exploration.".format(team.name)
                     se_debug(msg)
-
-            items = tracker.daily_items
 
             while 1:
                 yield self.env.timeout(5) # We'll go with 5 du per one iteration of "exploration loop".
@@ -980,7 +1023,7 @@ init -6 python: # Guild, Tracker and Log.
                 # record the exploration, unlock new maps
                 if dice(5):
                     if area.explored < area.maxexplored:
-                        mod = randint(4, 6)
+                        mod = randint(6, 10)
                         if getattr(tracker, "cartography", False):
                             mod = mod * 3 / 2
                         area.explored = min(area.maxexplored, area.explored + mod)
@@ -993,9 +1036,9 @@ init -6 python: # Guild, Tracker and Log.
 
                 # Hazzard:
                 if area.hazard:
-                    temp = []
+                    temp = dict()
                     for char in team:
-                        tmp = []
+                        tmp = dict()
                         for stat, value in area.hazard.items():
                             # value, because we calculated effects on daily base in the past...
                             var = value/20
@@ -1010,18 +1053,10 @@ init -6 python: # Guild, Tracker and Log.
                                     tracker.flag_red = True
                                     tracker.died.append(char)
                                 char.mod_stat(stat, -var)
-                                tmp.append((stat, var))
+                                tmp[stat] = var
                         if tmp:
-                            stat_to_color_map = {"health": "orangered", "mp": "dodgerblue", "vitality": "greenyellow"}
-                            tmp = ["".join(["{color=", stat_to_color_map.get(stat, "ivory"), "}", "+" if var < 0 else "", str(-var), "{/color}"]) for stat, var in tmp]
-                            tmp = ", ".join(tmp)
-                            tmp = "".join(["{color=pink}", char.name, "{/color} (", tmp, ")"])
-                            temp.append(tmp)
-                    if temp:
-                        temp = "".join([", ".join(temp), " were" if len(temp) > 1 else " was", " affected."])
-                    else:
-                        temp = "Nobody was affected."
-                    tracker.log("{color=yellow}Hazardous area!{/color} " + temp)
+                            temp[char] = tmp
+                    tracker.log(None, event_object=temp) # text is prepared when the exploration is finished
 
                     if tracker.died:
                         temp = "Your team is no longer complete. This concludes the exploration for the team."
@@ -1035,20 +1070,18 @@ init -6 python: # Guild, Tracker and Log.
 
                 # Items:
                 # Handle the special items (must be done here so it doesn't collide with other teams)
-                special_items = []
-                if area.special_items:
+                special_items = area.special_items
+                if special_items:
                     ep = area.get_explored_percentage()
-                    for item, explored in area.special_items.items():
-                        if ep >= explored:
-                            special_items.append(item)
+                    special_items = [item for item, explored in special_items.items() if ep >= explored]
 
                 if tracker.chosen_items or special_items:
-                    if self.env.now < 50:
-                        chance = self.env.now/5
-                    elif self.env.now < 80:
-                        chance = self.env.now
-                    else:
+                    chance = self.env.now
+                    if chance < 50:
+                        chance /= 5
+                    elif chance > 80:
                         chance = 100
+                    chance = chance * tracker.max_items / 9
 
                     if dice(chance):
                         if special_items:
@@ -1061,7 +1094,7 @@ init -6 python: # Guild, Tracker and Log.
                             temp = "Found %s (item)!" % aoran(item)
                             temp = set_font_color(temp, "lawngreen")
 
-                        items.append(item)
+                        tracker.daily_items.append(item)
                         item = store.items[item]
                         tracker.log(temp, "Item", ui_log=True, suffix=item.type, event_object=item)
                         if DEBUG_SE:
@@ -1069,7 +1102,7 @@ init -6 python: # Guild, Tracker and Log.
                             se_debug(msg)
 
                 # Cash:
-                if tracker.max_cash > tracker.daily_cash and dice(tracker.risk/5):
+                if tracker.max_cash > tracker.daily_cash and dice(risk/5):
                     give = max(1, int(tracker.max_cash * random.random() * .5))
                     tracker.daily_cash += give
 
@@ -1140,8 +1173,8 @@ init -6 python: # Guild, Tracker and Log.
                 if area.mobs:
                     # The expected number of encounters per day is increased by one after every 25 point of risk,
                     # but never fight anyone with risk lower than 25..
-                    encounter_chance = dice((tracker.risk-25) / 5.0) # 100 * ((risk-25)/25.0) / (day_length / iteration_DU)
-                    if encounter_chance:
+                    encounter_chance = dice((risk-25) / 5.0) # 100 * ((risk-25)/25.0) / (day_length / iteration_DU)
+                    if encounter_chance and tracker.daily_mobs < 4:  # no more than 4 encounter per day to allow whole day exploration with risk of 100
                         tracker.daily_mobs += 1
 
                         mob = choice(area.mobs)
@@ -1164,28 +1197,33 @@ init -6 python: # Guild, Tracker and Log.
                             se_debug(msg)
                         self.env.exit("back2camp") # member died -> back to camp
 
-                    if tracker.daily_mobs >= tracker.risk/25:
+                    # check if the team needs rest
+                    needs_rest = False
+                    temp = .8 - (risk/200.0)
+                    for stat in ("health", "mp", "vitality"): # BATTLE_STATS
+                        for c in team:
+                            if c.get_stat(stat) < c.get_max(stat)*temp:
+                                needs_rest = True
+                                break
+                        else:
+                            continue
+                        break
+
+                    if tracker.daily_mobs >= risk/20:
                         temp = "Your team decided to go back to the camp to avoid further {color=red}risk{/color}."
                         tracker.log(temp)
                         if DEBUG_SE:
                             msg = "{} has finished an exploration scenario. (Fought too much)".format(team.name)
                             se_debug(msg)
-                        self.env.exit("back2camp") # too much risk -> back to camp
+                        self.env.exit("camp2rest" if needs_rest else "back2camp") # too much risk -> back to camp
 
-                    temp = .8 - (tracker.risk/200.0)
-                    for stat in ("health", "mp", "vitality"): # BATTLE_STATS
-                        for c in team:
-                            if c.get_stat(stat) < c.get_max(stat)*temp:
-                                break
-                        else:
-                            continue
-
+                    if needs_rest:
                         temp = "The team needs some rest before they can continue with the exploration."
                         tracker.log(temp)
                         if DEBUG_SE:
                             msg = "{} has finished an exploration scenario. (Needs rest)".format(team.name)
                             se_debug(msg)
-                        self.env.exit("rest") # need to rest -> got to camping mode
+                        self.env.exit("rest") # need to rest -> go to camping mode
 
                     del check_team
 
@@ -1215,8 +1253,7 @@ init -6 python: # Guild, Tracker and Log.
             # Add the battle report to log!:
             log.event_object = list(battle.combat_log)
 
-            # No death below risk 40:
-            if tracker.risk > 40 and dice(tracker.risk):
+            if dice(tracker.risk):
                 for member in team:
                     if member in battle.corpses:
                         tracker.flag_red = True

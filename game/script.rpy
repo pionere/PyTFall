@@ -914,6 +914,9 @@ label after_load:
                         ab.team_to_launch_index = 0
                         ab.view_mode = "explore"
                         ab.selected_log_area = ab.selected_exp_area = ab.selected_exp_area_sub = None
+                    if not hasattr(ab, "selected_log_area_sub"):
+                        ab.selected_log_area_sub = ab.selected_log_area
+                        ab.selected_log_area = None
             else:
                 nb = Building()
                 nb.init()
