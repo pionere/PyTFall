@@ -3,13 +3,13 @@
         "name": "Old Fortress",
         "unlocked": false,
         "stage": 9,
-        "img": "content/maps/dw_fortress.webp",
+        "img": "content/maps/dw_fortress_s.webp",
         "allowed_objects": []
     },
     {
         "name": "Fortress Entrance",
         "area": "Old Fortress",
-        "img": "content/maps/dw_fortress.webp",
+        "img": "content/maps/dw_fortress_s.webp",
         "stage": 1,
         "tier": 0.75,
         "desc": "This old fortress was used as a command post during the last war. It's nearly destroyed, but underground passage leads deep into the cliff.",
@@ -24,7 +24,7 @@
     {
         "name": "Fortress Dungeon",
         "area": "Old Fortress",
-        "img": "content/maps/dw_fortress.webp",
+        "img": "content/maps/dw_fortress_s.webp",
         "stage": 2,
         "tier": 1.0,
         "desc": "The dungeon is filled with provisions stocks and weird equipment fragments.",
@@ -39,7 +39,7 @@
     {
         "name": "Abandoned Laboratory",
         "area": "Old Fortress",
-        "img": "content/maps/dw_fortress.webp",
+        "img": "content/maps/dw_fortress_s.webp",
         "stage": 3,
         "tier": 1.2,
         "desc": "A small underground complex filled with magical equipment. Most of it is hopelessly broken.",
@@ -55,7 +55,7 @@
     {
         "name": "Deep Caves",
         "area": "Old Fortress",
-        "img": "content/maps/dw_fortress.webp",
+        "img": "content/maps/dw_fortress_s.webp",
         "stage": 4,
         "tier": 1.5,
         "desc": "A big network of semi flooded caves permeates the cliff.",
@@ -71,7 +71,7 @@
     {
         "name": "Crystal Caves",
         "area": "Old Fortress",
-        "img": "content/maps/dw_fortress.webp",
+        "img": "content/maps/dw_fortress_s.webp",
         "stage": 5,
         "tier": 2.0,
         "desc": "These caves are filled with sparkling crystals charged with electricity, and the air itself is abuzz with the power.",

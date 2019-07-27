@@ -66,7 +66,7 @@ screen building_management_leftframe_exploration_guild_mode:
                 xalign .5 ypos 57
                 mousewheel True
                 has vbox spacing 4
-                $ temp = sorted([a for a in fg_areas.values() if a.area is None and a.unlocked], key=attrgetter("name"))
+                $ temp = sorted([a for a in fg_areas.values() if a.area is None and a.unlocked], key=attrgetter("stage"))
                 if temp and not selected_exp_area:
                     $ mid_frame_focus = temp[0]
 
@@ -98,6 +98,7 @@ screen building_management_leftframe_exploration_guild_mode:
                                     hover_color hcolor
                                     style "interactions_text"
                                     size 18 outlines [(1, "#3a3a3a", 0, 0)]
+                                    layout "nobreak"
                                     align .5, .5
     elif bm_mid_frame_mode.view_mode == "area":
         # Left frame with Area controls
@@ -376,6 +377,7 @@ screen building_management_leftframe_exploration_guild_mode:
                                 color "gold"
                                 style "interactions_text"
                                 size 18 outlines [(1, "#3a3a3a", 0, 0)]
+                                layout "nobreak"
                                 align .5, .5
                 null width 5
                 button:
