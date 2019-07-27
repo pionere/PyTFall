@@ -838,7 +838,7 @@ init -9 python:
                 renpy.music.play(track, fadein=1.5)
 
                 for mob in enemy_team:
-                    mob.controller = Complex_BE_AI(mob)
+                    mob.controller = Complex_BE_AI()
 
                 battle = BE_Core(bg=ImageReference("chainfights"), start_sfx=get_random_image_dissolve(1.5), give_up="surrender", end_bg="battle_arena_1")
                 battle.teams = [hero.team, enemy_team]
@@ -990,7 +990,7 @@ init -9 python:
                 member_aps[member] = member.PP
 
             for member in enemy_team:
-                member.controller = Complex_BE_AI(member)
+                member.controller = Complex_BE_AI()
                 member_aps[member] = member.PP
 
             global battle
@@ -1095,7 +1095,7 @@ init -9 python:
                 member_aps[member] = member.PP
 
             for member in enemy_team:
-                member.controller = Complex_BE_AI(member)
+                member.controller = Complex_BE_AI()
                 member_aps[member] = member.PP
 
             global battle

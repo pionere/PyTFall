@@ -29,7 +29,7 @@ label test_be:
         for i in chain(hero.team, enemy_team):
             if i == hero:
                 continue
-            # i.controller = Complex_BE_AI(i)
+            # i.controller = Complex_BE_AI()
             for skill in battle_skills.values():
                 if skill.delivery in ["melee", "ranged"]:
                     if skill not in i.attack_skills:
@@ -57,19 +57,19 @@ label test_be_logical:
         enemy_team = Team(name="Enemy Team", max_size=3)
         if len(enemy_team) != 3:
             mob = build_mob(id="Goblin Shaman", level=120)
-            mob.controller = BE_AI(mob)
+            mob.controller = BE_AI()
             mob.front_row = 1
             mob.apply_trait(traits["Fire"])
             enemy_team.add(mob)
         if len(enemy_team) != 3:
             mob = build_mob(id="Goblin Archer", level=100)
-            mob.controller = BE_AI(mob)
+            mob.controller = BE_AI()
             mob.front_row = 0
             mob.attack_skills.append("Sword Slash")
             enemy_team.add(mob)
         if len(enemy_team) != 3:
             mob = build_mob(id="Goblin Archer", level=100)
-            mob.controller = BE_AI(mob)
+            mob.controller = BE_AI()
             mob.front_row = 0
             mob.attack_skills.append("Bow Shot")
             mob.apply_trait(traits["Air"])
@@ -93,7 +93,7 @@ label test_be_logical:
             for stat in ("health", "mp", "vitality"): # BATTLE_STATS
                 i.set_stat(stat, i.get_max(stat))
             i.restore_ap()
-            i.controller = BE_AI(i)
+            i.controller = BE_AI()
 
         # ImageReference("chainfights")
         battle = BE_Core(logical=True)

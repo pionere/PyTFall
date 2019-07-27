@@ -88,29 +88,46 @@ init -1 python: # Core classes:
             return result
 
     class BE_Combatant(_object):
-        def __init__(self, char):
+        def __init__(self, team, idx, pos):
+            char = team._members[idx]
+
+            # Allegiance:
+            self.allegiance = team
+
             # BE assets:
-            self.besprite = None # Used to keep track of sprite displayable in the BE.
-            self.besprite_size = None # Sprite size in pixels.
-            self.beinx = 0 # Passes index from logical execution to SFX setup.
-            self.beteampos = None # This manages team position bound to target (left or right on the screen).
-            self.row = 1 # row on the battlefield, used to calculate range of weapons.
-            self.betag = None # Tag to keep track of the sprite.
-            self.dpos = None # Default position based on row + team.
-            self.sopos = () # Status underlay position, which should be fixed.
-            self.cpos = None # Current position of a sprite.
-            self.besk = None # BE Show **Kwargs!
-            self.allegiance = None # BE will default this to the team name.
+            #self.besprite = None # Used to keep track of sprite displayable in the BE.
+            #self.besprite_size = None # Sprite size in pixels.
+            #self.betag = None # Tag to keep track of the sprite.
+            #self.besk = None # BE Show **Kwargs!
+            #self.dpos = None # Default position based on row + team.
+            #self.cpos = None # Current position of a sprite.
+
+            #self.sopos = () # Status underlay position, which should be fixed.
+
+            #self.beinx = 0 # Passes index from logical execution to SFX setup.
+            #self.beteampos = pos # This manages team position bound to target (left or right on the screen).
+            #self.row = 1 # row on the battlefield, used to calculate range of weapons.
+            #self.allegiance = None # BE will default this to the team name.
             self.beeffects = []
             self.dmg_font = "red"
             self.status_overlay = [] # Status icons over the sprites.
+
+            # Position:
+            self.beteampos = pos
+            if len(team) == 3 and idx < 2:
+                self.beinx = 1 - idx
+            else:
+                self.beinx = idx
+            front_row = char.front_row
+            if pos == "l":
+                self.row = front_row
+            else: # Case "r"
+                self.row = 3 - front_row
 
             self.load_char(char)
 
         def load_char(self, char):
             self.char = char
-
-            self.front_row = char.front_row
 
             # most commonly used variables during the battle
             self.name = char.name
@@ -140,7 +157,6 @@ init -1 python: # Core classes:
             self.magic = stats._get_stat("magic")
             self.intelligence = stats._get_stat("intelligence")
 
-            self.controller = char.controller
             self.resist = char.resist
 
             # cached item bonuses
@@ -158,6 +174,12 @@ init -1 python: # Core classes:
             trait_modifiers[0] *= 100.0 
 
             self.modifiers = trait_modifiers
+
+            # Controller:
+            controller = char.controller
+            if controller is not None:
+                controller.init(self)
+            self.controller = controller
 
         def set_besprite(self, besprite):
             self.besprite = besprite
@@ -661,26 +683,8 @@ init -1 python: # Core classes:
             pos = "l"
             for team in self.teams:
                 team.position = pos
-                size = len(team)
                 for idx in range(len(team)):
-                    char = BE_Combatant(team._members[idx])
-                    team._members[idx] = char
-                    if char.controller is not None:
-                        char.controller.source = char
-
-                    # Position:
-                    char.beteampos = pos
-                    if size == 3 and idx < 2:
-                        char.beinx = 1 - idx
-                    else:
-                        char.beinx = idx
-                    if pos == "l":
-                        char.row = char.front_row
-                    else: # Case "r"
-                        char.row = 3 - char.front_row
-
-                    # Allegiance:
-                    char.allegiance = team
+                    team._members[idx] = BE_Combatant(team, idx, pos)
 
                 pos = "r"
 
@@ -730,6 +734,7 @@ init -1 python: # Core classes:
                     renpy.music.stop()
 
             for team in self.teams:
+                del team.position
                 for idx in range(len(team)):
                     f = team._members[idx]
                     c = f.char
@@ -739,7 +744,7 @@ init -1 python: # Core classes:
                     team._members[idx] = c
 
                     if c.controller is not None:
-                        c.controller.source = c
+                        c.controller.source = None
                     for s in chain(f.magic_skills, f.attack_skills):
                         s.source = None
 
@@ -2134,7 +2139,7 @@ init -1 python: # Core classes:
 
     class BE_AI(_object):
         # Not sure this even needs to be a class...
-        def __init__(self, source):
+        def init(self, source):
             self.source = source
 
         def execute(self):
@@ -2172,8 +2177,8 @@ init -1 python: # Core classes:
             Favorite attacks/spells?
             Test multiple scenarios to see if we get infinite loops anywhere.
         """
-        def __init__(self, source):
-            super(Complex_BE_AI, self).__init__(source=source)
+        def init(self, source):
+            super(Complex_BE_AI, self).init(source=source)
 
         def execute(self):
             source = self.source

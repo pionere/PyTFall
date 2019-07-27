@@ -61,7 +61,7 @@ init -11 python:
             #if fighter.last_known_aeq_purpose not in FIGHTING_AEQ_PURPOSES and fighter.autoequip and fighter != hero:
             #    fighter.auto_equip("Fighting")
             # create AI-controller
-            fighter.controller = BE_AI(fighter) if simple_ai else Complex_BE_AI(fighter)
+            fighter.controller = BE_AI() if simple_ai else Complex_BE_AI()
 
         max_turns=15*(len(off_team)+len(def_team))
 
@@ -120,12 +120,12 @@ init -11 python:
                     member.controller = None # no AI -> controlled by the player
                     your_team.add(member)
                 elif slaves: # and member.status == "slave"
-                    member.controller = BE_AI(member)
+                    member.controller = BE_AI()
                     your_team.add(member)
 
         # Controllers:
         for member in enemy_team:
-            member.controller = Complex_BE_AI(member)
+            member.controller = Complex_BE_AI()
 
         pre_aps = [member.PP for member in your_team]
 

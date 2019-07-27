@@ -374,7 +374,7 @@ label arena_practice_loop:
                     mob.battle_sprite = "content/items/misc/std.png"
                     mob.nickname = mob.name = "Training Dummy"
                     mob.PP = 0
-                    mob.controller = BE_AI(mob)
+                    mob.controller = BE_AI()
                 else:
                     mob = build_mob(mob["id"], level)
                 enemy_team.add(mob)

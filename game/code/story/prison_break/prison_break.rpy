@@ -236,7 +236,7 @@ label storyi_randomfight:  # initiates fight with random enemy team
         mobs = storyi_loc_map[storyi_prison_location]["mobs"]
         for j in range(randint(1, 3)):
             mob = build_mob(id=random.choice(mobs), level=15)
-            mob.controller = Complex_BE_AI(mob)
+            mob.controller = Complex_BE_AI()
             enemy_team.add(mob)
         del mobs, mob, j
         result = storyi_loc_map[storyi_prison_location]["img"]
