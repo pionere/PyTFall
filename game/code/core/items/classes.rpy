@@ -328,6 +328,9 @@ init -9 python:
                 self.items.pop(item, 0)
                 if item in self.filtered_items:
                     self.filtered_items.remove(item)
+                    num = self.max_page
+                    if self.page > num:
+                        self.page = num
             else:
                 self.items[item] = num
             return True
