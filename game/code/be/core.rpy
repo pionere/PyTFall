@@ -523,13 +523,10 @@ init -1 python: # Core classes:
             return t.modifiers[6].get(type, None)
 
         @staticmethod
-        def damage_calculator(damage, defense, multiplier, attacker, absorbed=False):
+        def damage_calculator(damage, defense, multiplier, attacker):
             """Used to calc damage of the attack.
             Before multipliers and effects are applied.
             """
-            if absorbed:
-                damage = -damage
-
             damage *= multiplier * (75.0/(75 + defense)) * uniform(.9, 1.1)
 
             # Items/Traits Bonus:
@@ -1225,7 +1222,7 @@ init -1 python: # Core classes:
             num_dmg = len(self.damage)
             if num_dmg != 0:
                 # Get the attack power:
-                attack = self.get_attack()
+                attack = self.get_attack(a)
                 attack /= num_dmg
 
             if self.delivery in ["melee", "ranged"]:
@@ -1287,16 +1284,14 @@ init -1 python: # Core classes:
                         # We also check for absorbtion:
                         absorb_ratio = BE_Core.check_absorbtion(t, type)
                         if absorb_ratio:
-                            result = absorb_ratio*result
+                            result *= -absorb_ratio
                             # We also set defence to 0, no point in defending against absorption:
                             temp_def = 0
-                            absorbed = True
                         else:
                             temp_def = defense
-                            absorbed = False
 
                         # Get the damage:
-                        result = BE_Core.damage_calculator(result, temp_def, multiplier, a, absorbed)
+                        result = BE_Core.damage_calculator(result, temp_def, multiplier, a)
 
                         effects.append((type, result))
                         total_damage += result
@@ -1329,12 +1324,10 @@ init -1 python: # Core classes:
                 if battle.get_fighters(row=1) and not self.true_pierce:
                     return True
 
-        def get_attack(self):
+        def get_attack(self, a):
             """
             Very simple method to get to attack power.
             """
-            a = self.source
-
             delivery = self.delivery
             if delivery == "melee":
                 attack = a.attack*.7 + a.agility*.3
