@@ -726,7 +726,12 @@ init: # Main Screens:
                     spacing 5
                     frame:
                         background Frame("content/gfx/frame/MC_bg.png", 10, 10)
-                        add portrait
+                        imagebutton:
+                            xysize (100, 100)
+                            background Null()
+                            idle portrait
+                            hover PyTGFX.bright_content(portrait, 0.15)
+                            action Show("popup_info", content="trait_info_content", param=mob)
 
                     vbox:
                         xalign .5

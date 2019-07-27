@@ -116,7 +116,7 @@ init -11 python:
                     bem = temp
                 else:
                     bem.merge(temp)
-            for item in entity.eqslots.itervalues():
+            for item in getattr(entity, "eqslots", dict()).itervalues():
                 if item is None:
                     continue
                 entities.append(item)
