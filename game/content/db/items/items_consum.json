@@ -705,7 +705,7 @@
     "infinite": false,
     "slot": "consumable",
     "type": "permanent",
-    "mod": {"disposition": 200, "intelligence": -25, "character": -25},
+    "mod": {"disposition": 200, "affection": 200, "intelligence": -25, "character": -25},
     "addeffects": ["Food Poisoning"],
     "locations": ["Witches Hut"]
     },

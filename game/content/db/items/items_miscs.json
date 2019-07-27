@@ -308,7 +308,7 @@
     "mod": {"constitution": 15, "defence": 5},
     "max": {"health": 25, "vitality": 25},
     "locations": ["General Store"],
-    "pref_class":["Warrior", "Mage", "Shooter", "Whore", "Service"]
+    "pref_class":["Warrior", "Mage", "Shooter", "SIW", "Service"]
     },
     {
     "id": "Manual of Magic",
