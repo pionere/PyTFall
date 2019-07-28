@@ -133,38 +133,42 @@ init -1 python: # Core classes:
             # most commonly used variables during the battle
             self.name = char.name
             self.nickname = char.nickname
-            self.status = char.status
-            self.attack_skills = char.attack_skills
-            self.magic_skills = char.magic_skills
-
+            temp = char.status
+            if temp == "slave":
+                # slaves should not battle
+                self.attack_skills = self.magic_skills = []
+            else:
+                self.attack_skills = char.attack_skills
+                self.magic_skills = char.magic_skills
+            self.status = temp
             self.PP = char.PP
 
-            stats = char.stats
-            self.health = self.delayedhp = stats._get_stat("health")
-            self.maxhp = stats.get_max("health")
-            #self.minhp = stats.get_min("health")
-            self.mp = self.delayedmp = stats._get_stat("mp")
-            self.maxmp = stats.get_max("mp")
-            self.minmp = stats.get_min("mp")
-            self.vitality = self.delayedvit = stats._get_stat("vitality")
-            self.maxvit = stats.get_max("vitality")
-            self.minvit = stats.get_min("vitality")
+            temp = char.stats
+            self.health = self.delayedhp = temp._get_stat("health")
+            self.maxhp = temp.get_max("health")
+            #self.minhp = temp.get_min("health")
+            self.mp = self.delayedmp = temp._get_stat("mp")
+            self.maxmp = temp.get_max("mp")
+            self.minmp = temp.get_min("mp")
+            self.vitality = self.delayedvit = temp._get_stat("vitality")
+            self.maxvit = temp.get_max("vitality")
+            self.minvit = temp.get_min("vitality")
 
-            self.attack = stats._get_stat("attack")
-            self.agility = stats._get_stat("agility")
-            self.luck = stats._get_stat("luck")
-            self.defence = stats._get_stat("defence")
-            self.constitution = stats._get_stat("constitution")
-            self.magic = stats._get_stat("magic")
-            self.intelligence = stats._get_stat("intelligence")
+            self.attack = temp._get_stat("attack")
+            self.agility = temp._get_stat("agility")
+            self.luck = temp._get_stat("luck")
+            self.defence = temp._get_stat("defence")
+            self.constitution = temp._get_stat("constitution")
+            self.magic = temp._get_stat("magic")
+            self.intelligence = temp._get_stat("intelligence")
 
             self.resist = char.resist
 
             # cached item bonuses
-            be_items = getattr(char, "eqslots", None)
-            if be_items is not None:
-                be_items = be_items.itervalues()
-            item_modifiers = BE_Core.get_item_modifiers(be_items)
+            temp = getattr(char, "eqslots", None)
+            if temp is not None:
+                temp = temp.itervalues()
+            item_modifiers = BE_Core.get_item_modifiers(temp)
             # cached trait bonuses
             trait_modifiers = BE_Core.get_trait_modifiers(char.traits, char.level)
 
@@ -177,10 +181,10 @@ init -1 python: # Core classes:
             self.modifiers = trait_modifiers
 
             # Controller:
-            controller = char.controller
-            if controller is not None:
-                controller.init(self)
-            self.controller = controller
+            temp = char.controller
+            if temp is not None:
+                temp.init(self)
+            self.controller = temp
 
         def set_besprite(self, besprite):
             self.besprite = besprite
@@ -362,48 +366,6 @@ init -1 python: # Core classes:
                 return "{color=%s}%s: %s{/color}" % (color, BE_Core.DAMAGE.get(type, type), value)
             else:
                 return "{color=%s}%s{/color}" % (color, value)
-
-        @staticmethod
-        def effects_to_string(effects):
-            """Adds information about target to the list and returns it to be written to the log later.
-
-            - We assume that all tuples in effects are damages by type!
-            """
-            # String for the log:
-            s = list()
-
-            str_effects = list()
-            type_effects = list()
-
-            for effect in effects:
-                if isinstance(effect, tuple):
-                    type_effects.append(effect)
-                else:
-                    str_effects.append(effect)
-
-            # First add the str effects:
-            for effect in str_effects:
-                if effect == "backrow_penalty":
-                    # Damage halved due to the target being in the back row!
-                    s.append("{color=red}1/2 DMG (Back-Row){/color}")
-                elif effect == "critical_hit":
-                    s.append("{color=lawngreen}Critical Hit{/color}")
-                elif effect == "magic_shield":
-                    s.append("{color=lawngreen}☗+{/color}")
-                elif effect == "missed_hit":
-                    s.append("{color=lawngreen}Attack Missed{/color}")
-                else:
-                    #debug_be("Unrecognized effect '%s' when converting to string." % effect)
-                    devlog.warn("Unrecognized effect '%s' when converting to string." % effect)
-
-            # Next type effects:
-            if len(type_effects) > 1:
-                # add entry for a combined damage in case of multi-type attacks:
-                type_effects.append(("DMG", effects[0]))
-            for effect in type_effects:
-                s.append(BE_Core.color_string_by_DAMAGE_type(effect, True))
-
-            return s
 
         @staticmethod
         def get_item_modifiers(items):
@@ -1440,22 +1402,43 @@ init -1 python: # Core classes:
 
         # To String methods:
         def log_to_battle(self, effects, total_damage, a, t, message=None):
-            # Logs effects to battle, target...
-            effects.insert(0, total_damage)
-
-            # Log the effects:
-            t.beeffects = effects
-
             # String for the log:
             if message is None:
                 if total_damage >= 0:
                     message = "{color=teal}%s{/color} attacks %s with %s" % (a.nickname, t.nickname, self.name)
                 else:
                     message = "{color=teal}%s{/color} attacks %s with %s, but %s absorbs it" % (a.nickname, t.nickname, self.name, t.nickname)
+            s = [message]
 
-            s = [message] + BE_Core.effects_to_string(effects)
+            # add effects as string
+            #  First add the str effects and collect the type effects:
+            type_effects = list()
+            for effect in effects:
+                if isinstance(effect, tuple):
+                    type_effects.append(effect)
+                elif effect == "backrow_penalty":
+                    s.append("{color=red}1/2 DMG (Back-Row){/color}")
+                elif effect == "critical_hit":
+                    s.append("{color=lawngreen}Critical Hit{/color}")
+                elif effect == "magic_shield":
+                    s.append("{color=lawngreen}☗+{/color}")
+                elif effect == "missed_hit":
+                    s.append("{color=lawngreen}Attack Missed{/color}")
+                else:
+                    debug_be("Unrecognized effect '%s' when converting to string." % effect)
 
+            #  Next type effects:
+            if len(type_effects) > 1:
+                # add entry for a combined damage in case of multi-type attacks:
+                type_effects.append(("DMG", total_damage))
+            s += [BE_Core.color_string_by_DAMAGE_type(effect, True) for effect in type_effects]
+
+            # Log the effects to battle
             battle.log(" ".join(s), delayed=True)
+
+            # Log the effects to target:
+            effects.insert(0, total_damage)
+            t.beeffects = effects
 
         def apply_effects(self, targets):
             """This is a  final method where all effects of the attacks are being dished out on the objects.
@@ -2118,11 +2101,7 @@ init -1 python: # Core classes:
             BESkip().execute(source=source)
 
         def get_available_skills(self):
-            # slaves should not battle
             source = self.source
-            if source.status == "slave":
-                return
-
             return [s for s in chain(source.attack_skills, source.magic_skills) if s.check_conditions(source)]
 
     class Complex_BE_AI(BE_AI):
@@ -2142,30 +2121,25 @@ init -1 python: # Core classes:
         def execute(self):
             source = self.source
 
-            temp = self.get_available_skills()
-            if not temp:
-                # skip
-                BESkip().execute(source=source)
-                return
-
             # Split skills in containers:
-            skills = {}
-            for s in temp:
-                skills.setdefault(s.kind, []).append(s)
+            map = {"revival": 1, "healing": 2, "buff": 3}
+            skills = [[], [], [], []]
+            for s in self.get_available_skills():
+                skills[map.get(s.kind, 0)].append(s)
 
             # Reviving first:
-            revival_skills = skills.get("revival", None)
-            if revival_skills and dice(50):
-                for skill in revival_skills:
+            revivals = skills[1]
+            if revivals_skills and dice(50):
+                for skill in revivals:
                     targets = skill.get_targets(source)
                     if targets:
                         targets = targets if "all" in skill.type else [choice(targets)]
                         skill.execute(source=source, t=targets)
                         return
 
-            healing_skills = skills.get("healing", None)
-            if healing_skills and dice(70):
-                for skill in healing_skills:
+            healings = skills[2]
+            if healings and dice(70):
+                for skill in healings:
                     targets = skill.get_targets(source)
                     for t in targets:
                         if t.health < t.maxhp/2:
@@ -2173,7 +2147,7 @@ init -1 python: # Core classes:
                             skill.execute(source=source, t=targets)
                             return
 
-            buffs = skills.get("buffs", None)
+            buffs = skills[3]
             if buffs and dice(10):
                 for skill in buffs:
                     targets = skill.get_targets(source)
@@ -2182,15 +2156,15 @@ init -1 python: # Core classes:
                         skill.execute(source=source, t=targets)
                         return
 
-            attack_skills = skills.get("assault", None)
-            if attack_skills:
+            attacks = skills[0]
+            if attacks:
                 # Sort skills by menu_pos:
-                attack_skills.sort(key=attrgetter("menu_pos"))
-                while attack_skills:
+                attacks.sort(key=attrgetter("menu_pos"))
+                while attacks:
                     # Most powerful skill has 70% chance to trigger.
                     # Last skill in the list will execute!
-                    skill = attack_skills.pop()
-                    if not attack_skills or dice(70):
+                    skill = attacks.pop()
+                    if not attacks or dice(70):
                         targets = skill.get_targets(source)
                         targets = targets if "all" in skill.type else [choice(targets)]
                         skill.execute(source=source, t=targets)
