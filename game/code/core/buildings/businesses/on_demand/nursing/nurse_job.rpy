@@ -49,7 +49,7 @@ init -5 python:
                 log.append("%s is drunk. Not the best thing when you need take care of others." % name)
                 effectiveness -= 20
             elif 'Revealing Clothes' in effects:
-                log.append("%s revealing clothes attract unneeded attention, interfering with work." % worker.pdC)
+                log.append("The revealing clothes of %s attract unneeded attention, interfering with work." % name)
                 effectiveness -= 10
 
             if locked_dice(65): # traits don't always work, even with high amount of traits there are normal days when performance is not affected
