@@ -2129,7 +2129,7 @@ init -1 python: # Core classes:
 
             # Reviving first:
             revivals = skills[1]
-            if revivals_skills and dice(50):
+            if revivals and dice(50):
                 for skill in revivals:
                     targets = skill.get_targets(source)
                     if targets:
