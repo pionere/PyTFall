@@ -230,7 +230,7 @@ screen building_management_rightframe_building_mode:
                 bm_building_chars = set(bm_building.inhabitants)
                 if hasattr(bm_building, "all_workers"):
                     bm_building_chars.update(bm_building.all_workers)
-                bm_building_chars = list(bm_building_chars)
+                bm_building_chars = [c for c in bm_building_chars if c.is_available]
                 bm_building_chars.sort(key=attrgetter("name"))
                 bm_building_chars.insert(0, hero)
                 if hasattr(bm_building, "inventory"):
