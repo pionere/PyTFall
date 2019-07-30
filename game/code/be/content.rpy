@@ -252,7 +252,7 @@ init python:
             self.group = group # Or we collide with Buffs
             self.icon = "content/gfx/be/poison1.webp"
             # We also add the icon to targets status overlay:
-            target.status_overlay.append(self.icon)
+            target.beevents.append(self)
 
         def check_conditions(self):
             if battle.controller == self.target:
@@ -262,7 +262,7 @@ init python:
             if not self.counter:
                 t = self.target
 
-                t.status_overlay.remove(self.icon)
+                t.beevents.remove(self)
                 msg = "{color=forestgreen}Poison effect on %s has ran its course...{/color}" % (t.name)
                 battle.log(msg)
                 return True
@@ -318,12 +318,12 @@ init python:
             self.gfx_effect = gfx_effect
             self.activated_this_turn = False # Flag used to pass to gfx methods that this buff was triggered.
             self.group = group # No two buffs from the same group can be applied twice.
-            # We also add the icon to targets status overlay:
-            target.status_overlay.append(self.icon)
 
             self.defence_bonus = bonus
             self.defence_multiplier = multi
             self.effect = effect
+
+            target.beevents.append(self)
 
         def check_conditions(self):
             if battle.controller == self.target:
@@ -333,7 +333,7 @@ init python:
             if not self.counter:
                 t = self.target
 
-                t.status_overlay.remove(self.icon)
+                t.beevents.remove(self)
                 msg = "{color=skyblue}Defence Buff on %s has worn out!{/color}" % (t.name)
                 battle.log(msg)
                 return True

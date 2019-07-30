@@ -111,7 +111,7 @@ init -1 python: # Core classes:
             #self.row = 1 # row on the battlefield, used to calculate range of weapons.
             #self.allegiance = None # BE will default this to the team name.
             self.beeffects = []
-            self.status_overlay = [] # Status icons over the sprites.
+            self.beevents = [] # list of active events which affect the combatant (poison/buffs)
 
             # Position:
             self.beteampos = pos
@@ -943,9 +943,6 @@ init -1 python: # Core classes:
                 self.log("{color=green}%s{/color} is victorious!" % self.winner.name)
                 return True
 
-        def get_all_events(self):
-            return itertools.chain(self.start_turn_events, self.mid_turn_events, self.end_turn_events)
-
         def predict_battle_skills(self):
             # Auto-Prediction:
             skills = set()
@@ -1172,8 +1169,8 @@ init -1 python: # Core classes:
                 buff_group = getattr(self, "buff_group", None)
                 if buff_group is not None:
                     for target in in_range[:]:
-                        for ev in store.battle.get_all_events():
-                            if target == ev.target and getattr(ev, "group", "no_group") == buff_group:
+                        for ev in target.beevents:
+                            if getattr(ev, "group", "no_group") == buff_group:
                                 in_range.remove(target)
                                 break
 
@@ -1266,7 +1263,10 @@ init -1 python: # Core classes:
 
                 total_damage = 0
                 if num_dmg != 0:
-                    defense = self.get_defense(t)
+                    defense, buff = self.get_defense(t)
+                    if buff:
+                        effects.append("magic_shield")
+
                     defense /= num_dmg
 
                     # Rows Damage:
@@ -1304,8 +1304,8 @@ init -1 python: # Core classes:
                         pass
                     else:
                         group = self.buff_group
-                        for event in store.battle.mid_turn_events:
-                            if t == event.target and event.group == group:
+                        for event in t.beevents:
+                            if event.group == group:
                                 battle.log("%s is already affected by %s!" % (t.nickname, type))
                                 break
                         else:
@@ -1381,24 +1381,21 @@ init -1 python: # Core classes:
             defense *= m
 
             # Testing status mods through be skillz:
-            m = 0
-            d = 0
-            for event in battle.get_all_events():
-                if event.target == target and event.__class__ == DefenceBuff:
+            d = m = 0
+            for event in target.beevents:
+                if event.__class__ == DefenceBuff:
                     ed = event.defence_bonus.get(delivery, 0)
                     em = event.defence_multiplier.get(delivery, 0)
                     if ed or em:
                         e = event.effect
                         d += ed * e
                         m += em * e
-                        event.activated_this_turn = True
 
             if d or m:
-                target.beeffects.append("magic_shield")
                 defense += d
                 defense *= (1.0 + m)
-
-            return defense
+                return defense, True
+            return defense, False
 
         # To String methods:
         def log_to_battle(self, effects, total_damage, a, t, message=None):
@@ -2017,7 +2014,7 @@ init -1 python: # Core classes:
 
         def show_dodge_effect(self, attacker, targets):
             # This also handles shielding... which might not be appropriate and future safe...
-
+            global battle
             gfx = self.dodge_effect.get("gfx", "dodge")
             # gfx = self.dodge_effect["gfx"]
             # sfx = self.dodge_effect.get("sfx", None)
@@ -2043,13 +2040,11 @@ init -1 python: # Core classes:
                 # This should ensure that we do not show the shield for major damage effects, it will not look proper.
                 elif "magic_shield" in target.beeffects and self.target_sprite_damage_effect["gfx"] != "fly_away":
                     # Get GFX:
-                    what = None
-                    for event in battle.get_all_events():
-                        if event.target == target and event.__class__ == DefenceBuff and event.activated_this_turn:
+                    for event in target.beevents:
+                        if event.__class__ == DefenceBuff and (event.defence_bonus.get(self.delivery, 0) or event.defence_multiplier.get(self.delivery, 0)):
                             what = event
-                            event.activated_this_turn = False # reset the flag
-
-                    if what is None:
+                            break
+                    else:
                         be_debug("No Effect GFX detected for magic_shield dodge_effect!")
                         continue
 

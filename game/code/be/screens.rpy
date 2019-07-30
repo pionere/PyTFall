@@ -455,5 +455,5 @@ screen be_status_overlay():
 
         hbox:
             pos temp xanchor .5
-            for status_icon in fighter.status_overlay:
-                add PyTGFX.scale_content(status_icon, 30, 30) at status_overlay(sv1=.6, ev1=.8, t1=.9, sv2=.8, ev2=.6, t2=.9) yalign .5
+            for event in fighter.beevents:
+                add PyTGFX.scale_content(event.icon, 30, 30) at status_overlay(sv1=.6, ev1=.8, t1=.9, sv2=.8, ev2=.6, t2=.9) yalign .5
