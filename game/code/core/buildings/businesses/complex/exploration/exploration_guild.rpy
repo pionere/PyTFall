@@ -100,8 +100,9 @@ init -6 python: # Guild, Tracker and Log.
         def __init__(self, team, area, guild):
             """Creates a new ExplorationTracker.
 
-            team = The team that is exploring.
-            area = The area that is being explored.
+            :param team: The team that is exploring.
+            :param area: The area that is being explored.
+            :param guild: The guild to which this tracker belongs
             """
             super(ExplorationTracker, self).__init__()
 
@@ -110,7 +111,7 @@ init -6 python: # Guild, Tracker and Log.
             self.guild = guild # Guild this tracker was initiated from...
 
             # copy launch configuration from the area
-            self.building_camp = area.building_camp
+            self.building_camp = area.building_camp and len(area.camp_queue) != 0
             self.capture_chars = area.capture_chars
             self.risk = area.risk
             self.days = max(area.days, 3) # Days team is expected to be exploring (without travel times)!
