@@ -3872,7 +3872,7 @@
             "vitality": 200
         },
         "skills": {},
-        "traits": ["Monster", "Fire Immunity", "Ice Immunity", "Neutral", "Air Resistance", "Air Weakness"],
+        "traits": ["Monster", "Fire Immunity", "Ice Immunity", "Neutral", "Air Weakness"],
         "attack_skills": [
             "Axe Strike", "Axe Strike 2X"
         ],
