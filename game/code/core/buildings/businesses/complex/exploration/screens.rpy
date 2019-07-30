@@ -119,7 +119,6 @@ screen building_management_leftframe_exploration_guild_mode:
                         if u.capacity >= reserved:
                             can_use_horses = True
         # The idea is to add special icons for as many features as possible in the future to make Areas cool:
-        # Simple buttons are temp for dev versions/beta.
         style_prefix "basic"
         button:
             xalign .5
@@ -142,9 +141,7 @@ screen building_management_leftframe_exploration_guild_mode:
                 action ToggleField(area, "use_horses")
                 tooltip "Activate if you want the team to borrow horses from the Stable. Allows to travel twice as fast!"
             text "Use horses" xalign .5
-
         null height 5
-        $ distance = round_int(area.travel_time / 20.0)
         frame:
             background Frame(im.Alpha("content/gfx/frame/Namebox.png", alpha=.9), 10, 10)
             xalign .5
@@ -152,81 +149,99 @@ screen building_management_leftframe_exploration_guild_mode:
             margin 0, 0
             padding 3, 2
             style_group "proper_stats"
-            hbox:
-                xsize 300
-                if distance > 1:
-                    text "Travel time is about %d days" % distance xpos 5
-                elif distance == 1:
-                    text "Travel time is about a day" xpos 5
-                else:
-                    text "Travel time is less than one day" xpos 5
+            $ distance = round_int(area.travel_time / 20.0)
+            if distance > 1:
+                $ temp = "Travel time is about %d days" % distance
+            elif distance == 1:
+                $ temp = "Travel time is about a day"
+            else:
+                $ temp = "Travel time is less than one day"
+            text temp xalign .5 # xpos 5
+        null height 2
         frame:
             background Frame(im.Alpha("content/gfx/frame/Namebox.png", alpha=.9), 10, 10)
             xalign .5
-            xysize 300, 30
+            xysize 300, 40
             margin 0, 0
             padding 3, 2
             style_group "proper_stats"
             hbox:
-                xsize 300
-                text "Days Exploring:" xpos 5
-                text "[area.days]" xalign .9 yoffset -2
-        hbox:
-            xalign .5
-            spacing 10
-            $ img = PyTGFX.scale_img("content/gfx/interface/buttons/prev.png", 28, 28)
-            imagebutton:
-                yalign .5
-                idle img
-                hover PyTGFX.bright_img(img, .15)
-                action SetField(area, "days", max(3, area.days-1))
-            bar:
-                align .5, .5
-                value FieldValue(area, 'days', area.maxdays-3, max_is_zero=False, style='scrollbar', offset=3, step=1)
-                xmaximum 150
-                thumb 'content/gfx/interface/icons/move15.png'
-                tooltip "Adjust the number of days to spend on site."
-            $ img = PyTGFX.scale_img("content/gfx/interface/buttons/next.png", 28, 28)
-            imagebutton:
-                yalign .5
-                idle img
-                hover PyTGFX.bright_img(img, .15)
-                action SetField(area, "days", min(15, area.days+1))
-
-        null height 5
+                xysize 294, 36
+                text "Days Exploring:" pos (5, 5)
+                vbox:
+                    xsize 80
+                    xalign 1.0
+                    hbox:
+                        ysize 30
+                        xalign .5
+                        textbutton "-":
+                            style "basic_button"
+                            xysize 21, 21
+                            text_hover_color "red"
+                            action SetField(area, "days", max(3, area.days-1))
+                            selected False
+                        fixed:
+                            xysize 30, 21
+                            yoffset -4
+                            text "[area.days]" xalign .5 # # yoffset -1
+                        textbutton "+":
+                            style "basic_button"
+                            xysize 21, 21
+                            text_hover_color "red"
+                            text_yoffset -1
+                            action SetField(area, "days", min(15, area.days+1))
+                            selected False
+                    bar:
+                        ysize 10
+                        yoffset -11
+                        align .5, .1
+                        value FieldValue(area, 'days', area.maxdays-3, max_is_zero=False, style='scrollbar', offset=3, step=1)
+                        xmaximum 70
+                        thumb 'content/gfx/interface/icons/move15.png'
+                        tooltip "Adjust the number of days to spend on site."
+        null height 2
         frame:
             background Frame(im.Alpha("content/gfx/frame/Namebox.png", .9), 10, 10)
             xalign .5
-            xysize 300, 30
+            xysize 300, 40
             margin 0, 0
             padding 3, 2
             style_group "proper_stats"
             hbox:
-                xsize 300
-                text "Risk:" xpos 5
-                text "[area.risk]" xalign .9 yoffset -2
-        hbox:
-            xalign .5
-            spacing 10
-            $ img = PyTGFX.scale_img("content/gfx/interface/buttons/prev.png", 28, 28)
-            imagebutton:
-                yalign .5
-                idle img
-                hover PyTGFX.bright_img(img, .15)
-                action SetField(area, "risk", max(0, area.risk-1))
-            bar:
-                align .5, .5
-                value FieldValue(area, 'risk', 100, max_is_zero=False, style='scrollbar', offset=0, step=1)
-                xmaximum 150
-                thumb 'content/gfx/interface/icons/move15.png'
-                tooltip ("Adjust the risk your team takes while exploring. Higher risk gives higher reward, " +
-                         "but your team may not even return if you push this too far!")
-            $ img = PyTGFX.scale_img("content/gfx/interface/buttons/next.png", 28, 28)
-            imagebutton:
-                yalign .5
-                idle img
-                hover PyTGFX.bright_img(img, .15)
-                action SetField(area, "risk", min(100, area.risk+1))
+                xysize 294, 36
+                text "Risk:" pos (5, 5)
+                vbox:
+                    xsize 80
+                    xalign 1.0
+                    hbox:
+                        ysize 30
+                        xalign .5
+                        textbutton "-":
+                            style "basic_button"
+                            xysize 21, 21
+                            text_hover_color "red"
+                            action SetField(area, "risk", max(0, area.risk-1))
+                            selected False
+                        fixed:
+                            xysize 30, 21
+                            yoffset -4
+                            text "[area.risk]" xalign .5 # # yoffset -1
+                        textbutton "+":
+                            style "basic_button"
+                            xysize 21, 21
+                            text_hover_color "red"
+                            text_yoffset -1
+                            action SetField(area, "risk", min(100, area.risk+1))
+                            selected False
+                    bar:
+                        ysize 10
+                        yoffset -11
+                        align .5, .1
+                        value FieldValue(area, 'risk', 100, max_is_zero=False, style='scrollbar', offset=0, step=1)
+                        xmaximum 70
+                        thumb 'content/gfx/interface/icons/move15.png'
+                        tooltip ("Adjust the risk your team takes while exploring. Higher risk gives higher reward, " +
+                                 "but your team may not even return if you push this too far!")
 
         null height 5
         hbox:
