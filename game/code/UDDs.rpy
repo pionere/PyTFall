@@ -490,6 +490,13 @@ init -960 python:
             renpy.hide("blur_image")
             renpy.with_statement(dissolve)
 
+        @staticmethod
+        def txt_font_size(txt, width, max_size, min_size=10):
+            result = max_size
+            while result > min_size and Text(txt, size=result).size()[0] >= width:
+                result -= 1
+            return result
+
     class GFXOverlay(renpy.Displayable):
         """Quick and reliable way to show overlay of displayable.
 
