@@ -1811,8 +1811,7 @@ init -9 python:
             self.fin = Finances(self)
 
             # Team:
-            self.team = Team(implicit=[self])
-            self.team.name = "Player Team"
+            self.team = Team(name="Player Team", implicit=[self])
             self.teams = [self.team]
 
         def init(self):

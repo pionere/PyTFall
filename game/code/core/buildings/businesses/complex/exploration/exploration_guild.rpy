@@ -432,7 +432,7 @@ init -6 python: # Guild, Tracker and Log.
             self.teams = list() # List to hold all the teams formed in this guild.
             self.explorers = list() # List to hold all (active) exploring trackers.
 
-            self.teams.append(Team("Avengers", free=True)) # sample team
+            self.teams.append(Team(name="Avengers")) # sample team
 
             # gui
             self.team_to_launch_index = 0
@@ -479,7 +479,7 @@ init -6 python: # Guild, Tracker and Log.
 
         # Teams control/sorting/grouping methods:
         def new_team(self, name):
-            team = Team(name, free=True)
+            team = Team(name=name)
             self.add_team(team)
             return team
 

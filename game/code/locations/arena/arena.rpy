@@ -266,62 +266,34 @@ init -9 python:
                             teams_setup.append(candidates.pop())
 
         def update_matches(self):
-            # 1vs1:
-            teams = None
-            for setup in self.matches_1v1:
-                if not len(setup[1]):
-                    setup[2] = day + randint(3, 14)
-                    if teams is None:
-                        match_fighters = self.get_matches_fighters(matches="1v1")
-                        match_fighters.add(hero)
-                        teams = list(i for i in self.lineup_1v1 if setup[2] not in i.leader.fighting_days and i.leader not in match_fighters)
-                        shuffle(teams)
-                    if teams:
-                        c_team = teams.pop()
-                        c_team.leader.fighting_days.append(setup[2])
-                        setup[1] = c_team
-
-            teams = None
-            for setup in self.matches_2v2:
-                if not len(setup[1]):
-                    setup[2] = day + randint(3, 14)
-                    if teams is None:
-                        match_fighters = self.get_matches_fighters(matches="2v2")
-                        match_fighters.add(hero)
-                        teams = list()
-                        for team in self.lineup_2v2:
+            for matches, lineup in [(self.matches_1v1, self.lineup_1v1), (self.matches_2v2, self.lineup_2v2), (self.matches_3v3, self.lineup_3v3)]:
+                teams = None
+                tmap = dict()
+                for setup in matches:
+                    if setup[1]:
+                        continue
+                    fday = day + randint(3, 14)
+                    setup[2] = fday
+                    dt = tmap.get(fday, None)
+                    if dt is None:
+                        if teams is None:
+                            teams = [i for m in matches for i in (m[0], m[1])]
+                            teams = [i for i in lineup if i not in teams and i.leader != hero]
+                        dt = []
+                        for team in teams:
                             for fighter in team:
-                                if setup[2] in fighter.fighting_days or fighter in match_fighters:
+                                if fday in fighter.fighting_days:
                                     break
                             else:
-                                teams.append(team)
-                        shuffle(teams)
-                    if teams:
-                        c_team = teams.pop()
-                        for fighter in c_team.members:
-                            fighter.fighting_days.append(setup[2])
-                        setup[1] = c_team
+                                dt.append(team)
+                        shuffle(dt)
+                        tmap[fday] = dt
 
-            teams = None
-            for setup in self.matches_3v3:
-                if not len(setup[1]):
-                    setup[2] = day + randint(3, 14)
-                    if teams is None:
-                        match_fighters = self.get_matches_fighters(matches="3v3")
-                        match_fighters.add(hero)
-                        teams = list()
-                        for team in self.lineup_3v3:
-                            for fighter in team.members:
-                                if setup[2] in fighter.fighting_days or fighter in match_fighters:
-                                    break
-                            else:
-                                teams.append(team)
-                        shuffle(teams)
-                    if teams:
-                        c_team = teams.pop()
-                        for fighter in c_team.members:
-                            fighter.fighting_days.append(setup[2])
-                        setup[1] = c_team
+                    if dt:
+                        dt = dt.pop()
+                        for fighter in dt:
+                            fighter.fighting_days.append(fday)
+                        setup[1] = dt
 
         def update_setups(self, winner, loser):
             """
@@ -364,82 +336,56 @@ init -9 python:
             """
             # 1vs1:
             fighters = None
+            tmap = dict()
             for setup in self.matches_1v1:
                 if setup[0]:
                     continue
-                if setup[2] == day:
-                    deadline = 100
-                elif setup[2] > day + 2:
-                    deadline = 50
-                else:
-                    deadline = 15
-                if dice(deadline):
-                    if fighters is None:
-                        match_fighters = self.get_matches_fighters(matches="1v1")
-                        fighters = [i for i in self.get_arena_candidates() if setup[2] not in i.fighting_days and i not in match_fighters]
-                        shuffle(fighters)
+                fday = setup[2]
+                if dice(100/(fday - day + 1)):
+                    df = tmap.get(fday, None)
+                    if df is None:
+                        if fighters is None:
+                            fighters = self.get_matches_fighters(matches="1v1")
+                            fighters = [i for i in self.get_arena_candidates() if i not in fighters]
+                        df = [i for i in fighters if fday not in i.fighting_days]
+                        shuffle(df)
+                        tmap[fday] = df
 
-                    if fighters:
-                        f = fighters.pop()
-                        f.fighting_days.append(setup[2])
-                        f.arena_active = True
-                        setup[0].add(f)
+                    if df:
+                        df = df.pop()
+                        df.fighting_days.append(fday)
+                        df.arena_active = True
+                        setup[0].add(df)
 
-            # 2vs2
-            teams = None
-            for setup in self.matches_2v2:
-                if setup[0]:
-                    continue
-                if setup[2] == day:
-                    deadline = 100
-                elif setup[2] > day + 3:
-                    deadline = 50
-                else:
-                    deadline = 20
-                if dice(deadline):
-                    if teams is None:
-                        match_fighters = self.get_matches_fighters(matches="2v2")
-                        teams = []
-                        for team in self.teams_2v2:
-                            for fighter in team.members:
-                                if setup[2] in fighter.fighting_days or fighter in match_fighters:
-                                    break
-                            else:
-                                teams.append(team)
-                        shuffle(teams)
-                    if teams:
-                        c_team = teams.pop()
-                        for fighter in c_team:
-                            fighter.fighting_days.append(setup[2])
-                        setup[0] = c_team
+            # 2vs2, 3vs3
+            for matches, lineup in [(self.matches_2v2, self.teams_2v2), (self.matches_3v3, self.teams_3v3)]:
+                teams = None
+                tmap = dict()
+                for setup in matches:
+                    if setup[0]:
+                        continue
+                    fday = setup[2]
+                    if dice(100/(fday - day + 1)):
+                        dt = tmap.get(fday, None)
+                        if dt is None:
+                            if teams is None:
+                                teams = [i for m in matches for i in (m[0], m[1])]
+                                teams = [i for i in lineup if i not in teams]
+                            dt = []
+                            for team in teams:
+                                for fighter in team:
+                                    if fday in fighter.fighting_days:
+                                        break
+                                else:
+                                    dt.append(team)
+                            shuffle(dt)
+                            tmap[fday] = dt
 
-            # 3vs3
-            teams = None
-            for setup in self.matches_3v3:
-                if setup[0]:
-                    continue
-                if setup[2] == day:
-                    deadline = 100
-                elif setup[2] > day + 3:
-                    deadline = 50
-                else:
-                    deadline = 25
-                if dice(deadline):
-                    if teams is None:
-                        match_fighters = self.get_matches_fighters(matches="3v3")
-                        teams = []
-                        for team in self.teams_3v3:
-                            for fighter in team:
-                                if setup[2] in fighter.fighting_days or fighter in match_fighters:
-                                    break
-                            else:
-                                teams.append(team)
-                        shuffle(teams)
-                    if teams:
-                        c_team = teams.pop()
-                        for fighter in c_team:
-                            fighter.fighting_days.append(setup[2])
-                        setup[0] = c_team
+                        if dt:
+                            dt = dt.pop()
+                            for fighter in dt:
+                                fighter.fighting_days.append(fday)
+                            setup[0] = dt
 
         # -------------------------- GUI methods ---------------------------------->
         def dogfight_challenge(self, team):
@@ -486,16 +432,15 @@ init -9 python:
 
             fight_day = setup[2]
 
-            if fight_day in hero.fighting_days:
-                return "You already have a fight planned for day %d. Having two official matches on the same day is not allowed!"%fight_day
-
             if fight_day == day and self.hero_match_result:
                 return "You already had a fight today. Having two official matches on the same day is not allowed!"
 
-            result = renpy.call_screen("yesno_prompt",
+            if fight_day in hero.fighting_days:
+                return "You already have a fight planned for day %d. Having two official matches on the same day is not allowed!"%fight_day
+
+            if renpy.call_screen("yesno_prompt",
                 "Are you sure you want to schedule a fight? Backing out of it later will mean a hit on reputation!",
-                Return(["Yes"]), Return(["No"]))
-            if result == ["Yes"]:
+                Return(True), Return(False)):
                 setup[0] = hero.team
                 hero.fighting_days.append(fight_day)
 
@@ -504,7 +449,7 @@ init -9 python:
             Checks if player team is correctly setup before an official match.
             """
             # Figure out who we're fighting:
-            for setup in list(itertools.chain(self.matches_1v1, self.matches_2v2, self.matches_3v3)):
+            for setup in itertools.chain(self.matches_1v1, self.matches_2v2, self.matches_3v3):
                 if setup[2] == day and setup[0].leader == hero:
                     battle_setup = setup
                     team = setup[1]
@@ -1075,9 +1020,7 @@ init -9 python:
             """
             Create a shallow copy of the team to preserve the important team informations for today's report
             """ 
-            tmp = Team(name=team.name, implicit=team.implicit, free = team.free, max_size = team.max_size)
-            tmp.set_leader(team.leader)
-            return tmp
+            return Team(name=team.name, implicit=team.members, max_size=team.max_size)
 
         def execute_matchfight(self, setup):
             """
@@ -1169,23 +1112,18 @@ init -9 python:
             # record the event
             self.hero_match_result = [self.shallow_copy_team(winner), self.shallow_copy_team(loser)]
 
-            fday = setup[2]
-            for d in hero.fighting_days[:]:
-                if d == fday:
-                    hero.fighting_days.remove(d)
-
         @staticmethod
         def append_match_result(txt, f2f, match_result):
+            winner, loser = match_result
             if f2f:
-                temp = "{} has defeated {} in a one on one fight. ".format(
-                          match_result[0][0].name, match_result[1][0].name)
+                temp = "%s has defeated %s in a one on one fight. " % (winner.leader.name, loser.leader.name)
             else:
-                temp = "%s team has defeated %s in an official match. " % (match_result[0].name, match_result[1].name)
+                temp = "%s team has defeated %s in an official match. " % (winner.name, loser.name)
             temp += choice(["It was quite a show!",
                             "Amazing performance!",
                             "Crowd never stopped cheering!",
-                  ("The crowd chanted %s name for minutes!" % match_result[0][0].name) if f2f else
-                  ("Team's leader %s got most of the credit!" % match_result[0].leader.name)])
+                  ("The crowd chanted %s name for minutes!" if f2f else
+                  "Team's leader %s got most of the credit!") % winner.leader.name])
             txt.append(temp)
 
         @staticmethod
@@ -1209,53 +1147,41 @@ init -9 python:
             txt = []
 
             # Normalizing amount of teams available for the Arena.
-            if not day % 5:
+            fday = store.day
+            if not fday % 5:
                 self.update_teams()
 
             self.find_opfor()
 
             # Add the hero's matchresult from today
             if self.hero_match_result:
-                self.append_match_result(txt, len(self.hero_match_result[0]) == 1, self.hero_match_result)
+                match_result = self.hero_match_result
+                self.append_match_result(txt, len(match_result[0]) == 1, match_result)
+
+                # update fighting_days
+                for f in chain(match_result[0], match_result[1]):
+                    f.fighting_days.remove(fday)
 
             tl.start("Arena: Matches")
             # Running the matches:
             # Join string method is used here to improve performance over += or + (Note: Same should prolly be done for jobs.)
-            for setup in self.matches_1v1:
-                if setup[2] == day:
-                    off_team, def_team = setup[0], setup[1]
-                    if off_team.leader != hero:
+            for size, matches in enumerate([self.matches_1v1, self.matches_2v2, self.matches_3v3], 1):
+                for setup in matches:
+                    if setup[2] == fday:
+                        off_team, def_team = setup[0], setup[1]
                         if off_team and def_team:
-                            match_result = self.auto_resolve_combat(off_team, def_team, "match")
-                            self.append_match_result(txt, True, match_result)
-                    else:
-                        self.missed_match_result(txt, def_team)
-                    setup[0] = Team(max_size=1)
-                    setup[1] = Team(max_size=1)
+                            if off_team.leader != hero:
+                                match_result = self.auto_resolve_combat(off_team, def_team, "match")
+                                self.append_match_result(txt, size == 1, match_result)
+                            else:
+                                self.missed_match_result(txt, def_team)
 
-            for setup in self.matches_2v2:
-                if setup[2] == day:
-                    off_team, def_team = setup[0], setup[1]
-                    if off_team.leader != hero:
-                        if off_team and def_team:
-                            match_result = self.auto_resolve_combat(off_team, def_team, "match")
-                            self.append_match_result(txt, False, match_result)
-                    else:
-                        self.missed_match_result(txt, def_team)
-                    setup[0] = Team(max_size=2)
-                    setup[1] = Team(max_size=2)
+                        # update fighting_days
+                        for f in chain(off_team, def_team):
+                            f.fighting_days.remove(fday)
 
-            for setup in self.matches_3v3:
-                if setup[2] == day:
-                    off_team, def_team = setup[0], setup[1]
-                    if off_team.leader != hero:
-                        if off_team and def_team:
-                            match_result = self.auto_resolve_combat(off_team, def_team, "match")
-                            self.append_match_result(txt, False, match_result)
-                    else:
-                        self.missed_match_result(txt, def_team)
-                    setup[0] = Team(max_size=3)
-                    setup[1] = Team(max_size=3)
+                        setup[0] = Team(max_size=size)
+                        setup[1] = Team(max_size=size)
 
             self.update_matches()
             tl.end("Arena: Matches")
@@ -1318,8 +1244,9 @@ init -9 python:
             txt.append("%d unofficial dogfights took place yesterday!" % self.df_count)
 
             # Warning the player of a scheduled arena match:
+            fday += 1
             for setup in chain(self.matches_1v1, self.matches_2v2, self.matches_3v3):
-                if setup[2] != day+1:
+                if setup[2] != fday:
                     continue
                 off_team, def_team = setup[0], setup[1]
                 if off_team and def_team:
@@ -1331,7 +1258,7 @@ init -9 python:
                     elif num == 3:
                         lineup = self.lineup_2v2
                     else:
-                        raise Exception()
+                        raise Exception("Invalid team size '%s' (expected value: 1-3)" % num)
 
                     for idx, team in enumerate(lineup):
                         if team == off_team or team == def_team:

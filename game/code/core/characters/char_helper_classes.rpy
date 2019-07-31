@@ -194,21 +194,16 @@ init -10 python:
             self.calc_upkeep()
 
     class Team(_object):
-        def __init__(self, name="", implicit=None, free=False, max_size=3):
-            if not implicit:
-                implicit = list()
+        def __init__(self, name="", implicit=None, max_size=3):
             self.name = name
-            self.implicit = implicit
             self.max_size = max_size
             self._members = list()
-            self._leader = None
-            self.free = free # Free teams do not have any implicit members.
 
-            # BE Assests:
+            # BE Assets:
             self.position = None # BE will set it to "r" or "l" short for left/right on the screen.
 
-            if self.implicit:
-                for member in self.implicit:
+            if implicit:
+                for member in implicit:
                     self.add(member)
 
         def __len__(self):
@@ -230,57 +225,43 @@ init -10 python:
         @property
         def leader(self):
             try:
-                return self.members[0]
+                return self._members[0]
             except:
-                return self._leader
+                return None
 
         def add(self, member):
-            if member in self:
-                renpy.notify("Impossible to join the same team twice")
-
-            if len(self._members) >= self.max_size:
+            mems = self._members
+            if len(mems) >= self.max_size:
                 renpy.notify("Team %s cannot have more than %s members!" % (self.name, self.max_size))
+            elif member in mems:
+                renpy.notify("Impossible to join the same team twice")
             else:
-                if not self.free and not self.leader:
-                    self._leader = member
-                    if member not in self.implicit:
-                        self.implicit.append(member)
-                self._members.append(member)
+                mems.append(member)
                 return True
 
         def remove(self, member):
-            if member in self.implicit:
-                renpy.notify("%s is an implicit member of this team!" % member.name)
-            elif member not in self._members:
-                renpy.notify("%s is not a member of this team!" % member.name)
-            else:
-                self._members.remove(member)
+            self._members.remove(member)
 
-        def set_leader(self, member):
-            if member not in self._members:
-                renpy.notify("%s is not a member of this team!" % member.name)
-                return
-            if self.leader:
-                self.implicit.remove(self.leader)
-            self._leader = member
-            self.implicit.insert(0, member)
+        #def set_leader(self, member):
+        #    mems = self._members
+        #    if member not in mems:
+        #        renpy.notify("%s is not a member of this team!" % member.name)
+        #        return
+        #    mems.remove(member)
+        #    mems.insert(0, member)
 
         def get_level(self):
             """
             Returns an average level of the team as an integer.
             """
-            av_level = 0
-            for member in self._members:
-                av_level += member.level
+            av_level = sum((member.level for member in self._members))
             return int(math.ceil(av_level/len(self._members)))
 
         def get_rep(self):
             """
             Returns average of arena reputation of a team as an interger.
             """
-            arena_rep = 0
-            for member in self._members:
-                arena_rep += member.arena_rep
+            arena_rep = sum((member.arena_rep for member in self._members))
             return int(math.ceil(arena_rep/len(self._members)))
 
         def take_ap(self, value):
@@ -308,7 +289,7 @@ init -10 python:
         # BE Related:
         def reset_controller(self):
             # Resets combat controller
-            for m in self.members:
+            for m in self._members:
                 m.controller = None
 
 

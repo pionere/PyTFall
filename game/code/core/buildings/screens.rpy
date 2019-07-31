@@ -45,15 +45,15 @@ label building_management:
                             team.name = n
                     elif action == "clear":
                         for i in team:
-                            workers.add(i)
+                            guild.workers.add(i)
                         del team.members[:]
                     elif action == "remove":
                         char = result[3]
-                        workers.add(char)
+                        guild.workers.add(char)
                         team.remove(char)
                     elif action == "dissolve":
                         for i in team:
-                            workers.add(i)
+                            guild.workers.add(i)
                         guild.remove_team(team)
                         guild.guild_teams.pager_content.remove(team)
                     elif action == "transfer":
