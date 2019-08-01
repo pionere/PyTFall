@@ -182,7 +182,7 @@ label time_temple:
 
 screen time_temple():
     use top_stripe(True, show_lead_away_buttons=False)
-    use team_status(False)
+    use team_status(interactive=False)
 
 #label clone_character(character, add_to_hero=True):
 #    python:

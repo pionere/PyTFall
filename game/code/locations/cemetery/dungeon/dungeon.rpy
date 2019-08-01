@@ -296,7 +296,7 @@ screen dungeon_move(hotspots):
             add sw
 
     use top_stripe(False, show_lead_away_buttons=False)
-    use team_status(True)
+    use team_status(interactive=True)
 
     if dungeon.show_map:
         imagebutton:

@@ -80,7 +80,8 @@ label storyi_exit:
     jump expression last_label
 
 screen prison_break_controls(): # control buttons screen
-    use top_stripe(False, show_lead_away_buttons=False, show_team_status=True)
+    use top_stripe(False, show_lead_away_buttons=False)
+    use team_status(interactive=True)
     frame:
         xalign 0.95
         ypos 50

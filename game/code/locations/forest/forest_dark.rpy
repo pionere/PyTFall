@@ -53,7 +53,7 @@ label forest_dark_continue:
 
 screen city_dark_forest():
     use top_stripe(False, show_lead_away_buttons=False)
-    use team_status(True)
+    use team_status(interactive=True)
 
     frame:
         xalign .95
