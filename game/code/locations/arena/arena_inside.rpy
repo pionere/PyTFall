@@ -338,7 +338,7 @@ init: # Main Screens:
                         action Show("arena_rep_ladder")
                         tooltip "View top fighters by highest reputation"
 
-        use top_stripe(True)
+        use top_stripe(True, show_lead_away_buttons=False)
 
     screen arena_matches(container=None, vs_img=None):
         # Screens used to display and issue challenges in the official matches inside of Arena:
