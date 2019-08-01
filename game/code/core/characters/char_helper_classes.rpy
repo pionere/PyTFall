@@ -255,14 +255,14 @@ init -10 python:
             Returns an average level of the team as an integer.
             """
             av_level = sum((member.level for member in self._members))
-            return int(math.ceil(av_level/len(self._members)))
+            return av_level/len(self._members)
 
         def get_rep(self):
             """
             Returns average of arena reputation of a team as an interger.
             """
             arena_rep = sum((member.arena_rep for member in self._members))
-            return int(math.ceil(arena_rep/len(self._members)))
+            return arena_rep/len(self._members)
 
         def take_ap(self, value):
             """

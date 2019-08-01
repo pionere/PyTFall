@@ -661,19 +661,33 @@ label after_load:
                 elif s.delivery == "magic":
                     store.tiered_magic_skills[s.tier or 0].append(s)
 
-        if not hasattr(pytfall.arena, "df_count"):
-            pytfall.arena.df_count = 0
-            pytfall.arena.hero_match_result = None 
-        if hasattr(pytfall.arena, "setup"):
-            del pytfall.arena.setup
-        if hasattr(pytfall.arena, "seen_report"):
-            del pytfall.arena.seen_report
-        if hasattr(pytfall.arena, "chain_fights"):
-            del pytfall.arena.chain_fights
-            del pytfall.arena.chain_fights_order
-            del pytfall.arena.chain_fights_order_portraits
-        if hasattr(pytfall.arena, "arena_fighters"):
-            del pytfall.arena.arena_fighters
+        arena = pytfall.arena
+        if not hasattr(arena, "df_count"):
+            arena.df_count = 0
+            arena.hero_match_result = None 
+        if hasattr(arena, "setup"):
+            del arena.setup
+        if hasattr(arena, "seen_report"):
+            del arena.seen_report
+        if hasattr(arena, "chain_fights"):
+            del arena.chain_fights
+            del arena.chain_fights_order
+            del arena.chain_fights_order_portraits
+        if hasattr(arena, "arena_fighters"):
+            del arena.arena_fighters
+        if hasattr(arena, "lineup_1v1"):
+            arena.ladder_1v1 = arena.lineup_1v1
+            arena.ladder_2v2 = arena.lineup_2v2
+            arena.ladder_3v3 = arena.lineup_3v3
+
+            arena.ladder_1v1_members = [t.members[:] for t in arena.ladder_1v1]
+            arena.ladder_2v2_members = [t.members[:] for t in arena.ladder_2v2]
+            arena.ladder_3v3_members = [t.members[:] for t in arena.ladder_3v3]
+
+            del arena.lineup_1v1
+            del arena.lineup_2v2
+            del arena.lineup_3v3
+            del arena.dogfight_day
 
         if hasattr(hero, "STATS"):
             for c in itertools.chain(chars.values(), [hero], hero.chars, npcs.values()):

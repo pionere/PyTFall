@@ -11,7 +11,7 @@ label arena_inside:
         arena_img_predict = ["chainfights", "bg battle_dogfights_1", "bg battle_arena_1"]
         arena_scr_predict = ["chain_fight", "arena_minigame", "confirm_chainfight",
                              "arena_finished_chainfight", "arena_rep_ladder",
-                             "arena_matches", "arena_lineups", "arena_dogfights",
+                             "arena_matches", "arena_ladders", "arena_dogfights",
                              "arena_bestiary", "arena_aftermatch", "arena_report"]
         renpy.start_predict(*arena_img_predict)
     python hide:
@@ -175,13 +175,13 @@ init: # Main Screens:
                     align .5, .5
                     spacing 5
                     textbutton "{size=20}{color=black}1v1":
-                        action Show("arena_lineups", transition=dissolve, container=pytfall.arena.lineup_1v1)
+                        action Show("arena_ladders", type="1v1", transition=dissolve)
                         tooltip "Best 1v1 fighters"
                     textbutton "{size=20}{color=black}2v2":
-                        action Show("arena_lineups", transition=dissolve, container=pytfall.arena.lineup_2v2)
+                        action Show("arena_ladders", type="2v2", transition=dissolve)
                         tooltip "Best 2v2 teams"
                     textbutton "{size=20}{color=black}3v3":
-                        action Show("arena_lineups", transition=dissolve, container=pytfall.arena.lineup_3v3)
+                        action Show("arena_ladders", type="3v3", transition=dissolve)
                         tooltip "Best 3v3 teams"
 
             # Official matches:
@@ -200,13 +200,13 @@ init: # Main Screens:
                     spacing 5
                     style_group "basic"
                     textbutton "{size=20}{color=black}1v1":
-                        action Show("arena_matches", container=pytfall.arena.matches_1v1, transition=dissolve, vs_img=PyTGFX.scale_img("content/gfx/interface/images/vs_2.webp", 100, 100))
+                        action Show("arena_matches", type="1v1", transition=dissolve)
                         tooltip "Ranked 1v1 fights"
                     textbutton "{size=20}{color=black}2v2":
-                        action Show("arena_matches", container=pytfall.arena.matches_2v2, transition=dissolve, vs_img=PyTGFX.scale_img("content/gfx/interface/images/vs_3.webp", 100, 100))
+                        action Show("arena_matches", type="2v2", transition=dissolve)
                         tooltip "Ranked team 2v2 fights"
                     textbutton "{size=20}{color=black}3v3":
-                        action Show("arena_matches", container=pytfall.arena.matches_3v3, transition=dissolve, vs_img=PyTGFX.scale_img("content/gfx/interface/images/vs_4.webp", 100, 100))
+                        action Show("arena_matches", type="3v3", transition=dissolve)
                         tooltip "Ranked team fights 3v3 fights"
 
 
@@ -226,13 +226,13 @@ init: # Main Screens:
                     align .5, .5
                     spacing 5
                     textbutton "{size=20}{color=black}1v1":
-                        action Show("arena_dogfights", transition=dissolve, container=pytfall.arena.dogfights_1v1)
+                        action Show("arena_dogfights", type="1v1", transition=dissolve)
                         tooltip "Unranked 1v1 fights"
                     textbutton "{size=20}{color=black}2v2":
-                        action Show("arena_dogfights", transition=dissolve, container=pytfall.arena.dogfights_2v2)
+                        action Show("arena_dogfights", type="2v2", transition=dissolve)
                         tooltip "Unranked team 2v2 fights"
                     textbutton "{size=20}{color=black}3v3":
-                        action Show("arena_dogfights", transition=dissolve, container=pytfall.arena.dogfights_3v3)
+                        action Show("arena_dogfights", type="3v3", transition=dissolve)
                         tooltip "Unranked team 3v3 fights"
 
         # RIGHT FRAME::
@@ -340,8 +340,10 @@ init: # Main Screens:
 
         use top_stripe(True, show_lead_away_buttons=False)
 
-    screen arena_matches(container=None, vs_img=None):
-        # Screens used to display and issue challenges in the official matches inside of Arena:
+    # Screens used to display and issue challenges in the official matches inside of Arena:
+    screen arena_matches(type):
+        default container = getattr(pytfall.arena, "matches_%s"%type) # .matches_1v1, .matches_2v2 or .matches_3v3
+        default vs_img = PyTGFX.scale_img("content/gfx/interface/images/vs_%d.webp" % (int(type[0]) + 1), 100, 100) # vs_2.webp, vs_3.webp or vs_4.webp
         modal True
         zorder 1
 
@@ -464,7 +466,9 @@ init: # Main Screens:
                 text  "Close"
                 keysym "mousedown_3"
 
-    screen arena_lineups(container): # Ladders
+    screen arena_ladders(type):
+        default ladder = getattr(pytfall.arena, "ladder_%s"%type) # .ladder_1v1, .ladder_2v2 or .ladder_3v3
+        default ladder_members = getattr(pytfall.arena, "ladder_%s_members"%type) # .ladder_1v1_members, .ladder_2v2_members or .ladder_3v3_members
         modal True
         zorder 1
 
@@ -479,13 +483,12 @@ init: # Main Screens:
                 pos (5, 5)
                 maximum (710, 515)
                 viewport:
-                    id "arena_lineups"
+                    id "arena_ladders"
                     draggable True
                     mousewheel True
                     child_size (700, 10000)
                     has vbox spacing 5
-                    for index, team in enumerate(container):
-                        $ index += 1
+                    for index, (team, members) in enumerate(zip(ladder, ladder_members), 1):
                         frame:
                             xalign .5
                             xysize (695, 60)
@@ -500,18 +503,19 @@ init: # Main Screens:
                                     text_size 30
                                     align .5, .5
                             if team:
+                                $ name = members[0].nickname if len(team) == 1 else team.name
+                                $ level = sum((member.level for member in members)) / len(members)
                                 frame:
                                     align (.5, .6)
                                     xysize (100, 45)
                                     background Frame("content/gfx/frame/rank_frame.png", 5, 5)
-                                    text ("Lvl %s" % team.get_level()) align .5, .5 size 25 style "proper_stats_text" color "gold"
-                                $ name = team[0].nickname if len(team) == 1 else team.name
+                                    text ("Lvl %d" % level) align .5, .5 size 25 style "proper_stats_text" color "gold"
                                 hbox:
                                     yoffset 1
                                     yalign .5
                                     spacing 1
                                     ysize 55
-                                    for fighter in team:
+                                    for fighter in members:
                                         frame:
                                             yalign .5
                                             background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
@@ -522,15 +526,16 @@ init: # Main Screens:
                                     align (.5, .6)
                                     xfill True
                                     background Frame("content/gfx/frame/rank_frame.png", 5, 5)
-                                    label "[name]" align .5, .5 text_size 25 text_style "proper_stats_text" text_color "gold":
+                                    label name align .5, .5 text_size 25 text_style "proper_stats_text" text_color "gold":
                                         if len(name) > 15:
                                             text_size 15
+                                            text_layout "nobreak"
 
-                vbar value YScrollValue("arena_lineups")
+                vbar value YScrollValue("arena_ladders")
 
             button:
                 style_group "basic"
-                action Hide("arena_lineups"), With(dissolve)
+                action Hide("arena_ladders"), With(dissolve)
                 minimum(50, 30)
                 align (.5, .9995)
                 text  "Close"
@@ -554,8 +559,7 @@ init: # Main Screens:
                     mousewheel True
                     child_size (700, 1000)
                     has vbox spacing 5
-                    for index, fighter in enumerate(pytfall.arena.ladder):
-                        $ index += 1
+                    for index, fighter in enumerate(pytfall.arena.ladder, 1):
                         frame:
                             style_group "content"
                             xalign .5
@@ -599,7 +603,8 @@ init: # Main Screens:
                 text  "Close"
                 keysym "mousedown_3"
 
-    screen arena_dogfights(container):
+    screen arena_dogfights(type):
+        default container = getattr(pytfall.arena, "dogfights_%s"%type) # .dogfights_1v1, .dogfights_2v2 or .dogfights_3v3
         modal True
         zorder 1
 

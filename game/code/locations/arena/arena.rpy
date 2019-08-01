@@ -8,19 +8,22 @@ init -9 python:
         """
         def __init__(self):
             super(Arena, self).__init__()
-            # self.1v1 = list() # Tracking the 1v1 fights.
-            # self.teams = list() # Tracking the team fights.
-
-            # Team Lineups and Scheduled matches:
+            # Scheduled matches:
             #                      Off Team           Def Team      Day
             self.matches_1v1 = [[Team(max_size=1), Team(max_size=1), 1] for i in xrange(8)]
             #                      Off Team           Def Team      Day
             self.matches_2v2 = [[Team(max_size=2), Team(max_size=2), 1] for i in xrange(5)]
             #                      Off Team           Def Team      Day
             self.matches_3v3 = [[Team(max_size=3), Team(max_size=3), 1] for i in xrange(5)]
-            self.lineup_1v1 = [Team(max_size=1) for i in xrange(20)]
-            self.lineup_2v2 = [Team(max_size=2) for i in xrange(10)]
-            self.lineup_3v3 = [Team(max_size=3) for i in xrange(10)]
+            # Ladders and their team members.
+            #  The separate list is necessary because a team can be changed.
+            #  At the moment only the hero-teams can change, so the initial team members are not copied. 
+            self.ladder_1v1 = [Team(max_size=1) for i in xrange(20)]
+            self.ladder_2v2 = [Team(max_size=2) for i in xrange(10)]
+            self.ladder_3v3 = [Team(max_size=3) for i in xrange(10)]
+            self.ladder_1v1_members = [t.members for t in self.ladder_1v1]
+            self.ladder_2v2_members = [t.members for t in self.ladder_2v2]
+            self.ladder_3v3_members = [t.members for t in self.ladder_3v3]
             self.ladder = [None] * 100
 
             # ----------------------------->
@@ -33,8 +36,8 @@ init -9 python:
             self.dogfights_1v1 = list()
             self.dogfights_2v2 = list()
             self.dogfights_3v3 = list()
-            self.dogfight_day = 1
 
+            # ND-Report
             self.df_count = 0
             self.hero_match_result = None
             self.daily_report = []
@@ -50,15 +53,15 @@ init -9 python:
             Returns all fighters that are set to participate at official maches.
             '''
             if matches == "1v1":
-                fighters = set([f for lineup in self.matches_1v1 for f in itertools.chain(lineup[0].members, lineup[1].members)])
+                fighters = set([f for ladder in self.matches_1v1 for f in itertools.chain(ladder[0], ladder[1])])
             elif matches == "2v2":
-                fighters = set([f for lineup in self.matches_2v2 for f in itertools.chain(lineup[0].members, lineup[1].members)])
+                fighters = set([f for ladder in self.matches_2v2 for f in itertools.chain(ladder[0], ladder[1])])
             elif matches == "3v3":
-                fighters = set([f for lineup in self.matches_3v3 for f in itertools.chain(lineup[0].members, lineup[1].members)])
+                fighters = set([f for ladder in self.matches_3v3 for f in itertools.chain(ladder[0], ladder[1])])
             else:
-                fighters = set([f for lineup in self.matches_1v1 for f in itertools.chain(lineup[0].members, lineup[1].members)])
-                fighters.update([f for lineup in self.matches_2v2 for f in itertools.chain(lineup[0].members, lineup[1].members)])
-                fighters.update([f for lineup in self.matches_3v3 for f in itertools.chain(lineup[0].members, lineup[1].members)])
+                fighters = set([f for ladder in self.matches_1v1 for f in itertools.chain(ladder[0], ladder[1])])
+                fighters.update([f for ladder in self.matches_2v2 for f in itertools.chain(ladder[0], ladder[1])])
+                fighters.update([f for ladder in self.matches_3v3 for f in itertools.chain(ladder[0], ladder[1])])
 
             return fighters
 
@@ -67,28 +70,28 @@ init -9 python:
             Returns fighters that are in the Arena teams.
             """
             if teams == "2v2":
-                fighters = set([f for team in self.teams_2v2 for f in team.members])
+                fighters = set([f for team in self.teams_2v2 for f in team])
             elif teams == "3v3":
-                fighters = set([f for team in self.teams_3v3 for f in team.members])
+                fighters = set([f for team in self.teams_3v3 for f in team])
             else:
-                fighters = set([f for team in self.teams_2v2 for f in team.members])
-                fighters.update([f for team in self.teams_3v3 for f in team.members])
+                fighters = set([f for team in self.teams_2v2 for f in team])
+                fighters.update([f for team in self.teams_3v3 for f in team])
             return fighters
 
-        def get_lineups_fighters(self, lineup="all"):
+        def get_ladders_fighters(self, ladder="all"):
             """
             Returns fighters currently in Arena lineups (heavyweights basically)
             """
-            if lineup == "1v1":
-                fighters = set([f for team in self.lineup_1v1 for f in team.members])
-            elif lineup == "2v2":
-                fighters = set([f for team in self.lineup_2v2 for f in team.members])
-            elif lineup == "3v3":
-                fighters = set([f for team in self.lineup_3v3 for f in team.members])
+            if ladder == "1v1":
+                fighters = set([f for team in self.ladder_1v1 for f in team])
+            elif ladder == "2v2":
+                fighters = set([f for team in self.ladder_2v2 for f in team])
+            elif ladder == "3v3":
+                fighters = set([f for team in self.ladder_3v3 for f in team])
             else:
-                fighters = set([f for team in self.lineup_1v1 for f in team.members])
-                fighters.update([f for team in self.lineup_2v2 for f in team.members])
-                fighters.update([f for team in self.lineup_3v3 for f in team.members])
+                fighters = set([f for team in self.ladder_1v1 for f in team])
+                fighters.update([f for team in self.ladder_2v2 for f in team])
+                fighters.update([f for team in self.ladder_3v3 for f in team])
 
             return fighters
 
@@ -97,15 +100,15 @@ init -9 python:
             All fighters that are currently in dogfights!
             """
             if dogfights == "1v1":
-                fighters = set([f for team in self.dogfights_1v1 for f in team.members])
+                fighters = set([f for team in self.dogfights_1v1 for f in team])
             elif dogfights == "2v2":
-                fighters = set([f for team in self.dogfights_2v2 for f in team.members])
+                fighters = set([f for team in self.dogfights_2v2 for f in team])
             elif dogfights == "3v3":
-                fighters = set([f for team in self.dogfights_3v3 for f in team.members])
+                fighters = set([f for team in self.dogfights_3v3 for f in team])
             else:
-                fighters = set([f for team in self.dogfights_1v1 for f in team.members])
-                fighters.update([f for team in self.dogfights_2v2 for f in team.members])
-                fighters.update([f for team in self.dogfights_3v3 for f in team.members])
+                fighters = set([f for team in self.dogfights_1v1 for f in team])
+                fighters.update([f for team in self.dogfights_2v2 for f in team])
+                fighters.update([f for team in self.dogfights_3v3 for f in team])
 
             return fighters
 
@@ -139,13 +142,11 @@ init -9 python:
             """
             if unit in dogfighters:
                 return False
-            
-            if isinstance(unit, Team):
-                fighters = unit.members
-            else:
-                fighters = [unit]
-                
-            for member in fighters:
+
+            if not isinstance(unit, Team):
+                unit = [unit]
+
+            for member in unit:
                 if member.get_stat("health") < member.get_max("health")*9/10:
                     return False
                 if day+1 in member.fighting_days:
@@ -266,7 +267,7 @@ init -9 python:
                             teams_setup.append(candidates.pop())
 
         def update_matches(self):
-            for matches, lineup in [(self.matches_1v1, self.lineup_1v1), (self.matches_2v2, self.lineup_2v2), (self.matches_3v3, self.lineup_3v3)]:
+            for matches, ladder in [(self.matches_1v1, self.ladder_1v1), (self.matches_2v2, self.ladder_2v2), (self.matches_3v3, self.ladder_3v3)]:
                 teams = None
                 tmap = dict()
                 for setup in matches:
@@ -278,7 +279,7 @@ init -9 python:
                     if dt is None:
                         if teams is None:
                             teams = [i for m in matches for i in (m[0], m[1])]
-                            teams = [i for i in lineup if i not in teams and i.leader != hero]
+                            teams = [i for i in ladder if i not in teams and i.leader != hero]
                         dt = []
                         for team in teams:
                             for fighter in team:
@@ -301,34 +302,41 @@ init -9 python:
             """
             team_size = len(winner)
             if team_size == 1:
-                lineup = self.lineup_1v1
+                ladder = self.ladder_1v1
+                members = self.ladder_1v1_members
             elif team_size == 2:
-                lineup = self.lineup_2v2
+                ladder = self.ladder_2v2
+                members = self.ladder_2v2_members
             elif team_size == 3:
-                lineup = self.lineup_3v3
+                ladder = self.ladder_3v3
+                members = self.ladder_3v3_members
             else:
                 raise Exception("Invalid team size for Automatic Arena Combat Resolver: %d" % team_size)
 
-            if winner in lineup:
-                index = lineup.index(winner)
+            if winner in ladder:
+                index = ladder.index(winner)
                 if index != 0:
-                    lineup[index], lineup[index-1] = lineup[index-1], winner
+                    ladder[index], ladder[index-1] = ladder[index-1], winner
+                    members[index], members[index-1] = members[index-1], winner.members[:]
             else:
-                # check if the hero has an another team in the lineup
+                # check if the hero has an another team in the ladder
                 if winner == hero.team:
-                    for idx, t in enumerate(lineup):
+                    for idx, t in enumerate(ladder):
                         if t.leader == hero:
-                            # another team in the lineup -> replace it with the current one
-                            lineup[idx] = winner
+                            # another team in the ladder -> replace it with the current one
+                            ladder[idx] = winner
+                            members[idx] = winner.members[:]
                             winner_added = True
                             break
                 if not "winner_added" in locals():
-                    lineup[-1] = winner
+                    ladder[-1] = winner
+                    members[-1] = winner.members[:]
 
-            if loser in lineup:
-                index = lineup.index(loser)
-                if index != len(lineup)-1:
-                    lineup[index], lineup[index+1] = lineup[index+1], loser
+            if loser in ladder:
+                index = ladder.index(loser)
+                if index != len(ladder)-1:
+                    ladder[index], ladder[index+1] = ladder[index+1], loser
+                    members[index], members[index+1] = members[index+1], loser.members[:]
 
         def find_opfor(self):
             """
@@ -479,7 +487,7 @@ init -9 python:
             self.ladder = candidates[:len(self.ladder)]
 
         def update_actives(self):
-            actives = set(self.ladder) | self.get_teams_fighters() | self.get_lineups_fighters() | self.get_dogfights_fighters() | self.get_matches_fighters()
+            actives = set(self.ladder) | self.get_teams_fighters() | self.get_ladders_fighters() | self.get_dogfights_fighters() | self.get_matches_fighters()
 
             for c in chars.values():
                 if c.arena_active and c not in actives:
@@ -556,33 +564,33 @@ init -9 python:
                     continue
 
                 if lineups:
+                    lineups -= 1
                     if teamsize == 1:
-                        if lineups == 1:
+                        if lineups == 0:
                             raise Exception("Number one spot for 1v1 ladder (lineup) is reserved by the game!")
-                        if not self.lineup_1v1[lineups-1]:
-                            self.lineup_1v1[lineups-1] = a_team
-                        else:
-                            raise Exception("Team %s failed to take place %d in 1v1" \
-                                            "lineups is already taken by another team (%s), check your arena_teams.json" \
-                                            "file." % (a_team.name, team["lineups"], self.lineup_1v1[team["lineups"]-1].name))
+                        ladder = self.ladder_1v1
+                        if not ladder[lineups]:
+                            ladder[lineups] = a_team
+                            self.ladder_1v1_members[lineups] = a_team.members
+                            continue
                     elif teamsize == 2:
-                        if not self.lineup_2v2[lineups-1]:
-                            self.lineup_2v2[lineups-1] = a_team
+                        ladder = self.ladder_2v2
+                        if not ladder[lineups]:
+                            ladder[lineups] = a_team
+                            self.ladder_2v2_members[lineups] = a_team.members
                             self.teams_2v2.append(a_team)
-                        else:
-                            raise Exception("Team %s failed to take place %d " \
-                                "in 2v2 lineups is already taken by another team (%s), " \
-                                "check your arena_teams.json file."%(a_team.name,
-                                team["lineups"], self.lineup_2v2[lineups-1].name))
+                            continue
                     else: # if teamsize == 3:
-                        if not self.lineup_3v3[lineups-1]:
-                            self.lineup_3v3[lineups-1] = a_team
+                        ladder = self.ladder_3v3
+                        if not ladder[lineups]:
+                            ladder[lineups] = a_team
+                            self.ladder_3v3_members[lineups] = a_team.members
                             self.teams_3v3.append(a_team)
-                        else:
-                            raise Exception("Team %s failed to take place %d in" \
-                            " 3v3 lineups is already taken by another team (%s), " \
-                            "check your arena_teams.json file."%(a_team.name, lineups,
-                            self.lineup_3v3[lineups-1].name))
+                            continue
+                    raise Exception("Team %s failed to take place %d " \
+                        "in %dv%d lineups. It is already taken by another team (%s), " \
+                        "check your arena_teams.json file."%(a_team.name, lineups+1,
+                        teamsize, teamsize, ladder[lineups].name))
                 else:
                     if teamsize == 1:
                         raise Exception("Single member teams are only available for lineups!")
@@ -654,7 +662,7 @@ init -9 python:
             shuffle(temp)
             temp.append(self.king)
 
-            for team in self.lineup_1v1:
+            for team in self.ladder_1v1:
                 if not team:
                     f = temp.pop()
                     f.arena_active = True
@@ -668,7 +676,7 @@ init -9 python:
             shuffle(temp)
             temp.append(self.king)
 
-            for team in self.lineup_2v2:
+            for team in self.ladder_2v2:
                 if not team.name:
                     team.name = get_team_name()
                 while len(team) < 2:
@@ -684,7 +692,7 @@ init -9 python:
             shuffle(temp)
             temp.append(self.king)
 
-            for team in self.lineup_3v3:
+            for team in self.ladder_3v3:
                 if not team.name:
                     team.name = get_team_name()
                 while len(team) < 3:
@@ -1252,17 +1260,17 @@ init -9 python:
                 if off_team and def_team:
                     num = len(off_team)
                     if num == 1:
-                        lineup = self.lineup_1v1
+                        ladder = self.ladder_1v1
                     elif num == 2:
-                        lineup = self.lineup_2v2
+                        ladder = self.ladder_2v2
                     elif num == 3:
-                        lineup = self.lineup_2v2
+                        ladder = self.ladder_3v3
                     else:
                         raise Exception("Invalid team size '%s' (expected value: 1-3)" % num)
 
-                    for idx, team in enumerate(lineup):
+                    for idx, team in enumerate(ladder):
                         if team == off_team or team == def_team:
-                            idx = 3 * idx / len(lineup)
+                            idx = 3 * idx / len(ladder)
                             temp = ["very", "really", "quite"][idx]
                             temp = choice(["The upcoming match between %s and %s looks {} interesting.",
                                            "%s challenged %s in the Arena. The match is going to be {} entertaining!",
