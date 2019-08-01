@@ -216,69 +216,68 @@ init -5 python:
                         worker.logws('vitality', -randint(1, 4))
 
         @staticmethod
-        def log_work(worker, clients, ap_used, effectiveness, log):
-            len_clients = len(clients)
+        def log_work(worker, ap_used, effectiveness, log):
             tier = log.loc.tier
 
             bartending = BarJob.normalize_required_skill(worker, "bartending", effectiveness, tier)
             charisma = BarJob.normalize_required_stat(worker, "charisma", effectiveness, tier)
 
             if bartending > 150:
+                log.append("%s was an excellent bartender, customers kept spending their money just for the pleasure of %s company." % (worker.pC, worker.pd))
                 if dice(70):
                     log.logloc('reputation', 1)
-                log.append("%s was an excellent bartender, customers kept spending their money just for the pleasure of %s company." % (worker.pC, worker.pd))
             elif bartending >= 100:
+                log.append("Customers were pleased with %s company and kept asking for more booze." % worker.pd)
                 if dice(50):
                     log.logloc('reputation', 1)
-                log.append("Customers were pleased with %s company and kept asking for more booze." % worker.pd)
             elif bartending >= 75:
+                log.append("%s was skillful enough not to mess anything up during %s job." % (worker.pC, worker.pd))
                 if dice(10):
                     log.logloc('reputation', 1)
-                log.append("%s was skillful enough not to mess anything up during %s job." % (worker.pC, worker.pd))
             elif bartending >= 50:
+                log.append("%s performance was rather poor and it most definitely has cost you income." % worker.pdC)
+                if dice(30):
+                    log.logws("joy", -1)
                 if dice(70):
                     log.logloc('reputation', -1)
-                log.append("%s performance was rather poor and it most definitely has cost you income." % worker.pdC)
             else:
-                log.logloc('reputation', -2)
                 log.append("%s is a very unskilled bartender, %s definitely needs training." % (worker.name, worker.p))
+                if dice(70):
+                    log.logws("joy", -1)
+                log.logloc('reputation', -2)
 
             if charisma > 150:
+                log.append("Your worker was stunningly charming, customers couldn't keep their eyes off %s." % worker.op)
                 if dice(70):
                     log.logloc('fame', 1)
-                log.append("Your worker was stunningly charming, customers couldn't keep their eyes off %s." % worker.op)
             elif charisma > 100:
+                log.append("Your worker looked beautiful, this will bring more customers.")
                 if dice(50):
                     log.logloc('fame', 1)
-                log.append("Your worker looked beautiful, this will bring more customers.")
             elif charisma > 75:
+                log.append("Your worker was easy on the eyes, not bad for a bartender.")
                 if dice(20):
                     log.logloc('fame', 1)
-                log.append("Your worker was easy on the eyes, not bad for a bartender.")
             elif charisma > 50:
                 log.append("You may consider buying some items for your worker. %s's not exactly pleasant to look at." % worker.pC)
+                if dice(50):
+                    log.logloc('fame', -1)
             else:
-                log.logloc('fame', -2)
                 log.append("Customers did not appreciate a hag serving them. Consider sending this worker to a beauty school.")
+                log.logloc('fame', -2)
 
             log.append("\n")
 
             #Stat Mods
+            log.logws('vitality', round_int(ap_used*-10))
             # Award EXP:
             if effectiveness < 90:
                 ap_used *= .5
             log.logws("exp", exp_reward(worker, tier, exp_mod=ap_used))
-
-            log.logws('vitality', -(len_clients+1)/2)
-
-            log.logws('bartending', randint(1, 2))
-            if dice(50):
-                log.logws('service', 1)
-            if dice(25):
-                log.logws('refinement', 1)
-            if dice(25):
-                log.logws('character', 1)
-            if dice(10):
-                log.logws('intelligence', 1)
+            log.logws('bartending', randfloat(ap_used))
+            log.logws('service', randfloat(ap_used/2))
+            log.logws('refinement', randfloat(ap_used/4))
+            log.logws('character', randfloat(ap_used/2))
+            log.logws('intelligence', randfloat(ap_used/4))
 
             log.img = worker.show(("waitress", "maid"), ("indoors", "no bg", "simple bg", None), exclude=["nude", "sex", "lingerie"], type="ptls")

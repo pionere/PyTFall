@@ -157,67 +157,61 @@ init -5 python:
                         worker.logws('vitality', -randint(1, 4))
 
         @staticmethod
-        def log_work(worker, clients, ap_used, effectiveness, log):
-            len_clients = len(clients)
+        def log_work(worker, ap_used, effectiveness, log):
             tier = log.loc.tier
 
             riding = WranglerJob.normalize_required_skill(worker, "riding", effectiveness, tier)
             service = WranglerJob.normalize_required_skill(worker, "service", effectiveness, tier)
 
             if riding > 150:
+                log.append("%s was an excellent wrangler, customers kept spending their money just for the pleasure of %s company." % (worker.pC, worker.pd))
                 if dice(70):
                     log.logloc('reputation', 1)
-                log.append("%s was an excellent wrangler, customers kept spending their money just for the pleasure of %s company." % (worker.pC, worker.pd))
             elif riding >= 100:
+                log.append("Customers were pleased with %s company and kept spending more time in the stable." % worker.pd)
                 if dice(50):
                     log.logloc('reputation', 1)
-                log.append("Customers were pleased with %s company and kept spending more time in the stable." % worker.pd)
             elif riding >= 75:
+                log.append("%s was skillful enough not to mess anything up during %s job." % (worker.pC, worker.pd))
                 if dice(10):
                     log.logloc('reputation', 1)
-                log.append("%s was skillful enough not to mess anything up during %s job." % (worker.pC, worker.pd))
             elif riding >= 50:
+                log.append("%s performance was rather poor and it most definitely has cost you income." % worker.pdC)
                 if dice(70):
                     log.logloc('reputation', -1)
-                log.append("%s performance was rather poor and it most definitely has cost you income." % worker.pdC)
             else:
-                log.logloc('reputation', -2)
                 log.append("%s is a very unskilled wrangler, %s definitely needs training." % (worker.name, worker.p))
+                log.logloc('reputation', -2)
 
             if service > 150:
+                log.append("Your worker provided excellent service to the customer.")
                 if dice(70):
                     log.logloc('fame', 1)
-                log.append("Your worker provided excellent service to the customer.")
             elif service > 100:
+                log.append("The customers were very pleased by the service of your worker.")
                 if dice(50):
                     log.logloc('fame', 1)
-                log.append("The customers were very pleased by the service of your worker.")
             elif service > 75:
+                log.append("Your worker handled the customers the right way.")
                 if dice(20):
                     log.logloc('fame', 1)
-                log.append("Your worker handled the customers the right way.")
             elif service > 50:
                 log.append("Your worker definitely needs more training to handle the customers.")
             else:
-                log.logloc('fame', -2)
                 log.append("The rude service of your worker really hurt your business.")
+                log.logloc('fame', -2)
 
             log.append("\n")
 
             #Stat Mods
+            log.logws('vitality', round_int(ap_used*-10))
             # Award EXP:
             if effectiveness < 90:
                 ap_used *= .5
             log.logws("exp", exp_reward(worker, tier, exp_mod=ap_used))
-
-            log.logws('vitality', -(len_clients+1)/2)
-
-            log.logws('riding', randint(1, 2))
-            if dice(25):
-                log.logws('service', 1)
-            if dice(25):
-                log.logws('agility', 1)
-            if dice(10):
-                log.logws('constitution', 1)
+            log.logws('riding', randfloat(ap_used))
+            log.logws('service', randfloat(ap_used/2))
+            log.logws('agility', randfloat(ap_used/2))
+            log.logws('constitution', randfloat(ap_used/4))
 
             log.img = worker.show(("nature", "no bg", "simple bg"), ("maid", None), exclude=["nude", "sex", "lingerie"], type="ptls")

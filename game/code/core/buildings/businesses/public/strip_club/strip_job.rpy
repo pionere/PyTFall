@@ -226,8 +226,7 @@ init -5 python:
                         worker.logws('vitality', -randint(2, 6))
 
         @staticmethod
-        def log_work(worker, clients, ap_used, effectiveness, log):
-            len_clients = len(clients)
+        def log_work(worker, ap_used, effectiveness, log):
             tier = log.loc.tier
 
             strip = StripJob.normalize_required_skill(worker, "strip", effectiveness, tier)
@@ -250,59 +249,55 @@ init -5 python:
                 log.append("%s good looks was pleasing to audiences." % name)
             elif charisma >= 50:
                 log.append("%s did %s best to make customers like %s, but %s charm could definitely be enhanced." % (name, worker.pd, worker.op, worker.pd))
+                log.logws("joy", -1)
             else:
-                log.logws("joy", -2)
                 log.append("Customers clearly were unimpressed by %s looks, to say the least. Such a cold reception was not encouraging for the poor %s at all..." % (name, "girl" if worker.gender == "female" else "guy"))
+                log.logws("joy", -2)
 
             log.append("\n")
             if skill >= 170:
                 log.append("%s gave an amazing performance, %s sexy and elegant moves forced a few customers to come right away to their own embarrassment." % (worker.pC, worker.pd))
                 if dice(50):
                     log.logloc("reputation", 1)
-                log.logws("joy", 3)
+                log.logws("joy", 2)
             elif skill >= 150:
                 log.append("%s gave a performance worthy of kings and queens as the whole hall was cheering for %s." % (worker.pC, worker.op))
                 if dice(30):
                     log.logloc("reputation", 1)
-                log.logws("joy", 2)
+                log.logws("joy", 1)
             elif skill >= 130:
                 log.append("%s lost all of %s clothing piece by piece as %s gracefully danced on the floor, the whole hall was cheering for %s." % (worker.pC, worker.pd, worker.p, worker.op))
-                log.logws("joy", 2)
             elif skill >= 100:
                 log.append("%s lost all of %s clothing piece by piece as %s danced on the floor, some mildly drunk clients cheered for %s." % (worker.pC, worker.pd, worker.p, worker.op))
-                log.logws("joy", 1)
             elif skill >= 75:
                 log.append("%s danced to the best of %s ability but %s skills could definitely be improved." % (worker.pC, worker.pd, worker.pd))
             elif skill >= 50:
                 log.append("%s barely knew what %s was doing. %s performance can hardly be called a striptease, but at least %s showed enough skin to arouse some customers in the club." % (worker.pC, worker.p, worker.pdC, worker.p))
+                log.logws("joy", -1)
+                if dice(10):
+                    log.logloc("reputation", -1)
             else:
+                log.logws("joy", -2)
                 if charisma >= 100:
-                    log.append("%s tripped several times while trying to undress %sself as %s 'stripdanced' on the floor. Still, %s was pretty enough to arouse some men and women in the club." % (worker.pC, worker.op, worker.p, worker.p))
+                    if dice(50):
+                        log.append("%s performance made some of the customers fall asleep. Apparently not even %s looks could keep their attention alive..." % (worker.pdC, worker.pd))
+                        log.logloc("reputation", -2)
+                    else:
+                        log.append("%s tripped several times while trying to undress %sself as %s 'stripdanced' on the floor. Still, %s was pretty enough to arouse some men and women in the club." % (worker.pC, worker.op, worker.p, worker.p))
+                        log.logloc("reputation", -1)
                 else:
                     log.append("%s certainly did not shine as %s clumsily 'danced' on the floor. Neither %s looks nor %s skill could save the performance..." % (worker.pC, worker.p, worker.pd, worker.pd))
+                    log.logloc("reputation", -2)
 
             # Stats Mods
+            log.logws('vitality', round_int(ap_used*-10))
             # Award EXP:
             if effectiveness < 90:
                 ap_used *= .5
             log.logws("exp", exp_reward(worker, tier, exp_mod=ap_used))
-
-            log.logws('vitality', -len_clients/2)
-
-            if dice(9):
-                log.logws("agility", 1)
-                learned = True
-            if dice(20):
-                log.logws("charisma", 1)
-                learned = True
-            if dice(15):
-                log.logws("dancing", 1)
-                learned = True
-            if dice(35 if "Exhibitionist" in worker.traits else 25):
-                log.logws("strip", 1)
-                learned = True
-            if "learned" in locals():
-                log.append("\n%s feels like %s learned something!\n" % (worker.name, worker.p))
-                log.logws("joy", 1)
+            log.logws("strip", randfloat(ap_used))
+            log.logws("dancing", randfloat(ap_used/2))
+            log.logws("agility", randfloat(ap_used/4))
+            log.logws("charisma", randfloat(ap_used/2))
 
             log.img = worker.show("stripping", ("stage", "no bg", "simple bg", "indoors", None), exclude=["sex", "sad", "angry", "in pain"], type="ptls")

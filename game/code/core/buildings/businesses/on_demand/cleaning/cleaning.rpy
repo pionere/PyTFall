@@ -167,18 +167,19 @@ init -5 python:
             for w in workers:
                 ap_used = w.get_flag("jp_clean", 0)/100.0
                 log.logws("vitality", round_int(ap_used*-5), char=w)
-                log.logws("cleaning", randfloat(ap_used*2), char=w)
-                log.logws("agility", randfloat(ap_used), char=w)
+                log.logws("cleaning", randfloat(ap_used), char=w)
+                log.logws("agility", randfloat(ap_used/2), char=w)
                 log.logws("constitution", randfloat(ap_used/2), char=w)
                 log.logws("exp", exp_reward(w, difficulty, exp_mod=ap_used), char=w)
                 w.del_flag("jp_clean")
             for w in extra_workers:
                 ap_used = w.get_flag("jp_clean", 0)/100.0
                 log.logws("vitality", round_int(ap_used*-6), char=w)
-                log.logws("cleaning", randfloat(ap_used), char=w)
-                log.logws("agility", randfloat(ap_used/2), char=w)
-                log.logws("constitution", randfloat(ap_used/2), char=w)
+                log.logws("cleaning", randfloat(ap_used/2), char=w)
+                log.logws("agility", randfloat(ap_used/4), char=w)
+                log.logws("constitution", randfloat(ap_used/3), char=w)
                 log.logws("exp", exp_reward(w, difficulty, exp_mod=ap_used*.5), char=w)
+                log.logws("joy", (1 + randfloat(ap_used))*-2, char=w)
                 w.del_flag("jp_clean")
 
             simpy_debug("Cleaners.write_nd_report marker 4")

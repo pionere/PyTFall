@@ -208,9 +208,9 @@ init -5 python:
                 log.logws("vitality", round_int(ap_used*-5), char=w)
                 log.logws("service", randfloat(ap_used), char=w)
                 log.logws("refinement", randfloat(ap_used), char=w)
-                log.logws("magic", randfloat(ap_used), char=w)
-                log.logws("intelligence", randfloat(ap_used*2), char=w)
-                log.logws("agility", randfloat(ap_used/2), char=w)
+                log.logws("magic", randfloat(ap_used/2), char=w)
+                log.logws("intelligence", randfloat(ap_used), char=w)
+                log.logws("agility", randfloat(ap_used/4), char=w)
                 log.logws("exp", exp_reward(w, difficulty, exp_mod=ap_used), char=w)
                 w.del_flag("jp_nurse")
 

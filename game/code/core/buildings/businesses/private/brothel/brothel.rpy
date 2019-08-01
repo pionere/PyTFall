@@ -86,11 +86,12 @@ init -5 python:
 
             job.settle_workers_disposition(worker, log)
 
-            pp_use = job.calc_jp_cost(manager_effectiveness=building.manager_effectiveness, cost=100)
+            effectiveness = building.manager_effectiveness
+            pp_use = job.calc_jp_cost(effectiveness)
             worker.PP -= pp_use
 
             difficulty = building.tier
-            effectiveness = job.effectiveness(worker, difficulty, log, building.manager_effectiveness)
+            effectiveness = job.effectiveness(worker, difficulty, log, effectiveness)
 
             # Upgrade mods:
             effectiveness += self.job_effectiveness_mod

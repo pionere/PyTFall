@@ -174,7 +174,7 @@ init -12 python:
             if not self.expands_capacity:
                 return False
             if self.capacity <= 1: # simpy.Resource can not handle capacity == 0...
-                return False
+                return False       # should only be applied to Public/PrivateBusinesses?
             if hero.gold < self.get_expansion_cost()[0]:
                 return False
             if self.in_construction_upgrades:
@@ -628,7 +628,7 @@ init -12 python:
 
                 worker.PP, pp_use = pp_use, worker.PP - pp_use
 
-                job.log_work(worker, clients_served, pp_use/100.0, effectiveness, log) # PP_PER_AP
+                job.log_work(worker, pp_use/100.0, effectiveness, log) # PP_PER_AP
 
                 earned = payout(job, effectiveness, difficulty, building,
                                 self, worker, clients_served, log)

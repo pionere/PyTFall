@@ -235,6 +235,7 @@ init -10 python:
 
         @staticmethod
         def normalize_required_stat(worker, stat, effectiveness, difficulty):
+            # TODO is effectiveness mod really necessary here? Tier should be all that matters...
             value = worker.get_stat(stat)
             max_value = worker.get_max_stat(stat, tier=difficulty)
             if max_value == 0:
@@ -245,6 +246,7 @@ init -10 python:
 
         @staticmethod
         def normalize_required_skill(worker, skill, effectiveness, difficulty):
+            # TODO is effectiveness mod really necessary here? Tier should be all that matters...
             value = worker.get_skill(skill)
             max_value = worker.get_max_skill(skill, tier=difficulty)
             if max_value == 0:
@@ -343,16 +345,3 @@ init -10 python:
             returns an integer to be added to base calculations!
             """
             return 0
-
-        @staticmethod
-        def calc_jp_cost(manager_effectiveness, cost):
-            # a good manager can reduce the original cost by 50%. (passive effect)
-            if manager_effectiveness > 80:        # original effectiveness is between 0 and 200
-                manager_effectiveness *= randint(75, 125)   # a bit of random -> 60(00) <= me <= 250(00)
-                manager_effectiveness -= 6000     # 60 * 100                  ->   (00) <= me <= 190(00)
-                if manager_effectiveness > 16000: # 160 * 100   me over 160 does not help further
-                    manager_effectiveness = 16000           #                 ->   (00) <= me <= 160(00)
-                manager_effectiveness /= 32000.0            #                 ->    0.0 <= me <= 0.5
-                cost *= 1.0 - manager_effectiveness
-
-            return cost
