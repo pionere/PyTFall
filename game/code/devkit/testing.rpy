@@ -1217,7 +1217,11 @@ init 1000 python:
             # clients
 
             # workers
-            wtier = tier + (2 if op else 0)
+            wtier = tier
+            if op is True:
+                wtier += 2
+            elif op is not False:
+                wtier += op
             for bt_list, num, job in workers:
                 for i in xrange(num):
                     worker = build_rc(bt_list=bt_list, give_bt_items=True, give_civilian_items=True, tier=wtier)
