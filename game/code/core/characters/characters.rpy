@@ -110,6 +110,7 @@ init -9 python:
                 self._home = None      # Living location.
                 self._job = None       # Permanent job to work in a building
                 self._task = None      # Temporary task (Rest/Study/Exploration)
+                self.employer = None   # Current employer/owner (possible values at the moment: None, hero) 
 
                 # Relationships:
                 self.friends = set()
@@ -1508,7 +1509,7 @@ init -9 python:
                         if stat == "exp":
                             pass
                         elif stat == "gold":
-                            if self.status == "slave" and self in hero.chars:
+                            if self.status == "slave" and self.employer == hero:
                                 temp = hero
                             else:
                                 temp = self
@@ -1911,6 +1912,7 @@ init -9 python:
 
             self._chars.append(char)
 
+            char.employer = hero
             char.basePP -= 100 # reduce available AP (the char spends it on shopping, self-time, etc...) - PP_PER_AP
             char.restore_ap()  # update setPP, PP as well
 
@@ -1935,6 +1937,7 @@ init -9 python:
             char.home = pytfall.sm if char.status == "slave" else pytfall.city
             char.reset_workplace_action()
             set_location(char, None)
+            char.employer = None
 
         def new_team(self):
             t = Team(implicit=[self])
@@ -2389,7 +2392,7 @@ init -9 python:
             elif temp > 0:
                 self.mod_stat("affection", -1)
 
-            if self not in hero.chars:
+            if self.employer != hero:
                 # character does not belong to the hero
                 # Home location nd mods:
                 #loc = self.home
@@ -2545,7 +2548,7 @@ init -9 python:
                 mood, flag_red = self.nd_joy_disposition_checks(mood, flag_red)
 
                 # Home location nd mods:
-                if (flag_red is False or self in hero.chars) and self.nd_sleep(txt):
+                if self.employer == hero and self.nd_sleep(txt):
                     flag_red = True
 
                 # Finances related:

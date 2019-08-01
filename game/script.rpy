@@ -740,6 +740,8 @@ label after_load:
             clearCharacters = True
         if hero.get_max("fame") != 1000:
             clearCharacters = True
+        if not hasattr(hero, "employer"):
+            clearCharacters = True
         if isinstance(simple_jobs, dict):
             if isinstance(simple_jobs["Manager"], Manager):
                 pmj = simple_jobs["Manager"]
@@ -1065,7 +1067,8 @@ label after_load:
                 all_live_chars.add(fighter)
             for team in itertools.chain(arena.teams_2v2, arena.teams_3v3,\
                  arena.dogfights_1v1, arena.dogfights_2v2, arena.dogfights_3v3,\
-                 arena.lineup_1v1, arena.lineup_2v2, arena.lineup_3v3):
+                 arena.ladder_1v1_members, arena.ladder_2v2_members, arena.ladder_3v3_members,\
+                 arena.ladder_1v1, arena.ladder_2v2, arena.ladder_3v3):
 
                     for fighter in team:
                         all_live_chars.add(fighter)
@@ -1311,6 +1314,8 @@ label after_load:
                     del char.fin.stored_upkeep
                 if getattr(char, "runaway_look_event", None) == "escaped_girl_recapture":
                     del char.runaway_look_event
+                if not hasattr(char, "employer"):
+                    char.employer = hero if char in hero.chars else None
 
                 if char.has_flag("days_in_game"):
                     if isinstance(char, rChar):

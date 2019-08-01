@@ -28,7 +28,7 @@ init:
                 # remove selected chars which are no longer available
                 gone_chars = set()
                 for c in self.the_chosen:
-                    if not (c.is_available and c in hero.chars):
+                    if not (c.is_available and c.employer == hero):
                         gone_chars.add(c)
                 if gone_chars:
                     self.the_chosen -= gone_chars
@@ -86,7 +86,7 @@ label chars_list:
                 $ renpy.show_screen("set_action_dropdown", result[2], pos=renpy.get_mouse_pos())
         elif result[0] == "choice":
             hide screen chars_list
-            $ girls = [char for char in chars_list_state.pager_content if char.is_available and char in hero.chars]
+            $ girls = [char for char in chars_list_state.pager_content if char.is_available and char.employer == hero]
             $ char = result[1]
             $ char_profile_entry = "chars_list"
             jump char_profile
@@ -144,7 +144,7 @@ screen chars_list():
             for c in charz_list:
                 $ char_profile_img = c.show('portrait', resize=(98, 98), cache=True)
                 $ img = "content/gfx/frame/ink_box.png"
-                $ available = c.is_available and c in hero.chars
+                $ available = c.is_available and c.employer == hero
                 button:
                     ymargin 0
                     idle_background Frame(im.Alpha(img, alpha=.4), 10 ,10)

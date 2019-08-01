@@ -91,7 +91,7 @@ init -9 python:
                     continue
                 if c.arena_active:
                     continue
-                if c in hero.chars:
+                if c.employer == hero:
                     continue
 
                 if c.status == "free":

@@ -58,7 +58,7 @@ label interactions_harrasment_after_battle: # after MC provoked a free character
                     char.gfx_mod_stat("affection", -randint(3,5))
                 else:
                     narrator("You didn't find anything...")
-        "Kill [char.op]" if (char not in hero.chars): # direct killing of hired free chars is unavailable, only in dungeon on via other special means
+        "Kill [char.op]" if (char.employer != hero): # direct killing of hired free chars is unavailable, only in dungeon on via other special means
             "[char.pC] stopped moving. Serves [char.op] right."
             python hide:
                 hero.gfx_mod_exp(exp_reward(hero, char))
@@ -81,7 +81,7 @@ label interactions_harrasment_after_battle: # after MC provoked a free character
         "Quickly leave before someone sees you.":
             $ pass
 
-    if char not in hero.chars:
+    if char.employer != hero:
         $ iam.remove_girl(char)
     $ char.set_flag("cnd_interactions_blowoff", day+5)
     $ del m

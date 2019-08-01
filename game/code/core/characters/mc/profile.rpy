@@ -661,7 +661,7 @@ screen mc_friends_list:
         xysize (930, 450)
         pos(210, 115)
         background Frame("content/gfx/frame/p_frame7.webp", 5, 5)
-        $ temp = list(i for i in chain(hero.friends, hero.lovers) if (i not in hero.chars) and i.is_available)
+        $ temp = list(i for i in chain(hero.friends, hero.lovers) if i.employer != hero and i.is_available)
         $ temp = sorted(temp, key=attrgetter("name"))
         if temp:
             text "Click on the character to meet them in the city" style "TisaOTMol" size 23 xalign .5

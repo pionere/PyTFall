@@ -65,10 +65,10 @@ label girl_interactions_after_greetings: # when character wants to say something
             m = 0
             pytfall.world_actions.menu(m, "Chat")
             pytfall.world_actions.gm_choice("Small Talk", index=(m, 0))
-            pytfall.world_actions.gm_choice("About Job", condition="char in hero.chars", index=(m, 1))
-            pytfall.world_actions.gm_choice("How She Feels", condition="char in hero.chars", index=(m, 2))
+            pytfall.world_actions.gm_choice("About Job", condition="char.employer == hero", index=(m, 1))
+            pytfall.world_actions.gm_choice("How She Feels", condition="char.employer == hero", index=(m, 2))
             pytfall.world_actions.gm_choice("About Her", index=(m, 3))
-            pytfall.world_actions.gm_choice("About Occupation", condition="not(char in hero.chars)", index=(m, 4))
+            pytfall.world_actions.gm_choice("About Occupation", condition="char.employer != hero", index=(m, 4))
             pytfall.world_actions.gm_choice("Interests", index=(m, 5))
             pytfall.world_actions.gm_choice("Flirt", index=(m, 6))
 
@@ -100,14 +100,14 @@ label girl_interactions_after_greetings: # when character wants to say something
 
             # PRAISE
             m = 2
-            pytfall.world_actions.menu(m, "Praise", condition="not(char in hero.chars)")
+            pytfall.world_actions.menu(m, "Praise", condition="char.employer != hero")
             pytfall.world_actions.gm_choice("Clever", index=(m, 0))
             pytfall.world_actions.gm_choice("Strong", index=(m, 1))
             pytfall.world_actions.gm_choice("Cute", index=(m, 2))
 
             # INSULT
             m = 3
-            pytfall.world_actions.menu(m, "Insult", condition="not(char in hero.chars)")
+            pytfall.world_actions.menu(m, "Insult", condition="char.employer != hero")
             pytfall.world_actions.gm_choice("Stupid", index=(m, 0))
             pytfall.world_actions.gm_choice("Weak", index=(m, 1))
             pytfall.world_actions.gm_choice("Ugly", index=(m, 2))
@@ -134,7 +134,7 @@ label girl_interactions_after_greetings: # when character wants to say something
             pytfall.world_actions.gm_choice("Break Up", condition="check_lovers(char)", index=(m, 1))
             pytfall.world_actions.gm_choice("Move in", condition="char.home != hero.home and char.status == 'free'", index=(m, 2))
             pytfall.world_actions.gm_choice("Move out", condition="char.home == hero.home and char.status == 'free'", index=(m, 3))
-            pytfall.world_actions.gm_choice("Hire", condition="not(char in hero.chars)", index=(m, 4))
+            pytfall.world_actions.gm_choice("Hire", condition="char.employer != hero", index=(m, 4))
             pytfall.world_actions.gm_choice("Sparring", condition="'Combatant' in char.gen_occs", index=(m, 5))
 
             # PLAY A GAME
@@ -173,7 +173,7 @@ label girl_interactions_after_greetings: # when character wants to say something
                         n += 1
 
             # m = 9  --- for the time being we disable negative actions, since they require ST
-            # pytfall.world_actions.menu(m, "Harassment", condition="not(char in hero.team) and char in hero.chars") # no fights between team members
+            # pytfall.world_actions.menu(m, "Harassment", condition="not(char in hero.team) and char.employer == hero") # no fights between team members
             # pytfall.world_actions.gm_choice("Insult", index=(m, 0))
             # pytfall.world_actions.gm_choice("Escalation", index=(m, 1))
 

@@ -163,7 +163,7 @@ init -9 python:
                 self.slave_restock_day += locked_random("randint", 2, 3)
 
                 # Search for slaves to add to the jail.
-                slaves = [c for c in chars.values() if c.status == "slave" and c not in pytfall.sm.chars_list and c not in hero.chars and c.location != pytfall.jail]
+                slaves = [c for c in chars.values() if c.status == "slave" and c not in pytfall.sm.chars_list and c.employer != hero and c.location != pytfall.jail]
 
                 slaves = random.sample(slaves, min(min(len(slaves), randrange(3)), max(0, 12 - len(self.slaves))))
 
@@ -250,7 +250,7 @@ init -9 python:
             self.cells.append(char)
             #self.cell_index = [0,]
 
-            if char in hero.chars:
+            if char.employer == hero:
                 char.set_task(None)
                 for team in hero.teams:
                     if char in team:
@@ -297,7 +297,7 @@ init -9 python:
             renpy.play("content/sfx/sound/world/purchase_1.ogg")
             self.slaves.remove(char)
             self.slave_index[0] = 0
-            if char not in hero.chars:
+            if char.employer != hero:
                 hero.add_char(char)
                 char.home = pytfall.streets
                 char.reset_workplace_action()
@@ -369,7 +369,7 @@ init -9 python:
             char.del_flag("last_location")
 
             if char != hero:
-                if char in hero.chars:
+                if char.employer == hero:
                     char.gfx_mod_stat("disposition", randint(10, 40))
                 else:
                     char.gfx_mod_stat("disposition", 50 + randint(0, price/100))
@@ -410,7 +410,7 @@ init -9 python:
                 self.slaves = [0,]
                 for char in frees:
                     char.del_flag("release_day")
-                    if char in hero.chars:
+                    if char.employer == hero:
                         hero.remove_char(char)
                         # FIXME notify the player
                     else:
@@ -450,7 +450,7 @@ init -9 python:
                     char.del_flag("release_day")
                     set_location(char, char.get_flag("last_location"))
                     char.del_flag("last_location")
-                    #if char in hero.chars:
+                    #if char.employer == hero:
                     #    pass # FIXME notify the player!
                     # If we know they're in jail
                     #    txt.append("    %s, in jail for %s days"%(char.fullname, days))

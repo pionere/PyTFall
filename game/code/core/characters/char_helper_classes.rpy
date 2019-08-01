@@ -1276,7 +1276,7 @@ init -10 python:
 
                 if true_add:
                     if stat == "gold":
-                        if char.status == "slave" and char in hero.chars:
+                        if char.status == "slave" and char.employer == hero:
                             temp = hero
                         else:
                             temp = char
@@ -2305,12 +2305,12 @@ init -10 python:
                 if self.days_active >= self.duration:
                     self.end(char)
             elif name == "Lactation": # TODO add milking activities, to use this fetish more widely
-                if char.get_stat("health") >= 30 and char.get_stat("vitality") >= 30 and char in hero.chars and char.is_available:
+                if char.get_stat("health") >= 30 and char.get_stat("vitality") >= 30:
                     if "Slime" in char.traits:
                         item = "Slime's Milk"
                     else:
                         item = "Bottle of Milk"
-                    if char.status == "slave" or check_lovers(char):
+                    if char.employer == hero and char.is_available and (char.status == "slave" or check_lovers(char)):
                         boobs = char.gents.id
                         if boobs.startswith("Ab"):  # "Abnormally Large Boobs"
                             num = randint(2, 5)

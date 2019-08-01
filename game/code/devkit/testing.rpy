@@ -900,7 +900,9 @@ init 1000 python:
                 if team.members[0] != hero:
                     TestSuite.reportError("Hero(%s)'s team %s does not have hero as its first member." % (hero.fullname, team.name))
                 for member in team:
-                    if member != hero and member not in hero.chars:
+                    if member == hero:
+                        continue
+                    if member not in hero.chars:
                         TestSuite.reportError("Hero(%s)'s team-member %s is not under hero's controll (not listed in hero.chars)." % (hero.fullname, member.name))
 
             # chars:
@@ -908,6 +910,8 @@ init 1000 python:
             for char in hero.chars:
                 if char not in all_chars:
                     TestSuite.reportError("Hero(%s)'s char %s is no longer in the global chars." % (hero.fullname, char.name))
+                if char.employer != hero:
+                    TestSuite.reportError("Hero(%s)'s char %s does not have hero registered as an employer." % (hero.fullname, char.name))
 
             for cf in hero.friends:
                 if cf not in all_chars:
@@ -930,6 +934,12 @@ init 1000 python:
                 if isinstance(c, rChar):
                     if not c.has_flag("from_day_in_game"):
                         TestSuite.reportError("Rchar %s does not have 'from_day_in_game' flag" % c.fullname)
+                if c.employer == hero:
+                    if c not in hero.chars:
+                        TestSuite.reportError("Char %s has the hero as registered employer, but it is not in hero.chars." % (char.name))
+                else:
+                    if c in hero.chars:
+                        TestSuite.reportError("Hero(%s)'s char %s employer is '%s', not the hero '%s'." % (hero.fullname, char.name, char.employer, hero))
 
             # check Slave Market
             for c in pytfall.sm.inhabitants:

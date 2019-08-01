@@ -198,7 +198,7 @@ init -11 python:
 
     def controlled_char(char):
         # used in chars profile, most user interface options disabled if this returns False.
-        return char in hero.chars and char.is_available
+        return char.employer == hero and char.is_available
 
     # Characters related:
     def get_first_name(sex="female"):
@@ -747,7 +747,7 @@ init -11 python:
         if char == hero:
             jump("game_over")
 
-        if char in hero.chars:
+        if char.employer == hero:
             hero.remove_char(char)
 
         char.home = pytfall.afterlife
