@@ -450,14 +450,6 @@ init -6 python: # Guild, Tracker and Log.
             _teams = self.idle_teams()
             _chars = [w for w in self.building.all_workers if w != hero and ExplorationTask.willing_work(w) and w.is_available]
 
-            # update idle teams
-            #  TODO this is necessary because the player might relocate a member of an idle team
-            #    this could be rendered obsolete, but right now it is too expensive... 
-            for team in _teams:
-                moves = [w for w in team if w not in _chars]
-                for w in moves:
-                    team.remove(w)
-
             # filter chars
             idle_chars = list(chain.from_iterable(t.members for t in _teams))
             _chars = [w for w in _chars if w not in idle_chars]
@@ -477,6 +469,13 @@ init -6 python: # Guild, Tracker and Log.
             self.workers = None
             self.guild_teams = None
 
+        @staticmethod
+        def battle_ready(char):
+            """
+            Return whether the character is ready to be sent on an exploration run.
+            """
+            return char.employer == hero and char.is_available
+
         # Teams control/sorting/grouping methods:
         def new_team(self, name):
             team = Team(name=name)
@@ -492,7 +491,7 @@ init -6 python: # Guild, Tracker and Log.
         def teams_to_launch(self):
             # Returns a list of teams that can be launched on an exploration run.
             # Must have at least one member and NOT already running exploration!
-            return [t for t in self.idle_teams() if t]
+            return [t for t in self.idle_teams() if t and all((self.battle_ready(f) for f in t))]
 
         def prev_team_to_launch(self):
             index = self.team_to_launch_index

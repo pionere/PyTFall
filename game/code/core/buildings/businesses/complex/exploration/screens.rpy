@@ -607,6 +607,9 @@ screen building_management_midframe_exploration_guild_mode:
                 for idx, w in enumerate(t):
                     $ w_pos = (curr_pos[0]+16+idx*61, curr_pos[1]+12)
                     $ w.set_flag("dnd_drag_container", t)
+                    $ img = w.show("portrait", resize=(46, 46), cache=True)
+                    if not ExplorationGuild.battle_ready(w):
+                        $ img = PyTGFX.sepia_content(img)
                     drag:
                         dragged dragged
                         droppable 0
@@ -618,7 +621,7 @@ screen building_management_midframe_exploration_guild_mode:
                             hovered Function(setattr, config, "mouse", mouse_drag)
                             unhovered Function(setattr, config, "mouse", mouse_cursor)
 
-                        add w.show("portrait", resize=(46, 46), cache=True)
+                        add img
 
                 drag:
                     drag_name t
