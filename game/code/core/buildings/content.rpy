@@ -63,11 +63,11 @@ init -9 python:
             return char.get_price()
 
         def buy_slave(self, char):
-            if not hero.take_ap(1):
+            if not hero.has_ap():
                 return "You don't have enough AP left for this action!"
-
             if not hero.take_money(self.get_price(char), reason="Slave Purchase"):
                 return "You don't have enough money for this purchase!"
+            hero.take_ap(1)
 
             renpy.play("content/sfx/sound/world/purchase_1.ogg")
             hero.add_char(char)
@@ -289,10 +289,11 @@ init -9 python:
         def buy_slave(self, char):
             """Buys an escaped slave from the jail.
             """
-            if not hero.take_ap(1):
+            if not hero.has_ap():
                 return "You don't have enough AP left for this action!"
             if not hero.take_money(self.get_price(char), reason="Slave (Re)Purchase"):
                 return "You don't have enough money for this purchase!"
+            hero.take_ap(1)
 
             renpy.play("content/sfx/sound/world/purchase_1.ogg")
             self.slaves.remove(char)
@@ -325,7 +326,7 @@ init -9 python:
             Retrieve a captured character (during SE).
             We handle simple sell-off in a different method (self.sell_captured)
             """
-            if not hero.take_ap(1):
+            if not hero.has_ap():
                 return "You don't have enough AP left for this action!"
 
             blue_train = direction == "Blue"
@@ -334,7 +335,8 @@ init -9 python:
             if hero.gold < base_price:
                 return "You don't have enough money!"
             if blue_train and hero.gold < base_price + blue_price:
-                return "You don't have enough money for upfront payment for Blue's services!"
+                return "You don't have enough money for the upfront payment of Blue's services!"
+            hero.take_ap(1)
 
             renpy.play("content/sfx/sound/world/purchase_1.ogg")
             hero.take_money(base_price, reason="Jail Fees")
@@ -352,11 +354,12 @@ init -9 python:
         def bail_char(self, char):
             """Bails a prisoner from the jail.
             """
-            if not hero.take_ap(1):
+            if not hero.has_ap():
                 return "You don't have enough AP left for this action!"
             price = self.get_bail(char)
             if not hero.take_money(price, reason="Prisoner Bail"):
                 return "You don't have enough money to do this!"
+            hero.take_ap(1)
 
             renpy.play("content/sfx/sound/world/purchase_1.ogg")
 
