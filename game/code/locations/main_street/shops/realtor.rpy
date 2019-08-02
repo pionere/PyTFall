@@ -52,9 +52,9 @@ label realtor_agency:
             $ focus = result[1]
         elif result[0] == 'buy':
             if not hero.has_ap():
-                $ renpy.call_screen('message_screen', "You don't have enough Action Points!")
+                show screen message_screen("You don't have enough Action Points!")
             elif not hero.take_money(result[1].price, reason="Property"):
-                $ renpy.call_screen('message_screen', "You don't have enough Gold!")
+                show screen message_screen("You don't have enough Gold!")
             else:
                 $ hero.take_ap(1)
                 $ renpy.play("content/sfx/sound/world/purchase_1.ogg")

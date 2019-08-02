@@ -44,7 +44,7 @@ label city_jail:
             $ char = result[1]
             $ msg = pytfall.jail.bail_char(char)
             if msg:
-                call screen message_screen(msg)
+                show screen message_screen(msg)
             $ del char, msg
 
             if not pytfall.jail.chars_list:
@@ -57,7 +57,7 @@ label city_jail:
             else:
                 $ msg = pytfall.jail.retrieve_captured(char, "Blue")
             if msg:
-                call screen message_screen(msg)
+                show screen message_screen(msg)
             $ del char, msg
 
             if not pytfall.jail.chars_list:
@@ -67,7 +67,7 @@ label city_jail:
             $ char = result[1]
             $ msg = pytfall.jail.sell_captured(char)
             if msg:
-                call screen message_screen(msg)
+                show screen message_screen(msg)
             $ del char, msg
 
             if not pytfall.jail.chars_list:
