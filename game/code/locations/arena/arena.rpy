@@ -6,15 +6,15 @@ init -9 python:
         @Note to myself: This code needs to be updated post-Alpha release to account for Arena Fighters and restructured for further use in the game!
         -------------------------->
         """
+        EMPTY_TEAM = Team(max_size=0)
         def __init__(self):
             super(Arena, self).__init__()
+
             # Scheduled matches:
-            #                      Off Team           Def Team      Day
-            self.matches_1v1 = [[Team(max_size=1), Team(max_size=1), 1] for i in xrange(8)]
-            #                      Off Team           Def Team      Day
-            self.matches_2v2 = [[Team(max_size=2), Team(max_size=2), 1] for i in xrange(5)]
-            #                      Off Team           Def Team      Day
-            self.matches_3v3 = [[Team(max_size=3), Team(max_size=3), 1] for i in xrange(5)]
+            #                       Off Team          Def Team      Day
+            self.matches_1v1 = [[Arena.EMPTY_TEAM, Arena.EMPTY_TEAM, 1] for i in xrange(8)]
+            self.matches_2v2 = [[Arena.EMPTY_TEAM, Arena.EMPTY_TEAM, 1] for i in xrange(5)]
+            self.matches_3v3 = [[Arena.EMPTY_TEAM, Arena.EMPTY_TEAM, 1] for i in xrange(5)]
             # Ladders and their team members.
             #  The separate list is necessary because a team can be changed.
             #  At the moment only the hero-teams can change, so the initial team members are not copied. 
@@ -41,11 +41,6 @@ init -9 python:
             self.df_count = 0
             self.hero_match_result = None
             self.daily_report = []
-
-            # Chanfighting:
-            self.cf_mob = None
-            self.cf_setup = None
-            self.cf_count = 0
 
         # -------------------------- Sorting ---------------------------------------------------------->
         def get_matches_fighters(self, matches="all"):
@@ -170,8 +165,7 @@ init -9 python:
                 shuffle(templist)
 
                 for __ in xrange(min(30, len(templist)/2)):
-                    team = Team(max_size=2)
-                    team.name = get_team_name()
+                    team = Team(name=get_team_name(), max_size=2)
                     f = templist.pop()
                     f.arena_active = True
                     team.add(f)
@@ -188,8 +182,7 @@ init -9 python:
                 shuffle(templist)
 
                 for __ in xrange(min(30, len(templist)/3)):
-                    team = Team(max_size=3)
-                    team.name = get_team_name()
+                    team = Team(name=get_team_name(), max_size=3)
                     f = templist.pop()
                     f.arena_active = True
                     team.add(f)
@@ -225,19 +218,17 @@ init -9 python:
                     if f.level in level_range:
                         amount -= 1
                         in_range_exists += 1
-                        team = Team(max_size=1)
                         f.arena_active = True
-                        team.add(f)
                         candidates.remove(f)
+                        team = Team(implicit=[f], max_size=1)
                         self.dogfights_1v1.append(team)
 
 
                 while amount != 0:
                     amount -= 1
-                    team = Team(max_size=1)
                     f = candidates.pop()
                     f.arena_active = True
-                    team.add(f)
+                    team = Team(implicit=[f], max_size=1)
                     self.dogfights_1v1.append(team)
 
             # 2v2
@@ -363,7 +354,7 @@ init -9 python:
                         df = df.pop()
                         df.fighting_days.append(fday)
                         df.arena_active = True
-                        setup[0].add(df)
+                        setup[0] = Team(name=df.name, implicit=[df], max_size=1)
 
             # 2vs2, 3vs3
             for matches, lineup in [(self.matches_2v2, self.teams_2v2), (self.matches_3v3, self.teams_3v3)]:
@@ -396,36 +387,27 @@ init -9 python:
                             setup[0] = dt
 
         # -------------------------- GUI methods ---------------------------------->
-        def dogfight_challenge(self, team):
-            """
-            Checks if player team is ready for a dogfight.
-            """
-            if len(hero.team) != len(team):
-                return "Make sure that your team has %d members!"%len(team)
-            for member in hero.team:
+        def check_arena_fight(self, type, team, opponent):
+            for member in team:
                 if member.status == "slave":
-                    return "%s is a slave and slaves are not allowed to fight in the Arena under the penalty of death to both a slave and the owner!"%member.name
+                    return None, "%s is a Slave forbidden from participation in Combat!" % member.name
 
-            hlvl = hero.team.get_level()
-            elvl = team.get_level()
-            if elvl > max(hlvl+12, hlvl*1.3):
-                if len(team) == 1:
-                    team.leader.say("You're not worth my time, go train some.")
-                    return
-                else:
-                    team.leader.say("You guys need to grow up before challenging the likes of us.")
-                    return
-            if max(elvl+12, elvl*1.3) < hlvl:
-                if len(team) == 1:
-                    team.leader.say("I am not feeling up to it... really!")
-                    return
-                else:
-                    team.leader.say("We are not looking for a fight outside of our league.")
-                    return
+            if type == "dogfight":
+                hlvl = team.get_level()
+                elvl = opponent.get_level()
+                if elvl > max(hlvl+12, hlvl*1.3):
+                    if len(opponent) == 1:
+                        return opponent.leader, "You're not worth my time, go train some."
+                    else:
+                        return opponent.leader, "You guys need to grow up before challenging the likes of us."
+                if hlvl > max(elvl+12, elvl*1.3):
+                    if len(opponent) == 1:
+                        return opponent.leader, "I am not feeling up to it... really!"
+                    else:
+                        return opponent.leader, "We are not looking for a fight outside of our league."
 
-            renpy.scene(layer="screens")
-
-            self.run_dogfight(team)
+            if opponent is not None and len(team) != len(opponent):
+                return None, "Make sure that your team has %d members!" % len(opponent)
 
         def match_challenge(self, setup):
             """
@@ -451,30 +433,6 @@ init -9 python:
                 Return(True), Return(False)):
                 setup[0] = hero.team
                 hero.fighting_days.append(fight_day)
-
-        def check_before_matchfight(self):
-            """
-            Checks if player team is correctly setup before an official match.
-            """
-            # Figure out who we're fighting:
-            for setup in itertools.chain(self.matches_1v1, self.matches_2v2, self.matches_3v3):
-                if setup[2] == day and setup[0].leader == hero:
-                    battle_setup = setup
-                    team = setup[1]
-
-            if len(hero.team) != len(team):
-                return "Make sure that your team has %d members!" % len(team)
-
-            for member in hero.team:
-                if member.status == "slave":
-                    return "%s is a slave and slaves are not allowed to fight in the Arena under the penalty of death to both slave and the owner!"%member.name
-
-            renpy.hide_screen("arena_inside")
-            renpy.hide_screen("arena_1v1_fights")
-            renpy.hide_screen("arena_2v2_fights")
-            renpy.hide_screen("arena_3v3_fights")
-
-            self.execute_matchfight(battle_setup)
 
         # -------------------------- Setup Methods -------------------------------->
         def update_ladder(self):
@@ -670,6 +628,7 @@ init -9 python:
                     if f.arena_rep == 0:
                         f.arena_rep = int(f.level * 500 * random.uniform(.9, 1.1))
                     team.add(f)
+                    team.name = f.name
 
             # 2v2 Ladder lineup:
             temp = candidates[:50]
@@ -710,147 +669,113 @@ init -9 python:
             self.update_dogfights()
 
         # -------------------------- ChainFights vs Mobs ------------------------>
-        def check_before_chainfight(self):
+        def run_chainfight(self, setup):
+            """Running a chainfight.
             """
-            Checks before chainfight.
-            """
-            for member in hero.team:
-                if member.status == "slave":
-                    return "%s is a Slave forbidden from participation in Combat!"%member.name
+            team = hero.team
+            for encounter in xrange(1, 6):
+                # Picking an opponent(s):
+                num_opps = len(team)
+                enemy_team = Team(name=setup["id"], max_size=num_opps)
 
-            self.cf_count = 1
+                mob_level = setup["level"]
+                mob_level += mob_level*(.1*encounter)
+                if encounter == 5: # Boss!
+                    mob_level = round_int(mob_level*1.1) # 10% extra for the Boss!
+                    enemy_team.add(build_mob(setup["boss"], level=mob_level))
+                    num_opps -= 1
+                else:
+                    mob_level = round_int(mob_level)
 
-            # Select Opponent:
-            result = renpy.call_screen("chain_fight")
-            if result == "break":
-                renpy.show_screen("arena_inside")
-                return
+                # Add the same amount of mobs as there characters on the MCs team:
+                for i in range(num_opps):
+                    mob = build_mob(choice(setup["mobs"]), level=mob_level)
+                    enemy_team.add(mob)
 
-            self.cf_setup = result
+                # Get team luck:
+                luck = sum((member.get_stat("luck") for member in team)) 
+                luck = float(luck)/len(team)
 
-            self.setup_chainfight()
+                # Bonus:
+                if dice(25 + encounter*3 + luck*.5):
+                    self.run_minigame(luck)
 
-        def setup_chainfight(self):
-            """Setting up a chainfight.
-            """
-            # Picking an opponent(s):
-            num_opps = len(hero.team)
-            team = Team(name=self.cf_setup.get("id", "Captured Creatures"), max_size=num_opps)
+                result = renpy.call_screen("confirm_chainfight", setup, encounter, enemy_team)
+                if result == "break":
+                    break
 
-            new_level = self.cf_setup["level"]
-            new_level += new_level*(.1*self.cf_count)
-            if self.cf_count == 5: # Boss!
-                new_level = round_int(new_level*1.1) # 10% extra for the Boss!
-                team.add(build_mob(self.cf_setup["boss"], level=new_level))
-                num_opps -= 1
-            else:
-                new_level = round_int(new_level)
+                # the actual battle
+                member_aps = []
+                for member in team:
+                    member_aps.append(member.PP)
 
-            # Add the same amount of mobs as there characters on the MCs team:
-            for i in range(num_opps):
-                mob = build_mob(choice(self.cf_setup["mobs"]), level=new_level)
-                team.add(mob)
+                global battle
+                if result is True:
+                    battle = run_auto_be(team, enemy_team, simple_ai=False)
+                else:
+                    renpy.music.stop(channel="world")
+                    renpy.play(choice(["content/sfx/sound/world/arena/prepare.mp3", "content/sfx/sound/world/arena/new_opp.mp3"]))
+                    track = get_random_battle_track()
+                    renpy.pause(1.3)
+                    renpy.music.play(track, fadein=1.5)
 
-            self.cf_mob = team
-            self.mob_power = new_level
+                    for mob in enemy_team:
+                        mob.controller = Complex_BE_AI()
 
-            luck = 0
-            # Get team luck:
-            for member in hero.team:
-                luck += member.get_stat("luck")
-            luck = float(luck)/len(hero.team)
+                    battle = BE_Core(bg=ImageReference("chainfights"), start_sfx=get_random_image_dissolve(1.5), give_up="surrender", end_bg="battle_arena_1")
+                    battle.teams = [team, enemy_team]
+                    battle.start_battle()
 
-            # Bonus:
-            bonus = dice(25+self.cf_count*3 + luck*.5)
+                    # Reset the controllers:
+                    #team.reset_controller()
+                    enemy_team.reset_controller()
 
-            # if DEBUG:
-            #     bonus = True
-            if bonus:
-                self.setup_minigame(luck)
+                    renpy.music.stop(fadeout=1.0)
 
-            renpy.show_screen("confirm_chainfight")
+                if battle.winner != team:
+                    break
 
-        def execute_chainfight(self, auto):
-            """
-            Bridge to battle engine + rewards/penalties.
-            """
-            enemy_team = self.cf_mob
-
-            member_aps = []
-            for member in hero.team:
-                member_aps.append(member.PP)
-
-            renpy.music.stop(channel="world")
-            global battle
-            if auto is True:
-                battle = run_auto_be(hero.team, enemy_team, simple_ai=False)
-            else:
-                renpy.play(choice(["content/sfx/sound/world/arena/prepare.mp3", "content/sfx/sound/world/arena/new_opp.mp3"]))
-                track = get_random_battle_track()
-                renpy.pause(1.3)
-                renpy.music.play(track, fadein=1.5)
-
-                for mob in enemy_team:
-                    mob.controller = Complex_BE_AI()
-
-                battle = BE_Core(bg=ImageReference("chainfights"), start_sfx=get_random_image_dissolve(1.5), give_up="surrender", end_bg="battle_arena_1")
-                battle.teams = [hero.team, enemy_team]
-                battle.start_battle()
-
-                # Reset the controllers:
-                #hero.team.reset_controller()
-                enemy_team.reset_controller()
-
-                renpy.music.stop(fadeout=1.0)
-
-            if battle.winner == hero.team:
-                for member, aps in zip(hero.team, member_aps):
+                combat_stats = dict()
+                for member, aps in zip(team, member_aps):
                     # Awards:
-                    if member not in battle.corpses:
+                    if member in battle.corpses:
+                        statdict = "K.O."
+                    else:
                         aps = (aps - member.PP)/100.0 # PP_PER_AP = 100
                         rew_xp = exp_reward(member, enemy_team, exp_mod=aps*.15)
-                        rew_rep = max(int(self.mob_power*.2), 1) # only little bit of reputation
+                        rew_rep = max(int(mob_level*.2), 1) # only little bit of reputation
                         #rew_gold = 0 # no gold for mobs, because they give items, unlike all other modes
                         member.mod_exp(rew_xp)
                         member.arena_rep += rew_rep
                         #member.add_money(rew_gold, reason="Arena")
-                        member.combat_stats = {"exp":rew_xp, "Arena Rep": rew_rep}
-                    else:
-                        member.combat_stats = "K.O."
+                        statdict = {"exp":rew_xp, "Arena Rep": rew_rep}
+                    combat_stats[member] = statdict
 
                 for member in enemy_team:
                     defeated_mobs.add(member.id)
-                    member.combat_stats = "K.O."
 
                 # Ladder
                 self.update_ladder()
 
-                self.cf_count += 1
+                if encounter <= 4:
+                    renpy.call_screen("arena_aftermatch", team, enemy_team, combat_stats)
+                    continue
 
-                if self.cf_count > 5:
-                    amount = 2
-                    amount += min(round_int(hero.arena_rep/max(15000.0, self.ladder[0].arena_rep / 3.0)), 3)
-                    tier = self.mob_power/40.0
-                    #types = ['scroll', 'restore', 'armor', 'weapon'] 
-                    types = "all" 
-                    rewards = get_item_drops(types=types, tier=tier, locations=["Arena"], amount=amount)
-                    for i in rewards:
-                        hero.inventory.append(i)
+                # rewards
+                amount = 2
+                amount += min(round_int(team.leader.arena_rep/max(15000.0, self.ladder[0].arena_rep / 3.0)), 3)
+                tier = mob_level/40.0
+                #types = ['scroll', 'restore', 'armor', 'weapon'] 
+                types = "all" 
+                rewards = get_item_drops(types=types, tier=tier, locations=["Arena"], amount=amount)
+                for i in rewards:
+                    hero.inventory.append(i)
 
-                    self.cf_mob = None
-                    self.cf_setup = None
-                    self.cf_count = 0
-                    renpy.play("win_screen.mp3", channel="world")
-                    renpy.show_screen("arena_finished_chainfight", hero.team, enemy_team, rewards)
-                else:
-                    renpy.show_screen("arena_aftermatch", hero.team, enemy_team, False)
-            else: # Player lost -->
-                self.cf_mob = None
-                self.cf_setup = None
-                self.cf_count = 0
-                jump("arena_inside")
+                renpy.call_screen("arena_finished_chainfight", team, enemy_team, combat_stats, rewards)
 
-        def setup_minigame(self, luck):
+            # end of the chainfight
+
+        def run_minigame(self, luck):
             # New total is 300, each of the stats may get 25!
             length = 300
             hpbar = 20
@@ -870,7 +795,6 @@ init -9 python:
             data = (("black", black), ("red", hpbar), ("blue", mpbar), ("green", vpbar), ("black", black))
 
             # Pass the minigame screen:
-            renpy.play("win_screen.mp3", channel="world")
             renpy.call_screen("arena_minigame", data, length)
 
         def settle_minigame(self, udd, data):
@@ -898,7 +822,7 @@ init -9 python:
         def arena_rep_reward(loser, winner):
             return max(0.0, (loser.get_rep() - (winner.get_rep() / 2)) / 10.0)
 
-        def auto_resolve_combat(self, off_team, def_team, type="dog_fight"):
+        def auto_resolve_combat(self, off_team, def_team, type="dogfight"):
 
             battle = run_auto_be(off_team, def_team, simple_ai=True)
 
@@ -906,7 +830,7 @@ init -9 python:
             loser = off_team if winner == def_team else def_team
 
             rep = self.arena_rep_reward(loser, winner)
-            if type == "dog_fight":
+            if type != "match":
                 rep = min(50.0, max(3.0, rep))
 
             for fighter in winner:
@@ -929,6 +853,8 @@ init -9 python:
             '''
             Bridge to battle engine + rewards/penalties
             '''
+            team = hero.team
+
             renpy.music.stop(channel="world")
             renpy.play(choice(["content/sfx/sound/world/arena/prepare.mp3",
                                "content/sfx/sound/world/arena/new_opp.mp3"]))
@@ -938,7 +864,7 @@ init -9 python:
 
             member_aps = {}
             start_health = 0
-            for member in hero.team:
+            for member in team:
                 start_health += member.get_stat("health")
                 member_aps[member] = member.PP
 
@@ -949,32 +875,29 @@ init -9 python:
             global battle
             battle = BE_Core(bg="battle_dogfights_1", start_sfx=get_random_image_dissolve(1.5),
                              end_bg="battle_arena_1", end_sfx=dissolve, give_up="surrender")
-            battle.teams = [hero.team, enemy_team]
+            battle.teams = [team, enemy_team]
             battle.start_battle()
 
             # Reset the controllers:
-            #hero.team.reset_controller()
+            #team.reset_controller()
             enemy_team.reset_controller()
 
             renpy.music.stop(fadeout=1.0)
 
             winner = battle.winner
-            if winner == hero.team:
-                loser = enemy_team
-            else:
-                loser = hero.team
+            loser = enemy_team if winner is team else team
 
             for member in chain(winner, loser):
                 aps = member_aps[member]
                 member_aps[member] = (aps - member.PP)/100.0 # PP_PER_AP = 100
 
             finish_health = 0
-            for member in hero.team:
+            for member in team:
                 finish_health += member.get_stat("health")
 
             # Idea for awards in DF: Decent cash, low a-rep and normal EXP.
             # Max gold as a constant:
-            max_gold = (enemy_team.get_level()+hero.team.get_level())*5
+            max_gold = (enemy_team.get_level()+team.get_level())*5
             blood = start_health - finish_health
             # Awards:
             rew_gold = round_int(max_gold*(float(loser.get_level())/max(1, winner.get_level())))
@@ -983,8 +906,11 @@ init -9 python:
 
             rep = min(50, max(3, self.arena_rep_reward(loser, winner)))
 
+            combat_stats = dict()
             for member in winner:
-                if member not in battle.corpses:
+                if member in battle.corpses:
+                    statdict = "K.O."
+                else:
                     rew_xp = exp_reward(member, loser, exp_mod=member_aps[member])
                     rew_rep = int(rep)
 
@@ -1000,22 +926,18 @@ init -9 python:
                         if random.random() > .5:
                             member.mod_stat("reputation", 1)
                             statdict["reputation"] = 1
-
-                    member.combat_stats = statdict
-                else:
-                    member.combat_stats = "K.O."
+                combat_stats[member] = statdict
 
             rep = rep / 10.0
             for member in loser:
                 member.arena_rep -= int(rep)
                 member.mod_exp(exp_reward(member, winner, exp_mod=member_aps[member]*.15))
                 self.remove_team_from_dogfights(member)
-                member.combat_stats = "K.O."
 
             for member in enemy_team:
                 restore_battle_stats(member)
 
-            renpy.show_screen("arena_aftermatch", winner, loser)
+            renpy.call_screen("arena_aftermatch", winner, loser, combat_stats)
 
             # Ladder
             self.update_ladder()
@@ -1030,11 +952,13 @@ init -9 python:
             """ 
             return Team(name=team.name, implicit=team.members, max_size=team.max_size)
 
-        def execute_matchfight(self, setup):
+        def run_matchfight(self, setup):
             """
             Bridge to battle engine + rewards/penalties.
             """
+            team = hero.team
             enemy_team = setup[1]
+
             renpy.music.stop(channel="world")
             renpy.play(choice(["content/sfx/sound/world/arena/prepare.mp3", "content/sfx/sound/world/arena/new_opp.mp3"]))
             track = get_random_battle_track()
@@ -1042,7 +966,7 @@ init -9 python:
             renpy.music.play(track, fadein=1.5)
 
             member_aps = {}
-            for member in hero.team:
+            for member in team:
                 member_aps[member] = member.PP
 
             for member in enemy_team:
@@ -1052,20 +976,17 @@ init -9 python:
             global battle
             battle = BE_Core(bg="battle_arena_1", start_sfx=get_random_image_dissolve(1.5),
                              end_bg="battle_arena_1", end_sfx=dissolve, give_up="surrender")
-            battle.teams = [hero.team, enemy_team]
+            battle.teams = [team, enemy_team]
             battle.start_battle()
 
             # Reset the controllers:
-            #hero.team.reset_controller()
+            #team.reset_controller()
             enemy_team.reset_controller()
 
             renpy.music.stop(fadeout=1.0)
 
             winner = battle.winner
-            if winner == hero.team:
-                loser = enemy_team
-            else:
-                loser = hero.team
+            loser = enemy_team if winner is team else team
 
             for member in chain(winner, loser):
                 aps = member_aps[member]
@@ -1074,8 +995,11 @@ init -9 python:
             rew_rep = self.arena_rep_reward(loser, winner)
             rew_gold = int(max(200, 250*(float(loser.get_level()) /max(1, winner.get_level()))))
 
+            combat_stats = dict()
             for member in winner:
-                if member not in battle.corpses:
+                if member in battle.corpses:
+                    statdict = "K.O."
+                else:
                     rew_xp = exp_reward(member, loser, exp_mod=member_aps[member])
 
                     member.mod_exp(rew_xp)
@@ -1092,24 +1016,21 @@ init -9 python:
                         if rew_r:
                             member.mod_stat("reputation", rew_r)
                             statdict["reputation"] = rew_r
-                    member.combat_stats = statdict
-                else:
-                    member.combat_stats = "K.O."
+                combat_stats[member] = statdict
 
             rew_rep = rew_rep / 10.0
             for member in loser:
                 member.arena_rep -= int(rew_rep)
                 member.mod_exp(exp_reward(member, winner, exp_mod=member_aps[member]*.15))
                 # self.remove_team_from_dogfights(member)
-                member.combat_stats = "K.O."
 
             for member in enemy_team:
                 restore_battle_stats(member)
 
-            renpy.show_screen("arena_aftermatch", winner, loser)
+            renpy.call_screen("arena_aftermatch", winner, loser, combat_stats)
 
-            setup[0] = Team(max_size=len(setup[0]))
-            setup[1] = Team(max_size=len(setup[1]))
+            # Update match
+            setup[0] = setup[1] = Arena.EMPTY_TEAM
 
             # Line-up positioning:
             self.update_setups(winner, loser)
@@ -1188,8 +1109,7 @@ init -9 python:
                         for f in chain(off_team, def_team):
                             f.fighting_days.remove(fday)
 
-                        setup[0] = Team(max_size=size)
-                        setup[1] = Team(max_size=size)
+                        setup[0] = setup[1] = Arena.EMPTY_TEAM
 
             self.update_matches()
             tl.end("Arena: Matches")
@@ -1210,8 +1130,7 @@ init -9 python:
                 if self.dogfights_1v1 and opfor_pool:
                     defender = self.dogfights_1v1.pop()
                     opfor_fighter = opfor_pool.pop()
-                    opfor = Team(max_size=1)
-                    opfor.add(opfor_fighter)
+                    opfor = Team(implicit=[opfor_fighter], max_size=1)
                     self.auto_resolve_combat(opfor, defender)
                     self.df_count += 1
             # 2v2:

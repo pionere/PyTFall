@@ -9,7 +9,7 @@ label arena_inside:
     # Predicting:
     python:
         arena_img_predict = ["chainfights", "bg battle_dogfights_1", "bg battle_arena_1"]
-        arena_scr_predict = ["chain_fight", "arena_minigame", "confirm_chainfight",
+        arena_scr_predict = ["arena_mobs", "arena_minigame", "confirm_chainfight",
                              "arena_finished_chainfight", "arena_rep_ladder",
                              "arena_matches", "arena_ladders", "arena_dogfights",
                              "arena_bestiary", "arena_aftermatch", "arena_report"]
@@ -23,34 +23,10 @@ label arena_inside:
     $ renpy.retain_after_load()
 
     while 1:
-
         $ result = ui.interact()
 
-        if result[0] == 'control':
-            if result[1] == "done_aftermatch":
-                $ renpy.music.stop(channel="music", fadeout=1.0)
-                hide screen arena_aftermatch
-                # cleanup
-                python:
-                    for member in chain(result[2], result[3]):
-                        del member.combat_stats
-                    del member
-                if result[4]:
-                    jump arena_inside
-                else:
-                    $ pytfall.arena.setup_chainfight()
-            elif result[1] == "done_chainfight":
-                hide screen arena_finished_chainfight
-                hide screen chain_fight
-                hide screen confirm_chainfight
-                # cleanup
-                python:
-                    pytfall.arena.cf_count = 0
-                    for member in chain(result[2], result[3]):
-                        del member.combat_stats
-                    del member
-                jump arena_inside
-            elif result[1] == 'return':
+        if result[0] == "control":
+            if result[1] == "return":
                 jump arena_inside_end
 
         elif result[0] == "show":
@@ -59,20 +35,56 @@ label arena_inside:
                 show screen arena_bestiary
 
         elif result[0] == "challenge":
-            $ msg = None
-            if result[1] == "dogfights":
-                $ msg = pytfall.arena.dogfight_challenge(result[2])
-            elif result[1] == "matches":
-                $ msg = pytfall.arena.match_challenge(result[2])
+            if result[1] == "matches":
+                $ result = pytfall.arena.match_challenge(result[2])
+                if result:
+                    show screen message_screen(result)
+            elif result[1] == "start_dogfight":
+                $ team = result[2]
+                $ result = pytfall.arena.check_arena_fight("dogfight", hero.team, team)
+                if result:
+                    $ del team
+                    if result[0] is None:
+                        show screen message_screen(result[1])
+                    else:
+                        $ block_say = True
+                        $ result[0].say(result[1])
+                        $ block_say = False
+                else:
+                    $ result = team
+                    $ del team
+                    hide screen arena_inside
+                    $ pytfall.arena.run_dogfight(result)
+                    jump arena_inside
             elif result[1] == "start_matchfight":
-                $ msg = pytfall.arena.check_before_matchfight()
+                # Figure out who we're fighting:
+                python:
+                    for setup in itertools.chain(pytfall.arena.matches_1v1, pytfall.arena.matches_2v2, pytfall.arena.matches_3v3):
+                        if setup[2] == day and setup[0].leader == hero:
+                            break
+
+                $ result = pytfall.arena.check_arena_fight("matchfight", hero.team, setup[1])
+                if result:
+                    $ del setup
+                    show screen message_screen(result[1])
+                else:
+                    $ result = setup
+                    $ del setup
+                    hide screen arena_inside
+                    $ pytfall.arena.run_matchfight(result)
+                    jump arena_inside
             elif result[1] == "start_chainfight":
-                $ msg = pytfall.arena.check_before_chainfight()
-            elif result[1] == "chainfight":
-                $ pytfall.arena.execute_chainfight(result[2])
-            if msg:
-                call screen message_screen(msg)
-            $ del msg
+                $ setup = result[2]
+                $ result = pytfall.arena.check_arena_fight("chainfight", hero.team, None)
+                if result:
+                    $ del setup
+                    show screen message_screen(result[1])
+                else:
+                    $ result = setup
+                    $ del setup
+                    hide screen arena_inside
+                    $ pytfall.arena.run_chainfight(result)
+                    jump arena_inside
 
 label arena_inside_end:
     $ renpy.stop_predict(*arena_img_predict)
@@ -105,7 +117,7 @@ init: # Main Screens:
 
     screen arena_inside():
         # Start match button:
-        if day in hero.fighting_days:
+        if day in hero.fighting_days and not pytfall.arena.hero_match_result:
             button:
                 align .5, .28
                 # xysize (200, 40)
@@ -156,7 +168,7 @@ init: # Main Screens:
                         action Return(["show", "bestiary"])
                         tooltip "Info about known enemies"
                     textbutton "{size=20}{color=black}Survival":
-                        action Return(["challenge", "start_chainfight"])
+                        action Show("arena_mobs", transition=dissolve)
                         tooltip "Unranked fights vs beasts and monsters"
 
             # Ladders (Just Info):
@@ -634,7 +646,7 @@ init: # Main Screens:
                             has hbox xalign .5
                             button:
                                 style "arena_channenge_button"
-                                action Hide("arena_dogfights"), Return(["challenge", "dogfights", team])
+                                action Hide("arena_dogfights"), Return(["challenge", "start_dogfight", team])
                                 $ level = team.get_level()
                                 vbox:
                                     align (.5, .5)
@@ -890,15 +902,16 @@ init: # Main Screens:
             action Hide("arena_bestiary"), return_button_action
             keysym "mousedown_3"
 
-    screen arena_aftermatch(w_team, l_team, done=True):
+    screen arena_aftermatch(w_team, l_team, combat_stats):
         modal True
         zorder 2
 
         default winner = w_team[0]
         default loser = l_team[0]
 
-        if hero.team == w_team:
+        if w_team == hero.team:
             on "show" action Play("music", "content/sfx/music/world/win_screen.mp3")
+            on "hide" action Stop(channel="music", fadeout=1.0)
 
             add "content/gfx/images/battle/victory_l.webp" at move_from_to_pos_with_ease(start_pos=(-config.screen_width/2, 0), end_pos=(0, 0), t=.7, wait=0)
             add "content/gfx/images/battle/victory_r.webp" at move_from_to_pos_with_ease(start_pos=(config.screen_width/2, 0), end_pos=(0, 0), t=.7)
@@ -924,8 +937,7 @@ init: # Main Screens:
             xmargin 0
             ymargin 0
             has vbox spacing 5 align(.5, .5) box_reverse True
-            $ i = 0
-            for member in w_team:
+            for i, member in enumerate(w_team):
                 $ img = member.show("portrait", resize=(70, 70), cache=True)
                 fixed:
                     align (.5, .5)
@@ -942,7 +954,6 @@ init: # Main Screens:
                         hover img
                         selected_idle Transform(img, alpha=1.05)
                         action SetScreenVariable("winner", member), With(dissolve)
-                    $ i = i + 1
 
         frame:
             background Null()
@@ -953,8 +964,7 @@ init: # Main Screens:
             xmargin 0
             ymargin 0
             has vbox spacing 5 align(.5, .5)
-            $ i = 0
-            for member in l_team:
+            for i, member in enumerate(l_team):
                 $ img = member.show("portrait", resize=(70, 70), cache=True)
                 fixed:
                     align (.5, .5)
@@ -971,57 +981,50 @@ init: # Main Screens:
                         hover img
                         selected_idle Transform(img, alpha=1.05)
                         action NullAction()
-                    $ i = i + 1
 
         button:
             xysize (100, 30)
             align (.5, .63)
             style_group "pb"
-            action Return(["control", "done_aftermatch", w_team, l_team, done])
+            action Return(True)
             text "Continue" style "pb_button_text" yalign 1.0 
 
         # Winner Details Display on the left:
-        if winner.combat_stats == "K.O.":
-            frame:
-                at fade_from_to_with_easeout(start_val=.0, end_val=1.0, t=.9, wait=0)
-                background Frame("content/gfx/frame/MC_bg.png", 10, 10)
-                add im.Sepia(winner.show('battle_sprite', resize=(200, 200), cache=True))
-                align .2, .2
-        else:
-            frame:
-                at fade_from_to_with_easeout(start_val=.0, end_val=1.0, t=.9, wait=0)
-                background Frame("content/gfx/frame/MC_bg.png", 10, 10)
-                add winner.show("battle_sprite", resize=(200, 200), cache=True)
-                align .2, .2
+        $ w_stats = combat_stats[winner]
+        $ img = winner.show('battle_sprite', resize=(200, 200), cache=True)
+        if w_stats == "K.O.":
+            $ img = PyTGFX.sepia_content(img)
+        frame:
+            at fade_from_to_with_easeout(start_val=.0, end_val=1.0, t=.9, wait=0)
+            background Frame("content/gfx/frame/MC_bg.png", 10, 10)
+            add img
+            align .2, .2
+        # Show only if we won...
+        if w_stats != "K.O.":
             null height 20
-            if hero.team == w_team: # Show only if we won...
-                frame:
-                    style_group "proper_stats"
-                    align (.2, .5)
-                    background Frame(im.Alpha("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
-                    xpadding 12
-                    ypadding 12
-                    xmargin 0
-                    ymargin 0
-                    has vbox spacing 1
-                    for stat in winner.combat_stats:
-                        frame:
-                            xalign .5
-                            xysize (190, 27)
-                            text stat.capitalize() xalign .02 color "#79CDCD"
-                            label str(winner.combat_stats[stat]) xalign 1.0 yoffset -1
+            frame:
+                style_group "proper_stats"
+                align (.2, .5)
+                background Frame(im.Alpha("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
+                xpadding 12
+                ypadding 12
+                xmargin 0
+                ymargin 0
+                has vbox spacing 1
+                for stat, value in w_stats.iteritems():
+                    frame:
+                        xalign .5
+                        xysize (190, 27)
+                        text stat.capitalize() xalign .02 color "#79CDCD"
+                        label str(value) xalign 1.0 yoffset -1
 
-        # Looser Details Display on the left:
-        if loser.combat_stats == "K.O.":
-            frame:
-                background Frame("content/gfx/frame/MC_bg.png", 10, 10)
-                add im.Sepia(loser.show("battle_sprite", resize=(200, 200), cache=True))
-                align (.8, .2)
-        else:
-            frame:
-                background Frame("content/gfx/frame/MC_bg.png", 10, 10)
-                add loser.show("battle_sprite", resize=(200, 200), cache=True)
-                align (.8, .2)
+        # Looser Details Display on the right:
+        $ img = loser.show("battle_sprite", resize=(200, 200), cache=True)
+        $ img = PyTGFX.sepia_content(img)
+        frame:
+            background Frame("content/gfx/frame/MC_bg.png", 10, 10)
+            add img 
+            align (.8, .2)
 
         add "content/gfx/frame/h1.webp"
 
@@ -1052,69 +1055,69 @@ init: # Main Screens:
                 keysym "mousedown_3"
 
 init: # ChainFights vs Mobs:
-    screen chain_fight():
+    screen arena_mobs():
         modal True
-        if not pytfall.arena.cf_mob:
-            frame:
-                background Frame("content/gfx/frame/p_frame52.webp", 10, 10)
-                at slide(so1=(0, 1200), t1=.7, eo2=(0, 1200), t2=.7)
-                style_group "content"
-                pos (280, 154)
-                xysize (721, 580)
-                has vbox
-                viewport:
-                    scrollbars "vertical"
-                    maximum (710, 515)
-                    draggable True
-                    mousewheel True
-                    child_size (700, 5000)
-                    has vbox spacing 5
-                    for setup in Arena.all_chain_fights:
-                        $ id = setup["id"]
-                        $ lvl = setup["level"]
-                        $ portrait = setup["boss_portrait"]
-                        frame:
-                            xysize (695, 55)
-                            background Frame("content/gfx/frame/p_frame7.webp", 10, 10)
-                            padding 1, 1
-                            hbox:
+        frame:
+            background Frame("content/gfx/frame/p_frame52.webp", 10, 10)
+            at slide(so1=(0, 1200), t1=.7, eo2=(0, 1200), t2=.7)
+            style_group "content"
+            pos (280, 154)
+            xysize (721, 580)
+            has vbox
+            viewport:
+                scrollbars "vertical"
+                maximum (710, 515)
+                draggable True
+                mousewheel True
+                child_size (700, 5000)
+                has vbox spacing 5
+                for setup in Arena.all_chain_fights:
+                    $ id = setup["id"]
+                    $ lvl = setup["level"]
+                    $ portrait = setup["boss_portrait"]
+                    frame:
+                        xysize (695, 55)
+                        background Frame("content/gfx/frame/p_frame7.webp", 10, 10)
+                        padding 1, 1
+                        hbox:
+                            yalign .5
+                            frame:
                                 yalign .5
-                                frame:
-                                    yalign .5
-                                    xysize (350, 45)
-                                    background Frame("content/gfx/frame/rank_frame.png", 5, 5)
-                                    text id align .5, .5 size 25 style "proper_stats_text" color "gold"
-                                frame:
-                                    yalign .5
-                                    xysize (45, 45)
-                                    background Frame("content/gfx/frame/rank_frame.png", 5, 5)
-                                    add PyTGFX.scale_content(portrait, 36, 36) align (.5, .5)
-                                frame:
-                                    yalign .5
-                                    xysize (100, 45)
-                                    background Frame("content/gfx/frame/rank_frame.png", 5, 5)
-                                    text("Lvl [lvl]") align .5, .5 size 25 style "proper_stats_text" color "gold"
-                                button:
-                                    xfill True
-                                    ysize 60
-                                    background None
-                                    action [Hide("arena_inside"), Hide("chain_fight"), Return(setup)]
-                                    align (.5, .5)
-                                    text "Fight!" style "arena_badaboom_text" size 40 outlines [(2, "#3a3a3a", 0, 0)]
-                null height 5
-                button:
-                    style_group "basic"
-                    action Return("break")
-                    minimum(50, 30)
-                    align (.5, .9995)
-                    text  "Close"
-                    keysym "mousedown_3"
-        else:
-            timer .5 action Return("break")
+                                xysize (350, 45)
+                                background Frame("content/gfx/frame/rank_frame.png", 5, 5)
+                                text id align .5, .5 size 25 style "proper_stats_text" color "gold"
+                            frame:
+                                yalign .5
+                                xysize (45, 45)
+                                background Frame("content/gfx/frame/rank_frame.png", 5, 5)
+                                add PyTGFX.scale_content(portrait, 36, 36) align (.5, .5)
+                            frame:
+                                yalign .5
+                                xysize (100, 45)
+                                background Frame("content/gfx/frame/rank_frame.png", 5, 5)
+                                text("Lvl [lvl]") align .5, .5 size 25 style "proper_stats_text" color "gold"
+                            button:
+                                xfill True
+                                ysize 60
+                                background None
+                                action Hide("arena_mobs"), Return(["challenge", "start_chainfight", setup])
+                                align (.5, .5)
+                                text "Fight!" style "arena_badaboom_text" size 40 outlines [(2, "#3a3a3a", 0, 0)]
+            null height 5
+            button:
+                style_group "basic"
+                action Hide("arena_mobs"), With(dissolve)
+                minimum(50, 30)
+                align (.5, .9995)
+                text  "Close"
+                keysym "mousedown_3"
 
     screen arena_minigame(data, length):
         zorder 2
         modal True
+
+        on "show" action Play("music", "content/sfx/music/world/win_screen.mp3")
+        on "hide" action Stop(channel="music", fadeout=1.0)
 
         default rolled = None
 
@@ -1179,43 +1182,41 @@ init: # ChainFights vs Mobs:
                         add Solid(color, xysize=(20, 20))
                         text text style "garamond" color "goldenrod" yoffset -4
 
-    screen confirm_chainfight():
+    screen confirm_chainfight(setup, encounter, mob):
         modal True
 
-        if pytfall.arena.cf_count and pytfall.arena.cf_mob:
+        # Fight Number:
+        text "Round  [encounter]":
+            at move_from_to_pos_with_ease(start_pos=(560, -100), end_pos=(560, 150), t=.7)
+            italic True
+            color "red"
+            style "arena_header_text"
+            size 45
 
-            # Fight Number:
-            text "Round  [pytfall.arena.cf_count]":
-                at move_from_to_pos_with_ease(start_pos=(560, -100), end_pos=(560, 150), t=.7)
-                italic True
-                color "red"
+        # Opposing Sprites:
+        add hero.show("battle_sprite", resize=(200, 200), cache=True) at slide(so1=(-600, 0), t1=.7, eo2=(-1300, 0), t2=.7) align .35, .5
+        add mob.leader.show("battle_sprite", resize=(200, 200)) at slide(so1=(600, 0), t1=.7, eo2=(1300, 0), t2=.7) align .65, .5
+
+        # Title Text and Boss name if appropriate:
+        if encounter == 5:
+            text "Boss Fight!":
+                align .5, .01
+                at fade_in_out(t1=1.5, t2=1.5)
                 style "arena_header_text"
-                size 45
-
-            # Opposing Sprites:
-            add hero.show("battle_sprite", resize=(200, 200), cache=True) at slide(so1=(-600, 0), t1=.7, eo2=(-1300, 0), t2=.7) align .35, .5
-            add pytfall.arena.cf_mob.leader.show("battle_sprite", resize=(200, 200)) at slide(so1=(600, 0), t1=.7, eo2=(1300, 0), t2=.7) align .65, .5
-
-            # Title Text and Boss name if appropriate:
-            if pytfall.arena.cf_count == 5:
-                text "Boss Fight!":
-                    align .5, .01
-                    at fade_in_out(t1=1.5, t2=1.5)
-                    style "arena_header_text"
-                    size 80
-                text pytfall.arena.cf_setup["boss_name"]:
-                    align .5, .75
-                    at fade_in_out(t1=1.5, t2=1.5)
-                    size 40
-                    outlines [(2, "black", 0, 0)]
-                    color "crimson"
-                    style "garamond"
-            else:
-                text pytfall.arena.cf_setup["id"]:
-                    align .5, .01
-                    at fade_in_out(t1=1.5, t2=1.5)
-                    style "arena_header_text"
-                    size 80
+                size 80
+            text setup["boss_name"]:
+                align .5, .75
+                at fade_in_out(t1=1.5, t2=1.5)
+                size 40
+                outlines [(2, "black", 0, 0)]
+                color "crimson"
+                style "garamond"
+        else:
+            text setup["id"]:
+                align .5, .01
+                at fade_in_out(t1=1.5, t2=1.5)
+                style "arena_header_text"
+                size 80
 
         # hbox at slide(so1=(0, 700), t1=.7, so2=(0, 700), t2=.7):
         frame:
@@ -1225,26 +1226,25 @@ init: # ChainFights vs Mobs:
             hbox:
                 xalign .5
                 textbutton "Auto":
-                    action [Hide("confirm_chainfight"),
-                            Return(["challenge", "chainfight", True])]
+                    action Return(True)
             hbox:
                 spacing 100
                 textbutton "Give Up":
-                    action [Hide("arena_inside"), Hide("chain_fight"), Hide("confirm_chainfight"),
-                            SetField(pytfall.arena, "cf_count", 0),
-                            SetField(pytfall.arena, "cf_mob", None),
-                            SetField(pytfall.arena, "cf_setup", None),
-                            Stop("music"), Jump("arena_inside")]
+                    action Return("break")
                 textbutton "Fight":
-                    action [Hide("confirm_chainfight"),
-                            Return(["challenge", "chainfight", False])]
+                    action Return(False)
 
-    screen arena_finished_chainfight(w_team, l_team, rewards):
+    screen arena_finished_chainfight(w_team, l_team, combat_stats, rewards):
         zorder  3
         modal True
 
-        key "mousedown_3" action Return(["control", "done_chainfight", w_team, l_team])
-        timer 9.0 action Return(["control", "done_chainfight", w_team, l_team])
+        default winner = w_team[0]
+
+        on "show" action Play("music", "content/sfx/music/world/win_screen.mp3")
+        on "hide" action Stop(channel="music", fadeout=1.0)
+
+        key "mousedown_3" action Return(True)
+        timer 9.0 action Return(True)
 
         text "Victory!":
             at move_from_to_align_with_linear(start_align=(.5, .3), end_align=(.5, .03), t=2.2)
@@ -1278,21 +1278,25 @@ init: # ChainFights vs Mobs:
                         size 25
 
         # Chars + Stats
+        $ w_stats = combat_stats[winner]
+        $ img = winner.show("battle", resize=(426, 376), cache=True)
+        if w_stats == "K.O.":
+            $ img = PyTGFX.sepia_content(img)
         frame:
             at fade_from_to_with_easeout(start_val=0, end_val=1.0, t=.9, wait=0)
             background Frame("content/gfx/frame/MC_bg.png", 10, 10)
-            add hero.show("battle", resize=(426, 376), cache=True)
+            add img
             align .1, .5
 
         vbox:
             at arena_stats_slide
             pos (600, 405)
             spacing 1
-            if not isinstance(w_team[0].combat_stats, basestring):
-                for stat in w_team[0].combat_stats:
+            if w_stats != "K.O.":
+                for stat, value in w_stats.iteritems():
                     fixed:
                         xysize (170, 18)
                         text stat.capitalize() xalign .03 style "dropdown_gm2_button_text" color "red" size 25
-                        text str(w_team[0].combat_stats[stat]) xalign .97 style "dropdown_gm2_button_text" color "crimson" size 25
+                        text str(value) xalign .97 style "dropdown_gm2_button_text" color "crimson" size 25
             else:
                 text("{size=+20}{color=red}K.O.")
