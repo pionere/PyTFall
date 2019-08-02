@@ -857,8 +857,8 @@ init -10 python:
             for c in char.chars:
                 if c.status != "slave":
                     continue
-                _tax = round_int(s.get_price()*mod)
-                s.fin.log_logical_expense(_tax, "Property Tax")
+                _tax = round_int(c.get_price()*mod)
+                c.fin.log_logical_expense(_tax, "Property Tax")
                 s_tax += _tax
 
             tax = b_tax + s_tax
