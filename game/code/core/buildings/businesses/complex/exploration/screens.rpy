@@ -67,8 +67,6 @@ screen building_management_leftframe_exploration_guild_mode:
                 mousewheel True
                 has vbox spacing 4
                 $ temp = sorted([a for a in fg_areas.values() if a.area is None and a.unlocked], key=attrgetter("stage"))
-                if temp and not selected_exp_area:
-                    $ mid_frame_focus = temp[0]
 
                 for area in temp:
                     $ img = PyTGFX.scale_content(area.img, 220, 124)
@@ -727,23 +725,22 @@ screen building_management_midframe_exploration_guild_mode:
                 box_wrap 1
                 spacing 2
                 xalign .5
-                if isinstance(selected_area, FG_Area):
+                if selected_area is not None:
                     $ temp = sorted([a for a in fg_areas.values() if a.area == selected_area.id], key=attrgetter("stage"))
                     for area in temp:
                         if area.unlocked:
                             $ temp = area.name
+                            $ action = [SetField(bm_mid_frame_mode, "selected_exp_area_sub", area), SetField(bm_mid_frame_mode, "view_mode", "area")]
                         else:
                             $ temp = "?????????"
+                            $ action = NullAction()
                         button:
                             background Frame(im.Alpha("content/gfx/frame/mes12.jpg", alpha=.9), 10, 10)
                             hover_background Frame(im.Alpha(PyTGFX.bright_img("content/gfx/frame/mes11.webp", .10), alpha=.9), 10, 10)
                             xysize (150, 90)
                             ymargin 1
                             ypadding 1
-                            if area.unlocked:
-                                action [SetField(bm_mid_frame_mode, "selected_exp_area_sub", area), SetField(bm_mid_frame_mode, "view_mode", "area")]
-                            else:
-                                action NullAction()
+                            action action 
                             text temp color "gold" style "interactions_text" size 14 outlines [(1, "#3a3a3a", 0, 0)] align (.5, .3)
                             hbox:
                                 align (.5, .9)
@@ -1097,7 +1094,7 @@ screen building_management_rightframe_exploration_guild_mode:
                         xysize (150, 40)
                         yalign .5
                         action SetField(bm_mid_frame_mode, "view_mode", "log")
-                        tooltip "For each of your teams, recorded one last adventure, which you can see here in detail."
+                        tooltip "Check the latest recorded events for each exploration-area."
                         text "Log" size 15
                     button:
                         xysize 150, 40
