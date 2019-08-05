@@ -421,9 +421,6 @@ init -11 python:
         # Items, give and/or autoequip:
         give_tiered_items(rg, give_civilian_items, give_bt_items)
 
-        # if equip_to_tier: # Old (faster but less precise) way of giving items:
-        #     give_tiered_items(rg, **gtt_kwargs) # (old/simle(er) func)
-
         # And add to char! :)
         if add_to_gameworld:
             rg.set_flag("from_day_in_game", day)
@@ -439,6 +436,9 @@ init -11 python:
 
         Usually ran right after we created the said character.
         """
+        if not give_civilian_items and not give_bt_items:
+            return
+
         container = []
         limit_tier = min(((char.tier/2)+1), 5)
         for i in range(limit_tier):
@@ -454,6 +454,9 @@ init -11 python:
             slots["ring"] = 3
             char.auto_buy(slots=slots, equip=True, check_money=False, container=container,
                           purpose=None)
+
+        # the given items might increase only the maximum values -> restore is necessary
+        restore_battle_stats(char)
 
     def create_base_traits(bt_group, bt_list, status):
         """
