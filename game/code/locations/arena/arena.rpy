@@ -6,6 +6,8 @@ init -9 python:
         @Note to myself: This code needs to be updated post-Alpha release to account for Arena Fighters and restructured for further use in the game!
         -------------------------->
         """
+        PERMIT_REP = 5000    # the required arena reputation to buy an arena permit
+        PERMIT_PRICE = 10000 # the price of an arena permit
         EMPTY_TEAM = Team(max_size=0)
         def __init__(self):
             super(Arena, self).__init__()

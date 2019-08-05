@@ -136,20 +136,22 @@ label xeona_talking:
                 $ global_flags.set_flag("heard_about_arena")
 
             "Buy the Arena Permit?" if not hero.arena_permit and global_flags.flag("heard_about_arena"):
-                if hero.arena_rep >= 5000:
+                if hero.arena_rep >= Arena.PERMIT_REP:
                     ax "It looks like you've managed to gain enough reputation. Congratulations!"
+                    $ temp = "{color=gold}%s Gold{/color}" % ("{:,d}".format(Arena.PERMIT_PRICE).replace(",", " "))
                     menu:
-                        ax "Would you like to buy an arena permit? It's priced at {color=gold}10 000 Gold{/color}."
+                        ax "Would you like to buy an arena permit? It's priced at [temp]."
                         "Yes":
-                            if hero.take_money(10000, reason="Arena Permit"):
+                            if hero.take_money(Arena.PERMIT_PRICE, reason="Arena Permit"):
                                 $ hero.arena_permit = True
                                 ax "There you go! You can now participate in official Arena Matches!"
                             else:
-                                ax "Do you really have {color=gold}10 000 Gold{/color} on you?"
+                                ax "Do you really have [temp] on you?"
                                 ax "Didn't think so..."
                         "No":
                             $ pass
-                elif hero.arena_rep >= 2500:
+                    $ del temp
+                elif hero.arena_rep >= Arena.PERMIT_REP/2:
                     ax "You've managed to improve your reputation, but you're not there yet :)"
                 else:
                     ax "With the amount of rep you have? No chance in hell!!!"
