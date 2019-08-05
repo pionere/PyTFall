@@ -243,19 +243,17 @@ screen dropdown_content(options, max_rows, row_size, pos, value=None, field=None
 
     frame:
         background Frame(im.Alpha("content/gfx/frame/MC_bg.png", alpha=.55), 10 ,10)
-        #style_prefix "content"
-        xmargin 0
-        padding 5, 5
+        margin 0, 0
+        padding 4, 4
         pos (x, y)
         yanchor yval
-        xsize xsize+10
-        ymaximum (ysize*max_rows + 10)
+        xysize (xsize+8, ysize*max_rows + 8)
         style_group "proper_stats"
         viewport:
             xsize xsize
-            ymaximum ysize*max_rows
+            ymaximum (ysize*max_rows + 8)
             mousewheel True
-            has vbox
+            has vbox spacing 0
             for key, option in options.items():
                 python:
                     btn_action = []
