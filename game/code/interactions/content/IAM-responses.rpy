@@ -494,36 +494,6 @@ init -2 python:
             iam.say_line(character, lines)
 
         @staticmethod
-        def refuse_tired(character):
-            """
-            Outputs a line when a character is too tired to do something
-            """
-            char_traits = character.traits
-            if "Impersonal" in char_traits:
-                lines = ("I don't have required endurance at the moment. Let's postpone it.", "No. Not enough energy.")
-            elif "Shy" in char_traits and dice(50):
-                lines = ("W-well, I'm a bit tired right now... Maybe some other time...", "Um, I-I don't think I can do it, I'm exhausted. Sorry...")
-            elif "Imouto" in char_traits:
-                lines = ("Noooo, I'm tired. I want to sleep.", "Z-z-z *she falls asleep on the feet*")
-            elif "Dandere" in char_traits:
-                lines = ("No. Too tired.", "Not enough strength. I need to rest.")
-            elif "Tsundere" in char_traits:
-                lines = ("I must rest at first. Can't you tell?", "I'm too tired, don't you see?! Honestly, some people...")
-            elif "Kuudere" in char_traits:
-                lines = ("I'm quite exhausted. Maybe some other time.", "I really could use some rest right now, my body is tired.")
-            elif "Kamidere" in char_traits:
-                lines = ("I'm tired, and have to intentions to do anything but rest.", "I need some rest. Please don't bother me.")
-            elif "Bokukko" in char_traits:
-                lines = ("Naah, don't wanna. Too tired.", "*yawns* I could use a nap first...")
-            elif "Ane" in char_traits:
-                lines = ("Unfortunately I'm quite tired at the moment. I'd like to rest a bit.", "Sorry, I'm quite sleepy. Let's do it another time.")
-            elif "Yandere" in char_traits:
-                lines = ("Ahh, my whole body aches... I'm way too tired.", "The only thing I can do properly now is to take a good nap...")
-            else:
-                lines = ("*sign* I'm soo tired lately, all I can think about is a cozy warm bed...", "I am ready to drop. Some other time perhaps.")
-            iam.say_line(character, lines, "tired")
-
-        @staticmethod
         def refuse_to_give(character):
             """
             Output line when a character denies to give money or to access to an item.

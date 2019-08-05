@@ -316,17 +316,17 @@ init -2 python:
                 patience = 1
             else:
                 patience = 0
-    
+
             if "Well-mannered" in c.traits:
                 patience += locked_random("randint", 0, 1)
             elif "Ill-mannered" in c.traits:
                 patience -= locked_random("randint", 0, 1)
-    
+
             if c.status == "slave":
                 patience += 1
             patience += iam.hero_influence(c) / 20
             return patience
-    
+
         @staticmethod
         def drinking_outside_of_inventory(char, count):
             # allows to raise activation count and become drunk without using real items
@@ -335,7 +335,7 @@ init -2 python:
                 char.enable_effect('Drunk')
             elif 'Drunk' in char.effects and not 'Drinker' in char.effects:
                 char.take_ap(1)
-    
+
         @staticmethod
         def flag_count_checker(char, char_flag):
             # this function is used to check how many times a certain interaction was used during the current turn;
@@ -344,7 +344,7 @@ init -2 python:
             result = char.get_flag(char_flag, 0)
             char.set_flag(char_flag, result+1)
             return result
-    
+
         @staticmethod
         def silent_check_for_bad_stuff(char):
             # we check issues without outputting any lines or doing something else, and just return True/False
@@ -359,7 +359,7 @@ init -2 python:
             if joy < 10 or ("Pessimist" not in char.traits and joy <= 25):
                 return False
             return True
-    
+
         @staticmethod
         def silent_check_for_escalation(char, base):
             # check if the character is willing to fight the player
@@ -372,7 +372,7 @@ init -2 python:
             if "Aggressive" in char.traits:
                 base *= 2
             return dice(base)
-    
+
         @staticmethod
         def check_for_bad_stuff(char):
             # we check major issues when the character will refuse almost anything
@@ -397,7 +397,7 @@ init -2 python:
                 char.mod_stat("vitality", -2)
                 return True
             return False
-    
+
         @staticmethod
         def check_for_minor_bad_stuff(char):
             # we check minor issues when character might refuse to do something based on dice
@@ -420,13 +420,13 @@ init -2 python:
                     narrator("%s is not feeling well today and not in the mood to do anything." % char.pC)
                     return True
             elif char.get_stat("vitality") <= char.get_max("vitality")/5 and dice(35):
-                iam.refuse_tired(char)
-    
+                iam.refuse_because_tired(char)
+
                 char.gfx_mod_stat("disposition", -randint(0, 1))
                 char.mod_stat("vitality", -randint(1, 2))
                 return True
             return False
-    
+
         @staticmethod
         def check_for_bad_stuff_greetings(char):
             # Special beginnings for greetings if something is off, True/False show that sometimes we even will need to skip a normal greeting altogether
@@ -473,7 +473,7 @@ init -2 python:
                     continue
                 if not char_locs.isdisjoint([i.home, i.workplace]):
                     partners.add(i)
-    
+
             # Next figure out if disposition of possible partners towards MC is
             # high enough for them to agree and/or they are lovers of char.
             willing_partners = []
@@ -484,11 +484,10 @@ init -2 python:
                     continue
                 if i.get_stat("affection") > -50:
                     willing_partners.append(i)
-    
+
             return willing_partners
 
         @staticmethod
         def int_reward_exp(char, mod=.25):
             hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=mod))
             char.gfx_mod_exp(exp_reward(char, hero, exp_mod=mod))
-            
