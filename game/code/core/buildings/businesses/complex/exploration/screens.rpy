@@ -368,12 +368,11 @@ screen building_management_leftframe_exploration_guild_mode:
             $ img = PyTGFX.scale_content(main_area.img, 220, 124)
             hbox:
                 xalign .5
+                spacing 5
                 button:
                     style "paging_green_button_left"
                     yalign .5
-                    tooltip "Previous Page"
                     action SetField(bm_mid_frame_mode, "selected_log_area", temp[(focused_area_index - 1) % len(temp)])
-                null width 5
                 frame:
                     background Frame(im.Alpha("content/gfx/frame/MC_bg3.png", alpha=.9), 10, 10)
                     padding 2, 2
@@ -394,11 +393,9 @@ screen building_management_leftframe_exploration_guild_mode:
                                 size 18 outlines [(1, "#3a3a3a", 0, 0)]
                                 layout "nobreak"
                                 align .5, .5
-                null width 5
                 button:
                     style "paging_green_button_right"
                     yalign .5
-                    tooltip "Next Page"
                     action SetField(bm_mid_frame_mode, "selected_log_area", temp[(focused_area_index + 1) % len(temp)])
 
             # Sub Areas:
