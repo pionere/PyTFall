@@ -228,6 +228,12 @@ init -10 python:
                 return self._members[0]
             except:
                 return None
+        @property
+        def gui_name(self):
+            mems = self._members
+            if len(mems) == 1:
+                return mems[0].nickname
+            return self.name
 
         def add(self, member):
             mems = self._members

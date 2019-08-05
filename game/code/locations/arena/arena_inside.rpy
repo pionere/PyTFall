@@ -429,7 +429,7 @@ init: # Main Screens:
                                             align .5, .0
                                             padding 5, 3
                                             background Frame("content/gfx/frame/rank_frame.png", 5, 5)
-                                            $ name = lineup[0][0].nickname if len(lineup[0]) == 1 else lineup[0].name
+                                            $ name = lineup[0].gui_name
                                             label "[name]" align .5, .5 text_size 20 text_style "proper_stats_text" text_color "gold":
                                                 if len(name) > 15:
                                                     text_size 15
@@ -448,7 +448,7 @@ init: # Main Screens:
                                 frame:
                                     style "arena_channenge_frame"
                                     $ team = lineup[1]
-                                    $ name = team[0].nickname if len(team) == 1 else team.name
+                                    $ name = team.gui_name
                                     $ size = 15 if len(name) > 15 else 25
                                     frame:
                                         align .5, .0
@@ -463,7 +463,7 @@ init: # Main Screens:
                                     hbox:
                                         spacing 3
                                         align .5, 1.0
-                                        for fighter in lineup[1]:
+                                        for fighter in team:
                                             frame:
                                                 background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
                                                 padding 2, 2
@@ -657,7 +657,7 @@ init: # Main Screens:
 
                             frame:
                                 style "arena_channenge_frame"
-                                $ name = team[0].nickname if len(team) == 1 else team.name
+                                $ name = team.gui_name
                                 $ size = 15 if len(name) > 15 else 25
                                 frame:
                                     align .5, .0

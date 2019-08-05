@@ -912,36 +912,36 @@ init -1 python: # Core classes:
 
         def check_break_conditions(self):
             # Checks if any specific condition is reached.
-            # Should prolly be turned into a function when this gets complicated, for now it's just fighting until one of the party are "corpses".
             # For now this assumes that team indexed 0 is player team.
-            if self.terminate:
-                return True
+            team1 = self.teams[1]
             if self.combat_status is not None: #in ("escape", "surrender", "leave"):
                 self.win = False
-                self.winner = self.teams[1]
+                self.winner = team1
                 return True
             if self.logical_counter >= self.max_turns:
                 self.win = False
-                self.winner = self.teams[1]
-                self.log("Battle went on for far too long! %s is considered the winner!" % self.winner.name)
+                winner = team1
+                self.winner = winner
+                self.log("Battle went on for far too long! %s is considered the winner!" % winner.gui_name)
                 return True
+            team1 = len(team1)
             team0 = len(self.teams[0])
-            team1 = len(self.teams[1])
             for c in self.corpses:
                 if c.row < 2:
                     team0 -= 1
                 else:
                     team1 -= 1
             if team0 == 0:
-                self.winner = self.teams[1]
                 self.win = False
-                self.log("{color=green}%s{/color} is victorious!" % self.winner.name)
-                return True
-            if team1 == 0:
-                self.winner = self.teams[0]
+                winner = self.teams[1]
+            elif team1 == 0:
                 self.win = True
-                self.log("{color=green}%s{/color} is victorious!" % self.winner.name)
-                return True
+                winner = self.teams[0]
+            else:
+                return self.terminate
+            self.winner = winner
+            self.log("{color=green}%s{/color} is victorious!" % winner.gui_name)
+            return True
 
         def predict_battle_skills(self):
             # Auto-Prediction:
@@ -950,7 +950,6 @@ init -1 python: # Core classes:
                 for fighter in team:
                     for skill in chain(fighter.attack_skills, fighter.magic_skills):
                         skills.add(skill)
-
 
             force_predict = set()
             for skill in skills:
