@@ -224,7 +224,7 @@ init: # MC Setup Screens:
             textbutton "Start Game" text_color "white" text_font "fonts/TisaOTB.otf" text_size 40 at fade_in_out():
                 background active_img
                 hover_background hover_img
-                align (.46, .93)
+                align (.465, .965)
                 action [Stop("music"), Return(["control", "build_mc", sprites[index]])]
         vbox:
             # align (.37, .10)
