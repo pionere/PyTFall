@@ -1160,7 +1160,7 @@ screen next_day():
                                                 frame:
                                                     xalign .5
                                                     xysize 130, 25
-                                                    text ("%s:" % key.capitalize()) align .02, .5
+                                                    text ("%s:" % key.title()) align .02, .5
                                                     label "[value]" text_color ("lawngreen" if value > 0 else "red") align .98, .5
                                         $ xpos += 136
                     # one worker report(team or not):
@@ -1182,7 +1182,7 @@ screen next_day():
                                     frame:
                                         xalign .5
                                         xysize 130, 25
-                                        text ("%s:" % key.capitalize()) align .02, .5
+                                        text ("%s:" % key.title()) align .02, .5
                                         label "[value]" text_color ("lawngreen" if value > 0 else "red") align .98, .5
 
             # Buildings Stats Frame:
@@ -1220,7 +1220,7 @@ screen next_day():
                                                 pos_color = "lawngreen"
                                                 if key == "reputation":
                                                     hkey = "Rep"
-                                        text ("%s:" % hkey.capitalize()) align .02, .5
+                                        text ("%s:" % hkey.title()) align .02, .5
                                         label "[value]" text_color (pos_color if value > 0 else neg_color) align .98, .5
 
         # Text Frame + Stats Reports Mousearea:
