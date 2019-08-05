@@ -395,26 +395,31 @@ init -9 python:
                         return True 
 
         def check_arena_fight(self, type, team, opponent):
-            for member in team:
-                if member.status == "slave":
-                    return None, "%s is a Slave forbidden from participation in Combat!" % member.name
+            for t in team:
+                if t.status == "slave":
+                    return PyTGFX.message("%s is a Slave forbidden from participation in Combat!" % t.name)
+
+            if opponent is not None and len(team) != len(opponent):
+                return PyTGFX.message("Make sure that your team has %d members!" % len(opponent))
 
             if type == "dogfight":
                 hlvl = team.get_level()
                 elvl = opponent.get_level()
                 if elvl > max(hlvl+12, hlvl*1.3):
                     if len(opponent) == 1:
-                        return opponent.leader, "You're not worth my time, go train some."
+                        msg = "You're not worth my time, go train some."
                     else:
-                        return opponent.leader, "You guys need to grow up before challenging the likes of us."
+                        msg = "You guys need to grow up before challenging the likes of us."
+                    opponent.leader.say(msg)
+                    return 
                 if hlvl > max(elvl+12, elvl*1.3):
                     if len(opponent) == 1:
-                        return opponent.leader, "I am not feeling up to it... really!"
+                        msg = "I am not feeling up to it... really!"
                     else:
-                        return opponent.leader, "We are not looking for a fight outside of our league."
-
-            if opponent is not None and len(team) != len(opponent):
-                return None, "Make sure that your team has %d members!" % len(opponent)
+                        msg = "We are not looking for a fight outside of our league."
+                    opponent.leader.say(msg)
+                    return
+            return True
 
         def match_challenge(self, setup):
             """

@@ -36,54 +36,34 @@ label arena_inside:
 
         elif result[0] == "challenge":
             if result[1] == "matches":
-                $ result = pytfall.arena.match_challenge(result[2])
-                if result:
-                    show screen message_screen(result)
+                $ pytfall.arena.match_challenge(result[2])
             elif result[1] == "start_dogfight":
-                $ team = result[2]
-                $ result = pytfall.arena.check_arena_fight("dogfight", hero.team, team)
-                if result:
-                    $ del team
-                    if result[0] is None:
-                        show screen message_screen(result[1])
-                    else:
-                        $ block_say = True
-                        $ result[0].say(result[1])
-                        $ block_say = False
-                else:
-                    $ result = team
-                    $ del team
+                $ result = result[2]
+                if pytfall.arena.check_arena_fight("dogfight", hero.team, result):
                     hide screen arena_inside
                     $ pytfall.arena.run_dogfight(result)
                     jump arena_inside
             elif result[1] == "start_matchfight":
                 # Figure out who we're fighting:
                 python:
-                    for setup in itertools.chain(pytfall.arena.matches_1v1, pytfall.arena.matches_2v2, pytfall.arena.matches_3v3):
-                        if setup[2] == day and setup[0].leader == hero:
+                    for result in itertools.chain(pytfall.arena.matches_1v1, pytfall.arena.matches_2v2, pytfall.arena.matches_3v3):
+                        if result[2] == day and result[0].leader == hero:
                             break
 
-                $ result = pytfall.arena.check_arena_fight("matchfight", hero.team, setup[1])
-                if result:
-                    $ del setup
-                    show screen message_screen(result[1])
-                else:
-                    $ result = setup
-                    $ del setup
+                if pytfall.arena.check_arena_fight("matchfight", hero.team, result[1]):
+                    python hide:
+                        # register fighting day for the other members
+                        # TODO might not be the best place, but for now...
+                        for t in hero.team:
+                            if t != hero:
+                                t.fighting_days.append(day)
                     hide screen arena_inside
                     $ pytfall.arena.run_matchfight(result)
                     jump arena_inside
             elif result[1] == "start_chainfight":
-                $ setup = result[2]
-                $ result = pytfall.arena.check_arena_fight("chainfight", hero.team, None)
-                if result:
-                    $ del setup
-                    show screen message_screen(result[1])
-                else:
-                    $ result = setup
-                    $ del setup
+                if pytfall.arena.check_arena_fight("chainfight", hero.team, None):
                     hide screen arena_inside
-                    $ pytfall.arena.run_chainfight(result)
+                    $ pytfall.arena.run_chainfight(result[2])
                     jump arena_inside
 
 label arena_inside_end:
