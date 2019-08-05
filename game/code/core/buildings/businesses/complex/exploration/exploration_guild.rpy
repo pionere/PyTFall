@@ -478,15 +478,16 @@ init -6 python: # Guild, Tracker and Log.
 
         # Teams control/sorting/grouping methods:
         def new_team(self, name):
-            team = Team(name=name)
-            self.add_team(team)
-            return team
+            t = Team(name=name)
+            self.add_team(t)
+            self.guild_teams.pager_content.append(t)
 
         def add_team(self, t):
             self.teams.append(t)
 
         def remove_team(self, t):
             self.teams.remove(t)
+            self.guild_teams.pager_content.remove(t)
 
         def teams_to_launch(self):
             # Returns a list of teams that can be launched on an exploration run.
@@ -556,7 +557,7 @@ init -6 python: # Guild, Tracker and Log.
 
             # use the HealingSprings
             if self.has_extension(HealingSprings):
-                bathers = [w for team in self.idle_teams() for w in team if w.PP > 0] 
+                bathers = [w for team in self.idle_teams() for w in team if w.PP > 0 and w.is_available] 
                 if bathers:
                     teammod = {}
                     for w in bathers:
