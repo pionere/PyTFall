@@ -720,8 +720,8 @@ init -9 python:
                     renpy.music.stop(channel="world")
                     renpy.play(choice(["content/sfx/sound/world/arena/prepare.mp3", "content/sfx/sound/world/arena/new_opp.mp3"]))
                     track = get_random_battle_track()
-                    renpy.pause(1.3)
                     renpy.music.play(track, fadein=1.5)
+                    renpy.pause(.5)
 
                     for mob in enemy_team:
                         mob.controller = Complex_BE_AI()
@@ -990,8 +990,8 @@ init -9 python:
             renpy.music.stop(channel="world")
             renpy.play(choice(["content/sfx/sound/world/arena/prepare.mp3", "content/sfx/sound/world/arena/new_opp.mp3"]))
             track = get_random_battle_track()
-            renpy.pause(1.3)
             renpy.music.play(track, fadein=1.5)
+            renpy.pause(.5)
 
             for member in enemy_team:
                 member.controller = Complex_BE_AI()
