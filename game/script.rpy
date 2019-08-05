@@ -688,6 +688,9 @@ label after_load:
             del arena.lineup_2v2
             del arena.lineup_3v3
             del arena.dogfight_day
+        if hasattr(arena, "hero_match_result"):
+            arena.daily_match_results = [arena.hero_match_result]
+            del arena.hero_match_result
 
         if hasattr(hero, "STATS"):
             for c in itertools.chain(chars.values(), [hero], hero.chars, npcs.values()):

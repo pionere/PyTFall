@@ -41,7 +41,7 @@ init -9 python:
 
             # ND-Report
             self.df_count = 0
-            self.hero_match_result = None
+            self.daily_match_results = []
             self.daily_report = []
 
         # -------------------------- Sorting ---------------------------------------------------------->
@@ -251,7 +251,6 @@ init -9 python:
                             candidates.remove(team)
                             teams_setup.append(team)
 
-
                     if amount != 0:
                         shuffle(candidates)
 
@@ -389,6 +388,12 @@ init -9 python:
                             setup[0] = dt
 
         # -------------------------- GUI methods ---------------------------------->
+        def char_in_match_results(self, char):
+            for match_result in self.daily_match_results:
+                for f in chain(match_result[0], match_result[1]):
+                    if f == char:
+                        return True 
+
         def check_arena_fight(self, type, team, opponent):
             for member in team:
                 if member.status == "slave":
@@ -420,21 +425,20 @@ init -9 python:
             Now also checks if player has an Arena permit.
             """
             if not hero.arena_permit:
-                return "Arena Permit is required to fight in the official matches!"
+                return PyTGFX.message("Arena Permit is required to fight in the official matches!")
 
-            fight_day = setup[2]
+            fday = setup[2]
 
-            if fight_day == day and self.hero_match_result:
-                return "You already had a fight today. Having two official matches on the same day is not allowed!"
+            if fday in hero.fighting_days:
+                if self.char_in_match_results(hero):
+                    return PyTGFX.message("You already had a fight today. Having two official matches on the same day is not allowed!")
+                else:
+                    return PyTGFX.message("You already have a fight planned for day %d. Having two official matches on the same day is not allowed!" % fday)
 
-            if fight_day in hero.fighting_days:
-                return "You already have a fight planned for day %d. Having two official matches on the same day is not allowed!"%fight_day
-
-            if renpy.call_screen("yesno_prompt",
-                "Are you sure you want to schedule a fight? Backing out of it later will mean a hit on reputation!",
+            if renpy.call_screen("yesno_prompt", "Are you sure you want to schedule a fight? Backing out of it later will mean a hit on reputation!",
                 Return(True), Return(False)):
                 setup[0] = hero.team
-                hero.fighting_days.append(fight_day)
+                hero.fighting_days.append(fday)
 
         # -------------------------- Setup Methods -------------------------------->
         def update_ladder(self):
@@ -1041,7 +1045,7 @@ init -9 python:
             self.update_ladder()
 
             # record the event
-            self.hero_match_result = [self.shallow_copy_team(winner), self.shallow_copy_team(loser)]
+            self.daily_match_results.append((self.shallow_copy_team(winner), self.shallow_copy_team(loser)))
 
         @staticmethod
         def append_match_result(txt, f2f, match_result):
@@ -1058,18 +1062,18 @@ init -9 python:
             txt.append(temp)
 
         @staticmethod
-        def missed_match_result(txt, opfor):
+        def missed_match_result(txt, off_team, def_team):
             # player missed an Arena match -> Rep penalty!
-            rep_penalty = max(500, (opfor.get_rep()/10))
-            hero.arena_rep -= rep_penalty
+            rep_penalty = max(500, (def_team.get_rep()/10))
+            leader = off_team.leader
+            leader.arena_rep -= rep_penalty
 
-            if len(opfor) == 1:
-                opfor = opfor.leader
-                temp = "%s missed a 1v1 fight against %s, who entrained the public by boasting of %s prowess " \
-                        "and making funny jabs at %s's cowardliness!" % (hero.name, opfor.name, opfor.pd, hero.name)
+            if len(def_team) == 1:
+                def_team = def_team.leader
+                temp = "%s {color=red}missed{/color} a 1v1 fight against %s, who entrained the public by boasting of %s prowess " \
+                        "and making funny jabs at %s's cowardliness!" % (leader.name, def_team.name, def_team.pd, leader.name)
             else:
-                temp = "%s didn't show up for a team combat against %s! The spectators were very displeased!" % (hero.team.name, opfor.name)
-            temp = set_font_color(temp, "red")
+                temp = "%s {color=red}didn't show up{/color} for a team combat against %s! The spectators were very displeased!" % (off_team.name, def_team.name)
 
             txt.append(temp)
 
@@ -1084,9 +1088,8 @@ init -9 python:
 
             self.find_opfor()
 
-            # Add the hero's matchresult from today
-            if self.hero_match_result:
-                match_result = self.hero_match_result
+            # Add results run during the day
+            for match_result in self.daily_match_results:
                 self.append_match_result(txt, len(match_result[0]) == 1, match_result)
 
                 # update fighting_days
@@ -1101,11 +1104,12 @@ init -9 python:
                     if setup[2] == fday:
                         off_team, def_team = setup[0], setup[1]
                         if off_team and def_team:
-                            if off_team.leader != hero:
+                            leader = off_team.leader
+                            if leader is not hero and leader.employer is not hero:
                                 match_result = self.auto_resolve_combat(off_team, def_team, "match")
                                 self.append_match_result(txt, size == 1, match_result)
                             else:
-                                self.missed_match_result(txt, def_team)
+                                self.missed_match_result(txt, off_team, def_team)
 
                         # update fighting_days
                         for f in chain(off_team, def_team):
@@ -1172,6 +1176,12 @@ init -9 python:
 
             txt.append("%d unofficial dogfights took place yesterday!" % self.df_count)
 
+            # Update top 100 ladder:
+            self.update_ladder()
+
+            # Update arena actives
+            self.update_actives()
+
             # Warning the player of a scheduled arena match:
             fday += 1
             for setup in chain(self.matches_1v1, self.matches_2v2, self.matches_3v3):
@@ -1207,14 +1217,8 @@ init -9 python:
                         def_team = def_team[0]
                     txt.append(temp % ("{b}" + off_team.name + "{/b}", "{b}" +def_team.name + "{/b}"))
 
-            self.daily_report = gazette.arena = txt
-
-            # Update top 100 ladder:
-            self.update_ladder()
-
-            # Update arena actives
-            self.update_actives()
 
             # Reset daily variables
+            self.daily_report = gazette.arena = txt
+            self.daily_match_results = []
             self.df_count = 0
-            self.hero_match_result = None

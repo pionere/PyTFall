@@ -497,6 +497,10 @@ init -960 python:
                 result -= 1
             return result
 
+        @staticmethod
+        def message(txt):
+            renpy.show_screen("message_screen", txt)
+
     class GFXOverlay(renpy.Displayable):
         """Quick and reliable way to show overlay of displayable.
 
