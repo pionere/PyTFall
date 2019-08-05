@@ -117,7 +117,7 @@ init: # Main Screens:
 
     screen arena_inside():
         # Start match button:
-        if day in hero.fighting_days and not pytfall.arena.hero_match_result:
+        if day in hero.fighting_days and not pytfall.arena.char_in_match_results(hero):
             button:
                 align .5, .28
                 # xysize (200, 40)
@@ -932,10 +932,8 @@ init: # Main Screens:
             xsize 95
             xpos 2
             yalign .5
-            xpadding 8
-            ypadding 8
-            xmargin 0
-            ymargin 0
+            padding 8, 8
+            margin 0, 0
             has vbox spacing 5 align(.5, .5) box_reverse True
             for i, member in enumerate(w_team):
                 $ img = member.show("portrait", resize=(70, 70), cache=True)
@@ -944,14 +942,11 @@ init: # Main Screens:
                     xysize (70, 70)
                     imagebutton:
                         at fade_from_to(start_val=0, end_val=1.0, t=2.0, wait=i)
-                        ypadding 1
-                        xpadding 1
-                        xmargin 0
-                        ymargin 0
+                        padding 1, 1
+                        margin 0, 0
                         align (.5, .5)
                         style "basic_choice2_button"
                         idle img
-                        hover img
                         selected_idle Transform(img, alpha=1.05)
                         action SetScreenVariable("winner", member), With(dissolve)
 
@@ -959,10 +954,8 @@ init: # Main Screens:
             background Null()
             xsize 95
             align (1.0, .5)
-            xpadding 8
-            ypadding 8
-            xmargin 0
-            ymargin 0
+            padding 8, 8
+            margin 0, 0
             has vbox spacing 5 align(.5, .5)
             for i, member in enumerate(l_team):
                 $ img = member.show("portrait", resize=(70, 70), cache=True)
@@ -971,14 +964,11 @@ init: # Main Screens:
                     xysize (70, 70)
                     imagebutton:
                         at fade_from_to(start_val=0, end_val=1.0, t=2.0, wait=i)
-                        ypadding 1
-                        xpadding 1
-                        xmargin 0
-                        ymargin 0
+                        padding 1, 1
+                        margin 0, 0
                         align (.5, .5)
                         style "basic_choice2_button"
                         idle img
-                        hover img
                         selected_idle Transform(img, alpha=1.05)
                         action NullAction()
 
@@ -989,42 +979,40 @@ init: # Main Screens:
             action Return(True)
             text "Continue" style "pb_button_text" yalign 1.0 
 
-        # Winner Details Display on the left:
-        $ w_stats = combat_stats[winner]
-        $ img = winner.show('battle_sprite', resize=(200, 200), cache=True)
-        if w_stats == "K.O.":
-            $ img = PyTGFX.sepia_content(img)
-        frame:
-            at fade_from_to_with_easeout(start_val=.0, end_val=1.0, t=.9, wait=0)
-            background Frame("content/gfx/frame/MC_bg.png", 10, 10)
-            add img
-            align .2, .2
-        # Show only if we won...
-        if w_stats != "K.O.":
-            null height 20
-            frame:
-                style_group "proper_stats"
-                align (.2, .5)
-                background Frame(im.Alpha("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
-                xpadding 12
-                ypadding 12
-                xmargin 0
-                ymargin 0
-                has vbox spacing 1
-                for stat, value in w_stats.iteritems():
-                    frame:
-                        xalign .5
-                        xysize (190, 27)
-                        text stat.capitalize() xalign .02 color "#79CDCD"
-                        label str(value) xalign 1.0 yoffset -1
-
-        # Looser Details Display on the right:
-        $ img = loser.show("battle_sprite", resize=(200, 200), cache=True)
-        $ img = PyTGFX.sepia_content(img)
-        frame:
-            background Frame("content/gfx/frame/MC_bg.png", 10, 10)
-            add img 
-            align (.8, .2)
+        # Details Display for the selected members of the teams on the left/right:
+        for char, xalign, fade in ((winner, .2, True), (loser, .8, False)):
+            $ stats = combat_stats[char]
+            $ img = char.show('battle_sprite', resize=(200, 200), cache=True)
+            if "K.O." in stats:
+                $ img = PyTGFX.sepia_content(img)
+            fixed:
+                xysize 200, 200
+                align xalign, .2
+                frame:
+                    if fade:
+                        at fade_from_to_with_easeout(start_val=.0, end_val=1.0, t=.9, wait=0)
+                    background Frame("content/gfx/frame/MC_bg.png", 10, 10)
+                    add img
+                    align .5, .5
+            # Show only if the char is or belongs to the hero...
+            if (char == hero or getattr(char, "employer", None) == hero):
+                frame:
+                    style_group "proper_stats"
+                    xalign xalign
+                    ypos config.screen_height/2
+                    background Frame(im.Alpha("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
+                    padding 12, 12
+                    margin 0, 0
+                    has vbox spacing 1
+                    for key, value in stats.iteritems():
+                        if key == "K.O.":
+                            text "{size=+20}{color=red}K.O." xalign 1.0
+                        else:
+                            frame:
+                                xalign .5
+                                xysize (190, 27)
+                                text key xalign .02 color "#79CDCD"
+                                label str(value) xalign 1.0 yoffset -1
 
         add "content/gfx/frame/h1.webp"
 
@@ -1041,10 +1029,11 @@ init: # Main Screens:
                 child_size 620, 10000
                 mousewheel True
                 has vbox xsize 620
-                if not len(pytfall.arena.daily_report):
+                $ temp = pytfall.arena.daily_report
+                if not temp:
                     text "Nothing interesting happened yesterday..." color "goldenrod" align .5, .5
                 else:
-                    text "{size=-4}%s" % "\n".join(pytfall.arena.daily_report) color "goldenrod"
+                    text "{size=-4}%s" % "\n".join(temp) color "goldenrod"
 
             button:
                 style_group "basic"
@@ -1280,7 +1269,7 @@ init: # ChainFights vs Mobs:
         # Chars + Stats
         $ w_stats = combat_stats[winner]
         $ img = winner.show("battle", resize=(426, 376), cache=True)
-        if w_stats == "K.O.":
+        if "K.O." in w_stats:
             $ img = PyTGFX.sepia_content(img)
         frame:
             at fade_from_to_with_easeout(start_val=0, end_val=1.0, t=.9, wait=0)
@@ -1292,11 +1281,11 @@ init: # ChainFights vs Mobs:
             at arena_stats_slide
             pos (600, 405)
             spacing 1
-            if w_stats != "K.O.":
-                for stat, value in w_stats.iteritems():
+            for key, value in w_stats.iteritems():
+                if key == "K.O.":
+                    text "{size=+20}{color=red}K.O." xalign 1.0
+                else:
                     fixed:
                         xysize (170, 18)
-                        text stat.capitalize() xalign .03 style "dropdown_gm2_button_text" color "red" size 25
+                        text key xalign .03 style "dropdown_gm2_button_text" color "red" size 25
                         text str(value) xalign .97 style "dropdown_gm2_button_text" color "crimson" size 25
-            else:
-                text("{size=+20}{color=red}K.O.")

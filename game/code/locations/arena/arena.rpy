@@ -678,10 +678,10 @@ init -9 python:
         def run_chainfight(self, setup):
             """Running a chainfight.
             """
-            team = hero.team
+            off_team = hero.team
             for encounter in xrange(1, 6):
                 # Picking an opponent(s):
-                num_opps = len(team)
+                num_opps = len(off_team)
                 enemy_team = Team(name=setup["id"], max_size=num_opps)
 
                 mob_level = setup["level"]
@@ -699,8 +699,8 @@ init -9 python:
                     enemy_team.add(mob)
 
                 # Get team luck:
-                luck = sum((member.get_stat("luck") for member in team)) 
-                luck = float(luck)/len(team)
+                luck = sum((member.get_stat("luck") for member in off_team)) 
+                luck = float(luck)/len(off_team)
 
                 # Bonus:
                 if dice(25 + encounter*3 + luck*.5):
@@ -711,13 +711,11 @@ init -9 python:
                     break
 
                 # the actual battle
-                member_aps = []
-                for member in team:
-                    member_aps.append(member.PP)
+                member_aps = {member: member.PP for member in off_team}
 
                 global battle
                 if result is True:
-                    battle = run_auto_be(team, enemy_team, simple_ai=False)
+                    battle = run_auto_be(off_team, enemy_team, simple_ai=False)
                 else:
                     renpy.music.stop(channel="world")
                     renpy.play(choice(["content/sfx/sound/world/arena/prepare.mp3", "content/sfx/sound/world/arena/new_opp.mp3"]))
@@ -729,55 +727,63 @@ init -9 python:
                         mob.controller = Complex_BE_AI()
 
                     battle = BE_Core(bg=ImageReference("chainfights"), start_sfx=get_random_image_dissolve(1.5), give_up="surrender", end_bg="battle_arena_1")
-                    battle.teams = [team, enemy_team]
+                    battle.teams = [off_team, enemy_team]
                     battle.start_battle()
 
                     # Reset the controllers:
-                    #team.reset_controller()
+                    #off_team.reset_controller()
                     enemy_team.reset_controller()
 
                     renpy.music.stop(fadeout=1.0)
 
-                if battle.winner != team:
+                if battle.winner != off_team:
                     break
 
+                for member, aps in member_aps.iteritems():
+                    member_aps[member] = (aps - member.PP)/100.0 # PP_PER_AP = 100
+
+                # Awards:
+                #  - No cash, low a-rep, low EXP and items at the end - 
+                #  a bit of reputation
+                rep = max(int(mob_level*.2), 1)
+
                 combat_stats = dict()
-                for member, aps in zip(team, member_aps):
-                    # Awards:
+                for member in off_team:
+                    statdict = OrderedDict()
                     if member in battle.corpses:
-                        statdict = "K.O."
+                        statdict["K.O."] = "Yes"
                     else:
-                        aps = (aps - member.PP)/100.0 # PP_PER_AP = 100
-                        rew_xp = exp_reward(member, enemy_team, exp_mod=aps*.15)
-                        rew_rep = max(int(mob_level*.2), 1) # only little bit of reputation
-                        #rew_gold = 0 # no gold for mobs, because they give items, unlike all other modes
-                        member.mod_exp(rew_xp)
-                        member.arena_rep += rew_rep
-                        #member.add_money(rew_gold, reason="Arena")
-                        statdict = {"exp":rew_xp, "Arena Rep": rew_rep}
+                        rew_xp = exp_reward(member, enemy_team, exp_mod=member_aps[member]*.15)
+                        if rew_xp:
+                            member.mod_exp(rew_xp)
+                            statdict["Exp"] = rew_xp
+
+                        member.arena_rep += rep
+                        statdict["Arena Rep"] = rep
                     combat_stats[member] = statdict
 
                 for member in enemy_team:
                     defeated_mobs.add(member.id)
-
+                    combat_stats[member] = OrderedDict([("K.O.", "Yes")])
                 # Ladder
                 self.update_ladder()
 
                 if encounter <= 4:
-                    renpy.call_screen("arena_aftermatch", team, enemy_team, combat_stats)
+                    renpy.call_screen("arena_aftermatch", off_team, enemy_team, combat_stats)
                     continue
 
                 # rewards
+                leader = off_team.leader
                 amount = 2
-                amount += min(round_int(team.leader.arena_rep/max(15000.0, self.ladder[0].arena_rep / 3.0)), 3)
+                amount += min(round_int(leader.arena_rep/max(15000.0, self.ladder[0].arena_rep / 3.0)), 3)
                 tier = mob_level/40.0
                 #types = ['scroll', 'restore', 'armor', 'weapon'] 
                 types = "all" 
                 rewards = get_item_drops(types=types, tier=tier, locations=["Arena"], amount=amount)
                 for i in rewards:
-                    hero.inventory.append(i)
+                    leader.inventory.append(i)
 
-                renpy.call_screen("arena_finished_chainfight", team, enemy_team, combat_stats, rewards)
+                renpy.call_screen("arena_finished_chainfight", off_team, enemy_team, combat_stats, rewards)
 
             # end of the chainfight
 
@@ -859,85 +865,99 @@ init -9 python:
             '''
             Bridge to battle engine + rewards/penalties
             '''
-            team = hero.team
+            off_team = hero.team
+            member_aps = {member: member.PP for member in chain(off_team, enemy_team)}
+            member_hps = {member: member.get_stat("health") for member in chain(off_team, enemy_team)}
 
             renpy.music.stop(channel="world")
-            renpy.play(choice(["content/sfx/sound/world/arena/prepare.mp3",
-                               "content/sfx/sound/world/arena/new_opp.mp3"]))
+            renpy.play(choice(["content/sfx/sound/world/arena/prepare.mp3", "content/sfx/sound/world/arena/new_opp.mp3"]))
             track = get_random_battle_track()
             renpy.music.play(track, fadein=1.5)
             renpy.pause(.5)
 
-            member_aps = {}
-            start_health = 0
-            for member in team:
-                start_health += member.get_stat("health")
-                member_aps[member] = member.PP
-
-            for member in enemy_team:
-                member.controller = Complex_BE_AI()
-                member_aps[member] = member.PP
+            for mob in enemy_team:
+                mob.controller = Complex_BE_AI()
 
             global battle
             battle = BE_Core(bg="battle_dogfights_1", start_sfx=get_random_image_dissolve(1.5),
                              end_bg="battle_arena_1", end_sfx=dissolve, give_up="surrender")
-            battle.teams = [team, enemy_team]
+            battle.teams = [off_team, enemy_team]
             battle.start_battle()
 
             # Reset the controllers:
-            #team.reset_controller()
+            #off_team.reset_controller()
             enemy_team.reset_controller()
 
             renpy.music.stop(fadeout=1.0)
 
             winner = battle.winner
-            loser = enemy_team if winner is team else team
+            loser = enemy_team if winner is off_team else off_team
 
-            for member in chain(winner, loser):
-                aps = member_aps[member]
+            for member, aps in member_aps.iteritems():
                 member_aps[member] = (aps - member.PP)/100.0 # PP_PER_AP = 100
 
             finish_health = 0
-            for member in team:
+            for member in off_team:
                 finish_health += member.get_stat("health")
 
-            # Idea for awards in DF: Decent cash, low a-rep and normal EXP.
-            # Max gold as a constant:
-            max_gold = (enemy_team.get_level()+team.get_level())*5
-            blood = start_health - finish_health
-            # Awards:
+            # Awards: 
+            #  - Decent cash, low a-rep and normal EXP. -
+            #  Max gold as a constant with added blood money:
+            max_gold = (enemy_team.get_level()+off_team.get_level())*5
+            blood = sum((member_hps[member] - member.get_stat("health") for member in winner))
             rew_gold = round_int(max_gold*(float(loser.get_level())/max(1, winner.get_level())))
             if blood > 0:
                 rew_gold += blood
-
+            #  a bit of reputation
             rep = min(50, max(3, self.arena_rep_reward(loser, winner)))
 
             combat_stats = dict()
             for member in winner:
+                statdict = OrderedDict()
                 if member in battle.corpses:
-                    statdict = "K.O."
+                    statdict["K.O."] = "Yes"
+                    rew_xp = exp_reward(member, loser, exp_mod=member_aps[member]*.15)
+                    if rew_xp:
+                        member.mod_exp(rew_xp)
+                        statdict["Exp"] = rew_xp
                 else:
                     rew_xp = exp_reward(member, loser, exp_mod=member_aps[member])
-                    rew_rep = int(rep)
+                    if rew_xp:
+                        member.mod_exp(rew_xp)
+                        statdict["Exp"] = rew_xp
 
-                    member.mod_exp(rew_xp)
-                    member.arena_rep += rew_rep
                     member.add_money(rew_gold, reason="Arena")
+                    statdict["Gold"] = rew_gold
 
-                    statdict = {"gold":rew_gold, "Arena Rep":rew_rep, "exp":rew_xp}
+                    rew_rep = int(rep)
+                    member.arena_rep += rew_rep
+                    statdict["Arena Rep"] = rew_rep
+
                     if dice(loser.get_level()):
                         if random.random() > .5:
                             member.mod_stat("fame", 1)
-                            statdict["fame"] = 1
+                            statdict["Fame"] = 1
                         if random.random() > .5:
                             member.mod_stat("reputation", 1)
-                            statdict["reputation"] = 1
+                            statdict["Reputation"] = 1
                 combat_stats[member] = statdict
 
-            rep = rep / 10.0
+            rep = -int(rep / 10.0)
             for member in loser:
-                member.arena_rep -= int(rep)
-                member.mod_exp(exp_reward(member, winner, exp_mod=member_aps[member]*.15))
+                statdict = OrderedDict()
+                if member in battle.corpses:
+                    statdict["K.O."] = "Yes"
+                    mod = .15
+                else:
+                    mod = .3
+                rew_xp = exp_reward(member, winner, exp_mod=member_aps[member]*mod)
+                if rew_xp:
+                    member.mod_exp(rew_xp)
+                    statdict["Exp"] = rew_xp
+                if rep:
+                    member.arena_rep += rep
+                    statdict["Arena Rep"] = rep
+                combat_stats[member] = statdict
                 self.remove_team_from_dogfights(member)
 
             for member in enemy_team:
@@ -962,8 +982,10 @@ init -9 python:
             """
             Bridge to battle engine + rewards/penalties.
             """
-            team = hero.team
+            off_team = hero.team
             enemy_team = setup[1]
+
+            member_aps = {member: member.PP for member in chain(off_team, enemy_team)}
 
             renpy.music.stop(channel="world")
             renpy.play(choice(["content/sfx/sound/world/arena/prepare.mp3", "content/sfx/sound/world/arena/new_opp.mp3"]))
@@ -971,63 +993,82 @@ init -9 python:
             renpy.pause(1.3)
             renpy.music.play(track, fadein=1.5)
 
-            member_aps = {}
-            for member in team:
-                member_aps[member] = member.PP
-
             for member in enemy_team:
                 member.controller = Complex_BE_AI()
-                member_aps[member] = member.PP
 
             global battle
             battle = BE_Core(bg="battle_arena_1", start_sfx=get_random_image_dissolve(1.5),
                              end_bg="battle_arena_1", end_sfx=dissolve, give_up="surrender")
-            battle.teams = [team, enemy_team]
+            battle.teams = [off_team, enemy_team]
             battle.start_battle()
 
             # Reset the controllers:
-            #team.reset_controller()
+            #off_team.reset_controller()
             enemy_team.reset_controller()
 
             renpy.music.stop(fadeout=1.0)
 
             winner = battle.winner
-            loser = enemy_team if winner is team else team
+            loser = enemy_team if winner is off_team else off_team
 
-            for member in chain(winner, loser):
-                aps = member_aps[member]
+            for member, aps in member_aps.iteritems():
                 member_aps[member] = (aps - member.PP)/100.0 # PP_PER_AP = 100
 
+            # Awards:
+            #  - Decent cash, decent a-rep, normal EXP -
             rew_rep = self.arena_rep_reward(loser, winner)
             rew_gold = int(max(200, 250*(float(loser.get_level()) /max(1, winner.get_level()))))
 
             combat_stats = dict()
             for member in winner:
+                statdict = OrderedDict()
                 if member in battle.corpses:
-                    statdict = "K.O."
+                    statdict["K.O."] = "Yes"
+                    rew_xp = exp_reward(member, loser, exp_mod=member_aps[member]*.15)
+                    if rew_xp:
+                        member.mod_exp(rew_xp)
+                        statdict["Exp"] = rew_xp
                 else:
                     rew_xp = exp_reward(member, loser, exp_mod=member_aps[member])
+                    if rew_xp:
+                        member.mod_exp(rew_xp)
+                        statdict["Exp"] = rew_xp
 
-                    member.mod_exp(rew_xp)
-                    member.arena_rep += int(rew_rep)
                     member.add_money(rew_gold, reason="Arena")
+                    statdict["Gold"] = rew_gold
 
-                    statdict = {"gold":rew_gold, "Arena Rep":int(rew_rep), "exp":rew_xp}
+                    rew_r = int(rew_rep)
+                    if rew_r:
+                        member.arena_rep += rew_r
+                        statdict["Arena Rep"] = rew_r
+
                     if dice(loser.get_level()):
                         rew_fame = randrange(3)
                         if rew_fame:
                             member.mod_stat("fame", rew_fame)
-                            statdict["fame"] = rew_fame
+                            statdict["Fame"] = rew_fame
                         rew_r = randrange(3)
                         if rew_r:
                             member.mod_stat("reputation", rew_r)
-                            statdict["reputation"] = rew_r
+                            statdict["Reputation"] = rew_r
                 combat_stats[member] = statdict
 
-            rew_rep = rew_rep / 10.0
+            rew_rep = -int(rew_rep / 10.0)
             for member in loser:
-                member.arena_rep -= int(rew_rep)
-                member.mod_exp(exp_reward(member, winner, exp_mod=member_aps[member]*.15))
+                statdict = OrderedDict()
+                if member in battle.corpses:
+                    statdict["K.O."] = "Yes"
+                    mod = .15
+                else:
+                    mod = .3
+                rew_xp = exp_reward(member, winner, exp_mod=member_aps[member]*mod)
+                if rew_xp:
+                    member.mod_exp(rew_xp)
+                    statdict["Exp"] = rew_xp
+                if rew_rep:
+                    member.arena_rep += rew_rep
+                    statdict["Arena Rep"] = rew_rep
+                combat_stats[member] = statdict
                 # self.remove_team_from_dogfights(member)
 
             for member in enemy_team:
