@@ -726,7 +726,8 @@ init -9 python:
                     for mob in enemy_team:
                         mob.controller = Complex_BE_AI()
 
-                    battle = BE_Core(bg=ImageReference("chainfights"), start_sfx=get_random_image_dissolve(1.5), give_up="surrender", end_bg="battle_arena_1")
+                    battle = BE_Core(bg=ImageReference("chainfights"), start_sfx=get_random_image_dissolve(1.5),
+                                     end_bg="battle_arena_1", end_sfx=dissolve, give_up="surrender")
                     battle.teams = [off_team, enemy_team]
                     battle.start_battle()
 
@@ -769,7 +770,7 @@ init -9 python:
                 self.update_ladder()
 
                 if encounter <= 4:
-                    renpy.call_screen("arena_aftermatch", off_team, enemy_team, combat_stats)
+                    renpy.call_screen("arena_aftermatch", off_team, enemy_team, combat_stats, True)
                     continue
 
                 # rewards
@@ -963,7 +964,7 @@ init -9 python:
             for member in enemy_team:
                 restore_battle_stats(member)
 
-            renpy.call_screen("arena_aftermatch", winner, loser, combat_stats)
+            renpy.call_screen("arena_aftermatch", winner, loser, combat_stats, off_team is winner)
 
             # Ladder
             self.update_ladder()
@@ -1074,7 +1075,7 @@ init -9 python:
             for member in enemy_team:
                 restore_battle_stats(member)
 
-            renpy.call_screen("arena_aftermatch", winner, loser, combat_stats)
+            renpy.call_screen("arena_aftermatch", winner, loser, combat_stats, off_team is winner)
 
             # Update match
             setup[0] = setup[1] = Arena.EMPTY_TEAM

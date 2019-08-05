@@ -902,14 +902,14 @@ init: # Main Screens:
             action Hide("arena_bestiary"), return_button_action
             keysym "mousedown_3"
 
-    screen arena_aftermatch(w_team, l_team, combat_stats):
+    screen arena_aftermatch(l_team, r_team, combat_stats, result):
         modal True
         zorder 2
 
-        default winner = w_team[0]
-        default loser = l_team[0]
+        default l_member = l_team[0]
+        default r_member = r_team[0]
 
-        if w_team == hero.team:
+        if result is True:
             on "show" action Play("music", "content/sfx/music/world/win_screen.mp3")
             on "hide" action Stop(channel="music", fadeout=1.0)
 
@@ -919,11 +919,18 @@ init: # Main Screens:
             add "content/gfx/images/battle/victory.webp":
                 align (.5, .5)
                 at simple_zoom_from_to_with_easein(start_val=50.0, end_val=1.0, t=2.0)
-        else:
+        elif result is False:
             add "content/gfx/images/battle/defeat_l.webp" at move_from_to_pos_with_ease(start_pos=(-config.screen_width/2, 0), end_pos=(0, 0), t=.7)
             add "content/gfx/images/battle/defeat_r.webp" at move_from_to_pos_with_ease(start_pos=(config.screen_width/2, 0), end_pos=(0, 0), t=.7)
             add "content/gfx/images/battle/battle_c.webp" at fade_from_to(start_val=.5, end_val=1.0, t=2.0, wait=0)
             add "content/gfx/images/battle/defeat.webp":
+                align (.5, .5)
+                at simple_zoom_from_to_with_easein(start_val=50.0, end_val=1.0, t=2.0)
+        else:
+            add "content/gfx/images/battle/draw_l.webp" at move_from_to_pos_with_ease(start_pos=(-config.screen_width/2, 0), end_pos=(0, 0), t=.7)
+            add "content/gfx/images/battle/draw_r.webp" at move_from_to_pos_with_ease(start_pos=(config.screen_width/2, 0), end_pos=(0, 0), t=.7)
+            add "content/gfx/images/battle/battle_c.webp" at fade_from_to(start_val=.5, end_val=1.0, t=2.0, wait=0)
+            add "content/gfx/images/battle/draw.webp":
                 align (.5, .5)
                 at simple_zoom_from_to_with_easein(start_val=50.0, end_val=1.0, t=2.0)
 
@@ -935,28 +942,6 @@ init: # Main Screens:
             padding 8, 8
             margin 0, 0
             has vbox spacing 5 align(.5, .5) box_reverse True
-            for i, member in enumerate(w_team):
-                $ img = member.show("portrait", resize=(70, 70), cache=True)
-                fixed:
-                    align (.5, .5)
-                    xysize (70, 70)
-                    imagebutton:
-                        at fade_from_to(start_val=0, end_val=1.0, t=2.0, wait=i)
-                        padding 1, 1
-                        margin 0, 0
-                        align (.5, .5)
-                        style "basic_choice2_button"
-                        idle img
-                        selected_idle Transform(img, alpha=1.05)
-                        action SetScreenVariable("winner", member), With(dissolve)
-
-        frame:
-            background Null()
-            xsize 95
-            align (1.0, .5)
-            padding 8, 8
-            margin 0, 0
-            has vbox spacing 5 align(.5, .5)
             for i, member in enumerate(l_team):
                 $ img = member.show("portrait", resize=(70, 70), cache=True)
                 fixed:
@@ -970,7 +955,29 @@ init: # Main Screens:
                         style "basic_choice2_button"
                         idle img
                         selected_idle Transform(img, alpha=1.05)
-                        action NullAction()
+                        action SetScreenVariable("l_member", member), With(dissolve)
+
+        frame:
+            background Null()
+            xsize 95
+            align (1.0, .5)
+            padding 8, 8
+            margin 0, 0
+            has vbox spacing 5 align(.5, .5)
+            for i, member in enumerate(r_team):
+                $ img = member.show("portrait", resize=(70, 70), cache=True)
+                fixed:
+                    align (.5, .5)
+                    xysize (70, 70)
+                    imagebutton:
+                        at fade_from_to(start_val=0, end_val=1.0, t=2.0, wait=i)
+                        padding 1, 1
+                        margin 0, 0
+                        align (.5, .5)
+                        style "basic_choice2_button"
+                        idle img
+                        selected_idle Transform(img, alpha=1.05)
+                        action SetScreenVariable("r_member", member), With(dissolve)
 
         button:
             xysize (100, 30)
@@ -980,7 +987,7 @@ init: # Main Screens:
             text "Continue" style "pb_button_text" yalign 1.0 
 
         # Details Display for the selected members of the teams on the left/right:
-        for char, xalign, fade in ((winner, .2, True), (loser, .8, False)):
+        for char, xalign, fade in ((l_member, .2, True), (r_member, .8, False)):
             $ stats = combat_stats[char]
             $ img = char.show('battle_sprite', resize=(200, 200), cache=True)
             if "K.O." in stats:
