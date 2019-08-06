@@ -137,6 +137,29 @@
         "exp_cap_duration": [2, 10]
     },
     {
+        "name": "Gladiators Guild",
+        "class": "GladiatorsGuild",
+        "desc": "Fight in the arena with your teams... or just between your teams!",
+        "img": "content/buildings/upgrades/gladiators_guild.webp",
+        "materials": {"Wood": 50, "Bricks": 30, "Glass": 10},
+
+        "capacity": 2,
+        "cost": 100,
+        "in_slots": 2,
+        "ex_slots": 0,
+
+        "duration": [5, 10],
+
+        "exp_cap_in_slots": 1,
+        "exp_cap_ex_slots": 0,
+        "exp_cap_cost": 150,
+        "exp_cap_materials": {"Wood": 10, "Bricks": 10, "Glass": 1},
+
+        "exp_cap_duration": [3, 10],
+
+        "allowed_upgrades": ["HealingSprings"]
+    },
+    {
         "name": "Exploration Guild",
         "class": "ExplorationGuild",
         "desc": "Travel to exotic places, meet new monsters and people... and take their shit!",
@@ -144,7 +167,7 @@
         "materials": {"Wood": 70, "Bricks": 50, "Glass": 5},
 
         "capacity": 2,
-        "cost": 100,
+        "cost": 300,
         "in_slots": 4,
         "ex_slots": 0,
 

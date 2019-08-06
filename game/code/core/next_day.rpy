@@ -240,7 +240,7 @@ label next_day_controls:
                     FilteredList = [e for e in FilteredList if e.type == 'explorationndreport']
                 elif filter == 'building':
                     building = result[2]
-                    order = {"buildingreport": 1, "manager_report": 2, "explorationndreport": 3, "jobreport": 4, "taskreport": 5}
+                    order = {"buildingreport": 1, "manager_report": 2, "gladiatorsndreport": 3, "explorationndreport": 4, "jobreport": 5, "taskreport": 6}
                     FilteredList = sorted([e for e in FilteredList if e.loc == building and e.type in order], key=lambda e: order[e.type])
                 elif filter == "fighters_guild":
                     order = {"fg_report": 1, "exploration_report": 2, "fg_job": 3}

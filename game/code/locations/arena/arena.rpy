@@ -258,7 +258,7 @@ init -9 python:
 
         def update_matches(self):
             for matches, ladder in [(self.matches_1v1, self.ladder_1v1), (self.matches_2v2, self.ladder_2v2), (self.matches_3v3, self.ladder_3v3)]:
-                teams = None
+                teams = candidates = None
                 tmap = dict()
                 for setup in matches:
                     if setup[1]:
@@ -269,17 +269,34 @@ init -9 python:
                     if dt is None:
                         if teams is None:
                             teams = [i for m in matches for i in (m[0], m[1])]
-                            teams = [i for i in ladder if i not in teams and i.leader != hero]
-                        dt = []
-                        for team in teams:
-                            for fighter in team:
-                                if fday in fighter.fighting_days:
-                                    break
-                            else:
-                                dt.append(team)
-                        shuffle(dt)
+                            teams = [i for i in ladder if i not in teams and i.leader != hero and i.leader.employer != hero]
+                        dt = [t for t in teams if all((fday not in f.fighting_days for f in t))]
+                        if dt:
+                            shuffle(dt)
+                        else:
+                            # could not find a ladder team -> select one from the best candidates
+                            if candidates is None:
+                                num = len(ladder[0])
+                                if num == 1:
+                                    fighters = self.get_matches_fighters(matches="1v1")
+                                    candidates = [i for i in self.get_arena_candidates() if i not in fighters]
+                                    sorted(candidates, key=attrgetter("arena_rep"))
+                                elif num == 2:
+                                    teams = [i for m in matches for i in (m[0], m[1])]
+                                    candidates = [t for t in self.teams_2v2 if t not in teams]
+                                    sorted(candidates, key=methodcaller("get_rep"))
+                                elif num == 3:
+                                    teams = [i for m in matches for i in (m[0], m[1])]
+                                    candidates = [t for t in self.teams_3v3 if t not in teams]
+                                    sorted(candidates, key=methodcaller("get_rep"))
+                                else:
+                                    raise Exception("Invalid team size for update_matches: %d" % num)
+                            if candidates:
+                                dt = candidates.pop()
+                                if not isinstance(dt, Team):
+                                    dt = Team(implicit=[dt], max_size=1)
+                                dt = [dt]
                         tmap[fday] = dt
-
                     if dt:
                         dt = dt.pop()
                         for fighter in dt:
@@ -417,6 +434,32 @@ init -9 python:
                         msg = "We are not looking for a fight outside of our league."
                     opponent.leader.say(msg)
                     return
+            elif type == "matchfight":
+                for t in team:
+                    if t == hero:
+                        continue
+                    if t.arena_rep < Arena.PERMIT_REP:
+                        return PyTGFX.message("%s does not have enough arena reputation to buy an arena permit which is required to participate in matches!" % t.name)
+                    if day in t.fighting_days:
+                        if self.char_in_match_results(t):
+                            return PyTGFX.message("%s already had a fight today. Having two official matches on the same day is not allowed!" % t.name)
+                        else:
+                            return PyTGFX.message("%s already has a fight planned for day %d. Having two official matches on the same day is not allowed!" % (t.name, day))
+
+                for t in team:
+                    if t != hero and not t.arena_permit:
+                        temp = "{color=gold}%s Gold{/color}" % ("{:,d}".format(Arena.PERMIT_PRICE).replace(",", " "))
+                        if renpy.call_screen("yesno_prompt",
+                                         message="%s does not have an arena permit yet. Would you like to buy one for %s?" % (t.name, temp),
+                                         yes_action=Return(True), no_action=Return(False)):
+                            if hero.take_money(Arena.PERMIT_PRICE, reason="Arena Permit"):
+                                t.arena_permit = True
+                                continue
+                            msg = "You do not have %s to buy the arena permit! " % temp
+                        else:
+                            msg = ""
+                        msg += "You need to replace %s in your team!" % t.name
+                        return PyTGFX.message(msg)
             return True
 
         def match_challenge(self, setup):
@@ -678,11 +721,13 @@ init -9 python:
             self.update_dogfights()
 
         # -------------------------- ChainFights vs Mobs ------------------------>
-        def run_chainfight(self, setup):
+        def run_chainfight(self, setup, off_team, logical):
             """Running a chainfight.
             """
-            off_team = hero.team
+            combat_log = []
             for encounter in xrange(1, 6):
+                combat_log.append("--------------- Round %d ---------------" % encounter)
+
                 # Picking an opponent(s):
                 num_opps = len(off_team)
                 enemy_team = Team(name=setup["id"], max_size=num_opps)
@@ -696,22 +741,27 @@ init -9 python:
                 else:
                     mob_level = round_int(mob_level)
 
-                # Add the same amount of mobs as there characters on the MCs team:
+                # Add the same amount of mobs as there characters on the off team:
                 for i in range(num_opps):
                     mob = build_mob(choice(setup["mobs"]), level=mob_level)
                     enemy_team.add(mob)
 
-                # Get team luck:
-                luck = sum((member.get_stat("luck") for member in off_team)) 
-                luck = float(luck)/len(off_team)
+                # Mini-Game only for the hero
+                if off_team == hero.team:
+                    # Get team luck:
+                    luck = sum((member.get_stat("luck") for member in off_team)) 
+                    luck = float(luck)/len(off_team)
 
-                # Bonus:
-                if dice(25 + encounter*3 + luck*.5):
-                    self.run_minigame(luck)
+                    # Bonus:
+                    if dice(25 + encounter*3 + luck*.5):
+                        self.run_minigame(luck)
 
-                result = renpy.call_screen("confirm_chainfight", setup, encounter, enemy_team)
-                if result == "break":
-                    break
+                if logical:
+                    result = True
+                else:
+                    result = renpy.call_screen("confirm_chainfight", setup, encounter, enemy_team)
+                    if result == "break":
+                        return (enemy_team, off_team), combat_log
 
                 # the actual battle
                 member_aps = {member: member.PP for member in off_team}
@@ -740,8 +790,9 @@ init -9 python:
 
                     renpy.music.stop(fadeout=1.0)
 
+                combat_log.extend(battle.combat_log)
                 if battle.winner != off_team:
-                    break
+                    return (enemy_team, off_team), combat_log
 
                 for member, aps in member_aps.iteritems():
                     member_aps[member] = (aps - member.PP)/100.0 # PP_PER_AP = 100
@@ -773,7 +824,8 @@ init -9 python:
                 self.update_ladder()
 
                 if encounter <= 4:
-                    renpy.call_screen("arena_aftermatch", off_team, enemy_team, combat_stats, True)
+                    if not logical:
+                        renpy.call_screen("arena_aftermatch", off_team, enemy_team, combat_stats, True)
                     continue
 
                 # rewards
@@ -787,9 +839,11 @@ init -9 python:
                 for i in rewards:
                     leader.inventory.append(i)
 
-                renpy.call_screen("arena_finished_chainfight", off_team, enemy_team, combat_stats, rewards)
+                if not logical:
+                    renpy.call_screen("arena_finished_chainfight", off_team, enemy_team, combat_stats, rewards)
 
             # end of the chainfight
+            return (off_team, enemy_team), combat_log
 
         def run_minigame(self, luck):
             # New total is 300, each of the stats may get 25!
@@ -865,34 +919,36 @@ init -9 python:
 
             return winner, loser
 
-        def run_dogfight(self, enemy_team):
+        def run_dogfight(self, enemy_team, off_team, logical):
             '''
             Bridge to battle engine + rewards/penalties
             '''
-            off_team = hero.team
             member_aps = {member: member.PP for member in chain(off_team, enemy_team)}
             member_hps = {member: member.get_stat("health") for member in chain(off_team, enemy_team)}
 
-            renpy.music.stop(channel="world")
-            renpy.play(choice(["content/sfx/sound/world/arena/prepare.mp3", "content/sfx/sound/world/arena/new_opp.mp3"]))
-            track = get_random_battle_track()
-            renpy.music.play(track, fadein=1.5)
-            renpy.pause(.5)
-
-            for mob in enemy_team:
-                mob.controller = Complex_BE_AI()
-
             global battle
-            battle = BE_Core(bg="battle_dogfights_1", start_sfx=get_random_image_dissolve(1.5),
-                             end_bg="battle_arena_1", end_sfx=dissolve, give_up="surrender",
-                             max_turns=off_team.leader is not hero, teams=[off_team, enemy_team])
-            battle.start_battle()
+            if logical is True:
+                battle = run_auto_be(off_team, enemy_team, simple_ai=False)
+            else:
+                renpy.music.stop(channel="world")
+                renpy.play(choice(["content/sfx/sound/world/arena/prepare.mp3", "content/sfx/sound/world/arena/new_opp.mp3"]))
+                track = get_random_battle_track()
+                renpy.music.play(track, fadein=1.5)
+                renpy.pause(.5)
 
-            # Reset the controllers:
-            #off_team.reset_controller()
-            enemy_team.reset_controller()
+                for mob in enemy_team:
+                    mob.controller = Complex_BE_AI()
 
-            renpy.music.stop(fadeout=1.0)
+                battle = BE_Core(bg="battle_dogfights_1", start_sfx=get_random_image_dissolve(1.5),
+                                 end_bg="battle_arena_1", end_sfx=dissolve, give_up="surrender",
+                                 max_turns=off_team.leader is not hero, teams=[off_team, enemy_team])
+                battle.start_battle()
+
+                # Reset the controllers:
+                #off_team.reset_controller()
+                enemy_team.reset_controller()
+
+                renpy.music.stop(fadeout=1.0)
 
             winner = battle.winner
             loser = enemy_team if winner is off_team else off_team
@@ -967,13 +1023,16 @@ init -9 python:
             for member in enemy_team:
                 restore_battle_stats(member)
 
-            renpy.call_screen("arena_aftermatch", winner, loser, combat_stats, off_team is winner)
+            if not logical:
+                renpy.call_screen("arena_aftermatch", winner, loser, combat_stats, off_team is winner)
 
             # Ladder
             self.update_ladder()
 
             # record the event
             self.df_count += 1
+
+            return (winner, loser), list(battle.combat_log)
 
         @staticmethod
         def shallow_copy_team(team):
@@ -982,35 +1041,37 @@ init -9 python:
             """ 
             return Team(name=team.name, implicit=team.members, max_size=team.max_size)
 
-        def run_matchfight(self, setup):
+        def run_matchfight(self, setup, off_team, logical):
             """
             Bridge to battle engine + rewards/penalties.
             """
-            off_team = hero.team
             enemy_team = setup[1]
 
             member_aps = {member: member.PP for member in chain(off_team, enemy_team)}
 
-            renpy.music.stop(channel="world")
-            renpy.play(choice(["content/sfx/sound/world/arena/prepare.mp3", "content/sfx/sound/world/arena/new_opp.mp3"]))
-            track = get_random_battle_track()
-            renpy.music.play(track, fadein=1.5)
-            renpy.pause(.5)
-
-            for member in enemy_team:
-                member.controller = Complex_BE_AI()
-
             global battle
-            battle = BE_Core(bg="battle_arena_1", start_sfx=get_random_image_dissolve(1.5),
-                             end_bg="battle_arena_1", end_sfx=dissolve, give_up="surrender",
-                             max_turns=off_team.leader is not hero, teams=[off_team, enemy_team])
-            battle.start_battle()
+            if logical:
+                battle = run_auto_be(off_team, enemy_team, simple_ai=False)
+            else:
+                renpy.music.stop(channel="world")
+                renpy.play(choice(["content/sfx/sound/world/arena/prepare.mp3", "content/sfx/sound/world/arena/new_opp.mp3"]))
+                track = get_random_battle_track()
+                renpy.music.play(track, fadein=1.5)
+                renpy.pause(.5)
 
-            # Reset the controllers:
-            #off_team.reset_controller()
-            enemy_team.reset_controller()
+                for member in enemy_team:
+                    member.controller = Complex_BE_AI()
 
-            renpy.music.stop(fadeout=1.0)
+                battle = BE_Core(bg="battle_arena_1", start_sfx=get_random_image_dissolve(1.5),
+                                 end_bg="battle_arena_1", end_sfx=dissolve, give_up="surrender",
+                                 max_turns=off_team.leader is not hero, teams=[off_team, enemy_team])
+                battle.start_battle()
+
+                # Reset the controllers:
+                #off_team.reset_controller()
+                enemy_team.reset_controller()
+
+                renpy.music.stop(fadeout=1.0)
 
             winner = battle.winner
             loser = enemy_team if winner is off_team else off_team
@@ -1078,7 +1139,8 @@ init -9 python:
             for member in enemy_team:
                 restore_battle_stats(member)
 
-            renpy.call_screen("arena_aftermatch", winner, loser, combat_stats, off_team is winner)
+            if not logical:
+                renpy.call_screen("arena_aftermatch", winner, loser, combat_stats, off_team is winner)
 
             # Update match
             setup[0] = setup[1] = Arena.EMPTY_TEAM
@@ -1091,6 +1153,8 @@ init -9 python:
 
             # record the event
             self.daily_match_results.append((self.shallow_copy_team(winner), self.shallow_copy_team(loser)))
+
+            return (winner, loser), list(battle.combat_log)
 
         @staticmethod
         def append_match_result(txt, f2f, match_result):

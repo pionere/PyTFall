@@ -1874,7 +1874,7 @@ init -9 python:
             self._buildings = workable + habitable + rest
 
         def get_guild_businesses(self):
-            return [u for b in self._buildings for u in b.businesses if u.__class__ == ExplorationGuild]
+            return [u for b in self._buildings for u in b.businesses if u.__class__ in [ExplorationGuild, GladiatorsGuild]]
 
         def remove_building(self, building):
             try:
@@ -2276,8 +2276,8 @@ init -9 python:
             AP check is optional and if True, also checks for action points.
             """
             # We do not want workers in school to AutoRest,
-            # Idea is that the school is taking care of this.
-            if self._task == StudyingTask:
+            # Idea is that the school, gladiator guild are taking care of this.
+            if self._task in (StudyingTask, GladiatorTask):
                 return True
 
             if self.get_stat("health") < self.get_max("health")/4:

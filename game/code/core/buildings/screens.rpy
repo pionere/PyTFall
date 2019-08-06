@@ -24,9 +24,9 @@ label building_management:
                 global bm_mid_frame_mode
                 last_bm_mode = bm_mid_frame_mode
                 bm_mid_frame_mode = result[1]
-                if isinstance(last_bm_mode, ExplorationGuild):
+                if isinstance(last_bm_mode, (ExplorationGuild, GladiatorsGuild)):
                     last_bm_mode.clear_gui()
-                if isinstance(bm_mid_frame_mode, ExplorationGuild):
+                if isinstance(bm_mid_frame_mode, (ExplorationGuild, GladiatorsGuild)):
                     bm_mid_frame_mode.load_gui()
         elif result[0] == "fg_team":
             python hide:
@@ -61,6 +61,17 @@ label building_management:
                             i.mod_workplace(dest_building)
                         dest_guild.add_team(team)
                         guild.remove_team(team)
+
+        elif result[0] == "guild":
+            python hide:
+                action = result[1]
+                guild = bm_mid_frame_mode
+                if action == "schedule":
+                    guild.schedule()
+                elif action == "fight":
+                    guild.fight_event(result[2], True, True)
+                elif action == "watch":
+                    guild.watch_event(result[2])
         elif result[0] == "building":
             if result[1] == 'items_transfer':
                 hide screen building_management
@@ -169,6 +180,8 @@ screen building_management():
                 use building_management_midframe_building_mode
             elif isinstance(bm_mid_frame_mode, ExplorationGuild):
                 use building_management_midframe_exploration_guild_mode
+            elif isinstance(bm_mid_frame_mode, GladiatorsGuild):
+                use building_management_midframe_gladiators_guild_mode
             else: # Upgrade mode:
                 use building_management_midframe_businesses_mode
 
@@ -183,6 +196,8 @@ screen building_management():
                 use building_management_leftframe_building_mode
             elif isinstance(bm_mid_frame_mode, ExplorationGuild):
                 use building_management_leftframe_exploration_guild_mode
+            elif isinstance(bm_mid_frame_mode, GladiatorsGuild):
+                use building_management_leftframe_gladiators_guild_mode
             else: # Upgrade mode:
                 use building_management_leftframe_businesses_mode
 
@@ -197,6 +212,8 @@ screen building_management():
                 use building_management_rightframe_building_mode
             elif isinstance(bm_mid_frame_mode, ExplorationGuild):
                 use building_management_rightframe_exploration_guild_mode
+            elif isinstance(bm_mid_frame_mode, GladiatorsGuild):
+                use building_management_rightframe_gladiators_guild_mode
             else: # Upgrade mode:
                 use building_management_rightframe_businesses_mode
     else:

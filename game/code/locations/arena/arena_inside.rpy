@@ -41,7 +41,7 @@ label arena_inside:
                 $ result = result[2]
                 if pytfall.arena.check_arena_fight("dogfight", hero.team, result):
                     hide screen arena_inside
-                    $ pytfall.arena.run_dogfight(result)
+                    $ pytfall.arena.run_dogfight(result, hero.team, False)
                     jump arena_inside
             elif result[1] == "start_matchfight":
                 # Figure out who we're fighting:
@@ -58,12 +58,12 @@ label arena_inside:
                             if t != hero:
                                 t.fighting_days.append(day)
                     hide screen arena_inside
-                    $ pytfall.arena.run_matchfight(result)
+                    $ pytfall.arena.run_matchfight(result, hero.team, False)
                     jump arena_inside
             elif result[1] == "start_chainfight":
                 if pytfall.arena.check_arena_fight("chainfight", hero.team, None):
                     hide screen arena_inside
-                    $ pytfall.arena.run_chainfight(result[2])
+                    $ pytfall.arena.run_chainfight(result[2], hero.team, False)
                     jump arena_inside
 
 label arena_inside_end:
@@ -329,7 +329,7 @@ init: # Main Screens:
         use top_stripe(True, show_lead_away_buttons=False)
 
     # Screens used to display and issue challenges in the official matches inside of Arena:
-    screen arena_matches(type):
+    screen arena_matches(type, use_return=False):
         default container = getattr(pytfall.arena, "matches_%s"%type) # .matches_1v1, .matches_2v2 or .matches_3v3
         default vs_img = PyTGFX.scale_img("content/gfx/interface/images/vs_%d.webp" % (int(type[0]) + 1), 100, 100) # vs_2.webp, vs_3.webp or vs_4.webp
         modal True
@@ -440,7 +440,7 @@ init: # Main Screens:
                 vbar value YScrollValue("vp_matches")
             button:
                 style_group "basic"
-                action Hide("arena_matches"), With(dissolve)
+                action If(use_return, true=Return(False), false=Hide("arena_matches"))
                 minimum(50, 30)
                 align (.5, .9995)
                 text  "Close"
@@ -582,7 +582,7 @@ init: # Main Screens:
                 text  "Close"
                 keysym "mousedown_3"
 
-    screen arena_dogfights(type):
+    screen arena_dogfights(type, use_return=False):
         default container = getattr(pytfall.arena, "dogfights_%s"%type) # .dogfights_1v1, .dogfights_2v2 or .dogfights_3v3
         modal True
         zorder 1
@@ -645,7 +645,7 @@ init: # Main Screens:
 
             button:
                 style_group "basic"
-                action Hide("arena_dogfights"), With(dissolve)
+                action If(use_return, true=Return(False), false=Hide("arena_dogfights"))
                 minimum(50, 30)
                 align (.5, .9995)
                 text  "Close"
@@ -1015,7 +1015,7 @@ init: # Main Screens:
                 keysym "mousedown_3"
 
 init: # ChainFights vs Mobs:
-    screen arena_mobs():
+    screen arena_mobs(use_return=False):
         modal True
         frame:
             background Frame("content/gfx/frame/p_frame52.webp", 10, 10)
@@ -1067,7 +1067,7 @@ init: # ChainFights vs Mobs:
             null height 5
             button:
                 style_group "basic"
-                action Hide("arena_mobs"), With(dissolve)
+                action If(use_return, true=Return(False), false=Hide("arena_mobs"))
                 minimum(50, 30)
                 align (.5, .9995)
                 text  "Close"

@@ -1422,9 +1422,14 @@ init 1000 python:
         #                           business="Stable", businesses={"Cleaning Block": [], "Warrior Quarters": [], "Stable": ["Catwalk"]}, workers=[("Manager", 1, ManagerJob), ("Maid", 16, WranglerJob), ("Maid", 3, CleaningJob), ("Warrior", 2, GuardJob)],
         #                           stats=["agility", "joy", "disposition", "riding"])
 
-        # EG
-
         # GG
+        @staticmethod
+        def loadGladiatorsT2_4(op=False): # 22000
+            TestSuite.loadBuilding(tier=2, op=op, adverts=["Sign"], auto_clean=100, auto_guard=0,
+                                   business="Gladiators Guild", businesses={"Cleaning Block": [], "Warrior Quarters": [], "Gladiators Guild": ["Healing Springs"]}, workers=[("Maid", 1, CleaningJob), ("Warrior", 9, GuardJob)],
+                                   stats=["joy", "disposition"])
+
+        # EG
 
         @staticmethod
         def aeqTest():

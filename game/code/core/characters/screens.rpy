@@ -18,7 +18,8 @@ screen set_action_dropdown(char, pos=()):
         anchor (xval, yval)
         has vbox
 
-        if char.action == StudyingTask:
+        $ temp = char.task
+        if temp == StudyingTask:
             textbutton "Change Course":
                 action [Hide("set_action_dropdown"),
                         If(renpy.get_screen("chars_list"),
@@ -30,7 +31,12 @@ screen set_action_dropdown(char, pos=()):
                 action [Function(char.set_task, None),
                         Hide("set_action_dropdown"), With(Dissolve(0.1))]
                 tooltip "Call your worker back from the Academy."
-        elif char.action in [RestTask, AutoRestTask]:
+        elif temp == GladiatorTask:
+            textbutton "Back to Work":
+                action [Function(char.set_task, None),
+                        Hide("set_action_dropdown"), With(Dissolve(0.1))]
+                tooltip "Call your worker back from the Guild! The scheduled fights are not going to take place unless they are re-scheduled!"
+        elif temp in [RestTask, AutoRestTask]:
             $ jobs = char.get_valid_jobs()
             for i in jobs:
                 textbutton "[i.id]":

@@ -341,11 +341,12 @@ screen top_stripe(show_return_button=True, return_button_action=None, show_lead_
                 if not get_screens(*special_screens):
                     keysym "mousedown_3"
 
-screen team_status(interactive=True, pos=(17, 50)):
+screen team_status(team=None, interactive=True, pos=(17, 50), spacing=25):
+    default members = hero.team if team is None else team 
     hbox:
-        spacing 25
+        spacing spacing
         pos pos
-        for member in hero.team:
+        for member in members:
             $ char_profile_img = member.show('portrait', resize=(100, 100), cache=True)
             vbox:
                 spacing 1
@@ -353,13 +354,20 @@ screen team_status(interactive=True, pos=(17, 50)):
                 fixed:
                     xalign .5
                     xysize 102, 102
-                    imagebutton:
-                        xysize (102, 102)
-                        background Frame("content/gfx/frame/MC_bg3.png", 10, 10)
-                        padding (1, 1)
-                        idle char_profile_img
-                        hover PyTGFX.bright_content(char_profile_img, .15)
-                        action SensitiveIf(interactive), Return(member)
+                    if interactive:
+                        imagebutton:
+                            xysize (102, 102)
+                            background Frame("content/gfx/frame/MC_bg3.png", 10, 10)
+                            padding (1, 1)
+                            idle char_profile_img
+                            hover PyTGFX.bright_content(char_profile_img, .15)
+                            action Return(member)
+                    else:
+                        frame:
+                            xysize (102, 102)
+                            background Frame("content/gfx/frame/MC_bg3.png", 10, 10)
+                            padding (1, 1)
+                            add char_profile_img
 
                     $ ap_h, pp_h = member.ap_pp
                     $ tt_string = "%s has %s Action %s" % (member.nickname, ap_h, plural("Point", ap_h))
