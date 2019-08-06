@@ -318,8 +318,16 @@ screen battle_overlay(be):
     hbox:
         spacing 2
         align .5, .01
-        for member in battle.teams[0]:
+        $ members = [f for t in battle.teams for f in t if f.char is hero or getattr(f.char, "employer", None) is hero]
+        $ compression = max(0, len(members) - 4) * 33
+        $ last_team = None
+        for member in members:
+            $ team = member.allegiance
+            $ char = member.char
+            if last_team is not team and last_team is not None:
+                null width 10
             python:
+                last_team = team
                 profile_img = member.portrait
                 if member in battle.corpses:
                     try:
@@ -330,42 +338,39 @@ screen battle_overlay(be):
                 if battle.controller != member:
                     portrait_frame = im.Alpha(portrait_frame, alpha=.25)
 
+                name = set_font_color(member.name, "pink" if char.gender == "female" else "paleturquoise")
             frame:
                 style_prefix "proper_stats"
                 background Frame(im.Alpha("content/gfx/frame/ink_box.png", alpha=.5), 5, 5)
-                padding 5, 3
-                has hbox spacing 3
-
-                # Char Image:
+                padding 1, 1
+                has fixed xysize (270 - compression, 122)
+                # Image/Name:
                 frame:
                     background Frame(portrait_frame, 5, 5)
                     xysize 120, 120
                     padding 4, 4
                     yalign .5
-                    add profile_img align .5, .5 alpha .96
+                    imagebutton:
+                        idle profile_img
+                        align .5, .5
+                        action NullAction()
+                        tooltip name
 
-                # Name/Stats:
-                frame:
-                    padding 8, 2
-                    xsize 155
-                    background Frame(im.Alpha("content/gfx/frame/p_frame2.png", alpha=.6), 5, 5)
-                    has vbox
-
-                    label "[member.name]":
-                        yalign .03
-                        text_size 16
-                        text_bold True
-                        text_color ("pink" if isinstance(member, Char) else "ivory")
+                # Stats:
+                vbox:
+                    xsize 150
+                    xpos (120 - compression)
+                    spacing 4
+                    yalign .5
 
                     # AP, PP
                     $ pp = member.PP
-                    $ ap, pp = pp/100, pp%100
+                    $ ap, pp = pp/100, pp%100 # PP_PER_AP
                     fixed:
                         ysize 25
-                        yoffset -4
+                        xpos 4
                         frame:
                             xysize 140, 25
-                            align .5, .5
                             background im.Scale("content/gfx/frame/frame_ap.webp", 140, 25)
                             hbox:
                                 align .8, .1
@@ -376,6 +381,7 @@ screen battle_overlay(be):
                     $ health = member.delayedhp
                     fixed:
                         ysize 25
+                        xpos 7
                         bar:
                             left_bar PyTGFX.scale_img("content/gfx/interface/bars/hp1.png", 150, 20)
                             right_bar PyTGFX.scale_img("content/gfx/interface/bars/empty_bar1.png", 150, 20)
@@ -390,6 +396,7 @@ screen battle_overlay(be):
                     $ mp = member.delayedmp
                     fixed:
                         ysize 25
+                        xpos 7
                         bar:
                             left_bar PyTGFX.scale_img("content/gfx/interface/bars/mp1.png", 150, 20)
                             right_bar PyTGFX.scale_img("content/gfx/interface/bars/empty_bar1.png", 150, 20)
@@ -404,6 +411,7 @@ screen battle_overlay(be):
                     $ vitality = member.delayedvit
                     fixed:
                         ysize 25
+                        xpos 7
                         bar:
                             left_bar PyTGFX.scale_img("content/gfx/interface/bars/vitality1.png", 150, 20)
                             right_bar PyTGFX.scale_img("content/gfx/interface/bars/empty_bar1.png", 150, 20)
