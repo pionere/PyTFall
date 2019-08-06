@@ -2118,6 +2118,8 @@ init -9 python:
 
             # Finances related ---->
             self.fin.next_day()
+            for b in self.buildings:
+                b.fin.next_day()
 
             # ------------>
             self.nd_log_report(txt, 'profile', flag_red, type='mcndreport')

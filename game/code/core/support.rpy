@@ -211,13 +211,11 @@ init -9 python:
             tl.end("Arena ND")
 
             # Girls, Buildings income and Hero:
-            tl.start("MC's Chars ND")
+            tl.start("Chars ND")
             for char in chars.values():
                 char.next_day()
             hero.next_day()
-            for b in hero.buildings:
-                b.nd_log_income()
-            tl.end("MC's Chars ND")
+            tl.end("Chars ND")
 
             # Same for Arena Fighters:
             tl.start("Arena-Fighter's ND")

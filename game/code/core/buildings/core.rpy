@@ -1288,9 +1288,3 @@ init -10 python:
             self.nd_events_report.append(item)
             if DSNBR:
                 devlog.info(item)
-
-        def nd_log_income(self):
-            """
-            Log the next day income for this building.
-            """
-            self.fin.next_day()
