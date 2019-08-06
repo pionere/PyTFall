@@ -106,11 +106,7 @@ init: # Main Screens:
                 right_padding 40
                 style "right_wood_button"
                 action Return(["challenge", "start_matchfight"])
-                text "Start Match!":
-                    font "fonts/badaboom.ttf"
-                    size 20
-                    color "ivory"
-                    hover_color "crimson"
+                text "Start Match!" font "fonts/badaboom.ttf" size 20 color "ivory" hover_color "crimson"
 
         # Kickass sign:
         frame:
@@ -306,16 +302,16 @@ init: # Main Screens:
                         text "[temp]" size 14 color ("red" if temp <= tmp/5 else "ivory") bold True style_suffix "value_text" xpos 125 yoffset -8
 
             # Rep:
+            $ temp = "Reputation: %d" % hero.arena_rep
+            $ font_size = PyTGFX.txt_font_size(temp, 250, 25, min_size=10)
             frame:
-                background im.Scale("content/gfx/frame/frame_bg.png", 270, 110)
-                xysize (270, 110)
-                label "Reputation: [hero.arena_rep]" text_size 25 text_color "ivory" align .5, .5:
-                    if len(str(hero.arena_rep)) > 7:
-                        text_size 20
+                background Frame("content/gfx/frame/frame_bg.png", 5, 5)
+                xysize (270, 70)
+                label temp text_size font_size text_color "ivory" align .5, .5
 
             # Buttons:
             frame:
-                background im.Scale("content/gfx/frame/frame_bg.png", 270, 110)
+                background Frame("content/gfx/frame/frame_bg.png", 5, 5)
                 style_group "basic"
                 xysize (270, 110)
                 vbox:
@@ -354,10 +350,9 @@ init: # Main Screens:
                     child_size (710, 10000)
                     has vbox spacing 5
 
-                    # for lineup in pytfall.arena.matches_3v3:
-                    $ temp = sorted(container, key=itemgetter(2))
-                    for lineup in temp:
-                        if lineup[1]:
+                    for lineup in sorted(container, key=itemgetter(2)):
+                        $ off_team, def_team, event_day = lineup
+                        if def_team:
                             frame:
                                 style_group "content"
                                 xalign .5
@@ -377,46 +372,44 @@ init: # Main Screens:
                                         xsize 80
                                         vbox:
                                             xalign .5
+                                            spacing 10
                                             label "Day:":
-                                                align .5, .5
+                                                xalign .5
                                                 text_color "goldenrod"
                                                 text_size 20
-                                            null height 10
-
-                                            label "[lineup[2]]":
-                                                align .5, .5
+                                            label str(event_day):
+                                                xalign .5
                                                 text_color "goldenrod"
                                                 text_size 25
 
                                 # Challenge button:
-                                if not lineup[0]:
+                                if not off_team:
                                     button:
                                         style "arena_channenge_button"
                                         action Return(["challenge", "matches", lineup])
                                         vbox:
                                             align (.5, .5)
-                                            $ team = lineup[1]
                                             style_prefix "arena_badaboom"
                                             text "Challenge!" size 40 
-                                            text ("Enemy level: %s" % team.get_level()) outlines [(1, "#3a3a3a", 0, 0)]
-                                            text ("Reputation: %s" % team.get_rep()) size 20 outlines [(1, "#3a3a3a", 0, 0)] 
+                                            text ("Enemy level: %s" % def_team.get_level()) outlines [(1, "#3a3a3a", 0, 0)]
+                                            text ("Reputation: %s" % def_team.get_rep()) size 20 outlines [(1, "#3a3a3a", 0, 0)] 
 
                                 # Or we show the team that challenged:
                                 else:
                                     frame:
                                         style "arena_channenge_frame"
+                                        $ name = off_team.gui_name
+                                        $ font_size = PyTGFX.txt_font_size(name, 236, 20, min_size=10) 
                                         frame:
                                             align .5, .0
-                                            padding 5, 3
+                                            xpadding 7
+                                            ysize 35
                                             background Frame("content/gfx/frame/rank_frame.png", 5, 5)
-                                            $ name = lineup[0].gui_name
-                                            label "[name]" align .5, .5 text_size 20 text_style "proper_stats_text" text_color "gold":
-                                                if len(name) > 15:
-                                                    text_size 15
+                                            text name size font_size layout "nobreak" color "gold" style "proper_stats_text" yalign .5
                                         hbox:
                                             spacing 3
                                             align .5, 1.0
-                                            for fighter in lineup[0]:
+                                            for fighter in off_team:
                                                 frame:
                                                     background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
                                                     padding 2, 2
@@ -427,23 +420,18 @@ init: # Main Screens:
                                 # Waiting for the challenge or been challenged by former:
                                 frame:
                                     style "arena_channenge_frame"
-                                    $ team = lineup[1]
-                                    $ name = team.gui_name
-                                    $ size = 15 if len(name) > 15 else 25
+                                    $ name = def_team.gui_name
+                                    $ font_size = PyTGFX.txt_font_size(name, 234, 25, min_size=10)
                                     frame:
                                         align .5, .0
-                                        padding 5, 1
+                                        xpadding 8
+                                        ysize 40
                                         background Frame("content/gfx/frame/rank_frame.png", 5, 5)
-                                        $ text = "[name]"
-                                        text text:
-                                            align .5, .0
-                                            size size
-                                            style "proper_stats_text"
-                                            color "gold"
+                                        text name size font_size layout "nobreak" color "gold" style "proper_stats_text" yalign .5
                                     hbox:
                                         spacing 3
                                         align .5, 1.0
-                                        for fighter in team:
+                                        for fighter in def_team:
                                             frame:
                                                 background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
                                                 padding 2, 2
@@ -498,7 +486,7 @@ init: # Main Screens:
                                 $ name = members[0].nickname if len(team) == 1 else team.name
                                 $ level = sum((member.level for member in members)) / len(members)
                                 frame:
-                                    align (.5, .6)
+                                    yalign .6
                                     xysize (100, 45)
                                     background Frame("content/gfx/frame/rank_frame.png", 5, 5)
                                     text ("Lvl %d" % level) align .5, .5 size 25 style "proper_stats_text" color "gold"
@@ -513,15 +501,14 @@ init: # Main Screens:
                                             background Frame("content/gfx/interface/buttons/choice_buttons2.png", 5, 5)
                                             padding 3, 3
                                             add fighter.show("portrait", resize=(45, 45), cache=True)
-                                null width 12
+                                null width 8
+                                $ size = 500 - 51 * len(members)
+                                $ font_size = PyTGFX.txt_font_size(name, size, 25, min_size=10)
                                 frame:
-                                    align (.5, .6)
-                                    xfill True
+                                    yalign .6
+                                    xysize (size, 45)
                                     background Frame("content/gfx/frame/rank_frame.png", 5, 5)
-                                    label name align .5, .5 text_size 25 text_style "proper_stats_text" text_color "gold":
-                                        if len(name) > 15:
-                                            text_size 15
-                                            text_layout "nobreak"
+                                    text name size font_size layout "nobreak" color "gold" style "proper_stats_text" align .5, .5
 
                 vbar value YScrollValue("arena_ladders")
 
@@ -638,16 +625,13 @@ init: # Main Screens:
                             frame:
                                 style "arena_channenge_frame"
                                 $ name = team.gui_name
-                                $ size = 15 if len(name) > 15 else 25
+                                $ font_size = PyTGFX.txt_font_size(name, 234, 25, min_size=10)
                                 frame:
                                     align .5, .0
-                                    padding 5, 1
+                                    xpadding 8
+                                    ysize 40
                                     background Frame("content/gfx/frame/rank_frame.png", 5, 5)
-                                    text ("[name]"):
-                                        align .5, .0
-                                        size size
-                                        style "proper_stats_text"
-                                        color "gold"
+                                    text name size font_size layout "nobreak" color "gold" style "proper_stats_text" yalign .5
                                 hbox:
                                     spacing 3
                                     align .5, 1.0
@@ -1057,11 +1041,12 @@ init: # ChainFights vs Mobs:
                         padding 1, 1
                         hbox:
                             yalign .5
+                            $ font_size = PyTGFX.txt_font_size(id, 340, 25, min_size=10)
                             frame:
                                 yalign .5
                                 xysize (350, 45)
                                 background Frame("content/gfx/frame/rank_frame.png", 5, 5)
-                                text id align .5, .5 size 25 style "proper_stats_text" color "gold"
+                                text id align .5, .5 size font_size layout "nobreak" style "proper_stats_text" color "gold"
                             frame:
                                 yalign .5
                                 xysize (45, 45)
