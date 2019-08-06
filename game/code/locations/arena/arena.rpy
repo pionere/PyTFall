@@ -133,7 +133,7 @@ init -9 python:
                 group[:] = [team for team in group if fighter not in team]
 
         @staticmethod
-        def check_if_team_ready_for_dogfight(unit, dogfighters):
+        def check_if_team_ready_for_dogfight(unit, dogfighters=[]):
             """
             Checks if a team/fighter is ready for dogfight by eliminating them on grounds of health, scheduled matches, presense in other dogfights or lack of AP.
             """
@@ -143,12 +143,13 @@ init -9 python:
             if not isinstance(unit, Team):
                 unit = [unit]
 
-            for member in unit:
-                if member.get_stat("health") < member.get_max("health")*9/10:
+            for f in unit:
+                for stat in ("health", "mp", "vitality"): # BATTLE_STATS
+                    if f.get_stat(stat) < f.get_max(stat)*9/10:
+                        return False
+                if day+1 in f.fighting_days:
                     return False
-                if day+1 in member.fighting_days:
-                    return False
-                if member.PP < 200: # PP_PER_AP
+                if f.PP < 200: # PP_PER_AP
                     return False
 
             return True
@@ -159,41 +160,36 @@ init -9 python:
             If members are removed from teams directly, it is up to the respective method to find a replacement...
             '''
             candidates = None
-            if len(self.teams_2v2) < 30:
+            amount = 30 - len(self.teams_2v2)
+            if amount > 0:
                 if candidates is None:
                     candidates = self.get_arena_candidates()
                 inteams_2v2 = self.get_teams_fighters(teams="2v2")
                 templist = [fighter for fighter in candidates if fighter not in inteams_2v2]
                 shuffle(templist)
 
-                for __ in xrange(min(30, len(templist)/2)):
+                for __ in xrange(min(amount, len(templist)/2)):
                     team = Team(name=get_team_name(), max_size=2)
-                    f = templist.pop()
-                    f.arena_active = True
-                    team.add(f)
-                    f = templist.pop()
-                    f.arena_active = True
-                    team.add(f)
+                    for __ in xrange(2):
+                        f = templist.pop()
+                        f.arena_active = True
+                        team.add(f)
                     self.teams_2v2.append(team)
 
-            if len(self.teams_3v3) < 30:
+            amount = 30 - len(self.teams_3v3)
+            if amount > 0:
                 if candidates is None:
                     candidates = self.get_arena_candidates()
                 inteams_3v3 = self.get_teams_fighters(teams="3v3")
                 templist = [fighter for fighter in candidates if fighter not in inteams_3v3]
                 shuffle(templist)
 
-                for __ in xrange(min(30, len(templist)/3)):
+                for __ in xrange(min(amount, len(templist)/3)):
                     team = Team(name=get_team_name(), max_size=3)
-                    f = templist.pop()
-                    f.arena_active = True
-                    team.add(f)
-                    f = templist.pop()
-                    f.arena_active = True
-                    team.add(f)
-                    f = templist.pop()
-                    f.arena_active = True
-                    team.add(f)
+                    for __ in xrange(3):
+                        f = templist.pop()
+                        f.arena_active = True
+                        team.add(f)
                     self.teams_3v3.append(team)
 
         def update_dogfights(self):
@@ -203,13 +199,14 @@ init -9 python:
             level_range = range(hero.level-10, hero.level+10)
 
             # 1v1
-            if len(self.dogfights_1v1) < 20:
+            amount = 20 - len(self.dogfights_1v1)
+            if amount > 0:
                 candidates = self.get_arena_candidates()
                 dogfighters = self.get_dogfights_fighters()
                 candidates = [f for f in candidates if f not in dogfighters]
                 shuffle(candidates)
 
-                amount = min(min(randint(15, 20), 20 - len(self.dogfights_1v1)), len(candidates))
+                amount = min(min(randint(15, 20), amount), len(candidates))
                 in_range_exists = len([f for f in dogfighters if f.level in level_range])
 
                 # do first pass over those candidates who's level is near Hero's
@@ -233,12 +230,13 @@ init -9 python:
                     team = Team(implicit=[f], max_size=1)
                     self.dogfights_1v1.append(team)
 
-            # 2v2
+            # 2v2, 3v3
             for teams, teams_setup in ([self.teams_2v2, self.dogfights_2v2],
                                        [self.teams_3v3, self.dogfights_3v3]):
-                if len(teams_setup) < 15:
+                amount = 15 - len(teams_setup)
+                if amount:
                     candidates = [team for team in teams if team not in teams_setup]
-                    amount = min(min(randint(8, 15), 15 - len(teams_setup)), len(candidates))
+                    amount = min(min(randint(8, 15), amount), len(candidates))
                     in_range_exists = len([t for t in teams_setup if t.get_level() in level_range])
 
                     for team in candidates[:]:
@@ -290,7 +288,7 @@ init -9 python:
 
         def update_setups(self, winner, loser):
             """
-            Resonsible for repositioning winners + losers in setups!
+            Responsible for repositioning winners + losers in setups!
             """
             team_size = len(winner)
             if team_size == 1:
@@ -355,7 +353,7 @@ init -9 python:
                         df = df.pop()
                         df.fighting_days.append(fday)
                         df.arena_active = True
-                        setup[0] = Team(name=df.name, implicit=[df], max_size=1)
+                        setup[0] = Team(implicit=[df], max_size=1)
 
             # 2vs2, 3vs3
             for matches, lineup in [(self.matches_2v2, self.teams_2v2), (self.matches_3v3, self.teams_3v3)]:
@@ -1170,54 +1168,47 @@ init -9 python:
             # Some random dogfights
             # 1v1:
             tl.start("Arena: Dogfights")
-            opfor_pool = list()
             dogfighters = self.get_dogfights_fighters()
-            for fighter in self.get_arena_candidates():
-                if self.check_if_team_ready_for_dogfight(fighter, dogfighters):
-                    opfor_pool.append(fighter)
+            opfor_pool = [f for f in self.get_arena_candidates() if self.check_if_team_ready_for_dogfight(f, dogfighters)]
+            dogfights = [t for t in self.dogfights_1v1 if self.check_if_team_ready_for_dogfight(f)]
 
             shuffle(opfor_pool)
-            shuffle(self.dogfights_1v1)
+            shuffle(dogfights)
 
-            for __ in xrange(randint(4, 7)):
-                if self.dogfights_1v1 and opfor_pool:
-                    defender = self.dogfights_1v1.pop()
-                    opfor_fighter = opfor_pool.pop()
-                    opfor = Team(implicit=[opfor_fighter], max_size=1)
-                    self.auto_resolve_combat(opfor, defender)
-                    self.df_count += 1
+            for __ in xrange(min(min(randint(4, 7), len(dogfights)), len(opfor_pool))):
+                defender = dogfights.pop()
+                opfor = Team(implicit=[opfor_pool.pop()], max_size=1)
+                self.auto_resolve_combat(opfor, defender)
+                self.df_count += 1
+
             # 2v2:
-            opfor_pool = list()
-
-            for team in self.teams_2v2:
-                if self.check_if_team_ready_for_dogfight(team, self.dogfights_2v2):
-                    opfor_pool.append(team)
+            dogfights = self.dogfights_2v2
+            opfor_pool = [t for t in self.teams_2v2 if self.check_if_team_ready_for_dogfight(t, dogfights)]
+            dogfights = [t for t in dogfights if self.check_if_team_ready_for_dogfight(f)]
 
             shuffle(opfor_pool)
-            shuffle(self.dogfights_2v2)
+            shuffle(dogfights)
 
-            for __ in xrange(randint(2, 4)):
-                if self.dogfights_2v2 and opfor_pool:
-                    defender = self.dogfights_2v2.pop()
-                    opfor = opfor_pool.pop()
-                    self.auto_resolve_combat(opfor, defender)
-                    self.df_count += 1
+            for __ in xrange(min(min(randint(2, 4), len(dogfights)), len(opfor_pool))):
+                defender = dogfights.pop()
+                opfor = opfor_pool.pop()
+                self.auto_resolve_combat(opfor, defender)
+                self.df_count += 1
+
             # 3v3:
-            opfor_pool = list()
-
-            for team in self.teams_3v3:
-                if self.check_if_team_ready_for_dogfight(team, self.dogfights_3v3):
-                    opfor_pool.append(team)
+            dogfights = self.dogfights_3v3
+            opfor_pool = [t for t in self.teams_3v3 if self.check_if_team_ready_for_dogfight(t, dogfights)]
+            dogfights = [t for t in dogfights if self.check_if_team_ready_for_dogfight(f)]
 
             shuffle(opfor_pool)
-            shuffle(self.dogfights_3v3)
+            shuffle(dogfights)
 
-            for __ in xrange(randint(2, 4)):
-                if self.dogfights_3v3 and opfor_pool:
-                    defender = self.dogfights_3v3.pop()
-                    opfor = opfor_pool.pop()
-                    self.auto_resolve_combat(opfor, defender)
-                    self.df_count += 1
+            for __ in xrange(min(min(randint(2, 4), len(dogfights)), len(opfor_pool))):
+                defender = dogfights.pop()
+                opfor = opfor_pool.pop()
+                self.auto_resolve_combat(opfor, defender)
+                self.df_count += 1
+
             self.update_dogfights()
             tl.end("Arena: Dogfights")
 
