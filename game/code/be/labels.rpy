@@ -13,12 +13,14 @@ label test_be:
             initial_levelup(h, 50, True)
             h.front_row = 1
             h.status = "free"
+            h.employer = hero
             hero.team.add(h)
         n = chars["Sakura"]
         if len(hero.team) != 3 and n not in hero.team:
             initial_levelup(n, 50, True)
             n.front_row = 1
             n.status = "free"
+            n.employer = hero
             hero.team.add(n)
 
         for i in hero.team:
@@ -43,9 +45,7 @@ label test_be:
     python:
         battle = BE_Core(bg="content/gfx/bg/be/b_forest_1.webp", music="random",
                          start_sfx=get_random_image_dissolve(1.5), end_sfx=dissolve,
-                         use_items=True, give_up="escape")
-        battle.teams.append(hero.team)
-        battle.teams.append(enemy_team)
+                         use_items=True, give_up="escape", teams=[hero.team, enemy_team])
         battle.start_battle()
 
     jump mainscreen
@@ -96,9 +96,7 @@ label test_be_logical:
             i.controller = BE_AI()
 
         # ImageReference("chainfights")
-        battle = BE_Core(logical=True)
-        battle.teams.append(hero.team)
-        battle.teams.append(enemy_team)
+        battle = BE_Core(logical=True, teams=[hero.team, enemy_team])
 
         tl.start("Logical BE Scenario without Setup!")
         battle.start_battle()

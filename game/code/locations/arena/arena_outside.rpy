@@ -384,8 +384,7 @@ label arena_practice_loop:
                 global battle
                 battle = BE_Core(bg="battle_dogfights_1", start_sfx=get_random_image_dissolve(1.5),
                     end_bg="battle_arena_1", end_sfx=dissolve, give_up="leave",
-                    use_items=2)
-                battle.teams = [your_team, enemy_team]
+                    use_items=2, teams=[your_team, enemy_team])
                 battle.start_battle()
 
                 enemy_team.reset_controller()

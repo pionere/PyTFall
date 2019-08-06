@@ -689,7 +689,9 @@ label after_load:
             del arena.lineup_3v3
             del arena.dogfight_day
         if hasattr(arena, "hero_match_result"):
-            arena.daily_match_results = [arena.hero_match_result]
+            mrs = arena.hero_match_result
+            mrs = [mrs] if mrs else []
+            arena.daily_match_results = mrs
             del arena.hero_match_result
 
         if hasattr(hero, "STATS"):

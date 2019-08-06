@@ -63,11 +63,8 @@ init -11 python:
             # create AI-controller
             fighter.controller = BE_AI() if simple_ai else Complex_BE_AI()
 
-        max_turns=15*(len(off_team)+len(def_team))
-
         global battle
-        battle = BE_Core(logical=True, max_turns=max_turns)
-        battle.teams = [off_team, def_team]
+        battle = BE_Core(logical=True, max_turns=True, teams=[off_team, def_team])
 
         if DEBUG_BE:
             msg = "\n    Custom Logical Combat Scenario ===================================================>>>>"
@@ -134,8 +131,7 @@ init -11 python:
                     end_bg=end_background, end_sfx=dissolve,
                     music=track, quotes=prebattle,
                     max_skill_lvl=skill_lvl, give_up=give_up,
-                    use_items=use_items)
-        battle.teams = [your_team, enemy_team]
+                    use_items=use_items, teams=[your_team, enemy_team])
         battle.start_battle()
 
         your_team.reset_controller()

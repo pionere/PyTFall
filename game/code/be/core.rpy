@@ -247,12 +247,13 @@ init -1 python: # Core classes:
 
         """Main BE attrs, data and the loop!
         """
-        def __init__(self, logical=False,
-                     max_skill_lvl=float("inf"), max_turns=1000,
+        def __init__(self, teams=None, logical=False,
+                     max_skill_lvl=float("inf"), max_turns=False,
                      use_items=False, give_up=None,
                      bg=None, start_sfx=None, end_bg=None, end_sfx=None,
                      music=None, quotes=False):
             """Creates an instance of BE scenario.
+            :param teams: the opponents (a pair of teams)
             :param logical: Just the calculations, without pause/gfx/sfx.
             :param max_skill_lvl: limit the allowed skills (for e.g. indoor battles)
             :param max_turns: limit the number of turns to prevent too long battles (due to resistances/immunities/lowPP)
@@ -299,7 +300,7 @@ init -1 python: # Core classes:
 
                 self.quotes = quotes
 
-            self.teams = list() # Each team represents a faction on the battlefield. 0 index for left team and 1 index for right team.
+            self.teams = teams # Each team represents a faction on the battlefield. 0 index for left team and 1 index for right team.
             self.queue = list() # List of events in BE..
             self.combat_status = None # general status of the battle, used to run away from BF atm.
             self.corpses = set() # Anyone died in the BE.
@@ -632,7 +633,7 @@ init -1 python: # Core classes:
             self.end_battle()
 
         def start_battle(self):
-            self.prepare_teams()
+            self.prepare_battle()
 
             if not self.logical:
                 self.predict_battle_skills()
@@ -670,7 +671,7 @@ init -1 python: # Core classes:
 
             self.main_loop()
 
-        def prepare_teams(self):
+        def prepare_battle(self):
             # Plainly sets allegiance of chars to their teams.
             # Allegiance may change during the fight (confusion skill for example once we have one).
             # I've also included part of team/char positioning logic here.
@@ -681,6 +682,11 @@ init -1 python: # Core classes:
                     team._members[idx] = BE_Combatant(team, idx, pos)
 
                 pos = "r"
+            max_turns = self.max_turns
+            if max_turns is True:
+                self.max_turns = 15 * sum(len(team) for team in self.teams)
+            elif max_turns is False:
+                self.max_turns = 1000
 
         def end_battle(self):
             """Ends the battle, trying to normalize any variables that may have been used during the battle.

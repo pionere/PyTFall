@@ -301,7 +301,7 @@ init -9 python:
                 ladder = self.ladder_3v3
                 members = self.ladder_3v3_members
             else:
-                raise Exception("Invalid team size for Automatic Arena Combat Resolver: %d" % team_size)
+                raise Exception("Invalid team size for update_setups: %d" % team_size)
 
             if winner in ladder:
                 index = ladder.index(winner)
@@ -730,8 +730,8 @@ init -9 python:
                         mob.controller = Complex_BE_AI()
 
                     battle = BE_Core(bg=ImageReference("chainfights"), start_sfx=get_random_image_dissolve(1.5),
-                                     end_bg="battle_arena_1", end_sfx=dissolve, give_up="surrender")
-                    battle.teams = [off_team, enemy_team]
+                                     end_bg="battle_arena_1", end_sfx=dissolve, give_up="surrender",
+                                     max_turns=off_team.leader is not hero, teams=[off_team, enemy_team])
                     battle.start_battle()
 
                     # Reset the controllers:
@@ -884,8 +884,8 @@ init -9 python:
 
             global battle
             battle = BE_Core(bg="battle_dogfights_1", start_sfx=get_random_image_dissolve(1.5),
-                             end_bg="battle_arena_1", end_sfx=dissolve, give_up="surrender")
-            battle.teams = [off_team, enemy_team]
+                             end_bg="battle_arena_1", end_sfx=dissolve, give_up="surrender",
+                             max_turns=off_team.leader is not hero, teams=[off_team, enemy_team])
             battle.start_battle()
 
             # Reset the controllers:
@@ -1002,8 +1002,8 @@ init -9 python:
 
             global battle
             battle = BE_Core(bg="battle_arena_1", start_sfx=get_random_image_dissolve(1.5),
-                             end_bg="battle_arena_1", end_sfx=dissolve, give_up="surrender")
-            battle.teams = [off_team, enemy_team]
+                             end_bg="battle_arena_1", end_sfx=dissolve, give_up="surrender",
+                             max_turns=off_team.leader is not hero, teams=[off_team, enemy_team])
             battle.start_battle()
 
             # Reset the controllers:
@@ -1235,7 +1235,7 @@ init -9 python:
                     elif num == 3:
                         ladder = self.ladder_3v3
                     else:
-                        raise Exception("Invalid team size '%s' (expected value: 1-3)" % num)
+                        raise Exception("Invalid team size for next_day/matches: %d" % num)
 
                     for idx, team in enumerate(ladder):
                         if team == off_team or team == def_team:

@@ -96,11 +96,8 @@ init 1000 python:
             mob.controller = BE_AI()
             def_team.add(mob)
 
-            max_turns=15*(len(off_team)+len(def_team))
-
             global battle
-            battle = BE_Core(logical=True, max_turns=max_turns)
-            battle.teams = [off_team, def_team]
+            battle = BE_Core(logical=True, max_turns=True, teams=[off_team, def_team])
             battle.start_battle()
 
             # Reset Controller:
