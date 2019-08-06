@@ -28,8 +28,9 @@ init -1 python:
             possible_chars = [c for c in chars.itervalues() if c not in interactive_chars]
 
             # Get available characters and check stuff:
-            #  filter chars out of city or in jail
-            choices = [c for c in possible_chars if c.home == pytfall.city and c.location != pytfall.jail]
+            #  filter chars out of city, in jail or active in the arena with too much tier difference
+            tier_range = range(hero.tier-1, hero.tier+2)
+            choices = [c for c in possible_chars if c.home == pytfall.city and c.location != pytfall.jail and (not c.arena_active or c.tier in tier_range)]
             #  filter by required tags
             if has_tags:
                 choices = [c for c in choices if c.has_image(*has_tags, exclude=has_no_tags)]
