@@ -2,54 +2,7 @@ screen building_management_leftframe_exploration_guild_mode:
     if bm_mid_frame_mode.view_mode == "upgrades":
         use building_management_leftframe_businesses_mode
     elif bm_mid_frame_mode.view_mode == "team":
-        $ workers = bm_mid_frame_mode.workers
-        # Filters:
-        frame:
-            background Frame(im.Alpha("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
-            style_group "proper_stats"
-            xsize 316
-            xalign .5
-            padding 10, 10
-            has vbox spacing 1
-            label "Filters:" xalign .5
-            vbox:
-                style_prefix "basic"
-                xalign .5
-                textbutton "Reset":
-                    xsize 296
-                    action [Function(workers.occ_filters.add, "Combatant"), Function(workers.action_filters.discard, None), Function(workers.filter)]
-                textbutton "Warriors":
-                    xsize 296
-                    action ModFilterSet(workers, "occ_filters", "Combatant")
-                textbutton "Idle":
-                    xsize 296
-                    action ModFilterSet(workers, "action_filters", None)
-
-        # Sorting:
-        frame:
-            background Frame(im.Alpha("content/gfx/frame/MC_bg.png", alpha=.55), 10 ,10)
-            style_group "proper_stats"
-            xysize (316, 50)
-            xalign .5
-            padding 10, 10
-            has hbox spacing 10 align .5, .5
-            label "Sort:":
-                yalign .5 
-
-            $ options = OrderedDict([("level", "Level"), ("name", "Name"), (None, "-")])
-            use dropdown_box(options, max_rows=4, row_size=(160, 30), pos=(89, 200), value=workers.sorting_order, field=(workers, "sorting_order"), action=Function(workers.filter))
-
-            if workers.sorting_desc:
-                $ temp = "content/gfx/interface/icons/checkbox_checked.png"
-            else:
-                $ temp = "content/gfx/interface/icons/checkbox_unchecked.png"
-            button:
-                xysize (25, 25)
-                align 1.0, 0.5 #offset 9, -2
-                background Frame(im.Alpha("content/gfx/frame/MC_bg2.png", alpha=.55), 5, 5)
-                action ToggleField(workers, "sorting_desc"), Function(workers.filter)
-                add (im.Scale(temp, 20, 20)) align .5, .5
-                tooltip 'Descending order'
+        use building_management_leftframe_teambuilder
     elif bm_mid_frame_mode.view_mode == "explore":
         $ selected_exp_area = bm_mid_frame_mode.selected_exp_area
         fixed: # making sure we can align stuff...
@@ -487,227 +440,7 @@ screen building_management_midframe_exploration_guild_mode:
     if bm_mid_frame_mode.view_mode == "upgrades":
         use building_management_midframe_businesses_mode
     elif bm_mid_frame_mode.view_mode == "team":
-        # Backgrounds:
-        $ workers = bm_mid_frame_mode.workers
-        $ guild_teams = bm_mid_frame_mode.guild_teams
-        frame:
-            background Frame(im.Alpha("content/gfx/frame/hp_1long.png", alpha=.9), 5, 5)
-            xysize 620, 344
-            yoffset -5
-            xalign .5
-            hbox:
-                xalign .5
-                box_wrap 1
-                for i in xrange(workers.page_size):
-                    frame:
-                        xysize 90, 90
-                        xmargin 2
-                        ymargin 2
-                        background Frame("content/gfx/frame/MC_bg.png", 5, 5)
-            # Page control buttons:
-            hbox:
-                style_prefix "paging_green"
-                align .5, .97
-                hbox:
-                    spacing 5
-                    $ temp = workers.page != 0
-                    button:
-                        style_suffix "button_left2x"
-                        tooltip "First Page"
-                        action Function(workers.first_page)
-                        sensitive temp
-                    button:
-                        style_suffix "button_left"
-                        tooltip "Previous Page"
-                        action Function(workers.prev_page)
-                        sensitive temp
-                null width 100
-                hbox:
-                    spacing 5
-                    $ temp = workers.page < workers.max_page()
-                    button:
-                        style_suffix "button_right"
-                        tooltip "Next Page"
-                        action Function(workers.next_page)
-                        sensitive temp
-                    button:
-                        style_suffix "button_right2x"
-                        tooltip "Last Page"
-                        action Function(workers.last_page)
-                        sensitive temp
-
-        # Downframe (for the teams and team paging)
-        #frame:
-        #    #background Frame("content/gfx/frame/p_frame52.webp", 10, 10)
-        #    background Frame(im.Alpha("content/gfx/frame/p_frame_.png", alpha=.9), 5, 5)
-        #    xysize 620, 349
-        #    ypos 331 xalign .5
-
-        # Paging guild teams!
-        hbox:
-            style_prefix "paging_green"
-            xalign .5 ypos 611
-            hbox:
-                spacing 5
-                $ temp = guild_teams.page != 0
-                button:
-                    style_suffix "button_left2x"
-                    tooltip "First Page"
-                    action Function(guild_teams.first_page)
-                    sensitive temp
-                button:
-                    style_suffix "button_left"
-                    tooltip "Previous Page"
-                    action Function(guild_teams.prev_page)
-                    sensitive temp
-            null width 20
-            button:
-                style_group "pb"
-                align (.5, .5)
-                xsize 60
-                action Return(["fg_team", "create"])
-                text "..." style "pb_button_text"
-                tooltip "Create new team"
-            null width 20
-            hbox:
-                spacing 5
-                $ temp = guild_teams.page < guild_teams.max_page()
-                button:
-                    style_suffix "button_right"
-                    tooltip "Next Page"
-                    action Function(guild_teams.next_page)
-                    sensitive temp
-                button:
-                    style_suffix "button_right2x"
-                    tooltip "Last Page"
-                    action Function(guild_teams.last_page)
-                    sensitive temp
-
-        # We'll prolly have to do two layers, one for backgrounds and other for drags...
-        draggroup:
-            id "team_builder"
-            drag:
-                drag_name workers
-                xysize (600, 310)
-                draggable 0
-                droppable True
-                pos (0, 0)
-
-
-            $ init_pos = (0, 344)
-            $ boxsizex, boxsizey = 208, 88
-            $ curr_pos = list(init_pos)
-            for t in guild_teams.page_content():
-                $ idle_t = True #t not in bm_mid_frame_mode.exploring_teams()
-                for idx, w in enumerate(t):
-                    $ w_pos = (curr_pos[0]+16+idx*61, curr_pos[1]+12)
-                    $ w.set_flag("dnd_drag_container", t)
-                    $ img = w.show("portrait", resize=(46, 46), cache=True)
-                    if not ExplorationGuild.battle_ready(w):
-                        $ img = PyTGFX.sepia_content(img)
-                    drag:
-                        dragged dragged
-                        droppable 0
-                        draggable idle_t
-                        tooltip "%s\nDrag And Drop to remove from team" % w.fullname
-                        drag_name w
-                        pos w_pos
-                        if idle_t:
-                            hovered Function(setattr, config, "mouse", mouse_drag)
-                            unhovered Function(setattr, config, "mouse", mouse_cursor)
-
-                        add img
-
-                drag:
-                    drag_name t
-                    xysize (208, 83)
-                    draggable 0
-                    droppable idle_t
-                    pos curr_pos[:]
-                    frame:
-                        xysize (208, 83)
-                        background "content/gfx/frame/team_frame_4.png"
-                        button:
-                            background Frame("content/gfx/frame/namebox4.png")
-                            padding 12, 4
-                            margin 0, 0
-                            align .5, 1.2
-                            action NullAction()
-                            text t.name align .5, .5 color "orange" text_align .5
-                        # Configure the team:
-                        $ img = PyTGFX.scale_img("content/gfx/interface/buttons/preference.png", 20, 20)
-                        button:
-                            background img
-                            hover_background PyTGFX.bright_img(img, .15)
-                            insensitive_background PyTGFX.sepia_img(img)
-                            padding 0, 0
-                            margin 0, 0
-                            align 0.0, 0.0 offset -4, -8
-                            xysize 20, 20
-                            sensitive idle_t
-                            action Show("exploration_team", team=t)
-                            tooltip "Configure"
-                        # Configure the team:
-                        $ img = PyTGFX.scale_img("content/gfx/interface/buttons/transfer.png", 20, 20)
-                        button:
-                            background img
-                            hover_background PyTGFX.bright_img(img, .15)
-                            insensitive_background PyTGFX.sepia_img(img)
-                            padding 0, 0
-                            margin 0, 0
-                            align 0.0, 1.0 offset -4, -10
-                            xysize 20, 20
-                            sensitive idle_t
-                            action Show("transfer_team", team=t, guild=bm_mid_frame_mode)
-                            tooltip "Transfer"
-                        # Dissolve the team:
-                        $ img = PyTGFX.scale_img("content/gfx/interface/buttons/close4.png", 20, 20)
-                        button:
-                            background img
-                            hover_background PyTGFX.bright_img(img, .15)
-                            insensitive_background PyTGFX.sepia_img(img)
-                            padding 0, 0
-                            margin 0, 0
-                            align 1.0, 0.0 offset 3, -8
-                            xysize 20, 20
-                            sensitive idle_t
-                            action Return(["fg_team", "dissolve", t])
-                            tooltip "Dissolve"
-                        # Remove all teammembers:
-                        $ img = PyTGFX.scale_img("content/gfx/interface/buttons/shape69.png", 20, 20)
-                        button:
-                            background img
-                            hover_background PyTGFX.bright_img(img, .15)
-                            insensitive_background PyTGFX.sepia_img(img)
-                            padding 0, 0
-                            margin 0, 0
-                            align 1.0, 1.0 offset 3, -10
-                            xysize 20, 20
-                            sensitive t and idle_t
-                            action Return(["fg_team", "clear", t])
-                            tooltip "Remove all members!"
-                $ curr_pos[0] += boxsizex
-                if curr_pos[0] == (init_pos[0] + boxsizex*3): # columns
-                    $ curr_pos = [init_pos[0], curr_pos[1]+boxsizey]
-
-            $ init_pos = (46, 9)
-            $ boxsize = 90 # with spacing
-            $ curr_pos = list(init_pos)
-            for w in workers.page_content():
-                $ w.set_flag("dnd_drag_container", workers)
-                drag:
-                    dragged dragged
-                    droppable 0
-                    tooltip "%s\nDrag And Drop to build teams" % w.fullname
-                    drag_name w
-                    pos curr_pos[:]
-                    add w.show("portrait", resize=(74, 74), cache=True)
-                    hovered Function(setattr, config, "mouse", mouse_drag)
-                    unhovered Function(setattr, config, "mouse", mouse_cursor)
-                $ curr_pos[0] += boxsize
-                if curr_pos[0] == (init_pos[0] + boxsize*6): # columns
-                    $ curr_pos = [init_pos[0], curr_pos[1]+boxsize]
-
+        use building_management_midframe_teambuilder
     elif bm_mid_frame_mode.view_mode == "explore":
         $ selected_area = bm_mid_frame_mode.selected_exp_area 
         vbox:
@@ -1099,6 +832,284 @@ screen building_management_rightframe_exploration_guild_mode:
                         action Return(["bm_mid_frame_mode", None])
                         tooltip ("Back to the main overview of the building.")
                         text "Back" size 15
+
+screen building_management_leftframe_teambuilder:
+    $ workers = bm_mid_frame_mode.workers
+    # Filters:
+    frame:
+        background Frame(im.Alpha("content/gfx/frame/p_frame4.png", alpha=.6), 10, 10)
+        style_group "proper_stats"
+        xsize 316
+        xalign .5
+        padding 10, 10
+        has vbox spacing 1
+        label "Filters:" xalign .5
+        vbox:
+            style_prefix "basic"
+            xalign .5
+            textbutton "Reset":
+                xsize 296
+                action [Function(workers.occ_filters.add, "Combatant"), Function(workers.action_filters.discard, None), Function(workers.filter)]
+            textbutton "Warriors":
+                xsize 296
+                action ModFilterSet(workers, "occ_filters", "Combatant")
+            textbutton "Idle":
+                xsize 296
+                action ModFilterSet(workers, "action_filters", None)
+
+    # Sorting:
+    frame:
+        background Frame(im.Alpha("content/gfx/frame/MC_bg.png", alpha=.55), 10 ,10)
+        style_group "proper_stats"
+        xysize (316, 50)
+        xalign .5
+        padding 10, 10
+        has hbox spacing 10 align .5, .5
+        label "Sort:":
+            yalign .5 
+
+        $ options = OrderedDict([("level", "Level"), ("name", "Name"), (None, "-")])
+        use dropdown_box(options, max_rows=4, row_size=(160, 30), pos=(89, 200), value=workers.sorting_order, field=(workers, "sorting_order"), action=Function(workers.filter))
+
+        if workers.sorting_desc:
+            $ temp = "content/gfx/interface/icons/checkbox_checked.png"
+        else:
+            $ temp = "content/gfx/interface/icons/checkbox_unchecked.png"
+        button:
+            xysize (25, 25)
+            align 1.0, 0.5 #offset 9, -2
+            background Frame(im.Alpha("content/gfx/frame/MC_bg2.png", alpha=.55), 5, 5)
+            action ToggleField(workers, "sorting_desc"), Function(workers.filter)
+            add (im.Scale(temp, 20, 20)) align .5, .5
+            tooltip 'Descending order'
+
+screen building_management_midframe_teambuilder:
+    # Backgrounds:
+    $ workers = bm_mid_frame_mode.workers
+    $ guild_teams = bm_mid_frame_mode.guild_teams
+    frame:
+        background Frame(im.Alpha("content/gfx/frame/hp_1long.png", alpha=.9), 5, 5)
+        xysize 620, 344
+        yoffset -5
+        xalign .5
+        hbox:
+            xalign .5
+            box_wrap 1
+            for i in xrange(workers.page_size):
+                frame:
+                    xysize 90, 90
+                    xmargin 2
+                    ymargin 2
+                    background Frame("content/gfx/frame/MC_bg.png", 5, 5)
+        # Page control buttons:
+        hbox:
+            style_prefix "paging_green"
+            align .5, .97
+            hbox:
+                spacing 5
+                $ temp = workers.page != 0
+                button:
+                    style_suffix "button_left2x"
+                    tooltip "First Page"
+                    action Function(workers.first_page)
+                    sensitive temp
+                button:
+                    style_suffix "button_left"
+                    tooltip "Previous Page"
+                    action Function(workers.prev_page)
+                    sensitive temp
+            null width 100
+            hbox:
+                spacing 5
+                $ temp = workers.page < workers.max_page()
+                button:
+                    style_suffix "button_right"
+                    tooltip "Next Page"
+                    action Function(workers.next_page)
+                    sensitive temp
+                button:
+                    style_suffix "button_right2x"
+                    tooltip "Last Page"
+                    action Function(workers.last_page)
+                    sensitive temp
+
+    # Downframe (for the teams and team paging)
+    #frame:
+    #    #background Frame("content/gfx/frame/p_frame52.webp", 10, 10)
+    #    background Frame(im.Alpha("content/gfx/frame/p_frame_.png", alpha=.9), 5, 5)
+    #    xysize 620, 349
+    #    ypos 331 xalign .5
+
+    # Paging guild teams!
+    hbox:
+        style_prefix "paging_green"
+        xalign .5 ypos 611
+        hbox:
+            spacing 5
+            $ temp = guild_teams.page != 0
+            button:
+                style_suffix "button_left2x"
+                tooltip "First Page"
+                action Function(guild_teams.first_page)
+                sensitive temp
+            button:
+                style_suffix "button_left"
+                tooltip "Previous Page"
+                action Function(guild_teams.prev_page)
+                sensitive temp
+        null width 20
+        button:
+            style_group "pb"
+            align (.5, .5)
+            xsize 60
+            action Return(["fg_team", "create"])
+            text "..." style "pb_button_text"
+            tooltip "Create new team"
+        null width 20
+        hbox:
+            spacing 5
+            $ temp = guild_teams.page < guild_teams.max_page()
+            button:
+                style_suffix "button_right"
+                tooltip "Next Page"
+                action Function(guild_teams.next_page)
+                sensitive temp
+            button:
+                style_suffix "button_right2x"
+                tooltip "Last Page"
+                action Function(guild_teams.last_page)
+                sensitive temp
+
+    # We'll prolly have to do two layers, one for backgrounds and other for drags...
+    draggroup:
+        id "team_builder"
+        drag:
+            drag_name workers
+            xysize (600, 310)
+            draggable 0
+            droppable True
+            pos (0, 0)
+
+
+        $ init_pos = (0, 344)
+        $ boxsizex, boxsizey = 208, 88
+        $ curr_pos = list(init_pos)
+        for t in guild_teams.page_content():
+            $ idle_t = True #t not in bm_mid_frame_mode.exploring_teams()
+            for idx, w in enumerate(t):
+                $ w_pos = (curr_pos[0]+16+idx*61, curr_pos[1]+12)
+                $ w.set_flag("dnd_drag_container", t)
+                $ img = w.show("portrait", resize=(46, 46), cache=True)
+                if not ExplorationGuild.battle_ready(w):
+                    $ img = PyTGFX.sepia_content(img)
+                drag:
+                    dragged dragged
+                    droppable 0
+                    draggable idle_t
+                    #tooltip "%s\nClick to check equipment\nDrag And Drop to remove from team" % w.fullname
+                    tooltip "%s\nDrag And Drop to remove from team" % w.fullname
+                    drag_name w
+                    pos w_pos
+                    if idle_t:
+                        #clicked [SetVariable("came_to_equip_from", last_label), SetVariable("char", w),
+                        #        SetVariable("eqtarget", w), SetVariable("equip_girls", [w]), Jump("char_equip")]
+                        hovered Function(setattr, config, "mouse", mouse_drag)
+                        unhovered Function(setattr, config, "mouse", mouse_cursor)
+
+                    add img
+
+            drag:
+                drag_name t
+                xysize (208, 83)
+                draggable 0
+                droppable idle_t
+                pos curr_pos[:]
+                frame:
+                    xysize (208, 83)
+                    background "content/gfx/frame/team_frame_4.png"
+                    button:
+                        background Frame("content/gfx/frame/namebox4.png")
+                        padding 12, 4
+                        margin 0, 0
+                        align .5, 1.2
+                        action NullAction()
+                        text t.name align .5, .5 color "orange" text_align .5
+                    # Configure the team:
+                    $ img = PyTGFX.scale_img("content/gfx/interface/buttons/preference.png", 20, 20)
+                    button:
+                        background img
+                        hover_background PyTGFX.bright_img(img, .15)
+                        insensitive_background PyTGFX.sepia_img(img)
+                        padding 0, 0
+                        margin 0, 0
+                        align 0.0, 0.0 offset -4, -8
+                        xysize 20, 20
+                        sensitive idle_t
+                        action Show("exploration_team", team=t)
+                        tooltip "Configure"
+                    # Configure the team:
+                    $ img = PyTGFX.scale_img("content/gfx/interface/buttons/transfer.png", 20, 20)
+                    button:
+                        background img
+                        hover_background PyTGFX.bright_img(img, .15)
+                        insensitive_background PyTGFX.sepia_img(img)
+                        padding 0, 0
+                        margin 0, 0
+                        align 0.0, 1.0 offset -4, -10
+                        xysize 20, 20
+                        sensitive idle_t
+                        action Show("transfer_team", team=t, guild=bm_mid_frame_mode)
+                        tooltip "Transfer"
+                    # Dissolve the team:
+                    $ img = PyTGFX.scale_img("content/gfx/interface/buttons/close4.png", 20, 20)
+                    button:
+                        background img
+                        hover_background PyTGFX.bright_img(img, .15)
+                        insensitive_background PyTGFX.sepia_img(img)
+                        padding 0, 0
+                        margin 0, 0
+                        align 1.0, 0.0 offset 3, -8
+                        xysize 20, 20
+                        sensitive idle_t
+                        action Return(["fg_team", "dissolve", t])
+                        tooltip "Dissolve"
+                    # Remove all teammembers:
+                    $ img = PyTGFX.scale_img("content/gfx/interface/buttons/shape69.png", 20, 20)
+                    button:
+                        background img
+                        hover_background PyTGFX.bright_img(img, .15)
+                        insensitive_background PyTGFX.sepia_img(img)
+                        padding 0, 0
+                        margin 0, 0
+                        align 1.0, 1.0 offset 3, -10
+                        xysize 20, 20
+                        sensitive t and idle_t
+                        action Return(["fg_team", "clear", t])
+                        tooltip "Remove all members!"
+            $ curr_pos[0] += boxsizex
+            if curr_pos[0] == (init_pos[0] + boxsizex*3): # columns
+                $ curr_pos = [init_pos[0], curr_pos[1]+boxsizey]
+
+        $ init_pos = (46, 9)
+        $ boxsize = 90 # with spacing
+        $ curr_pos = list(init_pos)
+        for w in workers.page_content():
+            $ w.set_flag("dnd_drag_container", workers)
+            drag:
+                dragged dragged
+                droppable 0
+                #tooltip "%s\nClick to check equipment\nDrag And Drop to build teams" % w.fullname
+                tooltip "%s\nDrag And Drop to build teams" % w.fullname
+                drag_name w
+                pos curr_pos[:]
+                #clicked [SetVariable("came_to_equip_from", last_label), SetVariable("char", w),
+                #         SetVariable("eqtarget", w), SetVariable("equip_girls", [w]), Jump("char_equip")]
+                add w.show("portrait", resize=(74, 74), cache=True)
+                hovered Function(setattr, config, "mouse", mouse_drag)
+                unhovered Function(setattr, config, "mouse", mouse_cursor)
+            $ curr_pos[0] += boxsize
+            if curr_pos[0] == (init_pos[0] + boxsize*6): # columns
+                $ curr_pos = [init_pos[0], curr_pos[1]+boxsize]
 
 screen exploration_team(team):
     zorder 1

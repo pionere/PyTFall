@@ -225,7 +225,8 @@ init -6 python: # Guild, Tracker and Log.
                 result = result[1]
 
             elif type == "dogfight":
-                result = renpy.call_screen("arena_dogfights", type="%dv%d"%(len(team), len(team)), use_return=True)
+                container = getattr(pytfall.arena, "dogfights_{val}v{val}".format(val=len(team)))
+                result = renpy.call_screen("arena_dogfights", container=container, use_return=True)
                 if not result:
                     return
 
@@ -235,7 +236,8 @@ init -6 python: # Guild, Tracker and Log.
                     return
 
             elif type == "inhouse":
-                result = renpy.call_screen("building_management_inhouse_gladiators", team, use_return=True)
+                container = [t for t in self.teams_to_fight() if t is not team]
+                result = renpy.call_screen("arena_dogfights", container=container, use_return=True)
                 if not result:
                     return
                 result = result[2]
@@ -450,10 +452,6 @@ init -6 python: # Guild, Tracker and Log.
             self.update_fighters(e.guild_chars(), True)
 
         def toggle_repeat(self, e):
-            if not e.repeat:
-                msg = self.check_before_fight(e, True)
-                if msg:
-                    return msg
             e.repeat = not e.repeat
             self.update_fighters(e.guild_chars(), e.repeat)
             self.update_teams()

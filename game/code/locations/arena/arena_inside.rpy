@@ -214,13 +214,13 @@ init: # Main Screens:
                     align .5, .5
                     spacing 5
                     textbutton "{size=20}{color=black}1v1":
-                        action Show("arena_dogfights", type="1v1", transition=dissolve)
+                        action Show("arena_dogfights", container=pytfall.arena.dogfights_1v1, transition=dissolve)
                         tooltip "Unranked 1v1 fights"
                     textbutton "{size=20}{color=black}2v2":
-                        action Show("arena_dogfights", type="2v2", transition=dissolve)
+                        action Show("arena_dogfights", container=pytfall.arena.dogfights_2v2, transition=dissolve)
                         tooltip "Unranked team 2v2 fights"
                     textbutton "{size=20}{color=black}3v3":
-                        action Show("arena_dogfights", type="3v3", transition=dissolve)
+                        action Show("arena_dogfights", container=pytfall.arena.dogfights_3v3, transition=dissolve)
                         tooltip "Unranked team 3v3 fights"
 
         # RIGHT FRAME::
@@ -582,8 +582,7 @@ init: # Main Screens:
                 text  "Close"
                 keysym "mousedown_3"
 
-    screen arena_dogfights(type, use_return=False):
-        default container = getattr(pytfall.arena, "dogfights_%s"%type) # .dogfights_1v1, .dogfights_2v2 or .dogfights_3v3
+    screen arena_dogfights(container, use_return=False):
         modal True
         zorder 1
 
