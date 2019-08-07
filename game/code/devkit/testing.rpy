@@ -74,27 +74,24 @@ init 1000 python:
             # Prepear the teams:
             off_team = Team(name="Off Team", max_size=3)
             mob = build_mob(id="Goblin Shaman", level=120)
-            mob.controller = BE_AI()
             mob.front_row = 1
             off_team.add(mob)
             mob = build_mob(id="Goblin Archer", level=100)
-            mob.controller = BE_AI()
             off_team.add(mob)
             mob = build_mob(id="Goblin Archer", level=100)
-            mob.controller = BE_AI()
             off_team.add(mob)
 
             def_team = Team(name="Def Team", max_size=3)
             mob = build_mob(id="Goblin Shaman", level=60)
-            mob.controller = BE_AI()
             mob.front_row = 1
             def_team.add(mob)
             mob = build_mob(id="Goblin Archer", level=60)
-            mob.controller = BE_AI()
             def_team.add(mob)
             mob = build_mob(id="Goblin Archer", level=60)
-            mob.controller = BE_AI()
             def_team.add(mob)
+
+            off_team.setup_controller(True)
+            def_team.setup_controller(True)
 
             global battle
             battle = BE_Core(logical=True, max_turns=True, teams=[off_team, def_team])

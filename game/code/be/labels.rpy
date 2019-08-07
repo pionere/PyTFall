@@ -31,7 +31,6 @@ label test_be:
         for i in chain(hero.team, enemy_team):
             if i == hero:
                 continue
-            # i.controller = Complex_BE_AI()
             for skill in battle_skills.values():
                 if skill.delivery in ["melee", "ranged"]:
                     if skill not in i.attack_skills:
@@ -39,10 +38,10 @@ label test_be:
                 else:
                     if skill not in i.magic_skills:
                         i.magic_skills.append(skill)
-        # ImageReference("chainfights")
-        enemy_team.reset_controller()
 
-    python:
+        #enemy_team.reset_controller()
+
+        global battle
         battle = BE_Core(bg="content/gfx/bg/be/b_forest_1.webp", music="random",
                          start_sfx=get_random_image_dissolve(1.5), end_sfx=dissolve,
                          use_items=True, give_up="escape", teams=[hero.team, enemy_team])
@@ -57,19 +56,16 @@ label test_be_logical:
         enemy_team = Team(name="Enemy Team", max_size=3)
         if len(enemy_team) != 3:
             mob = build_mob(id="Goblin Shaman", level=120)
-            mob.controller = BE_AI()
             mob.front_row = 1
             mob.apply_trait(traits["Fire"])
             enemy_team.add(mob)
         if len(enemy_team) != 3:
             mob = build_mob(id="Goblin Archer", level=100)
-            mob.controller = BE_AI()
             mob.front_row = 0
             mob.attack_skills.append("Sword Slash")
             enemy_team.add(mob)
         if len(enemy_team) != 3:
             mob = build_mob(id="Goblin Archer", level=100)
-            mob.controller = BE_AI()
             mob.front_row = 0
             mob.attack_skills.append("Bow Shot")
             mob.apply_trait(traits["Air"])
@@ -93,9 +89,11 @@ label test_be_logical:
             for stat in ("health", "mp", "vitality"): # BATTLE_STATS
                 i.set_stat(stat, i.get_max(stat))
             i.restore_ap()
-            i.controller = BE_AI()
 
-        # ImageReference("chainfights")
+        hero.team.setup_controller(True)
+        enemy_team.setup_controller(True)
+
+        global battle
         battle = BE_Core(logical=True, teams=[hero.team, enemy_team])
 
         tl.start("Logical BE Scenario without Setup!")

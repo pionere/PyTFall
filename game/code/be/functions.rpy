@@ -56,12 +56,8 @@ init -11 python:
         return fixed
 
     def run_auto_be(off_team, def_team, simple_ai=True):
-        for fighter in chain(off_team, def_team):
-            # dress for fight - not needed at the moment
-            #if fighter.last_known_aeq_purpose not in FIGHTING_AEQ_PURPOSES and fighter.autoequip and fighter != hero:
-            #    fighter.auto_equip("Fighting")
-            # create AI-controller
-            fighter.controller = BE_AI() if simple_ai else Complex_BE_AI()
+        off_team.setup_controller(simple_ai)
+        def_team.setup_controller(simple_ai)
 
         global battle
         battle = BE_Core(logical=True, max_turns=True, teams=[off_team, def_team])
@@ -121,8 +117,7 @@ init -11 python:
                     your_team.add(member)
 
         # Controllers:
-        for member in enemy_team:
-            member.controller = Complex_BE_AI()
+        enemy_team.setup_controller()
 
         pre_aps = [member.PP for member in your_team]
 

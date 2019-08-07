@@ -298,6 +298,9 @@ init -10 python:
             for m in self._members:
                 m.controller = None
 
+        def setup_controller(self, simple_ai=False):
+            for m in self._members:
+                m.controller = BE_AI() if simple_ai is True else Complex_BE_AI()
 
     class JobsLogger(_object):
         # Used to log stats and skills during job actions

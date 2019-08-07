@@ -260,7 +260,7 @@ init -6 python: # Guild, Tracker and Log.
                     if gui:
                         PyTGFX.message(msg)
                     return msg
-                        
+
                 if f.status == "slave":
                     if type != "inhouse":
                         msg = "%s is a Slave forbidden from participation in Combat!" % f.name
@@ -327,7 +327,8 @@ init -6 python: # Guild, Tracker and Log.
                 # TODO: right now the chars can not use the inventory during battle,
                 #       so this is fine, but this might change later...
                 f.inventory = hero.inventory
-                f.controller = Complex_BE_AI()
+
+            off_team.setup_controller()
 
             # run the battle
             type = e.type
@@ -342,6 +343,8 @@ init -6 python: # Guild, Tracker and Log.
             else: # inhouse
                 result, combat_log = self.run_dogfight(opponent, off_team, logical)
             e.result = result
+
+            off_team.reset_controller()
 
             # log the result
             #  guild-log
@@ -621,8 +624,7 @@ init -6 python: # Guild, Tracker and Log.
                 renpy.music.play(track, fadein=1.5)
                 renpy.pause(.5)
 
-                for f in def_team:
-                    f.controller = Complex_BE_AI()
+                def_team.setup_controller()
 
                 battle = BE_Core(bg="battle_indoor_1", start_sfx=get_random_image_dissolve(1.5),
                                  end_bg="b_city_1", end_sfx=dissolve, give_up="surrender",

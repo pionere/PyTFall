@@ -776,8 +776,7 @@ init -9 python:
                     renpy.music.play(track, fadein=1.5)
                     renpy.pause(.5)
 
-                    for mob in enemy_team:
-                        mob.controller = Complex_BE_AI()
+                    enemy_team.setup_controller()
 
                     battle = BE_Core(bg=ImageReference("chainfights"), start_sfx=get_random_image_dissolve(1.5),
                                      end_bg="battle_arena_1", end_sfx=dissolve, give_up="surrender",
@@ -936,8 +935,7 @@ init -9 python:
                 renpy.music.play(track, fadein=1.5)
                 renpy.pause(.5)
 
-                for mob in enemy_team:
-                    mob.controller = Complex_BE_AI()
+                enemy_team.setup_controller()
 
                 battle = BE_Core(bg="battle_dogfights_1", start_sfx=get_random_image_dissolve(1.5),
                                  end_bg="battle_arena_1", end_sfx=dissolve, give_up="surrender",
@@ -1059,8 +1057,7 @@ init -9 python:
                 renpy.music.play(track, fadein=1.5)
                 renpy.pause(.5)
 
-                for member in enemy_team:
-                    member.controller = Complex_BE_AI()
+                enemy_team.setup_controller()
 
                 battle = BE_Core(bg="battle_arena_1", start_sfx=get_random_image_dissolve(1.5),
                                  end_bg="battle_arena_1", end_sfx=dissolve, give_up="surrender",
