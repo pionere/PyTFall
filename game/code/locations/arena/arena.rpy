@@ -409,6 +409,22 @@ init -9 python:
                     if f == char:
                         return True 
 
+        def get_arena_match(self, team=None):
+            matches = [m for m in chain(self.matches_1v1, self.matches_2v2, self.matches_3v3) if m[2] == day]
+            if team is None:
+                # get the arena match for the hero
+                for m in matches:
+                    if m[0].leader is hero:
+                        return m
+            else:
+                for m in matches:
+                    if m[0] is team or m[1] is team:
+                        return m
+
+        @staticmethod
+        def match_entry_fee(off_team, def_team):
+            return max(50, (off_team.get_level()+def_team.get_level())/10*10)
+
         def check_arena_fight(self, type, team, opponent):
             for t in team:
                 if t.status == "slave":
@@ -918,16 +934,16 @@ init -9 python:
 
             return winner, loser
 
-        def run_dogfight(self, enemy_team, off_team, logical):
+        def run_dogfight(self, def_team, off_team, logical):
             '''
             Bridge to battle engine + rewards/penalties
             '''
-            member_aps = {member: member.PP for member in chain(off_team, enemy_team)}
-            member_hps = {member: member.get_stat("health") for member in chain(off_team, enemy_team)}
+            member_aps = {member: member.PP for member in chain(off_team, def_team)}
+            member_hps = {member: member.get_stat("health") for member in chain(off_team, def_team)}
 
             global battle
             if logical is True:
-                battle = run_auto_be(off_team, enemy_team, simple_ai=False)
+                battle = run_auto_be(off_team, def_team, simple_ai=False)
             else:
                 renpy.music.stop(channel="world")
                 renpy.play(choice(["content/sfx/sound/world/arena/prepare.mp3", "content/sfx/sound/world/arena/new_opp.mp3"]))
@@ -935,21 +951,21 @@ init -9 python:
                 renpy.music.play(track, fadein=1.5)
                 renpy.pause(.5)
 
-                enemy_team.setup_controller()
+                def_team.setup_controller()
 
                 battle = BE_Core(bg="battle_dogfights_1", start_sfx=get_random_image_dissolve(1.5),
                                  end_bg="battle_arena_1", end_sfx=dissolve, give_up="surrender",
-                                 max_turns=off_team.leader is not hero, teams=[off_team, enemy_team])
+                                 max_turns=off_team.leader is not hero, teams=[off_team, def_team])
                 battle.start_battle()
 
                 # Reset the controllers:
                 #off_team.reset_controller()
-                enemy_team.reset_controller()
+                def_team.reset_controller()
 
                 renpy.music.stop(fadeout=1.0)
 
             winner = battle.winner
-            loser = enemy_team if winner is off_team else off_team
+            loser = def_team if winner is off_team else off_team
 
             for member, aps in member_aps.iteritems():
                 member_aps[member] = (aps - member.PP)/100.0 # PP_PER_AP = 100
@@ -961,7 +977,7 @@ init -9 python:
             # Awards: 
             #  - Decent cash, low a-rep and normal EXP. -
             #  Max gold as a constant with added blood money:
-            max_gold = (enemy_team.get_level()+off_team.get_level())*5
+            max_gold = (def_team.get_level()+off_team.get_level())*5
             blood = sum((member_hps[member] - member.get_stat("health") for member in winner))
             rew_gold = round_int(max_gold*(float(loser.get_level())/max(1, winner.get_level())))
             if blood > 0:
@@ -1018,7 +1034,7 @@ init -9 python:
                 combat_stats[member] = statdict
                 self.remove_team_from_dogfights(member)
 
-            for member in enemy_team:
+            for member in def_team:
                 restore_battle_stats(member)
 
             if not logical:
@@ -1039,17 +1055,15 @@ init -9 python:
             """ 
             return Team(name=team.name, implicit=team.members, max_size=team.max_size)
 
-        def run_matchfight(self, setup, off_team, logical):
+        def run_matchfight(self, def_team, off_team, logical):
             """
             Bridge to battle engine + rewards/penalties.
             """
-            enemy_team = setup[1]
-
-            member_aps = {member: member.PP for member in chain(off_team, enemy_team)}
+            member_aps = {member: member.PP for member in chain(off_team, def_team)}
 
             global battle
             if logical:
-                battle = run_auto_be(off_team, enemy_team, simple_ai=False)
+                battle = run_auto_be(off_team, def_team, simple_ai=False)
             else:
                 renpy.music.stop(channel="world")
                 renpy.play(choice(["content/sfx/sound/world/arena/prepare.mp3", "content/sfx/sound/world/arena/new_opp.mp3"]))
@@ -1057,21 +1071,21 @@ init -9 python:
                 renpy.music.play(track, fadein=1.5)
                 renpy.pause(.5)
 
-                enemy_team.setup_controller()
+                def_team.setup_controller()
 
                 battle = BE_Core(bg="battle_arena_1", start_sfx=get_random_image_dissolve(1.5),
                                  end_bg="battle_arena_1", end_sfx=dissolve, give_up="surrender",
-                                 max_turns=off_team.leader is not hero, teams=[off_team, enemy_team])
+                                 max_turns=off_team.leader is not hero, teams=[off_team, def_team])
                 battle.start_battle()
 
                 # Reset the controllers:
                 #off_team.reset_controller()
-                enemy_team.reset_controller()
+                def_team.reset_controller()
 
                 renpy.music.stop(fadeout=1.0)
 
             winner = battle.winner
-            loser = enemy_team if winner is off_team else off_team
+            loser = def_team if winner is off_team else off_team
 
             for member, aps in member_aps.iteritems():
                 member_aps[member] = (aps - member.PP)/100.0 # PP_PER_AP = 100
@@ -1133,13 +1147,14 @@ init -9 python:
                 combat_stats[member] = statdict
                 # self.remove_team_from_dogfights(member)
 
-            for member in enemy_team:
+            for member in def_team:
                 restore_battle_stats(member)
 
             if not logical:
                 renpy.call_screen("arena_aftermatch", winner, loser, combat_stats, off_team is winner)
 
             # Update match
+            setup = self.get_arena_match(team=def_team)
             setup[0] = setup[1] = Arena.EMPTY_TEAM
 
             # Line-up positioning:

@@ -283,7 +283,7 @@ init -6 python: # Guild, Tracker and Log.
                                 return
                         f.mod_stat("joy", -1)
                         self.logws("joy", -1, f)
-                else:
+                elif type != "matchfight":
                     if f.PP < 150: # PP_PER_AP
                         if gui:
                             iam.refuse_because_tired(f)
@@ -417,6 +417,8 @@ init -6 python: # Guild, Tracker and Log.
             # checks
             if hero.PP < 200: # PP_PER_AP
                 return PyTGFX.message("You don't have enough time (2 AP) for that.")
+            elif e.type == "matchfight" and not hero.take_money(Arena.match_entry_fee(e.team, e.opponent), "Arena-Match Entry Fee"):
+                return PyTGFX.message("You don't have enough Gold!")
             msg = self.check_before_fight(e, True)
             if msg:
                 return msg
@@ -428,18 +430,16 @@ init -6 python: # Guild, Tracker and Log.
                 bg = "bg b_city_1"
             else:
                 bg = "bg battle_arena_1"
-            renpy.scene()
+            renpy.scene(layer='screens')
             renpy.show(bg)
-            renpy.hide_screen("building_management")
+            #renpy.hide_screen("building_management")
 
             last_track = renpy.music.get_playing("world")
 
             self.run_event(e, False, True)
 
             # adjust hero's ap
-            max_aps = min(((aps - f.PP)/100.0) for f, aps in member_aps.iteritems())
-            max_aps = min(200, max_aps)
-            hero.PP -= max_aps
+            hero.PP -= min(200, max((aps - f.PP) for f, aps in member_aps.iteritems())) # PP_PER_AP
 
             # return to caller:
             #  show building_management
@@ -449,7 +449,6 @@ init -6 python: # Guild, Tracker and Log.
             #  restart sound
             if last_track:
                 renpy.music.play(last_track, channel="world", fadein=1)
-            #jump("building_management")
 
         def reschedule_event(self, e):
             self.update_fighters(e.guild_chars(), True)

@@ -243,7 +243,7 @@ screen building_management_midframe_gladiators_guild_mode:
                             xysize 155, 40
                             yalign .5
                             background None
-                            text temp yalign .5
+                            text temp yalign .5 size tmp
 
                         $ temp = e.day
                         frame:
@@ -261,6 +261,9 @@ screen building_management_midframe_gladiators_guild_mode:
                             has vbox yalign .5 spacing 1
                             if temp is None:
                                 if (e.day is None or e.day == day):
+                                    $ tmp = "Watch the encounter!"
+                                    if type == "matchfight":
+                                        $ tmp += " Entry fee: %d Gold." % Arena.match_entry_fee(e.team, enemy)
                                     textbutton "Fight":
                                         xalign .5
                                         style "basic_button"
@@ -272,7 +275,7 @@ screen building_management_midframe_gladiators_guild_mode:
                                         style "basic_button"
                                         text_size 15
                                         action Return(["guild", "watch", e])
-                                        tooltip "Watch the encounter!"
+                                        tooltip tmp
                             else:
                                 $ temp = temp[0]
                                 if type == "inhouse":

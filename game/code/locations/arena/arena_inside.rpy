@@ -45,12 +45,8 @@ label arena_inside:
                     jump arena_inside
             elif result[1] == "start_matchfight":
                 # Figure out who we're fighting:
-                python:
-                    for result in itertools.chain(pytfall.arena.matches_1v1, pytfall.arena.matches_2v2, pytfall.arena.matches_3v3):
-                        if result[2] == day and result[0].leader == hero:
-                            break
-
-                if pytfall.arena.check_arena_fight("matchfight", hero.team, result[1]):
+                $ result = pytfall.arena.get_arena_match()[1]
+                if pytfall.arena.check_arena_fight("matchfight", hero.team, result):
                     python hide:
                         # register fighting day for the other members
                         # TODO might not be the best place, but for now...
@@ -64,6 +60,27 @@ label arena_inside:
                 if pytfall.arena.check_arena_fight("chainfight", hero.team, None):
                     hide screen arena_inside
                     $ pytfall.arena.run_chainfight(result[2], hero.team, False)
+                    jump arena_inside
+        elif result[0] == "watch":
+            if result[1] == "matches":
+                $ result = result[2]
+                if hero.PP < 200:
+                    $ PyTGFX.message("You don't have enough time (2 AP) for that.")
+                elif not hero.take_money(Arena.match_entry_fee(result[0], result[1]), "Arena-Match Entry Fee"):
+                    $ PyTGFX.message("You don't have enough Gold!")
+                else:
+                    $ off_team, def_team = result[0], result[1]
+                    $ member_aps = {f: f.PP for f in chain(off_team, def_team)}
+                    $ off_team.setup_controller()
+
+                    hide screen arena_matches
+                    hide screen arena_inside
+                    $ pytfall.arena.run_matchfight(def_team, off_team, False)
+
+                    $ off_team.reset_controller()
+                    # adjust hero's ap
+                    $ hero.PP -= min(200, max((aps - f.PP) for f, aps in member_aps.iteritems())) # PP_PER_AP
+                    $ del member_aps, def_team, off_team
                     jump arena_inside
 
 label arena_inside_end:
@@ -415,7 +432,15 @@ init: # Main Screens:
                                                     padding 2, 2
                                                     add fighter.show("portrait", resize=(60, 60), cache=True)
 
-                                add vs_img yalign .5
+                                imagebutton:
+                                    yalign .5
+                                    idle vs_img
+                                    hover PyTGFX.bright_img(vs_img, .15)
+                                    if use_return or not off_team or off_team.leader is hero:
+                                        action None
+                                    else:
+                                        action Return (["watch", "matches", lineup])
+                                        tooltip "Watch the match. Entry fee: %d Gold." % Arena.match_entry_fee(off_team, def_team)
 
                                 # Waiting for the challenge or been challenged by former:
                                 frame:
