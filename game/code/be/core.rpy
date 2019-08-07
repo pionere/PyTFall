@@ -112,6 +112,7 @@ init -1 python: # Core classes:
             #self.allegiance = None # BE will default this to the team name.
             self.beeffects = []
             self.beevents = [] # list of active events which affect the combatant (poison/buffs)
+            self.beactions = defaultdict(int) # skills used by the combatant during the battle
 
             # Position:
             self.beteampos = pos
@@ -757,22 +758,48 @@ init -1 python: # Core classes:
                 if self.music:
                     renpy.music.stop()
 
-            for team in self.teams:
+            # restore the teams
+            corps = self.corpses
+            beactions = []
+            opp = teams[1]
+            for team in teams:
                 del team.position
-                for idx in range(len(team)):
-                    f = team._members[idx]
+                team = team._members
+                for idx, f in enumerate(team):
                     c = f.char
-                    if f in self.corpses:
-                        self.corpses.remove(f)
-                        self.corpses.add(c)
-                    team._members[idx] = c
+                    skills = f.beactions
+                    if f in corps:
+                        corps.remove(f)
+                        corps.add(c)
+                    else:
+                        beactions.append((c, skills, opp))
+                    team[idx] = c
 
-                    if c.controller is not None:
-                        c.controller.source = None
-                    for s in chain(f.magic_skills, f.attack_skills):
+                    c = c.controller
+                    if c is not None:
+                        c.source = None
+                    for s in skills:
                         s.source = None
 
                     f.restore_char()
+
+                # assert(len(teams) == 2)
+                opp = teams[0]
+
+            # add stat rewards based on the used skills
+            dstats = {"melee" : {"attack": 2, "agility": 1},
+                      "magic" : {"intelligence": 1, "magic": 2},
+                      "ranged" : {"attack": 1, "agility": 2},
+                      "status" : {"intelligence": 2, "agility": 1}}
+            for (f, skills, opp) in beactions:
+                stats = defaultdict(int)
+                for skill, num in skills.iteritems():
+                    for s, v in dstats[skill.delivery].iteritems():
+                        stats[s] += v
+                for s, v in stats.iteritems():
+                    v = stat_reward(f, opp, stat_mod=v/80.0)
+                    if v != 0:
+                        f.mod_stat(s, v)
 
         def next_turn(self):
             """
@@ -1125,6 +1152,8 @@ init -1 python: # Core classes:
 
         def execute(self, source, t=None):
             self.source = source
+            source.beactions[self] += 1
+
             self.effects_resolver(t)
             died = self.apply_effects(t)
 

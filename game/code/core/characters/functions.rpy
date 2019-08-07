@@ -854,34 +854,54 @@ init -11 python:
 
         char.tier = round_int(tier) # Makes sure we can use float tiers
 
-        restore_battle_stats(char) # TODO this might not be necessary any more 
-                                   #      if it is ensured that the battle stats are not 
-                                   #      modified here. Setup of the hero could still need it...
+        # TODO this might not be necessary any more 
+        #      if it is ensured that the battle stats are not 
+        #      modified here. Setup of the hero could still need it...
+        restore_battle_stats(char)
 
-    def exp_reward(char, difficulty, exp_mod=1): 
+    def stat_reward(char, diff, stat_mod=1):
+        # find out the difficulty:
+        # assert(isinstance((diff, Team))
+        diff = diff.get_level()/20.0
+
+        # Difficulty modifier:
+        # Completed task oh higher difficulty:
+        diff -= char.tier
+        if diff >= 0:
+            if diff > 2:
+                diff = 2 # max bonus mod possible is 2x the EXP.
+        else: # Difficulty was lower
+            if diff <= -2:
+                return 0
+        mod = 1+diff/2.0
+
+        value = stat_mod * mod
+        return dice_int(value)
+
+    def exp_reward(char, diff, exp_mod=1):
         """Adjusts the XP to be given to an actor. Doesn't actually award the EXP.
 
         char: Target actor.
-        difficulty: Ranged 1 to 10. (will be normalized otherwise).
+        diff: difficulty - Ranged 1 to 10. (will be normalized otherwise).
             This can be a number, Team or Char.
         exp_mod: We multiply the result with it. Could be useful when failing
             a task, give at least 10% of the exp (for example) is to set this mod
             to .1 in case of a failed action.
         """
         # find out the difficulty:
-        if isinstance(difficulty, Team):
-            difficulty = difficulty.get_level()/20.0
-        elif isinstance(difficulty, PytCharacter):
-            difficulty = difficulty.tier
-        elif isinstance(difficulty, (float, int)):
-            difficulty = max(0, min(MAX_TIER, difficulty))
+        if isinstance(diff, Team):
+            diff = diff.get_level()/20.0
+        elif isinstance(diff, PytCharacter):
+            diff = diff.tier
+        elif isinstance(diff, (float, int)):
+            diff = max(0, min(MAX_TIER, diff))
         else:
-            raise Exception("Invalid difficulty type {} provided to exp_reward function.")
+            raise Exception("Invalid difficulty type %s provided to exp_reward function." % diff)
 
         # Difficulty modifier:
         # Completed task oh higher difficulty:
         char_tier = char.tier
-        diff = difficulty - char_tier
+        diff -= char_tier
         if diff >= 0:
             if diff > 2:
                 diff = 2 # max bonus mod possible is 2x the EXP.

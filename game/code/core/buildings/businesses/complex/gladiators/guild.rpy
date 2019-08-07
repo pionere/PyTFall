@@ -318,9 +318,10 @@ init -6 python: # Guild, Tracker and Log.
             # store current stats, prepare off_team:
             member_stats = {f: [f.gold, f.exp, f.arena_rep, f.inventory] for f in guild_chars}
             for f, stats in member_stats.iteritems():
-                for stat in ("health", "mp", "vitality"): # BATTLE_STATS
-                    stats.append(f.get_stat(stat))
-                
+                # BATTLE_STATS + COMBAT_STATS
+                combat_stats = {stat: f.get_stat(stat) for stat in ("health", "mp", "vitality", "attack", "defence", "magic", "agility", "intelligence")}
+                stats.append(combat_stats)
+
             off_team = e.team
             for f in off_team:
                 # give hero's inventory to the members, so the hero gets the reward
@@ -385,17 +386,23 @@ init -6 python: # Guild, Tracker and Log.
                 f.inventory = stats[3]
 
             # update charmod
-            for f in guild_chars:
-                stats = member_stats[f]
-                self.logws("exp", f.exp - stats[1], f)
-                self.logws("arena rep", f.arena_rep - stats[2], f)
-                for idx, stat in enumerate(("health", "mp", "vitality")): # BATTLE_STATS
-                    self.logws(stat, f.get_stat(stat) - stats[4+idx], f)
+            for f, stats in member_stats.iteritems():
+                v = f.exp - stats[1]
+                if v != 0:
+                    self.logws("exp", v, f)
+                v = f.arena_rep - stats[2]
+                if v != 0:
+                    self.logws("arena rep", v, f)
+                stats = stats[4]
+                for stat, v in stats.iteritems():
+                    v = f.get_stat(stat) - v
+                    if v != 0:
+                        self.logws(stat, v, f)
                 # check if there was a vulnerable slave in the teams
                 if f.status != "slave":
                     continue # not a slave
                 bhp = f.get_max("health")/8
-                if stats[4] >= bhp:
+                if stats["health"] >= bhp:
                     continue # not vulnerable
                 if dice(get_linear_value_of(f.get_stat("health"), 0, 80, bhp, 0)):
                     msg = "%s died in the combat!" % f.name
@@ -574,7 +581,7 @@ init -6 python: # Guild, Tracker and Log.
             # add log-entry about the earnings (copy-paste from NDEvent.after_job) TODO ... 
             earned = self.earned
             if earned:
-                building.fin.log_logical_income(earned, GladitorTask.id)
+                building.fin.log_logical_income(earned, GladiatorTask.id)
                 txt.append("You've earned {color=gold}%d Gold{/color}!" % earned)
             else:
                 txt.append("{color=gold}No Gold{/color} was earned!")
