@@ -85,7 +85,7 @@ label building_management:
                         bm_building.fin.log_logical_expense(price, "Ads")
                         ad['active'] = True
                     else:
-                        renpy.show_screen("message_screen", "Not enough cash on hand!")
+                        PyTGFX.message("Not enough cash on hand!")
             elif result[1] == "sell":
                 python hide:
                     global bm_building, bm_index
@@ -121,7 +121,7 @@ label building_management:
                         bm_building.fin.log_logical_expense(price, "Pro-Cleaning")
                         bm_building.dirt = 0
                     else:
-                        renpy.show_screen("message_screen", "You do not have the required funds!")
+                        PyTGFX.message("You do not have the required funds!")
                     del price
                 elif result[1] == "clean_all":
                     if hero.take_money(result[2], reason="Pro-Cleaning"):
@@ -130,7 +130,7 @@ label building_management:
                             i.dirt = 0
                         del i
                     else:
-                        renpy.show_screen("message_screen", "You do not have the required funds!")
+                        PyTGFX.message("You do not have the required funds!")
                 elif result[1] == "toggle_clean":
                     bm_building.auto_clean = 50 if bm_building.auto_clean == 100 else 100
                 elif result[1] == "rename_building":

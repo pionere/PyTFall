@@ -143,7 +143,7 @@ label char_equip_loop:
                 python:
                     # Check if we can access the inventory:
                     if focusitem.slot == "quest" or focusitem.id == "Your Pet":
-                        renpy.show_screen('message_screen', "This item cannot be discarded.")
+                        PyTGFX.message("This item cannot be discarded.")
                     else:
                         num = renpy.call_screen("discard_item", inv_source, focusitem)
                         if num != 0:
@@ -286,7 +286,7 @@ label char_equip_finish:
         # eqtarget.inventory.female_filter = False
         # hero.inventory.female_filter = False
         if eqtarget.location == pytfall.afterlife:
-            renpy.show_screen("message_screen", "{} dies as a result of item manipulations...".format(eqtarget.fullname))
+            PyTGFX.message("%s dies as a result of item manipulations..." % eqtarget.fullname)
             del eqtarget, came_to_equip_from
             jump("mainscreen")
 

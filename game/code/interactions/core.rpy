@@ -227,11 +227,9 @@ init -1 python:
             if not free:
                 # If we have no more points
                 if hero.PP < 25:
-                    renpy.show_screen("message_screen", "You don't have time (Action Points) for that!")
-                    return
+                    return PyTGFX.message("You don't have time (Action Points) for that!")
                 if not self.char.take_pp(25):
-                    renpy.show_screen("message_screen", "%s doesn't have time (Action Points) for that!" % self.char.pC)
-                    return
+                    return PyTGFX.message("%s doesn't have time (Action Points) for that!" % self.char.pC)
 
                 hero.take_pp(25)
 

@@ -530,7 +530,7 @@ init -6 python: # Guild, Tracker and Log.
 
             self.guild_teams.pager_content.remove(team)
 
-            renpy.show_screen("message_screen", "The team is going to explore this area for %d days!" % area.days)
+            PyTGFX.message("The team is going to explore this area for %d days!" % area.days)
 
         # SimPy methods:
         def business_control(self):

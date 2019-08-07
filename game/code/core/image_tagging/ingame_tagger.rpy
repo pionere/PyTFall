@@ -30,7 +30,7 @@ label tagger:
                 if len(n) and n != tagr.pic:
                     n = os.path.normpath(n)
                     if os.sep in n:
-                        renpy.show_screen("message_screen", "Moving to different folder is not supported!")
+                        PyTGFX.message("Moving to different folder is not supported!")
                     else:
                         tagr.rename_tag_file(tagr.pic, n)
 
@@ -192,7 +192,7 @@ label tagger:
                     else:
                         msg = "Both fields are mandatory!"
                     if msg:
-                        renpy.show_screen("message_screen", msg)
+                        PyTGFX.message(msg)
             elif result[0] == "control":
                 if result[1] == "return":
                     break

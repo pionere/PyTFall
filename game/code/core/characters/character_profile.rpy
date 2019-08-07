@@ -56,9 +56,9 @@ label char_profile:
                             else:
                                 jump char_profile_end
                     else:
-                        $ renpy.show_screen("message_screen", "This girl has run away!")
+                        $ PyTGFX.message("This %s has run away!" % ("girl" if char.gender == "female" else "guy"))
                 else:
-                    $ renpy.show_screen("message_screen", "This girl has run away!")
+                    $ PyTGFX.message("This %s has run away!" % ("girl" if char.gender == "female" else "guy"))
             # Else if you still have the girl
             else:
                 if result[0] == "jump":

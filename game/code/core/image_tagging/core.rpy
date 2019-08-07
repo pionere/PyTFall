@@ -388,7 +388,7 @@ init -9 python:
             except Exception as e:
                 e = unicode(str(e), errors='replace')
                 e = e.replace("[", "[[")#.replace("]", "]]")
-                renpy.show_screen("message_screen", u"Failed to rename the file!\n current file: %s\n new file: %s\n reason: %s" % (curr_file, new_file, e))
+                PyTGFX.message(u"Failed to rename the file!\n current file: %s\n new file: %s\n reason: %s" % (curr_file, new_file, e))
 
         def save_json(self):
             json_data = self.char_edit

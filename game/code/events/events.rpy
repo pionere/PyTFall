@@ -62,8 +62,7 @@ init -9 python:
             cost = The cost of triggering the event.
             """
             if not hero.take_ap(cost):
-                renpy.show_screen("message_screen", "Not enough AP left")
-                return
+                return PyTGFX.message("Not enough AP left")
 
             self.label_cache = last_label
 

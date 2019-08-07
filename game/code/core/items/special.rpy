@@ -84,11 +84,11 @@ label special_items_slime_bottle:
 label special_items_empty_extractor:
     if eqtarget.exp <= 200:
         if eqtarget == hero:
-            $ renpy.show_screen('message_screen', "Unfortunately, you are not experienced enough yet to share your knowledge with anybody.")
+            $ PyTGFX.message("Unfortunately, you are not experienced enough yet to share your knowledge with anybody.")
         else:
             show expression eqtarget.get_vnsprite()
             with dissolve
-            $ renpy.show_screen('message_screen', "Unfortunately, [eqtarget.name] is not experienced enough yet to share [eqtarget.pd] knowledge with anybody.")
+            $ PyTGFX.message("Unfortunately, [eqtarget.name] is not experienced enough yet to share [eqtarget.pd] knowledge with anybody.")
         $ inv_source.add_item("Empty Extractor")
     else:
         scene bg h_profile
@@ -121,11 +121,11 @@ label special_items_empty_extractor:
 
 label special_items_full_extractor:
     if eqtarget == hero:
-        $ renpy.show_screen('message_screen', "The energy of knowledge slowly flows inside you. You became more experienced.")
+        $ PyTGFX.message("The energy of knowledge slowly flows inside you. You became more experienced.")
     else:
         show expression eqtarget.get_vnsprite()
         with dissolve
-        $ renpy.show_screen('message_screen', "The energy of knowledge slowly flows inside [eqtarget.name]. [eqtarget.pC] became more experienced.")
+        $ PyTGFX.message("The energy of knowledge slowly flows inside [eqtarget.name]. [eqtarget.pC] became more experienced.")
         if eqtarget.get_stat("disposition") < 750:
             $ eqtarget.gfx_mod_stat("disposition", randint(25, 50))
         if eqtarget.get_stat("affection") < 750:
@@ -139,17 +139,17 @@ label special_items_full_extractor:
 
 label special_items_one_for_all:
     if "Undead" in eqtarget.traits:
-        $ renpy.show_screen('message_screen', "This item can't be used on undead characters.")
+        $ PyTGFX.message("This item can't be used on undead characters.")
         $ inv_source.add_item("One For All")
         jump char_equip
         
     if eqtarget.status <> "slave":
-        $ renpy.show_screen('message_screen', "It would be unwise to use it on a free character, unless you'd like to spend the rest of your live in prison.")
+        $ PyTGFX.message("It would be unwise to use it on a free character, unless you'd like to spend the rest of your live in prison.")
         $ inv_source.add_item("One For All")
         jump char_equip
 
     if eqtarget.get_stat("health") < 50 and eqtarget.get_stat("mp") < 50 and eqtarget.get_stat("vitality") < 50:
-        $ renpy.show_screen('message_screen', "[eqtarget.pdC] body is in a poor condition. It will be a waste to use this item on [eqtarget.op].")
+        $ PyTGFX.message("[eqtarget.pdC] body is in a poor condition. It will be a waste to use this item on [eqtarget.op].")
         $ inv_source.add_item("One For All")
         jump char_equip
 
@@ -231,9 +231,9 @@ label special_items_herbal_extract:
     $ v = eqtarget.get_stat("vitality")
     if h <= 0 or v <= 10:
         if h <= 0:
-            $ renpy.show_screen('message_screen', "There is no need to use it at the moment, health is full.")
+            $ PyTGFX.message("There is no need to use it at the moment, health is full.")
         else:
-            $ renpy.show_screen('message_screen', "Not enough vitality to use it.")
+            $ PyTGFX.message("Not enough vitality to use it.")
         $ inv_source.add_item("Herbal Extract")
     else:
         if h <= v:
@@ -256,10 +256,10 @@ label special_items_emerald_tincture:
 
 label special_items_flashing_extract:
     if eqtarget.flag("drunk_flashing_extract"):
-        $ renpy.show_screen('message_screen', "[eqtarget.name] already used it before, it can be used only once.")
+        $ PyTGFX.message("[eqtarget.name] already used it before, it can be used only once.")
         $ inv_source.add_item("Flashing Extract")
     else:
-        $ renpy.show_screen('message_screen', "[eqtarget.name] becomes a bit faster (+1 AP).")
+        $ PyTGFX.message("[eqtarget.name] becomes a bit faster (+1 AP).")
         $ eqtarget.set_flag("drunk_flashing_extract")
         $ eqtarget.basePP += 100 # PP_PER_AP
         play events "events/item_3.wav"
@@ -267,7 +267,7 @@ label special_items_flashing_extract:
 
 label special_items_puke_cola:
     if 'Food Poisoning' in eqtarget.effects:
-        $ renpy.show_screen('message_screen', "[eqtarget.name] is already suffering from food poisoning. More of this «puke» stuff won't do any good.")
+        $ PyTGFX.message("[eqtarget.name] is already suffering from food poisoning. More of this «puke» stuff won't do any good.")
         $ inv_source.add_item("Puke-a-Cola")
     else:
         $ eqtarget.mod_stat("health", randint(85, 255))
@@ -282,13 +282,13 @@ label special_items_cleaning_cloud:
     $ clean_list = list(i for i in hero.buildings if i.dirt > 0)
     if clean_list:
         python:
-            renpy.show_screen('message_screen', "You release the cloud, making all your buildings cleaner.")
+            PyTGFX.message("You release the cloud, making all your buildings cleaner.")
             for i in clean_list:
                 i.moddirt(-200)
         play events "events/item_1.wav"
         with Fade(.5, .2, .0, color="yellow")
     else:
-        $ renpy.show_screen('message_screen', "You don't own any buildings which require cleaning, using this item is meaningless.")
+        $ PyTGFX.message("You don't own any buildings which require cleaning, using this item is meaningless.")
         $ inv_source.add_item("Cleaning Cloud")
     $ del i, clean_list
     jump char_equip

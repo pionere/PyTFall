@@ -64,56 +64,56 @@ init -11 python:
         if item.slot == 'consumable':
             if equipment_safe_mode and item.jump_to_label:
                 if not silent:
-                    renpy.show_screen("message_screen", "Special items cannot be used right now.")
+                    PyTGFX.message("Special items cannot be used right now.")
                 return
 
             if item in character.consblock:
                 if not silent:
                     turns = character.consblock[item]
-                    renpy.show_screen("message_screen", "This item has been used recently by %s, it cannot be used again for %d %s." % (character.name, turns, plural("turn", turns)))
+                    PyTGFX.message("This item has been used recently by %s, it cannot be used again for %d %s." % (character.name, turns, plural("turn", turns)))
                 return
 
         elif item.slot == 'misc':
             if item in character.miscblock:
                 if not silent:
-                    renpy.show_screen("message_screen", "This item has been already used by %s, and cannot be used again." % character.name)
+                    PyTGFX.message("This item has been already used by %s, and cannot be used again." % character.name)
                 return
 
         temp = character.gender
         if getattr(item, "gender", temp) != temp:
             if not silent:
-                renpy.show_screen('message_screen', "This item cannot be equipped on a %s character." % character.gender)
+                PyTGFX.message("This item cannot be equipped on a %s character." % character.gender)
             return
         elif item.unique and item.unique != character.id:
             if not silent:
-                renpy.show_screen("message_screen", "This unique item cannot be equipped on %s." % character.name)
+                PyTGFX.message("This unique item cannot be equipped on %s." % character.name)
             return
         elif item.type == "scroll": # prevents using scroll if it gives already known spell
             battle_skill = item.add_be_spells[0]
             if battle_skill in character.magic_skills:
                 if not silent:
-                    renpy.show_screen('message_screen', "%s already knows this spell." % character.name)
+                    PyTGFX.message("%s already knows this spell." % character.name)
                 return
         elif not item.usable:
             if not silent:
-                renpy.show_screen("message_screen", "This item cannot be used or equipped.")
+                PyTGFX.message("This item cannot be used or equipped.")
             return
         elif item.type == "food" and 'Food Poisoning' in character.effects:
             if not silent:
-                renpy.show_screen('message_screen', "%s is already suffering from food poisoning. More food won't do any good." % character.name)
+                PyTGFX.message("%s is already suffering from food poisoning. More food won't do any good." % character.name)
             return
         elif character.status == "slave":
             if item.slot == "weapon" and item.type != "tool":
                 if not silent:
-                    renpy.show_screen('message_screen', "Slaves are forbidden to use large weapons by law.")
+                    PyTGFX.message("Slaves are forbidden to use large weapons by law.")
                 return
             elif item.type == "armor":
                 if not silent:
-                    renpy.show_screen('message_screen', "Slaves are forbidden to wear armor by law.")
+                    PyTGFX.message("Slaves are forbidden to wear armor by law.")
                 return
             elif item.type == "shield":
                 if not silent:
-                    renpy.show_screen('message_screen', "Slaves are forbidden to use shields by law.")
+                    PyTGFX.message("Slaves are forbidden to use shields by law.")
                 return
         return True
 
@@ -214,11 +214,11 @@ init -11 python:
         """
         if item.unique and (not isinstance(target, Building)) and item.unique != ("mc" if target == hero else target.id):
             if not silent:
-                renpy.show_screen("message_screen", "This unique item cannot be given to {}!".format(target.name))
+                PyTGFX.message("This unique item cannot be given to %s!" % target.name)
             return
         if not item.transferable:
             if not silent:
-                renpy.show_screen('message_screen', "This item cannot be transferred!")
+                PyTGFX.message("This item cannot be transferred!")
             return
 
         # Free girls should always refuse giving up their items unless MC gave it to them:
