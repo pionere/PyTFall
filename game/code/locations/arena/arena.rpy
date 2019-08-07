@@ -775,7 +775,7 @@ init -9 python:
                 if logical:
                     result = True
                 else:
-                    result = renpy.call_screen("confirm_chainfight", setup, encounter, enemy_team)
+                    result = renpy.call_screen("confirm_chainfight", setup, encounter, off_team.leader, enemy_team.leader)
                     if result == "break":
                         return (enemy_team, off_team), combat_log
 
@@ -1038,7 +1038,7 @@ init -9 python:
                 restore_battle_stats(member)
 
             if not logical:
-                renpy.call_screen("arena_aftermatch", winner, loser, combat_stats, off_team is winner)
+                renpy.call_screen("arena_aftermatch", off_team, def_team, combat_stats, off_team is winner)
 
             # Ladder
             self.update_ladder()
@@ -1151,7 +1151,7 @@ init -9 python:
                 restore_battle_stats(member)
 
             if not logical:
-                renpy.call_screen("arena_aftermatch", winner, loser, combat_stats, off_team is winner)
+                renpy.call_screen("arena_aftermatch", off_team, def_team, combat_stats, off_team is winner)
 
             # Update match
             setup = self.get_arena_match(team=def_team)

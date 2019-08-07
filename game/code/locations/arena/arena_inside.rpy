@@ -1167,7 +1167,7 @@ init: # ChainFights vs Mobs:
                         add Solid(color, xysize=(20, 20))
                         text text style "garamond" color "goldenrod" yoffset -4
 
-    screen confirm_chainfight(setup, encounter, mob):
+    screen confirm_chainfight(setup, encounter, off_leader, mob_leader):
         modal True
 
         # Fight Number:
@@ -1179,8 +1179,8 @@ init: # ChainFights vs Mobs:
             size 45
 
         # Opposing Sprites:
-        add hero.show("battle_sprite", resize=(200, 200), cache=True) at slide(so1=(-600, 0), t1=.7, eo2=(-1300, 0), t2=.7) align .35, .5
-        add mob.leader.show("battle_sprite", resize=(200, 200)) at slide(so1=(600, 0), t1=.7, eo2=(1300, 0), t2=.7) align .65, .5
+        add off_leader.show("battle_sprite", resize=(200, 200), cache=True) at slide(so1=(-600, 0), t1=.7, eo2=(-1300, 0), t2=.7) align .35, .5
+        add mob_leader.show("battle_sprite", resize=(200, 200)) at slide(so1=(600, 0), t1=.7, eo2=(1300, 0), t2=.7) align .65, .5
 
         # Title Text and Boss name if appropriate:
         if encounter == 5:
