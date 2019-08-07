@@ -263,7 +263,7 @@ screen building_management_midframe_gladiators_guild_mode:
                                 if (e.day is None or e.day == day):
                                     $ tmp = "Watch the encounter!"
                                     if type == "matchfight":
-                                        $ tmp += " Entry fee: %d Gold." % Arena.match_entry_fee(e.team, enemy)
+                                        $ tmp += " Entry fee: {color=gold}%d Gold{/color}." % Arena.match_entry_fee(e.team, enemy)
                                     textbutton "Fight":
                                         xalign .5
                                         style "basic_button"

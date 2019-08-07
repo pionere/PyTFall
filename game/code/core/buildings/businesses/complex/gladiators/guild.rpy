@@ -170,7 +170,7 @@ init -6 python: # Guild, Tracker and Log.
                 events = [e for e in events if e.type == type]
             ge = self.gui_events
             ge.pager_content = events
-            ge.page = min(ge.page, ge.max_page)
+            ge.page = min(ge.page, ge.max_page())
 
         def schedule(self):
             if len(self.events) >= self.capacity:
@@ -244,7 +244,9 @@ init -6 python: # Guild, Tracker and Log.
 
             event = GladiatorsEvent(team, result, type, day=fday)
             self.events.append(event)
-            self.gui_events.pager_content.append(event)
+            ge = self.gui_events
+            ge.pager_content.append(event)
+            ge.page = ge.max_page()
 
             if type != "matchfight" or fday == day:
                 self.update_fighters(event.guild_chars(), True)
@@ -469,7 +471,7 @@ init -6 python: # Guild, Tracker and Log.
             self.events.remove(e)
             ge = self.gui_events
             ge.pager_content.remove(e)
-            ge.page = min(ge.page, ge.max_page)
+            ge.page = min(ge.page, ge.max_page())
 
             self.update_fighters(e.guild_chars(), False)
             self.update_teams()

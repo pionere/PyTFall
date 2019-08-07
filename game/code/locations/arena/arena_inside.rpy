@@ -69,18 +69,9 @@ label arena_inside:
                 elif not hero.take_money(Arena.match_entry_fee(result[0], result[1]), "Arena-Match Entry Fee"):
                     $ PyTGFX.message("You don't have enough Gold!")
                 else:
-                    $ off_team, def_team = result[0], result[1]
-                    $ member_aps = {f: f.PP for f in chain(off_team, def_team)}
-                    $ off_team.setup_controller()
-
                     hide screen arena_matches
                     hide screen arena_inside
-                    $ pytfall.arena.run_matchfight(def_team, off_team, False)
-
-                    $ off_team.reset_controller()
-                    # adjust hero's ap
-                    $ hero.PP -= min(200, max((aps - f.PP) for f, aps in member_aps.iteritems())) # PP_PER_AP
-                    $ del member_aps, def_team, off_team
+                    $ pytfall.arena.watch_matchfight(result[0], result[1])
                     jump arena_inside
 
 label arena_inside_end:
@@ -436,11 +427,11 @@ init: # Main Screens:
                                     yalign .5
                                     idle vs_img
                                     hover PyTGFX.bright_img(vs_img, .15)
-                                    if use_return or not off_team or off_team.leader is hero:
+                                    if event_day != day or use_return or not off_team or off_team.leader is hero:
                                         action None
                                     else:
                                         action Return (["watch", "matches", lineup])
-                                        tooltip "Watch the match. Entry fee: %d Gold." % Arena.match_entry_fee(off_team, def_team)
+                                        tooltip "Watch the match. Entry fee: {color=gold}%d Gold{/color}." % Arena.match_entry_fee(off_team, def_team)
 
                                 # Waiting for the challenge or been challenged by former:
                                 frame:

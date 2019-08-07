@@ -423,7 +423,7 @@ init -9 python:
 
         @staticmethod
         def match_entry_fee(off_team, def_team):
-            return max(50, (off_team.get_level()+def_team.get_level())/10*10)
+            return max(50, (len(off_team)*off_team.get_level()+len(def_team)*def_team.get_level())/10*10)
 
         def check_arena_fight(self, type, team, opponent):
             for t in team:
@@ -1167,6 +1167,16 @@ init -9 python:
             self.daily_match_results.append((self.shallow_copy_team(winner), self.shallow_copy_team(loser)))
 
             return (winner, loser), list(battle.combat_log)
+
+        def watch_matchfight(self, off_team, def_team):
+            member_aps = {f: f.PP for f in chain(off_team, def_team)}
+            off_team.setup_controller()
+
+            self.run_matchfight(def_team, off_team, False)
+
+            off_team.reset_controller()
+            # adjust hero's ap
+            hero.PP -= min(200, max((aps - f.PP) for f, aps in member_aps.iteritems())) # PP_PER_AP
 
         @staticmethod
         def append_match_result(txt, f2f, match_result):
