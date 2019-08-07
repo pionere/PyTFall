@@ -691,26 +691,50 @@ init -1 python: # Core classes:
         def end_battle(self):
             """Ends the battle, trying to normalize any variables that may have been used during the battle.
             """
+            teams = self.teams
             if not self.logical:
-                if self.combat_status:
-                    if self.combat_status == "escape":
+                temp = self.combat_status
+                if temp is None:
+                    temp = self.win
+                    tmp = teams[0].leader
+                    if tmp is hero:
+                        # battle of the hero
+                        if temp is True:
+                            temp = "You Win!"
+                            tmp = True
+                        else: # temp is False
+                            temp = "You Lose!"
+                            tmp = False
+                    elif temp is False and getattr(tmp.char, "employer", None) is hero and \
+                      getattr(teams[1].leader.char, "employer", None) is not hero:
+                        # lost battle of the hero's team against an NPC
+                        temp = "%s Lose!" % teams[0].gui_name
+                        tmp = False
+                    else:
+                        # battle of strangers
+                        temp = "%s Win!" % self.winner.gui_name
+                        tmp = True
+
+                    if tmp is True:
+                        tkwargs = {"color": "red",
+                                   "outlines": [(3, "#ffff19", 1, 1)]}
+                    else:
+                        tkwargs = {"color": "blue",
+                                   "outlines": [(1, "cyan", 0, 0)]}
+                    gfx_overlay.notify(temp, tkwargs=tkwargs)
+                else:
+                    if temp == "escape":
                         renpy.show("escape_gates", what="portal_webm",  at_list=[Transform(align=(.5, .5))], zorder=100)
                         renpy.sound.play("content/sfx/sound/be/escape_portal.ogg")
                         tkwargs = {"color": "gray",
                                    "outlines": [(1, "black", 0, 0)]}
                         gfx_overlay.notify("Escaped...", tkwargs=tkwargs)
-                    elif self.combat_status == "surrender":
+                    elif temp == "surrender":
                         tkwargs = {"color": "gray",
                                    "outlines": [(1, "black", 0, 0)]}
                         gfx_overlay.notify("Surrendered...", tkwargs=tkwargs)
                     else:
                         pass # just leaving
-                elif self.win is True:
-                    gfx_overlay.notify("You Win!")
-                elif self.win is False:
-                    tkwargs = {"color": "blue",
-                               "outlines": [(1, "cyan", 0, 0)]}
-                    gfx_overlay.notify("You Lose!", tkwargs=tkwargs)
 
                 renpy.stop_predict(*self.predict)
 
@@ -1075,7 +1099,7 @@ init -1 python: # Core classes:
                 self.piercing = True
 
             # Dicts:
-            self.tags_to_hide = list() # BE effects tags of all kinds, will be hidden when the show gfx method runs it's course and cleared for the next use.
+            #self.tags_to_hide = list() # BE effects tags of all kinds, will be hidden when the show gfx method runs it's course and cleared for the next use.
             self.timestamps = {} # Container for the timed gfx effects
 
             if self.main_effect["duration"] is None:
@@ -1107,9 +1131,9 @@ init -1 python: # Core classes:
             if not battle.logical:
                 self.time_gfx(t, died)
 
-                for tag in self.tags_to_hide:
-                    renpy.hide(tag)
-                self.tags_to_hide = list()
+                #for tag in self.tags_to_hide:
+                #    renpy.hide(tag)
+                #self.tags_to_hide = list()
 
             # Clear (maybe move to separate method if this ever gets complicated), should be moved to core???
             for f in battle.get_fighters(state="all"):
