@@ -62,12 +62,12 @@ label test_be_logical:
         if len(enemy_team) != 3:
             mob = build_mob(id="Goblin Archer", level=100)
             mob.front_row = 0
-            mob.attack_skills.append("Sword Slash")
+            mob.attack_skills.append(battle_skills["Sword Slash"])
             enemy_team.add(mob)
         if len(enemy_team) != 3:
             mob = build_mob(id="Goblin Archer", level=100)
             mob.front_row = 0
-            mob.attack_skills.append("Bow Shot")
+            mob.attack_skills.append(battle_skills["Bow Shot"])
             mob.apply_trait(traits["Air"])
             enemy_team.add(mob)
 

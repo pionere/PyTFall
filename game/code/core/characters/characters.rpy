@@ -1542,10 +1542,7 @@ init -9 python:
             self.traits.apply(trait, truetrait=truetrait)
 
         def remove_trait(self, trait, truetrait=True):  # Removes trait effects
-            if trait.id == "Virgin" and "Chastity" in self.effects:
-                pass
-            else:
-                self.traits.remove(trait, truetrait=truetrait)
+            self.traits.remove(trait, truetrait=truetrait)
 
         # Effects:
         ### Effects Methods
@@ -2399,7 +2396,6 @@ init -9 python:
                 # Home location nd mods:
                 #loc = self.home
                 #mod = loc.get_daily_modifier()
-                restore_battle_stats(self)
 
                 # earn some money
                 if self.location != pytfall.jail:
@@ -2420,6 +2416,8 @@ init -9 python:
                 # Next day morning --------------------------------------->
                 # Shopping (For now will not cost AP):
                 self.nd_autoshop()
+
+                restore_battle_stats(self)
                 return
 
             # hero's worker

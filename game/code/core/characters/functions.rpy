@@ -262,8 +262,7 @@ init -11 python:
         mob.init()
 
         level = max(level, data["min_lvl"])
-        if level != 1:
-            initial_levelup(mob, level)
+        initial_levelup(mob, level)
 
         stats = mob.stats
         for stat, value in data["stats"].iteritems():
@@ -574,8 +573,9 @@ init -11 python:
         # char.stats.goal = 1000
         # char.stats.goal_increase = 1000
 
-        exp = level*1000
-        char.mod_exp(exp)
+        exp = level*1000 - char.exp
+        if exp > 0:
+            char.mod_exp(exp)
 
         if max_out_stats:
             for stat in char.stats.stats:
@@ -776,10 +776,8 @@ init -11 python:
             tier = MAX_TIER
 
         # Level with base 20
-        level = tier
-        if tier:
-            level = round_int(tier*20*uniform(*level_bios))
-            initial_levelup(char, level)
+        level = round_int(tier*20*uniform(*level_bios))
+        initial_levelup(char, level)
 
         # devlog.info("")
         # devlog.info("MEOW: Char/Tier: {}/{}".format(char.name, tier))
