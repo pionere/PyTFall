@@ -158,16 +158,16 @@ screen shopkeeper_items_upgrades(upgrades_list):
         use exit_button(action=Return(False), align=(.5, 1.05))
 
 label tailor_special_order:
-    if npcs["Kayo_Sudou"].has_flag("tailor_special_order"):
-        if day - npcs["Kayo_Sudou"].flag("tailor_special_order")[0] < 3:
+    if global_flags.has_flag("tailor_special_order"):
+        if day - global_flags.flag("tailor_special_order")[0] < 3:
             t "I'm very sorry. Your order is not ready yet. Please come back later."
         else:
-            $ item = npcs["Kayo_Sudou"].flag("tailor_special_order")[1]
+            $ item = global_flags.flag("tailor_special_order")[1]
             t "Yes, your order is ready. *she gives you [item]*"
+            t "Ask anytime if you need anything else!"
             $ hero.add_item(item)
             $ del item
-            t "Ask anytime if you need anything else!"
-            $ npcs["Kayo_Sudou"].del_flag("tailor_special_order")
+            $ global_flags.del_flag("tailor_special_order")
     else:
         t "For a small price, I can upgrade your clothes to better versions. What would you like to order?"
         $ items_upgrades = load_db_json("items", "data", "upgrades.json")
@@ -183,7 +183,7 @@ label tailor_special_order:
             elif hero.take_money(result["price"], reason="Tailor Upgrade"):
                 $ hero.remove_item(result["first_item"])
                 t "Of course, dear customer, it will be ready in three days. You can retrieve your order in our shop after the time passes."
-                $ npcs["Kayo_Sudou"].set_flag("tailor_special_order", value=[day, result["second_item"]])
+                $ global_flags.set_flag("tailor_special_order", value=[day, result["second_item"]])
             else:
                 t "I'm sorry, but you don't have that much gold."
     jump tailor_menu

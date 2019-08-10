@@ -109,7 +109,6 @@ label frog1_event_poke:
                         f1 "I planned my escape carefully. On a starless night, I slipped out my father castle to be with my beloved and met that old crow on my way there."
                     "Promise her that you will find a way to break this spell.":
                         "You promised her that you would try to find a solution. But do you know someone who uses magic and brews potions?"
-                        $ global_flags.set_flag("agreed_to_help_frog")
                         $ i = False
                         $ hero.take_ap(1)
                         $ advance_quest("Frog Princess!", "You've met a talking frog who claims to be a princess! She asked you to help restore her original form.", manual=True)
@@ -145,7 +144,7 @@ label frog1_event_abby:
             w "I should have the answer soon. Visit me in few days."
             $ advance_quest("Frog Princess!", "For a hefty sum of 1000 Gold Abby the witch promised to look into the frog matter. You should visit her again in a few days.")
             $ hero.take_money(1000, reason="Events")
-            $ hero.set_flag("cnd_frog1_event_abby_2", 10)
+            $ hero.set_flag("cnd_frog1_event_abby_2", day+10)
             $ menu_extensions.add_extension("Abby The Witch Main", ("Ask about the frog (again)", Jump("frog1_event_abby_2"), "day > {}".format(day)))
             $ menu_extensions.remove_extension("Abby The Witch Main", "Ask about the Frog")
             $ global_flags.del_flag("frog_spoke_abby")
@@ -171,10 +170,10 @@ label frog1_event_abby_2:
     if hero.has_flag("dnd_frog1_event_abby_2"):
         w "As I said, I am still going through my books and scrolls. Now if you wont stop bother me I'm never going to find a solution."
         $ hero.up_counter("cnd_frog1_event_abby_2")
-    elif hero.get_flag("cnd_frog1_event_abby_2", 0) >= 7:
+    elif hero.get_flag("cnd_frog1_event_abby_2", 0) - day >= 7:
         w "Sorry, but I had other things to do. Come back later."
         $ hero.set_flag("dnd_frog1_event_abby_2")
-    elif dice(60 - hero.get_flag("cnd_frog1_event_abby_2", 0)*8):
+    elif dice(60 - (day - hero.get_flag("cnd_frog1_event_abby_2", day))*8):
         w "I am still going through my books and scrolls. Come back later."
         $ hero.set_flag("dnd_frog1_event_abby_2")
     else:

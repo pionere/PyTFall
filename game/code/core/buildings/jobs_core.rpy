@@ -103,15 +103,12 @@ init -10 python:
             # We settle later, in char.next_day()
             tips = worker.flag("_jobs_tips")
             if tips:
-                loc = self.loc
-                job = self.job
-
                 worker.del_flag("_jobs_tips")
                 worker.up_counter("dnd_accumulated_tips", tips)
 
                 temp = "%s gets {color=gold}%d Gold{/color} in tips!" % (worker.name, tips)
                 self.append(temp)
-                loc.fin.log_logical_income(tips, job.id + " Tips")
+                self.loc.fin.log_logical_income(tips, self.job.id + " Tips")
 
         def after_job(self):
             # We run this after job but before ND reports
@@ -125,7 +122,6 @@ init -10 python:
                 self.charmod.update(char.stats_skills)
                 char.stats_skills = {}
                 self.log_tips(char)
-                self.reset_workers_flags(char)
                 if earned:
                     char.fin.log_logical_income(earned, fin_source)
             else:
@@ -139,7 +135,6 @@ init -10 python:
                         self.team_charmod[char] = char.stats_skills.copy() # FIXME copy necessary?
                         char.stats_skills = {}
                         self.log_tips(char)
-                        self.reset_workers_flags(char)
                         if char_earned:
                             char.fin.log_logical_income(char_earned, fin_source)
 
@@ -153,11 +148,6 @@ init -10 python:
                 self.append("You've earned {color=gold}%d Gold{/color}!" % earned) # use the line above if there are multiple shifts in one NDEvent
             else:
                 self.append("{color=gold}No Gold{/color} was earned!")
-
-        def reset_workers_flags(self, char):
-            for flag in char.flags.keys():
-                if flag.startswith("jobs"):
-                    char.del_flag(flag)
 
         def get_nd_imgs(self):
             # Try to analyze self.img in order to figure out what it represents:

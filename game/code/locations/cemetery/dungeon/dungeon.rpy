@@ -38,8 +38,7 @@ init -1 python:
         def add_timer(self, timer, functions):
             self.timer = min(self.timer, timer) if self.timer is not None else timer
             timestr = timer + time.time()
-            funclist = list(functions)
-            funclist.append({"function": "delitem", "arguments": ["timed", timestr]})
+            funclist = [{"function": "delitem", "arguments": ["timed", timestr]}] + list(functions)
             self.timed[timestr] = funclist
 
         def enter(self, at=None, function=None, load=None):
@@ -97,7 +96,7 @@ init -1 python:
                         "k", "d_items", "d_hotspots", "actions", "ri", "n", "e", "light",
                         "situ", "pt", "it", "img_name", "brightness", "spawn", "ori",
                         "transparent_area", "bx", "by", "at", "to", "pos", "access_denied",
-                        "dungeon_location", "dungeons", "event", "current_time", "t"]
+                        "dungeon_location", "event", "current_time", "t"]
                 for i in vars:
                     if hasattr(store, i):
                         delattr(store, i)
@@ -305,6 +304,7 @@ screen dungeon_move(hotspots):
             action ToggleField(dungeon, "show_map")
             tooltip "Hide map (Key: m)"
             keysym "K_m"
+            focus_mask True
     else:
         key "K_m" action ToggleField(dungeon, "show_map")
 
@@ -407,8 +407,8 @@ style move_button_text:
     size 60
 
 label enter_dungeon:
-    if day < global_flags.get_flag("can_access_cemetery_dungeon", 0):
-        $ temp = global_flags.flag("can_access_cemetery_dungeon")-day
+    if hero.has_flag("cnd_can_access_cemetery_dungeon"):
+        $ temp = hero.flag("cnd_can_access_cemetery_dungeon") - day
         if temp >= 2:
             "You can not enter the dungeon for [temp] more days."
         else:
@@ -420,7 +420,7 @@ label enter_dungeon:
     menu:
         "This old dungeon looks dangerous. Are you sure you want to go in?"
         "Yes":
-            $ global_flags.set_flag("can_access_cemetery_dungeon", day+randint(3, 5))
+            $ hero.set_flag("cnd_can_access_cemetery_dungeon", day + randint(3, 5))
         "No":
             $ global_flags.set_flag("keep_playing_music")
             jump graveyard_town
@@ -619,8 +619,8 @@ label enter_dungeon_r:
                 ori = ori ^ 2
             elif _return == "update map":
                 dungeon_location = dungeon.hero
-                dungeons = load_dungeons()
-                dungeon = dungeons[dungeon.id]
+                store.dungeons = load_dungeons()
+                dungeon = store.dungeons[dungeon.id]
                 dungeon.enter(at=dungeon_location)
             elif _return == "mpos": # XXX: dev mode
                 if mpos:

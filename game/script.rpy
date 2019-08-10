@@ -563,6 +563,17 @@ label after_load:
             global_flags.set_flag("waitress_cafe", [global_flags.flag("waitress_chosen_today"), store.cafe_waitress_who])
             global_flags.del_flag("waitress_chosen_today")
             del store.cafe_waitress_who
+        if global_flags.has_flag("can_access_cemetery_dungeon"):
+            t = global_flags.flag("can_access_cemetery_dungeon")
+            if t >= store.day:
+                hero.set_flag("cnd_can_access_cemetery_dungeon", t)
+            global_flags.del_flag("can_access_cemetery_dungeon")
+        if hero.has_flag("health_bonus_from_eating_in_cafe"):
+            global_flags.set_flag("health_bonus_from_eating_in_cafe", hero.flag("health_bonus_from_eating_in_cafe"))
+            hero.del_flag("health_bonus_from_eating_in_cafe")
+        if npcs["Kayo_Sudou"].has_flag("tailor_special_order"):
+            global_flags.set_flag("tailor_special_order", npcs["Kayo_Sudou"].flag("tailor_special_order"))
+            npcs["Kayo_Sudou"].del_flag("tailor_special_order")
 
         pytfall.maps = OnScreenMap()
 
