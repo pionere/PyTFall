@@ -2107,10 +2107,9 @@ init -9 python:
             if calendar.weekday() == "Monday" and day != 1:
                 flag_red = self.nd_pay_taxes(txt, flag_red)
 
-            if self.arena_rep <= -500 and self.arena_permit:
+            if self.arena_permit and self.arena_rep < Arena.PERMIT_REP/2:
                 txt.append("{color=red}You've lost your Arena Permit... Try not to suck at it so much!{/color}")
                 self.arena_permit = False
-                self.arena_rep = 0
                 flag_red = True
 
             # Finances related ---->
@@ -2411,6 +2410,16 @@ init -9 python:
                 if self.get_stat("joy") < self.get_max("joy"):
                     self.mod_stat("joy", 5)
 
+                # manage arena permit
+                if self.arena_active:
+                    if self.arena_permit:
+                        if self.arena_rep < Arena.PERMIT_REP/2:
+                            self.arena_permit = False
+                    else:
+                        if self.arena_rep >= Arena.PERMIT_REP and self.gold > Arena.PERMIT_PRICE*2:
+                            self.take_money(Arena.PERMIT_PRICE, "Arena Permit")
+                            self.arena_permit = True
+
                 super(Char, self).next_day()
 
                 # Next day morning --------------------------------------->
@@ -2433,6 +2442,12 @@ init -9 python:
             else:
                 temp += "{i}{b}%s{/b}, %s{/i}" % (self.job.id, set_font_color(self.workplace, "orange"))
             txt.insert(0, temp)
+
+            # arena permit
+            if self.arena_permit and self.arena_rep < Arena.PERMIT_REP/2:
+                self.arena_permit = False
+                txt.append("{color=red}%s lost %s Arena Permit!{/color}" % (self.name, self.pd))
+                flag_red = True
 
             if self.location is not None:
                 if self.location == pytfall.ra:

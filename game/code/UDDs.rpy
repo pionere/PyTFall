@@ -7,12 +7,14 @@ init -960 python:
             bar = Transform("content/gfx/interface/bars/vcryslider_full.png", size=(40, length))
             vbox = VBox(xysize=(40, length))
 
-            for color, value in data:
-                what = Transform(Solid(color), size=(40, value))
+            for color, size, value in data:
+                what = Transform(Solid(color), size=(40, size))
                 vbox.add(what)
 
             fixed = AlphaBlend(bar, bar, vbox, alpha=True)
             self.displayable = fixed
+
+            self.data = data
 
             # Tracking:
             self.next_st = 0
@@ -44,6 +46,14 @@ init -960 python:
 
             renpy.redraw(self, 0)
             return render
+
+        def get_result(self):
+            value = self.value
+
+            for color, size, val in self.data:
+                value -= size
+                if value <= 0:
+                    return val
 
     class ExpBarController(renpy.Displayable):
         def __init__(self, char, **kwargs):

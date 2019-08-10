@@ -1114,32 +1114,32 @@ init: # ChainFights vs Mobs:
             add my_udd pos 50, 60
 
             # Results:
-            if not rolled:
+            if rolled is None:
                 text "Bonus Roll":
                     xalign .5 ypos 10
                     style "arena_header_text"
                     color "red"
                     size 35
             else:
-                timer 3.0 action Return()
-                key "mousedown_1" action Return()
+                timer 3.0 action Return(rolled)
+                key "mousedown_1" action Return(rolled)
 
                 if rolled == "health":
-                    text "Rolled: HP" style "arena_header_text" color "red" size 30 xalign .5 ypos 10
+                    $ temp, tmp = "HP", "red"
                 elif rolled == "mp":
-                    text "Rolled: MP" style "arena_header_text" color "blue" size 30 xalign .5 ypos 10
+                    $ temp, tmp = "MP", "blue"
                 elif rolled == "vitality":
-                    text "Rolled: Vitality" style "arena_header_text" color "green" size 30 xalign .5 ypos 10
+                    $ temp, tmp = "Vitality", "green"
                 else:
-                    text "Rolled: Bupkis" style "arena_header_text" color "black" size 30 xalign .5 ypos 10
+                    $ temp, tmp = "Bupkis", "black" 
+                text "Rolled: %s" % temp style "arena_header_text" color tmp size 30 xalign .5 ypos 10
 
             textbutton "Stop!":
                 align .5, .95
                 xsize 100
                 sensitive my_udd.update
                 action [SetField(my_udd, "update", False),
-                        SetScreenVariableC("rolled", pytfall.arena.settle_minigame,
-                            udd=my_udd, data=data)]
+                        SetScreenVariableC("rolled", my_udd.get_result)]
 
         # Legenda:
         frame:

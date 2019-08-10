@@ -693,6 +693,27 @@ label after_load:
             mrs = [mrs] if mrs else []
             arena.daily_match_results = mrs
             del arena.hero_match_result
+        if hasattr(arena, "teams_2v2"):
+            arena.matchteams_2v2 = list(arena.ladder_2v2)
+            arena.matchteams_3v3 = list(arena.ladder_3v3)
+            for m in arena.matches_2v2:
+                m = m[0]
+                if m and m not in arena.matchteams_2v2:
+                    arena.matchteams_2v2.append(m)
+            for m in arena.matches_3v3:
+                m = m[0]
+                if m and m not in arena.matchteams_3v3:
+                    arena.matchteams_3v3.append(m)
+
+            arena.dogteams_2v2 = [t for t in arena.teams_2v2 if t not in arena.matchteams_2v2]
+            arena.dogteams_3v3 = [t for t in arena.teams_3v3 if t not in arena.matchteams_3v3]
+
+            for t in chain(arena.matchteams_2v2, arena.matchteams_3v3, arena.dogteams_2v2, arena.dogteams_3v3):
+                for f in t:
+                    f.arena_permit = True
+
+            del arena.teams_2v2
+            del arena.teams_3v3
 
         if hasattr(hero, "STATS"):
             for c in itertools.chain(chars.values(), [hero], hero.chars, npcs.values()):
@@ -1068,17 +1089,9 @@ label after_load:
 
             arena = pytfall.arena
             all_live_chars = set([hero] + chars.values() + hero.chars + npcs.values())
-            for fighter in itertools.chain(arena.ladder, store.fighters.values()):
-                all_live_chars.add(fighter)
-            for team in itertools.chain(arena.teams_2v2, arena.teams_3v3,\
-                 arena.dogfights_1v1, arena.dogfights_2v2, arena.dogfights_3v3,\
-                 arena.ladder_1v1_members, arena.ladder_2v2_members, arena.ladder_3v3_members,\
-                 arena.ladder_1v1, arena.ladder_2v2, arena.ladder_3v3):
-
-                    for fighter in team:
-                        all_live_chars.add(fighter)
-            for setup in itertools.chain(arena.matches_1v1, arena.matches_2v2, arena.matches_3v3):
-                for fighter in itertools.chain(setup[0].members, setup[1].members):
+            all_live_chars |= set(store.fighters.values()) | set(arena.ladder) | arena.get_teams_fighters() | arena.get_ladders_fighters() | arena.get_dogfights_fighters() | arena.get_matches_fighters()
+            for team in itertools.chain(arena.ladder_1v1_members, arena.ladder_2v2_members, arena.ladder_3v3_members):
+                for fighter in team:
                     all_live_chars.add(fighter)
 
             for c in hero.friends.copy():
