@@ -1073,10 +1073,6 @@ init -10 python:
         def get_stat_min(self, key):
             return self.min[key]
 
-        def mod_raw_max(self, key, value):
-            self.lvl_max[key] += value  # STAT_LVL_MAX
-            self.max[key] += value      # STAT_MAX
-
         def get_max(self, key):
             return max(self.min[key] + self.imin[key], min(self.max[key] + self.imax[key], self.lvl_max[key])) # STAT_MIN STAT_IMIN, STAT_MAX STAT_IMAX, STAT_LVL_MAX
 
@@ -1401,11 +1397,18 @@ init -10 python:
                     s[0] -= data[3]
                     s[1] -= data[4]
 
+        def mod_raw_max(self, key, value):
+            self.lvl_max[key] += value  # STAT_LVL_MAX
+            self.max[key] += value      # STAT_MAX
+
         def set_base_stat(self, key, value):
             if self.max[key] < value:      # STAT_MAX
                 self.max[key] = value      # STAT_MAX
             if self.lvl_max[key] < value:  # STAT_LVL_MAX
                 self.lvl_max[key] = value  # STAT_LVL_MAX
+            self.stats[key] = value        # STAT_STAT
+
+        def _set_stat(self, key, value):
             self.stats[key] = value        # STAT_STAT
 
         def _mod_base_stat(self, key, value):
@@ -2256,19 +2259,16 @@ init -10 python:
                     char.mod_stat("intelligence", 1)
             elif name == "Silly":
                 intel = char.get_stat("intelligence")
-                if intel >= 200:
-                    char.mod_stat("intelligence", -20)
-                elif intel >= 100:
-                    char.mod_stat("intelligence", -10)
-                elif intel >= 25:
-                    char.mod_stat("intelligence", -5)
-                else:
-                    char.set_stat("intelligence", 20)
+                intel = get_linear_value_of(intel, 20, 0, 200, 20)
+                if intel > 0:
+                    char.mod_stat("intelligence", -int(math.ceil(intel)))
             elif name == "Injured":
-                if char.get_stat("health") > char.get_max("health")/5:
-                    char.set_stat("health", char.get_max("health")/5)
-                if char.get_stat("vitality") > char.get_max("vitality")/2:
-                    char.set_stat("vitality", char.get_max("vitality")/2)
+                mod = char.get_max("health")/5 - char.get_stat("health")  
+                if mod < 0:
+                    char.mod_stat("health", mod)
+                mod = char.get_max("vitality")/2 - char.get_stat("vitality")
+                if mod < 0:
+                    char.mod_stat("vitality", mod)
                 char.mod_stat("joy", -10)
                 char.take_ap(1)
                 if self.days_active >= self.duration:

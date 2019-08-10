@@ -24,8 +24,7 @@ label test_be:
             hero.team.add(n)
 
         for i in hero.team:
-            for stat in ("health", "mp", "vitality"): # BATTLE_STATS
-                i.set_stat(stat, i.get_max(stat))
+            restore_battle_stats(i)
             i.restore_ap()
 
         for i in chain(hero.team, enemy_team):
@@ -86,8 +85,7 @@ label test_be_logical:
             hero.team.add(n)
 
         for i in hero.team:
-            for stat in ("health", "mp", "vitality"): # BATTLE_STATS
-                i.set_stat(stat, i.get_max(stat))
+            restore_battle_stats(i)
             i.restore_ap()
 
         hero.team.setup_controller(True)

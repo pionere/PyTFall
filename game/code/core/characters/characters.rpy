@@ -375,8 +375,7 @@ init -9 python:
 
         # direct setter to ignore effects and everything
         def set_stat(self, stat, value):
-            value -= self.stats._get_stat(stat)
-            self.stats._mod_base_stat(stat, value)
+            self.stats._set_stat(stat, value)
 
         def get_stat(self, stat):
             return self.stats._get_stat(stat)
