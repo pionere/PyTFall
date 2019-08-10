@@ -849,7 +849,7 @@ init -9 python:
                 amount += min(round_int(leader.arena_rep/max(15000.0, self.ladder[0].arena_rep / 3.0)), 3)
                 tier = mob_level/40.0
                 #types = ['scroll', 'restore', 'armor', 'weapon'] 
-                types = "all" 
+                types = None
                 rewards = get_item_drops(types=types, tier=tier, locations=["Arena"], amount=amount)
                 for i in rewards:
                     leader.inventory.append(i)

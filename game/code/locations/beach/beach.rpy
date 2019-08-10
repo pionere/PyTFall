@@ -327,7 +327,7 @@ label mc_action_city_beach_diving_checks:
 
         python hide:
             if result == "Item":
-                item = weighted_sample(loots)
+                item = weighted_choice(loots)
             else:
                 item = None
             tkwargs = {"color": "dodgerblue", "outlines": [(1, "black", 0, 0)]}

@@ -316,25 +316,25 @@ init -11 python:
         item = get_item_drops(types=types, price=price, tier=tier, locations=locations)
         if not item:
             return False
+        item = item[0]
         hero.add_item(item)
         gfx_overlay.random_find(item, 'items')
         hero.say("I found %s..." % item.id)
         return True
 
-    def get_item_drops(types, price=None, tier=None, locations=None, amount=1): # va calls gives to mc a random item based on type and max price
+    def get_item_drops(types=None, price=None, tier=None, locations=None, amount=1): # va calls gives to mc a random item based on type and max price
         """Sort out items for drops/rewards in places such as Arena/Forest/Quests and etc.
 
-        types are item types we want enemies to drop, a list.
-        We expect it to be a list, or shove it in one otherwise
-        'all' will check for all types available here
+        :param types: item types we want enemies to drop, a list.
+        We expect it to be a list, or shove it in one otherwise.
         (look in the code for types you can use)
-
-        locatons: a list/set is expected, we'll match it vs item.location field.
-
-        Can be sorted on price or tier or both (price will have the priority).
-        Well return a list of items if amount is greater than 1 (be careful with this)
+        :param price: limit on the price of the items
+        :param tier: limit on the tier of the items
+        :param locatons: a list/set is expected, we'll match it vs item.location field.
+        :param amount: the number of items to return
+        :returns: list of items
         """
-        if isinstance(types, basestring) and types != "all":
+        if isinstance(types, basestring):
             types = [types]
 
         if locations is not None:
@@ -354,7 +354,7 @@ init -11 python:
                 if locations.isdisjoint(item.locations):
                     continue
 
-            if types == "all" or item.type in types:
+            if types is None or item.type in types:
                 picked.append(item)
                 continue
 
@@ -378,7 +378,5 @@ init -11 python:
                     picked.append(item)
                     continue
 
-        choices = []
-        for i in picked:
-            choices.append([i, i.chance])
-        return weighted_sample(choices, amount)
+        picked = [(i, i.chance) for i in picked]
+        return weighted_list(picked, amount)

@@ -193,12 +193,12 @@ screen beach_competition_event(competitors, event_type):
             $ value0 = max(1, char0.get_stat("agility"))
             $ value1 = max(1, char1.get_stat("agility"))
             if not (.8 < abs(value0/float(value1)) < 1.25) or dice(80):
-                $ winner = weighted_sample([[char0, value0], [char1, value1]])
+                $ winner = weighted_choice([(char0, value0), (char1, value1)])
         elif event_type == "magic":
             $ value0 = max(1, char0.get_stat("magic"))
             $ value1 = max(1, char1.get_stat("magic")) 
             if not (.8 < abs(value0/float(value1)) < 1.25) or dice(40):
-                $ winner = weighted_sample([[char0, value0], [char1, value1]])
+                $ winner = weighted_choice([(char0, value0), (char1, value1)])
         if winner is None:
             if event_type != "swimsuit":
                 text "Draw" align (0.5, 0.9) size 20 color "tomato" outlines [(1, "#3a3a3a", 0, 0)]

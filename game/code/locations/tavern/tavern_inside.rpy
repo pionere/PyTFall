@@ -18,7 +18,7 @@ label tavern_town:
     if global_flags.has_flag('visited_tavern'):
         if global_flags.flag("tavern_status")[0] != day: # every day tavern can randomly have one of three statuses, depending on the status it has very different activities available
             $ global_flags.set_flag("tavern_status", value=[day, 
-                                    weighted_sample([["cozy", 40], ["lively", 40], ["brawl", 20]])])
+                                    weighted_choice([["cozy", 40], ["lively", 40], ["brawl", 20]])])
     else:
         $ global_flags.set_flag('visited_tavern')
         $ global_flags.set_flag("city_tavern_dice_bet", 5) # default dice bet

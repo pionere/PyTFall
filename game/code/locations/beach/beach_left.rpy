@@ -369,8 +369,8 @@ label mc_action_beach_start_fishing:
                 $ exit_string = "This is tiring, back to the beach!"
                 jump end_fishing 
                    
-            $ item = weighted_sample(loots)
-            if not item:
+            $ item = weighted_choice(loots)
+            if item is None:
                 $ exit_string = "Damn' it got away..."
                 jump end_fishing
 

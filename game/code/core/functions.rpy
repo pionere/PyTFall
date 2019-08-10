@@ -77,7 +77,12 @@ init -11 python:
     # ---------------------- Game related:
     # Assists:
     # Function are not named according to PEP8 because we'll be using the living shit out of them in the game:
-    def weighted_sample(choices, amount=1):
+    def weighted_choice(choices):
+        """
+        Select a single element from the choices.
+        :param choices: the weighted list of choices
+        :returns: the selected element
+        """
         values, weights = zip(*choices)
         total = 0
         cum_weights = []
@@ -86,14 +91,92 @@ init -11 python:
             cum_weights.append(total)
         if total <= 0:
             return None
-        result = []
+
+        x = random.random() * total
+        x = bisect.bisect(cum_weights, x)
+        return values[x]
+
+    def weighted_sample(choices, amount):
+        """
+        Select amount number of unique elements from the choices.
+        :param choices: the weighted list of choices
+        :param amount: the number of elements to select. Must be lower or equal than the number of the choices.
+        :returns: the list of selected elements
+        """
+        if amount == 0:
+            return []
+        total = sum(c[1] for c in choices)
+        result = [None] * amount
+        bkp = [None] * amount
+        for i in xrange(amount):
+            x = random.random() * total
+            for c in choices:
+                v = c[1]
+                x -= v
+                if x < 0:
+                    result[i] = c
+                    bkp[i] = v
+                    total -= v
+                    c[1] = 0
+                    break
+        # restore choices
+        for c, v in zip(result, bkp):
+            c[1] = v
+        return [c[0] for c in result]
+
+        """        
+        values = []
+        cum_weights = []
+        total = 0
+        for v, w in choices:
+            values.append(v)
+            total += w
+            cum_weights.append(total)
+        if total <= 0:
+            return None
+        result = [None] * amount
+        while 1:
+            x = random.random() * total
+            x = bisect.bisect(cum_weights, x)
+            amount -= 1
+            result[amount] = values[x]
+            if amount == 0:
+                break
+            d = cum_weights[x]
+            if x != 0:
+                d -= cum_weights[x-1]
+            total -= d
+            del cum_weights[x]
+            del values[x]
+            for i, v in enumerate(cum_weights):
+                if i >= x:
+                    cum_weights[i] -= d
+
+        return result
+        """
+
+    def weighted_list(choices, amount):
+        """
+        Select amount number of non-unique elements from the choices.
+        :param choices: the weighted list of choices
+        :param amount: the number of elements to select
+        :returns: the list of selected elements
+        """
+        if amount == 0:
+            return []
+        values, weights = zip(*choices)
+        total = 0
+        cum_weights = []
+        for w in weights:
+            total += w
+            cum_weights.append(total)
+        if total <= 0:
+            return []
+        result = [None] * amount
         for i in xrange(amount):
             x = random.random() * total
             x = bisect.bisect(cum_weights, x)
-            x = values[x]
-            result.append(x)
-        if amount == 1:
-            return result[0] 
+            result[i] = values[x]
         return result
 
     def plural(string, amount):

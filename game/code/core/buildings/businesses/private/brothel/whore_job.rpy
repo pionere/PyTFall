@@ -914,7 +914,7 @@ init -5 python:
                         acts.append((idx, t.get("dice", 100)))
 
             if acts:
-                act = weighted_sample(acts)
+                act = weighted_choice(acts)
             else:
                 act = None
 
