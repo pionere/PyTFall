@@ -62,8 +62,8 @@ label special_items_slime_bottle:
                 ns "AAAAGHHHHHH!"
                 "[new_slime.pC] attacks you!"
 
-                $ new_slime.front_row = 1
-                $ enemy_team = Team(name="Enemy Team", max_size=3)
+                #$ new_slime.front_row = 1
+                $ enemy_team = Team(name="Enemy Team")
                 $ enemy_team.add(new_slime)
                 $ result = run_default_be(enemy_team, background="b_dungeon_1", end_background="h_profile",
                                           track="random", prebattle=True)

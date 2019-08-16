@@ -194,9 +194,8 @@ init -10 python:
             self.calc_upkeep()
 
     class Team(_object):
-        def __init__(self, name="", implicit=None, max_size=3):
+        def __init__(self, name="", implicit=None):
             self.name = name
-            self.max_size = max_size
             self._members = list()
 
             # BE Assets:
@@ -236,14 +235,7 @@ init -10 python:
             return self.name
 
         def add(self, member):
-            mems = self._members
-            if len(mems) >= self.max_size:
-                renpy.notify("Team %s cannot have more than %s members!" % (self.name, self.max_size))
-            elif member in mems:
-                renpy.notify("Impossible to join the same team twice")
-            else:
-                mems.append(member)
-                return True
+            self._members.append(member)
 
         def remove(self, member):
             self._members.remove(member)

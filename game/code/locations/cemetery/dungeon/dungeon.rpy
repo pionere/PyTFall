@@ -225,7 +225,7 @@ init -1 python:
         def combat(mob_id, sound=None):
             len_ht = len(hero.team)
 
-            enemy_team = Team(name="Enemy Team", max_size=3)
+            enemy_team = Team(name="Enemy Team")
             min_lvl = max(hero.team.get_level()-5, mobs[mob_id]["min_lvl"])
             for i in range(min(3, len_ht+randint(0, 1))):
                 mob = build_mob(id=mob_id, level=randint(min_lvl, min_lvl+10))

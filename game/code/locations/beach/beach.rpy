@@ -200,12 +200,12 @@ label city_beach_monsters_fight:
     hide screen city_beach
     hide screen city_beach_swim
 
-    $ enemy_team = Team(name="Enemy Team", max_size=3)
+    $ enemy_team = Team(name="Enemy Team")
     python hide:
         min_lvl = mobs["Skyfish"]["min_lvl"]
         for i in range(randint(2, 3)):
             mob = build_mob(id="Skyfish", level=randint(min_lvl, min_lvl+10))
-            mob.front_row = 1
+            #mob.front_row = 1
             enemy_team.add(mob)
 
     $ result = iam.select_background_for_fight("beach")

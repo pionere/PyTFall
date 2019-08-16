@@ -267,14 +267,14 @@ init -5 python:
 
                 # Note: We could draw from client pool in the future, for now,
                 # we'll just generate offenders.
-                enemy_team = Team(name="Hooligans", max_size=enemies)
+                enemy_team = Team(name="Hooligans")
                 for e in range(enemies):
                     # Tier + 2.0 cause we don't give them any items so it's a brawl!
                     enemy = build_client(gender="male", rank=1,
                                      name="Hooligan", last_name=str(e+1),
                                      bt_group="Combatant", tier=building.tier+2.0)
                     enemy.init() # TODO temporary solution, run this in build_client if it is necessary somewhere else (e.g. the PP field)
-                    enemy.front_row = 1
+                    #enemy.front_row = 1
                     enemy.apply_trait("Fire")
                     enemy.controller = BE_AI()
                     enemy_team.add(enemy)

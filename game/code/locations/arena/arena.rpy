@@ -13,7 +13,7 @@ init -9 python:
         """
         PERMIT_REP = 5000    # the required arena reputation to buy an arena permit
         PERMIT_PRICE = 10000 # the price of an arena permit
-        EMPTY_TEAM = Team(max_size=0)
+        EMPTY_TEAM = Team()
         def __init__(self):
             super(Arena, self).__init__()
             # ----------------------------->
@@ -25,15 +25,15 @@ init -9 python:
             self.matches_2v2 = [[Arena.EMPTY_TEAM, Arena.EMPTY_TEAM, 0] for i in xrange(8)]
             self.matches_3v3 = [[Arena.EMPTY_TEAM, Arena.EMPTY_TEAM, 0] for i in xrange(8)]
             # 'Scheduled' dogfights:
-            self.dogfights_1v1 = list()
+            self.dogfights_1v1 = list() # list of teams
             self.dogfights_2v2 = list()
             self.dogfights_3v3 = list()
             # Ladders and their team members.
             #  The separate list is necessary because a team can be changed.
             #  At the moment only the hero-teams can change, so the initial team members are not copied. 
-            self.ladder_1v1 = [Team(max_size=1) for i in xrange(20)]
-            self.ladder_2v2 = [Team(max_size=2) for i in xrange(10)]
-            self.ladder_3v3 = [Team(max_size=3) for i in xrange(10)]
+            self.ladder_1v1 = [Team() for i in xrange(20)]
+            self.ladder_2v2 = [Team() for i in xrange(10)]
+            self.ladder_3v3 = [Team() for i in xrange(10)]
             self.ladder_1v1_members = [t.members for t in self.ladder_1v1]
             self.ladder_2v2_members = [t.members for t in self.ladder_2v2]
             self.ladder_3v3_members = [t.members for t in self.ladder_3v3]
@@ -47,7 +47,7 @@ init -9 python:
 
             # ND-Report
             self.df_count = 0
-            self.daily_match_results = []
+            self.daily_match_results = [] # list of (winner, loser) pairs
             self.daily_report = []
 
         # -------------------------- Sorting ---------------------------------------------------------->
@@ -195,7 +195,7 @@ init -9 python:
                     fl = weighted_sample([[f, f.arena_rep+1] for f in fl], amount*size)
 
                     for __ in xrange(amount):
-                        team = Team(name=get_team_name(), max_size=size)
+                        team = Team(name=get_team_name())
                         for __ in xrange(size):
                             f = fl.pop()
                             f.arena_active = True
@@ -224,7 +224,7 @@ init -9 python:
 
                 for f in source: 
                     f.arena_active = True
-                    team = Team(implicit=[f], max_size=1)
+                    team = Team(implicit=[f])
                     fights.append(team)
 
             # 2v2, 3v3
@@ -274,7 +274,7 @@ init -9 python:
                         teams.update((f, t) for s in self.matches_1v1 for t in (s[0], s[1]) for f in t)
                     t = teams.get(f, None)
                     if t is None:
-                        t = Team(implicit=[f], max_size=1)
+                        t = Team(implicit=[f])
                         teams[f] = t
                     setup[1] = t
                     setup[2] = fday
@@ -338,7 +338,7 @@ init -9 python:
                         teams.update((f, t) for s in self.matches_1v1 for t in (s[0], s[1]) for f in t)
                     t = teams.get(f, None)
                     if t is None:
-                        t = Team(implicit=[f], max_size=1)
+                        t = Team(implicit=[f])
                         teams[f] = t
                     setup[0] = t
 
@@ -509,7 +509,7 @@ init -9 python:
                 elif teamsize == 0:
                     raise Exception("Arena Team %s has no members at all!" % name)
 
-                a_team = Team(name=name, max_size=teamsize)
+                a_team = Team(name=name)
                 for member, tier in zip(members, tiers):
                     if member == "random_char":
                         member = build_rc(bt_group="Combatant",
@@ -714,13 +714,13 @@ init -9 python:
         def run_chainfight(self, setup, off_team, logical, nd_run=False):
             """Running a chainfight.
             """
+            num_opps = len(off_team)
             combat_log = []
             for encounter in xrange(1, 6):
                 combat_log.append("--------------- Round %d ---------------" % encounter)
 
                 # Picking an opponent(s):
-                num_opps = len(off_team)
-                enemy_team = Team(name=setup["id"], max_size=num_opps)
+                enemy_team = Team(name=setup["id"])
 
                 mob_level = setup["level"]
                 mob_level += mob_level*(.1*encounter)
@@ -984,7 +984,7 @@ init -9 python:
             """
             Create a shallow copy of the team to preserve the important team informations for today's report
             """ 
-            return Team(name=team.name, implicit=team.members, max_size=team.max_size)
+            return Team(name=team.name, implicit=team.members)
 
         def run_matchfight(self, def_team, off_team, logical, nd_run=False):
             """
@@ -1270,7 +1270,7 @@ init -9 python:
             dogfights = random.sample(dogfights, num)
 
             for def_team, off_team in zip(dogfights, opfor_pool):
-                off_team = Team(implicit=[off_team], max_size=1)
+                off_team = Team(implicit=[off_team])
                 self.run_dogfight(def_team, off_team, True, True)
 
             # 2v2:
@@ -1310,7 +1310,7 @@ init -9 python:
             opfor_pool = [f for f in self.get_arena_candidates() if self.ready_for_fight(f)]
             num = min(randint(4, 7), len(opfor_pool))
             for off_team in random.sample(opfor_pool, num):
-                off_team = Team(implicit=[off_team], max_size=1)
+                off_team = Team(implicit=[off_team])
                 self.nd_run_chainfight(off_team)
 
             # 2v2:

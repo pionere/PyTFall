@@ -745,6 +745,8 @@ label after_load:
 
         if not hasattr(hero, "teams"):
             hero.teams = [hero.team]
+        if hasattr(hero.team, "max_size"):
+            clearTeams = True
         if not hasattr(hero, "txt"):
             hero.txt = list()
 
@@ -1384,6 +1386,23 @@ label after_load:
                             fighter.stats.min["affection"] = -1000
                             fighter.stats.max["affection"] = 1000
                             fighter.stats.lvl_max["affection"] = 1000
+
+        if "clearTeams" in locals():
+            arena = pytfall.arena
+            all_teams = hero.teams + [t for m in arena.matches_1v1 for t in (m[0], m[1])]
+            all_teams += [t for m in arena.matches_2v2 for t in (m[0], m[1])]
+            all_teams += [t for m in arena.matches_3v3 for t in (m[0], m[1])]
+            all_teams += [t for m in arena.daily_match_results for t in (m[0], m[1])]
+            all_teams += arena.dogfights_1v1 + arena.dogfights_2v2 + arena.dogfights_3v3
+            all_teams += arena.ladder_1v1 + arena.ladder_2v2 + arena.ladder_3v3
+            all_teams += arena.dogteams_2v2 + arena.dogteams_3v3 + arena.matchteams_2v2 + arena.matchteams_3v3
+
+            for b in hero.get_guild_businesses():
+                all_teams += b.teams
+
+            for t in all_teams:
+                if hasattr(t, "max_size"):
+                    del t.max_size
 
     python hide:
         for obj in pytfall.__dict__.values():

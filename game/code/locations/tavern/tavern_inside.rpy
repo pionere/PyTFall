@@ -277,12 +277,12 @@ label mc_action_tavern_look_around: # various bonuses to theoretical skills for 
 label city_tavern_thugs_fight: # fight with random thugs in the brawl mode
     python hide:
         enemies = ["Thug", "Assassin", "Barbarian"]
-        enemy_team = Team(name="Enemy Team", max_size=3)
+        enemy_team = Team(name="Enemy Team")
         for j in range(randint(2, 3)):
             id = random.choice(enemies)
             min_lvl = mobs[id]["min_lvl"]
             mob = build_mob(id=id, level=randint(min_lvl, min_lvl+20))
-            mob.front_row = 1
+            #mob.front_row = 1
             enemy_team.add(mob)
         back = iam.select_background_for_fight("tavern")
         result = run_default_be(enemy_team, background=back, end_background="tavern_inside", skill_lvl=3,

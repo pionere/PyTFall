@@ -190,7 +190,7 @@ label city_dark_forest_hideout:
     jump forest_dark_continue
 
 label city_dark_forest_hideout_fight:
-    $ enemy_team = Team(name="Enemy Team", max_size=3)
+    $ enemy_team = Team(name="Enemy Team")
     python hide:
         for i in range(3):
             mob = choice(["Samurai", "Warrior", "Archer", "Soldier", "Barbarian", "Orc", "Infantryman", "Thug", "Mercenary", "Dark Elf Archer"])
@@ -214,7 +214,7 @@ label city_dark_forest_hideout_fight:
 label city_dark_forest_fight:
     $ forest_bg_change = False
 
-    $ enemy_team = Team(name="Enemy Team", max_size=3)
+    $ enemy_team = Team(name="Enemy Team")
     python hide:
         mob = choice(["slime", "were", "harpy", "goblin", "wolf", "bear",
                       "druid", "rat", "undead", "butterfly"])

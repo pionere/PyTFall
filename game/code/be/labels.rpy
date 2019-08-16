@@ -1,12 +1,11 @@
 label test_be:
     python:
         # Prepare the teams:
-        enemy_team = Team(name="Enemy Team", max_size=3)
+        enemy_team = Team(name="Enemy Team")
         for mob in ("Slime", "Blazing Star", "Blazing Star"):
-            if len(enemy_team) != 3:
-                mob = build_mob(id=mob, level=1)
-                mob.front_row = 1
-                enemy_team.add(mob)
+            mob = build_mob(id=mob, level=1)
+            mob.front_row = 1
+            enemy_team.add(mob)
 
         h = chars["Hinata"]
         if len(hero.team) != 3 and h not in hero.team:
@@ -52,7 +51,7 @@ label test_be_logical:
     $ tl.start("Logical BE Scenario with Setup!")
     python:
         # Prepear the teams:
-        enemy_team = Team(name="Enemy Team", max_size=3)
+        enemy_team = Team(name="Enemy Team")
         if len(enemy_team) != 3:
             mob = build_mob(id="Goblin Shaman", level=120)
             mob.front_row = 1

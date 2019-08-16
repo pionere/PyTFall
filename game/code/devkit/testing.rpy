@@ -72,7 +72,7 @@ init 1000 python:
         @staticmethod
         def testBEDirect():
             # Prepear the teams:
-            off_team = Team(name="Off Team", max_size=3)
+            off_team = Team(name="Off Team")
             mob = build_mob(id="Goblin Shaman", level=120)
             mob.front_row = 1
             off_team.add(mob)
@@ -81,7 +81,7 @@ init 1000 python:
             mob = build_mob(id="Goblin Archer", level=100)
             off_team.add(mob)
 
-            def_team = Team(name="Def Team", max_size=3)
+            def_team = Team(name="Def Team")
             mob = build_mob(id="Goblin Shaman", level=60)
             mob.front_row = 1
             def_team.add(mob)
@@ -112,8 +112,8 @@ init 1000 python:
             off_team = None
             for mob in mobs:
                 if off_team is None:
-                    off_team = Team(name="Off Team", max_size=3)
-                    def_team = Team(name="Def Team", max_size=3)
+                    off_team = Team(name="Off Team")
+                    def_team = Team(name="Def Team")
                 mob = build_mob(id=mob, level=100)
                 if len(off_team) < 3:
                     off_team.add(mob)
@@ -1148,6 +1148,357 @@ init 1000 python:
                         for f in ec_fields:
                             if hasattr(bs, f):
                                 TestSuite.reportError("Business %s in Building %s is not expandable, but has expansion-related field %s!" % (bs.name, b.name, f))
+
+        @staticmethod
+        def build_super_char(bt_list, tier=10):
+            c = build_rc(bt_list=bt_list, tier=10)
+            for i in items.values():
+                c.inventory.append(i)
+            initial_levelup(c, c.level, True)
+            restore_battle_stats(c)
+            c.auto_equip(c.last_known_aeq_purpose)
+            return c
+
+        @staticmethod
+        def gameArenaChain():
+            #global day, DEBUG_BE
+            #DEBUG_BE = False
+
+            a = pytfall.arena
+            acf = a.all_chain_fights
+            teams = []
+            """
+            t = Team(name="test")
+            for i in xrange(3):
+                c = build_rc(bt_group="Combatant", tier=10, give_bt_items=True)
+                t.add(c)
+            teams.append(t)
+            t = Team(name="testAWAWAS")
+            c = build_rc(bt_list=["Assassin", "Warrior"], tier=10, give_bt_items=True)
+            t.add(c)
+            c = build_rc(bt_list=["Assassin", "Warrior"], tier=10, give_bt_items=True)
+            t.add(c)
+            c = build_rc(bt_list=["Assassin", "Shooter"], tier=10, give_bt_items=True)
+            t.add(c)
+            teams.append(t)
+
+            t = Team(name="testAWAWAM")
+            c = build_rc(bt_list=["Assassin", "Warrior"], tier=10, give_bt_items=True)
+            t.add(c)
+            c = build_rc(bt_list=["Assassin", "Warrior"], tier=10, give_bt_items=True)
+            t.add(c)
+            c = build_rc(bt_list=["Assassin", "Mage"], tier=10, give_bt_items=True)
+            t.add(c)
+            teams.append(t)
+
+            t = Team(name="testAWAWM")
+            c = build_rc(bt_list=["Assassin", "Warrior"], tier=10, give_bt_items=True)
+            t.add(c)
+            c = build_rc(bt_list=["Assassin", "Warrior"], tier=10, give_bt_items=True)
+            t.add(c)
+            c = build_rc(bt_list=["Mage"], tier=10, give_bt_items=True)
+            t.add(c)
+            teams.append(t)
+
+            t = Team(name="testAW")
+            c = build_rc(bt_list=["Assassin", "Warrior"], tier=10, give_bt_items=True)
+            t.add(c)
+            teams.append(t)
+            t = Team(name="testAM")
+            c = build_rc(bt_list=["Assassin", "Mage"], tier=10, give_bt_items=True)
+            t.add(c)
+            teams.append(t)
+
+            t = Team(name="testAWMM")
+            c = build_rc(bt_list=["Assassin", "Warrior"], tier=10, give_bt_items=True)
+            t.add(c)
+            c = build_rc(bt_list=["Mage"], tier=10, give_bt_items=True)
+            t.add(c)
+            c = build_rc(bt_list=["Mage"], tier=10, give_bt_items=True)
+            t.add(c)
+            teams.append(t)
+
+            t = Team(name="testAWHMM")
+            c = build_rc(bt_list=["Assassin", "Warrior"], tier=10, give_bt_items=True)
+            t.add(c)
+            c = build_rc(bt_list=["Healer", "Mage"], tier=10, give_bt_items=True)
+            t.add(c)
+            c = build_rc(bt_list=["Mage"], tier=10, give_bt_items=True)
+            t.add(c)
+            teams.append(t)
+
+            t = Team(name="testAWASM")
+            c = build_rc(bt_list=["Assassin", "Warrior"], tier=10, give_bt_items=True)
+            t.add(c)
+            c = build_rc(bt_list=["Assassin", "Shooter"], tier=10, give_bt_items=True)
+            t.add(c)
+            c = build_rc(bt_list=["Mage"], tier=10, give_bt_items=True)
+            t.add(c)
+            teams.append(t)
+
+            t = Team(name="testAW")
+            c = TestSuite.build_super_char(bt_list=["Assassin", "Warrior"])
+            t.add(c)
+            teams.append(t)
+            t = Team(name="testAM")
+            c = TestSuite.build_super_char(bt_list=["Assassin", "Mage"])
+            t.add(c)
+            teams.append(t)
+
+            t = Team(name="testAWMM")
+            c = TestSuite.build_super_char(bt_list=["Assassin", "Warrior"])
+            t.add(c)
+            c = TestSuite.build_super_char(bt_list=["Mage"])
+            t.add(c)
+            c = TestSuite.build_super_char(bt_list=["Mage"])
+            t.add(c)
+            teams.append(t)
+            t = Team(name="testAWHMM")
+            c = TestSuite.build_super_char(bt_list=["Assassin", "Warrior"])
+            t.add(c)
+            c = TestSuite.build_super_char(bt_list=["Healer", "Mage"])
+            t.add(c)
+            c = TestSuite.build_super_char(bt_list=["Mage"])
+            t.add(c)
+            teams.append(t)
+
+            t = Team(name="testAWASM")
+            c = TestSuite.build_super_char(bt_list=["Assassin", "Warrior"])
+            t.add(c)
+            c = TestSuite.build_super_char(bt_list=["Assassin", "Shooter"])
+            t.add(c)
+            c = TestSuite.build_super_char(bt_list=["Mage"])
+            t.add(c)
+            teams.append(t)
+
+            t = Team(name="testAWASH")
+            c = TestSuite.build_super_char(bt_list=["Assassin", "Warrior"])
+            t.add(c)
+            c = TestSuite.build_super_char(bt_list=["Assassin", "Shooter"])
+            t.add(c)
+            c = TestSuite.build_super_char(bt_list=["Healer"])
+            t.add(c)
+            teams.append(t)
+            """
+            t = Team(name="testAWHMHM")
+            c = TestSuite.build_super_char(bt_list=["Assassin", "Warrior"])
+            t.add(c)
+            c = TestSuite.build_super_char(bt_list=["Healer", "Mage"])
+            t.add(c)
+            c = TestSuite.build_super_char(bt_list=["Healer", "Mage"])
+            t.add(c)
+            teams.append(t)
+
+            t = Team(name="testAWHM")
+            c = TestSuite.build_super_char(bt_list=["Assassin", "Warrior"])
+            t.add(c)
+            c = TestSuite.build_super_char(bt_list=["Healer"])
+            t.add(c)
+            c = TestSuite.build_super_char(bt_list=["Mage"])
+            t.add(c)
+            teams.append(t)
+
+            t = Team(name="testAWHH")
+            c = TestSuite.build_super_char(bt_list=["Assassin", "Warrior"])
+            t.add(c)
+            c = TestSuite.build_super_char(bt_list=["Healer"])
+            t.add(c)
+            c = TestSuite.build_super_char(bt_list=["Healer"])
+            t.add(c)
+            teams.append(t)
+
+            t = Team(name="testAWMM")
+            c = TestSuite.build_super_char(bt_list=["Assassin", "Warrior"])
+            t.add(c)
+            c = TestSuite.build_super_char(bt_list=["Mage"])
+            t.add(c)
+            c = TestSuite.build_super_char(bt_list=["Mage"])
+            t.add(c)
+            teams.append(t)
+
+            t = Team(name="testAWHMM")
+            c = TestSuite.build_super_char(bt_list=["Assassin", "Warrior"])
+            t.add(c)
+            c = TestSuite.build_super_char(bt_list=["Healer", "Mage"])
+            t.add(c)
+            c = TestSuite.build_super_char(bt_list=["Mage"])
+            t.add(c)
+            teams.append(t)
+
+            t = Team(name="testAWHMH")
+            c = TestSuite.build_super_char(bt_list=["Assassin", "Warrior"])
+            t.add(c)
+            c = TestSuite.build_super_char(bt_list=["Healer", "Mage"])
+            t.add(c)
+            c = TestSuite.build_super_char(bt_list=["Healer"])
+            t.add(c)
+            teams.append(t)
+
+            for t in teams:
+                temp = len(t)
+                flag_name = "arena_cf_%d" % temp
+                fail_flag_name = "arena_cf_bad_%d" % temp
+                success_name = "arena_cf_good_%d" % temp
+                
+                for i in xrange(120):
+                    a.nd_run_chainfight(t)
+                    flagval = t.leader.flag(flag_name)
+                    lvl = flagval/5
+                    name = acf[lvl]["id"]
+                    devlog.warn("%s Round %d: level: %s (flag:%s id: %s), success: %s, fails: (%s)." % (t.name, i, lvl, flagval, name,
+                                    t.leader.get_flag(success_name, None),
+                                    ", ".join(["%d: %d"% (l, f) for l, f in t.leader.get_flag(fail_flag_name, {}).iteritems()])))
+                    for f in t:
+                        restore_battle_stats(f)
+
+        @staticmethod
+        def gameArena(num, debug=False):
+            global day, DEBUG, DEBUG_LOG, DEBUG_PROFILING
+            if debug:
+                DEBUG = DEBUG_LOG = DEBUG_PROFILING = False
+
+            a = pytfall.arena
+            all_chars = chars.values() + fighters.values()
+            for i in xrange(num):
+                td = [t for t in chain(a.dogteams_2v2, a.dogteams_3v3)]
+                tm = [t for t in chain(a.matchteams_2v2, a.matchteams_3v3)]
+                a.next_day()
+                if debug:
+                    for t in td:
+                        if t not in a.dogteams_2v2 and t not in a.dogteams_3v3:
+                            devlog.warn("Team %s dropped from the dogs." % t.name)
+
+                    for t in tm:
+                        if t not in a.matchteams_2v2 and t not in a.matchteams_3v3:
+                            devlog.warn("Team %s dropped from the matches." % t.name)
+
+                for c in all_chars:
+                    t = c.arena_permit
+                    c.next_day()
+                    if debug and c.arena_permit != t:
+                        if t:
+                            TestSuite.reportError("%s lost the arena permit. %s" % (c.fullname, c.arena_rep))
+                        else:
+                            TestSuite.reportError("%s bought an arena permit. %s" % (c.fullname, c.arena_rep))
+
+                for c in all_chars:
+                    for d in c.fighting_days:
+                        if d < day:
+                            TestSuite.reportError("%s has an obsolete entry in fighting_days: %s" % (c.fullname, d))
+
+                    if not c.arena_active:
+                        continue
+
+                    if not c.arena_willing:
+                        TestSuite.reportError("%s is arena active, but not willing!" % c.fullname)
+
+                    if c.arena_permit and c.arena_rep < Arena.PERMIT_REP/2:
+                        TestSuite.reportError("%s still has an arena permit, but lacks arena_rep: %d" % (c.fullname, c.arena_rep))
+
+                    for stat in ("health", "mp", "vitality"): # BATTLE_STATS
+                        if c.get_stat(stat) != c.get_max(stat):
+                            TestSuite.reportError("%s - while arena active - does not have maxed out stats(%s: %s vs %s)." % (c.fullname, stat, c.get_stat(stat), c.get_max(stat)))
+
+                for t in chain(a.dogteams_2v2, a.dogteams_3v3):
+                    mems = set()
+                    for c in t:
+                        if c not in all_chars:
+                            TestSuite.reportError("%s is registered in the arena dog team %s, but not a known char." % (c.fullname, t.name))
+                        if c in mems:
+                            TestSuite.reportError("%s is twice in arena dog team %s!" % (c.fullname, t.name))
+                        mems.add(c)
+
+                for t in chain(a.matchteams_2v2, a.matchteams_3v3):
+                    mems = set()
+                    for c in t:
+                        if c not in all_chars:
+                            TestSuite.reportError("%s is registered in the arena match team %s, but not a known char." % (c.fullname, t.name))
+                        if not c.arena_permit:
+                            TestSuite.reportError("%s is registered in the arena match team %s, but does not have a permit!" % (c.fullname, t.name))
+                        if c in mems:
+                            TestSuite.reportError("%s is twice in arena match team %s!" % (c.fullname, t.name))
+                        mems.add(c)
+
+                temp = defaultdict(set)
+                for t in chain(a.dogteams_2v2, a.dogteams_3v3, a.matchteams_2v2, a.matchteams_3v3):
+                    for c in t:
+                        teams = temp[c]
+                        for x in teams:
+                            if len(x) == len(t) and x is not t:
+                                TestSuite.reportError("%s is registered in two %s sized arena teams (%s and %s)!" % (c.fullname, len(t), t.name, x.name))
+                        teams.add(t)
+
+                for setup in (a.matches_1v1, a.matches_2v2, a.matches_3v3):
+                    t = setup[0]
+                    if t is setup[1]:
+                        TestSuite.reportError("Team %s (%s) is fighting against self!" % (t.gui_name, len(t)))
+    
+                singles = dict()
+                for setup in a.matches_1v1:
+                    for t in (setup[0], setup[1]):
+                        if t:
+                            c = t.leader
+                            team = singles.get(c, None)
+                            if team is not None and team is not t:
+                                TestSuite.reportError("%s is registered with two 'team's in matches 1v1!" % c.fullname)
+                            singles[c] = team
+                temp = set()
+                for t in a.ladder_1v1:
+                    c = t.leader
+                    if c in temp:
+                        TestSuite.reportError("%s is twice on the ladder 1v1!" % c.fullname)
+                    team = singles.get(c, None)
+                    if team is not None and team is not t:
+                        TestSuite.reportError("%s is in the ladder in a different team as registered in matches 1v1!" % c.fullname)
+                    temp.add(c)
+                temp = set()
+                for t in a.ladder_2v2:
+                    if t in temp:
+                        TestSuite.reportError("%s is twice on the ladder 2v2!" % t.name)
+                    temp.add(t)
+                temp = set()
+                for t in a.ladder_3v3:
+                    if t in temp:
+                        TestSuite.reportError("%s is twice on the ladder 3v3!" % t.name)
+                    temp.add(t)
+
+                for size, ladder in enumerate(((a.ladder_1v1, a.ladder_1v1_members), (a.ladder_2v2, a.ladder_2v2_members), (a.ladder_3v3, a.ladder_3v3_members)), 1):
+                    for t, m in zip(*ladder):
+                        if len(t) != len(m):
+                            if t.leader.employer != hero:
+                                TestSuite.reportError("Mismatching team-size (%s) and members count (%s) of %s in the ladder and they are not employed by the hero!" % (len(t), len(m), t.name))
+                        if len(m) != size:
+                            TestSuite.reportError("Mismatching ladder-size (%s) and members count (%s) of %s!" % (size, len(m), t.name))
+
+                for idx, m in enumerate([a.matches_1v1, a.matches_2v2, a.matches_3v3], 1):
+                    for s in m:
+                        if not s[1]:
+                            TestSuite.reportError("Missing candidate for match %d of matches_%d." % (m.index(s), idx))
+
+                if debug:
+                    devlog.warn("Daily Statistics of the Arena (%s)" % day)
+                    devlog.warn(" - Chains - Max5: %s, %s, %s - Max: %s, %s, %s - Fails - VMax: %s, %s, %s - Max: %s, %s, %s" %
+                               (max(f for f in (c.get_flag("arena_chain_fight_level_1", 0) for c in all_chars) if f%5 != 0), max(f for f in (c.get_flag("arena_chain_fight_level_2", 0) for c in all_chars) if f%5 != 0), max(f for f in (c.get_flag("arena_chain_fight_level_3", 0) for c in all_chars) if f%5 != 0),
+                                max(c.get_flag("arena_chain_fight_level_1", 0) for c in all_chars), max(c.get_flag("arena_chain_fight_level_2", 0) for c in all_chars), max(c.get_flag("arena_chain_fight_level_3", 0) for c in all_chars),
+                                max(max(c.get_flag("arena_chain_fight_level_failed_1", {0: 0}).values()) for c in all_chars), max(max(c.get_flag("arena_chain_fight_level_failed_2", {0:0}).values()) for c in all_chars), max(max(c.get_flag("arena_chain_fight_level_failed_3", {0:0}).values()) for c in all_chars),
+                                max(max(c.get_flag("arena_chain_fight_level_failed_1", [0])) for c in all_chars), max(max(c.get_flag("arena_chain_fight_level_failed_2", [0])) for c in all_chars), max(max(c.get_flag("arena_chain_fight_level_failed_3", [0])) for c in all_chars)))
+                    devlog.warn(" - Matches: %s/%s, %s/%s, %s/%s - Dogs: %s, %s, %s - DT: %s, %s - MT: %s, %s" % (
+                            len([s for s in a.matches_1v1 if s[1]]), len([s for s in a.matches_1v1 if s[2] == day+1 and s[1]]),
+                            len([s for s in a.matches_2v2 if s[1]]), len([s for s in a.matches_2v2 if s[2] == day+1 and s[1]]),
+                            len([s for s in a.matches_3v3 if s[1]]), len([s for s in a.matches_3v3 if s[2] == day+1 and s[1]]),
+                            len(a.dogfights_1v1), len(a.dogfights_2v2), len(a.dogfights_3v3),
+                            len(a.dogteams_2v2), len(a.dogteams_3v3), len(a.matchteams_2v2), len(a.matchteams_3v3)))
+                    devlog.warn(" - Ladder: %s - Tops: %s, %s, %s, %s - Bottoms: %s, %s, %s, %s - Min: %s, %s, %s - Max: %s, %s, %s" % (len(a.ladder),
+                            a.ladder[0].arena_rep, a.ladder_1v1[0].get_rep(), a.ladder_2v2[0].get_rep(), a.ladder_3v3[0].get_rep(),
+                            a.ladder[-1].arena_rep, a.ladder_1v1[-1].get_rep(), a.ladder_2v2[-1].get_rep(), a.ladder_3v3[-1].get_rep(),
+                            min(c.arena_rep for c in all_chars if c.arena_active), min(t.get_rep() for t in chain(a.matchteams_2v2, a.dogteams_2v2)),
+                            min(t.get_rep() for t in chain(a.dogteams_3v3, a.matchteams_3v3)),
+                            max(c.arena_rep for c in all_chars if c.arena_active), max(t.get_rep() for t in chain(a.matchteams_2v2, a.dogteams_2v2)),
+                            max(t.get_rep() for t in chain(a.dogteams_3v3, a.matchteams_3v3))))
+                    devlog.warn(" - King: %s (Rep: %s, Exp: %s) - Leaders: %s, %s, %s, %s" % (a.king.fullname, a.king.arena_rep, a.king.exp, a.ladder[0].fullname, a.ladder_1v1[0].gui_name, a.ladder_2v2[0].name, a.ladder_3v3[0].name))
+                    devlog.warn(" TOTAL Rep: %s, Exp: %s - %s" % (sum(c.arena_rep for c in all_chars if c.arena_active), sum(c.exp for c in all_chars if c.arena_active), sum(c.exp for c in fighters.values()))) 
+
+                day += 1
 
         @staticmethod
         def loadBuilding(tier=2, op=False, adverts=[], auto_clean=100, auto_guard=0, business=None, businesses={}, workers=[], stats=[]):

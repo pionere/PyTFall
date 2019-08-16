@@ -221,7 +221,7 @@ screen char_profile():
                     idle img
                     hover img
                     action Show("popup_info", content="trait_info_content", param=trait)
-                    tooltip "{}".format("\n".join([trait.id, trait.desc]))
+                    tooltip "\n".join([trait.id, trait.desc])
 
                 add Transform("content/gfx/frame/base_frame.webp", alpha=.9, size=(330, 126)):
                     xoffset -5
@@ -264,7 +264,7 @@ screen char_profile():
                             margin 0, 0
                             action Show("popup_info", content="show_trait_info_content", param=trait)
                             text trait.id idle_color "gold" align .5, .5 hover_color "crimson" size 18 outlines [(2, "#3a3a3a", 0, 0)]
-                            tooltip "%s" % trait.desc
+                            tooltip trait.desc
 
                 if check_lovers(char):
                     $ img = PyTGFX.scale_img("content/gfx/interface/icons/heartbeat.png", 30, 30)
@@ -311,7 +311,7 @@ screen char_profile():
                                 action NullAction()
                                 tooltip "%s is a free citizen and decides on where to live at!" % char.nickname
                             sensitive char_is_controlled
-                            text "[char.home]" size 18
+                            text str(char.home) size 18
                     hbox:
                         add circle_green yalign 0.5 xoffset -2
                         fixed:
@@ -324,39 +324,39 @@ screen char_profile():
                             action Return(["dropdown", "workplace", char])
                             sensitive char_is_controlled
                             tooltip "Choose a place for %s to work at!" % char.nickname
-                            text "[char.workplace]" size 18
+                            text str(char.workplace) size 18
                     hbox:
                         add circle_green yalign 0.5 xoffset -2
                         fixed:
                             xysize 45, 18
                             yalign .5
                             text "Action:" color "ivory" yalign .5 size 18
-                        $ temp = action_str(char)
                         button:
                             style_group "ddlist"
                             xalign .0
                             action Return(["dropdown", "action", char])
                             sensitive char_is_controlled
                             tooltip "Choose a task for %s to do!" % char.nickname
-                            text temp size 18
+                            text action_str(char) size 18
 
             hbox:
                 pos (10, 200)
                 if char_is_controlled:
-                    if char in hero.team:
+                    $ temp = hero.team
+                    if char in temp:
                         $ img = im.Scale("content/gfx/interface/buttons/RG.png", 27, 30)
                         imagebutton:
                             idle img
                             hover PyTGFX.bright_img(img, .15)
-                            action Function(hero.team.remove, char)
-                            tooltip "Remove {} from your team".format(char.nickname)
+                            action Function(temp.remove, char)
+                            tooltip "Remove %s from your team" % char.nickname
                     else:
                         $ img = im.Scale("content/gfx/interface/buttons/AG.png", 27, 30)
                         imagebutton:
                             idle img
                             hover PyTGFX.bright_img(img, .15)
-                            action If(len(hero.team) < 3, true=Function(hero.team.add, char), false=Show("message_screen", msg="Team cannot have more than three members"))
-                            tooltip "Add {} to your team".format(char.nickname) 
+                            action If(len(temp) < 3, true=Function(temp.add, char), false=Function(PyTGFX.message, "Team cannot have more than three members!"))
+                            tooltip "Add %s to your team" % char.nickname 
             hbox:
                 style_group "basic"
                 xalign .5 ypos 200

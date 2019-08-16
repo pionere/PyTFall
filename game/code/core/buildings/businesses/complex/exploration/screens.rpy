@@ -1003,7 +1003,7 @@ screen building_management_midframe_teambuilder:
                 if not ExplorationGuild.battle_ready(w):
                     $ img = PyTGFX.sepia_content(img)
                 drag:
-                    dragged dragged
+                    dragged ExplorationGuild.dragged
                     droppable 0
                     draggable idle_t
                     #tooltip "%s\nClick to check equipment\nDrag And Drop to remove from team" % w.fullname
@@ -1096,7 +1096,7 @@ screen building_management_midframe_teambuilder:
         for w in workers.page_content():
             $ w.set_flag("dnd_drag_container", workers)
             drag:
-                dragged dragged
+                dragged ExplorationGuild.dragged
                 droppable 0
                 #tooltip "%s\nClick to check equipment\nDrag And Drop to build teams" % w.fullname
                 tooltip "%s\nDrag And Drop to build teams" % w.fullname

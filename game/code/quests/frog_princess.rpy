@@ -251,7 +251,7 @@ label frog_deathfight:
 
     ax "Well, I hope that you're ready! Best of luck!"
     python hide:
-        enemy_team = Team(name="Enemy Team", max_size=3)
+        enemy_team = Team(name="Enemy Team")
         mob = build_mob("Goblin Warrior", level=50)
         enemy_team.add(mob)
 

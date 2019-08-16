@@ -181,13 +181,12 @@ label storyi_bossroom:
         linear 4 zoom 2.5
     extend " You prepare for a fight!"
     python:
-        enemy_team = Team(name="Enemy Team", max_size=3)
         mob = build_mob(id="Blazing Star", level=25)
         mob.stats.mod_raw_max("health", 500)
         mob.mod_stat("health", 500)
         mob.stats.mod_raw_max("mp", 100)
         mob.mod_stat("mp", 100)
-        enemy_team.add(mob)
+        enemy_team = Team(name="Enemy Team", implicit=[mob])
         del mob
         result = "content/gfx/bg/story/p_b.webp"
         result = run_default_be(enemy_team, background="content/gfx/bg/story/p_b.webp", end_background=result,
@@ -233,7 +232,7 @@ label storyi_randomfight:  # initiates fight with random enemy team
     $ fight_chance = 10
 
     python:
-        enemy_team = Team(name="Enemy Team", max_size=3)
+        enemy_team = Team(name="Enemy Team")
         mobs = storyi_loc_map[storyi_prison_location]["mobs"]
         for j in range(randint(1, 3)):
             mob = build_mob(id=random.choice(mobs), level=15)

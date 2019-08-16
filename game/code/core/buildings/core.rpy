@@ -129,7 +129,7 @@ init -10 python:
             self.inhabitants.remove(char)
 
         def __str__(self):
-            return str(getattr(self, "name", self.id))
+            return self.id
 
     class AfterLife(HabitableLocation):
         """
@@ -181,9 +181,10 @@ init -10 python:
             self.txt = ""
 
         def __str__(self):
-            if self.name:
-                return str(self.name)
-            return super(BaseBuilding, self).__str__()
+            txt = self.name
+            if txt is None:
+                txt = super(BaseBuilding, self).__str__()
+            return txt
 
     class Building(BaseBuilding):
         """

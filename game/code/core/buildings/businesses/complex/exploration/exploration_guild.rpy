@@ -476,6 +476,34 @@ init -6 python: # Guild, Tracker and Log.
             """
             return char.employer == hero and char.is_available
 
+        @staticmethod
+        def dragged(drags, drop):
+            # Simple func we use to manage drag and drop in team setups and maybe more in the future.
+            drag = drags[0]
+            x, y = drag.old_position[0], drag.old_position[1]
+
+            if not drop:
+                drag.snap(x, y, delay=.2)
+                return
+
+            item = drag.drag_name
+            src_container = item.get_flag("dnd_drag_container")
+            dest_container = drop.drag_name
+            if dest_container == src_container:
+                drag.snap(x, y, delay=.2)
+                return
+
+            if isinstance(dest_container, Team) and len(dest_container) >= 3:
+                PyTGFX.message("Team cannot have more than three members!")
+                drag.snap(x, y, delay=.4)
+                return
+
+            dest_container.add(item)
+            src_container.remove(item)
+            drag.snap(x, y)
+            drag.unfocus()
+            return True
+
         # Teams control/sorting/grouping methods:
         def new_team(self, name):
             t = Team(name=name)
@@ -1234,7 +1262,7 @@ init -6 python: # Guild, Tracker and Log.
             # log is the Exploration Log object we add be reports to!
             # Do we really need to pass team size to this method instead of figuring everything out here?
             team = tracker.team
-            enemy_team = Team(name="Enemy Team", max_size=enemy_team_size)
+            enemy_team = Team(name="Enemy Team")
 
             if DEBUG_SE:
                 msg = "{} is stating a battle scenario.".format(team.name)

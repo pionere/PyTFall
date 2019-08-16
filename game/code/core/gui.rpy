@@ -215,7 +215,6 @@ init -1 python:
             if item not in self.all_content:
                 self.all_content.append(item)
                 self.pager_content.append(item)
-                return True
 
         def remove(self, item):
             if item in self.all_content:
@@ -225,28 +224,3 @@ init -1 python:
 
     class CoordsForPaging(_object):
         pass # FIXME obsolete
-
-    def dragged(drags, drop):
-        # Simple func we use to manage drag and drop in team setups and maybe more in the future.
-        drag = drags[0]
-        x, y = drag.old_position[0], drag.old_position[1]
-
-        if not drop:
-            drag.snap(x, y, delay=.2)
-            return
-
-        item = drag.drag_name
-        src_container = item.get_flag("dnd_drag_container")
-        dest_container = drop.drag_name
-        if dest_container == src_container:
-            drag.snap(x, y, delay=.2)
-            return
-
-        if not dest_container.add(item):
-            drag.snap(x, y, delay=.4)
-            return
-
-        src_container.remove(item)
-        drag.snap(x, y)
-        drag.unfocus()
-        return True
