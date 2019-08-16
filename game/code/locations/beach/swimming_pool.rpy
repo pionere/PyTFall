@@ -105,9 +105,41 @@ label single_swim_pool:
         play world "underwater.mp3"
         scene bg pool_swim
         with dissolve
-        call mc_action_swimming_pool_skill_checks from _call_mc_action_swimming_pool_skill_checks
+
+        $ hero.take_ap(1)
+        $ temp = hero.get_skill("swimming")
+        if temp < 20:
+            if locked_dice(60):
+                "You barely stay afloat. Clearly, more practice is needed."
+                $ swim_act = randint(1, 2)
+            else:
+                "You can barely stay afloat. After a while, you lose your cool and start drowning, but the swimming instructor immediately comes to your aid."
+                $ swim_act = 1
+                $ hero.gfx_mod_stat("health", -5)
+            $ swim_vit = randint(25, 35)
+        elif temp < 50:
+            "You can swim well enough to not drown in a swimming pool, but more practice is needed."
+            $ swim_act = randint(2, 3)
+            $ swim_vit = randint(20, 30)
+        elif temp < 100:
+            "You are somewhat confident about your swimming skills."
+            $ swim_act = randint(2, 4)
+            $ swim_vit = randint(15, 20)
+        else:
+            "It feels nice swimming in the pool, but the sea is more suitable to learn something new."
+            $ swim_act = randint(0, 1)
+            $ swim_vit = randint(10, 15)
+        if locked_dice(75) and temp >= 50 and hero.get_stat("constitution") < hero.get_max("constitution"):
+            "Swimming did you good."
+            $ hero.gfx_mod_stat("constitution", 1)
+        $ hero.gfx_mod_skill("swimming", 0, swim_act)
+        $ hero.mod_stat("vitality", -swim_vit)
+        $ del temp, swim_act, swim_vit
+
+        jump swimming_pool
     else:
         "You don't have enough gold."
+    $ global_flags.set_flag("keep_playing_music")
     jump swimming_pool
 
 label instructor_swim_pool:
@@ -119,109 +151,76 @@ label instructor_swim_pool:
         play world "underwater.mp3"
         scene bg pool_swim
         with dissolve
-        call mc_action_instructor_swimming_pool_skill_checks from _call_mc_action_instructor_swimming_pool_skill_checks
+
+        $ hero.take_ap(1)
+        $ temp = hero.get_skill("swimming")
+        if temp < 20:
+            "The instructor teaches you water safety to prevent mouth-to-mouth accidents once and for all."
+            $ swim_act = randint(2, 4)
+            $ swim_tra = randint(2, 4)
+            $ swim_vit = randint(20, 30)
+        elif temp < 50:
+            "The instructor shows you the most basic swimming styles."
+            $ swim_act = randint(4, 6)
+            $ swim_tra = randint(4, 6)
+            $ swim_vit = randint(15, 25)
+        elif temp < 100:
+            "The instructor shows you common swimming styles and the very basics of underwater swimming."
+            $ swim_act = randint(4, 8)
+            $ swim_tra = randint(4, 8)
+            $ swim_vit = randint(10, 15)
+        elif temp < 250:
+            "The instructor shows you advanced swimming styles, including underwater ones."
+            $ swim_act = randint(1, 3)
+            $ swim_tra = randint(5, 10)
+            $ swim_vit = randint(10, 15)
+        else:
+            "There is nothing else he can show you now, but his knowledge about behavior on the water is second to none nevertheless."
+            $ swim_act = randint(0, 1)
+            $ swim_tra = randint(5, 10)
+            $ swim_vit = randint(5, 10)
+        if locked_dice(65) and temp >= 50:
+            "Swimming did you good."
+            $ hero.gfx_mod_stat("constitution", 1)
+        $ hero.gfx_mod_skill("swimming", 0, swim_act)
+        $ hero.gfx_mod_skill("swimming", 1, swim_tra)
+        $ hero.mod_stat("vitality", -swim_vit)
+        $ del temp, swim_act, swim_tra, swim_vit
+
+        jump swimming_pool
     else:
         "You don't have enough Gold."
+    $ global_flags.set_flag("keep_playing_music")
     jump swimming_pool
-
-label mc_action_swimming_pool_skill_checks:
-    $ hero.take_ap(1)
-    $ temp = hero.get_skill("swimming")
-    if temp < 20:
-        if locked_dice(60):
-            "You barely stay afloat. Clearly, more practice is needed."
-            $ swim_act = randint(1,2)
-        else:
-            "You can barely stay afloat. After a while, you lose your cool and start drowning, but the swimming instructor immediately comes to your aid."
-            $ swim_act = 1
-            $ hero.gfx_mod_stat("health", -5)
-        $ swim_vit = randint (25, 35)
-    elif temp < 50:
-        "You can swim well enough to not drown in a swimming pool, but more practice is needed."
-        $ swim_act = randint(2,3)
-        $ swim_vit = randint (20, 30)
-    elif temp < 100:
-        "You are somewhat confident about your swimming skills."
-        $ swim_act = randint(2,4)
-        $ swim_vit = randint (15, 20)
-    else:
-        "It feels nice swimming in the pool, but the sea is more suitable to learn something new."
-        $ swim_act = randint(0,1)
-        $ swim_vit = randint (10, 15)
-    if locked_dice(75) and hero.get_skill("swimming") >= 50 and hero.get_stat("constitution") < hero.get_max("constitution"):
-        "Swimming did you good."
-        $ hero.gfx_mod_stat("constitution", 1)
-    $ hero.gfx_mod_skill("swimming", 0, swim_act)
-    $ hero.mod_stat("vitality", -swim_vit)
-    $ del swim_act, swim_vit
-    return
-
-label mc_action_instructor_swimming_pool_skill_checks:
-    $ hero.take_ap(1)
-    $ temp = hero.get_skill("swimming")
-    if temp < 20:
-        "The instructor teaches you water safety to prevent mouth-to-mouth accidents once and for all."
-        $ swim_act = randint(2,4)
-        $ swim_tra = randint(2,4)
-        $ swim_vit = randint (20, 30)
-    elif temp < 50:
-        "The instructor shows you the most basic swimming styles."
-        $ swim_act = randint(4,6)
-        $ swim_tra = randint(4,6)
-        $ swim_vit = randint (15, 25)
-    elif temp < 100:
-        "The instructor shows you common swimming styles and the very basics of underwater swimming."
-        $ swim_act = randint(4,8)
-        $ swim_tra = randint(4,8)
-        $ swim_vit = randint (10, 15)
-    elif temp < 250:
-        "The instructor shows you advanced swimming styles, including underwater ones."
-        $ swim_act = randint(1,3)
-        $ swim_tra = randint(5,10)
-        $ swim_vit = randint (10, 15)
-    else:
-        "There is nothing else he can show you now, but his knowledge about behavior on the water is second to none nevertheless."
-        $ swim_act = randint(0,1)
-        $ swim_tra = randint(5,10)
-        $ swim_vit = randint (5, 10)
-    if locked_dice(65) and hero.get_skill("swimming") >= 50:
-        "Swimming did you good."
-        $ hero.gfx_mod_stat("constitution", 1)
-    $ hero.gfx_mod_skill("swimming", 0, swim_act)
-    $ hero.gfx_mod_skill("swimming", 1, swim_tra)
-    $ hero.mod_stat("vitality", -swim_vit)
-    $ del swim_act, swim_tra, swim_vit
-    return
 
 label mc_action_work_swim_pool: # here we could use an option to meet characters with a certain probability
     if hero.get_stat("vitality") < 20:
         "You are too tired for work."
-        jump swimming_pool
     elif not hero.has_ap():
         "You don't have enough Action Points. Try again tomorrow."
-        jump swimming_pool
     elif hero.get_stat("health") < hero.get_max("health")/2:
         "You are too wounded at the moment."
-        jump swimming_pool
+    else:
+        $ picture = "content/gfx/images/swim_kids/sk_" + str(renpy.random.randint(1, 4)) + ".webp"
+        show expression picture at truecenter with dissolve
 
-    $ picture = "content/gfx/images/swim_kids/sk_" + str(renpy.random.randint(1, 4)) + ".webp"
-    show expression picture at truecenter with dissolve
-    $ narrator ("You teach local kids to swim. The payment is low, but at least you can use the pool for free.")
+        "You teach local kids to swim. The payment is low, but at least you can use the pool for free."
 
-label mc_action_work_swim_pool_reward:
-    python:
-        result = randint(5, round(hero.get_skill("swimming")*.1))
-        if result > 200:
-            result = randint (190, 220)
-        result = gold_reward(hero, result)
-        hero.take_ap(1)
-        hero.gfx_mod_skill("swimming", 0, randint(0,2))
-        hero.gfx_mod_skill("swimming", 1, randint(1,2))
-        hero.mod_stat("vitality", -randint (20, 35))
-        hero.add_money(result, reason="Job")
-        gfx_overlay.random_find(result, 'work')
-        hero.gfx_mod_exp(exp_reward(hero, hero))
-        del result
+        python hide:
+            result = randint(5, round(hero.get_skill("swimming")*.1))
+            if result > 200:
+                result = randint(190, 220)
+            result = gold_reward(hero, result)
+            hero.take_ap(1)
+            hero.gfx_mod_skill("swimming", 0, randint(0, 2))
+            hero.gfx_mod_skill("swimming", 1, randint(1, 2))
+            hero.mod_stat("vitality", -randint(20, 35))
+            hero.add_money(result, reason="Job")
+            gfx_overlay.random_find(result, 'work')
+            hero.gfx_mod_exp(exp_reward(hero, hero))
 
-    hide expression picture with dissolve
+        hide expression picture with dissolve
+        $ del picture
+
+    $ global_flags.set_flag("keep_playing_music")
     jump swimming_pool

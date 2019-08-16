@@ -54,7 +54,7 @@ screen city_beach_left():
             align (.99, .5)
             idle img
             hover PyTGFX.bright_img(img, .15)
-            action [Hide("city_beach_left"), Function(global_flags.set_flag, "keep_playing_music"), Jump("city_beach")]
+            action Return(["control", "return"])
 
         $ img = im.Scale("content/gfx/interface/icons/beach_fishing.png", 90, 90)
         imagebutton:

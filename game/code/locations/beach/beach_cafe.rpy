@@ -42,4 +42,4 @@ screen city_beach_cafe:
             align (.99, .5)
             idle img
             hover PyTGFX.bright_img(img, .15)
-            action [Hide("city_beach_cafe"), Jump("city_beach_cafe_main")]
+            action Return(["control", "return"])

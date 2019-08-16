@@ -13,12 +13,6 @@ label city_beach_cafe_main:
             pytfall.world_actions.look_around()
             pytfall.world_actions.finish()
 
-        if pytfall.world_actions.location("city_beach_cafe_ice"):
-            pytfall.world_actions.add(1, "Eat an icecream alone", Return("ice_alone"))
-            pytfall.world_actions.add(2, "Icecream for the team", Return("ice_group"))
-            pytfall.world_actions.add(3, "Leave", Return("leave"), keysym="mousedown_3")
-            pytfall.world_actions.finish()
-
     if global_flags.get_flag("waitress_ice", [-1])[0] != day:
         python hide:
             who = global_flags.get_flag("waitress_cafe", [0, None])
@@ -73,7 +67,7 @@ screen city_beach_cafe_main:
             pos (642, 390)
             idle img
             hover PyTGFX.bright_img(img, .15)
-            action [Hide("city_beach_cafe"), Jump("mc_action_city_beach_ice")]
+            action [Hide("city_beach_cafe_main"), Jump("mc_action_city_beach_ice")]
             tooltip "Ice Cream"
 
         $ img = im.Flip(im.Scale("content/gfx/interface/buttons/blue_arrow.png", 80, 80), horizontal=True)
@@ -81,23 +75,22 @@ screen city_beach_cafe_main:
             align (.01, .5)
             idle img
             hover PyTGFX.bright_img(img, .15)
-            action [Hide("city_beach_cafe_main"), Function(global_flags.del_flag, "keep_playing_music"), Jump("city_beach_cafe")]
+            action [Hide("city_beach_cafe_main"), Jump("city_beach_cafe")]
 
         $ img = im.Flip(im.Scale("content/gfx/interface/buttons/blue_arrow_up.png", 90, 60), vertical=True)
         imagebutton:
             align (.5, .99)
             idle img
             hover PyTGFX.bright_img(img, .15)
-            action [Hide("city_beach_cafe_main"), Jump("city_beach_left")]
+            action Return(["control", "return"])
 
 label mc_action_city_beach_ice:
     if hero.has_flag("dnd_ice_in_cafe"):
         "You already had an icecream today. Too much of it, and a cold is guaranteed."
+        $ global_flags.set_flag("keep_playing_music")
         jump city_beach_cafe_main
 
     $ waitress = global_flags.flag("waitress_ice")[1]
-
-    hide screen city_beach_cafe_main
 
     scene bg icestand
     show expression waitress.get_vnsprite() as npc at truecenter
@@ -120,12 +113,26 @@ label mc_action_city_beach_ice:
         if result == "ice_group":
             $ inviting_character = hero
             jump mc_action_ice_invitation
+        $ global_flags.set_flag("keep_playing_music")
         jump city_beach_cafe_main
 
 screen city_beach_ice_stand:
     add im.Scale("content/gfx/images/ice_stand.webp", config.screen_width, config.screen_height) # align .5, .5
 
-    use location_actions("city_beach_cafe_ice")
+    style_prefix "dropdown_gm"
+    frame:
+        pos (.98, .98) anchor (1.0, 1.0)
+        has vbox
+
+        textbutton "Eat an icecream alone":
+            action Return("ice_alone")
+
+        textbutton "Icecream for the team":
+            action Return("ice_group")
+
+        textbutton "Leave":
+            action Return("leave")
+            keysym "mousedown_3"
 
 label mc_action_ice_invitation:
     hide npc
@@ -186,4 +193,5 @@ label mc_action_ice_invitation:
             "You could spend time with your team, but sadly you are too poor to afford it at the moment."
 
     $ del inviting_character
+    $ global_flags.set_flag("keep_playing_music")
     jump city_beach_cafe_main

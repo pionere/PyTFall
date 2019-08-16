@@ -108,7 +108,6 @@ label city_beach_about_swimming:
     jump city_beach
 
 label city_beach_swimming_checks:
-
     if not global_flags.has_flag('constitution_bonus_from_swimming_at_beach'):
         $ global_flags.set_flag("constitution_bonus_from_swimming_at_beach", value=0)
         "The water is quite warm all year round, but it can be pretty dangerous for novice swimmers due to big waves and sea monsters."
@@ -117,89 +116,82 @@ label city_beach_swimming_checks:
         scene bg open_sea
         with dissolve
         "You stay in shallow water not too far from land to get used to the water. It feels nice, but the real swimming will require some skills next time."
+    elif hero.get_stat("vitality") < 30:
+        "You are too tired at the moment."
+    elif not hero.has_ap():
+        "You don't have Action Points at the moment. Try again tomorrow."
+    elif hero.get_stat("health") < hero.get_max("health")/4:
+        "You are too wounded at the moment."
     else:
-        if hero.get_stat("vitality") < 30:
-            "You are too tired at the moment."
-        elif not hero.has_ap():
-            "You don't have Action Points at the moment. Try again tomorrow."
-        elif hero.get_stat("health") < hero.get_max("health")/4:
-            "You are too wounded at the moment."
-        else:
-            scene bg open_sea with dissolve
-            jump mc_action_hero_ocean_skill_checks
-    $ global_flags.set_flag("keep_playing_music")
-    jump city_beach
+        scene bg open_sea with dissolve
 
-label mc_action_hero_ocean_skill_checks:
-    $ hero.take_ap(1)
-    if locked_dice(20):
-        $ narrator ("A group of sea monsters surrounded you!")
-        if hero.get_skill("swimming") < 50:
-            if hero.get_stat("health") > 100 and locked_dice(75):
-                $ narrator ("They managed to attack you a few times before you got a chance to react.")
-                $ hero.mod_stat("health", -randint(15, 30))
-            jump city_beach_monsters_fight
-        elif hero.get_skill("swimming") < 200:
-            jump city_beach_monsters_fight
+        $ hero.take_ap(1)
+        if locked_dice(20):
+            "A group of sea monsters surrounded you!"
+            if hero.get_skill("swimming") < 50:
+                if hero.get_stat("health") > 100 and locked_dice(75):
+                    "They managed to attack you a few times before you got a chance to react."
+                    $ hero.mod_stat("health", -randint(15, 30))
+                jump city_beach_monsters_fight
+            elif hero.get_skill("swimming") < 200:
+                jump city_beach_monsters_fight
+            else:
+                menu:
+                    "You are fast enough to avoid the fight."
+                    "Swim away":
+                        "You quickly increase the distance between you and the monsters {color=green}(max agility +1){/color}."
+                        $ hero.gfx_mod_skill("swimming", 0, randint(2, 4))
+                        $ hero.stats.mod_raw_max("agility", 1)
+                        $ hero.gfx_mod_stat("agility", 1)
+                    "Fight":
+                        jump city_beach_monsters_fight
+        $ temp = hero.get_skill("swimming")
+        if temp < 50:
+            if locked_dice(40):
+                "You try to swim, but strong tide keeps you away {color=red}(no bonus to swimming skill this time){/color}."
+                "You need higher swimming skill to prevent it. Consider training in the swimming pool."
+                $ swim_act = 0
+            else:
+                scene bg ocean_underwater with dissolve
+                "Waves are pretty big today. You try fighting them, but quickly lose, pulling you under the water."
+                "Nearly drowned, you get out of the ocean."
+                "You need higher swimming skill to prevent it. Consider training in the swimming pool."
+                $ hero.gfx_mod_stat("health", -50)
+                $ swim_act = randint(1, 2)
+            $ swim_vit = randint (40, 50)
+        elif temp < 100:
+            "You try to swim, but rapid underwater currents make it very difficult for a novice swimmer."
+            if locked_dice(10):
+                scene bg ocean_underwater with dissolve
+                "Waves are pretty big today. You try to fight them, but they win, sending you under the water."
+                "You need higher swimming skill to prevent it. Consider training in the swimming pool."
+                "Nearly drowned, you get out of the ocean."
+                $ hero.gfx_mod_stat("health", -50)
+            $ swim_act = randint(4, 8)
+            $ swim_vit = randint (30, 40)
+        elif temp < 200:
+            "You cautiously swim in the ocean, trying to stay close to the shore just in case."
+            $ swim_act = randint(6, 12)
+            $ swim_vit = randint (20, 30)
         else:
-            menu:
-                "You are fast enough to avoid the fight."
-                "Swim away":
-                    $ narrator ("You quickly increase the distance between you and the monsters {color=green}(max agility +1){/color}.")
-                    $ hero.gfx_mod_skill("swimming", 0, randint(2, 4))
-                    $ hero.stats.mod_raw_max("agility", 1)
-                    $ hero.gfx_mod_stat("agility", 1)
-                "Fight":
-                    jump city_beach_monsters_fight
-    $ temp = hero.get_skill("swimming")
-    if temp < 50:
-        if locked_dice(40):
-            $ narrator ("You try to swim, but strong tide keeps you away {color=red}(no bonus to swimming skill this time){/color}.")
-            $ narrator ("You need higher swimming skill to prevent it. Consider training in the swimming pool.")
-            $ swim_act = 0
-        else:
-            scene bg ocean_underwater with dissolve
-            "Waves are pretty big today. You try fighting them, but quickly lose, pulling you under the water."
-            $ narrator ("Nearly drowned, you get out of the ocean.")
-            $ narrator ("You need higher swimming skill to prevent it. Consider training in the swimming pool.")
-            $ hero.gfx_mod_stat("health", -50)
-            $ swim_act = randint(1, 2)
-        $ swim_vit = randint (40, 50)
-    elif temp < 100:
-        "You try to swim, but rapid underwater currents make it very difficult for a novice swimmer."
-        if locked_dice(10):
-            scene bg ocean_underwater with dissolve
-            "Waves are pretty big today. You try to fight them, but they win, sending you under the water."
-            $ narrator ("You need higher swimming skill to prevent it. Consider training in the swimming pool.")
-            $ narrator ("Nearly drowned, you get out of the ocean.")
-            $ hero.gfx_mod_stat("health", -50)
-        $ swim_act = randint(4, 8)
-        $ swim_vit = randint (30, 40)
-    elif temp < 200:
-        "You cautiously swim in the ocean, trying to stay close to the shore just in case."
-        $ swim_act = randint(6, 12)
-        $ swim_vit = randint (20, 30)
-    else:
-        "You take your time enjoying the water. Even big ocean waves are no match for your swimming skill."
-        $ swim_act = randint(10, 15)
-        $ swim_vit = randint (15, 25)
-    $ hero.gfx_mod_skill("swimming", 0, swim_act)
-    $ hero.mod_stat("vitality", -swim_vit)
+            "You take your time enjoying the water. Even big ocean waves are no match for your swimming skill."
+            $ swim_act = randint(10, 15)
+            $ swim_vit = randint (15, 25)
+        $ hero.gfx_mod_skill("swimming", 0, swim_act)
+        $ hero.mod_stat("vitality", -swim_vit)
 
-    if locked_dice(min(600, temp) - global_flags.flag("constitution_bonus_from_swimming_at_beach")*20): # MAX 30
-        $ hero.stats.mod_raw_max("constitution", 1)
-        $ hero.gfx_mod_stat("constitution", 1)
-        $ global_flags.up_counter("constitution_bonus_from_swimming_at_beach")
-        "You feel more endurant than before {color=green}(max constitution +1){/color}."
+        if locked_dice(min(600, temp) - global_flags.flag("constitution_bonus_from_swimming_at_beach")*20): # MAX 30
+            $ hero.stats.mod_raw_max("constitution", 1)
+            $ hero.gfx_mod_stat("constitution", 1)
+            $ global_flags.up_counter("constitution_bonus_from_swimming_at_beach")
+            "You feel more endurant than before {color=green}(max constitution +1){/color}."
 
-    $ del swim_act, swim_vit, temp
+        $ del swim_act, swim_vit, temp
+
     $ global_flags.set_flag("keep_playing_music")
     jump city_beach
 
 label city_beach_monsters_fight:
-    hide screen city_beach
-    hide screen city_beach_swim
-
     $ enemy_team = Team(name="Enemy Team")
     python hide:
         min_lvl = mobs["Skyfish"]["min_lvl"]

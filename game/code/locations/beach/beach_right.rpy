@@ -48,7 +48,7 @@ screen city_beach_right():
             align (.01, .5)
             idle img
             hover PyTGFX.bright_img(img, .15)
-            action [Hide("city_beach_right"), Function(global_flags.set_flag, "keep_playing_music"), Jump("city_beach")]
+            action Return(["control", "return"])
 
 label mc_action_beach_competitions:
     if not global_flags.flag('beach_competition'):
