@@ -49,7 +49,10 @@ screen building_management_leftframe_gladiators_guild_mode:
                             text_color color
                             text_hover_color "red"
 
-                        textbutton str(team.leader.arena_rep):
+                        $ temp = "Arena Reputation (Team: %d)" % team.get_rep()
+                        for f in team:
+                            $ temp += "\n  - %s: %d" % (f.name, f.arena_rep)
+                        textbutton str(team.get_rep()):
                             background None
                             xalign .5
                             ypos 30
@@ -57,7 +60,7 @@ screen building_management_leftframe_gladiators_guild_mode:
                             text_color "red"
                             text_size 16
                             text_outlines [(1, "#3a3a3a", 0, 0)]
-                            tooltip "Arena Reputation"
+                            tooltip temp
 
     elif bm_mid_frame_mode.view_mode == "log":
         python:
