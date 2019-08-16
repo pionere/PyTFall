@@ -120,7 +120,7 @@ screen set_home_dropdown(char, pos=()):
         xval = 1.0 if x > config.screen_width/2 else .0
         yval = 1.0 if y > config.screen_height/2 else .0
 
-    default habitable_locations = [b for b in hero.buildings if (b.habitable and b.vacancies)] + [pytfall.streets]
+    default habitable_locations = [b for b in hero.buildings if (b.habitable and b.vacancies) or char.home is b] + [pytfall.streets]
 
     frame:
         style_prefix "dropdown_gm"
@@ -129,7 +129,7 @@ screen set_home_dropdown(char, pos=()):
         has vbox
 
         for loc in habitable_locations:
-            textbutton "[loc]":
+            textbutton str(loc):
                 selected char.home == loc
                 action SetField(char, "home", loc), Hide("set_home_dropdown"), With(Dissolve(0.1))
                 tooltip loc.desc

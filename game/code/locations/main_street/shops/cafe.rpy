@@ -36,7 +36,6 @@ label cafe:
         waitress.say "Welcome back! Do you want a table?"
     else:
         $ global_flags.set_flag('visited_cafe')
-        $ hero.set_flag("health_bonus_from_eating_in_cafe", value=0)
         waitress.say "Welcome to the Cafe!"
         "Here you can find delicious food and tasty beverages!"
 
@@ -149,15 +148,15 @@ label mc_action_cafe_eat_alone_cafe_invitation:
                 $ hero.gfx_mod_stat("health", randint(10, 20))
                 $ hero.gfx_mod_stat("joy", randint(3, 6))
                 $ hero.gfx_mod_exp(exp_reward(hero, hero))
-                if hero.flag("health_bonus_from_eating_in_cafe") <= 25 and locked_dice(75):
+                if global_flags.get_flag("health_bonus_from_eating_in_cafe", 0) <= 25 and locked_dice(75):
                     $ hero.stats.mod_raw_max("health", 2)
                     $ hero.gfx_mod_stat("health", 2)
-                    $ hero.up_counter("health_bonus_from_eating_in_cafe", 2)
+                    $ global_flags.up_counter("health_bonus_from_eating_in_cafe", 2)
                     extend "{color=goldenrod} +2 Max Health{/color}"
-                elif hero.flag("health_bonus_from_eating_in_cafe") < 50 and locked_dice(10): # after 50 successful attempts bonus no longer applies
+                elif global_flags.get_flag("health_bonus_from_eating_in_cafe", 0) < 50 and locked_dice(10): # after 50 successful attempts bonus no longer applies
                     $ hero.stats.mod_raw_max("health", 1)
                     $ hero.gfx_mod_stat("health", 1)
-                    $ hero.up_counter("health_bonus_from_eating_in_cafe", 1)
+                    $ global_flags.up_counter("health_bonus_from_eating_in_cafe", 1)
                     extend "{color=goldenrod} +1 Max Health{/color}"
                 hide image name with dissolve
                 $ del name, result_v
