@@ -813,9 +813,6 @@ init -9 python:
 
                 # Awards:
                 #  - No cash, low a-rep, low EXP and items at the end - 
-                #  a bit of reputation
-                rep = max(int(mob_level*.2), 1)
-
                 combat_stats = dict()
                 for member in off_team:
                     statdict = OrderedDict()
@@ -827,8 +824,10 @@ init -9 python:
                             member.mod_exp(rew_xp)
                             statdict["Exp"] = rew_xp
 
-                        member.arena_rep += rep
-                        statdict["Arena Rep"] = rep
+                        rew_rep = stat_reward(member, enemy_team, stat_mod=2)
+                        if rew_rep:
+                            member.arena_rep += rew_rep
+                            statdict["Arena Rep"] = rew_rep
                     combat_stats[member] = statdict
 
                 if not nd_run:
@@ -941,7 +940,7 @@ init -9 python:
             if blood > 0:
                 rew_gold += blood
             #  a bit of reputation
-            rep = min(50, max(3, self.arena_rep_reward(loser, winner)))
+            rep = min(50, self.arena_rep_reward(loser, winner))
 
             combat_stats = dict()
             for member in winner:
@@ -961,9 +960,10 @@ init -9 python:
                     member.add_money(rew_gold, reason="Arena")
                     statdict["Gold"] = rew_gold
 
-                    rew_rep = int(rep)
-                    member.arena_rep += rew_rep
-                    statdict["Arena Rep"] = rew_rep
+                    rew_r = int(rep)
+                    if rew_r:
+                        member.arena_rep += rew_r
+                        statdict["Arena Rep"] = rew_r
 
                     if dice(llvl):
                         if random.random() > .5:
@@ -1048,7 +1048,7 @@ init -9 python:
 
             # Awards:
             #  - Decent cash, decent a-rep, normal EXP -
-            rew_rep = self.arena_rep_reward(loser, winner)
+            rep = self.arena_rep_reward(loser, winner)
             wlvl, llvl = winner.get_level(), loser.get_level()
             rew_gold = int(max(200, 250*(float(llvl) /max(1, wlvl))))
 
@@ -1070,7 +1070,7 @@ init -9 python:
                     member.add_money(rew_gold, reason="Arena")
                     statdict["Gold"] = rew_gold
 
-                    rew_r = int(rew_rep)
+                    rew_r = int(rep)
                     if rew_r:
                         member.arena_rep += rew_r
                         statdict["Arena Rep"] = rew_r
@@ -1082,7 +1082,7 @@ init -9 python:
                             statdict["Fame"] = rew_fame
                 combat_stats[member] = statdict
 
-            rew_rep = -int(1.2 * rew_rep)
+            rep = -int(1.2 * rep)
             for member in loser:
                 statdict = OrderedDict()
                 if member in battle.corpses:
@@ -1094,9 +1094,9 @@ init -9 python:
                 if rew_xp:
                     member.mod_exp(rew_xp)
                     statdict["Exp"] = rew_xp
-                if rew_rep:
-                    member.arena_rep += rew_rep
-                    statdict["Arena Rep"] = rew_rep
+                if rep:
+                    member.arena_rep += rep
+                    statdict["Arena Rep"] = rep
                 combat_stats[member] = statdict
 
             if not logical:

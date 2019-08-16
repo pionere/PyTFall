@@ -630,11 +630,12 @@ init: # Main Screens:
                             button:
                                 style "arena_channenge_button"
                                 action Hide("arena_dogfights"), Return(["challenge", "start_dogfight", team])
-                                $ level = team.get_level()
                                 vbox:
                                     align (.5, .5)
-                                    text "Challenge!" style "arena_badaboom_text" size 40 outlines [(2, "#3a3a3a", 0, 0)]
-                                    text "Enemy level: [level]" style "arena_badaboom_text" size 30 outlines [(1, "#3a3a3a", 0, 0)]
+                                    style_prefix "arena_badaboom"
+                                    text "Challenge!" size 40 outlines [(2, "#3a3a3a", 0, 0)]
+                                    text ("Enemy level: %d" % team.get_level()) outlines [(1, "#3a3a3a", 0, 0)]
+                                    text ("Reputation: %d" % team.get_rep()) size 20 outlines [(1, "#3a3a3a", 0, 0)]
 
                             add PyTGFX.scale_img("content/gfx/interface/images/vs_1.webp", 130, 130) yalign .5
 
