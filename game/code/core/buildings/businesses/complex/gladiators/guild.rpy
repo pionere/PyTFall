@@ -79,7 +79,7 @@ init -6 python: # Guild, Tracker and Log.
             _chars = [w for w in self.building.all_workers if w != hero and ExplorationTask.willing_work(w) and w.is_available]
 
             # filter chars
-            idle_chars = list(chain.from_iterable(t.members for t in _teams))
+            idle_chars = list(f for t in _teams for f in t)
             _chars = [w for w in _chars if w not in idle_chars]
 
             # filter teams
@@ -208,7 +208,7 @@ init -6 python: # Guild, Tracker and Log.
                             PyTGFX.message("You do not have %s to buy the arena permit!" % temp)
                         return
 
-                result = renpy.call_screen("arena_matches", type="%dv%d"%(len(team), len(team)), use_return=True)
+                result = renpy.call_screen("arena_matches", type="{val}v{val}".format(val=team.mem_count), use_return=True)
                 if not result:
                     return
                 result = result[2]
@@ -225,7 +225,7 @@ init -6 python: # Guild, Tracker and Log.
                 result = result[1]
 
             elif type == "dogfight":
-                container = getattr(pytfall.arena, "dogfights_{val}v{val}".format(val=len(team)))
+                container = getattr(pytfall.arena, "dogfights_{val}v{val}".format(val=team.mem_count))
                 result = renpy.call_screen("arena_dogfights", container=container, use_return=True)
                 if not result:
                     return

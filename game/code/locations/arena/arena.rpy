@@ -34,9 +34,9 @@ init -9 python:
             self.ladder_1v1 = [Team() for i in xrange(20)]
             self.ladder_2v2 = [Team() for i in xrange(10)]
             self.ladder_3v3 = [Team() for i in xrange(10)]
-            self.ladder_1v1_members = [t.members for t in self.ladder_1v1]
-            self.ladder_2v2_members = [t.members for t in self.ladder_2v2]
-            self.ladder_3v3_members = [t.members for t in self.ladder_3v3]
+            self.ladder_1v1_members = [t._members for t in self.ladder_1v1]
+            self.ladder_2v2_members = [t._members for t in self.ladder_2v2]
+            self.ladder_3v3_members = [t._members for t in self.ladder_3v3]
             self.ladder = None # list of chars - initialized later
 
             # Prebuilt teams for dogfights and matchfights
@@ -129,14 +129,14 @@ init -9 python:
                 index = ladder.index(loser)
                 if index != len(ladder)-1:
                     ladder[index], ladder[index+1] = ladder[index+1], loser
-                    members[index], members[index+1] = members[index+1], loser.members[:]
+                    members[index], members[index+1] = members[index+1], loser._members[:]
                     idx = index
 
             if winner in ladder:
                 index = ladder.index(winner)
                 if index != idx and index != 0:
                     ladder[index], ladder[index-1] = ladder[index-1], winner
-                    members[index], members[index-1] = members[index-1], winner.members[:]
+                    members[index], members[index-1] = members[index-1], winner._members[:]
             else:
                 # check if the hero has an another team in the ladder
                 if winner == hero.team:
@@ -144,11 +144,11 @@ init -9 python:
                         if t.leader == hero:
                             # another team in the ladder -> replace it with the current one
                             ladder[idx] = winner
-                            members[idx] = winner.members[:]
+                            members[idx] = winner._members[:]
                             winner_added = True
                             return
                 ladder[-1] = winner
-                members[-1] = winner.members[:]
+                members[-1] = winner._members[:]
 
         def update_teams(self):
             """
@@ -561,20 +561,20 @@ init -9 python:
                         ladder = self.ladder_1v1
                         if not ladder[lineups]:
                             ladder[lineups] = a_team
-                            self.ladder_1v1_members[lineups] = a_team.members
+                            self.ladder_1v1_members[lineups] = a_team._members
                             continue
                     elif teamsize == 2:
                         ladder = self.ladder_2v2
                         if not ladder[lineups]:
                             ladder[lineups] = a_team
-                            self.ladder_2v2_members[lineups] = a_team.members
+                            self.ladder_2v2_members[lineups] = a_team._members
                             self.matchteams_2v2.append(a_team)
                             continue
                     else: # if teamsize == 3:
                         ladder = self.ladder_3v3
                         if not ladder[lineups]:
                             ladder[lineups] = a_team
-                            self.ladder_3v3_members[lineups] = a_team.members
+                            self.ladder_3v3_members[lineups] = a_team._members
                             self.matchteams_3v3.append(a_team)
                             continue
                     raise Exception("Team %s failed to take place %d " \
@@ -984,7 +984,7 @@ init -9 python:
             """
             Create a shallow copy of the team to preserve the important team informations for today's report
             """ 
-            return Team(name=team.name, implicit=team.members)
+            return Team(name=team.name, implicit=team)
 
         def run_matchfight(self, def_team, off_team, logical, nd_run=False):
             """

@@ -498,9 +498,10 @@ init: # Main Screens:
                                     text_color "goldenrod"
                                     text_size 30
                                     align .5, .5
-                            if team:
-                                $ name = members[0].nickname if len(team) == 1 else team.name
-                                $ level = sum((member.level for member in members)) / len(members)
+                            $ num = len(members)
+                            if num != 0:
+                                $ name = members[0].nickname if num == 1 else team.name
+                                $ level = sum((member.level for member in members)) / num
                                 frame:
                                     yalign .6
                                     xysize (100, 45)
@@ -518,7 +519,7 @@ init: # Main Screens:
                                             padding 3, 3
                                             add fighter.show("portrait", resize=(45, 45), cache=True)
                                 null width 8
-                                $ size = 500 - 51 * len(members)
+                                $ size = 500 - 51 * num
                                 $ font_size = PyTGFX.txt_font_size(name, size, 25, min_size=10)
                                 frame:
                                     yalign .6

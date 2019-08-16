@@ -747,6 +747,8 @@ label after_load:
             hero.teams = [hero.team]
         if hasattr(hero.team, "max_size"):
             clearTeams = True
+        if not hasattr(hero.team, "mem_count"):
+            clearTeams = True
         if not hasattr(hero, "txt"):
             hero.txt = list()
 
@@ -1403,6 +1405,8 @@ label after_load:
             for t in all_teams:
                 if hasattr(t, "max_size"):
                     del t.max_size
+                if not hasattr(t, "mem_count"):
+                    t.mem_count = len(t._members)
 
     python hide:
         for obj in pytfall.__dict__.values():

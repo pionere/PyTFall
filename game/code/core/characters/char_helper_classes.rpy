@@ -197,6 +197,7 @@ init -10 python:
         def __init__(self, name="", implicit=None):
             self.name = name
             self._members = list()
+            self.mem_count = 0 # cached value of len(_members)
 
             # BE Assets:
             self.position = None # BE will set it to "r" or "l" short for left/right on the screen.
@@ -206,7 +207,7 @@ init -10 python:
                     self.add(member)
 
         def __len__(self):
-            return len(self._members)
+            return self.mem_count
 
         def __iter__(self):
             return iter(self._members)
@@ -215,11 +216,7 @@ init -10 python:
             return self._members[index]
 
         def __nonzero__(self):
-            return bool(self._members)
-
-        @property
-        def members(self):
-            return self._members
+            return self.mem_count != 0
 
         @property
         def leader(self):
@@ -227,18 +224,18 @@ init -10 python:
                 return self._members[0]
             except:
                 return None
+
         @property
         def gui_name(self):
-            mems = self._members
-            if len(mems) == 1:
-                return mems[0].nickname
-            return self.name
+            return self._members[0].nickname if self.mem_count == 1 else self.name 
 
         def add(self, member):
             self._members.append(member)
+            self.mem_count += 1
 
         def remove(self, member):
             self._members.remove(member)
+            self.mem_count -= 1
 
         #def set_leader(self, member):
         #    mems = self._members
@@ -252,15 +249,19 @@ init -10 python:
             """
             Returns an average level of the team as an integer.
             """
-            av_level = sum((member.level for member in self._members))
-            return av_level/len(self._members)
+            try:
+                return sum((member.level for member in self._members))/self.mem_count
+            except ZeroDivisionError:
+                return 0
 
         def get_rep(self):
             """
-            Returns average of arena reputation of a team as an interger.
+            Returns the arena reputation of the team.
             """
-            arena_rep = sum((member.arena_rep for member in self._members))
-            return arena_rep/len(self._members)
+            try:
+                return sum((member.arena_rep for member in self._members))/self.mem_count
+            except ZeroDivisionError:
+                return 0
 
         def take_ap(self, value):
             """

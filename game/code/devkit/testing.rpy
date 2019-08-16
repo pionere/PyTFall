@@ -891,8 +891,10 @@ init 1000 python:
                 TestSuite.reportError("Hero(%s)'s current team %s is not listed in their teams" % (hero.fullname, hero.team.name))
 
             for team in hero.teams:
-                if team.members[0] != hero:
-                    TestSuite.reportError("Hero(%s)'s team %s does not have hero as its first member." % (hero.fullname, team.name))
+                if team.leader is not hero:
+                    TestSuite.reportError("Hero(%s)'s team %s does not have hero as its leader." % (hero.fullname, team.name))
+                if len(team) != len(team._members):
+                    TestSuite.reportError("Hero(%s)'s team %s has an incorrect size (%d vs %d)." % (hero.fullname, team.name, len(team), len(team._members)))
                 for member in team:
                     if member == hero:
                         continue
@@ -1400,6 +1402,8 @@ init 1000 python:
                             TestSuite.reportError("%s - while arena active - does not have maxed out stats(%s: %s vs %s)." % (c.fullname, stat, c.get_stat(stat), c.get_max(stat)))
 
                 for t in chain(a.dogteams_2v2, a.dogteams_3v3):
+                    if len(t) != len(t._members):
+                        TestSuite.reportError("Arena Dog Team(%s)'s size is incorrect (%d vs %d)." % (t.name, len(t), len(t._members)))
                     mems = set()
                     for c in t:
                         if c not in all_chars:
@@ -1409,6 +1413,8 @@ init 1000 python:
                         mems.add(c)
 
                 for t in chain(a.matchteams_2v2, a.matchteams_3v3):
+                    if len(t) != len(t._members):
+                        TestSuite.reportError("Arena Match Team(%s)'s size is incorrect (%d vs %d)." % (t.name, len(t), len(t._members)))
                     mems = set()
                     for c in t:
                         if c not in all_chars:
@@ -1478,7 +1484,7 @@ init 1000 python:
                 if debug:
                     devlog.warn("Daily Statistics of the Arena (%s)" % day)
                     devlog.warn(" - Chains - Max5: %s, %s, %s - Max: %s, %s, %s - Fails - VMax: %s, %s, %s - Max: %s, %s, %s" %
-                               (max(f for f in (c.get_flag("arena_chain_fight_level_1", 0) for c in all_chars) if f%5 != 0), max(f for f in (c.get_flag("arena_chain_fight_level_2", 0) for c in all_chars) if f%5 != 0), max(f for f in (c.get_flag("arena_chain_fight_level_3", 0) for c in all_chars) if f%5 != 0),
+                               (max(f for f in (c.get_flag("arena_chain_fight_level_1", 0) for c in all_chars) if f == 0 or f%5 != 0), max(f for f in (c.get_flag("arena_chain_fight_level_2", 0) for c in all_chars) if f == 0 or f%5 != 0), max(f for f in (c.get_flag("arena_chain_fight_level_3", 0) for c in all_chars) if f == 0 or f%5 != 0),
                                 max(c.get_flag("arena_chain_fight_level_1", 0) for c in all_chars), max(c.get_flag("arena_chain_fight_level_2", 0) for c in all_chars), max(c.get_flag("arena_chain_fight_level_3", 0) for c in all_chars),
                                 max(max(c.get_flag("arena_chain_fight_level_failed_1", {0: 0}).values()) for c in all_chars), max(max(c.get_flag("arena_chain_fight_level_failed_2", {0:0}).values()) for c in all_chars), max(max(c.get_flag("arena_chain_fight_level_failed_3", {0:0}).values()) for c in all_chars),
                                 max(max(c.get_flag("arena_chain_fight_level_failed_1", [0])) for c in all_chars), max(max(c.get_flag("arena_chain_fight_level_failed_2", [0])) for c in all_chars), max(max(c.get_flag("arena_chain_fight_level_failed_3", [0])) for c in all_chars)))

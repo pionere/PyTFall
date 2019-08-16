@@ -136,7 +136,7 @@ init -6 python: # Guild, Tracker and Log.
             if area.use_horses:
                 for u in guild.building.businesses:
                     if u.__class__ == StableBusiness:
-                        num = len(team)
+                        num = team.mem_count
                         reserved = u.reserved_capacity + num
                         if u.capacity >= reserved:
                             u.reserved_capacity = reserved
@@ -211,8 +211,8 @@ init -6 python: # Guild, Tracker and Log.
                 kill_char(char)
 
             # Settle rewards and update data:
-            if len(self.team) != 0:
-                team = self.team
+            team = self.team
+            if team.mem_count != 0:
                 found_items = collections.Counter(self.found_items)
                 cash_earned = sum(self.cash)
                 if cash_earned:
@@ -451,7 +451,7 @@ init -6 python: # Guild, Tracker and Log.
             _chars = [w for w in self.building.all_workers if w != hero and ExplorationTask.willing_work(w) and w.is_available]
 
             # filter chars
-            idle_chars = list(chain.from_iterable(t.members for t in _teams))
+            idle_chars = list(f for t in _teams for f in t)
             _chars = [w for w in _chars if w not in idle_chars]
 
             # load gui elements
@@ -493,7 +493,7 @@ init -6 python: # Guild, Tracker and Log.
                 drag.snap(x, y, delay=.2)
                 return
 
-            if isinstance(dest_container, Team) and len(dest_container) >= 3:
+            if isinstance(dest_container, Team) and dest_container.mem_count >= 3:
                 PyTGFX.message("Team cannot have more than three members!")
                 drag.snap(x, y, delay=.4)
                 return
@@ -659,7 +659,7 @@ init -6 python: # Guild, Tracker and Log.
                                 data = [data[0], max(1, data[1]/2)] # 'reduced' chance from now on
                                 tracker.area.special_chars[char] = data
 
-                        if len(tracker.team) == len(died):
+                        if tracker.team.mem_count == len(died):
                             tracker.state = "died off"
                             tracker.traveled = 0
                             tracker.distance = 2*self.travel_distance(tracker) # delay ND report
@@ -896,7 +896,7 @@ init -6 python: # Guild, Tracker and Log.
                 msg = "{} is overnighting. State: {}".format(team.name, tracker.state)
                 se_debug(msg)
 
-            if tracker.daily_items is not None and len(tracker.died) < len(team):
+            if tracker.daily_items is not None and len(tracker.died) < team.mem_count:
                 # This basically means that team spent some time on exploring -> create a summary
                 found_items = tracker.daily_items
                 cash = tracker.daily_cash
@@ -947,7 +947,7 @@ init -6 python: # Guild, Tracker and Log.
             if in_camp is True:
                 if tracker.died:
                     # some member(s) of the team died -> no rest for the remaining team, if any
-                    if len(tracker.died) == len(team):
+                    if len(tracker.died) == team.mem_count:
                         # all members died -> just wait for the dawn to see if their make it
                         tracker.log("The members of %s suffered fatal wounds. It is going to be a miracle if they make it through the night." % team_name)
                     else:
@@ -965,7 +965,7 @@ init -6 python: # Guild, Tracker and Log.
                 for o in tracker.area.camp_objects:
                     if hasattr(o, "daily_modifier_mod"):
                         if hasattr(o, "capacity"):
-                            used_capacity = getattr(o, "in_use", 0) + len(team)
+                            used_capacity = getattr(o, "in_use", 0) + team.mem_count
                             if o.capacity < used_capacity:
                                 continue
                             setattr(o, "in_use", used_capacity)

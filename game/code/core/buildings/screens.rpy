@@ -45,7 +45,7 @@ label building_management:
                     elif action == "clear":
                         for i in team:
                             guild.workers.add(i)
-                        del team.members[:]
+                        del team._members[:]
                     elif action == "remove":
                         char = result[3]
                         guild.workers.add(char)
