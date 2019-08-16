@@ -470,12 +470,11 @@ init -9 python:
         # -------------------------- Setup Methods -------------------------------->
         def update_ladder(self):
             # Update top 100 ladder:
-            candidates = self.get_arena_fighters()
-            if hero.arena_rep > 0:
-                candidates.append(hero)
-            candidates.sort(reverse=True, key=attrgetter("arena_rep"))
+            temp = [f for f in chain(self.get_arena_fighters(), [hero]) if f.arena_rep > 0] 
 
-            self.ladder = candidates[:100]
+            temp.sort(reverse=True, key=attrgetter("arena_rep"))
+
+            self.ladder = temp[:100]
 
         def update_actives(self):
             actives = set(self.ladder) | self.get_teams_fighters() | self.get_ladders_fighters() | self.get_dogfights_fighters() | self.get_matches_fighters()
@@ -543,9 +542,6 @@ init -9 python:
                         tier_up_to(member, tier)
                         give_tiered_magic_skills(member)
                         give_tiered_items(member, False, True)
-
-                    member.arena_active = member.arena_permit = True
-                    member.arena_rep = int(tier*10000*random.uniform(.9, 1.1))
 
                     a_team.add(member)
 
@@ -617,9 +613,6 @@ init -9 python:
                     king = build_rc(bt_group="Combatant", tier=7,
                                     tier_kwargs=tier_kwargs, give_bt_items=True)
 
-                king.arena_active = king.arena_permit = True
-                king.arena_rep = int(apr * 20 * random.uniform(.9, 1.1))
-
                 self.king = king
 
             # Setting up some decent fighters:
@@ -656,13 +649,16 @@ init -9 python:
             if king not in ladder:
                 source.append(king)
 
+            arena_rep = int(apr * len(self.ladder_1v1) * random.uniform(1.0, 1.2))
             for team in self.ladder_1v1:
-                if not team:
+                f = team.leader
+                if f is None:
                     f = source.pop()
-                    f.arena_active = f.arena_permit = True
-                    if f.arena_rep < apr:
-                        f.arena_rep = int(max(apr, f.level * 500) * random.uniform(.9, 1.1))
                     team.add(f)
+                # initial arena_rep, flags
+                f.arena_active = f.arena_permit = True
+                f.arena_rep = arena_rep
+                arena_rep -= int(apr * random.uniform(.8, 1.0))
 
             # 2v2 Ladder:
             ladder = set(f for t in chain(self.ladder_2v2, self.matchteams_2v2) for f in t) 
@@ -672,15 +668,21 @@ init -9 python:
             if king not in ladder:
                 source.append(king)
 
+            team_rep = apr * (len(self.ladder_2v2)+1)
             for team in self.ladder_2v2:
                 if not team.name:
                     team.name = get_team_name()
                 while len(team) < 2:
                     f = source.pop()
-                    f.arena_active = f.arena_permit = True
-                    if f.arena_rep < apr:
-                        f.arena_rep = int(max(apr, f.level * 500) * random.uniform(.9, 1.1))
                     team.add(f)
+                # initial arena_rep, flags
+                for f in team:
+                    f.arena_active = f.arena_permit = True
+                    frep = f.arena_rep
+                    if team_rep > frep:
+                        frep = team_rep
+                    f.arena_rep = int(frep * random.uniform(.9, 1.1))
+                team_rep -= int(apr * random.uniform(.8, 1.0))
 
             # 3v3 Ladder:
             ladder = set(f for t in chain(self.ladder_3v3, self.matchteams_3v3) for f in t) 
@@ -690,18 +692,41 @@ init -9 python:
             if king not in ladder:
                 source.append(king)
 
+            team_rep = apr * (len(self.ladder_3v3)+1)
             for team in self.ladder_3v3:
                 if not team.name:
                     team.name = get_team_name()
                 while len(team) < 3:
                     f = source.pop()
-                    f.arena_active = f.arena_permit = True
-                    if f.arena_rep < apr:
-                        f.arena_rep = int(max(apr, f.level * 500) * random.uniform(.9, 1.1))
                     team.add(f)
+                # initial arena_rep, flags
+                for f in team:
+                    f.arena_active = f.arena_permit = True
+                    frep = f.arena_rep
+                    if team_rep > frep:
+                        frep = team_rep
+                    f.arena_rep = int(frep * random.uniform(.9, 1.1))
+                team_rep -= int(apr * random.uniform(.8, 1.0))
 
-            # Add ladder teams to the sources:
+            # initial arena_rep for candidates I.
+            ladder = [f for f in candidates if f.arena_rep != 0]
+            source = [f for f in candidates if f.arena_rep == 0]
+            source = source[:120-len(ladder)]
+            arena_rep = min(f.arena_rep for f in ladder)
+            for f in source:
+                f.arena_active = True
+                f.arena_rep = int(arena_rep * random.uniform(.7, .95))
+
             for source, ladder in ((self.matchteams_2v2, self.ladder_2v2), (self.matchteams_3v3, self.ladder_3v3)):
+                # initial arena_rep for candidates II.
+                team_rep = ladder[-1].get_rep()
+                for t in source:
+                    if t not in ladder:
+                        for f in t:
+                            f.arena_active = f.arena_permit = True
+                            f.arena_rep = int(team_rep * random.uniform(.7, .95))
+
+                # Add ladder teams to the sources:
                 source.extend([t for t in ladder if t not in source])
 
             self.update_ladder()       # Populate the reputation ladder
