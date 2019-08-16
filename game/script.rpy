@@ -691,9 +691,9 @@ label after_load:
             arena.ladder_2v2 = arena.lineup_2v2
             arena.ladder_3v3 = arena.lineup_3v3
 
-            arena.ladder_1v1_members = [t.members[:] for t in arena.ladder_1v1]
-            arena.ladder_2v2_members = [t.members[:] for t in arena.ladder_2v2]
-            arena.ladder_3v3_members = [t.members[:] for t in arena.ladder_3v3]
+            arena.ladder_1v1_members = [[f for f in t] for t in arena.ladder_1v1]
+            arena.ladder_2v2_members = [[f for f in t] for t in arena.ladder_2v2]
+            arena.ladder_3v3_members = [[f for f in t] for t in arena.ladder_3v3]
 
             del arena.lineup_1v1
             del arena.lineup_2v2
@@ -709,11 +709,11 @@ label after_load:
             arena.matchteams_3v3 = list(arena.ladder_3v3)
             for m in arena.matches_2v2:
                 m = m[0]
-                if m and m not in arena.matchteams_2v2:
+                if m not in arena.matchteams_2v2 and len(m._members) == 2:
                     arena.matchteams_2v2.append(m)
             for m in arena.matches_3v3:
                 m = m[0]
-                if m and m not in arena.matchteams_3v3:
+                if m not in arena.matchteams_3v3 and len(m._members) == 3:
                     arena.matchteams_3v3.append(m)
 
             arena.dogteams_2v2 = [t for t in arena.teams_2v2 if t not in arena.matchteams_2v2]
