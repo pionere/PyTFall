@@ -352,7 +352,8 @@ screen char_rename(char=None):
                 keysym "mousedown_3", "K_ESCAPE"
                 padding (10, 10)
 
-screen character_pick_screen(): # screen to select someone from the MC team
+screen character_pick_screen(team=None):
+    default chars = hero.team if team is None else team
     frame:
         align (.5, .5)
         xsize 450
@@ -363,7 +364,7 @@ screen character_pick_screen(): # screen to select someone from the MC team
         hbox:
             spacing 45
             align (.5, .4)
-            for l in hero.team:
+            for l in chars:
                 $ char_profile_img = l.show('portrait', resize=(101, 101), cache=True)
                 $ img = "content/gfx/frame/ink_box.png"
                 vbox:

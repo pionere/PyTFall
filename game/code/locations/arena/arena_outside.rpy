@@ -305,15 +305,7 @@ label xeona_training:
     else:
         ax "I am ready if you are!"
 
-    if len(hero.team) > 1:
-        call screen character_pick_screen
-        $ char = _return
-    else:
-        $ char = hero
-
-    if not char:
-        $ del char
-        jump xeona_menu
+    $ char = hero
 
     while 1:
         menu:

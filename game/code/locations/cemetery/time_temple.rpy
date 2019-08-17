@@ -25,52 +25,61 @@ label time_temple:
 
     menu time_temple_menu:
         "Healing":
-            if hero.has_flag("dnd_time_healing_day"):
-                t "I'm sorry, it's impossible to perform the procedure twice per day."
-                jump time_temple_menu
-
             if not global_flags.has_flag("asked_miel_about_healing"):
                 $ global_flags.set_flag("asked_miel_about_healing")
                 t "Indeed, like any other temple we can heal your body and soul."
                 t "Or rather, reverse the time and restore them to former condition."
                 t "But we do it only once per day. Such is the natural limitation of time flow."
 
-            $ temp_charcters = {}
+            $ temp, tmp = dict(), list()
             python hide:
                 for i in hero.team:
-                    temp = 0
+                    val = 0
                     for stat in ("health", "mp", "vitality"): # BATTLE_STATS
-                        temp += i.get_max(stat) - i.get_stat(stat)
+                        val += i.get_max(stat) - i.get_stat(stat)
                     if "Food Poisoning" in i.effects:
-                        temp += 100
+                        val += 100
                     if "Poisoned" in i.effects:
-                        temp += 100
+                        val += 100
                     if "Down with Cold" in i.effects:
-                        temp += 50
+                        val += 50
                     if "Injured" in i.effects:
-                        temp += 150
+                        val += 150
 
-                    if temp > 0:
-                        temp_charcters[i] = temp*(i.tier+3)
+                    if val > 0:
+                        if i.has_flag("dnd_time_healing_day"):
+                            tmp.append(i)
+                        else:
+                            temp[i] = val*(i.tier+3)
 
-            if not temp_charcters:
-                t "I don't see the need in healing right now."
-                "Miel can only restore characters in your team, including the main hero."
-                $ del temp_charcters
-                jump time_temple_menu
+            if not temp:
+                if tmp:
+                    t "I'm sorry, it's impossible to perform the procedure twice per day."
+                else:
+                    t "I don't see the need in healing right now."
+                    "Miel can only restore characters in your team, including the main hero."
             else:
-                $ res = sum(temp_charcters.values())
+                $ tmp = sum(temp.values())
 
-                t "I see your team could use our services. It will be [res] gold."
-                if hero.gold < res:
+                if len(temp) == 1:
+                    if hero in temp:
+                        $ msg = "you"
+                    else:
+                        $ msg = "that %s" % ("girl" if next(iter(temp)).gender == "female" else "guy")
+                else:
+                    $ msg = "some of you"
+                t "I see [msg] could use our services."
+                extend " It will be {color=gold}[tmp] Gold{/color}."
+                $ del msg
+                if hero.gold < tmp:
                     "Unfortunately, you don't have enough money."
                 else:
+                    "Do you want to pay {color=gold}[tmp] Gold{/color} to perform the procedure?"
                     menu:
-                        "Pay":
-                            $ hero.set_flag("dnd_time_healing_day")
+                        "Yes":
                             play sound "content/sfx/sound/events/clock.ogg"
                             python hide:
-                                hero.take_money(res, reason="Time Temple")
+                                hero.take_money(tmp, reason="Time Temple")
 
                                 img = "content/gfx/bg/locations/deep_sea.webp"
                                 img = im.Alpha(PyTGFX.bright_img(img, .3), alpha=.85) 
@@ -79,7 +88,7 @@ label time_temple:
                                 renpy.hide("sea")
                                 renpy.with_statement(Dissolve(.3))
 
-                                for i in temp_charcters:
+                                for i in temp:
                                     for stat in ("health", "mp", "vitality"): # BATTLE_STATS
                                         i.gfx_mod_stat(stat, i.get_max(stat) - i.get_stat(stat))
 
@@ -88,75 +97,113 @@ label time_temple:
                                     i.disable_effect("Down with Cold")
                                     i.disable_effect("Injured")
 
+                                    i.set_flag("dnd_time_healing_day")
+
                             t "Done. Please come again if you need our help."
-                        "Don't Pay":
+                        "No":
                             t "Very well."
-                $ del res, temp_charcters
-                jump time_temple_menu
+            $ del tmp, temp
+            jump time_temple_menu
                         
         "Restore AP":
             if not global_flags.has_flag("asked_miel_about_ap"):
                 $ global_flags.set_flag("asked_miel_about_ap")
                 t "I can return you the time you spent. But it's an expensive procedure."
-                "Miel can restore your action points, as long as you can pay for it."
-                "Only you can use this option, your teammates are not affected."
-            if hero.PP >= hero.setPP:
-                "Your action points are maxed out already at the moment."
-                jump time_temple_menu
-            if hero.gold < 100000:
-                "Unfortunately, you don't have 100000 gold coins to pay."
+                "Miel can restore action points, as long as you can pay for it."
+
+            $ temp, tmp = list(), None
+            python hide:
+                for i in hero.team:
+                    if i.PP < i.setPP:
+                        temp.append(i)
+
+            if not temp:
+                t "Sorry, but I can't help you at the moment."
+                "Miel can only restore the action points of your team members, including the main hero."
+            elif hero.gold < 100000:
+                "Unfortunately, you don't have {color=gold}100 000 Gold{/color} coins to pay."
             else:
-                "Do you wish to pay 100000 gold to restore AP for [hero.name]?"
-                menu:
-                    "Yes":
-                        play sound "content/sfx/sound/events/clock.ogg"
-                        python hide:
-                            hero.take_money(100000, reason="Time Temple")
-
-                            img = "content/gfx/bg/locations/forest_1.webp"
-                            img = Transform(img, alpha=.8, xpos=-(850*5), xzoom=5, yzoom=4)
-                            renpy.show("forest", what=img)
-                            renpy.with_statement(Dissolve(.6))
-                            renpy.hide("forest")
-                            renpy.with_statement(Dissolve(.4))
-
-                            hero.PP = hero.setPP
-                        t "Your time has been returned to you. Come again if you need me."
-                    "No":
+                $ tmp = temp[0]
+                menu time_temple_ap_menu:
+                    "Pay {color=gold}100 000 Gold{/color} to restore your action points" if tmp is hero:
                         $ pass
+                    "Pay {color=gold}100 000 Gold{/color} to restore the action points of [tmp.name]" if tmp is not hero:
+                        $ pass
+                    "Pick another character" if len(temp) > 1:
+                        call screen character_pick_screen(temp)
+                        if _return:
+                            $ tmp = _return
+                        jump time_temple_ap_menu
+                    "Nevermind":
+                        t "All right then."
+                        $ tmp = None
+                if tmp is not None:
+                    play sound "content/sfx/sound/events/clock.ogg"
+                    python hide:
+                        hero.take_money(100000, reason="Time Temple")
+
+                        img = "content/gfx/bg/locations/forest_1.webp"
+                        img = Transform(img, alpha=.8, xpos=-(850*5), xzoom=5, yzoom=4)
+                        renpy.show("forest", what=img)
+                        renpy.with_statement(Dissolve(.6))
+                        renpy.hide("forest")
+                        renpy.with_statement(Dissolve(.4))
+
+                        tmp.PP = tmp.setPP
+                    $ t("Time has been returned to %s. Come again if you need me." % ("you" if tmp is hero else tmp.name))
+            $ del temp, tmp
             jump time_temple_menu
 
         "Remove injuries":
             if not global_flags.has_flag("asked_miel_about_wounds"):
                 $ global_flags.set_flag("asked_miel_about_wounds")
-                t "I can heal your workers injuries. It's a common problem among adventurers these days."
-            $ temp_charcters = {c: 150*(c.tier+3) for c in hero.chars if (c.is_available and "Injured" in c.effects)}
-            $ p = sum(temp_charcters.values())
-            if p == 0:
-                t "I don't think you need this service at the moment."
-            elif hero.gold < p:
-                "Unfortunately, you don't have [p] gold coins to pay."
+                t "Yes, among other things we can heal injuries as well."
+                t "It's a common problem among adventurers these days."
+            $ temp, tmp = dict(), None
+            python hide:
+                for i in hero.team:
+                    if "Injured" in i.effects:
+                        temp[i] = 150*(i.tier+3)
+
+            if not temp:
+                t "No one seems to be injured here."
+                "Miel can only heal characters in your team, including the main hero."
             else:
-                menu:
-                    "Do you wish to pay [p] gold to heal all injuries of your workers?"
-                    "Yes":
-                        play sound "content/sfx/sound/events/clock.ogg"
-                        python hide:
-                            hero.take_money(p, reason="Time Temple")
+                $ tmp = sum(temp.values())
 
-                            img = "content/gfx/bg/locations/ocean_underwater.webp"
-                            img = im.Alpha(PyTGFX.bright_img(img, .3), alpha=.85)
-                            renpy.show("sea", what=img)
-                            renpy.with_statement(Dissolve(.5))
-                            renpy.hide("sea")
-                            renpy.with_statement(Dissolve(.3))
+                if len(temp) == 1:
+                    if hero in temp:
+                        $ msg = "I see you have a quite bad wound there."
+                    else:
+                        $ msg = "I see that %s has a quite serious wound." % ("girl" if next(iter(temp)).gender == "female" else "guy")
+                else:
+                    $ msg = "I see many of you are injured."
+                t "[msg]"
+                extend " It will be {color=gold}[tmp] Gold{/color}."
+                $ del msg
+                if hero.gold < tmp:
+                    "Unfortunately, you don't have enough money."
+                else:
+                    menu:
+                        "Do you want to pay {color=gold}[tmp] Gold{/color} to heal the injuries?"
+                        "Yes":
+                            play sound "content/sfx/sound/events/clock.ogg"
+                            python hide:
+                                hero.take_money(tmp, reason="Time Temple")
 
-                            for i in temp_charcters:
-                                i.disable_effect("Injured")
-                        t "Done. Come again if you need me."
-                    "No":
-                        $ pass
-            $ del p, temp_charcters
+                                img = "content/gfx/bg/locations/ocean_underwater.webp"
+                                img = im.Alpha(PyTGFX.bright_img(img, .3), alpha=.85)
+                                renpy.show("sea", what=img)
+                                renpy.with_statement(Dissolve(.5))
+                                renpy.hide("sea")
+                                renpy.with_statement(Dissolve(.3))
+
+                                for i in temp:
+                                    i.disable_effect("Injured")
+                            t "Done. Come again if you need me."
+                        "No":
+                            t "Fine."
+            $ del tmp, temp
             jump time_temple_menu
 
         "Ask about this place":
