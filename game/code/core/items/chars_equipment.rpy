@@ -397,20 +397,6 @@ screen char_equip():
     # BASE FRAME 3 "mid layer" ====================================>
     add "content/gfx/frame/equipment1.webp"
 
-    # Item Info (Mid-Bottom Frame): ====================================>
-    hbox:
-        align (.388, 1.0)
-        spacing 1
-        style_group "content"
-
-        # Item Description:
-        frame:
-            xalign .6
-            at fade_in_out()
-            background Frame(im.Alpha(PyTGFX.bright_img("content/gfx/frame/Mc_bg3.png", -0.2), alpha=.3), 5, 5)
-            xysize (710, 296)
-            use char_equip_item_info(item=focusitem, size=(703, 287))
-
     #use char_equip_left_frame(stats_display)
 
 #screen char_equip_left_frame(stats_display):
@@ -454,6 +440,13 @@ screen char_equip():
                     tooltip "Next Character"
                     focus_mask True
                     keysym "K_RIGHT"
+
+            imagebutton:
+                pos (178, 70)
+                idle im.Scale("content/gfx/interface/buttons/close2.png", 35, 35)
+                hover im.Scale("content/gfx/interface/buttons/close2_h.png", 35, 35)
+                action Return(["control", "return"])
+                tooltip "Return to previous screen!"
 
         # NAME ========================================>
         hbox:
@@ -995,352 +988,353 @@ screen char_equip():
         background Frame(im.Alpha(PyTGFX.bright_img("content/gfx/frame/p_frame5.png", -0.1), alpha=.7), 5, 5)
         use items_inv(inv=inventory, main_size=(333, 333), frame_size=(80, 80), return_value=["item", "equip"])
 
+    # Item Info (Mid-Bottom Frame): ====================================>
+    hbox:
+        align (.388, 1.0)
+        spacing 1
+        style_group "content"
+
+        # Item Description/Outfits:
+        frame:
+            xalign .6
+            at fade_in_out()
+            background Frame(im.Alpha(PyTGFX.bright_img("content/gfx/frame/Mc_bg3.png", -0.2), alpha=.3), 5, 5)
+            xysize (710, 296)
+            #use char_equip_item_info(item=focusitem, size=(703, 287))
+
+#screen char_equip_item_info(item=None, char=None, size=(635, 380)):
+            # One of the most difficult code rewrites I've ever done (How Gismo aligned everything in the first place is a work of (weird and clumsy) art...):
+            # Recoding this as three vertically aligned HBoxes...
+            if focusitem:
+                $ item, xs, ys = focusitem, 703, 287
+                fixed:
+                    style_prefix "proper_stats"
+                    xysize (xs, ys)
+
+                    # Top HBox: Discard/Close buttons and the Item ID:
+                    hbox:
+                        align .5, .0
+                        xsize xs-10
+                        $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/discard.png", 22, 22)
+                        imagebutton:
+                            align 0, .5
+                            idle temp
+                            hover PyTGFX.bright_img(temp, 0.15)
+                            insensitive PyTGFX.sepia_img(temp)
+                            action Return(["item", "discard"])
+                            sensitive inv_source.inventory[item] > 0
+                            tooltip "Discard item"
+                        frame:
+                            align .5, .5
+                            xysize (439, 35)
+                            background Frame(im.Alpha(PyTGFX.bright_img("content/gfx/frame/p_frame5.png", -0.05), alpha=.9), 10, 10)
+                            label ('[item.id]') text_color "gold" align .5, .5 text_size 19 text_outlines [(1, "black", 0, 0)] text_style "interactions_text"
+                        $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/close4.png", 20, 20)
+                        imagebutton:
+                            align .98, .5
+                            idle temp
+                            hover PyTGFX.bright_img(temp, 0.15)
+                            action Return(["con", "return"])
+                            tooltip "Close item info"
+
+                    # Separation Strip (Outside of alignments):
+                    label ('{color=#ecc88a}--------------------------------------------------------------------------------------------------') xalign .5 ypos 25
+                    label ('{color=#ecc88a}--------------------------------------------------------------------------------------------------') xalign .5 ypos 163
+
+                    # Mid HBox:
+                    hbox:
+                        xsize xs
+                        xalign .5
+                        ypos 47
+                        spacing 5
+
+                        # Left Items Info:
+                        frame:
+                            xalign .02
+                            style_prefix "proper_stats"
+                            background Frame(im.Alpha(PyTGFX.bright_img("content/gfx/frame/p_frame5.png", -0.05), alpha=.9), 5, 5)
+                            xysize (180, 130)
+                            xpadding 0
+                            xmargin 0
+                            has vbox spacing 1 xoffset 10
+                            null height 13
+                            frame:
+                                xysize (160, 25)
+                                text "Price:" color "gold" xalign .02
+                                label str(item.price) text_color "gold" text_size 15 align .98, .5 text_outlines [(1, "#3a3a3a", 0, 0)]
+                            frame:
+                                xysize (160, 25)
+                                text "Slot:" color "#F5F5DC" xalign .02
+                                $ slot = EQUIP_SLOTS.get(item.slot, item.slot.capitalize())
+                                label slot text_color "#F5F5DC" text_size 15 align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
+                            frame:
+                                xysize (160, 25)
+                                text "Type:" color "#F5F5DC" xalign .02
+                                label item.type.capitalize() text_color "#F5F5DC" text_size 15 align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
+                            frame:
+                                xysize (160, 25)
+                                text "Sex:" color "#F5F5DC" xalign .02
+                                $ color = "#F5F5DC"
+                                $ temp = getattr(item, "gender", "unisex")
+                                if item.slot in ["gift", "resources", "loot"]:
+                                    $ temp = "N/A"
+                                elif item.type == "food" and temp == "unisex":
+                                    $ temp = "N/A"
+                                elif temp == "female":
+                                    $ color = "#FFAEB9" 
+                                elif temp == "male":
+                                    $ color = "#FFA54F"
+                                label temp.capitalize() text_color color text_size 15 align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
+
+                        # Buttons and image:
+                        if item_direction == "unequip":
+                            $ temp_source = eqtarget
+                            $ temp_target = hero
+                        else:
+                            $ temp_source = inv_source
+                            $ temp_target = eqtarget if inv_source == hero else hero
+                        button:
+                            style_group "pb"
+                            align (.0, .5)
+                            xysize (80, 45)
+                            action Return(["item", "transfer", temp_source, temp_target])
+                            sensitive eqtarget != hero
+                            if eqtarget == hero:
+                                text "Transfer" style "pb_button_text" align (.5, .5)
+                            else:
+                                tooltip "Transfer %s from %s to %s" % (item.id, temp_source.nickname, temp_target.nickname)
+                                text "Give to\n{color=#FFAEB9}[temp_target.nickname]{/color}" style "pb_button_text" align (.5, .5) line_leading 3
+
+                        frame:
+                            align (.5, .5)
+                            background Frame("content/gfx/frame/frame_it2.png", 5, 5)
+                            xysize (120, 120)
+                            $ temp = PyTGFX.scale_content(item.icon, 100, 100)
+                            imagebutton:
+                                align .5, .5
+                                idle temp
+                                hover PyTGFX.bright_content(temp, .15)
+                                action Show("popup_info", content="item_info_content", param=item)
+
+                        if item_direction == "unequip":
+                            $ temp = "Unequip"
+                        elif item_direction == "equip":
+                            if item.slot == "consumable":
+                                $ temp = "Use"
+                            else:
+                                $ temp = "Equip"
+                        $ temp_msg = " ".join([temp, item.id])
+                        button:
+                            style_group "pb"
+                            align (1.0, .5)
+                            xysize (80, 45)
+                            tooltip temp_msg
+                            action SensitiveIf(focusitem), Return(["item", "equip/unequip"])
+                            text temp style "pb_button_text" align (.5, .5):
+                                if item_direction == "equip" and not can_equip(focusitem, eqtarget, silent=True):
+                                    color "red" strikethrough True
+
+                        # Right items info (Stats):
+                        frame:
+                            xalign .98
+                            background Frame(im.Alpha(PyTGFX.bright_img("content/gfx/frame/p_frame5.png", -0.05), alpha=.9), 5, 5)
+                            xysize (185, 130)
+                            style_group "proper_stats"
+                            left_padding 6
+                            right_padding 3
+                            ypadding 5
+                            has viewport draggable True mousewheel True child_size 200, 500
+                            vbox:
+                                if item in eqtarget.constemp:
+                                    $ temp = eqtarget.constemp[item]
+                                    null height 3
+                                    frame:
+                                        xysize (172, 18)
+                                        text u"{i}Remaining %s: %d{/i}" % (plural("day", temp), temp) color "yellowgreen" size 15 xalign .5 yoffset -2
+
+                                if item in eqtarget.miscitems:
+                                    $ temp = item.mtemp - eqtarget.miscitems[item] 
+                                    null height 3
+                                    frame:
+                                        xysize (172, 18)
+                                        text u"{i}Remaining %s: %d{/i}" % (plural("day", temp), temp) color "yellowgreen" size 15 xalign .5 yoffset -2
+
+                                if item.mod:
+                                    label u"Stats:" text_size 14 text_color "gold" xpos 30
+                                    vbox:
+                                        spacing 1
+                                        for stat, value in item.mod.items():
+                                            frame:
+                                                xysize (172, 18)
+                                                text stat.capitalize() color "#F5F5DC" size 15 xalign .02 yoffset -2
+                                                label str(value) text_color "#F5F5DC" text_size 15 align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
+                                    null height 3
+
+                                if item.max:
+                                    label u"Max:" text_size 14 text_color "gold" xpos 30
+                                    vbox:
+                                        spacing 1
+                                        for stat, value in item.max.items():
+                                            frame:
+                                                xysize (172, 18)
+                                                text stat.capitalize() color "#F5F5DC" size 15 xalign .02 yoffset -2
+                                                label str(value) text_color "#F5F5DC" text_size 15 align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
+                                    null height 3
+
+                                if item.min:
+                                    label u"Min:" text_size 14 text_color "gold" xpos 30
+                                    vbox:
+                                        spacing 1
+                                        for stat, value in item.min.items():
+                                            frame:
+                                                xysize (172, 18)
+                                                text stat.capitalize() color "#F5F5DC" size 15 xalign .02 yoffset -2
+                                                label str(value) text_color "#F5F5DC" text_size 15 align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
+                                    null height 3
+
+                    # Bottom HBox: Desc/Traits/Effects/Skills:
+                    hbox:
+                        yalign 1.0
+                        # Traits, Effects:
+                        frame:
+                            background Frame(im.Alpha(PyTGFX.bright_img("content/gfx/frame/p_frame5.png", -0.05), alpha=.9), 5, 5)
+                            xysize 158, 104
+                            padding 2, 3
+                            has viewport draggable True mousewheel True
+
+                            # Traits:
+                            vbox:
+                                style_group "proper_stats"
+                                xsize 154
+                                $ temp = [t for t in item.addtraits if not t.hidden]
+                                if temp:
+                                    label ('Adds Traits:') text_size 14 text_color "gold" xpos 10
+                                    for trait in temp:
+                                        use trait_info(trait, 146, 20)
+                                    null height 2
+                                $ temp = [t for t in item.removetraits if not t.hidden]
+                                if temp:
+                                    label ('Removes Traits:') text_size 14 text_color "gold" xpos 10
+                                    for trait in temp:
+                                        use trait_info(trait, 146, 20)
+                                    null height 2
+                                if item.addeffects:
+                                    label ('Adds Effects:') text_size 14 text_color "gold" xpos 10
+                                    for effect in item.addeffects:
+                                        $ effect = CharEffect(effect)
+                                        use effect_info(effect, 146, 20)
+                                    null height 2
+                                if item.removeeffects:
+                                    label ('Removes Effects:') text_size 14 text_color "gold" xpos 10
+                                    for effect in item.removeeffects:
+                                        $ effect = CharEffect(effect)
+                                        use effect_info(effect, 146, 20)
+                                    #null height 2
+
+                        frame:
+                            xysize 382, 104
+                            padding 10, 5
+                            background Frame(im.Alpha(PyTGFX.bright_img("content/gfx/frame/p_frame5.png", -0.1), alpha=.9), 5, 5)
+                            has viewport draggable True mousewheel True
+                            text '{color=#ecc88a}[item.desc]{/color}' font "fonts/TisaOTM.otf" size 15 outlines [(1, "#3a3a3a", 0, 0)]
+
+                        frame:
+                            background Frame(im.Alpha(PyTGFX.bright_img("content/gfx/frame/p_frame5.png", -0.05), alpha=.9), 5, 5)
+                            xysize 158, 104
+                            padding 2, 3
+                            has viewport draggable True mousewheel True
+                            if item.add_be_spells or item.attacks:
+                                vbox:
+                                    xsize 154
+                                    style_group "proper_stats"
+                                    label ('Adds Skills:') text_size 14 text_color "gold" xpos 10
+                                    if item.add_be_spells:
+                                        for skill in item.add_be_spells:
+                                            use skill_info(skill, 146, 20)
+                                        null height 2
+                                    if item.attacks:
+                                        for skill in item.attacks:
+                                            use skill_info(skill, 146, 20)
+                                        #null height 2
+
+            else: # equipment saves
+                frame:
+                    style_prefix "proper_stats"
+                    background Null()
+                    left_padding 66
+                    hbox:
+                        for i, v in enumerate(eqtarget.eqsave):
+                            vbox:
+                                frame:
+                                    xpadding -50
+                                    background Null()
+                                    style_prefix "pb"
+                                    hbox:
+                                        button:
+                                            xysize (90, 30)
+                                            selected eqsave[i]
+                                            if focusoutfit == v:
+                                                action ToggleDict(eqsave, i), SetVariable("focusoutfit", None), SetVariable("dummy", None), With(dissolve)
+                                                tooltip "Hide the outfit"
+                                            elif eqsave[i]:
+                                                action Return(["outfit", "focus", v]), With(dissolve)
+                                                tooltip "Try the outfit"
+                                            else:
+                                                action ToggleDict(eqsave, i), With(dissolve)
+                                                tooltip "Show the outfit"
+
+                                            text str(v["name"]) underline (focusoutfit == v) style "pb_button_text"
+                                        $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/edit.png", 16, 16)
+                                        imagebutton:
+                                            align (.0, .0)
+                                            idle temp
+                                            hover PyTGFX.bright_img(temp, 0.15)
+                                            focus_mask True
+                                            action Return(["outfit", "rename", v])
+                                            tooltip "Rename the outfit"
+                                        button:
+                                            align (.5, .5)
+                                            xysize (30, 30)
+                                            action SensitiveIf(any(eqtarget.eqslots.values())), SetDict(eqsave, i, True), Return(["outfit", "save", v]), With(dissolve)
+                                            text u"\u2193" align .5, .5
+                                            padding (9, 1)
+                                            tooltip "Update the outfit with the current equipment"
+                                        if any(eqtarget.eqsave[i].values()):
+                                            button:
+                                                align (.5, .5)
+                                                xysize (30, 30)
+                                                action Function(eqtarget.load_equip, v), With(dissolve)
+                                                text u"\u2191" align .5, .5
+                                                padding (9, 1)
+                                                tooltip "Use the outfit"
+                                            button:
+                                                align (.5, .5)
+                                                xysize (30, 30)
+                                                action Return(["outfit", "remove", v]), With(dissolve)
+                                                text u"\u00D7" align .5, .5
+                                                padding (8, 1)
+                                                tooltip "Discard the outfit"
+                                frame:
+                                    xysize (234, 246)
+                                    background Null()
+                                    if eqsave[i]:
+                                        use eqdoll(source=v, outfit=True, fx_size=(304, 266), scr_align=(.98, 1.0), frame_size=[55, 55], return_value=["item", "save"])
+
+                        if len(eqtarget.eqsave) < 3:
+                            vbox:
+                                frame:
+                                    background Null()
+                                    style_prefix "pb"
+                                    hbox:
+                                        xalign .5
+                                        button:
+                                            xysize (90, 30)
+                                            action SensitiveIf(any(eqtarget.eqslots.values())), SetDict(eqsave, len(eqtarget.eqsave), True), Return(["outfit", "create"]), With(dissolve)
+                                            tooltip "Create a new outfit based on the current equipment"
+                                            text "..." style "pb_button_text"
+
     # BASE FRAME 1 "top layer" ====================================>
     add "content/gfx/frame/h1.webp"
-
-    imagebutton:
-        pos (178, 70)
-        idle im.Scale("content/gfx/interface/buttons/close2.png", 35, 35)
-        hover im.Scale("content/gfx/interface/buttons/close2_h.png", 35, 35)
-        action Return(["control", "return"])
-        tooltip "Return to previous screen!"
-        keysym "mousedown_3"
-
-screen char_equip_item_info(item=None, char=None, size=(635, 380), style_group="content", mc_mode=False):
-
-    key "mousedown_3" action Return(["con", "return"])
-
-    # One of the most difficult code rewrites I've ever done (How Gismo aligned everything in the first place is a work of (weird and clumsy) art...):
-    # Recoding this as three vertically aligned HBoxes...
-    if item:
-        $ xs = size[0]
-        $ ys = size[1]
-        fixed:
-            style_prefix "proper_stats"
-            xysize size
-
-            # Top HBox: Discard/Close buttons and the Item ID:
-            hbox:
-                align .5, .0
-                xsize xs-10
-                $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/discard.png", 22, 22)
-                imagebutton:
-                    align 0, .5
-                    idle temp
-                    hover PyTGFX.bright_img(temp, 0.15)
-                    insensitive PyTGFX.sepia_img(temp)
-                    action Return(["item", "discard"])
-                    sensitive inv_source.inventory[item] > 0
-                    tooltip "Discard item"
-                frame:
-                    align .5, .5
-                    xysize (439, 35)
-                    background Frame(im.Alpha(PyTGFX.bright_img("content/gfx/frame/p_frame5.png", -0.05), alpha=.9), 10, 10)
-                    label ('[item.id]') text_color "gold" align .5, .5 text_size 19 text_outlines [(1, "black", 0, 0)] text_style "interactions_text"
-                $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/close4.png", 20, 20)
-                imagebutton:
-                    align .98, .5
-                    idle temp
-                    hover PyTGFX.bright_img(temp, 0.15)
-                    action Return(["con", "return"])
-                    tooltip "Close item info"
-
-            # Separation Strip (Outside of alignments):
-            label ('{color=#ecc88a}--------------------------------------------------------------------------------------------------') xalign .5 ypos 25
-            label ('{color=#ecc88a}--------------------------------------------------------------------------------------------------') xalign .5 ypos 163
-
-            # Mid HBox:
-            hbox:
-                xsize xs
-                xalign .5
-                ypos 47
-                spacing 5
-
-                # Left Items Info:
-                frame:
-                    xalign .02
-                    style_prefix "proper_stats"
-                    background Frame(im.Alpha(PyTGFX.bright_img("content/gfx/frame/p_frame5.png", -0.05), alpha=.9), 5, 5)
-                    xysize (180, 130)
-                    xpadding 0
-                    xmargin 0
-                    has vbox spacing 1 xoffset 10
-                    null height 13
-                    frame:
-                        xysize (160, 25)
-                        text "Price:" color "gold" xalign .02
-                        label str(item.price) text_color "gold" text_size 15 align .98, .5 text_outlines [(1, "#3a3a3a", 0, 0)]
-                    frame:
-                        xysize (160, 25)
-                        text "Slot:" color "#F5F5DC" xalign .02
-                        $ slot = EQUIP_SLOTS.get(item.slot, item.slot.capitalize())
-                        label slot text_color "#F5F5DC" text_size 15 align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
-                    frame:
-                        xysize (160, 25)
-                        text "Type:" color "#F5F5DC" xalign .02
-                        label item.type.capitalize() text_color "#F5F5DC" text_size 15 align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
-                    frame:
-                        xysize (160, 25)
-                        text "Sex:" color "#F5F5DC" xalign .02
-                        $ color = "#F5F5DC"
-                        $ temp = getattr(item, "gender", "unisex")
-                        if item.slot in ["gift", "resources", "loot"]:
-                            $ temp = "N/A"
-                        elif item.type == "food" and temp == "unisex":
-                            $ temp = "N/A"
-                        elif temp == "female":
-                            $ color = "#FFAEB9" 
-                        elif temp == "male":
-                            $ color = "#FFA54F"
-                        label temp.capitalize() text_color color text_size 15 align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
-
-                # Buttons and image:
-                if item_direction == "unequip":
-                    $ temp_source = eqtarget
-                    $ temp_target = hero
-                else:
-                    $ temp_source = inv_source
-                    $ temp_target = eqtarget if inv_source == hero else hero
-                button:
-                    style_group "pb"
-                    align (.0, .5)
-                    xysize (80, 45)
-                    action Return(["item", "transfer", temp_source, temp_target])
-                    sensitive eqtarget != hero
-                    if eqtarget == hero:
-                        text "Transfer" style "pb_button_text" align (.5, .5)
-                    else:
-                        tooltip "Transfer %s from %s to %s" % (item.id, temp_source.nickname, temp_target.nickname)
-                        text "Give to\n{color=#FFAEB9}[temp_target.nickname]{/color}" style "pb_button_text" align (.5, .5) line_leading 3
-
-                frame:
-                    align (.5, .5)
-                    background Frame("content/gfx/frame/frame_it2.png", 5, 5)
-                    xysize (120, 120)
-                    $ temp = PyTGFX.scale_content(item.icon, 100, 100)
-                    imagebutton:
-                        align .5, .5
-                        idle temp
-                        hover PyTGFX.bright_content(temp, .15)
-                        action Show("popup_info", content="item_info_content", param=item)
-
-                if item_direction == "unequip":
-                    $ temp = "Unequip"
-                elif item_direction == "equip":
-                    if item.slot == "consumable":
-                        $ temp = "Use"
-                    else:
-                        $ temp = "Equip"
-                $ temp_msg = " ".join([temp, item.id])
-                button:
-                    style_group "pb"
-                    align (1.0, .5)
-                    xysize (80, 45)
-                    tooltip temp_msg
-                    action SensitiveIf(focusitem), Return(["item", "equip/unequip"])
-                    text temp style "pb_button_text" align (.5, .5):
-                        if item_direction == "equip" and not can_equip(focusitem, eqtarget, silent=True):
-                            color "red" strikethrough True
-
-                # Right items info (Stats):
-                frame:
-                    xalign .98
-                    background Frame(im.Alpha(PyTGFX.bright_img("content/gfx/frame/p_frame5.png", -0.05), alpha=.9), 5, 5)
-                    xysize (185, 130)
-                    style_group "proper_stats"
-                    left_padding 6
-                    right_padding 3
-                    ypadding 5
-                    has viewport draggable True mousewheel True child_size 200, 500
-                    vbox:
-                        if item in eqtarget.constemp:
-                            $ temp = eqtarget.constemp[item]
-                            null height 3
-                            frame:
-                                xysize (172, 18)
-                                text u"{i}Remaining %s: %d{/i}" % (plural("day", temp), temp) color "yellowgreen" size 15 xalign .5 yoffset -2
-
-                        if item in eqtarget.miscitems:
-                            $ temp = item.mtemp - eqtarget.miscitems[item] 
-                            null height 3
-                            frame:
-                                xysize (172, 18)
-                                text u"{i}Remaining %s: %d{/i}" % (plural("day", temp), temp) color "yellowgreen" size 15 xalign .5 yoffset -2
-
-                        if item.mod:
-                            label u"Stats:" text_size 14 text_color "gold" xpos 30
-                            vbox:
-                                spacing 1
-                                for stat, value in item.mod.items():
-                                    frame:
-                                        xysize (172, 18)
-                                        text stat.capitalize() color "#F5F5DC" size 15 xalign .02 yoffset -2
-                                        label str(value) text_color "#F5F5DC" text_size 15 align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
-                            null height 3
-
-                        if item.max:
-                            label u"Max:" text_size 14 text_color "gold" xpos 30
-                            vbox:
-                                spacing 1
-                                for stat, value in item.max.items():
-                                    frame:
-                                        xysize (172, 18)
-                                        text stat.capitalize() color "#F5F5DC" size 15 xalign .02 yoffset -2
-                                        label str(value) text_color "#F5F5DC" text_size 15 align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
-                            null height 3
-
-                        if item.min:
-                            label u"Min:" text_size 14 text_color "gold" xpos 30
-                            vbox:
-                                spacing 1
-                                for stat, value in item.min.items():
-                                    frame:
-                                        xysize (172, 18)
-                                        text stat.capitalize() color "#F5F5DC" size 15 xalign .02 yoffset -2
-                                        label str(value) text_color "#F5F5DC" text_size 15 align (.98, .5) text_outlines [(1, "#3a3a3a", 0, 0)]
-                            null height 3
-
-            # Bottom HBox: Desc/Traits/Effects/Skills:
-            hbox:
-                yalign 1.0
-                # Traits, Effects:
-                frame:
-                    background Frame(im.Alpha(PyTGFX.bright_img("content/gfx/frame/p_frame5.png", -0.05), alpha=.9), 5, 5)
-                    xysize 158, 104
-                    padding 2, 3
-                    has viewport draggable True mousewheel True
-
-                    # Traits:
-                    vbox:
-                        style_group "proper_stats"
-                        xsize 154
-                        $ temp = [t for t in item.addtraits if not t.hidden]
-                        if temp:
-                            label ('Adds Traits:') text_size 14 text_color "gold" xpos 10
-                            for trait in temp:
-                                use trait_info(trait, 146, 20)
-                            null height 2
-                        $ temp = [t for t in item.removetraits if not t.hidden]
-                        if temp:
-                            label ('Removes Traits:') text_size 14 text_color "gold" xpos 10
-                            for trait in temp:
-                                use trait_info(trait, 146, 20)
-                            null height 2
-                        if item.addeffects:
-                            label ('Adds Effects:') text_size 14 text_color "gold" xpos 10
-                            for effect in item.addeffects:
-                                $ effect = CharEffect(effect)
-                                use effect_info(effect, 146, 20)
-                            null height 2
-                        if item.removeeffects:
-                            label ('Removes Effects:') text_size 14 text_color "gold" xpos 10
-                            for effect in item.removeeffects:
-                                $ effect = CharEffect(effect)
-                                use effect_info(effect, 146, 20)
-                            #null height 2
-
-                frame:
-                    xysize 382, 104
-                    padding 10, 5
-                    background Frame(im.Alpha(PyTGFX.bright_img("content/gfx/frame/p_frame5.png", -0.1), alpha=.9), 5, 5)
-                    has viewport draggable True mousewheel True
-                    text '{color=#ecc88a}[item.desc]{/color}' font "fonts/TisaOTM.otf" size 15 outlines [(1, "#3a3a3a", 0, 0)]
-
-
-                frame:
-                    background Frame(im.Alpha(PyTGFX.bright_img("content/gfx/frame/p_frame5.png", -0.05), alpha=.9), 5, 5)
-                    xysize 158, 104
-                    padding 2, 3
-                    has viewport draggable True mousewheel True
-                    if item.add_be_spells or item.attacks:
-                        vbox:
-                            xsize 154
-                            style_group "proper_stats"
-                            label ('Adds Skills:') text_size 14 text_color "gold" xpos 10
-                            if item.add_be_spells:
-                                for skill in item.add_be_spells:
-                                    use skill_info(skill, 146, 20)
-                                null height 2
-                            if item.attacks:
-                                for skill in item.attacks:
-                                    use skill_info(skill, 146, 20)
-                                #null height 2
-
-    else: # equipment saves
-        frame:
-            style_prefix "proper_stats"
-            background Null()
-            left_padding 66
-            hbox:
-                for i, v in enumerate(eqtarget.eqsave):
-                    vbox:
-                        frame:
-                            xpadding -50
-                            background Null()
-                            style_prefix "pb"
-                            hbox:
-                                button:
-                                    xysize (90, 30)
-                                    selected eqsave[i]
-                                    if focusoutfit == v:
-                                        action ToggleDict(eqsave, i), SetVariable("focusoutfit", None), SetVariable("dummy", None), With(dissolve)
-                                        tooltip "Hide the outfit"
-                                    elif eqsave[i]:
-                                        action Return(["outfit", "focus", v]), With(dissolve)
-                                        tooltip "Try the outfit"
-                                    else:
-                                        action ToggleDict(eqsave, i), With(dissolve)
-                                        tooltip "Show the outfit"
-                                        
-                                    text str(v["name"]) underline (focusoutfit == v) style "pb_button_text"
-                                $ temp = PyTGFX.scale_img("content/gfx/interface/buttons/edit.png", 16, 16)
-                                imagebutton:
-                                    align (.0, .0)
-                                    idle temp
-                                    hover PyTGFX.bright_img(temp, 0.15)
-                                    focus_mask True
-                                    action Return(["outfit", "rename", v])
-                                    tooltip "Rename the outfit"
-                                button:
-                                    align (.5, .5)
-                                    xysize (30, 30)
-                                    action SensitiveIf(any(eqtarget.eqslots.values())), SetDict(eqsave, i, True), Return(["outfit", "save", v]), With(dissolve)
-                                    text u"\u2193" align .5, .5
-                                    padding (9, 1)
-                                    tooltip "Update the outfit with the current equipment"
-                                if any(eqtarget.eqsave[i].values()):
-                                    button:
-                                        align (.5, .5)
-                                        xysize (30, 30)
-                                        action Function(eqtarget.load_equip, v), With(dissolve)
-                                        text u"\u2191" align .5, .5
-                                        padding (9, 1)
-                                        tooltip "Use the outfit"
-                                    button:
-                                        align (.5, .5)
-                                        xysize (30, 30)
-                                        action Return(["outfit", "remove", v]), With(dissolve)
-                                        text u"\u00D7" align .5, .5
-                                        padding (8, 1)
-                                        tooltip "Discard the outfit"
-                        frame:
-                            xysize (234, 246)
-                            background Null()
-                            if eqsave[i]:
-                                use eqdoll(source=v, outfit=True, fx_size=(304, 266), scr_align=(.98, 1.0), frame_size=[55, 55], return_value=["item", "save"])
-
-                if len(eqtarget.eqsave) < 3:
-                    vbox:
-                        frame:
-                            background Null()
-                            style_prefix "pb"
-                            hbox:
-                                xalign .5
-                                button:
-                                    xysize (90, 30)
-                                    action SensitiveIf(any(eqtarget.eqslots.values())), SetDict(eqsave, len(eqtarget.eqsave), True), Return(["outfit", "create"]), With(dissolve)
-                                    tooltip "Create a new outfit based on the current equipment"
-                                    text "..." style "pb_button_text"
 
 screen item_info_content(param, pos, anchor):
     default item = param
