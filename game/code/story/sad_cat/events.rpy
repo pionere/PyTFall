@@ -4,14 +4,14 @@ init -1 python:
 label found_sad_cat_1:
     hide screen main_street
     scene bg street_alley
-    $ temp = npcs["sad_cat"].show("profile", "tired", resize = (295, 340))
+    $ temp = npcs["sad_cat"].show("profile", "tired", resize=(295, 340), add_mood=False)
     show expression temp at left
     with dissolve
     hero.say "Oh. There is a cat in that narrow alley. It looks exhausted."
     menu:
         "Pet it":
             hide temp
-            $ temp = npcs["sad_cat"].show("profile", "scared", resize = (295, 340))
+            $ temp = npcs["sad_cat"].show("profile", "scared", resize=(295, 340), add_mood=False)
             show expression temp at left
             "The cat is frightened as you approach, and quickly runs away."
             hide expression temp with dissolve
@@ -22,7 +22,7 @@ label found_sad_cat_1:
             "There are plenty of cats in the city. No need to pay any attention."
         "Drive it away":
             hide temp
-            $ temp = npcs["sad_cat"].show("profile", "scared", resize = (295, 340))
+            $ temp = npcs["sad_cat"].show("profile", "scared", resize=(295, 340), add_mood=False)
             show expression temp at left
             "The cat is frightened as you approach, and quickly runs away."
             $ kill_event("found_sad_cat_1")
@@ -33,7 +33,7 @@ label found_sad_cat_1:
 label found_sad_cat_2:
     hide screen main_street
     scene bg street_alley
-    $ temp = npcs["sad_cat"].show("profile", "tired", resize = (295, 340))
+    $ temp = npcs["sad_cat"].show("profile", "tired", resize=(295, 340), add_mood=False)
     show expression temp at left
     with dissolve
     $ fish = list(i for i in hero.inventory if i.type == "fish" and i.price >= 3)
@@ -44,7 +44,7 @@ label found_sad_cat_2:
         menu:
             "Give some fish to the cat":
                 hide temp
-                $ temp = npcs["sad_cat"].show("profile", "indifferent", resize = (295, 340))
+                $ temp = npcs["sad_cat"].show("profile", "indifferent", resize=(295, 340), add_mood=False)
                 show expression temp at left
                 "The cat snatches the fish from your hands and runs away."
                 hide temp with dissolve
@@ -57,7 +57,7 @@ label found_sad_cat_2:
                 hide temp with dissolve
             "Drive it away":
                 hide temp
-                $ temp = npcs["sad_cat"].show("profile", "scared", resize = (295, 340))
+                $ temp = npcs["sad_cat"].show("profile", "scared", resize=(295, 340), add_mood=False)
                 show expression temp at left
                 "The cat is frightened as you approach, and quickly runs away."
                 $ kill_event("found_sad_cat_2")
@@ -68,7 +68,7 @@ label found_sad_cat_2:
 label found_sad_cat_3:
     hide screen main_street
     scene bg street_alley
-    $ temp = npcs["sad_cat"].show("profile", "tired", resize = (295, 340))
+    $ temp = npcs["sad_cat"].show("profile", "tired", resize=(295, 340), add_mood=False)
     show expression temp at left
     with dissolve
     $ fish = list(i for i in hero.inventory if i.type == "fish" and i.price >= 3)
@@ -79,7 +79,7 @@ label found_sad_cat_3:
         menu:
             "Give some fish to the cat":
                 hide temp
-                $ temp = npcs["sad_cat"].show("profile", "confident", resize = (295, 340))
+                $ temp = npcs["sad_cat"].show("profile", "confident", resize=(295, 340), add_mood=False)
                 show expression temp at left
                 "The cat cautiously approaches and sniffs you, then snatches the fish and runs away."
                 hide temp with dissolve
@@ -92,7 +92,7 @@ label found_sad_cat_3:
                 hide temp with dissolve
             "Drive it away":
                 hide temp
-                $ temp = npcs["sad_cat"].show("profile", "scared", resize = (295, 340))
+                $ temp = npcs["sad_cat"].show("profile", "scared", resize=(295, 340), add_mood=False)
                 show expression temp at left
                 "The cat is frightened as you approach, and quickly runs away."
                 $ kill_event("found_sad_cat_3")
@@ -104,7 +104,7 @@ label found_sad_cat_4:
     hide screen main_street
     scene bg street_alley
     $ cat = npcs["sad_cat"]
-    $ temp = cat.show("profile", "in pain", resize = (295, 340))
+    $ temp = cat.show("profile", "in pain", resize=(295, 340), add_mood=False)
     show expression temp at left
     with dissolve
     $ npcs["sad_cat"].override_portrait("portrait", "in pain")
@@ -122,7 +122,7 @@ label found_sad_cat_4:
                 with flash
                 $ del flash
                 hide expression temp
-                $ temp = cat.show("profile", "happy", resize = (295, 340))
+                $ temp = cat.show("profile", "happy", resize=(295, 340), add_mood=False)
                 show expression temp at left
                 $ cat.override_portrait("portrait", "happy")
                 cat.say "Meow!"
@@ -130,7 +130,7 @@ label found_sad_cat_4:
                 hero.say "I should go now."
                 hide expression temp
                 with dissolve
-                $ temp = cat.show("vnsprite", "happy", resize = (295, 340))
+                $ temp = cat.show("vnsprite", "happy", resize=(295, 340), add_mood=False)
                 show expression temp at center
                 cat.say "Meow!"
                 hero.say "The cat follows me. I suppose it's not safe for him to stay here."
