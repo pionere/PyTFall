@@ -1,7 +1,4 @@
 init python:
-    def dummy_interaction_restart(*args, **kwargs):
-        renpy.restart_interaction()
-
     def get_screens(*args):
         """
         Simple checks for active screens.

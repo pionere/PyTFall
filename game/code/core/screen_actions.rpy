@@ -984,15 +984,13 @@ init -10 python:
             """
             return not self.ins
 
-
     @renpy.pure
     class SetScreenVariableC(Action, FieldEquality):
         """
-        Allows us to use a func to update a screen variable
+        Allows us to use a func to update a screen variable.
         """
-
-        identity_fields = []
-        equality_fields = []
+        identity_fields = [ "callable" ]
+        equality_fields = [ "name" ]
 
         def __init__(self, name, callable, **kwargs):
             self.name = name
@@ -1000,15 +998,30 @@ init -10 python:
             self.kwargs = kwargs
 
         def __call__(self):
-
             cs = renpy.current_screen()
-
             if cs is None:
                 return
 
             cs.scope[self.name] = self.callable(**self.kwargs)
             renpy.restart_interaction()
 
+    @renpy.pure
+    class SetScreenVariableD(Action, FieldEquality):
+        """
+        Allows us to call it to update a screen variable.
+        """
+        equality_fields = [ "name" ]
+
+        def __init__(self, name):
+            self.name = name
+
+        def __call__(self, param):
+            cs = renpy.current_screen()
+            if cs is None:
+                return
+
+            cs.scope[self.name] = param
+            renpy.restart_interaction()
 
     # Menu extensions:
     class MenuExtensionAction(Action):

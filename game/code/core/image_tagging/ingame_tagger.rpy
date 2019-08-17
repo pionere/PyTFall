@@ -358,7 +358,7 @@ screen tagger_create_tagchar:
                             style "TisaOTM"
                             size 20
                             color "ivory"
-                            changed dummy_interaction_restart
+                            changed SetScreenVariableD("char_id")
                         text folder color "ivory" id "folder_input" xalign .97
                     else:
                         text char_id color "ivory" id "id_input" xalign .97
@@ -370,7 +370,7 @@ screen tagger_create_tagchar:
                             style "TisaOTM"
                             size 20
                             color "ivory"
-                            changed dummy_interaction_restart
+                            changed SetScreenVariableD("folder")
                 vbox:
                     xalign 1.0
                     xsize 20
@@ -380,14 +380,14 @@ screen tagger_create_tagchar:
                         imagebutton:
                             idle temp
                             hover PyTGFX.bright_img(temp, .15)
-                            action [SetScreenVariable("folder", renpy.get_widget("tagger_create_tagchar", "folder_input").content), SetScreenVariable("mode", "id")]
+                            action [SetScreenVariable("mode", "id")]
                             tooltip "Edit ID"
                     else:
                         null height 30
                         imagebutton:
                             idle temp
                             hover PyTGFX.bright_img(temp, .15)
-                            action [SetScreenVariable("char_id", renpy.get_widget("tagger_create_tagchar", "id_input").content), SetScreenVariable("mode", "folder")]
+                            action [SetScreenVariable("mode", "folder")]
                             tooltip "Edit Folder"
 
             hbox:
@@ -398,9 +398,7 @@ screen tagger_create_tagchar:
                     keysym "mousedown_3", "K_ESCAPE"
                 textbutton "Create":
                     xalign 0.9
-                    action Return(["tagchar", "new",
-                                   folder if mode == "id" else renpy.get_widget("tagger_create_tagchar", "folder_input").content,
-                                   char_id if mode == "folder" else renpy.get_widget("tagger_create_tagchar", "id_input").content])
+                    action Return(["tagchar", "new", folder, char_id])
                     tooltip "Create new character in the current group"
 
 screen tagger_json_dropdown(char, field, options, label=None):
