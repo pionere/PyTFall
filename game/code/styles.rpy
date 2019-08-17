@@ -355,6 +355,15 @@ init 2: # Advanced style that can carry a lot of properties to be used in screen
         xmaximum 166
         align (.5, .5)
 
+    style action_btns_frame:
+        is dropdown_gm_frame
+        pos (.98, .98)
+        anchor (1.0, 1.0)
+    style action_btns_button:
+        is dropdown_gm_button
+    style action_btns_button_text:
+        is dropdown_gm_button_text
+
     # One of the most widely used styles in the game:
     # These are Gismo's Grey Button style we use all over the place.
     style basic_button:

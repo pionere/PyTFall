@@ -30,14 +30,6 @@ label academy_town:
         $ PyTFallStatic.play_music("library", fadein=.5)
     $ global_flags.del_flag("keep_playing_music")
 
-    python:
-        # Build the actions
-        if pytfall.world_actions.location("academy_town"):
-            pytfall.world_actions.meet_girls()
-            pytfall.world_actions.add("library_matrix", "Read the books", Jump("library_read_matrix"))
-            pytfall.world_actions.add("eleven_dialogue", "Find Eleven", Jump("library_eleven_dialogue"))
-            pytfall.world_actions.finish()
-
     scene bg academy_town
     with dissolve
     if not global_flags.has_flag('visited_library'):
@@ -165,7 +157,16 @@ label library_eleven_dialogue:
 
 screen academy_town():
     use top_stripe(True)
-    use location_actions("academy_town")
+
+    style_prefix "action_btns"
+    frame:
+        has vbox
+        textbutton "Find Eleven":
+            action Jump("library_eleven_dialogue")
+        textbutton "Read the books":
+            action Jump("library_read_matrix")
+        textbutton "Meet Girls":
+            action ToggleField(iam, "show_girls")
 
     if iam.show_girls:
         use interactions_meet

@@ -6,11 +6,6 @@ label swimming_pool:
         $ PyTFallStatic.play_music("swimming_pool")
     $ global_flags.del_flag("keep_playing_music")
 
-    python:
-        if pytfall.world_actions.location("swimming_pool"):
-            pytfall.world_actions.meet_girls()
-            pytfall.world_actions.look_around()
-            pytfall.world_actions.finish()
     scene bg swimming_pool
     with dissolve
 
@@ -60,7 +55,14 @@ label swimming_pool:
 
 screen swimming_pool():
     use top_stripe(True, return_button_action=Return("leave"))
-    use location_actions("swimming_pool")
+
+    style_prefix "action_btns"
+    frame:
+        has vbox
+        textbutton "Look Around":
+            action Function(pytfall.look_around)
+        textbutton "Meet Girls":
+            action ToggleField(iam, "show_girls")
 
     if iam.show_girls:
         use interactions_meet
@@ -80,9 +82,8 @@ screen swimming_pool():
             action Return("swim")
 
 screen swimmong_pool_swim():
-    style_prefix "dropdown_gm"
+    style_prefix "action_btns"
     frame:
-        pos (.98, .98) anchor (1.0, 1.0)
         has vbox
         textbutton "Swim (10 G)":
             action Return(["pool", "swim"])

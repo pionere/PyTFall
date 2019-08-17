@@ -75,17 +75,6 @@ label slave_market:
         $ del g, s, spr
 
 label slave_market_controls:
-    python:
-        # Build the actions
-        if pytfall.world_actions.location("slave_market"):
-            pytfall.world_actions.slave_market(0, pytfall.sm)
-            pytfall.world_actions.add(1, "Free Slaves", Jump("sm_free_slaves"))
-            pytfall.world_actions.add(2, "Find Blue", Jump("blue_menu"))
-            pytfall.world_actions.work(100, name="Work", returned="work")
-
-            pytfall.world_actions.look_around(index=1000)
-            pytfall.world_actions.finish()
-
     scene bg slave_market
 
     show screen slavemarket
@@ -97,26 +86,28 @@ label slave_market_controls:
     while 1:
         $ result = ui.interact()
 
-        if result[0] == "buy":
-            $ char = pytfall.sm.get_char()
-            $ msg = pytfall.sm.buy_slave(char)
-            if msg:
-                show screen message_screen(msg)
+        if result == "browse":
+            show screen slave_shopping(source=pytfall.sm, buy_button="Purchase", buy_tt="You can buy this great slave for the sum of %s Gold!")
+            with dissolve
+        elif result[0] == "buy":
+            $ pytfall.sm.buy_slave(pytfall.sm.get_char())
             if not pytfall.sm.chars_list:
                 hide screen slave_shopping
-            $ del char, msg
+                with dissolve
         elif result[0] == "control":
             hide screen slavemarket
             if result[1] == "work":
                 jump slave_market_work
             elif result[1] == "jumpclub":
                 jump slave_market_club
+            elif result[1] == "blue":
+                jump blue_menu
+            elif result[1] == "free":
+                jump sm_free_slaves
             else:
                 jump city
 
 label sm_free_slaves:
-    hide screen slavemarket
-
     $ s = npcs["Stan_slavemarket"].say
     show expression npcs["Stan_slavemarket"].get_vnsprite() as stan at mid_left with dissolve
 
@@ -425,15 +416,33 @@ label blue_menu:
                 g "Goodbye!"
                 $ del g
                 hide blue with dissolve
-                jump slave_market
+                jump slave_market_controls
 
 screen slavemarket():
-
     use top_stripe(True)
 
-    use r_lightbutton(img=im.Flip(im.Scale("content/gfx/interface/buttons/blue_arrow.png", 80, 80), horizontal=True), return_value =['control', 'jumpclub'], align=(.01, .5))
+    style_prefix "action_btns"
+    frame:
+        has vbox
+        textbutton "Buy Slaves":
+            action Return("browse")
+            sensitive pytfall.sm.chars_list
+            tooltip "Check today's offers!"
+        textbutton "Free Slaves":
+            action Return(["control", "free"])
+        textbutton "Find Blue":
+            action Return(["control", "blue"])
+        textbutton "Work":
+            action Return(["control", "work"])
+        textbutton "Look Around":
+            action Function(pytfall.look_around)
 
-    use location_actions("slave_market")
+    $ img = im.Flip(im.Scale("content/gfx/interface/buttons/blue_arrow.png", 80, 80), horizontal=True)
+    imagebutton:
+        align (.01, .5)
+        idle img
+        hover PyTGFX.bright_img(img, .15)
+        action Return(['control', 'jumpclub'])
 
 screen slave_shopping(source, buy_button, buy_tt):
     modal True

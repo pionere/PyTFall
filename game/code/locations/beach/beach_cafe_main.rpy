@@ -6,13 +6,6 @@ label city_beach_cafe_main:
         $ PyTFallStatic.play_music("beach_cafe")
     $ global_flags.del_flag("keep_playing_music")
 
-    # Build the actions
-    python:
-        if pytfall.world_actions.location("city_beach_cafe_main"):
-            pytfall.world_actions.meet_girls()
-            pytfall.world_actions.look_around()
-            pytfall.world_actions.finish()
-
     if global_flags.get_flag("waitress_ice", [-1])[0] != day:
         python hide:
             who = global_flags.get_flag("waitress_cafe", [0, None])
@@ -57,7 +50,14 @@ label city_beach_cafe_main:
 
 screen city_beach_cafe_main:
     use top_stripe(True)
-    use location_actions("city_beach_cafe_main")
+
+    style_prefix "action_btns"
+    frame:
+        has vbox
+        textbutton "Look Around":
+            action Function(pytfall.look_around)
+        textbutton "Meet Girls":
+            action ToggleField(iam, "show_girls")
 
     if iam.show_girls:
         use interactions_meet
@@ -119,17 +119,13 @@ label mc_action_city_beach_ice:
 screen city_beach_ice_stand:
     add im.Scale("content/gfx/images/ice_stand.webp", config.screen_width, config.screen_height) # align .5, .5
 
-    style_prefix "dropdown_gm"
+    style_prefix "action_btns"
     frame:
-        pos (.98, .98) anchor (1.0, 1.0)
         has vbox
-
         textbutton "Eat an icecream alone":
             action Return("ice_alone")
-
         textbutton "Icecream for the team":
             action Return("ice_group")
-
         textbutton "Leave":
             action Return("leave")
             keysym "mousedown_3"

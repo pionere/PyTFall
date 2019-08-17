@@ -147,9 +147,8 @@ label witch_talking_menu:
                 jump witches_hut_exit
 
 screen witch_shop():
-    style_prefix "dropdown_gm"
+    style_prefix "action_btns"
     frame:
-        pos (.98, .98) anchor (1.0, 1.0)
         has vbox
         textbutton "Shop":
             action Return("shop")

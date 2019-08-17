@@ -1,12 +1,6 @@
 label city_park:
     $ iam.enter_location(goodtraits=["Elf", "Furry"], badtraits=["Aggressive", "Adventurous"],
                         coords=[[.1, .7], [.4, .45], [.74, .73]])
-    python:
-        # Build the actions
-        if pytfall.world_actions.location("city_park"):
-            pytfall.world_actions.meet_girls()
-            pytfall.world_actions.look_around()
-            pytfall.world_actions.finish()
 
     scene bg city_park
     with dissolve
@@ -30,7 +24,14 @@ label city_park:
 
 screen city_park():
     use top_stripe(True)
-    use location_actions("city_park")
+
+    style_prefix "action_btns"
+    frame:
+        has vbox
+        textbutton "Look Around":
+            action Function(pytfall.look_around)
+        textbutton "Meet Girls":
+            action ToggleField(iam, "show_girls")
 
     if iam.show_girls:
         use interactions_meet

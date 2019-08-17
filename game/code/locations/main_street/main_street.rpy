@@ -6,13 +6,6 @@ label main_street:
         $ PyTFallStatic.play_music("main_street")
     $ global_flags.del_flag("keep_playing_music")
 
-    python:
-        # Build the actions
-        if pytfall.world_actions.location("main_street"):
-            pytfall.world_actions.meet_girls()
-            pytfall.world_actions.look_around()
-            pytfall.world_actions.finish()
-
     #$ global_flags.set_flag("visited_mainstreet", True)
 
     scene bg main_street
@@ -35,7 +28,14 @@ label main_street:
 
 screen main_street():
     use top_stripe(True)
-    use location_actions("main_street")
+
+    style_prefix "action_btns"
+    frame:
+        has vbox
+        textbutton "Look Around":
+            action Function(pytfall.look_around)
+        textbutton "Meet Girls":
+            action ToggleField(iam, "show_girls")
 
     if iam.show_girls:
         use interactions_meet
@@ -82,4 +82,3 @@ screen main_street():
             hover PyTGFX.bright_img(img, .15)
             action [Hide("main_street"), Jump("employment_agency")]
             tooltip "Employment Agency"
-

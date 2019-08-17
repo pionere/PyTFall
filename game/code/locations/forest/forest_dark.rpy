@@ -3,10 +3,8 @@ label forest_dark:
         background_number = -1
         forest_bg_change = True
         forest_location = None
-        # Build the actions
-        #if pytfall.world_actions.location("forest_entrance"):
-        #    pytfall.world_actions.finish()
-    if not(hero.team.take_pp(80)):
+
+    if not hero.team.take_pp(80):
         if len(hero.team) > 1:
             "Unfortunately, your team is too tired at the moment. Maybe another time."
         else:

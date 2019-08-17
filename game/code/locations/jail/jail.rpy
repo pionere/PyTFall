@@ -1,28 +1,8 @@
 label city_jail:
-
     # Music related:
     #if not global_flags.has_flag("keep_playing_music"):
     #    $ PyTFallStatic.play_music("cityjail", fadein=.5)
     #$ global_flags.del_flag("keep_playing_music")
-
-    python:
-        # Build the actions
-        if pytfall.world_actions.location("city_jail"):
-            pytfall.world_actions.slave_market(0, pytfall.jail, button="Browse Escapees",
-                                               button_tooltip="Claim an escaped slave at reduced price.",
-                                               null_condition="not pytfall.jail.slaves",
-                                               buy_button="Purchase", buy_tooltip="Claim this slave by paying %s Gold.",
-                                               prep_actions=[Function(pytfall.jail.switch_mode, "slaves")])
-            pytfall.world_actions.slave_market(1, pytfall.jail, button="Captured Slaves",
-                                               button_tooltip="Sell or acquire the slaves captured by your explorers.",
-                                               null_condition="not pytfall.jail.captures",
-                                               buy_button="Train with Blue!", buy_tooltip="Train then acquire this slave by paying %s Gold.",
-                                               prep_actions=[Function(pytfall.jail.switch_mode, "captures")])
-            pytfall.world_actions.add(2, "Browse Cells",
-                [Function(pytfall.jail.switch_mode, "cells"), Show('city_jail_cells')],
-                null_condition="not pytfall.jail.cells")
-            pytfall.world_actions.look_around(100)
-            pytfall.world_actions.finish()
 
     scene bg jail
     with dissolve
@@ -40,7 +20,18 @@ label city_jail:
 
     while True:
         $ result = ui.interact()
-        if result[0] == "bail":
+        if result == "escapees":
+            $ pytfall.jail.switch_mode("slaves")
+            show screen slave_shopping(source=pytfall.jail, buy_button="Purchase", buy_tt="Claim this slave by paying %s Gold.")
+            with dissolve
+        elif result == "captures":
+            $ pytfall.jail.switch_mode("captures")
+            show screen slave_shopping(source=pytfall.jail, buy_button="Train with Blue!", buy_tt="Train then acquire this slave by paying %s Gold.")
+            with dissolve
+        elif result == "cells":
+            $ pytfall.jail.switch_mode("cells")
+            show screen city_jail_cells
+        elif result[0] == "bail":
             $ char = result[1]
             $ msg = pytfall.jail.bail_char(char)
             if msg:
@@ -51,32 +42,23 @@ label city_jail:
                 hide screen city_jail_cells
                 with dissolve
         elif result[0] == "buy":
-            $ char = result[1]
             if pytfall.jail.chars_list == pytfall.jail.slaves:
-                $ msg = pytfall.jail.buy_slave(char)
+                $ pytfall.jail.buy_slave(result[1])
             else:
-                $ msg = pytfall.jail.retrieve_captured(char, "Blue")
-            if msg:
-                show screen message_screen(msg)
-            $ del char, msg
+                $ pytfall.jail.retrieve_captured(result[1], "Blue")
 
             if not pytfall.jail.chars_list:
                 hide screen slave_shopping
                 with dissolve
         elif result[0] == "sell":
-            $ char = result[1]
-            $ msg = pytfall.jail.sell_captured(char)
-            if msg:
-                show screen message_screen(msg)
-            $ del char, msg
+            $ pytfall.jail.sell_captured(result[1])
 
             if not pytfall.jail.chars_list:
                 hide screen slave_shopping
                 with dissolve
-        elif result[0] == "control":
-            if result[1] == "return":
-                hide screen city_jail
-                jump city
+        elif result == ["control", "return"]:
+            hide screen city_jail
+            jump city
 
 label hero_in_jail:
     # Music related
@@ -180,10 +162,25 @@ label guard_talking_menu:
         jump hero_in_jail
 
 screen city_jail():
-
     use top_stripe(True)
 
-    use location_actions("city_jail")
+    style_prefix "action_btns"
+    frame:
+        has vbox
+        textbutton "Browse Escapees":
+            action Return("escapees")
+            sensitive pytfall.jail.slaves
+            tooltip "Claim an escaped slave at reduced price."
+        textbutton "Captured Slaves":
+            action Return("captures")
+            sensitive pytfall.jail.captures
+            tooltip "Sell or acquire the slaves captured by your explorers."
+        textbutton "Browse Cells":
+            action Return("cells")
+            sensitive pytfall.jail.cells
+            tooltip "Visit prisoners of the jail."
+        textbutton "Look Around":
+            action Function(pytfall.look_around)
 
 screen city_jail_cells():
     modal True
@@ -342,9 +339,8 @@ screen city_jail_cells():
 
 screen hero_cell():
     #use top_stripe(False)
-    style_prefix "dropdown_gm"
+    style_prefix "action_btns"
     frame:
-        pos (.98, .98) anchor (1.0, 1.0)
         has vbox
         textbutton "Call The Guards":
             action Return("guards")

@@ -317,7 +317,3 @@ label city_tavern_shopping: # tavern shop with alcohol, available in all modes e
 
     $ del shop, focus, item_price, amount, purchasing_dir
     jump city_tavern_menu
-
-#screen tavern_inside():
-#    use top_stripe(True)
-#    use location_actions("tavern_inside")

@@ -134,9 +134,8 @@ label about_aine_personal_training:
     return
 
 screen aine_screen():
-    style_prefix "dropdown_gm"
+    style_prefix "action_btns"
     frame:
-        pos (.98, .98) anchor (1.0, 1.0)
         has vbox
         textbutton "Spells":
             action Return("shop")

@@ -33,16 +33,6 @@ label arena_outside:
             $ PyTFallStatic.play_music("arena_outside")
         $ global_flags.del_flag("keep_playing_music")
 
-        python:
-            # Build the actions
-            if pytfall.world_actions.location("arena_outside"):
-                pytfall.world_actions.meet_girls()
-                pytfall.world_actions.look_around()
-                pytfall.world_actions.add("0xeona", "Find Xeona", Jump("find_xeona"))
-                pytfall.world_actions.add("0arena", "Enter Arena", Return(["control", "enter_arena"]))
-                pytfall.world_actions.add("1arena", "Practice", Return(["control", "practice"]))
-                pytfall.world_actions.finish()
-
         scene bg arena_outside
         with dissolve
 
@@ -406,15 +396,27 @@ label arena_practice_end:
 
 screen arena_outside:
     use top_stripe(True)
-    use location_actions("arena_outside")
+
+    style_prefix "action_btns"
+    frame:
+        has vbox
+        textbutton "Enter Arena":
+            action Return(["control", "enter_arena"])
+        textbutton "Find Xeona":
+            action Jump("find_xeona")
+        textbutton "Practice":
+            action Return(["control", "practice"])
+        textbutton "Look Around":
+            action Function(pytfall.look_around)
+        textbutton "Meet Girls":
+            action ToggleField(iam, "show_girls")
 
     if iam.show_girls:
         use interactions_meet
 
 screen xeona_screen:
-    style_prefix "dropdown_gm"
+    style_prefix "action_btns"
     frame:
-        pos (.98, .98) anchor (1.0, 1.0)
         has vbox
         textbutton "Talk":
             action Hide("xeona_screen"), Jump("xeona_talking")

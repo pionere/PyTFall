@@ -7,12 +7,6 @@ label graveyard_town:
         $ PyTFallStatic.play_music("cemetery", fadein=.5)
     $ global_flags.del_flag("keep_playing_music")
 
-    python:
-        # Build the actions
-        if pytfall.world_actions.location("graveyard_town"):
-            pytfall.world_actions.meet_girls()
-            pytfall.world_actions.finish()
-
     scene bg graveyard_town
     with dissolve
     show screen graveyard_town
@@ -149,7 +143,12 @@ screen cemetry_list_of_dead_chars(): # the list should not be empty!
 
 screen graveyard_town():
     use top_stripe(True)
-    use location_actions("graveyard_town")
+
+    style_prefix "action_btns"
+    frame:
+        has vbox
+        textbutton "Meet Girls":
+            action ToggleField(iam, "show_girls")
 
     if iam.show_girls:
         use interactions_meet

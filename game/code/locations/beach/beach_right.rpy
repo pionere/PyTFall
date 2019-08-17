@@ -1,12 +1,6 @@
 label city_beach_right:
     $ iam.enter_location(goodtraits=["Not Human", "Alien"], badtraits=["Shy", "Coward", "Homebody", "Human"],
                         coords=[[.4, .9], [.6, .8], [.9, .7]])
-    python:
-        # Build the actions
-        if pytfall.world_actions.location("city_beach_right"):
-            pytfall.world_actions.meet_girls()
-            pytfall.world_actions.look_around()
-            pytfall.world_actions.finish()
 
     scene bg city_beach_right
     with dissolve
@@ -30,7 +24,14 @@ label city_beach_right:
 
 screen city_beach_right():
     use top_stripe(True)
-    use location_actions("city_beach_right")
+
+    style_prefix "action_btns"
+    frame:
+        has vbox
+        textbutton "Look Around":
+            action Function(pytfall.look_around)
+        textbutton "Meet Girls":
+            action ToggleField(iam, "show_girls")
 
     if iam.show_girls:
         use interactions_meet

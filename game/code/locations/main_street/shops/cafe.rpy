@@ -4,15 +4,6 @@ label cafe:
         $ PyTFallStatic.play_music("shops", fadein=1.5)
     $ global_flags.del_flag("keep_playing_music")
 
-    # Build the actions
-    python:
-        if pytfall.world_actions.location("city_cafe"):
-            pytfall.world_actions.add(1, "Shop", Return("shop"))
-            pytfall.world_actions.add(2, "Eat alone", Return("eat_alone"), null_condition="hero.has_flag('dnd_ate_in_cafe')")
-            pytfall.world_actions.add(3, "Eat with group", Return("eat_group"), null_condition="len(hero.team)==1 or hero.has_flag('dnd_ate_in_cafe')")
-            pytfall.world_actions.add(4, "Leave", Return("leave"), keysym="mousedown_3")
-            pytfall.world_actions.finish()
-
     if global_flags.get_flag("waitress_cafe", [-1])[0] != day:
         python hide:
             who = global_flags.get_flag("waitress_ice", [0, None])
@@ -92,7 +83,21 @@ label cafe_shopping:
 
 screen cafe_eating():
     #use top_stripe(False)
-    use location_actions("city_cafe")
+
+    style_prefix "action_btns"
+    frame:
+        has vbox
+        textbutton "Shop":
+            action Return("shop")
+        textbutton "Eat alone":
+            action Return("eat_alone")
+            sensitive not hero.has_flag('dnd_ate_in_cafe')
+        textbutton "Eat with group":
+            action Return("order")
+            sensitive len(hero.team) > 1 and not hero.has_flag('dnd_ate_in_cafe')
+        textbutton "Leave":
+            action Return("leave")
+            keysym "mousedown_3"
 
 label mc_action_cafe_eat_alone_cafe_invitation:
     menu:

@@ -1,11 +1,4 @@
 label slave_market_club: 
-    
-    python:
-        # Build the actions
-        if pytfall.world_actions.location("slave_market_club"):
-            pytfall.world_actions.look_around()
-            pytfall.world_actions.finish()
-    
     scene bg slave_market_club
     show screen slavemarket_club
     with fade
@@ -16,15 +9,22 @@ label slave_market_club:
     while 1:
         $ result = ui.interact()
         
-        if result[0] == 'control':
-            if result[1] == 'return': 
-                hide screen slavemarket_club
-                jump slave_market_controls
-                
-                
+        if result == ["control", "return"]: 
+            hide screen slavemarket_club
+            jump slave_market_controls
+
 screen slavemarket_club():
-    
     use top_stripe(True)
-    
-    use location_actions("slave_market_club")
-    
+
+    style_prefix "action_btns"
+    frame:
+        has vbox
+        textbutton "Look Around":
+            action Function(pytfall.look_around)
+
+    $ img = im.Scale("content/gfx/interface/buttons/blue_arrow.png", 80, 80)
+    imagebutton:
+        align (.99, .5)
+        idle img
+        hover PyTGFX.bright_img(img, .15)
+        action Return(['control', 'return'])

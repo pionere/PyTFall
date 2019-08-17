@@ -8,14 +8,6 @@ label mages_tower:
         $ PyTFallStatic.play_music("mages_tower")
     $ global_flags.del_flag("keep_playing_music")
 
-    python:
-        # Build the actions
-        if pytfall.world_actions.location("mages_tower"):
-            pytfall.world_actions.add("angelica", "Find Angelica", Jump("angelica_meet"), condition=Iff(global_flag_complex("met_angelica")))
-            pytfall.world_actions.meet_girls()
-            pytfall.world_actions.look_around()
-            pytfall.world_actions.finish()
-
     scene bg mages_tower
     with dissolve
 
@@ -39,10 +31,19 @@ label mages_tower:
             hide screen mages_tower
             jump city
 
-
 screen mages_tower():
     use top_stripe(True)
-    use location_actions("mages_tower")
+
+    style_prefix "action_btns"
+    frame:
+        has vbox
+        if global_flags.has_flag("met_angelica"):
+            textbutton "Find Angelica":
+                action Hide("mages_tower"), Jump("angelica_meet")
+        textbutton "Look Around":
+            action Function(pytfall.look_around)
+        textbutton "Meet Girls":
+            action ToggleField(iam, "show_girls")
 
     if iam.show_girls:
         use interactions_meet

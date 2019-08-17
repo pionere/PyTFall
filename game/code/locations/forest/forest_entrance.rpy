@@ -6,13 +6,6 @@ label forest_entrance:
         $ PyTFallStatic.play_music("forest_entrance")
     $ global_flags.del_flag("keep_playing_music")
 
-    python:
-        # Build the actions
-        if pytfall.world_actions.location("forest_entrance"):
-            pytfall.world_actions.meet_girls()
-            pytfall.world_actions.look_around()
-            pytfall.world_actions.finish()
-
     scene bg forest_entrance at truecenter
     with dissolve
 
@@ -61,7 +54,14 @@ label mc_action_wood_cutting:
 
 screen forest_entrance():
     use top_stripe(True)
-    use location_actions("forest_entrance")
+
+    style_prefix "action_btns"
+    frame:
+        has vbox
+        textbutton "Look Around":
+            action Function(pytfall.look_around)
+        textbutton "Meet Girls":
+            action ToggleField(iam, "show_girls")
 
     if iam.show_girls:
         use interactions_meet

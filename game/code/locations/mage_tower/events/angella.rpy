@@ -8,7 +8,6 @@ init python:
 label angelica_meet:
     $ a = npcs["Angelica_mage_tower"].say
 
-    hide screen mages_tower
     show expression npcs["Angelica_mage_tower"].get_vnsprite() as angelica
     with dissolve
 
@@ -38,6 +37,7 @@ label angelica_meet:
             "Not really":
                 a "Oh? Well, never mind then..."
                 a "I'll be around if you change your mind."
+                $ global_flags.set_flag("keep_playing_music")
                 jump mages_tower
 
     $ pytfall.shops_stores["Angelica Shop"].visible = True # done here so it is not enabled if the user is not interested in magic, but also not barred forever 
@@ -246,9 +246,8 @@ screen alignment_removal_choice(character):
         tooltip "Remove all elements"
 
 screen angelica_menu():
-    style_prefix "dropdown_gm"
+    style_prefix "action_btns"
     frame:
-        pos (.98, .98) anchor (1.0, 1.0)
         has vbox
         textbutton "Spells":
             action Return("spells")

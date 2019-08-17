@@ -228,6 +228,10 @@ init -9 python:
                 self.populate_world(tier_offset=.0)
                 tl.end("PyTFall population ND")
 
+        # GUI helper functions
+        def look_around(self):
+            self.world_events.run_events("look_around", cost=1)
+
     class Gazette(_object):
         def __init__(self):
             self.clear()

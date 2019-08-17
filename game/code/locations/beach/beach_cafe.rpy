@@ -2,13 +2,6 @@ label city_beach_cafe:
     $ iam.enter_location(goodtraits=["Athletic", "Dawdler", "Always Hungry"], badtraits=["Scars", "Undead", "Furry", "Monster"],
                         coords=[[.2, .75], [.5, .65], [.87, .6]])
 
-    python:
-        # Build the actions
-        if pytfall.world_actions.location("city_beach_cafe"):
-            pytfall.world_actions.meet_girls()
-            pytfall.world_actions.look_around()
-            pytfall.world_actions.finish()
-
     scene bg city_beach_cafe
     with dissolve
     show screen city_beach_cafe
@@ -32,7 +25,14 @@ label city_beach_cafe:
 
 screen city_beach_cafe:
     use top_stripe(True)
-    use location_actions("city_beach_cafe")
+
+    style_prefix "action_btns"
+    frame:
+        has vbox
+        textbutton "Look Around":
+            action Function(pytfall.look_around)
+        textbutton "Meet Girls":
+            action ToggleField(iam, "show_girls")
 
     if iam.show_girls:
         use interactions_meet

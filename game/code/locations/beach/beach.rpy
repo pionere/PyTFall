@@ -7,13 +7,6 @@ label city_beach:
         $ PyTFallStatic.play_music("beach_main")
     $ global_flags.del_flag("keep_playing_music")
 
-    python:
-        # Build the actions
-        if pytfall.world_actions.location("city_beach"):
-            pytfall.world_actions.meet_girls()
-            pytfall.world_actions.look_around()
-            pytfall.world_actions.finish()
-
     scene bg city_beach
     with dissolve
 
@@ -43,7 +36,14 @@ label city_beach:
 
 screen city_beach():
     use top_stripe(True)
-    use location_actions("city_beach")
+
+    style_prefix "action_btns"
+    frame:
+        has vbox
+        textbutton "Look Around":
+            action Function(pytfall.look_around)
+        textbutton "Meet Girls":
+            action ToggleField(iam, "show_girls")
 
     if iam.show_girls:
         use interactions_meet
@@ -65,7 +65,7 @@ screen city_beach():
 
         $ img = im.Scale("content/gfx/interface/icons/swimming_pool.png", 60, 60)
         imagebutton:
-            pos(1040, 80)
+            pos (1040, 80)
             idle img
             hover PyTGFX.bright_img(img, .15)
             action [Hide("city_beach"), Jump("swimming_pool")]
@@ -73,29 +73,24 @@ screen city_beach():
 
         $ img = im.Scale("content/gfx/interface/icons/sp_swimming.png", 90, 90)
         imagebutton:
-            pos(280, 240)
+            pos (280, 240)
             idle img
             hover PyTGFX.bright_img(img, .15)
             action [Hide("city_beach"), Show("city_beach_swim"), With(dissolve)]
             tooltip "Swim"
 
 screen city_beach_swim():
-    style_prefix "dropdown_gm"
+    style_prefix "action_btns"
     frame:
-        pos (.98, .98) anchor (1.0, 1.0)
         has vbox
-
         textbutton "Swim":
             action Hide("city_beach_swim"), Jump("city_beach_swimming_checks")
-
         if hero.get_skill("swimming") >= 150:
             textbutton "Diving":
                 action Hide("city_beach_swim"), Jump("mc_action_city_beach_diving_checks")
-
         if global_flags.has_flag('constitution_bonus_from_swimming_at_beach'):
             textbutton "About swimming":
                 action Hide("city_beach_swim"), Jump("city_beach_about_swimming")
-
         textbutton "Leave":
             action Hide("city_beach_swim"), Show("city_beach"), With(dissolve)
             keysym "mousedown_3"
