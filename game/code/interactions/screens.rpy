@@ -9,10 +9,6 @@ label girl_interactions:
         pytfall.world_quests.run_quests("auto")
         pytfall.world_events.run_events("auto")
 
-        # Hide menus till greeting
-        iam.show_menu = False
-        iam.show_menu_givegift = False
-
     scene expression iam.bg_cache
 
     show screen girl_interactions
@@ -57,25 +53,25 @@ label girl_interactions_after_greetings: # when character wants to say something
         #
 
         # Create actions
-        if pytfall.world_actions.location("girl_interactions"):
+        pwa = pytfall.world_actions
+        if pwa.location("girl_interactions"):
             _gi_mode = Iff(S((iam, "mode")), "==", "girl_interactions")
             _gt_mode = Iff(S((iam, "mode")), "==", "girl_trainings")
 
             # CHAT
             m = 0
-            pytfall.world_actions.menu(m, "Chat")
-            pytfall.world_actions.gm_choice("Small Talk", index=(m, 0))
-            pytfall.world_actions.gm_choice("About Job", condition="char.employer == hero", index=(m, 1))
-            pytfall.world_actions.gm_choice("How She Feels", condition="char.employer == hero", index=(m, 2))
-            pytfall.world_actions.gm_choice("About Her", index=(m, 3))
-            pytfall.world_actions.gm_choice("About Occupation", condition="char.employer != hero", index=(m, 4))
-            pytfall.world_actions.gm_choice("Interests", index=(m, 5))
-            pytfall.world_actions.gm_choice("Flirt", index=(m, 6))
-
+            pwa.menu(m, "Chat")
+            pwa.gm_choice("Small Talk", index=(m, 0))
+            pwa.gm_choice("About Job", condition="char.employer == hero", index=(m, 1))
+            pwa.gm_choice("How She Feels", condition="char.employer == hero", index=(m, 2))
+            pwa.gm_choice("About Her", index=(m, 3))
+            pwa.gm_choice("About Occupation", condition="char.employer != hero", index=(m, 4))
+            pwa.gm_choice("Interests", index=(m, 5))
+            pwa.gm_choice("Flirt", index=(m, 6))
 
             # TRAINING
             m = 1
-            pytfall.world_actions.menu(m, "Training", condition=_gt_mode)
+            pwa.menu(m, "Training", condition=_gt_mode)
 
             # Loop through all courses that don't belong to a school, and return the real dict
             #n = 0
@@ -90,71 +86,71 @@ label girl_interactions_after_greetings: # when character wants to say something
 
                         # if ev:
                             # # Create the menu for the course
-                            # pytfall.world_actions.menu((m, n), k, condition=OneOffTrainingAction("menu", c))
+                            # pwa.menu((m, n), k, condition=OneOffTrainingAction("menu", c))
 
                             # for l in range(len(ev)):
                                 # # Add the lesson
-                                # pytfall.world_actions.add((m, n, l), ev[l].name, OneOffTrainingAction("action", ev[l]), condition=OneOffTrainingAction("condition", ev[l]))
+                                # pwa.add((m, n, l), ev[l].name, OneOffTrainingAction("action", ev[l]), condition=OneOffTrainingAction("condition", ev[l]))
 
                             # n += 1
 
             # PRAISE
             m = 2
-            pytfall.world_actions.menu(m, "Praise", condition="char.employer != hero")
-            pytfall.world_actions.gm_choice("Clever", index=(m, 0))
-            pytfall.world_actions.gm_choice("Strong", index=(m, 1))
-            pytfall.world_actions.gm_choice("Cute", index=(m, 2))
+            pwa.menu(m, "Praise", condition="char.employer != hero")
+            pwa.gm_choice("Clever", index=(m, 0))
+            pwa.gm_choice("Strong", index=(m, 1))
+            pwa.gm_choice("Cute", index=(m, 2))
 
             # INSULT
             m = 3
-            pytfall.world_actions.menu(m, "Insult", condition="char.employer != hero")
-            pytfall.world_actions.gm_choice("Stupid", index=(m, 0))
-            pytfall.world_actions.gm_choice("Weak", index=(m, 1))
-            pytfall.world_actions.gm_choice("Ugly", index=(m, 2))
+            pwa.menu(m, "Insult", condition="char.employer != hero")
+            pwa.gm_choice("Stupid", index=(m, 0))
+            pwa.gm_choice("Weak", index=(m, 1))
+            pwa.gm_choice("Ugly", index=(m, 2))
 
             # GIVE MONEY
             m = 4
-            pytfall.world_actions.menu(m, "Money", condition="char.status != 'slave'")
-            pytfall.world_actions.gm_choice("Propose to give money", label="giftmoney", index=(m, 0))
-            pytfall.world_actions.gm_choice("Ask for money", label="askmoney", index=(m, 1))
+            pwa.menu(m, "Money", condition="char.status != 'slave'")
+            pwa.gm_choice("Propose to give money", label="giftmoney", index=(m, 0))
+            pwa.gm_choice("Ask for money", label="askmoney", index=(m, 1))
 
             m = 5
-            pytfall.world_actions.menu(m, "Money", condition="char.status == 'slave'")
-            pytfall.world_actions.gm_choice("Give", label="give_money", index=(m, 0))
-            pytfall.world_actions.gm_choice("Take", label="take_money", index=(m, 1))
+            pwa.menu(m, "Money", condition="char.status == 'slave'")
+            pwa.gm_choice("Give", label="give_money", index=(m, 0))
+            pwa.gm_choice("Take", label="take_money", index=(m, 1))
 
             # GIVE GIFT
             m = 6
-            pytfall.world_actions.add(m, "Give Gift", Return(["gift", True]), condition="char.get_flag('cnd_interactions_gift', day)-day < 3")
+            pwa.add(m, "Give Gift", Return(["gift", True]), condition="char.get_flag('cnd_interactions_gift', day)-day < 3")
 
             # PROPOSITION
             m = 7
-            pytfall.world_actions.menu(m, "Propose")
-            pytfall.world_actions.gm_choice("Girlfriend", condition="not check_lovers(char)", index=(m, 0))
-            pytfall.world_actions.gm_choice("Break Up", condition="check_lovers(char)", index=(m, 1))
-            pytfall.world_actions.gm_choice("Move in", condition="char.home != hero.home and char.status == 'free'", index=(m, 2))
-            pytfall.world_actions.gm_choice("Move out", condition="char.home == hero.home and char.status == 'free'", index=(m, 3))
-            pytfall.world_actions.gm_choice("Hire", condition="char.employer != hero", index=(m, 4))
-            pytfall.world_actions.gm_choice("Sparring", condition="'Combatant' in char.gen_occs", index=(m, 5))
+            pwa.menu(m, "Propose")
+            pwa.gm_choice("Girlfriend", condition="not check_lovers(char)", index=(m, 0))
+            pwa.gm_choice("Break Up", condition="check_lovers(char)", index=(m, 1))
+            pwa.gm_choice("Move in", condition="char.home != hero.home and char.status == 'free'", index=(m, 2))
+            pwa.gm_choice("Move out", condition="char.home == hero.home and char.status == 'free'", index=(m, 3))
+            pwa.gm_choice("Hire", condition="char.employer != hero", index=(m, 4))
+            pwa.gm_choice("Sparring", condition="'Combatant' in char.gen_occs", index=(m, 5))
 
             # PLAY A GAME
             m = 8
-            pytfall.world_actions.menu(m, "Play")
-            pytfall.world_actions.gm_choice("Archery", label="play_bow", index=(m, 0))
-            pytfall.world_actions.gm_choice("PowerBalls", label="play_power", index=(m, 1))
+            pwa.menu(m, "Play")
+            pwa.gm_choice("Archery", label="play_bow", index=(m, 0))
+            pwa.gm_choice("PowerBalls", label="play_power", index=(m, 1))
 
             # INTIMACY
             m = 9
-            pytfall.world_actions.menu(m, "Intimacy")
-            pytfall.world_actions.gm_choice("Hug", index=(m, 0))
-            pytfall.world_actions.gm_choice("Grab Butt", index=(m, 1))
-            pytfall.world_actions.gm_choice("Grab Breasts", index=(m, 2))
-            pytfall.world_actions.gm_choice("Kiss", index=(m, 3))
-            pytfall.world_actions.gm_choice("Sex", index=(m, 4))
-            pytfall.world_actions.gm_choice("Hire For Sex", index=(m, 5), condition="not(check_lovers(char)) and 'SIW' in char.gen_occs and char.status != 'slave'")
-            pytfall.world_actions.gm_choice("Become Fr", index=(m, 6), condition="DEBUG_INTERACTIONS")
-            pytfall.world_actions.gm_choice("Become Lv", index=(m, 7), condition="DEBUG_INTERACTIONS")
-            pytfall.world_actions.gm_choice("Disp", index=(m, 8), condition="DEBUG_INTERACTIONS")
+            pwa.menu(m, "Intimacy")
+            pwa.gm_choice("Hug", index=(m, 0))
+            pwa.gm_choice("Grab Butt", index=(m, 1))
+            pwa.gm_choice("Grab Breasts", index=(m, 2))
+            pwa.gm_choice("Kiss", index=(m, 3))
+            pwa.gm_choice("Sex", index=(m, 4))
+            pwa.gm_choice("Hire For Sex", index=(m, 5), condition="not(check_lovers(char)) and 'SIW' in char.gen_occs and char.status != 'slave'")
+            pwa.gm_choice("Become Fr", index=(m, 6), condition="DEBUG_INTERACTIONS")
+            pwa.gm_choice("Become Lv", index=(m, 7), condition="DEBUG_INTERACTIONS")
+            pwa.gm_choice("Disp", index=(m, 8), condition="DEBUG_INTERACTIONS")
 
             # Quests/Events to Interactions Menu:
             """
@@ -168,24 +164,23 @@ label girl_interactions_after_greetings: # when character wants to say something
                     if eval(v.get("condition", True)):
                         if n == 0:
                             # add the Menu
-                            pytfall.world_actions.menu(m, "U-Actions")
-                        pytfall.world_actions.gm_choice(v["button_name"], label=v["label"], index=(m, n))
+                            pwa.menu(m, "U-Actions")
+                        pwa.gm_choice(v["button_name"], label=v["label"], index=(m, n))
                         n += 1
 
             # m = 9  --- for the time being we disable negative actions, since they require ST
-            # pytfall.world_actions.menu(m, "Harassment", condition="not(char in hero.team) and char.employer == hero") # no fights between team members
-            # pytfall.world_actions.gm_choice("Insult", index=(m, 0))
-            # pytfall.world_actions.gm_choice("Escalation", index=(m, 1))
+            # pwa.menu(m, "Harassment", condition="not(char in hero.team) and char.employer == hero") # no fights between team members
+            # pwa.gm_choice("Insult", index=(m, 0))
+            # pwa.gm_choice("Escalation", index=(m, 1))
 
-            pytfall.world_actions.add("zzz", "Leave", Return(["control", "back"]), keysym="mousedown_3")
-
-            pytfall.world_actions.finish()
+            pwa.add("zzz", "Leave", Return(["control", "return"]), keysym="mousedown_3")
+            pwa.finish()
 
     jump interactions_control
 
 label girl_interactions_end:
-        # End the GM:
-        $ iam.end()
+    # End the GM:
+    $ iam.end()
 
 label interactions_control:
     while 1:
@@ -195,14 +190,13 @@ label interactions_control:
         if result[0] == "gift":
             # Show menu:
             if result[1] is True:
-                $ iam.show_menu = False
                 $ iam.show_menu_givegift = True
             # Hide menu:
             elif result[1] is None:
-                $ iam.show_menu = True
                 $ iam.show_menu_givegift = False
             # Give gift:
             else:
+                $ iam.show_menu_givegift = False
                 python hide:
                     item = result[1]
                     # Prevent repetition of this action (any gift, we do this on per gift basis already):
@@ -210,9 +204,6 @@ label interactions_control:
                         char.up_counter("cnd_interactions_gifts")
                     else:
                         char.set_flag("cnd_interactions_gifts", day)
-
-                    iam.show_menu = True
-                    iam.show_menu_givegift = False
 
                     item.hidden = False # We'll use existing hidden flag to hide items effectiveness.
                     dismod = getattr(item, "dismod", 0)
@@ -238,7 +229,7 @@ label interactions_control:
                             char.up_counter(flag_name, item.cblock)
                         else:
                             iam.refuse_gift(char)
-                            jump("girl_interactions")
+                            jump("interactions_control")
 
                     char.gfx_mod_stat("disposition", dismod)
                     hero.inventory.remove(item)
@@ -255,12 +246,9 @@ label interactions_control:
                     else:
                         char.gfx_mod_stat("affection", affection_reward(char, -1))
                         iam.accept_badgift(char)
-                jump girl_interactions
         # Controls
-        elif result[0] == "control":
-            # Return / Back
-            if result[1] in ("back", "return"):
-                jump girl_interactions_end
+        elif result == ["control", "return"]:
+            jump girl_interactions_end
 
 screen girl_interactions():
     # BG
@@ -338,27 +326,26 @@ screen girl_interactions():
                 # text ("{color=white}Girl.PP: [iam.char.PP] / %s"%iam.char.setPP)
                 # text "{color=white}Points: [hero.PP]"
 
-
-
-    # Actions
-    if iam.show_menu:
-        use location_actions("girl_interactions", char, pos=(1180, 315), anchor=(1.0, .5), style="main_screen_3")
-
     # Give gift interface
     if iam.show_menu_givegift:
+        $ gifts = [(i, n) for i, n in hero.inventory.items.iteritems() if i.slot == "gift"]
         frame:
             style "dropdown_gm_frame"
-            xysize (385, 455)
+            xysize (248, 455)
             align (.89, .27)
+            xpadding 6
             viewport:
-                xysize (365, 433)
-                scrollbars "vertical"
+                xysize (242, 433)
+                xpos 7
+                scrollbars ("vertical" if len(gifts) > 3 else None)
                 mousewheel True
                 has vbox
 
-                for item in hero.inventory:
-                    if item.slot == "gift":
-                        python:
+                for item, num in gifts:
+                    python:
+                        if item.hidden:
+                            img = None
+                        else:
                             dismod = getattr(item, "dismod", 0)
                             if item.type == "romantic" and not(check_lovers(char)) and char.get_stat("affection") < 700: # cannot give romantic gifts to anyone
                                 dismod = -10
@@ -377,32 +364,26 @@ screen girl_interactions():
                             img = im.Scale(img, 65, 35)
                             if flag_value >= 0:
                                 img = im.Sepia(img)
-
-                        button:
-                            style "main_screen_3_button"
-                            xysize (350, 100)
-                            hbox:
-                                fixed:
-                                    yoffset 3
-                                    xysize (90, 90)
-                                    add im.Scale(item.icon, 90, 90)
-                                    text str(hero.inventory[item]) color "ivory" style "library_book_header_main" align (0, 0)
-                                    if not item.hidden:
-                                        add img align (.0, .9)
-                                null width 10
-                                text "[item.id]" yalign .5 style "library_book_header_sub" color "ivory"
-                            sensitive (hero.PP >= 25) 
-                            action Return(["gift", item])
+                    button:
+                        style "main_screen_3_button"
+                        xysize (220, 100)
+                        add im.Scale(item.icon, 90, 90) align (.5, .5)
+                        text "[item.id]" align (.5, .1) style "library_book_header_sub" color "ivory" outlines [(1, "#424242", 0, 0)]
+                        if img is not None:
+                            add img align (.0, .9)
+                        text str(num) color "ivory" style "library_book_header_main" align (.9, .9)
+                        sensitive (hero.PP >= 25) 
+                        action Return(["gift", item])
 
                 null height 10
                 textbutton "Back":
                     action Return(["gift", None])
-                    minimum(220, 30)
-                    xalign .5
+                    xsize 220
                     style "main_screen_3_button"
-                    text_style "library_book_header_sub"
-                    text_color "ivory"
                     keysym "mousedown_3"
+    # Actions
+    elif iam.show_menu:
+        use location_actions("girl_interactions", char, pos=(1180, 315), anchor=(1.0, .5), style="main_screen_3")
 
     use top_stripe(False, show_lead_away_buttons=False)
 

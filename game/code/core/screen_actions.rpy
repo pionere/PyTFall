@@ -593,20 +593,6 @@ init -9 python:
                 self._a = dict()
                 return True
 
-        def look_around(self, index="look_around"):
-            """
-            Adds the default "Look Around" action.
-            index = The index to use. Defaults to "look_around".
-            """
-            self.add(index, WorldAction("Look Around", "look_around", WorldAction.NO_EVENTS))
-
-        def meet_girls(self, index="meet_girls"):
-            """
-            Adds the default "Meet Girls" action.
-            index = The index to use. Defaults to "meet_girls".
-            """
-            self.add(index, WorldAction("Meet Girls", ToggleField(iam, "show_girls")))
-
         def menu(self, index, *args, **kwargs):
             """
             Creates a new WorldActionMenu for the current location.
@@ -625,30 +611,6 @@ init -9 python:
             Removes an action from the location.
             """
             if index in self._a: self._a.pop(index)
-
-        def slave_market(self, index, source, button="Buy Slaves", prep_actions=[],
-                         button_tooltip="Check today's offers!",
-                         null_button=None,
-                         null_condition="not pytfall.sm.chars_list",
-                         buy_button="Purchase",
-                         buy_tooltip="You can buy this great slave for the sum of %s Gold!"):
-            """
-            Adds the default "Go Shopping" slave market action.
-            index = The index to use.
-            source = The store interface to use.
-            button = The text for the action button.
-            button_tooltip = The default tooltip text for the button.
-            null_button = The text for the action button when no slaves are available.
-            buy_button = The text for the buy slave button.
-            buy_tooltip = The tooltip for the buy slave button. Must contain 1 "%s" for the cost.
-            """
-            prep_actions.extend((Show("slave_shopping", source=source,
-                                      buy_button=buy_button, buy_tt=buy_tooltip), With(dissolve)))
-            self.add(index,
-                     WorldAction(button, action=prep_actions, tooltip=button_tooltip,
-                                 null_button=null_button,
-                                 null_condition=null_condition
-                                 ))
 
         def tree(self, tree):
             """
@@ -671,17 +633,6 @@ init -9 python:
                     level = level[t]
 
             return level
-
-        def work(self, index, name="Work", returned="work", condition=True):
-            """
-            Adds the default "Work" action.
-            index = The index to use.
-            name = The label for the button.
-            returned = The returned value with the 'control' prefix
-            condition = The condition to check if the player can work here.
-            """
-            self.add(index, WorldAction(name, Return(["control", returned]), condition=condition, null_button=name, null_condition=None))
-
 
     class WorldAction(_object):
         """
@@ -782,12 +733,12 @@ init -9 python:
         """
         The class that holds actions as a sub-menu.
         """
-
-        def __init__(self, button, condition=True, null_button=None,
+        def __init__(self, button, tooltip=None, condition=True, null_button=None,
                      null_condition=None, keysym=None):
             """
             Creates a new WorldActionMenu.
             button = The label for the button.
+            tooltip = The tooltip for the button.
             condition = Whether this button should be seen or null.
                         A string to evaluate, a function to call, a value to cast to bool or a list of the three.
             null_button = The label for the button if null.
@@ -795,6 +746,7 @@ init -9 python:
                              Uses the same syntax as condition.
             """
             self.button = button
+            self.tooltip = None
             self.keysym = keysym
             self.condition = condition
             self.null_button = null_button
@@ -822,6 +774,7 @@ init -9 python:
             """
             if not isinstance(other, WorldActionMenu): return False
             if other.button != self.button: return False
+            if other.tooltip != self.tooltip: return False
             if other.condition != self.condition: return False
             if other.null_button != self.null_button: return False
             if other.null_condition != self.null_condition: return False
@@ -1082,6 +1035,7 @@ screen action_button(a):
             action action
             keysym a.keysym
             text_layout "nobreak"
+            tooltip a.tooltip
 
 label _events_not_found:
     $ hero.say(choice(["Damn, I couldn't find anything...",

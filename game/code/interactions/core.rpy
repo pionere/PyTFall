@@ -110,24 +110,28 @@ init -1 python:
             """
             self.world_gossips = WorldGossipsManager(data)
 
-            # Mode and caches
-            self.mode = None
-            self.label_cache = ""
-            self.bg_cache = ""
-            self.jump_cache = ""
-            self.img_cache = Null()
-
-            # Current interaction
-            self.coords = None # list of positions to show the portraits in the GmCell
-            self.char = None
-            self.img = None
-
-            # Cells
+            # Cells:
             self.girlcells = dict()
 
+            # Location Info:
+            self.show_girls = False
+            self.coords = None # list of positions to show the portraits in the GmCell
+
+            # Current Interaction:
+            self.label_cache = ""
+            self.reset()
+
+        def reset(self):
+            # reset self
+            self.mode = None
+            #self.label_cache = ""
+            self.bg_cache = ""
+            self.jump_cache = ""
+            self.img_cache = None
+            self.char = None
+            self.img = None
             # Display flags
             self.see_greeting = True
-            self.show_girls = False
             self.show_menu = False
             self.show_menu_givegift = False
 
@@ -257,8 +261,7 @@ init -1 python:
                 img = char.get_img_from_cache(str(last_label))
                 if img is None:
                     img = char.show("girlmeets", gm_mode=True)
-            self.img = img
-            self.img_cache = img
+            self.img_cache = self.img = img
 
             if exit is not None:
                 self.label_cache = exit
@@ -346,16 +349,7 @@ init -1 python:
                 del store.char
 
             # reset self
-            self.mode = None
-            #self.label_cache = ""
-            self.bg_cache = ""
-            self.jump_cache = ""
-            self.img_cache = Null()
-            self.char = None
-            self.img = None
-            self.see_greeting = True
-            self.show_menu = False
-            self.show_menu_givegift = False
+            self.reset()
 
             if not safe:
                 renpy.jump(self.label_cache)
