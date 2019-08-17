@@ -113,14 +113,6 @@ screen new_style_tooltip():
                         $ value = "One"
                     text "Target: %s"%value color "gold"
 
-screen r_lightbutton:
-    default align = (0, 0)
-    imagebutton:
-        align align
-        idle img
-        hover im.MatrixColor(img, im.matrix.brightness(.15))
-        action Return(return_value)
-
 screen quest_notifications(q, type, align=None, autohide=2.5):
     zorder 500
 

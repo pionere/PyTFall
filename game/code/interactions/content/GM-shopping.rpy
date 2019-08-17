@@ -173,9 +173,8 @@ label interactions_shopping:
 
 
 screen tailor_store_shopping_girl():
-
     frame:
-        align(.5,0)
+        align (.5, 0)
         xmaximum 600
         ymaximum 120
 
@@ -211,5 +210,9 @@ screen tailor_store_shopping_girl():
                 ymaximum 300
                 use itemstats(item=char.eqslots['body']) # added a mode to the itemstats
 
-
-    use r_lightbutton(img=im.Scale("content/gfx/interface/buttons/shape69.png", 40, 40),return_value =['control','return'], align=(.99, 0))
+    $ img = im.Scale("content/gfx/interface/buttons/shape69.png", 40, 40)
+    imagebutton:
+        align (.99, 0)
+        idle img
+        hover im.MatrixColor(img, im.matrix.brightness(.15))
+        action Return(["control", "return"])

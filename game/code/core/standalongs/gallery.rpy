@@ -108,9 +108,19 @@ screen gallery():
             hbox:
                 xalign .5
                 spacing 10
-                use r_lightbutton(img=im.Scale("content/gfx/interface/buttons/blue_arrow_left.png", 60, 60), return_value =['image', 'previous'])
+                $ img = im.Scale("content/gfx/interface/buttons/blue_arrow_left.png", 60, 60)
+                imagebutton:
+                    idle img
+                    hover im.MatrixColor(img, im.matrix.brightness(.15))
+                    action Return(["image", "previous"])
+
                 use exit_button(size=(45, 45), align=(.5, .5))
-                use r_lightbutton(img=im.Scale("content/gfx/interface/buttons/blue_arrow_right.png", 60, 60),return_value =['image', 'next'])
+
+                $ img = im.Scale("content/gfx/interface/buttons/blue_arrow_right.png", 60, 60)
+                imagebutton:
+                    idle img
+                    hover im.MatrixColor(img, im.matrix.brightness(.15))
+                    action Return(["image", "next"])
 
             textbutton "Lets Jig with this girl! :)":
                 xalign .5
