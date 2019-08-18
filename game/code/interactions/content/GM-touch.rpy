@@ -89,7 +89,7 @@ label interactions_grabbutt:
                 if hero.get_stat("joy") > 70:
                     $ hero.gfx_mod_stat("joy", -randint(0, 1))
 
-                $ iam.refuse_too_many(char)
+                $ iam.refuse_sex_too_many(char)
             else:
                 $ iam.refuse_because_of_gender(char)
         else:
@@ -166,7 +166,7 @@ label interactions_grabbreasts:
                 if hero.get_stat("joy") > 70:
                     $ hero.gfx_mod_stat("joy", -randint(0, 1))
 
-                $ iam.refuse_too_many(char)
+                $ iam.refuse_sex_too_many(char)
             else:
                 $ iam.refuse_because_of_gender(char)
         else:
@@ -242,7 +242,7 @@ label interactions_kiss:
                 if hero.get_stat("joy") > 70:
                     $ hero.gfx_mod_stat("joy", -randint(0, 1))
 
-                $ iam.refuse_too_many(char)
+                $ iam.refuse_sex_too_many(char)
             else:
                 $ iam.refuse_because_of_gender(char)
         else:
