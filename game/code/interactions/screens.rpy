@@ -1,13 +1,7 @@
 label girl_interactions:
-    python:
-        if "girl_interactions" in pytfall.world_actions.locations:
-            del pytfall.world_actions.locations["girl_interactions"]
-        pytfall.world_actions.clear()
-
-    python:
-        # Run quests and events
-        pytfall.world_quests.run_quests("auto")
-        pytfall.world_events.run_events("auto")
+    # Run quests and events
+    $ pytfall.world_quests.run_quests("auto")
+    $ pytfall.world_events.run_events("auto")
 
     scene expression iam.bg_cache
 
@@ -55,8 +49,8 @@ label girl_interactions_after_greetings: # when character wants to say something
         # Create actions
         pwa = pytfall.world_actions
         if pwa.location("girl_interactions"):
-            _gi_mode = Iff(S((iam, "mode")), "==", "girl_interactions")
-            _gt_mode = Iff(S((iam, "mode")), "==", "girl_trainings")
+            #_gi_mode = Iff(S((iam, "mode")), "==", "girl_interactions")
+            #_gt_mode = Iff(S((iam, "mode")), "==", "girl_trainings")
 
             # CHAT
             m = 0
@@ -70,8 +64,8 @@ label girl_interactions_after_greetings: # when character wants to say something
             pwa.gm_choice("Flirt", index=(m, 6))
 
             # TRAINING
-            m = 1
-            pwa.menu(m, "Training", condition=_gt_mode)
+            #m = 1
+            #pwa.menu(m, "Training", mode="girl_trainings")
 
             # Loop through all courses that don't belong to a school, and return the real dict
             #n = 0
@@ -111,7 +105,7 @@ label girl_interactions_after_greetings: # when character wants to say something
             # GIVE MONEY
             m = 4
             pwa.menu(m, "Money", condition="char.status != 'slave'")
-            pwa.gm_choice("Propose to give money", label="giftmoney", index=(m, 0))
+            pwa.gm_choice("Give money", label="giftmoney", index=(m, 0))
             pwa.gm_choice("Ask for money", label="askmoney", index=(m, 1))
 
             m = 5
@@ -121,7 +115,7 @@ label girl_interactions_after_greetings: # when character wants to say something
 
             # GIVE GIFT
             m = 6
-            pwa.add(m, "Give Gift", Return(["gift", True]), condition="char.get_flag('cnd_interactions_gift', day)-day < 3")
+            pwa.add(m, "Give Gift", Return(["gift", True]), condition="char.get_flag('cnd_interactions_gifts', day)-day < 3")
 
             # PROPOSITION
             m = 7
@@ -160,13 +154,12 @@ label girl_interactions_after_greetings: # when character wants to say something
             m = 10
             n = 0
             for k, v in char.flags.items():
-                if k.startswith("event_to_interactions_") and renpy.has_label(v["label"]):
-                    if eval(v.get("condition", True)):
-                        if n == 0:
-                            # add the Menu
-                            pwa.menu(m, "U-Actions")
-                        pwa.gm_choice(v["button_name"], label=v["label"], index=(m, n))
-                        n += 1
+                if k.startswith("event_to_interactions_"):
+                    if n == 0:
+                        # add the Menu
+                        pwa.menu(m, "U-Actions")
+                    pwa.gm_choice(v["button_name"], label=v.get("label", None), index=(m, n), condition=v.get("condition", True))
+                    n += 1
 
             # m = 9  --- for the time being we disable negative actions, since they require ST
             # pwa.menu(m, "Harassment", condition="not(char in hero.team) and char.employer == hero") # no fights between team members

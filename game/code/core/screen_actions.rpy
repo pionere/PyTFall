@@ -390,29 +390,29 @@ init -9 python:
             char = A character to check for unique actions.
             """
             if isinstance(index, basestring):
-                if index in self.locations and self.locations[index]:
-                    if char is not None:
-                        if hasattr(char, "world_actions"):
-                            self._n = index + "_" + str(char)
-                            cwa = char.world_actions
+                la = self.locations.get(index, None)
+                if la:
+                    if hasattr(char, "world_actions"):
+                        index += "_" + str(char)
+                        cwa = char.world_actions
 
-                            # Only check first item
-                            if not isinstance(cwa.values()[0], (WorldAction, WorldActionMenu)):
-                                # Convert the chars actions into proper actions
-                                cwa = self.build(cwa)
-                                char.world_actions = cwa
+                        # Only check first item
+                        if not isinstance(cwa.values()[0], (WorldAction, WorldActionMenu)):
+                            # Convert the chars actions into proper actions
+                            cwa = self.build(cwa)
+                            char.world_actions = cwa
 
-                            self.nest = self.combine(cwa, self.locations[index])
-                            return
+                        la = self.combine(cwa, la)
 
                     self._n = index
-                    self.nest = [self.locations[index]]
+                    self.nest = [la]
                 else:
                     if DEBUG_LOG:
                         devlog.warning("Tried to access WorldActions(\"%s\") before existence." % index)
             else:
                 ls = self.nest[index]
-                if isinstance(ls, WorldActionMenu): return ls()
+                if isinstance(ls, WorldActionMenu):
+                    return ls()
                 else:
                     return [ls[a] for a in sorted(ls)]
 
@@ -512,24 +512,31 @@ init -9 python:
             Combines the action store a with b and returns the result.
             sets = The dictionaries to combine. Earlier indexes take priority.
             """
-            c = sets[0]
+            rv = None
 
-            for a in sets[1:]:
-                for i in a:
-                    if i not in c:
-                        c[i] = a[i]
+            for a in sets:
+                if rv is None:
+                    rv = a.copy()
+                    continue
+                for i, v in a.iteritems():
+                    w = rv.setdefault(i, v)
+                    if w is v:
+                        continue
+                    if isinstance(w, WorldActionMenu):
+                        if isinstance(v, WorldActionMenu):
+                            # two menus -> combine their options
+                            wv = copy.copy(w)
+                            wv.options = self.combine(w.options, v.options)
+                            rv[i] = wv
+                        else:
+                            # a menu and an action -> add the action as an option
+                            if i not in w.options:
+                                wv = copy.copy(w)
+                                wv.options = w.options.copy()
+                                wv.options[i] = v
+                                rv[i] = wv
 
-                    else:
-                        if isinstance(c[i], WorldActionMenu):
-                            if isinstance(a[i], WorldActionMenu):
-                                c[i] = WorldActionMenu(c[i].button, c[i].condition, c[i].null_button, c[i].null_condition)
-                                c[i].options = self.combine(c[i].options, a[i].options)
-
-                            else:
-                                if i not in c[i].options:
-                                    c[i].options[i] = a[i]
-
-            return c
+            return rv
 
         def finish(self):
             """
@@ -556,25 +563,28 @@ init -9 python:
             if label is None:
                 label = act.lower().replace(" ", "")
 
+            # Get the index
+            if index is None:
+                index = act
+
             # Get the mode
-            if isinstance(mode, (list, tuple)):
-                mode = Iff(S((iam, "mode")), "in", mode)
-
-            elif isinstance(mode, basestring):
-                mode = Iff(S((iam, "mode")), "==", mode)
-
-            # Update the condition
             if mode is not None:
-                if isinstance(condition, (list, tuple)):
-                    condition.insert(0, mode)
-                elif condition is not None:
-                    condition = (mode, condition)
-                else:
-                    condition = mode
+                if isinstance(mode, (list, tuple)):
+                    mode = Iff(S((iam, "mode")), "in", mode)
 
-            self.add(index or act, WorldAction(act, (GMJump(label, **kwargs),
-                     Function(pytfall.world_actions.clear)), condition=condition,
-                     null_button=act, null_condition=null_condition,
+                elif isinstance(mode, basestring):
+                    mode = Iff(S((iam, "mode")), "==", mode)
+
+                # Update the condition
+                if condition is True:
+                    condition = mode
+                elif isinstance(condition, (list, tuple)):
+                    condition = [mode] + condition
+                else:
+                    condition = (mode, condition)
+
+            self.add(index, WorldAction(act, GMJump(label, **kwargs),
+                     condition=condition, null_button=act, null_condition=null_condition,
                      keysym=keysym))
 
         def location(self, name):
