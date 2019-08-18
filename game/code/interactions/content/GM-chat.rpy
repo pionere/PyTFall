@@ -8,8 +8,11 @@ label interactions_smalltalk:
     $ m = 1 + iam.flag_count_checker(char, "flag_interactions_general")
     $ n = 2 + iam.repeating_lines_limit(char)
     if m > n:
+        if m > 1:
+            $ iam.refuse_too_many(char)
+        else:
+            $ iam.refuse_talk_any(char)
         $ del m, n
-        $ iam.refuse_too_many(char)
         $ char.gfx_mod_stat("disposition", -randint(3, 6))
         $ char.gfx_mod_stat("affection", -randint(0, 3))
         if char.get_stat("joy") > 80:
@@ -192,12 +195,15 @@ label interactions_abouther:
     $ m = 1 + iam.flag_count_checker(char, "flag_interactions_abouther")
     $ n = 2 + iam.repeating_lines_limit(char)
     if m > n:
+        if m > 1:
+            $ iam.refuse_too_many(char)
+        else:
+            $ iam.refuse_talk_any(char)
         $ del m, n
-        $ iam.refuse_too_many(char)
         $ char.gfx_mod_stat("disposition", -randint(1, 5))
-        $ char.gfx_mod_stat("affection", -randint(0,2))
+        $ char.gfx_mod_stat("affection", -randint(0, 2))
         if char.get_stat("joy") > 40:
-            $ char.gfx_mod_stat("joy", -randint(0,2))
+            $ char.gfx_mod_stat("joy", -randint(0, 2))
         if hero.get_stat("joy") > 70:
             $ hero.gfx_mod_stat("joy", -1)
         jump girl_interactions
@@ -205,7 +211,7 @@ label interactions_abouther:
     if char.get_stat("disposition") <= 50:
         $ del m, n
         $ char.gfx_mod_stat("disposition", -randint(3, 10))
-        $ char.gfx_mod_stat("affection", -randint(0,2))
+        $ char.gfx_mod_stat("affection", -randint(0, 2))
         $ char.gfx_mod_stat("joy", -randint(0, 1))
         if hero.get_stat("joy") > 70:
             $ hero.gfx_mod_stat("joy", -randint(0, 1))
@@ -484,7 +490,7 @@ label interactions_aboutoccupation:
         options["Cleaner"] = ("I'm good at cleaning stuff.", "I'm a just a cleaner.")
         options["Barmaid"] = ("I'm a decent bartender.", "I'm decent at pouring drinks and chatting with people about their problems.")
         options["Manager"] = ("I know a thing or two about managing.", "I know how to manage people.")
-        options["Prostitute"] = ("I'm a fancy girl.", "I'm a merchant. And my merchandise is my beautiful body ♪", "I provide personal services. I mean very personal.", "I sell my love to those who need it.")
+        options["Prostitute"] = ("I'm a fancy %s." % ("girl" if char.gender == "female" else "boy"), "I'm a merchant. And my merchandise is my beautiful body ♪", "I provide personal services. I mean very personal.", "I sell my love to those who need it.")
         options["Mage"] = ("I'm a magician.", "I have arcane energies at my command.", "I have a magical talent. It's very useful in many cases.")
         options["Warrior"] = ("I was trained to fight.", "I have combat training.", "I know how to fight.", "I know how to behave on the battlefield.")
 
@@ -506,8 +512,11 @@ label interactions_interests:
     $ m = 1 + iam.flag_count_checker(char, "flag_interactions_interests")
     $ n = 2 + iam.repeating_lines_limit(char)
     if m > n:
+        if m > 1:
+            $ iam.refuse_too_many(char)
+        else:
+            $ iam.refuse_talk_any(char)
         $ del m, n
-        $ iam.refuse_too_many(char)
         $ char.gfx_mod_stat("disposition", -randint(5, 10))
         $ char.gfx_mod_stat("affection", -randint(1,3))
         if char.get_stat("joy") > 40:
@@ -735,18 +744,17 @@ label interactions_flirt:
     $ m = 1 + iam.flag_count_checker(char, "flag_interactions_flirt")
     $ n = 1 + iam.repeating_lines_limit(char)
     if m > n:
-        $ del m, n
-        $ iam.refuse_too_many(char)
-        $ char.gfx_mod_stat("disposition", -randint(5,15))
-        $ char.gfx_mod_stat("affection", -randint(0,2))
+        if m > 1:
+            $ iam.refuse_too_many(char)
+        else:
+            $ iam.refuse_talk_any(char)
+        $ char.gfx_mod_stat("disposition", -randint(5, 15))
+        $ char.gfx_mod_stat("affection", -randint(0, 2))
         if char.get_stat("joy") > 30:
             $ char.gfx_mod_stat("joy", -randint(2, 4))
         if hero.get_stat("joy") > 70:
             $ hero.gfx_mod_stat("joy", -randint(0, 1))
-        jump girl_interactions
-
-    if char.get_stat("affection") <= 150 or char.get_stat("disposition") <= 50:
-        $ del m, n
+    elif char.get_stat("affection") <= 150 or char.get_stat("disposition") <= 50:
         $ char.gfx_mod_stat("disposition", -randint(5, 10))
         $ char.gfx_mod_stat("affection", -randint(0,2))
         $ char.gfx_mod_stat("joy", -randint(0, 1))
@@ -755,22 +763,21 @@ label interactions_flirt:
         if char.status != "free":
             "You tried to flirt with [char.nickname]."
         $ iam.refuse_interaction(char)
-        jump girl_interactions
+    else:
+        $ iam.accept_flirt(char)
 
-    $ iam.accept_flirt(char)
+        if 2*m <= n and dice(50) and dice(char.get_stat("joy")-40):
+            $ narrator(choice(["You feel especially close."]))
+            $ char.gfx_mod_stat("joy", randint(0, 1))
+            $ char.gfx_mod_stat("affection", affection_reward(char))
+            $ iam.int_reward_exp(char, .10)
+            if hero.get_stat("joy") < 80:
+                $ hero.gfx_mod_stat("joy", randint(0, 1))
 
-    if 2*m <= n and dice(50) and dice(char.get_stat("joy")-40):
-        $ narrator(choice(["You feel especially close."]))
-        $ char.gfx_mod_stat("joy", randint(0, 1))
+        $ iam.int_reward_exp(char)
+
+        $ char.gfx_mod_stat("disposition", randint(5, 15))
         $ char.gfx_mod_stat("affection", affection_reward(char))
-        $ iam.int_reward_exp(char, .10)
-        if hero.get_stat("joy") < 80:
-            $ hero.gfx_mod_stat("joy", randint(0, 1))
-
-    $ iam.int_reward_exp(char)
-
-    $ char.gfx_mod_stat("disposition", randint(5, 15))
-    $ char.gfx_mod_stat("affection", affection_reward(char))
 
     $ del m, n
     jump girl_interactions

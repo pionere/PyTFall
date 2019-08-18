@@ -2693,6 +2693,40 @@ init -2 python:
             iam.say_line(character, lines, overlay_args=("angry", "reset"))
 
         @staticmethod
+        def refuse_talk_any(character):
+            """
+            Output line when the character refuses to talk at all
+            """
+            char_traits = character.traits
+            mood = "defiant"
+            if "Impersonal" in char_traits:
+                lines = ("I request change of the subject.", "I don't really like this empty talk.")
+                mood = "indifferent"
+            elif "Shy" in char_traits and dice(50):
+                lines = ("Um... Could we talk about something else?", "Um... Please, this is honestly not that interesting...")
+                mood = "uncertain"
+            elif "Imouto" in char_traits:
+                lines = ("Stop it, that's annoying and boring!", "Uuuh, what exactly do you want?")
+            elif "Dandere" in char_traits:
+                lines = ("Yeah-yeah... Whatever...", "... It is really a bother to talk about this now...")
+                mood = "indifferent"
+            elif "Tsundere" in char_traits:
+                lines = ("Geez, can't you leave this subject?", "Ugh, you're really annoying!")
+            elif "Kuudere" in char_traits:
+                lines = ("Please stop if you have nothing to say!", "Not really interested in your empty talk...")
+            elif "Kamidere" in char_traits:
+                lines = ("You know, I'm really not interested in this!", "Can't you see I'm bored by your talk?")
+            elif "Bokukko" in char_traits:
+                lines = ("Gawd, stop bothering me with your nonsense!", "Hey, don't you want to talk about something else?")
+            elif "Ane" in char_traits:
+                lines = ("You're bothering me... Can't you stop now?", "Do you have something to say?")
+            elif "Yandere" in char_traits:
+                lines = ("I hate people who can't see when they are not needed.", "Are you finished now?")
+            else:
+                lines = ("This topic is really boring, don't you think?", "Goodness, could you actually say something?")
+            iam.say_line(character, lines, mood)
+
+        @staticmethod
         def provoked(character):
             """
             Output line when the character is provoked/upset by the hero
