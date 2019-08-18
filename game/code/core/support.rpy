@@ -127,6 +127,7 @@ init -9 python:
                 return
 
             # Distribution of the above:
+            """
             current_distibution_raw = self.RCD.copy()
 
             for c in ingame_rchars:
@@ -150,9 +151,10 @@ init -9 python:
 
             # We are done with distibution, now tiers:
             give_bt_items = status == "free"
+            tier_offset += hero.tier
             for bt_group, amount in distibution.items():
                 for i in range(amount):
-                    tier = hero.tier + tier_offset
+                    tier = tier_offset
                     if dice(1): # Super char!
                         tier += uniform(2.5, 4.0)
                     elif dice(20): # Decent char.
@@ -165,6 +167,24 @@ init -9 python:
                              tier=tier, tier_kwargs=None,
                              give_civilian_items=True,
                              give_bt_items=give_bt_items)
+            """
+            # use random sample instead of distribution, so the hero can influence the environment
+            give_bt_items = status == "free"
+            tier_offset += hero.tier
+            for bt_group in weighted_list(distibution_wanted.iteritems(), required):
+                tier = tier_offset
+                if dice(1): # Super char!
+                    tier += uniform(2.5, 4.0)
+                elif dice(20): # Decent char.
+                    tier += uniform(1.0, 2.5)
+                else: # Ok char...
+                    tier += uniform(.1, 1.0)
+
+                build_rc(bt_group=bt_group, bt_list="any",
+                         set_status=status,
+                         tier=tier, tier_kwargs=None,
+                         give_civilian_items=True,
+                         give_bt_items=give_bt_items)
 
         # ----------------------------------------->
         def next_day(self):
