@@ -2438,9 +2438,39 @@ init -2 python:
             iam.say_line(character, lines, "shy")
 
         @staticmethod
-        def offer_sex_for_money(character, price):
+        def offer_sex_for_money(character):
             """
             Output line whe the character proposes to have an intercourse with the hero for gold
+            """
+            char_traits = character.traits
+            if "Impersonal" in char_traits:
+                lines = ("Hey, want to have some fun?", "Why don't we get to 'it', hmm?")
+            elif "Shy" in char_traits and dice(50):
+                lines = ("Ehm.. why don't we have some good time together?", "Ghm, would you like to have some fun with me?")
+            elif "Imouto" in char_traits:
+                lines = ("We could have some fun business together, don't you think?", "I know some great tricks in the bed! Want to test me? ♪")
+            elif "Dandere" in char_traits:
+                lines = ("You could spend some quality time with me. Do you want to?", "I could show you the heaven if you want, hm?")
+            elif "Tsundere" in char_traits:
+                lines = ("Hey, do you wanna experience real pleasure?", "Let me bring you to heaven! What do you say?")
+            elif "Kuudere" in char_traits:
+                lines = ("How about some private time together?", "Let's satisfy the needs of both of us, do you agree?")
+            elif "Kamidere" in char_traits:
+                lines = ("If I look at you, I get the feeling that you could really use my 'services'! Agree?", "I sense a real tension in you. Why don't you let me help you with that?")
+            elif "Bokukko" in char_traits:
+                lines = ("Look at my body, it could really have some uses, right?", "Come and let's have sex, okay?")
+            elif "Ane" in char_traits:
+                lines = ("Hey sweetie, I could help you to forget all your problems ♪ What do you say?", "Why don't you put your body in my care, honey?")
+            elif "Yandere" in char_traits:
+                lines = ("Wanna check out my quality 'services'?", "Are you just looking, or do you want to get in the adult business with me?")
+            else:
+                lines = ("I could help you to release some tension, don't you think?", "My 'services' are really helpful, wanna try?")
+            iam.say_line(character, lines, "provocative")
+
+        @staticmethod
+        def accept_sex_for_money(character, price):
+            """
+            Output line whe the character accept to have an intercourse with the hero for gold
             """
             char_traits = character.traits
             if "Impersonal" in char_traits:
@@ -2458,11 +2488,11 @@ init -2 python:
             elif "Kamidere" in char_traits:
                 lines = ("What's that? You want to hire me? I want [price] Gold then, money up front.", "Hm? You want my body? Well of course you do. [price] Gold, and you can have it.")
             elif "Bokukko" in char_traits:
-                lines = ("Sure thing. That will cost ya [price] Gold.", "What'ya wanna? Ohoh, you wanna me, don't you? ♪ Alrighty, [price] Gold and we good to go.")
+                lines = ("Sure thing. That will cost ya [price] Gold.", "Ohoh, you wanna me, don't you? ♪ Alrighty, [price] Gold and we good to go.")
             elif "Ane" in char_traits:
-                lines = ("Let's see... How about [price] Gold? Can you afford me? ♪", "Hm? What's the matter? Need some... special service? For you my price is [price] Gold ♪")
+                lines = ("Let's see... How about [price] Gold? Can you afford me? ♪", "Need some... special service? For you my price is [price] Gold ♪")
             elif "Yandere" in char_traits:
-                lines = ("Fine, I want [price] Gold. No bargaining.", "Well, I suppose we can, if you want to... It will cost [price] Gold.")
+                lines = ("Fine, I want [price] Gold. No bargaining.", "Well, if you want to... It will cost [price] Gold.")
             else:
                 lines = ("You want to hire me? Very well, it will be [price] Gold.", "Of course. For you my body costs [price] Gold.")
             iam.say_line(character, lines, msg_args={"[price]": str(price)})

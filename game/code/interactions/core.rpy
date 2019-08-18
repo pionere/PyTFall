@@ -349,7 +349,7 @@ init -1 python:
                 del store.char
 
             # reset world-actions (necessary because of the U-Actions...)
-            del pytfall.world_actions.locations["girl_interactions"]
+            pytfall.world_actions.locations.pop("girl_interactions", None)
             pytfall.world_actions.clear()
 
             # reset self

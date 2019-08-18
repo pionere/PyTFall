@@ -72,13 +72,15 @@ label girl_interactions_greeting:
                     $ char.gfx_mod_stat("joy", -randint(12, 20))
                     $ char.restore_portrait()
         if all(("Horny" in char.effects,
+                iam.silent_check_for_bad_stuff(char),
                 check_lovers(char),
                 not char.flag("quest_cannot_be_fucked"),
-                iam.silent_check_for_bad_stuff(char))):
+                char.get_stat("vitality") > char.get_max("vitality")/4,
+                char.has_ap())):
             # propose sex
             $ iam.offer_sex(char)
             menu:
-                "Do you wish to have sex with [char.name]?"
+                "Do you want to have sex with [char.name]?"
                 "Yes":
                     $ char.disable_effect("Horny")
                     $ del m
@@ -87,6 +89,28 @@ label girl_interactions_greeting:
                     $ char.override_portrait("portrait", "indifferent")
                     $ iam.say_line(char, ("...", "I see...", "Maybe later then..."))
                     $ char.gfx_mod_stat("joy", -randint(1, 5))
+                    $ char.restore_portrait()
+
+        elif all(("SIW" in char.gen_occs,
+                  char.get_stat("disposition") >= 0,
+                  dice(min(sum(getattr(s, "price", 0) for s in hero.eqslots.values())/1000, 20)),
+                  iam.silent_check_for_bad_stuff(char),
+                  not iam.gender_mismatch(char, just_sex=True),
+                  not iam.incest(char),
+                  not check_lovers(char),
+                  not char.flag("quest_cannot_be_fucked"),
+                  char.get_stat("vitality") > char.get_max("vitality")/4,
+                  char.has_ap())):
+            # propose sex for money
+            $ iam.offer_sex_for_money(char)
+            menu:
+                "Do you want to have sex with [char.op]?"
+                "Yes":
+                    $ del m
+                    jump interactions_hireforsex
+                "No":
+                    $ char.override_portrait("portrait", "indifferent")
+                    $ iam.say_line(char, ("...", "I see...", "Maybe later then..."))
                     $ char.restore_portrait()
 
         elif "Fluffy Companion" in hero.effects:

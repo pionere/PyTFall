@@ -36,7 +36,7 @@ label interactions_hireforsex: # we go to this label from GM menu hire for sex. 
         jump girl_interactions
     $ del m, n
 
-    if char.flag("quest_cannot_be_fucked") == True or iam.incest(char): # cannot hire h-s for that stuff, only seduce, seems reasonable
+    if char.flag("quest_cannot_be_fucked") or iam.incest(char): # cannot hire h-s for that stuff, only seduce, seems reasonable
         $ iam.refuse_sex(char)
         jump girl_interactions
 
@@ -68,7 +68,7 @@ label interactions_hireforsex: # we go to this label from GM menu hire for sex. 
     $ price = round_int(price*(max(.35, 1 - temp)))
     $ del temp
 
-    $ iam.offer_sex_for_money(char, price)
+    $ iam.accept_sex_for_money(char, price)
 
     if hero.gold < price:
         "You don't have that much money."
@@ -78,14 +78,11 @@ label interactions_hireforsex: # we go to this label from GM menu hire for sex. 
             "[char.pC] wants [price] Gold. Do you want to pay?"
 
             "Yes":
-                if hero.take_money(price, reason="Sexual Services"):
-                    $ char.add_money(price, reason="Sexual Services")
-                    $ del price
-                    $ raped_by_player = False
-                    jump interactions_sex_scene_select_place
-                else:
-                    "You don't have that much money."
-                    $ iam.flag_count_checker(char, "flag_interactions_hireforsex")
+                $ hero.take_money(price, reason="Sexual Services")
+                $ char.add_money(price, reason="Sexual Services")
+                $ del price
+                $ raped_by_player = False
+                jump interactions_sex_scene_select_place
             "No":
                 $ char.gfx_mod_stat("disposition", -randint(1, 3))
     $ del price
