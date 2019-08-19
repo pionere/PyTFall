@@ -488,6 +488,28 @@ init -2 python:
             return willing_partners
 
         @staticmethod
+        def dispo_reward(char, mod):
+            """
+            Adjust and give disposition reward based on the current disposition and the char's submissivity.
+            - gain/penalty reduced if the value is already high/low (up to 1/10th)
+                @note: assumes disposition values between -1000 and 1000
+            - submissive char -> easy to increase, hard to decrease
+            - non-submissive  -> hard to increase, easy to decrease
+            """
+            dispo = char.get_stat("disposition")
+            sub = check_submissivity(char)
+            if mod >= 0:
+                if dispo > 90:
+                    mod /= dispo * .01 # 1/10th at max dispo (1000)
+                mod *= 1 - sub*.2
+            else:
+                if dispo < -90:
+                    mod /= -dispo * .01 # 1/10th at min dispo (-1000)
+                mod *= 1 + sub*.2
+
+            char.gfx_mod_stat("disposition", round_int(mod))
+
+        @staticmethod
         def int_reward_exp(char, mod=.25):
             hero.gfx_mod_exp(exp_reward(hero, char, exp_mod=mod))
             char.gfx_mod_exp(exp_reward(char, hero, exp_mod=mod))

@@ -36,7 +36,7 @@ label interactions_clever:
         $ del inter_praise
         jump girl_interactions
 
-    $ char.gfx_mod_stat("disposition", randint(10, 15)*inter_praise)
+    $ iam.dispo_reward(char, randint(12, 16)*inter_praise)
     $ char.gfx_mod_stat("affection", affection_reward(char))
     $ char.gfx_mod_stat("joy", randint(4, 6)*inter_praise)
 
@@ -82,7 +82,7 @@ label interactions_strong:
         $ del inter_praise
         jump girl_interactions
 
-    $ char.gfx_mod_stat("disposition", randint(10, 15)*inter_praise)
+    $ iam.dispo_reward(char, randint(12, 16)*inter_praise)
     $ char.gfx_mod_stat("affection", affection_reward(char))
     $ char.gfx_mod_stat("joy", randint(4, 6)*inter_praise)
 
@@ -128,7 +128,7 @@ label interactions_cute:
         $ del inter_praise
         jump girl_interactions
 
-    $ char.gfx_mod_stat("disposition", randint(10, 15)*inter_praise)
+    $ iam.dispo_reward(char, randint(12, 16)*inter_praise)
     $ char.gfx_mod_stat("affection", affection_reward(char))
     $ char.gfx_mod_stat("joy", randint(4, 6)*inter_praise)
 

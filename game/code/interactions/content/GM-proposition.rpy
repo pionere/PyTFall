@@ -34,11 +34,11 @@ label interactions_sparring: # sparring with MC, for Combatant occupations only
         result = run_default_be(enemy_team, your_team=your_team, background=back, give_up="surrender")
 
         if result is True:
-            char.gfx_mod_stat("disposition", randint(15, 30))
+            iam.dispo_reward(char, randint(20, 24))
         elif result is False:
             ap_used = (pre_aps - char.PP)/100.0 # PP_PER_AP = 100
             char.gfx_mod_exp(exp_reward(char, hero, exp_mod=ap_used))
-            char.gfx_mod_stat("disposition", randint(2, 5))
+            iam.dispo_reward(char, randint(3, 4))
 
     if char.get_stat("health") < char.get_max("health")/2:
         $ char.set_stat("health", char.get_max("health")/2)
@@ -67,7 +67,7 @@ label interactions_girlfriend:
     if m > 1:
         $ del m
         $ iam.refuse_too_many(char)
-        $ char.gfx_mod_stat("disposition", -randint(1, 5))
+        $ iam.dispo_reward(char, -randint(3, 5))
         $ char.gfx_mod_stat("affection", -randint(8, 12))
         if char.get_stat("joy") > 50:
             $ char.gfx_mod_stat("joy", -randint(0, 1))

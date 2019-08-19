@@ -461,9 +461,9 @@ label interactions_postgame_lines: # lines and rewards after games
         $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.1))
 
         if hero_skill > char_skill*2:
-            $ char.gfx_mod_stat("disposition", randint(2, 5))
+            $ iam.dispo_reward(char, randint(3, 4))
         else:
-            $ char.gfx_mod_stat("disposition", randint(5, 10))
+            $ iam.dispo_reward(char, randint(8, 12))
         $ char.gfx_mod_stat("affection", affection_reward(char, .5, stat="attack"))
 
     elif game_result == char:
@@ -473,9 +473,9 @@ label interactions_postgame_lines: # lines and rewards after games
         $ char.gfx_mod_exp(exp_reward(char, hero, exp_mod=.25))
 
         if hero_skill > char_skill*2:
-            $ char.gfx_mod_stat("disposition", randint(10, 15))
+            $ iam.dispo_reward(char, randint(10, 14))
         else:
-            $ char.gfx_mod_stat("disposition", randint(2, 5))
+            $ iam.dispo_reward(char, randint(3, 4))
         $ char.gfx_mod_stat("affection", affection_reward(char, .25, stat="attack"))
         $ char.gfx_mod_stat("affection", affection_reward(char, .25))
     else:
@@ -483,7 +483,7 @@ label interactions_postgame_lines: # lines and rewards after games
 
         $ iam.int_reward_exp(char)
 
-        $ char.gfx_mod_stat("disposition", randint(15, 20))
+        $ iam.dispo_reward(char, randint(16, 20))
         $ char.gfx_mod_stat("affection", affection_reward(char, .4, stat="attack"))
         $ char.gfx_mod_stat("affection", affection_reward(char, .4))
 

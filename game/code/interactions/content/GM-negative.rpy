@@ -25,7 +25,7 @@ label interactions_harrasment_after_battle: # after MC provoked a free character
                 "Sadly, [char.p] has no money. What a waste."
             else:
                 python hide:
-                    char.gfx_mod_stat("disposition", -randint(10, 25))
+                    iam.dispo_reward(char, -randint(16, 20))
                     char.gfx_mod_stat("affection", -randint(1,3))
                     g = char.gold
                     g = randint(min(500, 3*g/5), min(1000, 4*g/5))
@@ -54,7 +54,7 @@ label interactions_harrasment_after_battle: # after MC provoked a free character
                     transfer_items(char, hero, temp, amount=1, silent=True, force=True)
                     if reequip:
                         char.auto_equip(char.last_known_aeq_purpose)
-                    char.gfx_mod_stat("disposition", -randint(20, 45))
+                    iam.dispo_reward(char, -randint(30, 40))
                     char.gfx_mod_stat("affection", -randint(3,5))
                 else:
                     narrator("You didn't find anything...")
@@ -66,10 +66,10 @@ label interactions_harrasment_after_battle: # after MC provoked a free character
                 for member in hero.team:
                     if all([member != hero, member.status != "slave", not("Vicious" in member.traits), not("Yandere" in member.traits)]):
                         if "Virtuous" in member.traits:
-                            member.gfx_mod_stat("disposition", -randint(200, 300)) # you really don't want to do it with non evil chars in team
+                            iam.dispo_reward(member, -randint(240, 260)) # you really don't want to do it with non evil chars in team
                             member.gfx_mod_stat("affection", -randint(30,50))
                         else:
-                            member.gfx_mod_stat("disposition", -randint(100, 200))
+                            iam.dispo_reward(member, -randint(140, 160))
                             member.gfx_mod_stat("affection", -randint(20,30))
             if dice(m+10):
                 "Just as you are standing above the body, a city guard arrives to the scene. He quickly arrests you."
@@ -104,15 +104,15 @@ label interactions_escalation: # character was provoked to attack MC
     if result is True:
         python hide:
             char.set_stat("health", 1)
-            char.gfx_mod_stat("disposition", -randint(100, 200)) # that's the beaten character, big penalty to disposition
+            iam.dispo_reward(char, -randint(140, 160)) # that's the beaten character, big penalty to disposition
             char.gfx_mod_stat("affection", -randint(20,30))
             for member in hero.team:
                 if all([member != hero, member.status != "slave", not("Vicious" in member.traits), not("Yandere" in member.traits)]): # they don't like when MC harasses and then beats other chars, unless they are evil
                     if "Virtuous" in member.traits:
-                        member.gfx_mod_stat("disposition", -randint(20, 40)) # double for kind characters
+                        iam.dispo_reward(member, -randint(32, 40)) # double for kind characters
                         member.gfx_mod_stat("affection", -randint(3,5))
                     else:
-                        member.gfx_mod_stat("disposition", -randint(10, 20))
+                        iam.dispo_reward(member, -randint(16, 20))
                         member.gfx_mod_stat("affection", -randint(1,3))
         $ del result, enemy_team
         $ iam.fight_lost(char)
@@ -140,7 +140,7 @@ label interactions_insult: # (mode)
     if m > 3:
         $ del m, mode
         $ iam.refuse_too_many(char)
-        $ char.gfx_mod_stat("disposition", -randint(1, 5))
+        $ iam.dispo_reward(char, -randint(3, 4))
         $ char.gfx_mod_stat("affection", -randint(1,2))
         if char.get_stat("joy") > 50:
             $ char.gfx_mod_stat("joy", -randint(0, 1))
@@ -149,10 +149,7 @@ label interactions_insult: # (mode)
     $ sub = check_submissivity(char)
 
     $ char_vals = char.get_stat("character") + char.get_stat(mode)
-    if sub == 1:
-        $ char_vals *= 1.2
-    elif sub == -1:
-        $ char_vals *= .8
+    $ char_vals *= 1 + sub*.2
     $ hero_vals = hero.get_stat("character") + hero.get_stat(mode)
 
     $ mpl = max(min(hero_vals / float(char_vals+1), 2.0), .5)
@@ -165,15 +162,15 @@ label interactions_insult: # (mode)
         $ char.gfx_mod_stat("character", -randint(0,1))
     $ char.gfx_mod_stat("joy", -randint(2, 4))
     if char.get_stat("disposition") >= 700 or (char.get_stat("disposition") >= 250 and char.status != "slave") or check_lovers(char):
-        $ char.gfx_mod_stat("disposition", -round_int(mpl*randint(1, 5)))
+        $ char.gfx_mod_stat("disposition", -round_int(mpl*randint(3, 4)))
         $ char.gfx_mod_stat("affection", -round_int(mpl*randint(0,1)))
         $ iam.got_insulted_hdisp(char)
     elif char.get_stat("disposition") > -100 and char.status=="slave":
-        $ char.gfx_mod_stat("disposition", -round_int(mpl*randint(1, 5)))
+        $ char.gfx_mod_stat("disposition", -round_int(mpl*randint(3, 4)))
         $ char.gfx_mod_stat("affection", -round_int(mpl*randint(0,1)))
         $ iam.got_insulted_slave(char)
     else:
-        $ char.gfx_mod_stat("disposition", -round_int(mpl*randint(15,25)))
+        $ char.gfx_mod_stat("disposition", -round_int(mpl*randint(16, 20)))
         $ char.gfx_mod_stat("affection", -round_int(mpl*randint(1,2)))
         if m > 1 and iam.silent_check_for_escalation(char, 30):
             $ del m, mpl, sub

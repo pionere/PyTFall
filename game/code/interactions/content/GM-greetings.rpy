@@ -120,8 +120,7 @@ label girl_interactions_greeting:
             cat.say "Meow!"
             $ cat.restore_portrait()
             $ iam.cat_line(char)
-            if char.get_stat("disposition") <= 500:
-                $ char.gfx_mod_stat("disposition", locked_random("randint", 5, 10))
+            $ iam.dispo_reward(char, locked_random("randint", 6, 8))
             if char.get_stat("affection") <= 500:
                 $ char.gfx_mod_stat("affection", affection_reward(char, .5))
             $ del cat
@@ -156,7 +155,7 @@ label klepto_stealing:
                                     "Agree":
                                         jump interactions_sex_scene_select_place
                                     "Forget about the theft-attempt":
-                                        $ char.gfx_mod_stat("disposition", randint(2,5))
+                                        $ iam.dispo_reward(char, randint(6, 8))
                                     "No":
                                         jump klepto_police
                             else:
@@ -170,7 +169,7 @@ label klepto_stealing:
                                         $ hero.add_money(money, reason="Extortion")
                                         $ char.take_money(money, reason="Extortion")
                                     "Forget about the theft-attempt":
-                                        $ char.gfx_mod_stat("disposition", randint(2,5))
+                                        $ iam.dispo_reward(char, randint(6, 8))
                                     "No":
                                         $ del money
                                         jump klepto_police
@@ -186,7 +185,7 @@ label klepto_stealing:
                                     $ hero.add_money(money, reason="Extortion")
                                     $ char.take_money(money, reason="Extortion")
                                 "Forget about the theft-attempt":
-                                    $ char.gfx_mod_stat("disposition", randint(1,3))
+                                    $ iam.dispo_reward(char, randint(3, 4))
                                 "No":
                                     $ del money
                                     jump klepto_police
