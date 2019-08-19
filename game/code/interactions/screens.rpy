@@ -104,18 +104,18 @@ label girl_interactions_after_greetings: # when character wants to say something
 
             # GIVE MONEY
             m = 4
-            pwa.menu(m, "Money", condition="char.status != 'slave'")
+            pwa.menu(m, "Money", condition="char.status == 'free'")
             pwa.gm_choice("Give money", label="giftmoney", index=(m, 0))
             pwa.gm_choice("Ask for money", label="askmoney", index=(m, 1))
 
             m = 5
-            pwa.menu(m, "Money", condition="char.status == 'slave'")
+            pwa.menu(m, "Money", condition="char.status != 'free'")
             pwa.gm_choice("Give", label="give_money", index=(m, 0))
             pwa.gm_choice("Take", label="take_money", index=(m, 1))
 
             # GIVE GIFT
             m = 6
-            pwa.add(m, "Give Gift", Return(["gift", True]), condition="char.get_flag('cnd_interactions_gifts', day)-day < 3")
+            pwa.add(m, "Give Gift", Return(["gift", True]))
 
             # PROPOSITION
             m = 7
@@ -125,7 +125,7 @@ label girl_interactions_after_greetings: # when character wants to say something
             pwa.gm_choice("Move in", condition="char.home != hero.home and char.status == 'free'", index=(m, 2))
             pwa.gm_choice("Move out", condition="char.home == hero.home and char.status == 'free'", index=(m, 3))
             pwa.gm_choice("Hire", condition="char.employer != hero", index=(m, 4))
-            pwa.gm_choice("Sparring", condition="'Combatant' in char.gen_occs", index=(m, 5))
+            pwa.gm_choice("Sparring", condition="char.employer != hero", index=(m, 5))
 
             # PLAY A GAME
             m = 8
@@ -141,7 +141,7 @@ label girl_interactions_after_greetings: # when character wants to say something
             pwa.gm_choice("Grab Breasts", index=(m, 2))
             pwa.gm_choice("Kiss", index=(m, 3))
             pwa.gm_choice("Sex", index=(m, 4))
-            pwa.gm_choice("Hire For Sex", index=(m, 5), condition="not(check_lovers(char)) and 'SIW' in char.gen_occs and char.status != 'slave'")
+            pwa.gm_choice("Hire For Sex", index=(m, 5), condition="not(check_lovers(char)) and char.status == 'free'")
             pwa.gm_choice("Become Fr", index=(m, 6), condition="DEBUG_INTERACTIONS")
             pwa.gm_choice("Become Lv", index=(m, 7), condition="DEBUG_INTERACTIONS")
             pwa.gm_choice("Disp", index=(m, 8), condition="DEBUG_INTERACTIONS")
@@ -193,7 +193,12 @@ label interactions_control:
                 python hide:
                     item = result[1]
                     # Prevent repetition of this action (any gift, we do this on per gift basis already):
+                    n = 1
                     if char.has_flag("cnd_interactions_gifts"):
+                        n += 1 + char.flag('cnd_interactions_gifts')-day
+                        if not iam.want_gift(char, n):
+                            iam.refuse_gift_too_many(char)
+                            jump("interactions_control")
                         char.up_counter("cnd_interactions_gifts")
                     else:
                         char.set_flag("cnd_interactions_gifts", day)
@@ -210,19 +215,21 @@ label interactions_control:
 
                     flag_name = "cnd_item_%s" % item.id
                     flag_value = char.get_flag(flag_name, day) - day
+                    cblock = item.cblock
 
                     # Add the appropriate dismod value:
                     if flag_value == 0:
                         # first time gift
-                        char.set_flag(flag_name, item.cblock+day-1)
+                        char.set_flag(flag_name, cblock+day-1)
                     else:
-                        if flag_value < item.cblock:
-                            dismod = round_int(float(dismod)*(item.cblock-flag_value)/item.cblock)
+                        if flag_value < cblock:
+                            dismod = round_int(float(dismod)*(cblock-flag_value)/cblock)
 
-                            char.up_counter(flag_name, item.cblock)
+                            char.up_counter(flag_name, cblock)
                         else:
                             iam.refuse_gift(char)
                             jump("interactions_control")
+                    dismod /= n
 
                     char.gfx_mod_stat("disposition", dismod)
                     hero.inventory.remove(item)

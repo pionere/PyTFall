@@ -53,6 +53,19 @@ init -2 python:
             return hero
 
         @staticmethod
+        def want_gift(character, n):
+            """
+            Decide whether the character wants to accept the Nth gifts from the hero
+            """
+            l_ch = check_submissivity(character)
+            if check_lovers(character):
+                l_ch += 1
+            if dice(character.get_stat("affection")/20) or dice(character.get_stat("disposition")/40):
+                l_ch += 1
+
+            return 3 + l_ch >= n
+
+        @staticmethod
         def want_hug(character):
             if iam.slave_siw_check(character):
                 return True

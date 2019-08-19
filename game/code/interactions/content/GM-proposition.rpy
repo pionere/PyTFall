@@ -1,6 +1,9 @@
 label interactions_sparring: # sparring with MC, for Combatant occupations only
     if iam.check_for_bad_stuff(char):
         jump girl_interactions_end
+    if "Combatant" not in char.gen_occs:
+        $ iam.refuse_sparring(char)
+        jump girl_interactions
     if char.get_stat("health") < char.get_max("health")/2:
         $ iam.refuse_because_tired(char)
         jump girl_interactions

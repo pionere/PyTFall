@@ -8,17 +8,25 @@ screen int_libido_level(sex_scene_libido):
     hbox:
         xpos 50
         ypos 85
-        add "content/gfx/interface/icons/heartbeat.png" at sex_scene_libido_hearth(sex_scene_libido)
-screen int_libido_level_zero:
-    hbox:
-        xpos 50
-        ypos 85
-        anchor (.5, .5)
-        add im.Sepia("content/gfx/interface/icons/heartbeat.png")
+        if sex_scene_libido > 0:
+            add "content/gfx/interface/icons/heartbeat.png" at sex_scene_libido_hearth(sex_scene_libido)
+        else:
+            anchor (.5, .5)
+            add im.Sepia("content/gfx/interface/icons/heartbeat.png")
 
-label interactions_hireforsex: # we go to this label from GM menu hire for sex. it's impossible to hire lovers, however they never refuse to do it for free, unless too tired or something like that
+label interactions_hireforsex: # we go to this label from GM menu hire for sex.
     if iam.check_for_bad_stuff(char):
         jump girl_interactions_end
+    if "SIW" not in char.gen_occs:
+        if iam.want_sex(char) is not True or (char.status == "free" and iam.gender_mismatch(char)):
+            $ char.gfx_mod_stat("disposition", -randint(15, 35))
+            if char.get_stat("joy") > 50:
+                $ char.gfx_mod_stat("joy", -randint(2, 4))
+                $ char.gfx_mod_stat("affection", -randint(3, 5))
+            $ iam.refuse_sex_for_money(char)
+            jump girl_interactions
+        if iam.check_for_minor_bad_stuff(char):
+            jump girl_interactions
     $ m = iam.flag_count_checker(char, "flag_interactions_hireforsex")
     if "Nymphomaniac" in char.traits: # how many times one can hire the character per day
         $ n = 4
@@ -81,33 +89,12 @@ label interactions_hireforsex: # we go to this label from GM menu hire for sex. 
                 $ hero.take_money(price, reason="Sexual Services")
                 $ char.add_money(price, reason="Sexual Services")
                 $ del price
-                $ raped_by_player = False
+                $ raped_by_player = False if "SIW" in char.gen_occs else char.has_flag("raped_by_player")
                 jump interactions_sex_scene_select_place
             "No":
                 $ char.gfx_mod_stat("disposition", -randint(1, 3))
     $ del price
     jump girl_interactions
-
-label interactions_sex_scene_select_place: # we go here if price for hiring is less than 0, ie no money checks and dialogues required; or after money check was successful
-    if "Shy" in char.traits:
-        "[char.pC] is too shy to do it anywhere. You go to [char.pd] room."
-        show bg girl_room with fade
-        $ sex_scene_location = "room"
-    else:
-        menu:
-            "Where would you like to do it?"
-
-            "Beach":
-                show bg city_beach with fade
-                $ sex_scene_location = "beach"
-            "Park":
-                show bg city_park with fade
-                $ sex_scene_location = "park"
-            "Room":
-                show bg girl_room with fade
-                $ sex_scene_location = "room"
-    $ picture_before_sex = True
-    jump interactions_sex_scene_begins
 
 label interactions_sex: # we go to this label from GM menu propose sex
     if iam.check_for_bad_stuff(char):
@@ -189,21 +176,9 @@ label interactions_sex: # we go to this label from GM menu propose sex
     if not raped_by_player:
         $ iam.accept_sex(char)
 
-    if "Nymphomaniac" in char.traits or check_lovers(char) or char.get_stat("affection") >= 600 or raped_by_player:
-        menu:
-            "Where would you like to do it?"
-
-            "Beach":
-                show bg city_beach with fade
-                $ sex_scene_location = "beach"
-            "Park":
-                show bg city_park with fade
-                $ sex_scene_location = "park"
-            "Room":
-                show bg girl_room with fade
-                $ sex_scene_location = "room"
-    elif "Shy" in char.traits:
-        if char.status == "slave":
+label interactions_sex_scene_select_place:
+    if "Shy" in char.traits:
+        if char.status != "free":
             "[char.pC] is too shy to do it anywhere. You can force [char.op] nevertheless, but [char.p] prefers [char.pd] room."
             menu:
                 "Where would you like to do it?"
@@ -222,6 +197,19 @@ label interactions_sex: # we go to this label from GM menu propose sex
             "[char.pC]'s too shy to do it anywhere. You go to [char.pd] room."
             show bg girl_room with fade
             $ sex_scene_location = "room"
+    elif "SIW" in char.gen_occs or "Nymphomaniac" in char.traits or check_lovers(char) or char.get_stat("affection") >= 600 or raped_by_player:
+        menu:
+            "Where would you like to do it?"
+
+            "Beach":
+                show bg city_beach with fade
+                $ sex_scene_location = "beach"
+            "Park":
+                show bg city_park with fade
+                $ sex_scene_location = "park"
+            "Room":
+                show bg girl_room with fade
+                $ sex_scene_location = "room"
     elif "Homebody" in char.traits:
         "[char.pC] doesn't want to do it outdoors, so you go to [char.pd] room."
         show bg girl_room with fade
@@ -255,11 +243,7 @@ label interactions_sex_scene_begins: # here we set initial picture before the sc
     jump interaction_scene_choice
 
 label interaction_scene_choice: # here we select specific scene, show needed image, jump to scene logic and return here after every scene
-    if sex_scene_libido > 0:
-        show screen int_libido_level(sex_scene_libido)
-    else:
-        hide screen int_libido_level
-        show screen int_libido_level_zero
+    show screen int_libido_level(sex_scene_libido)
 
     if char.get_stat("vitality") <= 10:
         jump mc_action_scene_finish_sex
@@ -302,11 +286,7 @@ label interaction_scene_choice: # here we select specific scene, show needed ima
             jump interactions_sex_scene_logic_part
 
 label interaction_sex_scene_choice:
-    if sex_scene_libido>0:
-        show screen int_libido_level(sex_scene_libido)
-    else:
-        hide screen int_libido_level
-        show screen int_libido_level_zero
+    show screen int_libido_level(sex_scene_libido)
 
     if not raped_by_player:
         $ scene_picked_by_character = False
@@ -382,7 +362,6 @@ label interaction_sex_scene_choice:
 
 label mc_action_scene_finish_sex:
     hide screen int_libido_level
-    hide screen int_libido_level_zero
 
     if sex_scene_libido > 3 and char.get_stat("vitality") >= 50 and "Nymphomaniac" in char.traits and not raped_by_player:
         $ iam.get_single_sex_picture(char, act="masturbation", location=sex_scene_location, hidden_partner=True)
@@ -641,7 +620,7 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
             "You can feel [char.pd] tense up as you put your arm around [char.op]."
         else:
             "[char.name] feels comfortable in your arms. [char.pdC] chest moves up and down as [char.p] breaths."
-            if dice(30):
+            if dice(40):
                 extend " You can feel [char.pd] heart starts to beat faster. [char.pC] is more aroused now."
                 $ sex_scene_libido += 2
 
@@ -651,7 +630,7 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
             "[char.pdC] lips are closed tightly. You have to force your tongue to reach inside."
         else:
             "[char.pdC] soft lips welcoming your approach. Your gently move around, back and forth in [char.pd] mouth."
-            if dice(45):
+            if dice(50):
                 extend " You don't have to wait too long for a response. [char.pC] is more aroused now."
                 $ sex_scene_libido += 2
 

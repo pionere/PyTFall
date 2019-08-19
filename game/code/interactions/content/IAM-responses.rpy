@@ -878,6 +878,42 @@ init -2 python:
             iam.say_line(character, lines, overlay_args=("puzzled", "reset"))
 
         @staticmethod
+        def refuse_gift_too_many(character):
+            """
+            Output line when a character refuses a gift because the hero gave too many already
+            """
+            char_traits = character.traits
+            mood, overlay_args = "indifferent", None
+            if "Impersonal" in char_traits:
+                lines = ("Nah.. I have enough things from you already.", "Thanks, but no thanks.")
+            elif "Shy" in char_traits and dice(50):
+                lines = ("Um... I-I think that's enough for the moment...", "It's... Not necessary, sorry...")
+                mood = "sad"
+            elif "Tsundere" in char_traits:
+                lines = ("Stop! That's enough!", "What's wrong with you? I got more than enough things from you...")
+                overlay_args = ("angry", "reset")
+            elif "Kuudere" in char_traits:
+                lines = ("What do you think you're doing? You already gave me so many things.", "Stop it. I have enough for the moment.")
+                overlay_args = ("angry", "reset")
+            elif "Yandere" in char_traits:
+                lines = ("Don't you think that it is enough for the moment?", "Huh? You want to give me this as well?")
+                overlay_args = ("puzzled", "reset")
+            elif "Dandere" in char_traits:
+                lines = ("This as well? ...", "One more? Why?")
+                mood = "tired"
+            elif "Ane" in char_traits:
+                lines = ("I appreciate the thought, but giving so many gifts is not a good idea.", "Oh, but I have so many things already. Don't you think?")
+            elif "Imouto" in char_traits:
+                lines = ("Wha? I have enough!", "Ugh. I have more than enough. Boring!")
+            elif "Kamidere" in char_traits:
+                lines = ("You want to suffocate with your presents? Pathetic.", "Pfft. Don't even try to buy me with your gifts...")
+            elif "Bokukko" in char_traits:
+                lines = ("C'mon, really? Another one of these?", "Do you have a lot of useless stuff or what?")
+            else:
+                lines = ("Sorry, I don't want any more of your stuff.", "Didn't you give me enough already?")
+            iam.say_line(character, lines, mood=mood, overlay_args=overlay_args)
+
+        @staticmethod
         def refuse_money(character):
             """
             Output line when a character refuses money
@@ -1056,6 +1092,36 @@ init -2 python:
             else:
                 lines = ("Hehe, thanks.", "Thanks for the compliment.", "<Smiles> Yes, go on ...", "Alright, you've got my attention <blush>", "Aww, so sweet ♪", "You don't have to say that. <[p]'s blushing and smiling>", "Gosh, flattery won't get you anything from me, you know?", "Ehehe, thank you very much ♪", "Oh, you're exaggerating.", "Thank you, I'm very pleased.")
             iam.say_line(character, lines, "happy")
+
+        @staticmethod
+        def refuse_sparring(character):
+            """
+            Output line when the character refuses the sparring offer of the hero
+            """
+            char_traits = character.traits
+            if "Impersonal" in char_traits:
+                lines = ("Denied.", )
+            elif "Shy" in char_traits and dice(50):
+                lines = ("S-sorry, I don't think I can...", )
+            elif "Imouto" in char_traits:
+                lines = ("Sounds boring... Think I'm gonna pass.", )
+            elif "Dandere" in char_traits:
+                lines = ("Thanks, but I will refrain.", )
+            elif "Tsundere" in char_traits:
+                lines = ("Are you out of your mind? Why should I agree to that?", )
+            elif "Kuudere" in char_traits:
+                lines = ("No. Don't want to.", )
+            elif "Kamidere" in char_traits:
+                lines = ("Just forget about it. I have enough things to worry about already.", )
+            elif "Bokukko" in char_traits:
+                lines = ("Nah, too much trouble.", )
+            elif "Ane" in char_traits:
+                lines = ("Sorry, I'm not really up to it.", )
+            elif "Yandere" in char_traits:
+                lines = ("No, I have no such intentions.", )
+            else:
+                lines = ("Sorry, not interested.", )
+            iam.say_line(character, lines)
 
         @staticmethod
         def sparring_start(character):
@@ -2498,6 +2564,36 @@ init -2 python:
             iam.say_line(character, lines, msg_args={"[price]": str(price)})
 
         @staticmethod
+        def refuse_sex_for_money(character):
+            """
+            Output line when the character refuses to have an intercourse with the hero for gold
+            """
+            char_traits = character.traits
+            if "Impersonal" in char_traits:
+                lines = ("I see no benefit in doing that so I will have to decline.", "Keep your offer to someone else.")
+            elif "Shy" in char_traits and dice(50):
+                lines = ("I... I don't want that! ", "W-we can't do that. ", "I-I don't want to... Sorry.")
+            elif "Imouto" in char_traits:
+                lines = ("Noooo way!", "I, I'm not for sale, you know!", "I-I'm gonna get mad if you say such things, you know? Jeez!")
+            elif "Dandere" in char_traits:
+                lines = ("You're no good...", "Why would you offer me something like that?", "Do you know who you are talking to?")
+            elif "Tsundere" in char_traits:
+                lines = ("Your utter lack of common sense is still surprising. Hmph!", "You are so... disgusting!", "You pervy little scamp! Not in a million years!", "Hmph! Unfortunately for you, my body is not for sale!")
+            elif "Kuudere" in char_traits:
+                lines = ("G-get the fuck away from me, you disgusting perv.", "...Perv.", "...It looks like I'll have to teach you about this little thing called reality.", "O-of course the answer is no!", "Hmph, how unromantic!", "Don't even suggest something that awful.")
+            elif "Kamidere" in char_traits:
+                lines = ("Wh-who do you think I am!?", "W-what are you talking about... Of course NOT!", "What?! How could you think that I... NO!", "What? Asking that out of the blue? Know some shame!", "The meaning of 'not knowing your place' must be referring to this, eh...?", "I don't know how anyone so despicable as you could exist outside of hell.")
+            elif "Bokukko" in char_traits:
+                lines = ("He- Hey, Settle down a bit, okay?", "Keep your dirty money away from me, okay?", "Y-you're talking crazy...", "Hmph! Well no duh!")
+            elif "Ane" in char_traits:
+                lines = ("If I was interested in that sort of thing I might, but unfortunately...", "Oh my, can't you think of a better way?", "No. I have decided that it would not be appropriate.", "I don't think your offer is really appropriate.", "I think that you are out of your mind.")
+            elif "Yandere" in char_traits:
+                lines = ("I've never met someone who knew so little about how pathetic they are.", "What? Are you out of your mind? You want to die?")
+            else:
+                lines = ("No! Absolutely NOT!", "Get lost, pervert!", "Woah, hold on there. What exactly do you think I am?", "Don't tell me that you thought I was a slut...?")
+            iam.say_line(character, lines, "angry")
+
+        @staticmethod
         def before_sex(character):
             """
             Output line after the character accepted to have an intercourse with the hero (no rape)
@@ -2613,7 +2709,7 @@ init -2 python:
             elif "Shy" in char_traits and dice(50):
                 lines = ("I... I don't want that! ", "W-we can't do that. ", "I-I don't want to... Sorry.")
             elif "Imouto" in char_traits:
-                lines = ("Noooo way!", "I, I think perverted things are bad!", "...I-I'm gonna get mad if you say that stuff, you know? Jeez!", "Y-you dummy! You should be talking about stuff like s-s-sex!")
+                lines = ("Noooo way!", "I, I think perverted things are bad!", "...I-I'm gonna get mad if you say that stuff, you know? Jeez!", "Y-you dummy! You should not be talking about stuff like s-s-sex!")
             elif "Dandere" in char_traits:
                 lines = ("You're no good...", "Let's have you explain in full detail why you decided to do that today, hmm?", "You should really settle down.")
             elif "Tsundere" in char_traits:
