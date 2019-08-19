@@ -57,11 +57,13 @@ label girl_interactions_after_greetings: # when character wants to say something
             pwa.menu(m, "Chat")
             pwa.gm_choice("Small Talk", index=(m, 0))
             pwa.gm_choice("About Job", condition="char.employer == hero", index=(m, 1))
-            pwa.gm_choice("How She Feels", condition="char.employer == hero", index=(m, 2))
-            pwa.gm_choice("About Her", index=(m, 3))
-            pwa.gm_choice("About Occupation", condition="char.employer != hero", index=(m, 4))
-            pwa.gm_choice("Interests", index=(m, 5))
-            pwa.gm_choice("Flirt", index=(m, 6))
+            pwa.gm_choice("How She Feels", condition="char.gender == 'female' and char.employer == hero", label="how_feels", index=(m, 2))
+            pwa.gm_choice("How He Feels", condition="char.gender != 'female' and char.employer == hero", label="how_feels", index=(m, 3))
+            pwa.gm_choice("About Her", condition="char.gender == 'female'", label="about_char", index=(m, 4))
+            pwa.gm_choice("About Him", condition="char.gender != 'female'", label="about_char", index=(m, 5))
+            pwa.gm_choice("About Occupation", condition="char.employer != hero", index=(m, 6))
+            pwa.gm_choice("Interests", index=(m, 7))
+            pwa.gm_choice("Flirt", index=(m, 8))
 
             # TRAINING
             #m = 1
@@ -120,12 +122,13 @@ label girl_interactions_after_greetings: # when character wants to say something
             # PROPOSITION
             m = 7
             pwa.menu(m, "Propose")
-            pwa.gm_choice("Girlfriend", condition="not check_lovers(char)", index=(m, 0))
-            pwa.gm_choice("Break Up", condition="check_lovers(char)", index=(m, 1))
-            pwa.gm_choice("Move in", condition="char.home != hero.home and char.status == 'free'", index=(m, 2))
-            pwa.gm_choice("Move out", condition="char.home == hero.home and char.status == 'free'", index=(m, 3))
-            pwa.gm_choice("Hire", condition="char.employer != hero", index=(m, 4))
-            pwa.gm_choice("Sparring", condition="char.employer != hero", index=(m, 5))
+            pwa.gm_choice("Girlfriend", condition="char.gender == 'female' and not check_lovers(char)", label="befriend", index=(m, 0))
+            pwa.gm_choice("Boyfriend", condition="char.gender != 'female' and not check_lovers(char)", label="befriend", index=(m, 1))
+            pwa.gm_choice("Break Up", condition="check_lovers(char)", index=(m, 2))
+            pwa.gm_choice("Move in", condition="char.home != hero.home and char.status == 'free'", index=(m, 3))
+            pwa.gm_choice("Move out", condition="char.home == hero.home and char.status == 'free'", index=(m, 4))
+            pwa.gm_choice("Hire", condition="char.employer != hero", index=(m, 5))
+            pwa.gm_choice("Sparring", condition="char.employer != hero", index=(m, 6))
 
             # PLAY A GAME
             m = 8
@@ -137,14 +140,15 @@ label girl_interactions_after_greetings: # when character wants to say something
             m = 9
             pwa.menu(m, "Intimacy")
             pwa.gm_choice("Hug", index=(m, 0))
-            pwa.gm_choice("Grab Butt", index=(m, 1))
-            pwa.gm_choice("Grab Breasts", index=(m, 2))
-            pwa.gm_choice("Kiss", index=(m, 3))
-            pwa.gm_choice("Sex", index=(m, 4))
-            pwa.gm_choice("Hire For Sex", index=(m, 5), condition="not(check_lovers(char)) and char.status == 'free'")
-            pwa.gm_choice("Become Fr", index=(m, 6), condition="DEBUG_INTERACTIONS")
-            pwa.gm_choice("Become Lv", index=(m, 7), condition="DEBUG_INTERACTIONS")
-            pwa.gm_choice("Disp", index=(m, 8), condition="DEBUG_INTERACTIONS")
+            pwa.gm_choice("Touch Cheek", index=(m, 1))
+            pwa.gm_choice("Grab Butt", index=(m, 2))
+            pwa.gm_choice("Grab Breasts", condition="char.gender == 'female'", index=(m, 3))
+            pwa.gm_choice("Kiss", index=(m, 4))
+            pwa.gm_choice("Sex", index=(m, 5))
+            pwa.gm_choice("Hire For Sex", index=(m, 6), condition="not(check_lovers(char)) and char.status == 'free'")
+            pwa.gm_choice("Become Fr", index=(m, 10), condition="DEBUG_INTERACTIONS")
+            pwa.gm_choice("Become Lv", index=(m, 11), condition="DEBUG_INTERACTIONS")
+            pwa.gm_choice("Disp", index=(m, 12), condition="DEBUG_INTERACTIONS")
 
             # Quests/Events to Interactions Menu:
             """

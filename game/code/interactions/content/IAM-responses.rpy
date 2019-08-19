@@ -2034,6 +2034,96 @@ init -2 python:
             iam.say_line(character, lines, mood)
 
         @staticmethod
+        def incest_touch_cheek(character):
+            """
+            Output line when the character allows the hero to touch her/his cheek, but contemplating about the incest they commit
+            """
+            char_traits = character.traits
+            if "Impersonal" in char_traits:
+                lines = ("Is it okay for siblings to touch like that?", "Do you like your sister?")
+            elif "Yandere" in char_traits:
+                lines = ("Such an act... touching... from my [hero.hs]...", "I wonder... if you should proceed to do this... to your sister?")
+            elif "Dandere" in char_traits:
+                lines = ("This is different from the time when we were little...", "...[hero.hs], your hands are so comforting.")
+            elif "Shy" in char_traits and dice(50):
+                lines = ("Do you like... touching... your sister?", "[hero.hs], you're so gentle...")
+            if "Imouto" in char_traits:
+                lines = ("I want you to hold me, [hero.hss]! Hehe ♪", "How does it feel to touch your sister?")
+            elif "Kamidere" in char_traits:
+                lines = ("Letting my [hero.hs] touch like this... T...this is just wrong...", "You love your sister that much..?")
+            elif "Tsundere" in char_traits:
+                lines = ("D...doing such lewd things even though we're siblings... Isn't this incest?", "Doing such things to your sister... *sigh* Well, it can't be helped...")
+            elif "Kuudere" in char_traits:
+                lines = ("I let my [hero.hs] touch like this... I'll never be forgiven for doing this...", "Ugh... I... I can't believe I have such a lewd [hero.hs]...")
+            elif "Ane" in char_traits:
+                lines = ("You really like me, [hero.hs]? ♪", "Do you really like touching your sis that much?")
+            elif "Bokukko" in char_traits:
+                lines = ("What's it like to touch your sister? Does it feel good?", "Going after your sister? Man, what a hopeless [hero.hs] you are... ♪")
+            else:
+                lines = ("Isn't it a bit strange to touch your sister?", "I'm your sis... Are you really okay with that?")
+            iam.say_line(character, lines, "uncertain")
+
+        @staticmethod
+        def accept_touch_cheek(character):
+            """
+            Output line when the character accepts a cheek-touch from the hero
+            """
+            char_traits = character.traits
+            if "Impersonal" in char_traits:
+                lines = ("*blushes*... Hn... I like this.", "*blushes* You want something?", "*closes [pd] eyes*... Hn... I can feel you.")
+            elif "Yandere" in char_traits:
+                lines = ("<puts [pd] hand on yours> ... Hn... good...", "*blushes* ... *giggle* This I like ♪", "Mph.. *blushes* ... *smiles*")
+            elif "Shy" in char_traits and dice(50):
+                lines = ("Huh... *blushes*... You touched me...", "*blushes*  You, your hand touched... <gives you a dreamy smile>", "Ahm, *smiles*......this feels good...", "*smiles* Nnn... <looks at you dreamily>", "*blushes* H...how's does this f... feel so good...?", "*blushes* ... It... it feels good for me...", "Is this really ok...? ...*smiles*...", "<closes [pd] eyes> hn...")
+            elif "Dandere" in char_traits:
+                lines = ("*smiles* ... *looks into your eyes* ...Yes?", "*blushes* ...Hn...Not enough. More.", "Nn, aah, haah... Your hands are cold *giggle*", "*looks into your eyes*... Wanna say something? ...", "*smiles*...  Hn... you like to touch me...?")
+            elif "Kuudere" in char_traits:
+                lines = ("*blushes* Ok, that is fine by me.", "Nhn... Do you want to tell me something?", "Nh...*smiles* This makes me feel good.", "Ah... J-Jeez, that want to make me blush?", "Mmh... Nmmh?! Did you wash your hands?")
+            elif "Tsundere" in char_traits:
+                lines = ("Huh!? Wh-what do you think you're doing? Geez.*blushes*", "Nnn, nn... *blushes* Ah... Done already...? !? I-I didn't say anything!", "*blushes*, hn, hnn... Puah! Geez! How long are you planning on doing that?!", "Mmh, *blushes* nnh... Jeez, how long are you gonna do this for!")
+            elif "Ane" in char_traits:
+                lines = ("*smiles* ...Hmhm, this makes me feel safe.", "Hn... <puts [pd] hand on yours> ... Thanks [mc_ref].", "My, you know how to comfort me *smiles*...")
+            elif "Bokukko" in char_traits:
+                lines = ("... Hn.. What, what? You like touching me that much?", "Haha... I hope your hands are not dirty ♪", "This feels good, thanks!")
+            elif "Imouto" in char_traits:
+                lines = ("*blushes* Ehehe, this is a bit embarrassing ♪", "*giggle*, ahm... yes...", "*blushes*, hn... *giggle*... Ehehe♪", "Ehehe, it feels good right ♪")
+            elif "Kamidere" in char_traits:
+                lines = ("*smiles*... Felt good, thanks!", "*smiles*... Want to tell me more?", "*blushes*... I'll leave you with that much.")
+            else:
+                lines = ("Don't say anything.... hn...", "*smiles*, hmm... *sigh*, this feels so good...", "*dreaming*...  that is right.")
+            iam.say_line(character, lines, "shy", ("zoom_fast", "reset"))
+
+        @staticmethod
+        def refuse_touch_cheek(character):
+            """
+            Output line when the character refuses a cheek-touch from the hero
+            """
+            char_traits = character.traits
+            if "Impersonal" in char_traits:
+                lines = ("I see you lack common sense.", "It is better if you don't do that.", "It hurts.", "Why are you touching me? So annoying.")
+            elif "Yandere" in char_traits:
+                lines = ("Hey, stop! Don't do that!", "Touching is forbidden. Stop.", "You have some nerve putting your hands on me!", "Could you refrain from touching me with your dirty hands?")
+            elif "Shy" in char_traits and dice(50):
+                lines = ("No... D-don't... Do that!", "W-w-what? D-don't do it please...", "Wah! Why would you even try?!", "I think you should stop right there.", "P-please stop doing this!")
+            elif "Dandere" in char_traits:
+                lines = ("Why are you touching me without permission!?", "If you keep doing that, I'm leaving.", "Please do not do it again.", "Stop harassing me!")
+            elif "Tsundere" in char_traits:
+                lines = ("Kyaa-! Y... you idiot!", "Ow! How dare you!", "Y-you dumbass! Have you lost your mind?!", "Stop. That. Riiiight. Nooooooow!", "Hey, you creep, what do you think you're doing!?", "Aah! C...cut it out!", "Hya, what are you doing, it's dirty!")
+            elif "Kuudere" in char_traits:
+                lines = ("What?! What is the meaning of this? Hey!", "...Hey! Why are you touching me?!", "Show some restraint with your indecent actions.", "...Tch. What a perv.", "Hmph. You should be grateful I'm so lenient today.")
+            elif "Ane" in char_traits:
+                lines = ("You're too sure about yourself. Consider a bit more self-restraint, okay?", "Come on, don't touch me now.", "I'm gonna scold you if you continue.", "That really wasn't appropriate. Keep your distance.")
+            elif "Kamidere" in char_traits:
+                lines = ("D-don't be touching me!", "What are you doing, geez!", "I don't want your touch!", "S-stop that! Get your hands away from me!", "Hya! Stop acting like a pervert!", "Geez, stop that!")
+            elif "Bokukko" in char_traits:
+                lines = ("Umm... Don't go touchin' me...", "Da heck ya' doing?", "Owwie... Geez... why'd you do that..?", "Whoa, what're you doing, geez...", "Fweh, hey, don't touch me!", "What the hell!? What are you doin'!?")
+            elif "Imouto" in char_traits:
+                lines = ("Geez! If you don't stop, I'm gonna get mad!", "Nooo, what are you doing!?", "Hya! Don't touch me!", "O-owowowowow! Sto-, Wai-, AGYAAA!!", "Hey! What are you doing?!")
+            else:
+                lines = ("Geez! Try again if want to see me angry.", "Whoa! Hey, don't just touch me out of the blue!", "Do this sort of thing with someone else...!", "Hey! Quit it, already!", "Aah! C...cut it out! ", "What are you doing, you sneak?")
+            iam.say_line(character, lines, "angry", ("angry", "reset"))
+
+        @staticmethod
         def accept_grab_butt(character):
             """
             Output line when the character accepts a butt-grab from the hero

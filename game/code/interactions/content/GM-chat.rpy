@@ -121,8 +121,8 @@ label girl_interactions_aboutjob: # TO DO: here would help additional logic base
     jump girl_interactions
 
 # ask how she feels
-label interactions_howshefeels:
-    $ m = iam.flag_count_checker(char, "flag_interactions_howshefeels")
+label interactions_how_feels:
+    $ m = iam.flag_count_checker(char, "flag_interactions_how_feels")
     if m >= 5: # we don't have to limit it because of bonuses (there are none), but because of the common sense
         $ del m
         $ iam.refuse_too_many(char)
@@ -187,12 +187,12 @@ label interactions_howshefeels:
     jump girl_interactions
 
 # ask about her
-label interactions_abouther:
+label interactions_about_char:
     if iam.check_for_bad_stuff(char):
         jump girl_interactions_end
     if iam.check_for_minor_bad_stuff(char):
         jump girl_interactions
-    $ m = 1 + iam.flag_count_checker(char, "flag_interactions_abouther")
+    $ m = 1 + iam.flag_count_checker(char, "flag_interactions_about_char")
     $ n = 2 + iam.repeating_lines_limit(char)
     if m > n:
         if m > 1:

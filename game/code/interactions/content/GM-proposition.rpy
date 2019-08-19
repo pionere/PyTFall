@@ -57,13 +57,13 @@ label interactions_sparring: # sparring with MC, for Combatant occupations only
     $ iam.sparring_end(char)
     jump girl_interactions
 
-label interactions_girlfriend:
+label interactions_befriend:
     if iam.check_for_bad_stuff(char):
         jump girl_interactions_end
     if check_lovers(char): # you never know
         "But you already are!"
         jump girl_interactions
-    $ m = iam.flag_count_checker(char, "flag_interactions_girlfriend")
+    $ m = iam.flag_count_checker(char, "flag_interactions_befriend")
     if m > 1:
         $ del m
         $ iam.refuse_too_many(char)

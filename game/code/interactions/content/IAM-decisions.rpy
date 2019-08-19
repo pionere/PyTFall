@@ -82,6 +82,22 @@ init -2 python:
             return False
 
         @staticmethod
+        def want_cheektouch(character):
+            if iam.slave_siw_check(character):
+                return True
+
+            l_ch = 100 + (check_submissivity(character) * 50)
+            if "SIW" not in character.gen_occs:
+                l_ch += 200
+
+            diff = l_ch - character.get_stat("affection")
+            if diff < 0:
+                return True
+            if diff > 50:
+                return "blowoff"
+            return False
+
+        @staticmethod
         def want_buttgrab(character):
             if iam.slave_siw_check(character):
                 return True
