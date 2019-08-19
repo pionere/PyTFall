@@ -1779,6 +1779,9 @@ label after_load:
             store.iam.world_gossips = WorldGossipsManager(world_gossips)
         if "girl_meets" in pytfall.world_actions.locations:
             del pytfall.world_actions.locations["girl_meets"]
+        if "girl_interactions" in pytfall.world_actions.locations:
+            del pytfall.world_actions.locations["girl_interactions"]
+            pytfall.world_actions.clear()
 
         if not hasattr(store.chars_list_state, "all_status_filters"):
             store.chars_list_state = None

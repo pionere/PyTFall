@@ -146,7 +146,7 @@ label klepto_stealing:
             "Just as you begin to talk to [char.name], you notice that [char.p] tried to steal from you."
             menu:
                 "How do you react?"
-                "Call the guards!":
+                "Call the guards!" if char.status == "free":
                     $ iam.apology(char)
                     menu:
                         "Ask [char.op], how [char.p] wants to resolve the issue":
@@ -195,6 +195,8 @@ label klepto_stealing:
                             jump klepto_police
                     char.say "Thank you. It won't happen again, I promise."
                     extend " Please act like nothing happened..."
+                "Punish [char.pd]" if char.status != "free":
+                    "Not implemented..." # FIXME implement punishment (with training?)
                 "Ignore":
                     $ pass
         elif not dice(hero.get_stat("luck")):
