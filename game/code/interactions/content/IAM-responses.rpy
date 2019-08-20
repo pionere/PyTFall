@@ -2621,7 +2621,7 @@ init -2 python:
                 lines = ("Wanna check out my quality 'services'?", "Are you just looking, or do you want to get in the adult business with me?")
             else:
                 lines = ("I could help you to release some tension, don't you think?", "My 'services' are really helpful, wanna try?")
-            iam.say_line(character, lines, "provocative")
+            iam.say_line(character, lines, "suggestive")
 
         @staticmethod
         def accept_sex_for_money(character, price):
