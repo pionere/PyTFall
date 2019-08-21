@@ -526,7 +526,7 @@ init -9 python:
                 if joy > 70:
                     if check_lovers(self) and "Horny" in effects:
                         return "suggestive"
-                    if joy > 85:
+                    if joy > 85 and self.get_stat("disposition") >= 0:
                         return "happy"
                 sub = check_submissivity(self)
                 if sub == 1:

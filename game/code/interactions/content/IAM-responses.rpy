@@ -39,52 +39,150 @@ init -2 python:
             Outputs a line when a lover greets the MC
             """
             char_traits = character.traits
-            if "Half-Sister" in char_traits and dice(50):
-                if "Impersonal" in char_traits:
-                    lines = ("I love you, even though we're siblings.", "I love you, [hero.hs]. I think.")
-                elif "Tsundere" in char_traits:
-                    lines = ("We're drawn to each other even though we're siblings... it's inevitable that we would fall in love with each other.", "You're the best [hero.hs] ever! Well, if you weren't so perverted you'd be even better... hehe.")
-                elif "Dandere" in char_traits:
-                    lines = ("You are my favourite person.", "Be mine alone, [hero.hs].", "Can't siblings love each other..?")
+            mood = character.get_mood_tag(True)
+            if mood in ("indifferent", "confident", "happy", "suggestive"):  
+                if "Half-Sister" in char_traits and dice(50):
+                    if "Impersonal" in char_traits:
+                        lines = ("I love you, even though we're siblings.", "I love you, [hero.hs].")
+                    elif "Tsundere" in char_traits:
+                        lines = ("We're drawn to each other even though we're siblings... it's inevitable that we would fall in love with each other.", "You're the best [hero.hs] ever! Well, if you weren't so perverted you'd be even better... hehe.")
+                    elif "Dandere" in char_traits:
+                        lines = ("You are my favourite person.", "Be mine alone, [hero.hs].", "Can't siblings love each other..?")
+                    elif "Kuudere" in char_traits:
+                        lines = ("[hero.hs], you belong to only me, got it? I won't let anyone else have you.", "Do you hate it that your sister always takes care of you? If you do... well...")
+                    elif "Imouto" in char_traits:
+                        lines = ("Every part of my [hero.hss] belongs to me!", "[hero.hs] and I are bound now. Hehe.", "[hero.hs] is stylish and kind... Hehe....")
+                    elif "Bokukko" in char_traits:
+                        lines = ("All I need is you, [hero.hss].", "I won't share my [hero.hs] with anybody!", "Siblings getting along well... Own family is best, na?", "How should I say this... [hero.hs] you're sexy... Hehe!")
+                    elif "Yandere" in char_traits:
+                        lines = ("I love you so much, [hero.hs]. You're very special to me.", "If it's for you, [hero.hs]... I'm ready to do anything!", "*[pC] smiles and stares at you.*")
+                    elif "Ane" in char_traits:
+                        lines = ("It's natural for siblings to love each other ♥", "Sister will always be here to take care of you.")
+                    else:
+                        lines = ("I love everything about you... [hero.hs].", "Please look at your sister... as a woman.", "We're bound together now, even though we're siblings...", "Is it weird for siblings to stick together all the time?")
+                elif "Shy" in char_traits and dice(50):
+                    lines = ("I lik-... I love you...!", "U-Um, er, I, um... I-I... I-I love you!", "Um, ah, er... I...l-li... I li-...! I can't do it!", "Um.... I-I love you very much...", "The two of us are going out... Ahhh...")
+                elif "Nymphomaniac" in char_traits and dice(65):
+                    lines = ("I'm so lewd, aren't I... I'm thinking of you...doing me...", "Hey, what sorts of things do you think we can do, just the two of us?", "You can have me whenever you want!", "We're lovers, so we should act like lovers, we should get gooey and slap thighs.", "Huhu, I love you ♪ Of course, also in a sexual way.", "Even if we are lovers, I wonder what we should do? Ah, you had dirty thoughts just now, didn't you?", "Um... You don't hate naughty girls... right...?")
+                elif "Impersonal" in char_traits:
+                    lines = ("I want to know everything about you. And I want you to know everything about me.", "I'm glad I could meet you.", "As long as we remain lovers, I believe it is essential to have a sensual relationship.", "I'll protect you. You can rely on me.")
+                elif "Extremely Jealous" in char_traits and dice(45):
+                    lines = ("I hate it when you just keep ogling other girls.", "I don't want you flirting with other women.", "Don't get too friendly with other women!", "Hey! Don't look at other girls all the time!", "Erm... I want you to stop looking at other women so much.")
                 elif "Kuudere" in char_traits:
-                    lines = ("[hero.hs], you belong to only me, got it? I won't let anyone else have you.", "Do you hate it that your sister always takes care of you? If you do... well...")
+                    lines = ("When y-you're around, I can't think straight...", "Just tell me if you need me, okay?", "I love you. ...That's it. Got a problem with that?", "P... Please continue to pursue me. My response will always be positive to you.", "You're very dear to me. I want us to stay together...")
+                elif "Tsundere" in char_traits:
+                    lines = ("Wh-what are you planning to have me do...?", "You are NOT to leave my side, okay?", "B-being with you throws me off somehow...", "I deal with your perviness every day, so I deserve some praise!", "Umm... I love you. S-Show a little gratitude for being my choice.", "W-what kind of girls do you like? N-no, pretend I didn't say anything...")
+                elif "Dandere" in char_traits:
+                    lines = ("Sweetheart, sweetheart, sweeeetheart...", "Love you... Mm, it's nothing.", "I want to be with you.", "I want to be your special person...", "I-I'm a lonely person... So don't leave me...", "What can I do to make you look at me...?")
                 elif "Imouto" in char_traits:
-                    lines = ("Every part of my [hero.hss] belongs to me!", "[hero.hs] and I are bound now. Hehe.", "[hero.hs] is stylish and kind... Hehe....")
-                elif "Bokukko" in char_traits:
-                    lines = ("All I need is you, [hero.hss].", "I won't share my [hero.hs] with anybody!", "Siblings getting along well... Own family is best, na?", "How should I say this... [hero.hs] you're sexy... Hehe!")
-                elif "Yandere" in char_traits:
-                    lines = ("I love you so much, [hero.hs]. You're very special to me.", "If it's for you, [hero.hs]... I'm ready to do anything!", "*[pC] smiles and stares at you.*")
+                    lines = ("Hihi, object of my affection. What is up?", "Hehe, we're lovers.... do whatever you like.", "Ehehe, looooove youuuu♪", "I love you♪ I love you sooo much♪", "Have I become like a proper lover now?")
                 elif "Ane" in char_traits:
-                    lines = ("It's natural for siblings to love each other ♥", "Sister will always be here to take care of you.")
+                    lines = ("I want to be both your big sister and your wife! ♪", "I love you.  ...No, mere words aren't enough.", "I love you. I don't want to leave your side.", "As I thought, having a caring lover is good ♪", "You'll love me forever, right? ♪", "I'm really happy, you know? To be together like this with you ♪")
+                elif "Yandere" in char_traits:
+                    lines = ("Ah... ehhehe... I'm happy...", "We're lovers, aren't we...? Uhehehe...", "I'm really happy being your girlfriend! ...Ehehe", "I think it's really a good thing I've fallen in love with you.", "Ehehe ♪ Nothing, just looking at your face ♪", "Now how do I get you to fall for me even harder...? Ehehe♪", "It would be nice if we could be together forever.", "We're the most compatible couple in the world! Do you feel the same?")
+                elif "Kamidere" in char_traits:
+                    lines = ("Even though we're lovers, doing nothing but sex stuff is not acceptable!", "Haaa... How'd I fall in love with someone like this...", "Just because we're l-lovers, doesn't mean I will spoil you...", "Well? What does my lover want from me?", "The only thing you'll ever need is me. Oh yes. Just me. Hehe.", "You think it's about time I turned you into my playtoy? ♪")
+                elif "Bokukko" in char_traits:
+                    lines = ("Being subtle is such a bother so let me tell you straight... I love you.", "Even though we're dating now, not all that much has changed, huh...", "Say, what do you like about me? ...it's fine, tell me!", "I love you...I super love you...!")
                 else:
-                    lines = ("I love everything about you... [hero.hs].", "Please look at your sister... as a woman.", "We're bound together now, even though we're siblings...", "Is it weird for siblings to stick together all the time?")
-            elif "Shy" in char_traits and dice(50):
-                lines = ("I lik-... I love you...!", "U-Um, er, I, um... I-I... I-I love you!", "Um, ah, er... I...l-li... I li-...! I can't do it!", "Um.... I-I love you very much...", "The two of us are going out... Ahhh...")
-            elif "Nymphomaniac" in char_traits and dice(65):
-                lines = ("I'm so lewd, aren't I... I'm thinking of you...doing me...", "Hey, what sorts of things do you think we can do, just the two of us?", "You can have me whenever you want!", "We're lovers, so we should act like lovers, we should get gooey and slap thighs.", "Huhu, I love you ♪ Of course, also in a sexual way.", "Even if we are lovers, I wonder what we should do? Ah, you had dirty thoughts just now, didn't you?", "Um... You don't hate naughty girls... right...?")
-            elif "Impersonal" in char_traits:
-                lines = ("I want to know everything about you. And I want you to know everything about me.", "I'm glad I could meet you.", "As long as we remain lovers, I believe it is essential to have a sensual relationship.", "I'll protect you. You can rely on me.")
-            elif "Extremely Jealous" in char_traits and dice(45):
-                lines = ("I hate it when you just keep ogling other girls.", "I don't want you flirting with other women.", "I'm sorry, but I dislike it when you get too friendly with other women!", "Hey! Don't look at other girls all the time!", "My heart's feeling uneasy and gloomy... I dislike this feeling.", "Erm... I want you to stop looking at other women so much.")
-            elif "Kuudere" in char_traits:
-                lines = ("When y-you're around, I can't think straight...", "I c-can help out too if you need me, you know...", "I love you. ...That's it. Got a problem with that?", "P... Please continue to pursue me. My response will always be positive to you.", "You're very dear to me. I want us to stay together...")
-            elif "Tsundere" in char_traits:
-                lines = ("Wh-what are you planning to have me do...?", "You are NOT to leave my side, okay?", "B-being with you throws me off somehow...", "I deal with your perviness every day, so I deserve some praise!", "Umm... I love you. S-Show a little gratitude for being my choice.", "W-what kind of girls do you like? N-no, pretend I didn't say anything...")
-            elif "Dandere" in char_traits:
-                lines = ("Sweetheart, sweetheart, sweeeetheart...", "Love you... Mm, it's nothing.", "I want to be with you.", "I want to be your special person...", "I-I'm a lonely person... So don't leave me...", "What can I do to make you look at me...?")
-            elif "Imouto" in char_traits:
-                lines = ("Hihi, object of my affection. What is up?", "Hehe, we're lovers.... do whatever you like.", "Ehehe, looooove youuuu♪", "I love you♪ I love you sooo much♪", "Have I become like a proper lover now?")
-            elif "Ane" in char_traits:
-                lines = ("I want to be both your big sister and your wife! ♪", "I love you.  ...No, mere words aren't enough.", "I love you. I don't want to leave your side.", "As I thought, having a caring lover is good ♪", "You'll love me forever, right? ♪", "I'm really happy, you know? To be together like this with you ♪")
-            elif "Yandere" in char_traits:
-                lines = ("Ah... ehhehe... I'm happy...", "We're lovers, aren't we...? Uhehehe...", "I, I'm your girlfriend, right? ...Ehehe", "I think it's really a good thing I've fallen in love with you.", "Ehehe ♪ Nothing, just looking at your face ♪", "Now how do I get you to fall for me even harder...? Ehehe♪", "It would be nice if we could be together forever.", "We're the most compatible couple in the world, aren't we?")
-            elif "Kamidere" in char_traits:
-                lines = ("Even though we're lovers, doing nothing but sex stuff is not acceptable!", "Haaa... How'd I fall in love with someone like this...", "Just because we're l-lovers, doesn't mean I will spoil you...", "Well? What does my lover want from me?", "The only thing you'll ever need is me. Oh yes. Just me. Hehe.", "You think it's about time I turned you into my playtoy? ♪")
-            elif "Bokukko" in char_traits:
-                lines = ("Being subtle is such a bother so let me tell you straight... I love you.", "Even though we're dating now, not all that much has changed, huh...", "Say, what do you like about me? ...it's fine, tell me!", "I love you...I super love you...!")
+                    lines = ("I really like you, you know...", "A-As lovers, let's love each other a lot, okay...?", "We shouldn't flirt too much in front of the others, okay?", "I-I love you... Hehehe...♪", "I love you ♪ I love you so much ♪", "I want you to love me more and more! Prepare yourself for it, okay?", "Ehehe, don't you ever, ever leave me...", "I wish we could be together forever...♪", "What do you think other people think when they see us? ...you think maybe, 'Hey, look at that cute couple'...?")
+                if mood != "suggestive":
+                    mood = "shy"
+            elif mood == "uncertain":
+                if "Half-Sister" in char_traits and dice(50):
+                    if "Impersonal" in char_traits:
+                        lines = ("I love you, even though we're siblings.", "I love you, [hero.hs]. I think.")
+                    elif "Tsundere" in char_traits:
+                        lines = ("We're drawn to each other even though we're siblings... it's inevitable that we would fall in love with each other.", "You're the best [hero.hs] ever! Well, if you weren't so perverted you'd be even better... hehe.")
+                    elif "Dandere" in char_traits:
+                        lines = ("You are my favourite person.", "Be mine alone, [hero.hs].", "Can't siblings love each other..?")
+                    elif "Kuudere" in char_traits:
+                        lines = ("[hero.hs], you belong to only me, got it? I won't let anyone else have you.", "Do you hate it that your sister always takes care of you? If you do... well...")
+                    elif "Imouto" in char_traits:
+                        lines = ("Every part of my [hero.hss] belongs to me!", "[hero.hs] and I are bound now. Hehe.", "[hero.hs] is stylish and kind... Hehe....")
+                    elif "Bokukko" in char_traits:
+                        lines = ("All I need is you, [hero.hss].", "I won't share my [hero.hs] with anybody!", "Siblings getting along well... Own family is best, na?", "How should I say this... [hero.hs] you're sexy... Hehe!")
+                    elif "Yandere" in char_traits:
+                        lines = ("I love you so much, [hero.hs]. You're very special to me.", "If it's for you, [hero.hs]... I'm ready to do anything!", "*[pC] smiles and stares at you.*")
+                    elif "Ane" in char_traits:
+                        lines = ("It's natural for siblings to love each other ♥", "Sister will always be here to take care of you.")
+                    else:
+                        lines = ("I love everything about you... [hero.hs].", "Please look at your sister... as a woman.", "We're bound together now, even though we're siblings...", "Is it weird for siblings to stick together all the time?")
+                elif "Shy" in char_traits and dice(50):
+                    lines = ("I lik-... I love you...!", "U-Um, er, I, um... I-I... I-I love you!", "Um, ah, er... I...l-li... I li-...! I can't do it!", "Um.... I-I love you very much...", "The two of us are going out... Ahhh...")
+                elif "Nymphomaniac" in char_traits and dice(65):
+                    lines = ("I'm so lewd, aren't I... I'm thinking of you...doing me...", "Hey, what sorts of things do you think we can do, just the two of us?", "You can have me whenever you want!", "We're lovers, so we should act like lovers, we should get gooey and slap thighs.", "Huhu, I love you ♪ Of course, also in a sexual way.", "Even if we are lovers, I wonder what we should do? Ah, you had dirty thoughts just now, didn't you?", "Um... You don't hate naughty girls... right...?")
+                elif "Impersonal" in char_traits:
+                    lines = ("I want to know everything about you. And I want you to know everything about me.", "I'm glad I could meet you.", "As long as we remain lovers, I believe it is essential to have a sensual relationship.", "I'll protect you. You can rely on me.")
+                elif "Extremely Jealous" in char_traits and dice(45):
+                    lines = ("I don't like it when you just keep ogling other girls.", "Please, stop flirting with other women.", "I'm sorry, but I dislike it when you get too friendly with other women!", "Hey! Don't look at other girls all the time!", "My heart's feeling uneasy and gloomy... I dislike this feeling.", "Erm... I want you to stop looking at other women so much.")
+                elif "Kuudere" in char_traits:
+                    lines = ("When y-you're around, I can't think straight...", "I c-can help out too if you need me, you know...", "I love you. ...That's it. Got a problem with that?", "P... Please continue to pursue me. My response will always be positive to you.", "You're very dear to me. I want us to stay together...")
+                elif "Tsundere" in char_traits:
+                    lines = ("Wh-what are you planning to have me do...?", "You are NOT to leave my side, okay?", "B-being with you throws me off somehow...", "I deal with your perviness every day, so I deserve some praise!", "Umm... I love you. S-Show a little gratitude for being my choice.", "W-what kind of girls do you like? N-no, pretend I didn't say anything...")
+                elif "Dandere" in char_traits:
+                    lines = ("Sweetheart, sweetheart, sweeeetheart...", "Love you... Mm, it's nothing.", "I want to be with you.", "I want to be your special person...", "I-I'm a lonely person... So don't leave me...", "What can I do to make you look at me...?")
+                elif "Imouto" in char_traits:
+                    lines = ("Hihi, object of my affection. What is up?", "Hehe, we're lovers.... do whatever you like.", "Ehehe, looooove youuuu♪", "I love you♪ I love you sooo much♪", "Have I become like a proper lover now?")
+                elif "Ane" in char_traits:
+                    lines = ("I want to be both your big sister and your wife! ♪", "I love you.  ...No, mere words aren't enough.", "I love you. I don't want to leave your side.", "As I thought, having a caring lover is good ♪", "You'll love me forever, right? ♪", "I'm really happy, you know? To be together like this with you ♪")
+                elif "Yandere" in char_traits:
+                    lines = ("Ah... ehhehe... I'm happy...", "We're lovers, aren't we...? Uhehehe...", "I, I'm your girlfriend, right? ...Ehehe", "I think it's really a good thing I've fallen in love with you.", "Ehehe ♪ Nothing, just looking at your face ♪", "Now how do I get you to fall for me even harder...? Ehehe♪", "It would be nice if we could be together forever.", "We're the most compatible couple in the world, aren't we?")
+                elif "Kamidere" in char_traits:
+                    lines = ("Even though we're lovers, doing nothing but sex stuff is not acceptable!", "Haaa... How'd I fall in love with someone like this...", "Just because we're l-lovers, doesn't mean I will spoil you...", "Well? What does my lover want from me?", "The only thing you'll ever need is me. Oh yes. Just me. Hehe.", "You think it's about time I turned you into my playtoy? ♪")
+                elif "Bokukko" in char_traits:
+                    lines = ("Being subtle is such a bother so let me tell you straight... I love you.", "Even though we're dating now, not all that much has changed, huh...", "Say, what do you like about me? ...it's fine, tell me!", "I love you...I super love you...!")
+                else:
+                    lines = ("I really like you, you know...", "A-As lovers, let's love each other a lot, okay...?", "We shouldn't flirt too much in front of the others, okay?", "I-I love you... Hehehe...♪", "I love you ♪ I love you so much ♪", "I want you to love me more and more! Prepare yourself for it, okay?", "Ehehe, don't you ever, ever leave me...", "I wish we could be together forever...♪", "What do you think other people think when they see us? ...you think maybe, 'Hey, look at that cute couple'...?")
+                mood = "shy"
+            elif mood in ("sad", "tired", "in pain"):
+                if "Half-Sister" in char_traits and dice(50):
+                    if "Impersonal" in char_traits:
+                        lines = ("I love you, even though we're siblings.", "I love you, [hero.hs]. I think.")
+                    elif "Tsundere" in char_traits:
+                        lines = ("We're drawn to each other even though we're siblings... it's inevitable that we would fall in love with each other.", "You're the best [hero.hs] ever! Well, if you weren't so perverted you'd be even better... hehe.")
+                    elif "Dandere" in char_traits:
+                        lines = ("You are my favourite person.", "Be mine alone, [hero.hs].", "Can't siblings love each other..?")
+                    elif "Kuudere" in char_traits:
+                        lines = ("[hero.hs], you belong to only me, got it? I won't let anyone else have you.", "Do you hate it that your sister always takes care of you? If you do... well...")
+                    elif "Imouto" in char_traits:
+                        lines = ("Every part of my [hero.hss] belongs to me!", "[hero.hs] and I are bound now.", "[hero.hsC] is stylish and kind...")
+                    elif "Bokukko" in char_traits:
+                        lines = ("All I need is you, [hero.hss].", "I won't share my [hero.hs] with anybody!", "Siblings getting along well... Own family is best, na?", "How should I say this... [hero.hs], I need you...")
+                    elif "Yandere" in char_traits:
+                        lines = ("I love you so much, [hero.hs]. You're very special to me.", "If it's for you, [hero.hs]... I'm ready to do anything!", "*[pC] stares at you with dreamy eyes.*")
+                    elif "Ane" in char_traits:
+                        lines = ("It's natural for siblings to love each other ♥", "Sister will always be here to take care of you.")
+                    else:
+                        lines = ("I love everything about you... [hero.hs].", "Please look at your sister... as a woman.", "We're bound together now, even though we're siblings...", "Is it weird for siblings to stick together all the time?")
+                elif "Shy" in char_traits and dice(50):
+                    lines = ("I lik-... I love you...", "U-Um, I-I love you very much...", "Um, ah, really, er... I like you.", "The two of us are going out... Ahhh...")
+                elif "Impersonal" in char_traits:
+                    lines = ("I want to know everything about you. And I want you to know everything about me.", "I'm glad I could meet you.", "As long as we remain lovers, I believe it is essential to have a sensual relationship.", "I'll protect you. You can rely on me.")
+                elif "Extremely Jealous" in char_traits and dice(45):
+                    lines = ("I hate it when you just keep ogling other girls.", "I don't want you flirting with other women.", "I'm sorry, but I dislike it when you get too friendly with other women!", "Hey! Don't look at other girls all the time!", "My heart's feeling uneasy and gloomy... I dislike this feeling.", "Erm... I want you to stop looking at other women so much.")
+                elif "Kuudere" in char_traits:
+                    lines = ("When y-you're around, I can't think straight...", "I c-can help out too if you need me, you know...", "I love you. ...That's it. Got a problem with that?", "P... Please continue to pursue me. My response will always be positive to you.", "You're very dear to me. I want us to stay together...")
+                elif "Tsundere" in char_traits:
+                    lines = ("Wh-what are you planning to have me do...?", "You are NOT to leave my side, okay?", "B-being with you throws me off somehow...", "I deal with your perviness every day, so I deserve some praise!", "Umm... I love you. S-Show a little gratitude for being my choice.", "W-what kind of girls do you like? N-no, pretend I didn't say anything...")
+                elif "Dandere" in char_traits:
+                    lines = ("Sweetheart, sweetheart, sweetheart...", "Love you... Mm, it's nothing.", "I want to be with you.", "I want to be your special person...", "I-I'm a lonely person... So don't leave me...", "What can I do to make you look at me...?")
+                elif "Imouto" in char_traits:
+                    lines = ("Hey, object of my affection. What is it?", "We're lovers.... do whatever you like.", "Have I become like a proper lover now?")
+                elif "Ane" in char_traits:
+                    lines = ("I want to be both your big sister and your wife!", "I love you.  ...No, mere words aren't enough.", "I love you. I don't want to leave your side.", "As I thought, having a caring lover is good...", "You'll love me forever, right?")
+                elif "Yandere" in char_traits:
+                    lines = ("Ah... I'm glad to have you by my side...", "We're still lovers, aren't we...?", "I, I'm your girlfriend, right? ... It is so nice...", "I think it's really a good thing I've fallen in love with you.", "Looking at your face bring me peace...", "It would be nice if we could be together forever.", "We're the most compatible couple in the world, aren't we?")
+                elif "Kamidere" in char_traits:
+                    lines = ("Even though we're lovers, doing nothing but sex stuff is not acceptable!", "Haaa... How'd I fall in love with someone like this...", "Just because we're l-lovers, doesn't mean I will spoil you...", "Well? What does my lover want from me?", "The only thing you'll ever need is me. Oh yes. Just me. Hehe.", "You think it's about time I turned you into my playtoy? ♪")
+                elif "Bokukko" in char_traits:
+                    lines = ("Being subtle is such a bother so let me tell you straight... I love you.", "Even though we're dating now, not all that much has changed, huh...", "Say, what do you like about me? ...it's fine, tell me!", "I love you...I super love you...!")
+                else:
+                    lines = ("I really like you, you know...", "A-As lovers, let's love each other a lot, okay...?", "We shouldn't flirt too much in front of the others, okay?", "I-I love you... Hehehe...♪", "I love you ♪ I love you so much ♪", "I want you to love me more and more! Prepare yourself for it, okay?", "Ehehe, don't you ever, ever leave me...", "I wish we could be together forever...♪", "What do you think other people think when they see us? ...you think maybe, 'Hey, look at that cute couple'...?")
+                mood = "shy"
             else:
-                lines = ("I really like you, you know...", "A-As lovers, let's love each other a lot, okay...?", "We shouldn't flirt too much in front of the others, okay?", "I-I love you... Hehehe...♪", "I love you ♪ I love you so much ♪", "I want you to love me more and more! Prepare yourself for it, okay?", "Ehehe, don't you ever, ever leave me...", "I wish we could be together forever...♪", "What do you think other people think when they see us? ...you think maybe, 'Hey, look at that cute couple'...?")
-            iam.say_line(character, lines, "shy")
+                raise Exception("Mood %s is not implemented for greet_lover!" % mood)
+            iam.say_line(character, lines, mood)
 
         @staticmethod
         def greet_good(character):
@@ -92,29 +190,130 @@ init -2 python:
             Outputs a line when the character greets the MC with high disposition
             """
             char_traits = character.traits
-            if "Impersonal" in char_traits:
-                lines = ("Talk, I'll listen.", "...Being with you makes me feel extraordinarily comfortable.", "What is your purpose in getting close to me?", "Being with you... calms me.")
-            elif "Shy" in char_traits and dice(50):
-                lines = ("I-I'm getting a little bit... used to you, [mc_ref]...", "Hey, am I... do you... Err... nothing. Never mind.", "Being near you calms me down...", "H-Hi...Is it really ok to talk? I don't want to bother you...", "If I am with you, I...  I-it's nothing...")
-            elif "Tsundere" in char_traits:
-                lines = ("Come, if you have something to say, say it.", "Don't be so friendly with me, [mc_ref]...", "P-please do not act like we are close to each other, [mc_ref].")
-            elif "Dandere" in char_traits:
-                lines = ("Did you need something?", "Maybe... I like your voice.", "It's you. Good to see you, [mc_ref]?")
-            elif "Kuudere" in char_traits:
-                lines = ("You certainly like to be with me, don't you...", "Seriously... why is it so hard to be serious...?", "I'm listening. What is it?", "Is there something you would like to consult with me? It's alright.")
-            elif "Ane" in char_traits:
-                lines = ("If ever you're in trouble... you can always come to me.", "What's the matter? Need some advice?", "Ah... I was just thinking, it'd be so nice to talk to you... Ehehe.", "If there's anything I can do, please tell me, okay?", "You can call on me anytime. And I'll do the same with you.", "If something's wrong, you can always talk to me.")
-            elif "Imouto" in char_traits:
-                lines = ("Hn? What's up? You can tell me anything ♪", "For the people I like, I will do my best ♪", "Hi! Tell me, tell me, what'cha doin'?", "Let's have us a chat ♪ Lalala ♪")
-            elif "Bokukko" in char_traits:
-                lines = ("How's it going? Doing alright?", "Oh, what'cha doing?... What'ya wanna do?", "Ohoh, it's you, [mc_ref] ♪", "Yo! What'cha doin'?", "Whazzup?", "Hey [mc_ref], let's do something!", "Hey, will you talk with me for a bit?", "C'mon, c'mon, put a smile on!", "Um, so hey, you wanna chat?")
-            elif "Yandere" in char_traits:
-                lines = ("Eh, what? Do you want to consult with me?", "Huu... You certainly like to be with me, don't you...", "Hm? Something I can do?")
-            elif "Kamidere" in char_traits:
-                lines = ("Huhu, You seem like you'd be good for some entertainment ♪", "...Do you want to chat with me that badly?", "Ok. I have chosen to give you some of my valuable time today. Don't make me regret that.", "Good timing. Come on, entertain me.", "I have fairly high expectation of you, [mc_ref] ♪")
+            mood = character.get_mood_tag(True)
+            if mood == "indifferent":
+                if "Impersonal" in char_traits:
+                    lines = ("Talk, I'll listen.", "It is good to have you around.", "It is nice to see you again.")
+                elif "Shy" in char_traits and dice(50):
+                    lines = ("I-I'm getting a little bit... used to you, [mc_ref]...", "Hey, am I... do you... Err... nothing. Never mind.", "Being near you calms me down...", "H-Hi...Is it really ok to talk? I don't want to bother you...", "If I am with you, I...  I-it's nothing...")
+                elif "Tsundere" in char_traits:
+                    lines = ("Come. If you have something to say, say it.", "Yes? Do you want to tell me something, [mc_ref]?")
+                elif "Dandere" in char_traits:
+                    lines = ("Did you need something?", "Maybe... I like your voice.", "It's you. Good to see you, [mc_ref]?")
+                elif "Kuudere" in char_traits:
+                    lines = ("You certainly like to be with me, don't you...", "Seriously... why is it so hard to be serious...?", "I'm listening. What is it?", "Is there something you would like to consult with me? It's alright.")
+                elif "Ane" in char_traits:
+                    lines = ("If ever you're in trouble... you can always come to me.", "What's the matter? Need some advice?", "Ah... I was just thinking, it'd be so nice to talk to you...", "If there's anything I can do, please tell me, okay?", "You can call on me anytime. And I'll do the same with you.", "If something's wrong, you can always talk to me.")
+                elif "Imouto" in char_traits:
+                    lines = ("Hn? What's up? You can tell me anything ♪", "For the people I like, I will do my best ♪", "Hi! Tell me, tell me, what'cha doin'?", "Let's have us a chat ♪ Lalala ♪")
+                elif "Bokukko" in char_traits:
+                    lines = ("How's it going? Doing alright?", "Oh, what'cha doing?... What'ya wanna do?", "Ohoh, it's you, [mc_ref] ♪", "Yo! What'cha doin'?", "Whazzup?", "Hey [mc_ref], let's do something!", "Hey, will you talk with me for a bit?", "C'mon, c'mon, put a smile on!", "Um, so hey, you wanna chat?")
+                elif "Yandere" in char_traits:
+                    lines = ("Eh, what? Do you want to consult with me?", "Huu... You certainly like to be with me, don't you...", "Hm? Something I can do?")
+                elif "Kamidere" in char_traits:
+                    lines = ("Huhu, You seem like you'd be good for some entertainment ♪", "...Do you want to chat with me that badly?", "Ok. I have chosen to give you some of my valuable time today. Don't make me regret that.", "Good timing. Come on, entertain me.", "I have fairly high expectation of you, [mc_ref] ♪")
+                else:
+                    lines = ("Hey, how's it going?", "Well, what shall we talk about..?", "What do you want to do?", "Ah, [mc_ref]! Let's talk for a while.", "Hi! Another splendid day today!")
+                mood = "happy"
+            elif mood == "confident":
+                if "Impersonal" in char_traits:
+                    lines = ("Talk, I'll listen.", "Your presence makes me feel comfortable.", "Talk to me, I like to hear your voice!")
+                elif "Shy" in char_traits and dice(50):
+                    lines = ("I-I'm getting a little bit... used to you, [mc_ref]...", "Being near you calms me down...", "H-Hi...Is it really ok to talk? I don't want to bother you...", "If I am with you, I...  I-it's nothing...")
+                elif "Tsundere" in char_traits:
+                    lines = ("If you have something to say, say it.", "Don't be so friendly with me, [mc_ref]...", "Please do not act like we are close to each other, [mc_ref].")
+                elif "Dandere" in char_traits:
+                    lines = ("Did you need something?", "Maybe... I like your voice.", "It's you. Good to see you, [mc_ref]?")
+                elif "Kuudere" in char_traits:
+                    lines = ("You certainly like to be with me, don't you...", "Seriously... why is it so hard to be serious...?", "I'm listening. What is it?", "Is there something you would like to consult with me? It's alright.")
+                elif "Ane" in char_traits:
+                    lines = ("Are you in trouble? You know you can rely on me, right?", "What's the matter? Need some advice?", "Ah... I was just thinking, it'd be so nice to talk to you.", "If there's anything I can do, please tell me, okay?", "You can call on me anytime. And I'll do the same with you.", "If something's wrong, you can always talk to me.")
+                elif "Imouto" in char_traits:
+                    lines = ("Hn? What's up? You can tell me anything ♪", "For the people I like, I will do my best ♪", "Hi! Tell me, tell me, what'cha doin'?", "Let's have us a chat ♪ Lalala ♪")
+                elif "Bokukko" in char_traits:
+                    lines = ("How's it going? Doing alright?", "Oh, what'cha doing?... What'ya wanna do?", "Ohoh, it's you, [mc_ref] ♪", "Yo! What'cha doin'?", "Whazzup?", "Hey [mc_ref], let's do something!", "Hey, will you talk with me for a bit?", "C'mon, c'mon, put a smile on!", "Um, so hey, you wanna chat?")
+                elif "Yandere" in char_traits:
+                    lines = ("Eh, what? Do you want to consult with me?", "Huu... You certainly like to be with me, don't you...", "Hm? Something I can do?")
+                elif "Kamidere" in char_traits:
+                    lines = ("Huhu, You seem like you'd be good for some entertainment ♪", "...Do you want to chat with me that badly?", "Ok. I have chosen to give you some of my valuable time today. Don't make me regret that.", "Good timing. Come on, entertain me.", "I have fairly high expectation of you, [mc_ref] ♪")
+                else:
+                    lines = ("Hey, how's it going?", "Well, what shall we talk about..?", "What do you want to do?", "Ah, [mc_ref]! Let's talk for a while.", "Hi! Another splendid day today!")
+                mood = "happy"
+            elif mood == "uncertain":
+                if "Impersonal" in char_traits:
+                    lines = ("Yes? I'm listening.", "I think your presence has a good effect on me.", "What is your purpose in getting close to me?", "Being with you... calms me.")
+                elif "Shy" in char_traits and dice(50):
+                    lines = ("I-I'm getting a little bit... used to you, [mc_ref]...", "Hey, am I... do you... Err... nothing. Never mind.", "Being near you calms me down...", "H-Hi...Is it really ok to talk? I don't want to bother you...", "If I am with you, I...  I-it's nothing...")
+                elif "Tsundere" in char_traits:
+                    lines = ("Come. You have something to say?", "Uhm.. you are too friendly with me, [mc_ref]...", "Do you really think we are getting closer, [mc_ref]?")
+                elif "Dandere" in char_traits:
+                    lines = ("Did you need something?", "Maybe... I like your voice.", "It's you. Good to see you, [mc_ref]?")
+                elif "Kuudere" in char_traits:
+                    lines = ("You certainly like to be with me, don't you...", "Seriously... why is it so hard to be serious...?", "I'm listening. What is it?", "Is there something you would like to consult with me? It's alright.")
+                elif "Ane" in char_traits:
+                    lines = ("If ever you're in trouble... please, let me know.", "What's the matter?", "Ah, it is nice to talk to you again.", "Anything I can do for you?", "Is something's wrong? You can always talk to me.")
+                elif "Imouto" in char_traits:
+                    lines = ("Hn? What's up? You can tell me anything.", "For the people I like, I will do my best. Promise.")
+                elif "Bokukko" in char_traits:
+                    lines = ("How's it going? Doing alright?", "Oh, what'cha doing?... What'ya wanna do?", "Ohoh, it's you, [mc_ref] ♪", "Yo! What'cha doin'?", "Whazzup?", "Hey [mc_ref], let's do something!", "Hey, will you talk with me for a bit?", "C'mon, c'mon, put a smile on!", "Um, so hey, you wanna chat?")
+                elif "Yandere" in char_traits:
+                    lines = ("Eh, what? Do you want to consult with me?", "Huu... You certainly like to be with me, don't you...", "Hm? Something I can do?")
+                elif "Kamidere" in char_traits:
+                    lines = ("Huhu, You seem like you'd be good for some entertainment ♪", "...Do you want to chat with me that badly?", "Ok. I have chosen to give you some of my valuable time today. Don't make me regret that.", "Good timing. Come on, entertain me.", "I have fairly high expectation of you, [mc_ref] ♪")
+                else:
+                    lines = ("Hey, how's it going?", "Well, what shall we talk about..?", "What do you want to do?", "Ah, [mc_ref]! Let's talk for a while.", "Hi! Another splendid day today!")
+                mood = "happy"
+            elif mood in ("happy", "suggestive"):
+                if "Impersonal" in char_traits:
+                    lines = ("Please talk! I'm all ears.", "Being with you makes me feel comfortable.", "Being with you... calms me.")
+                elif "Shy" in char_traits and dice(50):
+                    lines = ("I-I'm getting a little bit... used to you, [mc_ref]...", "Hey, am I... do you... Err... nothing. Never mind.", "Being near you calms me down...", "H-Hi...Is it really ok to talk? I don't want to bother you...", "If I am with you, I...  I-it's nothing...")
+                elif "Tsundere" in char_traits:
+                    lines = ("Come, if you have something to say, say it.", "Why are you so friendly with me, [mc_ref]?", "Are we really getting closer, [mc_ref]?")
+                elif "Dandere" in char_traits:
+                    lines = ("Did you need something?", "Maybe... I like your voice.", "It's you. Good to see you, [mc_ref]?")
+                elif "Kuudere" in char_traits:
+                    lines = ("You certainly like to be with me, don't you...", "Seriously... why is it so hard to be serious...?", "I'm listening. What is it?", "Is there something you would like to consult with me? It's alright.")
+                elif "Ane" in char_traits:
+                    lines = ("If ever you're in trouble... you can always come to me.", "What's the matter? Need some advice?", "Ah... I was just thinking, it'd be so nice to talk to you... Ehehe.", "If there's anything I can do, please tell me, okay?", "You can call on me anytime. And I'll do the same with you.", "If something's wrong, you can always talk to me.")
+                elif "Imouto" in char_traits:
+                    lines = ("Hn? What's up? You can tell me anything ♪", "For the people I like, I will do my best ♪", "Hi! Tell me, tell me, what'cha doin'?", "Let's have us a chat ♪ Lalala ♪")
+                elif "Bokukko" in char_traits:
+                    lines = ("How's it going? Doing alright?", "Oh, what'cha doing?... What'ya wanna do?", "Ohoh, it's you, [mc_ref] ♪", "Yo! What'cha doin'?", "Whazzup?", "Hey [mc_ref], let's do something!", "Hey, will you talk with me for a bit?", "C'mon, c'mon, put a smile on!", "Um, so hey, you wanna chat?")
+                elif "Yandere" in char_traits:
+                    lines = ("Eh, what? Do you want to consult with me?", "Huu... You certainly like to be with me, don't you...", "Hm? Something I can do?")
+                elif "Kamidere" in char_traits:
+                    lines = ("Huhu, You seem like you'd be good for some entertainment ♪", "...Do you want to chat with me that badly?", "Ok. I have chosen to give you some of my valuable time today. Don't make me regret that.", "Good timing. Come on, entertain me.", "I have fairly high expectation of you, [mc_ref] ♪")
+                else:
+                    lines = ("Hey, how's it going?", "Well, what shall we talk about..?", "What do you want to do?", "Ah, [mc_ref]! Let's talk for a while.", "Hi! Another splendid day today!")
+                mood = "happy"
+            elif mood in ("sad", "tired", "in pain"):
+                if "Impersonal" in char_traits:
+                    lines = ("Talk, I'm listening.", "Uhm... It is good to have you around...", "I hope your presence will help me to calm down.")
+                elif "Shy" in char_traits and dice(50):
+                    lines = ("I-I'm getting a little bit... used to you, [mc_ref]...", "Hey, am I... do you... Err... nothing. Never mind.", "Being near you calms me down...", "H-Hi...Is it really ok to talk? I don't want to bother you...", "If I am with you, I...  I-it's nothing...")
+                elif "Tsundere" in char_traits:
+                    lines = ("Come, if you have something to say, say it.", "Don't be so friendly with me, [mc_ref]...", "P-please do not act like we are close to each other, [mc_ref].")
+                elif "Dandere" in char_traits:
+                    lines = ("Did you need something?", "Maybe... I like your voice.", "It's you. Good to see you, [mc_ref]?")
+                elif "Kuudere" in char_traits:
+                    lines = ("You certainly like to be with me, don't you...", "Seriously... why is it so hard to be serious...?", "I'm listening. What is it?", "Is there something you would like to consult with me? It's alright.")
+                elif "Ane" in char_traits:
+                    lines = ("If ever you're in trouble... you can always come to me.", "What's the matter? Need some advice?", "Ah... I was just thinking, it'd be so nice to talk to you... Ehehe.", "If there's anything I can do, please tell me, okay?", "You can call on me anytime. And I'll do the same with you.", "If something's wrong, you can always talk to me.")
+                elif "Imouto" in char_traits:
+                    lines = ("Yes? What's up?", "Hi! Tell me, what you're doin'?")
+                elif "Bokukko" in char_traits:
+                    lines = ("How's it going? Doing alright?", "Oh, how are you doing, [mc_ref]?", "Oh, it's you, [mc_ref]!", "Yo! What'cha doin'?", "Hey [mc_ref], how are you doing?", "Hey, will you talk with me for a bit?", "Um, so hey, you wanna chat?")
+                elif "Yandere" in char_traits:
+                    lines = ("Eh, what? Do you want to consult with me?", "Huu... You certainly like to be with me, don't you...", "Hm? Something I can do?")
+                elif "Kamidere" in char_traits:
+                    lines = ("You seem like you'd be good for some entertainment.", "...Do you want to chat with me that badly?", "Ok. I have chosen to give you some of my valuable time today. Don't make me regret that.", "Good timing... Come on, entertain me.", "I hope you are going to entertain me, [mc_ref].")
+                else:
+                    lines = ("Hey, how's it going?", "Well, what shall we talk about..?", "What do you want to do?", "Ah, [mc_ref]! Let's talk for a while.", "Hey, [mc_ref]. Do you want to talk?")
+                mood = "uncertain"
             else:
-                lines = ("Hey, how's it going?", "Well, what shall we talk about..?", "What do you want to do?", "Ah, [mc_ref]! Let's talk for a while.", "Hi! Another splendid day today!")
-            iam.say_line(character, lines, "happy")
+                raise Exception("Mood %s is not implemented for greet_good!" % mood)
+            iam.say_line(character, lines, mood)
 
         @staticmethod
         def greet_good_slave(character):
@@ -152,19 +351,110 @@ init -2 python:
             Outputs a line when the character greets the MC with neutral disposition
             """
             char_traits = character.traits
-            if character.status == "free":
+            mood = character.get_mood_tag(True)
+            if mood == "indifferent":
                 if "Impersonal" in char_traits:
-                    lines = ("State your business.", "You're the kind of person who likes pointless conversations, right?", "...Please do not get any closer.")
+                    lines = ("State your business.", "Something happened, or what?", "... What's the matter?")
                 elif "Shy" in char_traits and dice(50):
+                    lines = ("Y-yes, did you call?", "...Y-you want something from me?", "Um... W-what is it?", "Y-yes? Wh-what's going on?", "Wha... what is it...?", "U-Umm... What is it...?", "Y-yes, what do you need?", "C-can I help you...?", "Ye...yes?", "What... is wrong...?", "Wh-what is it...?")
+                elif "Kuudere" in char_traits:
+                    lines = ("Hmph... what is it?", "What business do you have with me?", "Um, was there something you wanted to say?", "Hm? Yes?")
+                elif "Dandere" in char_traits:
+                    lines = ("Please make it quick.", "You call?", "...?", "...Want something?", "...Hmm?", "...What is it?", "You have business with me...?")
+                elif "Tsundere" in char_traits:
+                    lines = ("Hmph. Do you have something to say?", "So, you want something or what?", "What is it?")
+                elif "Imouto" in char_traits:
+                    lines = ("Ehhe. What is it? ♪", "Muhuhu ♪ Did you want to talk to me?", "Eh? What, what is it?", "Hn. What is it?")
+                elif "Ane" in char_traits:
+                    lines = ("Well, what do you want to talk about?", "Is there something I can help you with?", "What business do you have with me?", "May I help you?", "...Yes? Did you need me for something?", "Is there... something I can help you with?")
+                elif "Kamidere" in char_traits:
+                    lines = ("Hm? What? It's not like I have too much time to spend. Yes, that's right. I'm busy.", "...Yes? ...Did you call?", "...Do you want something?", "What is it? I'm busy right now.", "If you have business with me, hurry up and say it.")
+                elif "Bokukko" in char_traits:
+                    lines = ("Hey-Hey! What do you want?", "Huh? What's up?", "Haa? You got a problem?", "Huh, Is there something you want to know?", "Huh? Do you want something?", "Whazzup?", "Did ya call me?", "Ummm, was there something you wanted to say?")
+                elif "Yandere" in char_traits:
+                    lines = ("Yes? What is it?", "You want something?", "Make it quick...", "What do you want from me?")
+                else:
+                    lines = ("...Is there something you need?", "Is there something you would like to ask?", "Is something the matter?", "What do you need from me?", "What is it? If you need something, then say it.", "Yes, what is it?", "...Do you need to talk to me?", "Yes? What do you want?", "...? Is there something on my face?", "Do you need something?", "Did you want to say something?", "You have something to tell me?", "Yes, what is it...?")
+            elif mood == "confident":
+                if "Impersonal" in char_traits:
+                    lines = ("State your business.", "You want something?", "Do you need my help?")
+                elif "Kuudere" in char_traits:
+                    lines = ("Yes? What do you want?", "What business do you have with me?", "Um, was there something you wanted to say?", "Hm? Yes?")
+                elif "Dandere" in char_traits:
+                    lines = ("Make it quick.", "You call?", "...?", "...Want something?", "...Hmm?", "...What is it?", "You have business with me...?")
+                elif "Tsundere" in char_traits:
+                    lines = ("Hmph. I've graced you with my presence, so be thankful.", "So, you want something or what?", "What?")
+                elif "Imouto" in char_traits:
+                    lines = ("Hey, what is it? ♪", "Muhuhu ♪ Did you need something?", "What, what is it?", "Huhu, what is it?")
+                elif "Ane" in char_traits:
+                    lines = ("Well, what shall we talk about?", "What business do you have with me?", "May I help you?", "Yes? Did you need me for something?", "Is there something I can help you with?")
+                elif "Kamidere" in char_traits:
+                    lines = ("Hm? What? It's not like I have too much time to spend. Yes, that's right. I'm busy.", "...Yes? ...Did you call?", "...Do you want something?", "What is it? I'm busy right now.", "If you have business with me, hurry up and say it.")
+                elif "Bokukko" in char_traits:
+                    lines = ("Hey-Hey! What do you want?", "Huh? What's up?", "Haa? You got a problem?", "Huh, Is there something you want to know?", "Huh? Do you want something?", "Whazzup?", "Did ya call me?", "Ummm, you wanted to say something?")
+                elif "Yandere" in char_traits:
+                    lines = ("Make it quick, I don't have time for everybody.", "What do you want to say?", "What do you want from me?", "Hurry, I have things to do.")
+                else:
+                    lines = ("...Is there something you need?", "Is there something you would like to ask?", "Is something the matter?", "What do you need from me?", "What is it? If you need something, then say it.", "Yes, what is it?", "...Do you need to talk to me?", "Yes? What do you want?", "...? Is there something on my face?", "Do you need something?", "Did you want to say something?", "You have something to tell me?", "Yes, what is it...?")
+            elif mood == "uncertain":
+                if "Impersonal" in char_traits:
+                    lines = ("Ehm, what do you want?", "Are you talking to me?")
+                elif "Shy" in char_traits:
                     lines = ("Y-yes, did you call?", "...Y-you want something from me?", "Um... W-what is it?", "Y-yes? Wh-what's going on?", "Wha... what is it...?", "U-Umm... What is it...?", "Y-yes, what do you need?", "C-can I help you...?", "Ye...yes?", "What... is wrong...?", "Wh-what is it...?")
                 elif "Kuudere" in char_traits:
                     lines = ("Hmph... I wonder if there is any particular purpose to this?", "What business do you have with me?", "Um, was there something you wanted to say?", "Hm? Yes?")
                 elif "Dandere" in char_traits:
                     lines = ("If you have business with me, please make it quick.", "You call?", "...?", "...Want something?", "...Hmm?", "...What is it?", "You have business with me...?")
                 elif "Tsundere" in char_traits:
-                    lines = ("Hmph. I've graced you with my presence, so be thankful.", "So, you want something or what?", "Spit it out already.")
+                    lines = ("Hmph. Do you want to say something?", "So, you want something?", "Yes? What is it?", "You want something?")
                 elif "Imouto" in char_traits:
-                    lines = ("Ehehe. What is it? ♪", "Muhuhu ♪ Did you need something?", "Eh? What, what is it?", "Huhu, what is it?", "W-What? Did I do something wrong...?")
+                    lines = ("Ehehe. What is it?", "Did you need something?", "Eh? What, what is it?", "Huhu, what is it?", "W-What? Did I do something wrong...?")
+                elif "Ane" in char_traits:
+                    lines = ("Ehm... what shall we talk about?", "What business do you have with me?", "How may I help you?", "...Yes? Did you need me for something?", "Is there... something I can help you with?")
+                elif "Kamidere" in char_traits:
+                    lines = ("Hm? What? It's not like I have too much time to spend. Yes, that's right. I'm busy.", "...Yes? ...Did you call?", "...Do you want something?", "What is it? I'm busy right now.", "If you have business with me, hurry up and say it.")
+                elif "Bokukko" in char_traits:
+                    lines = ("Hey-Hey! What do you want?", "Huh? What's up?", "Haa? You got a problem?", "Huh, Is there something you want to know?", "Huh? Do you want something?", "Whazzup?", "Did ya call me?", "Ummm, was there something you wanted to say?")
+                elif "Yandere" in char_traits:
+                    lines = ("Yes? Do you have something to tell me?", "If you've got something to say, look me in the eyes and say it.", "...I don't recall asking to talk to you, so what is it?", "I don't have any business with you. If you do, make it quick.")
+                else:
+                    lines = ("...Is there something you need?", "Is there something you would like to ask?", "Is something the matter?", "What do you need from me?", "What is it? If you need something, then say it.", "Yes, what is it?", "...Do you need to talk to me?", "Yes? What do you want?", "...? Is there something on my face?", "Do you need something?", "Did you want to say something?", "You have something to tell me?", "Yes, what is it...?")
+            elif mood in ("happy", "suggestive"):
+                if "Impersonal" in char_traits:
+                    lines = ("State your business.", "Yes, what is it?", "I'm all ears.")
+                elif "Kuudere" in char_traits:
+                    lines = ("What business do you have with me?", "Um, was there something you wanted to say?", "Hm? Yes?")
+                elif "Dandere" in char_traits:
+                    lines = ("You call?", "...?", "...Want something?", "...Hmm?", "...What is it?", "You have business with me...?")
+                elif "Tsundere" in char_traits:
+                    lines = ("Hmph. I've graced you with my presence, so be thankful.", "So, tell me. What do you want?")
+                elif "Imouto" in char_traits:
+                    lines = ("Ehehe. What is it? ♪", "Muhuhu ♪ Did you need something?", "Huhu, what is it?")
+                elif "Ane" in char_traits:
+                    lines = ("Well, what shall we talk about?", "Is there something I can help you with...?", "May I help you?", "...Yes? Did you need me for something?", "Is there something I can help you with?")
+                elif "Kamidere" in char_traits:
+                    lines = ("Hm? What? It's not like I have too much time to spend. Yes, that's right. I'm busy.", "...Yes? ...Did you call?", "...Do you want something?", "What is it? I'm busy right now.", "If you have business with me, hurry up and say it.")
+                elif "Bokukko" in char_traits:
+                    lines = ("Hey-Hey! What do you want?", "Huh? What's up?", "Haa? You got a problem?", "Huh, Is there something you want to know?", "Huh? Do you want something?", "Whazzup?", "Did ya call me?", "Ummm, was there something you wanted to say?")
+                elif "Yandere" in char_traits:
+                    lines = ("Yes? What do you want from me?", "You want to tell me something?", "What is it?", "Please, make it quick.")
+                else:
+                    lines = ("...Is there something you need?", "Is there something you would like to ask?", "Is something the matter?", "What do you need from me?", "What is it? If you need something, then say it.", "Yes, what is it?", "...Do you need to talk to me?", "Yes? What do you want?", "...? Is there something on my face?", "Do you need something?", "Did you want to say something?", "You have something to tell me?", "Yes, what is it...?")
+
+                mood = "happy" if dice(50) else "indifferent"
+            elif mood in ("sad", "tired", "in pain"):
+                if "Impersonal" in char_traits:
+                    lines = ("State your business.", "You're the kind of person who likes pointless conversations, right?", "...Please do not get any closer.")
+                elif "Shy" in char_traits and dice(50):
+                    lines = ("Y-yes, did you call?", "...Y-you want something from me?", "Um... W-what is it?", "Y-yes? Wh-what's going on?", "Wha... what is it...?", "U-Umm... What is it...?", "Y-yes, what do you need?", "C-can I help you...?", "Ye...yes?", "What... is wrong...?", "Wh-what is it...?")
+                elif "Kuudere" in char_traits:
+                    lines = ("Hmph... I wonder what do you want from me?", "What business do you have with me?", "Um, was there something you wanted to say?", "Hm? Yes?")
+                elif "Dandere" in char_traits:
+                    lines = ("If you have business with me, please make it quick.", "You call?", "...?", "...Want something?", "...Hmm?", "...What is it?", "You have business with me...?")
+                elif "Tsundere" in char_traits:
+                    lines = ("Hmph. What on earth do you want from me?", "So, you want something or what?", "Spit it out already.")
+                elif "Imouto" in char_traits:
+                    lines = ("Eh? What, what is it?", "Hn, what is it?", "W-What? Did I do something wrong...?")
                 elif "Ane" in char_traits:
                     lines = ("Well, what shall we talk about..?", "Is there something I can help you with...?", "What business do you have with me?", "May I help you?", "...Yes? Did you need me for something?", "Is there... something I can help you with?")
                 elif "Kamidere" in char_traits:
@@ -176,58 +466,37 @@ init -2 python:
                 else:
                     lines = ("...Is there something you need?", "Is there something you would like to ask?", "Is something the matter?", "What do you need from me?", "What is it? If you need something, then say it.", "Yes, what is it?", "...Do you need to talk to me?", "Yes? What do you want?", "...? Is there something on my face?", "Do you need something?", "Did you want to say something?", "You have something to tell me?", "Yes, what is it...?")
             else:
-                if "Impersonal" in char_traits:
-                    lines = ("Awaiting input.", "Yes, [mc_ref]?")
-                elif "Shy" in char_traits and dice(30):
-                    lines = ("Y-yes, [mc_ref]", "Y-you want something from me, [mc_ref]?", "Um... Y-yes, [mc_ref]?")
-                elif "Kuudere" in char_traits:
-                    lines = ("I'm here.", "I'm listening, [mc_ref].", "Yes? Was there something you wanted?")
-                elif "Dandere" in char_traits:
-                    lines = ("...[mc_ref]?", "You called, [mc_ref]?", "...What is it, [mc_ref]?")
-                elif "Tsundere" in char_traits:
-                    lines = ("Hmph. Y-yes, [mc_ref].", "Yes, [mc_ref]. You want something or what?", "Well, I'm here, [mc_ref]. Spit it out already.")
-                elif "Imouto" in char_traits:
-                    lines = ("What is it, [mc_ref]?", "Yes, [mc_ref]? Did you need something?", "W-What? Did I do something wrong, [mc_ref]?")
-                elif "Ane" in char_traits:
-                    lines = ("Well, what shall we talk about, [mc_ref]?", "May I help you, [mc_ref]?", "Yes? Do you need me for something?")
-                elif "Kamidere" in char_traits:
-                    lines = ("...Yes? Did you call, [mc_ref]?", "Do you want something?", "If you have an order for me, say it.")
-                elif "Bokukko" in char_traits:
-                    lines = ("What do you want, [mc_ref]?", "Huh? What's up, [mc_ref]?", "Whazzup, [mc_ref]?")
-                elif "Yandere" in char_traits:
-                    lines = ("Is something wrong?", "What is it, [mc_ref]?", "...Spit it out already... Er, yes, [mc_ref]?")
-                else:
-                    lines = ("You called, [mc_ref]?", "Is something the matter, [mc_ref]?", "Yes, what is it, [mc_ref]?")
-            iam.say_line(character, lines)
+                raise Exception("Mood %s is not implemented for greet_neutral!" % mood)
+            iam.say_line(character, lines, mood)
 
         @staticmethod
-        def greet_many(character):
+        def greet_neutral_slave(character):
             """
-            Outputs a line when the character greets the MC after many encounters
+            Outputs a line when the character greets the MC with neutral disposition
             """
             char_traits = character.traits
             if "Impersonal" in char_traits:
-                lines = ("..?", "Awaiting input.", "Hmm?")
-            elif "Shy" in char_traits and dice(50):
-                lines = ("Y-yes?", "Err... what?", "... *blushes*")
-            elif "Tsundere" in char_traits:
-                lines = ("Well? What is it this time, [mc_ref]?", "You really must have a lot of free time, [mc_ref]...")
-            elif "Dandere" in char_traits:
-                lines = ("You really enjoy talking, don't you?", "I'm here, [mc_ref].")
+                lines = ("Awaiting input.", "Yes, [mc_ref]?")
+            elif "Shy" in char_traits and dice(30):
+                lines = ("Y-yes, [mc_ref]", "Y-you want something from me, [mc_ref]?", "Um... Y-yes, [mc_ref]?")
             elif "Kuudere" in char_traits:
-                lines = ("Hm? What's the matter?", "I'm listening, [mc_ref].")
-            elif "Ane" in char_traits:
-                lines = ("My, please continue.", "I'm here, [mc_ref]. What can I do for you?")
+                lines = ("I'm here.", "I'm listening, [mc_ref].", "Yes? Was there something you wanted?")
+            elif "Dandere" in char_traits:
+                lines = ("...[mc_ref]?", "You called, [mc_ref]?", "...What is it, [mc_ref]?")
+            elif "Tsundere" in char_traits:
+                lines = ("Hmph. Y-yes, [mc_ref].", "Yes, [mc_ref]. You want something or what?", "Well, I'm here, [mc_ref]. Spit it out already.")
             elif "Imouto" in char_traits:
-                lines = ("[mc_ref]? What's up?", "Yup, I'm listening, [mc_ref].")
-            elif "Bokukko" in char_traits:
-                lines = ("Whazzup, [mc_ref]?", "Yeah?")
-            elif "Yandere" in char_traits:
-                lines = ("Eh, what?", "Hm? Something I can do, [mc_ref]?")
+                lines = ("What is it, [mc_ref]?", "Yes, [mc_ref]? Did you need something?", "W-What? Did I do something wrong, [mc_ref]?")
+            elif "Ane" in char_traits:
+                lines = ("Well, what shall we talk about, [mc_ref]?", "May I help you, [mc_ref]?", "Yes? Do you need me for something?")
             elif "Kamidere" in char_traits:
-                lines = ("Yes? What's wrong, [mc_ref]?", "[mc_ref]?")
+                lines = ("...Yes? Did you call, [mc_ref]?", "Do you want something?", "If you have an order for me, say it.")
+            elif "Bokukko" in char_traits:
+                lines = ("What do you want, [mc_ref]?", "Huh? What's up, [mc_ref]?", "Whazzup, [mc_ref]?")
+            elif "Yandere" in char_traits:
+                lines = ("Is something wrong?", "What is it, [mc_ref]?", "...Spit it out already... Er, yes, [mc_ref]?")
             else:
-                lines = ("What is it, [mc_ref]?", "Yes?")
+                lines = ("You called, [mc_ref]?", "Is something the matter, [mc_ref]?", "Yes, what is it, [mc_ref]?")
             iam.say_line(character, lines)
 
         @staticmethod
@@ -236,35 +505,130 @@ init -2 python:
             Outputs a line when a free character greets the MC with low disposition
             """
             char_traits = character.traits
-            mood = "indifferent"
-            if "Yandere" in char_traits:
+            mood = character.get_mood_tag(True)
+            if mood == "indifferent":
+                if "Yandere" in char_traits:
+                    mood = "angry"
+                    lines = ("Leave. I don't want to talk to you.",  "What a nuisance...", "Why do you keep bothering me?")
+                elif "Impersonal" in char_traits:
+                    lines = ("State your business and leave.", "I have no interest in you.", "Leave me alone.")
+                elif "Shy" in char_traits and dice(50):
+                    mood = "uncertain"
+                    lines = ("P-please, stay away!", "...D-don't come close to me.", "...S-S-Stay away!", "W-w-w-what do you want!?")
+                elif "Dandere" in char_traits:
+                    lines = ("What is it? I want to get back to what I was doing...", "I personally dislike you.", "I believe there is nothing we can talk about.")
+                elif "Kuudere" in char_traits:
+                    lines = ("Hmph, I don't even want to hear it...", "You've got a lot of nerve showing your face around me.", "...I don't think I have reason to talk to you.")
+                elif "Tsundere" in char_traits:
+                    mood = "angry"
+                    lines = ("Leave me alone!", "Go away. ...I said get the hell away from me!", "Listening to you is a waste of my time.")
+                elif "Ane" in char_traits:
+                    lines = ("What is it? Please leave me alone.", "I don't really feel like talking to you ", "Could you leave me alone?", "There is not a single shred of merit to your existence.")
+                elif "Kamidere" in char_traits:
+                    mood = "angry"
+                    lines = ("It's you again. Don't bother me!", "Could you try to not talk to me, please?  Also, could you not breathe when near me? You're wasting good oxygen.", "Hmph! What an ugly sight.")
+                elif "Imouto" in char_traits:
+                    mood = "angry"
+                    lines = ("You dirty little...",  "Jeez! Bug off already!", "You good-for-nothing...")
+                elif "Bokukko" in char_traits:
+                    mood = "angry"
+                    lines = ("Why are you bothering me?", "You just won't leave me alone, will you...", "Geez, what's now?")
+                else:
+                    lines = ("...Hey! Could you not get any closer to me, please?", "Sigh... What is it?", "Ah... I-I have stuff to do, so....", "U-Um... right now is a bit, err...")
+            elif mood == "confident":
+                if "Yandere" in char_traits:
+                    lines = ("Leave. I don't want to talk to you.",  "What a nuisance...", "Why do you keep bothering me?")
+                elif "Impersonal" in char_traits:
+                    lines = ("State your business and leave!", "I have no interest in you!", "Leave me alone!")
+                elif "Dandere" in char_traits:
+                    lines = ("What is it? I want to get back to what I was doing...", "I personally dislike you.", "I believe there is nothing we can talk about.")
+                elif "Kuudere" in char_traits:
+                    lines = ("Hmph, I don't even want to hear it...", "You've got a lot of nerve showing your face around me.", "...I don't think I have reason to talk to you.")
+                elif "Tsundere" in char_traits:
+                    lines = ("Leave me alone!", "Go away. ...I said get the hell away from me!", "Listening to you is a waste of my time.")
+                elif "Ane" in char_traits:
+                    lines = ("What is it? Leave me alone.", "I don't want to talk to you!", "Could you leave me alone?!")
+                elif "Kamidere" in char_traits:
+                    lines = ("It's you again. Don't bother me!", "Could you try to not talk to me, please?  Also, could you not breathe when near me? You're wasting good oxygen.", "Hmph! What an ugly sight.")
+                elif "Imouto" in char_traits:
+                    lines = ("You dirty little...",  "Jeez! Bug off already!", "You good-for-nothing...")
+                elif "Bokukko" in char_traits:
+                    lines = ("Why are you bothering me?", "You just won't leave me alone, will you...", "Geez, what's now?")
+                else:
+                    lines = ("...Hey! Could you not get any closer to me, please?", "Sigh... What is it?", "Ah... I-I have stuff to do, so....", "U-Um... right now is a bit, err...")
                 mood = "angry"
-                lines = ("Leave. I don't want to talk to you.",  "What a nuisance...", "Why do you keep bothering me?")
-            elif "Impersonal" in char_traits:
-                lines = ("State your business and leave.", "I have no interest in you.", "Leave me alone.")
-            elif "Shy" in char_traits and dice(50):
-                mood = "uncertain"
-                lines = ("P-please, stay away!", "...D-don't come close to me.", "...S-S-Stay away!", "W-w-w-what do you want!?")
-            elif "Dandere" in char_traits:
-                lines = ("What is it? I want to get back to what I was doing...", "I personally dislike you.", "I believe there is nothing we can talk about.")
-            elif "Kuudere" in char_traits:
-                lines = ("Hmph, I don't even want to hear it...", "You've got a lot of nerve showing your face around me.", "...I don't think I have reason to talk to you.")
-            elif "Tsundere" in char_traits:
+            elif mood == "uncertain":
+                mood = "indifferent"
+                if "Yandere" in char_traits:
+                    lines = ("Leave. I don't want to talk to you.",  "What a nuisance...", "Why do you keep bothering me?")
+                elif "Impersonal" in char_traits:
+                    lines = ("State your business and leave.", "I have no interest in you.", "Leave me alone.")
+                elif "Shy" in char_traits and dice(50):
+                    mood = "uncertain"
+                    lines = ("P-please, stay away!", "...D-don't come close to me.", "...S-S-Stay away!", "W-w-w-what do you want!?")
+                elif "Dandere" in char_traits:
+                    lines = ("What is it? I want to get back to what I was doing...", "I personally dislike you.", "I believe there is nothing we can talk about.")
+                elif "Kuudere" in char_traits:
+                    lines = ("Hmph, I don't even want to hear it...", "You've got a lot of nerve showing your face around me.", "...I don't think I have reason to talk to you.")
+                elif "Tsundere" in char_traits:
+                    lines = ("Leave me alone!", "Go away. ...I said get the hell away from me!", "Listening to you is a waste of my time.")
+                elif "Ane" in char_traits:
+                    lines = ("What is it? Please leave me alone.", "I don't really feel like talking to you ", "Could you leave me alone?", "There is not a single shred of merit to your existence.")
+                elif "Kamidere" in char_traits:
+                    lines = ("It's you again. Don't bother me!", "Could you try to not talk to me, please?  Also, could you not breathe when near me? You're wasting good oxygen.", "Hmph! What an ugly sight.")
+                elif "Imouto" in char_traits:
+                    lines = ("Jeez! Bug off already!", "You good-for-nothing...")
+                elif "Bokukko" in char_traits:
+                    lines = ("Why are you bothering me?", "You just won't leave me alone, will you...", "Geez, what's now?")
+                else:
+                    lines = ("...Hey! Could you not get any closer to me, please?", "Sigh... What is it?", "Ah... I-I have stuff to do, so....", "U-Um... right now is a bit, err...")
+            elif mood in ("happy", "suggestive"):
+                if "Yandere" in char_traits:
+                    lines = ("Leave. I don't want to talk to you.",  "What a nuisance...", "Why do you keep bothering me?")
+                elif "Impersonal" in char_traits:
+                    lines = ("State your business and leave.", "I have no interest in you.", "Leave me alone.")
+                elif "Dandere" in char_traits:
+                    lines = ("What is it? I want to get back to what I was doing...", "I personally dislike you.", "I believe there is nothing we can talk about.")
+                elif "Kuudere" in char_traits:
+                    lines = ("Hmph, I don't even want to hear it...", "You've got a lot of nerve showing your face around me.", "...I don't think I have reason to talk to you.")
+                elif "Tsundere" in char_traits:
+                    lines = ("Leave me alone!", "Go away. ...I said get the hell away from me!", "Listening to you is a waste of my time.")
+                elif "Ane" in char_traits:
+                    lines = ("What is it? Please leave me alone.", "I don't really feel like talking to you ", "Could you leave me alone?", "There is not a single shred of merit to your existence.")
+                elif "Kamidere" in char_traits:
+                    lines = ("It's you again. Don't bother me!", "Could you try to not talk to me, please?  Also, could you not breathe when near me? You're wasting good oxygen.", "Hmph! What an ugly sight.")
+                elif "Imouto" in char_traits:
+                    lines = ("You dirty little...",  "Jeez! Bug off already!", "You good-for-nothing...")
+                elif "Bokukko" in char_traits:
+                    lines = ("Why are you bothering me?", "You just won't leave me alone, will you...", "Geez, what's now?")
+                else:
+                    lines = ("...Hey! Could you not get any closer to me, please?", "Sigh... What is it?", "Ah... I-I have stuff to do, so....", "U-Um... right now is a bit, err...")
                 mood = "angry"
-                lines = ("Leave me alone!", "Go away. ...I said get the hell away from me!", "Listening to you is a waste of my time.")
-            elif "Ane" in char_traits:
-                lines = ("What is it? Please leave me alone.", "I don't really feel like talking to you ", "Could you leave me alone?", "There is not a single shred of merit to your existence.")
-            elif "Kamidere" in char_traits:
-                mood = "angry"
-                lines = ("It's you again. Don't bother me!", "Could you try to not talk to me, please?  Also, could you not breathe when near me? You're wasting good oxygen.", "Hmph! What an ugly sight.")
-            elif "Imouto" in char_traits:
-                mood = "angry"
-                lines = ("You dirty little...",  "Jeez! Bug off already!", "You good-for-nothing...")
-            elif "Bokukko" in char_traits:
-                mood = "angry"
-                lines = ("Why are you bothering me?", "You just won't leave me alone, will you...", "Geez, what's now?")
+            elif mood in ("sad", "tired", "in pain"):
+                if "Yandere" in char_traits:
+                    lines = ("Leave. I don't want to talk to you.",  "What a nuisance...", "Why do you keep bothering me?")
+                elif "Impersonal" in char_traits:
+                    lines = ("State your business and leave.", "I have no interest in you.", "Leave me alone.")
+                elif "Shy" in char_traits and dice(50):
+                    lines = ("P-please, stay away!", "...D-don't come close to me.", "...S-S-Stay away!", "W-what do you want!?")
+                elif "Dandere" in char_traits:
+                    lines = ("What is it? I want to get back to what I was doing...", "I personally dislike you.", "I believe there is nothing we can talk about.")
+                elif "Kuudere" in char_traits:
+                    lines = ("Hmph, I don't even want to hear it...", "You've got a lot of nerve showing your face around me.", "...I don't think I have reason to talk to you.")
+                elif "Tsundere" in char_traits:
+                    lines = ("Leave me alone!", "Go away. ... Now!", "Listening to you is a waste of my time.")
+                elif "Ane" in char_traits:
+                    lines = ("What is it? Please leave me alone.", "I don't really feel like talking to you ", "Could you leave me alone?", "There is not a single shred of merit to your existence.")
+                elif "Kamidere" in char_traits:
+                    lines = ("It's you again. Don't bother me!", "Could you try to not talk to me, please?  Also, could you not breathe when near me? You're wasting good oxygen.", "Hmph! What an ugly sight.")
+                elif "Imouto" in char_traits:
+                    lines = ("You dirty little...",  "Jeez! Bug off already!", "You good-for-nothing...")
+                elif "Bokukko" in char_traits:
+                    lines = ("Why are you bothering me?", "You just won't leave me alone, will you...", "Geez, what's now?")
+                else:
+                    lines = ("...Hey! Could you not get any closer to me, please?", "Sigh... What is it?", "Ah... I-I have stuff to do, so....", "U-Um... right now is a bit, err...")
             else:
-                lines = ("...Hey! Could you not get any closer to me, please?", "Sigh... What is it?", "Ah... I-I have stuff to do, so....", "U-Um... right now is a bit, err...")
+                raise Exception("Mood %s is not implemented for greet_bad!" % mood)
             iam.say_line(character, lines, mood)
 
         @staticmethod
@@ -295,6 +659,36 @@ init -2 python:
                 lines = ("Yeah-yeah. I'm here.", "What is it again, [mc_ref]?")
             else:
                 lines = ("*sigh* What is it, [mc_ref]?", "...Yes, [mc_ref]. I'm here.")
+            iam.say_line(character, lines)
+
+        @staticmethod
+        def greet_many(character):
+            """
+            Outputs a line when the character greets the MC after many encounters
+            """
+            char_traits = character.traits
+            if "Impersonal" in char_traits:
+                lines = ("..?", "Awaiting input.", "Hmm?")
+            elif "Shy" in char_traits and dice(50):
+                lines = ("Y-yes?", "Err... what?", "... *blushes*")
+            elif "Tsundere" in char_traits:
+                lines = ("Well? What is it this time, [mc_ref]?", "You really must have a lot of free time, [mc_ref]...")
+            elif "Dandere" in char_traits:
+                lines = ("You really enjoy talking, don't you?", "I'm here, [mc_ref].")
+            elif "Kuudere" in char_traits:
+                lines = ("Hm? What's the matter?", "I'm listening, [mc_ref].")
+            elif "Ane" in char_traits:
+                lines = ("My, please continue.", "I'm here, [mc_ref]. What can I do for you?")
+            elif "Imouto" in char_traits:
+                lines = ("[mc_ref]? What's up?", "Yup, I'm listening, [mc_ref].")
+            elif "Bokukko" in char_traits:
+                lines = ("Whazzup, [mc_ref]?", "Yeah?")
+            elif "Yandere" in char_traits:
+                lines = ("Eh, what?", "Hm? Something I can do, [mc_ref]?")
+            elif "Kamidere" in char_traits:
+                lines = ("Yes? What's wrong, [mc_ref]?", "[mc_ref]?")
+            else:
+                lines = ("What is it, [mc_ref]?", "Yes?")
             iam.say_line(character, lines)
 
         @staticmethod

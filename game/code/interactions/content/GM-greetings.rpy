@@ -8,23 +8,27 @@ label girl_interactions_greeting:
         $ iam.greet_lover(char)
     elif m < 2:
         $ char_dispo = char.get_stat("disposition")
-        if char_dispo <= -200:
-            if char.status == "free":
+        if char.status == "free":
+            if char_dispo <= -200:
                 $ iam.greet_bad(char)
+            elif check_friends(char):
+                $ iam.greet_good(char)
             else:
+                $ iam.greet_neutral(char)
+        else:
+            if char_dispo <= -200:
                 if char_dispo <= -500:
                     $ char.override_portrait("portrait", "sad")
                     char.say "..."
                     $ char.restore_portrait()
                 else:
                     $ iam.greet_bad_slave(char)
-
-        elif check_friends(char) or (char_dispo >= 500 and char.status <> "slave") or (char_dispo >= 850 and char.status == "slave"):
-            $ iam.greet_good(char)
-        elif char_dispo and char.status == "slave":
-            $ iam.greet_good_slave(char)
-        else:
-            $ iam.greet_neutral(char)
+            elif check_friends(char):
+                $ iam.greet_good(char)
+            elif char_dispo > 0:
+                $ iam.greet_good_slave(char)
+            else:
+                $ iam.greet_neutral_slave(char)
         $ del char_dispo
     elif m < 3:
  # when MC approaches character not the first time; after 4 times we stop showing greetings at all

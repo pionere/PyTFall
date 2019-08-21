@@ -162,15 +162,15 @@ label interactions_insult: # (mode)
         $ char.gfx_mod_stat("character", -1)
     $ char.gfx_mod_stat("joy", -randint(2, 4))
     if char.get_stat("disposition") >= 700 or (char.get_stat("disposition") >= 250 and char.status != "slave") or check_lovers(char):
-        $ char.gfx_mod_stat("disposition", -round_int(mpl*randint(3, 4)))
+        $ iam.dispo_reward(char, -randint(3, 4))
         $ char.gfx_mod_stat("affection", -round_int(mpl*randint(0,1)))
         $ iam.got_insulted_hdisp(char)
     elif char.get_stat("disposition") > -100 and char.status=="slave":
-        $ char.gfx_mod_stat("disposition", -round_int(mpl*randint(3, 4)))
+        $ iam.dispo_reward(char, -randint(3, 4))
         $ char.gfx_mod_stat("affection", -round_int(mpl*randint(0,1)))
         $ iam.got_insulted_slave(char)
     else:
-        $ char.gfx_mod_stat("disposition", -round_int(mpl*randint(16, 20)))
+        $ iam.dispo_reward(char, -randint(16, 20))
         $ char.gfx_mod_stat("affection", -round_int(mpl*randint(1,2)))
         if m > 1 and iam.silent_check_for_escalation(char, 30):
             $ del m, mpl, sub
