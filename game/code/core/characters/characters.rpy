@@ -16,8 +16,8 @@ init -9 python:
         ORIGIN = ["Alkion", "PyTFall", "Crossgate"]
 
         MOOD_TAGS = {"angry", "confident", "defiant", "ecstatic", "happy",
-                         "indifferent", "provocative", "sad", "scared", "shy",
-                         "tired", "uncertain"}
+                     "indifferent", "in pain", "insane", "sad", "scared",
+                     "suggestive", "shy", "tired", "uncertain"}
         UNIQUE_SAY_SCREEN_PORTRAIT_OVERLAYS = ["zoom_fast", "zoom_slow", "test_case"]
         BASE_UPKEEP = 2.5 # Per tier, conditioned in get_upkeep method.
         BASE_WAGES = {"SIW": 20, "Combatant": 30, "Server": 15, "Specialist": 40 }
@@ -509,23 +509,39 @@ init -9 python:
             self.say_screen_portrait_overlay_mode = None
             self.del_flag("fixed_portrait")
 
-        def get_mood_tag(self):
+        def get_mood_tag(self, gm_mode):
             """
-            This should return a tag that describe characters mood.
-            We do not have a proper mood flag system at the moment so this is currently determined by joy and
-            should be improved in the future.
+            Return a tag that describe the characters mood.
+            :param gm_mode: if True, the mood is depending on the relation with the hero as well
             """
-            # tags = list()
-            # if self.fatigue < 50:
-                # return "tired"
-            # if self.get_stat("health") < 15:
-                # return "hurt"
-            if self.get_stat("joy") > 75:
-                return "happy"
-            elif self.get_stat("joy") > 40:
-                return "indifferent"
-            else:
+            effects = self.effects
+            if "Exhausted" in effects:
+                return "tired"
+            if "Food Poisoning" in effects or "Injured" in effects:
+                return "in pain"
+            joy = self.get_stat("joy")
+            if joy <= 30:
                 return "sad"
+            if gm_mode is True:
+                if joy > 70:
+                    if check_lovers(self) and "Horny" in effects:
+                        return "suggestive"
+                    if joy > 85:
+                        return "happy"
+                sub = check_submissivity(self)
+                if sub == 1:
+                    return "confident"
+                if sub == -1:
+                    return "uncertain"
+                # TODO extend mood tags II.
+                #if sub == 2:
+                #    return "defiant"
+                #if sub == -2:
+                #    return "scared"
+            else:
+                if joy > 85:
+                    return "happy"
+            return "indifferent"
 
         def select_image(self, *tags, **kwargs):
             '''Returns the path to an image with the supplied tags or "".
@@ -598,7 +614,7 @@ init -9 python:
             gm_mode = kwargs.get("gm_mode", False)
             add_mood = kwargs.get("add_mood", True)
 
-            if gm_mode:
+            if gm_mode is True:
                 if exclude is None:
                     exclude = ["sex"]
                 else:
@@ -679,7 +695,7 @@ init -9 python:
                             raise Exception("Who and why???") # FIXME
 
                 min_prio -= 2
-                mood_tag = self.get_mood_tag()
+                mood_tag = self.get_mood_tag(gm_mode)
                 tags_list.append([(mood_tag, min_prio), (None, min_prio+1)])
 
             if label_cache:
@@ -907,18 +923,18 @@ init -9 python:
             # Code checks during the equip method should make sure that the unique items never make it this far:
             if item.unique and item.unique != self.id:
                 raise Exception("A character attempted to equip a unique item that was not meant for him/her. \
-                                   Character: %s/%s, Item:%s/%s" % self.id, self.__class__, item.id, item.unique)
+                                   Character: %s/%s, Item:%s/%s" % (self.id, self.__class__, item.id, item.unique))
 
             temp = self.gender
             if getattr(item, "gender", temp) != temp:
-                raise Exception("A character attempted to equip an item that was not meant for him/her gender. \
-                                   Character: %s/%s/%s, Item:%s/%s" % self.id, self.__class__, temp, item.id, item.gender)
+                raise Exception("A character attempted to equip an item that was not meant for his/her gender. \
+                                   Character: %s/%s/%s, Item:%s/%s" % (self.id, self.__class__, temp, item.id, item.gender))
 
             slot = item.slot
             eqslots = self.eqslots
             if slot not in eqslots:
                 raise Exception("A character attempted to equip on a wrong slot for a character. \
-                                   Character: %s/%s, Item:%s/%s" % self.id, self.__class__, item.id, slot)
+                                   Character: %s/%s, Item:%s/%s" % (self.id, self.__class__, item.id, slot))
 
             if slot == 'consumable':
                 if item in self.consblock:
