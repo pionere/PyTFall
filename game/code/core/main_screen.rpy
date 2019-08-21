@@ -185,6 +185,10 @@ screen mainscreen():
                 action Hide("mainscreen"), Jump("arena_inside")
             textbutton "Realtor":
                 action Hide("mainscreen"), Jump("realtor_agency")
+            textbutton "Test IAM":
+                action Hide("mainscreen"), Jump("test_interactions")
+            textbutton "Test IAM Mid-Game":
+                action Hide("mainscreen"), Jump("test_interactions_mid")
             textbutton "Test BE":
                 action Hide("mainscreen"), Jump("test_be")
             textbutton "Test BE Logical":
@@ -193,10 +197,10 @@ screen mainscreen():
                 action Show("se_debugger")
             textbutton "Examples":
                 action [Hide("mainscreen"), Jump("examples")]
-            textbutton "Return on callstack":
-                action [Hide("mainscreen"), Jump("debug_callstack")]
             textbutton "Show Chars Debug":
                 action Show("chars_debug")
+            textbutton "Return on callstack":
+                action [Hide("mainscreen"), Jump("debug_callstack")]
             textbutton "Clear Console":
                 action Jump("force_clear_console")
 
