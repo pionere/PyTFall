@@ -200,6 +200,9 @@ label dev_testing_menu_and_load_mc:
 
             hero._path_to_imgfolder = af._path_to_imgfolder
             hero.id = af.id
+            hero.apply_trait(traits["Human"])
+            hero.traits.basetraits.add(traits["Warrior"])
+            hero.apply_trait(traits["Warrior"])
             hero.init()
 
             if DEBUG and not hero.home:

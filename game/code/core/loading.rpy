@@ -425,9 +425,11 @@ init 11 python:
             # mob["defeated"] = 0 # We need to track if the mob was defeated for bestiary.
 
             # make sure the following fields exist so we do not have to check at runtime
-            for field in ["attack_skills", "magic_skills", "traits", "basetraits"]:
+            for field in ("attack_skills", "magic_skills", "traits"):
                 if field not in mob:
                     mob[field] = []
+            if "basetraits" not in mob:
+                mob[field] = ["Warrior"]
             for field in ["stats", "skills"]:
                 if field not in mob:
                     mob[field] = {}

@@ -715,6 +715,8 @@ init -9 python:
                     min_prio -= 2
                     tags_list.append([(tag, min_prio), (None, min_prio+1)])
 
+            #devlog.warn("Query for tags: %s" % tags_list)
+
             indices = [0] * len(tags_list)
             while 1:
                 #img_tags = [tag for tag in [tags[idx][0] for idx, tags in zip(indices, tags_list)] if tag is not None]
@@ -722,30 +724,38 @@ init -9 python:
                 for tag in (tags[idx][0] for idx, tags in zip(indices, tags_list)):
                     if tag is not None:
                         img_tags.extend(tag.split("-"))
+                #devlog.warn("Checking for tags: %s" % ", ".join(img_tags))
                 imgpath = self.select_image(*img_tags, exclude=exclude)
                 if imgpath is None:
                     # image not found -> try to select another one
                     option = base_prio = None
                     for i, (idx, tags) in enumerate(zip(indices, tags_list)):
+                        #devlog.warn("Checking tags_list option at %d: current idx %d, tags(%d): %s" % (i, idx, len(tags), tags))
                         if idx != len(tags)-1:
                             prio = tags[idx+1][1]
+                            #devlog.warn("... option with prio %d: current option %s: %s" % (prio, option, base_prio))
                             if option is None or base_prio > prio:
                                 option = i
                                 base_prio = prio
                     if option is None:
                         break # no more option
+                    #devlog.warn("Found option %s with prio: %s" % (option, base_prio))
                     for i, (idx, tags) in enumerate(zip(indices, tags_list)):
                         if i == option:
+                            #devlog.warn("Incrementing at %s : %s" % (i, option))
                             indices[i] = idx+1
                         else:
                             prio = tags[idx][1]
                             if prio < base_prio:
+                                #devlog.warn("Reset at %s : %s, %s" % (i, prio, base_prio))
                                 indices[i] = 0
                             elif prio == base_prio and i < option:
+                                #devlog.warn("Reset at %s : %s, %s - %s" % (i, prio, base_prio, option))
                                 indices[i] = 0
                     continue # try the selected indices
 
                 # image found
+                #devlog.warn("Found image %s" % imgpath)  
                 #  check for images with the same priority
                 for i, (idx, tags) in enumerate(zip(indices, tags_list)):
                     last = len(tags)-1
@@ -761,11 +771,14 @@ init -9 python:
                         for tag in (tags[idx][0] for idx, tags in zip(indices, tags_list)):
                             if tag is not None:
                                 img_tags.extend(tag.split("-"))
+                        #devlog.warn("Optional Checking for tags: %s" % ", ".join(img_tags))
                         option = self.select_image(*img_tags, exclude=exclude)
                         if option is not None:
+                            #devlog.warn("Found optional image %s" % option)
                             options.append(option)
                     if options:
                         options.append(imgpath)
+                        #devlog.warn("Selecting from %d image: %s" % (len(options), str(options)))
                         imgpath = choice(options)
                 break
 
@@ -929,12 +942,16 @@ init -9 python:
             if getattr(item, "gender", temp) != temp:
                 raise Exception("A character attempted to equip an item that was not meant for his/her gender. \
                                    Character: %s/%s/%s, Item:%s/%s" % (self.id, self.__class__, temp, item.id, item.gender))
+                #char_debug(str("False character sex value: %s, %s, %s, %s" % (item.gender, item.id, self.__class__.__name__, temp)))
+                #return
 
             slot = item.slot
             eqslots = self.eqslots
             if slot not in eqslots:
                 raise Exception("A character attempted to equip on a wrong slot for a character. \
                                    Character: %s/%s, Item:%s/%s" % (self.id, self.__class__, item.id, slot))
+                #char_debug(str("Unknown Items slot: %s, %s" % (item.slot, self.__class__.__name__)))
+                #return
 
             if slot == 'consumable':
                 if item in self.consblock:
@@ -1762,12 +1779,6 @@ init -9 python:
 
         def init(self):
             # Normalize character
-            # If there are no basetraits, we add Warrior by default:
-            if not self.traits.basetraits:
-                bt = traits["Warrior"]
-                self.traits.basetraits.add(bt)
-                self.apply_trait(bt)
-
             #self.arena_willing = True # Indicates the desire to fight in the Arena
             #self.arena_permit = True # Has a permit to fight in main events of the arena.
             #self.arena_active = True # Indicates that character fights at Arena at the time.
@@ -1828,10 +1839,6 @@ init -9 python:
             self.teams = [self.team]
 
         def init(self):
-            # Set Human trait for the MC: (We may want to customize this in the future)
-            if not hasattr(self, "race"):
-                self.apply_trait(traits["Human"])
-
             self.update_sayer()
 
             super(Player, self).init()
@@ -2214,19 +2221,18 @@ init -9 python:
                     self.apply_trait(t)
 
             # Location + Home
+            # Wagemod + auto-buy + auto-equip:
             if self.status == "free":
                 if self.location == "city":
                     set_location(self, None)
                 self.home = pytfall.city
+
+                self.wagemod = 100
+                self.autobuy = True
             else:
                 set_location(self, None)
                 self.home = pytfall.sm
 
-            # Wagemod + auto-buy + auto-equip:
-            if self.status == 'free':
-                self.wagemod = 100
-                self.autobuy = True
-            else:
                 self.wagemod = 0
                 self.autobuy = False
             self.autoequip = True
