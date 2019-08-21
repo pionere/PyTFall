@@ -814,35 +814,20 @@ init -10 python:
         # Tax related:
         def get_income_tax(self, days=7):
             # MC's Income Tax
-            char = self.instance
-            ec = store.pytfall.economy
-            tax = 0
-            income = 0
-            taxable_buildings = char.buildings
-
-            for b in taxable_buildings:
-                fin_log = b.fin.game_logical_income_log
-                for _day in fin_log:
-                    if _day > store.day - days:
-                        income += sum(fin_log[_day].values())
-
+            income = tax = 0
+            days = store.day - days # the accounting for today is not closed -> _day >= days
+            bv = {b: sum(values.itervalues()) for b in self.instance.buildings for _day, values in b.fin.game_logical_income_log.iteritems() if _day >= days}
+            income = sum(bv.itervalues())
             if income > 5000:
-                for delimiter, mod in ec.income_tax:
+                for delimiter, mod in pytfall.economy.income_tax:
                     if income <= delimiter:
                         tax = round_int(income*mod)
                         break
 
-            if tax:
-                # We have no choice but to do the whole routine again :(
-                # Final value may be off but +/- 1 gold due to rounding
-                # in this simplified code. I may perfect this one day...
-                for b in taxable_buildings:
-                    fin_log = b.fin.game_logical_income_log
-                    for _day in fin_log:
-                        if _day > store.day - days:
-                            _income = sum(fin_log[_day].values())
-                            _tax = round_int(_income*mod)
-                            b.fin.log_logical_expense(_tax, "Income Tax")
+                if tax:
+                    for b, v in bv.iteritems():
+                        _tax = round_int(v*mod)
+                        b.fin.log_logical_expense(_tax, "Income Tax")
             return income, tax
 
         def get_property_tax(self):
