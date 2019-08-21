@@ -89,7 +89,7 @@ label mc_action_park_rest:
             elif member.get_stat("joy") < 50:
                 member.gfx_mod_stat("joy", randint(1, 2))
             if member != hero:
-                member.gfx_mod_stat("disposition", randint(1, 2))
+                iam.dispo_reward(member, randint(1, 2))
                 member.gfx_mod_stat("affection", affection_reward(member, .1))
 
     jump city_park

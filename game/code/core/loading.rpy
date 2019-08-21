@@ -428,11 +428,11 @@ init 11 python:
             for field in ("attack_skills", "magic_skills", "traits"):
                 if field not in mob:
                     mob[field] = []
-            if "basetraits" not in mob:
-                mob[field] = ["Warrior"]
-            for field in ["stats", "skills"]:
+            for field in ("stats", "skills"):
                 if field not in mob:
                     mob[field] = {}
+            if "basetraits" not in mob:
+                mob["basetraits"] = ["Warrior"]
             if "min_lvl" not in mob:
                 mob["min_lvl"] = 1
             # validate data

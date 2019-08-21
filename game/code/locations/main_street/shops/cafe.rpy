@@ -215,10 +215,10 @@ label mc_action_cafe_invitation: # we jump here when the group was invited by on
                         d *= .5
 
                     if len(hero.team) == 2: # when there is only one char, disposition bonus is higher
-                        stat = randint(int(d*15), int(d*30)) # randint(15,30)*mod
+                        stat = randint(int(d*20), int(d*25)) # randint(20,25)*mod
                     else:
-                        stat = randint(int(d*10), int(d*20)) # randint(10,20)*mod
-                    member.gfx_mod_stat("disposition", stat)
+                        stat = randint(int(d*13), int(d*17)) # randint(13,17)*mod
+                    iam.dispo_reward(member, stat)
                     member.gfx_mod_stat("affection", affection_reward(member))
 
                 if "Fast Metabolism" in member.effects:

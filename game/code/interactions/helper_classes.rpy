@@ -507,7 +507,7 @@ init -2 python:
                     mod /= -dispo * .01 # 1/10th at min dispo (-1000)
                 mod *= 1 + sub*.2
 
-            char.gfx_mod_stat("disposition", round_int(mod))
+            char.gfx_mod_stat("disposition", dice_int(mod))
 
         @staticmethod
         def int_reward_exp(char, mod=.25):

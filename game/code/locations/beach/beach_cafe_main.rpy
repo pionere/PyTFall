@@ -167,7 +167,7 @@ label mc_action_ice_invitation:
                             stat = randint(int(d*4), int(d*8)) # randint(4,8)*mod
                         else:
                             stat = randint(int(d*3), int(d*6)) # randint(3,6)*mod
-                        member.gfx_mod_stat("disposition", stat)
+                        iam.dispo_reward(member, stat)
                         member.gfx_mod_stat("affection", affection_reward(member))
 
                     if "Fast Metabolism" in member.effects:

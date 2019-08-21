@@ -159,7 +159,7 @@ label interactions_insult: # (mode)
         $ hero.gfx_mod_stat("joy", randint(0, 2))
 
     if dice(50-25*sub):
-        $ char.gfx_mod_stat("character", -randint(0,1))
+        $ char.gfx_mod_stat("character", -1)
     $ char.gfx_mod_stat("joy", -randint(2, 4))
     if char.get_stat("disposition") >= 700 or (char.get_stat("disposition") >= 250 and char.status != "slave") or check_lovers(char):
         $ char.gfx_mod_stat("disposition", -round_int(mpl*randint(3, 4)))

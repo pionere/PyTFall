@@ -235,7 +235,7 @@ label interactions_control:
                             jump("interactions_control")
                     dismod /= n
 
-                    char.gfx_mod_stat("disposition", dismod)
+                    iam.dispo_reward(char, dismod)
                     hero.inventory.remove(item)
                     if dismod > 0:
                         perfect = dismod > 30
