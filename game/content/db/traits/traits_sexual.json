@@ -1,0 +1,102 @@
+[
+    {
+    "id": "Sadist",
+    "desc": "Enjoys inflicting pain, or watching it inflicted.",
+    "max": {"attack": 20},
+    "sexual": true,
+    "character_trait": true,
+    "damage_multiplier": 0.1,
+    "client": true
+    },
+    {
+    "id": "Masochist",
+    "desc": "Sexual gratification from pain and humiliation.",
+    "max": {"defence": -10},
+    "defence_multiplier": {"magic":0.1, "status":0.1, "melee":0.1, "ranged":0.1},
+    "sexual": true,
+    "character_trait": true
+    },
+    {
+    "id": "Lesbian",
+    "desc": "This girl prefers women to men.",
+    "blocks": ["Bisexual"],
+    "gender": "female",
+    "sexual": true,
+    "client": true,
+    "character_trait": true
+    },
+    {
+    "id": "Gay",
+    "desc": "This guy prefers men to women.",
+    "blocks": ["Bisexual"],
+    "gender": "male",
+    "sexual": true,
+    "client": true,
+    "character_trait": true
+    },
+    {
+    "id": "Nymphomaniac",
+    "desc": "This girl just loves the sex.",
+    "blocks": ["Frigid"],
+    "mod_stats": {"upkeep": [10, 1]},
+    "mod_skills": {"vaginal": [0.05, 0.02, 0.1], "anal": [0.05, 0.02, 0.1], "oral": [0.05, 0.02, 0.1]},
+    "gender": "female",
+    "sexual": true,
+    "client": true,
+    "character_trait": true
+    },
+    {
+    "id": "Frigid",
+    "desc": "Doesn't care about sex. It is waste of time, isn't it?",
+    "blocks": ["Nymphomaniac"],
+    "mod_stats": {"upkeep": [-10, 1]},
+    "mod_skills": {"vaginal": [-0.05, -0.02, -0.1], "anal": [-0.05, -0.02, -0.1], "oral": [-0.05, -0.02, -0.1], "management": [0.05, 0, 0.1]},
+    "sexual": true,
+    "client": true,
+    "character_trait": true
+    },
+    {
+    "id": "Bisexual",
+    "desc": "Has no problems sleeping with guys or gals.",
+    "blocks": ["Lesbian"],
+    "sexual": true,
+    "character_trait": true
+    },
+    {
+    "id": "Exhibitionist",
+    "desc": "Doesn't hide anything. At least physically.",
+    "mod_skills": {"strip": [0.15, 0.15, 0.15], "management": [0, 0, -0.25]},
+    "sexual": true,
+    "character_trait": true
+    },
+    {
+    "id": "Sexy Air",
+    "desc": "Makes the atmosphere hot and turns every situation sexy.",
+    "mod_skills": {"strip": [0, 0, 0.05], "bartending": [0, 0, 0.05], "service": [0, 0, -0.05]},
+    "sexual": true,
+    "character_trait": true
+    },
+    {
+    "id": "Virgin",
+    "blocks": ["MILF"],
+    "desc": "This girl has never had sex before.",
+    "mod_skills": {"vaginal": [-0.2, 0.05, -0.1]},
+    "gender": "female",
+    "sexual": true,
+    "market": true
+    },
+    {
+    "id": "MILF",
+    "blocks": ["Virgin"],
+    "desc": "This woman has had children before.",
+    "mod_skills": {"vaginal": [0.02, 0, 0.02]},
+    "gender": "female",
+    "sexual": true,
+    "market": true
+    },
+    {
+    "id": "Open Minded",
+    "desc": "Ready to try different things sexually and will accept anything as-is.",
+    "sexual": true
+    }
+]

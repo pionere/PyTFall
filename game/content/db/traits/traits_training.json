@@ -1,5 +1,17 @@
 [
     {
+    "id": "Xeona Training",
+    "desc": "Every day this character spends 1 AP and some gold to increase combat stats. Speak to Xeona to disable it."
+    },
+    {
+    "id": "Abby Training",
+    "desc": "Every day this character spends 1 AP and some gold to increase magic stats. Speak to Abby to disable it."
+    },
+    {
+    "id": "Aine Training",
+    "desc": "Every day this character spends 1 AP and some gold to increase social stats. Speak to Aine to disable it."
+    },
+    {
     "id": "Broken",
     "desc": "Her spirit was broken during obedience training.",
     "max": {"character": -50}
@@ -121,4 +133,5 @@
     {
     "id": "Violent",
     "desc": "Just stay away from her. Far away."
-    }]
+    }
+]

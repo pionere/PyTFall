@@ -162,7 +162,7 @@
     {
     "id": "Forest Elf Blood",
     "desc": "You inherited your mother's affinity for nature. Healing spells work better on you, while earth and wind deal less damage.",
-    "max": {"charisma": 10, "constitution": -10, "agility": 5},
+    "max": {"charisma": 10, "constitution": -10, "agility": 10, "attack": 10},
     "el_defence": {"healing": -0.25},
     "el_damage": {"earth": 0.1, "air": 0.1},
     "MC_trait": true,

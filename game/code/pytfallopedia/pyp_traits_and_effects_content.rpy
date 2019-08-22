@@ -327,9 +327,6 @@ screen pyp_effects():
                     label "Vigorous"
                     text "Tied to a certain trait. If vitality is too low, it slowly increases over time."
                 vbox:
-                    label "Silly/Intelligent"
-                    text "Tied to certain traits.  Intelligence decreases/increases over time."
-                vbox:
                     label "Fast Metabolism"
                     text "Tied to certain traits. Any food is more effective than usual, giving more bonuses."
                 vbox:

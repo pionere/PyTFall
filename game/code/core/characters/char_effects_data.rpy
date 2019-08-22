@@ -20,8 +20,6 @@ init python:
     effect_descs["Loyal"] = "Harder to decrease disposition."
     effect_descs["Lactation"] = "Her breasts produce milk. If she's your slave or lover, you will get a free sample every day."
     effect_descs["Vigorous"] = "If vitality is too low, it slowly increases over time."
-    effect_descs["Silly"] = "If intelligence is high enough, it rapidly decreases over time."
-    effect_descs["Intelligent"] = "In good environment intelligence increases over time."
     effect_descs["Fast Metabolism"] = "Any food is more effective than usual."
     effect_descs["Drunk"] = "It might feel good right now, but tomorrow's hangover is fast approaching (-1AP for every next drink)."
     effect_descs["Depression"] = "In a very low mood right now (-1AP)."

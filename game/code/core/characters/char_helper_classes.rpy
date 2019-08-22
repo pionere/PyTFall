@@ -2232,14 +2232,6 @@ init -10 python:
             elif name == "Kleptomaniac":
                 if dice(char.get_stat("luck")+55):
                     char.add_money(randint(5, 25), reason="Kleptomania")
-            elif name == "Intelligent":
-                if char.get_stat("joy") >= 75 and char.get_stat("vitality") >= char.get_max("vitality")*.75 and char.get_stat("health") >= char.get_max("health")*.75:
-                    char.mod_stat("intelligence", 1)
-            elif name == "Silly":
-                intel = char.get_stat("intelligence")
-                intel = get_linear_value_of(intel, 20, 0, 200, 20)
-                if intel > 0:
-                    char.mod_stat("intelligence", -int(math.ceil(intel)))
             elif name == "Injured":
                 mod = char.get_max("health")/5 - char.get_stat("health")  
                 if mod < 0:
