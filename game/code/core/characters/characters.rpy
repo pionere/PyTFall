@@ -24,7 +24,7 @@ init -9 python:
         TRAININGS = {"Abby Training": "Abby the Witch",
                      "Aine Training": "Aine",
                      "Xeona Training": "Xeona"}
-        FIXED_MAX = {"joy":200, "mood":1000, "disposition":1000, "affection":1000, "vitality":200, "luck":50, "fame":100, "reputation":100}
+        FIXED_MAX = {"joy":200, "mood":1000, "disposition":1000, "affection":1000, "vitality":200, "luck":50, "fame":1000, "reputation":1000}
         DEGRADING_STATS = ["constitution", "fame", "reputation", "intelligence", "attack", "magic", "defence", "agility"]
         SEX_SKILLS = {"vaginal", "anal", "oral", "sex", "group", "bdsm"}
         PREFS = {"gold", "fame", "reputation", "arena_rep", "charisma", "constitution", # "character",

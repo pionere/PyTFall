@@ -285,9 +285,17 @@ init -2 python:
         def hero_influence(c):
             # TODO check_friends/check_lovers?
             result = hero.get_stat("charisma")*(1 + c.get_stat("disposition")/(3.0*c.get_max("disposition")))
-            result = (result - c.get_stat("character")) / (c.tier + 1)
             if "Drunk" in c.effects:
                 result *= 1.1
+            fame = hero.get_stat("fame") - c.get_stat("fame")
+            if fame > 0:
+                # player is more famous than the char
+                sub = check_submissivity(c)
+                result *= get_linear_value_of(fame, 0, 1, hero.get_max("fame"), 2+sub)
+            elif fame < 0:
+                # char is more famous
+                result *= get_linear_value_of(-fame, 0, 1, hero.get_max("fame"), .5)
+            result = (result - c.get_stat("character")) / (c.tier + 1)
             return result 
 
         @staticmethod
