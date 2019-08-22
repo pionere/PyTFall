@@ -797,7 +797,7 @@ init -1 python: # Core classes:
                     for s, v in dstats[skill.delivery].iteritems():
                         stats[s] += v
                 for s, v in stats.iteritems():
-                    v = stat_reward(f, opp, stat_mod=v/80.0)
+                    v = stat_reward(f, opp, s, stat_mod=v/80.0)
                     if v != 0:
                         f.mod_stat(s, v)
 
