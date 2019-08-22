@@ -28,7 +28,7 @@ init:
                 # remove selected chars which are no longer available
                 gone_chars = set()
                 for c in self.the_chosen:
-                    if not (c.is_available and c.employer == hero):
+                    if not (c.is_available and c.employer is hero):
                         gone_chars.add(c)
                 if gone_chars:
                     self.the_chosen -= gone_chars
@@ -58,6 +58,7 @@ init:
                 self.filter()
 
             def toggleChosenMembership(self, chars):
+                chars = set(chars)
                 if self.the_chosen.issuperset(chars):
                     self.the_chosen.difference_update(chars)
                 else:
@@ -86,8 +87,8 @@ label chars_list:
                 $ renpy.show_screen("set_action_dropdown", result[2], pos=renpy.get_mouse_pos())
         elif result[0] == "choice":
             hide screen chars_list
-            $ girls = [char for char in chars_list_state.pager_content if char.is_available and char.employer == hero]
             $ char = result[1]
+            $ girls = result[2]
             $ char_profile_entry = "chars_list"
             jump char_profile
         elif result[0] == "group":
@@ -123,6 +124,7 @@ screen chars_list():
 
     # Chars:
     $ charz_list = chars_list_state.page_content()
+    $ charz_here = [char for char in chars_list_state.pager_content if char.is_available and char.employer is hero]
     if num_chars == 0:
         python:
             if hero.chars:
@@ -144,16 +146,16 @@ screen chars_list():
             for c in charz_list:
                 $ char_profile_img = c.show('portrait', resize=(98, 98), cache=True)
                 $ img = "content/gfx/frame/ink_box.png"
-                $ available = c.is_available and c.employer == hero
+                $ available = c in charz_here
                 button:
                     ymargin 0
                     idle_background Frame(im.Alpha(img, alpha=.4), 10 ,10)
                     hover_background Frame(im.Alpha(img, alpha=.9), 10 ,10)
                     xysize (470, 120)
-                    alternate Return(['control', 'return']) # keep in sync with mousedown_3
+                    alternate Return(["control", "return"]) # keep in sync with mousedown_3
                     if available:
-                        action Return(['choice', c])
-                        tooltip "Show {}'s Profile!".format(c.name)
+                        action Return(["choice", c, charz_here])
+                        tooltip "Show %s's Profile!" % c.name
                     else:
                         action NullAction()
 
@@ -447,19 +449,23 @@ screen chars_list():
             xysize (90, 150)
             style_prefix "basic"
             has vbox spacing 3 align .5, .5
-            button: # select all on current listing, deselects them if all are selected
+            # select all on current listing, deselects them if all are selected
+            $ temp = [c for c in charz_list if c in charz_here]
+            button:
                 xysize (66, 40)
-                action Function(chars_list_state.toggleChosenMembership, set(charz_list))
+                action Function(chars_list_state.toggleChosenMembership, temp)
                 sensitive num_chars != 0
                 text "These"
                 tooltip "Select all currently visible characters"
-            button: # every of currently filtered, also in next tabs
+            # every of currently filtered, also in next tabs
+            button:
                 xysize (66, 40)
-                action Function(chars_list_state.toggleChosenMembership, set(chars_list_state.pager_content))
+                action Function(chars_list_state.toggleChosenMembership, charz_here)
                 sensitive num_chars != 0
                 text "All"
                 tooltip "Select all characters"
-            button: # deselect all
+            # deselect all
+            button:
                 xysize (66, 40)
                 action Function(chars_list_state.the_chosen.clear)
                 sensitive chars_list_state.the_chosen
