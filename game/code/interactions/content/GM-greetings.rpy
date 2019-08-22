@@ -96,12 +96,13 @@ label girl_interactions_greeting:
                     $ char.restore_portrait()
 
         elif all(("SIW" in char.gen_occs,
+                  char.employer != hero,
                   char.get_stat("disposition") >= 0,
                   dice(min(sum(getattr(s, "price", 0) for s in hero.eqslots.values())/1000, 20)),
                   iam.silent_check_for_bad_stuff(char),
                   not iam.gender_mismatch(char, just_sex=True),
                   not iam.incest(char),
-                  not check_lovers(char),
+                  not check_friends(char),
                   not char.flag("quest_cannot_be_fucked"),
                   char.get_stat("vitality") > char.get_max("vitality")/4,
                   char.has_ap())):
