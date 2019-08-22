@@ -79,25 +79,12 @@ init python:
             else:
                 best_student = None
 
-            primary_stats, secondary_stats = [], []
-            primary_skills, secondary_skills = [], []
-            for s in self.data["primary"]:
-                if is_stat(s):
-                    primary_stats.append(s)
-                elif is_skill(s):
-                    primary_skills.append(s)
-                else:
-                    raise Exception("%s is not a valid stat/skill for %s course." % (s, self.name))
+            data = self.data
+            stats = [(s, 30) for s in data["primary_stats"]]
+            stats += [(s, 10) for s in data["secondary_stats"]]
 
-            for s in self.data["secondary"]:
-                if is_stat(s):
-                    secondary_stats.append(s)
-                elif is_skill(s):
-                    secondary_skills.append(s)
-                else:
-                    raise Exception("%s is not a valid stat/skill for %s course." % (s, self.name))
-            stats = primary_stats*3 + secondary_stats
-            skills = primary_skills*3 + secondary_skills
+            skills = [(s, 30) for s in data["primary_skills"]]
+            skills += [(s, 10) for s in data["secondary_skills"]]
 
             school = pytfall.school
             difficulty = self.difficulty
@@ -162,20 +149,19 @@ init python:
                     char.mod_exp(exp)
 
                     # Add Stats/Skills:
-                    points = (difficulty-char.tier+2) * mod
                     #  prepare charmod
-                    charmod = defaultdict(int) # Dict of changes of stats and skills for ND
+                    charmod = dict() # Dict of changes of stats and skills for ND
                     charmod["exp"] = exp
                     if stats:
-                        stats_pool = round_int(points*.5)
-                        for i in xrange(stats_pool):
-                            stat = choice(stats)
-                            charmod[stat] += char.mod_stat(stat, 1)
+                        sm = weighted_list(stats, dice_int(mod))
+                        sm = collections.Counter(sm)
+                        for s, m in sm.items():
+                            charmod[s] = char.mod_stat(s, stat_reward(char, difficulty, s, 1))
                     if skills:
-                        skills_pool = round_int(points)
-                        for i in xrange(skills_pool):
-                            skill = choice(skills)
-                            charmod[skill] += char.mod_skill(skill, 1, 1)
+                        sm = weighted_list(skills, dice_int(mod*2))
+                        sm = collections.Counter(sm)
+                        for s, m in sm.items():
+                            charmod[s] = char.mod_skill(s, 1, skill_reward(char, difficulty, 1))
 
                 if self.days_remaining <= 0:
                     txt.append("This Course has ended, all students have been sent back home.")
@@ -226,12 +212,26 @@ init python:
         def load_courses(cls):
             courses = load_db_json("school_courses.json")
             for data in courses.itervalues():
+                # Add mandatory fields:
                 if "imageMode" not in data:
                     data["imageMode"] = "reduce"
                 if "imageTags" not in data:
                     data["imageTags"] = ["profile"]
                 if "noImageTags" not in data:
                     data["noImageTags"] = []
+                # Prepare stats/skills:
+                for mode in ("primary", "secondary"):
+                    ss = data.pop(mode, [])
+                    cstats, cskills = [], []
+                    for s in ss:
+                        if is_stat(s):
+                            cstats.append(s)
+                        elif is_skill(s):
+                            cskills.append(s)
+                        else:
+                            raise Exception("%s is not a valid stat/skill for %s course (%s)." % (s, data["id"], mode))
+                    data[mode+"_stats"] = cstats
+                    data[mode+"_skills"] = cskills
             cls.all_courses = courses
 
         def toggle_type_filter(self, type):

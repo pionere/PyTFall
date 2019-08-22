@@ -1435,6 +1435,25 @@ label after_load:
             pytfall.school.type_filter = {"xxx", "combat", None}
         if isinstance(pytfall.school.img, im.Image):
             pytfall.school.img = pytfall.school.img.filename
+        if pytfall.school.courses and "primary_stats" not in next(iter(pytfall.school.courses)).data:
+            temp = list()
+            for c in pytfall.school.courses:
+                data = c.data
+                if data in temp:
+                    continue
+                temp.append(data)
+                for mode in ("primary", "secondary"):
+                    ss = data.pop(mode, [])
+                    cstats, cskills = [], []
+                    for s in ss:
+                        if is_stat(s):
+                            cstats.append(s)
+                        elif is_skill(s):
+                            cskills.append(s)
+                        else:
+                            raise Exception("%s is not a valid stat/skill for %s course (%s)." % (s, data["id"], mode))
+                    data[mode+"_stats"] = cstats
+                    data[mode+"_skills"] = cskills
 
         if not hasattr(pytfall, "city"):
             pytfall.city = store.locations["City Apartments"]

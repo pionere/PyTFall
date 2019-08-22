@@ -824,7 +824,7 @@ init -9 python:
                             member.mod_exp(rew_xp)
                             statdict["Exp"] = rew_xp
 
-                        rew_rep = stat_reward(member, enemy_team, None, stat_mod=2)
+                        rew_rep = dice_int(skill_reward(member, enemy_team, skill_mod=2))
                         if rew_rep:
                             member.arena_rep += rew_rep
                             statdict["Arena Rep"] = rew_rep

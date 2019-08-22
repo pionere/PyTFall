@@ -857,53 +857,6 @@ init -11 python:
         #      modified here. Setup of the hero could still need it...
         restore_battle_stats(char)
 
-    def stat_reward(char, diff, stat, stat_mod=1):
-        """Adjusts the stat to be given to an actor. Doesn't actually award the stat.
-
-        :param char: Target actor.
-        :param diff: difficulty - Ranged 1 to 10. (will be normalized otherwise).
-            This can be a number, Team or Char.
-        :param stat: the stat to be given.
-        :param stat_mod: We multiply the result with it. Could be useful when failing
-            a task, give at least 10% of the exp (for example) is to set this mod
-            to .1 in case of a failed action.
-        """
-        # find out the difficulty:
-        if isinstance(diff, Team):
-            diff = diff.get_level()/20.0
-        elif isinstance(diff, PytCharacter):
-            diff = diff.tier
-        elif isinstance(diff, (float, int)):
-            diff = max(0, min(MAX_TIER, diff))
-        else:
-            raise Exception("Invalid difficulty type %s provided to stat_reward function." % diff)
-
-        # Difficulty modifier:
-        # Completed task oh higher difficulty:
-        diff -= char.tier
-        if diff >= 0:
-            if diff > 2:
-                diff = 2 # max bonus mod possible is 2x the mod.
-        else: # Difficulty was lower
-            if diff <= -2:
-                return 0
-        mod = 1+diff/2.0
-
-        # Traits modifier:
-        # - positive mod_stats increases the positive mods, while decreases the negative mods
-        # - negative mod_stats decreases the positive mods, while increases the negative mods
-        for c in char.traits:
-            for s, m in c.mod_stats.iteritems():
-                if s == stat:
-                    m = min(.8, .2 * m[0] / m[1])
-                    if stat_mod >= 0:
-                        mod *= 1 + m
-                    else:
-                        mod *= 1 - m
-
-        mod *= stat_mod
-        return dice_int(mod)
-
     def exp_reward(char, diff, exp_mod=1):
         """Adjusts the XP to be given to an actor. Doesn't actually award the EXP.
 
@@ -928,12 +881,10 @@ init -11 python:
         # Completed task oh higher difficulty:
         char_tier = char.tier
         diff -= char_tier
-        if diff >= 0:
-            if diff > 2:
-                diff = 2 # max bonus mod possible is 2x the EXP.
-        else: # Difficulty was lower
-            if diff <= -2:
-                return 0
+        if diff > 2:
+            diff = 2 # max bonus mod possible is 2x the EXP.
+        elif diff <= -2:
+            return 0
         mod = 1+diff/2.0
 
         # add tier modifier to limit the value
@@ -956,6 +907,84 @@ init -11 python:
         mod = 1 - float(char.tier)/(2*MAX_TIER)
         value *= mod * ap_used
         return round_int(value)
+
+    def stat_reward(char, diff, stat, stat_mod=1):
+        """Adjusts the stat to be given to an actor. Doesn't actually award the stat.
+
+        :param char: Target actor.
+        :param diff: difficulty - Ranged 1 to 10. (will be normalized otherwise).
+            This can be a number, Team or Char.
+        :param stat: the stat to be given.
+        :param stat_mod: We multiply the result with it. Could be useful when failing
+            a task, give at least 10% of the exp (for example) is to set this mod
+            to .1 in case of a failed action.
+        """
+        # find out the difficulty:
+        if isinstance(diff, Team):
+            diff = diff.get_level()/20.0
+        elif isinstance(diff, PytCharacter):
+            diff = diff.tier
+        elif isinstance(diff, (float, int)):
+            diff = max(0, min(MAX_TIER, diff))
+        else:
+            raise Exception("Invalid difficulty type %s provided to stat_reward function." % diff)
+
+        # Difficulty modifier:
+        # Completed task oh higher difficulty:
+        diff -= char.tier
+        if diff > 2:
+            diff = 2 # max bonus mod possible is 2x the mod.
+        elif diff <= -2:
+            return 0
+        mod = 1+diff/2.0
+
+        # Traits modifier:
+        # - positive mod_stats increases the positive mods, while decreases the negative mods
+        # - negative mod_stats decreases the positive mods, while increases the negative mods
+        # TODO handle this the same way as the mod_skills?
+        for c in char.traits:
+            for s, m in c.mod_stats.iteritems():
+                if s == stat:
+                    m = min(.8, .2 * m[0] / m[1])
+                    if stat_mod >= 0:
+                        mod *= 1 + m
+                    else:
+                        mod *= 1 - m
+
+        mod *= stat_mod
+        return dice_int(mod)
+
+    def skill_reward(char, diff, skill_mod=1):
+        """Adjusts the skill to be given to an actor. Doesn't actually award the skill.
+
+        :param char: Target actor.
+        :param diff: difficulty - Ranged 1 to 10. (will be normalized otherwise).
+            This can be a number, Team or Char.
+        :param skill_mod: We multiply the result with it. Could be useful when failing
+            a task, give at least 10% of the exp (for example) is to set this mod
+            to .1 in case of a failed action.
+        """
+        # find out the difficulty:
+        if isinstance(diff, Team):
+            diff = diff.get_level()/20.0
+        elif isinstance(diff, PytCharacter):
+            diff = diff.tier
+        elif isinstance(diff, (float, int)):
+            diff = max(0, min(MAX_TIER, diff))
+        else:
+            raise Exception("Invalid difficulty type %s provided to skill_reward function." % diff)
+
+        # Difficulty modifier:
+        # Completed task oh higher difficulty:
+        diff -= char.tier
+        if diff > 2:
+            diff = 2 # max bonus mod possible is 2x the mod.
+        elif diff <= -2:
+            return 0
+        mod = 1+diff/2.0
+
+        mod *= skill_mod
+        return mod
 
     def limited_affection(char, value):
         curr_affection = char.get_stat("affection")
