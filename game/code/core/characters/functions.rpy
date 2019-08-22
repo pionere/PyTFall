@@ -828,7 +828,7 @@ init -11 python:
         # devlog.info("")
 
         # Now that we're done with baseskills, we can play with other stats/skills a little bit
-        mod = get_linear_value_of(tier, 0, .6, MAX_TIER, 0.1)
+        mod = .6 #get_linear_value_of(tier, 0, .6, MAX_TIER, 0.1)
         skill_bios = (skill_bios[0]*mod, skill_bios[1]*mod)
         stat_bios = (stat_bios[0]*mod, stat_bios[1]*mod)
         luck = char_stats._get_stat("luck")*.5

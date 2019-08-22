@@ -28,9 +28,7 @@ init -10 python:
 
             if tier is None:
                 tier = self.tier
-            if tier == 0:
-                tier = .5
-            return 100*tier # MAX_STAT_PER_TIER
+            return 100 * (tier+1) # MAX_STAT_PER_TIER
 
         # used in a number of places to guess what the max stat for the current character at tier n might be.
         def get_relative_max_stat(self, stat, tier=None):
@@ -39,14 +37,12 @@ init -10 python:
 
             if tier is None:
                 tier = self.tier
-            if tier == 0:
-                tier = .5
 
             if stat in self.stats.get_base_stats():
                 per_tier = 100 # MAX_STAT_PER_TIER
             else:
                 per_tier = 50  # MAX_STAT_PER_TIER/2
-            return per_tier * tier
+            return per_tier * (tier+1)
 
         def recalculate_tier(self):
             """
