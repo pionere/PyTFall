@@ -140,7 +140,7 @@ init -5 python:
             """
             calculating the needed level of disposition;
             """
-            disposition = 600 + 50 * sub
+            disposition = 600 - 50 * sub
 
             if check_lovers(worker):
                 disposition -= 50
@@ -180,7 +180,7 @@ init -5 python:
             else:
                 sub = check_submissivity(worker)
                 if worker.status != 'slave':
-                    if sub < 0:
+                    if sub > 0:
                         log.append("%s is not very happy with %s current job as a stripper, but %s will get the job done." % (name, worker.pd, worker.p))
                         sub = 15
                     elif sub == 0:
@@ -197,7 +197,7 @@ init -5 python:
                 else:
                     dispo = worker.get_stat("disposition")
                     dispo_req = StripJob.calculate_disposition_level(worker, sub)
-                    if sub < 0:
+                    if sub > 0:
                         if dispo < dispo_req:
                             log.append("%s is a slave so no one really cares, but being forced to work as a stripper, %s's quite upset." % (name, worker.p))
                         else:

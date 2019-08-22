@@ -41,7 +41,7 @@ label girl_interactions_greeting:
 
     if m < 1:
         # meeting the first time -> check if the character has something to tell the MC
-        if all((check_submissivity(char) == 1,
+        if all((check_submissivity(char) < 0,
                 iam.become_lovers(char) is True,
                 not iam.gender_mismatch(char, just_sex=False),
                 not iam.incest(char),

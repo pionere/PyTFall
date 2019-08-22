@@ -3,7 +3,7 @@ init -2 python:
     class InteractionsDecisions(_object):
         @staticmethod
         def become_lovers(character):
-            l_ch = 600 + check_submissivity(character) * 50
+            l_ch = 600 - check_submissivity(character) * 50
 
             char_traits = character.traits
             if "Shy" in char_traits:
@@ -57,7 +57,7 @@ init -2 python:
             """
             Decide whether the character wants to accept the Nth gifts from the hero
             """
-            l_ch = 3 - check_submissivity(character)
+            l_ch = 3 + check_submissivity(character)
             if check_lovers(character):
                 l_ch += 1
             if dice(character.get_stat("affection")/20) or dice(character.get_stat("disposition")/40):
@@ -70,7 +70,7 @@ init -2 python:
             if iam.slave_siw_check(character):
                 return True
 
-            l_ch = check_submissivity(character) * 50
+            l_ch = - check_submissivity(character) * 50
             if "SIW" not in character.gen_occs:
                 l_ch += 200
 
@@ -86,7 +86,7 @@ init -2 python:
             if iam.slave_siw_check(character):
                 return True
 
-            l_ch = 100 + (check_submissivity(character) * 50)
+            l_ch = 100 - (check_submissivity(character) * 50)
             if "SIW" not in character.gen_occs:
                 l_ch += 200
 
@@ -102,7 +102,7 @@ init -2 python:
             if iam.slave_siw_check(character):
                 return True
 
-            l_ch = 50 + (check_submissivity(character) * 50)
+            l_ch = 50 - (check_submissivity(character) * 50)
             if "SIW" not in character.gen_occs:
                 l_ch += 200
 
@@ -118,7 +118,7 @@ init -2 python:
             if iam.slave_siw_check(character):
                 return True
 
-            l_ch = 100 + (check_submissivity(character) * 50)
+            l_ch = 100 - (check_submissivity(character) * 50)
             if "SIW" not in character.gen_occs:
                 l_ch += 200
 
@@ -134,7 +134,7 @@ init -2 python:
             if iam.slave_siw_check(character):
                 return True
 
-            l_ch = 100 + (check_submissivity(character) * 50)
+            l_ch = 100 - (check_submissivity(character) * 50)
             if "SIW" not in character.gen_occs:
                 l_ch += 250
 
@@ -149,9 +149,9 @@ init -2 python:
         def want_sex(character):
             sub = check_submissivity(character)
             if check_lovers(character): # a clear way to calculate how much disposition is needed to make her agree
-                l_ch = randint(0, 100) + sub*200 # probably a placeholder until it becomes more difficult to keep lover status
+                l_ch = randint(0, 100) - sub*200 # probably a placeholder until it becomes more difficult to keep lover status
             else:
-                l_ch = randint(600, 700) + sub*100 # thus weak willed characters will need from 500 to 600 disposition, strong willed ones from 700 to 800, if there are no other traits that change it
+                l_ch = randint(600, 700) - sub*100 # thus weak willed characters will need from 500 to 600 disposition, strong willed ones from 700 to 800, if there are no other traits that change it
 
             if 'Horny' in character.effects:
                 l_ch -= randint(200, 300)

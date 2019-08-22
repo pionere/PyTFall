@@ -911,7 +911,7 @@ init -10 python:
                     joymod = max(1, joymod)
                 else: #if diff < 0:
                     mood = "angry"
-                    mod = check_submissivity(char) + 2 # convert [-1,0,1] to [1,2,3]
+                    mod = 2 - check_submissivity(char) # convert [-1,0,1] to [1,2,3]
                     dismod = min(-2, dismod) * mod
                     joymod = min(-1, joymod) * mod
                     char.mod_stat("affection", affection_reward(char, -1, stat="gold"))

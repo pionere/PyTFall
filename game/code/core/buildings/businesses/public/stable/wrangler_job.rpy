@@ -111,7 +111,7 @@ init -5 python:
             else:
                 sub = check_submissivity(worker)
                 if worker.status != 'slave':
-                    if sub < 0:
+                    if sub > 0:
                         log.append("%s is not very happy with %s current job as a wrangler, but %s will get the job done." % (name, worker.pd, worker.p))
                         sub = 15
                     elif sub == 0:
@@ -128,7 +128,7 @@ init -5 python:
                 else:
                     dispo = worker.get_stat("disposition")
                     dispo_req = 0 # WranglerJob.calculate_disposition_level(worker)
-                    if sub < 0:
+                    if sub > 0:
                         if dispo < dispo_req:
                             log.append("%s is a slave so no one really cares, but being forced to work as a wrangler, %s's quite upset." % (name, worker.p))
                         else:

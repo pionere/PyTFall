@@ -501,11 +501,11 @@ init -2 python:
             if mod >= 0:
                 if dispo > 90:
                     mod /= dispo * .01 # 1/10th at max dispo (1000)
-                mod *= 1 - sub*.2
+                mod *= 1 + sub*.2
             else:
                 if dispo < -90:
                     mod /= -dispo * .01 # 1/10th at min dispo (-1000)
-                mod *= 1 + sub*.2
+                mod *= 1 - sub*.2
 
             char.gfx_mod_stat("disposition", dice_int(mod))
 

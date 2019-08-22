@@ -107,7 +107,7 @@ init -5 python:
                 sub = check_submissivity(worker)
                 name = set_font_color(choice([worker.fullname, worker.name, worker.nickname]), "pink")
                 if worker.status != 'slave':
-                    if sub < 0:
+                    if sub > 0:
                         temp = "%s doesn't enjoy working as nurse, but %s will get the job done."
                         sub = 15
                     elif sub == 0:
@@ -125,7 +125,7 @@ init -5 python:
                 else:
                     dispo = worker.get_stat("disposition")
                     dispo_req = 0 # NurseJob.calculate_disposition_level(worker)
-                    if sub < 0:
+                    if sub > 0:
                         if dispo < dispo_req:
                             temp = "%s is a slave so no one really cares, but being forced to work as a nurse, %s's quite upset." % (name, worker.p)
                         else:

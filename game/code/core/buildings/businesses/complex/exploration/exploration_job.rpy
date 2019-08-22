@@ -116,7 +116,7 @@ init -5 python:
                 if cls.want_work(worker):
                     continue
                 sub = check_submissivity(worker)
-                if sub < 0:
+                if sub > 0:
                     log("%s doesn't enjoy going on exploration, but %s will get the job done." % (worker.name, worker.p))
                     sub = 15
                 elif sub == 0:

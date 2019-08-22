@@ -149,7 +149,7 @@ label interactions_insult: # (mode)
     $ sub = check_submissivity(char)
 
     $ char_vals = char.get_stat("character") + char.get_stat(mode)
-    $ char_vals *= 1 + sub*.2
+    $ char_vals *= 1 - sub*.2
     $ hero_vals = hero.get_stat("character") + hero.get_stat(mode)
 
     $ mpl = max(min(hero_vals / float(char_vals+1), 2.0), .5)
@@ -178,7 +178,7 @@ label interactions_insult: # (mode)
         $ iam.got_insulted(char)
 
         if dice(50):
-            $ char.set_flag("cnd_interactions_blowoff", day+2+sub)
+            $ char.set_flag("cnd_interactions_blowoff", day+2-sub)
             $ del m, mpl, sub
             jump girl_interactions_end
     $ del m, mpl, sub

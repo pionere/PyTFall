@@ -529,14 +529,14 @@ init -9 python:
                     if joy > 85 and self.get_stat("disposition") >= 0:
                         return "happy"
                 sub = check_submissivity(self)
-                if sub == 1:
+                if sub < 0:
                     return "confident"
-                if sub == -1:
+                if sub > 0:
                     return "uncertain"
                 # TODO extend mood tags II.
-                #if sub == 2:
-                #    return "defiant"
                 #if sub == -2:
+                #    return "defiant"
+                #if sub == 2:
                 #    return "scared"
             else:
                 if joy > 85:

@@ -272,9 +272,9 @@ label interaction_scene_choice: # here we select specific scene, show needed ima
     if not(scene_picked_by_character):
         $ scene_picked_by_character = True
 
-        if dice(sex_scene_libido*10 + 20*sub) and sex_scene_libido > 1 and char.status == "free": # strong willed and/or very horny characters may pick action on their own from time to time
+        if dice(sex_scene_libido*10 - 20*sub) and sex_scene_libido > 1 and char.status == "free": # strong willed and/or very horny characters may pick action on their own from time to time
             $ current_action = iam.get_character_wishes(char)
-            if sub < 0:
+            if sub > 0:
                 "[char.pC] is so horny that [char.p] cannot control [char.op]self."
             elif sub == 0:
                 "[char.pC] wants to try something else with you."
@@ -665,9 +665,9 @@ label interactions_sex_scene_logic_part: # here we resolve all logic for changin
         if raped_by_player:
             "[char.pC] pleasures [char.op]self briefly, hesitantly avoiding your glance."
         else:
-            if sub > 0:
+            if sub < 0:
                 "[char.pC] leisurely pleasures [char.op]self for a while, seductively glancing at you."
-            elif sub < 0:
+            elif sub > 0:
                 "[char.pC] diligently pleasures [char.op]self for a while until you tell [char.op] to stop."
             else:
                 "[char.pC] pleasures [char.op]self briefly, hesitantly avoiding your glance."
@@ -772,60 +772,60 @@ label interaction_sex_scene_check_skill_jobs: # skill level check for char side 
         $ hero.gfx_mod_skill("sex", 0, randint(2, 6))
 
         if hero.gender == "male":
-            if sub > 0:
+            if sub < 0:
                 "[char.name] grabs you with [char.pd] soft hands."
-            elif sub < 0:
+            elif sub > 0:
                 "[char.name] wraps [char.pd] soft hands around your dick."
             else:
                 "[char.name] takes your dick in [char.pd] soft hands."
 
             if char_skill_for_checking <= 200:
-                if sub > 0:
+                if sub < 0:
                     $ temp = ("[char.pC] strokes you a bit too quickly, the friction is a bit uncomfortable.", "[char.pC] begins to stroke you very quickly. But because of the speed your cock often slips out of [char.pd] hand.")
-                elif sub < 0:
+                elif sub > 0:
                     $ temp = ("[char.pC] strokes you gently. [char.pC] isn't quite sure however what to make of the balls.", "[char.pC] makes up for [char.pd] inexperience with determination, carefully stroking your cock.")
                 else:
                     $ temp = ("[char.pC] squeezes one of your balls too tightly, but stops when you wince.", "[char.pC] has a firm grip, and [char.p] is not letting go.")
             elif char_skill_for_checking < 500:
-                if sub > 0:
+                if sub < 0:
                     $ temp = ("[char.pdC] fingers cause tingles as they caress the shaft.", "[char.pC] quickly strokes you, with a very deft pressure.")
-                elif sub < 0:
+                elif sub > 0:
                     $ temp = ("[char.pC] gently caresses the shaft, and cups the balls in [char.pd] other hand, giving them a warm massage.", "[char.pC] moves very smoothly, stroking casually and very gently.")
                 else:
                     $ temp = ("[char.pdC] hands glide smoothly across it.", "[char.pC] moves [char.pd] hands up and down. [char.pC] is a little rough at this, but [char.p] tries [char.pd] best.")
             else:
-                if sub > 0:
+                if sub < 0:
                     $ temp = ("[char.pdC] movements are masterful, [char.pd] slightest touch starts you twitching.", "[char.pdC] expert strokes will have you boiling over in seconds.")
-                elif sub < 0:
+                elif sub > 0:
                     $ temp = ("[char.pC] gently blows across the tip as [char.pd] finger dance along the shaft.", "[char.pC] slowly caresses you in a way that makes your blood boil, then pulls back at the last second.")
                 else:
                     $ temp = ("[char.pC] knows what to do now, and rubs you with smooth strokes, focusing occasionally on the head.", "You can't tell where [char.pd] hand is at any moment, all you know is that it works.")
         else:
-            if sub > 0:
+            if sub < 0:
                 "[char.name] grabs you with [char.pd] soft hands."
-            elif sub < 0:
+            elif sub > 0:
                 "[char.name] takes your pussy in [char.pd] palms."
             else:
                 "[char.name] puts [char.pd] hands on your pussy."
 
             if char_skill_for_checking <= 200:
-                if sub > 0:
+                if sub < 0:
                     $ temp = ("[char.pC] strokes you a bit too quickly, the friction is a bit uncomfortable.", "[char.pC] begins to stroke you very quickly. But because of the speed your pussy becomes a bit swollen.")
-                elif sub < 0:
+                elif sub > 0:
                     $ temp = ("[char.pC] strokes you gently. [char.pC] isn't quite sure however what to make of the lips.", "[char.pC] makes up for [char.pd] inexperience with determination, carefully stroking your pussy.")
                 else:
                     $ temp = ("[char.pC] squeezes your pussy too tightly, but stops when you wince.", "[char.pC] has a firm grip, and [char.p] is not letting go.")
             elif char_skill_for_checking < 500:
-                if sub > 0:
+                if sub < 0:
                     $ temp = ("[char.pdC] fingers cause tingles as they caress the shaft.", "[char.pC] quickly strokes you, with a very deft pressure.")
-                elif sub < 0:
+                elif sub > 0:
                     $ temp = ("[char.pC] gently caresses your pussy and cups your ass in [char.pd] other hand, giving them a warm massage.", "[char.pC] moves very smoothly, stroking casually and very gently.")
                 else:
                     $ temp = ("[char.pdC] hands glide smoothly across it.", "[char.pC] moves [char.pd] hands up and down. [char.pC] is a little rough at this, but [char.p] tries [char.pd] best.")
             else:
-                if sub > 0:
+                if sub < 0:
                     $ temp = ("[char.pdC] movements are masterful, [char.pd] slightest touch starts you twitching.", "[char.pdC] expert strokes will have you boiling over in seconds.")
-                elif sub < 0:
+                elif sub > 0:
                     $ temp = ("[char.pC] gently blows across the lips as [char.pd] finger dance on your leg.", "[char.pC] slowly caresses you in a way that makes your blood boil, then pulls back at the last second.")
                 else:
                     $ temp = ("[char.pC] knows what to do now, and rubs you with smooth strokes.", "You can't tell where [char.pd] hand is at any moment, all you know is that it works.")
@@ -845,16 +845,16 @@ label interaction_sex_scene_check_skill_jobs: # skill level check for char side 
         $ hero.gfx_mod_skill("sex", 0, randint(2, 6))
 
         if sex_scene_libido > 0 and not raped_by_player:
-            if sub > 0:
+            if sub < 0:
                 "[char.name] massages her boobs, defiantly looking at your crotch."
-            elif sub < 0:
+            elif sub > 0:
                 "Holding her boobs, [char.name] meekly approaches you."
             else:
                 "[char.name] playfully grabs her boobs, looking at you."
         else:
-            if sub > 0:
+            if sub < 0:
                 "[char.name] massages her boobs, preparing them."
-            elif sub < 0:
+            elif sub > 0:
                 "[char.name] holds her boobs, meekly looking at you."
             else:
                 "[char.name] grabs her boobs and approaches you."
@@ -868,31 +868,31 @@ label interaction_sex_scene_check_skill_jobs: # skill level check for char side 
             extend " She squeezes you between her soft breasts."
 
         if char_skill_for_checking <= 200:
-            if sub > 0:
+            if sub < 0:
                 $ temp = ("She kind of bounces her tits around your cock.", "She tries to quickly slide the cock up and down between her cleavage, but it tends to slide out.")
-            elif sub < 0:
+            elif sub > 0:
                 $ temp = ("She slides the cock up and down between her cleavage.", "She squeezes her cleavage as tight as she can and rubs up and down.")
             else:
                 $ temp = ("She sort of squishes her breasts back and forth around your cock.", "She slaps her tits against your dick, bouncing her whole body up and down.")
         elif char_skill_for_checking < 500:
-            if sub > 0:
+            if sub < 0:
                 $ temp = ("She juggles her breasts up and down around your cock.", "She moves her boobs up and down in a fluid rocking motion.")
-            elif sub < 0:
+            elif sub > 0:
                 $ temp = ("She gently caresses the shaft between her tits.", "She lightly brushes the head with her chin as it pops up between her tits.")
             else:
                 $ temp = ("Sometimes she pauses to rub her nipples across the shaft.", "She rapidly slides the shaft between her tits")
         else:
-            if sub > 0:
+            if sub < 0:
                 $ temp = ("She rapidly rocks her breasts up and down around your cock, covering them with drool to keep things well lubed.", "In as she strokes faster and faster, she bends down to suck on the head.")
-            elif sub < 0:
+            elif sub > 0:
                 $ temp = ("In between strokes she gently sucks on the head.", "She drips some spittle down to make sure you're properly lubed.")
             else:
                 $ temp = ("She licks away at the head every time it pops up between her tits.", "She dancers her nipples across the shaft.")
         $ narrator(choice(temp))
         if "after sex" in image_tags:
-            if sub > 0:
+            if sub < 0:
                 "At the last moment, she pulls away, covering herself with your thick liquid."
-            elif sub < 0:
+            elif sub > 0:
                 "At the last moment, you take it away from her chest, covering her body with your thick liquid."
             else:
                 "At the last moment, she asked you to take it away from her chest to cover her body with your thick liquid."
@@ -908,7 +908,7 @@ label interaction_sex_scene_check_skill_jobs: # skill level check for char side 
         $ char.gfx_mod_skill("sex", 0, randint(1, 4))
         $ hero.gfx_mod_skill("sex", 0, randint(2, 6))
 
-        if sub > 0:
+        if sub < 0:
             if sex_scene_libido > 0 and not raped_by_player:
                 "[char.name] licks [char.pd] lips, defiantly looking at your crotch."
             else:
@@ -919,7 +919,7 @@ label interaction_sex_scene_check_skill_jobs: # skill level check for char side 
                 extend " [char.pC] enthusiastically begins to lick and suck it."
             else:
                 extend " [char.pC] begins to lick and suck it."
-        elif sub < 0:
+        elif sub > 0:
             if sex_scene_libido > 0 and not raped_by_player:
                 "Glancing at your crotch, [char.name] is patiently waiting for your orders."
             else:
@@ -948,53 +948,53 @@ label interaction_sex_scene_check_skill_jobs: # skill level check for char side 
 
         if hero.gender == "male":
             if char_skill_for_checking <= 200:
-                if sub > 0:
+                if sub < 0:
                     $ temp = ("[char.pdC] head bobs rapidly, until [char.p] goes a bit too deep and starts to gag.", "[char.pC] begins to suck very quickly. But because of the speed your cock often pops out of [char.pd] mouth.")
-                elif sub < 0:
+                elif sub > 0:
                     $ temp = ("[char.pC] tentatively kisses and licks around the head.", "[char.pC] licks all over your dick, but [char.p] doesn't really have a handle on it.")
                 else:
                     $ temp = ("[char.pC] bobs quickly on your cock, but clamps down a bit too tight.", "[char.pC] puts the tip in [char.pd] mouth and starts suck in as hard as [char.p] can. [char.pC] is a little rough at this, but at least [char.p] tries [char.pd] best.")
             elif char_skill_for_checking < 500:
-                if sub > 0:
+                if sub < 0:
                     $ temp = ("[char.pC] licks [char.pd] way down the shaft, and gently teases the balls.", "[char.pdC] mouth envelopes the head, then [char.p] quickly draws it in and draws back with a pop.")
-                elif sub < 0:
+                elif sub > 0:
                     $ temp = ("[char.pC] gently caresses the shaft, and cups the balls in [char.pd] other hand, giving them a warm massage.", "[char.pC] moves [char.pd] tongue very smoothly and very gently, keeping [char.pd] teeth well clear, aside from a playful nip.")
                 else:
                     $ temp = ("[char.pC]'s settled into a gentle licking pace that washes over you like a warm bath.", "[char.pC] licks up and down the shaft. A little rough, but at least [char.p] tries [char.pd] best.")
             else:
-                if sub > 0:
+                if sub < 0:
                     $ temp = ("[char.pC] rapidly bobs up and down on your cock, a frenzy of motion.", "[char.pC] puts the tip into [char.pd] mouth and [char.pd] tongue swirls rapidly around it.")
-                elif sub < 0:
+                elif sub > 0:
                     $ temp = ("[char.pC] gently blows across the head as [char.p] covers your cock in smooth licks.", "[char.pC] moves very smoothly, tongue dancing casually and very gently.")
                 else:
                     $ temp = ("[char.pdC] deft licks are masterful, your cock twitches with each stroke.", "[char.pC]'s really good at this, alternating between deep suction and gentle licks.")
             $ narrator(choice(temp))
             if "after sex" in image_tags:
-                if sub > 0:
+                if sub < 0:
                     "At the last moment, [char.p] pulls it out, covering [char.op]self with your thick liquid."
-                elif sub < 0:
+                elif sub > 0:
                     "At the last moment, you pull it out from [char.pd] mouth, covering [char.pd] body with your thick liquid."
                 else:
                     "[char.pC] asked you to pull it out from [char.pd] mouth at the last moment to cover [char.pd] body with your thick liquid."
         else: # female hero -> lick pussy
             if char_skill_for_checking <= 200:
-                if sub > 0:
+                if sub < 0:
                     $ temp = ("[char.pdC] head bobs rapidly.", "[char.pC] begins to suck very quickly. Because of the speed your pussy become reddish.")
-                elif sub < 0:
+                elif sub > 0:
                     $ temp = ("[char.pC] tentatively kisses and licks in the valley.", "[char.pC] licks all over your pussy, but [char.p] doesn't really have a handle on it.")
                 else:
                     $ temp = ("[char.pC] bobs quickly on your pussy, but [char.pd] movements are a bit rough.", "[char.pC] puts [char.pd] mouth on your pussy and starts suck in as hard as [char.p] can. [char.pC] is a little rough at this, but at least [char.p] tries [char.pd] best.")
             elif char_skill_for_checking < 500:
-                if sub > 0:
+                if sub < 0:
                     $ temp = ("[char.pC] licks [char.pd] way down the valley, and gently teases the anus.", "[char.pdC] mouth envelopes your pussy, then [char.p] quickly draws it in and draws back with a pop.")
-                elif sub < 0:
+                elif sub > 0:
                     $ temp = ("[char.pC] gently caresses the lips and cups the ass-cheeks in [char.pd] other hand, giving them a warm massage.", "[char.pC] moves [char.pd] tongue very smoothly and very gently, keeping [char.pd] teeth well clear, aside from a playful nip.")
                 else:
                     $ temp = ("[char.pC]'s settled into a gentle licking pace that washes over you like a warm bath.", "[char.pC] licks up and down the valley. A little rough, but at least [char.p] tries [char.pd] best.")
             else:
-                if sub > 0:
+                if sub < 0:
                     $ temp = ("[char.pC] rapidly bobs up and down the valley, a frenzy of motion.", "[char.pC] puts [char.pd] mouth on your pussy and [char.pd] tongue runs up and down rapidly.")
-                elif sub < 0:
+                elif sub > 0:
                     $ temp = ("[char.pC] gently blows across the lips as [char.p] covers your pussy in smooth licks.", "[char.pC] moves very smoothly, tongue dancing casually and very gently.")
                 else:
                     $ temp = ("[char.pdC] deft licks are masterful, your pussy twitches with each stroke.", "[char.pC]'s really good at this, alternating between deep suction and gentle licks.")
@@ -1012,12 +1012,12 @@ label interaction_sex_scene_check_skill_jobs: # skill level check for char side 
         $ char.gfx_mod_skill("sex", 0, temp)
         $ hero.gfx_mod_skill("sex", 0, randint(2, 6))
 
-        if sub > 0:
+        if sub < 0:
             if sex_scene_libido > 0 and not raped_by_player:
                 "With a sly smile [char.name] gets closer to you."
             else:
                 "[char.name] gets closer to you."
-        elif sub < 0:
+        elif sub > 0:
             "You asked [char.name] to use [char.pd] feet."
         else:
             "[char.name] sits next to you."
@@ -1307,7 +1307,7 @@ label interaction_sex_scene_check_skill_acts: # skill level check for two sides 
         $ char.gfx_mod_skill("sex", 0, randint(1, 5))
         $ hero.gfx_mod_skill("sex", 0, randint(2, 6))
 
-        if sub > 0:
+        if sub < 0:
             if sex_scene_libido > 0 and not raped_by_player:
                 "[char.name] looking forward to something big inside her pussy."
             else:
@@ -1328,7 +1328,7 @@ label interaction_sex_scene_check_skill_acts: # skill level check for two sides 
                 extend " She sits on your lap, immersing your dick inside."
             else:
                 extend " She confidently pushes your dick inside and starts to move."
-        elif sub < 0:
+        elif sub > 0:
             "[char.name] prepares herself, waiting for further orders."
             if "ontop" in image_tags:
                 extend " You ask her to sit on top of you, immersing your dick inside."
@@ -1413,7 +1413,7 @@ label interaction_sex_scene_check_skill_acts: # skill level check for two sides 
         $ char.gfx_mod_skill("sex", 0, randint(1, 4))
         $ hero.gfx_mod_skill("sex", 0, randint(2, 6))
 
-        if sub > 0:
+        if sub < 0:
             if sex_scene_libido > 0 and not raped_by_player:
                 "[char.name] looking forward to something big inside [char.pd] ass."
             else:
@@ -1434,7 +1434,7 @@ label interaction_sex_scene_check_skill_acts: # skill level check for two sides 
                 extend " [char.pC] sat on your lap, immersing your dick inside."
             else:
                 extend " [char.pC] confidently pushes your dick inside and starts to move."
-        elif sub < 0:
+        elif sub > 0:
             "[char.name] prepares [char.op]self, waiting for further orders."
             if "ontop" in image_tags:
                 extend " You ask [char.op] to sit on top of you, immersing your dick inside."
@@ -1541,9 +1541,9 @@ label interaction_sex_scene_check_skill_acts: # skill level check for two sides 
 
     if "after sex" in image_tags:
         $ cum_count += 1
-        if sub > 0:
+        if sub < 0:
             "At the last moment, [char.p] pulls it out, covering [char.op]self with your thick liquid."
-        elif sub < 0:
+        elif sub > 0:
             "At the last moment, you pull it out of [char.op], covering [char.pd] body with your thick liquid."
         else:
             "[char.pC] asked you to pull it out from [char.op] at the last moment to cover [char.pd] body with your thick liquid."
