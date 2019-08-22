@@ -122,56 +122,27 @@ init -10 python:
     def check_submissivity(c):
         """Here we determine how submissive the character is, thus if she's willing to do something she doesn't want to, or for example take the initiative in certain cases.
         """
-        mult = c.get_max("character")
+        mult = c.get_relative_max_stat("character")
         if mult == 0:
             return -1 # should never happen, but better than a div-zero in a simpy process...
 
         # the idea is based on the character stat, we check how close is she to max possible character at her level
         mult = c.get_stat("character")/float(mult)
-        # and traits, they can make mult more or less
-        # for example even low character tsundere might be more stubborn than high character dandere
-        for i in c.traits:
-            i = i.id
-            if i == "Impersonal":
-                mult -= .1
-            elif i == "Imouto":
-                mult -= .05
-            elif i == "Dandere":
-                mult -= .15
-            elif i == "Tsundere":
-                mult += .2
-            elif i == "Kuudere":
-                mult += .15
-            elif i == "Kamidere":
-                mult += .23
-            elif i == "Bokukko":
-                mult += .2
-            elif i == "Ane":
-                mult += .05
-            elif i == "Yandere":
-                # in case of yandere disposition is everything
-                if c.get_stat("disposition") <= 500:
-                    mult += .25
-                else:
-                    mult -= .25
-            elif i == "Courageous":
-                mult += .05
-            elif i == "Coward":
-                mult -= .05
-            elif i == "Shy":
-                mult -= .05
-            elif i == "Aggressive":
-                mult += .05
-            elif i == "Natural Leader":
-                mult += .05
-            elif i == "Natural Follower":
-                mult -= .05
+        if "Yandere" in c.traits:
+            # in case of yandere disposition is everything
+            if c.get_stat("disposition") <= 500:
+                mult += .25
+            else:
+                mult -= .25
 
         if c.status == "slave":
             mult -= .15
 
-        if "Drunk" in c.effects:
+        effects = c.effects
+        if "Drunk" in effects:
             mult -= .15
+        if "Exhausted" in effects:
+            mult -= .05
 
         if mult < .3: # there are 3 levels of submissiveness, we return -1, 0 or 1, it's very simple to use in further calculations
             return 1
