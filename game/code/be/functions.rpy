@@ -64,7 +64,7 @@ init -11 python:
 
         if DEBUG_BE:
             msg = "\n    Custom Logical Combat Scenario ===================================================>>>>"
-            msg += "\n{} VS {}".format(str([c.name for c in off_team.members]), str([c.name for c in def_team.members]))
+            msg += "\n{} VS {}".format(str([f.name for f in off_team]), str([f.name for f in def_team]))
             msg += "\nUsing simple ai: {}.".format(simple_ai)
             be_debug(msg)
 
