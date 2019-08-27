@@ -1,20 +1,15 @@
 init python:
     register_quest("Frog Princess!")
-    if True: #DEBUG_QE:
+    if DEBUG_QE:
         register_event("show_frog", screen=True,
                        locations=["forest_entrance"], trigger_type="auto",
-                       restore_priority=1, priority=300, start_day=1,
-                       jump=True, dice=100, max_runs=20)
+                       restore_priority=1, priority=300,
+                       start_day=1, dice=100, max_runs=20)
     else:
         register_event("show_frog", screen=True,
                        locations=["forest_entrance"], trigger_type="auto",
                        restore_priority=1, priority=300,
-                       start_day=choice([15, 25, 35]), jump=True,
-                       dice=90, max_runs=20)
-
-label show_frog_final:
-    show screen show_frog_final
-    jump forest_entrance
+                       start_day=choice([15, 25, 35]), dice=90, max_runs=20)
 
 screen show_frog:
     zorder 10
@@ -154,7 +149,7 @@ label frog1_event_abby:
         "1000??? I'm not paying!":
             "Being the last ray of hope for a princess turned into a talking frog to regain her humanity, you decided that spending 1000 gold was too much."
             extend "{color=red} Way to go cheapskate!"
-            $ finish_quest("Frog Princess!", "You've rejected the Frog Princess Quest! It's further fate is unknown.")
+            $ finish_quest("Frog Princess!", "You've rejected the Frog Princess Quest! Its further fate is unknown.")
             $ menu_extensions.remove_extension("Abby The Witch Main", "Ask about the Frog")
             $ global_flags.del_flag("frog_spoke_abby")
     $ del w
@@ -205,8 +200,8 @@ label frog_event_arena:
     ax "I sure hope it's not some weird fetish you're into..."
     ax "It can be arranged I suppose, as you may know, dampening field prevents fatal blows in the Arena, often even to Monsters but a proper DeathMatch can be arranged."
     ax "Come back in three days and make certain you are well equipped. You may even consider bringing a couple of friends along with you."
-    ax "A real G-Champ will be bloody hard to kill, and in deathmatch, you'll die as well if your party is wiped out."
-    ax "Also, don't expect him to be along even if you are, people will expect a vicious fight, deathmatches are rare enough, so it's best to make it look good!"
+    ax "A real G-Champ will be bloody hard to kill and in a deathmatch you'll die if your party is wiped out."
+    ax "Also, don't expect him to be alone even if you are. People will expect a vicious fight since deathmatches are rare enough. You better be prepared!"
     $ hero.take_ap(1)
     $ advance_quest("Frog Princess!", "Xeona agreed to set up a match per your request but you've been warned that it is a {color=red}very{/color} dangerous endeavour and it would be a good idea to bring some backup!")
     $ menu_extensions.remove_extension("Xeona Main", "Enquire about an eye of a Goblin Champion!")
@@ -283,10 +278,10 @@ label frog1_event_abby_3:
     hide screen witches_hut_shopping
     with dissolve
 
-    w "I heard you got the base ingredient. "
+    w "I see you got the base ingredient. "
     extend "I heard it was one hell of a fight in the Arena!"
     extend " ... too bad I've missed it."
-    w "Anyway, prepared the potion, so I only need the eye from you (takes the eye)."
+    w "Anyway, I've prepared the potion, so I only need the eye from you (takes the eye)."
     w "And don't worry about the 10000 Gold, I was only joking, most of these ingredients grow right outside my hut..."
     "Three minutes have passed..."
     w "Here is the potion. Now listen. To undo the spell, have the frog to drink the potion and kiss it after it does."
@@ -299,7 +294,7 @@ label frog1_event_abby_3:
     hero.say "Damn, that blasted frog isn't around... Maybe I should come back tomorrow."
     $ menu_extensions.remove_extension("Abby The Witch Main", "Give her the eye")
 
-    $ register_event("show_frog_final", locations=["forest_entrance"], trigger_type="auto", restore_priority=1, priority=300, start_day=day, jump=True, dice=100, max_runs=100)
+    $ register_event("show_frog_final", screen=True, locations=["forest_entrance"], trigger_type="auto", restore_priority=1, priority=300, start_day=day, dice=100, max_runs=100)
     $ global_flags.set_flag("keep_playing_music")
     $ del w
     jump forest_entrance
