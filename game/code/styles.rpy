@@ -715,6 +715,7 @@ init: # Ren'Py Styles (Or replacements):
     style menu_window is default
     style menu_choice is interactions_text:
         clear
+        hover_color "lightsalmon"
 
     style menu_choice_button:
         is button

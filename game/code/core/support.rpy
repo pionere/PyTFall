@@ -455,16 +455,12 @@ init -9 python:
             self[ext].append(matrix)
 
         def remove_extension(self, ext, name):
-            matrix = None
             for m in self[ext]:
                 if m[0] == name:
-                    matrix = m
-                    break
-            else:
-                if DEBUG_LOG:
-                    devlog.warning("Removal of matrix named: {} from Menu Extensions failed!".format(name))
-            if matrix:
-                self[ext].remove(matrix)
+                    self[ext].remove(m)
+                    return
+            if DEBUG_LOG:
+                devlog.warning("Removal of matrix named: '%s' from Menu Extension '%s' failed!" % (name, ext))
 
         def build_choices(self, ext):
             choices = []

@@ -986,19 +986,6 @@ init -10 python:
             cs.scope[self.name] = param
             renpy.restart_interaction()
 
-    # Menu extensions:
-    class MenuExtensionAction(Action):
-        def __init__(self, actions, extra_action=None):
-            if extra_action:
-                if "return" in actions:
-                    actions.remove("return")
-                actions.append(extra_action)
-            self.actions = actions
-        def __call__(self):
-            for callable in self.actions:
-                callable()
-
-
 screen location_actions(actions, char=None, pos=(.98, .98), anchor=(1.0, 1.0), align=None, style="dropdown_gm"):
     python:
         if pytfall.world_actions != actions:
