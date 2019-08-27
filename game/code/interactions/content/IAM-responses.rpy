@@ -813,7 +813,7 @@ init -2 python:
                 elif "Kamidere" in char_traits:
                     lines = ["OK, say ah~n... Yeah right, like I would ever do such a thing.", "Can't you just be quiet and eat? It's improper.", "Don't talk to me when I'm eating."]
                 elif "Bokukko" in char_traits:
-                    lines = ["Hm, which one tastes better... I wonder...", "Nom nom... Mmm, delishus ♪ Back to full health ♪", "Mm, delicious meat. The meatiest of meats. Om nom.", "Let's dig in! Ehehe, egg omelet, egg omelet ♪"]
+                    lines = ["Hm, which one tastes better... I wonder...", "Nom nom... Mmm, delicious ♪ Back to full health ♪", "Mm, delicious meat. The meatiest of meats. Om nom.", "Let's dig in! Ehehe, egg omelet, egg omelet ♪"]
                 elif "Ane" in char_traits:
                     lines = ["This kind of food is good for your health, you know? It'll fill you with lots of energy ♪", "You don't get to be picky. Come, say aaa... ♪", "Now, why don't we have an enjoyable meal?"]
                 elif "Yandere" in char_traits:
@@ -886,6 +886,280 @@ init -2 python:
             else:
                 lines = ("Hey, you got something to cool down? It is kinda hot on the sun.", "Shall we take a break? I want some icecream.", "Aaah, I want an icecream... What about you?")
             iam.say_line(character, lines)
+
+        @staticmethod
+        def accept_invite(character):
+            """
+            Output line when a character accepts the invitation of the hero to have some ice-cream
+            """
+            char_traits = character.traits
+            if "Impersonal" in char_traits:
+                lines = ("Alright. Let's go.", "That is a good idea.", "On my way.")
+            elif "Shy" in char_traits and dice(50):
+                lines = ("Oh, ok... I-I can join you.", "Er, um... Ok, why not?")
+            elif "Tsundere" in char_traits:
+                lines = ("Alright then. If that is what you want.", "Yes, I might join you there.",)
+            elif "Kuudere" in char_traits:
+                lines = ("Well... since you offered... *smiles*", "That's very kind of you. I accept your proposal.", "Oh, that is a pretty good idea. Let's go!")
+            elif "Yandere" in char_traits:
+                lines = ("I can't say no to such a nice offer. <blush>", "I don't mind if you want to. *smiles*")
+            elif "Dandere" in char_traits:
+                lines = ("...Thanks for the invitation.", "Okay... Thanks.")
+            elif "Ane" in char_traits:
+                lines = ("Oh my, of course ♪", "Trying to earn points, huh? <giggle>", "Oh, yes. Gladly. *smiles*")
+            elif "Imouto" in char_traits:
+                lines = ("Oh! Can't wait! <giggles>", "Hehehe, why not? If you really want to.")
+            elif "Kamidere" in char_traits:
+                lines = ("I will accept your proposal; as a first-class lady.", "<Laughs> Ok, if you insist.", "Yes, I'm not going to refuse your proposal.")
+            elif "Bokukko" in char_traits:
+                lines = ("Oh? Alright. Now?", "Yeah, that is fine with me.")
+            else:
+                lines = ("Thanks for the offer! I accept it.", "Yes, I accept it.", "Great! Let's go ♪", "Well, I won't say no to that ♪")
+            iam.say_line(character, lines, "happy")
+
+        @staticmethod
+        def icecream_line(character):
+            """
+            Outputs line when a character is out with the hero to eat an ice-cream
+            """
+            char_traits = character.traits
+            if "Impersonal" in char_traits:
+                lines = ("Delicious. This lucuma is really great.", "That pistachio looks tasty.")
+            elif "Shy" in char_traits and dice(50):
+                lines = ("That looks so good! Ah! That one looks good too... Aww, I can't decide...", "Uhm, which one... which one?... Neapolitan it is...", "Maybe I should try their cookie dough ice cream...")
+            elif "Imouto" in char_traits:
+                lines = ("Ohoh, they have spumoni again! Looks delicious, doesn't it? ♪", "Oh, that spumoni looks yummy... Nom...", "Wha.. I have try that tutti frutti! ♪", "Hehe, what a nice tutti frutti ♪")
+            elif "Dandere" in char_traits:
+                lines = ("Mmm... their maple ice cream is amazing...", "Hehe, this grape ice cream looks really fancy ♪", "*slurp* Strawberry is yummy...")
+            elif "Tsundere" in char_traits:
+                lines = ("Ah, I think I stick to mango today.", "Let's have this durian.", "Mint chocolate is the best composition of all ♪")
+            elif "Kuudere" in char_traits:
+                lines = ("Mmm, vanilla is always a safe bet.", "Their chocolate is really tasty today ♪", "Mmm... You can never go wrong if you choose cherry, hehe.")
+            elif "Kamidere" in char_traits:
+                lines = ("OK, I really have to try this Moon Mist!", "Silence! I want to enjoy the taste of the Blue Moon.", "You do not know what good is if you haven't tried the Blue Moon.")
+            elif "Bokukko" in char_traits:
+                lines = ("Mmm, delicious ♪ Want to try this halva?", "Nom nom... coconut is the best ♪")
+            elif "Ane" in char_traits:
+                lines = ("Mmm... I longed to have this stracciatella for so long! ♪", "Do you want to try this mamey? It is really delicious.", "The green tea flavour works wonders in ice cream as well! ♪")
+            elif "Yandere" in char_traits:
+                lines = ("Mmm... Yes. I knew their teaberry is really fine.", "You should try this teaberry as well!", "Mmm... the lemon ice cream is tasty ♪")
+            else:
+                lines = ("Nom... yammy... Tiger tail is yammy as always ♪", "Mmm... Ah... This grape nut is awesome ♪", "Hehe, vanilla is always pretty good ♪")
+            iam.say_line(character, lines, "happy")
+
+        @staticmethod
+        def cafe_line(character):
+            """
+            Outputs line when a character is out with the hero to drink a cafe
+            """
+            char_traits = character.traits
+            if "Impersonal" in char_traits:
+                lines = ("One Frappuccino please, the usual.", "Can I have an Affogate, please?... Thanks.")
+            elif "Shy" in char_traits and dice(50):
+                lines = ("I... I think I'll just have a Galão.", "Uhm, I would like a Bicerin, please...")
+            elif "Imouto" in char_traits:
+                lines = ("Uhuh, a Mocha. Yummy ♪", "Oh, can I have a bit more chocolate on my Mocha? Thanks ♪", "Hehe, this Eiskaffee is sooo sweet! Yupie ♪")
+            elif "Dandere" in char_traits:
+                lines = ("Uhm... A caffe latte, please...", "I just want a cafe au lait a day and I'm content.", "*slurp* ... Mmm... *slurp*")
+            elif "Tsundere" in char_traits:
+                lines = ("A Cafe Bombon, please! Not stirred!", "Cafè melange please, with just a bit of cream on the top!")
+            elif "Kuudere" in char_traits:
+                lines = ("I would like to have a Cubano, please!", "Sometimes a simple Breve is all you need, right? ♪")
+            elif "Kamidere" in char_traits:
+                lines = ("I always wonder where they get their Kopi Luwak from.", "Nothing is comparable to their Kopi Luwak. Mmm...", "Uhh, too much milk in this Macchiato, but at least its smell is OK *inhales*", "I want a Caffe Macchiato, please!")
+            elif "Bokukko" in char_traits:
+                lines = ("*slurp* Mmm... Nothing beats an Espresso ♪", "The smell of this Turkish Coffee is amazing ♪")
+            elif "Ane" in char_traits:
+                lines = ("*inhales* Mmm... Corretto, my favorite! ♪", "Mmm... I could spend a day next to a Carajillo ♪")
+            elif "Yandere" in char_traits:
+                lines = ("Mmm... This Yuanyang is perfect.", "Their Cortado could use a bit more milk, but it is tasty anyway.")
+            else:
+                lines = ("Mmm.. Perfect. All I wanted is this Americano... ♪", "*slurp* Uh, this Cappuccino is still hot...")
+            iam.say_line(character, lines, "happy")
+
+        @staticmethod
+        def study_line_learn(character):
+            """
+            Outputs line when a character learned something from the hero
+            """
+            char_traits = character.traits
+            if "Impersonal" in char_traits:
+                lines = ("Understood. It all makes sense now.", )
+            elif "Shy" in char_traits:
+                lines = ("Ah...that's...really easy to understand... You're amazing...", )
+            elif "Imouto" in char_traits:
+                lines = ("...Wow, that really helped, it's a lot easier to understand now!", )
+            elif "Dandere" in char_traits:
+                lines = ("I see... Thanks for the explanation.", )
+            elif "Tsundere" in char_traits:
+                lines = ("...It pains me to admit it, but I understand now.", )
+            elif "Kuudere" in char_traits:
+                lines = ("That's much easier to understand. You have my thanks.", )
+            elif "Kamidere" in char_traits:
+                lines = ("...Don't get all full of yourself because you can teach a little.", )
+            elif "Bokukko" in char_traits:
+                lines = ("Whoa! I've got it now! Even I can understand it now!", )
+            elif "Ane" in char_traits:
+                lines = ("Just like I thought, you make it seem so much easier to understand.", )
+            elif "Yandere" in char_traits:
+                lines = ("Oh, I see now... That will be helpful.", )
+            else:
+                lines = ("Ah, I see... I think I kinda get it now ♪", )
+            iam.say_line(character, lines, "happy")
+
+        @staticmethod
+        def study_line_teach(character):
+            """
+            Outputs line when a character taught something to the hero
+            """
+            char_traits = character.traits
+            if "Impersonal" in char_traits:
+                lines = ("Do you see? It makes sense now, right?", "Okay, now you learned something new.")
+            elif "Shy" in char_traits:
+                lines = ("Alright... I-I hope I could help...", "Em... Is it clear now?", "I... don't know how to explain it better, but this is it...")
+            elif "Imouto" in char_traits:
+                lines = ("... Wow, I'm really glad I could teach you something! ♪", "Hehe, I could teach you something as well ♪")
+            elif "Dandere" in char_traits:
+                lines = ("You see? I hope it is clear now.", )
+            elif "Tsundere" in char_traits:
+                lines = ("... Just remember what I told you, and it will be fine.", "It is quite obvious, don't you think?")
+            elif "Kuudere" in char_traits:
+                lines = ("Do you see? It is quite reasonable, if you think about it.", )
+            elif "Kamidere" in char_traits:
+                lines = ("You can always learn from be if you want to.", )
+            elif "Bokukko" in char_traits:
+                lines = ("I hope you get it now, because I do not know how else I could explain it to you.", )
+            elif "Ane" in char_traits:
+                lines = ("Oh, I really hope I could help you out here.", "I'm glad that I could show you something new.")
+            elif "Yandere" in char_traits:
+                lines = ("Got it now? Or should we go through it again?", )
+            else:
+                lines = ("It is nice to share my knowledge with someone.", )
+            iam.say_line(character, lines, "confident")
+
+        @staticmethod
+        def refuse_invite_too_many(character):
+            """
+            Outputs a line when a character refuses the invitation of the hero due to too many attempt
+            """
+            char_traits = character.traits
+            if "Impersonal" in char_traits:
+                lines = ("Nah, not now.", "Maybe later, ok?", "No, that would be too much.")
+            elif "Shy" in char_traits and dice(50):
+                lines = ("Um... I-I think I can do it right now...", "It's... I.. I don't want, sorry...")
+            elif "Tsundere" in char_traits:
+                lines = ("Stop! That's enough!", "What's wrong with you? I can't spend my whole life with you...")
+            elif "Kuudere" in char_traits:
+                lines = ("What do you think you're doing? We went out not long ago.", "Stop it. I have enough for the moment.")
+            elif "Yandere" in char_traits:
+                lines = ("Don't you think that it is enough for the moment?", "Huh? Another invitation?")
+            elif "Dandere" in char_traits:
+                lines = ("Another invitation? Why? ...", "One more invitation? Why?")
+            elif "Ane" in char_traits:
+                lines = ("I appreciate the thought, but that was enough for the moment.", "Oh, but we went out together not long ago!")
+            elif "Imouto" in char_traits:
+                lines = ("Wha? I have enough!", "Ugh. I have more than enough. Boring!")
+            elif "Kamidere" in char_traits:
+                lines = ("I won't stop you if you want to go there, but I have better things to do now.", "Pfft. Another invitation? Isn't it boring?")
+            elif "Bokukko" in char_traits:
+                lines = ("C'mon, really? Can't you come up with a better idea?", "Can't you think of something else?")
+            else:
+                lines = ("Sorry, I don't want to go out now.", "It's enough for the moment, don't you think?")
+            iam.say_line(character, lines)
+
+        @staticmethod
+        def refuse_invite_any(character):
+            """
+            Outputs a line when a character refuses the invitation of the hero without giving a reason
+            """
+            char_traits = character.traits
+            if "Impersonal" in char_traits:
+                lines = ("I can not accept your offer.", "I have to refuse your offer.", "Thanks, but no thanks.")
+            elif "Shy" in char_traits and dice(50):
+                lines = ("Um... I-I think I can not do it right now...", "It's... I.. I don't want, sorry...")
+            elif "Tsundere" in char_traits:
+                lines = ("No, that is not for me!", "I have to refuse that offer.")
+            elif "Kuudere" in char_traits:
+                lines = ("I can't do it.", "No, this is not the right time.")
+            elif "Yandere" in char_traits:
+                lines = ("I have to refuse your offer.", "This offer does not fit for me, so I have to refuse it.", "I have to refuse your invitation.")
+            elif "Dandere" in char_traits:
+                lines = ("Ehrm, I don't want to.", "I-I... Sorry... Not now.")
+            elif "Ane" in char_traits:
+                lines = ("I appreciate the thought, but I can not accept your invitation.", "Oh, but this is not the right time for me.")
+            elif "Imouto" in char_traits:
+                lines = ("Wha? I can't!", "Ugh. I can't do it right now.")
+            elif "Kamidere" in char_traits:
+                lines = ("I can not accept your offer.", "I have to refuse your offer.", "I have to refuse your invitation.")
+            elif "Bokukko" in char_traits:
+                lines = ("No can do, sorry...", "Please, invite someone else. I can't go right now.")
+            else:
+                lines = ("Sorry, bad timing.", "Does not work for me at the moment...")
+            iam.say_line(character, lines)
+
+        @staticmethod
+        def invite_pay(character):
+            """
+            Outputs line when a character pays instead of the hero
+            """
+            char_traits = character.traits
+            if "Impersonal" in char_traits:
+                lines = ("I guess it is me, who has to pay.", "Well, if you can't pay I take it over...")
+            elif "Shy" in char_traits and dice(50):
+                lines = ("Um... I-I think I can help you out to pay...", "It's... I.. I have the money if you don't...")
+            elif "Tsundere" in char_traits:
+                lines = ("Since you obviously can't pay, I take the lead now!", "Next time bring more money, now I have to pay!")
+            elif "Kuudere" in char_traits:
+                lines = ("I guess it is only me who can think in advance. Next time bring money if you invite someone!", "Right. So now I have to pay. You just wanted to be invited, right?")
+            elif "Yandere" in char_traits:
+                lines = ("You can't be serious, inviting someone with an empty wallet!", "It is kinda low to invite someone without having the means to actually pay.", "I'm going to pay since we are already here now, but it is better if it won't happen again.")
+            elif "Dandere" in char_traits:
+                lines = ("Ehrm, I have the necessary money to pay.", "I-I think it is better if I pay now.")
+            elif "Ane" in char_traits:
+                lines = ("Oh, my... Now I have to cover the cost of your invitation.", "Oh, don't worry, I can pay this time.")
+            elif "Imouto" in char_traits:
+                lines = ("Wha? You can't pay? You leecher!", "Ugh. If you can't pay, I guess I have no other choice...")
+            elif "Kamidere" in char_traits:
+                lines = ("Fine! I pay. This time.", "I guess I have no other choice than to pay.")
+            elif "Bokukko" in char_traits:
+                lines = ("That is just great.... Ok-ok, I pay...", "Good job, obviously now I have to pay...")
+            else:
+                lines = ("Just leave it to me. I can pay.", "Don't mind! I can pay this time.")
+            iam.say_line(character, lines)
+
+        @staticmethod
+        def invite_not_pay(character):
+            """
+            Outputs line when a character refuses to pay instead of the hero
+            """
+            char_traits = character.traits
+            mood = "angry"
+            if "Impersonal" in char_traits:
+                lines = ("I'm not going to pay for your bad decisions.", "I hope you do not expect me to pay...")
+            elif "Shy" in char_traits and dice(50):
+                lines = ("Um... I-I think it better to leave now...", "It's... I.. I have to leave now...")
+                mood = "sad"
+            elif "Tsundere" in char_traits:
+                lines = ("Did you expect me to pay? You can forget about that!", "You really wanted me to pay? You are out of your mind!")
+            elif "Kuudere" in char_traits:
+                lines = ("You must be joking. Who is going to pay?", "You think they just give it for free?")
+            elif "Yandere" in char_traits:
+                lines = ("I'm not going to help you out this time!", "This is really stupid! No gold, hah... Let's just leave!")
+            elif "Dandere" in char_traits:
+                lines = ("Ehrm, no money? We need to skip this now...", "It is... time to go, I guess...")
+            elif "Ane" in char_traits:
+                lines = ("My... I can't help you now, so why don't we just leave?", "Oh, I guess without money we have to change our plan.")
+                mood = "indifferent"
+            elif "Imouto" in char_traits:
+                lines = ("Wha? You can't pay? Me neither!", "Ugh. That is it then. Bring more gold next time!")
+            elif "Kamidere" in char_traits:
+                lines = ("Please, don't even try to excuse yourself! Let's just leave and next time bring money if you invite someone.", "You left your wallet at home, right? Ehh...")
+            elif "Bokukko" in char_traits:
+                lines = ("It is kinda stupid to walk in here with an empty wallet.", "I'm not going to pay and you knew it, right?", "That is then! If you can't pay...")
+            else:
+                lines = ("I think we have to go now, since your wallet is empty...", "I guess, it is time to find something less expensive.")
+                mood = "indifferent"
+            iam.say_line(character, lines, mood)
 
         @staticmethod
         def refuse_to_give(character):
@@ -4140,36 +4414,6 @@ init -2 python:
             else:
                 lines = ("It'll be alright. As long as we aren't too loud, no one will find out. Right?", "Well then, let's get right to studying 'this' ♪")
             iam.say_line(character, lines, "suggestive")
-
-        @staticmethod
-        def after_study(character):
-            """
-            Output line after the character and the MC were studying
-            """
-            char_traits = character.traits
-            if "Impersonal" in char_traits:
-                lines = ("Understood. It all makes sense now.", )
-            elif "Shy" in char_traits:
-                lines = ("Ah...that's...really easy to understand... You're amazing...", )
-            elif "Imouto" in char_traits:
-                lines = ("...Wow, that really helped, it's a lot easier to understand now!", )
-            elif "Dandere" in char_traits:
-                lines = ("I see... Thanks for the explanation.", )
-            elif "Tsundere" in char_traits:
-                lines = ("...It pains me to admit it, but I understand now.", )
-            elif "Kuudere" in char_traits:
-                lines = ("That's much easier to understand. You have my thanks.", )
-            elif "Kamidere" in char_traits:
-                lines = ("...Don't get all full of yourself because you can teach a little.", )
-            elif "Bokukko" in char_traits:
-                lines = ("Whoa! I've got it now! Even I can understand it now!", )
-            elif "Ane" in char_traits:
-                lines = ("Just like I thought, you make it seem so much easier to understand.", )
-            elif "Yandere" in char_traits:
-                lines = ("Oh, I see now... That will be helpful.", )
-            else:
-                lines = ("Ah, I see... I think I kinda get it now ♪", )
-            iam.say_line(character, lines)
 
         @staticmethod
         def offer_visit(character):

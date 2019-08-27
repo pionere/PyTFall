@@ -2,10 +2,10 @@ init -2 python:
     # Interactions (Girlsmeets decisions):
     class InteractionsDecisions(_object):
         @staticmethod
-        def become_lovers(character):
-            l_ch = 600 - check_submissivity(character) * 50
+        def become_lovers(char):
+            l_ch = 600 - check_submissivity(char) * 50
 
-            char_traits = character.traits
+            char_traits = char.traits
             if "Shy" in char_traits:
                 l_ch += 20
             if "Virgin" in char_traits:
@@ -17,7 +17,7 @@ init -2 python:
             if "Frigid" in char_traits:
                 l_ch += 50
 
-            return character.get_stat("affection") > l_ch
+            return l_ch < char.get_stat("affection") 
 
         @staticmethod
         def would_invite(expense):
@@ -50,7 +50,56 @@ init -2 python:
                             members.append(member)
             if members:
                 return random.choice(members)
-            return hero
+            return None
+
+        @staticmethod
+        def want_ice(char):
+            if "Down with Cold" in char.effects:
+                return False
+            if char.status != "free":
+                return True
+            l_ch = 50 - check_submissivity(char) * 50
+
+            return l_ch < char.get_stat("disposition")
+
+        @staticmethod
+        def want_cafe(char):
+            if char.status != "free":
+                return True
+            l_ch = 50 - check_submissivity(char) * 50
+
+            return l_ch < char.get_stat("disposition")
+
+        @staticmethod
+        def want_eat(char):
+            if char.status != "free":
+                return True
+            l_ch = 150 - check_submissivity(char) * 50
+
+            return l_ch < char.get_stat("disposition")
+
+        @staticmethod
+        def want_study(char, topic):
+            if char.status != "free":
+                return True
+            if "Adventurous" in char.traits or "Aggressive" in char.traits:
+                return False
+            if not char.has_ap():
+                return False
+
+            sub = check_submissivity(char)
+            if topic == "sex":
+                l_ch = 50 - sub * 50
+                if "SIW" not in char.gen_occs:
+                    l_ch += 100
+
+                if l_ch >= char.get_stat("affection"):
+                    return False
+
+            l_ch = 50 - sub * 25
+            l_ch += 250 * (char.tier - hero.tier)
+
+            return l_ch < char.get_stat("disposition")
 
         @staticmethod
         def want_gift(character, n):

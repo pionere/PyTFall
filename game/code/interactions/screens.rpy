@@ -119,8 +119,16 @@ label girl_interactions_after_greetings: # when character wants to say something
             m = 6
             pwa.add(m, "Give Gift", Return(["gift", True]))
 
-            # PROPOSITION
+            # INVITE
             m = 7
+            pwa.menu(m, "Invite", condition="iam.label_cache in ('main_street', 'city_beach_cafe_main', 'academy_town', 'char_profile')")
+            pwa.gm_choice("Ice Cream", condition="iam.label_cache in ('city_beach_cafe_main', 'char_profile')", label="invite_ice", index=(m, 0))
+            pwa.gm_choice("Cafe", condition="iam.label_cache in ('main_street', 'char_profile')", label="invite_cafe", index=(m, 1))
+            pwa.gm_choice("Eat out", condition="iam.label_cache in ('main_street', 'char_profile')", label="invite_eat", index=(m, 2))
+            pwa.gm_choice("Study", condition="iam.label_cache in ('academy_town', 'char_profile')", label="invite_study", index=(m, 3))
+
+            # PROPOSITION
+            m = 8
             pwa.menu(m, "Propose")
             pwa.gm_choice("Girlfriend", condition="char.gender == 'female' and not check_lovers(char)", label="befriend", index=(m, 0))
             pwa.gm_choice("Boyfriend", condition="char.gender != 'female' and not check_lovers(char)", label="befriend", index=(m, 1))
@@ -131,13 +139,13 @@ label girl_interactions_after_greetings: # when character wants to say something
             pwa.gm_choice("Sparring", condition="char.employer != hero", index=(m, 6))
 
             # PLAY A GAME
-            m = 8
+            m = 9
             pwa.menu(m, "Play")
             pwa.gm_choice("Archery", label="play_bow", index=(m, 0))
             pwa.gm_choice("PowerBalls", label="play_power", index=(m, 1))
 
             # INTIMACY
-            m = 9
+            m = 10
             pwa.menu(m, "Intimacy")
             pwa.gm_choice("Hug", index=(m, 0))
             pwa.gm_choice("Touch Cheek", index=(m, 1))
@@ -155,7 +163,7 @@ label girl_interactions_after_greetings: # when character wants to say something
             Expects a dictionary with the following k/v pairs to be set as a flag that starts with :
             event_to_interactions_  as a flag and {"label": "some_label", "button_name='Some Name'", "condition": "True"}
             """
-            m = 10
+            m = 11
             n = 0
             for k, v in char.flags.items():
                 if k.startswith("event_to_interactions_"):
@@ -197,15 +205,10 @@ label interactions_control:
                 python hide:
                     item = result[1]
                     # Prevent repetition of this action (any gift, we do this on per gift basis already):
-                    n = 1
-                    if char.has_flag("cnd_interactions_gifts"):
-                        n += 1 + char.flag('cnd_interactions_gifts')-day
-                        if not iam.want_gift(char, n):
-                            iam.refuse_gift_too_many(char)
-                            jump("interactions_control")
-                        char.up_counter("cnd_interactions_gifts")
-                    else:
-                        char.set_flag("cnd_interactions_gifts", day)
+                    n = 1 + iam.flag_days_checker(char, "interactions_gifts")
+                    if not iam.want_gift(char, n):
+                        iam.refuse_gift_too_many(char)
+                        jump("interactions_control")
 
                     item.hidden = False # We'll use existing hidden flag to hide items effectiveness.
                     dismod = getattr(item, "dismod", 0)

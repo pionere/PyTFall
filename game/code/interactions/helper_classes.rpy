@@ -345,12 +345,32 @@ init -2 python:
                 char.take_ap(1)
 
         @staticmethod
-        def flag_count_checker(char, char_flag):
-            # this function is used to check how many times a certain interaction was used during the current turn;
-            #  every interaction should have a unique flag name and call this function after every use
-            char_flag = "dnd_" + char_flag
-            result = char.get_flag(char_flag, 0)
-            char.set_flag(char_flag, result+1)
+        def flag_count_checker(char, flag):
+            """
+            Return how many times a certain interaction was used during the current turn.
+            :param flag: the unique flag name of the interaction
+            """
+            flag = "dnd_" + flag
+            result = char.get_flag(flag, 0)
+            char.set_flag(flag, result+1)
+            return result
+
+        @staticmethod
+        def flag_days_checker(char, flag, mod=1):
+            """
+            Returns an indicator of how many times a certain interaction was used recently.
+            The indicator value is decreased every day by 1.
+            :param flag: the unique flag name of the interaction
+            :param mod: the value by how much the indicator is increased per interaction
+            """
+            flag = "cnd_" + flag
+            result = char.get_flag(flag, None)
+            if result is None:
+                char.set_flag(flag, day+mod)
+                result = 0
+            else:
+                char.set_flag(flag, result+mod)
+                result -= day
             return result
 
         @staticmethod
@@ -494,6 +514,92 @@ init -2 python:
                     willing_partners.append(i)
 
             return willing_partners
+
+        @staticmethod
+        def ice_reward(chars, dispo):
+            for member in chars:
+                if member != hero:
+                    iam.dispo_reward(member, randint(dispo, dispo+2))
+                    member.gfx_mod_stat("affection", affection_reward(member))
+
+                stat = 4 if "Fast Metabolism" in member.effects else 2
+                member.gfx_mod_stat("joy", randint(stat, stat*2)) # randint(2,4)
+
+                if dice(20):
+                    member.disable_effect("Depression")
+                if dice(5):
+                    member.enable_effect("Down with Cold", duration=randint(1, 2))
+
+        @staticmethod
+        def cafe_reward(chars, dispo):
+            for member in chars:
+                if member != hero:
+                    iam.dispo_reward(member, randint(dispo, dispo+2))
+                    member.gfx_mod_stat("affection", affection_reward(member))
+
+                mod = 2 if "Fast Metabolism" in member.effects else 1
+                member.gfx_mod_stat("joy", randint(mod, mod*2)) # randint(1,2)
+
+                if "Effective Metabolism" in member.traits:
+                    mod *= 2
+                member.gfx_mod_stat("vitality", randint(mod*3, mod*6)) # randint(3,6)
+
+                if dice(20):
+                    member.disable_effect("Exhausted")
+
+        @staticmethod
+        def eat_reward(chars, dispo):
+            for member in chars:
+                d = 1
+
+                if member != hero:
+                    if member.get_stat("disposition") < -50:
+                        d *= .5
+
+                    stat = randint(int(d*dispo), int(d*(dispo+5)))
+                    iam.dispo_reward(member, stat)
+                    member.gfx_mod_stat("affection", affection_reward(member))
+
+                if "Fast Metabolism" in member.effects:
+                    d *= 2
+
+                stat = randint(int(d*5), int(d*10)) # randint(5,10)*mod
+                member.gfx_mod_stat("health", stat)
+                stat = randint(int(d*5), int(d*10)) # randint(5,10)*mod
+                member.gfx_mod_stat("mp", stat)
+                stat = randint(int(d*4), int(d*8)) # randint(4,8)*mod
+                member.gfx_mod_stat("joy", stat)
+
+                if "Effective Metabolism" in member.traits:
+                    d *= 2
+
+                stat = randint(int(d*5), int(d*10)) # randint(5,10)*mod
+                member.gfx_mod_stat("vitality", stat)
+
+        @staticmethod
+        def study_reward(chars, stat_skill, mod, dispo):
+            misfits = [m for m in chars if "Adventurous" in m.traits or "Aggressive" in m.traits]
+            misfit = None
+            if misfits and dice(len(misfits)*30):
+                misfit = choice(misfits)
+                narrator("%s could not concentrate and kept disturbing the others." % misfit.name)
+                mod /= 2
+            stat_mod = mod * len(chars)
+            for member in chars:
+                if member in misfits:
+                    member.gfx_mod_stat("joy", -randint(2, 4))
+                    if member == misfit:
+                        continue
+                member.gfx_mod_exp(exp_reward(member, chars, exp_mod=.5*stat_mod))
+                if is_stat(stat_skill):
+                    member.gfx_mod_stat(stat_skill, randint(0, stat_mod))
+                else:
+                    member.gfx_mod_skill(stat_skill, 1, randint(0, stat_mod))
+                if member != hero:
+                    value = dispo * mod
+                    member.gfx_mod_stat("disposition", randint(value, value+2*mod))
+                    stat = stat_skill if stat_skill in STATIC_CHAR.PREFS else None
+                    member.gfx_mod_stat("affection", affection_reward(member, value=.5*value, stat=stat))
 
         @staticmethod
         def dispo_reward(char, mod):

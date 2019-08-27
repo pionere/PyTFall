@@ -30,19 +30,17 @@ label cafe:
         waitress.say "Welcome to the Cafe!"
         "Here you can find delicious food and tasty beverages!"
 
-    $ inviting_character = hero
     if not hero.has_flag("dnd_ate_in_cafe"):
         $ inviting_character = iam.would_invite(locked_random("randint", 500, 1000))
-
-    if inviting_character != hero:
-        $ iam.eating_propose(inviting_character)
-        menu:
-            "Do you want to accept [inviting_character.pd] invitation (free of charge)?"
+        if inviting_character:
+            $ iam.eating_propose(inviting_character)
+            menu:
+                "Do you want to accept [inviting_character.pd] invitation (free of charge)?"
             "Yes":
                 jump mc_action_cafe_invitation
             "No":
                 $ pass
-    $ del inviting_character
+        $ del inviting_character
 
 label cafe_menu: # after she said her lines but before we show menu controls, to return here when needed
     scene bg cafe
@@ -206,36 +204,7 @@ label mc_action_cafe_invitation: # we jump here when the group was invited by on
         $ iam.eating_line(hero.team)
         "You enjoy your meals together. Overall health and mood were improved."
         $ hero.set_flag("dnd_ate_in_cafe")
-        python hide:
-            for member in hero.team:
-                d = 1
-
-                if member != hero:
-                    if member.get_stat("disposition") < -50:
-                        d *= .5
-
-                    if len(hero.team) == 2: # when there is only one char, disposition bonus is higher
-                        stat = randint(int(d*20), int(d*25)) # randint(20,25)*mod
-                    else:
-                        stat = randint(int(d*13), int(d*17)) # randint(13,17)*mod
-                    iam.dispo_reward(member, stat)
-                    member.gfx_mod_stat("affection", affection_reward(member))
-
-                if "Fast Metabolism" in member.effects:
-                    d *= 2
-
-                stat = randint(int(d*5), int(d*10)) # randint(5,10)*mod
-                member.gfx_mod_stat("health", stat)
-                stat = randint(int(d*5), int(d*10)) # randint(5,10)*mod
-                member.gfx_mod_stat("mp", stat)
-                stat = randint(int(d*4), int(d*8)) # randint(4,8)*mod
-                member.gfx_mod_stat("joy", stat)
-
-                if "Effective Metabolism" in member.traits:
-                    d *= 2
-
-                stat = randint(int(d*5), int(d*10)) # randint(5,10)*mod
-                member.gfx_mod_stat("vitality", stat)
+        $ iam.eat_reward(hero.team, 20 if len(hero.team) == 2 else 13)
 
         hide expression img with dissolve
         $ del img

@@ -20,9 +20,10 @@ label city_beach_cafe_main:
     $ pytfall.world_quests.run_quests("auto")
     $ pytfall.world_events.run_events("auto")
 
-    if not hero.has_flag("dnd_ice_in_cafe"):
+    if not hero.has_flag("dnd_ice_in_cafe_inv"):
+        $ hero.set_flag("dnd_ice_in_cafe_inv")
         $ inviting_character = iam.would_invite(locked_random("randint", 100, 200))
-        if inviting_character != hero:
+        if inviting_character:
             $ iam.icecream_propose(inviting_character)
             menu:
                 "Do you want to accept [inviting_character.pd] invitation (free of charge)?"
@@ -148,38 +149,17 @@ label mc_action_ice_invitation:
         # icecream for the team by the inviting_character
         if inviting_character.take_money(randint(10, 25), reason="Icecream"):
             $ hero.set_flag("dnd_ice_in_cafe")
-            $ members = list(member for member in hero.team if (member != hero))
-            if len(members) == 1:
-                show expression members[0].get_vnsprite() at center as temp1
+            $ members = hero.team
+            if len(members) == 2:
+                show expression members[1].get_vnsprite() at center as temp1
                 with dissolve
             else:
-                show expression members[0].get_vnsprite() at left as temp1
-                show expression members[1].get_vnsprite() at right as temp2
+                show expression members[1].get_vnsprite() at left as temp1
+                show expression members[2].get_vnsprite() at right as temp2
                 with dissolve
             "You ordered the icecreams and spent some time together."
-            python:
-                for member in hero.team:
-                    d = 1
-                    if member != hero:
-                        if member.get_stat("disposition") < -50:
-                            d *= .5
-                        if len(hero.team) == 2: # when there is only one char, disposition bonus is higher
-                            stat = randint(int(d*4), int(d*8)) # randint(4,8)*mod
-                        else:
-                            stat = randint(int(d*3), int(d*6)) # randint(3,6)*mod
-                        iam.dispo_reward(member, stat)
-                        member.gfx_mod_stat("affection", affection_reward(member))
-
-                    if "Fast Metabolism" in member.effects:
-                        d *= 2
-                    stat = randint(d*2, d*4) # randint(2,4)*mod
-                    member.gfx_mod_stat("joy", stat)
-
-                    if dice(20):
-                        member.disable_effect("Depression")
-                    if dice(5):
-                        member.enable_effect("Down with Cold", duration=randint(1, 2))
-                del member, members, inviting_character, d, stat
+            $ iam.ice_reward(members, 4 if len(members) == 2 else 3)
+            $ del members, inviting_character
 
             hide temp1
             hide temp2

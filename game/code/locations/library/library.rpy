@@ -228,18 +228,13 @@ label mc_action_library_study:
         "Be aware that certain personalities do not fit here and might disrupt the group."
 
         menu:
-            "Do you want to leave?"
+            "Do you want to study now?"
 
             "Yes":
+                $ pass
+            "No":
                 $ global_flags.set_flag("keep_playing_music")
                 jump academy_town
-            "No":
-                $ pass
-
-    if hero.has_flag("dnd_study_at_library"):
-        "You already studied at the library today."
-        $ global_flags.set_flag("keep_playing_music")
-        jump academy_town
 
     if hero.gold < len(hero.team) * 250:
         if len(hero.team) > 1:
@@ -251,67 +246,62 @@ label mc_action_library_study:
         $ global_flags.set_flag("keep_playing_music")
         jump academy_town
 
-    if not hero.team.take_ap(1):
-        if len(hero.team) > 1:
+    $ members = hero.team
+    if len(members) == 1:
+        $ team_pp = hero.PP
+        $ team_ap = "You have %d AP."
+    else:
+        $ team_pp = min(char.PP for char in members)
+        $ team_ap = "Your team has %d AP."
+    $ team_pp = int(team_pp / 100) # PP_PER_AP 
+    if not team_pp:
+        if len(members) > 1:
             "Unfortunately, your team is too tired at the moment. Maybe another time."
         else:
             "You don't have Action Points left. Try again tomorrow."
 
         "Each member of your party must have 1 AP."
         $ global_flags.set_flag("keep_playing_music")
+        $ del members, team_ap, team_pp
         jump academy_town
 
-    $ hero.take_money(len(hero.team)*250, "Library Fee")
-    $ hero.set_flag("dnd_study_at_library")
+    $ hero.take_money(len(members)*250, "Library Fee")
 
     call screen library_study
     $ result = _return
     if result:
+        $ team_ap = (team_ap % team_pp) + " How much time do you want to spend studying?"
+        $ team_ap = renpy.call_screen("digital_keyboard", line=team_ap)
+        if not team_ap:
+            "You wanted to leave, but since you already paid for the entry you decided to stay for a bit."
+            $ team_ap = 1
+        elif team_ap > team_pp:
+            $ team_ap = team_pp
+
         $ temp = result[1]
-        if len(hero.team) > 1:
-            $ members = list(member for member in hero.team if (member != hero))
-            if len(members) == 1:
-                show expression members[0].get_vnsprite() at center as temp1
+        if len(members) > 1:
+            if len(members) == 2:
+                show expression members[1].get_vnsprite() at center as temp1
                 with dissolve
             else:
-                show expression members[0].get_vnsprite() at left as temp1
-                show expression members[1].get_vnsprite() at right as temp2
+                show expression members[1].get_vnsprite() at left as temp1
+                show expression members[2].get_vnsprite() at right as temp2
                 with dissolve
-            $ del members
             "You're studying [temp] with your team."
         else:
             "You're studying [temp]."
+        $ temp = min(char.tier for char in members if char != hero)
+        $ temp = 7 - 2 * len(members) + min(hero.tier - temp, 2) 
+        $ iam.study_reward(members, result[2], team_ap, temp)
         $ del temp
-
-        python hide:
-            stat_skill = result[2]
-            group = hero.team
-            mod = len(group)
-            misfits = [m for m in group if "Adventurous" in m.traits or "Aggressive" in m.traits]
-            misfit = None
-            if misfits and dice(len(misfits)*30):
-                misfit = choice(misfits)
-                narrator("%s could not concentrate and kept disturbing the others." % misfit.name)
-                mod /= 2
-            for member in group:
-                if member in misfits:
-                    member.gfx_mod_stat("joy", -randint(2, 4))
-                    if member == misfit:
-                        continue
-                member.gfx_mod_exp(exp_reward(member, group, exp_mod=.5*mod))
-                if is_skill(stat_skill):
-                    member.gfx_mod_skill(stat_skill, 1, randint(0, mod))
-                else:
-                    member.gfx_mod_stat(stat_skill, randint(0, mod))
-                if member != hero:
-                    member.gfx_mod_stat("disposition", randint(1, 2))
-                    member.gfx_mod_stat("affection", affection_reward(member, .1))
     else:
-        if len(hero.team) > 1:
+        $ team_ap = 1
+        if len(members) > 1:
             "You could not agree on what to study. What a waste of time (and gold)."
         else:
             "You cound not find anything interesting..."
-    $ del result
+    $ members.take_ap(team_ap)
+    $ del result, members, team_ap, team_pp
     $ global_flags.set_flag("keep_playing_music")
     jump academy_town
 
