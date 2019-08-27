@@ -557,7 +557,7 @@ init -9 python:
             label = The label to use instead of the act.
             null_condition = The condition to use to disable the action.
             index = The index to use. Defaults to act.
-            kwargs = Other variables to pass to the GMJump instance.
+            kwargs = Other variables to pass to iam.jump(...)
             """
             # Get the label
             if label is None:
@@ -583,7 +583,7 @@ init -9 python:
                 else:
                     condition = (mode, condition)
 
-            self.add(index, WorldAction(act, GMJump(label, **kwargs),
+            self.add(index, WorldAction(act, Function(iam.jump, label, **kwargs),
                      condition=condition, null_button=act, null_condition=null_condition,
                      keysym=keysym))
 

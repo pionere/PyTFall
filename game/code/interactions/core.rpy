@@ -104,6 +104,7 @@ init -1 python:
 
         # List of modes to use the girl_interactions label with.
         IMG_SIZE = (600, 515) # Img size we automatically use for girlsmeets.
+        PP_COST = 25 # the cost of an interaction
         def __init__(self, data):
             """
             Creates a new GirlsMeets.
@@ -225,17 +226,19 @@ init -1 python:
                 else:
                     # Notify and stop:
                     gui_debug("Unable to find GM label %s." % label)
-                    return
+                    return [False]
 
             # If the action costs AP:
             if not free:
                 # If we have no more points
-                if hero.PP < 25:
-                    return PyTGFX.message("You don't have time (Action Points) for that!")
-                if not self.char.take_pp(25):
-                    return PyTGFX.message("%s doesn't have time (Action Points) for that!" % self.char.pC)
+                if hero.PP < self.PP_COST:
+                    PyTGFX.message("You don't have time (Action Point) for that!")
+                    return [False]
+                if not self.char.take_pp(self.PP_COST):
+                    PyTGFX.message("%s doesn't have time (Action Point) for that!" % self.char.pC)
+                    return [False]
 
-                hero.take_pp(25)
+                hero.take_pp(self.PP_COST)
 
             # Notify and jump
             self.show_menu = False
@@ -359,24 +362,4 @@ init -1 python:
                 renpy.jump(self.label_cache)
 
     class GMJump(Action):
-        """
-        Class to handle the jump logic for GM as an action.
-        """
-        def __init__(self, label, free=False, allow_unique=True, **kwargs):
-            """
-            Creates a new GMJump.
-            label = The label to jump to.
-            free = Whether the interaction is free.
-            allow_unique = Whether to allow girl-specific labels.
-            kwargs = Holder of the "allow_mode" arguments.
-            """
-            self.label = label
-            self.free = free
-            self.allow_unique = allow_unique
-            self.kwargs = kwargs
-
-        def __call__(self):
-            """
-            Functions the jump.
-            """
-            iam.jump(self.label, free=self.free, allow_unique=self.allow_unique, **self.kwargs)
+        pass # FIXME obsolete
