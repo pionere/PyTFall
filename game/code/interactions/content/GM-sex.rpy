@@ -27,7 +27,7 @@ label interactions_hireforsex: # we go to this label from GM menu hire for sex.
             jump girl_interactions
         if iam.check_for_minor_bad_stuff(char):
             jump girl_interactions
-    $ m = iam.flag_count_checker(char, "flag_interactions_hireforsex")
+    $ m = 1 + iam.flag_count_checker(char, "flag_interactions_hireforsex")
     if "Nymphomaniac" in char.traits: # how many times one can hire the character per day
         $ n = 4
     elif "Frigid" in char.traits:
@@ -105,7 +105,7 @@ label interactions_sex: # we go to this label from GM menu propose sex
         jump girl_interactions_end
     if iam.check_for_minor_bad_stuff(char):
         jump girl_interactions
-    $ m = iam.flag_count_checker(char, "flag_interactions_sex")
+    $ m = 1 + iam.flag_count_checker(char, "flag_interactions_sex")
     $ n = randint(2,3)
     if "Nymphomaniac" in char.traits:
         $ n += 2

@@ -7,12 +7,9 @@ label interactions_play_bow:
     if iam.check_for_bad_stuff(char):
         jump girl_interactions_end
 
-    $ m = iam.flag_count_checker(char, "flag_interactions_archery")
-    if m > 1:
-        $ del m
+    if iam.flag_count_checker(char, "flag_interactions_archery") != 0:
         $ iam.refuse_because_tired(char)
         jump girl_interactions
-    $ del m
 
     $ iam.archery_start(char)
 
@@ -680,12 +677,9 @@ label interactions_play_power:
     if iam.check_for_bad_stuff(char):
         jump girl_interactions_end
 
-    $ m = iam.flag_count_checker(char, "flag_interactions_power_balls")
-    if m > 1:
-        $ del m
+    if iam.flag_count_checker(char, "flag_interactions_power_balls") != 0:
         $ iam.refuse_because_tired(char)
         jump girl_interactions
-    $ del m
 
     $ iam.archery_start(char)
 

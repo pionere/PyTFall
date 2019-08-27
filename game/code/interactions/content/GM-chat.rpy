@@ -77,14 +77,11 @@ label interactions_smalltalk:
 label girl_interactions_aboutjob: # TO DO: here would help additional logic based on actual recent jobs events
     if iam.check_for_bad_stuff(char):
         jump girl_interactions_end
-    $ m = iam.flag_count_checker(char, "flag_interactions_aboutjob")
-    if m >= 1:
-        $ del m
+    if iam.flag_count_checker(char, "flag_interactions_aboutjob") != 0:
         $ iam.refuse_too_many(char)
         $ char.gfx_mod_stat("disposition", -randint(4,6))
         $ char.gfx_mod_stat("affection", -randint(1,2))
         jump girl_interactions
-    $ del m
 
     if char.flag("daysemployed") < 5:
         # Less than 10 days in service:
@@ -122,14 +119,12 @@ label girl_interactions_aboutjob: # TO DO: here would help additional logic base
 
 # ask how she feels
 label interactions_how_feels:
-    $ m = iam.flag_count_checker(char, "flag_interactions_how_feels")
-    if m >= 5: # we don't have to limit it because of bonuses (there are none), but because of the common sense
-        $ del m
+    if iam.flag_count_checker(char, "flag_interactions_how_feels") != 0:
         $ iam.refuse_too_many(char)
         $ char.gfx_mod_stat("disposition", -randint(4,6))
         $ char.gfx_mod_stat("affection", -randint(1,2))
         jump girl_interactions
-    $ del m
+
     if "Food Poisoning" in char.effects: # at least no penalty to disposition, unlike other cases with food poisoning
         $ iam.say_line(char, ("I ate something wrong. Ow-ow-ow...", "Ouh. I think I need to use bathroom again..."), "sad")
         jump girl_interactions_end
@@ -464,14 +459,11 @@ label interactions_about_char:
 label interactions_aboutoccupation:
     if iam.check_for_bad_stuff(char):
         jump girl_interactions_end
-    $ m = iam.flag_count_checker(char, "flag_interactions_aboutoccupation")
-    if m > 5:
-        $ del m
+    if iam.flag_count_checker(char, "flag_interactions_aboutoccupation") > 1:
         $ iam.refuse_too_many(char)
         $ char.gfx_mod_stat("disposition", -5)
         $ char.gfx_mod_stat("affection", -1)
         jump girl_interactions
-    $ del m
 
     if char.get_stat("disposition") <= -250 and char.status == "free":
         $ char.gfx_mod_stat("disposition", -5)

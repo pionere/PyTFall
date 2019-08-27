@@ -11,12 +11,9 @@ label interactions_sparring: # sparring with MC, for Combatant occupations only
         "Unfortunately, you are not in shape for sparring."
         jump girl_interactions
 
-    $ m = iam.flag_count_checker(char, "flag_interactions_sparring")
-    if m > 1:
-        $ del m
+    if iam.flag_count_checker(char, "flag_interactions_sparring") != 0:
         $ iam.refuse_because_tired(char)
         jump girl_interactions
-    $ del m
 
     $ iam.sparring_start(char)
     hide screen girl_interactions
@@ -63,9 +60,7 @@ label interactions_befriend:
     if check_lovers(char): # you never know
         "But you already are!"
         jump girl_interactions
-    $ m = iam.flag_count_checker(char, "flag_interactions_befriend")
-    if m > 1:
-        $ del m
+    if iam.flag_count_checker(char, "flag_interactions_befriend") != 0:
         $ iam.refuse_too_many(char)
         $ iam.dispo_reward(char, -randint(3, 5))
         $ char.gfx_mod_stat("affection", -randint(8, 12))
@@ -74,7 +69,7 @@ label interactions_befriend:
         if hero.get_stat("joy") > 60:
             $ hero.gfx_mod_stat("joy", -randint(1, 2))
         jump girl_interactions
-    $ del m
+
     if iam.gender_mismatch(char, just_sex=False):
         $ iam.refuse_because_of_gender(char)
         jump girl_interactions
