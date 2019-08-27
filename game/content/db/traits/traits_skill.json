@@ -188,7 +188,7 @@
     "id": "Heavy Drinker",
     "desc": "Really can hold liquor.",
     "effects": ["Drinker"],
-    "mod_stats": {"character": [1, 4], "upkeep": [10, 1]},
+    "mod_stats": {"character": [1, 4], "upkeep": [10, 0]},
     "mod_skills": {"refinement": [0, 0, 0.05], "security": [0, 0, -0.05]},
     "character_trait": true,
     "client": true
@@ -199,7 +199,7 @@
     "effects": ["Fast Metabolism"],
     "max": {"constitution": 10},
     "mod_skills": {"refinement": [0, 0, -0.05]},
-    "mod_stats": {"constitution": [1, 2], "upkeep": [10, 1]},
+    "mod_stats": {"constitution": [1, 2], "upkeep": [10, 0]},
     "character_trait": true,
     "client": true
     },

@@ -589,16 +589,7 @@ init -10 python:
 
             mod_stats = trait.mod_stats
             if mod_stats:
-                temp = mod_stats.get("upkeep", None)
-                if temp is not None:
-                    char.upkeep += temp[0]
-                temp = mod_stats.get("disposition", None)
-                if temp is not None:
-                    stats._mod_base_stat("disposition", temp[0])
-                temp = mod_stats.get("affection", None)
-                if temp is not None:
-                    stats._mod_base_stat("affection", temp[0])
-                stats.apply_trait_statsmod(mod_stats, 0, char.level, truetrait)
+                stats.apply_trait_statsmod(mod_stats, 0, char.level, True, truetrait)
 
             # Adding resisting elements and attacks:
             for i in trait.resist:
@@ -669,16 +660,7 @@ init -10 python:
 
             mod_stats = trait.mod_stats
             if mod_stats:
-                temp = mod_stats.get("upkeep", None)
-                if temp is not None:
-                    char.upkeep -= temp[0]
-                temp = mod_stats.get("disposition", None)
-                if temp is not None:
-                    stats._mod_base_stat("disposition", -temp[0])
-                temp = mod_stats.get("affection", None)
-                if temp is not None:
-                    stats._mod_base_stat("affection", -temp[0])
-                stats.apply_trait_statsmod(mod_stats, char.level, 0, truetrait)
+                stats.apply_trait_statsmod(mod_stats, char.level, 0, False, truetrait)
 
             # Remove resisting elements and attacks:
             for i in trait.resist:
@@ -1116,38 +1098,50 @@ init -10 python:
             for trait in traits:
                 mod_stats = trait.mod_stats
                 if mod_stats:
-                    self.apply_trait_statsmod(mod_stats, curr_lvl, new_lvl, trait in traits.normal)
+                    self.apply_trait_statsmod(mod_stats, curr_lvl, new_lvl, None, trait in traits.normal)
                 # TODO mod_skills?
 
             restore_battle_stats(char)
 
             self.instance.update_tier_info()
 
-        def apply_trait_statsmod(self, mod_stats, from_lvl, to_lvl, truetrait):
-            """Applies "stats_mod" field on characters.
-               A mod_stats entry is a pair of integers (x, y), which means the character
+        def apply_trait_statsmod(self, mod_stats, from_lvl, to_lvl, new_trait, truetrait):
+            """
+            Apply "stats_mod" field on characters.
+
+            :param mod_stats: a pair of integers (x, y), which means the character
                gains x points every y level.
+            :param from_lvl: the level of the character before the change
+            :param to_lvl: the level of the character after the change
+            :param new_trait: whether the change is caused by a new/obsolete trait or due to standard leveling (None)
+            :param truetrait: if the trait is a real trait, or just one applied by an item
             """
             delta_lvl = to_lvl - from_lvl
-            temp = ["disposition", "affection", "upkeep"]
             for key, value in mod_stats.iteritems():
-                if key in temp:
-                    continue
                 mod = value[1]
-                delta = delta_lvl / mod
-                rem = delta_lvl % mod
-                if rem != 0:
-                    rem = (to_lvl / mod) - ((to_lvl - rem) / mod)
-                    if rem > 0:
-                        delta += 1
-                    elif rem < 0:
-                        delta -= 1
-                if delta != 0:
-                    delta *= value[0]
-                    if truetrait:
-                        self._mod_base_stat(key, delta)
-                    else:
-                        self.imod[key] += delta # STAT_IMOD
+                if mod == 0:
+                    if new_trait is None:
+                        continue
+                    delta = 1 if new_trait is True else -1 
+                else:
+                    delta = delta_lvl / mod
+                    rem = delta_lvl % mod
+                    if rem != 0:
+                        rem = (to_lvl / mod) - ((to_lvl - rem) / mod)
+                        if rem > 0:
+                            delta += 1
+                        elif rem < 0:
+                            delta -= 1
+                    if delta == 0:
+                        continue
+                mod = delta * value[0]
+
+                if key == "upkeep":
+                    self.instance.upkeep += mod
+                elif truetrait is True:
+                    self._mod_base_stat(key, mod)
+                else:
+                    self.imod[key] += mod # STAT_IMOD
 
         def apply_item_effects(self, item, direction, true_add):
             char = self.instance
