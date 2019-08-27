@@ -97,6 +97,10 @@ label interactions_hireforsex: # we go to this label from GM menu hire for sex.
     jump girl_interactions
 
 label interactions_sex: # we go to this label from GM menu propose sex
+    if hero.PP < 100 - iam.PP_COST: # PP_PER_AP
+        $ hero.PP += iam.PP_COST
+        $ PyTGFX.message("You don't have time (Action Point) for that!")
+        jump girl_interactions
     if iam.check_for_bad_stuff(char):
         jump girl_interactions_end
     if iam.check_for_minor_bad_stuff(char):
@@ -175,6 +179,9 @@ label interactions_sex: # we go to this label from GM menu propose sex
     $ raped_by_player = char.has_flag("raped_by_player")
     if not raped_by_player:
         $ iam.accept_sex(char)
+    # restore interaction-cost before take_ap below...
+    $ hero.PP += iam.PP_COST
+    $ char.PP += iam.PP_COST
 
 label interactions_sex_scene_select_place:
     if "Shy" in char.traits:
@@ -231,7 +238,9 @@ label interactions_sex_scene_begins: # here we set initial picture before the sc
     $ sex_count = mc_count = char_count = together_count = cum_count = mast_count = 0 # these variable will decide the outcome of sex scene
     $ sex_prelude = False
     $ max_sex_scene_libido = sex_scene_libido = iam.get_character_libido(char)
+
     $ char.take_ap(1)
+    $ hero.take_ap(1)
 
     $ char.up_counter("flag_int_had_sex_with_mc")
 
