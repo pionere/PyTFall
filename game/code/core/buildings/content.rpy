@@ -64,9 +64,9 @@ init -9 python:
 
         def buy_slave(self, char):
             if not hero.has_ap():
-                return PyTGFX.message("You don't have enough AP left for this action!")
+                return PyTGFX.message("You don't have time (Action Point) for that!")
             if not hero.take_money(self.get_price(char), reason="Slave Purchase"):
-                return PyTGFX.message("You don't have enough money for this purchase!")
+                return PyTGFX.message("You don't have enough Gold!")
             hero.take_ap(1)
 
             renpy.play("content/sfx/sound/world/purchase_1.ogg")
@@ -290,9 +290,9 @@ init -9 python:
             """Buys an escaped slave from the jail.
             """
             if not hero.has_ap():
-                return PyTGFX.message("You don't have enough AP left for this action!")
+                return PyTGFX.message("You don't have time (Action Point) for that!")
             if not hero.take_money(self.get_price(char), reason="Slave (Re)Purchase"):
-                return PyTGFX.message("You don't have enough money for this purchase!")
+                return PyTGFX.message("You don't have enough Gold!")
             hero.take_ap(1)
 
             renpy.play("content/sfx/sound/world/purchase_1.ogg")
@@ -309,7 +309,7 @@ init -9 python:
             Sells off captured char from the jail for a flat price of 1500 Gold - the fees:
             """
             if not hero.take_ap(1):
-                return PyTGFX.message("You don't have enough AP left for this action!")
+                return PyTGFX.message("You don't have time (Action Point) for that!")
 
             renpy.play("content/sfx/sound/world/purchase_1.ogg")
             hero.add_money(self.sell_price(char), "SlaveTrade")
@@ -327,15 +327,15 @@ init -9 python:
             We handle simple sell-off in a different method (self.sell_captured)
             """
             if not hero.has_ap():
-                return PyTGFX.message("You don't have enough AP left for this action!")
+                return PyTGFX.message("You don't have time (Action Point) for that!")
 
             blue_train = direction == "Blue"
             base_price = self.get_fees4captured(char)
             blue_price = 2000
             if hero.gold < base_price:
-                return PyTGFX.message("You don't have enough money!")
+                return PyTGFX.message("You don't have enough Gold!")
             if blue_train and hero.gold < base_price + blue_price:
-                return PyTGFX.message("You don't have enough money for the upfront payment of Blue's services!")
+                return PyTGFX.message("You don't have enough Gold for the upfront payment of Blue's services!")
             hero.take_ap(1)
 
             renpy.play("content/sfx/sound/world/purchase_1.ogg")
