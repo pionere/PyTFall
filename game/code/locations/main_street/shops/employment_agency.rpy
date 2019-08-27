@@ -27,27 +27,29 @@ label employment_agency:
         $ result = ui.interact()
 
         if result[0] == 'hire':
-            $ char = result[1]
-            $ cost = EmploymentAgency.calc_hire_price(char) # Two month of wages to hire.
-            $ block_say = True
-            if hero.gold >= cost:
-                menu:
-                    ea "The fee to hire [char.name] is [cost]! What do you say?"
-                    "Yes":
-                        python hide:
-                            renpy.play("content/sfx/sound/world/purchase_1.ogg")
-                            hero.take_money(cost, reason="Hiring Workers")
-                            hero.add_char(char)
-                            eachars = pytfall.ea.chars
-                            for occ in char.gen_occs:
-                                if char in eachars[occ]:
-                                    eachars[occ].remove(char)
-                    "No":
-                        "Would you like to pick someone else?"
+            if not hero.has_ap():
+                show screen message_screen("You don't have time (Action Point) for that!")
             else:
-                ea "You look a bit light on the Gold [hero.name]..."
-            $ block_say = False
-            $ del char, cost
+                $ char, cost = result[1], result[2]
+                $ block_say = True
+                if hero.gold >= cost:
+                    menu:
+                        ea "The fee to hire [char.name] is [cost]! What do you say?"
+                        "Yes":
+                            python hide:
+                                hero.take_ap(1)
+                                renpy.play("content/sfx/sound/world/purchase_1.ogg")
+                                hero.take_money(cost, reason="Hiring Workers")
+                                hero.add_char(char)
+                                for k, v in pytfall.ea.chars.iteritems():
+                                    if char in v:
+                                        v.remove(char)
+                        "No":
+                            "Would you like to pick someone else?"
+                else:
+                    ea "You look a bit light on Gold [hero.name]..."
+                $ block_say = False
+                $ del char, cost
 
         elif result == ['control', 'return']:
             hide screen employment_agency
@@ -57,12 +59,9 @@ label employment_agency:
             jump main_street
 
 screen employment_agency():
-    modal True
-    zorder 1
-
     vbox:
         spacing 5
-        yalign .5
+        ypos 58
         for k, v in sorted(pytfall.ea.chars.iteritems(), key=itemgetter(0)):
             $ v = [w for w in v if not w.arena_active] # prevent arena active workers to be hired
             if v:
@@ -75,6 +74,7 @@ screen employment_agency():
                         text k align .5, .5
                     for entry in v:
                         $ img = entry.show("portrait", cache=True, resize=(90, 90))
+                        $ price = EmploymentAgency.calc_hire_price(entry)
                         vbox:
                             frame:
                                 padding (2, 2)
@@ -87,16 +87,16 @@ screen employment_agency():
                                             SetVariable("char", entry),
                                             Hide("employment_agency"),
                                             Jump("char_profile")]
-                                    tooltip "View {}'s Detailed Info.\nClasses: {}".format(entry.fullname, entry.traits.base_to_string)
+                                    tooltip "View %s's Detailed Info.\nClasses: %s" % (entry.fullname, entry.traits.base_to_string)
                             button:
                                 padding (2, 2)
                                 xsize 94
                                 background Frame("content/gfx/frame/gm_frame.png")
                                 label "Tier [entry.tier]" xalign .5 text_color "#DAA520"
                                 if entry.location != pytfall.jail:
-                                    action Return(['hire', entry, v])
-                                    tooltip "Hire {}.\nFee: {}G".format(entry.fullname, EmploymentAgency.calc_hire_price(entry))
+                                    action Return(["hire", entry, price])
+                                    tooltip "Hire %s\nFee: %d Gold" % (entry.fullname, price)
                                 else:
                                     action NullAction()
                                     tooltip "Currently in jail"
-    use exit_button()
+    use top_stripe(True, show_lead_away_buttons=False)
