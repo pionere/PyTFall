@@ -80,7 +80,8 @@ label girl_interactions_greeting:
                 check_lovers(char),
                 not char.flag("quest_cannot_be_fucked"),
                 char.get_stat("vitality") > char.get_max("vitality")/4,
-                char.has_ap())):
+                char.has_ap(),
+                hero.has_ap())):
             # propose sex
             $ iam.offer_sex(char)
             menu:
@@ -105,7 +106,8 @@ label girl_interactions_greeting:
                   not check_friends(char),
                   not char.flag("quest_cannot_be_fucked"),
                   char.get_stat("vitality") > char.get_max("vitality")/4,
-                  char.has_ap())):
+                  char.has_ap(),
+                  hero.has_ap())):
             # propose sex for money
             $ iam.offer_sex_for_money(char)
             menu:
