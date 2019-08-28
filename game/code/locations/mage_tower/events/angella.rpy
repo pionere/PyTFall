@@ -8,6 +8,7 @@ init python:
 label angelica_meet:
     $ a = npcs["Angelica_mage_tower"].say
 
+    hide screen mages_tower
     show expression npcs["Angelica_mage_tower"].get_vnsprite() as angelica
     with dissolve
 
@@ -29,11 +30,14 @@ label angelica_meet:
                 $ global_flags.set_flag("angelica_free_alignment")
                 a "You look like you have some potential... so I'll give you one freebie. "
                 extend "Do not expect that to happen again!"
-                a "I charge 10 000 Gold for the first element if you do not have any alignment at all and 10 000 and 5 000 more for every one that you already have!"
-                a "If you want to lose one, it is a lot trickier... elements are not shoes you can put on and off. That will cost you 50 000 per elements."
+                a "I charge {color=gold}10 000 Gold{/color} as a base cost and an additional {color=gold}5 000 Gold{/color} per elements you already have!"
+                a "If you want to lose one, it is a lot trickier... elements are not shoes you can put on and off. Each one goes with a price of {color=gold}50 000 Gold{/color}."
                 a "And feel free to bring your teammates, I can do it for pretty much anyone."
 
-                a "I can also teach you basics of {color=lightyellow}Light{/color} and {color=darkviolet}Darkness{/color} magic."
+                $ temp = BE_Core.TYPE_TO_COLOR_MAP
+                $ temp = "%s and %s" % (set_font_color("Light", temp["light"]), set_font_color("Darkness", temp["darkness"])) 
+                a "I can also teach you basics of [temp] magic."
+                $ del temp
             "Not really":
                 a "Oh? Well, never mind then..."
                 a "I'll be around if you change your mind."
@@ -57,6 +61,9 @@ label angelica_menu:
         elif result == "remove_alignment":
             jump angelica_remove_alignment
         else:
+            a "Later!"
+            hide angelica with dissolve
+            $ del a
             $ global_flags.set_flag("keep_playing_music")
             jump mages_tower
 
@@ -92,34 +99,34 @@ label angelica_add_alignment:
         $ character = hero
     if not character:
         a "Ok then."
+        $ del character
         jump angelica_menu
 
-    $ elements = list(el for el in tgs.real_elemental if el not in character.traits)
-    if not elements:
+    if all(el in character.traits for el in tgs.real_elemental):
         a "Oh. It looks like you already have them all. It's not wise. Maybe you should remove a few?"
     else:
         call screen alignment_choice(character)
         $ alignment = _return
         if alignment:
-            if "Neutral" in character.traits:
-                $ price = 10000
-            else:
-                $ price = 10000 + len(character.elements)*5000
+            $ price = 10000
+            if "Neutral" not in character.traits:
+                $ price += len(character.elements)*5000
             if global_flags.flag("angelica_free_alignment") or hero.take_money(price, reason="Element Purchase"):
                 a "There! All done!"
                 a "Don't let these new powers go into your head and use them responsibly!"
-                python:
-                    global_flags.del_flag("angelica_free_alignment")
-                    character.apply_trait(alignment)
+                $ global_flags.del_flag("angelica_free_alignment")
+                $ character.apply_trait(alignment)
             else:
-                a "You don't have enough money. It will be [price] gold."
+                a "You don't have enough money. It will be {color=gold}[price] Gold{/color}."
             $ del price
         $ del alignment
+    $ del character
     jump angelica_menu
 
 label angelica_remove_alignment:
     a "Let's take a look."
     if len(hero.team) > 1:
+        a "Who is it going to be?"
         call screen character_pick_screen
         $ character = _return
     else:
@@ -129,30 +136,28 @@ label angelica_remove_alignment:
         $ del character
         jump angelica_menu
 
-    if not "Neutral" in character.traits:
+    if "Neutral" in character.traits:
+        a "You have no elements that I can remove."
+    else:
         call screen alignment_removal_choice(character)
         $ alignment = _return
         if alignment:
             if alignment == "clear_all":
-                $ price = 50000 * len(character.elements)
-                if hero.take_money(price, reason="Element Purchase"):
-                    a "There! All elements were removed."
-                    python:
-                        for el in character.elements:
-                            character.remove_trait(el)
-                else:
-                    a "You don't have enough money. It will be [price] gold."
+                $ elements = character.elements
+                $ msg = "There! All elements were removed."
             else:
-                $ price = 50000
-                if hero.take_money(price, reason="Element Purchase"):
-                    a "There! I removed it."
-                    $ character.remove_trait(alignment)
-                else:
-                    a "You don't have enough money. It will be [price] gold."
-            $ del price
+                $ elements = [alignment]
+                $ msg = "There! I removed it."
+            $ price = 50000 * len(elements)
+            if hero.take_money(price, reason="Element Purchase"):
+                a "[msg]"
+                python hide:
+                    for el in elements:
+                        character.remove_trait(el)
+            else:
+                a "You don't have enough money. It will be {color=gold}[price] Gold{/color}."
+            $ del price, msg, elements
         $ del alignment
-    else:
-        a "You have no elements that I can remove."
     $ del character
     jump angelica_menu
 

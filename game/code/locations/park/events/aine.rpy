@@ -5,7 +5,6 @@ init python:
     register_gossip("aine_park", "gossip_aine_in_park", dice=80)
 
 label aine_menu:
-
     $ a = npcs["Aine"].say
 
     hide screen city_park
@@ -32,11 +31,14 @@ label aine_menu:
             "I've met someone called Peevish..." if global_flags.has_flag("met_peevish"):
                 a "That rude, good for nothing, useless excuse for a brother... well, you don't get to choose family..."
 
-        a "I can teach you {color=lightblue}Ice{/color} and {color=yellow}Electricity{/color} spells if you're interested,"
-        extend " it will cost you, but you'll never have to hear a word about no pile of gold from me."
+        $ temp = BE_Core.TYPE_TO_COLOR_MAP
+        $ temp = "%s and %s" % (set_font_color("Ice", temp["ice"]), set_font_color("Electricity", temp["electricity"])) 
+        a "Anyway, I can teach you [temp] spells if you're interested."
+        extend " It will cost you, but you'll never have to hear a word about no pile of gold from me."
 
         $ pytfall.shops_stores["Aine Shop"].visible = True
         $ stop_gossip("aine_park")
+        $ del temp
     else:
         a "Hello again. How are you today?"
 
@@ -75,7 +77,7 @@ label aine_shop:
 
     hide screen shopping
     with dissolve
-    a " Come back with more gold!"
+    a "I will be around if you need me."
     $ del shop, focus, item_price, amount, purchasing_dir, char
     jump aine_menu_return
 

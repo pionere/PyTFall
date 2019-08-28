@@ -54,9 +54,12 @@ label peevish_meeting:
         repeat
     with dissolve
 
+    $ temp = BE_Core.TYPE_TO_COLOR_MAP
+    $ temp = "%s and %s" % (set_font_color("Earth", temp["earth"]), set_font_color("Water", temp["water"])) 
+
     p "Haha, you're a lot uglier from this angle!"
     p "But you're in luck today! Since you can see me, you aren't entirely hopeless..."
-    extend " and I just happen to teach {color=tan}Earth{/color} and {color=blue}Water{/color} magic!"
+    extend " and I just happen to teach [temp] magic!"
     p "Normally I wouldn't bother with a shitty pipsqueak like you, but my greatness requires a good pile of {color=gold}gold{/color} to become a real genuine and authentic leprechaun."
     p "I could use a rainbow too..."
     p "Well, don't expect it to be cheap!"
@@ -65,14 +68,14 @@ label peevish_meeting:
     $ pytfall.shops_stores["Peevish Shop"].visible = True 
     $ global_flags.set_flag("met_peevish")
     $ global_flags.del_flag("keep_playing_music")
-    $ del p
+    $ del p, temp
     $ stop_gossip("peevish_forest")
     jump forest_entrance
 
 label peevish_menu:
     $ p = npcs["Peevish"].say
 
-    hide screen forest_entrance
+    #hide screen forest_entrance
     show expression npcs["Peevish"].get_vnsprite() as peevish:
         pos (.4, .2)
         linear 1.0 pos (.4, .25)

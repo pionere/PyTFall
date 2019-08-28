@@ -20,8 +20,11 @@ label witches_hut:
         extend " Welcome to my Potion Shop!"
         w "I am Abby, the Witch, both Cool and Wicked. You'll never know what you run into here!"
         $ w = npcs["Abby_the_witch"].say
-        w "Oh, and I also know a few decent {color=orangered}Fire{/color} and {color=lime}Air{/color} spells if you're interested."
+        $ temp = BE_Core.TYPE_TO_COLOR_MAP
+        $ temp = "%s and %s" % (set_font_color("Fire", temp["fire"]), set_font_color("Air", temp["air"])) 
+        w "Oh, and I also know a few decent [temp] spells if you're interested."
         w "Check out the best home brew in the realm and some other great items in stock!"
+        $ del temp
 
     $ pytfall.world_quests.run_quests("auto")
     $ pytfall.world_events.run_events("auto")
