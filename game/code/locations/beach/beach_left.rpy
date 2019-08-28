@@ -203,18 +203,18 @@ label fishing_logic_mor_quest_bring:
     if hero.has_flag("dnd_mor_fish_quest"): # only one quest per day
         $ hero.set_flag("dnd_mor_fish_quest", (None, None))
     $ hero.remove_item(fish, num)
-    $ price = fish.price * num * 5
+    $ price = fish.price * num * 4
     $ hero.add_money(price, reason="Quests")
     m "Magnificent. Take your reward, [price] coins, and these baits. It's much more than any city merchant can give you, trust me."
     if dice(20):
-        $ hero.add_item("Magic Bait", 4)
-        "You've obtained 4 Magic Baits!"
+        $ hero.add_item("Magic Bait", 3)
+        "You've obtained 3 Magic Baits!"
     elif dice(40):
-        $ hero.add_item("Good Bait", 6)
-        "You've obtained 6 Good Baits!"
+        $ hero.add_item("Good Bait", 4)
+        "You've obtained 4 Good Baits!"
     else:
-        $ hero.add_item("Simple Bait", 9)
-        "You've obtained 9 Simple Baits!"
+        $ hero.add_item("Simple Bait", 6)
+        "You've obtained 6 Simple Baits!"
     $ finish_quest("Fishery", "You brought required fish to Mor and got your reward.")
     $ del fish, num, price
     return

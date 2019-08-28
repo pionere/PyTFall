@@ -496,7 +496,7 @@
     "id": "Safety Glasses",
     "desc": "Fortified shatterproof glasses for dangerous jobs.",
     "icon": "content/items/head/glas.png",
-    "price": 350,
+    "price": 250,
     "chance": 20,
     "eqchance": 75,
     "infinite": false,

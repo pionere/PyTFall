@@ -264,7 +264,7 @@ label mc_action_city_beach_diving_checks:
         "You need vitality to pick up items. Vitality is not consumed, but the more vitality you have in general, the more items you can pick up."
         "The goal is to find invisible items hidden on the seabed."
         "You can leave the sea anytime by clicking the right mouse button, and you will lose some health if you don't leave before the oxygen is over."
-    if hero.get_stat("vitality") < 30:
+    if hero.get_stat("vitality") < 60:
         "You're too tired at the moment."
         jump city_beach
     elif hero.get_stat("health") < hero.get_max("health")/2:
@@ -278,10 +278,10 @@ label mc_action_city_beach_diving_checks:
     scene bg ocean_underwater_1 with dissolve
 
     python:
-        i = round_int(hero.get_skill("swimming"))
+        i = round_int(hero.get_skill("swimming")/2)
         loots = [[j, j.chance] for j in items.values() if "Diving" in j.locations and j.price <= i]
         if has_items("Snorkel Mask", hero, equipped=True):
-            i += 200
+            i += 100
         if has_items("Lantern", hero, equipped=True):
             j = (90, 90)
         else:
@@ -326,7 +326,7 @@ label mc_action_city_beach_diving_checks:
             else:
                 gfx_overlay.notify("There is nothing there...", tkwargs=tkwargs)
 
-        $ vitality -= randint(10, 15)
+        $ vitality -= randint(20, 30)
 
     hide screen diving_progress_bar
     "You're too tired to continue!"

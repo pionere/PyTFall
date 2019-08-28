@@ -1786,6 +1786,64 @@ init 1000 python:
         # EG
 
         @staticmethod
+        def testMiniJobs(debug=False):
+            # Fishing:
+            loots, base_loots, good_loots, magic_loots = [], [], [], []
+            for item in items.values():
+                if "Fishing" in item.locations:
+                    temp = item.price
+                    if temp > 5000: # SKILLS_MAX
+                        TestSuite.reportError("%s is more expensive (%s) than the maximum Skill (%s) required to fish!" % (item.id, temp, 5000)) # SKILLS_MAX
+                        continue
+
+                    tmp = (item, item.chance*2 if item.type == "fish" else item.chance)
+                    loots.append(tmp)
+                    if temp < 10:
+                        continue
+                    base_loots.append(tmp)
+                    if temp < 50:
+                        continue
+                    good_loots.append(tmp)
+                    if temp >= 100:
+                        magic_loots.append(tmp)
+
+            if not loots:
+                TestSuite.reportError("There is nothing to fish without bait!")
+            if not base_loots:
+                TestSuite.reportError("There is nothing to fish with normal bait!")
+            if not good_loots:
+                TestSuite.reportError("There is nothing to fish with good bait!")
+            if not magic_loots:
+                TestSuite.reportError("There is nothing to fish with magic bait!")
+
+            if debug:
+                for loot, num, type in ((loots, 3, "out"), (base_loots, 4, " normal"), (good_loots, 5, " good"), (magic_loots, 6, " magic")):
+                    sum = value = 0
+                    for item, chance in loot:
+                        sum += chance
+                        value += item.price * chance
+                    devlog.warn("Expected loot value of fishing with%s bait: %s" % (type, num * value / float(sum)))
+
+            # Diving:
+            loots = []
+            for item in items.values():
+                if "Diving" in item.locations:
+                    temp = item.price
+                    if temp > 5000: # SKILLS_MAX
+                        TestSuite.reportError("%s is more expensive (%s) than the maximum Skill (%s) required to dive!" % (item.id, temp, 5000)) # SKILLS_MAX
+                        continue
+                    tmp = (item, item.chance)
+                    loots.append(tmp)
+
+            if debug:
+                sum = value = 0
+                for item, chance in loots:
+                    sum += chance
+                    value += item.price * chance
+                num = 250 / 25
+                devlog.warn("Expected loot value of diving: %s" % (num * value / float(sum)))
+
+        @staticmethod
         def aeqTest():
             base_traits, other_traits, purpose = ["Mage"], ["Impersonal", "Fire"], "Mage"
             #base_traits, other_traits, purpose = ["Shooter"], ["Yandere"], "Shooter"
