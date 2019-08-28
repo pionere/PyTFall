@@ -14,11 +14,11 @@ label graveyard_town:
     while 1:
         $ result = ui.interact()
 
-        if result[0] == 'jump':
+        if result[0] == "jump":
             $ iam.start_int(result[1], img=result[1].show('girlmeets', type="first_default", label_cache=True,
                         exclude=["swimsuit", "wildness", "beach", "pool", "urban", "stage", "onsen", "indoors", "indoor"]))
 
-        elif result == ['control', 'return']:
+        elif result == ["control", "return"]:
             hide screen graveyard_town
             jump city
 
@@ -56,6 +56,36 @@ label show_dead_list:
 
             $ del dead_chars, num_chars, number
             jump graveyard_town
+        elif result[0] == "place":
+            $ result = result[1]
+            python hide:
+                hero.remove_item(result)
+                char = dead_chars[number][0]
+                flag = char.get_flag("cemetery_flowers", None)
+                if flag is None:
+                    flag = []
+                    char.set_flag("cemetery_flowers", flag)
+                flag.append([result, day])
+                if dice(10) and not hero.has_flag("cnd_cemetery_flowers"):
+                    hero.mod_stat("reputation", 1)
+                    hero.set_flag("cnd_cemetery_flowers", day+7)
+        elif result[0] == "take":
+            $ result = result[1]
+            python hide:
+                char = dead_chars[number][0]
+                flag = char.flag("cemetery_flowers")
+                flag.remove(result)
+                if not flag:
+                    char.del_flag("cemetery_flowers")
+                if result[1] == day:
+                    hero.add_item(result[0])
+                    if dice(10) and not hero.has_flag("cnd_cemetery_flowers"):
+                        hero.mod_stat("reputation", -1)
+                        hero.set_flag("cnd_cemetery_flowers", day+7)
+                elif (result[1] + result[0].cblock) < day:
+                    if dice(10) and not hero.has_flag("cnd_cemetery_flowers"):
+                        hero.mod_stat("reputation", 1)
+                        hero.set_flag("cnd_cemetery_flowers", day+7)
 
 screen cemetry_list_of_dead_chars(): # the list should not be empty!
     python:
@@ -91,12 +121,12 @@ screen cemetry_list_of_dead_chars(): # the list should not be empty!
                 align data[2]
                 xysize data[3]
                 background Frame(im.Scale("content/gfx/frame/tombstone.png", *data[3]))
+
+                # Name, Level, Date:
+                $ char, date = data[0], data[1]
+                $ char_profile_img = char.show('portrait', 'indifferent', 'happy', resize=(data[4], data[4]), cache=True, type="first_default", add_mood=False)
                 vbox:
                     align (.5, .6)
-                    $ character, date = data[0], data[1]
-
-                    $ char_profile_img = character.show('portrait', 'indifferent', 'happy', resize=(data[4], data[4]), cache=True, type="first_default", add_mood=False)
-
                     frame:
                         background Frame("content/gfx/frame/MC_bg.png")
                         add im.Sepia(char_profile_img) align .5, .5
@@ -105,13 +135,41 @@ screen cemetry_list_of_dead_chars(): # the list should not be empty!
 
                     spacing 4
 
-                    text ([character.name]) xalign .5 size data[5] style "content_text" color "black" outlines [(0, "goldenrod", 1, 2)]:
-                        if len(character.name) > 14:
+                    text char.name xalign .5 size data[5] style "content_text" color "black" outlines [(0, "goldenrod", 1, 2)]:
+                        if len(char.name) > 14:
                             size data[5]-4
 
-                    text ("[character.level] lvl") xalign .5 size data[5]-2 style "content_text" color "black" outlines [(0, "goldenrod", 1, 2)]
+                    text ("%d lvl" % char.level) xalign .5 size data[5]-2 style "content_text" color "black" outlines [(0, "goldenrod", 1, 2)]
 
-                    text ("[date]") xalign .5 size data[5]-2 style "content_text" color "black" outlines [(0, "goldenrod", 1, 2)]
+                    text str(date) xalign .5 size data[5]-2 style "content_text" color "black" outlines [(0, "goldenrod", 1, 2)]
+
+                # Flowers:
+                $ flowers = char.flag("cemetery_flowers")
+                if flowers:
+                    $ fsize = data[4]/2
+                    viewport:
+                        #ysize fsize
+                        #xmaximum data[3][0]
+                        xysize (min(data[3][0], len(flowers)*fsize), fsize)
+                        align (.5, .98)
+                        edgescroll (fsize, fsize)
+                        has hbox
+                        for f in flowers:
+                            python:
+                                item = f[0]
+                                age = day - f[1]
+                                bb = item.cblock
+                                img = PyTGFX.scale_content(item.icon, fsize, fsize)
+                                if age > 2 * bb:
+                                    img = PyTGFX.sepia_content(img)
+                                elif age > bb:
+                                    img = PyTGFX.bright_content(img, -float(age - bb)/(2*bb))
+                            imagebutton:
+                                align (.5, .5)
+                                idle img
+                                hover PyTGFX.bright_content(img, .15)
+                                action Return(["take", f])
+                                tooltip "Take %s away" % item.id
 
     if num_chars > 1:
         $ img = "content/gfx/interface/buttons/next.png"
@@ -133,7 +191,22 @@ screen cemetry_list_of_dead_chars(): # the list should not be empty!
 
     vbox:
         style_group "wood"
-        align (.9, .9)
+        align (.98, .9)
+        for item in ("Blue Rose", "Red Rose", "Wild Flowers"):
+            $ item = items[item]
+            if has_items(item, hero, equipped=False):
+                frame:
+                    xysize (80, 80)
+                    xalign .5
+                    background Frame("content/gfx/frame/frame_it2.png", -1, -1)
+                    $ img = PyTGFX.scale_content(item.icon, 70, 70)
+                    imagebutton:
+                        align (.5, .5)
+                        idle img
+                        hover PyTGFX.bright_content(img, .15)
+                        action Return(["place", item])
+                        tooltip "Place a %s" % item.id
+        null height 10
         button:
             xysize (120, 40)
             yalign .5
