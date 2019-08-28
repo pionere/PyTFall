@@ -79,9 +79,14 @@ label show_dead_list:
                     char.del_flag("cemetery_flowers")
                 if result[1] == day:
                     hero.add_item(result[0])
-                    if dice(10) and not hero.has_flag("cnd_cemetery_flowers"):
+                    flag = hero.get_flag("cnd_cemetery_flowers", None)
+                    if flag is None:
+                        if dice(10):
+                            hero.mod_stat("reputation", -1)
+                            hero.set_flag("cnd_cemetery_flowers", day+4)
+                    elif flag == day+7:
                         hero.mod_stat("reputation", -1)
-                        hero.set_flag("cnd_cemetery_flowers", day+7)
+                        hero.set_flag("cnd_cemetery_flowers", day+4)
                 elif (result[1] + result[0].cblock) < day:
                     if dice(10) and not hero.has_flag("cnd_cemetery_flowers"):
                         hero.mod_stat("reputation", 1)
@@ -146,14 +151,20 @@ screen cemetry_list_of_dead_chars(): # the list should not be empty!
                 # Flowers:
                 $ flowers = char.flag("cemetery_flowers")
                 if flowers:
-                    $ fsize = data[4]/2
-                    viewport:
-                        #ysize fsize
-                        #xmaximum data[3][0]
-                        xysize (min(data[3][0], len(flowers)*fsize), fsize)
+                    python:
+                        xsize = data[4]*2
+                        fsize = xsize/4
+                        num = len(flowers)
+                        empty = xsize - fsize * num
+                        if empty >= 0:
+                            xpos = empty / 2
+                            space = fsize
+                        else:
+                            xpos = 0
+                            space = float(xsize - fsize) / (num - 1)
+                    fixed:
+                        xysize (xsize, fsize)
                         align (.5, .98)
-                        edgescroll (fsize, fsize)
-                        has hbox
                         for f in flowers:
                             python:
                                 item = f[0]
@@ -165,11 +176,14 @@ screen cemetry_list_of_dead_chars(): # the list should not be empty!
                                 elif age > bb:
                                     img = PyTGFX.bright_content(img, -float(age - bb)/(2*bb))
                             imagebutton:
-                                align (.5, .5)
+                                xpos int(xpos)
+                                xysize (fsize, fsize)
+                                yalign .5
                                 idle img
                                 hover PyTGFX.bright_content(img, .15)
                                 action Return(["take", f])
                                 tooltip "Take %s away" % item.id
+                            $ xpos += space
 
     if num_chars > 1:
         $ img = "content/gfx/interface/buttons/next.png"
