@@ -130,11 +130,11 @@ label witch_training:
                 jump witch_menu
 
 label about_abby_personal_training:
-    w "I train magic and intelligence."
+    w "With me you can learn about magic."
     w "I can also guarantee that your character will go up if you pay attention in class!"
     extend " That, however, doesn't happen very often."
-    w "And to make things even more awesome, half of your MP will be restored each time you train here!"
-    w "Yeap! I am That good!"
+    w "But your agility might increase naturally while you are handling the ingredients."
+    w "Since the training room is full of magic clouds, it is inevitable that part of your MP will be restored as well."
     "The training will cost you 250 gold per tier of the trained character every day."
     return
 

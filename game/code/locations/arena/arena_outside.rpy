@@ -318,10 +318,10 @@ label xeona_training:
                 jump xeona_menu
 
 label about_xeona_personal_training:
-    ax "I train battle skills."
-    ax "Don't expect to learn any magic, but I can teach you how to fight on level with any silly mage!"
-    ax "Due to my the nature of training, there is always a chance of your constitution increasing as well."
-    ax "Potions we drink to increase stamina during the training might also restore your health."
+    ax "I train fighters how to attack and defend themself."
+    ax "Don't expect to learn any magic, but I can teach you how to beat any silly mage!"
+    ax "The excercises help to make you fit and raise your constitution."
+    ax "During training we drink potions to increase stamina. As a side effect some of your health is also restored."
     "The training will cost you 250 gold per tier of the trained character every day."
     return
 
