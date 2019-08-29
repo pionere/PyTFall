@@ -8,8 +8,8 @@
         "base_race": "Human",
         "race": "Human",
         "gold": 4000,
-        "color": "rosybrown",
-        "what_color": "rosybrown",
+        "color": "silver",
+        "what_color": "silver",
         "basetraits": [
             "Warrior"
         ],

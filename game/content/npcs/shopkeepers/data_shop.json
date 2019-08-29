@@ -8,8 +8,8 @@
         "base_race": "Human",
         "race": "Human",
         "gold": 2000,
-        "color": "white",
-        "what_color": "white",
+        "color": "lightsalmon",
+        "what_color": "lightsalmon",
         "basetraits": [
             "Manager"
         ],
