@@ -82,3 +82,11 @@ screen main_street():
             hover PyTGFX.bright_img(img, .15)
             action [Hide("main_street"), Jump("employment_agency")]
             tooltip "Employment Agency"
+        if global_flags.flag("know_swinger_club"):
+            $ img = im.Scale("content/gfx/interface/icons/swinger_club.png", 50, 50)
+            imagebutton:
+                pos 800, 220
+                idle img
+                hover PyTGFX.bright_img(img, .15)
+                action [Hide("main_street"), Jump("swinger_club")]
+                tooltip "Club"

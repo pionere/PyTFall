@@ -1844,6 +1844,24 @@ init 1000 python:
                 devlog.warn("Expected loot value of diving: %s" % (num * value / float(sum)))
 
         @staticmethod
+        def swingTest():
+            hero.mod_stat("reputation", -1000)
+            hero.mod_stat("fame", 1000)
+            hero.gold = 1000000
+            c = chars["Hinata"]
+            c.preferences["anal"] = c.preferences["bdsm"] = c.preferences["group"] = 80
+            c.mod_stat("affection", 1000)
+            c.mod_stat("disposition", 1000)
+            set_lovers(c)
+            hero.team.add(c)
+            c = chars["Sakura"]
+            c.preferences["anal"] = c.preferences["bdsm"] = c.preferences["group"] = 80
+            c.mod_stat("affection", 1000)
+            c.mod_stat("disposition", 1000)
+            set_lovers(c)
+            hero.team.add(c)
+
+        @staticmethod
         def aeqTest():
             base_traits, other_traits, purpose = ["Mage"], ["Impersonal", "Fire"], "Mage"
             #base_traits, other_traits, purpose = ["Shooter"], ["Yandere"], "Shooter"

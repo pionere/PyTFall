@@ -102,8 +102,9 @@ label mc_action_beach_competitions:
     $ hero.take_money(expense, "Beach Competition")
     $ competitors = []
     python hide:
+        # TODO bind with swinger club
         mod = expense / float(base_expense)
-        mod *= hero.get_stat("fame") * hero.get_stat("reputation")
+        mod *= hero.get_stat("fame") * max(0, hero.get_stat("reputation"))
         stat_max = hero.get_max("fame") * hero.get_max("reputation") * 2
         if mod > stat_max:
             mod = stat_max

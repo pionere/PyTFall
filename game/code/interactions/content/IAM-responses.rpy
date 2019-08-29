@@ -4023,6 +4023,36 @@ init -2 python:
             iam.say_line(character, lines, mood)
             block_say = False
 
+        @staticmethod
+        def refuse_swing(character):
+            """
+            Output line when the character refuses to go to the swinger club with the hero
+            """
+            char_traits = character.traits
+            if "Impersonal" in char_traits:
+                lines = ("I see no possible benefit in going there with you so I will have to decline.", "Keep sexual deviations to a minimum.")
+            elif "Shy" in char_traits and dice(50):
+                lines = ("I... I don't want that! ", "W-we can't do that. ", "I-I don't want to... Sorry.")
+            elif "Imouto" in char_traits:
+                lines = ("Noooo way!", "I, I think perverted things are bad!", "...I-I'm gonna get mad if you suggest such things, you know? Jeez!", "Y-you dummy! You should not go to such place!")
+            elif "Dandere" in char_traits:
+                lines = ("You're no good...", "Let's have you explain in full detail why you decided to do that today, hmm?", "You should really think before you try to drag me into such things...")
+            elif "Tsundere" in char_traits:
+                lines = ("I'm afraid I must inform you of your utter lack of common sense. Hmph!", "You are so... disgusting!", "You pervy little scamp! Not in a million years!")
+            elif "Kuudere" in char_traits:
+                lines = ("G-get the fuck away from me, you disgusting perv.", "...Perv.", "...It looks like I'll have to teach you about this little thing called reality.", "O-of course the answer is no!", "Don't even suggest something that awful.")
+            elif "Kamidere" in char_traits:
+                lines = ("Wh-who do you think you are!?", "W-what are you talking about... Of course I'm against that!", "What?! How could you think that I... NO!", "What? Suggesting that out of the blue? Know some shame!", "The meaning of 'not knowing your place' must be referring to this, eh...?", "I don't know how anyone so despicable as you could exist outside of hell.")
+            elif "Bokukko" in char_traits:
+                lines = ("He- Hey, let us go somewhere else, okay?", "Find someone else if you want to visit such a place, okay?", "Y-you're crazy...", "Hmph! Well no duh!")
+            elif "Ane" in char_traits:
+                lines = ("If I was interested in that sort of thing I might, but unfortunately...", "Oh my, can't you think of something more reasonable?", "No. I have decided that it would not be appropriate.", "I don't think I would like to visit such a place. With or without you...", "I think that you are being way too insensitive.")
+            elif "Yandere" in char_traits:
+                lines = ("I've never met someone who knew so little about how pathetic they are.", "...I'll thank you to just let me leave now.", "What? Is that your dying wish? You want to die?")
+            else:
+                lines = ("No! Absolutely NOT!", "With you? Don't make me laugh.", "Get lost, pervert!", "Woah, hold on there. How did this even cross your mind?", "Don't tell me that you thought I was a slut...?", "How about you fix that 'anything goes' attitude of yours, hmm?")
+            iam.say_line(character, lines, "angry")
+
         ##############################           GOSSIPS           ##############################
 
         @staticmethod
