@@ -3,47 +3,35 @@ Open World H/Sim Game
 
 PyTFall is an open source (turnbased) game with a Hentai twist similar to WM, SimBro, SM focusing on 
 gathering a team of workers, managing businesses, leveling up the MC and other characters and interacting with the latter,
-fighting in the arena, exploring the city and etc.
+fighting in the arena, exploring the city and etc. For more details, please see https://github.com/XelaPy/PyTFall
 
-Modules currently include:
+Modules currently include (bold ones are only in this branch):
 
 - FF Style Battle Engine
 - Arena
 - Mobs
 - Interactions
-- Businesses (Fighters Guild, StripClub, Cafe and Brothel)
+- Businesses (<b>Gladiators Guild</b>, Exploration Guild, <b>Stable</b>, <b>Clinic</b>, StripClub, Bar and Brothel)
 - Quests tracker
 - Events tracker
+- <b>Gossip system</b>
 - Items/Inventory/Shops system
-- Advanced Characters (Random and Unique) system with many Stats, Traits and Skills
-- MC with background stories/Setup Screen
+- Advanced Characters (Random and Unique) system with many Stats, Traits, Skills and <b>animation support</b>
+- MC(male, <b>female</b>) with background stories/Setup Screen to set <b>race, height</b>
 - Schools
 - Jail
 
-In the last few month a lot of work has been on interface and adding content to some of the modules
-as well as recoding part of the game. Other modules are planned or actively developed.
-
-
-Current active dev team consits of:
-- Alex (Xela) (Code)
-- DarkTl (Content)
-- Gismo (Interface)
-- CherryWood (Support)
-
-====
-We are always looking for:
-
-- Writers
-- Designers
-- Coders
-
-to help us with the project.
-
-====
-TechDemo of some basic features: https://youtu.be/gwMiX1GFHtI
-Our forums are open to view and require registration to chat or to post.
-
-
-See ya in PyTFall,
-
-Xela and da Crew :)
+Additional differences to the master branch:
+- Added big events
+- New mini games
+- More complex relationship management (disposition vs. affection, insults, invitations, etc...)
+- New locations, NPCs
+- (Not complete) Reputation system: hero can end up in jail, events based on fame/reputation
+- New Action Point system
+- Reworked Jobs, School
+- Extended ingame tagger
+- Different Jail, Exploration Guild, exploration logic
+- Hero's home is more visible
+- GUI extensions
+- Overall support for animated content (items, buildings etc...). Remark: support(!), not actual content
+- Bugfixes + Brand new bugs
