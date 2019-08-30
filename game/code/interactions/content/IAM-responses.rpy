@@ -4053,6 +4053,125 @@ init -2 python:
                 lines = ("No! Absolutely NOT!", "With you? Don't make me laugh.", "Get lost, pervert!", "Woah, hold on there. How did this even cross your mind?", "Don't tell me that you thought I was a slut...?", "How about you fix that 'anything goes' attitude of yours, hmm?")
             iam.say_line(character, lines, "angry")
 
+        ##############################          GREETINGS          ##############################
+
+        @staticmethod
+        def greeting_cafe(character):
+            """
+            Output line when the NPC greets the hero in the cafe
+            assumptions: the value of reputation is between -1000 and 1000
+                         the value of fame is between 0 and 1000
+            """
+            rep, fame = hero.get_stat("reputation"), hero.get_stat("fame")
+            overlay_args = None
+            if rep > 600:
+                if fame > 750:
+                    lines = ("Welcome back! Your table is ready as always!", )
+
+                    mood = "shy" if dice(50) else "ecstatic"
+                    overlay_args=("like", "reset")
+                elif fame > 500:
+                    lines = ("Welcome back! Please, have a seat!", )
+
+                    mood = "happy"
+                    overlay_args=("note", "reset")
+                elif fame > 250:
+                    lines = ("Welcome back! Can I get you a table?", )
+
+                    mood = "happy" if dice(50) else "confident"
+                    if dice(25):
+                        overlay_args=("note", "reset")
+                else:
+                    lines = ("Welcome! Can I get you a table?", )
+
+                    mood = "confident"
+            elif rep > 200:
+                # reputation 200 .. 600
+                if fame > 750:
+                    lines = ("My pleasure to see you again! Can I get you a table?", )
+
+                    mood = "shy" if dice(50) else "happy"
+                    overlay_args=("like" if dice(25) else "note", "reset")
+                elif fame > 500:
+                    lines = ("It is a pleasure to see you! Do you want a table?", )
+
+                    mood = "happy"
+                    if dice(50):
+                        overlay_args=("note", "reset")
+                elif fame > 250:
+                    lines = ("Welcome back! Do you want a table?", )
+
+                    mood = "confident"
+                else:
+                    lines = ("Welcome! Do you want a table?", )
+
+                    mood = "indifferent"
+            elif rep > -200:
+                # reputation -200 .. 200
+                if fame > 750:
+                    lines = ("I'm glad to see you again! Do you want a table?", )
+
+                    mood = "happy"
+                elif fame > 500:
+                    lines = ("It is nice to see you. Do you want a table?", )
+
+                    mood = "happy" if dice(50) else "uncertain"
+                elif fame > 250:
+                    lines = ("Yes? Can I get you a table?", )
+
+                    mood = "uncertain"
+                else:
+                    lines = ("Welcome. Do you want a table?", )
+
+                    mood = "indifferent"
+            elif rep > -600:
+                # reputation -600 .. -200
+                if fame > 750:
+                    lines = ("We have expecting you, %s!" % ("Madame" if hero.gender == "female" else "Sir"), )
+
+                    mood = "scared" if dice(50) else "sad"
+                    overlay_args=("sweat" if dice(50) else "scared", "reset")
+                elif fame > 500:
+                    lines = ("If you want a table, just let me know.", )
+
+                    mood = "sad" if dice(50) else "uncertain"
+                    if dice(50):
+                        overlay_args=("sweat", "reset")
+                elif fame > 250:
+                    lines = ("What do you want? A table?", )
+
+                    mood = "defiant"
+                    if dice(25):
+                        overlay_args=("sweat", "reset")
+                else:
+                    lines = ("Do you want a table?", )
+
+                    mood = "indifferent"
+            else:
+                # reputation -1000 .. -600
+                if fame > 750:
+                    lines = ("A table is ready as soon as you want one!", )
+
+                    mood = "scared"
+                    overlay_args=("scared", "reset")
+                elif fame > 500:
+                    lines = ("Yes, %s?!" % ("Madame" if hero.gender == "female" else "Sir"), )
+
+                    mood = "sad"
+                    overlay_args=("sweat", "reset")
+                elif fame > 250:
+                    lines = ("What can I get you?", )
+
+                    mood = "uncertain"
+                    if dice(50):
+                        overlay_args=("sweat", "reset")
+                else:
+                    lines = ("Do you want a table?", )
+
+                    mood = "defiant"
+
+            iam.say_line(character, lines, mood, overlay_args)
+
         ##############################           GOSSIPS           ##############################
 
         @staticmethod

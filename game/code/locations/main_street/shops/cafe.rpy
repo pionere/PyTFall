@@ -24,7 +24,7 @@ label cafe:
     with dissolve
 
     if global_flags.has_flag('visited_cafe'):
-        waitress.say "Welcome back! Do you want a table?"
+        $ iam.greeting_cafe(waitress)
     else:
         $ global_flags.set_flag('visited_cafe')
         waitress.say "Welcome to the Cafe!"

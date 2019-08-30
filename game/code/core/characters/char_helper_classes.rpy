@@ -2083,7 +2083,7 @@ init -10 python:
         def mc_ref(self):
             if self._mc_ref is None:
                 if self.status == "slave":
-                    return "Master"
+                    return "Madam" if hero.gender == "female" else "Master"
                 else:
                     return hero.name
             else:
