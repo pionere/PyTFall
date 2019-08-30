@@ -10,10 +10,11 @@ label main_street:
 
     scene bg main_street
     with dissolve
-    show screen main_street
 
     $ pytfall.world_quests.run_quests("auto")
     $ pytfall.world_events.run_events("auto")
+
+    show screen main_street
 
     while 1:
         $ result = ui.interact()

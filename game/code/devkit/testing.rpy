@@ -1862,6 +1862,27 @@ init 1000 python:
             hero.team.add(c)
 
         @staticmethod
+        def fashionTest():
+            hero.mod_stat("reputation", 1000)
+            hero.mod_stat("fame", 1000)
+            hero.gold = 1000000
+            tier_up_to(hero, 6)
+            hero.mod_stat("charisma", hero.get_max("charisma"))
+            c = chars["Hinata"]
+            c.mod_stat("affection", 1000)
+            c.mod_stat("disposition", 1000)
+            tier_up_to(c, 6)
+            c.mod_stat("charisma", c.get_max("charisma"))
+            set_lovers(c)
+            hero.team.add(c)
+            c = chars["Sakura"]
+            c.mod_stat("affection", 1000)
+            c.mod_stat("disposition", 1000)
+            tier_up_to(c, 6)
+            c.mod_stat("charisma", c.get_max("charisma"))
+            hero.team.add(c)
+
+        @staticmethod
         def aeqTest():
             base_traits, other_traits, purpose = ["Mage"], ["Impersonal", "Fire"], "Mage"
             #base_traits, other_traits, purpose = ["Shooter"], ["Yandere"], "Shooter"

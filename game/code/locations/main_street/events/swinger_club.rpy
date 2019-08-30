@@ -2,7 +2,6 @@ init python:
     register_event("swinger_club_adv", locations=["main_street"], simple_conditions=["hero.get_stat('reputation') < -250 and calendar.weekday() == 'Thursday'"], priority=100, start_day=1, max_runs=1, trigger_type="auto")
 
 label swinger_club_adv(event):
-    hide screen main_street
     $ a = Character("???", color="orangered", show_two_window=True)
     a "Hey, psst!"
     extend " ... Yes, you!"
@@ -47,6 +46,11 @@ label swinger_club:
                 $ global_flags.set_flag("keep_playing_music")
                 $ del a
                 jump main_street
+    elif hero.has_flag("dnd_swinger_club"):
+        a "Sorry, the party is over."
+        $ global_flags.set_flag("keep_playing_music")
+        $ del a
+        jump main_street
     else:
         a "It is nice to see you again!"
 
@@ -80,6 +84,7 @@ label swinger_club:
     # FIXME play relevant music
     #$ PyTFallStatic.play_music("club")
 
+    $ hero.set_flag("dnd_swinger_club")
     $ hero.mod_stat("reputation", -randint(0, 1))
 
     $ skillz = ("anal", "group", "bdsm")

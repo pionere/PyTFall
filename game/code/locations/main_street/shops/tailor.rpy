@@ -25,6 +25,9 @@ label tailor_store:
         t "I'm honored to present you our wares. All pieces you see were acquired from the most renowned merchants. "
         t "But If you have any special requests, just tell me. I'm sure I will be able to help you."
 
+    $ pytfall.world_quests.run_quests("auto")
+    $ pytfall.world_events.run_events("auto")
+
 label tailor_menu: # after she said her lines but before we show menu controls, to return here when needed
     show screen tailor_shop
     with dissolve
@@ -36,6 +39,8 @@ label tailor_menu: # after she said her lines but before we show menu controls, 
             jump tailor_store_shopping
         elif result == "order":
             jump tailor_special_order
+        elif result == "show":
+            jump fashion_show
         else:
             hide npc
             $ del t, result
@@ -192,3 +197,12 @@ screen tailor_shop():
         textbutton "Leave":
             action Return("leave")
             keysym "mousedown_3"
+
+    if global_flags.flag("know_fashion_show"):
+        $ img = im.Scale("content/gfx/interface/icons/fashion_show.png", 50, 50)
+        imagebutton:
+            pos 910, 110
+            idle img
+            hover PyTGFX.bright_img(img, .15)
+            action Return("show")
+            tooltip "Fashion Show"
