@@ -164,8 +164,8 @@ init -1 python:
             if y < 0 or y >= len(self._map) or x < 0 or x >= len(self._map[y]):
                 return "#"
 
-            if color:
-                self._mapped[y][x].color = color
+            if color is not None:
+                self._mapped[y][x].color = renpy.easy.color(color)
 
             return self._map[y][x]
 
@@ -489,36 +489,43 @@ label enter_dungeon_r:
                 x = pc['x'] + distance*pc['dx'] - lateral*pc['dy']
                 y = pc['y'] + lateral*pc['dx'] + distance*pc['dy']
 
-                if distance == 1 and lateral == 0: # actions can be apply to front
+                # Add actions to the front:
+                if distance == 1 and lateral == 0:
                     front_str = str((x, y))
-                    if front_str in dungeon.area_hotspots:
-                        hotspots.extend(dungeon.area_hotspots[front_str])
+                    d_hotspots = dungeon.area_hotspots.get(front_str, None)
+                    if d_hotspots is not None:
+                        hotspots.extend(d_hotspots)
 
                     for k in ["item", "renderitem", "spawn"]:
-
-                        d_items = getattr(dungeon, k)
+                        d_items = getattr(dungeon, k).get(front_str, None)
+                        if d_items is None:
+                            continue
                         d_hotspots = getattr(dungeon, "%s_hotspots" % k)
 
-                        if front_str in d_items:
-                            actions = []
-                            for ri in [d_items[front_str]] if k == "spawn" else d_items[front_str]:
-                                n = ri['name']
-                                if n in d_hotspots:
-                                    e = d_hotspots[n].copy()
-                                    actions.extend(e['actions'])
-                                    e['actions'] = actions
-                                    hotspots.append(e)
-                            if actions:
+                        if k == "spawn":
+                            d_items = [d_items]
+                        actions = None
+                        for ri in d_items:
+                            n = d_hotspots.get(ri['name'], None)
+                            if n is None:
+                                continue
+                            if actions is None:
                                 # remove the item/spawn when clicked
-                                actions.insert(0, { "function": "delitem", "arguments": [k, front_str]})
+                                actions = [{ "function": "delitem", "arguments": [k, front_str]}]
+                            e = n.copy()
+                            actions.extend(e['actions'])
+                            e['actions'] = actions
+                            hotspots.append(e)
 
                 situ = dungeon.map(x, y)
 
+                # Add items/mobs(spawns):
                 if situ in dungeon.container:
                     # FIXME use position lookup, for some container may first have to add front (cover) image (or modify image)
-                    pt = str((x, y))
-                    if pt in dungeon.renderitem:
-                        for ri in dungeon.renderitem[pt]:
+                    front_str = str((x, y))
+                    n = dungeon.renderitem.get(front_str, None)
+                    if n is not None:
+                        for ri in n:
                             img_name = sided[lateral+3] % ('dungeon_'+ri['name'], light, distance)
                             img_func = ri.get("function", None)
                             if img_func is not None and img_func.startswith("im.matrix."):
@@ -530,50 +537,55 @@ label enter_dungeon_r:
                             else:
                                 shown.append(img_name)
 
-                    if pt in dungeon.item:
-                        for it in dungeon.item[pt]:
+                    n = dungeon.item.get(front_str, None)
+                    if n is not None:
+                        for it in n:
                             shown.append([items[it['name']], it, distance, lateral])
 
-                    if pt in dungeon.spawn:
-                        spawn = dungeon.spawn[pt]
-                        shown.append([spawn['mob'], spawn, distance, lateral])
+                    n = dungeon.spawn.get(front_str, None)
+                    if n is not None:
+                        shown.append([n['mob'], n, distance, lateral])
 
                 # also record for minimap
                 for k in dungeon.minimap:
                     if situ in k:
-                        dungeon.map(x, y, renpy.easy.color(dungeon.minimap[k]))
                         break
                 else:
-                    dungeon.map(x, y, renpy.easy.color(dungeon.minimap['ground']))
+                    k = "ground"
+                dungeon.map(x, y, dungeon.minimap[k])
 
                 if pc['dy'] == -1:
-                    dungeon.arrowtext.set_text("↑")
-                    dungeon.arrow.y = (pc['y'] - .4)*6 + 43
+                    k = "↑"
+                    pt = .4
                 elif pc['dx'] == 1:
-                    dungeon.arrowtext.set_text("→")
-                    dungeon.arrow.y = (pc['y'] - .5)*6 + 43
+                    k = "→"
+                    pt = .5
                 elif pc['dy'] == 1:
-                    dungeon.arrowtext.set_text("↓")
-                    dungeon.arrow.y = (pc['y'] - .4)*6 + 43
+                    k = "↓"
+                    pt = .4
                 else:
-                    dungeon.arrowtext.set_text("←")
-                    dungeon.arrow.y = (pc['y'] - .5)*6 + 43
-
+                    k = "←"
+                    pt = .5
+                dungeon.arrowtext.set_text(k)
+                dungeon.arrow.y = (pc['y'] - pt)*6 + 43
                 dungeon.arrow.x = (pc['x'] - .2)*6 + 3
 
                 if situ in dungeon.visible: # a wall or so, need to draw.
-                    if isinstance(blend[situ], list):
-                        if len(blend[situ]) == 2: # left-right symmetry
-                            shown.append(sided[lateral+3] % ('dungeon_'+blend[situ][abs(pc['dx'])], light, distance))
+                    pt = blend[situ]
+                    if isinstance(pt, list):
+                        if len(pt) == 2: # left-right symmetry
+                            pt = pt[abs(pc['dx'])]
                         else: # no symmetry, 4 images.
-                            ori = 1 - pc['dx'] - pc['dy'] + (1 if pc['dx'] > pc['dy'] else 0)
-                            shown.append(sided[lateral+3] % ('dungeon_'+blend[situ][ori], light, distance))
-                    else: # symmetric, or simply rendered in only one symmetry
-                        shown.append(sided[lateral+3] % ('dungeon_'+blend[situ], light, distance))
+                            pt = pt[1 - pc['dx'] - pc['dy'] + (1 if pc['dx'] > pc['dy'] else 0)]
+                    #else: # symmetric, or simply rendered in only one symmetry
+
+                    shown.append(sided[lateral+3] % ('dungeon_'+pt, light, distance))
 
                 transparent_area = dungeon.transparent[abs(pc['dx'])]
 
-                if situ in transparent_area or (situ in dungeon.visible and not renpy.has_image(shown[-1])): # need to draw what's behind it.
+                # Raytrace:
+                if situ in transparent_area or (situ in dungeon.visible and not renpy.has_image(shown[-1])):
+                    # transparent or no image found -> need to draw what's behind it.
                     # after `or' prevents adding areas twice. If the area diagonally nearer to hero is
                     # a wall, the area is not yet drawn, draw it, unless we cannot see it.
                     (bx, by) = (x-pc['dx'], y-pc['dy'])
@@ -596,6 +608,7 @@ label enter_dungeon_r:
 
         python:
             at = (pc['x'], pc['y'])
+            #ori = (1-pc["dx"])/2 + (1-pc["dy"])/2 * 2
             ori = 1 - pc['dx'] - pc['dy'] + (1 if pc['dx'] > pc['dy'] else 0)
             to = None
 
