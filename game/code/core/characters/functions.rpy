@@ -1042,6 +1042,12 @@ init -11 python:
             elif is_stat(k):
                 max_val = char.get_max_stat(k, tier=char.tier)
                 val = hero.get_stat(k)
+                # TODO use the more generic solution (below)?
+                if k == "reputation":
+                    v = (v - 50) * 2
+                #min_val = char.stats.min[k]
+                #val -= min_val
+                #max_val -= min_val
             elif is_skill(k):
                 max_val = char.get_max_skill(k, tier=char.tier)
                 val = hero.get_skill(k)
