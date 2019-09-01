@@ -1816,7 +1816,7 @@ init 1000 python:
             if not magic_loots:
                 TestSuite.reportError("There is nothing to fish with magic bait!")
 
-            if debug:
+            if debug:                   #      260                    480                        1030                        1590
                 for loot, num, type in ((loots, 3, "out"), (base_loots, 4, " normal"), (good_loots, 5, " good"), (magic_loots, 6, " magic")):
                     sum = value = 0
                     for item, chance in loot:
@@ -1841,7 +1841,99 @@ init 1000 python:
                     sum += chance
                     value += item.price * chance
                 num = 250 / 25
-                devlog.warn("Expected loot value of diving: %s" % (num * value / float(sum)))
+                devlog.warn("Expected loot value of diving: %s" % (num * value / float(sum))) # 1860
+
+            # PoolJob:
+            if debug:
+                hero_skill, char_skill, char_tier = 1000, 1000, 1
+                result = (hero_skill/10 + 5)/2
+                if result > 200:
+                    result = 205
+                char = build_rc(tier=char_tier)
+                tmp = .5 + char_skill / float(char.get_max_skill("swimming"))
+                result += 6 * int(char.expected_wage * tmp)
+
+                devlog.warn("Expected Income@1000 - 1000 - 1: %s" % result)
+
+                hero_skill, char_skill, char_tier = 3000, 3000, 1
+                result = (hero_skill/10 + 5)/2
+                if result > 200:
+                    result = 205
+                char = build_rc(tier=char_tier)
+                tmp = .5 + char_skill / float(char.get_max_skill("swimming"))
+                result += 6 * int(char.expected_wage * tmp)
+
+                devlog.warn("Expected Income@3000 - 3000 - 1: %s" % result)
+
+                hero_skill, char_skill, char_tier = 5000, 5000, 1
+                result = (hero_skill/10 + 5)/2
+                if result > 200:
+                    result = 205
+                char = build_rc(tier=char_tier)
+                tmp = .5 + char_skill / float(char.get_max_skill("swimming"))
+                result += 6 * int(char.expected_wage * tmp)
+
+                devlog.warn("Expected Income@5000 - 5000 - 1: %s" % result)
+
+                hero_skill, char_skill, char_tier = 5000, 1000, 5
+                result = (hero_skill/10 + 5)/2
+                if result > 200:
+                    result = 205
+                char = build_rc(tier=char_tier)
+                tmp = .5 + char_skill / float(char.get_max_skill("swimming"))
+                result += 6 * int(char.expected_wage * tmp)
+
+                devlog.warn("Expected Income@5000 - 1000 - 5: %s" % result)
+
+                hero_skill, char_skill, char_tier = 5000, 3000, 5
+                result = (hero_skill/10 + 5)/2
+                if result > 200:
+                    result = 205
+                char = build_rc(tier=char_tier)
+                tmp = .5 + char_skill / float(char.get_max_skill("swimming"))
+                result += 6 * int(char.expected_wage * tmp)
+
+                devlog.warn("Expected Income@5000 - 3000 - 5: %s" % result)
+
+                hero_skill, char_skill, char_tier = 5000, 5000, 5
+                result = (hero_skill/10 + 5)/2
+                if result > 200:
+                    result = 205
+                char = build_rc(tier=char_tier)
+                tmp = .5 + char_skill / float(char.get_max_skill("swimming"))
+                result += 6 * int(char.expected_wage * tmp)
+
+                devlog.warn("Expected Income@5000 - 5000 - 5: %s" % result)
+
+                hero_skill, char_skill, char_tier = 5000, 1000, 8
+                result = (hero_skill/10 + 5)/2
+                if result > 200:
+                    result = 205
+                char = build_rc(tier=char_tier)
+                tmp = .5 + char_skill / float(char.get_max_skill("swimming"))
+                result += 6 * int(char.expected_wage * tmp)
+
+                devlog.warn("Expected Income@5000 - 1000 - 8: %s" % result)
+
+                hero_skill, char_skill, char_tier = 5000, 3000, 8
+                result = (hero_skill/10 + 5)/2
+                if result > 200:
+                    result = 205
+                char = build_rc(tier=char_tier)
+                tmp = .5 + char_skill / float(char.get_max_skill("swimming"))
+                result += 6 * int(char.expected_wage * tmp)
+
+                devlog.warn("Expected Income@5000 - 3000 - 8: %s" % result)
+
+                hero_skill, char_skill, char_tier = 5000, 5000, 8
+                result = (hero_skill/10 + 5)/2
+                if result > 200:
+                    result = 205
+                char = build_rc(tier=char_tier)
+                tmp = .5 + char_skill / float(char.get_max_skill("swimming"))
+                result += 6 * int(char.expected_wage * tmp)
+
+                devlog.warn("Expected Income@5000 - 5000 - 8: %s" % result)
 
         @staticmethod
         def swingTest():
