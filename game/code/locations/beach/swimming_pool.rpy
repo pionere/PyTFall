@@ -304,7 +304,8 @@ label mc_action_work_swim_pool: # here we could use an option to meet characters
                     trainee[3] *= math.pow(temp, mod)
 
             # add newcomers TODO filter arena_active?
-            candidates = [char for char in chars.values() if char.employer is not hero and char.status == "free" and char.get_skill("swimming") < hero.get_skill("swimming")/2]
+            candidates = [trainee[0] for trainee in spool_group.members]
+            candidates = [char for char in chars.values() if char.employer is not hero and char.status == "free" and char.get_skill("swimming") < hero.get_skill("swimming")/2 and char not in candidates]
 
             temp = 4 * 100 * hero.get_stat("fame") * max(0, hero.get_stat("reputation"))
             temp /= float(hero.get_max("fame") * hero.get_max("reputation"))
@@ -417,7 +418,7 @@ label mc_action_work_swim_pool: # here we could use an option to meet characters
             hero.gfx_mod_skill("swimming", 0, randint(0, 2+len(temp)/2))
             hero.gfx_mod_skill("swimming", 1, randint(1, 2+len(temp)/2))
             hero.mod_stat("vitality", -(randint(10, 20) + 2*len(temp)))
-            hero.mod_stat("fame", randint(0, sum((char.tier+1) for char in temp)))
+            hero.mod_stat("fame", randint(0, sum((char.tier+1) for char in temp)/2))
             hero.add_money(result, reason="Job")
             gfx_overlay.random_find(result, 'work')
             temp.add(hero)
@@ -681,6 +682,7 @@ label swimming_pool_eval_group:
                         # exceptional performance -> praise expected
                         char.gfx_mod_stat("affection", affection_reward(char))
                         char.gfx_mod_stat("joy", randint(4, 6))
+                        hero.mod_stat("reputation", randint(0, 1))
 
                         iam.dispo_reward(char, randint(4, 6))
                         incentive *= 1.1
@@ -703,11 +705,13 @@ label swimming_pool_eval_group:
                     elif performance > .5:
                         # bad perforamnce -> insult expected
                         iam.dispo_reward(char, -randint(8, 10))
+                        hero.mod_stat("fame", -randint(0, 1))
                         if dice(50 - check_submissivity(char) * 25):
                             incentive *= .8 # a char with character might slack off even more
                     else:
                         # awful perforamnce -> punishment expected
                         iam.dispo_reward(char, -randint(16, 20))
+                        hero.mod_stat("fame", -1)
                         incentive *= .8
                 elif decision == "ok":
                     if performance > .9:
@@ -779,9 +783,11 @@ label swimming_pool_eval_group:
                     if performance > .95:
                         # exceptional performance -> praise expected
                         iam.dispo_reward(char, -randint(16, 20))
+                        hero.mod_stat("reputation", -1)
                         incentive *= .8
                     elif performance > .7:
                         # good performance -> ok expected
+                        hero.mod_stat("reputation", -randint(0, 1))
                         if dice(30 + check_submissivity(char) * 15):
                             incentive *= 1.1 # a char without character might believe the punishment is justified
                         else:
@@ -887,7 +893,7 @@ screen swimming_pool_eval_group:
                                 xsize 200
                                 action Return(["ok", trainee])
                                 sensitive trainee is not None and isinstance(trainee[3], list)
-                            textbutton "Insult":
+                            textbutton "Scold":
                                 xsize 200
                                 action Return(["insult", trainee])
                                 sensitive trainee is not None and isinstance(trainee[3], list)

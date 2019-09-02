@@ -95,13 +95,11 @@ label fashion_show:
                ("indoor", "indoor garments"),
                ("formal", "formal dresses"),
                ("everyday", "everyday clothes"),
-               ("yukata", choice(["yukata gears", "yukata outfits"])),
                ("maid", choice(["maid dresses", "maid costumes"])),
                ("swimsuit", "swimsuits"),
                ("sportswear", "sportswear"),
                ("schoolgirl", choice(["schoolgirl dresses", "schoolgirl costumes"])),
-               ("nurse", choice(["nurse dresses", "nurse costumes"])),
-               ("miko", choice(["miko gears", "miko outfits"]))]
+               ("nurse", choice(["nurse dresses", "nurse costumes"]))]
     $ style = renpy.random.choice(style)
 
     t "Attention please!"
