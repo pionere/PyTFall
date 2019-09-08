@@ -55,6 +55,11 @@ init -950 python:
         persistent.use_be_menu_targeting = False
     if persistent.showed_pyp_hint is None:
         persistent.showed_pyp_hint = False
+    # Clear unused persistent information 
+    persistent._seen_ever.clear()
+    persistent._seen_images.clear()
+    persistent._seen_audio.clear()
+    persistent._seen_translates.clear()
 
     def content_path(*args):
         '''Returns proper path for a file in the content directory *To be used with os module.'''
