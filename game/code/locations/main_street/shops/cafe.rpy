@@ -43,7 +43,6 @@ label cafe:
         $ del inviting_character
 
 label cafe_menu: # after she said her lines but before we show menu controls, to return here when needed
-    scene bg cafe
     show expression waitress.get_vnsprite() as npc
     show screen cafe_eating
     while 1:
@@ -91,7 +90,7 @@ screen cafe_eating():
             action Return("eat_alone")
             sensitive not hero.has_flag('dnd_ate_in_cafe')
         textbutton "Eat with group":
-            action Return("order")
+            action Return("eat_group")
             sensitive len(hero.team) > 1 and not hero.has_flag('dnd_ate_in_cafe')
         textbutton "Leave":
             action Return("leave")
